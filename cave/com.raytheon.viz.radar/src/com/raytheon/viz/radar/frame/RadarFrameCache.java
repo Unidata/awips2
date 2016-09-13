@@ -19,7 +19,10 @@
  **/
 package com.raytheon.viz.radar.frame;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.time.DataTime;
@@ -37,6 +40,7 @@ import com.raytheon.uf.common.time.DataTime;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * May 13, 2015  4461     bsteffen    Initial creation
+ * Sep 30, 2015  4902     bsteffen    Cache all visited frames.
  * 
  * </pre>
  * 
@@ -45,29 +49,50 @@ import com.raytheon.uf.common.time.DataTime;
  */
 public class RadarFrameCache {
 
-    private Map<Key, RadarDataTime> cache = new HashMap<>();
+    /**
+     * Each entry in this map is ordered so that the most recently used are
+     * first.
+     */
+    private Map<Key, List<RadarDataTime>> cache = new HashMap<>();
 
     /**
      * This should be called whenever a frame is displayed to update the cache
      */
-    public void setLastFrameTime(DataTime time) {
+    public synchronized void setLastFrameTime(DataTime time) {
         if (time instanceof RadarDataTime) {
             RadarDataTime rtime = (RadarDataTime) time;
-            cache.put(new Key(rtime), rtime);
+            Key key = new Key(rtime);
+            List<RadarDataTime> list = cache.get(key);
+            if(list == null){
+                list = new ArrayList<>(1);
+                cache.put(key, list);
+            }
+            list.remove(rtime);
+            list.add(0, rtime);
         }
     }
 
     /**
-     * Get the most recent displayed frame that matches the volume scan and
-     * elevation angle of the provided time. If no time is in the cache then the
-     * time is returned.
+     * Get the most recent displayed frame from the . If no time is in the cache
+     * then the time is returned.
      */
-    public RadarDataTime getLastFrameTime(RadarDataTime otherTime) {
-        RadarDataTime result = cache.get(new Key(otherTime));
-        if(result == null){
-            result = otherTime;
+    public synchronized RadarDataTime getLastFrameTime(
+            Collection<RadarDataTime> options) {
+        Key key = new Key(options.iterator().next());
+        List<RadarDataTime> list = cache.get(key);
+        if (list == null) {
+            return null;
         }
-        return result;
+        for (RadarDataTime time : list) {
+            if (options.contains(time)) {
+                return time;
+            }
+        }
+        return null;
+    }
+
+    public synchronized void clear() {
+        cache.clear();
     }
 
     private static class Key {

@@ -15,9 +15,9 @@
 	<target name="main" depends="init, setup">
 		<property name="esb.directory" value="${basedir}/esb" />
 		<!-- deploy esb {optionally: data, web} -->
-		<ant antfile="${basedir}/deploy.edex.awips2/deploy/deploy-esb.xml" />
+		<ant antfile="${basedir}/../../build/deploy.edex.awips2/deploy/deploy-esb.xml" />
 		<!-- deploy esb configuration -->
-		<ant antfile="${basedir}/deploy.edex.awips2/deploy/deploy-esb-configuration.xml" />
+		<ant antfile="${basedir}/../../build/deploy.edex.awips2/deploy/deploy-esb-configuration.xml" />
 		<!-- optionally: deploy gfesuite -->
 		<if>
 			<equals arg1="${deploy.gfesuite}" arg2="true" />

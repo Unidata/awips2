@@ -21,14 +21,11 @@ package com.raytheon.uf.viz.d2d.ui.map.actions;
 
 import java.util.List;
 
-import org.eclipse.ui.part.EditorPart;
-
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.d2d.core.ID2DRenderableDisplay;
 import com.raytheon.uf.viz.d2d.core.legend.D2DLegendResource;
 import com.raytheon.uf.viz.d2d.core.legend.D2DLegendResource.LegendMode;
-import com.raytheon.viz.ui.IRenameablePart;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 
@@ -43,12 +40,13 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * 
  * <pre>
  * 
- *    SOFTWARE HISTORY
+ * SOFTWARE HISTORY
  *   
- *    Date         Ticket#     Engineer    Description
- *    ------------ ----------  ----------- --------------------------
- *    Aug 19, 2009             bgonzale    Initial Creation.
- *    Apr 07, 2015  4204       njensen     Keep part name if renamed
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Aug 19, 2009             bgonzale    Initial Creation.
+ * Apr 07, 2015  4204       njensen     Keep part name if renamed
+ * Oct 21, 2015  5023       njensen     Removed unnecessary part name code (undid previous change)
  * 
  * </pre>
  * 
@@ -64,28 +62,16 @@ public class FourPanelLayoutMenuAction extends AbstractRightClickAction {
         super("Four Panel Layout");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.action.Action#run()
-     */
     @Override
     public void run() {
         if (getContainer() instanceof IMultiPaneEditor == false
-                || getContainer().getDisplayPanes()[0].getRenderableDisplay() instanceof ID2DRenderableDisplay == false) {
+                || getContainer().getDisplayPanes()[0].getRenderableDisplay() 
+                instanceof ID2DRenderableDisplay == false) {
             return;
         }
         IMultiPaneEditor editor = (IMultiPaneEditor) getContainer();
         IRenderableDisplay definiteDisplay = getContainer().getDisplayPanes()[0]
                 .getRenderableDisplay();
-
-        String partName = null;
-        if (editor instanceof EditorPart) {
-            EditorPart part = (EditorPart) editor;
-            if (!part.getPartName().equals(part.getEditorInput().getName())) {
-                partName = part.getPartName();
-            }
-        }
 
         if (editor.getNumberofPanes() > 1) {
             for (IDisplayPane pane : getContainer().getDisplayPanes()) {
@@ -95,11 +81,6 @@ public class FourPanelLayoutMenuAction extends AbstractRightClickAction {
             for (int i = 1; i < 4; ++i) {
                 editor.addPane(definiteDisplay.createNewDisplay());
             }
-        }
-
-        // keep the part name if it was customized
-        if (partName != null && editor instanceof IRenameablePart) {
-            ((IRenameablePart) editor).setPartName(partName);
         }
 
         for (IDisplayPane pane : editor.getDisplayPanes()) {

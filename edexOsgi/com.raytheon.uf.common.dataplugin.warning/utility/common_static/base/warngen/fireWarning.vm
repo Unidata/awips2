@@ -10,7 +10,7 @@
 ####################################################################################
 #parse("config.vm")
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
-FRW${siteId}
+${productId}${siteId}
 <L>${ugcline}</L>
 
 <L>BULLETIN - EAS ACTIVATION REQUESTED</L>

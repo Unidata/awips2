@@ -37,6 +37,7 @@ import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasin;
  * ------------ ----------  ----------- --------------------------
  * 04/23/10     4494        D. Hladky   Initial release
  * 02/01/13     1569        D. Hladky   Added constants
+ * Oct 10, 2015 4756        dhladky     Max value method.
  * 
  * </pre>
  * 
@@ -350,4 +351,40 @@ public class FFMPGraphData {
     public void setQpfValue(Float qpfValue) {
         this.qpfValue = qpfValue;
     }
+    
+    /**
+     * Find the maximum value of the data for the graph
+     * @return Double
+     */
+    public Double getMaximumValue() {
+        
+        Double max = 0.0;
+
+        for (Double d : qpes.values()) {
+            if (d > max) {
+                max = d;
+            }
+        }
+
+        for (Double d : qpfs.values()) {
+            if (d > max) {
+                max = d;
+            }
+        }
+
+        for (Double d : rates.values()) {
+            if (d > max) {
+                max = d;
+            }
+        }
+
+        for (Double d : guids.values()) {
+            if (d > max) {
+                max = d;
+            }
+        }
+        
+        return max;
+    }
+    
 }

@@ -53,7 +53,7 @@ class GLWMForecaster(Forecaster):
 ##--------------------------------------------------------------------------
     def calcWindWaveDir(self, wvdir_SFC):
         # use constant speed for display purpose only
-        mag = where(logical_and(less(wvdir_SFC, 360), greater(wvdir_SFC, 0)), 10.0, -9999.0)
+        mag = where(logical_and(less(wvdir_SFC, 360), greater(wvdir_SFC, 0)), float32(10.0), float32(-9999.0))
         dir = clip(wvdir_SFC, 0, 360)
         return (mag, dir)
 

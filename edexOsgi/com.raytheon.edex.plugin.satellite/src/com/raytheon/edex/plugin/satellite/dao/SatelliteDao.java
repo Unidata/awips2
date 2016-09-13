@@ -69,6 +69,9 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  *                                    plugin.
  * Nov 04, 2014  2714     bclement    removed GINI specific DAOs
  * Apr 15, 2014  4388     bsteffen    Preserve fill value across interpolation levels.
+ * Jul 07, 2015  4279     rferrel     Override delete to clean up orphan entries in satellite_spatial table.
+ * Aug 11, 2015  4673     rjpeter     Remove use of executeNativeSql.
+ * Sep 17, 2015  4279     rferrel     Do not purge the newest satellite_spatial entries.
  * Apr 29, 2016  ----     mjames      Force 1 interpolationLevels for NEXRCOMP products
  *                                    since def. (5) is pixeled and load time is similar.
  * 
@@ -129,24 +132,17 @@ public class SatelliteDao extends PluginDao {
             dataStore.addDataRecord(storageRecord);
 
             SatMapCoverage coverage = satRecord.getCoverage();
-            
-            GridGeometry2D gridGeom;
-            try {
-                gridGeom = coverage.getGridGeometry();
-            } catch (Exception e) {
-                throw new StorageException(
-                        "Unable to create grid geometry for record: "
-                                + satRecord, storageRecord, e);
-            }
-            GridDownscaler downScaler = new GridDownscaler(gridGeom);
-            
+
+            GridDownscaler downScaler = new GridDownscaler(
+                    coverage.getGridGeometry());
+
             Rectangle fullScale = downScaler.getDownscaleSize(0);
             BufferWrapper dataSource = BufferWrapper.wrapArray(
-                    storageRecord.getDataObject(), fullScale.width, fullScale.height);
+                    storageRecord.getDataObject(), fullScale.width,
+                    fullScale.height);
 
             int levels = DownscaleStoreUtil.storeInterpolated(dataStore,
-                    downScaler, dataSource,
-                    new IDataRecordCreator() {
+                    downScaler, dataSource, new IDataRecordCreator() {
 
                         @Override
                         public IDataRecord create(Object data,
@@ -406,8 +402,8 @@ public class SatelliteDao extends PluginDao {
             int downscaleLevel, Rectangle size) {
         long[] sizes = new long[] { size.width, size.height };
         IDataRecord rec = DataStoreFactory.createStorageRecord(
-                String.valueOf(downscaleLevel),
-                satRec.getDataURI(), data, 2, sizes);
+                String.valueOf(downscaleLevel), satRec.getDataURI(), data, 2,
+                sizes);
         rec.setCorrelationObject(satRec);
         rec.setGroup(DataStoreFactory.createGroupName(satRec.getDataURI(),
                 SatelliteRecord.SAT_DATASET_NAME, true));
@@ -435,4 +431,24 @@ public class SatelliteDao extends PluginDao {
         return retValue;
     }
 
+    @Override
+    public void delete(List<PluginDataObject> objs) {
+        super.delete(objs);
+
+        /*
+         * Delete orphan entries in the satellite_spatial table.
+         */
+        try {
+            /*
+             * Keep the newest satellite_spatial entries. May be part of a
+             * record not fully committed.
+             */
+            String sqlCmd = "DELETE FROM satellite_spatial WHERE"
+                    + " gid NOT IN (SELECT DISTINCT coverage_gid FROM satellite)"
+                    + " AND gid < (SELECT max(gid)-25 FROM satellite_spatial) ;";
+            this.executeSQLUpdate(sqlCmd);
+        } catch (Exception e) {
+            logger.error("Error purging orphaned satellite_spatial entries", e);
+        }
+    }
 }

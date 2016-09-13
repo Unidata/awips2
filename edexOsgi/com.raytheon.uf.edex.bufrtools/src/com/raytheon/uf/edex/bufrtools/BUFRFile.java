@@ -28,8 +28,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.edex.bufrtools.descriptors.IDescriptorFactoryDelegate;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
@@ -45,6 +45,7 @@ import com.raytheon.uf.edex.decodertools.core.DecoderTools;
  * 20080204            862 jkorman     Initial development. Factored from
  *                                     BUFRSeparator.
  * 9/16/2014    #3628      mapeters    Moved from uf.edex.decodertools plugin.
+ * 12/14/2015   5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -54,7 +55,7 @@ import com.raytheon.uf.edex.decodertools.core.DecoderTools;
 
 public class BUFRFile implements Iterable<BUFRDocument> {
 
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     private List<BUFRDocument> documents;
 
@@ -183,10 +184,10 @@ public class BUFRFile implements Iterable<BUFRDocument> {
             if (offsets.size() > 0) {
                 documents = new ArrayList<BUFRDocument>();
                 for (BUFROffsets offset : offsets) {
-                    ByteBuffer buf = ByteBuffer.wrap(fileData, offset
-                            .getStartPos(), offset.getLength());
-                    BUFRDocument doc = new BUFRDocument(factoryDelegate
-                            .getInstance(), buf);
+                    ByteBuffer buf = ByteBuffer.wrap(fileData,
+                            offset.getStartPos(), offset.getLength());
+                    BUFRDocument doc = new BUFRDocument(
+                            factoryDelegate.getInstance(), buf);
                     if (doc != null) {
                         documents.add(doc);
                     }

@@ -41,12 +41,12 @@ class Tool (SmartScript.SmartScript):
         # Assign Wx based on PoP
 
         # Separate Wx into components
-        wxValues = Wx[0]
+        wxValues = Wx[0].copy()
         keys = Wx[1]
 
-        wxValues = where( less(PoP, 20), self.getIndex("<NoCov>:<NoWx>:<NoInten>:<NoVis>:",keys), wxValues)
-        wxValues = where(logical_and( greater_equal(PoP, 20), less(PoP, 35)),  self.getIndex("Chc:R:-:<NoVis>:" ,keys), wxValues)
-        wxValues = where(logical_and( greater_equal(PoP, 35), less(PoP, 55)),  self.getIndex("Sct:RW:m:<NoVis>:" ,keys), wxValues)
-        wxValues = where(greater_equal(PoP, 55),  self.getIndex("Wide:R:+:<NoVis>:" ,keys), wxValues)
+        wxValues[less(PoP, 20)] = self.getIndex("<NoCov>:<NoWx>:<NoInten>:<NoVis>:",keys)
+        wxValues[logical_and(greater_equal(PoP, 20), less(PoP, 35))] = self.getIndex("Chc:R:-:<NoVis>:" ,keys)
+        wxValues[logical_and(greater_equal(PoP, 35), less(PoP, 55))] = self.getIndex("Sct:RW:m:<NoVis>:" ,keys)
+        wxValues[greater_equal(PoP, 55)] = self.getIndex("Wide:R:+:<NoVis>:" ,keys)
 
         return (wxValues, keys)

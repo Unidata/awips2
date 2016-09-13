@@ -184,10 +184,13 @@
 ##             (for NGIT testing)
 
 
-import sys, time, os, types, copy, inspect
+import sys, time, os, types, copy, inspect, errno
 import LogStream
 import AbsTime, TimeRange
 import numpy, cPickle
+import threading
+
+OUTPUT_DIR = "/tmp/products/autoTest"
 
 # Triggers can be:
 #   Message enums and executeMsg will have the message as its argument
@@ -279,6 +282,7 @@ from com.raytheon.viz.gfe.textformatter import TextProductFinishWaiter, Formatte
 from com.raytheon.viz.gfe.smarttool import TextFileUtil
 from com.raytheon.viz.gfe.dialogs.formatterlauncher import ConfigData
 ProductStateEnum = ConfigData.ProductStateEnum
+from com.raytheon.uf.common.activetable import ActiveTableMode
 
 class ProcessInfo:
     def __init__(self, entry, name, pid, script):
@@ -295,6 +299,49 @@ class ProcessInfo:
     def script(self):
         return self.__script
     
+import dynamicserialize
+
+class NotifyTopicListener(threading.Thread):
+    
+    def __init__(self, hostname="localhost", portNumber=5672, callBack=None):
+        self.hostname = hostname
+        self.portNumber = portNumber
+        self.callBack = callBack
+        self.topicName = 'edex.alerts.vtec'
+        self.qs = None        
+        threading.Thread.__init__(self)
+            
+    def run(self):        
+        from ufpy import QpidSubscriber
+        
+        if self.qs is not None:
+            return
+         
+        self.qs = QpidSubscriber.QpidSubscriber(self.hostname, self.portNumber)        
+        self.qs.topicSubscribe(self.topicName, self.receivedMessage) 
+    
+    def receivedMessage(self, msg):
+        try:
+            obj = dynamicserialize.deserialize(msg)
+            if type(obj) is list:
+                msgList = obj
+            else:
+                msgList = [obj]
+                
+            for notification in msgList:
+                if self.callBack is not None:
+                    self.callBack(notification)
+                    
+        except:
+            import traceback
+            traceback.print_exc()
+
+    def stop(self):
+        if self.qs is not None:
+            self.qs.close()
+            self.qs = None     
+
+
 class ITool (ISmartScript.ISmartScript):
     def __init__(self, dbss):
         ISmartScript.ISmartScript.__init__(self, dbss)        
@@ -351,6 +398,10 @@ class ITool (ISmartScript.ISmartScript):
             if success is None:
                 return
 
+        # Start NotifyTopicListener
+        self._notifyListener = NotifyTopicListener(callBack=self.__processNotification)
+        self._notifyListener.start()
+
         # Run the test scripts
         for index in range(len(self._testScript)):
             self._runTestScript(index)
@@ -358,6 +409,7 @@ class ITool (ISmartScript.ISmartScript):
                 break
             time.sleep(2) # avoid some race conditions with fileChanges
 
+        self._notifyListener.stop()
         self._finished()
 
         
@@ -442,7 +494,7 @@ class ITool (ISmartScript.ISmartScript):
         # thread has its own interpreter....     
         # however, running the other way has issue with sampler caches not getting dumped between runs
         waiter = TextProductFinishWaiter()
-        FormatterUtil.runFormatterScript(productType, vtecMode, database, cmdLineVars, "PRACTICE", drtTime, 0, waiter)
+        FormatterUtil.runFormatterScript(productType, vtecMode, database, cmdLineVars, "PRACTICE", drtTime, 0, waiter, self._dataMgr)
         fcst = waiter.waitAndGetProduct()
         state = waiter.getState()
             
@@ -455,6 +507,13 @@ class ITool (ISmartScript.ISmartScript):
 #         except:
 #             fcst = ''
 #             LogStream.logProblem("Error generating product: " + LogStream.exc())
+
+        # write product to OUTPUT_DIR
+        
+        fname = name + ".txt"
+        path = os.path.join(OUTPUT_DIR, fname)
+        with open(path, 'w') as out:
+            out.write(fcst)
 
         self._doExecuteMsg(name, fcst, entry, drtTime, state)        
                     
@@ -499,7 +558,7 @@ class ITool (ISmartScript.ISmartScript):
         if clearHazards:
             if self._reportingMode not in ["Pretty"]:
                 self.output("WARNING::Clearing Hazards Table", self._outFile)
-            self._dataMgr.getClient().clearPracticeTable("TBW")
+            self._dataMgr.getClient().clearVTECTable(ActiveTableMode.PRACTICE)
 
     def _createCombinationsFile(self, entry):
         fn = entry.get("combinationsFileName", None)
@@ -530,7 +589,7 @@ class ITool (ISmartScript.ISmartScript):
         for gridEntry in createGrids:
             if len(gridEntry) == 7:
                 model, elementName, elementType, startHour, endHour, value, editAreas = gridEntry
-                defValue = None
+                defValue = 0
             elif len(gridEntry) == 8:
                 model, elementName, elementType, startHour, endHour, value, editAreas, defValue = gridEntry
             else:
@@ -548,11 +607,10 @@ class ITool (ISmartScript.ISmartScript):
             if createdGrids.has_key(key):
                 grid = createdGrids[key]
             else:
-                grid = numpy.zeros_like(self._empty)
-                if defValue is not None:
-                    grid = numpy.where(grid == 0, defValue, defValue)
+                grid = self.newGrid(defValue)
+
             if editAreas == "all":
-                mask = self._empty + 1
+                mask = self.newGrid(True, bool)
             else:
                 mask = self._makeMask(editAreas)
             #self.output("mask "+`size(mask)`, self._outFile)
@@ -562,7 +620,7 @@ class ITool (ISmartScript.ISmartScript):
                 #self._addHazard(elementName, timeRange, value, mask)
                 value = self.getIndex(value, hazKeys)
                 #self.output("setting value "+value+" "+hazKeys, self._outFile)
-                grid = numpy.where(mask, value, grid)
+                grid[mask] = value
                 grid = grid.astype('int8')
                 elementType = self.getDataType(elementName)
                 self.createGrid(model, elementName, elementType, (grid, hazKeys), timeRange)
@@ -571,17 +629,18 @@ class ITool (ISmartScript.ISmartScript):
                     value = "<NoCov>:<NoWx>:<NoInten>:<NoVis>:"
                 value = self.getIndex(value, wxKeys)
                 #self.output("setting value "+value+" "+wxKeys, self._outFile)
-                grid = numpy.where(mask, value, grid)
+                grid[mask] = value
+                grid = grid.astype('int8')
                 elementType = self.getDataType(elementName)
                 self.createGrid(model, elementName, elementType, (grid, wxKeys), timeRange)
             elif elementType == "VECTOR":
-                grid = numpy.where(mask, value[0], grid)
-                dirGrid = numpy.zeros_like(self._empty)
-                dirGrid = numpy.where(mask, self.textToDir(value[1]), dirGrid)
+                grid[mask] = value[0]
+                dirGrid = self.empty()
+                dirGrid[mask] = self.textToDir(value[1])
                 elementType = self.getDataType(elementName)
                 self.createGrid(model, elementName, elementType, (grid, dirGrid), timeRange)
             else:
-                grid = numpy.where(mask, value, grid)
+                grid[mask] = value
                 elementType = self.getDataType(elementName)
                 self.createGrid(model, elementName, elementType, grid, timeRange)
             # Save the grid in the createdGridDict
@@ -830,18 +889,14 @@ class ITool (ISmartScript.ISmartScript):
             if success and entry.get("decodeVTEC", 0):                
                 self.__runVTECDecoder(fcst, drtTime)
 
+
                 # wait until table has been modified or 5 seconds
-#                count = 0
                 t1 = time.time();
-#                time.sleep(0.1);
-                time.sleep(1)
-#                while count < 50:
-#                    modTime1 = self._dataMgr.ifpClient().vtecTableModTime(
-#                      "PRACTICE")
-#                    if modTime1 != modTime:
-#                        break
-#                    time.sleep(0.1)
-#                    count = count + 1
+                while not self.__vtecDecoderFinished:
+                    time.sleep(0.1)
+                    if time.time() - t1 > 20:
+                        self.output("Vtec Decoder timed out!", self._outFile)
+                        break
                 t2 = time.time();
                 if self._reportingMode in ["Verbose", "Moderate"]:
                     self.output("Vtec Decoder wait time: " + "%6.2f" % (t2-t1),
@@ -1023,10 +1078,23 @@ class ITool (ISmartScript.ISmartScript):
             file.write(fcst)
         
         url = urlparse.urlparse(VizApp.getHttpServer())
-        commandString = "VTECDecoder -f " + file.name + " -a practice -h " + url.hostname
+        commandString = "VTECDecoder -f " + file.name + " -d -g -a practice -h " + url.hostname
         if drtString is not None:
             commandString += " -z " + drtString
+        
+        # start notify listener to listen for vtec change 
+        self.__vtecDecoderFinished = False
+        self.__expectedPil = fcst.split("\n",2)[1]
         os.system(commandString)
+    
+    def __processNotification(self, notification):
+        from dynamicserialize.dstypes.com.raytheon.uf.common.activetable import VTECTableChangeNotification
+        if type(notification) is VTECTableChangeNotification and str(notification.getMode()) == 'PRACTICE':
+            for change in notification.getChanges():
+                pil = change.getPil() + change.getXxxid()
+                if pil == self.__expectedPil:
+                    self.__vtecDecoderFinished = True
+                    break
 
 def main():
     os.environ["TZ"] = 'EST5EDT'
@@ -1072,6 +1140,13 @@ def main():
     
     for s in str(GfePyIncludeUtil.getCombinationsIncludePath()).split(':'):
         sys.path.append(s)
+    
+    # create output directory for products
+    try:
+        os.makedirs(OUTPUT_DIR)
+    except OSError, e:
+        if e.errno != errno.EEXIST:
+            self.output("%s: '%s'" % (e.strerror,e.filename))
     
     scriptDir = GfePyIncludeUtil.getIToolIncludePath()
     runner = IToolInterface.IToolInterface(scriptDir)

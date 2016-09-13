@@ -19,29 +19,31 @@
  **/
 package com.raytheon.viz.hydrocommon.datasources;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
-import java.util.TimeZone;
 
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.List;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -51,6 +53,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.data.DcpData;
 import com.raytheon.viz.hydrocommon.data.HydroDBData;
@@ -59,7 +62,7 @@ import com.raytheon.viz.hydrocommon.data.TelemData;
 import com.raytheon.viz.hydrocommon.datamanager.HydroDBDataManager;
 import com.raytheon.viz.hydrocommon.util.HydroDataUtils;
 import com.raytheon.viz.hydrocommon.util.StnClassSyncUtil;
-import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
  * This class displays the Data Sources dialog.
@@ -73,25 +76,64 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 12/16/2008   1782        grichard    Refreshed Data Sources.
  * 1/11/2008    1802        askripsk    Comlete HydroBase implementation.
  * 07/15/2013   2088        rferrel     Make dialog non-blocking
+ * 04/22/2016   5483        dgilling    Correct fixed pixel layouts, refactor 
+ *                                      based on CaveJFACEDialog.
+ * 07/12/2016   19182       xwei        Fixed issue with opening Data Sources in hydro database manager                                     
  * 
  * </pre>
  * 
  * @author lvenable
  * @version 1.0
  */
-public class DataSourcesDlg extends CaveSWTDialog {
+public class DataSourcesDlg extends CaveJFACEDialog {
+
     private final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(DataSourcesDlg.class);
+            .getHandler(getClass());
 
     /**
-     * Control font.
+     * Button ID for Apply button.
      */
-    private Font controlFont;
+    private static final int APPLY_ID = IDialogConstants.CLIENT_ID + 1;
+
+    /**
+     * Button ID for Delete button.
+     */
+    private static final int DELETE_ID = IDialogConstants.CLIENT_ID + 2;
+
+    /**
+     * Label for Apply button.
+     */
+    private static final String APPLY_LABEL = "Apply";
+
+    /**
+     * Label for Delete button.
+     */
+    private static final String DELETE_LABEL = "Delete";
+
+    /**
+     * Formatted ISO UTC Date.
+     */
+    private static final DateFormat ISO_DATE = new SimpleDateFormat(
+            "MM/dd/yyyy") {
+        {
+            setTimeZone(TimeUtil.GMT_TIME_ZONE);
+        }
+    };
 
     /**
      * Current Location Identifier.
      */
-    private String lid;
+    private final String lid;
+
+    /**
+     * Shell title bar text.
+     */
+    private final String title;
+
+    /**
+     * Flag indicating if the full controls should be displayed.
+     */
+    private final boolean fullControls;
 
     /**
      * Type combo box.
@@ -324,16 +366,6 @@ public class DataSourcesDlg extends CaveSWTDialog {
     private Text telemetryCriteriaTF;
 
     /**
-     * Flag indicating if the full controls should be displayed.
-     */
-    private boolean fullControls = false;
-
-    /**
-     * Delete button
-     */
-    private Button deleteBtn;
-
-    /**
      * Cache of DCP data
      */
     private DcpData dcpData;
@@ -349,18 +381,6 @@ public class DataSourcesDlg extends CaveSWTDialog {
     private TelemData telemData;
 
     /**
-     * Possible states for the dialog
-     */
-    private enum DialogStates {
-        NO_DATA, DATA_AVAILABLE
-    }
-
-    /**
-     * Formatted ISO UTC Date.
-     */
-    SimpleDateFormat isoDate = new SimpleDateFormat("MM/dd/yyyy");
-
-    /**
      * Constructor.
      * 
      * @param parent
@@ -372,79 +392,53 @@ public class DataSourcesDlg extends CaveSWTDialog {
      */
     public DataSourcesDlg(Shell parent, String titleInfo, String lid,
             boolean fullControls) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
-        setText("Data Sources" + titleInfo);
+        super(parent);
+        setShellStyle(SWT.DIALOG_TRIM);
+        setBlockOnOpen(false);
 
         this.lid = lid;
+        this.title = titleInfo;
         this.fullControls = fullControls;
-
-        isoDate.setTimeZone(TimeZone.getTimeZone("UTC"));
-        setReturnValue(lid);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
-     */
     @Override
-    protected Layout constructShellLayout() {
-        GridLayout mainLayout = new GridLayout(1, false);
-        mainLayout.marginHeight = 3;
-        mainLayout.marginWidth = 3;
-        return mainLayout;
+    protected void configureShell(Shell newShell) {
+        super.configureShell(newShell);
+        newShell.setText(String.format("Data Sources %s", title));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
-     */
     @Override
-    protected void disposed() {
-        controlFont.dispose();
-    }
+    protected Control createDialogArea(Composite parent) {
+        Composite composite = (Composite) super.createDialogArea(parent);
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
-     * .eclipse.swt.widgets.Shell)
-     */
-    @Override
-    protected void initializeComponents(Shell shell) {
-        controlFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
-
-        // Initialize all of the controls and layouts
-        // Populate the data sources for the dialog.
-        // populateDataSources();
-        createTypeComboBox();
-        addSeparator();
-        createStackComposite();
-        addSeparator();
-        createBottomButtons();
+        /*
+         * Initialize all of the controls and layouts
+         * 
+         * Populate the data sources for the dialog.
+         */
+        createTypeComboBox(composite);
+        createStackComposite(composite);
 
         loadStaticData();
-
         getDialogData();
+
+        return composite;
     }
 
     /**
      * Create the Type label and combo box.
+     * 
+     * @param parent
      */
-    private void createTypeComboBox() {
-        Composite typeComp = new Composite(shell, SWT.NONE);
-        GridLayout gl = new GridLayout(2, false);
-        typeComp.setLayout(gl);
+    private void createTypeComboBox(Composite parent) {
+        Composite typeComp = new Composite(parent, SWT.NONE);
+        typeComp.setLayout(new GridLayout(2, false));
 
-        Label typeLbl = new Label(typeComp, SWT.NONE);
+        Label typeLbl = new Label(typeComp, SWT.RIGHT);
         typeLbl.setText("Type");
 
         typeCbo = new Combo(typeComp, SWT.DROP_DOWN | SWT.READ_ONLY);
-        typeCbo.add("DCP");
-        typeCbo.add("Observer");
-        typeCbo.add("Telemetry");
+        typeCbo.setItems(new String[] { "DCP", "Observer", "Telemetry" });
         typeCbo.select(0);
         typeCbo.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -452,177 +446,185 @@ public class DataSourcesDlg extends CaveSWTDialog {
                 updateDisplay();
             }
         });
+
+        Label sepLbl = new Label(parent, SWT.SEPARATOR | SWT.HORIZONTAL);
+        GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        gd.horizontalSpan = 2;
+        sepLbl.setLayoutData(gd);
     }
 
     /**
      * Create stack composite that will contain the DCP, Observer, and telemetry
      * composites.
+     * 
+     * @param parent
      */
-    private void createStackComposite() {
-        stackComposite = new Composite(shell, SWT.NONE);
+    private void createStackComposite(Composite parent) {
+        stackComposite = new Composite(parent, SWT.NONE);
         stackLayout = new StackLayout();
         stackComposite.setLayout(stackLayout);
 
         // create the composites in the stack here
-        createDcpComposite();
-        createObserverComposite();
-        createTelemetryComposite();
+        dcpComp = createDcpComposite(stackComposite);
+        observerComp = createObserverComposite(stackComposite);
+        telemetryComp = createTelemetryComposite(stackComposite);
 
         stackLayout.topControl = dcpComp;
         stackComposite.layout();
     }
 
     /**
-     * Create the DCP composite.
+     * Create the DCP composite and controls.
+     * 
+     * @param parent
+     * @return
      */
-    private void createDcpComposite() {
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        dcpComp = new Composite(stackComposite, SWT.NONE);
-        GridLayout gl = new GridLayout(1, false);
-        dcpComp.setLayout(gl);
-        dcpComp.setLayoutData(gd);
+    private Composite createDcpComposite(Composite parent) {
+        Composite dcpComp = new Composite(parent, SWT.NONE);
+        dcpComp.setLayout(new GridLayout(1, false));
+        dcpComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
 
-        createDcpControls();
-    }
-
-    /**
-     * Create the DCP controls.
-     */
-    private void createDcpControls() {
         // -----------------------------------------
         // Create the General Group
         // -----------------------------------------
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Group generalGroup = new Group(dcpComp, SWT.NONE);
-        GridLayout gl = new GridLayout(2, false);
-        generalGroup.setLayout(gl);
-        generalGroup.setLayoutData(gd);
         generalGroup.setText("General");
+        generalGroup.setLayout(new GridLayout(2, false));
+        generalGroup.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
+                false));
 
         // Create the left composite
         Composite leftComp = new Composite(generalGroup, SWT.NONE);
-        gl = new GridLayout(2, false);
-        leftComp.setLayout(gl);
+        leftComp.setLayout(new GridLayout(2, false));
 
-        gd = new GridData(SWT.RIGHT, SWT.TOP, false, false);
-        gd.widthHint = 80;
         Label ownerLbl = new Label(leftComp, SWT.RIGHT);
         ownerLbl.setText("Owner:");
-        ownerLbl.setLayoutData(gd);
+        ownerLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false));
 
-        gd = new GridData(90, 100);
         ownerList = new List(leftComp, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
+        GridData gd = new GridData(SWT.LEFT, SWT.TOP, false, true);
+        gd.heightHint = ownerList.getItemHeight() * 5;
+        GC gc = new GC(ownerList);
+        gd.widthHint = ownerList.computeTrim(0, 0, gc.getFontMetrics()
+                .getAverageCharWidth() * 15, gc.getFontMetrics().getHeight()).width;
+        gc.dispose();
         ownerList.setLayoutData(gd);
 
         // Create the right composite
         Composite rightComp = new Composite(generalGroup, SWT.NONE);
-        gl = new GridLayout(2, false);
-        rightComp.setLayout(gl);
+        rightComp.setLayout(new GridLayout(2, false));
 
-        gd = new GridData(SWT.RIGHT, SWT.CENTER, true, true);
         Label goesIdLbl = new Label(rightComp, SWT.RIGHT);
         goesIdLbl.setText("GOES ID:");
-        goesIdLbl.setLayoutData(gd);
+        goesIdLbl
+                .setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true));
 
-        gd = new GridData(100, SWT.DEFAULT);
         goesIdTF = new Text(rightComp, SWT.BORDER);
-        goesIdTF.setLayoutData(gd);
         goesIdTF.setTextLimit(8);
+        gc = new GC(goesIdTF);
+        int charWidth = gc.getFontMetrics().getAverageCharWidth();
+        int charHeight = gc.getFontMetrics().getHeight();
+        gc.dispose();
+        gd = new GridData(SWT.LEFT, SWT.CENTER, false, true);
+        gd.widthHint = goesIdTF.computeTrim(0, 0, charWidth * 8, charHeight).width;
+        goesIdTF.setLayoutData(gd);
 
-        gd = new GridData(SWT.RIGHT, SWT.CENTER, true, true);
         Label reportingTimeLbl = new Label(rightComp, SWT.RIGHT);
         reportingTimeLbl.setText("Reporting Time:");
-        reportingTimeLbl.setLayoutData(gd);
+        reportingTimeLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER,
+                false, true));
 
-        gd = new GridData(80, SWT.DEFAULT);
         reportingTimeTF = new Text(rightComp, SWT.BORDER);
-        reportingTimeTF.setLayoutData(gd);
         reportingTimeTF.setTextLimit(8);
+        gd = new GridData(SWT.LEFT, SWT.CENTER, false, true);
+        gd.widthHint = reportingTimeTF.computeTrim(0, 0, charWidth * 8,
+                charHeight).width;
+        reportingTimeTF.setLayoutData(gd);
 
-        gd = new GridData(SWT.RIGHT, SWT.CENTER, true, true);
         Label reportingFreqLbl = new Label(rightComp, SWT.RIGHT);
         reportingFreqLbl.setText("Reporting Frequency:");
-        reportingFreqLbl.setLayoutData(gd);
+        reportingFreqLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER,
+                false, true));
 
-        gd = new GridData(60, SWT.DEFAULT);
         reportingFreqTF = new Text(rightComp, SWT.BORDER);
-        reportingFreqTF.setLayoutData(gd);
         reportingFreqTF.setTextLimit(4);
+        gd = new GridData(SWT.LEFT, SWT.CENTER, false, true);
+        gd.widthHint = reportingTimeTF.computeTrim(0, 0, charWidth * 4,
+                charHeight).width;
+        reportingFreqTF.setLayoutData(gd);
 
-        gd = new GridData(SWT.RIGHT, SWT.CENTER, true, true);
         Label obsFreqTFLabel = new Label(rightComp, SWT.RIGHT);
         obsFreqTFLabel.setText("Observation Frequency:");
-        obsFreqTFLabel.setLayoutData(gd);
+        obsFreqTFLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false,
+                true));
 
-        gd = new GridData(60, SWT.DEFAULT);
         observationFreqTF = new Text(rightComp, SWT.BORDER);
-        observationFreqTF.setLayoutData(gd);
         observationFreqTF.setTextLimit(4);
+        gd = new GridData(SWT.LEFT, SWT.CENTER, false, true);
+        gd.widthHint = observationFreqTF.computeTrim(0, 0, charWidth * 4,
+                charHeight).width;
 
-        gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
         randomReportChk = new Button(rightComp, SWT.CHECK);
         randomReportChk.setText("Random Report");
-        randomReportChk.setLayoutData(gd);
+        randomReportChk.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER,
+                false, true));
 
         // -----------------------------------------
         // Create the Criteria Group
         // -----------------------------------------
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Group criteriaGroup = new Group(dcpComp, SWT.NONE);
-        gl = new GridLayout(2, false);
-        criteriaGroup.setLayout(gl);
-        criteriaGroup.setLayoutData(gd);
         criteriaGroup.setText("Criteria");
+        criteriaGroup.setLayout(new GridLayout(1, false));
+        criteriaGroup.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
+                false));
 
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         dcpCriteriaTF = new Text(criteriaGroup, SWT.BORDER);
-        dcpCriteriaTF.setLayoutData(gd);
         dcpCriteriaTF.setTextLimit(50);
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
+        gd.widthHint = dcpCriteriaTF.computeTrim(0, 0, charWidth * 50,
+                charHeight).width;
+        dcpCriteriaTF.setLayoutData(gd);
+
+        return dcpComp;
     }
 
     /**
      * Create Observer composite.
      */
-    private void createObserverComposite() {
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        observerComp = new Composite(stackComposite, SWT.NONE);
-        GridLayout gl = new GridLayout(1, false);
-        observerComp.setLayout(gl);
-        observerComp.setLayoutData(gd);
+    private Composite createObserverComposite(Composite parent) {
+        Composite observerComp = new Composite(parent, SWT.NONE);
+        observerComp.setLayout(new GridLayout(1, false));
+        observerComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
+                false));
 
-        createObserverControls();
-    }
-
-    /**
-     * Create the Observer controls.
-     */
-    private void createObserverControls() {
         // -----------------------------------------
         // Create the Observer Group
         // -----------------------------------------
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Group observerGroup = new Group(observerComp, SWT.NONE);
-        GridLayout gl = new GridLayout(4, false);
-        observerGroup.setLayout(gl);
-        observerGroup.setLayoutData(gd);
         observerGroup.setText("Observer");
+        observerGroup.setLayout(new GridLayout(4, false));
+        observerGroup.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
+                false));
 
-        int labelWidth = 100;
-
-        gd = new GridData(labelWidth, SWT.DEFAULT);
         Label firstNameLbl = new Label(observerGroup, SWT.RIGHT);
         firstNameLbl.setText("First Name:");
-        firstNameLbl.setLayoutData(gd);
+        firstNameLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false,
+                true));
 
-        gd = new GridData(100, SWT.DEFAULT);
         firstNameTF = new Text(observerGroup, SWT.BORDER);
-        firstNameTF.setLayoutData(gd);
         firstNameTF.setTextLimit(12);
+        GC gc = new GC(firstNameTF);
+        int charWidth = gc.getFontMetrics().getAverageCharWidth();
+        int charHeight = gc.getFontMetrics().getHeight();
+        gc.dispose();
+        GridData gd = new GridData(SWT.LEFT, SWT.CENTER, false, true);
+        gd.widthHint = firstNameTF
+                .computeTrim(0, 0, charWidth * 12, charHeight).width;
+        firstNameTF.setLayoutData(gd);
 
-        gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
         dosChk = new Button(observerGroup, SWT.CHECK);
         dosChk.setText("DoS:");
-        dosChk.setLayoutData(gd);
+        dosChk.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true));
         dosChk.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -630,84 +632,91 @@ public class DataSourcesDlg extends CaveSWTDialog {
             }
         });
 
-        gd = new GridData(100, SWT.DEFAULT);
         dosTF = new Text(observerGroup, SWT.BORDER);
+        gd = new GridData(SWT.LEFT, SWT.CENTER, false, true);
+        gd.widthHint = dosTF.computeTrim(0, 0, charWidth * 10, charHeight).width;
         dosTF.setLayoutData(gd);
 
-        gd = new GridData(labelWidth, SWT.DEFAULT);
         Label lastNameLbl = new Label(observerGroup, SWT.RIGHT);
         lastNameLbl.setText("I/Last Name:");
-        lastNameLbl.setLayoutData(gd);
+        lastNameLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false,
+                true));
 
-        gd = new GridData(150, SWT.DEFAULT);
         lastNameTF = new Text(observerGroup, SWT.BORDER);
-        lastNameTF.setLayoutData(gd);
         lastNameTF.setTextLimit(28);
+        gd = new GridData(SWT.LEFT, SWT.CENTER, false, true);
+        gd.widthHint = lastNameTF.computeTrim(0, 0, charWidth * 28, charHeight).width;
+        lastNameTF.setLayoutData(gd);
 
-        gd = new GridData(labelWidth, SWT.DEFAULT);
         Label homeLbl = new Label(observerGroup, SWT.RIGHT);
         homeLbl.setText("Home:");
-        homeLbl.setLayoutData(gd);
+        homeLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true));
 
-        gd = new GridData(150, SWT.DEFAULT);
         homePhoneTF = new Text(observerGroup, SWT.BORDER);
-        homePhoneTF.setLayoutData(gd);
         homePhoneTF.setTextLimit(18);
+        gd = new GridData(SWT.LEFT, SWT.CENTER, false, true);
+        gd.widthHint = homePhoneTF
+                .computeTrim(0, 0, charWidth * 18, charHeight).width;
+        homePhoneTF.setLayoutData(gd);
 
-        gd = new GridData(labelWidth, SWT.DEFAULT);
         Label address1Lbl = new Label(observerGroup, SWT.RIGHT);
         address1Lbl.setText("Address1:");
-        address1Lbl.setLayoutData(gd);
+        address1Lbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false,
+                true));
 
-        gd = new GridData(200, SWT.DEFAULT);
         address1TF = new Text(observerGroup, SWT.BORDER);
-        address1TF.setLayoutData(gd);
         address1TF.setTextLimit(30);
+        gd = new GridData(SWT.LEFT, SWT.CENTER, false, true);
+        gd.widthHint = address1TF.computeTrim(0, 0, charWidth * 30, charHeight).width;
+        address1TF.setLayoutData(gd);
 
-        gd = new GridData(labelWidth, SWT.DEFAULT);
         Label workLbl = new Label(observerGroup, SWT.RIGHT);
         workLbl.setText("Work:");
-        workLbl.setLayoutData(gd);
+        workLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true));
 
-        gd = new GridData(150, SWT.DEFAULT);
         workPhoneTF = new Text(observerGroup, SWT.BORDER);
-        workPhoneTF.setLayoutData(gd);
         workPhoneTF.setTextLimit(18);
+        gd = new GridData(SWT.LEFT, SWT.CENTER, false, true);
+        gd.widthHint = workPhoneTF
+                .computeTrim(0, 0, charWidth * 18, charHeight).width;
+        workPhoneTF.setLayoutData(gd);
 
-        gd = new GridData(labelWidth, SWT.DEFAULT);
         Label address2Lbl = new Label(observerGroup, SWT.RIGHT);
         address2Lbl.setText("Address2:");
-        address2Lbl.setLayoutData(gd);
+        address2Lbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false,
+                true));
 
-        gd = new GridData(200, SWT.DEFAULT);
         address2TF = new Text(observerGroup, SWT.BORDER);
-        address2TF.setLayoutData(gd);
         address2TF.setTextLimit(30);
+        gd = new GridData(SWT.LEFT, SWT.CENTER, false, true);
+        gd.widthHint = address2TF.computeTrim(0, 0, charWidth * 30, charHeight).width;
+        address2TF.setLayoutData(gd);
 
-        gd = new GridData(labelWidth, SWT.DEFAULT);
         Label ssnLbl = new Label(observerGroup, SWT.RIGHT);
         ssnLbl.setText("SSN:");
-        ssnLbl.setLayoutData(gd);
+        ssnLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true));
 
-        gd = new GridData(120, SWT.DEFAULT);
         ssnTF = new Text(observerGroup, SWT.BORDER);
-        ssnTF.setLayoutData(gd);
         ssnTF.setTextLimit(11);
+        gd = new GridData(SWT.LEFT, SWT.CENTER, false, true);
+        gd.widthHint = ssnTF.computeTrim(0, 0, charWidth * 11, charHeight).width;
+        ssnTF.setLayoutData(gd);
 
-        gd = new GridData(labelWidth, SWT.DEFAULT);
         Label address3Lbl = new Label(observerGroup, SWT.RIGHT);
         address3Lbl.setText("Address3:");
-        address3Lbl.setLayoutData(gd);
+        address3Lbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false,
+                true));
 
-        gd = new GridData(200, SWT.DEFAULT);
         address3TF = new Text(observerGroup, SWT.BORDER);
-        address3TF.setLayoutData(gd);
         address3TF.setTextLimit(30);
+        gd = new GridData(SWT.LEFT, SWT.CENTER, false, true);
+        gd.widthHint = address3TF.computeTrim(0, 0, charWidth * 30, charHeight).width;
+        address3TF.setLayoutData(gd);
 
-        gd = new GridData(labelWidth, SWT.DEFAULT);
         Label genderLbl = new Label(observerGroup, SWT.RIGHT);
         genderLbl.setText("Gender:");
-        genderLbl.setLayoutData(gd);
+        genderLbl
+                .setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true));
 
         Composite radioComp = new Composite(observerGroup, SWT.NONE);
         radioComp.setLayout(new RowLayout());
@@ -719,341 +728,319 @@ public class DataSourcesDlg extends CaveSWTDialog {
         ignoreRdo = new Button(radioComp, SWT.RADIO);
         ignoreRdo.setText("I");
 
-        gd = new GridData(labelWidth, SWT.DEFAULT);
         Label cityLbl = new Label(observerGroup, SWT.RIGHT);
         cityLbl.setText("City:");
-        cityLbl.setLayoutData(gd);
+        cityLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true));
 
-        gd = new GridData(200, SWT.DEFAULT);
         cityTF = new Text(observerGroup, SWT.BORDER);
-        cityTF.setLayoutData(gd);
         cityTF.setTextLimit(30);
+        gd = new GridData(SWT.LEFT, SWT.CENTER, false, true);
+        gd.widthHint = cityTF.computeTrim(0, 0, charWidth * 30, charHeight).width;
+        gd.horizontalSpan = 3;
+        cityTF.setLayoutData(gd);
 
-        gd = new GridData();
-        gd.horizontalSpan = 2;
-        Label filler1 = new Label(observerGroup, SWT.NONE);
-        filler1.setLayoutData(gd);
-
-        gd = new GridData(labelWidth, SWT.DEFAULT);
         Label stateLbl = new Label(observerGroup, SWT.RIGHT);
         stateLbl.setText("State:");
-        stateLbl.setLayoutData(gd);
+        stateLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true));
 
         stateCbo = new Combo(observerGroup, SWT.DROP_DOWN | SWT.READ_ONLY);
         stateCbo.setVisibleItemCount(10);
+        gd = new GridData(SWT.LEFT, SWT.CENTER, false, true);
+        gd.horizontalSpan = 3;
+        stateCbo.setLayoutData(gd);
 
-        gd = new GridData();
-        gd.horizontalSpan = 2;
-        Label filler2 = new Label(observerGroup, SWT.NONE);
-        filler2.setLayoutData(gd);
-
-        gd = new GridData(labelWidth, SWT.DEFAULT);
         Label zipCodeLbl = new Label(observerGroup, SWT.RIGHT);
         zipCodeLbl.setText("Zip:");
-        zipCodeLbl.setLayoutData(gd);
+        zipCodeLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false,
+                true));
 
-        gd = new GridData(60, SWT.DEFAULT);
         zipCodeTF = new Text(observerGroup, SWT.BORDER);
-        zipCodeTF.setLayoutData(gd);
         zipCodeTF.setTextLimit(10);
+        gd = new GridData(SWT.LEFT, SWT.CENTER, false, true);
+        gd.widthHint = zipCodeTF.computeTrim(0, 0, charWidth * 10, charHeight).width;
+        gd.horizontalSpan = 3;
+        zipCodeTF.setLayoutData(gd);
 
-        gd = new GridData();
-        gd.horizontalSpan = 2;
-        Label filler3 = new Label(observerGroup, SWT.NONE);
-        filler3.setLayoutData(gd);
-
-        gd = new GridData(labelWidth, SWT.DEFAULT);
         Label emailLbl = new Label(observerGroup, SWT.RIGHT);
         emailLbl.setText("E-Mail:");
-        emailLbl.setLayoutData(gd);
+        emailLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true));
 
-        gd = new GridData(200, SWT.DEFAULT);
         emailTF = new Text(observerGroup, SWT.BORDER);
-        emailTF.setLayoutData(gd);
         emailTF.setTextLimit(60);
+        gd = new GridData(SWT.LEFT, SWT.CENTER, false, true);
+        gd.widthHint = emailTF.computeTrim(0, 0, charWidth * 30, charHeight).width;
+        gd.horizontalSpan = 3;
+        emailTF.setLayoutData(gd);
 
         // -----------------------------------------
         // Create the Administration Group
         // -----------------------------------------
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Group adminGroup = new Group(observerComp, SWT.NONE);
-        gl = new GridLayout(6, false);
-        adminGroup.setLayout(gl);
-        adminGroup.setLayoutData(gd);
         adminGroup.setText("Administration");
+        adminGroup.setLayout(new GridLayout(6, false));
+        adminGroup.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
+                false));
 
-        int adminLabelWidth = 80;
-
-        gd = new GridData(adminLabelWidth, SWT.DEFAULT);
         Label commsLbl = new Label(adminGroup, SWT.RIGHT);
         commsLbl.setText("Comms:");
-        commsLbl.setLayoutData(gd);
+        commsLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true));
 
         commsCbo = new Combo(adminGroup, SWT.DROP_DOWN | SWT.READ_ONLY);
+        gd = new GridData(SWT.LEFT, SWT.CENTER, false, true);
+        gd.horizontalSpan = 3;
+        commsCbo.setLayoutData(gd);
 
-        gd = new GridData();
-        gd.horizontalSpan = 2;
-        Label filler4 = new Label(adminGroup, SWT.NONE);
-        filler4.setLayoutData(gd);
-
-        gd = new GridData(adminLabelWidth, SWT.DEFAULT);
         Label taskNoLbl = new Label(adminGroup, SWT.RIGHT);
         taskNoLbl.setText("Task No:");
-        taskNoLbl.setLayoutData(gd);
+        taskNoLbl
+                .setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true));
 
-        gd = new GridData(100, SWT.DEFAULT);
         taskNoTF = new Text(adminGroup, SWT.BORDER);
-        taskNoTF.setLayoutData(gd);
         taskNoTF.setTextLimit(13);
+        gd = new GridData(SWT.LEFT, SWT.CENTER, false, true);
+        gd.widthHint = taskNoTF.computeTrim(0, 0, charWidth * 13, charHeight).width;
+        taskNoTF.setLayoutData(gd);
 
-        gd = new GridData(SWT.RIGHT, SWT.TOP, false, false);
-        gd.widthHint = adminLabelWidth;
         Label sponsorLbl = new Label(adminGroup, SWT.RIGHT);
         sponsorLbl.setText("Sponsor:");
-        sponsorLbl.setLayoutData(gd);
+        sponsorLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, true));
 
-        gd = new GridData(80, 100);
         sponsorList = new List(adminGroup, SWT.BORDER | SWT.SINGLE
                 | SWT.V_SCROLL);
+        gc = new GC(sponsorList);
+        int charWidthList = gc.getFontMetrics().getAverageCharWidth();
+        int charHeightList = gc.getFontMetrics().getHeight();
+        gc.dispose();
+        gd = new GridData(SWT.LEFT, SWT.TOP, false, true);
+        gd.heightHint = sponsorList.getItemHeight() * 5;
+        gd.widthHint = sponsorList.computeTrim(0, 0, charWidthList * 10,
+                charHeightList).width;
         sponsorList.setLayoutData(gd);
 
-        gd = new GridData(adminLabelWidth, SWT.DEFAULT);
         Label rateLbl = new Label(adminGroup, SWT.RIGHT);
         rateLbl.setText("Rate:");
-        rateLbl.setLayoutData(gd);
+        rateLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true));
 
-        gd = new GridData(100, SWT.DEFAULT);
         rateTF = new Text(adminGroup, SWT.BORDER);
+        gd = new GridData(SWT.LEFT, SWT.CENTER, false, true);
+        gd.widthHint = rateTF.computeTrim(0, 0, charWidth * 13, charHeight).width;
         rateTF.setLayoutData(gd);
 
-        gd = new GridData(adminLabelWidth, SWT.DEFAULT);
         Label cd404Lbl = new Label(adminGroup, SWT.RIGHT);
         cd404Lbl.setText("CD-404:");
-        cd404Lbl.setLayoutData(gd);
+        cd404Lbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true));
 
-        gd = new GridData(100, SWT.DEFAULT);
         cd404TF = new Text(adminGroup, SWT.BORDER);
-        cd404TF.setLayoutData(gd);
         cd404TF.setTextLimit(4);
+        gd = new GridData(SWT.LEFT, SWT.CENTER, false, true);
+        gd.widthHint = rateTF.computeTrim(0, 0, charWidth * 13, charHeight).width;
+        cd404TF.setLayoutData(gd);
 
-        gd = new GridData(SWT.RIGHT, SWT.TOP, false, false);
-        gd.widthHint = adminLabelWidth;
         Label recipLbl = new Label(adminGroup, SWT.RIGHT);
         recipLbl.setText("Recip:");
-        recipLbl.setLayoutData(gd);
+        recipLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, true));
 
-        gd = new GridData(80, 100);
         recipList = new List(adminGroup, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
+        gd = new GridData(SWT.LEFT, SWT.TOP, false, true);
+        gd.heightHint = recipList.getItemHeight() * 5;
+        gd.widthHint = recipList.computeTrim(0, 0, charWidthList * 20,
+                charHeightList).width;
+        gd.horizontalSpan = 5;
         recipList.setLayoutData(gd);
 
-        gd = new GridData();
-        gd.horizontalSpan = 4;
-        Label filler5 = new Label(adminGroup, SWT.NONE);
-        filler5.setLayoutData(gd);
-
-        gd = new GridData(adminLabelWidth, SWT.DEFAULT);
         Label reportLbl = new Label(adminGroup, SWT.RIGHT);
         reportLbl.setText("Report:");
-        reportLbl.setLayoutData(gd);
+        reportLbl
+                .setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true));
 
-        gd = new GridData(300, SWT.DEFAULT);
-        gd.horizontalSpan = 3;
         reportTF = new Text(adminGroup, SWT.BORDER);
+        gd = new GridData(SWT.LEFT, SWT.CENTER, false, true);
+        gd.widthHint = taskNoTF.computeTrim(0, 0, charWidth * 60, charHeight).width;
+        gd.horizontalSpan = 5;
         reportTF.setLayoutData(gd);
-        reportTF.setTextLimit(60);
+
+        return observerComp;
     }
 
     /**
      * Create the telemetry composite.
      */
-    private void createTelemetryComposite() {
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        telemetryComp = new Composite(stackComposite, SWT.NONE);
-        GridLayout gl = new GridLayout(1, false);
-        telemetryComp.setLayout(gl);
-        telemetryComp.setLayoutData(gd);
+    private Composite createTelemetryComposite(Composite parent) {
+        Composite telemetryComp = new Composite(parent, SWT.NONE);
+        telemetryComp.setLayout(new GridLayout(1, false));
+        telemetryComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
+                false));
 
-        createTelemetryControls();
-    }
-
-    /**
-     * Create the telemetry controls.
-     */
-    private void createTelemetryControls() {
         // -----------------------------------------
         // Create the General Group
         // -----------------------------------------
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Group generalGroup = new Group(telemetryComp, SWT.NONE);
-        GridLayout gl = new GridLayout(2, false);
-        generalGroup.setLayout(gl);
-        generalGroup.setLayoutData(gd);
         generalGroup.setText("General");
+        generalGroup.setLayout(new GridLayout(2, false));
+        generalGroup.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
+                false));
 
         // Create the left composite
         Composite leftComp = new Composite(generalGroup, SWT.NONE);
-        gl = new GridLayout(2, false);
-        leftComp.setLayout(gl);
+        leftComp.setLayout(new GridLayout(2, false));
 
         Label telemetryLbl = new Label(leftComp, SWT.NONE);
         telemetryLbl.setText("Telemetry:");
+        telemetryLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false,
+                false));
 
-        gd = new GridData(80, 100);
         telemetryList = new List(leftComp, SWT.BORDER | SWT.SINGLE
                 | SWT.V_SCROLL);
+        GC gc = new GC(ownerList);
+        int charWidth = gc.getFontMetrics().getAverageCharWidth();
+        int charHeight = gc.getFontMetrics().getHeight();
+        gc.dispose();
+        GridData gd = new GridData(SWT.LEFT, SWT.TOP, false, true);
+        gd.heightHint = telemetryList.getItemHeight() * 5;
+        gd.widthHint = telemetryList.computeTrim(0, 0, charWidth * 10,
+                charHeight).width;
         telemetryList.setLayoutData(gd);
 
         Label ownerLbl = new Label(leftComp, SWT.NONE);
         ownerLbl.setText("Owner:");
+        ownerLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false));
 
-        gd = new GridData(80, 100);
         telemOwnerList = new List(leftComp, SWT.BORDER | SWT.SINGLE
                 | SWT.V_SCROLL);
+        gd = new GridData(SWT.LEFT, SWT.TOP, false, true);
+        gd.heightHint = telemOwnerList.getItemHeight() * 5;
+        gd.widthHint = telemOwnerList.computeTrim(0, 0, charWidth * 10,
+                charHeight).width;
         telemOwnerList.setLayoutData(gd);
 
         Label payorLbl = new Label(leftComp, SWT.NONE);
         payorLbl.setText("Payor:");
+        payorLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false));
 
-        gd = new GridData(80, 100);
         payorList = new List(leftComp, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
+        gd = new GridData(SWT.LEFT, SWT.TOP, false, true);
+        gd.heightHint = payorList.getItemHeight() * 5;
+        gd.widthHint = payorList.computeTrim(0, 0, charWidth * 10, charHeight).width;
         payorList.setLayoutData(gd);
 
         // Create the right composite
-        gd = new GridData(SWT.DEFAULT, SWT.TOP, false, true);
         Composite rightComp = new Composite(generalGroup, SWT.NONE);
-        gl = new GridLayout(2, false);
-        rightComp.setLayout(gl);
-        rightComp.setLayoutData(gd);
+        rightComp.setLayout(new GridLayout(2, false));
+        rightComp
+                .setLayoutData(new GridData(SWT.DEFAULT, SWT.TOP, false, true));
 
-        gd = new GridData(200, SWT.DEFAULT);
         Label phoneLbl = new Label(rightComp, SWT.RIGHT);
         phoneLbl.setText("Phone:");
-        phoneLbl.setLayoutData(gd);
+        phoneLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true));
 
-        gd = new GridData(120, SWT.DEFAULT);
         telemetryPhoneTF = new Text(rightComp, SWT.BORDER);
-        telemetryPhoneTF.setLayoutData(gd);
+        gc = new GC(telemetryPhoneTF);
+        charWidth = gc.getFontMetrics().getAverageCharWidth();
+        charHeight = gc.getFontMetrics().getHeight();
+        gc.dispose();
+        gd = new GridData(SWT.LEFT, SWT.CENTER, false, true);
+        gd.widthHint = telemetryPhoneTF.computeTrim(0, 0, charWidth * 12,
+                charHeight).width;
         telemetryPhoneTF.setTextLimit(12);
+        telemetryPhoneTF.setLayoutData(gd);
 
-        gd = new GridData(200, SWT.DEFAULT);
         Label costLbl = new Label(rightComp, SWT.RIGHT);
         costLbl.setText("Cost:");
-        costLbl.setLayoutData(gd);
+        costLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true));
 
-        gd = new GridData(120, SWT.DEFAULT);
         telemetryCostTF = new Text(rightComp, SWT.BORDER);
+        gd = new GridData(SWT.LEFT, SWT.CENTER, false, true);
+        gd.widthHint = telemetryCostTF.computeTrim(0, 0, charWidth * 12,
+                charHeight).width;
         telemetryCostTF.setLayoutData(gd);
 
-        gd = new GridData(200, SWT.DEFAULT);
         Label sensorIdLbl = new Label(rightComp, SWT.RIGHT);
         sensorIdLbl.setText("Sensor Id:");
-        sensorIdLbl.setLayoutData(gd);
+        sensorIdLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false,
+                true));
 
-        gd = new GridData(120, SWT.DEFAULT);
         telemetrySensorIdTF = new Text(rightComp, SWT.BORDER);
-        telemetrySensorIdTF.setLayoutData(gd);
         telemetrySensorIdTF.setTextLimit(10);
+        gd = new GridData(SWT.LEFT, SWT.CENTER, false, true);
+        gd.widthHint = telemetrySensorIdTF.computeTrim(0, 0, charWidth * 10,
+                charHeight).width;
+        telemetrySensorIdTF.setLayoutData(gd);
 
-        gd = new GridData(200, SWT.DEFAULT);
         Label reportFreqLbl = new Label(rightComp, SWT.RIGHT);
         reportFreqLbl.setText("Reporting Frequency:");
-        reportFreqLbl.setLayoutData(gd);
+        reportFreqLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false,
+                true));
 
-        gd = new GridData(120, SWT.DEFAULT);
         telemetryReportFreqTF = new Text(rightComp, SWT.BORDER);
-        telemetryReportFreqTF.setLayoutData(gd);
         telemetryReportFreqTF.setTextLimit(4);
+        gd = new GridData(SWT.LEFT, SWT.CENTER, false, true);
+        gd.widthHint = telemetryReportFreqTF.computeTrim(0, 0, charWidth * 4,
+                charHeight).width;
+        telemetryReportFreqTF.setLayoutData(gd);
 
-        gd = new GridData(200, SWT.DEFAULT);
         Label obsFreqLbl = new Label(rightComp, SWT.RIGHT);
         obsFreqLbl.setText("Observation Frequency:");
-        obsFreqLbl.setLayoutData(gd);
+        obsFreqLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false,
+                true));
 
-        gd = new GridData(120, SWT.DEFAULT);
         telemetryObsFreqTF = new Text(rightComp, SWT.BORDER);
-        telemetryObsFreqTF.setLayoutData(gd);
         telemetryObsFreqTF.setTextLimit(4);
+        gd = new GridData(SWT.LEFT, SWT.CENTER, false, true);
+        gd.widthHint = telemetryReportFreqTF.computeTrim(0, 0, charWidth * 4,
+                charHeight).width;
+        telemetryObsFreqTF.setLayoutData(gd);
 
         // -----------------------------------------
         // Create the Criteria Group
         // -----------------------------------------
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Group criteriaGroup = new Group(telemetryComp, SWT.NONE);
-        gl = new GridLayout(2, false);
-        criteriaGroup.setLayout(gl);
-        criteriaGroup.setLayoutData(gd);
         criteriaGroup.setText("Criteria");
+        criteriaGroup.setLayout(new GridLayout(1, false));
+        criteriaGroup.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
+                false));
 
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         telemetryCriteriaTF = new Text(criteriaGroup, SWT.BORDER);
-        telemetryCriteriaTF.setLayoutData(gd);
         telemetryCriteriaTF.setTextLimit(50);
-    }
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
+        gd.widthHint = telemetryCriteriaTF.computeTrim(0, 0, charWidth * 50,
+                charHeight).width;
+        telemetryCriteriaTF.setLayoutData(gd);
 
-    /**
-     * Add a horizontal separator bar to the main display.
-     */
-    private void addSeparator() {
-        GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-        gd.horizontalSpan = 4;
-        Label sepLbl = new Label(shell, SWT.SEPARATOR | SWT.HORIZONTAL);
-        sepLbl.setLayoutData(gd);
+        return telemetryComp;
     }
 
     /**
      * Create the buttons at the bottom of the dialog.
      */
-    private void createBottomButtons() {
-        int numControls = 1;
-        if (fullControls == true) {
-            numControls = 3;
+    @Override
+    protected void createButtonsForButtonBar(Composite parent) {
+        if (fullControls) {
+            createButton(parent, APPLY_ID, APPLY_LABEL, false);
         }
 
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        Composite buttonComp = new Composite(shell, SWT.NONE);
-        buttonComp.setLayout(new GridLayout(numControls, true));
-        buttonComp.setLayoutData(gd);
+        createButton(parent, IDialogConstants.CLOSE_ID,
+                IDialogConstants.CLOSE_LABEL, false);
 
-        int buttonWidth = 90;
-
-        if (fullControls == true) {
-            gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-            gd.widthHint = buttonWidth;
-            Button applyBtn = new Button(buttonComp, SWT.PUSH);
-            applyBtn.setText("Apply");
-            applyBtn.setLayoutData(gd);
-            applyBtn.addSelectionListener(new SelectionAdapter() {
-                @Override
-                public void widgetSelected(SelectionEvent event) {
-                    saveRecord();
-                }
-            });
+        if (fullControls) {
+            createButton(parent, DELETE_ID, DELETE_LABEL, false);
         }
+    }
 
-        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        gd.widthHint = buttonWidth;
-        Button closeBtn = new Button(buttonComp, SWT.PUSH);
-        closeBtn.setText("Close");
-        closeBtn.setLayoutData(gd);
-        closeBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                close();
-            }
-        });
-
-        if (fullControls == true) {
-            gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-            gd.widthHint = buttonWidth;
-            deleteBtn = new Button(buttonComp, SWT.PUSH);
-            deleteBtn.setText("Delete");
-            deleteBtn.setLayoutData(gd);
-            deleteBtn.addSelectionListener(new SelectionAdapter() {
-                @Override
-                public void widgetSelected(SelectionEvent event) {
-                    deleteRecord();
-                }
-            });
+    @Override
+    protected void buttonPressed(int buttonId) {
+        switch (buttonId) {
+        case APPLY_ID:
+            saveRecord();
+            break;
+        case IDialogConstants.CLOSE_ID:
+            close();
+            break;
+        case DELETE_ID:
+            deleteRecord();
+            break;
+        default:
+            statusHandler.warn(String.format(
+                    "Unrecognized button [%d] pressed.", buttonId));
         }
     }
 
@@ -1061,168 +1048,163 @@ public class DataSourcesDlg extends CaveSWTDialog {
      * Loads static data from the database.
      */
     private void loadStaticData() {
-
         try {
-            // GetState(" ORDER BY state ");
-            loadList("state", "state", stateCbo);
-
             // GetDcpOwner("")
-            loadList("owner", "dcpowner", ownerList);
+            ownerList.setItems(getData("owner", "dcpowner").toArray(
+                    new String[0]));
+            ownerList.select(0);
 
+            // GetState(" ORDER BY state ");
+            stateCbo.setItems(getData("state", "state").toArray(new String[0]));
+            stateCbo.select(0);
             // GetCoopComms(" ORDER BY comm ")
-            loadList("comm", "coopcomms", commsCbo);
+            commsCbo.setItems(getData("comm", "coopcomms").toArray(
+                    new String[0]));
+            commsCbo.select(0);
             // GetCoopSpons(" ORDER BY spons ");
-            loadList("spons", "coopspons", sponsorList);
+            sponsorList.setItems(getData("spons", "coopspons").toArray(
+                    new String[0]));
+            sponsorList.select(0);
             // GetCoopRecip(" ORDER BY recip ");
-            loadList("recip", "cooprecip", recipList);
+            recipList.setItems(getData("recip", "cooprecip").toArray(
+                    new String[0]));
+            recipList.select(0);
 
             // GetTelmOwner(" ORDER BY owner ")
-            loadList("owner", "telmowner", telemOwnerList);
+            telemOwnerList.setItems(getData("owner", "telmowner").toArray(
+                    new String[0]));
+            telemOwnerList.select(0);
             // GetTelmPayor(" ORDER BY payor ")
-            loadList("payor", "telmpayor", payorList);
+            payorList.setItems(getData("payor", "telmpayor").toArray(
+                    new String[0]));
+            payorList.select(0);
             // GetTelmType(" ORDER BY type ")
-            loadList("type", "telmtype", telemetryList);
-
+            telemetryList.setItems(getData("type", "telmtype").toArray(
+                    new String[0]));
+            telemetryList.select(0);
         } catch (Exception e) {
-            statusHandler.handle(Priority.ERROR,
-                    "Unable to load static data: ", e);
+            statusHandler.error("Unable to load static data: ", e);
         }
-
     }
 
     /**
-     * Populates the given List or Combo with the column from the table
-     * specified.
+     * Retrieves all data from the column from the table specified.
      * 
-     * @param <T>
      * @param column
      *            The column from the database to return.
      * @param table
      *            The table to get the data from.
-     * @param dataList
-     *            The List or Combo to populate with data.
+     * @return
      * @throws VizException
-     * @throws IllegalArgumentException
-     * @throws IllegalAccessException
-     * @throws InvocationTargetException
-     * @throws SecurityException
-     * @throws NoSuchMethodException
      */
-    private <T> void loadList(String column, String table, T dataList)
-            throws VizException, IllegalArgumentException,
-            IllegalAccessException, InvocationTargetException,
-            SecurityException, NoSuchMethodException {
-        dataList.getClass().getMethod("removeAll").invoke(dataList);
-
+    private Collection<String> getData(String column, String table)
+            throws VizException {
         // The base select statement for the queries
         String query = String.format("SELECT %s FROM %s ORDER BY %s", column,
                 table, column);
 
         QueryResult data = HydroDBDataManager.getInstance().runMappedQuery(
                 query);
-
         if (data != null) {
-            Method addMeth = dataList.getClass().getMethod("add", String.class);
-            String rowVal;
+            Collection<String> dataList = new ArrayList<>(data.getResultCount());
 
             // Populate the list with the results from the query
             for (QueryResultRow currRow : data.getRows()) {
-                rowVal = (String) currRow.getColumn(data.getColumnNames().get(
-                        column));
-                addMeth.invoke(dataList, rowVal);
+                String rowVal = currRow.getColumn(
+                        data.getColumnNames().get(column)).toString();
+                dataList.add(rowVal);
             }
 
-            // Select the first option
-            dataList.getClass().getMethod("select", int.class)
-                    .invoke(dataList, 0);
+            return dataList;
         }
+
+        return Collections.emptyList();
     }
 
     // --------------------------------------------
     // Get Data
     // --------------------------------------------
     private void getDialogData() {
-
-        getDCPData();
-        getObsData();
-        getTelemData();
+        dcpData = getDCPData();
+        obsData = getObsData();
+        telemData = getTelemData();
 
         updateDisplay();
     }
 
     /**
      * Load DCP data from the manager.
+     * 
+     * @return
      */
-    private void getDCPData() {
-        DcpData seedData = new DcpData();
-        seedData.setLid(lid);
-
+    private DcpData getDCPData() {
+        DcpData dcpData = null;
         try {
+            DcpData seedData = new DcpData();
+            seedData.setLid(lid);
+
             java.util.List<DcpData> data = HydroDBDataManager.getInstance()
                     .getData(seedData);
-
-            if (data.size() > 0) {
+            if (!data.isEmpty()) {
                 // There will only be one record per lid
                 dcpData = data.get(0);
-            } else {
-                dcpData = null;
             }
         } catch (VizException e) {
             statusHandler
                     .handle(Priority.ERROR, "Unable to load DCP data: ", e);
         }
 
-        updateDCPDisplay();
+        return dcpData;
     }
 
     /**
      * Load observation data from the manager.
+     * 
+     * @return
      */
-    private void getObsData() {
-        ObserverData seedData = new ObserverData();
-        seedData.setLid(lid);
-
+    private ObserverData getObsData() {
+        ObserverData obsData = null;
         try {
+            ObserverData seedData = new ObserverData();
+            seedData.setLid(lid);
+
             java.util.List<ObserverData> data = HydroDBDataManager
                     .getInstance().getData(seedData);
-
-            if (data.size() > 0) {
+            if (!data.isEmpty()) {
                 // There will only be one record per lid
                 obsData = data.get(0);
-            } else {
-                obsData = null;
             }
         } catch (VizException e) {
             statusHandler.handle(Priority.ERROR,
                     "Unable to load Observation data: ", e);
         }
 
-        updateObsDisplay();
+        return obsData;
     }
 
     /**
      * Load Telemetry data from the manager.
+     * 
+     * @return
      */
-    private void getTelemData() {
-        TelemData seedData = new TelemData();
-        seedData.setLid(lid);
-
+    private TelemData getTelemData() {
+        TelemData telemData = null;
         try {
+            TelemData seedData = new TelemData();
+            seedData.setLid(lid);
+
             java.util.List<TelemData> data = HydroDBDataManager.getInstance()
                     .getData(seedData);
-
-            if (data.size() > 0) {
+            if (!data.isEmpty()) {
                 // There will only be one record per lid
                 telemData = data.get(0);
-            } else {
-                telemData = null;
             }
         } catch (VizException e) {
             statusHandler.handle(Priority.ERROR,
                     "Unable to load Telemetry data: ", e);
         }
 
-        updateTelemDisplay();
+        return telemData;
     }
 
     // --------------------------------------------
@@ -1267,9 +1249,9 @@ public class DataSourcesDlg extends CaveSWTDialog {
             randomReportChk.setSelection(dcpData.getRandomReport()
                     .equalsIgnoreCase("T"));
 
-            updateDialogState(DialogStates.DATA_AVAILABLE);
+            updateDialogState(true);
         } else {
-            updateDialogState(DialogStates.NO_DATA);
+            updateDialogState(false);
         }
     }
 
@@ -1300,8 +1282,7 @@ public class DataSourcesDlg extends CaveSWTDialog {
             emailTF.setText(obsData.getEmail());
 
             // Date of service
-            dosTF.setText(HydroDataUtils.getDisplayString(
-                    obsData.getDateOfService(), isoDate));
+            dosTF.setText(ISO_DATE.format(obsData.getDateOfService()));
 
             // Phone Numbers
             homePhoneTF.setText(obsData.getHomePhone());
@@ -1341,9 +1322,9 @@ public class DataSourcesDlg extends CaveSWTDialog {
             // Recipient
             selectSetOption(obsData.getRecipient(), recipList);
 
-            updateDialogState(DialogStates.DATA_AVAILABLE);
+            updateDialogState(true);
         } else {
-            updateDialogState(DialogStates.NO_DATA);
+            updateDialogState(false);
         }
     }
 
@@ -1366,9 +1347,9 @@ public class DataSourcesDlg extends CaveSWTDialog {
             telemetryObsFreqTF.setText(telemData.getObservationFrequency());
             telemetryCriteriaTF.setText(telemData.getCriteria());
 
-            updateDialogState(DialogStates.DATA_AVAILABLE);
+            updateDialogState(true);
         } else {
-            updateDialogState(DialogStates.NO_DATA);
+            updateDialogState(false);
         }
     }
 
@@ -1412,10 +1393,8 @@ public class DataSourcesDlg extends CaveSWTDialog {
             // Refresh Cache
             getDCPData();
         } catch (VizException e) {
-            MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-            mb.setText("Unable to Save");
-            mb.setMessage("An error occurred while trying to save");
-            mb.open();
+            MessageDialog.openError(getShell(), "Unable to Save",
+                    "An error occurred while trying to save");
         }
     }
 
@@ -1437,17 +1416,14 @@ public class DataSourcesDlg extends CaveSWTDialog {
         // Date of Service
         if (!dosTF.getText().equals("")) {
             try {
-                newData.setDateOfService(isoDate.parse(dosTF.getText()));
+                newData.setDateOfService(ISO_DATE.parse(dosTF.getText()));
             } catch (ParseException e) {
-                MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-                mb.setText("Invalid Date");
-                mb.setMessage("Please enter a Service Date in the form: YYYY-MM-DD");
-                mb.open();
-
+                MessageDialog.openError(getShell(), "Invalid Date",
+                        "Please enter a Service Date in the form: YYYY-MM-DD");
                 return;
             }
         } else {
-            newData.setDateOfService((Date) null);
+            newData.setDateOfService(null);
         }
 
         // Gender
@@ -1467,7 +1443,7 @@ public class DataSourcesDlg extends CaveSWTDialog {
         newData.setCd404(cd404TF.getText());
 
         // Rate
-        Double tmp = HydroDataUtils.getDoubleFromTF(shell, rateTF, "Rate");
+        Double tmp = HydroDataUtils.getDoubleFromTF(getShell(), rateTF, "Rate");
         if (tmp == null) {
             return;
         }
@@ -1488,10 +1464,8 @@ public class DataSourcesDlg extends CaveSWTDialog {
             // Refresh Cache
             getObsData();
         } catch (VizException e) {
-            MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-            mb.setText("Unable to Save");
-            mb.setMessage("An error occurred while trying to save");
-            mb.open();
+            MessageDialog.openError(getShell(), "Unable to Save",
+                    "An error occurred while trying to save");
         }
     }
 
@@ -1506,8 +1480,8 @@ public class DataSourcesDlg extends CaveSWTDialog {
         newData.setPayor(getSelectedValue(payorList));
 
         // Cost
-        Double cost = HydroDataUtils.getDoubleFromTF(shell, telemetryCostTF,
-                "Cost");
+        Double cost = HydroDataUtils.getDoubleFromTF(getShell(),
+                telemetryCostTF, "Cost");
         if (cost == null) {
             return;
         }
@@ -1529,10 +1503,8 @@ public class DataSourcesDlg extends CaveSWTDialog {
             // Refresh Cache
             getTelemData();
         } catch (VizException e) {
-            MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-            mb.setText("Unable to Save");
-            mb.setMessage("An error occurred while trying to save");
-            mb.open();
+            MessageDialog.openError(getShell(), "Unable to Save",
+                    "An error occurred while trying to save");
         }
     }
 
@@ -1568,24 +1540,18 @@ public class DataSourcesDlg extends CaveSWTDialog {
      */
     private <T extends HydroDBData> void deleteDataSourceRecord(T currData) {
         if (currData != null) {
-            MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.OK
-                    | SWT.CANCEL);
-            mb.setText("Delete Confirmation");
-            mb.setMessage("Do you wish to delete this entry?");
+            boolean result = MessageDialog.openQuestion(getShell(),
+                    "Delete Confirmation", "Do you wish to delete this entry?");
 
-            int result = mb.open();
-
-            if (result == SWT.OK) {
+            if (result) {
                 try {
                     HydroDBDataManager.getInstance().deleteRecord(currData);
 
                     // Synchronize StnClass table
                     StnClassSyncUtil.setStnClass(lid);
                 } catch (VizException e) {
-                    mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-                    mb.setText("Unable to Delete");
-                    mb.setMessage("An error occurred while trying to delete");
-                    mb.open();
+                    MessageDialog.openError(getShell(), "Unable to Delete",
+                            "An error occurred while trying to delete");
                 }
             }
         }
@@ -1597,22 +1563,14 @@ public class DataSourcesDlg extends CaveSWTDialog {
     /**
      * Update the enable state of the delete button.
      * 
-     * @param currState
+     * @param isDataAvailable
      */
-    private void updateDialogState(DialogStates currState) {
-        if (fullControls == true) {
-            switch (currState) {
-            case NO_DATA:
-                deleteBtn.setEnabled(false);
-
-                break;
-            case DATA_AVAILABLE:
-                deleteBtn.setEnabled(true);
-
-                break;
-            default:
-                break;
-            }
+    private void updateDialogState(boolean isDataAvailable) {
+        if (fullControls) {
+        	Button aButton =  getButton(DELETE_ID);
+        	if (aButton != null){
+            	aButton.setEnabled(isDataAvailable);
+            }  
         }
     }
 
@@ -1713,12 +1671,8 @@ public class DataSourcesDlg extends CaveSWTDialog {
      */
     private void selectSetOption(String optionSet, Combo dataList) {
         dataList.deselectAll();
-        for (int i = 0; i < dataList.getItemCount(); i++) {
-            if (dataList.getItem(i).equalsIgnoreCase(optionSet)) {
-                dataList.select(i);
-                break;
-            }
-        }
+        int index = getIndexIgnoreCase(optionSet, dataList.getItems());
+        dataList.select(index);
     }
 
     /**
@@ -1731,12 +1685,30 @@ public class DataSourcesDlg extends CaveSWTDialog {
      */
     private void selectSetOption(String optionSet, List dataList) {
         dataList.deselectAll();
-        for (int i = 0; i < dataList.getItemCount(); i++) {
-            if (dataList.getItem(i).equalsIgnoreCase(optionSet)) {
-                dataList.select(i);
-                break;
+        int index = getIndexIgnoreCase(optionSet, dataList.getItems());
+        dataList.select(index);
+    }
+
+    /**
+     * Returns the index within the array of the first occurrence of the
+     * specified string. The search performed is case-insensitive.
+     * 
+     * @param str
+     *            the string to search for.
+     * @param items
+     *            the array of strings to search
+     * @return the index of the first occurrence of the specified string, or
+     *         {@code -1} if there is no such occurrence.
+     */
+    private int getIndexIgnoreCase(String str, String[] items) {
+        int i = 0;
+        for (String item : items) {
+            if (str.equalsIgnoreCase(item)) {
+                return i;
             }
+            i++;
         }
+        return -1;
     }
 
     /**
@@ -1773,17 +1745,17 @@ public class DataSourcesDlg extends CaveSWTDialog {
      * date in the database.
      */
     private void updateDosDate() {
-        // If the Checkbox is checked, set the Date to the
-        // current simulated time.
-        // Else load the date from the database
+        /*
+         * If the Checkbox is checked, set the Date to the current simulated
+         * time. Else load the date from the database
+         */
+        Date toFormat = null;
         if (dosChk.getSelection()) {
-            Date now = SimulatedTime.getSystemTime().getTime();
-            dosTF.setText(isoDate.format(now));
+            toFormat = SimulatedTime.getSystemTime().getTime();
         } else if (obsData != null) {
-            dosTF.setText((obsData.getDateOfService() != null) ? isoDate
-                    .format(obsData.getDateOfService()) : "");
-        } else {
-            dosTF.setText("");
+            toFormat = obsData.getDateOfService();
         }
+        String dateString = (toFormat != null) ? ISO_DATE.format(toFormat) : "";
+        dosTF.setText(dateString);
     }
 }

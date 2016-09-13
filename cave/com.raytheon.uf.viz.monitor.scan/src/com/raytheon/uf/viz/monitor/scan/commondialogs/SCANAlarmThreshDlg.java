@@ -57,6 +57,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * 24 Jul 2013  #2143      skorolev    Changes for non-blocking dialogs.
  * 15 Aug 2013   2143      mpduff      Remove resize.
+ * 12 Oct 2015  4929       rferrel     Properly set up dialog when rateOfChangeRdo selected.
  * </pre>
  * 
  * @author
@@ -243,7 +244,9 @@ public class SCANAlarmThreshDlg extends CaveSWTDialog implements
         rateOfChangeRdo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-
+                if (rateOfChangeRdo.getSelection() == true) {
+                    alarmChoiceChanged();
+                }
             }
         });
 

@@ -24,8 +24,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.plugin.goessounding.dao.GOESSoundingDAO;
 import com.raytheon.uf.common.dataplugin.goessounding.GOESSounding;
@@ -63,6 +63,7 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
  * Jul 23, 2014 3410       bclement    location changed to floats
  * Sep 16, 2014 3628       mapeters    Replaced static imports.
+ * Dec 15, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -71,8 +72,8 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  */
 public class GOESSoundingDataAdapter {
 
-    private static Log logger = LogFactory
-            .getLog(GOESSoundingDataAdapter.class);
+    private static Logger logger = LoggerFactory
+            .getLogger(GOESSoundingDataAdapter.class);
 
     private static final String SPI_FILE = "goesBufr.spi";
 
@@ -162,22 +163,23 @@ public class GOESSoundingDataAdapter {
 
             index = SAT_YEAR_POS;
             dp = dataList.get(index++);
-            year = getInt(dp,null);
-            
-//            year = (dp.getValue() != null) ? ((Number) dp.getValue())
-//                    .intValue() : null;
-            dp = dataList.get(index++);
-            day = getInt(dp,null);
+            year = getInt(dp, null);
 
-//            day = (dp.getValue() != null) ? ((Number) dp.getValue()).intValue()
-//                    : null;
+            // year = (dp.getValue() != null) ? ((Number) dp.getValue())
+            // .intValue() : null;
+            dp = dataList.get(index++);
+            day = getInt(dp, null);
+
+            // day = (dp.getValue() != null) ? ((Number)
+            // dp.getValue()).intValue()
+            // : null;
 
             dp = dataList.get(index++);
-            lat = getDouble(dp,null);
-//            lat = ((Number) dp.getValue()).doubleValue();
+            lat = getDouble(dp, null);
+            // lat = ((Number) dp.getValue()).doubleValue();
             dp = dataList.get(index++);
-            lon = getDouble(dp,null);
-//            lon = ((Number) dp.getValue()).doubleValue();
+            lon = getDouble(dp, null);
+            // lon = ((Number) dp.getValue()).doubleValue();
 
             // If we have lat/lon data, set it into the obs object. Otherwise
             // no need to go further, set the obs object to null and quit!
@@ -202,19 +204,19 @@ public class GOESSoundingDataAdapter {
             }
             if (obsData != null) {
                 dp = dataList.get(index++);
-                hour = getInt(dp,null);
-//                hour = (dp.getValue() != null) ? ((Double) dp.getValue())
-//                        .intValue() : null;
+                hour = getInt(dp, null);
+                // hour = (dp.getValue() != null) ? ((Double) dp.getValue())
+                // .intValue() : null;
 
                 dp = dataList.get(index++);
-                minute = getInt(dp,null);
-//                minute = (dp.getValue() != null) ? ((Double) dp.getValue())
-//                        .intValue() : null;
+                minute = getInt(dp, null);
+                // minute = (dp.getValue() != null) ? ((Double) dp.getValue())
+                // .intValue() : null;
 
                 dp = dataList.get(index++);
-                seconds = getInt(dp,null);
-//                seconds = (dp.getValue() != null) ? ((Double) dp.getValue())
-//                        .intValue() : null;
+                seconds = getInt(dp, null);
+                // seconds = (dp.getValue() != null) ? ((Double) dp.getValue())
+                // .intValue() : null;
 
                 Calendar baseTime = TimeUtil.newGmtCalendar(year, 1, 1);
                 baseTime.set(Calendar.DAY_OF_YEAR, day);
@@ -247,27 +249,27 @@ public class GOESSoundingDataAdapter {
             int n;
 
             IBUFRDataPacket dp = dataList.get(SAT_ID_POS);
-            n = getInt(dp,-9999);
-//            n = (dp.getValue() != null) ? ((Long) dp.getValue()).intValue()
-//                    : -9999;
+            n = getInt(dp, -9999);
+            // n = (dp.getValue() != null) ? ((Long) dp.getValue()).intValue()
+            // : -9999;
             view.setInt("satid", n);
 
             dp = dataList.get(SAT_PROC_INSTR);
-            n = getInt(dp,-9999);
-//            n = (dp.getValue() != null) ? ((Long) dp.getValue()).intValue()
-//                    : -9999;
+            n = getInt(dp, -9999);
+            // n = (dp.getValue() != null) ? ((Long) dp.getValue()).intValue()
+            // : -9999;
             view.setInt("satinstrument", n);
 
             dp = dataList.get(SAT_QUAL_POS);
-            n = getInt(dp,-9999);
-//            n = (dp.getValue() != null) ? ((Long) dp.getValue()).intValue()
-//                    : -9999;
+            n = getInt(dp, -9999);
+            // n = (dp.getValue() != null) ? ((Long) dp.getValue()).intValue()
+            // : -9999;
             view.setInt("qualityinfo", n);
 
             dp = dataList.get(SAT_CHANNELS_POS);
-            n = getInt(dp,-9999);
-//            n = (dp.getValue() != null) ? ((Long) dp.getValue()).intValue()
-//                    : -9999;
+            n = getInt(dp, -9999);
+            // n = (dp.getValue() != null) ? ((Long) dp.getValue()).intValue()
+            // : -9999;
             view.setInt("sounderchannels", n);
 
             // TODO: need elevation
@@ -375,13 +377,13 @@ public class GOESSoundingDataAdapter {
      */
     private static Double getDouble(IBUFRDataPacket packet, Double defaultValue) {
         Double retValue = defaultValue;
-        if(packet != null) {
+        if (packet != null) {
             Object o = packet.getValue();
-            if(o instanceof Double) {
+            if (o instanceof Double) {
                 retValue = ((Double) o).doubleValue();
-            } else if(o instanceof Long) {
+            } else if (o instanceof Long) {
                 retValue = ((Long) o).doubleValue();
-            } 
+            }
         }
         return retValue;
     }
@@ -394,19 +396,17 @@ public class GOESSoundingDataAdapter {
      */
     private static Integer getInt(IBUFRDataPacket packet, Integer defaultValue) {
         Integer retValue = defaultValue;
-        if(packet != null) {
+        if (packet != null) {
             Object o = packet.getValue();
-            if(o instanceof Double) {
+            if (o instanceof Double) {
                 retValue = ((Double) o).intValue();
-            } else if(o instanceof Long) {
+            } else if (o instanceof Long) {
                 retValue = ((Long) o).intValue();
-            } 
+            }
         }
         return retValue;
     }
-    
-    
-    
+
     /**
      * 
      * @return

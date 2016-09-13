@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Netcdf
+Bundle-SymbolicName: com.raytheon.uf.edex.netcdf
+Bundle-Version: 1.15.1.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: ucar.nc2;bundle-version="4.2.0",
+ com.raytheon.uf.common.time;bundle-version="1.14.0",
+ com.raytheon.uf.common.dataplugin.level;bundle-version="1.14.1"
+Export-Package: com.raytheon.uf.edex.netcdf.decoder.exception,
+ com.raytheon.uf.edex.netcdf.decoder.util,
+ com.raytheon.uf.edex.netcdf.description,
+ com.raytheon.uf.edex.netcdf.description.date,
+ com.raytheon.uf.edex.netcdf.description.exception

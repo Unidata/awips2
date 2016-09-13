@@ -20,7 +20,6 @@
 package com.raytheon.viz.aviation;
 
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.viz.ui.personalities.awips.AbstractCAVEDialogComponent;
 
@@ -34,10 +33,11 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEDialogComponent;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 28, 2011            mschenke     Initial creation
+ * Apr 28, 2011            mschenke    Initial creation
  * Oct 08, 2012 1229       rferrel     Make a blocking dialog.
  * Oct 17, 2012 1229       rferrel     Changes for non-blocking
  *                                      AviationDialog.
+ * Jan 26, 2016 5054       randerso    Change top level dialog to be parented to the display
  * 
  * </pre>
  * 
@@ -56,8 +56,7 @@ public class AviationComponent extends AbstractCAVEDialogComponent {
      */
     @Override
     protected void startInternal(String componentName) throws Exception {
-        AviationDialog aviationDlg = new AviationDialog(new Shell(
-                Display.getCurrent()));
+        AviationDialog aviationDlg = new AviationDialog(Display.getCurrent());
         aviationDlg.open();
         blockUntilClosed(aviationDlg);
     }

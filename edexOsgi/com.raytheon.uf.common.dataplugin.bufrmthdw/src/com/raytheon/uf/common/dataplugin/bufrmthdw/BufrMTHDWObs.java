@@ -33,6 +33,8 @@ import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.annotations.NullFloat;
+import com.raytheon.uf.common.dataplugin.annotations.NullString;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
@@ -60,6 +62,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * May 17, 2013 1869       bsteffen    Remove DataURI column from sat plot
  *                                     types.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Jul 17, 2015 4360       rferrel     Named unique constraint, pressure and satType no longer nullable.
  * 
  * </pre>
  * 
@@ -68,7 +71,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "bufrmthdwseq")
-@Table(name = "bufrmthdw", uniqueConstraints = { @UniqueConstraint(columnNames = {
+@Table(name = "bufrmthdw", uniqueConstraints = { @UniqueConstraint(name = "uk_bufrmthdw_datauri_fields", columnNames = {
         "stationid", "refTime", "sattype", "pressure", "latitude", "longitude" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
@@ -84,12 +87,16 @@ public class BufrMTHDWObs extends PersistablePluginDataObject implements
 
     // The observation time.
     @DataURI(position = 1)
+    @NullString
+    @Column(nullable = false)
     @DynamicSerializeElement
     private String satType;
 
     @DataURI(position = 2)
+    @NullFloat
+    @Column(nullable = false)
     @DynamicSerializeElement
-    private Double pressure;
+    private double pressure;
 
     @Embedded
     @DataURI(position = 3, embedded = true)
@@ -306,7 +313,7 @@ public class BufrMTHDWObs extends PersistablePluginDataObject implements
     /**
      * @return the pressure
      */
-    public Double getPressure() {
+    public double getPressure() {
         return pressure;
     }
 
@@ -314,7 +321,7 @@ public class BufrMTHDWObs extends PersistablePluginDataObject implements
      * @param pressure
      *            the pressure to set
      */
-    public void setPressure(Double pressure) {
+    public void setPressure(double pressure) {
         this.pressure = pressure;
     }
 

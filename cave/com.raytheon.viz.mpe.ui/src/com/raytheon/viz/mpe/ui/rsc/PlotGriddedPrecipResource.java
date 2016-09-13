@@ -32,7 +32,7 @@ import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.Unit;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -470,13 +470,14 @@ public class PlotGriddedPrecipResource extends
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-        if (buf == null || (DailyQcUtils.grids_flag != 1 && DailyQcUtils.contour_flag != 1)
+        if (buf == null
+                || (DailyQcUtils.grids_flag != 1 && DailyQcUtils.contour_flag != 1)
                 || displayMgr.isQpf() != true) {
             return;
         }
 
         Set<DisplayMode> mode = displayMgr.getDisplayMode();
-        System.out.println("Mode is: "+mode.toString());
+        System.out.println("Mode is: " + mode.toString());
 
         if (mode.contains(DisplayMode.Image)) {
             if (gridDisplay == null) {

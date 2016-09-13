@@ -8,19 +8,19 @@
 #if(${list.contains(${bullets}, "BigRockDam")})
     #set($riverName = "Phil River")
     #set($damName = "Big Rock Dam")
-    #set($cityInfo = "Evan, located about 3 miles")
+    #set($cityInfo = "Evan#commaOrEllipsis()located about 3 miles")
 #end
 #if(${list.contains(${bullets}, "BigRockhighfast")})
-    #set($scenario = "If a complete failure of the dam occurs, the water depth at Evan could exceed 18 feet in 16 minutes.")
+    #set($scenario = "If a complete failure of the dam occurs#commaOrEllipsis()the water depth at Evan could exceed 18 feet in 16 minutes.")
 #end
 #if(${list.contains(${bullets}, "BigRockhighnormal")})
-    #set($scenario = "If a complete failure of the dam occurs, the water depth at Evan could exceed 23 feet in 31 minutes.")
+    #set($scenario = "If a complete failure of the dam occurs#commaOrEllipsis()the water depth at Evan could exceed 23 feet in 31 minutes.")
 #end
 #if(${list.contains(${bullets}, "BigRockmediumfast")})
-    #set($scenario = "If a complete failure of the dam occurs, the water depth at Evan could exceed 14 feet in 19 minutes.")
+    #set($scenario = "If a complete failure of the dam occurs#commaOrEllipsis()the water depth at Evan could exceed 14 feet in 19 minutes.")
 #end
 #if(${list.contains(${bullets}, "BigRockmediumnormal")})
-    #set($scenario = "If a complete failure of the dam occurs, the water depth at Evan could exceed 17 feet in 32 minutes.")
+    #set($scenario = "If a complete failure of the dam occurs#commaOrEllipsis()the water depth at Evan could exceed 17 feet in 32 minutes.")
 #end
 #if(${list.contains(${bullets}, "BigRockruleofthumb")})
     #set($ruleofthumb = "Flood wave estimate based on the dam in Idaho: Flood initially half of original height behind dam and 3-4 mph; 5 miles in 1/2 hours; 10 miles in 1 hour; and 20 miles in 9 hours.")
@@ -28,19 +28,19 @@
 #if(${list.contains(${bullets}, "BranchedOakDam")})
     #set($riverName = "Kells River")
     #set($damName = "Branched Oak Dam")
-    #set($cityInfo = "Dangelo, located about 6 miles")
+    #set($cityInfo = "Dangelo#commaOrEllipsis()located about 6 miles")
 #end
 #if(${list.contains(${bullets}, "BranchedOakhighfast")})
-    #set($scenario = "If a complete failure of the dam occurs, the water depth at Dangelo could exceed 19 feet in 32 minutes.")
+    #set($scenario = "If a complete failure of the dam occurs#commaOrEllipsis()the water depth at Dangelo could exceed 19 feet in 32 minutes.")
 #end
 #if(${list.contains(${bullets}, "BranchedOakhighnormal")})
-    #set($scenario = "If a complete failure of the dam occurs, the water depth at Dangelo could exceed 26 feet in 56 minutes.")
+    #set($scenario = "If a complete failure of the dam occurs#commaOrEllipsis()the water depth at Dangelo could exceed 26 feet in 56 minutes.")
 #end
 #if(${list.contains(${bullets}, "BranchedOakmediumfast")})
-    #set($scenario = "If a complete failure of the dam occurs, the water depth at Dangelo could exceed 14 feet in 33 minutes.")
+    #set($scenario = "If a complete failure of the dam occurs#commaOrEllipsis()the water depth at Dangelo could exceed 14 feet in 33 minutes.")
 #end
 #if(${list.contains(${bullets}, "BranchedOakmediumnormal")})
-    #set($scenario = "If a complete failure of the dam occurs, the water depth at Dangelo could exceed 20 feet in 60 minutes.")
+    #set($scenario = "If a complete failure of the dam occurs#commaOrEllipsis()the water depth at Dangelo could exceed 20 feet in 60 minutes.")
 #end
 #if(${list.contains(${bullets}, "BranchedOakruleofthumb")})
     #set($ruleofthumb = "Flood wave estimate based on the dam in Idaho: Flood initially half of original height behind dam and 3-4 mph; 5 miles in 1/2 hours; 10 miles in 1 hour; and 20 miles in 9 hours.")

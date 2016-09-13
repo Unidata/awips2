@@ -38,6 +38,8 @@
 #    12/05/16        DR 16842      D. Friedman   Do not set product ID on MhsMessage
 #    07/29/14        DR  2914      G. Armendariz Remove call to PropertiesFactory
 #    Apr 25, 2015     4952         njensen        Updated for new JEP API
+#    Oct 09, 2015     4790         dgilling      Set msg_send code for NCF products
+#                                                to 134.
 # 
 #
 
@@ -221,6 +223,8 @@ def process(oup, afosID, resp, ackMgr = None, test = False):
                     # Send OUP to the NCF
                     #----------
                     code = "0"
+                    if addr == "DEFAULTNCF":
+                        code = "134"
                     if source and source == 'TextWS':
                         if (prodCategory == 'ADR' or prodCategory == 'ADM' or prodCategory == 'ADA') and \
                                 attachedFilename:

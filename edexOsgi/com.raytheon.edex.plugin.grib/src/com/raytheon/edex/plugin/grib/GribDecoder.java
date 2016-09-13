@@ -45,6 +45,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  *                                    added status to process.
  * Oct 07, 2013  2402     bsteffen    Decode GribDecodeMessage instead of
  *                                    files.
+ * Sep 14, 2015  4868     rjpeter     Added logging of file being decoded.
+ * Aug 03, 2016  ----     mjames      Removed logging.
  * </pre>
  * 
  * @author njensen
@@ -67,44 +69,45 @@ public class GribDecoder implements Processor {
         byte gribEdition = inMessage.getGribEdition();
         exchange.getIn().setHeader("dataType", "grib" + gribEdition);
 
-            ITimer timer = TimeUtil.getTimer();
-            GridRecord[] records = null;
-            timer.start();
-            switch (gribEdition) {
-            case 1:
-                records = new Grib1Decoder().decode(inMessage);
-                break;
-            case 2:
-                records = new Grib2Decoder().decode(inMessage);
-                break;
-            default:
-                throw new GribException("Unknown grib version detected ["
+        ITimer timer = TimeUtil.getTimer();
+        GridRecord[] records = null;
+        timer.start();
+        switch (gribEdition) {
+        case 1:
+            records = new Grib1Decoder().decode(inMessage);
+            break;
+        case 2:
+            records = new Grib2Decoder().decode(inMessage);
+            break;
+        default:
+            throw new GribException("Unknown grib version detected ["
                     + gribEdition + "] in file: [" + inMessage.getFileName()
                     + "]");
-            }
+        }
 
-            String datasetId = (String) headers.get("datasetid");
-            String secondaryId = (String) headers.get("secondaryid");
-            String ensembleId = (String) headers.get("ensembleid");
+        String datasetId = (String) headers.get("datasetid");
+        String secondaryId = (String) headers.get("secondaryid");
+        String ensembleId = (String) headers.get("ensembleid");
 
-            if (secondaryId != null || datasetId != null || ensembleId != null) {
-                for (GridRecord record : records) {
-                    if (datasetId != null) {
-                        record.setDatasetId(datasetId);
-                    }
-                    if (secondaryId != null) {
-                        record.setSecondaryId(secondaryId);
-                    }
-                    if (ensembleId != null) {
-                        record.setEnsembleId(ensembleId);
-                    }
-                    record.setDataURI(null);
+        if ((secondaryId != null) || (datasetId != null)
+                || (ensembleId != null)) {
+            for (GridRecord record : records) {
+                if (datasetId != null) {
+                    record.setDatasetId(datasetId);
                 }
+                if (secondaryId != null) {
+                    record.setSecondaryId(secondaryId);
+                }
+                if (ensembleId != null) {
+                    record.setEnsembleId(ensembleId);
+                }
+                record.setDataURI(null);
             }
-            timer.stop();
-            perfLog.logDuration("Grib" + gribEdition + ": Time to Decode",
-                    timer.getElapsedTime());
-            exchange.getIn().setBody(records);
+        }
+        timer.stop();
+        perfLog.logDuration("Grib" + gribEdition + ": Time to Decode",
+                timer.getElapsedTime());
+        exchange.getIn().setBody(records);
 
     }
 

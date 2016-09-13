@@ -92,7 +92,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 08 April 2015 17338      djingtao  "Apostrophe" entered into HB text fields are not written to IHFS database 
  *                                    remove the changes in 15695/15488,  move the apostrophe fix into a more central position
  * 01 July 2015 15642      xwei        Added read-only lat/lon in DMS format
- * 
+ * Nov 30, 2015  14228      wkwock      Update remark limit to 510.
  *  
  * </pre>
  * 
@@ -404,7 +404,9 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
     private String defaultNewLid = "XXXXX";
 
     private String defaultNewCountyState = "XXXXXXXXXXXXXXXXXXXX, XX";
-
+    
+    private final int MAX_REMARK_CHAR = 510;
+    
     /**
      * Listeners to notify main HB Dialog of station list changes
      */
@@ -871,11 +873,11 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
         remarksTF = new Text(remarksGroup, SWT.BORDER | SWT.MULTI | SWT.WRAP);
         remarksTF.setLayoutData(gd);
         remarksTF.setFont(controlFont);
-        remarksTF.setTextLimit(255);
+        remarksTF.setTextLimit(MAX_REMARK_CHAR);
         currentRemarkText = remarksTF.getText();
         ModifyListener listener = new ModifyListener() {
             public void modifyText(ModifyEvent e) {
-                if (remarksTF.getText().length() > 255) {
+                if (remarksTF.getText().length() > MAX_REMARK_CHAR) {
                     remarksTF.setText(currentRemarkText);
                     shell.getDisplay().beep();
                 } else

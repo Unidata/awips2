@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Redbook Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.redbook
-Bundle-Version: 1.15.0.qualifier
+Bundle-Version: 1.15.1.qualifier
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.edex.common,
  javax.persistence,
@@ -11,7 +11,7 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.edex.ndm;bundle-version="1.14.0",
  com.raytheon.uf.edex.menus;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin.redbook;bundle-version="1.14.0",
- org.apache.commons.lang;bundle-version="2.3.0"
+ org.apache.commons.lang3;bundle-version="3.4.0"
 Export-Package: com.raytheon.uf.edex.plugin.redbook,
  com.raytheon.uf.edex.plugin.redbook.decoder
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

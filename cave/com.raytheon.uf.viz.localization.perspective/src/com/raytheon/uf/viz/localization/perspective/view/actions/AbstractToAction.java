@@ -41,7 +41,7 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 25, 2011            mschenke     Initial creation
+ * Mar 25, 2011            mschenke    Initial creation
  * 
  * </pre>
  * 
@@ -65,21 +65,11 @@ public abstract class AbstractToAction extends Action implements IMenuCreator {
         return this;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.action.Action#run()
-     */
     @Override
     public void run() {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.action.IMenuCreator#dispose()
-     */
     @Override
     public void dispose() {
         if (menu != null) {
@@ -87,13 +77,6 @@ public abstract class AbstractToAction extends Action implements IMenuCreator {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.action.IMenuCreator#getMenu(org.eclipse.swt.widgets
-     * .Menu)
-     */
     @Override
     public Menu getMenu(Menu parent) {
         if (menu != null) {

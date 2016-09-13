@@ -38,9 +38,7 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.tcs.Radius;
 import com.raytheon.uf.common.dataplugin.tcs.TropicalCycloneSummary;
 import com.raytheon.uf.common.dataplugin.tcs.util.TCSConstants;
-import com.raytheon.uf.common.dataplugin.tcs.util.Util;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.dataplugin.tcs.util.TcsUtil;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.time.DataTime;
@@ -69,17 +67,20 @@ import com.raytheon.viz.pointdata.PointDataRequest;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * Tropical Cyclone summary resource
+ * Resource for displaying data from a {@link TropicalCycloneSummary}.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Oct 22, 2010            jsanchez     Initial creation
- * Jul 29, 2014 #3465      mapeters     Updated deprecated drawString() calls.
- * Sep 17, 2014 3632       bclement     fixed index out of bounds
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- ---------------------------------------
+ * Oct 22, 2010           jsanchez  Initial creation
+ * Jul 29, 2014  3465     mapeters  Updated deprecated drawString() calls.
+ * Sep 17, 2014  3632     bclement  fixed index out of bounds
+ * Nov 05, 2015  5070     randerso  Adjust font sizes for dpi scaling
+ * Nov 30, 2015  5149     bsteffen  Rename TcsUtil, update class javadoc
+ * Jan 27, 2016  5285     tgurney   Remove dependency on dataURI
  * 
  * </pre>
  * 
@@ -123,7 +124,7 @@ public class TCSResource extends
         if (font != null) {
             font.dispose();
         }
-        this.font = target.initializeFont("Monospace", 11,
+        this.font = target.initializeFont("Monospace", 9,
                 new Style[] { Style.ITALIC });
         this.symbolLoader = new SymbolLoader();
     }
@@ -142,13 +143,15 @@ public class TCSResource extends
         color = getCapability(ColorableCapability.class).getColor();
         font.setMagnification(getCapability(MagnificationCapability.class)
                 .getMagnification().floatValue());
-        
+
         double screenToWorldRatio = paintProps.getCanvasBounds().width
                 / paintProps.getView().getExtent().getWidth();
         double scale = (PLOT_WIDTH / 2.0) / screenToWorldRatio;
 
-        DataTime dt = resourceData.isHourlyForecast ? new DataTime(paintProps
-                .getDataTime().getRefTime()) : paintProps.getDataTime();
+        DataTime dt = paintProps.getDataTime();
+        if (resourceData.isHourlyForecast && dt != null) {
+            dt = new DataTime(dt.getRefTime());
+        }
         Collection<TropicalCycloneSummary> toParse = recordsToParse.get(dt);
         if (toParse != null && toParse.size() > 0) {
             updateRecords(dt);
@@ -176,7 +179,7 @@ public class TCSResource extends
             PaintProperties paintProps, PointDataView pdv, double scale)
             throws VizException {
 
-        TropicalCycloneSummary storm = Util.interplateStorm(pdv,
+        TropicalCycloneSummary storm = TcsUtil.interplateStorm(pdv,
                 paintProps.getDataTime());
         displayOneStorm(target, paintProps, (float) storm.getLongitude(),
                 (float) storm.getLatitude(), storm.getPressure(),
@@ -298,14 +301,12 @@ public class TCSResource extends
 
         if (paintProps.getZoomLevel() * descriptor.getMapWidth() / 1000 < ZOOM_LEVEL) {
             drawLegends(target, paintProps, scale);
-            drawRadius(target, name, descriptor.pixelToWorld(loc), scale,
-                    radiusList);
+            drawRadius(target, descriptor.pixelToWorld(loc), radiusList);
         }
     }
 
-    private void drawRadius(IGraphicsTarget target, String name,
-            double[] latLon, double scale, ArrayList<Radius> radiusList)
-            throws VizException {
+    private void drawRadius(IGraphicsTarget target, double[] latLon,
+            ArrayList<Radius> radiusList) throws VizException {
         Coordinate[] coordinates = null;
 
         // Draw the XX KT... lines.
@@ -504,18 +505,10 @@ public class TCSResource extends
 
     protected void updateRecords(DataTime dataTime) throws VizException {
         PointDataContainer pdc = null;
-        RequestConstraint constraint = new RequestConstraint();
-        Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>();
-
-        for (TropicalCycloneSummary record : recordsToParse.get(dataTime)) {
-            constraint.setConstraintType(ConstraintType.IN);
-            constraint.addToConstraintValueList(record.getDataURI());
-        }
-        constraints.put(DATAURI, constraint);
         // Request the point data
         pdc = PointDataRequest.requestPointDataAllLevels(dataTime, resourceData
                 .getMetadataMap().get("pluginName").getConstraintValue(),
-                getParameters(), null, constraints);
+                getParameters(), null, resourceData.getMetadataMap());
 
         if (recordsToDisplay.containsKey(dataTime)) {
             recordsToDisplay.get(dataTime).combine(pdc);

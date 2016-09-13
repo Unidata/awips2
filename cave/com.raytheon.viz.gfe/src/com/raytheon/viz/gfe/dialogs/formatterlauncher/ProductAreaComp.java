@@ -37,6 +37,7 @@ import org.eclipse.swt.widgets.TabFolder;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.FormatterLauncherDialog;
@@ -46,7 +47,6 @@ import com.raytheon.viz.gfe.tasks.TaskManager;
 import com.raytheon.viz.gfe.textformatter.FormatterUtil;
 import com.raytheon.viz.gfe.textformatter.TextProductFinishListener;
 import com.raytheon.viz.gfe.textformatter.TextProductManager;
-import com.raytheon.viz.ui.simulatedtime.SimulatedTimeProhibitedOpException;
 
 /**
  * Composite containing the product area and its controls.
@@ -71,7 +71,14 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeProhibitedOpException;
  *                                     Passed dataMgr instance to FormatterUtil.runFormatterScript
  * 12 FEB 2014  2801       randerso    Added prompting if formatter is run against non-normal database
  * 20 APR 2015  4027       randerso    Fixes for GFE formatter auto tests to support mixed case WA
- * 15 SEP 2015  4858       dgilling    Handle exception from runFormatterScript.
+ * 24 AUG 2015  4749       dgilling    Ensure TextProductFinishListener callbacks execute on UI thread,
+ *                                     override dispose to aid perspective shutdown.
+ * 15 SEP 2015  4858       dgilling    Handle exception from runFormatterScript. 
+ * 03 NOV 2015 14813       ryu         Fix missing VTEC code in generated product. VTEC mode is set 
+ *                                     based on the pil of the product rather than the disply name.
+ * 18 FEB 2016 13033       yteng       Improve error message for bad characters in text formatter
+ *                                     definitions.
+ * 14 APR 2016  5578       dgilling    Support changes to FormatterUtil.runFormatterScript.
  * 
  * </pre>
  * 
@@ -389,37 +396,32 @@ public class ProductAreaComp extends Composite implements
                             if (formattingCbo.isVisible()) {
                                 vtecMode = formattingCbo.getText();
                             } else {
-                                // TODO: part of fix for SS RM DR #14813
-                                // String pil = (String) textProductMgr
-                                // .getDefinitionValue(productName, "pil");
-                                // if (pil != null) {
-                                // pil = pil.substring(0, 3);
-                                // vtecMode = textProductMgr
-                                // .getVtecMessageType(pil);
-                                // }
-
-                                int hazIndex = productName.indexOf("Hazard_");
-                                if (hazIndex > -1) {
-                                    String category = productName.substring(
-                                            hazIndex + 7, hazIndex + 10);
+                                String pil = "";
+                                try {
+                                    pil = (String) textProductMgr
+                                            .getDefinitionValue(productName,
+                                                    "pil");
+                                } catch (ClassCastException e) {
+                                    statusHandler.error(
+                                            "Invalid pil value: "
+                                                    + textProductMgr
+                                                            .getDefinitionValue(
+                                                                    productName,
+                                                                    "pil"), e);
+                                }
+                                if (pil != null) {
+                                    pil = pil.substring(0, 3);
                                     vtecMode = textProductMgr
-                                            .getVtecMessageType(category);
-                                    if (vtecMode == null) {
-                                        vtecMode = "";
-                                    }
+                                            .getVtecMessageType(pil);
                                 }
                             }
 
                             // Get the source database
                             zoneCombiner.applyZoneCombo();
-                            try {
-                                FormatterUtil.runFormatterScript(dataMgr,
-                                        textProductMgr, productName,
-                                        dbId.toString(), vtecMode,
-                                        ProductAreaComp.this);
-                            } catch (SimulatedTimeProhibitedOpException e) {
-                                statusHandler.error(e.getLocalizedMessage(), e);
-                            }
+                            FormatterUtil.runFormatterScript(dataMgr,
+                                    textProductMgr, productName,
+                                    dbId.toString(), vtecMode,
+                                    ProductAreaComp.this);
                         }
                     }
                 }
@@ -662,57 +664,84 @@ public class ProductAreaComp extends Composite implements
     }
 
     @Override
-    public void textProductQueued(ConfigData.ProductStateEnum state) {
-        productTabCB.setTabState(state, productName);
-    }
-
-    @Override
-    public void textProductFinished(String productText,
-            ConfigData.ProductStateEnum state) {
-
-        if (isTabClosed == true) {
+    public void textProductQueued(final ConfigData.ProductStateEnum state) {
+        if (isTabClosed) {
             return;
         }
 
-        abortFormatterBtn.setEnabled(false);
-        runFormatterBtn.setEnabled(true);
-        // closeTabBtn.setEnabled(true);
-        outputLogBtn.setEnabled(true);
-        if (state == ConfigData.ProductStateEnum.Finished) {
-            if (productText != null) {
-                productEditorComp.retrieveActiveVTEC();
-                productEditorComp.setProductText(productText);
+        VizApp.runSyncIfWorkbench(new Runnable() {
 
-                // handle autoWrite and autoStore...
-                productEditorComp.doAutoStuff();
+            @Override
+            public void run() {
+                productTabCB.setTabState(state, productName);
             }
-
-            productEditorBtn.setSelection(true);
-            productEditorBtnSelected();
-        } else if (state == ConfigData.ProductStateEnum.Failed) {
-            outputLogBtn.setSelection(true);
-            outputLogBtnSelected();
-        }
+        });
     }
 
     @Override
-    public void startProgressBar(ConfigData.ProductStateEnum state) {
-        if (isTabClosed == true) {
+    public void textProductFinished(final String productText,
+            final ConfigData.ProductStateEnum state) {
+        if (isTabClosed) {
             return;
         }
 
-        progressBar.setVisible(true);
-        productTabCB.setTabState(state, productName);
+        VizApp.runSyncIfWorkbench(new Runnable() {
+
+            @Override
+            public void run() {
+                abortFormatterBtn.setEnabled(false);
+                runFormatterBtn.setEnabled(true);
+                // closeTabBtn.setEnabled(true);
+                outputLogBtn.setEnabled(true);
+                if (state == ConfigData.ProductStateEnum.Finished) {
+                    if (productText != null) {
+                        productEditorComp.retrieveActiveVTEC();
+                        productEditorComp.setProductText(productText);
+
+                        // handle autoWrite and autoStore...
+                        productEditorComp.doAutoStuff();
+                    }
+
+                    productEditorBtn.setSelection(true);
+                    productEditorBtnSelected();
+                } else if (state == ConfigData.ProductStateEnum.Failed) {
+                    outputLogBtn.setSelection(true);
+                    outputLogBtnSelected();
+                }
+            }
+        });
     }
 
     @Override
-    public void stopProgressBar(ConfigData.ProductStateEnum state) {
-        if (isTabClosed == true) {
+    public void startProgressBar(final ConfigData.ProductStateEnum state) {
+        if (isTabClosed) {
             return;
         }
 
-        progressBar.setVisible(false);
-        productTabCB.setTabState(state, productName);
+        VizApp.runSyncIfWorkbench(new Runnable() {
+
+            @Override
+            public void run() {
+                progressBar.setVisible(true);
+                productTabCB.setTabState(state, productName);
+            }
+        });
+    }
+
+    @Override
+    public void stopProgressBar(final ConfigData.ProductStateEnum state) {
+        if (isTabClosed) {
+            return;
+        }
+
+        VizApp.runSyncIfWorkbench(new Runnable() {
+
+            @Override
+            public void run() {
+                progressBar.setVisible(false);
+                productTabCB.setTabState(state, productName);
+            }
+        });
     }
 
     @Override
@@ -720,4 +749,9 @@ public class ProductAreaComp extends Composite implements
         productTabCB.setTabState(state, productName);
     }
 
+    @Override
+    public void dispose() {
+        isTabClosed = true;
+        super.dispose();
+    }
 }

@@ -24,6 +24,7 @@ import java.util.List;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.xy.map.rsc.IGraphableResource;
+import com.raytheon.uf.viz.xy.util.AbstractGraphZoomHandler;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -37,6 +38,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Sep 29, 2009            mschenke     Initial creation
  * Feb 10, 2011 8244       bkowal       Keep track of the current
  *                                      magnification settings.
+ * Jul 21, 2015 4220       mapeters     Added getZoomHandler/setZoomHandler
  * 
  * </pre>
  * 
@@ -164,6 +166,10 @@ public interface IGraph extends IRenderable {
      * Reconstructs the graph
      */
     public void reconstruct();
-    
+
     public void setCurrentMagnification(Double currentMagnification);
+
+    public AbstractGraphZoomHandler getZoomHandler();
+
+    public void setZoomHandler(AbstractGraphZoomHandler zoomHandler);
 }

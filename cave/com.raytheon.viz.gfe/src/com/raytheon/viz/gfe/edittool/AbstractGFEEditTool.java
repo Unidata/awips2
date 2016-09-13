@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.SWT;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
@@ -44,9 +43,9 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
-import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEOperationFailedException;
 import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
 import com.raytheon.viz.gfe.core.griddata.IGridData.EditOp;
 import com.raytheon.viz.gfe.core.parm.Parm;
@@ -73,6 +72,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * 04/20/2008              chammack    Initial Creation.
  * 04/16/2009   2262       rjpeter     Updated to handle mouse movement off the extent.
+ * Aug 18, 2015 4749       njensen     Set dataManager to null in deactivateTool()
+ * 
  * </pre>
  * 
  * @author chammack
@@ -86,11 +87,11 @@ public abstract class AbstractGFEEditTool extends AbstractModalTool implements
 
     protected static enum EventType {
         START_DRAG, IN_DRAG, END_DRAG, MOUSE_CLICK
-    };
+    }
 
     protected static enum ToolType {
         PARM_BASED, GENERAL
-    };
+    }
 
     protected GeneralGridGeometry lastGridGeometry;
 
@@ -299,7 +300,7 @@ public abstract class AbstractGFEEditTool extends AbstractModalTool implements
     @Override
     protected void activateTool() {
         editor.registerMouseHandler(handler);
-        dataManager = DataManager.getCurrentInstance();
+        dataManager = DataManagerUIFactory.getCurrentInstance();
 
         try {
             dataManager.getSpatialDisplayManager().addEditTool(this);
@@ -334,11 +335,6 @@ public abstract class AbstractGFEEditTool extends AbstractModalTool implements
         parm.endParmEdit();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.tools.AbstractModalTool#deactivateTool()
-     */
     @Override
     public void deactivateTool() {
         if (editor != null) {
@@ -349,12 +345,9 @@ public abstract class AbstractGFEEditTool extends AbstractModalTool implements
             try {
                 dataManager.getSpatialDisplayManager().removeEditTool(this);
             } catch (VizException e) {
-                Activator
-                        .getDefault()
-                        .getLog()
-                        .log(new Status(Status.ERROR, Activator.PLUGIN_ID,
-                                "Error removing editTool", e));
+                statusHandler.error("Error removing editTool", e);
             }
+            dataManager = null;
         }
     }
 
@@ -369,11 +362,6 @@ public abstract class AbstractGFEEditTool extends AbstractModalTool implements
         /** Shift flag, do not process events if shift is held */
         private boolean shiftDown = false;
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.raytheon.viz.ui.input.InputAdapter#handleKeyDown(int)
-         */
         @Override
         public boolean handleKeyDown(int keyCode) {
             if ((keyCode & SWT.SHIFT) != 0) {
@@ -382,11 +370,6 @@ public abstract class AbstractGFEEditTool extends AbstractModalTool implements
             return false;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.raytheon.viz.ui.input.InputAdapter#handleKeyUp(int)
-         */
         @Override
         public boolean handleKeyUp(int keyCode) {
             if ((keyCode & SWT.SHIFT) != 0) {
@@ -395,12 +378,6 @@ public abstract class AbstractGFEEditTool extends AbstractModalTool implements
             return false;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseDown(int,
-         * int, int)
-         */
         @Override
         public boolean handleMouseDown(int x, int y, int mouseButton) {
             mouseDownPoint = null;
@@ -429,12 +406,6 @@ public abstract class AbstractGFEEditTool extends AbstractModalTool implements
             return true;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseDownMove(int,
-         * int, int)
-         */
         @Override
         public boolean handleMouseDownMove(int x, int y, int mouseButton) {
             if (shiftDown && !inDrag) {
@@ -471,12 +442,6 @@ public abstract class AbstractGFEEditTool extends AbstractModalTool implements
             return true;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseUp(int, int,
-         * int)
-         */
         @Override
         public boolean handleMouseUp(int x, int y, int mouseButton) {
             if (shiftDown && !inDrag) {
@@ -537,11 +502,6 @@ public abstract class AbstractGFEEditTool extends AbstractModalTool implements
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.tools.AbstractTool#refresh()
-     */
     @Override
     protected void refresh() {
         ResourceList resourceList = this.editor.getActiveDisplayPane()

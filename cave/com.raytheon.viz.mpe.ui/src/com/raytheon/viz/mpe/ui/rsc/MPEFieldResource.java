@@ -30,11 +30,13 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.measure.converter.UnitConverter;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
@@ -86,6 +88,8 @@ import com.raytheon.viz.mpe.ui.rsc.MPEFieldResourceData.MPEFieldFrame;
  * Nov 05, 2015 18095      lbousaidi    Fixed hour substitued for satellite field precip when drawing polygon.
  * Dec 04, 2015 5165/14513 mduff        Set this resource on the display manager if not set in the display manager.
  * Dec 08, 2015 5180       bkowal       Made the hour substitution special case precise.
+ * Feb 15, 2016 5338       bkowal       Update the persistent set of polygons for an existing frame after one or
+ *                                      all are deleted.
  * 
  * </pre>
  * 
@@ -455,8 +459,6 @@ public class MPEFieldResource extends
                         timeToLoad.getTime());
                 try {
                     long fileLength = file.getFile().length();
-                    // System.out.printf("FileName = %s, length = %d\n",
-                    // file.getFile().getPath(), fileLength);
                     if (fileLength > 0) {
                         file.load();
                     } else // can't read the file since it is empty
@@ -557,13 +559,6 @@ public class MPEFieldResource extends
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.mpe.ui.rsc.AbstractGriddedMPEResource#createFrameContour
-     * (com.raytheon.viz.mpe.ui.rsc.AbstractMPEGriddedResourceData.Frame)
-     */
     @Override
     protected GriddedContourDisplay createFrameContour(MPEFieldFrame frame)
             throws VizException {
@@ -582,13 +577,6 @@ public class MPEFieldResource extends
         return display;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.mpe.ui.rsc.AbstractGriddedMPEResource#createFrameImage
-     * (com.raytheon.viz.mpe.ui.rsc.AbstractMPEGriddedResourceData.Frame)
-     */
     @Override
     protected GriddedImageDisplay2 createFrameImage(MPEFieldFrame frame)
             throws VizException {
@@ -680,22 +668,58 @@ public class MPEFieldResource extends
         return preferences;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.mpe.ui.dialogs.polygon.IPolygonEditsChangedListener#
-     * polygonEditsChanged(com.raytheon.viz.mpe.ui.DisplayFieldData,
-     * java.util.Date, java.util.List)
-     */
     @Override
     public void polygonEditsChanged(DisplayFieldData field, Date date,
-            List<RubberPolyData> polygonEdits) {
+            List<RubberPolyData> polygonEdits,
+            List<RubberPolyData> persistentRemaining) {
         if (field == resourceData.getFieldData()) {
             MPEFieldFrame frame = frames.get(new DataTime(date));
             if (frame != null) {
                 frame.setPolygonEdits(polygonEdits);
                 issueRefresh();
+            }
+
+            if (persistentRemaining == null) {
+                /*
+                 * A persistent polygon has been removed. So, the lists of
+                 * polygons for any existing frames will need to be rebuilt. The
+                 * polygons are stored in a text file without any unique
+                 * identifier and polygons with duplicate fields are allowed to
+                 * exist. The polygons must currently remain stored in this
+                 * format to maintain compatibility with legacy C++ mpe code.
+                 * So, the only option (with the current implementation) is to
+                 * remove any persistent polygons from the existing list and
+                 * re-add the remaining set of persistent polygons. The lists of
+                 * polygons cannot be replaced across all frames because the
+                 * list of polygon edits passed to this method also contains
+                 * frame/time specific polygons.
+                 */
+                return;
+            }
+            for (MPEFieldFrame otherFrame : frames.values()) {
+                if (otherFrame.getDate().equals(date)) {
+                    // already updated this frame.
+                    continue;
+                }
+                List<RubberPolyData> currentPolygonEdits = otherFrame
+                        .getPolygonEdits();
+                if (CollectionUtils.isEmpty(currentPolygonEdits)) {
+                    continue;
+                }
+                boolean persistentRemoved = false;
+                Iterator<RubberPolyData> persistentIter = currentPolygonEdits
+                        .iterator();
+                while (persistentIter.hasNext()) {
+                    if (persistentIter.next().isPersistent()) {
+                        persistentIter.remove();
+                        persistentRemoved = true;
+                    }
+                }
+                if (!persistentRemoved) {
+                    continue;
+                }
+                currentPolygonEdits.addAll(persistentRemaining);
+                otherFrame.setPolygonEdits(currentPolygonEdits);
             }
         }
     }

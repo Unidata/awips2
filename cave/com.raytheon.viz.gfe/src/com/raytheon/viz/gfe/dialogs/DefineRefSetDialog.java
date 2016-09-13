@@ -55,17 +55,14 @@ import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData.CoordinateType;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData.RefType;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
-import com.raytheon.uf.common.python.concurrent.AbstractPythonScriptFactory;
 import com.raytheon.uf.common.python.concurrent.IPythonExecutor;
 import com.raytheon.uf.common.python.concurrent.IPythonJobListener;
-import com.raytheon.uf.common.python.concurrent.PythonJobCoordinator;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.core.DataManager;
-import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.core.IParmManager;
 import com.raytheon.viz.gfe.core.IReferenceSetManager;
 import com.raytheon.viz.gfe.core.IReferenceSetManager.RefSetMode;
@@ -81,7 +78,6 @@ import com.raytheon.viz.gfe.core.wxvalue.WeatherWxValue;
 import com.raytheon.viz.gfe.core.wxvalue.WxValue;
 import com.raytheon.viz.gfe.query.QueryScript;
 import com.raytheon.viz.gfe.query.QueryScriptExecutor;
-import com.raytheon.viz.gfe.query.QueryScriptFactory;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.widgets.ToggleSelectList;
@@ -95,7 +91,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 11, 2008		       Eric Babin  Initial Creation
+ * Mar 11, 2008            Eric Babin  Initial Creation
  * Jul 15, 2008            njensen     Hooked into backend/fixes
  * Oct 24, 2012 1287       rferrel     Code clean up for non-blocking dialog.
  * Oct 24, 2012 1287       rferrel     Changes for non-blocking SaveDeleteRefDialog.
@@ -105,7 +101,9 @@ import com.vividsolutions.jts.geom.MultiPolygon;
  *                                      Changes for non-blocking DiscreteDialog. 
  * Feb 14, 2013            mnash       Move QueryScript to use new Python concurrency implementation
  * Jan 13, 2015 3955       randerso    Improve handling of Topo parm for Standard Terrain editing
- * Jun 24, 2015 14401      yteng       Check whether activeDisplay is disposed before update 
+ * Jun 24, 2015 14401      yteng       Check whether activeDisplay is disposed before update
+ * Aug 27, 2015 4749       njensen     Reused reference to PythonJobCoordinator instance
+ * Dec 14, 2015 4816       dgilling    Support refactored PythonJobCoordinator API.
  * 
  * </pre>
  * 
@@ -595,7 +593,7 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
                 || menuModalDlg.isDisposed()) {
             menuModalDlg = new MaskDialog(this.getShell(), parm);
             menuModalDlg.setBlockOnOpen(false);
-            menuModalDlg.setCloseCallback(new ICloseCallback() {
+            menuModalDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
@@ -649,7 +647,7 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
                     || menuModalDlg.isDisposed()) {
                 menuModalDlg = new WeatherDialog(this.getShell(), parm);
                 menuModalDlg.setBlockOnOpen(false);
-                menuModalDlg.setCloseCallback(new ICloseCallback() {
+                menuModalDlg.addCloseCallback(new ICloseCallback() {
 
                     @Override
                     public void dialogClosed(Object returnValue) {
@@ -674,7 +672,7 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
                     || menuModalDlg.isDisposed()) {
                 menuModalDlg = new DiscreteDialog(this.getShell(), parm);
                 menuModalDlg.setBlockOnOpen(false);
-                menuModalDlg.setCloseCallback(new ICloseCallback() {
+                menuModalDlg.addCloseCallback(new ICloseCallback() {
 
                     @Override
                     public void dialogClosed(Object returnValue) {
@@ -852,12 +850,8 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
     }
 
     private void submit() {
+        Map<String, Object> argMap = new HashMap<String, Object>(1, 1f);
         final String s = this.queryField.getText().trim();
-        AbstractPythonScriptFactory<QueryScript> factory = new QueryScriptFactory(
-                DataManagerUIFactory.getCurrentInstance());
-        PythonJobCoordinator<QueryScript> coordinator = PythonJobCoordinator
-                .newInstance(factory);
-        Map<String, Object> argMap = new HashMap<String, Object>();
         argMap.put("expression", s);
         IPythonExecutor<QueryScript, ReferenceData> executor = new QueryScriptExecutor(
                 "evaluate", argMap);
@@ -878,23 +872,23 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
                             refSetMgr.incomingRefSet(result,
                                     RefSetMode.USE_CURRENT);
                             addToHistory(s);
-                            
-                            if (activeDisplay != null || !activeDisplay.isDisposed())
+
+                            if (activeDisplay != null
+                                    || !activeDisplay.isDisposed()) {
                                 activeDisplay.setText(s);
-                            
-                            if (queryField != null && !queryField.isDisposed())
+                            }
+
+                            if (queryField != null && !queryField.isDisposed()) {
                                 queryField.setText("");
+                            }
                         }
                     };
                 });
             }
         };
-        try {
-            coordinator.submitAsyncJob(executor, listener);
-        } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Unable to submit job to ExecutorService", e);
-        }
+
+        refSetMgr.getPythonThreadPool().submitJobWithCallback(executor,
+                listener);
     }
 
     /*

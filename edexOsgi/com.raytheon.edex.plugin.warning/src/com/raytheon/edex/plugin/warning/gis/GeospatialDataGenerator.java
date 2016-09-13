@@ -20,11 +20,12 @@
 package com.raytheon.edex.plugin.warning.gis;
 
 import java.io.File;
-import java.sql.Timestamp;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -66,12 +67,13 @@ import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.SpatialException;
 import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
 import com.raytheon.uf.common.geospatial.SpatialQueryResult;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
@@ -119,7 +121,12 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * Jun 26, 2015  17212     Qinglu Lin  Removed features whose geometry is empty in queryGeospatialData(),
  *                                     caught exception in updateFeatures() & topologySimplifyQueryResults(),
  *                                     and added composeMessage().
+ * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
  * Dec  9, 2015 ASM# 18209 D. Friedman Support cwaStretch features outside CWA.
+ * Jan 08, 2016  5237      tgurney     Replaced LocalizationFile with ILocalizationFile
+ *                                     (and removed calls to deprecated methods found
+ *                                     only on the former)
+ * 
  * </pre>
  * 
  * @author rjpeter
@@ -574,7 +581,7 @@ public class GeospatialDataGenerator {
         for (Object rowObj : rows) {
             Object[] row = (Object[]) rowObj;
             String table = row[0].toString();
-            Timestamp ts = (Timestamp) row[1];
+            Date ts = (Date) row[1];
             long time = ts.getTime();
 
             // not using else/if in case tz or pArea was the same table as area
@@ -630,9 +637,10 @@ public class GeospatialDataGenerator {
             if (features[i].geometry.isEmpty()) {
                 // create log message for a feature that has empty geometry
                 emptyFeatureFound = true;
-                String message = composeMessage("Geometry for", areaSource, features[i],
-                        "in features[" + i + "] is empty. Check out " + areaSource
-                        + " and CWA tables/shapefiles.");
+                String message = composeMessage("Geometry for", areaSource,
+                        features[i], "in features[" + i
+                                + "] is empty. Check out " + areaSource
+                                + " and CWA tables/shapefiles.");
                 statusHandler.handle(Priority.ERROR, message);
             } else {
                 geomFeatures.add(features[i]);
@@ -640,7 +648,8 @@ public class GeospatialDataGenerator {
         }
         if (emptyFeatureFound) {
             // recreate features in which each feature has no-empty geometry
-            features = geomFeatures.toArray(new SpatialQueryResult[geomFeatures.size()]);
+            features = geomFeatures.toArray(new SpatialQueryResult[geomFeatures
+                    .size()]);
         }
 
         topologySimplifyQueryResults(features, areaSource);
@@ -778,8 +787,8 @@ public class GeospatialDataGenerator {
      * @throws ExecutionException
      */
     private void updateFeatures(SpatialQueryResult[] features,
-            SpatialQueryResult[] cwaFeatures, String areaSource) throws
-            InterruptedException, ExecutionException {
+            SpatialQueryResult[] cwaFeatures, String areaSource)
+            throws InterruptedException, ExecutionException {
         List<Future<Geometry>> featureFutures = new ArrayList<Future<Geometry>>(
                 features.length);
         Geometry[] cwaFeturesGeoms = new Geometry[cwaFeatures.length];
@@ -791,9 +800,9 @@ public class GeospatialDataGenerator {
                 featureFutures.size());
 
         // Queue all intersections.
-        for (int index = 0; index < features.length; ++index) {
+        for (SpatialQueryResult feature : features) {
 
-            geomFutures = submitGeomIntersection(features[index].geometry,
+            geomFutures = submitGeomIntersection(feature.geometry,
                     cwaFeturesGeoms);
             Callable<Geometry> callable = new FeatureCallable(geomFutures,
                     statusHandler);
@@ -808,9 +817,10 @@ public class GeospatialDataGenerator {
                 Future<Geometry> future = featureFutures.get(index);
                 features[index].geometry = future.get();
             } catch (Exception e) {
-                String message = composeMessage("Error while trying to get geometry for",
-                        areaSource, features[index],
-                        "from element " + index + " of featureFutures.");
+                String message = composeMessage(
+                        "Error while trying to get geometry for", areaSource,
+                        features[index], "from element " + index
+                                + " of featureFutures.");
                 statusHandler.handle(Priority.ERROR, message);
                 throw e;
             }
@@ -843,14 +853,17 @@ public class GeospatialDataGenerator {
      * 
      * @param results
      */
-    private void topologySimplifyQueryResults(SpatialQueryResult[] results, String areaSource) {
+    private void topologySimplifyQueryResults(SpatialQueryResult[] results,
+            String areaSource) {
         for (int i = 0; i < results.length; i++) {
             try {
-                results[i].geometry = TopologyPreservingSimplifier.simplify(results[i].geometry, 0.0001);
+                results[i].geometry = TopologyPreservingSimplifier.simplify(
+                        results[i].geometry, 0.0001);
             } catch (RuntimeException e) {
-                String message = composeMessage("Error while invoking "
-                        + "TopologyPreservingSimplifier.simplify() for geometry of results["
-                        + i + "] for", areaSource, results[i], ".");
+                String message = composeMessage(
+                        "Error while invoking "
+                                + "TopologyPreservingSimplifier.simplify() for geometry of results["
+                                + i + "] for", areaSource, results[i], ".");
                 statusHandler.handle(Priority.ERROR, message);
                 throw e;
             }
@@ -932,7 +945,8 @@ public class GeospatialDataGenerator {
                             new String[] { metaData.getAreaNotationField(),
                                     metaData.getParentAreaField() }, hull,
                             null, false, SearchMode.INTERSECTS);
-            topologySimplifyQueryResults(parentRegionFeatures, metaData.getAreaSource());
+            topologySimplifyQueryResults(parentRegionFeatures,
+                    metaData.getAreaSource());
 
             rval = new GeospatialData[parentRegionFeatures.length];
             for (int i = 0; i < parentRegionFeatures.length; i++) {
@@ -985,9 +999,15 @@ public class GeospatialDataGenerator {
             context.setContextName(site);
 
             byte[] data = SerializationUtil.transformToThrift(geoData);
-            LocalizationFile lf = pathMgr.getLocalizationFile(context,
+            ILocalizationFile lf = pathMgr.getLocalizationFile(context,
                     GeospatialFactory.GEO_DIR + fileName);
-            lf.write(data);
+            try (SaveableOutputStream sos = lf.openOutputStream()) {
+                sos.write(data);
+                sos.save();
+            } catch (IOException e) {
+                throw new LocalizationException("Could not write to file "
+                        + lf.getPath(), e);
+            }
 
             curTime.setFileName(fileName);
             times.put(curTime.getMetaData(), curTime);
@@ -998,7 +1018,13 @@ public class GeospatialDataGenerator {
 
             lf = pathMgr.getLocalizationFile(context,
                     GeospatialFactory.METADATA_FILE);
-            lf.write(xml.getBytes());
+            try (SaveableOutputStream sos = lf.openOutputStream()) {
+                sos.write(xml.getBytes());
+                sos.save();
+            } catch (IOException e) {
+                throw new LocalizationException("Could not write to file "
+                        + lf.getPath(), e);
+            }
         } finally {
             if (ct != null) {
                 ClusterLockUtils.unlock(ct, false);
@@ -1013,14 +1039,14 @@ public class GeospatialDataGenerator {
         LocalizationContext context = pathMgr.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.CONFIGURED);
         context.setContextName(site);
-        LocalizationFile lf = pathMgr.getLocalizationFile(context,
+        ILocalizationFile lf = pathMgr.getLocalizationFile(context,
                 GeospatialFactory.GEO_DIR + fileName);
         if (lf.exists()) {
             try {
                 lf.delete();
             } catch (Exception e) {
                 statusHandler.handle(Priority.WARN,
-                        "Failed to delete area geometry file " + lf.getName(),
+                        "Failed to delete area geometry file " + lf.getPath(),
                         e);
             }
         }

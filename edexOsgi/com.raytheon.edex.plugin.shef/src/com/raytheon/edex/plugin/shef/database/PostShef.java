@@ -19,7 +19,6 @@
  **/
 package com.raytheon.edex.plugin.shef.database;
 
-import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -34,8 +33,8 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.plugin.shef.data.ShefData;
 import com.raytheon.edex.plugin.shef.data.ShefRecord;
@@ -131,7 +130,9 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 09/03/2014              mpduff      Fixed river status table updates.
  * 09/12/2014              mpduff      Fix for shef_load_ingest token
  * 09/18/2014   3627       mapeters    Updated deprecated {@link TimeTools} usage.
- * 06/26/2015   17420      xwei        Fix for : Application fails to act on defined locdatalimit range for parameter element SW 
+ * 06/26/2015   17420      xwei        Fix for : Application fails to act on defined locdatalimit range for parameter element SW
+ * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
+ * Dec 16, 2015 5166       kbisanz     Update logging to use SLF4J
  * </pre>
  * 
  * @author mduff
@@ -181,7 +182,7 @@ public class PostShef {
     }
 
     /** Thread safe database date formatter */
-    private ThreadLocal<SimpleDateFormat> dbFormat = new ThreadLocal<SimpleDateFormat>() {
+    private final ThreadLocal<SimpleDateFormat> dbFormat = new ThreadLocal<SimpleDateFormat>() {
         @Override
         protected SimpleDateFormat initialValue() {
             SimpleDateFormat sdf = new SimpleDateFormat(
@@ -201,7 +202,7 @@ public class PostShef {
     private Date prodTime = null;
 
     /** db posting time */
-    private Date postDate;
+    private final Date postDate;
 
     /** SHEF data record */
     private ShefRecord shefRecord = null;
@@ -213,13 +214,13 @@ public class PostShef {
     private int alertAlarm = ShefConstants.NO_ALERTALARM;
 
     /** AppsDefaults instance */
-    private AppsDefaults appDefaults = AppsDefaults.getInstance();
+    private final AppsDefaults appDefaults = AppsDefaults.getInstance();
 
     /** Default basis hrs */
     private long basishrs = 72;
 
     /** Map of location identifiers to Location Objects */
-    private HashMap<String, Location> idLocations = new HashMap<String, Location>();
+    private final HashMap<String, Location> idLocations = new HashMap<String, Location>();
 
     /** number of milliseconds back for data to be considered valid */
     private long lookbackMillis;
@@ -231,13 +232,13 @@ public class PostShef {
     private CoreDao locDao;
 
     /** Instance of PostTables class */
-    private PostTables postTables;
+    private final PostTables postTables;
 
     /** Map of adjustment factors for eacy data type */
-    private Map<String, ShefAdjustFactor> adjustmentMap = new HashMap<String, ShefAdjustFactor>();
+    private final Map<String, ShefAdjustFactor> adjustmentMap = new HashMap<String, ShefAdjustFactor>();
 
     /** Map of location identifier to IngestSwitch */
-    private Map<IngestfilterId, IngestSwitch> ingestSwitchMap = new HashMap<IngestfilterId, IngestSwitch>();
+    private final Map<IngestfilterId, IngestSwitch> ingestSwitchMap = new HashMap<IngestfilterId, IngestSwitch>();
 
     // AppsDefaults tokens
     private String undefStation;
@@ -271,23 +272,20 @@ public class PostShef {
     private boolean perfLog;
 
     /** Type Source list */
-    private List<String> tsList = new ArrayList<String>();
+    private final List<String> tsList = new ArrayList<String>();
 
     /** Use latest value flag */
     private int useLatest = MISSING;
 
     /** Begin basis time */
-    private long basisBeginTime = currentTime
+    private final long basisBeginTime = currentTime
             - (basishrs * ShefConstants.MILLIS_PER_HOUR);
 
-    /** Basis time TimeStamp */
-    private java.sql.Timestamp basisTimeAnsi = new Timestamp(basisBeginTime);
+    /** Basis time */
+    private final Date basisTimeAnsi = new Date(basisBeginTime);
 
     /** river status update query value */
     private boolean riverStatusUpdateValueFlag;
-
-    /** Quality check flag, true to query for quality values */
-    private boolean qualityCheckFlag = true;
 
     /** Type Source to use */
     private String useTs = null;
@@ -302,7 +300,7 @@ public class PostShef {
     private Object[] queryForecastResults;
 
     /** Cache of data limits and loc data limits */
-    private Map<String, ShefRangeData> dataRangeMap = new HashMap<String, ShefRangeData>();
+    private final Map<String, ShefRangeData> dataRangeMap = new HashMap<String, ShefRangeData>();
 
     /** Valid date range flag */
     private boolean validDateRange = false;
@@ -522,7 +520,7 @@ public class PostShef {
                 String dataQualifier = data.getQualifier();
                 TypeSource typeSource = data.getTypeSource();
 
-                if (typeSource == null || typeSource == TypeSource.UNKNOWN) {
+                if ((typeSource == null) || (typeSource == TypeSource.UNKNOWN)) {
                     log.error("Unknown typesource code in data [" + data + "]");
                     continue;
                 }
@@ -705,7 +703,7 @@ public class PostShef {
                         || TypeSource.PROCESSED_MEAN_AREAL_DATA
                                 .equals(typeSource)) {
 
-                    if ((postDate.getTime() - obsTime.getTime() > lookbackMillis)
+                    if (((postDate.getTime() - obsTime.getTime()) > lookbackMillis)
                             && (!Duration._1_MONTH.equals(data.getDuration()))) {
                         stats.incrementWarningMessages();
                         stats.incrementOutsideWindow();
@@ -713,7 +711,7 @@ public class PostShef {
                                 + " obs time > " + lookBackDays
                                 + " days old; data not posted");
                         continue;
-                    } else if (obsTime.getTime() - postDate.getTime() > lookfwdMillis) {
+                    } else if ((obsTime.getTime() - postDate.getTime()) > lookfwdMillis) {
                         stats.incrementWarningMessages();
                         stats.incrementOutsideWindow();
                         log.warn(locId + " obs time (" + data.getObsTime()
@@ -751,7 +749,7 @@ public class PostShef {
                     adjustRawValue(locId, data);
                 }
 
-            dataValue = data.getStringValue();
+                dataValue = data.getStringValue();
                 /*
                  * multiply non-missing values of discharge values and
                  * unspecified height values by 1000 to change units
@@ -1065,28 +1063,27 @@ public class PostShef {
             } // for
 
             postTables.executeBatchUpdates();
-            
-			if (!dataValues.isEmpty()) {
-				ShefData data = dataValues.get(0);
-				DataType dataType = ParameterCode.DataType.getDataType(
-						data.getTypeSource(), procObs);
-				if ((DataType.FORECAST.equals(dataType))
-						&& loadMaxFcst
-						&& (data.getPhysicalElement().getCode().startsWith("H") || data
-								.getPhysicalElement().getCode().startsWith("Q"))) {
-					postRiverStatus(data, locId);
-					log.info("Update RiverStatus for: " + locId + " "
-							+ data.getPhysicalElement().getCode());
-				}
-			}
-		} catch (Exception e) {
+
+            if (!dataValues.isEmpty()) {
+                ShefData data = dataValues.get(0);
+                DataType dataType = ParameterCode.DataType.getDataType(
+                        data.getTypeSource(), procObs);
+                if ((DataType.FORECAST.equals(dataType))
+                        && loadMaxFcst
+                        && (data.getPhysicalElement().getCode().startsWith("H") || data
+                                .getPhysicalElement().getCode().startsWith("Q"))) {
+                    postRiverStatus(data, locId);
+                    log.info("Update RiverStatus for: " + locId + " "
+                            + data.getPhysicalElement().getCode());
+                }
+            }
+        } catch (Exception e) {
             log.error("An error occurred posting shef data.", e);
         }
 
         // Reset .E cache vars
         tsList.clear();
         useLatest = MISSING;
-        qualityCheckFlag = true;
         useTs = null;
         basisTimeValues = null;
         previousQueryForecast = null;
@@ -1102,7 +1099,7 @@ public class PostShef {
      */
     public void logStats(String traceId, long totalTime) {
         if (this.perfLog) {
-            Log perfLog = LogFactory.getLog("ShefPerfLog");
+            Logger perfLog = LoggerFactory.getLogger("ShefPerfLog");
             perfLog.info("********************************");
             perfLog.info("Performance Stats:  " + traceId);
             perfLog.info("Total Elapsed Time (ms): " + totalTime);
@@ -1162,7 +1159,7 @@ public class PostShef {
         }
     }
 
-    private void logIt(Log log, long value, String label) {
+    private void logIt(Logger log, long value, String label) {
         if (value > 0) {
             log.info(value + label);
         }
@@ -1261,8 +1258,8 @@ public class PostShef {
             }
 
             Object[] row = null;
-            for (int i = 0; i < oa.length; i++) {
-                row = (Object[]) oa[i];
+            for (Object element : oa) {
+                row = (Object[]) element;
                 if (row.length == 3) {
                     lid = ShefUtil.getString(row[0], null);
                     pe = ShefUtil.getString(row[1], null);
@@ -1295,8 +1292,8 @@ public class PostShef {
                             + "probability < 0.0";
                     try {
                         oa = dao.executeSQLQuery(query);
-                        for (int i = 0; i < oa.length; i++) {
-                            String ts = ShefUtil.getString(oa[i], null);
+                        for (Object element : oa) {
+                            String ts = ShefUtil.getString(element, null);
                             if (ts != null) {
                                 tsList.add(ts);
                             }
@@ -1317,8 +1314,8 @@ public class PostShef {
                 try {
                     oa = dao.executeSQLQuery(query);
 
-                    for (int i = 0; i < oa.length; i++) {
-                        String ts = ShefUtil.getString(oa[i], null);
+                    for (Object element : oa) {
+                        String ts = ShefUtil.getString(element, null);
                         if (ts != null) {
                             tsList.add(ts);
                         }
@@ -1504,7 +1501,7 @@ public class PostShef {
             useTs = null;
             basisTimeValues = null;
         }
-        if ((tsFilter == null) || (tsFilter.length() == 0) && useTs == null) {
+        if ((tsFilter == null) || ((tsFilter.length() == 0) && (useTs == null))) {
             useTs = getBestTs(lid, pe, "F%", 0);
             if (useTs == null) {
                 return null;
@@ -1557,9 +1554,9 @@ public class PostShef {
                     .append("' AND validtime >= CURRENT_TIMESTAMP AND probability < 0.0 AND ");
 
             if ((useLatest == 1)
-                    || (basisTimeValues != null && basisTimeValues.length == 1)) {
-                java.sql.Timestamp tempStamp = null;
-                tempStamp = (Timestamp) basisTimeValues[0];
+                    || ((basisTimeValues != null) && (basisTimeValues.length == 1))) {
+                Date tempStamp = null;
+                tempStamp = (Date) basisTimeValues[0];
                 queryForecast.append("basistime >= '").append(tempStamp)
                         .append("' AND ");
             } else {
@@ -1723,26 +1720,26 @@ public class PostShef {
         int[] basisIndex = new int[fcstCount];
         int[] tsFirstChk = new int[ulCount];
         int MISSING = ShefConstants.SHEF_MISSING_INT;
-        Timestamp[] startTime = new Timestamp[ulCount];
-        Timestamp[] endTime = new Timestamp[ulCount];
-        Timestamp[] basisTime = new Timestamp[ulCount];
-        Timestamp fcstBasisTime = null;
-        Timestamp fcstValidTime = null;
-        Timestamp ulBasisTime = null;
+        Date[] startTime = new Date[ulCount];
+        Date[] endTime = new Date[ulCount];
+        Date[] basisTime = new Date[ulCount];
+        Date fcstBasisTime = null;
+        Date fcstValidTime = null;
+        Date ulBasisTime = null;
 
-        Timestamp row = null;
-        Timestamp validTime = null;
+        Date row = null;
+        Date validTime = null;
         for (int i = 0; i < fcstCount; i++) {
 
             /* find out which basis time's time series this value belongs to */
 
-            fcstBasisTime = new Timestamp(fcstHead[i].getId().getBasistime()
+            fcstBasisTime = new Date(fcstHead[i].getId().getBasistime()
                     .getTime());
 
             basisIndex[i] = MISSING;
 
             for (int j = 0; ((j < ulCount) && (basisIndex[i] == MISSING)); j++) {
-                row = (Timestamp) ulHead[j];
+                row = (Date) ulHead[j];
                 ulBasisTime = row;
 
                 if (ulBasisTime.compareTo(fcstBasisTime) == 0) {
@@ -1758,8 +1755,7 @@ public class PostShef {
              * check if the values constitute the start or end times for the
              * time series and record these times if they do
              */
-            validTime = new Timestamp(fcstHead[i].getId().getValidtime()
-                    .getTime());
+            validTime = new Date(fcstHead[i].getId().getValidtime().getTime());
 
             if (tsFirstChk[basisIndex[i]] == 1) {
                 if (validTime.before(startTime[basisIndex[i]])) {
@@ -1779,7 +1775,7 @@ public class PostShef {
          * convenient array for use in the adjust_startend function.
          */
         for (int j = 0; j < ulCount; j++) {
-            row = (Timestamp) ulHead[j];
+            row = (Date) ulHead[j];
             basisTime[j] = row;
         }
 
@@ -1791,15 +1787,15 @@ public class PostShef {
          * SERIES!!!
          */
         Object[] tmp = adjustStartEnd(ulCount, basisTime, startTime, endTime);
-        startTime = (Timestamp[]) tmp[0];
-        endTime = (Timestamp[]) tmp[1];
+        startTime = (Date[]) tmp[0];
+        endTime = (Date[]) tmp[1];
 
         /*
          * loop thru the complete retrieved time series and only keep the value
          * if it lies between the start and end time for this basis time
          */
         for (int i = 0; i < fcstCount; i++) {
-            fcstValidTime = new Timestamp(fcstHead[i].getId().getValidtime()
+            fcstValidTime = new Date(fcstHead[i].getId().getValidtime()
                     .getTime());
             if ((fcstValidTime.compareTo(startTime[basisIndex[i]]) >= 0)
                     && (fcstValidTime.compareTo(endTime[basisIndex[i]]) <= 0)) {
@@ -1819,15 +1815,15 @@ public class PostShef {
      * continues until all time series have been considered. In essences, this
      * method adjoins adjacent time series.
      */
-    private Object[] adjustStartEnd(int count, Timestamp[] basisTime,
-            Timestamp[] startValidTime, Timestamp[] endValidTime) {
+    private Object[] adjustStartEnd(int count, Date[] basisTime,
+            Date[] startValidTime, Date[] endValidTime) {
         boolean found = false;
         int currentIndex = 0;
         int[] basisOrder = new int[count];
-        Timestamp fullStartValidTime = null;
-        Timestamp fullEndValidTime = null;
-        Timestamp tmpTime = null;
-        Timestamp zero = new Timestamp((new Date(0)).getTime());
+        Date fullStartValidTime = null;
+        Date fullEndValidTime = null;
+        Date tmpTime = null;
+        Date zero = new Date(0);
         Object[] rval = new Object[2];
 
         Arrays.fill(basisOrder, -1);
@@ -1915,7 +1911,7 @@ public class PostShef {
                  * it is better to use the forecast data early on than the later
                  * forecast data, so use the before portion
                  */
-                endValidTime[currentIndex] = new Timestamp(
+                endValidTime[currentIndex] = new Date(
                         fullStartValidTime.getTime() - 1000);
                 fullStartValidTime = startValidTime[currentIndex];
 
@@ -1927,7 +1923,7 @@ public class PostShef {
                  * beginning or is completely before the existing time series,
                  * then use the portion of it that is before the time series.
                  */
-                endValidTime[currentIndex] = new Timestamp(
+                endValidTime[currentIndex] = new Date(
                         fullStartValidTime.getTime() - 1000);
                 fullStartValidTime = startValidTime[currentIndex];
             } else if ((startValidTime[currentIndex]
@@ -1938,7 +1934,7 @@ public class PostShef {
                  * or is completely after the existing time series, then use the
                  * portion of it that is after the time series.
                  */
-                startValidTime[currentIndex] = new Timestamp(
+                startValidTime[currentIndex] = new Date(
                         fullEndValidTime.getTime() + 1000);
                 fullEndValidTime = endValidTime[currentIndex];
 
@@ -2125,8 +2121,8 @@ public class PostShef {
                 errorMsg.append("Error requesting IngestFilter data:  " + sql);
                 oa = dao.executeSQLQuery(sql);
                 if (oa.length > 0) {
-                    for (int i = 0; i < oa.length; i++) {
-                        Object[] oa2 = (Object[]) oa[i];
+                    for (Object element : oa) {
+                        Object[] oa2 = (Object[]) element;
                         String pe = ShefUtil.getString(oa2[1], "");
                         int dur = ShefUtil.getInt(oa2[2], -9999);
                         String ts = ShefUtil.getString(oa2[3], "");
@@ -2629,12 +2625,12 @@ public class PostShef {
                 Object[] oa = dao.executeSQLQuery(locLimitSql.toString());
 
                 if (oa.length == 0) {
-                	
-                	if ( dataRangeMap.containsKey(key) ){
-                    	dataRangeMap.remove(key);
-                	}
-                    
-                	// default range
+
+                    if (dataRangeMap.containsKey(key)) {
+                        dataRangeMap.remove(key);
+                    }
+
+                    // default range
                     defLimitSql = new StringBuilder(sqlStart);
                     defLimitSql.append("datalimits where pe = '")
                             .append(data.getPhysicalElement().getCode())
@@ -2645,15 +2641,15 @@ public class PostShef {
                     key = data.getPhysicalElement().getCode()
                             + data.getDurationValue();
                     if (oa.length == 0) {
-                    	
-                    	if ( dataRangeMap.containsKey(key) ){
-                        	dataRangeMap.remove(key);
+
+                        if (dataRangeMap.containsKey(key)) {
+                            dataRangeMap.remove(key);
                         }
                     }
                 }
 
-                for (int i = 0; i < oa.length; i++) {
-                    Object[] oa2 = (Object[]) oa[i];
+                for (Object element : oa) {
+                    Object[] oa2 = (Object[]) element;
 
                     /* Check the date range */
                     monthdaystart = ShefUtil.getString(oa2[0], "99-99");
@@ -2890,7 +2886,8 @@ public class PostShef {
     private static boolean checkRangeDate(Date obsTime, String monthDayStart,
             String monthDayEnd) {
         boolean valid = false;
-        if (obsTime != null && (monthDayStart != null) && (monthDayEnd != null)) {
+        if ((obsTime != null) && (monthDayStart != null)
+                && (monthDayEnd != null)) {
             if ((monthDayStart.length() == 5) && (monthDayEnd.length() == 5)) {
 
                 int rangeStartDate = Integer.parseInt(monthDayStart.substring(
@@ -3168,7 +3165,7 @@ public class PostShef {
             unkstnvalue.getId().setDur((n != null) ? n : 0);
             unkstnvalue.getId().setTs(data.getTypeSource().getCode());
             unkstnvalue.getId().setExtremum(data.getExtremum().getCode());
-            unkstnvalue.getId().setObstime(new Timestamp(basisTime.getTime()));
+            unkstnvalue.getId().setObstime(new Date(basisTime.getTime()));
             unkstnvalue.getId().setValue(Double.parseDouble(dataValue));
             unkstnvalue.setIdentifier(unkstnvalue.getId());
             unkstnvalue.getId().setIdentifier(unkstnvalue.getId());

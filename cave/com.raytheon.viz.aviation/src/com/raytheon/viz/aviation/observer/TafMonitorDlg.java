@@ -53,6 +53,7 @@ import org.eclipse.ui.actions.ActionFactory;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
+import com.raytheon.viz.aviation.BackupRestart;
 import com.raytheon.viz.aviation.climatology.ClimateMenuDlg;
 import com.raytheon.viz.aviation.climatology.WeatherPlotDialog;
 import com.raytheon.viz.aviation.editor.ITafSettable;
@@ -60,7 +61,6 @@ import com.raytheon.viz.aviation.editor.TafViewerEditorDlg;
 import com.raytheon.viz.aviation.editor.TafViewerEditorDlg.TafSettings;
 import com.raytheon.viz.aviation.guidance.PythonGuidanceJob;
 import com.raytheon.viz.aviation.guidance.ViewerTab;
-import com.raytheon.viz.aviation.model.ForecastModel;
 import com.raytheon.viz.aviation.monitor.CcfpMonitorObserver;
 import com.raytheon.viz.aviation.monitor.CheckNowJob;
 import com.raytheon.viz.aviation.monitor.EtaBufMonitorObserver;
@@ -70,6 +70,7 @@ import com.raytheon.viz.aviation.monitor.GfsMonitorObserver;
 import com.raytheon.viz.aviation.monitor.IGridDataRetrieveListener;
 import com.raytheon.viz.aviation.monitor.LtgMonitorObserver;
 import com.raytheon.viz.aviation.monitor.MetarMonitorObserver;
+import com.raytheon.viz.aviation.monitor.NotifyAudioManager;
 import com.raytheon.viz.aviation.monitor.PythonMonitorJob;
 import com.raytheon.viz.aviation.monitor.RltgMonitorObserver;
 import com.raytheon.viz.aviation.monitor.ScheduledMonitorTask;
@@ -95,11 +96,11 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * TafMonitorDlg (Terminal Aerodome Forecast Monitor Dialog) class.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 1/24/2008    817         grichard    Initial creation.
@@ -146,9 +147,11 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 01/02/2013   15606		gzhang		Remove GridData widthHint so button/label size change with GUI
  * 03/07/2013   1735        rferrel     Performance speed up for retrieving grid data.
  * 08/09/2013   2033        mschenke    Switched File.separator to IPathManager.SEPARATOR
- * 
+ * Sep 15, 2015 4880        njensen     Removed reference to ForecastModel
+ * 10/20/2015   17445       yteng       Reset alert time for audio alert.
+ *
  * </pre>
- * 
+ *
  * @author grichard
  * @version 1.0
  */
@@ -330,6 +333,7 @@ public class TafMonitorDlg extends CaveSWTDialog implements
         initializeData();
         initializeComponents();
         setupMonitoring();
+        NotifyAudioManager.resetAlertTime();
 
         shell.addShellListener(new ShellAdapter() {
             @Override
@@ -509,8 +513,7 @@ public class TafMonitorDlg extends CaveSWTDialog implements
         restartMenuItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                IBackupRestart brs = ForecastModel.getInstance()
-                        .getBackupRestartUtility();
+                IBackupRestart brs = BackupRestart.getBackupRestartUtility();
                 brs.restartTafMonitor();
             }
         });

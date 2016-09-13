@@ -164,7 +164,7 @@
 #
 #  If WindChill is enabled, the WindChill row (and values) will only appear
 #  if the threshold values are exceeded from the WindChill grid. If
-#  Wind Chill appears, then MIN CHILL will appear in the output.
+#  Wind Chill appears, then Min Chill will appear in the output.
 #
 #  WindGust will only appear if WindGust grids are present and the wind
 #  gust values exceed the wind values by at least 10mph.
@@ -188,37 +188,37 @@
 ##    Area 1-010333
 ##    1233 PM MDT WED JUL 31 2002
 
-##    DATE          WED 07/31/02            THU 08/01/02            FRI 08/02/02
-##    UTC 3HRLY  09 12 15 18 21 00 03 06 09 12 15 18 21 00 03 06 09 12 15 18 21 00
-##    MDT 3HRLY  03 06 09 12 15 18 21 00 03 06 09 12 15 18 21 00 03 06 09 12 15 18
+##    Date          Wed 07/31/02            Thu 08/01/02            Fri 08/02/02
+##    UTC 3hrly  09 12 15 18 21 00 03 06 09 12 15 18 21 00 03 06 09 12 15 18 21 00
+##    MDT 3hrly  03 06 09 12 15 18 21 00 03 06 09 12 15 18 21 00 03 06 09 12 15 18
 
-##    MAX/MIN             92 94 96    62 64 66    77 79 81    61 63 65    81 83 85
-##    TEMP       81 75 86 94 74 76 73 69 66 64 67 72 76 79 76 70 66 63 67 73 79 83
-##    DEWPT      34 32 29 26 52 52 52 51 51 50 49 49 49 49 50 51 52 53 52 50 49 48
+##    Max/Min             92 94 96    62 64 66    77 79 81    61 63 65    81 83 85
+##    Temp       81 75 86 94 74 76 73 69 66 64 67 72 76 79 76 70 66 63 67 73 79 83
+##    Dewpt      34 32 29 26 52 52 52 51 51 50 49 49 49 49 50 51 52 53 52 50 49 48
 ##    RH         18 20 12  8 46 43 47 52 58 60 52 44 38 34 40 50 60 69 58 44 34 29
-##    WIND DIR   NW NW NW  N  S SE SE  S  S  S  S  S  S SE  S  S  S  S  S  S  S  S
-##    WIND SPD    3  6  5  5  8 10 11 10 11 11 11 10 12 12 13 14 14 13 14 14 13 13
-##    WIND GUST
-##    CLOUDS     CL CL CL CL MM OV OV OV SC SC SC FW FW FW SC SC BK OV BK SC FW FW
-##    POP 12HR                   0           0          28           0          16
-##    QPF 12HR                0.04        0.00        0.03        0.00        0.00
-##    SNOW 12HR              00-00       00-00       00-00       00-00       00-00
-##    RAIN SHWRS             SC SC
-##    RAIN                                     WP WP WP WP
+##    Wind dir   NW NW NW  N  S SE SE  S  S  S  S  S  S SE  S  S  S  S  S  S  S  S
+##    Wind spd    3  6  5  5  8 10 11 10 11 11 11 10 12 12 13 14 14 13 14 14 13 13
+##    Wind gust
+##    Clouds     CL CL CL CL MM OV OV OV SC SC SC FW FW FW SC SC BK OV BK SC FW FW
+##    PoP 12hr                   0           0          28           0          16
+##    QPF 12hr                0.04        0.00        0.03        0.00        0.00
+##    Snow 12hr              00-00       00-00       00-00       00-00       00-00
+##    Rain shwrs             SC SC
+##    Rain                                     WP WP WP WP
 
-##    DATE            SAT 08/03/02  SUN 08/04/02  MON 08/05/02  TUE 08/06/02
-##    UTC 6HRLY  06   12 18 00 06   12 18 00 06   12 18 00 06   12 18 00 06
-##    MDT 6HRLY  00   06 12 18 00   06 12 18 00   06 12 18 00   06 12 18 00
+##    Date            Sat 08/03/02  Sun 08/04/02  Mon 08/05/02  Tue 08/06/02
+##    UTC 6hrly  06   12 18 00 06   12 18 00 06   12 18 00 06   12 18 00 06
+##    MDT 6hrly  00   06 12 18 00   06 12 18 00   06 12 18 00   06 12 18 00
 
-##    MAX/MIN         65    94      64    79      63    83      65    87
-##    TEMP       74   65 72 76 69   64 72 79 70   63 73 83 74   65 72 87
-##    DEWPT      49   50 48 52 51   50 49 49 51   53 50 48 49   50 48 45
-##    PWIND DIR        S     S       S     S       S     S       S     S
-##    WIND CHAR       BZ    BZ      GN    GN      BZ    BZ      BZ    BZ
-##    AVG CLOUDS      FW FW SC SC   BK BK FW FW   SC SC SC SC   FW SC SC
-##    POP 12HR         0     1       0    28       0    16       0     1
-##    RAIN SHWRS            SC
-##    RAIN                                WP
+##    Max/Min         65    94      64    79      63    83      65    87
+##    Temp       74   65 72 76 69   64 72 79 70   63 73 83 74   65 72 87
+##    Dewpt      49   50 48 52 51   50 49 49 51   53 50 48 49   50 48 45
+##    PWind dir        S     S       S     S       S     S       S     S
+##    Wind char       BZ    BZ      GN    GN      BZ    BZ      BZ    BZ
+##    Avg clouds      FW FW SC SC   BK BK FW FW   SC SC SC SC   FW SC SC
+##    PoP 12hr         0     1       0    28       0    16       0     1
+##    Rain shwrs            SC
+##    Rain                                WP
 
 ##    $$
 
@@ -418,8 +418,8 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                 except:
                     zoneTZ = localTZ
                     tzid = localTZid
-                    LogStream.logProblem("WARNING: Entry " + area +  
-                      " missing from AreaDictionary. Using default time zone.", LogStream.exc())
+                    LogStream.logEvent("WARNING: Entry " + area +  
+                      " does not have time zone info in AreaDictionary. Using default time zone.", LogStream.exc())
 
                 if (zoneTZ, tzid) not in tzs:
                     tzs.append((zoneTZ, tzid))
@@ -725,12 +725,12 @@ Found description: """ + areaLabel
 
             # descriptor lines, lat/lon lines, elevation
             if len(areaStrings) == 4:
-                s += areaStrings[1] + "\n" + areaStrings[2] + " ELEV. " + \
-                  areaStrings[3] + " FT" + "\n"
+                s += areaStrings[1] + "\n" + areaStrings[2] + " Elev. " + \
+                  areaStrings[3] + " ft" + "\n"
             #old OB8.2 format
             else:
-                s += areaStrings[1] + "\n" + areaStrings[2] + " ELEV. " + \
-                  "???? FT" + "\n"
+                s += areaStrings[1] + "\n" + areaStrings[2] + " Elev. " + \
+                  "???? ft" + "\n"
                 #log "old" format
                 LogStream.logProblem("WARNING: Old defaultEditArea format " + """
 PFM requires defaultEditArea format of (editAreaName, 
@@ -785,9 +785,9 @@ Found description: """ + areaLabel)
         # Max/Min
         tpmaxmin = timePeriods['top_12hr'][0][0]
         if self.getPeriod(tpmaxmin, shiftToLocal=1) == self.DAYTIME():
-            label = "MAX/MIN"
+            label = "Max/Min"
         else:
-            label = "MIN/MAX"
+            label = "Min/Max"
         fcst=fcst+ self.makeRow(
             label, self._top12hrWidth, timePeriods['top_12hr'],
             statList_12hr, self._mxmnValue, [1],
@@ -795,12 +795,12 @@ Found description: """ + areaLabel)
 
         # Temp
         fcst=fcst+ self.makeRow(
-            "TEMP", self._top3hrWidth, timePeriods['top_3hr_snap'],
+            "Temp", self._top3hrWidth, timePeriods['top_3hr_snap'],
             statList_3hr_snap, self._tempValue, ['T'], self._rowLabelWidth)
 
         # DewPt
         fcst=fcst+ self.makeRow(
-            "DEWPT", self._top3hrWidth, timePeriods['top_3hr_snap'],
+            "Dewpt", self._top3hrWidth, timePeriods['top_3hr_snap'],
             statList_3hr_snap, self._tempValue, ['Td'], self._rowLabelWidth)
 
         #RH
@@ -810,38 +810,38 @@ Found description: """ + areaLabel)
 
         # Wind direction
         fcst=fcst+ self.makeRow(
-            "WIND DIR", self._top3hrWidth, timePeriods['top_3hr_snap'],
+            "Wind dir", self._top3hrWidth, timePeriods['top_3hr_snap'],
             statList_3hr_snap, self._windValue, ["dir"],
             self._rowLabelWidth)
 
         # Windspd
         fcst=fcst+ self.makeRow(
-            "WIND SPD", self._top3hrWidth, timePeriods['top_3hr_snap'],
+            "Wind spd", self._top3hrWidth, timePeriods['top_3hr_snap'],
             statList_3hr_snap, self._windValue, ["speed"],
             self._rowLabelWidth)
 
         # Wind Gust
         gustRow = self.makeRow(
-            "WIND GUST", self._top3hrWidth, timePeriods['top_3hr_snap'],
+            "Wind gust", self._top3hrWidth, timePeriods['top_3hr_snap'],
             statList_3hr_snap, self._windGustValue, [],
             self._rowLabelWidth)
-        if string.strip(gustRow) != "WIND GUST":
+        if string.strip(gustRow) != "Wind gust":
             fcst=fcst+gustRow
 
         # Sky
         fcst=fcst+ self.makeRow(
-            "CLOUDS", self._top3hrWidth, timePeriods['top_3hr_snap'],
+            "Clouds", self._top3hrWidth, timePeriods['top_3hr_snap'],
             statList_3hr_snap, self._skyValue, [], self._rowLabelWidth)
 
         # Pop
         fcst=fcst+ self.makeRow(
-            "POP 12HR", self._top12hrWidth, timePeriods['top_12hr'],
+            "PoP 12hr", self._top12hrWidth, timePeriods['top_12hr'],
             statList_12hrShort, self._popValue, [], self._rowLabelWidth,
             18)
 
         # QPF
         fcst=fcst+ self.makeRow(
-            "QPF 12HR", self._top12hrWidth, timePeriods['top_12hr'],
+            "QPF 12hr", self._top12hrWidth, timePeriods['top_12hr'],
             statList_12hrShort, self._qpfValue, [],
             self._rowLabelWidth, 18)
 
@@ -855,7 +855,7 @@ Found description: """ + areaLabel)
             snowBasetime = \
              ((timePeriods['top_3hr_snap'][0])[0]).startTime().unixTime()
             fcst=fcst+ self.makeRow(
-                "SNOW 12HR", self._top12hrWidth, timePeriods['top_12hr'],
+                "Snow 12hr", self._top12hrWidth, timePeriods['top_12hr'],
                 statList_12hrShort, self._snowValue, [snowBasetime],
                 self._rowLabelWidth, 18)
 
@@ -874,13 +874,13 @@ Found description: """ + areaLabel)
         # Wind Chill
         if self._includeWindChill:
             row = self.makeRow(
-               "WIND CHILL", self._top3hrWidth, timePeriods['top_3hr_snap'],
+               "Wind chill", self._top3hrWidth, timePeriods['top_3hr_snap'],
                statList_3hr_snap, self._windChillValue, [],
                self._rowLabelWidth)
-            if string.strip(row) != "WIND CHILL":
+            if string.strip(row) != "Wind chill":
                 fcst=fcst+row
                 fcst = fcst + self.makeRow(
-                    "MIN CHILL", self._top6hrWidth, timePeriods['top_6hrShort'],
+                    "Min chill", self._top6hrWidth, timePeriods['top_6hrShort'],
                     statList_6hrShort, self._minWindChillValue, [],
                     self._rowLabelWidth)
 
@@ -888,13 +888,13 @@ Found description: """ + areaLabel)
         # Heat Index
         if self._includeHeatIndex:
             row = self.makeRow(
-               "HEAT INDEX", self._top3hrWidth, timePeriods['top_3hr_snap'],
+               "Heat index", self._top3hrWidth, timePeriods['top_3hr_snap'],
                statList_3hr_snap, self._heatIndexValue, [],
                self._rowLabelWidth)
-            if string.strip(row) != "HEAT INDEX":
+            if string.strip(row) != "Heat index":
                 fcst=fcst+row
                 fcst = fcst + self.makeRow(
-                    "MAX HEAT", self._top6hrWidth, timePeriods['top_6hrShort'],
+                    "Max heat", self._top6hrWidth, timePeriods['top_6hrShort'],
                     statList_6hrShort, self._maxHeatIndexValue, [],
                     self._rowLabelWidth)
 
@@ -982,9 +982,9 @@ Found description: """ + areaLabel)
         # Max/MinT
         tpmaxmin = timePeriods['bottom_12hr'][0][0]
         if self.getPeriod(tpmaxmin, shiftToLocal=1) == self.DAYTIME():
-            label = "MAX/MIN"
+            label = "Max/Min"
         else:
-            label = "MIN/MAX"
+            label = "Min/Max"
         fcst=fcst+ self.makeRow(
             label, colSpacing12hr, timePeriods['bottom_12hr'],
             statList_12hr, self._mxmnValue, [0],
@@ -992,36 +992,36 @@ Found description: """ + areaLabel)
 
         # Temp
         fcst=fcst+ self.makeRow(
-            "TEMP", colSpacing6hr, timePeriods['bottom_6hr_snap'],
+            "Temp", colSpacing6hr, timePeriods['bottom_6hr_snap'],
             statList_6hr_snap, self._tempValue, ["T"], self._rowLabelWidth)
 
 
-        # DewPt
+        # Dewpt
         fcst=fcst+ self.makeRow(
-            "DEWPT", colSpacing6hr, timePeriods['bottom_6hr_snap'],
+            "Dewpt", colSpacing6hr, timePeriods['bottom_6hr_snap'],
             statList_6hr_snap, self._tempValue, ["Td"], self._rowLabelWidth)
 
         # Predominant Wind direction
         fcst=fcst+ self.makeRow(
-            "PWIND DIR", colSpacing12hr, timePeriods['bottom_12hr'],
+            "PWind dir", colSpacing12hr, timePeriods['bottom_12hr'],
             statList_12hr, self._windValue, ["dir"],
             self._rowLabelWidth)
 
         # Wind character
         fcst=fcst+ self.makeRow(
-            "WIND CHAR", colSpacing12hr, timePeriods['bottom_12hr'],
+            "Wind char", colSpacing12hr, timePeriods['bottom_12hr'],
             statList_12hr, self._windCharValue, ["Wind", "speed", 0],
             self._rowLabelWidth)
 
         # Average Clouds - 6hrly
         fcst=fcst+ self.makeRow(
-            "AVG CLOUDS", colSpacing6hr, timePeriods['bottom_6hr'],
+            "Avg clouds", colSpacing6hr, timePeriods['bottom_6hr'],
             statList_6hr, self._skyValue, [], self._rowLabelWidth)
 
 
         # Pop
         fcst=fcst+ self.makeRow(
-            "POP 12HR", colSpacing12hr, timePeriods['bottom_12hr'],
+            "PoP 12hr", colSpacing12hr, timePeriods['bottom_12hr'],
             statList_12hr, self._popValue, [], self._rowLabelWidth)
 
         # Weather
@@ -1424,7 +1424,7 @@ Found description: """ + areaLabel)
     def _createWxRows(self, fcst, periods, sampler, analysisList,
                       area, colWidth):
         # Create the row(s) for weather types with codes as column values
-        # Create a dictionary of values (SNOW, RAIN, etc.) with
+        # Create a dictionary of values (Snow, Rain, etc.) with
         #  a list of the periods in which they occurred
         # Can return "MM" for missing data, blanks for period earlier than now
         wxDict = {}
@@ -1478,14 +1478,14 @@ Found description: """ + areaLabel)
             wxType = wxKey.wxType()
             # The following table relates GFE weather types to words used
             # in the AFM/PFM.
-            codes = [("R","RAIN"), ("RW", "RAIN SHWRS"), ("T","TSTMS"),
-                     ("L","DRIZZLE"), ("S", "SNOW"), ("SW", "SNOWSHWRS"),
-                     ("IP", "SLEET"), ("ZR", "FRZG RAIN"),
-                     ("ZL", "FRZG DRZL")
+            codes = [("R","Rain"), ("RW", "Rain shwrs"), ("T","Tstms"),
+                     ("L","Drizzle"), ("S", "Snow"), ("SW", "Snowshwrs"),
+                     ("IP", "Sleet"), ("ZR", "Frzg rain"),
+                     ("ZL", "Frzg drzl")
                      ]
 
             # These special codes are used for very light intensities.
-            veryLightCodes = [("RW","SPRINKLES"), ("SW", "FLURRIES")]
+            veryLightCodes = [("RW","Sprinkles"), ("SW", "Flurries")]
             for gfecode, symbol in veryLightCodes:
                 if wxType == gfecode and wxKey.intensity() == "--":
                     wxValue = symbol
@@ -1652,22 +1652,22 @@ Found description: """ + areaLabel)
         # The following table relates VTEC phens with row labels
         # in the AFM/PFM.
         codes = {
-         "AF":"ASHFALL", "AS":"AIR STAG", "BS":"BLOWING SNOW", 
-         "BW":"BRISK WIND", "BZ":"BLIZZARD", "CF":"COAST FLOOD", 
-         "DS":"DUST STORM", "DU":"BLOWING DUST", "EC":"EXTREME COLD", 
-         "EH":"EXCESS HEAT", "FA":"FLOOD", "FF":"FLASH FLOOD", 
-         "FG":"DENSE FOG", "FL": "FLOOD", "FR":"FROST", "FZ":"FREEZE", 
-         "HF":"HURR FRC WND", "HI":"INLAND HURR", "HS":"HEAVY SNOW", 
-         "HT":"HEAT", "HU":"HURRICANE", "HW":"HIGH WIND", "HZ": "HARD FREEZE",
-         "IP":"SLEET", "IS":"ICE STORM", "LB":"LKEFF SNBLSN", 
-         "LE":"LK EFF SNOW", "LS":"LKSHORE FLD", "UP":"ICE ACCRE",
-         "LW":"LAKE WIND", "SB":"SNOW BLOSNOW", "SM":"DENSE SMOKE", 
-         "SN":"SNOW", "SU":"HIGH SURF", "SV":"SVR TSTORM", 
-         "TI":"INL TRP STRM", "TO":"TORNADO", "TR":"TROP STORM", 
-         "TS":"TSUNAMI", "TY":"TYPHOON", "WC":"WIND CHILL", "WI":"WIND", 
-         "WS":"WINTER STORM", "WW":"WINTER WEATH", "ZF":"FREEZING FOG", 
-         "ZR":"FRZNG RAIN", "FW.W": "RED FLAG", "FW.A": "FIRE WEATHER",
-         "ZL":"FRZG DRZL"}
+         "AF":"Ashfall", "AS":"Air Stag", "BS":"Blowing Snow", 
+         "BW":"Brisk Wind", "BZ":"Blizzard", "CF":"Coast Flood", 
+         "DS":"Dust Storm", "DU":"Blowing Dust", "EC":"Extreme Cold", 
+         "EH":"Excess Heat", "FA":"Flood", "FF":"Flash Flood", 
+         "FG":"Dense Fog", "FL": "Flood", "FR":"Frost", "FZ":"Freeze", 
+         "HF":"Hurr Frc Wnd", "HI":"Inland Hurr", "HS":"Heavy Snow", 
+         "HT":"Heat", "HU":"Hurricane", "HW":"High Wind", "HZ": "Hard Freeze",
+         "IP":"Sleet", "IS":"Ice Storm", "LB":"LkEff SnBlSn", 
+         "LE":"Lk Eff Snow", "LS":"Lkshore Fld", "UP":"Ice Accre",
+         "LW":"Lake Wind", "SB":"Snow BloSnow", "SM":"Dense Smoke", 
+         "SN":"Snow", "SU":"High Surf", "SV":"Svr Tstorm", 
+         "TI":"Inl Trp Strm", "TO":"Tornado", "TR":"Trop Storm", 
+         "TS":"Tsunami", "TY":"Typhoon", "WC":"Wind Chill", "WI":"Wind", 
+         "WS":"Winter Storm", "WW":"Winter Weath", "ZF":"Freezing Fog", 
+         "ZR":"Frzng Rain", "FW.W": "Red Flag", "FW.A": "Fire Weather",
+         "ZL":"Frzg Drzl"}
 
         for rec in hazRecs:
             phen = rec['phen']
@@ -1707,7 +1707,7 @@ Found description: """ + areaLabel)
         if any == 0:    # no OBVIS, so skip the row
             return fcst
 
-        fcst = self.addRowLabel(fcst, "OBVIS", self._rowLabelWidth)
+        fcst = self.addRowLabel(fcst, "Obvis", self._rowLabelWidth)
         for x in xrange(len(obvisValues)):
             if type(colWidth) is types.ListType:
                 width = colWidth[x]
@@ -1756,9 +1756,9 @@ Found description: """ + areaLabel)
     def _calcPeriodLabels(self, periods, colWidth, startPoint, intervalHours,
       timeZone):
         # Calculate the period labels and returns as (date, utc, lt) strings
-        #DATE          THU 08/01/02            FRI 08/02/02
-        #UTC 3HRLY  09 12 15 18 21 00 03 06 09 12 15 18 21 00 03 06
-        #MDT 3HRLY  03 06 09 12 15 18 21 00 03 06 09 12 15 18 21 00
+        #Date          THU 08/01/02            FRI 08/02/02
+        #UTC 3hrly  09 12 15 18 21 00 03 06 09 12 15 18 21 00 03 06
+        #MDT 3hrly  03 06 09 12 15 18 21 00 03 06 09 12 15 18 21 00
 
         # determine the column widths
         colWidths = []
@@ -1774,7 +1774,7 @@ Found description: """ + areaLabel)
             zuluLabels.append(self._hour24zuluLabel(period))
 
         # zulu string
-        zulu = "UTC " + `intervalHours` + "HRLY "
+        zulu = "UTC " + `intervalHours` + "hrly "
         zulu = string.ljust(zulu, startPoint)
         for x in xrange(len(zuluLabels)):
             zulu = self.addColValue(zulu, zuluLabels[x], colWidths[x])
@@ -1785,12 +1785,12 @@ Found description: """ + areaLabel)
         time.tzset()
 
         # date and LT string (beginning)
-        dateS = string.ljust('DATE', startPoint)
+        dateS = string.ljust('Date', startPoint)
         ltZone = time.strftime("%Z",time.localtime(self._currentTime))
-        lt = string.ljust(ltZone, 4) + `intervalHours` + "HRLY "
+        lt = string.ljust(ltZone, 4) + `intervalHours` + "hrly "
         lt = string.ljust(lt, startPoint)
 
-        # remainder of DATE and LT strings
+        # remainder of Date and LT strings
         dayOfMonthProcessed = None
         for x in xrange(len(periods)):
             timePeriod, label = periods[x]
@@ -1808,7 +1808,7 @@ Found description: """ + areaLabel)
             for y in xrange(x+1,len(periods)):
                 colAvail = colAvail + colWidths[y]
 
-            # handle the DATE string
+            # handle the Date string
             if dayOfMonth != dayOfMonthProcessed:
                 if intervalHours == 3:   #top section
                     if colAvail < 3:

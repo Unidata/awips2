@@ -29,6 +29,7 @@ package com.raytheon.uf.viz.points.data;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 08, 2012 #875       rferrel     Initial Creation.
+ * Nov 05, 2015 5070       randerso    Adjust font sizes for dpi scaling
  * 
  * </pre>
  * 
@@ -38,7 +39,7 @@ package com.raytheon.uf.viz.points.data;
 
 public enum PointSize {
 
-    SMALL(12), DEFAULT(14), LARGE(18), EXTRA_LARGE(24), XXL(30);
+    SMALL(10), DEFAULT(12), LARGE(15), EXTRA_LARGE(20), XXL(25);
 
     private static final String POINTS_NAME = " pt";
 

@@ -21,9 +21,8 @@
       <import feature="com.raytheon.uf.viz.cots.feature" version="1.0.0.qualifier"/>
       <import feature="com.raytheon.uf.viz.common.core.feature" version="1.0.0.qualifier"/>
       <import feature="com.raytheon.uf.viz.core.feature" version="1.0.0.qualifier"/>
-      <import feature="com.raytheon.viz.grib.feature" version="1.0.0.qualifier"/>
+      <import feature="com.raytheon.uf.viz.grid.feature" version="1.0.0.qualifier"/>
       <import feature="com.raytheon.uf.viz.dataplugin.obs.feature" version="1.0.0.qualifier"/>
-      <import feature="com.raytheon.uf.viz.core.maps.feature" version="1.0.0.qualifier"/>
    </requires>
 
    <plugin
@@ -32,38 +31,6 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-
-   <plugin
-         id="ohd.hseb.fcstservice"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="ohd.hseb.sshp"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="ohd.hseb.common"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="ohd.hseb.ihfsdb"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="ohd.hseb.monitor"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.hydro"

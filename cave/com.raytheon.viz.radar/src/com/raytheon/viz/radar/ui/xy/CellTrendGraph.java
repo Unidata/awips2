@@ -61,6 +61,8 @@ import com.raytheon.viz.radar.ui.xy.RadarGraphResource.GraphPosition;
  * 07-21-14     #3412      mapeters    Updated deprecated drawCircle call.
  * 07-24-14     #3429      mapeters    Updated deprecated drawLine() calls.
  * 07-29-14     #3465      mapeters    Updated deprecated drawString() calls.
+ * 11-05-2015   #5070      randerso    Adjust font sizes for dpi scaling
+ * 
  * </pre>
  * 
  * @author askripsk
@@ -122,7 +124,7 @@ public class CellTrendGraph extends XYGraph {
                 for (XYDataList currSeries : dataSeries) {
                     currLineStyle = dataSeriesLineTypes.get(i);
                     currPointType = dataSeriesPointTypes.get(i++);
-                    
+
                     DrawableLine line = new DrawableLine();
                     line.basics.color = colorCap.getColor();
                     line.width = outlineCap.getOutlineWidth();
@@ -161,10 +163,9 @@ public class CellTrendGraph extends XYGraph {
             }
         }
     }
-    
+
     private AbstractDrawableObject createPoint(IGraphicsTarget target,
-            double x, double y,
-            PointType currPointType) throws VizException {
+            double x, double y, PointType currPointType) throws VizException {
         if (currPointType.equals(PointType.CIRCLE)) {
             DrawableCircle circle = new DrawableCircle();
             circle = new DrawableCircle();
@@ -235,7 +236,7 @@ public class CellTrendGraph extends XYGraph {
             PointType pt = dataSeriesPointTypes.get(i);
             AbstractDrawableObject object = createPoint(target, labelx[i],
                     labely[i], pt);
-            //Add the point to its corresponding list
+            // Add the point to its corresponding list
             if (object instanceof DrawableCircle) {
                 circles.add((DrawableCircle) object);
             } else if (object instanceof DrawableLine) {
@@ -256,7 +257,7 @@ public class CellTrendGraph extends XYGraph {
             strings[i].setCoordinates(labelx[i] + offset, labely[i]);
             strings[i].verticalAlignment = VerticalAlignment.MIDDLE;
         }
-        
+
         target.drawLine(lines.toArray(new DrawableLine[0]));
         target.drawCircle(circles.toArray(new DrawableCircle[0]));
         target.drawStrings(strings);
@@ -307,7 +308,7 @@ public class CellTrendGraph extends XYGraph {
         yAxis.setLabeling(axisLabels);
         yAxis.setDrawLinesAtLabels(true);
         yAxis.setLabelLineStyle(IGraphicsTarget.LineStyle.DASHED_LARGE);
-        yAxis.setFontSize(10);
+        yAxis.setFontSize(8);
 
         ArrayList<String> label = new ArrayList<String>();
         label.add(this.yLabel);
@@ -378,8 +379,8 @@ public class CellTrendGraph extends XYGraph {
                     max = time;
                 }
 
-                labelVals.put(Double.valueOf(time), String.format("%02d%02d",
-                        time / 60, time % 60));
+                labelVals.put(Double.valueOf(time),
+                        String.format("%02d%02d", time / 60, time % 60));
             }
 
             NumberAxis xAxis = AxisFactory.buildNumberAxis(
@@ -387,7 +388,7 @@ public class CellTrendGraph extends XYGraph {
             xAxis.setDrawLinesAtLabels(false);
             xAxis.setDrawTickmarksAtLabels(true);
             xAxis.setLabelLineStyle(IGraphicsTarget.LineStyle.SOLID);
-            xAxis.setFontSize(10);
+            xAxis.setFontSize(8);
 
             AxisLabeling axisLabels = new AxisLabeling();
             axisLabels.setLabels(labelVals);
@@ -414,7 +415,7 @@ public class CellTrendGraph extends XYGraph {
 
         NumberAxis yAxis = AxisFactory.buildNumberAxis(
                 IAxis.Orientation.HORIZONTAL, 0, 100, "Percent");
-        yAxis.setFontSize(10);
+        yAxis.setFontSize(8);
         yAxis.setDrawLinesAtLabels(true);
         // axis.addTitle(getName(), new RGB(100, 100, 100));
         yAxis.setLabelLineStyle(IGraphicsTarget.LineStyle.DASHED);

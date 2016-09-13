@@ -29,8 +29,8 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonIncludePathUtil;
+import com.raytheon.uf.common.python.concurrent.PythonInterpreterFactory;
 import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.gfe.python.GfeCavePyIncludeUtil;
 
 /**
@@ -43,7 +43,9 @@ import com.raytheon.viz.gfe.python.GfeCavePyIncludeUtil;
  * Jun 02, 2008            njensen     Initial creation
  * Apr 20, 2015  4027      randerso    Remove unused TextProductsTemplates path and added 
  *                                     Tests path for GFE formatter auto tests
+ * Jul 28, 2015  4263      dgilling    Refactor based on AbstractPythonScriptFactory.
  * Aug 21, 2015  4509      dgilling    Added time and dataaccess to include path.
+ * Dec 14, 2015  4816      dgilling    Support refactored PythonJobCoordinator API.
  * 
  * </pre>
  * 
@@ -51,20 +53,20 @@ import com.raytheon.viz.gfe.python.GfeCavePyIncludeUtil;
  * @version 1.0
  */
 
-public class FormatterScriptFactory {
+public class FormatterScriptFactory implements
+        PythonInterpreterFactory<FormatterScript> {
 
-    public static FormatterScript buildFormatterScript() throws JepException,
-            VizException {
-
+    private static String buildScriptPath() {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
-
         LocalizationContext baseContext = pathMgr.getContext(
                 LocalizationType.CAVE_STATIC, LocalizationLevel.BASE);
-
         String headlineDir = GfePyIncludeUtil.getHeadlineLF(baseContext)
                 .getFile().getPath();
         String runnerPath = FileUtil.join(headlineDir, "FormatterRunner.py");
+        return runnerPath;
+    }
 
+    private static String buildIncludePath() {
         String include = PyUtil.buildJepIncludePath(true, PythonIncludePathUtil
                 .getCommonPythonIncludePath("time", "dataaccess"),
                 GfePyIncludeUtil.getCommonPythonIncludePath(), GfePyIncludeUtil
@@ -76,8 +78,12 @@ public class FormatterScriptFactory {
                         .getUtilitiesIncludePath(), GfePyIncludeUtil
                         .getCombinationsIncludePath(), GfeCavePyIncludeUtil
                         .getTestsIncludePath());
+        return include;
+    }
 
-        return new FormatterScript(runnerPath, include,
-                FormatterScript.class.getClassLoader());
+    @Override
+    public FormatterScript createPythonScript() throws JepException {
+        return new FormatterScript(buildScriptPath(), buildIncludePath(),
+                getClass().getClassLoader());
     }
 }

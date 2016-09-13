@@ -43,12 +43,12 @@ import javax.crypto.IllegalBlockSizeException;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
-import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.edex.plugin.binlightning.filter.LightningGeoFilter;
 import com.raytheon.edex.plugin.binlightning.impl.BinLightningFactory;
 import com.raytheon.edex.plugin.binlightning.impl.IBinDataSource;
 import com.raytheon.edex.plugin.binlightning.impl.IBinLightningDecoder;
 import com.raytheon.edex.plugin.binlightning.impl.LightningDataSource;
+import com.raytheon.edex.plugin.binlightning.total.LightningWMOHeader;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LightningStrikePoint;
@@ -99,13 +99,15 @@ import com.raytheon.uf.edex.decodertools.core.DecoderTools;
  * Jun 10, 2014 3226       bclement    added filter support
  * Jun 19, 2014 3226       bclement    added validator callback
  * Aug 04, 2014 3488       bclement    added checkBinRange(), rebin() and finalizeRecords()
+ * Mar 08, 2016 18336      amoore      Keep-alive messages should update the legend.
+ * Apr 07, 2016 DR18763 mgamazaychikov Switched to using LightningWMOHeader.
+ * May 02, 2016 18336      amoore      BinLightningRecord constructor takes source.
  * 
  * </pre>
  * 
  * @author jkorman
- * @version 1.0
  */
-public class BinLightningDecoder extends AbstractDecoder {
+public class BinLightningDecoder {
 
     // Allow ingest up to 10 minutes into the future.
     private static final long TEN_MINUTES = 10 * 60 * 1000L;
@@ -137,15 +139,9 @@ public class BinLightningDecoder extends AbstractDecoder {
             return BinLightningDecoderUtil.isKeepAliveRecord(decryptedData)
                     || BinLightningDecoderUtil
                             .isLightningDataRecords(decryptedData);
-            /*
-             * use this if keep-alive record could be mixed with lightning
-             * records
-             */
-             // return 
-             // BinLigntningDecoderUtil.isValidMixedRecordData(decryptedData);
         }
     };
-   
+
     /**
      * Construct a BinLightning decoder. Calling hasNext() after construction
      * will return false, decode() will return a null.
@@ -162,21 +158,22 @@ public class BinLightningDecoder extends AbstractDecoder {
      * @throws DecoderException
      *             Thrown if no data is available.
      */
-    public PluginDataObject[] decode(byte[] data, Headers headers) throws DecoderException {
+    public PluginDataObject[] decode(byte[] data, Headers headers)
+            throws DecoderException {
 
-        //String traceId = null;
+        // String traceId = null;
         PluginDataObject[] rval = new PluginDataObject[0];
 
         if (data != null) {
             traceId = (String) headers.get(DecoderTools.INGEST_FILE_NAME);
 
-            WMOHeader wmoHdr = new WMOHeader(data);
+            LightningWMOHeader wmoHdr = new LightningWMOHeader(data);
             if (wmoHdr.isValid()) {
                 String fileName = (String) headers
                         .get(WMOHeader.INGEST_FILE_NAME);
                 Calendar baseTime = WMOTimeParser.findDataTime(
                         wmoHdr.getYYGGgg(), fileName);
-                
+
                 /*
                  * Because binary nature of the encrypted data, the string
                  * created with its byte[] array may not have the same length of
@@ -185,20 +182,21 @@ public class BinLightningDecoder extends AbstractDecoder {
                  * observed that it may return a shorter byte[] than the real
                  * data array. (Looks like a bug???)
                  */
-//                byte[] pdata = DecoderTools.stripWMOHeader(data, SFUS_PATTERN);
-//                if (pdata == null) {
-//                    pdata = DecoderTools.stripWMOHeader(data, SFPA_PATTERN);
-//                }
+                // byte[] pdata = DecoderTools.stripWMOHeader(data,
+                // SFUS_PATTERN);
+                // if (pdata == null) {
+                // pdata = DecoderTools.stripWMOHeader(data, SFPA_PATTERN);
+                // }
                 /*
                  * instead the following is used to strip WMO header a little
                  * more safely.
                  */
                 byte[] pdata = extractPData(wmoHdr, data);
-    			
+
                 if ((pdata == null) || (pdata.length == 0)) {
                     return new PluginDataObject[0];
                 }
-                
+
                 /*
                  * Modified by Wufeng Zhou to handle both legacy bit-shifted and
                  * new encryted data
@@ -208,34 +206,44 @@ public class BinLightningDecoder extends AbstractDecoder {
                  * and added logic to process both encrypted data and legacy
                  * data
                  */
-                
                 Collection<LightningStrikePoint> strikes = decodeBinLightningData(
                         data, pdata, traceId, wmoHdr, baseTime.getTime());
-
-                if (strikes == null) { // keep-alive record, log and return
-                	logger.info(traceId + " - found keep-alive record. ignore for now.");
-                    return rval;
-                }
 
                 /*
                  * Done MOD by Wufeng Zhou
                  */
-                
-                // post processing data - if not keep-alive record
+
+                // post processing data
                 BinLightningRecord report = null;
                 if (strikes.size() > 0) {
+                    // not a keep-alive
                     report = LightningGeoFilter.createFilteredRecord(strikes);
                 } else {
-                    return new PluginDataObject[0];
+                    // keep-alive, get the source from WMO header
+                    String source = getSourceFromHeader(wmoHdr);
+
+                    synchronized (SDF) {
+                        logger.info(traceId
+                                + ": found keep-alive record of base time ["
+                                + SDF.format(baseTime.getTime())
+                                + "] and source [" + source + "]");
+                    }
+
+                    report = new BinLightningRecord(baseTime, source);
                 }
 
                 Collection<BinLightningRecord> records = checkBinRange(report,
                         strikes);
                 rval = finalizeRecords(records, baseTime);
+
             }
         } else {
-        	logger.error("No WMOHeader found in data");
+            logger.error("No WMOHeader found in data");
         }
+
+        logger.debug(traceId + ": Returning array of [" + rval.length
+                + "] bin lightning records");
+
         return rval;
     }
 
@@ -255,8 +263,7 @@ public class BinLightningDecoder extends AbstractDecoder {
         if (c == null) {
             throw new DecoderException(traceId + " - Error decoding times");
         }
-        ArrayList<BinLightningRecord> rval = new ArrayList<BinLightningRecord>(
-                records.size());
+        ArrayList<BinLightningRecord> rval = new ArrayList<>(records.size());
         for (BinLightningRecord record : records) {
             Calendar cStart = record.getStartTime();
             if (cStart.getTimeInMillis() > (c.getTimeInMillis() + TEN_MINUTES)) {
@@ -273,10 +280,8 @@ public class BinLightningDecoder extends AbstractDecoder {
                 DataTime dataTime = new DataTime(cStart, range);
                 record.setDataTime(dataTime);
 
-                if (record != null) {
-                    record.setTraceId(traceId);
-                    rval.add(record);
-                }
+                record.setTraceId(traceId);
+                rval.add(record);
             }
         }
         return rval.toArray(new PluginDataObject[rval.size()]);
@@ -325,8 +330,7 @@ public class BinLightningDecoder extends AbstractDecoder {
      */
     private Collection<BinLightningRecord> rebin(
             Collection<LightningStrikePoint> strikes) {
-        Map<Long, Collection<LightningStrikePoint>> binMap = new HashMap<Long, Collection<LightningStrikePoint>>(
-                1);
+        Map<Long, Collection<LightningStrikePoint>> binMap = new HashMap<>(1);
         for (LightningStrikePoint strike : strikes) {
             Calendar c = TimeUtil.newCalendar(strike.getTime());
             c.set(Calendar.HOUR_OF_DAY, 0);
@@ -336,13 +340,12 @@ public class BinLightningDecoder extends AbstractDecoder {
             long key = c.getTimeInMillis();
             Collection<LightningStrikePoint> bin = binMap.get(key);
             if (bin == null) {
-                bin = new ArrayList<LightningStrikePoint>(strikes.size());
+                bin = new ArrayList<>(strikes.size());
                 binMap.put(key, bin);
             }
             bin.add(strike);
         }
-        Collection<BinLightningRecord> rval = new ArrayList<BinLightningRecord>(
-                binMap.size());
+        Collection<BinLightningRecord> rval = new ArrayList<>(binMap.size());
         for (Entry<Long, Collection<LightningStrikePoint>> e : binMap
                 .entrySet()) {
             Collection<LightningStrikePoint> bin = e.getValue();
@@ -360,7 +363,7 @@ public class BinLightningDecoder extends AbstractDecoder {
      * @param data
      * @return null if data is invalid
      */
-    public static byte[] extractPData(WMOHeader wmoHdr, byte[] data) {
+    public static byte[] extractPData(LightningWMOHeader wmoHdr, byte[] data) {
         byte[] pdata = null;
         if (wmoHdr.isValid() && wmoHdr.getMessageDataStart() > 0) {
             pdata = new byte[data.length - wmoHdr.getMessageDataStart()];
@@ -398,11 +401,11 @@ public class BinLightningDecoder extends AbstractDecoder {
      *         LightningStrikePoint
      */
     public static List<LightningStrikePoint> decodeBinLightningData(
-            byte[] data, byte[] pdata, String traceId, WMOHeader wmoHdr,
-            Date dataDate) {
+            byte[] data, byte[] pdata, String traceId,
+            LightningWMOHeader wmoHdr, Date dataDate) {
         if (pdata == null) { // if data without header not passed, we'll strip
                              // the WMO header here
-            WMOHeader header = new WMOHeader(data);
+            LightningWMOHeader header = new LightningWMOHeader(data);
             if (header.isValid() && header.getMessageDataStart() > 0) {
                 pdata = new byte[data.length - header.getMessageDataStart()];
                 System.arraycopy(data, header.getMessageDataStart(), pdata, 0,
@@ -410,7 +413,7 @@ public class BinLightningDecoder extends AbstractDecoder {
             }
         }
 
-        List<LightningStrikePoint> strikes = new ArrayList<LightningStrikePoint>();
+        List<LightningStrikePoint> strikes = new ArrayList<>();
         boolean needDecrypt = true; // set as default unless clear evidence says
                                     // otherwise
         boolean decodeDone = false;
@@ -418,46 +421,37 @@ public class BinLightningDecoder extends AbstractDecoder {
 
         /*
          * Using different WMO headers to indicate whether the data is encrypted
-         * or not would be a nice option.
-         * However, that idea has been discussed but not adopted.
-         * If in the future, WMO header can be different for legacy and
-         * encrypted data, or some other metadata can be used to decide
-         * whether deceyption is needed, logic can be added here.
+         * or not would be a nice option. However, that idea has been discussed
+         * but not adopted. If in the future, WMO header can be different for
+         * legacy and encrypted data, or some other metadata can be used to
+         * decide whether deceyption is needed, logic can be added here.
          * 
          * Before that happens, we'll use hints and trial & error to decode the
-         * data
-         * Hints: Per lightning data format spec, there are 3 bytes in the WMO
-         * header starting line that indicates the size of the encrypted block
-         * or the ASCII sequence # for legacy bit-shifted data
-         * However, the starting line is optional and AWIPS decode may not see
-         * it at all because TG will strip that starting line away
-         * We'll try to use this hint first, if is is not found, then trial and
-         * error way to decrypt and decode
+         * data Hints: Per lightning data format spec, there are 3 bytes in the
+         * WMO header starting line that indicates the size of the encrypted
+         * block or the ASCII sequence # for legacy bit-shifted data However,
+         * the starting line is optional and AWIPS decode may not see it at all
+         * because TG will strip that starting line away We'll try to use this
+         * hint first, if is is not found, then trial and error way to decrypt
+         * and decode
          * 
          * As of 11/05/2013, There is change in data spec. that the 3-bytes will
          * not be encoded as encrypted block size anymore (it will always be
-         * transmission sequence # if present)
-         * So there should have some minor changes in the logic below for
-         * decoding the data.
-         * However, as reading into the
-         * com.raytheon.edex.plugin.binlightning.impl.BinLightningFactory.getDecoder
-         * ()
-         * and follow-on code, we see the following data patterns
+         * transmission sequence # if present) So there should have some minor
+         * changes in the logic below for decoding the data. However, as reading
+         * into the
+         * com.raytheon.edex.plugin.binlightning.impl.BinLightningFactory
+         * .getDecoder () and follow-on code, we see the following data patterns
          * for legacy bit-shifted data, which could be used to reduce guess-work
-         * in data decryption:
-         * The bit-shifted data will have multiple groups of the following
-         * patterns:
-         * 1-byte (unsigned byte): for size count
-         * 1-byte (unsigned byte): for flash type:
-         * 0x96 for FLASH_RPT (message size is 6 bytes each)
-         * 0x97 for RT_FLASH_RPT (message size is 8 bytes each)
+         * in data decryption: The bit-shifted data will have multiple groups of
+         * the following patterns: 1-byte (unsigned byte): for size count 1-byte
+         * (unsigned byte): for flash type: 0x96 for FLASH_RPT (message size is
+         * 6 bytes each) 0x97 for RT_FLASH_RPT (message size is 8 bytes each)
          * 0xd0 for OTHER_RPT (The D2D decoders declare but do not define this
-         * message, so unimplemented decoder)
-         * 0xd1 for COMM_RPT (The D2D decoders declare but do not define this
-         * message, so unimplemented decoder)
-         * 4-bytes: date time
-         * multiple of 6 or 8 bytes (as determined by 2nd byte flash type) with
-         * count indicated in 1st byte
+         * message, so unimplemented decoder) 0xd1 for COMM_RPT (The D2D
+         * decoders declare but do not define this message, so unimplemented
+         * decoder) 4-bytes: date time multiple of 6 or 8 bytes (as determined
+         * by 2nd byte flash type) with count indicated in 1st byte
          * 
          * So this is be used to determine whether the data need to be
          * decrypted.
@@ -488,13 +482,13 @@ public class BinLightningDecoder extends AbstractDecoder {
                 // decrypt ok, then decode, first check if keep-alive record
                 if (BinLightningDecoderUtil.isKeepAliveRecord(decryptedData)) {
                     logger.info(traceId
-                            + " - Keep-alive record detected, ignore for now.");
+                            + " - Keep-alive record detected, no strike decoding.");
                     decodeDone = true;
-                    return null;
+                    return new ArrayList<>(0);
                 }
                 /*
-                 * not keep-alive record, then check data validity and decode
-                 * into an ArrayList<LightningStrikePoint> of strikes
+                 * not necessarily keep-alive record, then check data validity
+                 * and decode into an ArrayList<LightningStrikePoint> of strikes
                  */
                 if (BinLightningDecoderUtil
                         .isLightningDataRecords(decryptedData)) {
@@ -562,8 +556,8 @@ public class BinLightningDecoder extends AbstractDecoder {
      * @return
      */
     public static List<LightningStrikePoint> decodeBitShiftedBinLightningData(
-            byte[] pdata, WMOHeader wmoHdr) {
-        List<LightningStrikePoint> strikes = new ArrayList<LightningStrikePoint>();
+            byte[] pdata, LightningWMOHeader wmoHdr) {
+        List<LightningStrikePoint> strikes = new ArrayList<>();
 
         IBinDataSource msgData = new LightningDataSource(pdata);
 
@@ -575,25 +569,9 @@ public class BinLightningDecoder extends AbstractDecoder {
             switch (decoder.getError()) {
             case IBinLightningDecoder.NO_ERROR: {
                 for (LightningStrikePoint strike : decoder) {
-                    /*
-                     * use WMO Header to distinguish NLDN or GLD360 data because
-                     * no bit-shifted data spec available for GLD360.
-                     * 12/24/2013, WZ
-                     * The WMO header start string is defined in
-                     * BinLightningAESKey.properties file (normally, GLD360 data
-                     * will have WMO header
-                     * starts with SFPA41, or SFPA99 for test data.)
-                     */
-                    String gld360WMOHeaderString = BinLightningAESKey
-                            .getProps().getProperty(
-                                    "binlightning.gld360WMOHeaderStartString",
-                                    "");
-                    if (gld360WMOHeaderString.trim().equals("") == false
-                            && wmoHdr.getWmoHeader().startsWith(
-                                    gld360WMOHeaderString)) {
-                        // GLD360 data based on the setup
-                        strike.setLightSource("GLD");
-                    }
+                    String source = getSourceFromHeader(wmoHdr);
+
+                    strike.setLightSource(source);
                     strikes.add(strike);
                 }
                 break;
@@ -604,6 +582,45 @@ public class BinLightningDecoder extends AbstractDecoder {
             }
         }
         return strikes;
+    }
+
+    /**
+     * Get the data source from the given WMO header.
+     * 
+     * @param wmoHdr
+     *            the header.
+     * @return the data source according to text from the header.
+     */
+    private static String getSourceFromHeader(LightningWMOHeader wmoHdr) {
+        /*
+         * use WMO Header to distinguish NLDN or GLD360 data because no
+         * bit-shifted data spec available for GLD360. 12/24/2013, WZ The WMO
+         * header start string is defined in BinLightningAESKey.properties file
+         * (normally, GLD360 data will have WMO header starts with SFPA41, or
+         * SFPA99 for test data.)
+         */
+        /*
+         * continually get the properties locally instead of as a constant
+         * because the properties file could be changed and reloaded by the
+         * user.
+         */
+        String gld360WMOHeaderString = BinLightningAESKey.getProps()
+                .getProperty("binlightning.gld360WMOHeaderStartString", "");
+
+        String source = null;
+
+        if (gld360WMOHeaderString.trim().equals("") == false
+                && wmoHdr.getWmoHeader().startsWith(gld360WMOHeaderString)) {
+            // GLD360 data based on the setup
+            source = "GLD";
+        }
+        /*
+         * default source is NLDN, which is the only other option at this time
+         * for this decoder (5/2/2016, DR 18336). For future sources, add here
+         * and modify BinLightningAESKey.properties.
+         */
+
+        return BinLightningRecord.validateSource(source);
     }
 
     /**

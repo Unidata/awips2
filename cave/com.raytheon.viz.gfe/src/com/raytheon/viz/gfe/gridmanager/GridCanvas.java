@@ -57,6 +57,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.Activator;
@@ -115,6 +116,9 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  *                                     Stepping is enabled. Cleaned up deprecated warnings.
  * 06/20/2013    #2111    dgilling     Prevent NullPointerException in mouse handler's
  *                                     displayContextMenu() method.
+ * 11/03/2015    #4961    randerso     Make topo grids visible in the grid manager when 
+ *                                     mutable dbType is EditTopo
+ * Mar 10, 2016 #5479      randerso    Code cleanup
  * 
  * </pre>
  * 
@@ -490,7 +494,7 @@ public class GridCanvas extends Canvas implements IMessageClient {
                     GridManager gm = gridManager;
                     Date clickTime = gm.getUtil().pixelToDate(e.x);
                     TimeRange timeRange = new TimeRange(clickTime,
-                            GridManagerUtil.MILLIS_PER_SECOND);
+                            TimeUtil.MILLIS_PER_SECOND);
 
                     Parm parm = gridBar.getParm();
                     IGridData overGrid = parm.overlappingGrid(clickTime);
@@ -702,7 +706,9 @@ public class GridCanvas extends Canvas implements IMessageClient {
 
         if (additions != null) {
             for (Parm parm : additions) {
-                if (!parm.getGridInfo().isTimeIndependentParm()) {
+                if (!parm.getGridInfo().isTimeIndependentParm()
+                        || dataMgr.getParmManager().getMutableDatabase()
+                                .getDbType().equals("EditTopo")) {
                     GridBar gridBar = new GridBar(this, parm, gridManager);
                     gridBarList.add(gridBar);
                 }

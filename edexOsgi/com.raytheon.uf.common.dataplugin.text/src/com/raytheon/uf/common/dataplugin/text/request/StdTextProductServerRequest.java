@@ -25,15 +25,15 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.serialization.comm.IServerRequest;
 
 /**
- * Standard Text Product Server Request class to be used in a thrift 
- * service. 
+ * Standard Text Product Server Request class to be used in a thrift service.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 19May2010               cjeanbap    Initial creation
+ * May 19, 2010            cjeanbap    Initial creation
+ * Sep 30, 2015 4860       skorolev    Corrected misspelling.
  * 
  * </pre>
  * 
@@ -79,9 +79,9 @@ public class StdTextProductServerRequest implements IServerRequest {
 
     @DynamicSerializeElement
     private String product;
-    
+
     @DynamicSerializeElement
-    private boolean opertionalFlag;
+    private boolean operationalFlag;
 
     public StdTextProductServerRequest() {
     }
@@ -89,9 +89,10 @@ public class StdTextProductServerRequest implements IServerRequest {
     /**
      * full constructor
      */
-    public StdTextProductServerRequest(String wmoid, String site, String cccid, 
-            String nnnid, String xxxid, String hdrtime, String bbbid, 
-            Long dataCrc, Long createTime, String product, boolean opertionalFlag) {
+    public StdTextProductServerRequest(String wmoid, String site, String cccid,
+            String nnnid, String xxxid, String hdrtime, String bbbid,
+            Long dataCrc, Long createTime, String product,
+            boolean operationalFlag) {
         this.wmoid = wmoid;
         this.site = site;
         this.cccid = cccid;
@@ -99,10 +100,10 @@ public class StdTextProductServerRequest implements IServerRequest {
         this.xxxid = xxxid;
         this.hdrtime = hdrtime;
         this.bbbid = bbbid;
-        this.dataCrc = dataCrc;        
+        this.dataCrc = dataCrc;
         this.createTime = createTime;
         this.product = product;
-        this.opertionalFlag = opertionalFlag;
+        this.operationalFlag = operationalFlag;
     }
 
     public String getBbbid() {
@@ -124,11 +125,11 @@ public class StdTextProductServerRequest implements IServerRequest {
     public String getProduct() {
         return this.product;
     }
-    
+
     public void setProduct(String product) {
         this.product = product;
     }
-    
+
     public String getWmoid() {
         return this.wmoid;
     }
@@ -184,12 +185,13 @@ public class StdTextProductServerRequest implements IServerRequest {
     public void setDataCrc(Long dataCrc) {
         this.dataCrc = dataCrc;
     }
-    
-    public boolean isOpertionalFlag() {
-        return opertionalFlag;
+
+    public boolean isOperationalFlag() {
+        return operationalFlag;
     }
 
-    public void setOpertionalFlag(boolean opertionalFlag) {
-        this.opertionalFlag = opertionalFlag;
+    public void setOperationalFlag(boolean operationalFlag) {
+        this.operationalFlag = operationalFlag;
     }
+
 }

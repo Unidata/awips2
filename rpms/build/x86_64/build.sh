@@ -1,42 +1,15 @@
-#!/bin/bash -v
-
-function buildRPM()
+#!/bin/bash
+echo "inside build.sh"
+function usage()
 {
-   # Arguments:
-   #   ${1} == the name of the rpm.
-   lookupRPM "${1}"
-   if [ $? -ne 0 ]; then
-      echo "ERROR: '${1}' is not a recognized AWIPS II RPM."
-      exit 1
-   fi
-
-	buildRPMExec "${RPM_SPECIFICATION}"
+   echo "Usage: $0 OPTION [-nobinlightning]"
+   echo "   -buildRPM preform a build of an rpm."
+   echo "   -WA       perform a build of all work assignments."
+   echo "   -rh6      perform a full build of all the rpms."
+   echo "   -dev      call functions directly"
+   echo "   --help    display this message and exit."
 
    return 0
-}
-
-function buildRPMExec()
-{
-	# Arguments:
-	# 1) specs file location
-
-   /usr/bin/rpmbuild -ba \
-      --define '_topdir %(echo ${AWIPSII_TOP_DIR})' \
-      --define '_baseline_workspace %(echo ${WORKSPACE})' \
-      --define '_uframe_eclipse %(echo ${UFRAME_ECLIPSE})' \
-      --define '_awipscm_share %(echo ${AWIPSCM_SHARE})' \
-      --define '_build_root %(echo ${AWIPSII_BUILD_ROOT})' \
-      --define '_component_version %(echo ${AWIPSII_VERSION})' \
-      --define '_component_release %(echo ${AWIPSII_RELEASE})' \
-      --define '_component_build_date %(echo ${COMPONENT_BUILD_DATE})' \
-      --define '_component_build_time %(echo ${COMPONENT_BUILD_TIME})' \
-      --define '_component_build_system %(echo ${COMPONENT_BUILD_SYSTEM})' \
-      --buildroot ${AWIPSII_BUILD_ROOT} \
-      ${1}/component.spec
-   if [ $? -ne 0 ]; then
-      echo "ERROR: Failed to build RPM ${1}."
-      exit 1
-   fi
 }
 
 # This script will build all of the 64-bit rpms.
@@ -63,16 +36,6 @@ if [ $? -ne 0 ]; then
    echo "ERROR: Unable to source the common functions."
    exit 1
 fi
-source ${common_dir}/usage.sh
-if [ $? -ne 0 ]; then
-   echo "ERROR: Unable to source the common functions."
-   exit 1
-fi
-source ${common_dir}/rpms.sh
-if [ $? -ne 0 ]; then
-   echo "ERROR: Unable to source the common functions."
-   exit 1
-fi
 source ${common_dir}/systemInfo.sh
 if [ $? -ne 0 ]; then
    echo "ERROR: Unable to retrieve the system information."
@@ -86,9 +49,30 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
+source ${dir}/rpms.sh
+if [ $? -ne 0 ]; then
+   echo "ERROR: Unable to source the RPM functions."
+   exit 1
+fi
+
 source ${dir}/WA_rpm_build.sh
 if [ $? -ne 0 ]; then
 	echo "WARNING: Unable to find the WA-RPM Build Contributions."
+fi
+
+#Check if the build root directory has execute permissions.
+TMPFILE=${AWIPSII_BUILD_ROOT}/tmp.sh
+if [ ! -d ${AWIPSII_BUILD_ROOT} ]; then
+    mkdir -p ${AWIPSII_BUILD_ROOT}
+fi
+echo "#!/bin/bash" > ${TMPFILE}
+chmod a+x ${TMPFILE}
+${TMPFILE}
+RTN=$?
+rm -f ${TMPFILE}
+if [ $RTN -ne 0 ]; then
+   echo "Directory ${AWIPSII_BUILD_ROOT} does not have execute permissions!"
+   exit 1
 fi
 
 export LIGHTNING=true
@@ -99,7 +83,7 @@ export LIGHTNING=true
 
 if [ "${1}" = "-buildRPM" -a -n "${2}" ]; then
    echo "Building RPM: ${2}"
-   # also allow buildJava, buildOpenfire... buildRPM args
+   # also allow buildCAVE, buildEDEX, buildRPM args
    buildName=`echo ${2} | cut -c1-5`
    if [ ${#2} -gt 5 -a "$buildName" = "build" ]; then
       ${2}
@@ -124,8 +108,8 @@ if [ "${1}" = "-jep" ]; then
 fi
 if [ "${1}" = "-pydev" ]; then
    #buildRPM "awips2-python"
-   buildRPM "awips2-python-scientific"
-   #buildRPM "awips2-python-awips"
+   #buildRPM "awips2-python-scientific"
+   buildRPM "awips2-python-awips"
    #buildRPM "awips2-python-jep"
    #buildRPM "awips2-python-gfe"
    #buildRPM "awips2-python-numpy"
@@ -251,9 +235,13 @@ if [ "${1}" = "-rh6" ]; then
    buildRPM "awips2-python-pycairo"
    buildRPM "awips2-python-pygtk"
    buildRPM "awips2-python-shapely"
+   buildRPM "awips2-python-pytz"
+   buildRPM "awips2-python-setuptools"
+   buildRPM "awips2-maven"
+   buildRPM "awips2-eclipse"
    buildRPM "awips2-ant"
    buildRPM "awips2-tools"
-   buildRPM "awips2-postgres"
+   buildRPM "awips2-postgresql"
    buildRPM "awips2-pgadmin3"
    unpackHttpdPypies
    if [ $? -ne 0 ]; then
@@ -289,6 +277,7 @@ if [ "${1}" = "-rh6" ]; then
       exit 1
    fi
    buildRPM "awips2-pypies"
+   buildRPM "awips2-rcm"
    buildRPM "awips2-data.hdf5-topo"
    buildRPM "awips2"
    buildRPM "awips2-yajsw"
@@ -306,7 +295,7 @@ if [ "${1}" = "-httpd" ]; then
    exit 0
 fi
 if [ "${1}" = "-postgres" ]; then
-   buildRPM "awips2-postgres"
+   buildRPM "awips2-postgresql" # this builds awips2-psql too
    exit 0
 fi
 if [ "${1}" = "-maps" ]; then
@@ -316,10 +305,23 @@ fi
 
 if [ "${1}" = "-database" ]; then
    #buildRPM "awips2-pypies"
-   buildRPM "awips2-database"
-   buildRPM "awips2-database-standalone-configuration"
-   buildRPM "awips2-maps-database"
-   buildRPM "awips2-ncep-database"
+   #buildRPM "awips2-cli"
+   #buildRPM "awips2-edex-environment"
+   #buildRPM "awips2-edex-configuration"
+   buildRPM "awips2-tools"
+   #buildRPM "awips2-notification"
+   #buildRPM "awips2-database"
+   #buildRPM "awips2-database-standalone-configuration"
+   #buildRPM "awips2-maps-database"
+   #buildRPM "awips2-ncep-database"
+   #buildRPM "awips2-gfesuite-client"
+   #buildRPM "awips2-gfesuite-server"
+   #buildRPM "awips2-data.hdf5-topo"
+   #buildRPM "awips2-data.gfe"
+   #buildRPM "awips2-python-pytz"
+   #buildRPM "awips2-python-setuptools"
+   #buildRPM "awips2-maven"
+   #buildRPM "awips2-eclipse"
 
    exit 0
 fi
@@ -572,8 +574,10 @@ if [ "${1}" = "-other" ]; then
    #buildRPM "awips2-groovy"
 fi
 
+   echo "calling buildCAVE"
 if [ "${1}" = "-viz" ]; then
-   buildRPM "awips2-common-base"
+   #buildRPM "awips2-common-base"
+   echo "calling buildCAVE"
    buildCAVE
    if [ $? -ne 0 ]; then
       exit 1
@@ -696,7 +700,6 @@ if [ "${1}" = "-dev" ]; then
         echo -e "*** $2 Complete ***\n"
         exit 0
 fi
-
 
 usage
 exit 0

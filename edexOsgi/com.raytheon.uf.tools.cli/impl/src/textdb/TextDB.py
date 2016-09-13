@@ -87,6 +87,7 @@ def appendIfNotPresent(multimap, key, value):
 #    08/15/14        2926          bclement       Fixed hasSubOperations()
 #    08/22/14        2926          bclement       Switched to ThriftClient
 #    09/05/14        2926          bclement       Moved TextDBRequest to common
+#    02/05/16        5269          skorolev       Removed Handles the Watch Warn Trigger requests
 ##############################################################################
 class TextDB:
 
@@ -406,68 +407,6 @@ class TextDB:
 
         sm = SM.SubscriptionManager(name='textdb',args=cline)
         return sm.execute()
-
-    # Handles the Watch Warn Trigger requests
-    #
-    # raise:
-    #    propagates any exception received 
-    def __handleWatchWarnRequest(self):
-        cmd = self.commands.get('command')[0]
-        args = self.commands.get(cmd)
-        if cmd == 'trig_add':
-            if (os.path.exists(args[0])):
-                try:
-                    self.__deleteWatchWarn()
-                    self.__deleteSubscriptions()
-                except Exception,e:
-                        raise MessageError('unable to create message for textdb request',e)           
-                try:    
-                    for i in range(len(args)):    
-                        f = open(args[i],'r')
-                        for line in f:
-                            # remove all white-spaces at beginning of the line.
-                            line = line.lstrip()
-                            if (line.find('#') == -1):                        
-                                try:
-                                    values = line.split(' ', 1)
-                                    try:
-                                        props = []
-                                        props.append(Property(name='VIEW',value='warn'))
-                                        props.append(Property(name='OP',value='PUT'))
-                                        props.append(Property(name='PRODID',value=values[0]))
-                                        props.append(Property(name='SCRIPT',value=values[1]))
-                                        msg = Message(header=Header(props))
-                                    except Exception,e:
-                                            raise MessageError('unable to create message for textdb request',e)
-
-                                    if ((len(values[0]) >= 8) & (len(values[1].strip('\r\n')) > 0)):
-                                        # print "Insert Subscription [" + values[0] + "] Status:" + str(sm.execute())
-                                        cline = ['-o','add', '-t','ldad', '-r','ldad', '-p', values[0], '-f', values[1], '-c','%TRIGGER%']
-                                        sm = SM.SubscriptionManager(name='textdb',args=cline)
-                                        sm.execute()
-                                        msg = self.__submitRequestMessage(msg)
-                                        status = self.__processRequestResponse(msg)
-                                except ValueError:
-                                    util.printMessage(sys.stderr,
-                                        header='Error processing line',
-                                        body=line)
-                finally:
-                    f.close()
-            else:
-                raise MessageError('Unable to locate file: ' + args[0])
-        else:
-            self.__deleteSubscriptions()
-        return
-
-    #
-    #
-    #
-    def __deleteWatchWarn(self):
-        props = []
-        props.append(Property(name='VIEW',value='warn'))
-        props.append(Property(name='OP',value='DELETE'))
-        msg = self.__submitRequestMessage(Message(header=Header(props)))
-        status = self.__processRequestResponse(msg)
 
     #
     #

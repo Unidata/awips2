@@ -50,6 +50,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  *                                      PluginDataObject.
  * Aug 13, 2013 2253        mnash       Fixed null data uri errors
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Jul 29, 2015 4360        rferrel     Add name to unique constraint.
  * </pre>
  * 
  * @author bgonzale
@@ -57,7 +58,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "practicewarningseq")
-@Table(name = "practicewarning", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = "practicewarning", uniqueConstraints = { @UniqueConstraint(name = "uk_practicewarning_datauri_fields", columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.

@@ -90,7 +90,7 @@
     <uiname>DepthBelowSeaSurface</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>10000.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -107,7 +107,7 @@
     <uiname>DevFromMeanSeaLevel</uiname>
     <valid_range>-15.0</valid_range>
     <valid_range>15.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -124,7 +124,7 @@
     <uiname>CurrentDir</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>360.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -141,7 +141,7 @@
     <uiname>CurrSpeed</uiname>
     <valid_range>0</valid_range>
     <valid_range>7</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -158,7 +158,7 @@
     <uiname>WindSpeed</uiname>
     <valid_range>0</valid_range>
     <valid_range>150.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -175,7 +175,7 @@
     <uiname>heightWindWavesandSwell</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>50.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -192,7 +192,7 @@
     <uiname>heightSwellWaves</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>50.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -226,7 +226,7 @@
     <uiname>primaryWavePeriod</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>25.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -243,7 +243,7 @@
     <uiname>windDir</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>360.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>

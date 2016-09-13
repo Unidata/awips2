@@ -25,6 +25,8 @@
 # ???                                 Initial creation
 # Jul 07, 2014 3344       rferrel     Change GRID_FILL_VALUE to new plugin location.
 # Mar 05, 2015 3959       rjpeter     Fix subgrid across seam of world wide grid.
+# Oct 01, 2015 4868       rjpeter     Discard invalid subgrids.
+# Dec 16, 2015 5182       tjensen     Updated GribModelLookup calls to pass in filepath.
 # 
 
 import grib2
@@ -65,6 +67,8 @@ from com.raytheon.edex.util.grib import GribParamTranslator
 from com.raytheon.uf.common.parameter import Parameter;
 from com.raytheon.uf.common.parameter.mapping import ParameterMapper;
 
+# default fill value for now...someday NaN would be better
+F32_GRID_FILL_VALUE = numpy.float32(GridUtil.GRID_FILL_VALUE)
 
 # Static values for accessing parameter lookup tables
 PARAMETER_TABLE = "4.2"
@@ -137,6 +141,8 @@ logHandler = UFStatusHandler.UFStatusHandler("com.raytheon.edex.plugin.grib", "E
 # Dec 15, 2014  DR16509  Matt Foster Changes in _decodePdsSection to accommodate
 #                                    EKDMOS
 # Mar 05, 2015  3959     rjpeter     Update sub gridding to handle world wrap.
+# Jul 28, 2015  4264     njensen     Use constant float32 fill value
+#
 #
 class GribDecoder():
 
@@ -256,7 +262,7 @@ class GribDecoder():
         # Apply the bitmap if one is provided and set masked values to missing value
         if gribDict['ibmap'] == 0:
             bitMap = gribDict['bmap']
-            data = numpy.where(bitMap == 0, -999999, data)
+            data = numpy.where(bitMap == 0, F32_GRID_FILL_VALUE, data)
             
         # Check for fill value provided if complex packing is used
         drsTemplateNumber =  gribDict['idrtnum']
@@ -265,10 +271,10 @@ class GribDecoder():
             primaryFill = Float.intBitsToFloat(int(drs[7]))
             secondaryFill = Float.intBitsToFloat(int(drs[8]))
             if drs[6] == 1:
-                data = numpy.where(data == primaryFill, -999999, data)
+                data = numpy.where(data == primaryFill, F32_GRID_FILL_VALUE, data)
             elif drs[6] == 2:
-                data = numpy.where(data == primaryFill, -999999, data)
-                data = numpy.where(data == secondaryFill, -999999, data)
+                data = numpy.where(data == primaryFill, F32_GRID_FILL_VALUE, data)
+                data = numpy.where(data == secondaryFill, F32_GRID_FILL_VALUE, data)
              
         gridCoverage = gribDict['coverage']
         nx = gridCoverage.getNx().intValue()
@@ -333,14 +339,21 @@ class GribDecoder():
 
         if subCoverage is not None:
             subGrid = spatialCache.getSubGrid(modelName, gridCoverage)
-            # resize the data array
-            numpyDataArray = numpy.reshape(numpyDataArray, (ny, nx))
+
             startx = subGrid.getUpperLeftX()
             starty = subGrid.getUpperLeftY()
             subnx = subGrid.getNX()
             subny = subGrid.getNY()
             endY = starty + subny
             endX = startx + subnx
+
+            if subnx <= 0 or subny <=0:
+                # sub grid did not intersect main grid
+                self.log.info("Discarding model [" + modelName + "], sub grid does not meet minimum coverage area")
+                return None
+
+            # resize the data array
+            numpyDataArray = numpy.reshape(numpyDataArray, (ny, nx))
 
             # handle world wide grid wrap
             if (endX > nx):
@@ -393,6 +406,10 @@ class GribDecoder():
         record.addExtraAttribute("backGenprocess", Integer(gribDict['backGenprocess']))
         record.addExtraAttribute("pdsTemplate", Integer(gribDict['ipdtnum']))
         record.addExtraAttribute("gridid", gridCoverage.getName())
+        if "forecastInterval" in gribDict:
+            record.addExtraAttribute("forecastInterval", gribDict['forecastInterval'])
+        if "forecastIntervalUnit" in gribDict:
+            record.addExtraAttribute("forecastIntervalUnit", gribDict['forecastIntervalUnit'])
         if "numForecasts" in gribDict:
             record.addExtraAttribute("numForecasts", gribDict['numForecasts'])
               
@@ -473,9 +490,12 @@ class GribDecoder():
 
             if levelName is None or len(levelName) == 0:
                 levelName = LevelFactory.UNKNOWN_LEVEL
-
+                
             # Convert the forecast time to seconds
             gribDict['forecastTime'] = self._convertToSeconds(pdsTemplate[8], pdsTemplate[7])
+            # harvest forecast interval for longer term models to post process
+            gribDict['forecastInterval'] = Integer(int(pdsTemplate[8]))
+            gribDict['forecastIntervalUnit'] = Integer(int(pdsTemplate[7]))
             
             # Scale the level one value if necessary
             if pdsTemplate[10] == 0 or pdsTemplate[11] == 0:
@@ -1146,7 +1166,7 @@ class GribDecoder():
     # @param value: The value to convert to seconds
     # @param fromUnit: The value from Table 4.4 to convert from
     # @return: The number of seconds of the provided value 
-    # @rtype: long
+    # @rtype: int
     ##
     def _convertToSeconds(self, value, fromUnit):
         
@@ -1197,14 +1217,14 @@ class GribDecoder():
             retVal = value * 12 * SECONDS_PER_HOUR
             
         return int(retVal)
-
+   
     def _getGridModel(self, gribDict, grid):
         center = gribDict['center']
         subcenter = gribDict['subcenter']
 
         process = gribDict['genprocess']
         processType = gribDict['processType']
-        gridModel = GribModelLookup.getInstance().getModel(center, subcenter, grid, process, processType)
+        gridModel = GribModelLookup.getInstance().getModel(center, subcenter, grid, process, processType, self.fileName)
         return gridModel
     
     def _createModelName(self, gribDict, grid):
@@ -1213,7 +1233,7 @@ class GribDecoder():
 
         process = gribDict['genprocess']
         processType = gribDict['processType']
-        return GribModelLookup.getInstance().getModelName(center, subcenter, grid, process, processType)
+        return GribModelLookup.getInstance().getModelName(center, subcenter, grid, process, processType, self.fileName)
         
     def _checkForecastFlag(self, gribDict, grid, dataTime):
         gridModel = self._getGridModel(gribDict, grid)

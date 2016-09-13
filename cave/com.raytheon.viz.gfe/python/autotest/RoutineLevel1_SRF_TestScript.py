@@ -142,9 +142,9 @@ overrides = """
         # List of edit area names for which we want
         # ridge/valley winds reported:
         #
-        # 20-FOOT WINDS...
-        #     VALLEYS/LWR SLOPES...
-        #     RIDGES/UPR SLOPES....       
+        # 20-foot winds...
+        #     Valleys/lwr slopes...
+        #     Ridges/upr slopes....       
         #
         # e.g.
         # return ["Area1"]
@@ -229,20 +229,20 @@ scripts = [
         "FLZ139-142-148-149",
         "Levy-Citrus-Hernando-Pasco-",
         ".TODAY...",
-        "SKY/WEATHER.........Cloudy (95-100 percent). Patchy dense fog. Widespread thunderstorms.", 
-        "MAX TEMPERATURE.....Around 78.", 
-        "BEACH WINDS.........Very windy. Southwest winds around 10 mph increasing to southeast around 45 mph in the afternoon.", 
-        "SURF ALONG NORTH FACING REEFS.............Over 20 feet subsiding to 8 to 12 feet in the afternoon.",
-        "SURF ALONG SOUTH FACING REEFS.............Over 20 feet subsiding to 8 to 12 feet in the afternoon.",
-        "SWELL...............Large swells. West swell 20 to 30 feet becoming southeast and increasing to around 40 feet in the afternoon.", 
-        "PERIOD..............12 seconds decreasing to 10 seconds in the afternoon.", 
-        "SECONDARY SWELL.....Large swells. Southeast swell 20 to 30 feet becoming southwest and increasing to around 40 feet in the afternoon.", 
-        "SECONDARY PERIOD....7 seconds.", 
-        "WATER CONDITION.....A light chop increasing to smooth in the afternoon.", 
-        "WATER TEMPERATURE...", "insert water temperature here",
-        "UVI INDEX...........High.", 
-        "RIP CURRENT RISK....High. High surf and large swells will produce dangerous pounding surf and rip currents at the beaches. People visiting the beaches should stay out of the high surf.",
-        "LIGHTNING THREAT....Very infrequent deadly lightning.", 
+        "Sky/weather.........Cloudy (95-100 percent). Patchy dense fog. Widespread thunderstorms.", 
+        "Max temperature.....Around 78.", 
+        "Beach winds.........Very windy. Southwest winds around 10 mph increasing to southeast around 45 mph in the afternoon.", 
+        "Surf along north facing reefs.............Over 20 feet subsiding to 8 to 12 feet in the afternoon.",
+        "Surf along south facing reefs.............Over 20 feet subsiding to 8 to 12 feet in the afternoon.",
+        "Swell...............Large swells. West swell 20 to 30 feet becoming southeast and increasing to around 40 feet in the afternoon.", 
+        "Period..............12 seconds decreasing to 10 seconds in the afternoon.", 
+        "Secondary swell.....Large swells. Southeast swell 20 to 30 feet becoming southwest and increasing to around 40 feet in the afternoon.", 
+        "Secondary period....7 seconds.", 
+        "Water condition.....A light chop increasing to smooth in the afternoon.", 
+        "Water temperature...", "insert water temperature here",
+        "UVI index...........High.", 
+        "Rip current risk....High. High surf and large swells will produce dangerous pounding surf and rip currents at the beaches. People visiting the beaches should stay out of the high surf.",
+        "Lightning threat....Very infrequent deadly lightning.", 
 
         ".TONIGHT...",
         "Very windy.",
@@ -252,25 +252,25 @@ scripts = [
         ".SATURDAY...",
         "Strong winds.",
         "Mostly clear.",
-        "Frequent light rain.","Widespread light freezing rain.","Lows in the upper 60s.",
+        "Frequent light rain.","Widespread light freezing rain.","Lows around 60.",
         "Highs in the upper 70s.","West winds 45 to 55 mph.",
         ".SUNDAY...","Strong winds.","Mostly cloudy."," Widespread light freezing rain.",
-        "Very light snow likely.","Widespread very light sleet.","Lows in the mid 60s.",
+        "Very light snow likely.","Widespread very light sleet.","Lows in the upper 60s.",
         "Highs in the upper 70s.","South winds 55 to 60 mph.",
         ".MONDAY...","Strong winds.","Mostly cloudy.","Widespread very light sleet.",
         "Areas of blowing snow.","Patchy fog.","Lows in the mid 60s.","Highs around 80.",
         "Southwest winds around 65 mph.", 
 
-        "Tide Information...",
+        "TIDE INFORMATION...",
 
-        "At Venice Inlet...",
+        "AT VENICE INLET...",
 
         "High tide at 2:34 AM",
         "Low tide at 10:18 AM",
         "High tide at 4:32 PM",
         "Low tide at 10:23 PM",
         "Pinellas-Hillsborough-Manatee-Sarasota-",
-        "SURF................Over 20 feet subsiding to 8 to 12 feet in the afternoon.", 
+        "Surf................Over 20 feet subsiding to 8 to 12 feet in the afternoon.", 
         ],
     "createGrids": CreateGrids.Public_createGrids + CreateGrids.Marine_createGrids + \
                    CreateGrids.Fire_createGrids,
@@ -291,23 +291,23 @@ scripts = [
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): 'Morning', ('Issued By', 'issuedBy'): None }",
     "checkStrings": [
         ".TODAY...",
-        "MAX TEMPERATURE.....Around 70...except around 30 near the coast.",
-        "BEACH WINDS.........",
-        "INLAND...............Very windy. Southwest winds around 10 mph increasing to southeast around 45 mph in the afternoon.",
-        "COASTAL..............Very windy. North winds around 45 mph shifting to the southeast in the afternoon.",
-        "RIP CURRENT RISK....Moderate. A moderate risk of rip currents means wind and or wave conditions support stronger or more frequent rip currents. Always have a flotation device with you in the water.", 
-        "WATERSPOUT THREAT...Very slight chance of waterspouts.",  
+        "Max temperature.....Around 70...except around 30 near the coast.",
+        "Beach winds.........",
+        "Inland...............Very windy. Southwest winds around 10 mph increasing to southeast around 45 mph in the afternoon.",
+        "Coastal..............Very windy. North winds around 45 mph shifting to the southeast in the afternoon.",
+        "Rip current risk....Moderate. A moderate risk of rip currents means wind and or wave conditions support stronger or more frequent rip currents. Always have a flotation device with you in the water.", 
+        "Waterspout threat...Very slight chance of waterspouts.",  
         ".OUTLOOK...",
-        "Tide Information...",
+        "TIDE INFORMATION...",
 
-        "At Cedar Key...",
+        "AT CEDAR KEY...",
 
         "High tide 3.1 feet at 4:27 AM",
         "Low tide 0.0 feet at 11:15 AM",
         "High tide 3.0 feet at 5:42 PM",
         "Low tide 0.9 feet at 11:42 PM",
 
-        "At Venice Inlet...",
+        "AT VENICE INLET...",
 
         "High tide 1.6 feet at 2:34 AM",
         "Low tide -0.1 feet at 10:18 AM",

@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.Rectangle;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -42,12 +43,15 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
+import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IFont.Style;
+import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
+import com.raytheon.uf.viz.core.point.display.SymbolLoader;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
@@ -75,6 +79,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * Jun 13, 2011 9758      cjeanbap     Set colorString of AdvisoryResourceData.
  * Aug 14, 2014 3523      mapeters     Updated deprecated {@link DrawableString#textStyle} 
  *                                     assignments.
+ * Jul 7, 2015  10352     byin         Added SymbolLoader to plot symbols
+ * Nov 05, 2015 5070      randerso     Adjust font sizes for dpi scaling
  * </pre>
  * 
  * @author bsteffen
@@ -100,6 +106,8 @@ public class AdvisoryResource extends
     private Coordinate nonStandardInspectCoordinate;
 
     private float magnification;
+
+    private SymbolLoader symbolLoader;
 
     protected AdvisoryResource(AdvisoryResourceData resourceData,
             LoadProperties loadProperties) {
@@ -187,7 +195,8 @@ public class AdvisoryResource extends
         if (font != null) {
             font.dispose();
         }
-        this.font = target.initializeFont("Monospace", 10, new Style[] {});
+        this.font = target.initializeFont("Monospace", 8, new Style[] {});
+        this.symbolLoader = new SymbolLoader();
     }
 
     @Override
@@ -209,6 +218,7 @@ public class AdvisoryResource extends
         }
 
         this.displayedDataTime = curDataTime;
+        double scale[] = getScale(paintProps);
 
         if (mainShape == null || dottedShape == null || dashedShape == null) {
             clearShapes();
@@ -282,6 +292,21 @@ public class AdvisoryResource extends
                     String[] labels = record.getLabel().split("\n");
                     RGB[] colors = new RGB[labels.length];
                     Arrays.fill(colors, color);
+
+                    double x = pixelLoc[0];
+                    double y = pixelLoc[1];
+
+                    if (record.getLabelSymbolId() != 0) {
+                        IImage symbolImg = symbolLoader.getImage(target, color,
+                                (char) record.getLabelSymbolId());
+
+                        Coordinate ul = new Coordinate(x, y);
+                        Coordinate ur = new Coordinate(x + 12 * scale[0], y);
+                        Coordinate lr = new Coordinate(ur.x, y + 12 * scale[1]);
+                        Coordinate ll = new Coordinate(x, lr.y);
+                        PixelCoverage extent = new PixelCoverage(ul, ur, lr, ll);
+                        target.drawRaster(symbolImg, extent, paintProps);
+                    }
 
                     DrawableString dStrings = new DrawableString(labels, colors);
                     dStrings.font = font;
@@ -416,6 +441,15 @@ public class AdvisoryResource extends
     @Override
     public void project(CoordinateReferenceSystem crs) throws VizException {
         clearShapes();
+    }
+
+    private double[] getScale(PaintProperties paintProps) {
+        IExtent extent = paintProps.getView().getExtent();
+        Rectangle canvasBounds = paintProps.getCanvasBounds();
+        double[] scale = new double[2];
+        scale[0] = extent.getWidth() / canvasBounds.width;
+        scale[1] = extent.getHeight() / canvasBounds.height;
+        return scale;
     }
 
 }

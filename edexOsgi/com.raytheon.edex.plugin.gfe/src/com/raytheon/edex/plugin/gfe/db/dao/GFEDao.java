@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -85,7 +85,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 08/07/09     #2763      njensen     Refactored queryByD2DParmId
  * 09/10/12     DR15137    ryu         Changed for MOSGuide D2D mxt/mnt grids for consistency
  *                                     with A1.
- * 10/10/12     #1260       randerso   Added check to ensure db can be created before 
+ * 10/10/12     #1260       randerso   Added check to ensure db can be created before
  *                                     adding it to the inventory
  * 12/06/12     #1394      rjpeter     Optimized D2D grid access.
  * 01/21/12     #1504      randerso    Back ported change to use ParameterMapper into 13.1.2
@@ -94,7 +94,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 03/15/13     #1795      njensen     Added updatePublishTime()
  * 03/21/13     #1774      randerso    Moved D2D routines into {@link com.raytheon.edex.plugin.gfe.db.dao.GFED2DDao}
  * 04/08/13     #1949      rjpeter     Normalized GFE Database.
- * 05/22/13     #2025      dgilling    Re-implement functions needed by 
+ * 05/22/13     #2025      dgilling    Re-implement functions needed by
  *                                     GetLatestDbTimeRequest and GetLatestModelDbIdRequest.
  * 05/20/13     #2127      rjpeter     Set session's to read only and switched to stateless where possible.
  * 06/13/13     #2044      randerso    Refactored to use IFPServer, code cleanup
@@ -108,6 +108,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 09/21/2014   #3648      randerso    Changed to do version purging when new databases are added
  * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * 04/28/2015   17435      randerso    Fix getLatestDbIdByModelName().
+ * 08/10/2015   1574       nabowle     Override getMinRefTime to ignore Topo Databases
  * 
  * </pre>
  * 
@@ -131,9 +132,9 @@ public class GFEDao extends DefaultPluginDao {
 
     /**
      * Creates a new GFE Dao
-     * 
+     *
      * @param pluginName
-     * 
+     *
      * @throws PluginException
      */
     public GFEDao(String pluginName) throws PluginException {
@@ -144,7 +145,7 @@ public class GFEDao extends DefaultPluginDao {
     /**
      * Returns the database row for the passed dbId. If the row does not exist,
      * the row will be created.
-     * 
+     *
      * @param dbId
      * @return a DatabaseID with id field initialized
      * @throws DataAccessLayerException
@@ -216,7 +217,7 @@ public class GFEDao extends DefaultPluginDao {
     /**
      * Looks up a database id from database. Session must have already started a
      * transaction.
-     * 
+     *
      * @param sess
      * @param dbId
      * @return
@@ -233,7 +234,7 @@ public class GFEDao extends DefaultPluginDao {
 
     /**
      * Retrieves ParmStorageInfo for all known ParmIDs for the given DatabaseID.
-     * 
+     *
      * @param dbId
      * @return the list of ParmStorageInfo for the database
      * @throws DataAccessLayerException
@@ -291,7 +292,7 @@ public class GFEDao extends DefaultPluginDao {
 
     /**
      * Stores a list of ParmStorageInfo
-     * 
+     *
      * @param psiList
      * @throws DataAccessLayerException
      */
@@ -341,7 +342,7 @@ public class GFEDao extends DefaultPluginDao {
 
     /**
      * Update a ParmStorageInfo
-     * 
+     *
      * @param psi
      * @throws DataAccessLayerException
      */
@@ -384,7 +385,7 @@ public class GFEDao extends DefaultPluginDao {
     /**
      * Returns the database row for the passed parmId. If the row does not
      * exist, the row will be created.
-     * 
+     *
      * @param parmId
      * @return the ParmID from the database with id field initialized
      * @throws DataAccessLayerException
@@ -462,7 +463,7 @@ public class GFEDao extends DefaultPluginDao {
     /**
      * Looks up a parm id from database. Session must have already started a
      * transaction.
-     * 
+     *
      * @param sess
      * @param parmId
      * @return
@@ -545,7 +546,7 @@ public class GFEDao extends DefaultPluginDao {
 
     /**
      * Purge all DatabaseIDs for a site
-     * 
+     *
      * @param siteID
      * @return number of rows purged
      * @throws DataAccessLayerException
@@ -564,7 +565,7 @@ public class GFEDao extends DefaultPluginDao {
     }
 
     /**
-     * 
+     *
      * @param records
      * @throws DataAccessLayerException
      */
@@ -619,7 +620,7 @@ public class GFEDao extends DefaultPluginDao {
     /**
      * Update the GFERecords. Updating a record will update insert time only on
      * the record, update all existing histories, and insert all new histories.
-     * 
+     *
      * @param existingRecords
      * @throws DataAccessLayerException
      */
@@ -700,10 +701,10 @@ public class GFEDao extends DefaultPluginDao {
     /**
      * Gets list of all database IDs currently being stored in the database for
      * a given site.
-     * 
+     *
      * @param siteId
      *            The siteId to look up databases for.
-     * 
+     *
      * @return The list of all database IDs currently being stored in the
      *         database
      * @throws DataAccessLayerException
@@ -732,7 +733,7 @@ public class GFEDao extends DefaultPluginDao {
 
     /**
      * Gets all GFE Records with the specified ParmID
-     * 
+     *
      * @param parmId
      *            The parmID to query for
      * @return All GFE Records with the specified ParmID
@@ -784,7 +785,7 @@ public class GFEDao extends DefaultPluginDao {
 
     /**
      * Get all GFERecords whose time ranges overlap the specificed time range
-     * 
+     *
      * @param parmId
      * @param tr
      * @return map of TimeRanges to GFERecords
@@ -853,7 +854,7 @@ public class GFEDao extends DefaultPluginDao {
 
     /**
      * Deletes records that have the specified parmId and time range.
-     * 
+     *
      * @param parmId
      * @param times
      */
@@ -927,7 +928,7 @@ public class GFEDao extends DefaultPluginDao {
 
     /**
      * Gets the list of times for a given parmId
-     * 
+     *
      * @param parmId
      *            The id of the parm
      * @return The list of times for a given parm name and level
@@ -957,7 +958,7 @@ public class GFEDao extends DefaultPluginDao {
     /**
      * Gets the list of times for a given parmId that overlap with the given
      * time range.
-     * 
+     *
      * @param parmId
      *            The id of the parm
      * @param tr
@@ -994,7 +995,7 @@ public class GFEDao extends DefaultPluginDao {
 
     /**
      * Retrieves the grid history for the specified parm and time ranges
-     * 
+     *
      * @param parmId
      *            The parm id
      * @param trs
@@ -1068,7 +1069,7 @@ public class GFEDao extends DefaultPluginDao {
 
     /**
      * Remove all GFE records for a particular DatabaseID
-     * 
+     *
      * @param dbId
      *            database to be purged
      * @return true if database was removed, false if not found (already
@@ -1106,7 +1107,7 @@ public class GFEDao extends DefaultPluginDao {
 
     /**
      * Removes all grids associated with a parm
-     * 
+     *
      * @param parmId
      *            The parm to delete data for
      * @throws DataAccessLayerException
@@ -1119,7 +1120,7 @@ public class GFEDao extends DefaultPluginDao {
 
     /**
      * Removes any data associated with a given parm and the parm itself
-     * 
+     *
      * @param parmId
      *            The parm to delete data for
      * @throws DataAccessLayerException
@@ -1139,7 +1140,7 @@ public class GFEDao extends DefaultPluginDao {
     /**
      * Updates the publish times in the database of all provided
      * GridDataHistories. Does not alter the publish times in memory.
-     * 
+     *
      * @param history
      *            the histories to alter in the database
      * @param publishTime
@@ -1190,7 +1191,7 @@ public class GFEDao extends DefaultPluginDao {
     /**
      * Updates the sent time for all histories of passed parmId during the
      * timeRange. The histories are then returned in a map by timeRange.
-     * 
+     *
      * @param parmId
      * @param tr
      * @param sentTime
@@ -1275,7 +1276,7 @@ public class GFEDao extends DefaultPluginDao {
 
     /**
      * Delete a list of records from the database
-     * 
+     *
      * @param records
      * @return number of records deleted
      * @throws DataAccessLayerException
@@ -1323,7 +1324,7 @@ public class GFEDao extends DefaultPluginDao {
 
     /**
      * Return the latest insert time for a database
-     * 
+     *
      * @param dbId
      * @return latest insert time or null if no database has no records
      * @throws DataAccessLayerException
@@ -1354,7 +1355,7 @@ public class GFEDao extends DefaultPluginDao {
 
     /**
      * Find DatabaseID of latest model run
-     * 
+     *
      * @param siteId
      * @param modelName
      *            the name of the desired model
@@ -1372,7 +1373,7 @@ public class GFEDao extends DefaultPluginDao {
                         @Override
                         public List<DatabaseID> doInTransaction(
                                 TransactionStatus status) {
-                            
+
                             Query query = getCurrentSession().createQuery("FROM DatabaseID WHERE siteId = :siteId AND modelName = :modelName ORDER BY modelTime DESC");
                             query.setMaxResults(1);
                             query.setParameter("siteId", siteId);
@@ -1395,7 +1396,7 @@ public class GFEDao extends DefaultPluginDao {
 
     /**
      * Set the database removed date
-     * 
+     *
      * @param dbId
      *            databaseID to be updated
      * @param removedDate
@@ -1453,7 +1454,7 @@ public class GFEDao extends DefaultPluginDao {
 
     /**
      * Save or update a GridLocation object
-     * 
+     *
      * @param gloc
      *            the GridLocation object
      * @throws DataAccessLayerException
@@ -1489,6 +1490,31 @@ public class GFEDao extends DefaultPluginDao {
                             "Error occurred closing database session", e);
                 }
             }
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Date getMinRefTime(Map<String, String> productKeys)
+            throws DataAccessLayerException {
+        DatabaseQuery query = new DatabaseQuery(this.daoClass);
+        query.addDistinctParameter(PURGE_VERSION_FIELD);
+
+        if ((productKeys != null) && (productKeys.size() > 0)) {
+            for (Map.Entry<String, String> pair : productKeys.entrySet()) {
+                query.addQueryParam(pair.getKey(), pair.getValue());
+            }
+        }
+        // Topo records have refTime=1970-01-01 00:00:00, which we can ignore
+        query.addQueryParam("parmId.parmName", "Topo", QueryOperand.NOTEQUALS);
+
+        query.addOrder(PURGE_VERSION_FIELD, true);
+        query.setMaxResults(1);
+        List<Date> result = (List<Date>) this.queryByCriteria(query);
+        if (result.isEmpty()) {
+            return null;
+        } else {
+            return result.get(0);
         }
     }
 }

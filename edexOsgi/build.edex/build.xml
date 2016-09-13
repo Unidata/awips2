@@ -18,6 +18,11 @@
 		value="org.eclipse.equinox.launcher_1.3.0.v20120522-1813.jar" />
 	
 	<target name="main-build" depends="clean">
+		<!--
+		<antcall target="build">
+		    <param name="feature"
+		        value="com.raytheon.uf.edex.datadelivery.feature" />
+		</antcall>-->
 		<antcall target="build">
 			<param name="feature"
 				value="com.raytheon.uf.common.base.feature" />
@@ -48,12 +53,12 @@
 		</antcall>
 		<antcall target="build">
 			<param name="feature"
-				value="com.raytheon.uf.edex.grib.feature" />
+				value="com.raytheon.uf.edex.grid.feature" />
 		</antcall>
-		<antcall target="build">
-			<param name="feature"
-				value="com.raytheon.uf.edex.archive.feature" />
-		</antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.archive.feature" />
+        </antcall>
 		<antcall target="build">
 			<param name="feature"
 				value="com.raytheon.uf.edex.text.feature" />
@@ -90,38 +95,46 @@
 			<param name="feature"
 				value="com.raytheon.uf.edex.ost.feature" />
 		</antcall>
-        <antcall target="build">
-            <param name="feature"
-                value="com.raytheon.uf.edex.npp.feature" />
-        </antcall>
-        <antcall target="build">
-            <param name="feature" 
-                value="com.raytheon.uf.edex.registry.request.feature" />
-        </antcall>
-        <antcall target="build">
-            <param name="feature"
-                value="com.raytheon.uf.edex.registry.client.feature" />
-        </antcall>
-        <antcall target="build">
-            <param name="feature"
-                value="com.raytheon.uf.edex.registry.feature" />
-        </antcall>
-        <antcall target="build">
-            <param name="feature"
-                value="com.raytheon.uf.edex.remote.script.feature" />
-        </antcall>
-	<antcall target="build">
-	    <param name="feature"
-	        value="edu.wisc.ssec.cimss.edex.convectprob.feature" />
-	</antcall>
-	<antcall target="build">
-		<param name="feature"
-			value="com.raytheon.uf.edex.binlightning.feature" />
-	</antcall>
-	<antcall target="build">
-		<param name="feature"
-			value="gov.nasa.msfc.sport.edex.sportlma.feature" />
-	</antcall>
+		<antcall target="build">
+			<param name="feature"
+				value="com.raytheon.uf.edex.npp.feature" />
+		</antcall>
+		<antcall target="build">
+			<param name="feature" 
+				value="com.raytheon.uf.edex.registry.request.feature" />
+		</antcall>
+		<antcall target="build">
+			<param name="feature"
+				value="com.raytheon.uf.edex.registry.client.feature" />
+		</antcall>
+		<antcall target="build">
+			<param name="feature"
+				value="com.raytheon.uf.edex.registry.feature" />
+		</antcall>
+		<antcall target="build">
+			<param name="feature"
+				value="com.raytheon.uf.edex.remote.script.feature" />
+		</antcall>
+		<antcall target="build">
+		    <param name="feature"
+		        value="edu.wisc.ssec.cimss.edex.convectprob.feature" />
+		</antcall>
+		<antcall target="build">
+			<param name="feature"
+				value="com.raytheon.uf.edex.binlightning.feature" />
+		</antcall>
+		<antcall target="build">
+			<param name="feature"
+				value="gov.nasa.msfc.sport.edex.sportlma.feature" />
+		</antcall>
+		<antcall target="build">
+			<param name="feature"
+				value="gov.nasa.msfc.sport.edex.glmdecoder.feature" />
+		</antcall>
+		<antcall target="build">
+			<param name="feature"
+				value="com.raytheon.uf.edex.goesr.feature" />
+		</antcall>
 	</target>
 
     <!--
@@ -132,23 +145,24 @@
 	   wa.features=feature1,feature2
     -->
     <target name="wa-build" depends="main-build" description="Builds work assignment specific features after the main build">
-        <for param="wa.feature.list.file">
-            <fileset dir="${basedir}" includes="*-wa-build.properties" />
-            <sequential>
-                <var name="wa.features" unset="true" />
-                <property file="@{wa.feature.list.file}" />
-                <for list="${wa.features}" param="wa.feature">
-                    <sequential>
-                        <antcall target="build">
-                            <param name="feature" value="@{wa.feature}" />
-                        </antcall>
-                    </sequential>
-                </for>
-            </sequential>
-        </for>
+    	<if>
+    		<available file="${basedir}/features.txt" type="file" />
+    		<then>
+    			<loadfile property="wa.features"
+    				srcfile="${basedir}/features.txt" />
+    			<for param="line" list="${wa.features}" 
+    			delimiter="${line.separator}">
+            		<sequential>
+                		<antcall target="build">
+                    		<param name="feature" value="@{line}" />
+                		</antcall>
+            		</sequential>    				
+    			</for>
+    		</then>
+    	</if>
 
-    <antcall target="wa-cleanup" />
-	<antcall target="clean" />
+    	<antcall target="wa-cleanup" />
+		<antcall target="clean" />
     </target>
 	
 	<target name="wa-cleanup" description="Removes references to WA-specific features that should not be built as an RPM.">
@@ -212,40 +226,38 @@
 			</classpath>
 		</java>
 	</target>
+    <target name="buildHybrid" depends="clean">
+            <echo message="feature=com.raytheon.uf.common.base.feature" />
+            <java
+                    classname="org.eclipse.core.launcher.Main"
+                    fork="true"
+                    failonerror="true">
 
-        <target name="buildHybrid" depends="clean">
-                <echo message="feature=com.raytheon.uf.common.base.feature" />
-                <java
-                        classname="org.eclipse.core.launcher.Main"
-                        fork="true"
-                        failonerror="true">
+                    <arg value="-application" />
+                    <arg value="org.eclipse.ant.core.antRunner" />
+                    <arg value="-buildfile" />
+                    <arg value="${uframe.eclipse}/plugins/${pde.build.script}" />
+                    <arg value="-DbaseLocation=${uframe.eclipse}" />
+                    <arg value="-Dbuilder=${basedir}/edex" />
+                    <arg value="-DbuildDirectory=${basedir}/edex/tmp" />
+                    <arg value="-DtopLevelElementId=com.raytheon.uf.common.base.feature" />
+                    <arg value="-Dbase=${basedir}/edex" />
+                    <arg value="-Dconfigs=${build.os},${build.ws},${build.arch}" />
 
-                        <arg value="-application" />
-                        <arg value="org.eclipse.ant.core.antRunner" />
-                        <arg value="-buildfile" />
-                        <arg value="${uframe.eclipse}/plugins/${pde.build.script}" />
-                        <arg value="-DbaseLocation=${uframe.eclipse}" />
-                        <arg value="-Dbuilder=${basedir}/edex" />
-                        <arg value="-DbuildDirectory=${basedir}/edex/tmp" />
-                        <arg value="-DtopLevelElementId=com.raytheon.uf.common.base.feature" />
-                        <arg value="-Dbase=${basedir}/edex" />
-                        <arg value="-Dconfigs=${build.os},${build.ws},${build.arch}" />
+                    <arg value="-Dgenerate.p2.metadata=true" />
+                    <arg value="-Dp2.metadata.repo=file:/${basedir}/edex/postBuild/awips2/cave/.repository" />
+                    <arg value="-Dp2.artifact.repo=file:/${basedir}/edex/postBuild/awips2/cave/.repository" />
+                    <arg value="-Dp2.publish.artifacts=true" />
+                    <arg value="-DgenerateVersionsList=true" />
 
-                        <arg value="-Dgenerate.p2.metadata=true" />
-                        <arg value="-Dp2.metadata.repo=file:/${basedir}/edex/postBuild/awips2/cave/.repository" />
-                        <arg value="-Dp2.artifact.repo=file:/${basedir}/edex/postBuild/awips2/cave/.repository" />
-                        <arg value="-Dp2.publish.artifacts=true" />
-                        <arg value="-DgenerateVersionsList=true" />
+                    <classpath>
+                            <pathelement 
+                                    location="${uframe.eclipse}/plugins/${eclipse.launcher.jar}" />
+                    </classpath>
+            </java>
 
-                        <classpath>
-                                <pathelement 
-                                        location="${uframe.eclipse}/plugins/${eclipse.launcher.jar}" />
-                        </classpath>
-                </java>
-
-                <antcall target="clean" />
-        </target>
-	
+            <antcall target="clean" />
+    </target>
 	<target name="clean">
 		<if>
 			<available file="${basedir}/edex/includes"

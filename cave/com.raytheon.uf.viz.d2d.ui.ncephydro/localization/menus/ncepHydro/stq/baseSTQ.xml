@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <contribute xsi:type="bundleItem"
+        file="bundles/ncepHydro/SpotRequestPlot.xml" menuText="Spot Forecast Requests"
+        id="spotRequestPlot">
+    </contribute>
+</menuTemplate>

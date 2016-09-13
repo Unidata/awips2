@@ -37,7 +37,9 @@ import LogStream, fcntl
 #    ------------    ----------    -----------    --------------------------
 #    07/06/09        1995          bphillip       Initial Creation.
 #    11/05/13        2517          randerso       Improve memory utilization
-#
+#    08/06/2015      4718          dgilling       Optimize casting when using where with
+#                                                 NumPy 1.9.
+#    04/07/2016      5539          randerso       Fixed issues with Wx/Discretes with large number of keys
 #
 #
 
@@ -59,7 +61,7 @@ class MergeGrid:
         self.__creationTime = creationTime
         self.__siteID = siteID
         self.__inFillV = inFillValue
-        self.__outFillV = outFillValue
+        self.__outFillV = numpy.float32(outFillValue)
         self.__areaMask = areaMask
         self.__gridType = gridType
         self.__discreteKeys = discreteKeys
@@ -77,6 +79,9 @@ class MergeGrid:
             index = keyMap.index(key)
             return index
         except:
+            if (len(keyMap) >= 256):
+                raise IndexError("Attempt to create more than 256 Wx keys")
+
             keyMap.append(key)
             return len(keyMap) - 1
 
@@ -171,7 +176,7 @@ class MergeGrid:
 
             if gridB is None:
                 magGrid = numpy.where(mask, gridA[0], self.__outFillV)
-                dirGrid = numpy.where(mask, gridA[1], 0.0)
+                dirGrid = numpy.where(mask, gridA[1], numpy.float32(0.0))
             else:
                 magGrid = numpy.where(mask, gridA[0], gridB[0])
                 dirGrid = numpy.where(mask, gridA[1], gridB[1])
@@ -180,9 +185,39 @@ class MergeGrid:
         # blank out the data
         else:
             magGrid = numpy.where(self.__areaMask, self.__outFillV, gridB[0])
-            dirGrid = numpy.where(self.__areaMask, 0.0, gridB[1])
+            dirGrid = numpy.where(self.__areaMask, numpy.float32(0.0), gridB[1])
             return (magGrid, dirGrid)
 
+
+    ###-------------------------------------------------------------------------###
+    # Collapse key and bytes. (for discrete and weather)
+    ### Returns tuple of (updated grid, updated key)
+    def __collapseKey(self, grid, keys):
+        #make list of unique indexes in the grid
+        flatGrid = grid.flat
+        used = numpy.zeros((len(keys)), dtype=numpy.bool)
+        for n in range(flatGrid.__array__().shape[0]):
+            used[0xFF & flatGrid[n]] = True
+    
+        #make reverse map
+        map = []
+        newKeys = []
+        j = 0
+        for i in range(len(keys)):
+           if used[i]:
+               map.append(j)
+               newKeys.append(keys[i])
+               j = j + 1
+           else:
+               map.append(-1)
+    
+        # modify the data
+        newGrid = grid
+        for k in range(len(map)):
+           mask = numpy.equal(numpy.int8(k), grid)
+           newGrid = numpy.where(mask, numpy.int8(map[k]), newGrid).astype(numpy.int8)
+    
+        return (newGrid, newKeys)
 
     #---------------------------------------------------------------------
     # merge weather grid
@@ -206,6 +241,11 @@ class MergeGrid:
                 noWxGrid = numpy.empty_like(gridA[0])
                 noWxGrid.fill(self.__findKey(noWx, noWxKeys))
                 gridB = (noWxGrid, noWxKeys)
+            else:
+                # clear out the masked area in gridB and collapse gridB's keys
+                grid, keys = gridB
+                grid[mask]= self.__findKey(noWx, keys)
+                gridB = self.__collapseKey(grid, keys)
             (commonkey, remapG, dbG) = self.__commonizeKey(gridA, gridB)
             mergedGrid = numpy.where(mask, remapG, dbG)
             return (mergedGrid, commonkey)
@@ -240,6 +280,11 @@ class MergeGrid:
                 noGrid = numpy.empty_like(gridA[0])
                 noGrid.fill(self.__findKey(noKey, noKeys))
                 gridB = (noGrid, noKeys)
+            else:
+                # clear out the masked area in gridB and collapse gridB's keys
+                grid, keys = gridB
+                grid[mask] = self.__findKey(noKey, keys)
+                gridB = self.__collapseKey(grid, keys)
 
             (commonkey, remapG, dbG) = \
               self.__commonizeKey(gridA, gridB)

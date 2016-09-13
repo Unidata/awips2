@@ -32,25 +32,18 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ControlAdapter;
-import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.dataplugin.text.alarms.AlarmAlertProduct;
@@ -98,18 +91,19 @@ import com.raytheon.viz.ui.dialogs.ModeListener;
  *                                      current alarm queue window.
  * May 23, 2012 14952      rferrel     Now use refTime/createtime to display
  *                                      selected product
- * Aug 28, 2012 14795	mgamazaychikov	Fixed problem with "Unhadled event loop" 
+ * Aug 28, 2012 14795   mgamazaychikov Fixed problem with "Unhandled event loop" 
  *                                      exception associated with closing "Current 
  *                                      Alarm Queue" GUI
  * Sep  6, 2012 13365      rferrel     Accumulate and Display fix.
  * Sep 25, 2012  1196      lvenable    Dialog refactor for AlarmDisplayWindow.
  * Mar 05, 2013 15173   mgamazaychikov The dimensions and location of closed window
- * 									   are saved and set on the next open.
+ *                                      are saved and set on the next open.
  * Jun 23, 2014 #3161      lvenable    Added SWT dialog trim to the dialogs for thin client.
- * Jul 24, 2014  3423   randerso       Created eclipse job to get afos command 
- *                                     execution off the UI thread
+ * Jul 24, 2014  3423      randerso    Created eclipse job to get afos command 
+ *                                      execution off the UI thread
  * Sep 09, 2014  3580      mapeters    Removed IQueryTransport usage (no longer exists).
- * 
+ * Mar 30, 2016  5513      randerso    Fixed to display on same monitor as parent,
+ *                                     significant code cleanup
  * </pre>
  * 
  * @author mnash
@@ -120,8 +114,6 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
         IAfosBrowserCallback, ICurrentAlarmListener {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(CurrentAlarmQueue.class);
-
-    private Font font;
 
     private AlarmAlertDlg dlg = null;
 
@@ -147,25 +139,11 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
     private static CurrentAlarmQueue INSTANCE;
 
     /**
-     * Location and dimensions of the dialog on the close.
-     */
-    private static Point closeLocation = null;
-
-    private static Point closeDimensions = null;
-
-    /**
-     * Redraw flag indicating if the window should redraw on a resize.
-     */
-    private boolean canRedraw = true;
-
-    /**
      * Maximum width,initial height and offset of the window
      */
     private static final int SHELL_WIDTH = 350;
 
     private static final int INIT_HEIGHT = 200;
-
-    private static final int INIT_OFFSET = 15;
 
     /**
      * Job to retrieve text products off the UI thread
@@ -228,8 +206,14 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
         setText("Current Alarm Queue");
     }
 
+    /**
+     * Get the current instance
+     * 
+     * @param parentShell
+     * @return the instance
+     */
     public static CurrentAlarmQueue getInstance(Shell parentShell) {
-        if (INSTANCE == null || INSTANCE.getParent().isDisposed()) {
+        if (INSTANCE == null || INSTANCE.getShell().isDisposed()) {
             INSTANCE = new CurrentAlarmQueue(parentShell);
         }
         return INSTANCE;
@@ -240,6 +224,7 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
      * initialization necessary to get alarms/alerts up and running without the
      * user ever having to do more than open the text workstation.
      */
+    // TODO: restructure code to get rid of this abomination
     public void openInvisible() {
         Shell parent = getParent();
 
@@ -277,11 +262,17 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
         opened();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+    /**
+     * Used to open the dialog when hidden
      */
+    public void show() {
+        restore();
+    }
+
+    private void dontActuallyClose() {
+        hide();
+    }
+
     @Override
     protected Layout constructShellLayout() {
         GridLayout mainLayout = new GridLayout(1, false);
@@ -290,104 +281,34 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
         return mainLayout;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
-     */
     @Override
     protected void disposed() {
-        font.dispose();
         AlarmAlertLists.getInstance().removeListener(this);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
-     * .eclipse.swt.widgets.Shell)
-     */
     @Override
     protected void initializeComponents(final Shell shell) {
         setReturnValue(false);
 
         // Create the main layout for the shell.
-
-        font = new Font(shell.getDisplay(), "Helvetica", 11, SWT.BOLD);
-
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         shellComp = new Composite(shell, SWT.NONE);
         shellComp.setLayout(constructShellLayout());
         shellComp.setLayoutData(gd);
 
-        /*
-         * DR15173 - Create a listener to save the location and dimensions of
-         * closed window.
-         */
-        shell.addShellListener(new ShellAdapter() {
+        shell.addListener(SWT.Close, new Listener() {
+
             @Override
-            public void shellClosed(ShellEvent event) {
-                closeLocation = getShell().getLocation();
-                closeDimensions = getShell().getSize();
-                shell.dispose();
-            }
-        });
-
-        shell.addControlListener(new ControlAdapter() {
-            @Override
-            public void controlResized(ControlEvent e) {
-                if (canRedraw == false) {
-                    return;
-                }
-
-                final Shell resizedShell = (Shell) e.getSource();
-                final Point point = resizedShell.getSize();
-                final Point location = resizedShell.getLocation();
-
-                canRedraw = false;
-                Display.getDefault().asyncExec(new Runnable() {
-                    @Override
-                    public void run() {
-                        /*
-                         * DR15173 - Enforce that the window width does not
-                         * exceed the SHELL_WIDTH.
-                         */
-                        shell.setBounds(location.x, location.y, SHELL_WIDTH,
-                                point.y);
-                        shell.setMinimumSize(SHELL_WIDTH, 0);
-                        canRedraw = true;
-                    }
-                });
+            public void handleEvent(Event event) {
+                dontActuallyClose();
+                event.doit = false;
             }
         });
 
         // Initialize all of the controls and layouts
         initializeComponents();
 
-        // Set the shell location and dimensions.
-        setShellGeometry();
-    }
-
-    /**
-     * Sets the geometry for the Current Alarm Queue shell
-     */
-    private void setShellGeometry() {
-        Rectangle displayArea = shell.getDisplay().getClientArea();
-        int locationX = displayArea.x + INIT_OFFSET;
-        int locationY = displayArea.y + INIT_OFFSET;
-        int width = SHELL_WIDTH;
-        int height = INIT_HEIGHT;
-        if (CurrentAlarmQueue.closeLocation != null) {
-            locationX = CurrentAlarmQueue.closeLocation.x;
-            locationY = CurrentAlarmQueue.closeLocation.y;
-        }
-        if (CurrentAlarmQueue.closeDimensions != null) {
-            height = CurrentAlarmQueue.closeDimensions.y;
-        }
-        shell.setMinimumSize(width, height);
-        shell.setLocation(locationX, locationY);
-        return;
+        shell.setMinimumSize(SHELL_WIDTH, INIT_HEIGHT);
     }
 
     /**
@@ -411,21 +332,19 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
         Composite textComp = new Composite(shellComp, SWT.NONE);
         GridLayout gl = new GridLayout(1, false);
         gl.marginHeight = 0;
+        gl.marginWidth = 0;
         textComp.setLayout(gl);
-        GridData textData = new GridData(SWT.FILL, SWT.FILL, true, true);
-        textComp.setLayoutData(textData);
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        textComp.setLayoutData(gd);
+
         listDates = new ArrayList<Date>();
         list = new List(textComp, SWT.BORDER | SWT.V_SCROLL | SWT.SINGLE);
-        list.setLayoutData(textData);
-        list.addSelectionListener(new SelectionListener() {
-
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        list.setLayoutData(gd);
+        list.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 displayList();
-            }
-
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
             }
         });
     }
@@ -436,7 +355,8 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
     private void createButtons() {
         Composite buttonComp = new Composite(shellComp, SWT.NONE);
         GridLayout gl = new GridLayout(3, false);
-        gl.marginHeight = 2;
+        gl.marginHeight = 0;
+        gl.marginWidth = 0;
         buttonComp.setLayout(gl);
         // opens the alarm display dialog, checks for open shells
         Button openDisplay = new Button(buttonComp, SWT.PUSH);
@@ -463,17 +383,12 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
         productList.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (dlg == null) {
+                if (dlg == null || dlg.getShell().isDisposed()) {
                     dlg = new AlarmAlertDlg(shell);
-                    dlg.open();
-                } else {
-                    if (dlg.getShell() == null || dlg.getShell().isDisposed()) {
-                        dlg = new AlarmAlertDlg(shell);
-                        dlg.open();
-                    } else {
-                        dlg.open();
-                    }
                 }
+                // call preOpened() to compute correct location
+                dlg.preOpened();
+                dlg.open();
             }
         });
     }
@@ -493,7 +408,7 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
             listDates.remove(list.getSelectionIndex());
             list.remove(list.getSelectionIndex());
             if (list.getItemCount() == 0) {
-                AlarmAlertFunctions.getAlarmalertbell().close();
+                AlarmAlertFunctions.closeAlarmAlertBell();
             }
         }
 
@@ -507,7 +422,7 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
                 public void dialogClosed(Object returnValue) {
                     if (list != null && !list.isDisposed()
                             && list.getItemCount() == 0) {
-                        close();
+                        dontActuallyClose();
                     }
                 }
             });
@@ -538,7 +453,7 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
             if (counter.get(command[i]) == null) {
                 counter.put(command[i], 0);
             } else {
-                counter.put(command[i], (counter.get(command[i]) + 1));
+                counter.put(command[i], counter.get(command[i]) + 1);
             }
         }
         // For each command, see how far back it needs to go to
@@ -548,14 +463,14 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
             Integer count = counter.get(command[j]);
             if (count > 0) {
                 String newCom = "-" + count.toString() + ":" + command[j];
-                counter.put(command[j], (count - 1));
+                counter.put(command[j], count - 1);
                 command[j] = newCom;
             }
         }
         AlarmAlertLists.getInstance().getCurrentAlarms().clear();
         listDates.clear();
         list.removeAll();
-        AlarmAlertFunctions.getAlarmalertbell().close();
+        AlarmAlertFunctions.closeAlarmAlertBell();
 
         // Display the Alarm Display Window
         if (alarmDisplayDlg == null || alarmDisplayDlg.getShell().isDisposed()) {
@@ -608,12 +523,11 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
      * Grab the current alarms from the alarm log file
      */
     private void populate() {
-        // TODO populate with the current alerts
+        // populate with the current alerts
         java.util.List<AlarmAlertProduct> alarms = AlarmAlertLists
                 .getInstance().getCurrentAlarms();
         CAVEMode mode = CAVEMode.getMode();
-        for (int i = 0; i < alarms.size(); i++) {
-            AlarmAlertProduct aap = alarms.get(i);
+        for (AlarmAlertProduct aap : alarms) {
             if ((CAVEMode.OPERATIONAL.equals(mode) || CAVEMode.TEST
                     .equals(mode)) && aap.getOperationalMode()) {
                 addToQueue(aap.getProductId(), aap.getDateReceived());
@@ -624,8 +538,12 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
         }
     }
 
+    /**
+     * Set Focus on this dialog
+     */
     public void setDialogFocus() {
         if (shell != null && !shell.isDisposed()) {
+            show();
             shell.setActive();
         }
     }
@@ -649,8 +567,15 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
         return prods;
     }
 
-    /*
-     * get text product using wmo command (DR_14624)
+    /**
+     * Get text product using wmo command (DR_14624)
+     * 
+     * @param awipsId
+     * @param wmoId
+     * @param site
+     * @param hdrTime
+     * @param bbb
+     * @return product list
      */
     public java.util.List<StdTextProduct> getAwipsTextProduct(String awipsId,
             String wmoId, String site, String hdrTime, String bbb) {
@@ -660,13 +585,6 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
         return prodList;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.texteditor.msgs.IAfosBrowserCallback#executeCommand(
-     * com.raytheon.viz.texteditor.command.ICommand)
-     */
     @Override
     public void executeCommand(ICommand command) {
         try {
@@ -680,26 +598,11 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.texteditor.msgs.IAfosBrowserCallback#setAfosCmdField
-     * (java.lang.String)
-     */
     @Override
     public void setAfosCmdField(String cmd) {
-        // TODO Auto-generated method stub
-
+        // unused
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.texteditor.alarmalert.dialogs.ICurrentAlarmListener#
-     * currentAlarmChanged()
-     */
     @Override
     public void currentAlarmChanged(CurrentAlarmEvent event) {
         final AlarmAlertProduct aap = (AlarmAlertProduct) event.getSource();
@@ -717,10 +620,5 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
                 });
             }
         }
-    }
-
-    @Override
-    protected void opened() {
-        // shell.setSize(600, 300);
     }
 }

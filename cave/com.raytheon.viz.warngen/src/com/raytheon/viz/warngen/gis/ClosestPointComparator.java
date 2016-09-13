@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 /**
  * TODO Add Description
@@ -94,7 +94,7 @@ public class ClosestPointComparator implements Comparator<ClosestPoint> {
 
         ClosestPoint[] points = null;
         if (array1 != null && array2 != null) {
-            points = (ClosestPoint[]) ArrayUtils.addAll(array1, array2);
+            points = ArrayUtils.addAll(array1, array2);
         } else if (array1 != null && array2 == null) {
             points = array1;
         } else if (array1 == null && array2 != null) {

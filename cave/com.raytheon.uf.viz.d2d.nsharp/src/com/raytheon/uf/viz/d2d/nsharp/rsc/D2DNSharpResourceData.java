@@ -25,11 +25,11 @@ import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingProfile;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpStationInfo;
 import gov.noaa.nws.ncep.ui.nsharp.natives.NsharpDataHandling;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
@@ -65,7 +65,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                     stationId like NC ncharp.
  * May 08, 2014 2060       njensen     Constructor sets alert parser
  * Jul 23, 2014 3410       bclement    added unpackResultLocation()
- * 
+ * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
+ * Mar 01, 2016 RM14647 mgamazayhikov  Added soundingTitle.
  * </pre>
  * 
  * @author bsteffen
@@ -77,6 +78,9 @@ public abstract class D2DNSharpResourceData extends
 
     @XmlAttribute
     protected String soundingType = "UNKNOWN";
+
+    @XmlAttribute
+    protected String soundingTitle = "UNKNOWN";
 
     @XmlElement
     protected Coordinate coordinate;
@@ -92,6 +96,12 @@ public abstract class D2DNSharpResourceData extends
     public D2DNSharpResourceData(String soundingType) {
         this();
         this.soundingType = soundingType;
+    }
+
+    public D2DNSharpResourceData(String soundingType, String soundingTitle) {
+        this();
+        this.soundingType = soundingType;
+        this.soundingTitle = soundingTitle;
     }
 
     @Override
@@ -174,7 +184,7 @@ public abstract class D2DNSharpResourceData extends
 
     protected void populateDataObject(D2DNSharpDataObject dataObject) {
         NcSoundingCube cube = getSoundingCube(dataObject.getStationInfo());
-        if (cube == null || cube.getSoundingProfileList().isEmpty()) {
+        if ((cube == null) || cube.getSoundingProfileList().isEmpty()) {
             return;
         }
         NcSoundingProfile profileList = cube.getSoundingProfileList().get(0);
@@ -184,7 +194,7 @@ public abstract class D2DNSharpResourceData extends
         List<NcSoundingLayer> layers = profileList.getSoundingLyLst();
         layers = NsharpDataHandling.organizeSoundingDataForShow(layers,
                 profileList.getStationElevation());
-        if (layers != null && layers.size() < 3) {
+        if ((layers != null) && (layers.size() < 3)) {
             // set invalid data to null
             layers = null;
         }
@@ -194,11 +204,14 @@ public abstract class D2DNSharpResourceData extends
     protected NsharpStationInfo createStationInfo(DataTime time) {
         NsharpStationInfo stnInfo = new NsharpStationInfo();
         stnInfo.setSndType(soundingType);
-        Timestamp refTime = new Timestamp(time.getRefTime().getTime());
+        if (!soundingTitle.equalsIgnoreCase("UNKNOWN")){
+            stnInfo.setSndType(soundingTitle);
+        }
+        Date refTime = new Date(time.getRefTime().getTime());
         stnInfo.setReftime(refTime);
-        Timestamp fcstTime = refTime;
+        Date fcstTime = refTime;
         if (time.getUtilityFlags().contains(FLAG.FCST_USED)) {
-            fcstTime = new Timestamp(time.getValidPeriod().getStart().getTime());
+            fcstTime = new Date(time.getValidPeriod().getStart().getTime());
             stnInfo.setRangestarttime(fcstTime);
         }
         String pointName = this.pointName;
@@ -218,8 +231,7 @@ public abstract class D2DNSharpResourceData extends
         return stnInfo;
     }
 
-    protected String formatTimestamp(Timestamp time) {
-
+    protected String formatTimestamp(Date time) {
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         cal.setTimeInMillis(time.getTime());
         return String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", cal);
@@ -253,39 +265,48 @@ public abstract class D2DNSharpResourceData extends
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result
+        result = (prime * result)
                 + ((coordinate == null) ? 0 : coordinate.hashCode());
-        result = prime * result
+        result = (prime * result)
                 + ((pointName == null) ? 0 : pointName.hashCode());
-        result = prime * result
+        result = (prime * result)
                 + ((soundingType == null) ? 0 : soundingType.hashCode());
         return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (!super.equals(obj))
+        }
+        if (!super.equals(obj)) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         D2DNSharpResourceData other = (D2DNSharpResourceData) obj;
         if (coordinate == null) {
-            if (other.coordinate != null)
+            if (other.coordinate != null) {
                 return false;
-        } else if (!coordinate.equals(other.coordinate))
+            }
+        } else if (!coordinate.equals(other.coordinate)) {
             return false;
+        }
         if (pointName == null) {
-            if (other.pointName != null)
+            if (other.pointName != null) {
                 return false;
-        } else if (!pointName.equals(other.pointName))
+            }
+        } else if (!pointName.equals(other.pointName)) {
             return false;
+        }
         if (soundingType == null) {
-            if (other.soundingType != null)
+            if (other.soundingType != null) {
                 return false;
-        } else if (!soundingType.equals(other.soundingType))
+            }
+        } else if (!soundingType.equals(other.soundingType)) {
             return false;
+        }
         return true;
     }
 

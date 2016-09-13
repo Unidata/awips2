@@ -19,14 +19,13 @@
  **/
 package com.raytheon.edex.plugin.shef.database;
 
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.plugin.shef.ShefSeparator;
 import com.raytheon.uf.common.dataplugin.shef.tables.Purgeproduct;
@@ -49,9 +48,11 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 8, 2010             jkorman     Initial creation
+ * Mar 08, 2010            jkorman     Initial creation
  * Dec 03, 2013 2051       rjpeter     Fixed storeTextProduct issue.
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed unused int
+ * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
+ * Dec 16, 2015 5166       kbisanz     Update logging to use SLF4J
  * </pre>
  * 
  * @author jkorman
@@ -60,7 +61,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
 
 public class PurgeText {
     /** The logger */
-    private final Log log = LogFactory.getLog(getClass());
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private boolean storeText = false;
 
@@ -130,9 +131,11 @@ public class PurgeText {
                 }
 
             } catch (Exception e) {
-                log.error(traceId + " - Error processing text data.  ");
+                String errorMsg = traceId + " - Error processing text data.  ";
                 if (log.isDebugEnabled()) {
-                    log.error(e);
+                    log.error(errorMsg, e);
+                } else {
+                    log.error(errorMsg);
                 }
             }
         }
@@ -185,9 +188,11 @@ public class PurgeText {
                 }
             }
         } catch (Exception e) {
-            log.error(traceId + " - Error processing text data.  ");
+            String errorMsg = traceId + " - Error processing text data.  ";
             if (log.isDebugEnabled()) {
-                log.error(e);
+                log.error(errorMsg, e);
+            } else {
+                log.error(errorMsg);
             }
         }
     }
@@ -214,8 +219,8 @@ public class PurgeText {
                 PurgeproductId id = new PurgeproductId();
                 id.setProductId((String) oa2[0]);
                 id.setNumVersions((Integer) oa2[1]);
-                id.setProducttime(toDate((Timestamp) oa2[2]));
-                id.setPostingtime(toDate((Timestamp) oa2[3]));
+                id.setProducttime((Date) oa2[2]);
+                id.setPostingtime((Date) oa2[3]);
                 prods.add(new Purgeproduct(id));
             }
         }
@@ -266,9 +271,11 @@ public class PurgeText {
             dao.saveOrUpdate(t);
             success = true;
         } catch (Exception e) {
-            log.error("Error saving text ");
+            String errorMsg = "Error saving text ";
             if (log.isDebugEnabled()) {
-                log.error(e);
+                log.error(errorMsg, e);
+            } else {
+                log.error(errorMsg);
             }
         }
         return success;
@@ -311,36 +318,23 @@ public class PurgeText {
 
         String query = String.format(selQuery, productId);
 
-        Timestamp[] t = null;
+        Date[] t = null;
         Object[] oa = dao.executeSQLQuery(query);
         if ((oa != null) && (oa.length > 0)) {
-            t = new Timestamp[oa.length];
+            t = new Date[oa.length];
             for (int i = 0; i < oa.length; i++) {
-                t[i] = (Timestamp) oa[i];
+                t[i] = (Date) oa[i];
             }
         }
         if (t != null) {
             // Do we need to purge?
             if (t.length > numToKeep) {
-                String poDate = dFmt.format(toDate(t[numToKeep - 1]));
+                String poDate = dFmt.format(t[numToKeep - 1]);
                 query = String.format(purQuery, productId, poDate);
 
                 dao.executeSQLUpdate(query);
             }
         }
-    }
-
-    /**
-     * 
-     * @param t
-     * @return
-     */
-    private static Date toDate(Timestamp t) {
-        Date d = null;
-        if (t != null) {
-            d = new Date(t.getTime());
-        }
-        return d;
     }
 
     /**

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mercatorGridCoverage>
+    <name>NBM_PR</name>
+    <description> National Blend Grid over Puerto Rico - (1.25 km)</description>
+    <la1>16.9775</la1>
+    <lo1>-68.0278</lo1>
+    <firstGridPointCorner>LowerLeft</firstGridPointCorner>
+    <nx>339</nx>
+    <ny>225</ny>
+    <dx>1.25</dx>
+    <dy>1.25</dy>
+    <la2>19.3750032477232</la2>
+    <lo2>-63.984399999999994</lo2>
+    <latin>20</latin>
+    <spacingUnit>km</spacingUnit>
+    <minorAxis>6371200</minorAxis>
+    <majorAxis>6371200</majorAxis>
+</mercatorGridCoverage>
+

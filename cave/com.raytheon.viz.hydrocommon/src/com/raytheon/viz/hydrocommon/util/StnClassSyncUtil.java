@@ -44,6 +44,7 @@ import com.raytheon.viz.hydrocommon.datamanager.HydroDBDataManager;
  * Jan 13, 2009 1802       askripsk     Initial creation
  * Apr 18, 2013 1790       rferrel     Cleanup method interfaces; 
  *                                      part of non-blocking dialogs.
+ * JUN 02, 2016 19072      amoore       Fix for changes from DCS 14607.
  * 
  * </pre>
  * 
@@ -155,7 +156,7 @@ public class StnClassSyncUtil {
 
         /* get data elements defined for station */
         DataIngestFilterData ingestSeedData = new DataIngestFilterData();
-        ingestSeedData.setWhereClause(" WHERE lid= '" + lid
+        ingestSeedData.setWhereClause(" WHERE ingestfilter.lid= '" + lid
                 + "' AND ingest= 'T'");
 
         List<DataIngestFilterData> ingestFilterData = HydroDBDataManager

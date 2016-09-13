@@ -92,7 +92,7 @@ class Tool (SmartScript.SmartScript):
 #       will change to - using any current keys if we can.
 #
         numkeys=len(keys)
-        trans=zeros(numkeys)
+        trans=zeros(numkeys, int8)
         for i in range(numkeys):
             oldkey=keys[i]
             newkey=""
@@ -111,5 +111,5 @@ class Tool (SmartScript.SmartScript):
         newwxValues=wxValues
         for i in range(numkeys):
            newwxValues[equal(wxValues,i)] = trans[i]
-        return((newwxValues.astype('int8')),keys)
+        return(newwxValues,keys)
 

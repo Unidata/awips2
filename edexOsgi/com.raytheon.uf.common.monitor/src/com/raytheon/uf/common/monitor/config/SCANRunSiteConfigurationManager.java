@@ -1,19 +1,21 @@
 package com.raytheon.uf.common.monitor.config;
 
-import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.raytheon.uf.common.dataplugin.radar.util.RadarsInUseUtil;
-import com.raytheon.uf.common.localization.FileUpdatedMessage;
-import com.raytheon.uf.common.localization.ILocalizationFileObserver;
+import com.raytheon.uf.common.localization.ILocalizationFile;
+import com.raytheon.uf.common.localization.ILocalizationPathObserver;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.monitor.events.MonitorConfigEvent;
 import com.raytheon.uf.common.monitor.events.MonitorConfigListener;
 import com.raytheon.uf.common.monitor.xml.SCANModelParameterXML;
@@ -27,9 +29,9 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * ScanRunSiteConfigurationManager
- *
+ * 
  * Holds the SCAN configuration
- *
+ * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -40,30 +42,33 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Oct 02, 2013 2361       njensen     Use JAXBManager for XML
  * Jan 20, 2015 3949       nabowle     Add lightning source.
  * Mar 27, 2015 4260       dhladky     Updated default model.
+ * Jan 12, 2016 5244       njensen     Replaced calls to deprecated LocalizationFile methods
  *
  * </pre>
- *
+ * 
  * @author dhladky
  * @version 1.0
  */
 
 public class SCANRunSiteConfigurationManager implements
-        ILocalizationFileObserver {
+        ILocalizationPathObserver {
 
     /** Path to FFMP Source config. */
-    private static final String CONFIG_FILE_NAME = "scan" + File.separatorChar
-            + "SCANRunSiteConfig.xml";
-    
+    private static final String CONFIG_FILE_NAME = "scan"
+            + IPathManager.SEPARATOR + "SCANRunSiteConfig.xml";
+
     /** default model to set in XML **/
     private static final String DEFAULT_MODEL = "HRRR";
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SCANRunSiteConfigurationManager.class);
 
-    // This needs to initialize before the instance since the constructor will
-    // makes use of JAXB. JVM spec 12.4.2 step 9 indicates this will
-    // initialize ahead of the instance since it is earlier in
-    // in the text source.
+    /*
+     * This jaxb variable needs to be declared before the instance variable
+     * since the constructor makes use of JAXB. JVM spec 12.4.2 step 9 indicates
+     * jaxb will initialize ahead of instance since it is earlier in the text
+     * source.
+     */
     private static final SingleTypeJAXBManager<SCANSiteRunConfigXML> jaxb = SingleTypeJAXBManager
             .createWithoutException(SCANSiteRunConfigXML.class);
 
@@ -75,8 +80,6 @@ public class SCANRunSiteConfigurationManager implements
      */
     protected SCANSiteRunConfigXML configXml;
 
-    private LocalizationFile lf = null;
-
     private List<MonitorConfigListener> listeners = new CopyOnWriteArrayList<MonitorConfigListener>();
 
     protected boolean isPopulated;
@@ -84,6 +87,8 @@ public class SCANRunSiteConfigurationManager implements
     /* Private Constructor */
     private SCANRunSiteConfigurationManager() {
         isPopulated = false;
+        IPathManager pm = PathManagerFactory.getPathManager();
+        pm.addLocalizationPathObserver(CONFIG_FILE_NAME, this);
 
         try {
             readConfigXml();
@@ -95,7 +100,7 @@ public class SCANRunSiteConfigurationManager implements
 
     /**
      * Get an instance of this singleton.
-     *
+     * 
      * @return Instance of this class
      */
     public static SCANRunSiteConfigurationManager getInstance() {
@@ -106,20 +111,14 @@ public class SCANRunSiteConfigurationManager implements
      * Read the XML configuration data for the current XML file name.
      */
     public synchronized void readConfigXml() throws SerializationException {
-
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
                 LocalizationLevel.SITE);
-
-        lf = pm.getLocalizationFile(lc, CONFIG_FILE_NAME);
-        lf.addFileUpdatedObserver(this);
-        File file = lf.getFile();
-        // System.out.println("Reading -- " + file.getAbsolutePath());
-        if (!file.exists()) {
-            statusHandler.handle(
-                    Priority.WARN,
-                    "SCANRunSiteConfigurationManager: "
-                            + file.getAbsolutePath() + " does not exist.");
+        ILocalizationFile lf = pm.getLocalizationFile(lc, CONFIG_FILE_NAME);
+        if (!lf.exists()) {
+            statusHandler.handle(Priority.WARN,
+                    "SCANRunSiteConfigurationManager: " + lf.getPath()
+                            + " does not exist. Creating default...");
             try {
                 createValidConfig();
             } catch (Exception e) {
@@ -129,12 +128,13 @@ public class SCANRunSiteConfigurationManager implements
             }
         }
 
-        SCANSiteRunConfigXML configXmltmp = null;
-
-        configXmltmp = jaxb.unmarshalFromXmlFile(file.getAbsolutePath());
-
-        configXml = configXmltmp;
-        isPopulated = true;
+        try (InputStream is = lf.openInputStream()) {
+            configXml = jaxb.unmarshalFromInputStream(is);
+            isPopulated = true;
+        } catch (IOException | LocalizationException e) {
+            throw new SerializationException("Error reading config file "
+                    + lf.getPath(), e);
+        }
     }
 
     public void addListener(MonitorConfigListener fl) {
@@ -153,50 +153,32 @@ public class SCANRunSiteConfigurationManager implements
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
                 LocalizationLevel.SITE);
-
-        LocalizationFile newXmlFile = pm.getLocalizationFile(lc,
+        ILocalizationFile newXmlFile = pm.getLocalizationFile(lc,
                 CONFIG_FILE_NAME);
 
-        if (newXmlFile.getFile().getParentFile().exists() == false) {
-            // System.out.println("Creating new directory");
-
-            if (newXmlFile.getFile().getParentFile().mkdirs() == false) {
-                // System.out.println("Could not create new directory...");
-            }
-        }
-
-        try {
-            // System.out.println("Saving -- "
-            // + newXmlFile.getFile().getAbsolutePath());
-            jaxb.marshalToXmlFile(configXml, newXmlFile.getFile()
-                    .getAbsolutePath());
-            newXmlFile.save();
+        try (SaveableOutputStream sos = newXmlFile.openOutputStream()) {
+            jaxb.marshalToStream(configXml, sos);
+            sos.save();
             setPopulated(true);
-
-            lf = newXmlFile;
         } catch (Exception e) {
             statusHandler.handle(Priority.WARN,
-                    "SCANRunSiteConfigurationManager: " + newXmlFile.getName()
+                    "SCANRunSiteConfigurationManager: " + newXmlFile.getPath()
                             + " couldn't be saved.", e);
         }
     }
 
     @Override
-    public void fileUpdated(FileUpdatedMessage message) {
-
-        if (message.getFileName().equals(CONFIG_FILE_NAME)) {
+    public void fileChanged(ILocalizationFile file) {
+        if (file.getPath().equals(CONFIG_FILE_NAME)) {
             try {
                 readConfigXml();
                 // inform listeners
                 for (MonitorConfigListener fl : listeners) {
                     fl.configChanged(new MonitorConfigEvent(this));
                 }
-
             } catch (Exception e) {
-                statusHandler.handle(
-                        Priority.WARN,
-                        "SCANRunSiteConfigurationManager: "
-                                + message.getFileName()
+                statusHandler.handle(Priority.WARN,
+                        "SCANRunSiteConfigurationManager: " + file.getPath()
                                 + " couldn't be updated.", e);
             }
         }
@@ -216,7 +198,7 @@ public class SCANRunSiteConfigurationManager implements
 
     /**
      * Get a site listing
-     *
+     * 
      * @return
      */
     public ArrayList<String> getSiteNames() {
@@ -228,7 +210,7 @@ public class SCANRunSiteConfigurationManager implements
 
     /**
      * Get a local site listing
-     *
+     * 
      * @return
      */
     public ArrayList<String> getLocalSiteNames() {
@@ -240,7 +222,7 @@ public class SCANRunSiteConfigurationManager implements
 
     /**
      * Get a dial site listing
-     *
+     * 
      * @return
      */
     public ArrayList<String> getDialSiteNames() {
@@ -252,7 +234,7 @@ public class SCANRunSiteConfigurationManager implements
 
     /**
      * Get the lightning source.
-     *
+     * 
      * @return
      */
     public String getLightningSource() {
@@ -264,7 +246,7 @@ public class SCANRunSiteConfigurationManager implements
 
     /**
      * Get the Site you are seeking
-     *
+     * 
      * @param name
      * @return
      */
@@ -284,9 +266,8 @@ public class SCANRunSiteConfigurationManager implements
     /**
      * Creates a valid configuration based on radar config
      */
-    public void createValidConfig() throws Exception {
-
-        /**
+    public void createValidConfig() {
+        /*
          * Don't have one, so create an EDEX generated default
          */
         List<String> localsites = RadarsInUseUtil.getSite(null,
@@ -319,10 +300,10 @@ public class SCANRunSiteConfigurationManager implements
     }
 
     /**
-     *
+     * 
      * Enumeration for which type of ModelData. CAPE is: Convective Available
      * Potential Energy. HELI is: storm relative HELIcity.
-     *
+     * 
      * @author dhladky
      * @version 1.0
      */
@@ -340,6 +321,6 @@ public class SCANRunSiteConfigurationManager implements
         public String getType() {
             return type;
         }
-    };
+    }
 
 }

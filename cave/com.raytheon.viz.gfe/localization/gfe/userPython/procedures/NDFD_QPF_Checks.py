@@ -504,7 +504,7 @@ class Procedure (SmartScript.SmartScript):
             # the values of consistMask where self.cwaMask is one and
             # I want the "good result", which is zero, where
             # self.cwaMask is zero.
-            consistMask = where(self.cwaMask, consistMask, 0)
+            consistMask[logical_not(self.cwaMask)] = 0
             # The ravel and sometrue methods are from Numeric.
             if sometrue(ravel(consistMask)):
                 # The ravel method reduces the rank of the array by one.
@@ -609,7 +609,7 @@ class Procedure (SmartScript.SmartScript):
                 # up the memory they use.
                 del (sMask, swMask, ipMask)
                 # The where method is from Numeric
-                wxMask = where(snowMask, 0, 1)
+                wxMask = logical_not(snowMask)
                 # "Truth" table for the logical comparison follows
                 # SnowAmt6hr >= 0.1, 1; SnowAmt6hr < 0.1, 0
                 # Wx has S, SW, or IP, 0; Wx doesn't have S, SW, or IP, 1
@@ -621,7 +621,7 @@ class Procedure (SmartScript.SmartScript):
                 # The logical_and, where, sometrue, and ravel methods are all
                 # from Numeric.
                 consistMask = logical_and(nonZeroMask, wxMask)
-                consistMask = where(self.cwaMask, consistMask, 0)
+                consistMask[logical_not(self.cwaMask)] = 0
                 # Update inconsistGrid to be the current state of the
                 # inconsistencies.
                 inconsistGrid = logical_and(inconsistGrid, consistMask)
@@ -724,7 +724,7 @@ class Procedure (SmartScript.SmartScript):
             # The logical_and, where, sometrue, and ravel methods are all
             # from Numeric.
             consistMask = logical_and(qpfNonZeroMask, popZeroMask)
-            consistMask = where(self.cwaMask, consistMask, 0)
+            consistMask[logical_not(self.cwaMask)] = 0
             if sometrue(ravel(consistMask)):
                 # The good result is if the logical_and returns zeros
                 # for every grid point, that is "none true". So, if
@@ -832,7 +832,7 @@ class Procedure (SmartScript.SmartScript):
                 del (rMask, rwMask, lMask, zlMask, zrMask)
                 precipMask = logical_or(snowMask, rainMask)
                 del (snowMask, rainMask)
-                wxMask = where(precipMask, 0, 1)
+                wxMask = logical_not(precipMask)
                 # QPF6hr >= 0.01, 1; QPF6hr < 0.01, 0
                 # Wx has precip, 0; Wx doesn't have precip, 1
                 # QPF6hr >= 0.01 (1) and Wx has (0) = 0 (Good result)
@@ -843,7 +843,7 @@ class Procedure (SmartScript.SmartScript):
                 # The logical_and, where, sometrue, and ravel methods are all
                 # from Numeric.
                 consistMask = logical_and(qpfNonZeroMask, wxMask)
-                consistMask = where(self.cwaMask, consistMask, 0)
+                consistMask[logical_not(self.cwaMask)] = 0
                 # Update the inconsistGrid to the current state of the
                 # inconsistencies.
                 inconsistGrid = logical_and(inconsistGrid, consistMask)
@@ -1000,7 +1000,7 @@ class Procedure (SmartScript.SmartScript):
                 # The logical_and, where, sometrue, and ravel methods are all
                 # from Numeric.
                 consistMask = logical_and(pop50Mask, qpfMask)
-                consistMask = where(self.cwaMask, consistMask, 0)
+                consistMask[logical_not(self.cwaMask)] = 0
                 # Update the inconsistentGrid with the state of the
                 # inconsistencies.
                 inconsistGrid = logical_and(inconsistGrid, consistMask)

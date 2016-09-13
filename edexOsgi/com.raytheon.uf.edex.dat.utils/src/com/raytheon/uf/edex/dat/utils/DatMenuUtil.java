@@ -20,6 +20,8 @@
 package com.raytheon.uf.edex.dat.utils;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -31,9 +33,8 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.menus.xml.CommonAbstractMenuContribution;
+import com.raytheon.uf.common.menus.xml.CommonBundleMenuContribution;
 import com.raytheon.uf.common.menus.xml.CommonIncludeMenuContribution;
-import com.raytheon.uf.common.menus.xml.CommonIncludeMenuItem;
-import com.raytheon.uf.common.menus.xml.CommonMenuContributionFile;
 import com.raytheon.uf.common.menus.xml.CommonSeparatorMenuContribution;
 import com.raytheon.uf.common.menus.xml.CommonSubmenuContribution;
 import com.raytheon.uf.common.menus.xml.CommonTitleContribution;
@@ -43,8 +44,8 @@ import com.raytheon.uf.common.monitor.config.FFMPRunConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.DATA_TYPE;
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.config.SCANRunSiteConfigurationManager;
+import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.xml.FFMPRunXML;
 import com.raytheon.uf.common.monitor.xml.ProductRunXML;
 import com.raytheon.uf.common.monitor.xml.ProductXML;
@@ -68,6 +69,8 @@ import com.raytheon.uf.edex.menus.AbstractMenuUtil;
  *                                   FFMPRunConfig.xml file.
  * Sep 04, 2014 3220       skorolev  Updated menu creation for Fog, Safeseas and Snow monitors.
  * Sep 18, 2015 3873       skorolev  Corrected Fog, Safeseas and Snow monitor's names.
+ * Oct 15, 2015 4897       bkowal    Update the base fog, snow, and safeseas menu xml.
+ * Jan 04, 2016 5115       skorolev  Replaced Mon.Name with App.Name for Fog, Safeseas and Snow monitors
  * 
  * </pre>
  * 
@@ -82,6 +85,23 @@ public class DatMenuUtil extends AbstractMenuUtil {
     private boolean override = false;
 
     private String datSite = null;
+
+    protected LocalizationContext commonStaticBase = pm.getContext(
+            LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
+
+    private static final String MENUS_PATH = "menus";
+
+    private static final String FOG_PATH = "fog";
+
+    private static final String SAFESEAS_PATH = "safeseas";
+
+    private static final String SNOW_PATH = "snow";
+
+    private static final String BASE_FOG_XML = "baseFog.xml";
+
+    private static final String BASE_SAFESEAS_XML = "baseSafeSeas.xml";
+
+    private static final String BASE_SNOW_XML = "baseSnow.xml";
 
     /*
      * (non-Javadoc)
@@ -484,7 +504,7 @@ public class DatMenuUtil extends AbstractMenuUtil {
      */
     private void createSafeseasMenu() {
         FSSObsMonitorConfigurationManager ssConfig = FSSObsMonitorConfigurationManager
-                .getInstance(MonName.ss);
+                .getInstance(AppName.SAFESEAS);
         Set<String> ssStns = ssConfig.getStationIDs();
         StringBuilder stations = new StringBuilder();
         for (String s : ssStns) {
@@ -494,16 +514,32 @@ public class DatMenuUtil extends AbstractMenuUtil {
             stations.append(s);
         }
         String ssStations = stations.toString();
-        CommonMenuContributionFile safeMenuContributionFile = new CommonMenuContributionFile();
-        safeMenuContributionFile.contribution = new CommonIncludeMenuItem[1];
-        safeMenuContributionFile.contribution[0] = new CommonIncludeMenuItem();
-        safeMenuContributionFile.contribution[0] = processOtherContribution(
-                ssStations, "menus/safeseas/baseSafeSeas.xml",
-                "menu:obs?before=EndOfMaritime", "SAFESEAS",
-                safeMenuContributionFile.contribution[0]);
-        toXml(safeMenuContributionFile, "menus" + File.separator + "safeseas"
-                + File.separator + "index.xml");
+        Path safeseasPath = Paths.get(MENUS_PATH, SAFESEAS_PATH,
+                BASE_SAFESEAS_XML);
+        MenuTemplateFile menuTemplate = (MenuTemplateFile) this.fromXml(
+                safeseasPath.toString(), this.commonStaticBase);
+        this.updateStations(menuTemplate, "SAFESEASMONITOR", ssStations);
+        this.toXml(menuTemplate, safeseasPath.toString());
         ssConfig = null;
+    }
+
+    private void updateStations(MenuTemplateFile menuTemplate,
+            final String bundleId, final String stationString) {
+        for (CommonAbstractMenuContribution contribution : menuTemplate.contributions) {
+            if (contribution instanceof CommonBundleMenuContribution
+                    && ((CommonBundleMenuContribution) contribution).id
+                            .equals(bundleId)) {
+                CommonBundleMenuContribution bundleContribution = (CommonBundleMenuContribution) contribution;
+                if (bundleId.equals(bundleContribution.id)) {
+                    for (VariableSubstitution substitution : bundleContribution.substitutions) {
+                        if ("stations".equals(substitution.key)) {
+                            substitution.value = stationString;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
     }
 
     /**
@@ -511,7 +547,7 @@ public class DatMenuUtil extends AbstractMenuUtil {
      */
     private void createFogMenu() {
         FSSObsMonitorConfigurationManager fogConfig = FSSObsMonitorConfigurationManager
-                .getInstance(MonName.fog);
+                .getInstance(AppName.FOG);
         Set<String> fogStns = fogConfig.getStationIDs();
         StringBuilder stations = new StringBuilder();
         for (String s : fogStns) {
@@ -521,15 +557,11 @@ public class DatMenuUtil extends AbstractMenuUtil {
             stations.append(s);
         }
         String fogStations = stations.toString();
-        CommonMenuContributionFile fogMenuContributionFile = new CommonMenuContributionFile();
-        fogMenuContributionFile.contribution = new CommonIncludeMenuItem[1];
-        fogMenuContributionFile.contribution[0] = new CommonIncludeMenuItem();
-        fogMenuContributionFile.contribution[0] = processOtherContribution(
-                fogStations, "menus/fog/baseFog.xml",
-                "menu:obs?after=FOGPLACEHOLDER", "Fog Monitor",
-                fogMenuContributionFile.contribution[0]);
-        toXml(fogMenuContributionFile, "menus" + File.separator + "fog"
-                + File.separator + "index.xml");
+        Path fogPath = Paths.get(MENUS_PATH, FOG_PATH, BASE_FOG_XML);
+        MenuTemplateFile menuTemplate = (MenuTemplateFile) this.fromXml(
+                fogPath.toString(), this.commonStaticBase);
+        this.updateStations(menuTemplate, "FOGMONITOR", fogStations);
+        this.toXml(menuTemplate, fogPath.toString());
         fogConfig = null;
     }
 
@@ -538,7 +570,7 @@ public class DatMenuUtil extends AbstractMenuUtil {
      */
     private void createSnowMenu() {
         FSSObsMonitorConfigurationManager snowConfig = FSSObsMonitorConfigurationManager
-                .getInstance(MonName.snow);
+                .getInstance(AppName.SNOW);
         Set<String> snowStns = snowConfig.getStationIDs();
         StringBuilder stations = new StringBuilder();
         for (String s : snowStns) {
@@ -548,41 +580,12 @@ public class DatMenuUtil extends AbstractMenuUtil {
             stations.append(s);
         }
         String snowStations = stations.toString();
-        CommonMenuContributionFile snowMenuContributionFile = new CommonMenuContributionFile();
-        snowMenuContributionFile.contribution = new CommonIncludeMenuItem[1];
-        snowMenuContributionFile.contribution[0] = new CommonIncludeMenuItem();
-        snowMenuContributionFile.contribution[0] = processOtherContribution(
-                snowStations, "menus/snow/baseSnow.xml",
-                "menu:obs?after=SNOWPLACEHOLDER", "SNOW",
-                snowMenuContributionFile.contribution[0]);
-        toXml(snowMenuContributionFile, "menus" + File.separator + "snow"
-                + File.separator + "index.xml");
+        Path snowPath = Paths.get(MENUS_PATH, SNOW_PATH, BASE_SNOW_XML);
+        MenuTemplateFile menuTemplate = (MenuTemplateFile) this.fromXml(
+                snowPath.toString(), this.commonStaticBase);
+        this.updateStations(menuTemplate, "SNOWMONITOR", snowStations);
+        this.toXml(menuTemplate, snowPath.toString());
         snowConfig = null;
-    }
-
-    /**
-     * Process Other(Fog, Safaseas and Snow) Contribution.
-     * 
-     * @param stations
-     * @param filePath
-     * @param installLoc
-     * @param subMenuName
-     * @param commonIncludeMenu
-     * @return
-     */
-    private CommonIncludeMenuItem processOtherContribution(String stations,
-            String filePath, String installLoc, String subMenuName,
-            CommonIncludeMenuItem commonIncludeMenu) {
-
-        commonIncludeMenu.substitutions = new VariableSubstitution[1];
-        commonIncludeMenu.substitutions[0] = new VariableSubstitution();
-        commonIncludeMenu.substitutions[0].key = "stations";
-        commonIncludeMenu.substitutions[0].value = stations;
-        commonIncludeMenu.fileName = new File(filePath);
-        commonIncludeMenu.installationLocation = installLoc;
-        commonIncludeMenu.subMenuName = subMenuName;
-
-        return commonIncludeMenu;
     }
 
     /*

@@ -46,6 +46,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.annotations.NullString;
 import com.raytheon.uf.common.dataplugin.gfe.serialize.DatabaseIDAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdapter;
@@ -123,6 +124,7 @@ public class DatabaseID implements Comparable<DatabaseID> {
 
     /** The site identifier */
     @Column(length = 4, nullable = false)
+    @NullString
     @DataURI(position = 0)
     private String siteId;
 
@@ -140,12 +142,14 @@ public class DatabaseID implements Comparable<DatabaseID> {
     /** The model name */
     @Column(length = 64, nullable = false)
     @DataURI(position = 1)
+    @NullString
     private String modelName;
 
     // TODO: Use actual time for db column
     /** Model Time yyyymmdd_hhmm */
     @Column(length = 13, nullable = false)
     @DataURI(position = 2)
+    @NullString(value = NO_MODEL_TIME)
     private String modelTime = NO_MODEL_TIME;
 
     /** Date database was removed from localConfig.py. */

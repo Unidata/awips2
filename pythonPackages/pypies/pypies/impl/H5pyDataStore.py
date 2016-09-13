@@ -27,26 +27,31 @@
 #
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    06/16/10                      njensen       Initial Creation.
-#    05/03/11        9134          njensen       Optimized for pointdata
-#    10/09/12                      rjpeter       Optimized __getGroup for retrievals
-#    01/17/13        DR 15294      D. Friedman   Clear out data in response
-#    02/12/13           #1608      randerso      Added support for explicitly deleting groups and datasets
-#    Nov 14, 2013       2393       bclement      removed interpolation
-#    Jan 17, 2014       2688       bclement      added file action and subprocess error logging  
-#    Mar 19, 2014       2688       bgonzale      added more subprocess logging.  Return value from
-#                                                subprocess.check_output is not return code, but is
-#                                                process output.  h5repack has no output without -v arg.
-#    Apr 24, 2015    4425          nabowle       Add DoubleDataRecord
-#    Jun 15, 2015   DR 17556      mgamazaychikov Add __doMakeReadable method to counteract umask 027 daemon
-#                                                and make copied files world-readable
+#    06/16/10                      njensen        Initial Creation.
+#    05/03/11           9134       njensen        Optimized for pointdata
+#    10/09/12                      rjpeter        Optimized __getGroup for retrievals
+#    01/17/13        DR 15294      D. Friedman    Clear out data in response
+#    02/12/13           1608       randerso       Added support for explicitly deleting groups and datasets
+#    Nov 14, 2013       2393       bclement       removed interpolation
+#    Jan 17, 2014       2688       bclement       added file action and subprocess error logging  
+#    Mar 19, 2014       2688       bgonzale       added more subprocess logging.  Return value from
+#                                                 subprocess.check_output is not return code, but is
+#                                                 process output.  h5repack has no output without -v arg.
+#    Apr 24, 2015       4425       nabowle        Add DoubleDataRecord
+#    Jun 15, 2015   DR 17556      mgamazaychikov  Add __doMakeReadable method to counteract umask 027 daemon
+#                                                 and make copied files world-readable
+#    Jul 27, 2015       4402       njensen        Set fill_time_never on write if fill value is None 
+#    Jul 30, 2015       1574       nabowle        Add deleteOrphanFiles()
 #    Aug 20, 2015   DR 17726      mgamazaychikov Remove __doMakeReadable method 
-#
+#    Sep 14, 2015       4868       rjpeter        Updated writePartialHDFData to create the dataset if
+#                                                 it doesn't exist.
+#    Oct 20, 2015       4982       nabowle        Verify datatypes match when replacing data.
 #
 
 import h5py, os, numpy, pypies, re, logging, shutil, time, types, traceback
 import fnmatch
 import subprocess, stat  #for h5repack
+from datetime import datetime
 from pypies import IDataStore, StorageException, NotImplementedException
 from pypies import MkDirLockManager as LockManager
 #from pypies import LockManager
@@ -78,6 +83,9 @@ REQUEST_ALL = Request()
 REQUEST_ALL.setType('ALL')
 
 PURGE_REGEX = re.compile('(/[a-zA-Z]{1,25})/([0-9]{4}-[0-9]{2}-[0-9]{2})_([0-9]{2}):[0-9]{2}:[0-9]{2}')
+
+# matches the date formats used in hdf5 filenames. 
+ORPHAN_REGEX = re.compile('(19|20)(\d\d)-?(0[1-9]|1[012])-?(0[1-9]|[12][0-9]|3[01])')
 
 class H5pyDataStore(IDataStore.IDataStore):
 
@@ -135,8 +143,9 @@ class H5pyDataStore(IDataStore.IDataStore):
         rootNode=f['/']
         group = self.__getNode(rootNode, record.getGroup(), None, create=True)
         if record.getMinIndex() is not None and len(record.getMinIndex()):
-            ss = self.__writePartialHDFDataset(f, data, record.getDimension(), record.getSizes(),
-                                               group[record.getName()], props, record.getMinIndex())
+            ss = self.__writePartialHDFDataset(f, data, record.getDimension(), record.getSizes(), record.getName(),
+                                               group, props, self.__getHdf5Datatype(record), record.getMinIndex(),
+                                               record.getMaxSizes(), record.getFillValue())
         else:
             ss = self.__writeHDFDataset(f, data, record.getDimension(), record.getSizes(), record.getName(),
                                    group, props, self.__getHdf5Datatype(record), storeOp, record)
@@ -162,7 +171,7 @@ class H5pyDataStore(IDataStore.IDataStore):
             data = data.reshape(szDims1)
 
         ss = {}
-        if dataset in group.keys():
+        if dataset in group:
             ds = group[dataset]
             if storeOp == 'STORE_ONLY':
                 raise StorageException('Dataset ' + str(dataset) + ' already exists in group ' + str(group))
@@ -182,6 +191,8 @@ class H5pyDataStore(IDataStore.IDataStore):
                     indices.append(long(0))
                 ss['index'] = indices
             elif storeOp == 'REPLACE' or storeOp == 'OVERWRITE':
+                if ds.dtype.type != data.dtype.type:
+                    raise StorageException("Cannot " + storeOp + " data of type " + ds.dtype.name + " with data of type " + data.dtype.name + " in " + f.filename + " " + group.name + ".")
                 if ds.shape != data.shape:
                     ds.resize(data.shape)
                 ds[()] = data
@@ -212,6 +223,12 @@ class H5pyDataStore(IDataStore.IDataStore):
             #dtype.set_strpad(h5t.STR_NULLTERM)
         return dtype
 
+    # Common use case of arrays are passed in x/y and orientation of data is y/x
+    def __reverseDimensions(self, dims):
+        revDims = [None, ] * len(dims)
+        for i in range(len(dims)):
+            revDims[i] = dims[len(dims) - i - 1]
+        return revDims
 
     def __calculateChunk(self, nDims, dataType, storeOp, maxDims):
         if nDims == 1:
@@ -248,6 +265,12 @@ class H5pyDataStore(IDataStore.IDataStore):
         else:
             raise NotImplementedException("Storage of " + str(nDims) + " dimensional " + \
                                    "data with mode " + storeOp + " not supported yet")
+
+        # ensure chunk is not bigger than dimensions
+        if maxDims is not None:
+            for i in range(nDims):
+                chunk[i] = chunk[i] if maxDims[i] is None else min(chunk[i], maxDims[i])
+
         chunk = tuple(chunk)
         return chunk
 
@@ -257,28 +280,40 @@ class H5pyDataStore(IDataStore.IDataStore):
             for key in attrs:
                 dataset.attrs[key] = attrs[key]
 
-    def __writePartialHDFDataset(self, f, data, dims, szDims, ds, props,
-                                                minIndex):
-        # reverse sizes for hdf5
-        szDims1 = [None, ] * len(szDims)
-        for i in range(len(szDims)):
-            szDims1[i] = szDims[len(szDims) - i - 1]
-        offset = [None, ] * len(minIndex)
-        for i in range(len(minIndex)):
-            offset[i] = minIndex[len(minIndex) - i - 1]
+    def __writePartialHDFDataset(self, f, data, dims, szDims, dataset, group, props, dataType,
+                                                minIndex, maxSizes, fillValue):
+        # Change dimensions to be Y/X
+        szDims1 = self.__reverseDimensions(szDims)
+        offset = self.__reverseDimensions(minIndex)
 
-        # process chunking
-#        chunkSize = None
-#        if data.dtype != numpy._string and data.dtype != numpy._object:
-#            chunkSize = DEFAULT_CHUNK_SIZE
-#        else:
-#            chunkSize = 1
-#        chunk = [chunkSize] * len(szDims)
         data = data.reshape(szDims1)
+
+        ss = {}
+        if dataset in group:
+            ds=group[dataset]
+            ss['op'] = 'REPLACE'
+            if ds.dtype.type != data.dtype.type:
+                raise StorageException("Cannot REPLACE data of type " + ds.dtype.name + " with data of type " + data.dtype.name + " in " + f.filename + " " + group.name + ".")
+        else:
+            if maxSizes is None:
+                raise StorageException('Dataset ' + dataset + ' does not exist for partial write.  MaxSizes not specified to create initial dataset')
+
+            maxDims = self.__reverseDimensions(maxSizes)
+            nDims = len(maxDims)
+            chunk = self.__calculateChunk(nDims, dataType, 'STORE_ONLY', maxDims)
+            compression = None
+            if props:
+                compression = props.getCompression()
+            ds = self.__createDatasetInternal(group, dataset, dataType, maxDims, None, chunk, compression, fillValue)
+            ss['op'] = 'STORE_ONLY'
+
+        if ds.shape[0] < data.shape[0] or ds.shape[1] < data.shape[1]:
+            raise StorageException('Partial write larger than original dataset.  Original shape [' + str(ds.shape) + '], partial ')
 
         endIndex = [offset[0] + szDims1[0], offset[1] + szDims1[1]]
         ds[offset[0]:endIndex[0], offset[1]:endIndex[1]] = data
-        return {'op':'REPLACE'}
+
+        return ss
 
 
     def delete(self, request):
@@ -344,7 +379,7 @@ class H5pyDataStore(IDataStore.IDataStore):
 
     # recursively looks for data sets
     def __hasDataSet(self, group):
-        for key in group.keys():
+        for key in group:
             child=group[key]
             if type(child) == h5py.highlevel.Dataset:
                 return True
@@ -504,9 +539,7 @@ class H5pyDataStore(IDataStore.IDataStore):
 
             # reverse sizes for hdf5
             szDims = rec.getSizes()
-            szDims1 = [None, ] * len(szDims)
-            for i in range(len(szDims)):
-                szDims1[i] = szDims[len(szDims) - i - 1]
+            szDims1 = self.__reverseDimensions(szDims)
             szDims = tuple(szDims1)
 
             chunks = None
@@ -541,6 +574,9 @@ class H5pyDataStore(IDataStore.IDataStore):
             fVal[0] = fillValue
             plc.set_fill_value(fVal)
             plc.set_fill_time(h5py.h5d.FILL_TIME_IFSET)
+        elif dtype != vlen_str_type:
+            plc.set_fill_time(h5py.h5d.FILL_TIME_NEVER)
+            
         if chunks:
             plc.set_chunk(chunks)
         if compression == 'LZF':
@@ -593,12 +629,15 @@ class H5pyDataStore(IDataStore.IDataStore):
             if gotLock:
                 LockManager.releaseLock(lock)
 
-    def __removeDir(self, path):
+    def __removeDir(self, path, onlyIfEmpty=False):
         gotLock = False
         try:
             gotLock, lock = LockManager.getLock(path, 'a')
             if gotLock:
-                shutil.rmtree(path)
+                if onlyIfEmpty:
+                    os.rmdir(path)
+                else:
+                    shutil.rmtree(path)
             else:
                 raise StorageException('Unable to acquire lock on file ' + path + ' for deleting')
         finally:
@@ -880,3 +919,51 @@ class H5pyDataStore(IDataStore.IDataStore):
         finally:
             if lock:
                 LockManager.releaseLock(lock)
+
+    def deleteOrphanFiles(self, request):
+        path = request.getFilename()
+        oldestDate = request.getOldestDate()
+        deletedFiles = []
+        failedFiles = []
+        if oldestDate:
+            oldestDatetime = datetime.utcfromtimestamp(oldestDate.getTime()/1000)
+            for base, dirs, files in os.walk(path, topdown=False):
+                datafiles = fnmatch.filter(files, '*.h5')
+                for f in datafiles:
+                    matches = ORPHAN_REGEX.search(f)
+                    if matches:
+                        stringDate = matches.group(1) + matches.group(2) + \
+                                     matches.group(3) + matches.group(4)
+                        filedate = datetime.strptime(stringDate, "%Y%m%d")
+                        if filedate < oldestDatetime:
+                            try:
+                                f = os.path.join(base, f)
+                                logger.info("Deleting orphaned file " + f + ", age " + str(datetime.utcnow() - filedate))
+                                self.__removeFile(f)
+                                deletedFiles.append(f)
+                            except Exception as e:
+                                logger.error("Error deleting file " + f + ": " + str(e))
+                                logger.error(traceback.format_exc())
+                                failedFiles.append(f)
+                # cleanup any empty directories
+                fullPathDirs = []
+                fullPathDirs.extend(os.path.join(base, d) for d in dirs)
+                fullPathDirs.append(os.path.join(base))
+                for d in fullPathDirs:
+                    if os.path.exists(d) and not os.listdir(d):
+                        try:
+                            logger.info("Deleting empty directory " + d)
+                            self.__removeDir(d, True)
+                        except OSError as ose:
+                            # Deletion may fail if something writes to it 
+                            # between checking and trying to delete it, which is
+                            # acceptable.
+                            if not os.listdir(d): 
+                                logger.error("Error removing empty directory " + d + ": " + str(ose))
+                        except StorageException as se:
+                            logger.error("Error removing empty directory " + d + ": " + str(se))
+
+        resp = FileActionResponse()
+        resp.setSuccessfulFiles(deletedFiles)
+        resp.setFailedFiles(failedFiles)
+        return resp

@@ -61,6 +61,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Nov 17, 2010            rjpeter     Initial creation
  * Aug 26, 2014 3503       bclement    removed warning
+ * Jan 27, 2016 5237       tgurney     Remove deprecated LocalizationFile
+ *                                     method call
  * 
  * </pre>
  * 
@@ -214,7 +216,7 @@ public class LocationCache {
                     handler.handle(
                             Priority.WARN,
                             "Error deleting cwat location file ["
-                                    + localizationFile.getName() + "], "
+                                    + localizationFile.getPath() + "], "
                                     + e2.getMessage());
                 }
             } finally {
@@ -239,7 +241,7 @@ public class LocationCache {
             location.setLastModifiyTime(file.lastModified());
         } catch (Exception e) {
             handler.handle(Priority.ERROR, "Error saving cwat location file ["
-                    + locationFile.getName() + "], Error: " + e.getMessage());
+                    + locationFile.getPath() + "], Error: " + e.getMessage());
         }
     }
 

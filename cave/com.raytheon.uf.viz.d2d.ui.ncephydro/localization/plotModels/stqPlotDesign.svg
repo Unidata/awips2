@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<svg width="80" height="80" 
+viewBox="0 0 80 80" 
+overflow="visible" 
+xmlns="http://www.w3.org/2000/svg" 
+xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
+   <defs>
+
+<script type="text/python" plotDelegate="plotDelegate">
+
+class StqPlotDelegate(PlotDelegate):
+    def __init__(self):
+        PlotDelegate.__init__(self)
+
+    def getSampleText(self, rec):
+        projectName = rec.getString("projectName")
+        reqOfficial = rec.getString("reqOfficial")
+        emPhone = rec.getString("emPhone")
+        sampleString = "Project Name: %s\n\tOffcial Name: %s\n\tEmergency Phone: %s"%(projectName,reqOfficial,emPhone)
+
+        return sampleString
+
+plotDelegate = StqPlotDelegate()
+
+</script>
+
+<style type="text/css">
+<![CDATA[
+        @font-face { font-family: "WindSymbolFont";
+                src: url(WindSymbols.svg#WindSymbols); }
+        @font-face { font-family: "StandardFont";
+                src: url(Standard.svg#Standard); }
+        @font-face { font-family: "WxSymbolFont";
+                src: url(WxSymbols.svg#WxSymbols); }
+        @font-face { font-family: "SpecialSymbolFont";
+                src: url(SpecialSymbols.svg#SpecialSymbols); }
+        text.text
+            {
+                fill: none;
+                font-size: 1.2em;
+                stroke-width: 1px;
+                font-family: StandardFont;
+                font-size: 1.2em;
+            }
+]]>
+</style>
+
+<symbol overflow="visible" id="plotData" class="info">
+  <text id="stqsymbol" plotMode="text" class="text" plotParam="stqSymbol" x="0" y="0">0</text>
+  <text id="sample" plotMode="sample" class="text" plotParam="projectName,reqOfficial,emPhone">0</text>
+</symbol>
+</defs>
+<use id="wind" x="40" y="40" width="80" height="80" visibility="visible" xlink:href="#plotData"/>
+</svg>

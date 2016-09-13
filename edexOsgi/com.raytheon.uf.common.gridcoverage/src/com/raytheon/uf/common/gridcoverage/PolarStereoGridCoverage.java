@@ -27,7 +27,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -51,6 +51,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 09/10/2012   DR 15270    D. Friedman Fix subgrid model name handling.
  * Jan 17, 2014 2125        rjpeter     Removed invalid @Table annotation.
  * Mar 04, 2015 3959        rjpeter     Update for grid based subgridding.
+ * Jun 24, 2016  ASM18440 dfriedman   Fix spatial tolerance for degree values.
  * </pre>
  * 
  * @author bphillip
@@ -268,9 +269,9 @@ public class PolarStereoGridCoverage extends GridCoverage {
     public boolean spatialEquals(GridCoverage other) {
         if (super.spatialEquals(other)) {
             PolarStereoGridCoverage otherPolar = (PolarStereoGridCoverage) other;
-            if (Math.abs(lad - otherPolar.lad) > SPATIAL_TOLERANCE) {
+            if (Math.abs(lad - otherPolar.lad) > SPATIAL_TOLERANCE_DEG) {
                 return false;
-            } else if (Math.abs(lov - otherPolar.lov) > SPATIAL_TOLERANCE) {
+            } else if (Math.abs(lov - otherPolar.lov) > SPATIAL_TOLERANCE_DEG) {
                 return false;
             }
             return true;

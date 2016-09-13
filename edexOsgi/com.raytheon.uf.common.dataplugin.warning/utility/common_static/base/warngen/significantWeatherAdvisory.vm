@@ -12,6 +12,7 @@
 ##    Evan Bookbinder 9/4/15    Replaced flash flooding with localized flooding in  ##
 ##                              torrentainRain CTA so as not to imply need for FFW  ##
 ##    Phil Kurimski 10/20/2015  Fixed line of storms wording/added campers CTA      ##
+##    Evan Bookbinder 4/29/2016 Fixed storm intensify to a CTA                      ##
 ######################################################################################
 ##
 ##SET SOME INITIAL VARIABLES
@@ -19,11 +20,11 @@
 #if(${stormType} == "line")
   #set($report = "strong thunderstorms were reported")
   #set($reportType1 = "strong thunderstorms")
-  #set($reportType2 = "these storms were")
+  #set($reportType2 = "These storms were")
 #else
   #set($report = "a strong thunderstorm was reported")
   #set($reportType1 = "a strong thunderstorm")
-  #set($reportType2 = "this storm was")
+  #set($reportType2 = "This storm was")
 #end
 #set($windThreat = "")
 #set($hailThreat = "")
@@ -110,7 +111,7 @@
 ################################################################
 
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
-SPS${siteId}
+${productId}${siteId}
 #if(${productClass}=="T")
 TEST...Special Weather Statement...TEST##
 #else
@@ -166,7 +167,7 @@ THIS IS A TEST MESSAGE. ##
 THIS IS A TEST MESSAGE. ##
 #end
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
-, ${report} ##
+#commaOrEllipsis()${report} ##
 ##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")
 #handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
@@ -179,7 +180,7 @@ THIS IS A TEST MESSAGE. ##
 #if(${stormType} == "line")
 . Movement was ## 
 #else
-, moving ##
+#commaOrEllipsis()moving ##
 #end
 #direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} mph. ${smallHail}
 #end
@@ -239,10 +240,10 @@ THIS IS A TEST MESSAGE. ##
 ##############################################
 #if(${list.contains(${bullets}, "specialEvent")})
 #if(${stormType} == "line")
-Those attending the !**EVENT/VENUE NAME OR LOCATION**! are in the path of these storms and should prepare for imminent dangerous weather conditions. 
+Those attending the !**EVENT/VENUE NAME OR LOCATION**! are in the path of these storms and should prepare for IMMINENT DANGEROUS WEATHER CONDITIONS. 
 
 #else
-Those attending the !**EVENT/VENUE NAME OR LOCATION**! are in the path of this storm and should prepare for imminent dangerous weather conditions. 
+Those attending the !**EVENT/VENUE NAME OR LOCATION**! are in the path of this storm and should prepare for IMMINENT DANGEROUS WEATHER CONDITIONS. 
 
 #end
 #end
@@ -272,10 +273,10 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
  
 #if(${list.contains(${bullets}, "torrentialRainfallCTA")})
 #if(${stormType} == "line")
-Torrential rainfall is also occurring with these storms, and may lead to localized flooding. Do not drive your vehicle through flooded roadways.
+Torrential rainfall is also occurring with these storms#commaOrEllipsis()and may lead to localized flooding. Do not drive your vehicle through flooded roadways.
 
 #else
-Torrential rainfall is also occurring with this storm, and may lead to localized flooding. Do not drive your vehicle through flooded roadways.
+Torrential rainfall is also occurring with this storm#commaOrEllipsis()and may lead to localized flooding. Do not drive your vehicle through flooded roadways.
 
 #end
 #end
@@ -291,25 +292,25 @@ Frequent cloud to ground lightning is occurring with this storm. Lightning can s
 #end
 ##
 
-#if(${list.contains(${bullets}, "stormIntensify")})
+#if(${list.contains(${bullets}, "stormIntensifyCTA")})
 #if(${stormType} == "line")
-These storms may intensify, so be certain to monitor local radio stations and available television stations for additional information and possible warnings from the National Weather Service. 
+These storms may intensify#commaOrEllipsis()so be certain to monitor local radio stations and available television stations for additional information and possible warnings from the National Weather Service. 
 
 #else
-This storm may intensify, so be certain to monitor local radio stations and available television stations for additional information and possible warnings from the National Weather Service. 
+This storm may intensify#commaOrEllipsis()so be certain to monitor local radio stations and available television stations for additional information and possible warnings from the National Weather Service. 
 
 #end
 #end
 ##
 
 #if(${list.contains(${bullets}, "lawEnforcementCTA")})
-To report severe weather, contact your nearest law enforcement agency. They will relay your report to the National Weather Service office in ${officeLoc}.
+To report severe weather#commaOrEllipsis()contact your nearest law enforcement agency. They will relay your report to the National Weather Service office in ${officeLoc}.
 
 #end
 ##
 
 #if(${list.contains(${bullets}, "boatersCTA")})
-If on or near !**NAME OF LAKE**!, get out of the water and move indoors or inside a vehicle. Remember, lightning can strike out to 10 miles from the parent thunderstorm. If you can hear thunder, you are close enough to be struck by lightning. Move to safe shelter now! Do not be caught on the water in a thunderstorm.
+If on or near !**NAME OF LAKE**!#commaOrEllipsis()get out of the water and move indoors or inside a vehicle. Remember#commaOrEllipsis()lightning can strike out to 10 miles from the parent thunderstorm. If you can hear thunder#commaOrEllipsis()you are close enough to be struck by lightning. Move to safe shelter now! Do not be caught on the water in a thunderstorm.
 
 #end
 

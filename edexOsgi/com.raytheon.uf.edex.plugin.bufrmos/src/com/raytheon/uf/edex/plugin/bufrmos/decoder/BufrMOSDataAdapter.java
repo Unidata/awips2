@@ -1,27 +1,27 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 package com.raytheon.uf.edex.plugin.bufrmos.decoder;
 
 import java.util.Calendar;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosAvnData;
 import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosData;
@@ -32,7 +32,6 @@ import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosGfsData;
 import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosHpcData;
 import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosLampData;
 import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosMrfData;
-import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosNgmData;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.time.DataTime;
@@ -50,11 +49,11 @@ import com.raytheon.uf.edex.plugin.bufrmos.MOSPointDataState;
 /**
  * This class creates a completed Model Output Statistics (MOS) entry from a
  * single "row" of data decoded from an input file.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 21, 2008 862        jkorman     Initial Coding.
@@ -63,8 +62,14 @@ import com.raytheon.uf.edex.plugin.bufrmos.MOSPointDataState;
  * Jul 26, 2013 1051       bsteffen    Discard bufrmos data with invalid
  *                                     location.
  * May 14, 2014 2536       bclement    removed TimeTools usage
+ * Jul 14, 2015 4543       dgilling    Stop using relative indexing to perform
+ *                                     parameter mapping.
+ * Jan 19, 2016 4677       tgurney     Stop manually generating primary key
+ *                                     with generateId() (now using sequence
+ *                                     instead)
+ * Feb 09, 2016 5283       nabowle     Remove NGM MOS support.
  * </pre>
- * 
+ *
  * @author jkorman
  * @version 1.0
  */
@@ -103,7 +108,7 @@ public class BufrMOSDataAdapter {
 
     /**
      * Create a MOSData entry from the next available data in given iterator.
-     * 
+     *
      * @param iterator
      *            The iterator that was used to separate and decode the MOS
      *            data.
@@ -151,9 +156,6 @@ public class BufrMOSDataAdapter {
                 case MRF:
                     fcstData = new BufrMosMrfData();
                     break;
-                case NGM:
-                    fcstData = new BufrMosNgmData();
-                    break;
                 }
 
                 BufrMosDataLocation location = new BufrMosDataLocation();
@@ -186,7 +188,6 @@ public class BufrMOSDataAdapter {
                 } // for
 
                 // lookup mosLocation from cache
-                location.generateId();
                 location = locationCache.getLocation(location);
 
                 fcstData.setLocation(location);
@@ -213,21 +214,16 @@ public class BufrMOSDataAdapter {
                 startTime = System.currentTimeMillis();
                 // Now collect this station's MOS data.
                 if (haveRequiredData && (mosType != null)) {
-                    //
-                    Iterator<BufrMOSElement> it = BUFRMOSStaticData
-                            .getInstance().getElementIterator(mosType);
+                    Map<Integer, BufrMOSElement> parameterMappings = BUFRMOSStaticData
+                            .getInstance().getModelParamterMappings(mosType);
                     PointDataView pdv = pdc.append();
-                    while (it.hasNext()) {
-                        BufrMOSElement element = it.next();
-
-                        IBUFRDataPacket packet = null;
-                        Integer idx = element.getElementIndex();
-                        if ((idx >= 0) && (idx < dataList.size())) {
-                            packet = dataList.get(idx);
+                    for (IBUFRDataPacket packet : dataList) {
+                        BufrMOSElement element = parameterMappings.get(packet
+                                .getReferencingDescriptor().getDescriptor());
+                        if (element != null) {
+                            populateMOSElement(packet, element, pdv);
                         }
-                        populateMOSElement(packet, element, pdv);
                     }
-
                     fcstData.setPointDataView(pdv);
                 } else {
                     fcstData = null;
@@ -244,7 +240,7 @@ public class BufrMOSDataAdapter {
     /**
      * Create a MOSElement entry from a decoded data packet and a definition
      * element.
-     * 
+     *
      * @param packet
      *            A packet containing the decoded data.
      * @param element
@@ -255,8 +251,9 @@ public class BufrMOSDataAdapter {
             BufrMOSElement element, PointDataView view) {
         if ((packet != null) && (element != null)) {
             String elementName = element.getElementName();
-            if (elementName == null || elementName.equals(""))
+            if (elementName == null || elementName.equals("")) {
                 return;
+            }
 
             if (!view.getContainer().getParameters().contains(elementName)) {
                 // Discard any params not in the descriptor

@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.mutable.MutableByte;
+import org.apache.commons.lang3.mutable.MutableByte;
 import org.geotools.geometry.jts.JTS;
 import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.referencing.FactoryException;
@@ -72,6 +72,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
  * 02/19/2013   1637       randerso    Added throws declarations to translateDataFrom
  * 10/31/2013   2508       randerso    Change to use DiscreteGridSlice.getKeys()
  * Apr 23, 2015 4259       njensen     Removed unused INumpyable
+ * Apr 04, 2016 5539       randerso    Fix unsigned byte issues
  * 
  * </pre>
  * 
@@ -918,7 +919,7 @@ public class DiscreteGridData extends AbstractGridData {
                 for (int j = 0; j < dim.y; j++) {
                     if (points.get(i, j) == 1) {
                         DiscreteKey combined = DiscreteKey.combine(
-                                key.get(values.get(i, j)),
+                                key.get(0xFF & values.get(i, j)),
                                 doGetDiscreteValue(i, j));
                         grid.set(i, j, lookupKeyValue(combined));
                     }

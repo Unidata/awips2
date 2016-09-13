@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Shef Plug-in
 Bundle-SymbolicName: com.raytheon.edex.plugin.shef
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
 Export-Package: com.raytheon.edex.plugin.shef,
  com.raytheon.edex.plugin.shef.data,
@@ -30,5 +30,5 @@ Import-Package: com.raytheon.edex.plugin.obs,
  com.raytheon.uf.common.dataplugin.text.request,
  com.raytheon.uf.common.ohd,
  com.raytheon.uf.common.wmo,
- org.apache.commons.logging
+ org.slf4j
 

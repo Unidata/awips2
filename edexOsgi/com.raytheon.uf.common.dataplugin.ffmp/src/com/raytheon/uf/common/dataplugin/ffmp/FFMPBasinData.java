@@ -36,7 +36,6 @@ import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.SOURCE_TYPE;
 import com.raytheon.uf.common.monitor.xml.SourceXML;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -58,6 +57,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * 07/16/13      2197       njensen     Added hasAnyBasins() and moved getBasins() calls out of loops
  * Jul 31, 2013  2242       bsteffen    Optimize FFMP NavigableMap memory.
+ * Aug 08, 2015  4722       dhladky     Dynamic serialize imp not needed.
+ * Aug 31, 2015  4780       dhladky     Corrected guidance basin mosaic averaging logic.
+ * Oct 26, 2015  5056       dhladky     Simplified guidance interpolator.
  * 
  * 
  * </pre>
@@ -66,7 +68,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1
  */
 @DynamicSerialize
-public class FFMPBasinData implements ISerializableObject {
+public class FFMPBasinData {
 
     public static final double GUIDANCE_MISSING = -999999.0;
 
@@ -429,11 +431,8 @@ public class FFMPBasinData implements ISerializableObject {
                 FFMPGuidanceBasin fgb = (FFMPGuidanceBasin) basin;
                 if (forcedPfafs.contains(pfaf)) {
                     if (interpolation.isInterpolate()) {
-                        value = fgb.getInterpolatedValue(
-                                interpolation.getSource1(),
-                                interpolation.getSource2(),
-                                interpolation.getInterpolationOffset(),
-                                interpolation, expiration);
+                        value = fgb.getInterpolatedValue(interpolation,
+                                expiration);
                     } else {
                         value = fgb.getValue(interpolation.getStandardSource(),
                                 interpolation, expiration);
@@ -448,11 +447,8 @@ public class FFMPBasinData implements ISerializableObject {
                     if (interpolation.isInterpolate()) {
                         float nvalue;
                         if (new Float(guidance).isNaN()) {
-                            nvalue = fgb.getInterpolatedValue(
-                                    interpolation.getSource1(),
-                                    interpolation.getSource2(),
-                                    interpolation.getInterpolationOffset(),
-                                    interpolation, expiration);
+                            nvalue = fgb.getInterpolatedValue(interpolation,
+                                    expiration);
                         } else {
                             nvalue = guidance;
                         }
@@ -505,11 +501,8 @@ public class FFMPBasinData implements ISerializableObject {
                 FFMPGuidanceBasin fgb = (FFMPGuidanceBasin) basin;
                 fgb.setCountyFips(parentPfaf);
                 if (interpolation.isInterpolate()) {
-                    float nvalue = fgb.getInterpolatedValue(
-                            interpolation.getSource1(),
-                            interpolation.getSource2(),
-                            interpolation.getInterpolationOffset(),
-                            interpolation, expiration);
+                    float nvalue = fgb.getInterpolatedValue(interpolation,
+                            expiration);
                     // ignore missing values
                     if (nvalue < -999) {
                         continue;
@@ -585,11 +578,8 @@ public class FFMPBasinData implements ISerializableObject {
             if (basin != null) {
                 FFMPGuidanceBasin fgb = (FFMPGuidanceBasin) basin;
                 if (interpolation.isInterpolate()) {
-                    values.add(fgb.getInterpolatedValue(
-                            interpolation.getSource1(),
-                            interpolation.getSource2(),
-                            interpolation.getInterpolationOffset(),
-                            interpolation, expiration));
+                    values.add(fgb.getInterpolatedValue(interpolation,
+                            expiration));
                 } else {
                     values.add(fgb.getValue(interpolation.getStandardSource(),
                             interpolation, expiration));
@@ -880,11 +870,13 @@ public class FFMPBasinData implements ISerializableObject {
         protected void applyValue(FFMPBasin basin, float value) {
             if (basin.contains(date)) {
                 float curval = basin.getValue(date);
+                // These are QPF and QPE so, 0.0 is a valid amount
                 if (curval >= 0.0f && value >= 0.0f) {
                     basin.setValue(date, (curval + value) / 2);
                 } else if (value >= 0.0f) {
                     basin.setValue(date, value);
-                } // do not overwrite original value
+                } 
+                // do not overwrite original value
             } else {
                 // no value at time exists, write regardless
                 basin.setValue(date, value);
@@ -907,19 +899,22 @@ public class FFMPBasinData implements ISerializableObject {
 
         @Override
         protected void applyValue(FFMPBasin basin, float value) {
+            
             FFMPGuidanceBasin gBasin = (FFMPGuidanceBasin) basin;
-
             Float curval = gBasin.getValue(date, sourceName);
 
-            if (curval != FFMPUtils.MISSING || !curval.isNaN()) {
-
-                if (curval >= 0.0f && value >= 0.0f) {
+            if (curval != FFMPUtils.MISSING && !curval.isNaN()) {
+                // average of original and new value
+                if (curval > 0.0f && value > 0.0f) {
                     gBasin.setValue(sourceName, date, (curval + value) / 2);
-                } else if (value >= 0.0f) {
-                    gBasin.setValue(sourceName, date, value);
+                } else {
+                    // curval zero, overwrite original value 
+                    if (curval == 0.0f) {
+                        gBasin.setValue(sourceName, date, value);
+                    }
                 }
-                // do not overwrite original value
             } else {
+                // curval NaN or MISSING, Overwrite original value 
                 gBasin.setValue(sourceName, date, value);
             }
         }

@@ -24,12 +24,12 @@ import jep.Jep;
 import jep.JepException;
 import jep.NamingConventionClassEnquirer;
 
-import org.apache.commons.pool.KeyedPoolableObjectFactory;
+import org.apache.commons.pool2.BaseKeyedPooledObjectFactory;
+import org.apache.commons.pool2.PooledObject;
+import org.apache.commons.pool2.impl.DefaultPooledObject;
 
-import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PyUtil;
+import com.raytheon.uf.common.python.PythonIncludePathUtil;
 
 /**
  * Pooling factory for jep instances for python uEngine scripts
@@ -40,6 +40,7 @@ import com.raytheon.uf.common.python.PyUtil;
  * ------------	----------	-----------	--------------------------
  * Apr 15, 2008             njensen     Initial creation
  * Apr 26, 2015  4259       njensen     Updated for new JEP API
+ * Oct 22, 2015  5004       dgilling    Use new commons-pool2 API.
  * 
  * </pre>
  * 
@@ -47,95 +48,34 @@ import com.raytheon.uf.common.python.PyUtil;
  * @version 1.0
  */
 
-public class JepFactory implements KeyedPoolableObjectFactory {
+public class JepFactory extends BaseKeyedPooledObjectFactory<Long, Jep> {
 
-    private static String includePath;
+    private static final String includePath = PyUtil.buildJepIncludePath(
+            PythonIncludePathUtil.getCommonPythonIncludePath(),
+            PythonIncludePathUtil.getEdexPythonIncludePath());
 
-    static {
-        IPathManager pathMgr = PathManagerFactory.getPathManager();
-
-        LocalizationContext edexStaticBase = pathMgr.getContext(
-                LocalizationContext.LocalizationType.EDEX_STATIC,
-                LocalizationContext.LocalizationLevel.BASE);
-        LocalizationContext commonStaticBase = pathMgr.getContext(
-                LocalizationContext.LocalizationType.COMMON_STATIC,
-                LocalizationContext.LocalizationLevel.BASE);
-
-        String edexPython = pathMgr.getFile(edexStaticBase, "python").getPath();
-        String commonPython = pathMgr.getFile(commonStaticBase, "python")
-                .getPath();
-        includePath = PyUtil.buildJepIncludePath(commonPython, edexPython);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.apache.commons.pool.PoolableObjectFactory#activateObject(java.lang
-     * .Object)
-     */
     @Override
-    public void activateObject(Object key, Object obj) throws Exception {
-        // TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.apache.commons.pool.PoolableObjectFactory#destroyObject(java.lang
-     * .Object)
-     */
-    @Override
-    public void destroyObject(Object key, Object obj) throws Exception {
-        Jep jep = (Jep) obj;
-        jep.close();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.commons.pool.PoolableObjectFactory#makeObject()
-     */
-    @Override
-    public Object makeObject(Object key) throws Exception {
-        Jep jep = null;
+    public Jep create(Long arg0) throws Exception {
         try {
-            jep = new Jep(false, includePath,
+            Jep jep = new Jep(false, includePath,
                     JepFactory.class.getClassLoader(),
                     new NamingConventionClassEnquirer());
             // this enables easy import of java classes in the python script
             jep.eval("import CatalogQuery");
+            return jep;
         } catch (JepException e) {
             throw new Exception("Error instantiating jep", e);
         }
-        return jep;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.apache.commons.pool.PoolableObjectFactory#passivateObject(java.lang
-     * .Object)
-     */
     @Override
-    public void passivateObject(Object key, Object obj) throws Exception {
-        // TODO Auto-generated method stub
-
+    public PooledObject<Jep> wrap(Jep arg0) {
+        return new DefaultPooledObject<Jep>(arg0);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.apache.commons.pool.PoolableObjectFactory#validateObject(java.lang
-     * .Object)
-     */
     @Override
-    public boolean validateObject(Object key, Object obj) {
-        return true;
+    public void destroyObject(Long key, PooledObject<Jep> p) throws Exception {
+        Jep jep = p.getObject();
+        jep.close();
     }
-
 }

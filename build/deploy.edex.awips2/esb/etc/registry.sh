@@ -19,12 +19,13 @@
 # further licensing information.
 ##
 
-export MAX_MEM=1536 # in Meg
+export MAX_MEM=2560
 export MAX_PERM_SIZE=192m
 export EDEX_DEBUG_PORT=5012
 export EDEX_JMX_PORT=1620
 export LOG_CONF=logback-registry.xml
 export MGMT_PORT=9605
+export HTTP_PORT=9588
 
 export METADATA_POOL_MAX=20
 export METADATA_POOL_TIMEOUT=60

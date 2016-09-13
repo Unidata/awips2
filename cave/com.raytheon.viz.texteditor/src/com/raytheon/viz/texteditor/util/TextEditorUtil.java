@@ -23,13 +23,8 @@ package com.raytheon.viz.texteditor.util;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -47,8 +42,9 @@ import com.raytheon.viz.texteditor.dialogs.TextWSMessageBox;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------  --------------------------
- * 8/11/2009    2191        rjpeter     Initial creation.
- * 9/09/2014    3580        mapeters    Removed getTextDbsrvTransport().
+ * 8/11/2009    2191        rjpeter     Initial creation
+ * 9/09/2014    3580        mapeters    Removed getTextDbsrvTransport()
+ * 2/17/2016    5391        randerso    Removed createVerticallyCenteredLabel()
  * </pre>
  * 
  * @author rjpeter
@@ -93,26 +89,6 @@ public class TextEditorUtil {
                 field.setText("");
             }
         }
-    }
-
-    /**
-     * Create a label that is vertically aligned in a cell.
-     * 
-     * @param parentComp
-     *            Parent composite.
-     * @param labelText
-     *            Label text.
-     */
-    public static void createVerticallyCenteredLabel(Composite parentComp,
-            String labelText) {
-        Composite vertTextRowComp = new Composite(parentComp, SWT.NONE);
-        GridLayout gridLayout = new GridLayout(1, false);
-        vertTextRowComp.setLayout(gridLayout);
-
-        GridData gd = new GridData(GridData.VERTICAL_ALIGN_CENTER);
-        Label tempLbl = new Label(vertTextRowComp, SWT.NONE);
-        tempLbl.setText(labelText);
-        tempLbl.setLayoutData(gd);
     }
 
     public static String getCommandText(ICommand command) {

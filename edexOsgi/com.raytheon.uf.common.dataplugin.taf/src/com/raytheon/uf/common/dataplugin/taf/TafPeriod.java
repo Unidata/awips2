@@ -49,6 +49,8 @@ import com.raytheon.uf.common.wmo.WMOHeader;
  * Nov 01, 2013 2361        njensen     Remove XML annotations
  * May 14, 2014 2536        bclement    moved WMO Header to common, removed TimeTools usage
  * May 15, 2014 3002        bgonzale    Moved to com.raytheon.uf.common.dataplugin.taf.
+ * Oct 12, 2015 4942        rferrel         Have {@link #determineChangeGroupPeriodDDhhDDhh(int, int, int, int, TafPeriod, boolean)}
+ *                                           return null when invalid time period.
  * 
  * </pre>
  * 
@@ -115,12 +117,15 @@ public class TafPeriod implements Serializable {
      * @return
      */
     public static TafPeriod copy(TafPeriod period) {
-        TafPeriod periodCopy = new TafPeriod();
-        /* these may be null */
-        periodCopy.startDate = TimeUtil.newCalendar(period.startDate);
-        periodCopy.transitionEndDate = TimeUtil
-                .newCalendar(period.transitionEndDate);
-        periodCopy.endDate = TimeUtil.newCalendar(period.endDate);
+        TafPeriod periodCopy = null;
+        if (period != null) {
+            periodCopy = new TafPeriod();
+            /* these may be null */
+            periodCopy.startDate = TimeUtil.newCalendar(period.startDate);
+            periodCopy.transitionEndDate = TimeUtil
+                    .newCalendar(period.transitionEndDate);
+            periodCopy.endDate = TimeUtil.newCalendar(period.endDate);
+        }
 
         return periodCopy;
     }
@@ -337,7 +342,7 @@ public class TafPeriod implements Serializable {
      * @param aTAFValidPeriod
      * @param isChangeCodeBecoming
      *            true if change code is Becoming
-     * @return
+     * @return tafPeriod or null if unable to determine valid period
      */
     public static TafPeriod determineChangeGroupPeriodDDhhDDhh(int day1,
             int hour1, int day2, int hour2, TafPeriod aTAFValidPeriod,
@@ -349,14 +354,17 @@ public class TafPeriod implements Serializable {
         Calendar eDate = setDayHourMin(aTAFValidPeriod.getStartDate(), day2,
                 hour2, 0);
 
-        TafPeriod period = new TafPeriod();
+        TafPeriod period = null;
+        if ((sDate != null) && (eDate != null)) {
+            period = new TafPeriod();
 
-        // All groups use the start date as is.
-        period.setStartDate(sDate);
-        if (isChangeCodeBecoming) {
-            period.setTransitionEndDate(eDate);
-        } else {
-            period.setEndDate(eDate);
+            // All groups use the start date as is.
+            period.setStartDate(sDate);
+            if (isChangeCodeBecoming) {
+                period.setTransitionEndDate(eDate);
+            } else {
+                period.setEndDate(eDate);
+            }
         }
 
         return period;
@@ -517,27 +525,5 @@ public class TafPeriod implements Serializable {
             }
         }
         return cal;
-    }    
-    
-    public static final void main(String [] args) {
-        
-        
-        Calendar cA = TimeUtil.newGmtCalendar(2012, 4, 1);
-        
-        Calendar cB = setDayHourMin(cA, 31, 23, 0);
-        
-        System.out.println(formatDate(cA));
-        System.out.println(formatDate(cB));
-        
-        
-        
-        
     }
-    
-    
-    
-    
-    
-    
-    
 }

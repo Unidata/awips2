@@ -34,7 +34,6 @@ import org.eclipse.swt.widgets.Display;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
-import com.raytheon.uf.common.python.concurrent.AbstractPythonScriptFactory;
 import com.raytheon.uf.common.python.concurrent.IPythonExecutor;
 import com.raytheon.uf.common.python.concurrent.PythonJobCoordinator;
 import com.raytheon.uf.common.status.IPerformanceStatusHandler;
@@ -56,13 +55,12 @@ import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.core.parm.ParmState;
 import com.raytheon.viz.gfe.query.QueryScript;
 import com.raytheon.viz.gfe.query.QueryScriptExecutor;
-import com.raytheon.viz.gfe.query.QueryScriptFactory;
 import com.raytheon.viz.gfe.smarttool.SmartToolException.ErrorType;
-import com.raytheon.viz.gfe.smarttool.script.SmartToolController;
+import com.raytheon.viz.gfe.smarttool.script.SmartToolRunnerController;
 
 /**
  * Ported from Tool.py
- *
+ * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -70,13 +68,18 @@ import com.raytheon.viz.gfe.smarttool.script.SmartToolController;
  * Feb 27, 2007            njensen     Initial creation
  * Jan 08, 2013  1486      dgilling    Support changes to BaseGfePyController.
  * 02/14/2013              mnash       Change QueryScript to use new Python concurrency
- * 02/20/2013        #1597 randerso    Added logging to support GFE Performance metrics
+ * 02/20/2013    1597      randerso    Added logging to support GFE Performance metrics
  * 04/10/2013    16028     ryu         Check for null seTime in execute()
- * 07/07/2015    14739     ryu         Modified execute() to return with updated varDict.
- * 10/08/2015    18125     bhunder     Modified CANCEL_MSG_START to work with Jep updates
- *
+ * Jul 17, 2015  4575      njensen     Changed varDict from String to Map
+ * Jul 23, 2015  4263      dgilling    Support SmartToolMetadataManager.
+ * Aug 27, 2015  4749      njensen     Call shutdown() on PythonJobCoordinator
+ * Sep 16, 2015  4871      randerso    Return modified varDict from Tool
+ * Oct 08, 2015  18125     bhunder     Modified CANCEL_MSG_START to work with Jep updates
+ * Dec 14, 2015  4816      dgilling    Support refactored PythonJobCoordinator API.
+ * Apr 20, 2016  5593      randerso    Fixed issue with running tool with no grids left parm immutable
+ * 
  * </pre>
- *
+ * 
  * @author njensen
  * @version 1.0
  */
@@ -94,7 +97,7 @@ public class Tool {
 
     private Parm inputParm;
 
-    private final SmartToolController tool;
+    private final SmartToolRunnerController tool;
 
     private String toolName;
 
@@ -112,7 +115,7 @@ public class Tool {
 
     /**
      * Constructor
-     *
+     * 
      * @param aParmMgr
      *            the parm manager
      * @param aToolName
@@ -124,28 +127,27 @@ public class Tool {
      * @throws SmartToolException
      */
     public Tool(IParmManager aParmMgr, Parm anInputParm, String aToolName,
-            SmartToolController aTool) throws SmartToolException {
-        parmMgr = aParmMgr;
-        inputParm = anInputParm;
-        toolName = aToolName;
-        tool = aTool;
+            PythonJobCoordinator<QueryScript> coordinator,
+            SmartToolRunnerController aTool) throws SmartToolException {
+        this.parmMgr = aParmMgr;
+        this.inputParm = anInputParm;
+        this.toolName = aToolName;
+        this.tool = aTool;
+        this.coordinator = coordinator;
 
-        AbstractPythonScriptFactory<QueryScript> factory = new QueryScriptFactory(
-                DataManagerUIFactory.getCurrentInstance());
-        coordinator = PythonJobCoordinator.newInstance(factory);
         try {
-            if (!tool.isInstantiated(toolName)) {
-                tool.instantiatePythonScript(toolName);
+            if (!this.tool.isInstantiated(toolName)) {
+                this.tool.instantiatePythonScript(toolName);
             }
         } catch (JepException e) {
             throw new SmartToolException("Error instantiating python tool "
-                    + toolName + ": " + e.getMessage());
+                    + this.toolName + ": " + e.getMessage());
         }
     }
 
     /**
      * Returns the objects that should be passed to the smart tool in python
-     *
+     * 
      * @param args
      *            the names of the arguments
      * @param gridTimeRange
@@ -228,7 +230,7 @@ public class Tool {
 
     /**
      * Returns the attribute for a particular parm's name
-     *
+     * 
      * @param arg
      *            the name of the parm
      * @param attrStr
@@ -263,7 +265,7 @@ public class Tool {
 
     /**
      * Returns the grid data for the specified parameters
-     *
+     * 
      * @param arg
      *            the name of the parm
      * @param mode
@@ -298,8 +300,8 @@ public class Tool {
             result = resultA[0];
         }
         if (result == null) {
-            if (dataMode == MissingDataMode.SKIP
-                    || dataMode == MissingDataMode.CREATE) {
+            if ((dataMode == MissingDataMode.SKIP)
+                    || (dataMode == MissingDataMode.CREATE)) {
                 String msg = "Skipped grid " + arg;
                 throw new SmartToolException(msg, ErrorType.SKIPPED_GRID);
             } else {
@@ -312,7 +314,7 @@ public class Tool {
 
     /**
      * Returns the grid history corresponding to the parm name and time range
-     *
+     * 
      * @param arg
      *            the name of the parm
      * @param gridTimeRange
@@ -352,7 +354,7 @@ public class Tool {
 
     /**
      * Returns the grid info corresponding to the parm name and time range
-     *
+     * 
      * @param arg
      *            the name of the parm
      * @param gridTimeRange
@@ -386,7 +388,7 @@ public class Tool {
 
     /**
      * Executes a smart tool
-     *
+     * 
      * @param toolName
      *            the name of the tool
      * @param inputParm
@@ -399,9 +401,9 @@ public class Tool {
      * @throws SmartToolException
      */
     public void execute(String toolName, Parm inputParm,
-            final ReferenceData editArea, TimeRange timeRange, List<String> varDictList,
-            MissingDataMode missingDataMode, IProgressMonitor monitor)
-            throws SmartToolException {
+            final ReferenceData editArea, TimeRange timeRange,
+            Map<String, Object> varDict, MissingDataMode missingDataMode,
+            IProgressMonitor monitor) throws SmartToolException {
         ITimer timer = TimeUtil.getTimer();
         timer.start();
 
@@ -423,48 +425,50 @@ public class Tool {
         }
         this.inputParm = inputParm;
 
-        String weToEdit = null;
-        try {
-            weToEdit = tool.getWeatherElementEdited(toolName);
-        } catch (JepException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error determining weather element to edit", e);
-        }
+        String weToEdit = DataManagerUIFactory.getCurrentInstance()
+                .getSmartToolInterface().getWeatherElementEdited(toolName);
         Parm parmToEdit = null;
-        if (weToEdit != null && !weToEdit.equals("None")) {
+        if ((weToEdit != null) && !weToEdit.equals("None")) {
             parmToEdit = this.inputParm;
         }
 
         startedParmEdit = false;
 
-        // Determine the pre, execute, and post methods to call
-        // If present, instantiate Tool class
-
-        // Check the tool modes to make sure they make sense
-
-        // Get the gridInventory for the timeRange
-        IGridData[] grids = this.inputParm.getGridInventory(timeRange);
-        if (grids.length == 0) {
-            String message = "Smart Tool " + toolName
-                    + ": No Grids To Edit for " + inputParm.expressionName();
-            statusHandler.handle(Priority.EVENTA, message);
-            return;
-        }
-        int numberOfGrids = grids.length;
-
-        // Make sure parm is mutable
-        if (parmToEdit != null) {
-            saveMutableFlag = this.inputParm.isMutable();
-            this.inputParm.setMutable(true);
-        }
-
-        // Clear missing grids
-        GridCycler.getInstance().clearMissingData();
         boolean saveParams = false;
-
+        int numberOfGrids = 0;
         try {
-            tool.setVarDict(varDictList.get(0));
-            // # PreProcess Tool
+            /*
+             * Make sure parm is mutable.
+             * 
+             * This should be done first so saveMutableFlag is set before
+             * cleanUp is run
+             */
+            if (parmToEdit != null) {
+                saveMutableFlag = this.inputParm.isMutable();
+                this.inputParm.setMutable(true);
+            }
+
+            /*
+             * varDict must be set before returning from execute to prevent
+             * errors attempting to retrieve the updated contents
+             */
+            tool.setVarDict(varDict);
+
+            // Get the gridInventory for the timeRange
+            IGridData[] grids = this.inputParm.getGridInventory(timeRange);
+            numberOfGrids = grids.length;
+            if (numberOfGrids == 0) {
+                String message = "Smart Tool " + toolName
+                        + ": No Grids To Edit for "
+                        + inputParm.expressionName();
+                statusHandler.handle(Priority.EVENTA, message);
+                return;
+            }
+
+            // Clear missing grids
+            GridCycler.getInstance().clearMissingData();
+
+            // PreProcess Tool
             handlePreAndPostProcess("preProcessTool", null, timeRange,
                     editArea, dataMode);
             statusHandler.handle(Priority.DEBUG, "Running smartTool: "
@@ -478,12 +482,7 @@ public class Tool {
                     return;
                 }
 
-                // # Show progress on a grid basis for numeric and parm-based
-                // if toolType == "numeric" or toolType == "parm-based":
-                // percent = (index+1)/numberOfGrids * 100.0
-                // AFPS.ProgressBarMsg_send_mh(self.__msgHand, "SmartTool",
-                // percent)
-                if (!grid.isOkToEdit() && parmToEdit != null) {
+                if (!grid.isOkToEdit() && (parmToEdit != null)) {
                     String message = "Smart Tool " + toolName
                             + ": Encountered locked grid. ";
                     message += "Grid skipped.";
@@ -493,8 +492,8 @@ public class Tool {
                 final Date timeInfluence;
                 Date seTime = DataManagerUIFactory.getCurrentInstance()
                         .getSpatialDisplayManager().getSpatialEditorTime();
-                if (seTime != null &&
-                        grids.length == 1 && grid.getGridTime().contains(seTime)) {
+                if ((seTime != null) && (grids.length == 1)
+                        && grid.getGridTime().contains(seTime)) {
                     timeInfluence = seTime;
                 } else {
                     timeInfluence = grid.getGridTime().getStart();
@@ -510,8 +509,8 @@ public class Tool {
                         IPythonExecutor<QueryScript, ReferenceData> executor = new QueryScriptExecutor(
                                 "evaluate", argMap);
                         try {
-                            Tool.this.trueEditArea = coordinator
-                                    .submitSyncJob(executor);
+                            Tool.this.trueEditArea = coordinator.submitJob(
+                                    executor).get();
                         } catch (Exception e) {
                             statusHandler.handle(Priority.PROBLEM,
                                     "Error re-evaluating edit area "
@@ -557,13 +556,10 @@ public class Tool {
                 }
             } // end of grids for loop
 
-            // # PostProcess Tool
+            // PostProcess Tool
             handlePreAndPostProcess("postProcessTool", null, timeRange,
                     trueEditArea, dataMode);
             saveParams = true;
-            
-            // reset varDict
-            varDictList.set(0, tool.getVarDict());
         } catch (SmartToolException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         } catch (JepException e) {
@@ -586,7 +582,7 @@ public class Tool {
 
     /**
      * Executes the numeric smart tool
-     *
+     * 
      * @param parmToEdit
      *            the parm to edit
      * @param first
@@ -658,7 +654,7 @@ public class Tool {
     /**
      * Cleans up a smart tool execution or failure and displays any missing data
      * message
-     *
+     * 
      * @param parmToEdit
      *            the parm to edit
      * @param save

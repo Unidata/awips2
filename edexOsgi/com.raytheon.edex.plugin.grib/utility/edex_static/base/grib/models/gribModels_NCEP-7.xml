@@ -20,7 +20,7 @@
 		</process>
 	</model>
 	<model>
-		<name>estofsPR</name>
+		<name>ESTOFS-PR</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
 		<grid>339227001</grid>
@@ -31,7 +31,7 @@
 	</model>
 
 	<model>
-		<name>estofs</name>
+		<name>ESTOFS</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
 		<grid>2145137701</grid>
@@ -1650,7 +1650,7 @@
 
         <!-- 0.25 degree GFS -->
         <model>
-                <name>GFS25</name>
+                <name>GFS</name>
                 <center>7</center>
                 <subcenter>0</subcenter>
                 <grid>193</grid>
@@ -1663,7 +1663,7 @@
 
 	<!-- 0.5 degree GFS -->
 	<model>
-		<name>GFS</name>
+		<name>GFS0p5</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>4</grid>
@@ -1675,7 +1675,7 @@
 	</model>
 
 	<model>
-		<name>gfsP5</name>
+		<name>GFS0p5</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>721361002</grid>
@@ -1686,7 +1686,7 @@
 		</process>
 	</model>
 	<model>
-		<name>gfsP5</name>
+		<name>GFS0p5</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>408</grid>
@@ -1697,7 +1697,7 @@
 
 	<!-- 1.0 degree GFS -->
 	<model>
-		<name>GFS-1p0</name>
+		<name>GFS1p0</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>229</grid>
@@ -1710,7 +1710,7 @@
 	</model>
 
 	<model>
-		<name>GFS</name>
+		<name>GFS1p0</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>228</grid>
@@ -1722,7 +1722,7 @@
 	</model>
 
 	<model>
-		<name>GFS</name>
+		<name>GFS1p0</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>361181001</grid>
@@ -1735,7 +1735,7 @@
 	</model>
 
 	<model>
-		<name>GFS</name>
+		<name>GFS1p0</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>372</grid>
@@ -1756,7 +1756,7 @@
 	</model>
 
 	<model>
-		<name>gfs</name>
+		<name>GFS1p0</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>372</grid>
@@ -1766,7 +1766,7 @@
 	</model>
 
 	<model>
-		<name>GFS</name>
+		<name>GFS1p0</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>145073001</grid>
@@ -1778,7 +1778,7 @@
 	</model>
 
 	<model>
-		<name>GFS</name>
+		<name>GFS1p0</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>375</grid>
@@ -2304,7 +2304,7 @@
 	</model>
 
 	<model>
-		<name>gefs</name>
+		<name>GEFS</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
 		<grid>2</grid>
@@ -2314,7 +2314,7 @@
 	</model>
 
 	<model>
-		<name>gefs</name>
+		<name>GEFS</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
 		<grid>3</grid>
@@ -2324,7 +2324,7 @@
 	</model>
 
 	<model>
-		<name>gefs</name>
+		<name>GEFS</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
 		<grid>361181001</grid>
@@ -2334,7 +2334,7 @@
 	</model>
 
 	<model>
-		<name>gefs</name>
+		<name>GEFS</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
 		<grid>372</grid>
@@ -2344,7 +2344,7 @@
 	</model>
 
 	<model>
-		<name>gefs</name>
+		<name>GEFS</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
 		<grid>375</grid>
@@ -2881,7 +2881,37 @@
 	</model>
 
 	<model>
-		<name>PR-ESTOFS</name>
+		<name>ESTOFS-Hawaii</name>
+		<center>7</center>
+		<subcenter>4</subcenter>
+		<grid>321225001</grid>
+		<process>
+			<id>17</id>
+		</process>
+	</model>
+
+	<model>
+		<name>ESTOFS-AK</name>
+		<center>7</center>
+		<subcenter>4</subcenter>
+		<grid>825553001</grid>
+		<process>
+			<id></id>
+		</process>
+	</model>
+
+	<model>
+		<name>ESTOFS-Pacific</name>
+		<center>7</center>
+		<subcenter>4</subcenter>
+		<grid></grid>
+		<process>
+			<id></id>
+		</process>
+	</model>
+
+	<model>
+		<name>ESTOFS-PR</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
 		<grid>339227-95</grid>

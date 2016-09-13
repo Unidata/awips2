@@ -48,6 +48,7 @@ import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.annotations.NullString;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.pointdata.IPointData;
@@ -77,6 +78,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * jan 22, 2014 2713       dhladky     Calendar conversion.
  * Mar 21, 2014  2939      dhladky     Fixed mismatches in HDF5, DB records.
  * Jan 08, 2014  3141      dhladky     Bad index for WFS requests.
+ * Jul 21, 2015  4360      rferrel     Named unique constraint.
+ *                                     Made provider, subProvider and restriction not nullable.
  * 
  * </pre>
  * 
@@ -86,8 +89,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "madisseq")
-@Table(name = "madis", uniqueConstraints = { @UniqueConstraint(columnNames = {
-        "latitude", "longitude", "stationId", "refTime", "provider", "subProvider", "restriction" }) })
+@Table(name = "madis", uniqueConstraints = { @UniqueConstraint(name = "uk_madis_datauri_fields", columnNames = {
+        "latitude", "longitude", "stationid", "reftime", "provider",
+        "subprovider", "restriction" }) })
 @org.hibernate.annotations.Table(appliesTo = "madis", indexes = { @Index(name = "madis_wfsQueryIndex", columnNames = {
         "insertTime", "location" }), })
 @DynamicSerialize
@@ -98,14 +102,16 @@ public class MadisRecord extends PersistablePluginDataObject implements
 
     /** A string denoting the provider network */
     @DynamicSerializeElement
-    @Column
+    @Column(nullable = false)
     @DataURI(position = 1)
-    protected String provider;
+    @NullString
+    private String provider;
 
     /** A string denoting the sub provider */
     @DynamicSerializeElement
-    @Column
+    @Column(nullable = false)
     @DataURI(position = 2)
+    @NullString
     private String subProvider;
 
     @Embedded
@@ -120,10 +126,10 @@ public class MadisRecord extends PersistablePluginDataObject implements
 
     /** An integer denoting the restriction level */
     @DynamicSerializeElement
-    @Column
+    @Column(nullable = false)
     @DataURI(position = 4)
     private int restriction;
-    
+
     /** A string denoting the time of observation */
     @DynamicSerializeElement
     @Transient
@@ -351,7 +357,7 @@ public class MadisRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     @Embedded
     private PointDataView pointDataView;
-    
+
     public static final String PLUGIN_NAME = "madis";
 
     public static final String STATION_ID = "stationId";
@@ -455,18 +461,19 @@ public class MadisRecord extends PersistablePluginDataObject implements
 
         public static final String RESTRICTION = "RESTRICTION";
     }
-    
+
     /**
      * URI constructor
+     * 
      * @param string
      */
     public MadisRecord(String string) {
         super();
     }
-    
-    //empty constructor
+
+    // empty constructor
     public MadisRecord() {
- 
+
     }
 
     /**
@@ -1101,11 +1108,12 @@ public class MadisRecord extends PersistablePluginDataObject implements
     public String getPluginName() {
         return PLUGIN_NAME;
     }
-    
+
     /**
-     * Allow overwrite of MADIS records
-     * MADIS records are frequently updated for even the same temporal
-     * record.  QC value changes will cause record re-submissions.
+     * Allow overwrite of MADIS records MADIS records are frequently updated for
+     * even the same temporal record. QC value changes will cause record
+     * re-submissions.
+     * 
      * @return
      */
     public boolean getAllowOverWrite() {

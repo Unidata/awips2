@@ -66,8 +66,23 @@
 #    Jan 13, 2015    3955          randerso       Added optional parameter to availableParms to specify desired databases.
 #                                                 Fixed createGrid to accept a DatabaseID for model
 #    Apr 23, 2015    4259          njensen        Updated for new JEP API
-#    Jul 07, 2015    14739         ryu            Modified callSmartTool to return with updated varDict.
+#    Jul 17, 2015    4575          njensen        callSmartTool() and callProcedure() send HashMap for varDict
+#    Aug 13, 2015    4704          randerso       Added NumpyJavaEnforcer support in createGrids and decodeEditArea
+#                                                 additional code cleanup
+#    Aug 26, 2015    4809          randerso       Added option group parameter to editAreaList()
+#    Aug 26, 2015    4804          dgilling       Added callTextFormatter().
+#    Aug 27, 2015    4805          dgilling       Added saveCombinationsFile().
+#    Aug 27, 2015    4806          dgilling       Added transmitTextProduct().
+#    Sep 16, 2015    4871          randerso       Return modified varDict from called Tool/Procedure
+#
 #    Sep 11, 2015    4858          dgilling       Remove notification processing from publishElements.
+#    Jan 20, 2016    4751          randerso       Fix type of mask returned from getComposite() to work with numpy 1.9.2
+#    Jan 28, 2016    5129          dgilling       Support changes to IFPClient.
+#    Feb 22, 2016    5374          randerso       Added support for sendWFOMessage
+#    Apr 05, 2016    5539          randerso       Added exception when attempting create more than 256 Wx keys
+#    05/06/2016      18967         ryu            Fix issue of contours plotted over ProposedWatches grid
+#                                                 when ViewWCL is run.
+#
 ########################################################################
 import types, string, time, sys
 from math import *
@@ -81,6 +96,7 @@ import BaseTool, Exceptions
 import DatabaseID, TimeRange, AbsTime, ParmID
 import GridInfo
 import JUtil
+import NumpyJavaEnforcer
 
 from java.util import ArrayList
 from java.util import Date
@@ -98,6 +114,13 @@ from com.raytheon.uf.common.dataplugin.gfe.db.objects import TimeConstraints
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import GridParmInfo
 GridType = GridParmInfo.GridType
 from com.raytheon.uf.common.dataplugin.gfe.server.request import SendISCRequest
+from com.raytheon.viz.gfe.textformatter import CombinationsFileUtil
+from com.raytheon.viz.gfe.dialogs.formatterlauncher import ConfigData
+ProductStateEnum = ConfigData.ProductStateEnum
+from com.raytheon.viz.gfe.textformatter import FormatterUtil
+from com.raytheon.viz.gfe.textformatter import TextProductFinishWaiter
+from com.raytheon.viz.gfe.textformatter import TextProductTransmitter
+
 
 class SmartScript(BaseTool.BaseTool):
 
@@ -113,12 +136,21 @@ class SmartScript(BaseTool.BaseTool):
         #self.__pythonGrids = []
         self.__accessTime = 0
         self.__gridLoc = self.__parmMgr.compositeGridLocation()
+        self.__gridShape = (self.__gridLoc.getNy().intValue(), self.__gridLoc.getNx().intValue())
         self.__topoGrid = None
         self.__toolType = "numeric"
-        self._empty = zeros(self.getGridShape(), float32)
-        self._minus = self._empty - 1
+        self._empty = self.empty()
+        self._minus = self.newGrid(-1)
         self._handlers = dict()
 
+
+    def empty(self, dtype=float32):
+        """Return a grid filled with 0"""
+        return zeros(self.getGridShape(), dtype)
+    
+    def newGrid(self, initialValue, dtype=float32):
+        """Return a grid filled with initialValue"""
+        return full(self.getGridShape(), initialValue, dtype)
 
     ##
     ## Call ProcessVariableList to obtain values from the user
@@ -146,13 +178,22 @@ class SmartScript(BaseTool.BaseTool):
         # So a procedure can override this by using this method.
         self.__toolType = toolType
 
-    def editAreaList(self):
-        # Returns list of all known edit areas, as a list of strings.
-        eans = self.__refSetMgr.getAvailableSets()
+    def editAreaList(self, eaGroup=None):
+        """ 
+        Returns a list of strings containing all edit areas in eaGroup.
+        If eaGroup is None, all known edit areas are returned.
+        """
         eaList = []
-        size = eans.size()
-        for i in range(size):
-            eaList.append(eans.get(i).getName())
+        if eaGroup is not None:
+            eans = self.__refSetMgr.getGroupData(eaGroup)
+            size = eans.size()
+            for i in range(size):
+                eaList.append(str(eans.get(i)))
+        else:
+            eans = self.__refSetMgr.getAvailableSets()
+            size = eans.size()
+            for i in range(size):
+                eaList.append(eans.get(i).getName())
         return eaList
 
     def getSite4ID(self, id3):
@@ -310,8 +351,11 @@ class SmartScript(BaseTool.BaseTool):
     def vtecActiveTable(self):
         #returns the VTEC active table (or specified table)
         import ActiveTableVtec
-        entries = self.__dataMgr.getClient().getVTECActiveTable(self.__dataMgr.getSiteID())
-        return ActiveTableVtec.transformActiveTableToPython(entries)
+        entries = self.__dataMgr.getActiveTable()
+        try:
+            return ActiveTableVtec.transformActiveTableToPython(entries)
+        except:
+            raise TypeError("SmartScript vtecActiveTable: could not convert to python objects.")
 
 
     def gfeOperatingMode(self):
@@ -648,17 +692,17 @@ class SmartScript(BaseTool.BaseTool):
         from com.raytheon.viz.gfe.edittool import GridID
         gid = GridID(parm, gridTime.javaDate())
 
-        wxType = self.__dataMgr.getClient().getGridParmInfo(parm.getParmID()).getGridType()
+        wxType = self.__dataMgr.getClient().getPythonClient().getGridParmInfo(parm.getParmID()).getGridType()
         if GridType.SCALAR.equals(wxType):
             from com.raytheon.uf.common.dataplugin.gfe.slice import ScalarGridSlice
             slice = ScalarGridSlice()
             bits = self.__dataMgr.getIscDataAccess().getCompositeGrid(gid, exactMatch, slice)
-            args = (bits.getNDArray(), slice.getScalarGrid().getNDArray())
+            args = (bits.getNDArray().astype(bool), slice.getScalarGrid().getNDArray())
         elif GridType.VECTOR.equals(wxType):
             from com.raytheon.uf.common.dataplugin.gfe.slice import VectorGridSlice
             slice = VectorGridSlice()
             bits = self.__dataMgr.getIscDataAccess().getVectorCompositeGrid(gid, exactMatch, slice)
-            args = (bits.getNDArray(), slice.getMagGrid().getNDArray(), slice.getDirGrid().getNDArray())
+            args = (bits.getNDArray().astype(bool), slice.getMagGrid().getNDArray(), slice.getDirGrid().getNDArray())
         elif GridType.WEATHER.equals(wxType):
             from com.raytheon.uf.common.dataplugin.gfe.slice import WeatherGridSlice
             slice = WeatherGridSlice()
@@ -666,7 +710,7 @@ class SmartScript(BaseTool.BaseTool):
             keys = []
             for k in slice.getKeys():
                 keys.append(str(k))
-            args = (bits.getNDArray(), slice.getWeatherGrid().getNDArray(), keys)
+            args = (bits.getNDArray().astype(bool), slice.getWeatherGrid().getNDArray(), keys)
         elif GridType.DISCRETE.equals(wxType):
             from com.raytheon.uf.common.dataplugin.gfe.slice import DiscreteGridSlice
             slice = DiscreteGridSlice()
@@ -674,7 +718,7 @@ class SmartScript(BaseTool.BaseTool):
             keys = []
             for k in slice.getKeys():
                 keys.append(str(k))
-            args = (bits.getNDArray(), slice.getDiscreteGrid().getNDArray(), keys)
+            args = (bits.getNDArray().astype(bool), slice.getDiscreteGrid().getNDArray(), keys)
         return args
 
     ##
@@ -1012,12 +1056,9 @@ class SmartScript(BaseTool.BaseTool):
         else:
             emptyEditAreaFlag = False
             
+        javaDict = None
         if varDict is not None:
-            from java.lang import String
-            varDictList = ArrayList()
-            varDictList.add(String(str(varDict)))
-        else:
-            varDictList = None
+            javaDict = JUtil.pyValToJavaObj(varDict)
 
         parm = self.getParm(self.__mutableID, elementName, "SFC")
         if timeRange is None:
@@ -1027,16 +1068,15 @@ class SmartScript(BaseTool.BaseTool):
             timeRange = timeRange.toJavaObj()
 
         from com.raytheon.viz.gfe.smarttool import SmartUtil
-
-        result = SmartUtil.callFromSmartScript(self.__dataMgr, toolName, elementName, editArea,
-                                            timeRange, varDictList, emptyEditAreaFlag,
+        result, returnedDict = SmartUtil.callFromSmartScript(self.__dataMgr, toolName, elementName, editArea,
+                                            timeRange, javaDict, emptyEditAreaFlag,
                                             JUtil.pylistToJavaStringList(passErrors),
                                             missingDataMode, parm)
-        
-        if varDict is not None:
-            newDict = eval(str(varDictList.get(0)))
+
+        if varDict is not None and returnedDict:
+            returnedDict = JUtil.javaObjToPyVal(returnedDict)
             varDict.clear()
-            varDict.update(newDict)
+            varDict.update(returnedDict)
 
         if result:
             raise Exceptions.EditActionError(errorType="Error", errorInfo=str(result))
@@ -1054,11 +1094,17 @@ class SmartScript(BaseTool.BaseTool):
         else:
             timeRange = timeRange.toJavaObj()
 
-        from com.raytheon.viz.gfe.procedures import ProcedureUtil
+        javaDict=None
         if varDict is not None:
-            varDict = str(varDict)
+            javaDict = JUtil.pyValToJavaObj(varDict)
 
-        result = ProcedureUtil.callFromSmartScript(self.__dataMgr, name, editArea, timeRange, varDict)
+        from com.raytheon.viz.gfe.procedures import ProcedureUtil
+        result, returnedDict = ProcedureUtil.callFromSmartScript(self.__dataMgr, name, editArea, timeRange, javaDict)
+        
+        if varDict is not None and returnedDict:
+            returnedDict = JUtil.javaObjToPyVal(returnedDict)
+            varDict.clear()
+            varDict.update(returnedDict)
 
         # callSmartTool raises the exception put here it is returned.
         if result:
@@ -1255,11 +1301,10 @@ class SmartScript(BaseTool.BaseTool):
         auxJavaGrid = None
         javaOldKeys = None
         if elementType == "DISCRETE" or elementType == "WEATHER":
-            ngZero = numericGrid[0]
+            ngZero = NumpyJavaEnforcer.checkdTypes(numericGrid[0], int8)
             dimx = ngZero.shape[1]
             dimy = ngZero.shape[0]
             # Use createGrid() to get around Jep problems with 3-arg ctor.
-            ngZero = ngZero.astype('int8')
             javaGrid = Grid2DByte.createGrid(dimx, dimy, ngZero)
             oldKeys = numericGrid[1]
             javaOldKeys = ArrayList()
@@ -1274,12 +1319,11 @@ class SmartScript(BaseTool.BaseTool):
                 # FIXME: add oldKey[0] to the ArrayList for tuple types
                 javaOldKeys.add(str(oldKey))
         elif elementType == "SCALAR":
-            if numericGrid.dtype.name != 'float32':
-                numericGrid = numericGrid.astype('float32')
+            numericGrid = NumpyJavaEnforcer.checkdTypes(numericGrid, float32)
             javaGrid = Grid2DFloat.createGrid(numericGrid.shape[1], numericGrid.shape[0], numericGrid)
         elif elementType == "VECTOR":
-            ngZero = numericGrid[0].astype(float32)
-            ngOne = numericGrid[1].astype(float32)
+            ngZero = NumpyJavaEnforcer.checkdTypes(numericGrid[0], float32)
+            ngOne = NumpyJavaEnforcer.checkdTypes(numericGrid[1], float32)
             javaGrid = Grid2DFloat.createGrid(ngZero.shape[1], ngZero.shape[0], ngZero)
             auxJavaGrid = Grid2DFloat.createGrid(ngOne.shape[1], ngOne.shape[0], ngOne)
         else:
@@ -1349,7 +1393,7 @@ class SmartScript(BaseTool.BaseTool):
         # set the mode to replace so the tool always behaves the same
 
         if headlineGrid is None: # make new headline grid components
-            headValues = zeros(fcstGrid.shape, 'int8')
+            headValues = zeros(fcstGrid.shape, int8)
             headKeys = [noneKey]
             self.setCombineMode("Replace") # force a replace in GFE
         else:
@@ -1388,7 +1432,7 @@ class SmartScript(BaseTool.BaseTool):
                     if combinedKey not in headKeys:
                         headKeys.append(combinedKey)
                     index = self.getIndex(combinedKey, headKeys)
-                    headValues = where(overlap, index, headValues)
+                    headValues[overlap] = index
 
         # return the new headlines grid
         return (headValues, headKeys)
@@ -1678,6 +1722,7 @@ class SmartScript(BaseTool.BaseTool):
             fitter = FitToData(self.__dataMgr, parm)
             fitter.fitToData()
         spatialMgr.activateParm(parm)
+        spatialMgr.makeVisible(parm, True, True)
         spatialMgr.setSpatialEditorTime(timeRange.startTime().javaDate())
 
 
@@ -1910,7 +1955,7 @@ class SmartScript(BaseTool.BaseTool):
         for element in elementList:
             # get the inventory for this element from the server
             parm = self.getParm("Fcst", element, "SFC")
-            recList = self.__dataMgr.getClient().getGridInventory(parm.getParmID())
+            recList = self.__dataMgr.getClient().getPythonClient().getGridInventory(parm.getParmID())
             publishTimeRange = timeRange
             if recList is not None:
                 recSize = recList.size()
@@ -2063,18 +2108,18 @@ class SmartScript(BaseTool.BaseTool):
         #  # Here we want to treat the query as a literal
         #  PoP = where(self.wxMask(wxTuple, ":L:") maximum(5, PoP), PoP)
         #
-        rv = zeros(wx[0].shape)
+        rv = self.empty(bool)
         if not isreg:
             for i in xrange(len(wx[1])):
                 #if fnmatch.fnmatchcase(wx[1][i], query):
                 if string.find(wx[1][i], query) >= 0:
-                    rv = logical_or(rv, equal(wx[0], i))
+                    rv[equal(wx[0], i)] = True
         else:
             r = re.compile(query)
             for i in xrange(len(wx[1])):
                 m = r.search(wx[1][i])
                 if m is not None:
-                    rv = logical_or(rv, equal(wx[0], i))
+                    rv[equal(wx[0], i)] = True
         return rv
 
         # Returns a numeric mask i.e. a grid of 0's and 1's
@@ -2157,6 +2202,10 @@ class SmartScript(BaseTool.BaseTool):
         for str in keys:
             if sortedUglyStr == self.sortUglyStr(str):
                 return keys.index(str)
+        
+        if len(keys) >= 256:
+            raise IndexError("Attempt to create more than 256 Wx keys")
+        
         keys.append(uglyStr)
         return len(keys) - 1
 
@@ -2176,7 +2225,7 @@ class SmartScript(BaseTool.BaseTool):
         if editArea.isQuery():
             editArea = self.__refSetMgr.evaluateQuery(editArea.getQuery())
 
-        return editArea.getGrid().getNDArray().astype(numpy.bool8)
+        return editArea.getGrid().getNDArray().astype(bool)
 
     def decodeEditArea(self, mask):
         # Returns a refData object for the given mask
@@ -2185,7 +2234,12 @@ class SmartScript(BaseTool.BaseTool):
         gridLoc = self.getGridLoc()
         nx = gridLoc.getNx().intValue()
         ny = gridLoc.getNy().intValue()
-        bytes = mask.astype('int8')
+        
+        # force mask to boolean if it's not
+        mask = NumpyJavaEnforcer.checkdTypes(mask, bool)
+        
+        # convert boolean mask to bytes for Grid2DBit        
+        bytes = mask.astype(int8)
         grid = Grid2DBit.createBitGrid(nx, ny, bytes)
         return ReferenceData(gridLoc, ReferenceID("test"), grid)
 
@@ -2203,7 +2257,7 @@ class SmartScript(BaseTool.BaseTool):
         # Gives an offset grid for array, a, by x and y points
         sy1, sy2 = self.getindicies(y, a.shape[0])
         sx1, sx2 = self.getindicies(x, a.shape[1])        
-        b = zeros(a.shape, a.dtype)
+        b = zeros_like(a)
         b[sy1, sx1] = a[sy2, sx2]
         return b
 
@@ -2225,7 +2279,7 @@ class SmartScript(BaseTool.BaseTool):
         slice1[axis] = slice(2, None)
         slice2[axis] = slice(None, - 2)
         tmp = a[slice1] - a[slice2]
-        rval = zeros(a.shape)
+        rval = zeros_like(a)
         slice3 = [slice(None)] * nd
         slice3[axis] = slice(1, - 1)
         rval[slice3] = tmp
@@ -2246,9 +2300,7 @@ class SmartScript(BaseTool.BaseTool):
     # @return: The number of data points in the X and Y directions.
     # @rtype: 2-tuple of int
     def getGridShape(self):
-        gridLoc = self.__parmMgr.compositeGridLocation()
-        gridShape = (gridLoc.getNy().intValue(), gridLoc.getNx().intValue())
-        return gridShape
+        return self.__gridShape
 
 #########################################################################
 ## Procedure methods                                                   ##
@@ -2583,4 +2635,115 @@ class SmartScript(BaseTool.BaseTool):
         textList =  fullText.splitlines(True)
         return textList
 
+    def callTextFormatter(self, productName, dbId, varDict={}, vtecMode=None):
+        """
+        Execute the requested text product formatter.
 
+        Args: 
+                productName: the display name of the formatter to run.
+                dbId: string form of the DatabaseID to use as data source.
+                varDict: optional, product varDict, use an empty dict instead
+                         of None to signify a null varDict.
+                vtecMode: optional, for VTEC products specify VTEC mode (one of
+                          'O', 'T', 'E' or 'X').
+
+        Returns:
+                The output of the formatter--the content of the requested product.
+
+        Throws:
+                TypeError: If varDict is not a dict.
+                RuntimeError: If the formatter fails during execution. 
+        """
+        if type(varDict) is not dict:
+            raise TypeError("Argument varDict must be a dict.")
+        varDict = str(varDict)
+        
+        listener = TextProductFinishWaiter()
+        FormatterUtil.callFromSmartScript(productName, dbId, varDict, vtecMode, self.__dataMgr, listener)
+        product = listener.waitAndGetProduct()
+        state = listener.getState()
+        if not state.equals(ProductStateEnum.Finished):
+            msg = "Formatter " + productName + " terminated before completion with state: " + state.name() + \
+            ". Check formatter logs from Process Monitor for more information."
+            raise RuntimeError(msg)
+        return product
+    
+    def saveCombinationsFile(self, name, combinations):
+        """
+        Save the specified zone combinations to the localization data store.
+
+        Args: 
+                name: Name for the combinations file. The ".py" extension will
+                      automatically be appended to the final file name.
+                combinations: The zone combinations. This data structure should
+                      be a list of list of zone names 
+                      (e.g. [["OAX", "GID", "LBF"], ["DMX"], ["FSD", "ABR"]]
+
+        Throws:
+                TypeError: If combinations is not in the proper format.
+        """
+        # Validate that we were passed a collection of collections, we'll convert
+        # to list of lists to satisfy the Java type checker.
+        try:
+            for item in iter(combinations):
+                iter(item)
+        except TypeError:
+            raise TypeError("combinations must be a list of list of zone names.")
+        
+        combo_list = JUtil.pyValToJavaObj([[str(zone) for zone in group] for group in combinations])
+        CombinationsFileUtil.generateAutoCombinationsFile(combo_list, str(name))
+
+    def transmitTextProduct(self, product, wanPil, wmoType):
+        """
+        Transmit the specified product. Will automatically detect if GFE is 
+        operating in OPERATIONAL or PRACTICE mode and send using the appropriate
+        route.
+
+        Args: 
+                product: the text or body of the product to transmit.
+                wanPil: the AWIPS WAN PIL for the product
+                wmoType: The WMO type of the product.
+
+        Returns:
+                The status of the transmission request as a ProductStateEnum.
+        """
+        wanPil = str(wanPil)
+        product = str(product)
+        wmoType = str(wmoType)
+        
+        transmitter = TextProductTransmitter(product, wanPil, wmoType)
+        practice = self.gfeOperatingMode()=="PRACTICE"
+        status = transmitter.transmitProduct(practice)
+        return status
+
+    def sendWFOMessage(self, wfos, message):
+        '''
+        Sends a message to a list of wfos
+        
+        Args:
+            wfos: string or list, set or tuple of strings containing the destination wfo(s)
+            
+            message: string containing the message to be sent
+
+        Returns:
+            string: empty if successful or error message
+        
+        Raises:
+            TypeError: if wfos is not a string, list, tuple or set
+        '''
+        
+        if not wfos:
+            # called with empty wfo list, nothing to do
+            return ""
+        
+        javaWfos = ArrayList()
+        if type(wfos) in [list, tuple, set]:
+            for wfo in wfos:
+                javaWfos.add(wfo)
+        elif type(wfos) is str:
+            javaWfos.add(wfos)
+        else:
+            raise TypeError("Invalid type received for wfos: " + type(wfos))
+            
+        response = self.__dataMgr.getClient().sendWFOMessage(javaWfos, message)
+        return response.message()

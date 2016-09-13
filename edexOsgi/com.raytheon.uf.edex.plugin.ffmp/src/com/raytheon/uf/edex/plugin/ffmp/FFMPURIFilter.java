@@ -41,7 +41,7 @@ import com.raytheon.uf.common.ohd.AppsDefaults;
 
 /**
  * 
- * FFMP Filter class doesn't do much for FFMP
+ * FFMP Filter class 
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -51,6 +51,7 @@ import com.raytheon.uf.common.ohd.AppsDefaults;
  * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
  * Jul 10, 2014 2914       garmendariz Remove EnvProperties
  * Aug 26, 2014 3503       bclement    removed serial version id
+ * Aug 08, 2015 4722       dhladky     Generalized the naming and processing of URI's
  * 
  * </pre>
  * 
@@ -60,10 +61,10 @@ import com.raytheon.uf.common.ohd.AppsDefaults;
 
 public class FFMPURIFilter extends URIFilter {
 
-    /** an ICAO you may wish to use in matching */
-    protected String[] icao = null;
+    /** The product key(s) you may wish to use in matching */
+    protected String[] productKey = null;
 
-    /** an RFC you may wish to use in matching */
+    /** Special handling for RFC's you may wish to use in matching */
     protected String[] rfc = null;
 
     /** an CWA you may wish to use in matching */
@@ -98,22 +99,28 @@ public class FFMPURIFilter extends URIFilter {
         sourceFileTimes = new ConcurrentHashMap<SourceXML, Date>();
         appsDefaults = AppsDefaults.getInstance();
 
-        // this will come from the localization bundle
         String[] tokens = name.split(":");
 
         if (tokens[0].split(",").length > 1) {
-            icao = tokens[0].split(",");
+            productKey = tokens[0].split(",");
         } else {
-            icao = new String[] { tokens[0] };
+            productKey = new String[] { tokens[0] };
         }
 
-        // extra work needed for rfc manipulation
-        if (tokens[1].split(",").length > 1) {
-            rfc = tokens[1].split(",");
-        } else {
-            rfc = new String[] { tokens[1] };
+        /**
+         * FFMP runner that uses RFC FFG as a guidance comparison source
+         * 99.9% of sites do use this.
+         */
+        if (tokens[1] != null) {
+            // extra work needed for rfc manipulation
+            if (tokens[1].split(",").length > 1) {
+                rfc = tokens[1].split(",");
+            } else {
+                rfc = new String[] { tokens[1] };
+            }
+            setRFC(rfc);
         }
-        setRFC(rfc);
+        
         setCWA(tokens[2]);
         setExclude(false);
 
@@ -126,12 +133,12 @@ public class FFMPURIFilter extends URIFilter {
     }
 
     /**
-     * Filter By Radar Site
+     * Filter by product key
      * 
      * @return
      */
-    public String[] getIcao() {
-        return icao;
+    public String[] getProductKey() {
+        return productKey;
     }
 
     /**
@@ -153,12 +160,12 @@ public class FFMPURIFilter extends URIFilter {
     }
 
     /**
-     * Set the filtering ICAOs
+     * Set the filtering product keys
      * 
      * @param icaos
      */
-    public void setIcao(String[] icao) {
-        this.icao = icao;
+    public void setProductKey(String[] productKey) {
+        this.productKey = productKey;
     }
 
     /**
@@ -257,9 +264,10 @@ public class FFMPURIFilter extends URIFilter {
                     .getSourceName());
             // just use an average time, not the expiration
             long duration = 60 * 1000l * 10;
-            // setup URI filtering for PDO/RADAR types, multiple RADAR sites
-            // possible, don't process gages
-
+            /**
+             * Setup URI filtering for General PDO/RADAR/GRID types
+             * We don't process GAGE source types in the URIFilter
+             */
             if (!source.getSourceType().equals(
                     FFMPSourceConfigurationManager.SOURCE_TYPE.GAGE
                             .getSourceType())) {
@@ -269,8 +277,10 @@ public class FFMPURIFilter extends URIFilter {
                     for (String dataKey : sicx.getDataKey()) {
 
                         String matcher = null;
-                        // RFC FFG, special matching criteria and override
-                        // potentials
+                        /**
+                         * RFC FFG, special matching criteria and override
+                         * potentials
+                         */
                         if (source.isRfc()) {
                             String pathReplace = source.getDataPath(dataKey);
                             if (pathReplace.equals(source.getDataPath())) {
@@ -282,7 +292,10 @@ public class FFMPURIFilter extends URIFilter {
                                 matcher = pathReplace;
                             }
                         }
-                        // All others use this pattern
+                        /**
+                         * All others with multiple replace matches use this
+                         * general solution case.
+                         */
                         else {
                             matcher = replaceWildCard(dataKey,
                                     source.getDataPath(dataKey),
@@ -297,17 +310,21 @@ public class FFMPURIFilter extends URIFilter {
                         getMatchURIs().put(pattern, duration);
                     }
                 } else {
-                    // XMRG dosen't use the URI Filtering
+                    // XMRG dosen't use the URI Filtering, special case.
                     if (source.getDataType().equals(
                             FFMPSourceConfigurationManager.DATA_TYPE.XMRG
                                     .getDataType())) {
                         sourceFileTimes.put(source,
                                 getMostRecentXMRGTime(source));
                     } else {
-                        // only the time has a match replace
+                        /**
+                         * Sources that have no dataKey match, No SourceIngestConfig entry.
+                         * Just need time wild card set.
+                         */
                         String matcher = replaceWildCard(URIFilter.wildCard,
                                 source.getDataPath(), 2);
                         Pattern pattern = Pattern.compile(matcher);
+                        patternKeys.put(source.getSourceName(), pattern);
                         getMatchURIs().put(pattern, duration);
                     }
                 }
@@ -489,12 +506,15 @@ public class FFMPURIFilter extends URIFilter {
                 // add your pattern checks to the key
                 for (Pattern pattern : getMatchURIs().keySet()) {
                     if (debug) {
-                        logger.info("Pattern: " + pattern.toString() + " Key: "
+                        logger.debug("Pattern: " + pattern.toString() + " Key: "
                                 + dataUri);
                     }
 
                     if (pattern.matcher(dataUri).find()) {
                         // find a segmented match of them, which one?
+                        if (debug) {
+                            logger.debug("Found match! URI: "+dataUri);
+                        }
                         String matchKey = getPatternName(pattern);
                         // put the sourceName:dataPath key into the sources
                         // array list

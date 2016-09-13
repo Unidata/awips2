@@ -50,12 +50,14 @@ import com.raytheon.uf.common.dataplugin.gfe.server.notify.DBInvChangeNotificati
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GridHistoryUpdateNotification;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GridUpdateNotification;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.LockNotification;
+import com.raytheon.uf.common.dataplugin.gfe.server.request.LockTableRequest;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.site.notify.SiteActivationNotification;
@@ -148,7 +150,12 @@ import com.raytheon.viz.gfe.types.MutableInteger;
  * 10/30/2014    #3775     randerso    Changed to createMutableDb before getting initial database inventory
  * 01/13/2015    #3955     randerso    Changed getProductDatabase() to return mutableDb for EditTopo
  * 03/12/2015    #4246     randerso    Changes to support VCModules at base, site, and user levels
+<<<<<<< HEAD
  * 06/06/2016              mjames@ucar Force localization of GFE/vcmodule/vtec Python files
+=======
+ * 11/17/2015    #5129     dgilling    Changes to support new IFPClient
+ * 02/05/2016    #5242     dgilling    Remove calls to deprecated Localization APIs.
+>>>>>>> origin/unidata_16.2.2
  * </pre>
  * 
  * @author chammack
@@ -459,7 +466,14 @@ public class ParmManager implements IParmManager, IMessageClient {
         Message.registerInterest(this, EnableDisableTopoMsg.class);
 
         // Get the composite grid location
-        this.gloc = dataManager.getClient().getDBGridLocation();
+        ServerResponse<GridLocation> sr = dataManager.getClient()
+                .getDBGridLocation();
+        this.gloc = sr.getPayload();
+        if (!sr.isOkay()) {
+            statusHandler.error(String.format(
+                    "Unable to get DBGridLocation from ifpServer: %s",
+                    sr.message()));
+        }
 
         this.systemTimeRange = recalcSystemTimeRange();
         this.parmIDCacheServer = new HashMap<DatabaseID, List<ParmID>>();
@@ -550,55 +564,47 @@ public class ParmManager implements IParmManager, IMessageClient {
      * Determines the name of the database that is used by products. This is the
      * official database identifier or if none, the mutable database id.
      * 
-     * @return
-     * @throws GFEServerException
+     * @return The {@code DatabaseID} of the official database.
      */
     private DatabaseID determineProductDatabase() {
-        DatabaseID mutableDb = this.getMutableDatabase();
-
         CAVEMode opMode = CAVEMode.getMode();
         if (opMode.equals(CAVEMode.PRACTICE) || opMode.equals(CAVEMode.TEST)) {
             return mutableDb;
         }
 
-        ServerResponse<List<DatabaseID>> sr;
-        try {
-            sr = this.dataManager.getClient().getOfficialDBName();
-            List<DatabaseID> databases = sr.getPayload();
+        ServerResponse<List<DatabaseID>> sr = dataManager.getClient()
+                .getOfficialDBName();
+        if (!sr.isOkay()) {
+            statusHandler.error(String.format(
+                    "Unable to get official DB names: %s", sr.message()));
+            return new DatabaseID();
+        }
 
-            if (!sr.isOkay()) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Network problem: Unable to get official DB names.\n"
-                                + sr);
-            }
+        List<DatabaseID> databases = sr.getPayload();
 
-            // if no official databases, then use the mutable database
-            if (databases.isEmpty()) {
-                return mutableDb;
-            }
+        // if no official databases, then use the mutable database
+        if (databases.isEmpty()) {
+            return mutableDb;
+        }
 
-            // the official database names from the server don't include the
-            // model time, so see if we can add a model time in if appropriate.
-            for (int i = 0; i < databases.size(); i++) {
-                // find a match for siteid, type and format with the mutable
-                if (mutableDb.getSiteId().equals(databases.get(i).getSiteId())
-                        && mutableDb.getDbType().equals(
-                                databases.get(i).getDbType())
-                        && mutableDb.getFormat().equals(
-                                databases.get(i).getFormat())) {
-                    // found a match -- now put the model time from the mutable
-                    // database onto this database
-                    DatabaseID off = databases.get(i);
-                    return new DatabaseID(off.getSiteId(), off.getFormat(),
-                            off.getDbType(), off.getModelName(),
-                            mutableDb.getModelTime());
-
-                }
+        /*
+         * the official database names from the server don't include the model
+         * time, so see if we can add a model time in if appropriate.
+         */
+        for (DatabaseID db : databases) {
+            // find a match for siteid, type and format with the mutable
+            if ((mutableDb.getSiteId().equals(db.getSiteId()))
+                    && (mutableDb.getDbType().equals(db.getDbType()))
+                    && (mutableDb.getFormat().equals(db.getFormat()))) {
+                /*
+                 * found a match -- now put the model time from the mutable
+                 * database onto this database
+                 */
+                return new DatabaseID(db.getSiteId(), db.getFormat(),
+                        db.getDbType(), db.getModelName(),
+                        mutableDb.getModelTime());
 
             }
-        } catch (GFEServerException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Network problem: Unable to get official DB names.", e);
         }
 
         // can't find an official database that matches the mutable database
@@ -804,10 +810,10 @@ public class ParmManager implements IParmManager, IMessageClient {
         }
 
         if (!uncachedDbs.isEmpty()) {
-            // retrieve cache
-            try {
-                List<ParmID> results = dataManager.getClient().getParmList(
-                        uncachedDbs);
+            ServerResponse<List<ParmID>> sr = dataManager.getClient()
+                    .getParmList(uncachedDbs);
+            if (sr.isOkay()) {
+                List<ParmID> results = sr.getPayload();
                 parmIDs.addAll(results);
 
                 // add results to parmIDCache
@@ -850,9 +856,9 @@ public class ParmManager implements IParmManager, IMessageClient {
                         }
                     }
                 }
-            } catch (GFEServerException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error retrieving all parm IDs", e);
+            } else {
+                statusHandler.error(String.format(
+                        "Error retrieving all parm IDs: %s", sr.message()));
             }
         }
 
@@ -862,9 +868,10 @@ public class ParmManager implements IParmManager, IMessageClient {
 
     @Override
     public ParmID[] getAvailableParms(DatabaseID dbID) {
-        // a derivation from AWIPS1:
-        // short-circuit the checks and just return an empty array back
-        // if we have an invalid DatabaseID
+        /*
+         * a derivation from AWIPS1: short-circuit the checks and just return an
+         * empty array back if we have an invalid DatabaseID
+         */
         if ((dbID == null) || (!dbID.isValid())) {
             return new ParmID[0];
         }
@@ -879,19 +886,19 @@ public class ParmManager implements IParmManager, IMessageClient {
         if (cacheParmIDs != null) {
             parmIds = new ArrayList<ParmID>(cacheParmIDs);
         } else {
-            if (this.availableServerDatabases.contains(dbID)) {
-                try {
-                    parmIds = dataManager.getClient().getParmList(dbID);
-                } catch (GFEServerException e) {
-                    statusHandler
-                            .handle(Priority.PROBLEM,
-                                    "Unable to get parm list of db: "
-                                            + dbID.toString(), e);
-                }
-
-                // cache the result for next time
-                synchronized (this.parmIDCacheServer) {
-                    this.parmIDCacheServer.put(dbID, parmIds);
+            if (availableServerDatabases.contains(dbID)) {
+                ServerResponse<List<ParmID>> sr = dataManager.getClient()
+                        .getParmList(dbID);
+                if (!sr.isOkay()) {
+                    statusHandler.error(String.format(
+                            "Unable to access parm list: %s", sr.message()));
+                    return new ParmID[0];
+                } else {
+                    parmIds = sr.getPayload();
+                    // cache the result for next time
+                    synchronized (this.parmIDCacheServer) {
+                        this.parmIDCacheServer.put(dbID, parmIds);
+                    }
                 }
             }
         }
@@ -1413,7 +1420,7 @@ public class ParmManager implements IParmManager, IMessageClient {
     // returns the pointer.
     // ---------------------------------------------------------------------------
     private Parm createDbParmInternal(final ParmID pid, boolean mutableParm,
-            boolean displayable) throws GFEServerException {
+            boolean displayable) {
 
         if (getParm(pid) != null) {
             return null;
@@ -1423,10 +1430,28 @@ public class ParmManager implements IParmManager, IMessageClient {
             return null;
         }
 
-        GridParmInfo gpi = dataManager.getClient().getGridParmInfo(pid);
+        ServerResponse<GridParmInfo> sr1 = dataManager.getClient()
+                .getGridParmInfo(pid);
+        if (!sr1.isOkay()) {
+            statusHandler.error(String.format(
+                    "Couldn't get GridParmInfo for parm %s: %s", pid,
+                    sr1.message()));
+            return null;
+        }
+        GridParmInfo gpi = sr1.getPayload();
 
-        return new DbParm(pid, gpi, mutableParm, displayable, this.dataManager);
+        ServerResponse<List<LockTable>> sr2 = dataManager.getClient()
+                .getLockTable(new LockTableRequest(pid));
+        List<LockTable> lt = sr2.getPayload();
+        if ((!sr2.isOkay()) || (lt.size() != 1)) {
+            statusHandler.error(String.format(
+                    "Couldn't get lockTable for parm %s: %s", pid,
+                    sr2.message()));
+            return null;
+        }
 
+        return new DbParm(pid, gpi, mutableParm, displayable, dataManager,
+                lt.get(0));
     }
 
     private Parm createVirtualCalculatedParm(final VCModule module,
@@ -2893,16 +2918,16 @@ public class ParmManager implements IParmManager, IMessageClient {
      * @return A filtered list of available databases.
      */
     private List<DatabaseID> getDatabaseInventory() {
-        List<DatabaseID> dbIds = null;
-
-        try {
-            dbIds = dataManager.getClient().getAvailableDbs();
-        } catch (GFEServerException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-            return new ArrayList<DatabaseID>(0);
+        ServerResponse<List<DatabaseID>> sr = dataManager.getClient()
+                .getDbInventory();
+        if (!sr.isOkay()) {
+            statusHandler.error(String.format("GetDbInventory fail: %s",
+                    sr.message()));
+            return Collections.emptyList();
         }
 
-        return filterDbIds(dbIds);
+        List<DatabaseID> dbs = sr.getPayload();
+        return filterDbIds(dbs);
     }
 
     /**
@@ -3110,15 +3135,9 @@ public class ParmManager implements IParmManager, IMessageClient {
                     FileUtil.join("gfe", "vcmodule"), new String[] { "py" },
                     false, true);
             for (LocalizationFile lf : files) {
-                try {
-                    String modName = lf.getFile(false).getName()
-                            .split("\\.(?=[^\\.]+$)")[0];
-                    modMap.put(modName, lf);
-                } catch (LocalizationException e) {
-                    statusHandler.error(
-                            "Error getting local file name for VCModule " + lf,
-                            e);
-                }
+                String modName = LocalizationUtil.extractName(lf.getPath())
+                        .replace(".py", "");
+                modMap.put(modName, lf);
             }
             files = pathMgr.listFiles(context, FileUtil.join(
             		"gfe"), new String[] { "py" }, 

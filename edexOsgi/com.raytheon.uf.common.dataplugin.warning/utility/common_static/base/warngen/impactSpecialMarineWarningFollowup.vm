@@ -11,7 +11,8 @@
 ## UPDATED PHIL KURIMSKI -- MAR 23 2015 Mixed Case                    ##
 ##              BOOKBINDER - 9/4/2015 Fixed line of storms grammar    ##
 ##              Kurimski -- Oct 22 2015 Fixed CAN/EXP section combo   ##
-########################################################################
+##              BOOKBINDER 4/29/2016 Fixed issue setting StormType to Null ##
+#############################################################################
 #parse("config.vm")
 ############################################
 ## Set null variables used in the template
@@ -44,7 +45,7 @@
 ### CREATE WMO/MND HEADER ############
 ######################################
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
-MWS${siteId}
+${productId}${siteId}
 
 #if(${productClass}=="T")
 TEST...Marine Weather Statement...TEST
@@ -402,19 +403,19 @@ ${area.name}...
 #if(${list.contains(${bullets}, "smallHail")})
 	#set($hailTag = "<.75")
 	#set($hailType = "small hail")
-	#set($hailCTA = ", ${hailType}")
+	#set($hailCTA = "#commaOrEllipsis()${hailType}")
 #end
 #if(${list.contains(${bullets}, "largeHail")})
 	#set($hailTag = ">.75")
 	#set($hailType = "large hail")
 	#set($severeType = "severe")
-	#set($hailCTA = ", ${hailType}")
+	#set($hailCTA = "#commaOrEllipsis()${hailType}")
 #end
 #if(${list.contains(${bullets}, "destructiveHail")})
 	#set($hailTag = ">2.0")
 	#set($hailType = "large destructive hail")
 	#set($severeType = "severe")
-	#set($hailCTA = ", ${hailType}")
+	#set($hailCTA = "#commaOrEllipsis()${hailType}")
 #end
 #if(${list.contains(${bullets}, "sightedSpout")})
 	#set($spoutTag = "WATERSPOUT...OBSERVED")
@@ -435,18 +436,18 @@ ${area.name}...
 	#set($ashfallPath = "volcanic ash")
 	#set($ctaSelected = "YES")
 	#set($ashfallCTA = "Ash is an eye and respiratory irritant and is abrasive. Those with respiratory sensitivities should take extra precautions to minimize exposure. Protect electronics and cover air intakes if ashfall is expected or confirmed. Remove ash from surfaces with water if possible to prevent excessive accumulation.")
-	#set($ashfallInfo = "An ashfall warning means that the volcano is undergoing a major eruption. It is very likely that mariners will be affected by volcanic hazards in the warning areas such as significant debris, ashfall one quarter inch or greater, lava, or lahar and debris flows.")
+	#set($ashfallInfo = "An ashfall warning means that the volcano is undergoing a major eruption. It is very likely that mariners will be affected by volcanic hazards in the warning areas such as significant debris#commaOrEllipsis()ashfall one quarter inch or greater#commaOrEllipsis()lava#commaOrEllipsis()or lahar and debris flows.")
 #end
 #if(${list.contains(${bullets}, "debrisFlow")})
 	#set($debrisflowType = "debris flow")
 	#set($debrisflowPath = "debris flow")
-	#set($debrisflowInfo = "The eruption of the volcano can cause a sudden melting of snow and ice on the mountain. This will result in a torrent of mud, ash, rock, and hot water to flow down the mountain and into the nearby waters.")
+	#set($debrisflowInfo = "The eruption of the volcano can cause a sudden melting of snow and ice on the mountain. This will result in a torrent of mud#commaOrEllipsis()ash#commaOrEllipsis()rock#commaOrEllipsis()and hot water to flow down the mountain and into the nearby waters.")
 #end
 ##################################################################################
 ## Logic to put together the threats based on Wind...Hail and Waterspout sections.
 ##################################################################################
 #if(${spoutType} && ${windType} && ${hailType})
-	#set($threat = "${spoutType}, ${windType}, and ${hailType}")
+	#set($threat = "${spoutType}#commaOrEllipsis()${windType}#commaOrEllipsis()and ${hailType}")
 #elseif(${spoutType} && ${hailType})
 	#set($threat = "${spoutType} and ${hailType}")
 #elseif(${spoutType} && ${windType})
@@ -510,7 +511,6 @@ ${area.name}...
 	#set($stormline = "a ${eventType}")
 	#set($pathheader = "The ${eventType}")
 	#set($specialEvent = "This ${eventType}")
-	#set($stormType = "")
 	#set($reportType2 = "The ${eventType} was")
 #end
 #######################################################################
@@ -522,7 +522,6 @@ ${area.name}...
 	#set($pathheader = "The ${volcanoPath}")
 	#set($specialEvent = "The ${volcanoPath}")
 	#set($reportType2 = "The ${volcanoPath} was")
-	#set($stormType = "")
 	#set($impacted = "Locations impacted by ${volcanoPath} include...")
 #end
 ##########################################################################
@@ -576,7 +575,7 @@ ${area.name}...
 ######## GENERATE ADDITIONAL REPORTS  #######
 #############################################
 #if(${list.contains(${bullets}, "addlRpt")})
-#set($extraSource = " At !**enter time, phenomena**! was reported !**enter location**!.")
+#set($extraSource = " At !**enter time#commaOrEllipsis()phenomena**! was reported !**enter location**!.")
 #end
 ##########################################################################
 ## Command to parse the impact statements into the template
@@ -588,7 +587,7 @@ THIS IS A TEST MESSAGE. ##
 #end
 
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
-, ${report}was located ##
+#commaOrEllipsis()${report}was located ##
 #if(${stormType} == "line")
 #handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxMarineNearDistance}, ${overPhrase}, ${maxMarineOverDistance}, ${marineDistanceUnits}, ${useSecondReferenceLine})
 #else
@@ -599,7 +598,7 @@ THIS IS A TEST MESSAGE. ##
 #elseif(${movementSpeed} < ${marineStationary} || ${stationary})
 . ${reportType2} nearly stationary.
 #else
-, moving #direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} knots.
+#commaOrEllipsis()moving #direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} knots.
 #end
 
 ###################################
@@ -642,7 +641,7 @@ THIS IS A TEST MESSAGE. ##
 ##############################################
 
 #if(${list.contains(${bullets}, "specialEvent")})
-Those attending !**event/venue name or location**! are in the path of ${specialEvent} and should prepare for imminent dangerous weather conditions. Seek shelter now!
+Those attending !**event/venue name or location**! are in the path of ${specialEvent} and should prepare for IMMINENT DANGEROUS WEATHER CONDITIONS. SEEK SHELTER NOW!
 
 #end
 
@@ -682,10 +681,10 @@ Move to safe harbor immediately as gusty winds and high waves are expected.
 #end
 #if(${list.contains(${bullets}, "hailWindsCTA")})
 #if(${stormType} == "line")
-Boaters should seek safe harbor immediately until these storms pass. ${windCTA}${hailCTA}, high waves, dangerous lightning, and heavy rain are possible with these storms. 
+Boaters should seek safe harbor immediately until these storms pass. ${windCTA}${hailCTA}#commaOrEllipsis()high waves#commaOrEllipsis()dangerous lightning#commaOrEllipsis()and heavy rain are possible with these storms. 
 
 #else
-Boaters should seek safe harbor immediately until this storm passes. ${windCTA}${hailCTA}, high waves, dangerous lightning, and heavy rain are possible with this storm. 
+Boaters should seek safe harbor immediately until this storm passes. ${windCTA}${hailCTA}#commaOrEllipsis()high waves#commaOrEllipsis()dangerous lightning#commaOrEllipsis()and heavy rain are possible with this storm. 
 
 #end
 #end
@@ -704,10 +703,10 @@ Waterspouts can easily overturn boats and create locally hazardous seas. Seek sa
 #end
 #if(${list.contains(${bullets}, "lightningCTA")})
 #if(${stormType} == "line")
-Frequent lightning is occurring with these storms. If caught on the open water stay below deck if possible, keep away from ungrounded metal objects.
+Frequent lightning is occurring with these storms. If caught on the open water stay below deck if possible#commaOrEllipsis()keep away from ungrounded metal objects.
 
 #else
-Frequent lightning is occurring with this storm. If caught on the open water stay below deck if possible, keep away from ungrounded metal objects.
+Frequent lightning is occurring with this storm. If caught on the open water stay below deck if possible#commaOrEllipsis()keep away from ungrounded metal objects.
 
 #end
 #end
@@ -749,10 +748,10 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 <L>${spoutTag}</L>
 #end
 #if($hailTag.length() > 0)
-<L>HAIL...${hailTag}IN</L>
+<L>HAIL...${hailTag}in</L>
 #end
 #if($windTag.length() > 0)
-<L>WIND...${windTag}KTS</L>
+<L>WIND...${windTag}kts</L>
 #end
 
 $$

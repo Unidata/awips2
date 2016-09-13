@@ -15,13 +15,13 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: NCEP/NCO/SIB CWA
-Packager: J. Zeng / B. Kowal
+Packager: %{_build_site}
 
 AutoReq: no
-provides: awips2-ncep-database
-requires: awips2-database
-requires: awips2-postgresql
-requires: awips2-psql
+Provides: awips2-ncep-database
+Requires: awips2-database
+Requires: awips2-postgresql
+Requires: awips2-psql
 
 %description
 AWIPS II NCEP Database Installation - This rpm creates the ncep database and tables.
@@ -41,19 +41,19 @@ mkdir -p ${RPM_BUILD_ROOT}/awips2/database
 
 %install
 PATH_TO_DDL="build.edex/opt/db/ddl/ncep"
-PATH_TO_SHP_FILES="%{_awipscm_share}/awips2-static/ncep/shapefiles"
+#PATH_TO_SHP_FILES="%{_static_files}/ncep/shapefiles"
 
 # Create A Temporary Directory For The SQL Scripts That The Database
 # RPM Will Need.
-mkdir -p ${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share/sql/ncep/shapefiles
+mkdir -p ${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share/sql/ncep
 
 # Copy the ncep sql scripts into the rpm.
 cp -r %{_baseline_workspace}/${PATH_TO_DDL}/* \
    ${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share/sql/ncep
    
 # Copy the ncep shapefiles into the rpm.
-cp -r ${PATH_TO_SHP_FILES}/* \
-   ${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share/sql/ncep/shapefiles
+#cp -r %{_static_files}/${PATH_TO_SHP_FILES}/* \
+#   ${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share/sql/ncep
    
 # Create our installation log file.
 touch ${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share/sql/ncep/ncep_sql_install.log

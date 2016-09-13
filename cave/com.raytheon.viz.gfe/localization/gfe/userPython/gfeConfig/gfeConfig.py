@@ -33,6 +33,7 @@
 #    05/28/2014      2841          randerso       Added separate configurable limits for
 #                                                 text formatter and product script tasks
 #    02/04/2015      17039         ryu            Removed HighlightFramingCodes setting.
+#    02/09/2016      5283          nabowle        Remove NGM support.
 
 GFESUITE_HOME = "/awips2/GFESuite"
 GFESUITE_PRDDIR = "/tmp/products"
@@ -635,14 +636,17 @@ HistoryOriginColor_Other = "gray75"
 # listed here, then the HistoryOriginText_Populated and
 # HistoryOriginColor_Populated is used.
 HistoryModelColor_gfsLR = '#30df10'
+<<<<<<< HEAD
 HistoryModelColor_NGM80 = 'orange'
 HistoryModelColor_NGM95 = 'orange'
 HistoryModelColor_RAP40 = '#00ffff'
+=======
+HistoryModelColor_RUC80 = '#00ffff'
+>>>>>>> origin/unidata_16.2.2
 HistoryModelColor_MAVMOS = '#e6c8a1'
 HistoryModelColor_GFSMOS = '#e6d8a1'
 HistoryModelColor_METMOS = '#e6b8a1'
 HistoryModelColor_MEXMOS = '#e6a8a1'
-HistoryModelColor_NGMMOS = '#e608a1'
 HistoryModelColor_NAM80 = '#ffff52'
 HistoryModelColor_NAM95 = '#ffff52'
 HistoryModelColor_NAM40 = '#ff99ff'
@@ -670,14 +674,17 @@ HistoryModelColor_NamDNG5 = '#808000'
 HistoryModelText_GFS80 = 'GFS'
 HistoryModelText_GFS40 = 'GFS'
 HistoryModelText_GFS190 = 'GFS'
+<<<<<<< HEAD
 HistoryModelText_NGM80 = 'NGM'
 HistoryModelText_NGM95 = 'NGM'
 HistoryModelText_RAP40 = 'RUC'
+=======
+HistoryModelText_RUC80 = 'RUC'
+>>>>>>> origin/unidata_16.2.2
 HistoryModelText_GFSMOS = 'GFSMOS'
 HistoryModelText_MEXMOS = 'MEXMOS'
 HistoryModelText_MAVMOS = 'MAVMOS'
 HistoryModelText_METMOS = 'METMOS'
-HistoryModelText_NGMMOS = 'NGMMOS'
 HistoryModelText_NAM80 = 'N80'
 HistoryModelText_NAM95 = 'N95'
 HistoryModelText_NAM40 = 'N40'

@@ -5,4 +5,24 @@
         <datasetId>NationalBlend</datasetId>
         <dt>1</dt>
     </info>
+    <info>
+        <title>NationalBlendAK</title>
+        <datasetId>NationalBlendAK</datasetId>
+        <dt>1</dt>
+    </info>
+    <info>
+        <title>NationalBlendHI</title>
+        <datasetId>NationalBlendHI</datasetId>
+        <dt>1</dt>
+    </info>
+    <info>
+        <title>NationalBlendPR</title>
+        <datasetId>NationalBlendPR</datasetId>
+        <dt>1</dt>
+    </info>
+        <info>
+        <title>NationalBlendOC</title>
+        <datasetId>NationalBlendOC</datasetId>
+        <dt>1</dt>
+    </info>
 </datasetInfoSet>

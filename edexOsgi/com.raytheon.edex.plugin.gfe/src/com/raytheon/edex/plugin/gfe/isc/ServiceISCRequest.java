@@ -21,7 +21,10 @@
 package com.raytheon.edex.plugin.gfe.isc;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import com.raytheon.edex.plugin.gfe.config.GridDbConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
@@ -42,6 +45,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * ------------ ----------  ----------- --------------------------
  * 08/21/09      1995       bphillip    Initial port
  * 06/13/13      2044       randerso    Refactored to use IFPServer
+ * 10/13/2015    4961       randerso    Add support for ISC from NewTerrain database
  * 
  * </pre>
  * 
@@ -67,19 +71,17 @@ public class ServiceISCRequest {
         IFPServerConfig config = ifpServer.getConfig();
 
         // find the forecast database
-        List<String> parmsAvailable = new ArrayList<String>();
+        Map<DatabaseID, List<String>> parmsAvailable = new HashMap<>();
         List<DatabaseID> dbs = ifpServer.getGridParmMgr().getDbInventory()
                 .getPayload();
-        DatabaseID db = null;
 
-        for (int i = 0; i < dbs.size(); i++) {
-            if (dbs.get(i).getModelName().equals("Fcst")
-                    && dbs.get(i).getDbType().isEmpty()
-                    && dbs.get(i).getSiteId().equals(siteID)) {
-                GridDbConfig gdc = config.gridDbConfig(dbs.get(i));
-                parmsAvailable = gdc.parmAndLevelList();
-                db = dbs.get(i);
-                break;
+        for (DatabaseID db : dbs) {
+            if (((db.getModelName().equals("Fcst") && db.getDbType().isEmpty()) || (db
+                    .getModelName().equals("NewTerrain") && db.getDbType()
+                    .equals("EditTopo")))
+                    && db.getSiteId().equals(siteID)) {
+                GridDbConfig gdc = config.gridDbConfig(db);
+                parmsAvailable.put(db, gdc.parmAndLevelList());
             }
         }
 
@@ -93,21 +95,26 @@ public class ServiceISCRequest {
             }
 
             // verify that we have the data in our database configuration
-            boolean found = parmsAvailable.contains(parmAndLevel);
-            if (!found) {
-                continue;
+            DatabaseID db = null;
+            for (Entry<DatabaseID, List<String>> entry : parmsAvailable
+                    .entrySet()) {
+                if (entry.getValue().contains(parmAndLevel)) {
+                    db = entry.getKey();
+                    break;
+                }
             }
 
-            String parmName = parmAndLevel;
-            String level = "SFC";
-            // separate out the parm name and level
-            if (parmAndLevel.contains("_")) {
-                parmName = parmAndLevel.substring(0, parmAndLevel.indexOf("_"));
-                level = parmAndLevel.substring(parmAndLevel.indexOf("_") + 1);
-            }
+            // if db found, add parm to request
+            if (db != null) {
+                // separate out the parm name and level
+                String parmName = parmAndLevel.substring(0,
+                        parmAndLevel.indexOf("_"));
+                String level = parmAndLevel
+                        .substring(parmAndLevel.indexOf("_") + 1);
 
-            ParmID pid = new ParmID(parmName, db, level);
-            requests.add(pid);
+                ParmID pid = new ParmID(parmName, db, level);
+                requests.add(pid);
+            }
         }
 
         List<IscSendRecord> sendReqs = new ArrayList<IscSendRecord>(

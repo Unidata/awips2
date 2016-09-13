@@ -37,7 +37,7 @@ import java.util.regex.Matcher;
 
 import javax.xml.bind.JAXBException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 
@@ -69,6 +69,8 @@ import com.raytheon.wes2bridge.configuration.jaxb.Wes2BridgeJaxbManager;
  *                                     updated EDEX re-configuration.
  * Apr 15, 2015 4392       dlovely     Updates the new qpid json configuration now
  * Apr 20, 2015 4392       dlovely     Removed un-used JMX port configuration
+ * Nov 12, 2015 5121       bkowal      Write Java, Python, and PSQL locations to
+ *                                     setup.env to override the default locations.
  * 
  * </pre>
  * 
@@ -97,19 +99,19 @@ public class Wes2BridgeManager {
 
     private String wes2BridgeScripts = null;
 
-    private static final TypeReference<Map<String, Object>> MAP_TYPE_REFERENCE = new TypeReference<Map<String, Object>>()
-    {
+    private static final TypeReference<Map<String, Object>> MAP_TYPE_REFERENCE = new TypeReference<Map<String, Object>>() {
     };
 
     public static final String QPID_NAME = "name";
+
     public static final String QPID_AMQP = "AMQP";
+
     public static final String QPID_HTTP = "HTTP";
+
     public static final String QPID_PORT = "port";
+
     public static final String QPID_PORTS = "ports";
 
-    /**
-	 * 
-	 */
     public Wes2BridgeManager() {
     }
 
@@ -227,6 +229,15 @@ public class Wes2BridgeManager {
 
                 bw.write(line + "\n");
             }
+
+            /*
+             * Need to overwrite the Java, Python, and PSQL locations using
+             * setup.env ever since edex_camel was updated to use a login shell
+             * to run the EDEX start.sh script.
+             */
+            bw.write("export JAVA_INSTALL=/awips2/java\n");
+            bw.write("export PYTHON_INSTALL=/awips2/python\n");
+            bw.write("export PSQL_INSTALL=/awips2/psql\n");
         } finally {
             br.close();
             bw.close();

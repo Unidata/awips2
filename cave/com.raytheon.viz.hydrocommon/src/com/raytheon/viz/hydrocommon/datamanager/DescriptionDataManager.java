@@ -137,13 +137,16 @@ public class DescriptionDataManager extends HydroDataManager {
      */
     public void insertDescriptionData(DescriptionData descData)
             throws VizException {
-        DbUtils.escapeSpecialCharforData(descData);
 
-        String query = String.format(INSERT_STATEMENT, descData.getLid(),
-                descData.getStreamBed(), descData.getDivert(),
-                descData.getRemark(), descData.getIce(),
-                descData.getProximity(), descData.getReach(),
-                descData.getRegulation(), descData.getTopo());
+        DescriptionData descDataForQuery = new DescriptionData();
+        DbUtils.escapeSpecialCharforData(descData, descDataForQuery);
+
+        String query = String.format(INSERT_STATEMENT,
+                descDataForQuery.getLid(), descDataForQuery.getStreamBed(),
+                descDataForQuery.getDivert(), descDataForQuery.getRemark(),
+                descDataForQuery.getIce(), descDataForQuery.getProximity(),
+                descDataForQuery.getReach(), descDataForQuery.getRegulation(),
+                descDataForQuery.getTopo());
 
         runStatement(query);
     }
@@ -158,14 +161,16 @@ public class DescriptionDataManager extends HydroDataManager {
      */
     public void updateDescriptionData(DescriptionData descData)
             throws VizException {
-        DbUtils.escapeSpecialCharforData(descData);
 
-        String query = String
-                .format(UPDATE_STATEMENT, descData.getStreamBed(),
-                        descData.getDivert(), descData.getRemark(),
-                        descData.getIce(), descData.getProximity(),
-                        descData.getReach(), descData.getRegulation(),
-                        descData.getTopo(), descData.getLid());
+        DescriptionData descDataForQuery = new DescriptionData();
+        DbUtils.escapeSpecialCharforData(descData, descDataForQuery);
+
+        String query = String.format(UPDATE_STATEMENT,
+                descDataForQuery.getStreamBed(), descDataForQuery.getDivert(),
+                descDataForQuery.getRemark(), descDataForQuery.getIce(),
+                descDataForQuery.getProximity(), descDataForQuery.getReach(),
+                descDataForQuery.getRegulation(), descDataForQuery.getTopo(),
+                descDataForQuery.getLid());
 
         runStatement(query);
     }

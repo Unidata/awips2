@@ -29,4 +29,49 @@
             <id>104</id>
         </process>
     </model>
+
+    <!--Alaska-->
+    <model>
+        <name>NationalBlendAK</name>
+        <center>7</center>
+        <subcenter>14</subcenter>
+        <grid>1023</grid>
+        <process>
+            <id>104</id>
+        </process>
+    </model>
+
+    <!--Hawaii-->
+    <model>
+        <name>NationalBlendHI</name>
+        <center>7</center>
+        <subcenter>14</subcenter>
+        <grid>625561001</grid>
+        <process>
+            <id>104</id>
+        </process>
+    </model>
+
+    <!--Puerto Rico-->
+    <model>
+        <name>NationalBlendPR</name>
+        <center>7</center>
+        <subcenter>14</subcenter>
+        <grid>NBM_PR</grid>
+        <process>
+            <id>104</id>
+        </process>
+    </model>
+    
+        <!--Oceanic-->
+    <model>
+        <name>NationalBlendOC</name>
+        <center>7</center>
+        <subcenter>14</subcenter>
+        <grid>NBM_OC</grid>
+        <process>
+            <id>104</id>
+        </process>
+    </model>
+    
 </gribModelSet>

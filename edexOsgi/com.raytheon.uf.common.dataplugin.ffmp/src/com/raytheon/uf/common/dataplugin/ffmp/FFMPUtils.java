@@ -38,6 +38,7 @@ import java.util.Set;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.referencing.GeodeticCalculator;
 
+import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
@@ -52,9 +53,11 @@ import com.raytheon.uf.common.geospatial.ISpatialQuery;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.SpatialException;
 import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.hydro.spatial.HRAPCoordinates;
 import com.raytheon.uf.common.hydro.spatial.HRAPSubGrid;
 import com.raytheon.uf.common.message.response.ResponseMessageGeneric;
+import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.GUIDANCE_TYPE;
 import com.raytheon.uf.common.monitor.scan.ScanUtils;
 import com.raytheon.uf.common.mpe.util.XmrgFile;
 import com.raytheon.uf.common.serialization.comm.RequestRouter;
@@ -94,6 +97,10 @@ import com.vividsolutions.jts.io.WKTWriter;
  * Apr 22, 2014  2984       njensen     Remove dependency on edex/CoreDao
  * Nov 18, 2014  3831       dhladky     StatusHandler logging. Proper list sizing.
  * Jul 13, 2015  4500       rjpeter     Fix SQL Injection concerns.
+ * Aug 08, 2015  4722       dhladky     Added Grid coverage and parsing methods.
+ * Sep 17, 2015  4756       dhladky     Multiple guidance source bugs.
+ * Feb 12, 2016  5370       dhladky     Camel case for insertTime.
+ * Apr 07, 2016  5491       tjensen     Fix NullPointerException from getRawGeometries
  * </pre>
  * 
  * @author dhladky
@@ -365,8 +372,8 @@ public class FFMPUtils {
      * @param extents
      * @return
      */
-    public static Object[] getBasins(String cwa, double buffer,
-            String radarExtents, String mode) {
+    public static Object[] getBasins(String cwa, double buffer, String extents,
+            String mode) {
         String lowestSimplificationLevel = ScanUtils
                 .getHighResolutionLevel("ffmp_basins");
         String highestSimplificationLevel = ScanUtils
@@ -389,7 +396,7 @@ public class FFMPUtils {
             sql.append(" ST_SetSRID(ST_Point(x_centroid, y_centroid), 4326), "
                     + extent + ")");
             sql.append(" and ST_Contains(ST_GeomFromText('");
-            sql.append(radarExtents);
+            sql.append(extents);
             sql.append("', 4326), " + lowestSimplificationLevel + ")"
                     + " order by pfaf_id asc");
 
@@ -418,7 +425,8 @@ public class FFMPUtils {
      * @return
      */
     public static Map<Long, Geometry> getRawGeometries(Collection<Long> pfafs) {
-        HashMap<Long, Geometry> rval = null;
+        // Initialize rval to an empty Map to use as the default return value.
+        HashMap<Long, Geometry> rval = new HashMap<>();
         if (pfafs.size() > 0) {
             StringBuilder builder = new StringBuilder();
             builder.append("SELECT pfaf_id, AsBinary("
@@ -442,7 +450,7 @@ public class FFMPUtils {
             try {
                 sq = SpatialQueryFactory.create();
                 results = sq.dbRequest(builder.toString(), MAPS_DB);
-                rval = new HashMap<Long, Geometry>(results.length, 1.0f);
+                rval = new HashMap<>(results.length, 1.0f);
             } catch (SpatialException e) {
                 statusHandler.error("Error querying Raw Geometries: +sql: "
                         + builder.toString(), e);
@@ -960,24 +968,37 @@ public class FFMPUtils {
     }
 
     /**
-     * Gets the datauri for this partiular FFG
+     * Gets the datauri for this particular FFG
      * 
      * @param id
      * @return
      */
-    public static String getFFGDataURI(String rfc, String parameter,
-            String plugin) {
+    public static String getFFGDataURI(GUIDANCE_TYPE type, String datasetid,
+            String parameter, String plugin) {
         DbQueryRequest request = new DbQueryRequest();
         request.setEntityClass(GridRecord.class.getName());
         request.addConstraint(GridConstants.PARAMETER_ABBREVIATION,
                 new RequestConstraint(parameter));
-        request.addConstraint(GridConstants.DATASET_ID, new RequestConstraint(
-                "FFG-" + rfc.substring(1)));
+
+        if (type == GUIDANCE_TYPE.RFC) {
+            request.addConstraint(GridConstants.DATASET_ID,
+                    new RequestConstraint("FFG-" + datasetid.substring(1)));
+        } else {
+            request.addConstraint(GridConstants.DATASET_ID,
+                    new RequestConstraint(datasetid));
+        }
+
         request.setOrderByField("dataTime.refTime", OrderMode.DESC);
         try {
             DbQueryResponse response = (DbQueryResponse) RequestRouter
                     .route(request);
-            return response.getEntityObjects(GridRecord.class)[0].getDataURI();
+            GridRecord[] grids = response.getEntityObjects(GridRecord.class);
+            if (grids != null && grids.length > 0) {
+                return grids[0].getDataURI();
+            } else {
+                statusHandler.warn("No data available for this FFG Request: "
+                        + request.toString());
+            }
         } catch (Exception e) {
             statusHandler.error(
                     "Error querying FFG Data URIS: " + request.toString(), e);
@@ -1412,6 +1433,63 @@ public class FFMPUtils {
         }
 
         return unmappedResults.toArray(new Object[0]);
+    }
+
+    /**
+     * For Grid FFMP types used as primary sources, request the coverage record
+     * for use in domain creation.
+     * 
+     * @param dataPath
+     * @return
+     */
+
+    public static GridCoverage getGridCoverageRecord(String dataPath)
+            throws Exception {
+
+        String[] splitURI = parseGridDataPath(dataPath);
+        statusHandler.info("Parsing FFMP Grid <dataPath> " + dataPath);
+
+        // In the case of Grid Records, we only care about the dataSetID
+        String datasetID = splitURI[3];
+
+        statusHandler.info("Results of <dataPath> parse: DataSetID = "
+                + datasetID);
+
+        GridCoverage coverage = null;
+
+        DbQueryRequest query = new DbQueryRequest();
+        query.setDatabase(META_DB);
+        query.setEntityClass(GridRecord.class.getName());
+        query.setLimit(1); // only need one response
+        query.addConstraint(GridConstants.DATASET_ID, new RequestConstraint(
+                datasetID));
+        query.setOrderByField("insertTime", OrderMode.DESC);
+
+        DbQueryResponse resp = (DbQueryResponse) RequestRouter.route(query);
+
+        if (resp != null) {
+            for (Map<String, Object> map : resp.getResults()) {
+                GridRecord record = (GridRecord) map.get(null);
+                coverage = record.getLocation();
+            }
+        } else {
+            statusHandler
+                    .error("Query for Grid Coverage returned no results: DataSetID = "
+                            + datasetID);
+        }
+
+        return coverage;
+    }
+
+    /**
+     * Parse the <dataPath> FFMPSourceConfig tag for it's URI components.
+     * 
+     * @param dataPath
+     * @return
+     */
+    public static String[] parseGridDataPath(String dataPath) {
+        // parse the path given as the URI match in the source config
+        return dataPath.split(DataURI.SEPARATOR);
     }
 
 }

@@ -34,7 +34,6 @@ import java.util.Vector;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -55,7 +54,6 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -73,6 +71,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 07 Dec 2010  6531       cjeanbap    Refactored class to be an Abstract class.
  * 02 Mar 2011  5632       cjeanbap    Update Listbox title text
  * 06 May 2011  9101       cjeanbap    Changed Constructor method signature.
+ * 12 Nov 2015  4834       njensen     Changed LocalizationOpFailedException to LocalizationException
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -268,7 +268,7 @@ public class FileSelectDlg extends Dialog {
             fileList.add(locFile.getFile(false).getName());
         }
         fileList.select(getIndex());
-        fileList.addSelectionListener(new SelectionListener() {
+        fileList.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 selectedIndex = fileList.getSelectionIndex();
@@ -286,10 +286,6 @@ public class FileSelectDlg extends Dialog {
                     }
                     associatedTextBox.setText(name);
                 }
-            }
-
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
             }
         });
     }
@@ -313,6 +309,7 @@ public class FileSelectDlg extends Dialog {
         okBtn.setText("OK");
         okBtn.setLayoutData(gd);
         okBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 returnObj = true;
                 shell.dispose();
@@ -324,6 +321,7 @@ public class FileSelectDlg extends Dialog {
         cancelBtn.setText("Cancel");
         cancelBtn.setLayoutData(gd);
         cancelBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 if (isSelected()) {
                     returnObj = false;
@@ -339,6 +337,7 @@ public class FileSelectDlg extends Dialog {
         importNewBtn1.setText("Import");
         importNewBtn1.setLayoutData(gd);
         importNewBtn1.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 FileDialog newFileDlg = new FileDialog(shell, SWT.OPEN
                         | SWT.SINGLE);
@@ -368,10 +367,7 @@ public class FileSelectDlg extends Dialog {
                                 }
                                 setSelectedFile(newFile.getName());
                             }
-                        } catch (LocalizationOpFailedException e) {
-                            statusHandler.handle(Priority.PROBLEM,
-                                    e.getLocalizedMessage(), e);
-                        } catch (IOException e) {
+                        } catch (LocalizationException | IOException e) {
                             statusHandler.handle(Priority.PROBLEM,
                                     e.getLocalizedMessage(), e);
                         }
@@ -382,7 +378,7 @@ public class FileSelectDlg extends Dialog {
     }
 
     private boolean saveToLocalizationFile(File file, LocalizationFile locFile)
-            throws IOException, LocalizationOpFailedException {
+            throws IOException, LocalizationException {
         File newFile = locFile.getFile();
         InputStream in = new FileInputStream(file);
         OutputStream out = new FileOutputStream(newFile);

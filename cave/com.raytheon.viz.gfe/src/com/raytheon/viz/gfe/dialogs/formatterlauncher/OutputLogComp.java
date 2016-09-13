@@ -52,6 +52,8 @@ import com.raytheon.viz.gfe.tasks.TaskManager;
  * ------------ ---------- ----------- --------------------------
  * 18 APR 2008  ###        lvenable    Initial creation
  * 29 MAY 2014  #2841      randerso    Fix NPE when formatter fails to queue
+ * 12 NOV 2015  #5106      dgilling    Disable word-wrap to improve performance
+ *                                     for large log files.
  * 
  * </pre>
  * 
@@ -125,8 +127,7 @@ public class OutputLogComp extends Composite {
     private void initializeComponents() {
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         outputLogST = new StyledText(this, SWT.BORDER | SWT.MULTI
-                | SWT.V_SCROLL);
-        outputLogST.setWordWrap(true);
+                | SWT.V_SCROLL | SWT.H_SCROLL);
         outputLogST.setFont(textFont);
         outputLogST.setEditable(false);
         outputLogST.setLayoutData(gd);

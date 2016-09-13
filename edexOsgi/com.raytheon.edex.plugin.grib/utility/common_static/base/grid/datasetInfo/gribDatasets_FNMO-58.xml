@@ -10,4 +10,9 @@
         <datasetId>AK-NOGAPS</datasetId>
         <dt>1</dt>
     </info>
+    <info>
+        <title>NAVGEM</title>
+        <datasetId>nogaps</datasetId>
+        <dt>6</dt>
+    </info>
 </datasetInfoSet>

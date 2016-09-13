@@ -29,11 +29,17 @@
   <parameter name="peakWindSpeedTime" numDims="1" type="LONG" unit="seconds since 1-1-1970" />
   <parameter name="peakWindSpeed" numDims="1" type="FLOAT" unit="m/sec" />
   <parameter name="peakWindDir" numDims="1" type="FLOAT" unit="°" />
+  <parameter name="peakWindSpeedTimeOneMin" numDims="1" type="LONG" unit="seconds since 1-1-1970" />
+  <parameter name="peakWindSpeedOneMin" numDims="1" type="FLOAT" unit="m/sec" />
+  <parameter name="peakWindDirOneMin" numDims="1" type="FLOAT" unit="°" />
+  <parameter name="lowestPressure" numDims="1" type="FLOAT" unit="Pa" />
+  <parameter name="lowestPressureTime" numDims="1" type="LONG" unit="seconds since 1-1-1970" />
   <parameter name="seaLevelPress" numDims="1" type="FLOAT" unit="Pa" />
   <parameter name="altimeter" numDims="1" type="FLOAT" unit="Pa" />
   <parameter name="stationPress" numDims="1" type="FLOAT" unit="Pa" />  
   <parameter name="pressChangeChar" numDims="1" type="INT" />
-  <parameter name="pressChange3Hour" numDims="1" type="FLOAT" unit="Pa" />  
+  <parameter name="pressChange3Hour" numDims="1" type="FLOAT" unit="Pa" />
+  <parameter name="pressChange24Hour" numDims="1" type="FLOAT" unit="Pa" />
   <parameter name="totCloudAmount" numDims="1" type="INT" />
   <parameter name="lowCloudHeight" numDims="1" type="INT" unit="m" />
   <parameter name="lowCloudAmount" numDims="1" type="INT" />
@@ -46,10 +52,13 @@
   <parameter name="wx_past_1" numDims="1" type="INT" />
   <parameter name="wx_past_2" numDims="1" type="INT" />
   <parameter name="precip1Hour" numDims="1" type="FLOAT" unit="mm" />
+  <parameter name="precip3Hour" numDims="1" type="FLOAT" unit="mm" />
   <parameter name="precip6Hour" numDims="1" type="FLOAT" unit="mm" />
   <parameter name="precip12Hour" numDims="1" type="FLOAT" unit="mm" />
   <parameter name="precip18Hour" numDims="1" type="FLOAT" unit="mm" />
   <parameter name="precip24Hour" numDims="1" type="FLOAT" unit="mm" />
+  <parameter name="snowDepth" numDims="1" type="FLOAT" unit="mm" />
+  <parameter name="stateOfGroundWithSnow" numDims="1" type="INT" />
   <parameter name="equivWindSpeed10m" numDims="1" type="FLOAT" unit="m/sec" />
   <parameter name="equivWindSpeed20m" numDims="1" type="FLOAT" unit="m/sec" />
   <parameter name="iceCode" numDims="1" type="INT" />

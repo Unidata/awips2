@@ -69,7 +69,7 @@ import com.vividsolutions.jts.geom.LineString;
  * Oct 03, 2012  1248     rferrel        Added listener for when points change.
  * May 03, 2013  14824    mgamazaychikov Added alterResource method
  * Dec 11, 2013  2602     bsteffen       Fix compiler warnings and format.
- * 
+ * Aug 25, 2015  4785     njensen        Fix point alters of sources without reportType
  * 
  * 
  * </pre>
@@ -171,14 +171,6 @@ public class ToolsAlterBundleContributor extends AlterBundleContributorAdapter {
         return pointsValues;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.procedures.IAlterBundleContributor#alterBundle
-     * (com.raytheon.uf.viz.core.procedures.Bundle, java.lang.String,
-     * java.lang.String)
-     */
     @Override
     public void alterBundle(Bundle bundleToAlter, String alterKey,
             String alterValue) {
@@ -321,7 +313,8 @@ public class ToolsAlterBundleContributor extends AlterBundleContributorAdapter {
         if (metadataMap.containsKey(REPORTYPE_KEY)) {
             reportType = metadataMap.get(REPORTYPE_KEY).getConstraintValue();
         } else {
-            return null;
+            // not all sources will have a reportType
+            reportType = "";
         }
         String sourcesKey = pluginName + reportType;
 
@@ -376,12 +369,6 @@ public class ToolsAlterBundleContributor extends AlterBundleContributorAdapter {
         container.setBaseLineString(line);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.procedures.AlterBundleContributorAdapter#
-     * getAlterables(java.lang.String)
-     */
     @Override
     public String[] getAlterables(String key) {
         if (key == POINTS_KEY) {
@@ -392,12 +379,6 @@ public class ToolsAlterBundleContributor extends AlterBundleContributorAdapter {
         return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.procedures.AlterBundleContributorAdapter#
-     * listenerSetup()
-     */
     @Override
     public void listenerSetup() {
         if (pointChangedListener == null) {
@@ -413,12 +394,6 @@ public class ToolsAlterBundleContributor extends AlterBundleContributorAdapter {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.procedures.AlterBundleContributorAdapter#
-     * listenerShutdown()
-     */
     @Override
     public void listenerShutdown() {
         if (pointChangedListener != null) {

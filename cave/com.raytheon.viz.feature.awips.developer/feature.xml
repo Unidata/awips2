@@ -62,6 +62,10 @@
          version="0.0.0"/>
 
    <includes
+         id="com.raytheon.uf.viz.radarapps.feature"
+         version="0.0.0"/>
+
+   <includes
          id="com.raytheon.viz.text.feature"
          version="0.0.0"/>
 
@@ -70,7 +74,7 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.viz.grib.feature"
+         id="com.raytheon.uf.viz.grid.feature"
          version="0.0.0"/>
 
    <includes
@@ -134,6 +138,10 @@
          version="0.0.0"/>
 
    <includes
+         id="com.raytheon.uf.viz.npp.sounding.feature"
+         version="0.0.0"/>
+
+   <includes
          id="com.raytheon.uf.viz.d2d.skewt.feature"
          version="0.0.0"/>
 
@@ -171,6 +179,13 @@
 
    <includes
          id="gov.noaa.gsd.viz.ensemble.feature"
+<<<<<<< HEAD
+=======
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.d2d.damagepath.feature"
+>>>>>>> origin/unidata_16.2.2
          version="0.0.0"/>
 
    <includes
@@ -184,6 +199,13 @@
    <includes
          id="com.raytheon.uf.viz.alertview.feature"
          version="0.0.0"/>
+<<<<<<< HEAD
+=======
+
+   <includes
+         id="gov.noaa.nws.mdl.viz.boundaryTool.common.feature"
+         version="0.0.0"/>
+>>>>>>> origin/unidata_16.2.2
 
    <requires>
       <import feature="com.raytheon.uf.viz.application.feature" version="1.0.0.qualifier"/>

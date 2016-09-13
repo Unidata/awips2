@@ -42,6 +42,7 @@ import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.annotations.NullString;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
@@ -73,6 +74,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Jan 30, 2014 2581       njensen     Added dataURI column back in
  * Sep 16, 2014 2707       bclement    removed dataURI column, event type now string, added event units
  * Jan 06, 2014 2707       bclement    changed unique constraint from officeId to stationId
+ * Jul 21, 2016 4360       rferrel     Named unique constraint. Made eventType not nullable.
  * 
  * </pre>
  * 
@@ -81,7 +83,7 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "lsrseq")
-@Table(name = "lsr", uniqueConstraints = { @UniqueConstraint(columnNames = {
+@Table(name = "lsr", uniqueConstraints = { @UniqueConstraint(name = "uk_lsr_datauri_fields", columnNames = {
         "latitude", "longitude", "stationId", "refTime", "forecastTime",
         "eventType" }) })
 /*
@@ -116,7 +118,8 @@ public class LocalStormReport extends PersistablePluginDataObject implements
 
     //
     @DataURI(position = 1)
-    @Column
+    @NullString
+    @Column(nullable = false)
     @DynamicSerializeElement
     private String eventType;
 

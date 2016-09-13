@@ -124,7 +124,7 @@ public class Loader {
 			
 			// This is not in any baselined database yet.
 			switch (rp.pid) {
-			case 180: case 181: case 182: case 183: case 185:
+			case 180: case 181: case 182: case 183: case 184: case 185:
 			case 186: case 187:
 				rp.typeRestriction = EnumSet.of(RadarType.TDWR);
 				break;

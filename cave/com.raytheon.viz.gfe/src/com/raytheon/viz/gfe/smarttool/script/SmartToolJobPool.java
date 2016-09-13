@@ -19,7 +19,6 @@
  **/
 package com.raytheon.viz.gfe.smarttool.script;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -53,7 +52,8 @@ import com.raytheon.viz.gfe.smarttool.Tool;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 09, 2013  #2367    dgilling     Initial creation
- * Jul 07, 2015  14739    ryu          Modified execute() to retrieve updated varDict after tool execution.
+ * Jul 23, 2015  #4263    dgilling     Support SmartToolRunnerController.
+ * Sep 16, 2015  #4871    randerso     Return modified varDict from Tool
  * 
  * </pre>
  * 
@@ -247,7 +247,7 @@ public class SmartToolJobPool {
         private final IUFStatusHandler statusHandler = UFStatus
                 .getHandler(SmartToolJob.class);
 
-        private SmartToolController python;
+        private SmartToolRunnerController python;
 
         private final DataManager dataMgr;
 
@@ -263,7 +263,8 @@ public class SmartToolJobPool {
         @Override
         protected IStatus run(IProgressMonitor monitor) {
             try {
-                python = SmartToolFactory.buildController(dataMgr);
+                python = new SmartToolRunnerScriptFactory(dataMgr)
+                        .createPythonScript();
             } catch (JepException e) {
                 jobList.remove(this);
                 statusHandler.error("Error initializing procedure python", e);
@@ -342,7 +343,7 @@ public class SmartToolJobPool {
          * @param monitor
          * @throws SmartToolException
          */
-        private void execute(SmartToolController controller,
+        private void execute(SmartToolRunnerController controller,
                 SmartToolRequest request, IProgressMonitor monitor)
                 throws SmartToolException {
             EditAction ea = request.getPreview().getEditAction();
@@ -357,19 +358,20 @@ public class SmartToolJobPool {
                     dataMgr.getParmOp().clearUndoParmList();
                 }
                 Tool tool = new Tool(dataMgr.getParmManager(), request
-                        .getPreview().getParm(), ea.getItemName(), python);
-                List<String> varDictList = new ArrayList<String>(1);
-                varDictList.add(request.getVarDict());
+                        .getPreview().getParm(), ea.getItemName(), dataMgr
+                        .getRefManager().getPythonThreadPool(), controller);
                 tool.execute(ea.getItemName(), request.getPreview().getParm(),
                         ea.getRefSet(), ea.getTimeRange(),
-                        varDictList, ea.getMissingDataMode(), monitor);
-                //reset varDict
-                request.setVarDict(varDictList.get(0));
+                        request.getVarDict(), ea.getMissingDataMode(), monitor);
+                request.setVarDict(controller.getVarDict());
                 pjStatus = Status.OK_STATUS;
             } catch (SmartToolException e) {
                 pjStatus = new Status(IStatus.WARNING, Activator.PLUGIN_ID,
                         "Error in smart tool " + toolName, e);
                 throw e;
+            } catch (JepException e) {
+                pjStatus = new Status(IStatus.WARNING, Activator.PLUGIN_ID,
+                        "Unable to retrieve varDict from " + toolName, e);
             } finally {
                 controller.garbageCollect();
                 progressJob.done(pjStatus);

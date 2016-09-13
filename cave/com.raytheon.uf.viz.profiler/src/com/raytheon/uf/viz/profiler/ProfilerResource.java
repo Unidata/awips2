@@ -3,19 +3,19 @@ package com.raytheon.uf.viz.profiler;
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -26,6 +26,8 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
@@ -78,10 +80,13 @@ import com.vividsolutions.jts.geom.Coordinate;
  * AWIPS2 DR Work
  * 08/10/2012         1035 jkorman     Changed number of 'staffs' from 12 to 13 and changed time
  *                                     display to match AWIPS I.
- * 08/13/2012         1046 jkorman     Changed to load colorMap file.  
+ * 08/13/2012         1046 jkorman     Changed to load colorMap file.
  * 07/25/2014         3429 mapeters    Updated deprecated drawLine() calls.
- * 08/14/2014         3523 mapeters    Updated deprecated {@link DrawableString#textStyle} 
+ * 08/14/2014         3523 mapeters    Updated deprecated {@link DrawableString#textStyle}
  *                                     assignments.
+ * 07/22/2015          688 nabowle     Synchronize plotObjects access.
+ * 05/11/2015         5070 randerso    Adjust font sizes for dpi scaling
+ * 
  * </pre>
  * 
  * @author dhladky
@@ -95,7 +100,7 @@ public class ProfilerResource extends
 
     private static final int NUM_PROFILE_STAFFS = 13;
 
-    /* graph max height in meters*/
+    /* graph max height in meters */
     private static double MAX_Y = 18000;
 
     /* Graphic target */
@@ -119,6 +124,8 @@ public class ProfilerResource extends
 
     private long earliestTime = Long.MAX_VALUE;
 
+    private Lock plotObsLock = new ReentrantLock();
+
     /**
      * Required method for getting data
      * 
@@ -135,15 +142,31 @@ public class ProfilerResource extends
 
     @Override
     protected void disposeInternal() {
-        for (ArrayList<PlotObject> plotList : plotObjects.values()) {
-            for (PlotObject plotObject : plotList) {
-                if (plotObject.image != null) {
-                    plotObject.image.dispose();
-                }
-            }
-        }
+        disposePlotObjects();
+
         if (font != null) {
             font.dispose();
+        }
+    }
+
+    /**
+     * Disposes all PlotObject images. {@link #plotObjects} is not structurally
+     * altered or reassigned.
+     */
+    private void disposePlotObjects() {
+        plotObsLock.lock();
+        try {
+            if (plotObjects != null) {
+                for (ArrayList<PlotObject> plotList : plotObjects.values()) {
+                    for (PlotObject plotObject : plotList) {
+                        if (plotObject.image != null) {
+                            plotObject.image.dispose();
+                        }
+                    }
+                }
+            }
+        } finally {
+            plotObsLock.unlock();
         }
     }
 
@@ -155,7 +178,7 @@ public class ProfilerResource extends
         incX = (ProfilerUtils.profilerRectangle.width / NUM_PROFILE_STAFFS);
         incYheight = ProfilerUtils.profilerRectangle.height / MAX_Y;
 
-        this.font = target.initializeFont("Dialog", 11, null);
+        this.font = target.initializeFont("Dialog", 9, null);
 
         ColorMapParameters params = getCapability(ColorMapCapability.class)
                 .getColorMapParameters();
@@ -183,23 +206,20 @@ public class ProfilerResource extends
             @Override
             public void resourceChanged(ChangeType type, Object object) {
                 if (object instanceof ColorMapCapability) {
-                    // dispose of all existing plotObjects
-                    for (ArrayList<PlotObject> plotList : plotObjects.values()) {
-                        for (PlotObject plotObject : plotList) {
-                            if (plotObject.image != null) {
-                                plotObject.image.dispose();
-                            }
-                        }
-                    }
-                    plotObjects = null;
+                    plotObsLock.lock();
                     try {
-                        loadData();
-                    } catch (VizException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                e.getLocalizedMessage(), e);
-
+                        // dispose of all existing plotObjects
+                        disposePlotObjects();
+                        plotObjects = null;
+                        try {
+                            loadData();
+                        } catch (VizException e) {
+                            statusHandler.handle(Priority.PROBLEM,
+                                    e.getLocalizedMessage(), e);
+                        }
+                    } finally {
+                        plotObsLock.unlock();
                     }
-
                 } else if (object instanceof MagnificationCapability) {
                     font.setMagnification(((MagnificationCapability) object)
                             .getMagnification().floatValue());
@@ -210,13 +230,16 @@ public class ProfilerResource extends
                     for (PluginDataObject pdo : updates) {
                         records.add((ProfilerObs) pdo);
                     }
-                    resourceData.getRecords().addAll(records);
+                    plotObsLock.lock();
                     try {
+                        resourceData.getRecords().addAll(records);
                         createProfiles(records);
                     } catch (VizException e) {
                         statusHandler.handle(Priority.PROBLEM,
                                 e.getLocalizedMessage(), e);
 
+                    } finally {
+                        plotObsLock.unlock();
                     }
                 }
             }
@@ -240,7 +263,8 @@ public class ProfilerResource extends
                 earliestTime = Math.min(earliestTime, validTime);
                 latestTime = Math.max(latestTime, validTime);
             }
-            long earliestRequestTime = earliestTime - NUM_PROFILE_STAFFS * 3600000;
+            long earliestRequestTime = earliestTime - NUM_PROFILE_STAFFS
+                    * 3600000;
             List<DataTime> requestTimes = new ArrayList<DataTime>();
             for (DataTime time : resourceData.getAvailableTimes()) {
                 long validTime = time.getValidTime().getTimeInMillis();
@@ -257,8 +281,13 @@ public class ProfilerResource extends
 
         this.target = target;
 
-        if (plotObjects == null) {
-            initInternal(target);
+        plotObsLock.lock();
+        try {
+            if (plotObjects == null) {
+                initInternal(target);
+            }
+        } finally {
+            plotObsLock.unlock();
         }
 
         // Determine the magnification for the plot
@@ -274,8 +303,13 @@ public class ProfilerResource extends
         // draw x after y so x will paint over axis
         drawXAxis(paintProps, magnification);
 
-        if (plotObjects != null) {
-            drawProfiles(paintProps);
+        plotObsLock.lock();
+        try {
+            if (plotObjects != null) {
+                drawProfiles(paintProps);
+            }
+        } finally {
+            plotObsLock.unlock();
         }
     }
 
@@ -369,14 +403,12 @@ public class ProfilerResource extends
                 continue;
             }
 
-            synchronized (plots) {
-                for (PlotObject po : plots) {
-                    if (po != null) {
-                        double y = calcY(po.coord.y);
-                        target.drawRaster(po.image,
-                                getPixelCoverage(new Coordinate(calcX(x), y)),
-                                paintProps);
-                    }
+            for (PlotObject po : plots) {
+                if (po != null) {
+                    double y = calcY(po.coord.y);
+                    target.drawRaster(po.image,
+                            getPixelCoverage(new Coordinate(calcX(x), y)),
+                            paintProps);
                 }
             }
         }
@@ -389,21 +421,23 @@ public class ProfilerResource extends
      * @throws VizException
      */
     private void createProfiles(List<ProfilerObs> profiles) throws VizException {
-        // bottom to top? I hope?
-        if (plotObjects == null) {
-            plotObjects = new HashMap<Long, ArrayList<PlotObject>>();
-        }
-
-        for (ProfilerObs profile : profiles) {
-            long time = profile.getDataTime().getValidTime().getTimeInMillis();
-            dataTimes.add(profile.getDataTime());
-            ArrayList<PlotObject> plots = plotObjects.get(time);
-            if (plots == null) {
-                plots = new ArrayList<PlotObject>();
-                plotObjects.put(time, plots);
+        plotObsLock.lock();
+        try {
+            // bottom to top? I hope?
+            if (plotObjects == null) {
+                plotObjects = new HashMap<Long, ArrayList<PlotObject>>();
             }
-            // get the level information for this profile
-            synchronized (plots) {
+
+            for (ProfilerObs profile : profiles) {
+                long time = profile.getDataTime().getValidTime()
+                        .getTimeInMillis();
+                dataTimes.add(profile.getDataTime());
+                ArrayList<PlotObject> plots = plotObjects.get(time);
+                if (plots == null) {
+                    plots = new ArrayList<PlotObject>();
+                    plotObjects.put(time, plots);
+                }
+                // get the level information for this profile
                 for (ProfilerLevel level : profile.getLevels()) {
                     try {
                         PlotObject plot = createPlot(level);
@@ -416,6 +450,8 @@ public class ProfilerResource extends
                     }
                 }
             }
+        } finally {
+            plotObsLock.unlock();
         }
     }
 
@@ -455,7 +491,8 @@ public class ProfilerResource extends
         // left edge of graph
         DrawableLine[] lines = new DrawableLine[2];
         lines[0] = new DrawableLine();
-        lines[0].setCoordinates(ProfilerUtils.profilerRectangle.x,
+        lines[0].setCoordinates(
+                ProfilerUtils.profilerRectangle.x,
                 (ProfilerUtils.profilerRectangle.y + ProfilerUtils.profilerRectangle.height));
         lines[0].addPoint(ProfilerUtils.profilerRectangle.x,
                 ProfilerUtils.profilerRectangle.y);
@@ -504,9 +541,11 @@ public class ProfilerResource extends
 
         // draw right edge
         lines[1] = new DrawableLine();
-        lines[1].setCoordinates((ProfilerUtils.profilerRectangle.x + ProfilerUtils.profilerRectangle.width),
+        lines[1].setCoordinates(
+                (ProfilerUtils.profilerRectangle.x + ProfilerUtils.profilerRectangle.width),
                 (ProfilerUtils.profilerRectangle.y + ProfilerUtils.profilerRectangle.height));
-        lines[1].addPoint((ProfilerUtils.profilerRectangle.x + ProfilerUtils.profilerRectangle.width),
+        lines[1].addPoint(
+                (ProfilerUtils.profilerRectangle.x + ProfilerUtils.profilerRectangle.width),
                 ProfilerUtils.profilerRectangle.y);
         lines[1].basics.color = ProfilerUtils.GRAPH_COLOR;
         lines[1].width = ProfilerUtils.GRAPH_LINE_WIDTH;
@@ -656,7 +695,7 @@ public class ProfilerResource extends
         bottom.basics.color = ProfilerUtils.GRAPH_COLOR;
         bottom.width = ProfilerUtils.GRAPH_LINE_WIDTH;
         lines.add(bottom);
-        
+
         target.drawLine(lines.toArray(new DrawableLine[0]));
 
         // draw strings after lines so they draw on top

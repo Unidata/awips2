@@ -23,20 +23,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 
+import com.raytheon.uf.common.monitor.data.MonitorConfigConstants.SnowDisplay;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
+import com.raytheon.uf.common.monitor.xml.AreaXML;
+import com.raytheon.uf.common.monitor.xml.ThresholdsXML;
 import com.raytheon.uf.viz.monitor.data.RangesUtil;
 import com.raytheon.uf.viz.monitor.snow.threshold.SnowDisplayMeteoData;
 import com.raytheon.uf.viz.monitor.snow.threshold.SnowThresholdMgr;
 import com.raytheon.uf.viz.monitor.ui.dialogs.TabItemComp;
-import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants.SnowDisplay;
-import com.raytheon.uf.viz.monitor.xml.AreaXML;
-import com.raytheon.uf.viz.monitor.xml.ThresholdsXML;
 
 /**
  * Snow Display Meteo Table.
@@ -45,9 +43,11 @@ import com.raytheon.uf.viz.monitor.xml.ThresholdsXML;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 21, 2014 3086       skorolev    Cleaned code.
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------
+ * May 21, 2014  3086     skorolev  Cleaned code.
+ * Dec 26, 2015 5114       skorolev    Corrected imports.
+ * Jun 02, 2016  5673     randerso  Fixed header alignment in threshold dialogs
  * 
  * </pre>
  * 
@@ -85,31 +85,21 @@ public class SnowDisplayMeteoTab extends TabItemComp implements
      * .eclipse.swt.widgets.Composite)
      */
     @Override
-    protected void createListHeader(Composite parentComp) {
-        Composite lblComp = new Composite(parentComp, SWT.NONE);
-        GridLayout gl = new GridLayout(5, false);
-        gl.horizontalSpacing = 0;
-        gl.marginHeight = 0;
-        gl.marginWidth = 0;
-        lblComp.setLayout(gl);
-
+    protected void createListHeader() {
         /* Create filler label. */
-        GridData gd = new GridData(71, SWT.DEFAULT);
-        Label fillerLbl = new Label(lblComp, SWT.CENTER);
-        fillerLbl.setLayoutData(gd);
+        createHeader("", 0, 0, false);
 
         /* Meteo */
-        Composite meteoComp = createGroupComposite(lblComp, 10, null);
-        createLabelComp(meteoComp, "Temp(F)", "", false);
-        createLabelComp(meteoComp, "Dewpt(F)", "", false);
-        createLabelComp(meteoComp, "Vis(mi)", "", true);
-        createLabelComp(meteoComp, "SLP(mb)", "", false);
-        createLabelComp(meteoComp, "Hourly", "Prcp(in)", false);
-        createLabelComp(meteoComp, "Wind", "Chill(F)", false);
-        createLabelComp(meteoComp, "Frost", "Bite\nTime(min)", false);
-        createLabelComp(meteoComp, "Snow", "Depth(in)", false);
-        createLabelComp(meteoComp, "SNINCR", "Hr(in)", false);
-        createLabelComp(meteoComp, "SNINCR", "Tot(in)", false);
+        createHeader("Temp(F)", 1, 2, true);
+        createHeader("Dewpt(F)", 3, 4, true);
+        createHeader("Vis(mi)", 5, 6, true);
+        createHeader("SLP(mb)", 7, 8, true);
+        createHeader("Hourly\nPrcp(in)", 9, 10, true);
+        createHeader("Wind\nChill(F)", 11, 12, true);
+        createHeader("Frost\nBite\nTime(min)", 13, 14, true);
+        createHeader("Snow\nDepth(in)", 15, 16, true);
+        createHeader("SNINCR\nHr(in)", 17, 18, true);
+        createHeader("SNINCR\nTot(in)", 19, 20, true);
     }
 
     /*
@@ -118,13 +108,13 @@ public class SnowDisplayMeteoTab extends TabItemComp implements
      * @see com.raytheon.uf.viz.monitor.ui.dialogs.TabItemComp#populateList()
      */
     @Override
-    protected void populateList() {
+    protected void populateTable() {
         if (snowDataArray == null) {
             createDataArray();
         }
 
         boolean update = false;
-        if (dataList.getItemCount() > 0) {
+        if (dataTable.getItemCount() > 0) {
             update = true;
         }
 
@@ -137,63 +127,67 @@ public class SnowDisplayMeteoTab extends TabItemComp implements
 
         double visVal = 0.0;
 
-        StringBuilder sb = null;
         SnowDisplayMeteoData sdmd = null;
 
+        int numColumns = 21;
+        new TableColumn(dataTable, SWT.LEFT);
+        for (int c = 1; c < numColumns; c++) {
+            new TableColumn(dataTable, SWT.RIGHT);
+        }
+
         for (int i = 0; i < snowDataArray.size(); i++) {
-            sb = new StringBuilder();
+
+            TableItem item;
+            if (update == true) {
+                item = dataTable.getItem(i);
+            } else {
+                item = new TableItem(dataTable, SWT.NONE);
+            }
 
             sdmd = snowDataArray.get(i);
 
             currentAreaID = sdmd.getAreaID();
             areaIDArray.add(currentAreaID);
 
-            sb.append(String.format(areaIdFmt, currentAreaID));
+            item.setText(0, currentAreaID);
 
             /* Temperature */
-            appendIntData(sb, sdmd.getTempR(), sdmd.getTempY());
+            appendIntData(item, 1, sdmd.getTempR(), sdmd.getTempY());
 
             /* Dew point */
-            appendIntData(sb, sdmd.getDewpointR(), sdmd.getDewpointY());
+            appendIntData(item, 3, sdmd.getDewpointR(), sdmd.getDewpointY());
 
             /* Visibility */
             visVal = sdmd.getVisR();
             tmpVisStr = rangeUtil.getVisString((int) visVal);
-            sb.append(String.format(dataFmt, tmpVisStr));
+            item.setText(5, String.format(dataFmt, tmpVisStr));
 
             visVal = sdmd.getVisY();
             tmpVisStr = rangeUtil.getVisString((int) visVal);
-            sb.append(String.format(dataFmt, tmpVisStr));
+            item.setText(6, String.format(dataFmt, tmpVisStr));
 
             /* SLP */
-            appendIntData(sb, sdmd.getSlpR(), sdmd.getSlpY());
+            appendIntData(item, 7, sdmd.getSlpR(), sdmd.getSlpY());
 
             /* Hourly Precipitation */
-            appendDecimalData(sb, sdmd.getHrPrecipR(), sdmd.getHrPrecipY());
+            appendDecimalData(item, 9, sdmd.getHrPrecipR(), sdmd.getHrPrecipY());
 
             /* Wind Chill */
-            appendIntData(sb, sdmd.getWindChillR(), sdmd.getWindChillY());
+            appendIntData(item, 11, sdmd.getWindChillR(), sdmd.getWindChillY());
 
             /* Frost Bite */
-            appendIntData(sb, sdmd.getFrostBiteR(), sdmd.getFrostBiteY());
+            appendIntData(item, 13, sdmd.getFrostBiteR(), sdmd.getFrostBiteY());
 
             /* Snow Depth */
-            appendIntData(sb, sdmd.getSnowDepthR(), sdmd.getSnowDepthY());
+            appendIntData(item, 15, sdmd.getSnowDepthR(), sdmd.getSnowDepthY());
 
             /* SNINCR Hourly */
-            appendIntData(sb, sdmd.getSnincrHrlyR(), sdmd.getSnincrHrlyY());
+            appendIntData(item, 17, sdmd.getSnincrHrlyR(),
+                    sdmd.getSnincrHrlyY());
 
             /* SNINCR Total */
-            appendIntData(sb, sdmd.getSnincrTotR(), sdmd.getSnincrTotY());
+            appendIntData(item, 19, sdmd.getSnincrTotR(), sdmd.getSnincrTotY());
 
-            /* Append a space and add the data line to the list. */
-            sb.append(" ");
-
-            if (update == true) {
-                dataList.setItem(i, sb.toString());
-            } else {
-                dataList.add(sb.toString());
-            }
         }
         packListControls();
     }
@@ -300,7 +294,7 @@ public class SnowDisplayMeteoTab extends TabItemComp implements
      * @return selected data
      */
     private SnowDisplayMeteoData getDataAtFirstSelection() {
-        int index = dataList.getSelectionIndex();
+        int index = dataTable.getSelectionIndex();
         return snowDataArray.get(index);
     }
 
@@ -311,7 +305,7 @@ public class SnowDisplayMeteoTab extends TabItemComp implements
      *            Display Meteo Data
      */
     private void updateDataArray(SnowDisplayMeteoData sdmd) {
-        int[] dataListIndexes = dataList.getSelectionIndices();
+        int[] dataListIndexes = dataTable.getSelectionIndices();
         int currentIndex = 0;
 
         for (int i = 0; i < dataListIndexes.length; i++) {
@@ -415,10 +409,10 @@ public class SnowDisplayMeteoTab extends TabItemComp implements
      */
     @Override
     public void reloadData() {
-        dataList.removeAll();
+        dataTable.removeAll();
         snowDataArray.clear();
         snowDataArray = null;
-        populateList();
+        populateTable();
     }
 
     /*
@@ -448,6 +442,6 @@ public class SnowDisplayMeteoTab extends TabItemComp implements
     @Override
     public void updateThresholdData(SnowDisplayMeteoData sdmd) {
         updateDataArray(sdmd);
-        populateList();
+        populateTable();
     }
 }

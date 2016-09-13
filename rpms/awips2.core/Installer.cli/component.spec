@@ -16,11 +16,11 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Bryan Kowal
+Packager: %{_build_site}
 
 AutoReq: no
-provides: awips2-cli
-requires: awips2-python
+Provides: awips2-cli
+Requires: awips2-python
 
 %description
 AWIPS II CLI Installation - Contains The AWIPS II CLI Component.
@@ -81,39 +81,16 @@ cp -r  %{_baseline_workspace}/rpms/awips2.core/Installer.cli/fxa/* ${RPM_BUILD_R
 if [ "${1}" = "2" ]; then
    exit 0
 fi
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| Installing AWIPS II CLI...\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m   Installation Root = ${RPM_INSTALL_PREFIX}\e[m"
 
 %post
 if [ "${1}" = "2" ]; then
    exit 0
 fi
-PYTHON_INSTALL="/awips2/python"
-
-function printFailureMessage()
-{
-   echo -e "\e[1;31m--------------------------------------------------------------------------------\e[m"
-   echo -e "\e[1;31m\| AWIPS II CLI Installation - FAILED\e[m"
-   echo -e "\e[1;31m--------------------------------------------------------------------------------\e[m"
-}
-echo "--------------------------------------------------------------------------------"
-echo "\| Setting up AWIPS II CLI Runtime and Environment..."
-echo "--------------------------------------------------------------------------------"
-
-echo -e "\e[1;32m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;32m\| AWIPS II CLI Installation - COMPLETE\e[m"
-echo -e "\e[1;32m--------------------------------------------------------------------------------\e[m"
 
 %postun
 if [ "${1}" = "1" ]; then
    exit 0
 fi
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| The AWIPS II CLI Installation Has Been Successfully Removed\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo ""
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}

@@ -186,7 +186,6 @@ class Procedure (SmartScript.SmartScript):
          print "after setting up VU: memory:%d  resident:%d"%(memory(),resident())
          self.setToolType("numeric")
 
-         self._empty = self.VU._empty
          #
          #  Setup scaleList.  This contains tuples of (numpts,label) where
          #  numpts is the +/- points to average over, and label is a label
@@ -196,7 +195,7 @@ class Procedure (SmartScript.SmartScript):
          spacing=self.VU.getGridSpacing()
          nominalSpacing=self.VU.getCFG('NOMINALSPACING')
          rspacing=int((float(spacing)/float(nominalSpacing))+0.5)*nominalSpacing
-         maxk=max(self._empty.shape[0],self._empty.shape[1])
+         maxk=max(self.getGridShape())
          for k in xrange(maxk):
             curTxt=wTxt.get()
             last=curTxt[-1]
@@ -323,7 +322,7 @@ class Procedure (SmartScript.SmartScript):
 
    def getPts(self,areaname):
       if areaname=="NONE":
-         ea=(self._empty+1).astype(int)
+         ea=self.newGrid(True, bool)
       else:
          ea=self.encodeEditArea(areaname)
       eb=ravel(ea)
@@ -1175,10 +1174,10 @@ class Procedure (SmartScript.SmartScript):
                   #
                   if parmname not in parmnames:
                      parmnames.append(parmname)
-                     hitssave[parmname]=self._empty
-                     misssave[parmname]=self._empty
-                     falrsave[parmname]=self._empty
-                     cornsave[parmname]=self._empty
+                     hitssave[parmname]=self.empty()
+                     misssave[parmname]=self.empty()
+                     falrsave[parmname]=self.empty()
+                     cornsave[parmname]=self.empty()
                   #
                   #  Add to the hits/miss/falr/corn values
                   #
@@ -1225,7 +1224,7 @@ class Procedure (SmartScript.SmartScript):
                   #
                   if parmname not in parmnames:
                      parmnames.append(parmname)
-                     gridsave[parmname]=self._empty.copy()
+                     gridsave[parmname]=self.empty()
                      gridcount[parmname]=0
                   #
                   #  if doing average errors, add errors to sums
@@ -1804,7 +1803,7 @@ class Procedure (SmartScript.SmartScript):
       #  find max number in any bin in any of the histograms
       #
       histkey1=self.histograms.keys()[0]
-      maxHist=zeros(self.histograms[histkey1].shape)
+      maxHist=zeros_like(self.histograms[histkey1])
       for histkey in self.histograms.keys():
          self.histograms[histkey]/=float(self.numCases[histkey])
          maxHist=maximum(maxHist,self.histograms[histkey])
@@ -3466,7 +3465,7 @@ class Procedure (SmartScript.SmartScript):
          self.statusBarMsg(msg,"U")
          return
       print "the areaNames are:",areaNames
-      comboArea=self._empty
+      comboArea=self.empty(bool)
       if ((AreaCombine==1)and(len(areaNames)>1)):
          for areaName in areaNames:
             if areaName=="Current":
@@ -3474,9 +3473,9 @@ class Procedure (SmartScript.SmartScript):
                mask=self.encodeEditArea(areaObject)
                any=add.reduce(add.reduce(mask))
                if any==0:
-                  mask=self._empty+1
+                  mask=self.newGrid(True, bool)
             elif areaName=="NONE":
-               mask=(self._empty)+1
+               mask=self.newGrid(True, bool)
             else:
                mask=self.encodeEditArea(areaName)
             comboArea=logical_or(comboArea,mask)
@@ -3652,9 +3651,9 @@ class Procedure (SmartScript.SmartScript):
                         ea=self.encodeEditArea(areaObject)
                         any=add.reduce(add.reduce(ea))
                         if any==0:
-                           ea=self._empty+1
+                           ea=self.newGrid(True, bool)
                      elif areaName=="NONE":
-                        ea=self._empty+1
+                        ea=self.newGrid(True, bool)
                      else:
                         ea=areaName
                      valx=self.VU.getVerStat(model,basetime,readParm,starttime,endtime,
@@ -3934,7 +3933,7 @@ class Procedure (SmartScript.SmartScript):
       #
       #  For 'combined areas' - setup the comboArea just once
       #
-      comboArea=self._empty
+      comboArea=self.empty(bool)
       if ((AreaCombine==1)and(len(areaNames)>1)):
          for areaName in areaNames:
             if areaName=="Current":
@@ -3942,9 +3941,9 @@ class Procedure (SmartScript.SmartScript):
                mask=self.encodeEditArea(areaObject)
                any=add.reduce(add.reduce(mask))
                if any==0:
-                  mask=self._empty+1
+                  mask=self.newGrid(True, bool)
             elif areaName=="NONE":
-               mask=self._empty+1
+               mask=self.newGrid(True, bool)
             else:
                mask=self.encodeEditArea(areaName)
             comboArea=logical_or(comboArea,mask)      
@@ -4151,9 +4150,9 @@ class Procedure (SmartScript.SmartScript):
                         ea=self.encodeEditArea(areaObject)
                         any=add.reduce(add.reduce(ea))
                         if any==0:
-                           ea=self._empty+1
+                           ea=self.newGrid(True, bool)
                      elif areaName=="NONE":
-                        ea=self._empty+1
+                        ea=self.newGrid(True, bool)
                      else:
                         ea=areaName
                      valx=self.VU.getVerStat(model,basetime,readParm,starttime,
@@ -4461,16 +4460,16 @@ class Procedure (SmartScript.SmartScript):
       #
       #  Setup the combined area
       #
-      comboArea=self._empty
+      comboArea=self.empty(bool)
       for areaName in areaNames:
          if areaName=="Current":
             areaObject=self.getActiveEditArea()
             mask=self.encodeEditArea(areaObject)
             any=add.reduce(add.reduce(mask))
             if any==0:
-               mask=self._empty+1
+               mask=self.newGrid(True, bool)
          elif areaName=="NONE":
-            mask=self._empty+1
+            mask=self.newGrid(True, bool)
          else:
             mask=self.encodeEditArea(areaName)
          comboArea=logical_or(comboArea,mask)      
@@ -5751,7 +5750,7 @@ class Procedure (SmartScript.SmartScript):
       histoData=add.reduce(d1,-1)
       self.VU.logMsg("done with histoData reduce")
       #hitCount=add.reduce(where(d1,verif,0),-1)
-      a=where(d1,verif,0)
+      a=where(d1,verif,float32(0))
       hitCount=add.reduce(a,-1)
       self.VU.logMsg("done with hitCount reduce")
       histoData[-2]+=histoData[-1]

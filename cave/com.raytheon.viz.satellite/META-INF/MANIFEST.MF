@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Satellite Visualization Plug-in
 Bundle-SymbolicName: com.raytheon.viz.satellite;singleton:=true
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.15.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: Raytheon
@@ -31,5 +31,6 @@ Import-Package: com.raytheon.viz.awipstools,
  com.raytheon.viz.core.rsc,
  com.raytheon.viz.core.rsc.hdf5
 Export-Package: com.raytheon.viz.satellite,
- com.raytheon.viz.satellite.rsc
+ com.raytheon.viz.satellite.rsc,
+ com.raytheon.viz.satellite.tileset
 Bundle-ClassPath: com.raytheon.viz.satellite.jar

@@ -20,46 +20,48 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <contribute xsi:type="toolbarSubMenu" menuText="WPC-WWD">
-		<contribute xsi:type="menuItem" menuText="6-hr ice" key="FRZR6hr" indentText="false" />
-		<contribute xsi:type="menuItem" menuText="6-hr snowfall" key="TOTSN6hr" indentText="false" />
-		<contribute xsi:type="toolbarSubMenu" menuText="Snow Density/Snow-water Ratio">
-			<contribute xsi:type="menuItem" menuText="Climo Density SON/DJF/MAM" key="SDENCLIMO" indentText="false" />
-			<contribute xsi:type="menuItem" menuText="Climo Ratio SON/DJF/MAM" key="s2H2O_CLIMO" indentText="false" />
-			<contribute xsi:type="menuItem" menuText="GFS Density" key="SDENGFS" indentText="false" />
-			<contribute xsi:type="menuItem" menuText="GFS Ratio" key="s2H2O_GFS" indentText="false" />
-			<contribute xsi:type="menuItem" menuText="NAM Density" key="SDENNAM" indentText="false" />
-			<contribute xsi:type="menuItem" menuText="NAM Ratio" key="s2H2O_NAM" indentText="false" />
-			<contribute xsi:type="menuItem" menuText="HPC Mean Density" key="SDENMEAN" indentText="false" />
-			<contribute xsi:type="menuItem" menuText="HPC Mean Ratio" key="s2H2O_MEAN" indentText="false" />
-		</contribute>
-	</contribute>
-	<contribute xsi:type="menuItem" menuText="Dendritic Growth Isotherms" key="Tdend" indentText="false" />
-	<contribute xsi:type="menuItem" menuText="EPV* - Sat Geo Equiv Pot Vort" key="MpV" indentText="false" />
-	<contribute xsi:type="menuItem" menuText="EPV* - Less than 0.25" key="QPV2" indentText="true" />
-	<contribute xsi:type="menuItem" menuText="Instability - Upright vs. Slantwise Icons" key="EPVt2" indentText="false" />
-	<contribute xsi:type="menuItem" menuText="Lake Snow Parameter" key="LSP" indentText="false" />
-	<contribute xsi:type="menuItem" menuText="Precip Type Icons" key="PTyp" indentText="false" />
-	<contribute xsi:type="menuItem" menuText="Preferred Ice Growth" key="SnowT" indentText="false" />
-	<contribute xsi:type="menuItem" menuText="Pressure Diff: -15C and MaxOmega" key="OmDiff" indentText="false" />
-	<contribute xsi:type="menuItem" menuText="Reflectivity w/PType" key="RRtype" indentText="false" />
-	<contribute xsi:type="menuItem" menuText="Q-Vector Convergence" key="QPV1" indentText="false" />
-	<contribute xsi:type="menuItem" menuText="QPV Net - QVec Conv * Neg EPV*" key="QPV3" indentText="true" />
+        <contribute xsi:type="menuItem" menuText="6-hr ice" key="FRZR6hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="6-hr snowfall" key="TOTSN6hr" indentText="false" />
+        <contribute xsi:type="toolbarSubMenu" menuText="Snow Density/Snow-water Ratio">
+            <contribute xsi:type="menuItem" menuText="Climo Density SON/DJF/MAM" key="SDENCLIMO" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="Climo Ratio SON/DJF/MAM" key="s2H2O_CLIMO" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="GFS Density" key="SDENGFS" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="GFS Ratio" key="s2H2O_GFS" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="NAM Density" key="SDENNAM" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="NAM Ratio" key="s2H2O_NAM" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="HPC Mean Density" key="SDENMEAN" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="HPC Mean Ratio" key="s2H2O_MEAN" indentText="false" />
+        </contribute>
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/fields/planview-timeseries/sfc2d/pwpf.xml" />
+    </contribute>
+    <contribute xsi:type="menuItem" menuText="Dendritic Growth Isotherms" key="Tdend" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="EPV* - Sat Geo Equiv Pot Vort" key="MpV" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="EPV* - Less than 0.25" key="QPV2" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Instability - Upright vs. Slantwise Icons" key="EPVt2" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Lake Snow Parameter" key="LSP" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Precip Type Icons" key="PTyp" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Preferred Ice Growth" key="SnowT" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Pressure Diff: -15C and MaxOmega" key="OmDiff" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Reflectivity w/PType" key="RRtype" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Q-Vector Convergence" key="QPV1" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="QPV Net - QVec Conv * Neg EPV*" key="QPV3" indentText="true" />
     <contribute xsi:type="menuItem" menuText="QG-EPV" key="QPV4" indentText="true" />
-	<contribute xsi:type="menuItem" menuText="Sfc-Based Lyr MinT For Sleet" key="CritT1" indentText="false" />
-	<contribute xsi:type="menuItem" menuText="Snow Cover" key="SCP" indentText="false" />
-	<contribute xsi:type="menuItem" menuText="Snow Depth - fm Model" key="SnD" indentText="false" />
-	<contribute xsi:type="toolbarSubMenu" menuText="Snow Ratios">
-	  <contribute xsi:type="menuItem" menuText="Snow Ratio - Crocus/ECMWF" key="snoRatCrocus" indentText="false" />
-	  <contribute xsi:type="menuItem" menuText="Snow Ratio - SPC" key="snoRatSPC" indentText="false" />
-	  <contribute xsi:type="menuItem" menuText="Snow Ratio - EMC SREF" key="snoRatEMCSREF" indentText="false" />
-	  <contribute xsi:type="menuItem" menuText="Snow Ratio - WPC Mean" key="s2H2O_MEAN" indentText="false" />
-	</contribute>
-	<contribute xsi:type="menuItem" menuText="Snow Squall Parameter" key="SNSQ" indentText="false" />
-	<contribute xsi:type="menuItem" menuText="Thickness (All Models)" key="dZ" indentText="false" />
-	<contribute xsi:type="menuItem" menuText="Thickness: Snow Likely" key="Snow3" indentText="false" />
-	<contribute xsi:type="menuItem" menuText="Thickness: ZR" key="Fzra2" indentText="false" />
-	<contribute xsi:type="menuItem" menuText="Thickness: Mixed Precip" key="Mix2" indentText="false" />
-	<contribute xsi:type="menuItem" menuText="Thickness: Rain Likely" key="Rain3" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Sfc-Based Lyr MinT For Sleet" key="CritT1" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Snow Cover" key="SCP" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Snow Depth - fm Model" key="SnD" indentText="false" />
+    <contribute xsi:type="toolbarSubMenu" menuText="Snow Ratios">
+        <contribute xsi:type="menuItem" menuText="Snow Ratio - Crocus/ECMWF" key="snoRatCrocus" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="Snow Ratio - SPC" key="snoRatSPC" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="Snow Ratio - EMC SREF" key="snoRatEMCSREF" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="Snow Ratio - WPC Mean" key="s2H2O_MEAN" indentText="false" />
+    </contribute>
+    <contribute xsi:type="menuItem" menuText="Snow Squall Parameter" key="SNSQ" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Thickness (All Models)" key="dZ" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Thickness: Snow Likely" key="Snow3" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Thickness: ZR" key="Fzra2" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Thickness: Mixed Precip" key="Mix2" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Thickness: Rain Likely" key="Rain3" indentText="false" />
 
 <!--  <contribute xsi:type="menuItem" menuText="Cold Sleet Layer with Warm Air Aloft" key="IPLayer" indentText="false" /> --> 
 

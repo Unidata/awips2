@@ -23,10 +23,11 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.redbook.RedbookRecord;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
@@ -42,6 +43,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * Feb 18, 2009            chammack    Initial creation
  * Mar 13, 2014 2907       njensen     split edex.redbook plugin into common and
  *                                     edex redbook plugins
+ * Oct 27, 2015 4798       bsteffen    Throw VizException for missing svg.
  * 
  * </pre>
  * 
@@ -63,7 +65,8 @@ public class RedbookResourceData extends AbstractRequestableResourceData {
      */
     @Override
     protected AbstractVizResource<?, ?> constructResource(
-            LoadProperties loadProperties, PluginDataObject[] objects) {
+            LoadProperties loadProperties, PluginDataObject[] objects)
+            throws VizException {
         RedbookResource rsc = new RedbookResource(this, loadProperties);
         for (PluginDataObject pdo : objects) {
             Validate.isTrue(

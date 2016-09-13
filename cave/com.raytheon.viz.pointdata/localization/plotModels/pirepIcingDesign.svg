@@ -5,6 +5,65 @@ overflow="visible"
 xmlns="http://www.w3.org/2000/svg" 
 xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
    <defs>
+<script type="text/python" plotDelegate="plotDelegate">
+import time
+
+class PirepIcingDelegate(PlotDelegate):
+    def __init__(self):
+        PlotDelegate.__init__(self)
+
+    def getSampleText(self, rec):
+        # use obsText for pirep
+        if rec.isValidParameter("obsText"):
+            return rec.getString("obsText")
+        # rebuild text for airep
+        sampleString = "ARP "
+        sampleString += " "
+        sampleString += " F%d" % (rec.getInt("flightLevel")/100)
+        
+        try:
+            iceInten = rec.getString("iceInten")
+        except ValueError:
+            iceInten = ""
+        try:
+            iceType = rec.getString("iceType")
+        except ValueError:
+            icetype = ""
+        if iceInten != ""  or iceType != "":
+            sampleString += " IC"
+            if iceInten != "":
+                sampleString += " "
+                sampleString += iceInten
+            if iceType != "":
+                sampleString += " "
+                sampleString += iceType
+        return sampleString
+        
+    def isValid(self, rec):
+        # DCS10257
+        # need icing data
+        # only show non-severe / no severity
+        if rec.isValidParameter("iceInten"):
+            iceInten = rec.getString("iceInten")
+        else:
+            iceInten = ""
+        if rec.isValidParameter("iceType"):
+            iceType = rec.getString("iceType")
+        else:
+            iceType = ""
+        if (iceInten == "") and (iceType == ""):
+            # no icing data
+            return False
+        elif (iceInten == "SEV") or (iceInten == "EXTRM"):
+            # incorrect severity
+            return False
+        else:
+            # low or no severity, and has some icing data
+            return True
+
+plotDelegate = PirepIcingDelegate()
+
+</script>
 <style type="text/css">
 <![CDATA[
         @font-face { font-family: "WindSymbolFont";
@@ -35,7 +94,8 @@ xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
 ]]>
 </style>
 <symbol overflow="visible" id="plotData" class="info">
-  <text id="sampleText" plotMode="sample" plotParam="obsText"> </text> 
+  <text id="sampleText" plotMode="sample" plotParam="obsText"> </text>
+  <text id="validityParams" plotMode="null" class="text" plotParam="iceType" x="0" y="0" visibility="hidden">0</text>
   <text id="iceInensity" plotMode="table" class="weather" plotLookupTable="icing_intens_trans.txt" plotParam="iceInten" x="0" y="0">0</text>
   <text id="fltLvlText" plotMode="text" plotParam="flightLevel" plotFormat="%3.0f" plotUnit="hft" style="text-anchor: end;" x="-15px" y="0px">75</text>
   <text id="iceType" plotMode="table" class="weather" plotLookupTable="icing_type_trans.txt" plotParam="iceType" style="text-anchor: end" x="0" y="-10">0</text>

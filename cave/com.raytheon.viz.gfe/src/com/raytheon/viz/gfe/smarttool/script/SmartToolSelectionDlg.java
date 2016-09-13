@@ -20,6 +20,7 @@
 package com.raytheon.viz.gfe.smarttool.script;
 
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.swt.widgets.Shell;
 
@@ -37,9 +38,11 @@ import com.raytheon.viz.gfe.ui.runtimeui.SelectionDlg;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 9, 2010            njensen     Initial creation
- * Jun 25, 2013  16065    ryu         Passing outerLevel to tool job
- * Dec 10, 2013  #2367    dgilling    Use new SmartToolJobPool.
+ * Feb 09, 2010            njensen     Initial creation
+ * Jun 25, 2013  16065     ryu         Passing outerLevel to tool job
+ * Dec 10, 2013  #2367     dgilling    Use new SmartToolJobPool.
+ * Jul 17, 2015  4575      njensen     Changed varDict from String to Map
+ * Sep 23, 2015  4871      randerso    Code clean up
  * 
  * </pre>
  * 
@@ -49,25 +52,31 @@ import com.raytheon.viz.gfe.ui.runtimeui.SelectionDlg;
 
 public class SmartToolSelectionDlg extends SelectionDlg {
 
-    public SmartToolSelectionDlg(Shell parent, String title,
-            DataManager dataMgr, List<FieldDefinition> varList) {
-        super(parent, title, dataMgr, varList);
+    /**
+     * Constructor
+     * 
+     * @param parent
+     *            parent shell
+     * @param name
+     *            name of smartTool/procedure
+     * @param dataMgr
+     *            DataManager instance to use
+     * @param fieldDefs
+     *            field definitions for dialog
+     */
+    public SmartToolSelectionDlg(Shell parent, String name,
+            DataManager dataMgr, List<FieldDefinition> fieldDefs) {
+        super(parent, name, dataMgr, fieldDefs, false);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.ui.runtimeui.SelectionDlg#run()
-     */
     @Override
-    public void run() {
+    protected void run() {
         PreviewInfo pi = SmartUtil.checkAndBuildPreview(dataMgr, name);
         if (pi != null) {
             SmartToolRequest req = SmartUtil.buildSmartToolRequest(dataMgr, pi,
                     true);
             if (req != null) {
-                String varDict = dataMgr.getSmartToolInterface()
-                        .transformVarDict(getValues());
+                Map<String, Object> varDict = getValues();
                 req.setVarDict(varDict);
                 dataMgr.getSmartToolJobPool().schedule(req);
             }

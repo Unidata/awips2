@@ -35,8 +35,6 @@ import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
-import com.raytheon.uf.viz.d2d.nsharp.rsc.D2DNSharpResourceData;
-import com.raytheon.uf.viz.d2d.nsharp.rsc.GribNSharpResourceData;
 import com.raytheon.uf.viz.xy.crosssection.rsc.CrossSectionResourceData;
 import com.raytheon.uf.viz.xy.timeseries.rsc.TimeSeriesResourceData;
 import com.raytheon.uf.viz.xy.varheight.rsc.VarHeightResourceData;
@@ -50,14 +48,16 @@ import com.raytheon.viz.volumebrowser.xml.VbSourceList;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date          Ticket#  Engineer    Description
- * ------------- -------- ----------- -----------------------------------------
- * Jan 04, 2010           mschenke    Initial creation
- * Oct 03, 2012  1248     rferrel     Change to use adapter.
- * Dec 11, 2013  2602     bsteffen    Remove dead catch block.
- * Aug 19, 2014  3506     mapeters    Modified getModelTitleToNameMap function 
- *                                    to still get correct VB sources after 
- *                                    splitting them into multiple files.
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- -----------------------------------------
+ * Jan 04, 2010           mschenke  Initial creation
+ * Oct 03, 2012  1248     rferrel   Change to use adapter.
+ * Dec 11, 2013  2602     bsteffen  Remove dead catch block.
+ * Aug 19, 2014  3506     mapeters  Modified getModelTitleToNameMap function 
+ *                                  to still get correct VB sources after 
+ *                                  splitting them into multiple files.
+ * Aug 03, 2015  3861     bsteffen  Remove nsharp dependency.
+ * 
  * </pre>
  * 
  * @author mschenke
@@ -74,11 +74,9 @@ public class GridAlterBundleContributor extends AlterBundleContributorAdapter {
 
         if (modelTitleToNameMap == null) {
             modelTitleToNameMap = new HashMap<String, String>();
-            for (VbSource source : VbSourceList.getInstance()
-                    .getAllSources()) {
+            for (VbSource source : VbSourceList.getInstance().getAllSources()) {
                 if (!source.getRemove()) {
-                    modelTitleToNameMap.put(source.getName(),
-                                source.getKey());
+                    modelTitleToNameMap.put(source.getName(), source.getKey());
                 }
             }
         }
@@ -114,8 +112,6 @@ public class GridAlterBundleContributor extends AlterBundleContributorAdapter {
             } else if (data instanceof TimeSeriesResourceData) {
                 ((TimeSeriesResourceData) data).setSource(lookup.getInfo(
                         selectedString).getTitle());
-            } else if (data instanceof GribNSharpResourceData) {
-                ((D2DNSharpResourceData) data).setSoundingType(selectedString);
             } else if (data instanceof CrossSectionResourceData) {
                 ((CrossSectionResourceData) data).setSource(lookup.getInfo(
                         selectedString).getTitle());

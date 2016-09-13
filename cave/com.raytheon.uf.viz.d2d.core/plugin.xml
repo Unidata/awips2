@@ -35,13 +35,13 @@
         categoryId="com.raytheon.uf.viz.core.theme.d2d"
         id="com.raytheon.uf.viz.d2d.core.map.D2DColorBarResourceFont"
         label="D2D Colorbar Font"
-        value="Monospace-regular-11">
+        value="Monospace-regular-9">
         <description>
             Colorbar font for D2D
         </description>
     </fontDefinition>   
     <colorDefinition
-    	  categoryId="com.raytheon.uf.viz.core.theme.d2d"
+          categoryId="com.raytheon.uf.viz.core.theme.d2d"
           id="com.raytheon.uf.viz.d2d.core.map.D2DColorBarResourceColor"
           label="D2D Colorbar Font Color"
           value="255,255,255">
@@ -53,7 +53,7 @@
         categoryId="com.raytheon.uf.viz.core.theme.d2d"
         id="com.raytheon.uf.viz.d2d.core.legend.D2DLegendResource"
         label="D2D Legend Font"
-        value="Monospace-bold-14">
+        value="Monospace-bold-12">
         <description>
             Legend font for D2D
         </description>
@@ -62,7 +62,7 @@
         categoryId="com.raytheon.uf.viz.core.theme.d2d"
         id="com.raytheon.uf.viz.d2d.core.sampling.D2DSamplingResource"
         label="Sampling Font"
-        value="Monospaced-bold-12">
+        value="Monospace-bold-10">
         <description>
             The sampling font for D2D
         </description>

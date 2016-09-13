@@ -32,14 +32,17 @@ import static com.raytheon.viz.hydro.alertalarm.AlertAlarmConstants.dbDatabaseFo
 import static com.raytheon.viz.hydro.alertalarm.AlertAlarmConstants.smallerTime;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -48,14 +51,17 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
-import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.Pair;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -82,8 +88,10 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * May, 2011    9359       Jingtao Deng Updated queryLocdatalimits(), check locdatalimits table
  *                                      first, is not existing, check for datalimits table as defaults.
  *                                      Both not existing, set as MISSING
- * Dec 07, 2012 1353       rferrel      Make dialog non-blocking.
+ * Dec 07, 2012 1353       rferrel     Make dialog non-blocking.
  * Feb 05, 2013 1578       rferrel     Changes for non-blocking singleton TimeSeriesDlg.
+ * Jun 15, 2015 16579      wkwock      Add HSA filter.
+ * Apr 27, 2016 5438       randerso    Fixed GUI sizing issues
  * 
  * </pre>
  * 
@@ -95,6 +103,11 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
         IhfsAlertalarmvalData, IhfsLocdatalimitsData {
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(AlertAlarmValuesDlg.class);
+
+    /**
+     * Max number of characters to display
+     */
+    private static final int NAME_LIMIT = 20;
 
     /**
      * Font used for the data list.
@@ -117,6 +130,11 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
     private Combo exceedingCbo;
 
     /**
+     * HSA combo box.
+     */
+    private Combo hsaCbo;
+
+    /**
      * Sort by time radio button.
      */
     private Button timeRdo;
@@ -129,14 +147,21 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
     /**
      * List control displaying the data.
      */
-    private List dataList;
+    private List<Pair<String, Integer>> dataTableColumnDefs = Arrays.asList(
+            new Pair<String, Integer>("Location", SWT.LEFT),
+            new Pair<String, Integer>("Name", SWT.LEFT),
+            new Pair<String, Integer>("PE", SWT.LEFT),
+            new Pair<String, Integer>("Dur", SWT.RIGHT),
+            new Pair<String, Integer>("TS", SWT.LEFT),
+            new Pair<String, Integer>("Ext", SWT.LEFT),
+            new Pair<String, Integer>("Value", SWT.RIGHT),
+            new Pair<String, Integer>("SupVal", SWT.LEFT),
+            new Pair<String, Integer>("QC", SWT.LEFT),
+            new Pair<String, Integer>("ThreatDesc", SWT.LEFT),
+            new Pair<String, Integer>("ValidTime", SWT.LEFT),
+            new Pair<String, Integer>("BasisTime", SWT.LEFT));
 
-    /**
-     * List containing valid times in database format.
-     */
-    private java.util.List<String> dataValidTimes = new ArrayList<String>();
-
-    private java.util.List<String> dataBasisTimes = new ArrayList<String>();
+    private Table dataTable;
 
     /**
      * Product text control.
@@ -159,44 +184,44 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
     private Text lastReportedTimeTF;
 
     /**
-     * Upper alert label.
+     * Upper alert text field.
      */
-    private Label alertUpperLbl;
+    private Text alertUpperTF;
 
     /**
-     * Lower alert label.
+     * Lower alert text field.
      */
-    private Label alertLowerLbl;
+    private Text alertLowerTF;
 
     /**
-     * ROC alert label.
+     * ROC alert test field.
      */
-    private Label alertRocLbl;
+    private Text alertRocTF;
 
     /**
-     * Diff alert label.
+     * Diff alert test field.
      */
-    private Label alertDiffLbl;
+    private Text alertDiffTF;
 
     /**
-     * Upper alarm label.
+     * Upper alarm test field.
      */
-    private Label alarmUpperLbl;
+    private Text alarmUpperTF;
 
     /**
-     * Lower alarm label.
+     * Lower alarm test field.
      */
-    private Label alarmLowerLbl;
+    private Text alarmLowerTF;
 
     /**
-     * ROC alarm label.
+     * ROC alarm test field.
      */
-    private Label alarmRocLbl;
+    private Text alarmRocTF;
 
     /**
-     * Diff alarm label.
+     * Diff alarm test field.
      */
-    private Label alarmDiffLbl;
+    private Text alarmDiffTF;
 
     /**
      * Currently selected location ID.
@@ -249,8 +274,7 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
     private void initializeComponents() {
         createTopControls();
         createSortByControls();
-        createListLabels();
-        createDataListControl();
+        createDataTableControl();
         createSelectedItemGroup();
         createBottomButtons();
 
@@ -263,13 +287,22 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
      */
     private void createTopControls() {
         Composite topControlComp = new Composite(shell, SWT.NONE);
-        GridLayout topControlGl = new GridLayout(6, false);
-        topControlComp.setLayout(topControlGl);
+        GridLayout gl = new GridLayout(4, false);
+        gl.horizontalSpacing = 10;
+        topControlComp.setLayout(gl);
 
-        Label showLbl = new Label(topControlComp, SWT.NONE);
+        Composite showComp = new Composite(topControlComp, SWT.NONE);
+        gl = new GridLayout(3, false);
+        gl.marginWidth = 0;
+        gl.marginHeight = 0;
+        showComp.setLayout(gl);
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        showComp.setLayoutData(gd);
+
+        Label showLbl = new Label(showComp, SWT.NONE);
         showLbl.setText("Show");
 
-        showCbo = new Combo(topControlComp, SWT.DROP_DOWN | SWT.READ_ONLY);
+        showCbo = new Combo(showComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         showCbo.add("All");
         showCbo.add("Observed");
         showCbo.add("Forecast");
@@ -286,7 +319,7 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
 
         });
 
-        alertAlarmCbo = new Combo(topControlComp, SWT.DROP_DOWN | SWT.READ_ONLY);
+        alertAlarmCbo = new Combo(showComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         alertAlarmCbo.add("Alert/Alarms");
         alertAlarmCbo.add("Alarms");
         alertAlarmCbo.add("Alerts");
@@ -303,12 +336,18 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
 
         });
 
-        GridData gd = new GridData(100, SWT.DEFAULT);
-        Label exceedLbl = new Label(topControlComp, SWT.RIGHT);
-        exceedLbl.setText("Exceeding");
-        exceedLbl.setLayoutData(gd);
+        Composite exceedingComp = new Composite(topControlComp, SWT.NONE);
+        gl = new GridLayout(2, false);
+        gl.marginWidth = 0;
+        gl.marginHeight = 0;
+        exceedingComp.setLayout(gl);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        exceedingComp.setLayoutData(gd);
 
-        exceedingCbo = new Combo(topControlComp, SWT.DROP_DOWN | SWT.READ_ONLY);
+        Label exceedLbl = new Label(exceedingComp, SWT.RIGHT);
+        exceedLbl.setText("Exceeding");
+
+        exceedingCbo = new Combo(exceedingComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         exceedingCbo.add("Any Limit");
         exceedingCbo.add("Rate-of-Change (roc)");
         exceedingCbo.add("Upper Limit");
@@ -326,11 +365,52 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
             }
 
         });
-        gd = new GridData(370, SWT.DEFAULT);
-        Label noteLbl = new Label(topControlComp, SWT.CENTER);
-        noteLbl.setText("Note: SupVal is ObsValue for forecast diff threats\n"
-                + "and actual ROC for ROC threats");
-        noteLbl.setLayoutData(gd);
+
+        Composite hsaComp = new Composite(topControlComp, SWT.NONE);
+        gl = new GridLayout(2, false);
+        gl.marginWidth = 0;
+        gl.marginHeight = 0;
+        hsaComp.setLayout(gl);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        hsaComp.setLayoutData(gd);
+
+        Label hsaLbl = new Label(hsaComp, SWT.RIGHT);
+        hsaLbl.setText("  HSA");
+
+        hsaCbo = new Combo(hsaComp, SWT.DROP_DOWN | SWT.READ_ONLY);
+        populateHsa();
+        hsaCbo.select(0);
+        hsaCbo.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                queryAlertalarmval();
+                super.widgetSelected(e);
+            }
+
+        });
+    }
+
+    /**
+     * Populate the HsaCbo
+     */
+    private void populateHsa() {
+        hsaCbo.add("All HSAs");
+        String hsaSql = "select distinct(hsa) from location order by hsa";
+
+        java.util.List<Object[]> rs;
+        try {
+            rs = DirectDbQuery.executeQuery(hsaSql, HydroConstants.IHFS,
+                    QueryLanguage.SQL);
+            if (rs.size() > 0) {
+                for (Object[] oa : rs) {
+                    hsaCbo.add((String) oa[0]);
+                }
+            }
+        } catch (VizException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getMessage(), e);
+        }
+
     }
 
     /**
@@ -338,12 +418,13 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
      */
     private void createSortByControls() {
         Composite sortByComp = new Composite(shell, SWT.NONE);
-        GridLayout sortByGl = new GridLayout(3, false);
-        sortByGl.horizontalSpacing = 10;
-        sortByComp.setLayout(sortByGl);
+        GridLayout gl = new GridLayout(3, false);
+        gl.marginHeight = 0;
+        gl.horizontalSpacing = 10;
+        sortByComp.setLayout(gl);
 
         Label sortByLbl = new Label(sortByComp, SWT.NONE);
-        sortByLbl.setText("Sort by: ");
+        sortByLbl.setText("Sort by:");
 
         timeRdo = new Button(sortByComp, SWT.RADIO);
         timeRdo.setText("Time");
@@ -352,13 +433,7 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-
-                timeRdo.setSelection(true);
-                locationRdo.setSelection(false);
-
                 queryAlertalarmval();
-
-                super.widgetSelected(e);
             }
 
         });
@@ -369,33 +444,10 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-
-                timeRdo.setSelection(false);
-                locationRdo.setSelection(true);
-
                 queryAlertalarmval();
-
-                super.widgetSelected(e);
             }
 
         });
-    }
-
-    /**
-     * Create the labels located above the data list control.
-     */
-    private void createListLabels() {
-        Composite labelComp = new Composite(shell, SWT.NONE);
-        GridLayout labelGl = new GridLayout(12, false);
-        labelComp.setLayout(labelGl);
-
-        new GridData(500, SWT.DEFAULT);
-
-        String header = "Location       Name                    PE         Dur TS  Ext      Value             SupVal      QC   ThreatDesc           ValidTime             BasisTime";
-
-        new GridData(SWT.DEFAULT, SWT.DEFAULT);
-        Label nameLbl = new Label(labelComp, SWT.NONE);
-        nameLbl.setText(header);
     }
 
     /**
@@ -456,14 +508,8 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
         // Populate data list or Fill main list.
         // -------------------------------------
 
-        String fmtStr;
-        String fmtStr1 = "%-8s %-12.12s %2s %5d %-2s %-3s %-8.2f %-8.2f %1s  %-6s%-6s %11s %11s";
-        String fmtStr2 = "%-8s %-12.12s %2s %5d %-2s %-3s %-8.2f %-8s %1s  %-6s%-6s %11s %11s";
-        Object supplValue;
-        String basisTimeValue;
-        String tmpStr;
         StringBuilder myQuery = new StringBuilder(
-                "select aav.lid, aav.pe, aav.dur, aav.ts, aav.extremum, aav.value, aav.suppl_value, aav.quality_code, aav.aa_check, aav.aa_categ, aav.validtime, aav.basistime, location.name from location, alertalarmval aav where location.lid = aav.lid");
+                "select aav.lid, location.name, aav.pe, aav.dur, aav.ts, aav.extremum, aav.value, aav.suppl_value, aav.quality_code, aav.aa_check, aav.aa_categ, aav.validtime, aav.basistime from location, alertalarmval aav where location.lid = aav.lid");
         ArrayList<Object[]> alertData;
 
         // Build 'where' clause by using the three options in the combo boxes on
@@ -499,6 +545,13 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
             myQuery.append(DIFF_CHECKSTR);
         }
 
+        // HSA filter
+        if (!hsaCbo.getItem(hsaCbo.getSelectionIndex()).equalsIgnoreCase(
+                "All HSAs")) {
+            myQuery.append(" and hsa='"
+                    + hsaCbo.getItem(hsaCbo.getSelectionIndex()) + "'");
+        }
+
         // Build 'sort' options based on toggle buttons on the dialog.
 
         if (locationRdo.getSelection()) {
@@ -521,59 +574,83 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
         db2DatabaseFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         try {
-            dataList.removeAll();
-            dataValidTimes.clear();
-            dataBasisTimes.clear();
+            dataTable.removeAll();
             alertData = (ArrayList<Object[]>) DirectDbQuery.executeQuery(
                     myQuery.toString(), HydroConstants.IHFS, QueryLanguage.SQL);
             for (Object[] rowData : alertData) {
-                /* reformat some of the fields for improved display. */
+                TableItem item = new TableItem(dataTable, SWT.NONE);
 
+                // Location
+                item.setText(0, rowData[0].toString());
+
+                // Name
+                String name = rowData[1].toString();
+                item.setText(1,
+                        name.substring(0, Math.min(NAME_LIMIT, name.length())));
+
+                // PE
+                item.setText(2, rowData[2].toString());
+
+                // Dur
+                item.setText(3, rowData[3].toString());
+
+                // TS
+                item.setText(4, rowData[4].toString());
+
+                // Ext
+                item.setText(5, rowData[5].toString());
+
+                // Value
+                item.setText(6, String.format("%8.2f", rowData[6]));
+
+                // SupVal
                 /*
                  * don't bother showing the following fields: probability value,
                  * shef revision code, action time. If aa_check is not 'roc' or
                  * 'diff', then assign the value of * 'roc' or 'diff' as "--".
                  */
-                if ((rowData[8].toString().trim().equals("roc"))
-                        || (rowData[8].toString().trim().equals("diff"))) {
-                    fmtStr = fmtStr1;
-                    supplValue = rowData[6];
+                if ((rowData[9].toString().trim().equals("roc"))
+                        || (rowData[9].toString().trim().equals("diff"))) {
+                    item.setText(7, String.format("%8.2f", rowData[7]));
                 } else {
-                    fmtStr = fmtStr2;
-                    supplValue = "   --  ";
+                    item.setText(7, "   --  ");
                 }
+
+                // QC
+                String QcSymbol = TimeSeriesUtil
+                        .buildQcSymbol(((Number) rowData[8]).longValue());
+                item.setText(8, QcSymbol);
+
+                // ThreatDesc
+                item.setText(9, rowData[9] + " " + rowData[10]);
+
+                item.setText(10, smallerTime.format((Date) rowData[11]));
+                item.setData("validTime", rowData[11]);
 
                 /*
                  * for time vars, need full year info and two separate fields
                  * for possible parsing later. only show the basis time if
                  * processing observed type data.
                  */
-                if ((rowData[3].toString().trim().toUpperCase().startsWith("R"))
-                        || (rowData[3].toString().trim().toUpperCase()
+                if ((rowData[4].toString().trim().toUpperCase().startsWith("R"))
+                        || (rowData[4].toString().trim().toUpperCase()
                                 .startsWith("P"))) {
 
-                    basisTimeValue = "----- -----";
+                    item.setText(11, "----- -----");
                 } else {
-                    basisTimeValue = smallerTime.format((Date) rowData[11]);
+                    item.setText(11, smallerTime.format((Date) rowData[12]));
                 }
+                item.setData("basisTime", rowData[12]);
 
-                String QcSymbol = TimeSeriesUtil.buildQcSymbol(Long
-                        .parseLong(rowData[7].toString()));
+                dataTable.deselectAll();
+            }
 
-                tmpStr = String.format(fmtStr, rowData[0].toString(),
-                        rowData[12].toString(), rowData[1].toString(),
-                        rowData[2], rowData[3].toString(),
-                        rowData[4].toString(), rowData[5], supplValue,
-                        QcSymbol, rowData[8].toString(), rowData[9].toString(),
-                        smallerTime.format((Date) rowData[10]), basisTimeValue,
-                        rowData[11].toString());
-
-                /* load the list strings. */
-                dataList.add(tmpStr);
-                dataList.setSelection(0);
-                dataValidTimes.add(dbDatabaseFormat.format((Date) rowData[10]));
-                dataBasisTimes
-                        .add(db2DatabaseFormat.format((Date) rowData[11]));
+            GC gc = new GC(dataTable);
+            int pad = gc.textExtent(" ").x;
+            gc.dispose();
+            for (TableColumn column : dataTable.getColumns()) {
+                column.pack();
+                column.setWidth(column.getWidth() + pad);
             }
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM, e.getMessage(), e);
@@ -591,11 +668,10 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
                 "select aav.product_id, aav.producttime, aav.postingtime, aav.action_time from alertalarmval aav");
         ArrayList<Object[]> alertData;
         /* get the index to the selected item and get its info */
-        String selectedItem = dataList.getItem(alertAlarmIndex).trim();
-        String[] selectedItems = selectedItem.split("(\\s)+");
-        selectedLid = selectedItems[0];
-        selectedPe = selectedItems[2];
-        selectedDur = selectedItems[3];
+        TableItem selectedItem = dataTable.getItem(alertAlarmIndex);
+        selectedLid = selectedItem.getText(0);
+        selectedPe = selectedItem.getText(2);
+        selectedDur = selectedItem.getText(3);
         myQuery.append(" where aav.lid = '");
         myQuery.append(selectedLid);
         myQuery.append("'");
@@ -617,7 +693,7 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
                     productTimeTF.setText(alertAlarmTimeFormat
                             .format((Date) rowData[1]));
                 } else {
-                    productTimeTF.setText(" Unreported ");
+                    productTimeTF.setText("Unreported");
                 }
                 /* load the posting time */
                 // set postingtime.
@@ -625,7 +701,7 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
                     postingTimeTF.setText(alertAlarmTimeFormat
                             .format((Date) rowData[2]));
                 } else {
-                    postingTimeTF.setText(" Unreported ");
+                    postingTimeTF.setText("Unreported");
                 }
                 /* load the reporting time */
                 // set actiontime.
@@ -633,7 +709,7 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
                     lastReportedTimeTF.setText(alertAlarmTimeFormat
                             .format((Date) rowData[3]));
                 } else {
-                    lastReportedTimeTF.setText(" Unreported ");
+                    lastReportedTimeTF.setText("Unreported");
                 }
             }
         } catch (VizException e) {
@@ -646,7 +722,8 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
      * Prompts the user to delete the current record
      */
     private void deleteRecord() {
-        if (dataList.getSelectionIndex() != -1) {
+        int selectionIndex = dataTable.getSelectionIndex();
+        if (selectionIndex != -1) {
             MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.OK
                     | SWT.CANCEL);
             mb.setText("Delete Confirmation");
@@ -656,7 +733,7 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
 
             if (result == SWT.OK) {
                 try {
-                    deleteAlertalarmvalSelected(dataList.getSelectionIndex());
+                    deleteAlertalarmvalSelected(selectionIndex);
                     queryAlertalarmval();
                 } catch (VizException e) {
                     MessageBox mbFail = new MessageBox(shell, SWT.ICON_ERROR
@@ -686,54 +763,50 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
         StringBuilder myQuery = new StringBuilder(
                 "delete from alertalarmval aav where ");
         /* get the index to the selected item and get its info */
-        String selectedItem = dataList.getItem(alertAlarmIndex).trim();
-        String currentValidTime = dataValidTimes.get(alertAlarmIndex);
-        String basisTimeStr = dataBasisTimes.get(alertAlarmIndex);
-        String[] selectedItems = selectedItem.split("(\\s)+");
-        selectedLid = selectedItems[0];
-        int index = 2;
-        for (int i = 0; i < 10; ++i) {
-            if (!selectedItems[index].equals("HG")) {
-                index++;
-            }
-        }
+        TableItem selectedItem = dataTable.getItem(alertAlarmIndex);
+        String currentValidTime = dbDatabaseFormat.format((Date) selectedItem
+                .getData("validTime"));
+        String basisTimeStr = db2DatabaseFormat.format((Date) selectedItem
+                .getData("basisTime"));
+        selectedLid = selectedItem.getText(0);
+
         myQuery.append("(aav.lid = '");
         myQuery.append(selectedLid);
         myQuery.append("')");
         myQuery.append(" AND ");
-        // String selectedPe = selectedItems[index++];
-        selectedPe = selectedItems[index++];
+
+        selectedPe = selectedItem.getText(2);
         myQuery.append("(aav.pe = '");
         myQuery.append(selectedPe);
         myQuery.append("')");
         myQuery.append(" AND ");
-        // String selectedDur = selectedItems[index++];
-        selectedDur = selectedItems[index++];
+
+        selectedDur = selectedItem.getText(3);
         myQuery.append("(aav.dur = '");
         myQuery.append(selectedDur);
         myQuery.append("')");
         myQuery.append(" AND ");
-        String selectedTs = selectedItems[index++];
+
+        String selectedTs = selectedItem.getText(4);
         myQuery.append("(aav.ts = '");
         myQuery.append(selectedTs);
         myQuery.append("')");
         myQuery.append(" AND ");
-        String selectedExtremum = selectedItems[index++];
+
+        String selectedExtremum = selectedItem.getText(5);
         myQuery.append("(aav.extremum = '");
         myQuery.append(selectedExtremum);
         myQuery.append("')");
         myQuery.append(" AND ");
-        index++;
-        index++;
-        index++;
-        String selectedAaCheck = selectedItems[index++];
+
+        String selectedThreatDesc = selectedItem.getText(9).trim();
+        String[] splitThreat = selectedThreatDesc.split("\\s+");
         myQuery.append("(aav.aa_check = '");
-        myQuery.append(selectedAaCheck);
+        myQuery.append(splitThreat[0]);
         myQuery.append("')");
         myQuery.append(" AND ");
-        String selectedAaCateg = selectedItems[index++];
         myQuery.append("(aav.aa_categ = '");
-        myQuery.append(selectedAaCateg);
+        myQuery.append(splitThreat[1]);
         myQuery.append("')");
         myQuery.append(" AND ");
         myQuery.append("(aav.validtime = '");
@@ -803,20 +876,20 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
                     dataLimits = (ArrayList<Object[]>) DirectDbQuery
                             .executeQuery(dlQuery.toString(),
                                     HydroConstants.IHFS, QueryLanguage.SQL);
-                    if (dataLimits.size() == 0)
+                    if (dataLimits.size() == 0) {
                         deflimitsFound = false;
-                    else {
+                    } else {
                         deflimitsFound = true;
                         for (Object[] rowData : dataLimits) {
-                            setField(alertUpperLbl, (Double) rowData[0]);
-                            setField(alertLowerLbl, (Double) rowData[1]);
-                            setField(alertRocLbl, (Double) rowData[2]);
-                            setField(alertDiffLbl, (Double) rowData[3]);
+                            setField(alertUpperTF, (Double) rowData[0]);
+                            setField(alertLowerTF, (Double) rowData[1]);
+                            setField(alertRocTF, (Double) rowData[2]);
+                            setField(alertDiffTF, (Double) rowData[3]);
 
-                            setField(alarmUpperLbl, (Double) rowData[4]);
-                            setField(alarmLowerLbl, (Double) rowData[5]);
-                            setField(alarmRocLbl, (Double) rowData[6]);
-                            setField(alarmDiffLbl, (Double) rowData[7]);
+                            setField(alarmUpperTF, (Double) rowData[4]);
+                            setField(alarmLowerTF, (Double) rowData[5]);
+                            setField(alarmRocTF, (Double) rowData[6]);
+                            setField(alarmDiffTF, (Double) rowData[7]);
 
                             return;
                         }
@@ -830,29 +903,29 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
             // location specific range is found
             if (loclimitsFound) {
                 for (Object[] rowData : loclimitData) {
-                    setField(alertUpperLbl, (Double) rowData[0]);
-                    setField(alertLowerLbl, (Double) rowData[1]);
-                    setField(alertRocLbl, (Double) rowData[2]);
-                    setField(alertDiffLbl, (Double) rowData[3]);
+                    setField(alertUpperTF, (Double) rowData[0]);
+                    setField(alertLowerTF, (Double) rowData[1]);
+                    setField(alertRocTF, (Double) rowData[2]);
+                    setField(alertDiffTF, (Double) rowData[3]);
 
-                    setField(alarmUpperLbl, (Double) rowData[4]);
-                    setField(alarmLowerLbl, (Double) rowData[5]);
-                    setField(alarmRocLbl, (Double) rowData[6]);
-                    setField(alarmDiffLbl, (Double) rowData[7]);
+                    setField(alarmUpperTF, (Double) rowData[4]);
+                    setField(alarmLowerTF, (Double) rowData[5]);
+                    setField(alarmRocTF, (Double) rowData[6]);
+                    setField(alarmDiffTF, (Double) rowData[7]);
                 }
             }
             // both location specific range and default range are not found, set
             // to MISSING
             else if (!deflimitsFound) {
-                alertUpperLbl.setText(" MISSING ");
-                alertLowerLbl.setText(" MISSING ");
-                alertRocLbl.setText(" MISSING ");
-                alertDiffLbl.setText(" MISSING ");
+                alertUpperTF.setText(" MISSING ");
+                alertLowerTF.setText(" MISSING ");
+                alertRocTF.setText(" MISSING ");
+                alertDiffTF.setText(" MISSING ");
 
-                alarmUpperLbl.setText(" MISSING ");
-                alarmLowerLbl.setText(" MISSING ");
-                alarmRocLbl.setText(" MISSING ");
-                alarmDiffLbl.setText(" MISSING ");
+                alarmUpperTF.setText(" MISSING ");
+                alarmLowerTF.setText(" MISSING ");
+                alarmRocTF.setText(" MISSING ");
+                alarmDiffTF.setText(" MISSING ");
             }
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM, e.getMessage(), e);
@@ -862,29 +935,43 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
     /**
      * Create the data list control containing the alert & alarm data.
      */
-    private void createDataListControl() {
-        GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, false, false);
-        gd.widthHint = 950;
-        gd.heightHint = 500;
-        dataList = new List(shell, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
-        dataList.setLayoutData(gd);
+    private void createDataTableControl() {
 
-        dataList.setFont(font);
-        dataList.addSelectionListener(new SelectionListener() {
+        Composite dataComp = new Composite(shell, SWT.NONE);
+        GridLayout gl = new GridLayout(1, false);
+        dataComp.setLayout(gl);
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        dataComp.setLayoutData(gd);
 
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-                // TODO Auto-generated method stub
+        Label noteLbl = new Label(dataComp, SWT.CENTER);
+        noteLbl.setText("Note: SupVal is ObsValue for forecast diff threats "
+                + "and actual ROC for ROC threats");
+        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
+        noteLbl.setLayoutData(gd);
 
-            }
+        dataTable = new Table(dataComp, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.heightHint = dataTable.getItemHeight() * 22;
+        dataTable.setLayoutData(gd);
 
+        dataTable.setLinesVisible(true);
+        dataTable.setHeaderVisible(true);
+
+        for (Pair<String, Integer> columnDef : dataTableColumnDefs) {
+            TableColumn column = new TableColumn(dataTable,
+                    columnDef.getSecond());
+            column.setText(columnDef.getFirst());
+            column.pack();
+        }
+
+        dataTable.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                if (dataList.getSelectionIndex() != -1) {
-                    updateSelectedItemFields(dataList.getSelectionIndex());
+                int index = dataTable.getSelectionIndex();
+                if (index != -1) {
+                    updateSelectedItemFields(index);
                 }
             }
-
         });
     }
 
@@ -902,11 +989,11 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
     // -----------------------------------------------------------
     // Set the field according to the presence of data or no data.
     // -----------------------------------------------------------
-    private void setField(Label label, Double d) {
+    private void setField(Text control, Double d) {
         if (d != null) {
-            label.setText(String.format("%7.1f", d));
+            control.setText(String.format("%7.1f", d));
         } else {
-            label.setText(" UNDEF ");
+            control.setText(" UNDEF ");
         }
     }
 
@@ -914,132 +1001,193 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
      * Create selected item controls located below the data list control.
      */
     private void createSelectedItemGroup() {
-        GridData mainGridData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Group selectedItemGroup = new Group(shell, SWT.NONE);
-        selectedItemGroup.setText(" Details for Selected Item ");
-        GridLayout gl = new GridLayout(8, false);
+        selectedItemGroup.setText("Details for Selected Item");
+        GridLayout gl = new GridLayout(2, false);
+        gl.horizontalSpacing = 10;
         selectedItemGroup.setLayout(gl);
-        selectedItemGroup.setLayoutData(mainGridData);
+        selectedItemGroup.setLayoutData(gd);
 
-        GridData gd = new GridData(60, SWT.DEFAULT);
-        Label limitsLbl = new Label(selectedItemGroup, SWT.NONE);
+        Composite leftComp = new Composite(selectedItemGroup, SWT.NONE);
+        gl = new GridLayout(5, false);
+        gl.marginWidth = 0;
+        gl.marginHeight = 0;
+        leftComp.setLayout(gl);
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
+        leftComp.setLayoutData(gd);
+        /*
+         * Fill in the left composite
+         */
+        gd = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
+        Label limitsLbl = new Label(leftComp, SWT.RIGHT);
         limitsLbl.setText("Limits:");
         limitsLbl.setLayoutData(gd);
 
-        gd = new GridData(105, SWT.DEFAULT);
-        Label upperLbl = new Label(selectedItemGroup, SWT.CENTER);
+        gd = new GridData(SWT.CENTER, SWT.CENTER, false, false);
+        Label upperLbl = new Label(leftComp, SWT.CENTER);
         upperLbl.setText("Upper");
         upperLbl.setLayoutData(gd);
 
-        gd = new GridData(105, SWT.DEFAULT);
-        Label lowerLbl = new Label(selectedItemGroup, SWT.CENTER);
+        gd = new GridData(SWT.CENTER, SWT.CENTER, false, false);
+        Label lowerLbl = new Label(leftComp, SWT.CENTER);
         lowerLbl.setText("Lower");
         lowerLbl.setLayoutData(gd);
 
-        gd = new GridData(105, SWT.DEFAULT);
-        Label rocLbl = new Label(selectedItemGroup, SWT.CENTER);
+        gd = new GridData(SWT.CENTER, SWT.CENTER, false, false);
+        Label rocLbl = new Label(leftComp, SWT.CENTER);
         rocLbl.setText("ROC");
         rocLbl.setLayoutData(gd);
 
-        gd = new GridData(105, SWT.DEFAULT);
-        Label diffLbl = new Label(selectedItemGroup, SWT.CENTER);
+        gd = new GridData(SWT.CENTER, SWT.CENTER, false, false);
+        Label diffLbl = new Label(leftComp, SWT.CENTER);
         diffLbl.setText("Diff");
         diffLbl.setLayoutData(gd);
 
-        gd = new GridData(80, SWT.DEFAULT);
-        Label productLbl = new Label(selectedItemGroup, SWT.RIGHT);
-        productLbl.setText("Product:");
-        productLbl.setLayoutData(gd);
-
-        gd = new GridData(135, SWT.DEFAULT);
-        productTF = new Text(selectedItemGroup, SWT.BORDER);
-        productTF.setLayoutData(gd);
-
-        gd = new GridData(135, SWT.DEFAULT);
-        productTimeTF = new Text(selectedItemGroup, SWT.BORDER);
-        productTimeTF.setLayoutData(gd);
-
-        gd = new GridData(60, SWT.DEFAULT);
-        Label alertLbl = new Label(selectedItemGroup, SWT.NONE);
+        gd = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
+        Label alertLbl = new Label(leftComp, SWT.RIGHT);
         alertLbl.setText("Alert:");
         alertLbl.setLayoutData(gd);
 
-        gd = new GridData(105, SWT.DEFAULT);
-        alertUpperLbl = new Label(selectedItemGroup, SWT.BORDER | SWT.CENTER);
-        alertUpperLbl.setLayoutData(gd);
+        Color bkgColor = getDisplay().getSystemColor(
+                SWT.COLOR_WIDGET_BACKGROUND);
 
-        gd = new GridData(105, SWT.DEFAULT);
-        alertLowerLbl = new Label(selectedItemGroup, SWT.BORDER | SWT.CENTER);
-        alertLowerLbl.setLayoutData(gd);
+        alertUpperTF = new Text(leftComp, SWT.BORDER | SWT.CENTER
+                | SWT.READ_ONLY);
+        GC gc = new GC(alertUpperTF);
+        int labelWidth = gc.getFontMetrics().getAverageCharWidth() * 15; // ????
+        gc.dispose();
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
+        gd.widthHint = labelWidth;
+        alertUpperTF.setLayoutData(gd);
+        alertUpperTF.setBackground(bkgColor);
 
-        gd = new GridData(105, SWT.DEFAULT);
-        alertRocLbl = new Label(selectedItemGroup, SWT.BORDER | SWT.CENTER);
-        alertRocLbl.setLayoutData(gd);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
+        gd.widthHint = labelWidth;
+        alertLowerTF = new Text(leftComp, SWT.BORDER | SWT.CENTER
+                | SWT.READ_ONLY);
+        alertLowerTF.setLayoutData(gd);
+        alertLowerTF.setBackground(bkgColor);
 
-        gd = new GridData(105, SWT.DEFAULT);
-        alertDiffLbl = new Label(selectedItemGroup, SWT.BORDER | SWT.CENTER);
-        alertDiffLbl.setLayoutData(gd);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
+        gd.widthHint = labelWidth;
+        alertRocTF = new Text(leftComp, SWT.BORDER | SWT.CENTER | SWT.READ_ONLY);
+        alertRocTF.setLayoutData(gd);
+        alertRocTF.setBackground(bkgColor);
 
-        gd = new GridData(80, SWT.DEFAULT);
-        Label filler1Lbl = new Label(selectedItemGroup, SWT.NONE);
-        filler1Lbl.setLayoutData(gd);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
+        gd.widthHint = labelWidth;
+        alertDiffTF = new Text(leftComp, SWT.BORDER | SWT.CENTER
+                | SWT.READ_ONLY);
+        alertDiffTF.setLayoutData(gd);
+        alertDiffTF.setBackground(bkgColor);
 
-        gd = new GridData(135, SWT.DEFAULT);
-        Label postingTimeLbl = new Label(selectedItemGroup, SWT.RIGHT);
-        postingTimeLbl.setText("Posting Time:");
-        postingTimeLbl.setLayoutData(gd);
-
-        gd = new GridData(156, SWT.DEFAULT);
-        postingTimeTF = new Text(selectedItemGroup, SWT.BORDER);
-        postingTimeTF.setLayoutData(gd);
-
-        gd = new GridData(60, SWT.DEFAULT);
-        Label alarmLbl = new Label(selectedItemGroup, SWT.NONE);
+        gd = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
+        Label alarmLbl = new Label(leftComp, SWT.RIGHT);
         alarmLbl.setText("Alarm:");
         alarmLbl.setLayoutData(gd);
 
-        gd = new GridData(105, SWT.DEFAULT);
-        alarmUpperLbl = new Label(selectedItemGroup, SWT.BORDER | SWT.CENTER);
-        alarmUpperLbl.setLayoutData(gd);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
+        gd.widthHint = labelWidth;
+        alarmUpperTF = new Text(leftComp, SWT.BORDER | SWT.CENTER
+                | SWT.READ_ONLY);
+        alarmUpperTF.setLayoutData(gd);
+        alarmUpperTF.setBackground(bkgColor);
 
-        gd = new GridData(105, SWT.DEFAULT);
-        alarmLowerLbl = new Label(selectedItemGroup, SWT.BORDER | SWT.CENTER);
-        alarmLowerLbl.setLayoutData(gd);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
+        gd.widthHint = labelWidth;
+        alarmLowerTF = new Text(leftComp, SWT.BORDER | SWT.CENTER
+                | SWT.READ_ONLY);
+        alarmLowerTF.setLayoutData(gd);
+        alarmLowerTF.setBackground(bkgColor);
 
-        gd = new GridData(105, SWT.DEFAULT);
-        alarmRocLbl = new Label(selectedItemGroup, SWT.BORDER | SWT.CENTER);
-        alarmRocLbl.setLayoutData(gd);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
+        gd.widthHint = labelWidth;
+        alarmRocTF = new Text(leftComp, SWT.BORDER | SWT.CENTER | SWT.READ_ONLY);
+        alarmRocTF.setLayoutData(gd);
+        alarmRocTF.setBackground(bkgColor);
 
-        gd = new GridData(105, SWT.DEFAULT);
-        alarmDiffLbl = new Label(selectedItemGroup, SWT.BORDER | SWT.CENTER);
-        alarmDiffLbl.setLayoutData(gd);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
+        gd.widthHint = labelWidth;
+        alarmDiffTF = new Text(leftComp, SWT.BORDER | SWT.CENTER
+                | SWT.READ_ONLY);
+        alarmDiffTF.setLayoutData(gd);
+        alarmDiffTF.setBackground(bkgColor);
 
-        gd = new GridData(80, SWT.DEFAULT);
-        Label filler2Lbl = new Label(selectedItemGroup, SWT.NONE);
-        filler2Lbl.setLayoutData(gd);
+        Composite rightComp = new Composite(selectedItemGroup, SWT.NONE);
+        gl = new GridLayout(3, false);
+        gl.marginWidth = 0;
+        gl.marginHeight = 0;
+        rightComp.setLayout(gl);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false);
+        rightComp.setLayoutData(gd);
 
-        gd = new GridData(156, SWT.DEFAULT);
-        Label lartReportedLbl = new Label(selectedItemGroup, SWT.RIGHT);
+        /*
+         * Fill in the right composite
+         */
+        gd = new GridData(SWT.RIGHT, SWT.CENTER, true, false);
+        Label productLbl = new Label(rightComp, SWT.RIGHT);
+        productLbl.setText("Product:");
+        productLbl.setLayoutData(gd);
+
+        productTF = new Text(rightComp, SWT.BORDER);
+        gc = new GC(productTF);
+        int textWidth = gc.textExtent("MMMMMMMMMM").x;
+        gc.dispose();
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.widthHint = textWidth;
+        productTF.setLayoutData(gd);
+        productTF.setBackground(bkgColor);
+
+        productTimeTF = new Text(rightComp, SWT.BORDER);
+        gc = new GC(productTimeTF);
+        textWidth = gc.textExtent("Wed 00/00 00:00").x;
+        gc.dispose();
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.widthHint = textWidth;
+        productTimeTF.setLayoutData(gd);
+        productTimeTF.setBackground(bkgColor);
+
+        gd = new GridData(SWT.RIGHT, SWT.CENTER, true, false);
+        gd.horizontalSpan = 2;
+        Label postingTimeLbl = new Label(rightComp, SWT.RIGHT);
+        postingTimeLbl.setText("Posting Time:");
+        postingTimeLbl.setLayoutData(gd);
+
+        postingTimeTF = new Text(rightComp, SWT.BORDER);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.widthHint = textWidth;
+        postingTimeTF.setLayoutData(gd);
+        postingTimeTF.setBackground(bkgColor);
+
+        gd = new GridData(SWT.RIGHT, SWT.CENTER, true, false);
+        gd.horizontalSpan = 2;
+        Label lartReportedLbl = new Label(rightComp, SWT.RIGHT);
         lartReportedLbl.setText("Time Last Reported:");
         lartReportedLbl.setLayoutData(gd);
 
-        gd = new GridData(156, SWT.DEFAULT);
-        lastReportedTimeTF = new Text(selectedItemGroup, SWT.BORDER);
+        lastReportedTimeTF = new Text(rightComp, SWT.BORDER);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.widthHint = textWidth;
         lastReportedTimeTF.setLayoutData(gd);
+        lastReportedTimeTF.setBackground(bkgColor);
     }
 
     /**
      * Create the buttons located at the bottom of the dialog.
      */
     private void createBottomButtons() {
-        GridData mainGD = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Composite buttonComp = new Composite(shell, SWT.NONE);
-        GridLayout buttonGl = new GridLayout(4, false);
-        buttonGl.horizontalSpacing = 10;
-        buttonComp.setLayoutData(mainGD);
-        buttonComp.setLayout(buttonGl);
+        GridLayout gl = new GridLayout(4, false);
+        gl.horizontalSpacing = 10;
+        buttonComp.setLayout(gl);
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        buttonComp.setLayoutData(gd);
 
-        GridData gd = new GridData(160, SWT.DEFAULT);
+        int dpi = getDisplay().getDPI().x;
+
+        gd = new GridData(SWT.LEFT, SWT.DEFAULT, false, false);
+        gd.widthHint = dpi * 2;
         Button tabularBtn = new Button(buttonComp, SWT.PUSH);
         tabularBtn.setText("Tabular Time Series");
         tabularBtn.setLayoutData(gd);
@@ -1053,7 +1201,8 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
             }
         });
 
-        gd = new GridData(160, SWT.DEFAULT);
+        gd = new GridData(SWT.LEFT, SWT.DEFAULT, false, false);
+        gd.widthHint = dpi * 2;
         Button graphBtn = new Button(buttonComp, SWT.PUSH);
         graphBtn.setText("Graphical Time Series");
         graphBtn.setLayoutData(gd);
@@ -1067,7 +1216,8 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
             }
         });
 
-        gd = new GridData(90, SWT.DEFAULT);
+        gd = new GridData(SWT.LEFT, SWT.DEFAULT, false, false);
+        gd.widthHint = dpi;
         Button deleteBtn = new Button(buttonComp, SWT.PUSH);
         deleteBtn.setText("Delete");
         deleteBtn.setLayoutData(gd);
@@ -1078,8 +1228,8 @@ public class AlertAlarmValuesDlg extends CaveSWTDialog implements
             }
         });
 
-        gd = new GridData(SWT.END, SWT.DEFAULT, true, false);
-        gd.widthHint = 90;
+        gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
+        gd.widthHint = dpi;
         Button closeBtn = new Button(buttonComp, SWT.PUSH);
         closeBtn.setText("Close");
         closeBtn.setLayoutData(gd);

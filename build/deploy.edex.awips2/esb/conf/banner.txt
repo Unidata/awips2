@@ -1,9 +1,10 @@
 **************************************************
 * AWIPS II EDEX ESB Platform                     *
-* Version: SOTE 11.X                             *
+* Version: 16.2.2                                *
 * Raytheon Company                               *
+* UCAR Unidata Program Center                    *
 *------------------------------------------------*
-* DEVELOPMENT                                    *
+* NON-OPERATIONAL                                *
 *                                                *
 *                                                *
 **************************************************

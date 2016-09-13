@@ -1,7 +1,7 @@
-#Product Discipline 209 - Multi-Radar/Multi-Sensor, Parameter Category 7: Model-Derived Parameters
-0:0:Model Surface temperature [RAP 13km]:C:ModelSurfaceTemp
-1:1:Model Surface wet bulb temperature [RAP 13km]:C:ModelWetBulbTemp
-2:2:Probability of warm rain [RAP 13km derived]:%:WarmRainProbability
-3:3:Model Freezing Level Height [RAP 13km]:m MSL:ModelHeight0C
-4:4:Brightband Top Radar [RAP 13km derived]:m AGL:BrightBandTopHeight
-5:5:Brightband Bottom Radar [RAP 13km derived]:m AGL:BrightBandBottomHeight
+#Product Discipline 209 - Multi-Radar/Multi-Sensor, Parameter Category 5: Model-Derived Fields
+0:0:Surface Temperature:C:ModelSurfaceTemperature
+1:1:Wet Bulb Temperature:C:ModelWetbulbTemperature
+2:2:Probability of Warm Rain:%:WarmRainProbability
+3:3:Freezing Level Height:m:ModelHeight0C
+4:4:Bright Band Top Height:m:BrightBandTopHeight
+5:5:Bright Band Bottom Height:m:BrightBandBottomHeight

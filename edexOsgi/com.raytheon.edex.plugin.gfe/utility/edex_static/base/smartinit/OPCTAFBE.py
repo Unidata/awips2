@@ -37,7 +37,9 @@ class OPCWAVEForecaster(Forecaster):
     def calcWaveHeight(self, htsgw_SFC, topo):
     
         #  Assign the value filtering out everything above 50 meters
-        grid = where(greater(htsgw_SFC, 50), 0.0, htsgw_SFC * 3.28)
+        grid = htsgw_SFC.copy()
+        grid[greater(htsgw_SFC, 50)] = 0.0
+        grid *= 3.28
 
         #  Make a mask where topo is 0.0 m MSL
         topoMask = equal(topo, 0.0)
@@ -49,10 +51,11 @@ class OPCWAVEForecaster(Forecaster):
         grid = self.fillEditArea(grid, logical_and(dataMask, topoMask))
         
         #  Ensure grid values are between 0 ft and 100 ft
-        grid = clip(grid, 0, 100)       
+        grid.clip(0, 100, grid)
         
         #  Return completed grid - but only where topo is 0 ft MSL
-        return where(topoMask, grid, 0.0)
+        grid[logical_not(topoMask)] = 0.0
+        return grid
 
 
 
@@ -86,13 +89,13 @@ class OPCWAVEForecaster(Forecaster):
 
 ##--------------------------------------------------------------------------
 ## Given a numeric array of 1s and 0s this method returns a similar
-## array with cells set that emcompass the mask, unset everwhere else
+## array with cells set that encompass the mask, unset everywhere else
 ##--------------------------------------------------------------------------
     def getMaskBorder(self, mask):
-        border = zeros(mask.shape)
+        border = self.empty(bool)
         for i in [-1, 0, 1]:
             for j in [-1, 0, 1]:
-                border = logical_or(border, self.offset(mask, i, j))
+                border[self.offset(mask, i, j)] = True
         return logical_xor(border, mask)
 
 
@@ -168,9 +171,9 @@ class OPCWAVEForecaster(Forecaster):
             return grid
 
         half = int(factor)/ 2
-        sg = zeros(grid.shape,Float64)
-        count = zeros(grid.shape,Float64)
-        gridOfOnes = ones(grid.shape,Float64)
+        sg = zeros(grid.shape,float64)
+        count = zeros(grid.shape,float64)
+        gridOfOnes = ones(grid.shape,float64)
         for y in range(-half, half + 1):
             for x in range(-half, half + 1):
                 if y < 0:

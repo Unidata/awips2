@@ -20,7 +20,6 @@
 package com.raytheon.uf.viz.d2d.gfe.browser;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,21 +40,15 @@ import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.style.StyleManager;
 import com.raytheon.uf.common.style.StyleManager.StyleType;
 import com.raytheon.uf.common.style.StyleRule;
-import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
-import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
-import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
-import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.d2d.gfe.rsc.GFEGridResource;
-import com.raytheon.uf.viz.d2d.gfe.rsc.GFEGridResourceData;
 import com.raytheon.viz.volumebrowser.datacatalog.AbstractDataCatalog;
 import com.raytheon.viz.volumebrowser.datacatalog.AvailableDataRequest;
 import com.raytheon.viz.volumebrowser.datacatalog.DataCatalogEntry;
 import com.raytheon.viz.volumebrowser.datacatalog.IDataCatalogEntry;
 import com.raytheon.viz.volumebrowser.vbui.SelectedData;
-import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 
 /**
  * 
@@ -67,12 +60,13 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 9, 2011            bsteffen     Initial creation
- * May 02, 2013 1949       bsteffen    Update GFE data access in Product
- *                                     Browser, Volume Browser, and Data Access
- *                                     Framework.
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------
+ * Mar 09, 2011           bsteffen  Initial creation
+ * May 02, 2013  1949     bsteffen  Update GFE data access in Product Browser,
+ *                                  Volume Browser, and Data Access Framework
+ * Aug 03, 2015  3861     bsteffen  Move resource creation to product creator
+ * 
  * 
  * </pre>
  * 
@@ -239,7 +233,7 @@ public class GFEVbDataCatalog extends AbstractDataCatalog {
     }
 
     @Override
-    protected String[] getPlugins(ViewMenu setting) {
+    protected String[] getPlugins() {
         return new String[] { "gfe" };
     }
 
@@ -248,31 +242,6 @@ public class GFEVbDataCatalog extends AbstractDataCatalog {
             HashMap<String, RequestConstraint> productParameters) {
         productParameters.putAll(getParmIdConstraint(catalogEntry
                 .getSelectedData()));
-    }
-
-    @Override
-    public Collection<ResourcePair> getResourcesToLoad(
-            IDataCatalogEntry catalogEntry, ResourceType resourceType,
-            DisplayType displayType) {
-        Collection<ResourcePair> rsc = super.getResourcesToLoad(catalogEntry,
-                resourceType, displayType);
-        for (ResourcePair pair : rsc) {
-            AbstractResourceData rd = pair.getResourceData();
-            if (rd instanceof GFEGridResourceData) {
-                ((GFEGridResourceData) rd).setLegendString(getName(
-                        catalogEntry, displayType));
-            }
-        }
-        return rsc;
-    }
-
-    @Override
-    protected AbstractRequestableResourceData getResourceData(
-            IDataCatalogEntry catalogEntry, ResourceType resourceType) {
-        if (resourceType == ResourceType.PLAN_VIEW) {
-            return new GFEGridResourceData();
-        }
-        return super.getResourceData(catalogEntry, resourceType);
     }
 
     @Override

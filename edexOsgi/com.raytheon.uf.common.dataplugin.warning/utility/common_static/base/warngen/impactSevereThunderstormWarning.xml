@@ -47,6 +47,9 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <followup>COR</followup>
  </followups>
  
+ <!-- Product ID: nnn id of the product -->
+ <productId>SVR</productId>
+  
  <!-- Phensigs: The list of phenomena and significance combinations that this template applies to -->
  <phensigs>
    <phensig>SV.W</phensig>

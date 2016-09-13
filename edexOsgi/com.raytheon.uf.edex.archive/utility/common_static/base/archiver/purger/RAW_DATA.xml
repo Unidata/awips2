@@ -118,7 +118,7 @@
      Example with multiple <dirPattern>s 
      <category>
         <name>Observation</name>
-        <selectedRetentionHours>168</selectedRetentionHours>
+        <selectedRetentionHours>1</selectedRetentionHours>
         <dataSet>
            <dirPattern>(acars|airep|airmet|taf)</dirPattern>
            <dirPattern>(bufrsigwx|sfcobs)/.*</dirPattern>
@@ -140,8 +140,8 @@
      -->
 <archive>
     <name>Raw</name>
-    <rootDir>/data_store/</rootDir>
-    <defaultRetentionHours>168</defaultRetentionHours>
+    <rootDir>/awips2/data_store/</rootDir>
+    <defaultRetentionHours>1</defaultRetentionHours>
     <category>
         <name>Local</name>
         <selectedRetentionHours>1</selectedRetentionHours>

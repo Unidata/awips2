@@ -19,7 +19,8 @@
  **/
 package com.raytheon.viz.gfe.core.internal;
 
-import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,15 +37,17 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.weatherelement.WEGroup;
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.ILocalizationFileObserver;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -62,10 +65,13 @@ import com.raytheon.viz.gfe.core.IWEGroupManager;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Jun 5, 2008              chammack    Initial creation
- * Sep 30, 2013 2361        njensen     Use JAXBManager for XML
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Jun 05, 2008             chammack    Initial creation
+ * Sep 30, 2013  2361       njensen     Use JAXBManager for XML
+ * Aug 13, 2015  4749       njensen     Implemented dispose()
+ * Nov 12, 2015  4834       njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Feb 05, 2016  5242       dgilling    Remove calls to deprecated Localization APIs.
  * 
  * </pre>
  * 
@@ -144,32 +150,25 @@ public class WEGroupManager implements IWEGroupManager,
 
     private void loadGroups() {
         IPathManager pathManager = PathManagerFactory.getPathManager();
-
         LocalizationContext[] contexts = pathManager
                 .getLocalSearchHierarchy(LocalizationType.CAVE_STATIC);
-        LocalizationFile[] files = pathManager.listFiles(contexts, WEGROUP_DIR,
-                new String[] { ".xml" }, false, true);
+        ILocalizationFile[] files = pathManager.listFiles(contexts,
+                WEGROUP_DIR, new String[] { ".xml" }, false, true);
 
-        this.inventory = new LinkedHashMap<LocalizationLevel, Set<String>>();
-        for (LocalizationFile lf : files) {
-            try {
-                File file = lf.getFile(false);
-                String fn = file.getName();
-                LocalizationLevel levelType = lf.getContext()
-                        .getLocalizationLevel();
+        inventory = new LinkedHashMap<LocalizationLevel, Set<String>>();
+        for (ILocalizationFile lf : files) {
+            String fn = LocalizationUtil.extractName(lf.getPath());
+            LocalizationLevel levelType = lf.getContext()
+                    .getLocalizationLevel();
 
-                Set<String> inventoryList = this.inventory.get(levelType);
-                if (inventoryList == null) {
-                    inventoryList = new HashSet<String>();
-                    this.inventory.put(levelType, inventoryList);
-                }
-                String s = construct(fn);
-                if (s != null) {
-                    inventoryList.add(s);
-                }
-            } catch (LocalizationException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error retrieving WE Group inventory", e);
+            Set<String> inventoryList = inventory.get(levelType);
+            if (inventoryList == null) {
+                inventoryList = new HashSet<String>();
+                inventory.put(levelType, inventoryList);
+            }
+            String s = construct(fn);
+            if (s != null) {
+                inventoryList.add(s);
             }
         }
     }
@@ -194,39 +193,20 @@ public class WEGroupManager implements IWEGroupManager,
         return displayName + SUFFIX;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.IWEGroupManager#save(java.lang.String,
-     * com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID[],
-     * com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID[])
-     */
     @Override
     public void save(String name, ParmID[] parmIDs, ParmID[] availableParmIDs) {
         WEGroup group = new WEGroup(name, parmIDs, availableParmIDs);
         this.save(name, group);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.internal.IWEGroupManager#remove(java.lang.String
-     * )
-     */
+    @Override
     public boolean remove(String name) {
         return this.delete(name);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.internal.IWEGroupManager#getParmIDs(java.lang
-     * .String, com.raytheon.edex.plugin.gfe.db.objects.ParmID[])
-     */
+    @Override
     public ParmID[] getParmIDs(String name, ParmID[] availableParmIDs) {
-        LocalizationFile file = this.getLocalizationFile(name);
+        ILocalizationFile file = getLocalizationFile(name);
         if (file == null || !file.exists()) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error loading weather element group \"" + name
@@ -235,25 +215,18 @@ public class WEGroupManager implements IWEGroupManager,
         }
 
         WEGroup weGroup = null;
-        try {
-            weGroup = jaxb.unmarshalFromXmlFile(file.getFile().getPath());
+        try (InputStream inStream = file.openInputStream()) {
+            weGroup = jaxb.unmarshalFromInputStream(inStream);
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error getting weather element group", e);
+            return new ParmID[0];
         }
 
         return getParmIDs(weGroup, availableParmIDs);
-
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.internal.IWEGroupManager#getParmIDs(com.raytheon
-     * .edex.plugin.gfe.weatherElement.WEGroup,
-     * com.raytheon.edex.plugin.gfe.db.objects.ParmID[])
-     */
+    @Override
     public ParmID[] getParmIDs(final WEGroup bundle,
             final ParmID[] availableParmIDs) {
 
@@ -284,13 +257,6 @@ public class WEGroupManager implements IWEGroupManager,
         return parmIDs.toArray(new ParmID[parmIDs.size()]);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.internal.AbstractFileBasedManager#getInventory
-     * ()
-     */
     @Override
     public List<String> getInventory() {
         List<String> completeList = new ArrayList<String>();
@@ -313,11 +279,6 @@ public class WEGroupManager implements IWEGroupManager,
         return Collections.unmodifiableList(completeList);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.IWEGroupManager#getDefaultGroup()
-     */
     @Override
     public String getDefaultGroup() {
         String defaultGroup = Activator.getDefault().getPreferenceStore()
@@ -328,12 +289,6 @@ public class WEGroupManager implements IWEGroupManager,
         return defaultGroup;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.IWEGroupManager#isProtected(java.lang.String )
-     */
     @Override
     public boolean isProtected(String name) {
         LocalizationFile file = getLocalizationFile(name);
@@ -361,7 +316,7 @@ public class WEGroupManager implements IWEGroupManager,
             file.delete();
             inventory.get(context.getLocalizationLevel()).remove(object);
             return true;
-        } catch (LocalizationOpFailedException e) {
+        } catch (LocalizationException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error deleting from localization server", e);
         }
@@ -371,18 +326,19 @@ public class WEGroupManager implements IWEGroupManager,
     }
 
     private void save(String key, WEGroup objectToSave) {
-
         IPathManager pm = PathManagerFactory.getPathManager();
-
         LocalizationContext lc = pm.getContext(LocalizationType.CAVE_STATIC,
                 LocalizationLevel.USER);
-
-        LocalizationFile file = pm.getLocalizationFile(lc,
+        ILocalizationFile file = pm.getLocalizationFile(lc,
                 FileUtil.join(WEGROUP_DIR, getName(key)));
-        try {
-            jaxb.marshalToXmlFile(objectToSave, file.getFile().getPath());
-            file.save();
-        } catch (LocalizationOpFailedException e) {
+        try (SaveableOutputStream out = file.openOutputStream()) {
+            jaxb.marshalToStream(objectToSave, out);
+            out.save();
+        } catch (IOException e) {
+            String msg = String.format("Error writing to WEGroup file %s: %s",
+                    file, e.getLocalizedMessage());
+            statusHandler.error(msg);
+        } catch (LocalizationException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error saving to localization server", e);
         } catch (SerializationException e) {
@@ -390,10 +346,10 @@ public class WEGroupManager implements IWEGroupManager,
                     e);
         }
 
-        Set<String> list = this.inventory.get(LocalizationLevel.USER);
+        Set<String> list = inventory.get(LocalizationLevel.USER);
         if (list == null) {
             list = new HashSet<String>();
-            this.inventory.put(LocalizationLevel.USER, list);
+            inventory.put(LocalizationLevel.USER, list);
         }
         list.add(key);
     }
@@ -412,6 +368,7 @@ public class WEGroupManager implements IWEGroupManager,
      * 
      * @return user inventory
      */
+    @Override
     public List<String> getUserInventory() {
         List<String> completeList = new ArrayList<String>();
         Set<String> userInv = this.inventory.get(LocalizationLevel.USER);
@@ -421,16 +378,14 @@ public class WEGroupManager implements IWEGroupManager,
         return Collections.unmodifiableList(completeList);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.localization.ILocalizationFileObserver#fileUpdated
-     * (com.raytheon.uf.common.localization.FileUpdatedMessage)
-     */
     @Override
     public void fileUpdated(FileUpdatedMessage message) {
         loadGroups();
+    }
+
+    @Override
+    public void dispose() {
+        weGroupDir.removeFileUpdatedObserver(this);
     }
 
 }

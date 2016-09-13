@@ -35,8 +35,9 @@ import java.util.TimeZone;
 
 import jep.JepException;
 
-import org.apache.log4j.Logger;
 import org.hibernate.NonUniqueObjectException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.activetable.ActiveTableKey;
@@ -118,6 +119,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  *                                     fixed next ETN query to query for >= Jan 1
  * May 22, 2015 4522       randerso    Create proper primary key for ActiveTableRecord
  * Jul 09, 2015 4500       rjpeter     Fix SQL Injection concern.
+ * Dec 14, 2015 5166       kbisanz     Update logging to use SLF4J
  * </pre>
  * 
  * @author njensen
@@ -128,7 +130,7 @@ public class ActiveTable {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ActiveTable.class);
 
-    private static final Logger changeLog = Logger
+    private static final Logger changeLog = LoggerFactory
             .getLogger("ActiveTableChange");
 
     private static final String ACTIVE_TABLE_LOCK_NAME = "ActiveTableWriteLock";

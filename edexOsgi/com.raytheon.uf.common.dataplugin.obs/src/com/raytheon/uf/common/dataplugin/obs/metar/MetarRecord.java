@@ -44,8 +44,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
+import com.raytheon.uf.common.dataplugin.NullUtil;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.annotations.NullString;
 import com.raytheon.uf.common.dataplugin.obs.metar.util.SkyCover;
 import com.raytheon.uf.common.dataplugin.obs.metar.util.WeatherCondition;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
@@ -88,6 +90,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Feb 11, 2014  2784     rferrel     Remove override of setIdentifier.
  * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
  * Jul 23, 2014  3410     bclement    location changed to floats
+ * Jul 28, 2015  4360     rferrel     Named unique constraint. Make reportType and correction non-nullable.
  * 
  * </pre>
  * 
@@ -96,7 +99,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "obsseq")
-@Table(name = "obs", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = "obs", uniqueConstraints = { @UniqueConstraint(name = "uk_obs_datauri_fields", columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
@@ -145,16 +148,18 @@ public class MetarRecord extends PersistablePluginDataObject implements
     /** Report type extracted from WMO header * */
     @XmlElement
     @DynamicSerializeElement
-    @Column
+    @Column(nullable = false)
     @DataURI(position = 1)
-    protected String reportType;
+    @NullString
+    protected String reportType = NullUtil.NULL_STRING;
 
     /** A string denoting if this report is a correction */
     @XmlElement
     @DynamicSerializeElement
-    @Column
+    @Column(nullable = false)
     @DataURI(position = 2)
-    private String correction;
+    @NullString
+    private String correction = NullUtil.NULL_STRING;
 
     @Embedded
     @DataURI(position = 3, embedded = true)
@@ -438,7 +443,7 @@ public class MetarRecord extends PersistablePluginDataObject implements
      * @return the correction
      */
     public String getCorrection() {
-        return correction;
+        return NullUtil.convertNullStringToNull(this.correction);
     }
 
     /**
@@ -446,7 +451,7 @@ public class MetarRecord extends PersistablePluginDataObject implements
      *            the correction to set
      */
     public void setCorrection(String correction) {
-        this.correction = correction;
+        this.correction = NullUtil.convertNullToNullString(correction);
     }
 
     /**
@@ -985,11 +990,11 @@ public class MetarRecord extends PersistablePluginDataObject implements
     }
 
     public String getReportType() {
-        return reportType;
+        return NullUtil.convertNullStringToNull(reportType);
     }
 
     public void setReportType(String reportType) {
-        this.reportType = reportType;
+        this.reportType = NullUtil.convertNullToNullString(reportType);
     }
 
     /**

@@ -25,20 +25,19 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.ListIterator;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
@@ -46,13 +45,13 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowData;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -60,8 +59,10 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
@@ -70,6 +71,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.common.util.Pair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.viz.hydro.CaveHydroSWTDialog;
@@ -80,6 +82,7 @@ import com.raytheon.viz.hydro.timeseries.util.GraphData;
 import com.raytheon.viz.hydro.timeseries.util.GroupInfo;
 import com.raytheon.viz.hydro.timeseries.util.LIDData;
 import com.raytheon.viz.hydro.timeseries.util.PageInfo;
+import com.raytheon.viz.hydro.timeseries.util.PreferredOrderManager;
 import com.raytheon.viz.hydro.timeseries.util.TimeSeriesUtil;
 import com.raytheon.viz.hydro.timeseries.util.TraceData;
 import com.raytheon.viz.hydrocommon.HydroConstants;
@@ -87,6 +90,7 @@ import com.raytheon.viz.hydrocommon.HydroDataCache;
 import com.raytheon.viz.hydrocommon.HydroDisplayManager;
 import com.raytheon.viz.hydrocommon.data.GageData;
 import com.raytheon.viz.hydrocommon.util.StnClassSyncUtil;
+import com.raytheon.viz.ui.widgets.DateTimeSpinner;
 
 /**
  * This class displays the Time Series dialog for Hydroview.
@@ -124,6 +128,13 @@ import com.raytheon.viz.hydrocommon.util.StnClassSyncUtil;
  * 06 Jun 2013 2076        mpduff      Fix station list selection and graph button enabling.
  * 0  Jun 2013 15980       wkwock      Fix selected station not update
  * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
+ * Oct 13, 2015 4933       rferrel     Log error if unable to find group definition file
+ *                                      Fixed formatter resource leaks.
+ * 30 Oct, 2015 15102      wkwock      Implements preferred order for PE-D-TS-EXT list
+ * 26 Oct, 2015 14217      jwu         Removed DAYS_MAX & MAX_TRACES limitations
+ * Jan 26, 2016 5054       randerso    Allow dialog to be parented to display
+ * Mar 17, 2016  5483      randerso    Major GUI cleanup
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -190,65 +201,9 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
      */
     private TimeSeriesDisplayDlg timeSeriesDisplayDlg = null;
 
-    /**
-     * Beginning year button.
-     */
-    private Button beginYearBtn;
+    private DateTimeSpinner beginningTimeControl;
 
-    /**
-     * Beginning month button.
-     */
-    private Button beginMonthBtn;
-
-    /**
-     * Beginning day button.
-     */
-    private Button beginDayBtn;
-
-    /**
-     * Beginning hour button.
-     */
-    private Button beginHourBtn;
-
-    /**
-     * Up arrow used to increase the beginning date & time
-     */
-    private Button upBeginTimeBtn;
-
-    /**
-     * Down arrow used to decrease the beginning date & time
-     */
-    private Button dnBeginTimeBtn;
-
-    /**
-     * Ending year button.
-     */
-    private Button endYearBtn;
-
-    /**
-     * Ending month button.
-     */
-    private Button endMonthBtn;
-
-    /**
-     * Ending day button.
-     */
-    private Button endDayBtn;
-
-    /**
-     * Ending hour button.
-     */
-    private Button endHourBtn;
-
-    /**
-     * Up arrow used to increase the ending date & time
-     */
-    private Button upEndTimeBtn;
-
-    /**
-     * Down arrow used to decrease the ending date & time
-     */
-    private Button dnEndTimeBtn;
+    private DateTimeSpinner endingTimeControl;
 
     /**
      * Mode combo box.
@@ -313,12 +268,21 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
     /**
      * Top data list box.
      */
-    private List topDataList;
+    private final java.util.List<Pair<String, Integer>> topDataTableLabels = Arrays
+            .asList(new Pair<>("ID", SWT.LEFT), new Pair<>("Name", SWT.LEFT));
+
+    private Table topDataTable;
 
     /**
      * Bottom data list box.
      */
-    private List bottomDataList;
+
+    private final java.util.List<Pair<String, Integer>> bottomDataTableLabels = Arrays
+            .asList(new Pair<>("PE", SWT.LEFT), new Pair<>("TypSrc", SWT.LEFT),
+                    new Pair<>("Ext", SWT.LEFT), new Pair<>("Dur", SWT.LEFT),
+                    new Pair<>("     ", SWT.LEFT));
+
+    private Table bottomDataTable;
 
     /**
      * List of Group Data.
@@ -330,19 +294,10 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
      */
     private Calendar beginCal;
 
-    private Date beginDate = null;
-
     /**
      * Ending time calendar.
      */
     private Calendar endCal;
-
-    private Date endDate = null;
-
-    /**
-     * The selected data label.
-     */
-    private Label selectedDataLbl;
 
     /**
      * The graph button.
@@ -360,36 +315,6 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
     private Button bothButton = null;
 
     /**
-     * Beginning time enumeration.
-     * 
-     * @author lvenable
-     * 
-     */
-    private enum beginTimeKey {
-        BEGIN_YEAR, BEGIN_MONTH, BEGIN_DAY, BEGIN_HOUR
-    };
-
-    /**
-     * Ending time enumeration.
-     * 
-     * @author lvenable
-     * 
-     */
-    private enum endTimeKey {
-        END_YEAR, END_MONTH, END_DAY, END_HOUR
-    };
-
-    /**
-     * Selected beginning time key.
-     */
-    private beginTimeKey selectedBeginTime;
-
-    /**
-     * Selected ending time key.
-     */
-    private endTimeKey selectedEndTime;
-
-    /**
      * The Stack Composite.
      */
     private Composite stackComp;
@@ -402,17 +327,17 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
     /**
      * Set of Location IDs in the upperDataList
      */
-    private ArrayList<String> lidList = new ArrayList<String>();
+    private ArrayList<String> lidList;
 
     /**
      * Filtered lid list
      */
-    private ArrayList<String> filteredLidList = new ArrayList<String>();
+    private ArrayList<String> filteredLidList;
 
     /**
      * Tree Map holding the Location Id and Name in sorted order.
      */
-    private Map<String, String> stationData;// = new TreeMap<String, String>();
+    private Map<String, String> stationData;
 
     /**
      * Map holding the location id and display class.
@@ -491,10 +416,8 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
      */
     public final static TimeSeriesDlg getInstance() {
         // Independent shell must be recreated after closing.
-        if ((instance == null) || !instance.isOpen()) {
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
-            instance = new TimeSeriesDlg(shell);
+        if (instance == null || !instance.isOpen()) {
+            instance = new TimeSeriesDlg(Display.getCurrent());
         }
         return instance;
     }
@@ -502,11 +425,10 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
     /**
      * Constructor.
      * 
-     * @param parent
-     *            Parent shell.
+     * @param display
      */
-    private TimeSeriesDlg(Shell parent) {
-        super(parent, CAVE.INDEPENDENT_SHELL);
+    private TimeSeriesDlg(Display display) {
+        super(display, SWT.RESIZE, CAVE.INDEPENDENT_SHELL);
         setText("Time Series Control");
 
         displayManager = HydroDisplayManager.getInstance();
@@ -518,23 +440,22 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
     /**
      * Constructor for stand alone dialog.
      * 
-     * @param parent
-     *            the Parent shell.
+     * @param display
      * 
      * @param groupConfigFile
      *            the user-specified file with group configuration information.
      */
-    public TimeSeriesDlg(Shell parent, File groupConfigFile) {
-        this(parent);
+    public TimeSeriesDlg(Display display, File groupConfigFile) {
+        this(display);
 
         this.standaloneMode = true;
         // Ensure That The Group Configuration File Exists.
-        if ((groupConfigFile == null) || !groupConfigFile.exists()) {
+        if (groupConfigFile == null || !groupConfigFile.exists()) {
             // if it does not, check localization for the file
             IPathManager pm = PathManagerFactory.getPathManager();
             groupConfigFile = pm.getStaticFile(HydroConstants.GROUP_DEFINITION);
 
-            if ((groupConfigFile == null) || !groupConfigFile.exists()) {
+            if (groupConfigFile == null || !groupConfigFile.exists()) {
                 String name = HydroConstants.GROUP_DEFINITION;
                 if (name.startsWith("/")) {
                     name = name.substring(1);
@@ -577,6 +498,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
      * Update dialog and make sure it is open.
      * 
      * @param lid
+     * @param displayGraph
      */
     public void updateAndOpen(String lid, boolean displayGraph) {
         this.currentLid = lid;
@@ -589,19 +511,25 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
      * Update dialog and make sure it is open.
      * 
      * @param lid
+     * @param PE
+     * @param TS
+     * @param displayGraph
      */
     public void updateAndOpen(String lid, String PE, String TS,
-            boolean dispalyGraph) {
+            boolean displayGraph) {
         this.currentLid = lid;
         this.currentPe = PE;
         this.currentTs = TS;
-        this.displayGraph = dispalyGraph;
+        this.displayGraph = displayGraph;
         openTimeSeriesDisplays = true;
         updateOpen();
     }
 
     /**
      * Update dialog and make sure it is open.
+     * 
+     * @param gageData
+     * @param displayGraph
      * 
      * @param lid
      */
@@ -613,11 +541,6 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         updateOpen();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
-     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -634,23 +557,11 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         shell.setFocus();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
-     */
     @Override
     protected void disposed() {
         font.dispose();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
-     * .eclipse.swt.widgets.Shell)
-     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -662,11 +573,6 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         setCurrentData();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#opened()
-     */
     @Override
     protected void opened() {
         if (openTimeSeriesDisplays) {
@@ -702,19 +608,14 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         beginCal.add(Calendar.DAY_OF_MONTH, beginDays * -1);
         beginCal.set(Calendar.MINUTE, 0);
         beginCal.set(Calendar.SECOND, 0);
-
-        beginDate = beginCal.getTime();
+        beginCal.set(Calendar.MILLISECOND, 0);
 
         endCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         endCal.setTime(d);
         endCal.add(Calendar.DAY_OF_MONTH, endDays);
         endCal.set(Calendar.MINUTE, 0);
         endCal.set(Calendar.SECOND, 0);
-
-        endDate = endCal.getTime();
-
-        selectedBeginTime = beginTimeKey.BEGIN_YEAR;
-        selectedEndTime = endTimeKey.END_YEAR;
+        endCal.set(Calendar.MILLISECOND, 0);
 
         createTimeControls();
 
@@ -729,7 +630,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             statusHandler.error("Failed to populate station list", e);
         }
 
-        if (startMode.equals("GROUP") && (displayGraph == false)) {
+        if (startMode.equals("GROUP") && displayGraph == false) {
             modeCbo.select(0);
             stackLayout.topControl = groupGroup;
             stackComp.layout();
@@ -745,21 +646,36 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
     private void createStationControls() {
         stackComp = new Composite(shell, SWT.NONE);
         stackComp.setLayout(stackLayout);
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        stackComp.setLayoutData(gd);
+
         stnGroup = new Group(stackComp, SWT.NONE);
-        stnGroup.setLayout(new GridLayout());
+        GridLayout gl = new GridLayout(1, false);
+        gl.marginHeight = 0;
+        gl.marginWidth = 0;
+        stnGroup.setLayout(gl);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        stnGroup.setLayoutData(gd);
+
         stackLayout.topControl = stnGroup;
 
         createCheckBoxControls();
 
         /* Add a separator */
-        GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Label sepLbl = new Label(stnGroup, SWT.SEPARATOR | SWT.HORIZONTAL);
         sepLbl.setLayoutData(gd);
 
         createSearchControls();
-        createTopDataListControl();
-        createBottomDataListLabel();
-        createBottomDataListControl();
+        SashForm sashForm = new SashForm(stnGroup, SWT.VERTICAL);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        sashForm.setLayoutData(gd);
+        sashForm.SASH_WIDTH = 6;
+
+        createTopTableControl(sashForm);
+        createBottomDataTable(sashForm);
+
+        sashForm.setWeights(new int[] { 50, 50 });
     }
 
     /**
@@ -769,13 +685,17 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         groupGroup = new Group(stackComp, SWT.NONE);
         groupGroup.setLayout(new GridLayout());
 
-        GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, false, false);
-        gd.widthHint = 250;
-        gd.heightHint = 600;
         groupDataList = new List(groupGroup, SWT.BORDER | SWT.SINGLE
                 | SWT.V_SCROLL | SWT.H_SCROLL);
+
+        GC gc = new GC(groupDataList);
+        int textWidth = gc.getFontMetrics().getAverageCharWidth() * 30;
+        gc.dispose();
+
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gd.widthHint = textWidth;
+        gd.heightHint = groupDataList.getItemHeight() * 27;
         groupDataList.setLayoutData(gd);
-        groupDataList.setFont(font);
     }
 
     /**
@@ -783,188 +703,44 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
      */
     private void createTimeControls() {
         // --------------------------------------
-        // Create beginning time label
-        // --------------------------------------
-        Composite beginningTimeComp = new Composite(shell, SWT.NONE);
-        RowLayout topLabelCompRl = new RowLayout();
-        beginningTimeComp.setLayout(topLabelCompRl);
-
-        Label beginningTimeLbl = new Label(beginningTimeComp, SWT.NONE);
-        beginningTimeLbl.setText("Beginning Time Z:");
-
-        // --------------------------------------
         // Create beginning time controls
         // --------------------------------------
-        Composite beginTimeCtrlComp = new Composite(shell, SWT.NONE);
-        GridLayout beginTimeCtrlGl = new GridLayout(5, false);
-        beginTimeCtrlComp.setLayout(beginTimeCtrlGl);
+        Composite timeComp = new Composite(shell, SWT.NONE);
+        GridLayout gl = new GridLayout(2, false);
+        timeComp.setLayout(gl);
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
 
-        GridData gd = new GridData(63, SWT.DEFAULT);
-        beginYearBtn = new Button(beginTimeCtrlComp, SWT.PUSH);
-        beginYearBtn.setText(String.valueOf(beginCal.get(Calendar.YEAR)));
-        beginYearBtn.setLayoutData(gd);
-        beginYearBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                selectedBeginTime = beginTimeKey.BEGIN_YEAR;
-            }
-        });
+        Label beginningTimeLbl = new Label(timeComp, SWT.NONE);
+        beginningTimeLbl.setText("Beginning Time Z:");
 
-        gd = new GridData(43, SWT.DEFAULT);
-        beginMonthBtn = new Button(beginTimeCtrlComp, SWT.PUSH);
-        beginMonthBtn.setText(String.valueOf(beginCal.get(Calendar.MONTH) + 1));
-        beginMonthBtn.setLayoutData(gd);
-        beginMonthBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                selectedBeginTime = beginTimeKey.BEGIN_MONTH;
-            }
-        });
-
-        gd = new GridData(43, SWT.DEFAULT);
-        beginDayBtn = new Button(beginTimeCtrlComp, SWT.PUSH);
-        beginDayBtn
-                .setText(String.valueOf(beginCal.get(Calendar.DAY_OF_MONTH)));
-        beginDayBtn.setLayoutData(gd);
-        beginDayBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                selectedBeginTime = beginTimeKey.BEGIN_DAY;
-            }
-        });
-
-        gd = new GridData(43, SWT.DEFAULT);
-        beginHourBtn = new Button(beginTimeCtrlComp, SWT.PUSH);
-        beginHourBtn
-                .setText(String.valueOf(beginCal.get(Calendar.HOUR_OF_DAY)));
-        beginHourBtn.setLayoutData(gd);
-        beginHourBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                selectedBeginTime = beginTimeKey.BEGIN_HOUR;
-            }
-        });
-
-        // Add the time arrow buttons
-        Composite timeArrowsComp = new Composite(beginTimeCtrlComp, SWT.NONE);
-        RowLayout timeArrowRl = new RowLayout(SWT.VERTICAL);
-        timeArrowsComp.setLayout(timeArrowRl);
-
-        RowData rd = new RowData(20, 20);
-        upBeginTimeBtn = new Button(timeArrowsComp, SWT.ARROW);
-        upBeginTimeBtn.setLayoutData(rd);
-        upBeginTimeBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                updateBeginTime(1);
-            }
-        });
-
-        rd = new RowData(20, 20);
-        dnBeginTimeBtn = new Button(timeArrowsComp, SWT.ARROW | SWT.DOWN);
-        dnBeginTimeBtn.setLayoutData(rd);
-        dnBeginTimeBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                updateBeginTime(-1);
-            }
-        });
-
-        // --------------------------------------
-        // Create ending time label
-        // --------------------------------------
-        Composite endingTimeComp = new Composite(shell, SWT.NONE);
-        RowLayout endingCompRl = new RowLayout();
-        endingTimeComp.setLayout(endingCompRl);
-
-        Label endingTimeLbl = new Label(endingTimeComp, SWT.NONE);
-        endingTimeLbl.setText("Ending Time Z:");
+        beginningTimeControl = new DateTimeSpinner(timeComp, beginCal, 4);
+        beginningTimeControl.setLayoutData(new GridData());
 
         // --------------------------------------
         // Create ending time controls
         // --------------------------------------
-        Composite endTimeCtrlComp = new Composite(shell, SWT.NONE);
-        GridLayout endTimeCtrlGl = new GridLayout(5, false);
-        endTimeCtrlComp.setLayout(endTimeCtrlGl);
+        Label endingTimeLbl = new Label(timeComp, SWT.NONE);
+        endingTimeLbl.setText("Ending Time Z:");
 
-        gd = new GridData(63, SWT.DEFAULT);
-        endYearBtn = new Button(endTimeCtrlComp, SWT.PUSH);
-        endYearBtn.setText(String.valueOf(endCal.get(Calendar.YEAR)));
-        endYearBtn.setLayoutData(gd);
-        endYearBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                selectedEndTime = endTimeKey.END_YEAR;
-            }
-        });
-
-        gd = new GridData(43, SWT.DEFAULT);
-        endMonthBtn = new Button(endTimeCtrlComp, SWT.PUSH);
-        endMonthBtn.setText(String.valueOf(endCal.get(Calendar.MONTH) + 1));
-        endMonthBtn.setLayoutData(gd);
-        endMonthBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                selectedEndTime = endTimeKey.END_MONTH;
-            }
-        });
-
-        gd = new GridData(43, SWT.DEFAULT);
-        endDayBtn = new Button(endTimeCtrlComp, SWT.PUSH);
-        endDayBtn.setText(String.valueOf(endCal.get(Calendar.DAY_OF_MONTH)));
-        endDayBtn.setLayoutData(gd);
-        endDayBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                selectedEndTime = endTimeKey.END_DAY;
-            }
-        });
-
-        gd = new GridData(43, SWT.DEFAULT);
-        endHourBtn = new Button(endTimeCtrlComp, SWT.PUSH);
-        endHourBtn.setText(String.valueOf(endCal.get(Calendar.HOUR_OF_DAY)));
-        endHourBtn.setLayoutData(gd);
-        endHourBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                selectedEndTime = endTimeKey.END_HOUR;
-            }
-        });
-
-        // Add the time arrow buttons
-        Composite endTimeArrowsComp = new Composite(endTimeCtrlComp, SWT.NONE);
-        RowLayout endTimeArrowRl = new RowLayout(SWT.VERTICAL);
-        endTimeArrowsComp.setLayout(endTimeArrowRl);
-
-        rd = new RowData(20, 20);
-        upEndTimeBtn = new Button(endTimeArrowsComp, SWT.ARROW);
-        upEndTimeBtn.setLayoutData(rd);
-        upEndTimeBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                updateEndTime(1);
-            }
-        });
-
-        rd = new RowData(20, 20);
-        dnEndTimeBtn = new Button(endTimeArrowsComp, SWT.ARROW | SWT.DOWN);
-        dnEndTimeBtn.setLayoutData(rd);
-        dnEndTimeBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                updateEndTime(-1);
-            }
-        });
+        endingTimeControl = new DateTimeSpinner(timeComp, endCal, 4);
+        endingTimeControl.setLayoutData(new GridData());
 
         // --------------------------------------
         // Create Mode controls
         // --------------------------------------
-        Composite modeComp = new Composite(shell, SWT.NONE);
-        GridLayout modeGl = new GridLayout(2, false);
-        modeComp.setLayout(modeGl);
+        Composite modeComp = new Composite(timeComp, SWT.NONE);
+        gl = new GridLayout(2, false);
+        gl.marginHeight = 0;
+        gl.marginWidth = 0;
+        modeComp.setLayout(gl);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.horizontalSpan = 2;
+        modeComp.setLayoutData(gd);
 
         Label modeLbl = new Label(modeComp, SWT.NONE);
         modeLbl.setText("Mode: ");
+        gd = new GridData(SWT.LEFT, SWT.CENTER, true, false);
+        modeLbl.setLayoutData(gd);
 
         modeCbo = new Combo(modeComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         modeCbo.add(PREDEFINED_GROUP);
@@ -998,12 +774,12 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
      */
     private void createCheckBoxControls() {
         Composite checkComp = new Composite(stnGroup, SWT.NONE);
-        GridLayout checkGl = new GridLayout(3, false);
+        GridLayout checkGl = new GridLayout(3, true);
         checkComp.setLayout(checkGl);
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        checkComp.setLayoutData(gd);
 
-        int cellWidth = 80;
-
-        GridData gd = new GridData(cellWidth, SWT.DEFAULT);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         riverChk = new Button(checkComp, SWT.CHECK);
         riverChk.setText("River");
         riverChk.setLayoutData(gd);
@@ -1014,7 +790,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             }
         });
 
-        gd = new GridData(cellWidth, SWT.DEFAULT);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         precipChk = new Button(checkComp, SWT.CHECK);
         precipChk.setText("Precip");
         precipChk.setLayoutData(gd);
@@ -1025,7 +801,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             }
         });
 
-        gd = new GridData(cellWidth, SWT.DEFAULT);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         tempChk = new Button(checkComp, SWT.CHECK);
         tempChk.setText("Temp");
         tempChk.setLayoutData(gd);
@@ -1036,7 +812,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             }
         });
 
-        gd = new GridData(cellWidth, SWT.DEFAULT);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         snowChk = new Button(checkComp, SWT.CHECK);
         snowChk.setText("Snow");
         snowChk.setLayoutData(gd);
@@ -1047,7 +823,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             }
         });
 
-        gd = new GridData(cellWidth, SWT.DEFAULT);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         otherChk = new Button(checkComp, SWT.CHECK);
         otherChk.setText("Other");
         otherChk.setLayoutData(gd);
@@ -1058,7 +834,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             }
         });
 
-        gd = new GridData(cellWidth, SWT.DEFAULT);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         checkAllBtn = new Button(checkComp, SWT.PUSH);
         checkAllBtn.setText("All");
         checkAllBtn.setLayoutData(gd);
@@ -1080,56 +856,89 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
      */
     private void createSearchControls() {
         Composite searchComp = new Composite(stnGroup, SWT.NONE);
-        GridLayout searchGl = new GridLayout(4, false);
-        searchComp.setLayout(searchGl);
+        GridLayout gl = new GridLayout(2, false);
+        searchComp.setLayout(gl);
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        searchComp.setLayoutData(gd);
 
-        GridData gd = new GridData(90, SWT.DEFAULT);
+        Composite leftComp = new Composite(searchComp, SWT.NONE);
+        gl = new GridLayout(2, false);
+        gl.marginHeight = 0;
+        gl.marginWidth = 0;
+        leftComp.setLayout(gl);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        leftComp.setLayoutData(gd);
 
-        Label searchLbl = new Label(searchComp, SWT.NORMAL);
-        searchLbl.setText("Search:   ");
+        Label searchLbl = new Label(leftComp, SWT.NORMAL);
+        searchLbl.setText("Search:");
 
-        searchTF = new Text(searchComp, SWT.BORDER);
+        searchTF = new Text(leftComp, SWT.BORDER);
         searchTF.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent event) {
                 String search = searchTF.getText();
                 if (!search.equals("") && !search.equals(" ")) {
-                    /* Iterate over the location Ids in the list */
-                    ListIterator<String> iter = lidList.listIterator();
-                    while (iter.hasNext()) {
+                    for (TableItem item : topDataTable.getItems()) {
                         if (idRdo.getSelection()) {
-                            if (iter.next().startsWith(
-                                    searchTF.getText().toUpperCase())) {
-                                topDataList.setSelection(iter.previousIndex());
-                                break;
-                            }
-                        } else {
-                            String lid = iter.next();
-                            if (stationData
-                                    .get(lid)
+                            if (item.getText(0)
                                     .toUpperCase()
                                     .startsWith(
                                             searchTF.getText().toUpperCase())) {
-                                topDataList.setSelection(iter.previousIndex());
+                                topDataTable.setSelection(item);
+                                break;
+                            }
+                        } else {
+
+                            if (item.getText(1)
+                                    .toUpperCase()
+                                    .startsWith(
+                                            searchTF.getText().toUpperCase())) {
+                                topDataTable.setSelection(item);
                                 break;
                             }
                         }
                     }
                 }
 
-                if (topDataList.getSelectionIndex() > 0) {
-                    populateBottomList(
-                            lidList.get(topDataList.getSelectionIndex()),
+                processTopDataListSelection();
+            }
+        });
+
+        Label tsOrderLbl = new Label(leftComp, SWT.NORMAL);
+        tsOrderLbl.setText("TS Order:");
+
+        tsOrderCbo = new Combo(leftComp, SWT.DROP_DOWN | SWT.READ_ONLY);
+        tsOrderCbo.add(" ");
+        tsOrderCbo.add("RG");
+        tsOrderCbo.add("RP");
+        tsOrderCbo.add("RZ");
+        tsOrderCbo.add("FF");
+        tsOrderCbo.add("FX");
+        tsOrderCbo.add("FZ");
+        tsOrderCbo.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                if (topDataTable.getSelectionIndex() != -1) {
+                    TableItem item = topDataTable.getItem(topDataTable
+                            .getSelectionIndex());
+                    String selectedLid = item.getText(0);
+                    populateBottomList(selectedLid,
                             tsOrderCbo.getSelectionIndex());
                 }
             }
         });
+        tsOrderCbo.select(1);
 
-        Label spacer = new Label(searchComp, SWT.NORMAL);
-        spacer.setText("   ");
+        Composite rightComp = new Composite(searchComp, SWT.NONE);
+        gl = new GridLayout(1, false);
+        gl.marginHeight = 0;
+        gl.marginWidth = 0;
+        rightComp.setLayout(gl);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        rightComp.setLayoutData(gd);
 
-        gd = new GridData(SWT.DEFAULT, SWT.BOTTOM, false, true);
-        idRdo = new Button(searchComp, SWT.RADIO);
+        idRdo = new Button(rightComp, SWT.RADIO);
+        gd = new GridData(SWT.DEFAULT, SWT.CENTER, false, true);
         idRdo.setLayoutData(gd);
         idRdo.setText("ID");
         idRdo.setSelection(true);
@@ -1147,35 +956,8 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             }
         });
 
-        Label tsOrderLbl = new Label(searchComp, SWT.NORMAL);
-        tsOrderLbl.setText("TS Order: ");
-
-        tsOrderCbo = new Combo(searchComp, SWT.DROP_DOWN | SWT.READ_ONLY);
-        tsOrderCbo.add(" ");
-        tsOrderCbo.add("RG");
-        tsOrderCbo.add("RP");
-        tsOrderCbo.add("RZ");
-        tsOrderCbo.add("FF");
-        tsOrderCbo.add("FX");
-        tsOrderCbo.add("FZ");
-        tsOrderCbo.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                if (topDataList.getSelectionIndex() != -1) {
-                    String line = topDataList.getItem(topDataList
-                            .getSelectionIndex());
-                    String selectedLid = line.substring(0, line.indexOf(" "));
-                    populateBottomList(selectedLid,
-                            tsOrderCbo.getSelectionIndex());
-                }
-            }
-        });
-        tsOrderCbo.select(1);
-        Label spacer2 = new Label(searchComp, SWT.NORMAL);
-        spacer2.setText("   ");
-
-        gd = new GridData(SWT.DEFAULT, SWT.TOP, false, true);
-        nameRdo = new Button(searchComp, SWT.RADIO);
+        nameRdo = new Button(rightComp, SWT.RADIO);
+        gd = new GridData(SWT.DEFAULT, SWT.CENTER, false, true);
         nameRdo.setLayoutData(gd);
         nameRdo.setText("Name");
         nameRdo.setSelection(false);
@@ -1211,65 +993,79 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
     /**
      * Create the top list control.
      */
-    private void createTopDataListControl() {
-        GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, false, false);
-        gd.widthHint = 250;
-        gd.heightHint = 200;
-        topDataList = new List(stnGroup, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL
-                | SWT.H_SCROLL);
-        topDataList.setLayoutData(gd);
+    private void createTopTableControl(Composite parent) {
+        Composite comp = new Composite(parent, SWT.NONE);
+        GridLayout gl = new GridLayout(1, false);
+        gl.marginHeight = 0;
+        gl.marginWidth = 0;
+        comp.setLayout(gl);
 
-        topDataList.setFont(font);
+        topDataTable = new Table(comp, SWT.BORDER | SWT.MULTI
+                | SWT.FULL_SELECTION);
+        topDataTable.setHeaderVisible(true);
 
-        topDataList.addSelectionListener(new SelectionAdapter() {
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        GC gc = new GC(topDataTable);
+        int textWidth = gc.getFontMetrics().getAverageCharWidth() * 30;
+        gc.dispose();
+
+        gd.widthHint = textWidth;
+        gd.heightHint = topDataTable.getItemHeight() * 9;
+        topDataTable.setLayoutData(gd);
+
+        for (Pair<String, Integer> pair : topDataTableLabels) {
+            TableColumn column = new TableColumn(topDataTable, pair.getSecond());
+            column.setText(pair.getFirst());
+            column.pack();
+        }
+
+        topDataTable.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (topDataList.getSelectionIndex() != -1) {
-                    populateBottomList(
-                            lidList.get(topDataList.getSelectionIndex()),
-                            tsOrderCbo.getSelectionIndex());
-                }
-                checkBottomButtons();
+                processTopDataListSelection();
             }
         });
     }
 
-    /**
-     * Create the labels for the bottom list control.
-     */
-    private void createBottomDataListLabel() {
-        Composite labelComp = new Composite(stnGroup, SWT.NONE);
-        GridLayout labelGl = new GridLayout(5, false);
-        labelComp.setLayout(labelGl);
-
-        Label peLbl = new Label(labelComp, SWT.NONE);
-        peLbl.setText("PE");
-
-        Label typSrcLbl = new Label(labelComp, SWT.NONE);
-        typSrcLbl.setText("TypSrc");
-
-        Label extLbl = new Label(labelComp, SWT.NONE);
-        extLbl.setText("Ext");
-
-        Label durLbl = new Label(labelComp, SWT.NONE);
-        durLbl.setText("Dur");
-
-        selectedDataLbl = new Label(labelComp, SWT.NONE);
-        selectedDataLbl.setText("AAAAAA");
+    protected void processTopDataListSelection() {
+        if (topDataTable.getSelectionIndex() != -1) {
+            populateBottomList(lidList.get(topDataTable.getSelectionIndex()),
+                    tsOrderCbo.getSelectionIndex());
+        }
+        checkBottomButtons();
     }
 
     /**
      * Create the bottom list control.
      */
-    private void createBottomDataListControl() {
-        GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, false, false);
-        gd.widthHint = 250;
-        gd.heightHint = 200;
-        bottomDataList = new List(stnGroup, SWT.BORDER | SWT.MULTI
-                | SWT.V_SCROLL | SWT.H_SCROLL);
-        bottomDataList.setLayoutData(gd);
-        bottomDataList.setFont(font);
-        bottomDataList.addListener(SWT.Selection, new Listener() {
+    private void createBottomDataTable(Composite parent) {
+        Composite comp = new Composite(parent, SWT.NONE);
+        GridLayout gl = new GridLayout(1, false);
+        gl.marginHeight = 0;
+        gl.marginWidth = 0;
+        comp.setLayout(gl);
+
+        bottomDataTable = new Table(comp, SWT.BORDER | SWT.MULTI
+                | SWT.FULL_SELECTION);
+
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        GC gc = new GC(bottomDataTable);
+        int textWidth = gc.getFontMetrics().getAverageCharWidth() * 40;
+        gc.dispose();
+
+        gd.widthHint = textWidth;
+        gd.heightHint = bottomDataTable.getItemHeight() * 9;
+        bottomDataTable.setLayoutData(gd);
+        bottomDataTable.setHeaderVisible(true);
+
+        for (Pair<String, Integer> pair : bottomDataTableLabels) {
+            TableColumn column = new TableColumn(bottomDataTable,
+                    pair.getSecond());
+            column.setText(pair.getFirst());
+            column.pack();
+        }
+
+        bottomDataTable.addListener(SWT.Selection, new Listener() {
             @Override
             public void handleEvent(Event e) {
                 correctSelections();
@@ -1343,74 +1139,6 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
     }
 
     /**
-     * Update the beginning time buttons with the changed time.
-     * 
-     * @param adjustValue
-     *            Amount to adjust the date/time.
-     */
-    private void updateBeginTime(int adjustValue) {
-        if (selectedBeginTime == beginTimeKey.BEGIN_YEAR) {
-            beginCal.roll(Calendar.YEAR, adjustValue);
-        } else if (selectedBeginTime == beginTimeKey.BEGIN_MONTH) {
-            beginCal.roll(Calendar.MONTH, adjustValue);
-        } else if (selectedBeginTime == beginTimeKey.BEGIN_DAY) {
-            beginCal.roll(Calendar.DAY_OF_MONTH, adjustValue);
-        } else if (selectedBeginTime == beginTimeKey.BEGIN_HOUR) {
-            beginCal.roll(Calendar.HOUR_OF_DAY, adjustValue);
-        }
-
-        beginDate = beginCal.getTime();
-        beginYearBtn.setText(String.valueOf(beginCal.get(Calendar.YEAR)));
-        beginMonthBtn.setText(String.valueOf(beginCal.get(Calendar.MONTH) + 1));
-        beginDayBtn
-                .setText(String.valueOf(beginCal.get(Calendar.DAY_OF_MONTH)));
-        beginHourBtn
-                .setText(String.valueOf(beginCal.get(Calendar.HOUR_OF_DAY)));
-    }
-
-    /**
-     * Update the ending time buttons with the changed time.
-     * 
-     * @param adjustValue
-     *            Amount to adjust the date/time.
-     */
-    private void updateEndTime(int adjustValue) {
-        if (selectedEndTime == endTimeKey.END_YEAR) {
-            endCal.roll(Calendar.YEAR, adjustValue);
-        } else if (selectedEndTime == endTimeKey.END_MONTH) {
-            endCal.roll(Calendar.MONTH, adjustValue);
-        } else if (selectedEndTime == endTimeKey.END_DAY) {
-            endCal.roll(Calendar.DAY_OF_MONTH, adjustValue);
-        } else if (selectedEndTime == endTimeKey.END_HOUR) {
-            endCal.roll(Calendar.HOUR_OF_DAY, adjustValue);
-        }
-
-        endDate = endCal.getTime();
-        endYearBtn.setText(String.valueOf(endCal.get(Calendar.YEAR)));
-        endMonthBtn.setText(String.valueOf(endCal.get(Calendar.MONTH) + 1));
-        endDayBtn.setText(String.valueOf(endCal.get(Calendar.DAY_OF_MONTH)));
-        endHourBtn.setText(String.valueOf(endCal.get(Calendar.HOUR_OF_DAY)));
-    }
-
-    /**
-     * Update the time button values based on beginCal and endCal current
-     * values.
-     */
-    private void updateTimeButtons() {
-        beginYearBtn.setText(String.valueOf(beginCal.get(Calendar.YEAR)));
-        beginMonthBtn.setText(String.valueOf(beginCal.get(Calendar.MONTH) + 1));
-        beginDayBtn
-                .setText(String.valueOf(beginCal.get(Calendar.DAY_OF_MONTH)));
-        beginHourBtn
-                .setText(String.valueOf(beginCal.get(Calendar.HOUR_OF_DAY)));
-
-        endYearBtn.setText(String.valueOf(endCal.get(Calendar.YEAR)));
-        endMonthBtn.setText(String.valueOf(endCal.get(Calendar.MONTH) + 1));
-        endDayBtn.setText(String.valueOf(endCal.get(Calendar.DAY_OF_MONTH)));
-        endHourBtn.setText(String.valueOf(endCal.get(Calendar.HOUR_OF_DAY)));
-    }
-
-    /**
      * Populates the station list box.
      */
     private void populateStationList() throws VizException {
@@ -1446,38 +1174,34 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
 
         Set<String> lids = stationData.keySet();
 
-        topDataList.removeAll();
+        topDataTable.removeAll();
 
         Iterator<String> iter = lids.iterator();
-        StringBuilder sb = new StringBuilder();
-        Formatter formatter = new Formatter(sb, Locale.US);
         String lid = null;
         while (iter.hasNext()) {
             lid = iter.next();
-            formatter.format("%-10s %-25s", lid, stationData.get(lid));
-            topDataList.add(sb.toString());
+            TableItem item = new TableItem(topDataTable, SWT.NONE);
+            item.setText(0, lid);
+            item.setText(1, stationData.get(lid));
             lidList.add(lid);
-            sb.setLength(0);
+        }
+        for (TableColumn column : topDataTable.getColumns()) {
+            column.pack();
         }
 
         if (currentLid != null) {
-            ListIterator<String> iter2 = lidList.listIterator();
-            while (iter2.hasNext()) {
-                if (idRdo.getSelection()) {
-                    if (iter2.next().equalsIgnoreCase(currentLid)) {
-                        // Bug with show selection requires the select(0) first.
-                        topDataList.select(0);
-                        topDataList.select(iter2.previousIndex());
-                        topDataList.showSelection();
+            for (TableItem item : topDataTable.getItems()) {
+                if (currentLid.equalsIgnoreCase(item.getText(0))) {
+                    topDataTable.setSelection(item);
+                    topDataTable.showSelection();
 
-                        /* set to null so we don't enter this block again */
-                        populateBottomList(currentLid,
-                                tsOrderCbo.getSelectionIndex());
-                        currentLid = null;
-                        break;
-                    }
+                    populateBottomList(currentLid,
+                            tsOrderCbo.getSelectionIndex());
+
+                    /* set to null so we don't enter this block again */
+                    currentLid = null;
+                    break;
                 }
-
             }
         }
     }
@@ -1490,7 +1214,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         if (modeCbo.getText().equals(PREDEFINED_GROUP)) {
             enabled = true;
         } else {
-            enabled = topDataList.getSelectionCount() > 0;
+            enabled = topDataTable.getSelectionCount() > 0;
         }
 
         graphButton.setEnabled(enabled);
@@ -1509,9 +1233,13 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             ArrayList<Object[]> data = (ArrayList<Object[]>) dataManager
                     .getSitePEData(selectedLid);
 
-            bottomDataList.removeAll();
+            PreferredOrderManager pom = PreferredOrderManager.getInstance();
+            Map<String, String[]> peMap = pom.getPreferedOrder(selectedLid);
+
+            bottomDataTable.removeAll();
 
             /* Get the lists of PE data */
+            LinkedHashMap<String, ArrayList<SiteInfo>> preferredMap = new LinkedHashMap<String, ArrayList<SiteInfo>>();
             LinkedHashMap<String, ArrayList<SiteInfo>> hMap = new LinkedHashMap<String, ArrayList<SiteInfo>>();
             LinkedHashMap<String, ArrayList<SiteInfo>> qMap = new LinkedHashMap<String, ArrayList<SiteInfo>>();
             LinkedHashMap<String, ArrayList<SiteInfo>> pMap = new LinkedHashMap<String, ArrayList<SiteInfo>>();
@@ -1530,7 +1258,30 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                 si.setExt((String) row[3]);
                 si.setDur(((Number) row[4]).intValue());
 
-                if (si.getPe().startsWith("H")) {
+                boolean preferredLstFlg = false;
+                if (peMap != null) {
+                    String[] typeSrcLst = peMap.get(si.getPe());
+
+                    if (typeSrcLst != null) {
+                        for (String typesrc : typeSrcLst) {
+
+                            if (typesrc.equalsIgnoreCase(si.getTs())) {
+                                preferredLstFlg = true;
+                                break;
+                            }
+                        }
+                    } else if (peMap.containsKey(si.getPe())) {
+                        preferredLstFlg = true;
+                    }
+                }
+                if (preferredLstFlg) {
+                    if (!si.getPe().equals(prevPE)) {
+                        preferredMap.put(si.getPe(), new ArrayList<SiteInfo>());
+                        prevPE = si.getPe();
+                    }
+
+                    preferredMap.get(si.getPe()).add(si);
+                } else if (si.getPe().startsWith("H")) {
                     if (!si.getPe().equals(prevPE)) {
                         hMap.put(si.getPe(), new ArrayList<SiteInfo>());
                         prevPE = si.getPe();
@@ -1588,6 +1339,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                 tsSelected = false;
             }
 
+            populatePreferredDataInOrder(preferredMap, peMap);
             processDataList(hMap, tsSelected);
             processDataList(qMap, tsSelected);
             processDataList(pMap, tsSelected);
@@ -1595,10 +1347,52 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             processDataList(tMap, tsSelected);
             processDataList(otherMap, tsSelected);
 
-            selectedDataLbl.setText(selectedLid);
-            bottomDataList.setSelection(0);
+            bottomDataTable.getColumn(4).setText(selectedLid);
+            bottomDataTable.setSelection(0);
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.error("Failed to populate time series list", e);
+        }
+    }
+
+    /**
+     * populate data to bottomDataList base on preferred predefined order
+     * 
+     * @param preferredMap
+     * @param peMap
+     */
+    private void populatePreferredDataInOrder(
+            LinkedHashMap<String, ArrayList<SiteInfo>> preferredMap,
+            Map<String, String[]> peMap) {
+        if (peMap != null && preferredMap != null) {
+            for (String pe : peMap.keySet()) {
+                java.util.List<SiteInfo> siList = preferredMap.get(pe);
+
+                if (siList == null) {
+                    continue;
+                }
+
+                String[] tsList = peMap.get(pe);
+                if (tsList == null) { // There's PE but no TS in
+                                      // preffered_order.txt
+                    for (SiteInfo si : siList) {
+                        addToBottomTable(si);
+                        siteInfoList.add(si);
+                    }
+                } else { // There's both PE and TS in preferred_order.txt
+                    for (String ts : tsList) {
+                        for (SiteInfo si : siList) {
+                            if (ts.equalsIgnoreCase(si.getTs())) {
+                                addToBottomTable(si);
+                                siteInfoList.add(si);
+                            }
+                        }
+                    }
+                }
+            }
+
+            for (TableColumn column : bottomDataTable.getColumns()) {
+                column.pack();
+            }
         }
     }
 
@@ -1635,8 +1429,11 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
 
         if (file != null) {
             groupConfigFilePath = file.getAbsolutePath();
+            this.readGroupList();
+        } else {
+            statusHandler.error("Unable to load predefined group file: "
+                    + HydroConstants.GROUP_DEFINITION);
         }
-        this.readGroupList();
     }
 
     /**
@@ -1660,9 +1457,13 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         PageInfo pageInfo = null;
         GraphData graphData = null;
 
-        try {
-            BufferedReader in = new BufferedReader(new FileReader(
-                    groupConfigFilePath));
+        // Make sure group definition file exists.
+        if (groupConfigFilePath == null) {
+            return;
+        }
+
+        try (BufferedReader in = new BufferedReader(new FileReader(
+                groupConfigFilePath))) {
             String str;
             while ((str = in.readLine()) != null) {
                 if (str.startsWith("#")) {
@@ -1691,7 +1492,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
 
                         // make sure we have values to go with the key
                         if (values.length > 1) {
-                            if ((values[0] != null)
+                            if (values[0] != null
                                     && values[0].equalsIgnoreCase(NAME)) {
                                 if (values[1] != null) {
                                     groupInfo.setGroupName(values[1]);
@@ -1802,8 +1603,8 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                     }
                     graphData.addTrace(td);
 
-                    graphData.setBeginDate(beginDate);
-                    graphData.setEndDate(endDate);
+                    graphData.setBeginDate(beginCal.getTime());
+                    graphData.setEndDate(endCal.getTime());
                 } else {
                     statusHandler
                             .warn("Error in Group Definition Config file: "
@@ -1816,7 +1617,6 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                 }
 
             }
-            in.close();
         } catch (IOException e) {
             statusHandler.error(
                     "Failed to read group definition configuration.", e);
@@ -1834,7 +1634,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             statusHandler.error("Failed to populate station list", e);
         }
         filteredLidList = new ArrayList<String>();
-        topDataList.removeAll();
+        topDataTable.removeAll();
         boolean validClass = false;
         StringBuilder searchStr = new StringBuilder();
         if (riverChk.getSelection()) {
@@ -1882,14 +1682,15 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
 
         /* Populate the list */
         String lid = null;
-        StringBuilder sb = new StringBuilder();
-        Formatter formatter = new Formatter(sb, Locale.US);
-        topDataList.removeAll();
+        topDataTable.removeAll();
         for (int i = 0; i < lidList.size(); i++) {
             lid = lidList.get(i);
-            formatter.format("%-10s %-25s", lid, stationData.get(lid));
-            topDataList.add(sb.toString());
-            sb.setLength(0);
+            TableItem item = new TableItem(topDataTable, SWT.NONE);
+            item.setText(0, lid);
+            item.setText(1, stationData.get(lid));
+        }
+        for (TableColumn column : topDataTable.getColumns()) {
+            column.pack();
         }
     }
 
@@ -1897,12 +1698,12 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
      * Change the selections.
      */
     private void correctSelections() {
-        int count = bottomDataList.getSelectionCount();
-        String[] dataString = bottomDataList.getSelection();
+        int count = bottomDataTable.getSelectionCount();
+        TableItem[] item = bottomDataTable.getSelection();
 
         if (count == 1) {
-            prevLidData.setData(dataString[0]);
-            currLidData.setData(dataString[0]);
+            prevLidData = lidDataFromItem(item[0]);
+            currLidData = prevLidData;
         } else if (count > 1) {
             /*
              * Check for valid combination of PEDTSEPs when there are two
@@ -1914,12 +1715,11 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             int n = 0;
 
             /* Search for more than 2 different PEs */
-            while ((n < count) && !flag) {
-                LIDData tmpData = new LIDData();
-                tmpData.setData(dataString[n]);
+            while (n < count && !flag) {
+                LIDData tmpData = lidDataFromItem(item[n]);
                 check1 = lidCheck(prevLidData, tmpData);
-                if ((currLidData != null) && (currLidData.getDur() != null)
-                        && (currLidData.getPe() != null)) {
+                if (currLidData != null && currLidData.getDur() != null
+                        && currLidData.getPe() != null) {
                     check2 = lidCheck(currLidData, tmpData);
                 }
 
@@ -1928,12 +1728,8 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                      * Save the current PE to currLidData when prevLidData is
                      * the same as currLidData
                      */
-                    if (prevLidData.getPe().equalsIgnoreCase(
-                            currLidData.getPe())
-                            && prevLidData.getDur().equalsIgnoreCase(
-                                    currLidData.getDur())) {
-                        currLidData.setPe(tmpData.getPe());
-                        currLidData.setDur(tmpData.getDur());
+                    if (prevLidData.equals(currLidData)) {
+                        currLidData = tmpData;
                     } else {
                         flag = true;
                     }
@@ -1947,24 +1743,22 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                  * different data, need deselect the PE items equal to
                  * prevLidData,
                  */
-                int[] indices = bottomDataList.getSelectionIndices();
+                int[] indices = bottomDataTable.getSelectionIndices();
                 for (int i = 0; i < count; i++) {
-                    LIDData tmpLidData = new LIDData();
-                    tmpLidData.setData(dataString[i]);
+                    LIDData tmpLidData = lidDataFromItem(item[i]);
 
                     check1 = lidCheck(prevLidData, tmpLidData);
 
                     if (!check1) {
                         // deselect this row
-                        bottomDataList.deselect(indices[i]);
+                        bottomDataTable.deselect(indices[i]);
                     }
                 }
             }
 
-            String[] dataString2 = bottomDataList.getSelection();
-            for (String element : dataString2) {
-                LIDData tmpLidData = new LIDData();
-                tmpLidData.setData(element);
+            TableItem[] item2 = bottomDataTable.getSelection();
+            for (TableItem element : item2) {
+                LIDData tmpLidData = lidDataFromItem(element);
 
                 check1 = lidCheck(prevLidData, tmpLidData);
                 check2 = lidCheck(currLidData, tmpLidData);
@@ -1982,7 +1776,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         }
 
         // Reset the selections
-        int selectedIndex = bottomDataList.getSelectionIndex();
+        int selectedIndex = bottomDataTable.getSelectionIndex();
 
         for (int i = 0; i < siteInfoList.size(); i++) {
             SiteInfo si = siteInfoList.get(i);
@@ -1993,6 +1787,11 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             }
         }
 
+    }
+
+    private LIDData lidDataFromItem(TableItem item) {
+        return new LIDData(item.getText(0),
+                TimeSeriesUtil.convertDurNameToValue(item.getText(3)));
     }
 
     /**
@@ -2009,10 +1808,9 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
      */
     private boolean lidCheck(LIDData lidData1, LIDData lidData2) {
         boolean result = false;
-        if (((lidData1 != null) && (lidData1.getDur() != null) && (lidData1
-                .getPe() != null))
-                && ((lidData2 != null) && (lidData2.getDur() != null) && (lidData2
-                        .getPe() != null))) {
+        if (lidData1 != null && lidData1.getDur() != null
+                && lidData1.getPe() != null && lidData2 != null
+                && lidData2.getDur() != null && lidData2.getPe() != null) {
 
             if (!lidData1.getPe().equalsIgnoreCase(lidData2.getPe())) {
                 result = true;
@@ -2034,13 +1832,19 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         tableButton.setEnabled(false);
         graphButton.setEnabled(false);
         bothButton.setEnabled(false);
-        openTabularDisplay();
-        openGraph();
+        
+        // Open display/graph if user's selections are valid.
+        if (validateForm()) {
+            openTabularDisplay();
+            openGraph();
+            tabularDlg.getShell().moveAbove(this.shell);
+            timeSeriesDisplayDlg.getShell().moveAbove(this.shell);
+        }
+
         tableButton.setEnabled(true);
         graphButton.setEnabled(true);
         bothButton.setEnabled(true);
-        tabularDlg.getShell().moveAbove(this.shell);
-        timeSeriesDisplayDlg.getShell().moveAbove(this.shell);
+
     }
 
     /**
@@ -2061,8 +1865,8 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
 
             tabInfoList.clear();
 
-            if ((tabularDlg != null) && tabularDlg.isOpen()) {
-                tabularDlg.disposeDialog();
+            if (tabularDlg != null && tabularDlg.isOpen()) {
+                tabularDlg.close();
             }
 
             tabularDlg = new TabularTimeSeriesDlg(shell, beginCal.getTime(),
@@ -2078,16 +1882,16 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                 groupInfo.setCurrentPage(0);
 
                 /* Get the data from the station list */
-                String selection = topDataList.getItem(topDataList
+                TableItem selection = topDataTable.getItem(topDataTable
                         .getSelectionIndex());
-                String[] pieces = selection.split("\\s+", 2);
-                tabularDlg.setLid(pieces[0]);
-                tabularDlg.setSiteName(pieces[1].trim());
-                tabInfo.addBuffer(pieces[0] + " " + pieces[1].trim());
-                tabInfo.setLid(pieces[0]);
+                tabularDlg.setLid(selection.getText(0));
+                tabularDlg.setSiteName(selection.getText(1).trim());
+                tabInfo.addBuffer(selection.getText(0) + " "
+                        + selection.getText(1).trim());
+                tabInfo.setLid(selection.getText(0));
 
                 /* Get the selections from the data list */
-                int[] indices = bottomDataList.getSelectionIndices();
+                int[] indices = bottomDataTable.getSelectionIndices();
 
                 /*
                  * Loop through the site info list that are the data for the
@@ -2168,20 +1972,16 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                 groupInfo.setCurrentPage(0);
 
                 /* Get the data from the station list */
-                String[] sa = topDataList.getSelection();
-                String[] pieces = sa[0].split("\\s+", 2);
-                timeSeriesDisplayDlg.setLid(pieces[0]);
-                timeSeriesDisplayDlg.setSiteName(pieces[1].trim());
+                TableItem[] sa = topDataTable.getSelection();
+                timeSeriesDisplayDlg.setLid(sa[0].getText(0));
+                timeSeriesDisplayDlg.setSiteName(sa[0].getText(1).trim());
 
                 /* Get the data from the data list */
-                int[] indices = bottomDataList.getSelectionIndices();
+                int[] indices = bottomDataTable.getSelectionIndices();
 
                 /* Hold the first value for reference */
-                String s = bottomDataList.getItem(indices[0]);
-                String[] s2 = s.split("\\s+");
-                firstLidData.setPe(s2[0]);
-
-                firstLidData.setDur(TimeSeriesUtil.convertDurNameToValue(s));
+                firstLidData = lidDataFromItem(bottomDataTable
+                        .getItem(indices[0]));
 
                 ArrayList<TraceData> dataList = new ArrayList<TraceData>();
 
@@ -2190,32 +1990,20 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                      * Check the selections and determine if 1 or 2 graphs are
                      * needed
                      */
-                    String selection = bottomDataList.getItem(indice);
-                    String[] pieces2 = selection.split("\\s+");
-                    LIDData lidData = new LIDData();
-
-                    String durValue = TimeSeriesUtil
-                            .convertDurNameToValue(selection);
-                    lidData.setDur(durValue);
-                    lidData.setPe(pieces2[0]);
+                    TableItem selection = bottomDataTable.getItem(indice);
+                    LIDData lidData = lidDataFromItem(selection);
 
                     TraceData td = new TraceData();
-                    td.setLid(pieces[0]);
-                    td.setName(pieces[1].trim());
-                    td.setPe(pieces2[0]);
-                    td.setTs(pieces2[1]);
-                    td.setExtremum(pieces2[2]);
-
-                    if (pieces2[3].contains("=")) {
-                        td.setDur("0");
-                    } else {
-                        td.setDur(durValue);
-                    }
+                    td.setLid(sa[0].getText(0));
+                    td.setName(sa[0].getText(1).trim());
+                    td.setPe(selection.getText(0));
+                    td.setTs(selection.getText(1));
+                    td.setExtremum(selection.getText(2));
+                    td.setDur(lidData.getDur());
 
                     dataList.add(td);
 
-                    if ((indices.length > 1)
-                            && (lidCheck(firstLidData, lidData))) {
+                    if (indices.length > 1 && lidCheck(firstLidData, lidData)) {
                         numberGraphs++;
                     }
                 }
@@ -2231,8 +2019,8 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                         }
                         graphData.addTrace(td);
                     }
-                    graphData.setBeginDate(beginDate);
-                    graphData.setEndDate(endDate);
+                    graphData.setBeginDate(beginCal.getTime());
+                    graphData.setEndDate(endCal.getTime());
                     graphData.setGraph_pos(1);
                     graphData.saveTraceInfo();
                     pageInfo.addGraphData(graphData);
@@ -2254,9 +2042,8 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                             td.setForecast(true);
                         }
 
-                        LIDData tempLidData = new LIDData();
-                        tempLidData.setPe(td.getPe());
-                        tempLidData.setDur(td.getDur());
+                        LIDData tempLidData = new LIDData(td.getPe(),
+                                td.getDur());
 
                         if (!lidCheck(firstLidData, tempLidData)) {
                             graph1.addTrace(td);
@@ -2276,9 +2063,8 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                         graph2.setXsize(6);
                         graph2.setYsize(1);
 
-                        firstLidData.setPe(secondTraceDataList.get(0).getPe());
-                        firstLidData
-                                .setDur(secondTraceDataList.get(0).getDur());
+                        firstLidData = new LIDData(secondTraceDataList.get(0)
+                                .getPe(), secondTraceDataList.get(0).getDur());
 
                         for (int i = 0; i < secondTraceDataList.size(); i++) {
                             TraceData td = secondTraceDataList.get(i);
@@ -2287,10 +2073,6 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                                     || td.getTs().startsWith("C")) {
                                 td.setForecast(true);
                             }
-
-                            LIDData tempLidData = new LIDData();
-                            tempLidData.setPe(td.getPe());
-                            tempLidData.setDur(td.getDur());
 
                             graph2.addTrace(td);
                         }
@@ -2304,20 +2086,17 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                 GroupInfo groupInfo = groupList.get(groupDataList
                         .getSelectionIndex());
 
-                if ((prevGroupInfo == null) || !prevGroupInfo.equals(groupInfo)) {
+                if (prevGroupInfo == null || !prevGroupInfo.equals(groupInfo)) {
                     int pastHours = groupInfo.getPastHours();
                     int futureHours = groupInfo.getFutureHours();
-                    beginCal = Calendar
-                            .getInstance(TimeZone.getTimeZone("GMT"));
+                    Date d = SimulatedTime.getSystemTime().getTime();
+                    beginCal.setTime(d);
                     beginCal.add(Calendar.HOUR_OF_DAY, pastHours * -1);
+                    beginningTimeControl.redraw();
 
-                    endCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+                    endCal.setTime(d);
                     endCal.add(Calendar.HOUR_OF_DAY, futureHours);
-
-                    beginDate = beginCal.getTime();
-                    endDate = endCal.getTime();
-
-                    updateTimeButtons();
+                    endingTimeControl.redraw();
 
                     groupInfo.setPastHours(pastHours);
                     groupInfo.setFutureHours(futureHours);
@@ -2326,8 +2105,8 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
 
                 prevGroupInfo = groupInfo;
             }
-            timeSeriesDisplayDlg.setBeginDate(beginDate);
-            timeSeriesDisplayDlg.setEndDate(endDate);
+            timeSeriesDisplayDlg.setBeginDate(beginCal.getTime());
+            timeSeriesDisplayDlg.setEndDate(endCal.getTime());
 
             if (!timeSeriesDisplayDlg.isOpen()) {
                 timeSeriesDisplayDlg.open();
@@ -2347,32 +2126,19 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
     private boolean validateForm() {
         boolean valid = true;
         if (modeCbo.getText().equals(STATION_SELECTION)) {
-            if ((endCal.getTimeInMillis() - beginCal.getTimeInMillis()) < 0) {
+            if (endCal.getTimeInMillis() - beginCal.getTimeInMillis() < 0) {
                 MessageDialog.openWarning(shell, "Invalid Date Selection",
                         "Ending Time is prior to Beginning Time");
                 valid = false;
             }
 
-            long numberOfDays = (endCal.getTimeInMillis() - beginCal
-                    .getTimeInMillis())
-                    / HydroConstants.MILLIS_PER_MINUTE
-                    / 60
-                    / 24;
-
-            if (numberOfDays > HydroConstants.DAYS_MAX) {
-                MessageDialog.openWarning(shell, "Invalid Date Selection",
-                        "Time Period exceeds " + HydroConstants.DAYS_MAX
-                                + " days");
-                valid = false;
-            }
-
-            if (topDataList.getSelectionIndex() == -1) {
+            if (topDataTable.getSelectionIndex() == -1) {
                 MessageDialog.openWarning(shell, "Invalid Selection",
                         "A Location ID is required");
                 valid = false;
             }
 
-            if (bottomDataList.getSelectionIndex() == -1) {
+            if (bottomDataTable.getSelectionIndex() == -1) {
                 MessageDialog.openWarning(shell, "Invalid Selection",
                         "A Physical Element is required");
                 valid = false;
@@ -2399,36 +2165,28 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             String pe = gageData.getPe();
             String ts = gageData.getTs();
             String ext = gageData.getExtremum();
-            StringBuilder sb = new StringBuilder();
 
-            int itemCount = bottomDataList.getItemCount();
-            for (int i = 0; i < itemCount; i++) {
-                sb.append(bottomDataList.getItem(i));
-                String[] parts = sb.toString().split("\\s+", 4);
-                if ((pe + ts + ext).equalsIgnoreCase(parts[0] + parts[1]
-                        + parts[2])) {
-                    bottomDataList.setSelection(i);
+            for (TableItem item : bottomDataTable.getItems()) {
+                if (pe.equalsIgnoreCase(item.getText(0))
+                        && ts.equalsIgnoreCase(item.getText(1))
+                        && ext.equalsIgnoreCase(item.getText(2))) {
+                    bottomDataTable.setSelection(item);
                     break;
                 }
-                sb.setLength(0);
             }
         }
-        /* used for questionable and Bad Data Gui */
 
-        if ((currentPe != null) && (currentTs != null)) {
+        /* used for questionable and Bad Data Gui */
+        if (currentPe != null && currentTs != null) {
             String qPe = currentPe;
             String qTs = currentTs;
-            StringBuilder stb = new StringBuilder();
 
-            int itemCount = bottomDataList.getItemCount();
-            for (int ii = 0; ii < itemCount; ii++) {
-                stb.append(bottomDataList.getItem(ii));
-                String[] parts = stb.toString().split("\\s+", 4);
-                if ((qPe + qTs).equalsIgnoreCase(parts[0] + parts[1])) {
-                    bottomDataList.setSelection(ii);
+            for (TableItem item : bottomDataTable.getItems()) {
+                if (qPe.equalsIgnoreCase(item.getText(0))
+                        && qTs.equalsIgnoreCase(item.getText(1))) {
+                    bottomDataTable.setSelection(item);
                     break;
                 }
-                stb.setLength(0);
             }
         }
     }
@@ -2493,13 +2251,13 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                             if (si.getTs().matches("\\D*\\d+\\D*")) {
                                 numList.add(si);
                             } else {
-                                bottomDataList.add(formatDataLine(si));
+                                addToBottomTable(si);
                                 siteInfoList.add(si);
                             }
                         }
                     }
                     for (SiteInfo si : numList) {
-                        bottomDataList.add(formatDataLine(si));
+                        addToBottomTable(si);
                         siteInfoList.add(si);
                     }
                 }
@@ -2512,14 +2270,14 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                             if (si.getTs().matches("\\D*\\d+\\D*")) {
                                 numList.add(si);
                             } else {
-                                bottomDataList.add(formatDataLine(si));
+                                addToBottomTable(si);
                                 siteInfoList.add(si);
                             }
                         }
                     }
 
                     for (SiteInfo si : numList) {
-                        bottomDataList.add(formatDataLine(si));
+                        addToBottomTable(si);
                         siteInfoList.add(si);
                     }
                     numList.clear();
@@ -2531,16 +2289,20 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                     if (si.getTs().matches("\\D*\\d+\\D*")) {
                         numList.add(si);
                     } else {
-                        bottomDataList.add(formatDataLine(si));
+                        addToBottomTable(si);
                         siteInfoList.add(si);
                     }
                 }
 
                 for (SiteInfo si : numList) {
-                    bottomDataList.add(formatDataLine(si));
+                    addToBottomTable(si);
                     siteInfoList.add(si);
                 }
 
+            }
+
+            for (TableColumn column : bottomDataTable.getColumns()) {
+                column.pack();
             }
         }
     }
@@ -2568,50 +2330,53 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
     }
 
     /**
-     * Build a Bottom Data List entry. opened *
+     * Add an item to the bottomDataTable
      * 
      * @param si
      *            The SiteInfo object
-     * @return The String entry
      */
-    private String formatDataLine(SiteInfo si) {
+    private void addToBottomTable(SiteInfo si) {
         HydroDataCache hydroCache = HydroDataCache.getInstance();
-        StringBuilder buffer = new StringBuilder();
-        buffer.append(String.format("%-4s%-4s%-2s%-9s", si.getPe(), si.getTs(),
-                si.getExt(), TimeSeriesUtil.convertDur2Text(si.getDur())));
+
+        TableItem item = new TableItem(bottomDataTable, SWT.NONE);
+        item.setText(0, si.getPe());
+        item.setText(1, si.getTs());
+        item.setText(2, si.getExt());
+        item.setText(3, TimeSeriesUtil.convertDur2Text(si.getDur()));
 
         String peDesc = hydroCache.getPEDescription(si.getPe());
         if (peDesc != null) {
-            buffer.append(String.format("%-2s=%-22s", si.getPe(), peDesc));
-        } else {
-            buffer.append(String.format("%25s", ""));
+            item.setText(4, String.format("%-2s=%-22s", si.getPe(), peDesc));
         }
 
         String tsDesc = hydroCache.getTSDesc(si.getTs());
         if (tsDesc != null) {
-            buffer.append(String.format("%s=%s", si.getTs(), tsDesc));
+            item.setText(4, String.format("%s=%s", si.getTs(), tsDesc));
         }
 
-        return buffer.toString();
     }
 
+    /**
+     * Enable Graph Button
+     */
     public void enableGraphButton() {
         this.graphButton.setEnabled(true);
     }
 
+    /**
+     * Enable Table Button
+     */
     public void enableTableButton() {
         this.tableButton.setEnabled(true);
     }
 
+    /**
+     * Enable Both Button
+     */
     public void enableBothButton() {
         this.bothButton.setEnabled(true);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
-     */
     @Override
     protected void preOpened() {
         super.preOpened();
@@ -2624,7 +2389,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
     public void updateFromDisplayManager() {
         HydroDisplayManager hdm = HydroDisplayManager.getInstance();
         String newLid = hdm.getCurrentLid();
-        if ((newLid != null) && !newLid.equalsIgnoreCase(currentLid)) {
+        if (newLid != null && !newLid.equalsIgnoreCase(currentLid)) {
             updateAndOpen(newLid, this.displayGraph);
             openGraph();
         }

@@ -19,14 +19,12 @@
  **/
 package com.raytheon.viz.gfe.actions;
 
-import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.TimeShiftDialog;
+import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
  * Action to launch time shift dialog.
@@ -39,42 +37,16 @@ import com.raytheon.viz.gfe.dialogs.TimeShiftDialog;
  * 05Aug2008    1383       ebabin      Fix for time shift not working.
  * Apr 9, 2009  1288       rjpeter     Removed explicit refresh of SpatialDisplayManager.
  * Oct 30, 2012 1298       rferrel     Changes for non-blocking TimeShiftDialog.
+ * Aug 27, 2015 4749       njensen     Now extends GfeShowDialogHandler
  * 
  * </pre>
  * 
- * @author ebabin
- * @version 1.0
  */
+public class ShowTimeShiftDialog extends GfeShowDialogHandler {
 
-public class ShowTimeShiftDialog extends AbstractHandler {
-    private TimeShiftDialog dialog;
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
-     * .ExecutionEvent)
-     */
     @Override
-    public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        DataManager dm = DataManager.getCurrentInstance();
-        if (dm == null) {
-            return null;
-        }
-
-        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
-
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
-
-            dialog = new TimeShiftDialog(shell, dm);
-            dialog.setBlockOnOpen(false);
-            dialog.open();
-        } else {
-            dialog.bringToTop();
-        }
-
-        return null;
+    protected CaveJFACEDialog createDialog(Shell shell, DataManager dm,
+            ExecutionEvent event) {
+        return new TimeShiftDialog(shell, dm);
     }
 }

@@ -26,6 +26,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 
+import com.google.common.collect.HashBiMap;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydro.timeseries.TimeSeriesDataManager;
 import com.raytheon.viz.hydro.timeseries.TimeSeriesDisplayDlg;
@@ -44,6 +45,9 @@ import com.raytheon.viz.hydrocommon.util.QualityCodeUtil;
  * Oct 29, 2009 2911       mpduff      Fixed DURATION_CHAR_CODES.substring code.
  * June 1, 2011 9499       djingtao    convertDurNameToValue()
  * July 12, 2011 9709      djingtao    modify tsAccumToInc3()
+ * Aug 25, 2015 4794       mpduff      Added 5 min duration.
+ * Jan 13, 2015 5243       tgurney     Fix convertDur2Short() handling of
+ *                                     numeric characters
  * </pre>
  * 
  * @author mpduff
@@ -141,114 +145,58 @@ public class TimeSeriesUtil {
      */
     public static final int ALL_ONES = 2147483647;
 
-    private static final String DURATION_CHAR_CODES = "IUCJHBTFQAKLDWMYZSRPX";
-    
-    private static final int DURATION_CODE_ARRAY[] = { 0, 1, 15, 30,
-               1001, 1002, 1003, 1004, 1006, 1008, 1012, 1018, 
-               2001, 2007,
-               3001,
-               4001,
-               5000, 5001, 5002, 5004, 5005  };
-    
+    private static final HashBiMap<Integer, Character> durationMap = HashBiMap
+            .create(23);
+    static {
+        durationMap.put(0, 'I');
+        durationMap.put(1, 'U');
+        durationMap.put(5, 'E');
+        durationMap.put(10, 'G');
+        durationMap.put(15, 'C');
+        durationMap.put(30, 'J');
+        durationMap.put(1001, 'H');
+        durationMap.put(1002, 'B');
+        durationMap.put(1003, 'T');
+        durationMap.put(1004, 'F');
+        durationMap.put(1006, 'Q');
+        durationMap.put(1008, 'A');
+        durationMap.put(1012, 'K');
+        durationMap.put(1018, 'L');
+        durationMap.put(2001, 'D');
+        durationMap.put(2007, 'W');
+        durationMap.put(3001, 'M');
+        durationMap.put(4001, 'Y');
+        durationMap.put(5000, 'Z');
+        durationMap.put(5001, 'S');
+        durationMap.put(5002, 'R');
+        durationMap.put(5004, 'P');
+        durationMap.put(5005, 'X');
+    }
+
     public static short convertDur2Short(char dur) {
-        short value = 0;
-        switch (dur) {
-        case 'I':
-            value = 0;
-            break;
-        case 'U':
-            value = 1;
-            break;
-        case 'E':
-            value = 5;
-            break;
-        case 'G':
-            value = 10;
-            break;
-        case 'C':
-            value = 15;
-            break;
-        case 'J':
-            value = 30;
-            break;
-        case 'H':
-            value = 1001;
-            break;
-        case 'B':
-            value = 1002;
-            break;
-        case 'T':
-            value = 1003;
-            break;
-        case 'F':
-            value = 1004;
-            break;
-        case 'Q':
-            value = 1006;
-            break;
-        case 'A':
-            value = 1008;
-            break;
-        case 'K':
-            value = 1012;
-            break;
-        case 'L':
-            value = 1018;
-            break;
-        case 'D':
-            value = 2001;
-            break;
-        case 'W':
-            value = 2007;
-            break;
-        case 'N':
-            // Not sure what to return. Shef maunal explanation:
-            // N Mid month, duration for the period from the 1st day of the
-            // month to and ending on the
-            // 15th day of the same month
-            break;
-        case 'M':
-            value = 3001;
-            break;
-        case 'Y':
-            value = 4001;
-            break;
-        case 'P':
-            value = 5004;
-            break;
-        case 'V':
-            // return 4001;
-            // Shef manual:
-            // V Variable period, duration defined separately (see Tables 11a
-            // and 11b) 1/
-            break;
-        case 'S':
-            value = 5001;
-            break;
-        case 'R':
-            value = 5002;
-            break;
-        case 'X':
-            value = 5005;
-            break;
-        case 'Z':
-            value = 5001;
-            break;
+        int durAsInt = Character.getNumericValue(dur);
+        if (durAsInt >= 0) {
+            if (!durationMap.containsKey(durAsInt)) {
+                return 0;
+            }
+            return (short) durAsInt;
         }
-        return value;
+        if (!durationMap.containsValue(dur)) {
+            return 0;
+        }
+
+        return durationMap.inverse().get(dur).shortValue();
     }
 
     public static String convertDur2Code(int durValue) {
-        String code = null;
-        for (int i = 0; i < DURATION_CODE_ARRAY.length; i++) {
-            if (durValue == DURATION_CODE_ARRAY[i]) {
-                code = DURATION_CHAR_CODES.substring(i, i + 1);
-                break;
-            }
+        Character c = durationMap.get(durValue);
+        if (c == null) {
+            return null;
         }
-        
-        return code;
+
+        return c.toString();
     }
+
     /**
      * Converts the duration value into readable text.
      * 
@@ -314,40 +262,43 @@ public class TimeSeriesUtil {
      * @return The readable text
      */
     public static String convertDurNameToValue(String durName) {
-        String durValue = "0";        
-       
-       if (durName.toLowerCase().contains("12 hr"))
-     	   durValue = "1012";       
-       else if (durName.toLowerCase().contains("18 hr"))
-     	   durValue = "1018";  
-       else if (durName.toLowerCase().contains("1 hr"))
-    	   durValue ="1001";       
-       else if (durName.toLowerCase().contains("2 hr"))
-    	   durValue = "1002";       
-       else if (durName.toLowerCase().contains("3 hr"))
-    	   durValue = "1003";       
-       else if (durName.toLowerCase().contains("4 hr"))
-    	   durValue = "1004";       
-       else if (durName.toLowerCase().contains("6 hr"))
-    	   durValue = "1006";
-       else if (durName.toLowerCase().contains("8 hr"))
-    	   durValue = "1008";       
-             
-       else if (durName.toLowerCase().contains("1 day"))
-    	   durValue = "2001";
-       else if (durName.toLowerCase().contains("7 day"))
-    	   durValue = "2007";
-       else if (durName.toLowerCase().contains("since7am"))
-           durValue = "5004";
-       else if (durName.toLowerCase().contains("1 min"))
-    	   durValue = "1";
-       else if (durName.toLowerCase().contains("15 min"))
-    	   durValue = "15";
-       else if (durName.toLowerCase().contains("30 min"))
-    	   durValue = "30";
-       
+        String durValue = "0";
+        String lowerDurName = durName.toLowerCase();
+        if (lowerDurName.contains("12 hr")) {
+            durValue = "1012";
+        } else if (lowerDurName.contains("18 hr")) {
+            durValue = "1018";
+        } else if (lowerDurName.contains("1 hr")) {
+            durValue = "1001";
+        } else if (lowerDurName.contains("2 hr")) {
+            durValue = "1002";
+        } else if (lowerDurName.contains("3 hr")) {
+            durValue = "1003";
+        } else if (lowerDurName.contains("4 hr")) {
+            durValue = "1004";
+        } else if (lowerDurName.contains("6 hr")) {
+            durValue = "1006";
+        } else if (lowerDurName.contains("8 hr")) {
+            durValue = "1008";
+        } else if (lowerDurName.contains("1 day")) {
+            durValue = "2001";
+        } else if (lowerDurName.contains("7 day")) {
+            durValue = "2007";
+        } else if (lowerDurName.contains("since7am")) {
+            durValue = "5004";
+        } else if (lowerDurName.contains("1 min")) {
+            durValue = "1";
+        } else if (lowerDurName.contains("5 min")) {
+            durValue = "5";
+        } else if (lowerDurName.contains("15 min")) {
+            durValue = "15";
+        } else if (lowerDurName.contains("30 min")) {
+            durValue = "30";
+        }
+
         return durValue;
     }
+
     /**
      * Query the floodcat table for the flood stage.
      * 
@@ -453,8 +404,8 @@ public class TimeSeriesUtil {
      * @return Number of points in the interpolated trace
      */
     public static int tsNormalize(TraceData td, TraceData pcAsPpTraceData,
-            int interval, boolean interpMode, Date beginTime,
-            Date endTime, TimeSeriesDisplayDlg dialog) {
+            int interval, boolean interpMode, Date beginTime, Date endTime,
+            TimeSeriesDisplayDlg dialog) {
         /* ********************************************************* */
         /* define an accumulated value for each period. */
         /* loop on the number of desired periods to fill. Always */
@@ -477,8 +428,8 @@ public class TimeSeriesUtil {
         return tsp.size();
     }
 
-    private static double tsAssignValue(TraceData td, Date normTime, int interval,
-            boolean interpMode, TimeSeriesDisplayDlg dialog) {
+    private static double tsAssignValue(TraceData td, Date normTime,
+            int interval, boolean interpMode, TimeSeriesDisplayDlg dialog) {
         /* initialize */
         double assignedValue = HydroConstants.MISSING_VALUE;
         boolean done = false;
@@ -499,7 +450,7 @@ public class TimeSeriesUtil {
         for (int i = 0; (i < td.getNpts()) && !done; i++) {
             /* if there is an exact match, use it */
 
-            // TODO Is this right?  the delete/set missing
+            // TODO Is this right? the delete/set missing
             if (dialog.isDelete() || dialog.isSetMissing()) {
                 continue;
             }
@@ -541,8 +492,9 @@ public class TimeSeriesUtil {
                  * within a half-interval to be used, and use the one closest to
                  * the desired time.
                  */
-                timeDiff = td.getTsData()[i].getX().getTime() - normTime.getTime();
-                if (Math.abs(timeDiff) <= ((interval * 1000)/ 2)) {
+                timeDiff = td.getTsData()[i].getX().getTime()
+                        - normTime.getTime();
+                if (Math.abs(timeDiff) <= ((interval * 1000) / 2)) {
                     if (Math.abs(timeDiff) < Math.abs(bestDiff)) {
                         assignedValue = td.getTsData()[i].getY();
                         bestDiff = timeDiff;
@@ -599,7 +551,7 @@ public class TimeSeriesUtil {
             tmpTrace.getTsData()[i - 1].setX(td.getTsData()[i].getX());
 
             /* set the value according to whether data available. */
-            // TODO is this correct?  the delete?
+            // TODO is this correct? the delete?
             if (dialog.isDelete()) {
                 tmpTrace.getTsData()[i].setY(HydroConstants.MISSING_VALUE);
             }
@@ -621,11 +573,13 @@ public class TimeSeriesUtil {
                         tmpTrace.getTsData()[i - 1 - n].setY(value);
                     }
                 } else {
-              /*      tmpTrace.getTsData()[i - 1].setY(tmpTrace.getTsData()[i]
-                            .getY()
-                            - previousVal); */
-                	
-                	 tmpTrace.getTsData()[i - 1].setY(td.getTsData()[i].getY() - previousVal);
+                    /*
+                     * tmpTrace.getTsData()[i - 1].setY(tmpTrace.getTsData()[i]
+                     * .getY() - previousVal);
+                     */
+
+                    tmpTrace.getTsData()[i - 1].setY(td.getTsData()[i].getY()
+                            - previousVal);
                 }
 
                 /*
@@ -648,7 +602,7 @@ public class TimeSeriesUtil {
             } else {
                 tmpTrace.getTsData()[i - 1].setY(HydroConstants.MISSING_VALUE);
             }
-                       
+
             /* save any good values for the next pass */
             if (tmpTrace.getTsData()[i].getY() != HydroConstants.MISSING_VALUE) {
                 previousVal = tmpTrace.getTsData()[i].getY();
@@ -682,8 +636,8 @@ public class TimeSeriesUtil {
             // serialize and pass the object
             oos.writeObject(obj);
             oos.flush();
-            ByteArrayInputStream bin = new ByteArrayInputStream(bos
-                    .toByteArray());
+            ByteArrayInputStream bin = new ByteArrayInputStream(
+                    bos.toByteArray());
             ois = new ObjectInputStream(bin);
             // return the new object
             return ois.readObject();
@@ -1012,12 +966,12 @@ public class TimeSeriesUtil {
 
         return returnValue;
     }
-    
+
     public static double round(double value, int places) {
         double p = Math.pow(10, places);
         value *= p;
         double tmp = Math.round(value);
-        return tmp/p;
+        return tmp / p;
     }
 
 }

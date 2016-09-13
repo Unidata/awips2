@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.common.dataplugin.bufrsigwx;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -28,8 +26,6 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-
-import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
@@ -59,38 +55,35 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  *                                     PluginDataObject.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Oct 14, 2013 2361       njensen     Removed XML annotations and IDecoderGettable
+ * Jul 23, 2015 2360       rferrel     Add name to unique constraint.
+ * Feb 04, 2016 5309       tgurney     Drop dataURI column and update unique constraint.
+ * Aug 04, 2016 5783       tgurney     Add forecasttime to unique constraint
  * 
  * </pre>
  * 
  * @author jkorman
- * @version 1.0
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "bufrsigwxseq")
-@Table(name = "bufrsigwx", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
-/*
- * Both refTime and forecastTime are included in the refTimeIndex since
- * forecastTime is unlikely to be used.
- */
-@org.hibernate.annotations.Table(appliesTo = "bufrsigwx", indexes = { @Index(name = "bufrswigwx_refTimeIndex", columnNames = {
-        "refTime", "forecastTime" }) })
+@Table(name = "bufrsigwx", uniqueConstraints = { @UniqueConstraint(name = "uk_bufrsigwx_datauri_fields", columnNames = {
+        "refTime", "forecastTime", "wxLayer", "wxType", "key" }) })
 @DynamicSerialize
 public class SigWxData extends PersistablePluginDataObject implements
         IPointData, IPersistable {
 
     private static final long serialVersionUID = 1L;
 
-    @Column
+    @Column(nullable = false)
     @DataURI(position = 1)
     @DynamicSerializeElement
     private SigWxLayer wxLayer;
 
-    @Column
+    @Column(nullable = false)
     @DataURI(position = 2)
     @DynamicSerializeElement
     private SigWxType wxType;
 
-    @Column
+    @Column(nullable = false)
     @DataURI(position = 3)
     @DynamicSerializeElement
     private Integer key;
@@ -272,13 +265,6 @@ public class SigWxData extends PersistablePluginDataObject implements
         obs.wmoHeader = wmoHeader;
 
         return obs;
-    }
-
-    @Override
-    @Column
-    @Access(AccessType.PROPERTY)
-    public String getDataURI() {
-        return super.getDataURI();
     }
 
     @Override

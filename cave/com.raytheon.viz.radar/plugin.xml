@@ -47,6 +47,38 @@
             id="com.raytheon.viz.radar.ui.RadarDisplayControls"
             name="Radar Display Controls">
       </command>
+      <!-- These commands are defined here because the menu xml files that are used for each icao are in this plugin
+           and include menu items for these commands. These menu items cannot be effectivly inserted from the radarapps
+           plugins because they need to be inserted into multiple locations(for each icao) and the locations are not
+           known ahead of time. These commands should be defined in the same plugin, or a dependency plugin of the
+           plugin containing the menu definition, since this plugin does not depend on radarapps the commands must be
+           defined here. If the radarapps plugins are not installed then these commands will have no handlers and the
+           menu items will automatically be hidden by eclipse.
+      -->
+      <command
+            id="com.raytheon.uf.viz.radarapps.alertreq.alertRequest"
+            name="Alert Request">
+      </command>
+      <command
+            id="com.raytheon.uf.viz.radarapps.otr.oneTimeRequest"
+            name="One Time Request">
+      </command>
+      <command
+            id="com.raytheon.uf.viz.radarapps.rmr.radarMultipleRequest"
+            name="Radar Multiple Request">
+      </command>
+      <command
+            id="com.raytheon.uf.viz.radarapps.rps.rpsListEditor"
+            name="RPS List Editor">
+      </command>
+      <command
+            id="com.raytheon.viz.ui.viz.radarapps.fsi.startFSI"
+            name="4-D Storm Investigator (FSI)">
+      </command>
+      <command
+            id="com.raytheon.uf.viz.radarapps.config.configurator"
+            name="RadarServer Configurator">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
@@ -139,14 +171,6 @@
              </dynamic>
          </menu>
       </menuContribution>
-   </extension>
-   <extension
-         point="org.eclipse.ui.themes">
-      <fontDefinition
-            id="com.raytheon.viz.radar.rsc.graphic.RadarGraphicsPage"
-            label="Radar Graphics Font"
-            value="Monospaced-regular-12">
-      </fontDefinition>
    </extension>
    <extension
          point="com.raytheon.uf.viz.core.graphicsExtension">

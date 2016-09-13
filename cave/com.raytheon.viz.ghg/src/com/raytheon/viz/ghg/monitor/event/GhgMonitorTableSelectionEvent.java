@@ -19,8 +19,8 @@
  **/
 package com.raytheon.viz.ghg.monitor.event;
 
-import java.util.EventObject;
-import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
 
 import org.eclipse.swt.graphics.RGB;
 
@@ -30,61 +30,62 @@ import com.raytheon.viz.ghg.monitor.data.GhgData;
  * Ghg Monitor table(spreadsheet) selection event object.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 2, 2010            mpduff     Initial creation
- *
+ * Jun 02, 2010            mpduff      Initial creation
+ * Feb 05, 2016   #5316    randerso    Changed to extend AbstractGhgMonitorEvent
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
- * @version 1.0	
+ * @version 1.0
  */
 
-public class GhgMonitorTableSelectionEvent extends EventObject {
+public class GhgMonitorTableSelectionEvent extends AbstractGhgMonitorEvent {
 
-    private static final long serialVersionUID = 3679672253157750734L;
-    
-    private List<GhgData> ghgData;
+    private Collection<GhgData> ghgData;
 
-    private String[] highlightedZones = null;
-    
+    private Collection<String> highlightedZones = Collections.emptyList();
+
     private RGB selectionColor = null;
-    
+
     /**
      * @param source
      */
-    public GhgMonitorTableSelectionEvent(Object source) {
-        super(source);
+    public GhgMonitorTableSelectionEvent() {
+        super();
     }
-    
+
     /**
-     * @param highlightedZones the highlightedZones to set
+     * @param highlightedZones
+     *            the highlightedZones to set
      */
-    public void setHighlightedZones(String[] highlightedZones) {
+    public void setHighlightedZones(Collection<String> highlightedZones) {
         this.highlightedZones = highlightedZones;
     }
-    
+
     /**
      * @return the highlightedZones
      */
-    public String[] getHighlightedZones() {
+    public Collection<String> getHighlightedZones() {
         return highlightedZones;
     }
 
     /**
      * @return the ghgData
      */
-    public List<GhgData> getGhgData() {
+    public Collection<GhgData> getGhgData() {
         return ghgData;
     }
 
     /**
-     * @param ghgData the ghgData to set
+     * @param ghgData
+     *            the ghgData to set
      */
-    public void setGhgData(List<GhgData> ghgData) {
+    public void setGhgData(Collection<GhgData> ghgData) {
         this.ghgData = ghgData;
     }
 
@@ -96,7 +97,8 @@ public class GhgMonitorTableSelectionEvent extends EventObject {
     }
 
     /**
-     * @param selectionColor the selectionColor to set
+     * @param selectionColor
+     *            the selectionColor to set
      */
     public void setSelectionColor(RGB selectionColor) {
         this.selectionColor = selectionColor;

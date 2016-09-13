@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # User variables for local builds:
-export U_RPM_DESTINATION="/home/mjames/rpmbuild"
+export U_RPM_DESTINATION="/home/${USER}/rpmbuild"
 export U_COMPONENT_VERSION="11.9.0"
 export U_COMPONENT_RELEASE="1"
 export U_BUILD_ROOT="/tmp/${USER}/awips2-build"

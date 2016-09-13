@@ -68,7 +68,6 @@ class Procedure (SmartScript.SmartScript):
       self.VU=BOIVerifyUtility.BOIVerifyUtility(self._dbss, None)
       self.VU.logMsg("BOIVerifyBiasCorr Procedure Start")
 
-      self._empty = self.VU._empty
       #
       #
       #  BIASCORR_DAYS configuration should hold number of days usually used
@@ -295,14 +294,14 @@ class Procedure (SmartScript.SmartScript):
                del correlation
             else:
                self.VU.logMsg("   %d old obs/fcst grids - used plain bias"%numGrids,2)
-               regErr=self._empty
+               regErr=self.empty()
             #
             #  Make a multiplier for the regressed error.  Normally 1.0...but
             #  when the forecast is more than fuzz% beyond the range of forecasts
             #  in the training period...start cutting back correction amount
             #  until getting back to zero regressed amount at (2*fuzz)% beyond.
             #
-            multiplier=self._empty+1.0
+            multiplier=self.newGrid(1)
             fuzzGrid=maximum((maxFcst-minFcst)*fuzz,0.01) # dont have zero
             max1=maxFcst+fuzzGrid
             multiplier=where(greater(inputGrid,max1),1.0-((inputGrid-max1)/fuzzGrid),multiplier)
@@ -315,8 +314,8 @@ class Procedure (SmartScript.SmartScript):
             del maxFcst
             del fuzzGrid
             if self.VU.getDebug>=1:
-               count=add.reduce(add.reduce(less(multiplier,0.98)))
-               count2=add.reduce(add.reduce(less(multiplier,0.02)))
+               count=count_nonzero(less(multiplier,0.98))
+               count2=count_nonzero(less(multiplier,0.02))
                if count>0:
                   self.VU.logMsg("    %d fcst points are outliers and regression was reduced"%count,1)
                   if count2>0:
@@ -359,8 +358,8 @@ class Procedure (SmartScript.SmartScript):
          if maxtgrid is not None:
             maxoftgrid=self.getGrids(mutableModel,"T","SFC",newtr,mode="Max",noDataError=0,cache=0)
             if maxoftgrid is not None:
-               maxt=where(greater(maxoftgrid,maxtgrid),maxoftgrid,maxtgrid)
-               changed=add.reduce(add.reduce(greater(maxt,maxtgrid)))
+               maxt=maximum(maxoftgrid,maxtgrid)
+               changed=count_nonzero(greater(maxt,maxtgrid))
                if changed>0:
                   fhr=int((newtr.startTime().unixTime()-modeltime)/3600.0)
                   self.VU.logMsg("Had to update MaxT at %d-hrs to match hourly T grids at %d points"%(fhr,changed))
@@ -377,8 +376,8 @@ class Procedure (SmartScript.SmartScript):
          if mintgrid is not None:
             minoftgrid=self.getGrids(mutableModel,"T","SFC",newtr,mode="Min",noDataError=0,cache=0)
             if minoftgrid is not None:
-               mint=where(less(minoftgrid,mintgrid),minoftgrid,mintgrid)
-               changed=add.reduce(add.reduce(less(mint,mintgrid)))
+               mint=minimum(minoftgrid,mintgrid)
+               changed=count_nonzero(less(mint,mintgrid))
                if changed>0:
                   fhr=int((newtr.startTime().unixTime()-modeltime)/3600.0)
                   self.VU.logMsg("Had to update MinT at %d-hrs to match hourly T grids at %d points"%(fhr,changed))
@@ -395,8 +394,8 @@ class Procedure (SmartScript.SmartScript):
          if maxrhgrid is not None:
             maxofrhgrid=self.getGrids(mutableModel,"RH","SFC",newtr,mode="Max",noDataError=0,cache=0)
             if maxofrhgrid is not None:
-               maxrh=where(greater(maxofrhgrid,maxrhgrid),maxofrhgrid,maxrhgrid)
-               changed=add.reduce(add.reduce(greater(maxrh,maxrhgrid)))
+               maxrh=maximum(maxofrhgrid,maxrhgrid)
+               changed=count_nonzero(greater(maxrh,maxrhgrid))
                if changed>0:
                   fhr=int((newtr.startTime().unixTime()-modeltime)/3600.0)
                   self.VU.logMsg("Had to update MaxRH at %d-hrs to match hourly RH grids at %d points"%(fhr,changed))
@@ -413,8 +412,8 @@ class Procedure (SmartScript.SmartScript):
          if minrhgrid is not None:
             minofrhgrid=self.getGrids(mutableModel,"RH","SFC",newtr,mode="Min",noDataError=0,cache=0)
             if minofrhgrid is not None:
-               minrh=where(less(minofrhgrid,minrhgrid),minofrhgrid,minrhgrid)
-               changed=add.reduce(add.reduce(less(minrh,minrhgrid)))
+               minrh=minimum(minofrhgrid,minrhgrid)
+               changed=count_nonzero(less(minrh,minrhgrid))
                if changed>0:
                   fhr=int((newtr.startTime().unixTime()-modeltime)/3600.0)
                   self.VU.logMsg("Had to update MinRH at %d-hrs to match hourly RH grids at %d points"%(fhr,changed))
@@ -573,7 +572,7 @@ class Procedure (SmartScript.SmartScript):
          #  Get average of non-bad forecast grids
          #
          numgrids=0
-         fcstgrid=self._empty.copy()
+         fcstgrid=self.empty()
          for frec in freclist:
             testgrid=self.VU.readRecord(parm,model,frec)
             if self.badGrid(testgrid,minval,maxval):
@@ -591,7 +590,7 @@ class Procedure (SmartScript.SmartScript):
          #  Get average of non-bad observed grids
          #
          numgrids=0
-         obsgrid=self._empty.copy()
+         obsgrid=self.empty()
          for orec in oreclist:
             testgrid=self.VU.readRecord(obsparm,obsmodel,orec)
             if self.badGrid(testgrid,minval,maxval):
@@ -663,7 +662,8 @@ class Procedure (SmartScript.SmartScript):
    #            returns 1 if bad, 0 if OK.
    #
    def badGrid(self,grid,minvalue,maxvalue):
-      numpts=int(add.reduce(add.reduce(self._empty+1)))
+      gridShape = self.getGridShape()
+      numpts=gridShape[0]*gridShape[1]
       avg=add.reduce(add.reduce(grid))/float(numpts)
       sqr=add.reduce(add.reduce(grid*grid))/float(numpts)
       var=sqr-(avg*avg)

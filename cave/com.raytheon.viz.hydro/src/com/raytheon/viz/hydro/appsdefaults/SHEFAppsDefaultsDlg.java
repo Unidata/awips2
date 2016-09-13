@@ -19,32 +19,39 @@
  **/
 package com.raytheon.viz.hydro.appsdefaults;
 
-import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
 
 import javax.xml.bind.JAXB;
 
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.uf.common.util.Pair;
+import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
  * Dialog displaying the current Apps_defaults settings for the SHEF Decoder.
@@ -59,6 +66,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Dec 07, 2012 1353       rferrel     Make non-blocking dialog.
  * Aug 09, 2013 2033       mschenke    Switched File.separator to IPathManager.SEPARATOR
  * Nov 04, 2013 2361       njensen     Use JAXB instead of SerializationUtil
+ * Apr 08, 2016 5483       dgilling    Refactor based on CaveJFACEDialog, fix 
+ *                                     hi-dpi issues.
  * 
  * </pre>
  * 
@@ -66,24 +75,13 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 
-public class SHEFAppsDefaultsDlg extends CaveSWTDialog {
+public final class SHEFAppsDefaultsDlg extends CaveJFACEDialog {
+
+    private static final String CONFIG_FILE_NAME = "hydro"
+            + IPathManager.SEPARATOR + "shefGadTokens.xml";
+
     private final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(SHEFAppsDefaultsDlg.class);
-
-    private final String CONFIG_FILE_NAME = "hydro" + IPathManager.SEPARATOR
-            + "shefGadTokens.xml";
-
-    /**
-     * Font used in the dialog.
-     */
-    private Font font;
-
-    /**
-     * The text area.
-     */
-    private StyledText textArea;
-
-    private List<String> tokenList = new ArrayList<String>();
+            .getHandler(getClass());
 
     /**
      * Constructor.
@@ -92,110 +90,138 @@ public class SHEFAppsDefaultsDlg extends CaveSWTDialog {
      *            Parent shell.
      */
     public SHEFAppsDefaultsDlg(Shell parent) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
-        setText("SHEF Apps_defaults Settings");
-        populateTokenList();
+        super(parent);
+        setBlockOnOpen(false);
+        setShellStyle(SWT.DIALOG_TRIM);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
-     * .eclipse.swt.widgets.Shell)
-     */
     @Override
-    protected void initializeComponents(final Shell shell) {
-        setReturnValue(false);
+    protected Control createDialogArea(Composite parent) {
+        Composite composite = (Composite) super.createDialogArea(parent);
 
-        font = new Font(shell.getDisplay(), "Monospace", 11, SWT.NORMAL);
+        final Table table = new Table(composite, SWT.BORDER | SWT.MULTI
+                | SWT.FULL_SELECTION | SWT.V_SCROLL);
+        table.setLinesVisible(false);
+        table.setHeaderVisible(true);
+        table.addKeyListener(new KeyAdapter() {
 
-        // Initialize the labels
-        Composite labelComp = new Composite(shell, SWT.NONE);
-        GridLayout gl = new GridLayout(2, false);
-        labelComp.setLayout(gl);
-
-        GridData gd = new GridData(245, SWT.DEFAULT);
-        Label idLbl = new Label(labelComp, SWT.NONE);
-        idLbl.setLayoutData(gd);
-        idLbl.setText("Token");
-
-        Label nameLbl = new Label(labelComp, SWT.NONE);
-        nameLbl.setText("Value");
-        nameLbl.setLayoutData(gd);
-
-        // Initialize text area
-        GridData gd2 = new GridData(SWT.FILL, SWT.FILL, true, true);
-        gd2.widthHint = 650;
-        gd2.heightHint = 500;
-        textArea = new StyledText(shell, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL
-                | SWT.H_SCROLL);
-        textArea.setFont(font);
-        textArea.setEditable(false);
-        textArea.setLayoutData(gd2);
-
-        // Add a close button
-        Composite centeredComp = new Composite(shell, SWT.NONE);
-        GridLayout gl2 = new GridLayout(1, false);
-        centeredComp.setLayout(gl2);
-        GridData gd3 = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        centeredComp.setLayoutData(gd3);
-
-        Button closeBtn = new Button(centeredComp, SWT.NONE);
-        closeBtn.setText("Close");
-        closeBtn.setLayoutData(gd);
-        closeBtn.setLayoutData(gd3);
-        closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
-            public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+            public void keyPressed(KeyEvent e) {
+                if ((e.keyCode == 'c') && (e.stateMask == SWT.CTRL)) {
+                    StringBuilder sb = new StringBuilder();
+                    for (TableItem item : table.getSelection()) {
+                        sb.append(String.format("%-26s %s", item.getText(0),
+                                item.getText(1)));
+                        sb.append('\n');
+                    }
+                    sb.deleteCharAt(sb.length() - 1);
+
+                    Clipboard clipboard = new Clipboard(e.display);
+                    clipboard.setContents(new Object[] { sb.toString() },
+                            new Transfer[] { TextTransfer.getInstance() });
+                }
             }
         });
 
-        populateDlg();
-    }
-
-    private void populateDlg() {
-        AppsDefaults ad = AppsDefaults.getInstance();
-        String format = "%-26s %s";
-        StringBuilder sb = new StringBuilder();
-        for (String s : tokenList) {
-            sb.append(String.format(format, s, ad.getToken(s) + "\n"));
+        String[] titles = { "Token", "Value" };
+        for (String title : titles) {
+            TableColumn column = new TableColumn(table, SWT.LEFT);
+            column.setText(title);
         }
 
-        this.textArea.setText(sb.toString());
+        int maxTokenLen = -Integer.MAX_VALUE;
+        int maxValueLen = -Integer.MAX_VALUE;
+        for (Pair<String, String> entry : getTableEntries()) {
+            TableItem item = new TableItem(table, SWT.NONE);
+            item.setFont(JFaceResources.getTextFont());
+            String token = String.valueOf(entry.getFirst());
+            maxTokenLen = Math.max(maxTokenLen, token.length());
+            item.setText(0, token);
+            String value = String.valueOf(entry.getSecond());
+            maxValueLen = Math.max(maxValueLen, value.length());
+            item.setText(1, value);
+        }
+
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gd.heightHint = table.getHeaderHeight()
+                + (table.getItemHeight() * table.getItemCount());
+        GC gc = new GC(table);
+        gc.setFont(JFaceResources.getTextFont());
+        gd.widthHint = (maxTokenLen + maxValueLen + 4)
+                * gc.getFontMetrics().getAverageCharWidth();
+        gc.dispose();
+        table.setLayoutData(gd);
+
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumn(i).pack();
+        }
+
+        return composite;
     }
 
-    private void populateTokenList() {
+    @Override
+    protected void buttonPressed(int buttonId) {
+        switch (buttonId) {
+        case IDialogConstants.CLOSE_ID:
+            close();
+            break;
+        default:
+            statusHandler.warn(String.format(
+                    "Unrecognized button [%d] pressed.", buttonId));
+            break;
+        }
+    }
+
+    @Override
+    protected void createButtonsForButtonBar(Composite parent) {
+        createButton(parent, IDialogConstants.CLOSE_ID,
+                IDialogConstants.CLOSE_LABEL, true);
+    }
+
+    @Override
+    protected void configureShell(Shell newShell) {
+        super.configureShell(newShell);
+        newShell.setText("SHEF Apps_defaults Settings");
+    }
+
+    private Collection<Pair<String, String>> getTableEntries() {
+        Collection<String> tokenList = getTokenList();
+
+        Collection<Pair<String, String>> entries = new ArrayList<>(
+                tokenList.size());
+        AppsDefaults ad = AppsDefaults.getInstance();
+        for (String s : tokenList) {
+            entries.add(new Pair<String, String>(s, ad.getToken(s)));
+        }
+
+        return entries;
+    }
+
+    private Collection<String> getTokenList() {
+        Collection<String> tokenList = Collections.emptyList();
+
         // Read in the xml
+        statusHandler.debug("Searching for " + CONFIG_FILE_NAME);
         IPathManager pm = PathManagerFactory.getPathManager();
-        System.out.println("Searching for " + CONFIG_FILE_NAME);
-        File file = pm.getStaticFile(this.CONFIG_FILE_NAME);
+        ILocalizationFile file = pm.getStaticLocalizationFile(CONFIG_FILE_NAME);
         if (file != null) {
-            try {
-                SHEFAppsDefaultsXML xml = JAXB.unmarshal(file,
+            try (InputStream inStream = file.openInputStream()) {
+                SHEFAppsDefaultsXML xml = JAXB.unmarshal(inStream,
                         SHEFAppsDefaultsXML.class);
+
+                tokenList = new ArrayList<>();
                 for (String token : xml.getTokenList()) {
                     tokenList.add(token);
                 }
             } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM, e.getMessage(), e);
+                statusHandler.error(String.format("Error reading file [%s]",
+                        CONFIG_FILE_NAME), e);
             }
         } else {
-            MessageBox messageBox = new MessageBox(this.getParent(), SWT.ERROR);
-            messageBox.setText("File Not Found");
-            messageBox.setMessage("shefGadTokens.xml file not found.");
-            messageBox.open();
+            MessageDialog.openError(getShell(), "File Not Found",
+                    "shefGadTokens.xml file not found.");
         }
-    }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
-     */
-    @Override
-    protected void disposed() {
-        font.dispose();
+        return tokenList;
     }
 }

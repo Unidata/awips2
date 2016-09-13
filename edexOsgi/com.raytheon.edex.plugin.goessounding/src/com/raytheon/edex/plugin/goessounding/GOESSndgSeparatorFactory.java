@@ -19,8 +19,8 @@
  **/
 package com.raytheon.edex.plugin.goessounding;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.esb.Headers;
 
@@ -33,7 +33,8 @@ import com.raytheon.edex.esb.Headers;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 6, 2009            jkorman     Initial creation
+ * Oct 06, 2009            jkorman     Initial creation
+ * Dec 15, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -43,8 +44,8 @@ import com.raytheon.edex.esb.Headers;
 
 public class GOESSndgSeparatorFactory {
 
-    private static Log logger = LogFactory
-            .getLog(GOESSndgSeparatorFactory.class);
+    private static Logger logger = LoggerFactory
+            .getLogger(GOESSndgSeparatorFactory.class);
 
     /**
      * Factory method to return a separator to the client.

@@ -65,7 +65,6 @@ class Procedure (SmartScript.SmartScript):
       self.VU=BOIVerifyUtility.BOIVerifyUtility(self._dbss, None)
       self.VU.logMsg("BOIVerifyAutoCalc Procedure Start")
 
-      self._empty = self.VU._empty
       #
       #  When testing - I often set Debug up higher to see what is going on
       #
@@ -142,7 +141,7 @@ class Procedure (SmartScript.SmartScript):
       #              sums.
       #
       numAreas=len(editAreaNames)
-      shape=self._empty.shape
+      shape=self.getGridShape()
       allpts=shape[0] * shape[1]
       eas=zeros((allpts,numAreas))
       numedit=[]
@@ -150,7 +149,7 @@ class Procedure (SmartScript.SmartScript):
       for i in xrange(numAreas):
          areaname=editAreaNames[i]
          if areaname=="NONE":
-            ea=(self._empty+1).astype(int32)
+            ea=self.newGrid(True, bool)
          else:
             ea=self.encodeEditArea(areaname)
          eas[:,i]=ea.flat

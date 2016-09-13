@@ -20,11 +20,10 @@
 package com.raytheon.viz.gfe.smarttool;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
-import jep.JepException;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
@@ -63,6 +62,7 @@ import com.raytheon.viz.gfe.dialogs.TimeRangeWarningDialog;
  *                                     Keep TimeRangeWarningdialog blocking.
  * Jan 8, 2013  1486       dgilling    Support changes to BaseGfePyController.
  * Mar 14, 2014 15813      ryu         Fixed default time range used.
+ * Jul 23, 2015 4263       dgilling    Support SmartToolMetadataManager.
  * 
  * </pre>
  * 
@@ -131,14 +131,8 @@ public class EditActionProcessor {
         String element = null;
         Parm effectiveParm = null;
         if (itemKind.equals("Tool")) {
-            // Find the parm modified by the tool
-            // Check in tool itself to see if element to edit is specified
-            try {
-                element = dataMgr.getSmartToolInterface()
-                        .getWeatherElementEdited(itemName);
-            } catch (JepException e) {
-                handleError(e.getMessage(), true);
-            }
+            element = dataMgr.getSmartToolInterface().getWeatherElementEdited(
+                    itemName);
             if (element == null) {
                 processError("ExecuteOrClassError", "Tool Not Found: "
                         + itemName, null);
@@ -407,20 +401,15 @@ public class EditActionProcessor {
 
                 @Override
                 public void run() {
-                    try {
-                        List<String> argList = dataMgr.getProcedureInterface()
-                                .getMethodArguments(name, "execute");
-                        if (!argList.contains("timeRange")
-                                && checkedList.contains("EmptyTimeRange")) {
-                            checkedList.remove("EmptyTimeRange");
-                        }
-                        if (!argList.contains("editArea")
-                                && checkedList.contains("EmptyEditArea")) {
-                            checkedList.remove("EmptyEditArea");
-                        }
-                    } catch (JepException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                e.getLocalizedMessage(), e);
+                    Collection<String> argList = dataMgr
+                            .getProcedureInterface().getMethodArguments(name);
+                    if (!argList.contains("timeRange")
+                            && checkedList.contains("EmptyTimeRange")) {
+                        checkedList.remove("EmptyTimeRange");
+                    }
+                    if (!argList.contains("editArea")
+                            && checkedList.contains("EmptyEditArea")) {
+                        checkedList.remove("EmptyEditArea");
                     }
                 }
 

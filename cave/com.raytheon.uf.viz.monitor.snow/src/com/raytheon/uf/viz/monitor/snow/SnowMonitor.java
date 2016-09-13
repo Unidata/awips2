@@ -30,8 +30,8 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.jms.notification.NotificationMessage;
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
+import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.monitor.IMonitor;
 import com.raytheon.uf.viz.monitor.Monitor;
@@ -72,6 +72,10 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Sep 04, 2014 3220       skorolev    Updated configUpdate method and added updateMonitoringArea.
  * Sep 18, 2015 3873       skorolev    Removed common definitions. Replaced deprecated NotificationMessage.
  * Dec 17, 2015 3873       dhladky     Abstracted handling of dialogTime and Zone dialog events.
+ * <<<<<<< HEAD
+ * =======
+ * Jan 04, 2016 5115       skorolev    Corrected imports and replaced AppName with MonName.
+ * >>>>>>> Omaha #5115 - Added AlertViz image management for FSSObs data.
  * 
  * </pre>
  * 
@@ -98,7 +102,7 @@ public class SnowMonitor extends ObsMonitor implements ISnowResourceListener {
      * This object contains all observation data necessary for the table dialogs
      * and trending plots
      */
-    private ObMultiHrsReports obData;
+    private final ObMultiHrsReports obData;
 
     /** Array of snow listeners **/
     private final List<ISnowResourceListener> snowResources = new ArrayList<ISnowResourceListener>();
@@ -109,7 +113,7 @@ public class SnowMonitor extends ObsMonitor implements ISnowResourceListener {
     private SnowMonitor() {
         pluginPatterns.add(fssPattern);
         snowConfig = FSSObsMonitorConfigurationManager
-                .getInstance(MonName.snow);
+                .getInstance(AppName.SNOW);
         updateMonitoringArea();
         initObserver(OBS, this);
         obData = new ObMultiHrsReports(CommonConfig.AppName.SNOW);
@@ -343,11 +347,11 @@ public class SnowMonitor extends ObsMonitor implements ISnowResourceListener {
     }
 
     /**
-     * Event fire is different, Override.
-     * SnowResource sets the Drawtime.
+     * Event fire is different, Override. SnowResource sets the Drawtime.
      * 
      * @param dialogTime
      */
+    @Override
     public void updateDialogTime(Date dialogTime) {
         if (zoneDialog.linkedToFrame) {
             this.dialogTime = dialogTime;

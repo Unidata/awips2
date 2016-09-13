@@ -39,6 +39,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * ------------ ---------- ----------- --------------------------
  * Mar 4, 2013             dgilling    Initial creation
  * Apr 28, 2015  #4027     randerso    Expunged Calendar from ActiveTableRecord
+ * Dec 09, 2015  #5197     reblum      Fixed copy/paste error in convertToDict().
  * 
  * </pre>
  * 
@@ -123,7 +124,7 @@ public class ActiveTableUtil {
             if (floodEnd != null) {
                 long floodEndMillis = floodEnd.getTime();
                 if (floodEndMillis != 0) {
-                    template.put("floodBegin", floodEndMillis / 1000);
+                    template.put("floodEnd", floodEndMillis / 1000);
                 }
             }
             String floodStatus = atr.getFloodRecordStatus();

@@ -32,6 +32,7 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.topo.TopoException;
@@ -40,19 +41,24 @@ import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
  * 
- * TODO Add Description
+ * {@link D2DNSharpResourceData} for loading gridded data into nsharp.
+ * 
+ * TODO rename to GridNSharpResourceData, grib only remains for backward
+ * compatibility in xml.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jul 26, 2011            bsteffen     Initial creation
- * Feb 15, 2013 1638       mschenke    Got rid of viz/edex topo classes 
- *                                     and moved into common
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------
+ * Jul 26, 2011           bsteffen  Initial creation
+ * Feb 15, 2013  1638     mschenke  Got rid of viz/edex topo classes and moved
+ *                                  into common
  * 04/27/2015   RM#6674&7787 Chin Chen   support model sounding query data interpolation and nearest point option                       
- *
+ * Aug 03, 2015  3861     bsteffen  Automatically determine sounding type from
+ *                                  request constraints.
+ * Mar 01, 2016 RM14647 mgamazayhikov  Added constructor.
  * 
  * </pre>
  * 
@@ -75,10 +81,17 @@ public class GribNSharpResourceData extends D2DNSharpResourceData {
         super(soundingType);
     }
 
+    public GribNSharpResourceData(String soundingType, String soundingTitle) {
+        super(soundingType,soundingTitle);
+    }
+
     @Override
     protected void preparePointInfo() throws VizException {
-        // everything should already be set
-        return;
+        /* Always keep the type in sync with what is in the metadata map. */
+        RequestConstraint typeConstraint = metadataMap.get("info.datasetId");
+        if (typeConstraint != null) {
+            this.setSoundingType(typeConstraint.getConstraintValue());
+        }
     }
 
     @Override

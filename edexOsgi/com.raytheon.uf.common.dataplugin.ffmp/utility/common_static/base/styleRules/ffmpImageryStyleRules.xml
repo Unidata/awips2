@@ -91,6 +91,43 @@ be put in localization.
 		</imageStyle>
 	</styleRule>
  -->
+ <!-- 
+ADDING NEW Guidance styleRules:
+When adding an additional Guidance source to FFMP.  You should also add a custom style rule for it.
+
+The way it works is the SourceConfigXML display name for the type is appended to the type.
+So the TYpe for GUIDANCE is guidance.  So, it you have a hypothetical source display name of 
+ARIFFG100, then the style rule parameter tag will look like this example....
+
+<styleRule>
+        <paramLevelMatches>
+            <parameter>guidanceARIFFG100</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>in</displayUnits>
+            <defaultColormap>Grid/gridded data</defaultColormap>
+            <dataMapping>
+                <entry displayValue='50.0' pixelValue='0'/>
+                <entry displayValue='55.0' pixelValue='17'/>
+                <entry displayValue='60.0' pixelValue='35'/>
+                <entry displayValue='65.0' pixelValue='52'/>
+                <entry displayValue='70.0' pixelValue='69'/>
+                <entry displayValue='75.0' pixelValue='86'/>
+                <entry displayValue='80.0' pixelValue='102'/>
+                <entry displayValue='85.0' pixelValue='119'/>
+                <entry displayValue='90.0' pixelValue='136'/>
+                <entry displayValue='95.0' pixelValue='153'/>
+                <entry displayValue='100.0' pixelValue='169'/>
+                <entry displayValue='105.0' pixelValue='186'/>
+                <entry displayValue='110.0' pixelValue='204'/>
+                <entry displayValue='115.0' pixelValue='220'/>
+                <entry displayValue='120.0' pixelValue='255'/>
+            </dataMapping>
+        </imageStyle>
+    </styleRule>
+
+-->
+ 
     
 <styleRuleset>
 	<styleRule>
@@ -269,7 +306,7 @@ be put in localization.
 	
 	<styleRule>
 		<paramLevelMatches>
-			<parameter>guidance</parameter>
+			<parameter>guidanceRFCFFG</parameter>
 		</paramLevelMatches>
 		<imageStyle>
 		    <displayUnits>in</displayUnits>
@@ -293,5 +330,306 @@ be put in localization.
 			</dataMapping>
 		</imageStyle>
 	</styleRule>
+	
+	<!-- This one is the default for guidance if all else fails to load -->
+	<styleRule>
+        <paramLevelMatches>
+            <parameter>guidance</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>in</displayUnits>
+            <defaultColormap>Grid/gridded data</defaultColormap>
+            <dataMapping>
+                <entry displayValue='0.0' pixelValue='0'/>
+                <entry displayValue='1.0' pixelValue='17'/>
+                <entry displayValue='2.0' pixelValue='35'/>
+                <entry displayValue='3.0' pixelValue='52'/>
+                <entry displayValue='4.0' pixelValue='69'/>
+                <entry displayValue='5.0' pixelValue='86'/>
+                <entry displayValue='6.0' pixelValue='102'/>
+                <entry displayValue='7.0' pixelValue='119'/>
+                <entry displayValue='8.0' pixelValue='136'/>
+                <entry displayValue='9.0' pixelValue='153'/>
+                <entry displayValue='10.0' pixelValue='169'/>
+                <entry displayValue='11.0' pixelValue='186'/>
+                <entry displayValue='12.0' pixelValue='204'/>
+                <entry displayValue='13.0' pixelValue='220'/>
+                <entry displayValue='15.0' pixelValue='255'/>
+            </dataMapping>
+        </imageStyle>
+    </styleRule>
+    
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>guidanceARIFFG1</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>in</displayUnits>
+            <defaultColormap>Grid/gridded data</defaultColormap>
+            <dataMapping>
+                <entry displayValue='0.0' pixelValue='0'/>
+                <entry displayValue='2.0' pixelValue='17'/>
+                <entry displayValue='4.0' pixelValue='35'/>
+                <entry displayValue='6.0' pixelValue='52'/>
+                <entry displayValue='8.0' pixelValue='69'/>
+                <entry displayValue='10.0' pixelValue='86'/>
+                <entry displayValue='12.0' pixelValue='102'/>
+                <entry displayValue='14.0' pixelValue='119'/>
+                <entry displayValue='16.0' pixelValue='136'/>
+                <entry displayValue='18.0' pixelValue='153'/>
+                <entry displayValue='20.0' pixelValue='169'/>
+                <entry displayValue='22.0' pixelValue='186'/>
+                <entry displayValue='24.0' pixelValue='204'/>
+                <entry displayValue='26.0' pixelValue='220'/>
+                <entry displayValue='28.0' pixelValue='255'/>
+            </dataMapping>
+        </imageStyle>
+    </styleRule>
+    
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>guidanceARIFFG2</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>in</displayUnits>
+            <defaultColormap>Grid/gridded data</defaultColormap>
+            <dataMapping>
+                <entry displayValue='0.0' pixelValue='0'/>
+                <entry displayValue='2.0' pixelValue='17'/>
+                <entry displayValue='4.0' pixelValue='35'/>
+                <entry displayValue='6.0' pixelValue='52'/>
+                <entry displayValue='8.0' pixelValue='69'/>
+                <entry displayValue='10.0' pixelValue='86'/>
+                <entry displayValue='12.0' pixelValue='102'/>
+                <entry displayValue='14.0' pixelValue='119'/>
+                <entry displayValue='16.0' pixelValue='136'/>
+                <entry displayValue='18.0' pixelValue='153'/>
+                <entry displayValue='20.0' pixelValue='169'/>
+                <entry displayValue='22.0' pixelValue='186'/>
+                <entry displayValue='24.0' pixelValue='204'/>
+                <entry displayValue='26.0' pixelValue='220'/>
+                <entry displayValue='28.0' pixelValue='255'/>
+            </dataMapping>
+        </imageStyle>
+    </styleRule>
+    
+    
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>guidanceARIFFG5</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>in</displayUnits>
+            <defaultColormap>Grid/gridded data</defaultColormap>
+           <dataMapping>
+                <entry displayValue='0.0' pixelValue='0'/>
+                <entry displayValue='2.0' pixelValue='17'/>
+                <entry displayValue='4.0' pixelValue='35'/>
+                <entry displayValue='6.0' pixelValue='52'/>
+                <entry displayValue='8.0' pixelValue='69'/>
+                <entry displayValue='10.0' pixelValue='86'/>
+                <entry displayValue='12.0' pixelValue='102'/>
+                <entry displayValue='14.0' pixelValue='119'/>
+                <entry displayValue='16.0' pixelValue='136'/>
+                <entry displayValue='18.0' pixelValue='153'/>
+                <entry displayValue='20.0' pixelValue='169'/>
+                <entry displayValue='22.0' pixelValue='186'/>
+                <entry displayValue='24.0' pixelValue='204'/>
+                <entry displayValue='26.0' pixelValue='220'/>
+                <entry displayValue='28.0' pixelValue='255'/>
+            </dataMapping>
+        </imageStyle>
+    </styleRule>
+	
+	<styleRule>
+        <paramLevelMatches>
+            <parameter>guidanceARIFFG10</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>in</displayUnits>
+            <defaultColormap>Grid/gridded data</defaultColormap>
+           <dataMapping>
+                <entry displayValue='0.0' pixelValue='0'/>
+                <entry displayValue='2.0' pixelValue='17'/>
+                <entry displayValue='4.0' pixelValue='35'/>
+                <entry displayValue='6.0' pixelValue='52'/>
+                <entry displayValue='8.0' pixelValue='69'/>
+                <entry displayValue='10.0' pixelValue='86'/>
+                <entry displayValue='12.0' pixelValue='102'/>
+                <entry displayValue='14.0' pixelValue='119'/>
+                <entry displayValue='16.0' pixelValue='136'/>
+                <entry displayValue='18.0' pixelValue='153'/>
+                <entry displayValue='20.0' pixelValue='169'/>
+                <entry displayValue='22.0' pixelValue='186'/>
+                <entry displayValue='24.0' pixelValue='204'/>
+                <entry displayValue='26.0' pixelValue='220'/>
+                <entry displayValue='28.0' pixelValue='255'/>
+            </dataMapping>
+        </imageStyle>
+    </styleRule>
+    
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>guidanceARIFFG25</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>in</displayUnits>
+            <defaultColormap>Grid/gridded data</defaultColormap>
+            <dataMapping>
+                <entry displayValue='0.0' pixelValue='0'/>
+                <entry displayValue='2.0' pixelValue='17'/>
+                <entry displayValue='4.0' pixelValue='35'/>
+                <entry displayValue='6.0' pixelValue='52'/>
+                <entry displayValue='8.0' pixelValue='69'/>
+                <entry displayValue='10.0' pixelValue='86'/>
+                <entry displayValue='12.0' pixelValue='102'/>
+                <entry displayValue='14.0' pixelValue='119'/>
+                <entry displayValue='16.0' pixelValue='136'/>
+                <entry displayValue='18.0' pixelValue='153'/>
+                <entry displayValue='20.0' pixelValue='169'/>
+                <entry displayValue='22.0' pixelValue='186'/>
+                <entry displayValue='24.0' pixelValue='204'/>
+                <entry displayValue='26.0' pixelValue='220'/>
+                <entry displayValue='28.0' pixelValue='255'/>
+            </dataMapping>
+        </imageStyle>
+    </styleRule>
+
+    
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>guidanceARIFFG50</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>in</displayUnits>
+            <defaultColormap>Grid/gridded data</defaultColormap>
+            <dataMapping>
+                <entry displayValue='0.0' pixelValue='0'/>
+                <entry displayValue='2.0' pixelValue='17'/>
+                <entry displayValue='4.0' pixelValue='35'/>
+                <entry displayValue='6.0' pixelValue='52'/>
+                <entry displayValue='8.0' pixelValue='69'/>
+                <entry displayValue='10.0' pixelValue='86'/>
+                <entry displayValue='12.0' pixelValue='102'/>
+                <entry displayValue='14.0' pixelValue='119'/>
+                <entry displayValue='16.0' pixelValue='136'/>
+                <entry displayValue='18.0' pixelValue='153'/>
+                <entry displayValue='20.0' pixelValue='169'/>
+                <entry displayValue='22.0' pixelValue='186'/>
+                <entry displayValue='24.0' pixelValue='204'/>
+                <entry displayValue='26.0' pixelValue='220'/>
+                <entry displayValue='28.0' pixelValue='255'/>
+            </dataMapping>
+        </imageStyle>
+    </styleRule>
+    
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>guidanceARIFFG100</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>in</displayUnits>
+            <defaultColormap>Grid/gridded data</defaultColormap>
+            <dataMapping>
+                <entry displayValue='0.0' pixelValue='0'/>
+                <entry displayValue='2.0' pixelValue='17'/>
+                <entry displayValue='4.0' pixelValue='35'/>
+                <entry displayValue='6.0' pixelValue='52'/>
+                <entry displayValue='8.0' pixelValue='69'/>
+                <entry displayValue='10.0' pixelValue='86'/>
+                <entry displayValue='12.0' pixelValue='102'/>
+                <entry displayValue='14.0' pixelValue='119'/>
+                <entry displayValue='16.0' pixelValue='136'/>
+                <entry displayValue='18.0' pixelValue='153'/>
+                <entry displayValue='20.0' pixelValue='169'/>
+                <entry displayValue='22.0' pixelValue='186'/>
+                <entry displayValue='24.0' pixelValue='204'/>
+                <entry displayValue='26.0' pixelValue='220'/>
+                <entry displayValue='28.0' pixelValue='255'/>
+            </dataMapping>
+        </imageStyle>
+    </styleRule>
+    
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>guidanceARIFFG200</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>in</displayUnits>
+            <defaultColormap>Grid/gridded data</defaultColormap>
+            <dataMapping>
+                <entry displayValue='0.0' pixelValue='0'/>
+                <entry displayValue='2.0' pixelValue='17'/>
+                <entry displayValue='4.0' pixelValue='35'/>
+                <entry displayValue='6.0' pixelValue='52'/>
+                <entry displayValue='8.0' pixelValue='69'/>
+                <entry displayValue='10.0' pixelValue='86'/>
+                <entry displayValue='12.0' pixelValue='102'/>
+                <entry displayValue='14.0' pixelValue='119'/>
+                <entry displayValue='16.0' pixelValue='136'/>
+                <entry displayValue='18.0' pixelValue='153'/>
+                <entry displayValue='20.0' pixelValue='169'/>
+                <entry displayValue='22.0' pixelValue='186'/>
+                <entry displayValue='24.0' pixelValue='204'/>
+                <entry displayValue='26.0' pixelValue='220'/>
+                <entry displayValue='28.0' pixelValue='255'/>
+            </dataMapping>
+        </imageStyle>
+    </styleRule>
+        
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>guidanceARIFFG500</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>in</displayUnits>
+            <defaultColormap>Grid/gridded data</defaultColormap>
+           <dataMapping>
+                <entry displayValue='0.0' pixelValue='0'/>
+                <entry displayValue='2.0' pixelValue='17'/>
+                <entry displayValue='4.0' pixelValue='35'/>
+                <entry displayValue='6.0' pixelValue='52'/>
+                <entry displayValue='8.0' pixelValue='69'/>
+                <entry displayValue='10.0' pixelValue='86'/>
+                <entry displayValue='12.0' pixelValue='102'/>
+                <entry displayValue='14.0' pixelValue='119'/>
+                <entry displayValue='16.0' pixelValue='136'/>
+                <entry displayValue='18.0' pixelValue='153'/>
+                <entry displayValue='20.0' pixelValue='169'/>
+                <entry displayValue='22.0' pixelValue='186'/>
+                <entry displayValue='24.0' pixelValue='204'/>
+                <entry displayValue='26.0' pixelValue='220'/>
+                <entry displayValue='28.0' pixelValue='255'/>
+            </dataMapping>
+        </imageStyle>
+    </styleRule>
+    
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>guidanceARIFFG1000</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>in</displayUnits>
+            <defaultColormap>Grid/gridded data</defaultColormap>
+            <dataMapping>
+                <entry displayValue='0.0' pixelValue='0'/>
+                <entry displayValue='2.0' pixelValue='17'/>
+                <entry displayValue='4.0' pixelValue='35'/>
+                <entry displayValue='6.0' pixelValue='52'/>
+                <entry displayValue='8.0' pixelValue='69'/>
+                <entry displayValue='10.0' pixelValue='86'/>
+                <entry displayValue='12.0' pixelValue='102'/>
+                <entry displayValue='14.0' pixelValue='119'/>
+                <entry displayValue='16.0' pixelValue='136'/>
+                <entry displayValue='18.0' pixelValue='153'/>
+                <entry displayValue='20.0' pixelValue='169'/>
+                <entry displayValue='22.0' pixelValue='186'/>
+                <entry displayValue='24.0' pixelValue='204'/>
+                <entry displayValue='26.0' pixelValue='220'/>
+                <entry displayValue='28.0' pixelValue='255'/>
+            </dataMapping>
+        </imageStyle>
+        
+    </styleRule>
 	
 </styleRuleset>

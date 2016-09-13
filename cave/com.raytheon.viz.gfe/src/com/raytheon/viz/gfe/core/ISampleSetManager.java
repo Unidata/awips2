@@ -33,19 +33,21 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Jun 30, 2008				chammack	Initial creation
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Jun 30, 2008             chammack    Initial creation
  * Apr 09, 2009  1288       rjpeter     Added add/remove method for sample set listener
  * Sep 09, 2014  3592       randerso    Added dispose method, 
  *                                      removed getInventoryAsList and networkNotification,
  *                                      improved JavaDoc
+ * Aug 13, 2015  4749       njensen     Extends DisposableManager                                     
+ *                                      
  * </pre>
  * 
  * @author chammack
  * @version 1.0
  */
-public interface ISampleSetManager {
+public interface ISampleSetManager extends DisposableManager {
     /**
      * Sample Set Load Mode
      */
@@ -67,11 +69,6 @@ public interface ISampleSetManager {
     }
 
     public static final float DEFAULT_THRESHOLD = 0.0f;
-
-    /**
-     * Dispose the SampleSetManager
-     */
-    public void dispose();
 
     /**
      * Returns the set of sample points for the named sample set. If the sample

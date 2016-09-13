@@ -19,13 +19,12 @@
  **/
 package com.raytheon.viz.gfe.actions;
 
-import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.CreateFromScratchDialog;
+import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
  * Action for launching CreateFromScratch dialog.
@@ -34,40 +33,19 @@ import com.raytheon.viz.gfe.dialogs.CreateFromScratchDialog;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 	Feb 27, 2008					Eric Babin Initial Creation
+ * Feb 27, 2008            Eric Babin  Initial Creation
  * 04/18/08     #857       bphillip    Implemented interaction with server
  * Oct 24, 2012 #1287      rferrel     Changes for non-blocking CreateFromScratchDialog.
+ * Aug 27, 2015 4749       njensen     Now extends GfeShowDialogHandler
  * 
  * </pre>
  * 
- * @author ebabin
- * @version 1.0
  */
+public class ShowCreateFromScratchDialog extends GfeShowDialogHandler {
 
-public class ShowCreateFromScratchDialog extends AbstractHandler {
-    private CreateFromScratchDialog dialog;
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
-     * .ExecutionEvent)
-     */
     @Override
-    public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
-
-            dialog = new CreateFromScratchDialog(shell);
-            dialog.setBlockOnOpen(false);
-            dialog.open();
-        } else {
-            dialog.bringToTop();
-        }
-
-        return null;
+    protected CaveJFACEDialog createDialog(Shell shell, DataManager dm,
+            ExecutionEvent event) {
+        return new CreateFromScratchDialog(shell);
     }
-
 }

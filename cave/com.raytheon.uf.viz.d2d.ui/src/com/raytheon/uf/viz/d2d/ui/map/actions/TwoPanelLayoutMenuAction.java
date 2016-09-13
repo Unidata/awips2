@@ -42,7 +42,16 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  *    Date         Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
  *    Apr 20, 2016             mjames@ucar Copied from FourPanelLayoutMenuAction
+ *    
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ *   
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Apr 20, 2016             mjames@ucar Copied from FourPanelLayoutMenuAction
+ * Jul 19, 2016             mjames@ucar Removed unnecessary part name code (undid previous change)
  * </pre>
  * 
  * @author bgonzale
@@ -65,20 +74,13 @@ public class TwoPanelLayoutMenuAction extends AbstractRightClickAction {
     @Override
     public void run() {
         if (getContainer() instanceof IMultiPaneEditor == false
-                || getContainer().getDisplayPanes()[0].getRenderableDisplay() instanceof ID2DRenderableDisplay == false) {
+                || getContainer().getDisplayPanes()[0].getRenderableDisplay() 
+                instanceof ID2DRenderableDisplay == false) {
             return;
         }
         IMultiPaneEditor editor = (IMultiPaneEditor) getContainer();
         IRenderableDisplay definiteDisplay = getContainer().getDisplayPanes()[0]
                 .getRenderableDisplay();
-
-        String partName = null;
-        if (editor instanceof EditorPart) {
-            EditorPart part = (EditorPart) editor;
-            if (!part.getPartName().equals(part.getEditorInput().getName())) {
-                partName = part.getPartName();
-            }
-        }
 
         if (editor.getNumberofPanes() > 1) {
             for (IDisplayPane pane : getContainer().getDisplayPanes()) {
@@ -88,11 +90,6 @@ public class TwoPanelLayoutMenuAction extends AbstractRightClickAction {
             for (int i = 1; i < 2; ++i) {
                 editor.addPane(definiteDisplay.createNewDisplay());
             }
-        }
-
-        // keep the part name if it was customized
-        if (partName != null && editor instanceof IRenameablePart) {
-            ((IRenameablePart) editor).setPartName(partName);
         }
 
         for (IDisplayPane pane : editor.getDisplayPanes()) {

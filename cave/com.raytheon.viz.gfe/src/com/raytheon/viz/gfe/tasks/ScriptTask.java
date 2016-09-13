@@ -42,6 +42,7 @@ import com.raytheon.uf.common.time.SimulatedTime;
  * Apr 7, 2011            randerso     Initial creation
  * Sep 19,2011  10955     rferrel      make sure process destroy is called.
  * May 28,2014  #2841     randerso     Fix null pointer when script is cancelled.
+ * Aug 20, 2015 #4749     dgilling     Add cleanUp.
  * 
  * </pre>
  * 
@@ -170,5 +171,11 @@ public class ScriptTask extends AbstractGfeTask {
      */
     protected void setProcessBuilder(ProcessBuilder processBuilder) {
         this.processBuilder = processBuilder;
+    }
+
+    @Override
+    public void cleanUp() {
+        super.cleanUp();
+        processBuilder = null;
     }
 }

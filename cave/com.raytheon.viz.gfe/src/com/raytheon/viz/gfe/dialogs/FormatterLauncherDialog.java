@@ -56,7 +56,6 @@ import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
-import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.textproduct.ProductDefinition;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -66,7 +65,6 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEPreference;
-import com.raytheon.viz.gfe.GFEServerException;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData;
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.IProductTab;
@@ -89,7 +87,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Jun 19, 2010 4684       mduff       Corrected the Data Sources menu for 
  *                                     practice and test modes
  * Sep 16, 2010 6831       ryu         Show same product for different areas on a sub-menu
- * Nov 22, 2011 8781       mli		   remove Processor menu
+ * Nov 22, 2011 8781       mli         remove Processor menu
  * Jul 26, 2012 15165      ryu         Set default db source when formatter has no db defined.
  * Oct 23, 2012 1287       rferrel     Changes for non-blocking dialogs and code clean up.
  * Nov 08, 2012 1298       rferrel     Changes for non-blocking IssuanceSiteIdDlg.
@@ -99,6 +97,9 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * May 15, 2013 1842       dgilling    Pass DataManager instance down to sub-
  *                                     components.
  * Feb 12, 2014 2801       randerso    Added prompting if formatter is run against non-normal database
+ * Jul 29, 2015 4263       dgilling    Support changes to TextProductManager.
+ * Aug 24, 2015 4749       dgilling    Reorganize dialog close and dispose.
+ * Nov 18, 2015 5129       dgilling    Support new IFPClient.
  * 
  * </pre>
  * 
@@ -491,8 +492,8 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
                 .getStringArray("FormatterLauncherDialog_Categories");
         Map<String, ArrayList<String>> categoryMap = new HashMap<String, ArrayList<String>>();
 
-        String[] names = textProductMgr.getProductNames();
-        if (names.length > 0) {
+        java.util.List<String> names = textProductMgr.getProductNames();
+        if (!names.isEmpty()) {
             ArrayList<String> civilEmergencies = new ArrayList<String>();
             ArrayList<String> hazards = new ArrayList<String>();
             ArrayList<String> baselines = new ArrayList<String>();
@@ -1015,10 +1016,6 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
         }
     }
 
-    private void dispose() {
-        textProductMgr.dispose();
-    }
-
     class ViewMessagesDialog extends CaveJFACEDialog {
 
         private List messageList;
@@ -1094,17 +1091,7 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
      * @return The Official Data source
      */
     private DatabaseID getOfficialDataSource() {
-        DatabaseID source = null;
-        try {
-            ServerResponse<java.util.List<DatabaseID>> sr = dataMgr.getClient()
-                    .getOfficialDBName();
-            source = sr.getPayload().get(0);
-        } catch (GFEServerException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Unable to determine official db", e);
-        }
-
-        return source;
+        return dataMgr.getParmManager().getProductDB();
     }
 
     /**
@@ -1135,7 +1122,7 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
     @Override
     public boolean close() {
         if (doClose) {
-            dispose();
+            closeFormatters();
             return super.close();
         }
 
@@ -1145,7 +1132,7 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
         return false;
     }
 
-    public void closeFormatters() {
+    private void closeFormatters() {
         Set<String> keys = new HashSet<String>();
         keys.addAll(productMap.keySet());
         for (String key : keys) {

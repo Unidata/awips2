@@ -32,7 +32,7 @@
 #    04/22/13           #1949      rjpeter       Added LockTableAdapter
 #    02/06/14           #2672      bsteffen      Added JTSEnvelopeAdapter
 #    06/22/2015         #4573      randerso      Added JobProgressAdapter
-# 
+#    09/21/2015         #4486      rjpeter       Added FormattedDateAdapter
 #
 
 __all__ = [
@@ -43,6 +43,7 @@ __all__ = [
            'GregorianCalendarAdapter',
            'ActiveTableModeAdapter',
            'DateAdapter',
+           'FormattedDateAdapter',
            'LocalizationLevelSerializationAdapter',
            'LocalizationTypeSerializationAdapter',
            'GeometryTypeAdapter',

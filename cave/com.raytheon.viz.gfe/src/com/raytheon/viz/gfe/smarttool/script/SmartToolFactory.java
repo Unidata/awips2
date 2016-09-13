@@ -19,8 +19,6 @@
  **/
 package com.raytheon.viz.gfe.smarttool.script;
 
-import jep.JepException;
-
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -28,6 +26,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonIncludePathUtil;
+import com.raytheon.uf.common.python.concurrent.PythonInterpreterFactory;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.viz.gfe.core.DataManager;
 
@@ -38,9 +37,11 @@ import com.raytheon.viz.gfe.core.DataManager;
  * SOFTWARE HISTORY
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * Mar 21, 2008             njensen	    Initial creation
+ * Mar 21, 2008             njensen     Initial creation
  * Jul 9, 2009    2454      ryu         Put user and site's python scripts on path for import
  * May 20, 2015   4509      njensen     Added time and dataaccess to include path
+ * Jul 23, 2015   4263      dgilling    Refactored to support changes to SmartToolController.
+ * Dec 14, 2015   4816      dgilling    Support refactored PythonJobCoordinator API.
  * 
  * </pre>
  * 
@@ -48,9 +49,16 @@ import com.raytheon.viz.gfe.core.DataManager;
  * @version 1.0
  */
 
-public class SmartToolFactory {
+public abstract class SmartToolFactory<C extends SmartToolController>
+        implements PythonInterpreterFactory<C> {
 
-    private static String getScriptPath() {
+    protected final DataManager dataMgr;
+
+    public SmartToolFactory(final DataManager dataMgr) {
+        this.dataMgr = dataMgr;
+    }
+
+    protected static String getScriptPath() {
         LocalizationContext baseCtx = PathManagerFactory.getPathManager()
                 .getContext(LocalizationType.CAVE_STATIC,
                         LocalizationLevel.BASE);
@@ -59,35 +67,12 @@ public class SmartToolFactory {
         return FileUtil.join(scriptPath, "SmartToolInterface.py");
     }
 
-    private static SmartToolController buildInstance(DataManager dataMgr,
-            boolean ui) throws JepException {
-        String includePath = PyUtil.buildJepIncludePath(PythonIncludePathUtil
+    protected static String getIncludePath() {
+        return PyUtil.buildJepIncludePath(PythonIncludePathUtil
                 .getCommonPythonIncludePath("time", "dataaccess"),
                 GfePyIncludeUtil.getVtecIncludePath(), GfePyIncludeUtil
                         .getCommonGfeIncludePath(), GfePyIncludeUtil
                         .getSmartToolsIncludePath(), GfePyIncludeUtil
                         .getUtilitiesIncludePath());
-
-        SmartToolController smartCont = null;
-        if (ui) {
-            smartCont = new SmartToolUIController(getScriptPath(), includePath,
-                    SmartToolFactory.class.getClassLoader(), dataMgr);
-        } else {
-            smartCont = new SmartToolController(getScriptPath(), includePath,
-                    SmartToolFactory.class.getClassLoader(), dataMgr);
-        }
-
-        return smartCont;
     }
-
-    public static SmartToolUIController buildUIController(DataManager dataMgr)
-            throws JepException {
-        return (SmartToolUIController) buildInstance(dataMgr, true);
-    }
-
-    public static SmartToolController buildController(DataManager dataMgr)
-            throws JepException {
-        return buildInstance(dataMgr, false);
-    }
-
 }

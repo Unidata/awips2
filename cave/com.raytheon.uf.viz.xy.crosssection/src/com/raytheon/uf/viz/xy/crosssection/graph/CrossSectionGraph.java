@@ -36,8 +36,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.style.level.Level.LevelType;
-import com.raytheon.uf.common.topo.TopoException;
-import com.raytheon.uf.common.topo.TopoQuery;
+import com.raytheon.uf.common.topo.CachedTopoQuery;
 import com.raytheon.uf.common.wxmath.Hgt2Pres;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -74,13 +73,15 @@ import com.vividsolutions.jts.geom.Point;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jul 3, 2010             bsteffen    Initial creation
- * Feb 15, 2013 1638       mschenke    Got rid of viz/edex topo classes 
- *                                     and moved into common
- * Aug 13, 2013 2262       dgilling    Use new wxmath hgt2pres method.
- * Jun 14, 2014 3242       njensen     Null safety checks
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------
+ * Jul 03, 2010           bsteffen  Initial creation
+ * Feb 15, 2013  1638     mschenke  Got rid of viz/edex topo classes 
+ *                                  and moved into common
+ * Aug 13, 2013  2262     dgilling  Use new wxmath hgt2pres method.
+ * Jun 14, 2014  3242     njensen   Null safety checks
+ * Oct 27, 2015  5051     bsteffen  Use cached topo
+ * Nov 05, 2015  5070     randerso  Adjust font sizes for dpi scaling
  * 
  * </pre>
  * 
@@ -191,7 +192,7 @@ public class CrossSectionGraph extends AbstractGraph {
     protected void paintTitles(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
         if (titleFont == null) {
-            titleFont = target.initializeFont((String) null, 11.0f,
+            titleFont = target.initializeFont((String) null, 9,
                     new IFont.Style[] { IFont.Style.BOLD });
         }
 
@@ -240,7 +241,7 @@ public class CrossSectionGraph extends AbstractGraph {
     protected void paintUnits(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
         if (unitsFont == null) {
-            unitsFont = target.initializeFont((String) null, 10.0f,
+            unitsFont = target.initializeFont((String) null, 8,
                     new IFont.Style[] {});
         }
 
@@ -423,14 +424,8 @@ public class CrossSectionGraph extends AbstractGraph {
             Coordinate[] lineData;
             lineData = GeoUtil.splitLine(numPoints, line.getCoordinates());
 
-            try {
-                heights = TopoQuery.getInstance().getHeight(lineData);
-            } catch (TopoException e) {
-                statusHandler
-                        .error("Error occured requesting Topo data, topo will be unavailable.",
-                                e);
-                return new double[numPoints];
-            }
+            heights = CachedTopoQuery.getInstance().getHeight(lineData);
+
             if (csDesc.getHeightScale().getHeightType() == LevelType.PRESSURE) {
                 for (int i = 0; i < heights.length; i++) {
                     heights[i] = Hgt2Pres.hgt2pres((float) heights[i]);

@@ -72,6 +72,18 @@
                    name="xyx"
                    visible="true">
              </separator>
+             <command id="STQ"
+                   commandId="com.raytheon.viz.ui.actions.titleAction"
+                   label="------ STQ ------">
+             </command>
+             <separator
+                   name="xxx"
+                   visible="true">
+             </separator>
+             <command 
+                   commandId="com.raytheon.viz.ui.actions.titleAction"
+                   label="------ Local Analyses/Statistical Guidance ------">
+             </command>
           </menu>
 	</menuContribution>
 </extension>

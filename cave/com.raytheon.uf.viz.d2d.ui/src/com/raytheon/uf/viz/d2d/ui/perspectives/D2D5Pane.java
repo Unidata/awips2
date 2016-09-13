@@ -51,6 +51,7 @@ import com.raytheon.viz.ui.UiUtil;
  * 7/1/06                   chammack    Initial Creation.
  * Mar 21, 2013       1638  mschenke    Changed map scales not tied to d2d
  * Oct 10, 2013       2104  mschenke    Switched to use MapScalesManager
+ * Jun 23, 2016             mjames      Use FIVE and ZERO pane widths
  * 
  * </pre>
  * 
@@ -77,10 +78,10 @@ public class D2D5Pane implements IPerspectiveFactory {
      * .IPageLayout)
      */
     public void createInitialLayout(IPageLayout layout) {
-        // Get the editor area.		
+        // Get the editor area.
         String editorArea = layout.getEditorArea();
         layout.setFixed(false);
-        //layout.addPlaceholder("com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPaletteWindow", IPageLayout.RIGHT,0.85f, editorArea); 
+        layout.addPlaceholder("com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPaletteWindow", IPageLayout.RIGHT,0.85f, editorArea); 
         //layout.addPlaceholder("edu.ucar.unidata.viz.radar.radarBrowser", IPageLayout.RIGHT,0.65f, editorArea); 
         layout.addPlaceholder("gov.noaa.gsd.viz.ensemble.tool.viewer", IPageLayout.RIGHT,0.6f, editorArea); 
 

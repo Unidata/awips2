@@ -51,6 +51,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Mar 02, 2013  1970     bgonzale    Added SequenceGenerator and Inheritance Strategy
  *                                    annotations.
  * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
+ * Jul 27, 2016  4360     rferrel     Made latitude and longitude non-nullable.
  * 
  * </pre>
  * 
@@ -75,13 +76,13 @@ public abstract class NPPSoundingRecord extends PersistablePluginDataObject
     private PointDataView pointDataView;
 
     @DataURI(position = 1)
-    @Column
+    @Column(nullable = false)
     @XmlAttribute
     @DynamicSerializeElement
     private Double latitude;
 
     @DataURI(position = 2)
-    @Column
+    @Column(nullable = false)
     @XmlAttribute
     @DynamicSerializeElement
     private Double longitude;

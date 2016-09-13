@@ -33,6 +33,7 @@
 #    01/17/13        1490          bkowal         Relocated the configuration of pypies
 #    06/12/13        2102          njensen        Raise uncaught exceptions to force http code 500
 #    11/06/14        3549          njensen        Log time to receive data
+#    07/30/15        1574          nabowle        Handle DeleteOrphansRequest
 # 
 #
 
@@ -61,7 +62,8 @@ datastoreMap = {
     DeleteFilesRequest: (datastore.deleteFiles, "DeleteFilesRequest"),
     CreateDatasetRequest: (datastore.createDataset, "CreateDatasetRequest"),
     RepackRequest: (datastore.repack, "RepackRequest"),
-    CopyRequest: (datastore.copy, "CopyRequest")           
+    CopyRequest: (datastore.copy, "CopyRequest"),
+    DeleteOrphansRequest: (datastore.deleteOrphanFiles, "DeleteOrphansRequest")
 }
 
 @Request.application

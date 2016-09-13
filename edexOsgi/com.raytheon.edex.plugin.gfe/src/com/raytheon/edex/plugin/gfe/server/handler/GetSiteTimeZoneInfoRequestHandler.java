@@ -19,6 +19,8 @@
  **/
 package com.raytheon.edex.plugin.gfe.server.handler;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -28,9 +30,11 @@ import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetSiteTimeZoneInfoRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
+import com.raytheon.uf.common.util.CollectionUtil;
 
 /**
- * TODO Add Description
+ * Returns the time zones associated with the given sites. The site must be
+ * activated to get a result.
  * 
  * <pre>
  * 
@@ -40,6 +44,8 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * ------------ ---------- ----------- --------------------------
  * Jan 19, 2011            dgilling     Initial creation
  * Feb 26, 2015  #4128     dgilling     Switch to IFPServer.getActiveSites().
+ * Nov 17, 2015  #5129     dgilling     Support changes to GetSiteTimeZoneInfoRequest.
+ * Jun 17, 2016  #5703     dgilling     Allow null or empty requestedSiteIDs.
  * 
  * </pre>
  * 
@@ -50,30 +56,33 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 public class GetSiteTimeZoneInfoRequestHandler implements
         IRequestHandler<GetSiteTimeZoneInfoRequest> {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.serialization.comm.IRequestHandler#handleRequest
-     * (com.raytheon.uf.common.serialization.comm.IServerRequest)
-     */
     @Override
     public ServerResponse<Map<String, String>> handleRequest(
             GetSiteTimeZoneInfoRequest request) throws Exception {
         ServerResponse<Map<String, String>> sr = new ServerResponse<Map<String, String>>();
-
-        Set<String> sites = IFPServer.getActiveSites();
         Map<String, String> siteWithTimeZone = new HashMap<String, String>();
-        for (String site : sites) {
-            // getTimeZones() seems to only ever return a 1 sized List
-            // containing the site's time zone
-            siteWithTimeZone.put(site,
-                    IFPServerConfigManager.getServerConfig(site).getTimeZones()
-                            .get(0));
-        }
-        sr.setPayload(siteWithTimeZone);
 
+        Set<String> activeSites = IFPServer.getActiveSites();
+        Collection<String> requestedSites = request.getRequestedSiteIDs();
+        if (CollectionUtil.isNullOrEmpty(requestedSites)) {
+            requestedSites = activeSites;
+        }
+
+        for (String site : requestedSites) {
+            if (activeSites.contains(site)) {
+                siteWithTimeZone.put(site, IFPServerConfigManager
+                        .getServerConfig(site).getTimeZones().get(0));
+            } else {
+                String message = String.format(
+                        "Unknown site id: %s Known sites: %s", site,
+                        activeSites);
+                sr.addMessage(message);
+                siteWithTimeZone = Collections.emptyMap();
+                break;
+            }
+        }
+
+        sr.setPayload(siteWithTimeZone);
         return sr;
     }
-
 }

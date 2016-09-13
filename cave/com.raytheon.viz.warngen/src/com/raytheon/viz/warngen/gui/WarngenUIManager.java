@@ -67,6 +67,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Jun 25, 2013  DR 16013 Qinglu Lin   Called setUniqueFip() in handleMouseUp().
  * Aug 15, 2013  DR 16418 D. Friedman  Only raise dialog if editable.  Don't call featureEdit if not editable.
  * Sep 24, 2013  #2403     lvenable    Fixed cursor memory leak.
+ * Nov 25, 2015  DR 17464 Qinglu Lin   Updated handleMouseUp(), DeleteVertexAction(), and AddVertexAction class.
  * 
  * </pre>
  * 
@@ -260,7 +261,7 @@ public class WarngenUIManager extends InputAdapter {
                     LinearRing lr = gf.createLinearRing(coordinates);
                     state.setWarningPolygon(gf.createPolygon(lr, null));
                 }
-                warngenLayer.updateWarnedAreas(true);
+                warngenLayer.updateWarnedAreas();
             } catch (VizException e) {
                 e.printStackTrace();
             }
@@ -457,7 +458,7 @@ public class WarngenUIManager extends InputAdapter {
 
                 warngenLayer.getWarngenState().setWarningPolygon(newPoly);
                 try {
-                    warngenLayer.updateWarnedAreas(true);
+                    warngenLayer.updateWarnedAreas();
                 } catch (VizException e) {
                     Status s = new Status(Status.ERROR, Activator.PLUGIN_ID,
                             "Error updating warned area", e);
@@ -597,7 +598,7 @@ public class WarngenUIManager extends InputAdapter {
                     Polygon newPoly = gf.createPolygon(newLs, null);
                     warngenLayer.getWarngenState().setWarningPolygon(newPoly);
                     try {
-                        warngenLayer.updateWarnedAreas(true);
+                        warngenLayer.updateWarnedAreas();
                     } catch (VizException e) {
                         Status s = new Status(Status.ERROR,
                                 Activator.PLUGIN_ID,

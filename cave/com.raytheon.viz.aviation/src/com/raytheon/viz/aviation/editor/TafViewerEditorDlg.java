@@ -24,14 +24,16 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.lang.reflect.Constructor;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -91,13 +93,14 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 
 import com.raytheon.uf.common.dataplugin.taf.TafRecord;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -109,19 +112,18 @@ import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.viz.aviation.AviationDialog;
-import com.raytheon.viz.aviation.editor.EditorTafTabComp.AmendmentType;
 import com.raytheon.viz.aviation.editor.tools.AvnSmartToolFinishedListener;
 import com.raytheon.viz.aviation.editor.tools.AvnSmartToolJob;
 import com.raytheon.viz.aviation.editor.tools.AvnSmartToolRequest;
 import com.raytheon.viz.aviation.guidance.MetarViewer;
 import com.raytheon.viz.aviation.guidance.ViewerTab;
-import com.raytheon.viz.aviation.model.ForecastModel;
 import com.raytheon.viz.aviation.monitor.AvnPyUtil;
 import com.raytheon.viz.aviation.monitor.TafUtil;
 import com.raytheon.viz.aviation.observer.SendDialog;
 import com.raytheon.viz.aviation.observer.TafMonitorDlg;
 import com.raytheon.viz.aviation.resource.ResourceConfigMgr;
 import com.raytheon.viz.aviation.resource.ResourceConfigMgr.ResourceTag;
+import com.raytheon.viz.aviation.utility.AviationTextUtility;
 import com.raytheon.viz.aviation.xml.TafViewerEditorConfig;
 import com.raytheon.viz.aviation.xml.ViewerTabConfig;
 import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
@@ -134,8 +136,6 @@ import com.raytheon.viz.avnconfig.MessageStatusComp;
 import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
 import com.raytheon.viz.avnconfig.TafSiteData;
 import com.raytheon.viz.core.mode.CAVEMode;
-import com.raytheon.viz.texteditor.TextDisplayModel;
-import com.raytheon.viz.texteditor.msgs.IAviationObserver;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
@@ -246,7 +246,17 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * 04/07/2015   17332       zhao        Added code to handle case of "Cancel" in "Restore From..."
  * 06/23/2015   2282        skorolev    Corrected "CLEAR" case in updateSettings.
  * 06/26/2015   4588        skorolev    Fixed Insert/Overwrite issue.
+ * Sep 15, 2015 4880        njensen     Removed dead code
  * Sep 28, 2015 4898        rferrel     Disable sending of TAF when CAVE not in real time.
+ * Oct 05, 2015 4855        skorolev    Fixed an unhandled event loop exception in createErrorStyleRange.
+ * Oct 16, 2015 4645        skorolev    Added updateWordWrap.
+ * 10/23/2015   18061       zhao        Fixed a bug in checkBaiscSyntaxError() 
+ * Nov 12, 2015 4834        njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Nov 12, 2015 4834        njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Dec 09, 2015 4645        skorolev    Initiated wrapChk using ResourceTag. Removed popup menu persistance.
+ * Jan 07, 2016 4860        skorolev    Initiated TextDisplayModel at start of dialog.
+ * Feb 11, 2016 5242        dgilling    Remove calls to deprecated Localization APIs.
+ * Feb 15, 2016 4860        njensen     Use AviationTextUtility directly
  * 
  * </pre>
  * 
@@ -679,36 +689,6 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
 
             // Mark the tabs as not current so they get updated.
             markTabsAsNotCurrent();
-
-            break;
-
-        case OPEN_RTN:
-            // Select the editor tab on the tab folder.
-            tabFolder.setSelection(editorTab);
-            // Find an open tab item to use to load the requested taf(s).
-            if (findEditOpenTab() == false) {
-                break;
-            }
-            // Update the contents of the open tab item with the first
-            // selected site.
-            ti.setText(stationName);
-            editorTafTabComp.setRtnRdo(true);
-            editorTafTabComp.setAmdRdo(false);
-            editorTafTabComp.setRtdRdo(false);
-            editorTafTabComp.setCorRdo(false);
-            try {
-                editorTafTabComp.setWmoIdLbl(getWmoId());
-                editorTafTabComp.setWmoSiteLbl(getSiteId());
-                editorTafTabComp.setLargeTF(getCurrentDate());
-                editorTafTabComp.setSmallTF("");
-            } catch (RuntimeException e) {
-                // e.printStackTrace();
-            }
-            TafRecord taf = TafUtil.getLatestTaf(stationName);
-            editorTafTabComp.getTextEditorControl().setText(
-                    TafUtil.safeFormatTaf(taf, false));
-
-            editorTafTabComp.amendTaf(AmendmentType.RTN);
             break;
 
         case OPEN_AMD:
@@ -831,46 +811,6 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         qcColors[1] = new Color(display, syntaxWarningRGB);
         qcColors[2] = new Color(display, syntaxErrorRGB);
         qcColors[3] = new Color(display, syntaxFatalRGB);
-    }
-
-    /**
-     * Get the WFO's WMO ID
-     * 
-     * @return the WMO identifier of the WFO
-     */
-    private String getWmoId() {
-        String[] wmoHeadings = (ForecastModel
-                .getInstance()
-                .getAvnForecast(stationName)
-                .get(ForecastModel.getInstance().getAvnForecast(stationName)
-                        .firstKey()).getWmoHeader()).split(" ");
-        return wmoHeadings[0];
-    }
-
-    /**
-     * Get the WFO's Site ID
-     * 
-     * @return the site identifier of the WFO
-     */
-    private String getSiteId() {
-        String[] wmoHeadings = (ForecastModel
-                .getInstance()
-                .getAvnForecast(stationName)
-                .get(ForecastModel.getInstance().getAvnForecast(stationName)
-                        .firstKey()).getWmoHeader()).split(" ");
-        return wmoHeadings[1];
-    }
-
-    /**
-     * Get the current date in the ddHHmm format used for weather data
-     * 
-     * @return the current date in ddHHmm format as a String
-     */
-    private String getCurrentDate() {
-        Date now = SimulatedTime.getSystemTime().getTime();
-        SimpleDateFormat formatter = new SimpleDateFormat("ddHHmm");
-        formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return (formatter.format(now));
     }
 
     /**
@@ -2009,17 +1949,21 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
             }
         }
 
+        // WordWrap checkbox
         wrapChk = new Button(controlsComp, SWT.CHECK);
         wrapChk.setText("Wrap");
         configMgr.setDefaultFontAndColors(wrapChk);
-        String wrapStr = configMgr.getDataAsString(ResourceTag.Wrap);
-
-        if (wrapStr.compareTo("word") == 0) {
+        if (configMgr.getDataAsString(ResourceTag.Wrap).equals("word")) {
             wrapChk.setSelection(true);
         } else {
             wrapChk.setSelection(false);
         }
-
+        wrapChk.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                updateWordWrap(wrapChk.getSelection());
+            }
+        });
         return editorComp;
     }
 
@@ -2106,7 +2050,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
             tafStartIndex += taf.length() + 2;
         }
 
-        if (doLogMessage) {
+        if (doLogMessage && errorFound) {
             msgStatComp.setMessageText(msg, qcColors[3].getRGB());
         }
 
@@ -2461,10 +2405,10 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                 setWaitCursor(true);
                 String fname = tempTafPath
                         + filepath.substring(filepath.lastIndexOf('/') + 1);
-                LocalizationFile lFile = pm.getLocalizationFile(context, fname);
-                File file = lFile.getFile();
+                ILocalizationFile lFile = pm
+                        .getLocalizationFile(context, fname);
 
-                if (filename == null && file.exists()) {
+                if (filename == null && lFile.exists()) {
                     MessageBox questionMB = new MessageBox(shell,
                             SWT.ICON_WARNING | SWT.OK | SWT.CANCEL);
                     questionMB.setText("Save TAF");
@@ -2477,34 +2421,32 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                     }
                 }
 
-                FileWriter writer = new FileWriter(file);
-                BufferedWriter output = new BufferedWriter(writer);
-                // Save WMO, wmo site, issue time, and BBB on first line
-                output.write(editorTafTabComp.getWmoId());
-                output.write("\t");
-                output.write(editorTafTabComp.getWmoSiteId());
-                output.write("\t");
-                output.write(editorTafTabComp.getLargeTF());
-                output.write(System.getProperty("line.separator"));
-                output.write(editorTafTabComp.getTextEditorControl().getText());
-                output.close();
+                try (SaveableOutputStream outStream = lFile.openOutputStream();
+                        Writer out = new BufferedWriter(new OutputStreamWriter(
+                                outStream))) {
+                    // Save WMO, wmo site, issue time, and BBB on first line
+                    out.write(editorTafTabComp.getWmoId());
+                    out.write("\t");
+                    out.write(editorTafTabComp.getWmoSiteId());
+                    out.write("\t");
+                    out.write(editorTafTabComp.getLargeTF());
+                    out.write(System.getProperty("line.separator"));
+                    out.write(editorTafTabComp.getTextEditorControl().getText());
+                    out.close();
+                    outStream.save();
 
-                lFile.save();
+                    setMessageStatusOK("File " + filepath
+                            + " saved successfully.");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    setMessageStatusError("An IOException occured while saving file "
+                            + filepath);
+                } catch (LocalizationException e) {
+                    e.printStackTrace();
+                    setMessageStatusError("A LocalizationOpFailedException occured while saving file "
+                            + filepath);
+                }
 
-                setMessageStatusOK("File " + filepath + " saved successfully.");
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                setMessageStatusError("Unable to open file " + filepath
-                        + " for writing.");
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                setMessageStatusError("An IOException occured while saving file "
-                        + filepath);
-            } catch (LocalizationOpFailedException e) {
-                e.printStackTrace();
-                setMessageStatusError("A LocalizationOpFailedException occured while saving file "
-                        + filepath);
             } finally {
                 setWaitCursor(false);
             }
@@ -2654,44 +2596,47 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
 
                     try {
                         setWaitCursor(true);
+
                         String fname = tempTafPath
                                 + filepath
                                         .substring(filepath.lastIndexOf('/') + 1);
-                        LocalizationFile lFile = pm.getLocalizationFile(
+                        ILocalizationFile lFile = pm.getLocalizationFile(
                                 context, fname);
-                        File file = lFile.getFile();
-                        FileReader reader = new FileReader(file);
-                        BufferedReader input = new BufferedReader(reader);
-                        StringBuilder contents = new StringBuilder();
-                        String line = null;
-                        line = input.readLine();
 
-                        if (line == null) {
-                            errorMsg = "empty file";
-                        } else {
-                            String[] values = line.split("\t");
-                            // Assume first line contains wmo, wmo site
-                            // and issue time.
-                            if (values.length != 3) {
-                                errorMsg = "parse error";
+                        StringBuilder contents = new StringBuilder();
+                        try (InputStream inStream = lFile.openInputStream();
+                                BufferedReader in = new BufferedReader(
+                                        new InputStreamReader(inStream))) {
+                            String line = null;
+                            line = in.readLine();
+
+                            if (line == null) {
+                                errorMsg = "empty file";
+                            } else {
+                                String[] values = line.split("\t");
+                                // Assume first line contains wmo, wmo site
+                                // and issue time.
+                                if (values.length != 3) {
+                                    errorMsg = "parse error";
+                                    contents.append(line);
+                                    contents.append(System
+                                            .getProperty("line.separator"));
+                                } else {
+                                    editorTafTabComp.setWmoIdLbl(values[0]
+                                            .trim());
+                                    editorTafTabComp.setWmoSiteLbl(values[1]
+                                            .trim());
+                                    editorTafTabComp.setLargeTF(values[2]
+                                            .trim());
+                                }
+                            }
+
+                            while ((line = in.readLine()) != null) {
                                 contents.append(line);
                                 contents.append(System
                                         .getProperty("line.separator"));
-                            } else {
-                                editorTafTabComp.setWmoIdLbl(values[0].trim());
-                                editorTafTabComp
-                                        .setWmoSiteLbl(values[1].trim());
-                                editorTafTabComp.setLargeTF(values[2].trim());
                             }
                         }
-
-                        while ((line = input.readLine()) != null) {
-                            contents.append(line);
-                            contents.append(System
-                                    .getProperty("line.separator"));
-                        }
-
-                        input.close();
 
                         String tafText = contents.toString();
                         List<String> sitesInTaf = getSitesInTaf(tafText);
@@ -2702,7 +2647,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                             bbb = editorTafTabComp.getBBB();
                         }
 
-                        if (sitesInTaf.size() > 0) {
+                        if (!sitesInTaf.isEmpty()) {
                             icao = sitesInTaf.get(0);
                         } else if (errorMsg == null) {
                             errorMsg = "uable to determine station";
@@ -2715,19 +2660,16 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                         if (editorTafTabComp.isTafSent()) {
                             editorTafTabComp.updateTafSent(false);
                         }
-                    } catch (FileNotFoundException e) {
-                        setMessageStatusError("File " + filepath
-                                + " not found.");
-                    } catch (IOException e) {
-                        setMessageStatusError("An IOException occured while opening file "
+
+                        setMessageStatusOK("File " + filepath
+                                + " opened successfully.");
+                    } catch (IOException | LocalizationException e) {
+                        setMessageStatusError("An Exception occured while reading file "
                                 + filepath);
                     } finally {
                         if (errorMsg != null) {
                             setMessageStatusError("File " + filepath + ": "
                                     + errorMsg);
-                        } else {
-                            setMessageStatusOK("File " + filepath
-                                    + " opened successfully.");
                         }
                         setWaitCursor(false);
                     }
@@ -2759,10 +2701,8 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
     private void storeInDb() {
         if (tabFolder.getSelectionIndex() != VIEWER_TAB_SELECTED) {
             try {
-                IAviationObserver avo = TextDisplayModel.getInstance()
-                        .getTextAviation();
-                avo.saveTafBulletin(editorTafTabComp.getTextEditorControl()
-                        .getText());
+                AviationTextUtility.saveTafBulletin(editorTafTabComp
+                        .getTextEditorControl().getText());
                 setMessageStatusOK("Temporary WRKTAF Stored in DB");
             } catch (Exception e) {
                 statusHandler
@@ -2822,6 +2762,8 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                 return;
             }
             editorTafTabComp.getTextEditorControl().cut();
+            // Remove popup menu.
+            editorTafTabComp.getTextEditorControl().redraw();
         }
     }
 
@@ -2863,6 +2805,8 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                 }
             } else {
                 editorTafTabComp.getTextEditorControl().copy();
+                // Remove popup menu.
+                editorTafTabComp.getTextEditorControl().redraw();
             }
         }
     }
@@ -2875,6 +2819,8 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         if (tabFolder.getSelectionIndex() != VIEWER_TAB_SELECTED) {
             // Assume editorTafTabComp is for the active tab.
             editorTafTabComp.getTextEditorControl().paste();
+            // Remove popup menu after pasting.
+            editorTafTabComp.getTextEditorControl().redraw();
         }
     }
 
@@ -2947,6 +2893,8 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         if (tabFolder.getSelectionIndex() != VIEWER_TAB_SELECTED) {
             // Assume editorTafTabComp is for the active tab.
             editorTafTabComp.undo();
+            // Remove popup menu.
+            editorTafTabComp.getTextEditorControl().redraw();
         }
     }
 
@@ -2959,6 +2907,8 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         if (tabFolder.getSelectionIndex() != VIEWER_TAB_SELECTED) {
             // Assume editorTafTabComp is for the active tab.
             editorTafTabComp.redo();
+            // Remove popup menu.
+            editorTafTabComp.getTextEditorControl().redraw();
         }
     }
 
@@ -3377,7 +3327,8 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                 return;
             } finally {
                 if (python != null) {
-                    python.dispose();
+                    python.close();
+                    python = null;
                 }
             }
 
@@ -3507,14 +3458,19 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
 
         setSyntaxErrorLevel(errorLevel);
         StyledText st = editorTafTabComp.getTextEditorControl();
-        int start = st.getOffsetAtLine(currentLineNo + range[frLineIndex] - 1)
-                + range[frColIndex];
-        int end = st.getOffsetAtLine(currentLineNo + range[toLineIndex] - 1)
-                + range[toColIndex];
-        StyleRange sr = new StyleRange(start, end - start, null, color);
+        if (st.getContent().getLineCount() > currentLineNo + range[frLineIndex]
+                - 1) {
+            int start = st.getOffsetAtLine(currentLineNo + range[frLineIndex]
+                    - 1)
+                    + range[frColIndex];
+            int end = st
+                    .getOffsetAtLine(currentLineNo + range[toLineIndex] - 1)
+                    + range[toColIndex];
+            StyleRange sr = new StyleRange(start, end - start, null, color);
 
-        if (syntaxMap != null) {
-            syntaxMap.put(sr, msg);
+            if (syntaxMap != null) {
+                syntaxMap.put(sr, msg);
+            }
         }
 
         if (doLogMessage) {
@@ -3524,9 +3480,13 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         return errorLevel;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.aviation.editor.ITafSettable#updateInsert(boolean)
+     */
     @Override
     public void updateInsert(boolean updateInsertChk) {
-
         if (updateInsertChk == true) {
             // Change the state of the insert check
             insertChk.setSelection(!(insertChk.getSelection()));
@@ -3536,6 +3496,22 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
             EditorTafTabComp tafTabComp = (EditorTafTabComp) editTafTabItem
                     .getControl();
             tafTabComp.getTextEditorControl().invokeAction(ST.TOGGLE_OVERWRITE);
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.aviation.editor.ITafSettable#updateWordWrap(boolean)
+     */
+    @Override
+    public void updateWordWrap(boolean wrap) {
+        // Loop and set all of the editors to the update WordWrap state
+        for (TabItem editTafTabItem : editorTafTabs) {
+            EditorTafTabComp tafTabComp = (EditorTafTabComp) editTafTabItem
+                    .getControl();
+            tafTabComp.getTextEditorControl().setWordWrap(wrap);
         }
     }
 
@@ -3988,7 +3964,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         } finally {
             if (python != null) {
                 // Always dispose the script!
-                python.dispose();
+                python.close();
                 python = null;
             }
         }
@@ -3998,7 +3974,9 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         tafViewerStTxt.setText("");
         int n = Integer.valueOf(numTafsCbo.getItem(numTafsCbo
                 .getSelectionIndex()));
-        tafsInViewer = TafUtil.getLatestTafs(stationName, n);
+        if (stationName != null) {
+            tafsInViewer = TafUtil.getLatestTafs(stationName, n);
+        }
         StringBuilder sb = new StringBuilder();
         boolean showHeaders = showHeadersChk.getSelection();
         if (tafsInViewer != null) {

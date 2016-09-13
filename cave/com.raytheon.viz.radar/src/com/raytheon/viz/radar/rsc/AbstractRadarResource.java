@@ -22,10 +22,16 @@ package com.raytheon.viz.radar.rsc;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
@@ -41,13 +47,13 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.cache.CacheObject.ICacheObjectCallback;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
@@ -55,7 +61,6 @@ import com.raytheon.uf.viz.core.rsc.capabilities.BlendableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.BlendedCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
-import com.raytheon.uf.viz.d2d.core.map.IDataScaleResource;
 import com.raytheon.uf.viz.d2d.core.sampling.ID2DSamplingResource;
 import com.raytheon.uf.viz.d2d.core.time.D2DTimeMatcher;
 import com.raytheon.uf.viz.d2d.core.time.ID2DTimeMatchingExtension;
@@ -76,14 +81,17 @@ import com.vividsolutions.jts.geom.Coordinate;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date          Ticket#  Engineer    Description
- * ------------- -------- ----------- --------------------------
- * Aug 03, 2010           mnash       Initial creation
- * MAR 05, 2013  15313    kshresth    Added sampling for DMD 
- * Apr 11, 2013  16030    D. Friedman Fix NPE.
- * May  5, 2014  17201    D. Friedman Enable same-radar time matching.
- * Jun 11, 2014  2061     bsteffen    Move rangeable methods to radial resource
- * May 13, 2015  4461     bsteffen    Add sails frame coordinator.
+ * 
+ * Date          Ticket#  Engineer   Description
+ * ------------- -------- ---------- ------------------------------------------
+ * Aug 03, 2010           mnash      Initial creation
+ * Mar 05, 2013  15313    kshresth   Added sampling for DMD
+ * Apr 11, 2013  16030    dfriedman  Fix NPE.
+ * May 05, 2014  17201    dfriedman  Enable same-radar time matching.
+ * Jun 11, 2014  2061     bsteffen   Move rangeable methods to radial resource
+ * May 13, 2015  4461     bsteffen   Add sails frame coordinator.
+ * Sep 03, 2015  4779     njensen    Removed IDataScale
+ * Nov 03, 2015  4857     bsteffen   Set volume scan interval in time matcher
  * 
  * </pre>
  * 
@@ -93,15 +101,21 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class AbstractRadarResource<D extends IDescriptor> extends
         AbstractVizResource<RadarResourceData, D> implements
-        IResourceDataChanged, IDataScaleResource,
-        IRadarTextGeneratingResource, ICacheObjectCallback<RadarRecord>,
-        ID2DTimeMatchingExtension {
+        IResourceDataChanged, IRadarTextGeneratingResource,
+        ICacheObjectCallback<RadarRecord>, ID2DTimeMatchingExtension {
+
+    /*
+     * TODO This is dumb that a class with a name starting with Abstract is not
+     * actually abstract. Either rename this class or actually apply the
+     * abstract modifier.
+     */
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractRadarResource.class);
 
     public enum InspectLabels {
         Mnemonic, Value, Angle, Shear, MSL, AGL, Azimuth, Range, ICAO
-    };
+    }
 
     private static final List<InspectLabels> defaultInspectLabels = Arrays
             .asList(InspectLabels.Value, InspectLabels.Shear,
@@ -136,7 +150,7 @@ public class AbstractRadarResource<D extends IDescriptor> extends
 
     protected Map<DataTime, String[]> upperTextMap = new HashMap<DataTime, String[]>();
 
-    protected Coordinate centerLocation = null;
+    protected Coordinate radarLocation = null;
 
     protected static final RadarInfoDict infoDict;
 
@@ -172,24 +186,12 @@ public class AbstractRadarResource<D extends IDescriptor> extends
         icao = "";
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#initInternal(com.raytheon
-     * .uf.viz.core.IGraphicsTarget)
-     */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         SailsFrameCoordinator.addToDescriptor(descriptor);
         RadarTextResourceData.addRadarTextResource(descriptor);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#disposeInternal()
-     */
     @Override
     protected void disposeInternal() {
         radarRecords.clear();
@@ -212,8 +214,8 @@ public class AbstractRadarResource<D extends IDescriptor> extends
         radarRecord.setAddSpatial(!resourceData.latest);
         icao = radarRecord.getIcao();
         if (radarRecord.getLatitude() != null
-                && radarRecord.getLongitude() != null) {
-            centerLocation = new Coordinate(radarRecord.getLongitude(),
+                && radarRecord.getLongitude() != null && radarLocation == null) {
+            radarLocation = new Coordinate(radarRecord.getLongitude(),
                     radarRecord.getLatitude());
         }
         DataTime d = radarRecord.getDataTime();
@@ -267,27 +269,15 @@ public class AbstractRadarResource<D extends IDescriptor> extends
         return new DefaultVizRadarRecord(radarRecord);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#paintInternal(com.raytheon
-     * .uf.viz.core.IGraphicsTarget,
-     * com.raytheon.uf.viz.core.drawables.PaintProperties)
-     */
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
+        /*
+         * TODO if this class actually goes abstract, this method should be
+         * deleted and force subclasses to implement it
+         */
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.IResourceDataChanged#resourceChanged(com
-     * .raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType,
-     * java.lang.Object)
-     */
     @Override
     public void resourceChanged(ChangeType type, Object object) {
         if (type == ChangeType.DATA_UPDATE) {
@@ -299,13 +289,6 @@ public class AbstractRadarResource<D extends IDescriptor> extends
         issueRefresh();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.rsc.capabilities.IInspectableResource#inspect(com
-     * .vividsolutions.jts.geom.Coordinate)
-     */
     @Override
     public String inspect(ReferencedCoordinate latLon) throws VizException {
         Map<String, String> dataMap;
@@ -422,27 +405,20 @@ public class AbstractRadarResource<D extends IDescriptor> extends
             displayedData.append("@" + dataMap.get("Azimuth"));
         }
 
-        if (!"DMD".equalsIgnoreCase(dataMap.get("Mnemonic")))
-        {
+        if (!"DMD".equalsIgnoreCase(dataMap.get("Mnemonic"))) {
             if (labels.contains(InspectLabels.ICAO)) {
                 displayedData.append(' ').append(dataMap.get("ICAO"));
             }
         }
 
-        if (displayedData.toString().contains("null") || displayedData.toString().isEmpty()) {
+        if (displayedData.toString().contains("null")
+                || displayedData.toString().isEmpty()) {
             displayedData.replace(0, displayedData.length(), "NO DATA");
         }
 
         return displayedData.toString();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#interrogate(com.raytheon
-     * .uf.viz.core.geospatial.ReferencedCoordinate)
-     */
     @Override
     public Map<String, Object> interrogate(ReferencedCoordinate coord)
             throws VizException {
@@ -523,15 +499,8 @@ public class AbstractRadarResource<D extends IDescriptor> extends
         return radarRecords;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.d2d.core.map.IDataScaleResource#getCenterLocation()
-     */
-    @Override
-    public Coordinate getCenterLocation() {
-        return centerLocation;
+    public Coordinate getRadarLocation() {
+        return radarLocation;
     }
 
     @Override
@@ -543,33 +512,115 @@ public class AbstractRadarResource<D extends IDescriptor> extends
         upperTextMap.remove(dataTime);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.cache.GeneralCacheObject.ICacheObjectCallback
-     * #objectArrived(java.lang.Object)
-     */
     @Override
     public void objectArrived(RadarRecord object) {
         issueRefresh();
     }
 
+    /**
+     * The purpose of this method is to allow TDWR, SAILS, and MESO SAILS data
+     * to time match products at different elevation angles correctly.
+     * 
+     * For example MESO SAILS has a 0.5 elevation product about every 1.5
+     * minutes and a 1.5 elevation product every 6 minutes. Normally when the
+     * 4th 0.5 product comes in it stops matching the 1.5 product because the
+     * 1.5 product is too old. This method determines what the actual interval
+     * is between volume scans and sets it in the time matcher so that the time
+     * matcher will match all the times within that interval.
+     */
     @Override
     public void modifyTimeMatching(D2DTimeMatcher d2dTimeMatcher,
             AbstractVizResource<?, ?> rsc, TimeMatcher timeMatcher) {
-        /* Intended to be equivalent to A1 radar-specific part of
-         * TimeMatchingFunctions.C:setRadarOnRadar.
+        /*
+         * In order to use the radar customizations, the time match basis must
+         * be an AbstractRadarResource for the same icao. If it is not, return
+         * early.
          */
-        AbstractVizResource<?, ?> tmb = d2dTimeMatcher.getTimeMatchBasis();
-        if (tmb instanceof AbstractRadarResource) {
-            AbstractRadarResource<?> tmbRadarRsc = (AbstractRadarResource<?>) tmb;
-            AbstractResourceData tmbResData = tmbRadarRsc.getResourceData();
-            RequestConstraint icaoRC = getResourceData().getMetadataMap().get("icao");
-            if (icaoRC != null && tmbResData instanceof RadarResourceData &&
-                    icaoRC.equals(((RadarResourceData) tmbResData).getMetadataMap().get("icao"))) {
-                timeMatcher.setRadarOnRadar(true);
+        AbstractVizResource<?, ?> basis = d2dTimeMatcher.getTimeMatchBasis();
+        if (!(basis instanceof AbstractRadarResource)) {
+            return;
+        }
+        AbstractRadarResource<?> radarBasis = (AbstractRadarResource<?>) basis;
+        RequestConstraint icaoRC = getResourceData().getMetadataMap().get(
+                "icao");
+        RequestConstraint basisIcaoRC = radarBasis.getResourceData()
+                .getMetadataMap().get("icao");
+        if (icaoRC == null || !icaoRC.equals(basisIcaoRC)) {
+            return;
+        }
+        /*
+         * Gather all the frame times that we can, sorted by elevation number.
+         * The time between two frames with the same elevation number is the
+         * volume scan interval.
+         */
+        Set<RadarRecord> records = new HashSet<>();
+        records.addAll(this.getRadarRecords().values());
+        records.addAll(radarBasis.getRadarRecords().values());
+        Map<Integer, SortedSet<Date>> elevationTimeMap = new HashMap<>();
+        for (RadarRecord record : records) {
+            Integer elevation = record.getElevationNumber();
+            SortedSet<Date> times = elevationTimeMap.get(elevation);
+            if (times == null) {
+                times = new TreeSet<>();
+                elevationTimeMap.put(elevation, times);
             }
+            times.add(record.getDataTime().getRefTime());
+        }
+        long minInterval1 = getMinVolumeScanInterval(radarBasis
+                .getRadarRecords().values());
+        long minInterval2 = getMinVolumeScanInterval(this.getRadarRecords()
+                .values());
+        long minInteval = Math.min(minInterval1, minInterval2);
+        if (minInteval < TimeUtil.MILLIS_PER_HOUR) {
+            /*
+             * 1 second padding to ensure that consecutive volume scans do not
+             * overlap
+             */
+            minInteval -= TimeUtil.MILLIS_PER_SECOND;
+            timeMatcher.setRadarOnRadar(minInteval);
+        } else {
+            timeMatcher.setRadarOnRadar(5 * TimeUtil.MILLIS_PER_MINUTE);
         }
     }
+
+    /**
+     * Determine the minimum interval between volume scans for all the volume
+     * scans that are covered by the provided records. If there is not enough
+     * records at the same elvation number than this will return
+     * {@link Long#MAX_VALUE}.
+     */
+    private static long getMinVolumeScanInterval(
+            Collection<? extends RadarRecord> records) {
+        /*
+         * Sorting by elevation number ensures that VCP changes and SAILS frames
+         * are properly separated and do not invalidate the result.
+         */
+        Map<Integer, SortedSet<Date>> elevationTimeMap = new HashMap<>();
+        for (RadarRecord record : records) {
+            Integer elevation = record.getElevationNumber();
+            SortedSet<Date> times = elevationTimeMap.get(elevation);
+            if (times == null) {
+                times = new TreeSet<>();
+                elevationTimeMap.put(elevation, times);
+            }
+            times.add(record.getDataTime().getRefTime());
+        }
+        long minVolumeScanInterval = Long.MAX_VALUE;
+        for (SortedSet<Date> times : elevationTimeMap.values()) {
+            if (times.size() > 1) {
+                Date prev = null;
+                for (Date date : times) {
+                    if (prev != null) {
+                        long interval = date.getTime() - prev.getTime();
+                        minVolumeScanInterval = Math.min(interval,
+                                minVolumeScanInterval);
+                    }
+                    prev = date;
+                }
+
+            }
+        }
+        return minVolumeScanInterval;
+    }
+
 }

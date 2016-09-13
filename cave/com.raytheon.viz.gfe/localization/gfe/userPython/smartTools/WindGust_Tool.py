@@ -44,7 +44,7 @@ class Tool (SmartScript.SmartScript):
 
         magnitude = Wind[0]
 
-        WindGust = zeros(magnitude.shape, magnitude.dtype)
+        WindGust = self.empty()
         WindGust = where(greater_equal(magnitude,  0.0), magnitude*1.40, WindGust)
         WindGust = where(greater_equal(magnitude, 46.0), magnitude*1.38, WindGust)
         WindGust = where(greater_equal(magnitude, 47.0), magnitude*1.36, WindGust)

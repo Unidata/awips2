@@ -32,10 +32,12 @@
 #                                                records.
 #    Nov 14, 2013    2393          bclement      removed interpolation
 #    Apr 24, 2015    4425          nabowle       Add DoubleDataRecord
+#    Jul 27, 2015    4402          njensen       return fill value of None if fill_time_never
 # 
 #
 
 import numpy, pypies, logging, time
+from h5py import h5d
 from dynamicserialize.dstypes.com.raytheon.uf.common.datastorage import *
 from dynamicserialize.dstypes.com.raytheon.uf.common.datastorage.records import *
 logger = pypies.logger
@@ -75,8 +77,11 @@ def createStorageRecord(rawData, ds):
     sizes.reverse()
     inst.setSizes(sizes)
         
+    
     fillValue = None
-    if rawData.dtype.type != numpy.object_ and rawData.dtype.type != numpy.string_:        
+    if ds._dcpl.get_fill_time() != h5d.FILL_TIME_NEVER and \
+                 rawData.dtype.type != numpy.object_ and \
+                 rawData.dtype.type != numpy.string_:        
         fillValue = numpy.zeros((1,), rawData.dtype)
         ds._dcpl.get_fill_value(fillValue)
         inst.setFillValue(fillValue[0])

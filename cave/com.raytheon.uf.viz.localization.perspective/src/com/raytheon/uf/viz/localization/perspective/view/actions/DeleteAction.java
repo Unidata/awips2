@@ -25,13 +25,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -42,6 +43,8 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.localization.perspective.editor.LocalizationEditorInput;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
+import com.raytheon.viz.ui.dialogs.SWTMessageBox;
 
 /**
  * Deletes the selected localization file
@@ -55,6 +58,11 @@ import com.raytheon.uf.viz.localization.perspective.editor.LocalizationEditorInp
  * Nov 3, 2010            mschenke     Initial creation
  * Feb 18, 2015 4132      mapeters     Fixed issue with deleting overrides.
  * Jun 29, 2015 946       rferrel      Do not allow delete of a protected level file.
+ * Nov 13, 2015 4946      mapeters     Use SWTMessageBox instead of MessageDialog.
+ * Jan 15, 2016 5242      kbisanz      Replaced LocalizationFile with
+ *                                     ILocalizationFile where possible
+ * Jan 27, 2016 5054      randerso     Cleaned up SWTMessageBox
+ * Apr 12, 2016 4946      mapeters     Fixed issue where action did nothing if prompt == false
  * 
  * </pre>
  * 
@@ -92,28 +100,51 @@ public class DeleteAction extends Action {
 
     @Override
     public void run() {
-        String listOfFiles = "";
-        for (int i = 0; i < toDelete.length; ++i) {
-            listOfFiles += LocalizationUtil.extractName(toDelete[i].getName())
-                    + "\n";
-        }
-
-        Shell shell = page.getWorkbenchWindow().getShell();
-
         if (prompt) {
-            boolean choice = MessageDialog.openConfirm(
-                    shell,
-                    "Delete Confirmation",
-                    listOfFiles
-                            + String.format(
-                                    "\n\nAre you sure you want to delete %s?",
-                                    toDelete.length > 1 ? "these items"
-                                            : "this file"));
-            if (!choice) {
-                return;
+            StringBuilder listOfFiles = new StringBuilder();
+            for (int i = 0; i < toDelete.length; ++i) {
+                listOfFiles.append(LocalizationUtil.extractName(toDelete[i]
+                        .getPath()));
+                listOfFiles.append("\n");
             }
+
+            StringBuilder msg = new StringBuilder();
+            msg.append("Are you sure you want to delete ");
+            if (toDelete.length > 1) {
+                msg.append("these " + toDelete.length + " items");
+            } else {
+                msg.append("this file");
+            }
+            msg.append("?\n\n").append(listOfFiles);
+
+            Shell shell = page.getWorkbenchWindow().getShell();
+            SWTMessageBox messageDialog = new SWTMessageBox(shell,
+                    "Delete Confirmation", msg.toString(), SWT.OK | SWT.CANCEL
+                            | SWT.ICON_QUESTION);
+
+            messageDialog.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof Integer) {
+                        if ((int) returnValue == SWT.OK) {
+                            deleteFiles();
+                        }
+                    }
+                }
+            });
+
+            messageDialog.open();
+        } else {
+            deleteFiles();
         }
-        List<IEditorReference> toClose = new ArrayList<IEditorReference>();
+    }
+
+    /**
+     * Delete the selected files and all associated file extension variations.
+     */
+    private void deleteFiles() {
+        List<IEditorReference> toClose = new ArrayList<>();
         // check for open editors and close them
         for (IEditorReference ref : page.getEditorReferences()) {
             IEditorInput input = null;
@@ -125,10 +156,11 @@ public class DeleteAction extends Action {
                                 + "file was open (in order to close it)", e);
             }
             if (input instanceof LocalizationEditorInput) {
-                LocalizationFile editorFile = ((LocalizationEditorInput) input)
+                ILocalizationFile editorFile = ((LocalizationEditorInput) input)
                         .getLocalizationFile();
-                for (LocalizationFile file : toDelete) {
-                    if ((editorFile.compareTo(file) == 0)
+                String editorFilePath = editorFile.getPath();
+                for (ILocalizationFile file : toDelete) {
+                    if ((editorFilePath.equals(file.getPath()))
                             && editorFile.getContext()
                                     .equals(file.getContext())) {
                         toClose.add(ref);
@@ -144,7 +176,7 @@ public class DeleteAction extends Action {
                     false);
         }
 
-        for (LocalizationFile file : toDelete) {
+        for (ILocalizationFile file : toDelete) {
             try {
                 deleteFile(file);
             } catch (Exception e) {
@@ -161,10 +193,10 @@ public class DeleteAction extends Action {
      *            The file to delete
      * @throws Exception
      */
-    private void deleteFile(LocalizationFile file) throws Exception {
+    private void deleteFile(ILocalizationFile file) throws Exception {
         if (file.isDirectory() == false) {
             // Check for file extension
-            String name = LocalizationUtil.extractName(file.getName());
+            String name = LocalizationUtil.extractName(file.getPath());
             String[] parts = name.split("[.]");
 
             if (parts.length > 1) {
@@ -174,11 +206,11 @@ public class DeleteAction extends Action {
 
                 if (associated != null) {
                     String[] extensions = associated.split(",");
-                    String path = file.getName().substring(0,
-                            file.getName().lastIndexOf(name));
+                    String path = file.getPath().substring(0,
+                            file.getPath().lastIndexOf(name));
 
                     String prefix = "";
-                    for (int i = 0; i < parts.length - 1; ++i) {
+                    for (int i = 0; i < (parts.length - 1); ++i) {
                         if (i > 0) {
                             prefix += ".";
                         }
@@ -193,7 +225,7 @@ public class DeleteAction extends Action {
 
                     for (String extension : extensions) {
                         String deletePath = path + "." + extension;
-                        LocalizationFile result = pathManager
+                        ILocalizationFile result = pathManager
                                 .getLocalizationFile(ctx, deletePath);
                         if (result != null) {
                             result.delete();

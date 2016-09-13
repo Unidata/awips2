@@ -24,7 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.TimerTask;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.activetable.ActiveTableRecord;
@@ -37,7 +37,9 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.core.mode.CAVEMode;
+import com.raytheon.viz.texteditor.alarmalert.util.AlarmBeepJob;
 import com.raytheon.viz.texteditor.util.VtecObject;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.dialogs.SWTMessageBox;
 
 /**
@@ -54,6 +56,10 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * Dec 20, 2010 7210       cjeanbap    Added non-blocking dialog.
  * Apr 25, 2014 DR 16668   D. Friedman Handle partial cancellations
  * Apr 28, 2015 4027       randerso    Expunged Calendar from ActiveTableRecord
+ * Nov 03, 2015 5086       rferrel     Generate sound while displaying warning expire message.
+ * Jan 26, 2016 5054       randerso    Changed to use display as parent,
+ *                                     code cleanup
+ * 
  * </pre>
  * 
  * @author jsanchez
@@ -77,11 +83,16 @@ public class NotifyExpirationTask extends TimerTask {
 
     private String message;
 
-    private Shell parentShell;
+    private Display display;
 
-    public NotifyExpirationTask(Shell parent, String productId,
+    /**
+     * @param display
+     * @param productId
+     * @param vtecObject
+     */
+    public NotifyExpirationTask(Display display, String productId,
             VtecObject vtecObject) {
-        this.parentShell = parent;
+        this.display = display;
         office = vtecObject.getOffice();
         phenSig = vtecObject.getPhenomena() + "."
                 + vtecObject.getSignificance();
@@ -95,13 +106,22 @@ public class NotifyExpirationTask extends TimerTask {
     @Override
     public void run() {
         if (!isCanceled()) {
-            parentShell.getDisplay().asyncExec(new Runnable() {
+            final AlarmBeepJob abj = new AlarmBeepJob("expire", 0);
+            abj.schedule();
+            display.asyncExec(new Runnable() {
                 @Override
                 public void run() {
                     SWTMessageBox mb = new SWTMessageBox(
-                            NotifyExpirationTask.this.parentShell,
-                            "Watch/Warning Expires Soon", message, SWT.OK,
-                            SWT.MODELESS, true);
+                            NotifyExpirationTask.this.display,
+                            "Watch/Warning Expires Soon", message,
+                            SWT.ICON_WARNING | SWT.OK);
+                    mb.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            abj.cancel();
+                        }
+                    });
                     mb.open();
                 }
             });

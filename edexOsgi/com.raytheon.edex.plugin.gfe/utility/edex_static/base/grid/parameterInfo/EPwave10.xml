@@ -53,7 +53,7 @@
     <uiname>primaryWavePeriod</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -68,7 +68,7 @@
     <uiname>heightWindWaves</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>50.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -79,7 +79,7 @@
     <short_name>staticSpacing</short_name>
     <long_name>Grid spacing</long_name>
     <units>meters</units>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>vw</short_name>
@@ -89,7 +89,7 @@
     <uiname>vWind</uiname>
     <valid_range>-150.0</valid_range>
     <valid_range>150.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -104,7 +104,7 @@
     <uiname>swellWaveDir</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>360.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>OSEQD 1 2</levelsDesc>
     <levels>
@@ -116,7 +116,7 @@
     <short_name>staticCoriolis</short_name>
     <long_name>Coriolis parameter</long_name>
     <units>/s</units>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>wd</short_name>
@@ -126,7 +126,7 @@
     <uiname>windDir</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>360.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -141,7 +141,7 @@
     <uiname>dirWindWaves</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>360.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -156,7 +156,22 @@
     <uiname>peakPeriodWindWaves</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>wstp</short_name>
+    <long_name>Wave steepness</long_name>
+    <units>1</units>
+    <udunits>one</udunits>
+    <uiname>waveSteepness</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1.0</valid_range>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -171,7 +186,7 @@
     <uiname>heightWindWavesandSwell</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>50.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -186,7 +201,7 @@
     <uiname>swellWavePeriod</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>OSEQD 1 2</levelsDesc>
     <levels>
@@ -202,7 +217,7 @@
     <uiname>heightSwellWaves</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>50.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>OSEQD 1 2</levelsDesc>
     <levels>
@@ -218,7 +233,7 @@
     <uiname>primaryWaveDir</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>360.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -233,7 +248,7 @@
     <uiname>uWind</uiname>
     <valid_range>-150.0</valid_range>
     <valid_range>150.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -248,7 +263,7 @@
     <uiname>windSpeed</uiname>
     <valid_range>-150.0</valid_range>
     <valid_range>150.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>

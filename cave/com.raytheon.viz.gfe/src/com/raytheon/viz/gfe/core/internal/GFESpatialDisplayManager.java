@@ -76,7 +76,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 03/10/2008              chammack    Initial Creation.
- * 07/03/2008       #1160  randerso    Added makeVisible method
+ * 07/03/2008  #1160       randerso    Added makeVisible method
  * 10/06/2008   1433       chammack    Removed log listener
  * 12/02/2008   1450       randerso    Moved getEditors method into UiUtil for general use
  * 04/09/2009   1288       rjpeter     Add sample set listener,ensure remove called for listeners
@@ -84,6 +84,8 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * 04/02/2014   2961       randerso    Added a listener to redo time matching when ISC mode changes
  * 
  * 04/02/2014   2969       randerso    Fix state of Topography menu item
+ * Aug 13, 2015 4749       njensen     dispose() removes frameChangedListeners
+ * 
  * </pre>
  * 
  * @author chammack
@@ -323,11 +325,10 @@ public class GFESpatialDisplayManager extends AbstractSpatialDisplayManager
 
     /**
      * Depopulate the editor's GFE resources
-     * 
-     * @throws VizException
      */
+    @Override
     @SuppressWarnings("unchecked")
-    public void dispose() throws VizException {
+    public void dispose() {
         synchronized (this) {
             if (isRegistered) {
                 this.dataManager.getSampleSetManager()
@@ -337,6 +338,9 @@ public class GFESpatialDisplayManager extends AbstractSpatialDisplayManager
                 isRegistered = false;
             }
             Message.unregisterInterest(this, ShowISCGridsMsg.class);
+            for (IDescriptor desc : getDescriptors()) {
+                desc.removeFrameChangedListener(this);
+            }
         }
     }
 

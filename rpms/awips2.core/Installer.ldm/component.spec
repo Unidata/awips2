@@ -1,4 +1,4 @@
-%define _ldm_version 6.12.9
+%define _ldm_version 6.12.14
 %define _ldm_src_tar ldm-%{_ldm_version}.tar.gz
 # ldm-%{_ldm_version}.tar.gz is tarred up ldm-%{_ldm_version}/src dir after
 # ISG makes retrans changes
@@ -17,14 +17,13 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Bryan Kowal
+Packager: %{_build_site}
 
 AutoReq: no
 Requires: awips2-qpid-lib
-requires: awips2-python
-requires: awips2-python
-provides: awips2-ldm
-provides: awips2-base-component
+Requires: awips2-python
+Provides: awips2-ldm
+Provides: awips2-base-component
 
 %description
 AWIPS II LDM Distribution - Contains AWIPS II LDM.
@@ -170,6 +169,7 @@ cp ${_ldm_dir}/SOURCES/%{_ldm_src_tar} ${_ldm_dir}
 #/bin/tar -xf %{_ldm_src_tar} \
 #   -C ${_ldm_dir}
 cd ${_ldm_dir}
+mkdir -p ${_ldm_root_dir}/src
 gunzip -c %{_ldm_src_tar} | pax -r '-s:/:/src/:'
 if [ $? -ne 0 ]; then
    exit 1
@@ -199,6 +199,8 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 export _current_dir=`pwd`
+# Localize configure based on the auto tools that are installed
+cd ${_current_dir}; autoreconf -if
 su ldm -lc "cd ${_current_dir}; ./configure --disable-max-size --with-noaaport --with-retrans --disable-root-actions --prefix=${_ldm_root_dir} CFLAGS='-g -O0'" \
    > configure.log 2>&1
 if [ $? -ne 0 ]; then

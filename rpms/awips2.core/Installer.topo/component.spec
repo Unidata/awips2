@@ -12,7 +12,7 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Bryan Kowal
+Packager: %{_build_site}
 
 AutoReq: no
 provides: awips2-data.hdf5-topo
@@ -38,9 +38,9 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-TOPO_SRC_DIR="awips2-static/topo/"
-if [ ! -d %{_awipscm_share}/${TOPO_SRC_DIR} ]; then
-   file %{_awipscm_share}/${TOPO_SRC_DIR}
+TOPO_DIR="%{_static_files}/topo/"
+if [ ! -d ${TOPO_DIR} ]; then
+   echo "Directory ${TOPO_DIR} not found!"
    exit 1
 fi
 
@@ -50,10 +50,11 @@ TOPO_TO_COPY=\
    'defaultTopo.h5' \
    'usTopo.dat.gz' \
 )
+# !!!!! WARNING - THIS WILL TAKE A LONG TIME !!!!!
 
 for topoFile in ${TOPO_TO_COPY[*]};
 do
-   cp -Pp %{_awipscm_share}/${TOPO_SRC_DIR}/${topoFile} \
+   cp -Pp ${TOPO_DIR}/${topoFile} \
       ${RPM_BUILD_ROOT}/awips2/edex/data/hdf5/topo
    if [ $? -ne 0 ]; then
       exit 1
@@ -76,3 +77,4 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/edex/data/hdf5
 %dir /awips2/edex/data/hdf5/topo
 /awips2/edex/data/hdf5/topo/*
+%docdir /awips2/edex/data/hdf5/topo/licenses

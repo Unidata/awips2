@@ -21,9 +21,10 @@ package com.raytheon.viz.avnconfig;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,14 +37,15 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.HierarchicalINIConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.viz.avnconfig.AvnConfigConstants.triggerType;
 
@@ -66,7 +68,9 @@ import com.raytheon.viz.avnconfig.AvnConfigConstants.triggerType;
  * Apr 08, 2011 8856       rferrel     Can now make a new station's templates
  * May 24, 2011 9060       rferrel     Limit downloading of localization files.
  * Aug 09, 2013 2033       mschenke    Switched File.separator to IPathManager.SEPARATOR
- * May 19, 2015 17417      yteng       Get all sites from product 
+ * May 19, 2015 17417      yteng       Get all sites from product
+ * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Jan 20, 2016 5242       njensen     Replaced calls to deprecated LocalizationFile methods
  * 
  * </pre>
  * 
@@ -182,15 +186,9 @@ public class TafSiteConfigIni implements ITafSiteConfig {
     private TafSiteConfigIni() throws ConfigurationException,
             FileNotFoundException {
         defaultProduct = readFile(getFile(DEFAULT_PRODUCT_FILE));
-        configMaps = new HashMap<String, HierarchicalINIConfiguration>();
+        configMaps = new HashMap<>();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.avnconfig.ITafSiteConfig#setTriggers(java.util.Map,
-     * java.util.Map, java.util.Map)
-     */
     @Override
     public void setTriggers(Map<String, String> tafMap,
             Map<String, String> mtrMap, Map<String, String> cfpMap)
@@ -214,13 +212,6 @@ public class TafSiteConfigIni implements ITafSiteConfig {
         throw new ConfigurationException("Unable to save triggers.");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.avnconfig.ITafSiteConfig#getTriggers(com.raytheon.viz
-     * .avnconfig.AvnConfigConstants.triggerType)
-     */
     @Override
     public HashMap<String, String> getTriggers(triggerType type) {
         HashMap<String, String> triggerMap = new HashMap<String, String>();
@@ -311,12 +302,6 @@ public class TafSiteConfigIni implements ITafSiteConfig {
         return siteList;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.avnconfig.ITafSiteConfig#setDefault(java.lang.String)
-     */
     @Override
     public void setDefault(String defaultProduct) throws ConfigurationException {
         this.defaultProduct = defaultProduct;
@@ -330,23 +315,11 @@ public class TafSiteConfigIni implements ITafSiteConfig {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.avnconfig.ITafSiteConfig#getDefaultProduct()
-     */
     @Override
     public String getDefaultProduct() {
         return defaultProduct;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.avnconfig.ITafSiteConfig#getProductWorkPil(java.lang
-     * .String)
-     */
     @Override
     public String getProductWorkPil(String product) {
         HierarchicalConfiguration config = getProductConfig(product);
@@ -360,13 +333,6 @@ public class TafSiteConfigIni implements ITafSiteConfig {
         return "XXXWRKTAF";
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.avnconfig.ITafSiteConfig#getProductCollectivePil(java
-     * .lang.String)
-     */
     @Override
     public String getProductCollectivePil(String product) {
         HierarchicalConfiguration config = getProductConfig(product);
@@ -379,17 +345,12 @@ public class TafSiteConfigIni implements ITafSiteConfig {
         return "";
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.avnconfig.ITafSiteConfig#getAllProducts()
-     */
     @Override
     public Map<String, List<String>> getAllProducts() {
-        Map<String, List<String>> products = new HashMap<String, List<String>>();
+        Map<String, List<String>> products = new HashMap<>();
 
-        for (LocalizationFile lFile : getLfiles(TAFS_DIR, PROD_EXT)) {
-            String name = lFile.getName();
+        for (ILocalizationFile lFile : getLfiles(TAFS_DIR, PROD_EXT)) {
+            String name = lFile.getPath();
             String product = name.substring(name.lastIndexOf("/") + 1,
                     name.length() - PROD_DOT_EXT_LEN);
             products.put(product, getProductSites(product));
@@ -398,17 +359,10 @@ public class TafSiteConfigIni implements ITafSiteConfig {
         return products;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.avnconfig.ITafSiteConfig#saveProduct(java.lang.String,
-     * java.util.ArrayList, java.lang.String, java.lang.String)
-     */
     @Override
     public void saveProduct(String newProduct, List<String> siteList,
             String workPil, String collectivePil) throws ConfigurationException {
-        LocalizationFile lFile = null;
+        ILocalizationFile lFile = null;
 
         try {
             lFile = getFile(TAFS_DIR + File.separator + newProduct
@@ -422,7 +376,6 @@ public class TafSiteConfigIni implements ITafSiteConfig {
             HierarchicalINIConfiguration config = configMaps.get(newProduct);
             if (config == null) {
                 config = new HierarchicalINIConfiguration();
-                config.setFile(lFile.getFile(false));
             }
 
             config.setDelimiterParsingDisabled(true);
@@ -436,23 +389,20 @@ public class TafSiteConfigIni implements ITafSiteConfig {
             config.setProperty("sites.idents", idents.toString());
             config.setProperty("sites.workpil", workPil);
             config.setProperty("sites.collective", collectivePil);
-            config.save();
-            lFile.save();
-            configMaps.put(newProduct, config);
-        } catch (LocalizationException ex) {
-            throw new ConfigurationException(ex);
+            try (SaveableOutputStream sos = lFile.openOutputStream()) {
+                config.save(sos);
+                sos.save();
+                configMaps.put(newProduct, config);
+            }
+        } catch (LocalizationException | IOException e) {
+            throw new ConfigurationException("Error saving file "
+                    + lFile.getPath(), e);
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.avnconfig.ITafSiteConfig#deleteProduct(java.lang.String)
-     */
     @Override
     public void deleteProduct(String product) throws ConfigurationException,
-            LocalizationOpFailedException {
+            LocalizationException {
 
         HierarchicalINIConfiguration config = configMaps.get(product);
 
@@ -461,7 +411,7 @@ public class TafSiteConfigIni implements ITafSiteConfig {
             configMaps.remove(product);
         }
 
-        LocalizationFile lFile = null;
+        ILocalizationFile lFile = null;
         try {
             lFile = getFile(TAFS_DIR + File.separator + product + PROD_DOT_EXT);
             lFile.delete();
@@ -481,19 +431,22 @@ public class TafSiteConfigIni implements ITafSiteConfig {
      * @throws FileNotFoundException
      * @throws ConfigurationException
      */
-    private String readFile(LocalizationFile lFile)
+    private String readFile(ILocalizationFile lFile)
             throws FileNotFoundException, ConfigurationException {
-        File file = lFile.getFile();
-        if (file != null && file.exists()) {
-            char[] c = new char[(int) file.length()];
-            FileReader reader = new FileReader(file);
-            try {
-                reader.read(c);
-                reader.close();
-            } catch (IOException ex) {
-                throw new ConfigurationException(ex.getMessage());
+        if (lFile != null && lFile.exists()) {
+            StringBuilder sb = new StringBuilder();
+            char[] cbuf = new char[4096];
+            try (InputStream is = lFile.openInputStream();
+                    InputStreamReader isr = new InputStreamReader(is)) {
+                int n;
+                while ((n = isr.read(cbuf)) > 0) {
+                    sb.append(cbuf, 0, n);
+                }
+            } catch (IOException | LocalizationException e) {
+                throw new ConfigurationException("Error reading "
+                        + lFile.getPath(), e);
             }
-            return String.valueOf(c).trim();
+            return sb.toString().trim();
         } else {
             return null;
         }
@@ -511,13 +464,14 @@ public class TafSiteConfigIni implements ITafSiteConfig {
      */
     private void writeFile(String filename, String value) throws IOException,
             LocalizationException {
-        LocalizationFile lFile = getFile(filename);
-        File file = lFile.getFile(false);
-        file.getParentFile().mkdirs();
-        FileWriter writer = new FileWriter(file);
-        writer.write(value);
-        writer.close();
-        lFile.save();
+        ILocalizationFile lFile = getFile(filename);
+        try (SaveableOutputStream sos = lFile.openOutputStream();
+                OutputStreamWriter writer = new OutputStreamWriter(sos)) {
+            writer.write(value);
+            writer.flush();
+            writer.close();
+            sos.save();
+        }
     }
 
     @Override
@@ -527,13 +481,6 @@ public class TafSiteConfigIni implements ITafSiteConfig {
                 + startHour + TMPL_DOT_EXT);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.avnconfig.ITafSiteConfig#saveTafTemplate(java.lang.String
-     * , java.lang.String, java.lang.String)
-     */
     @Override
     public void saveTafTemplate(String siteId, String startHour, String template)
             throws ConfigurationException {
@@ -552,23 +499,11 @@ public class TafSiteConfigIni implements ITafSiteConfig {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.avnconfig.ITafSiteConfig#getTafTemplate(java.lang.String
-     * , java.lang.String)
-     */
     @Override
     public String getTafTemplate(String siteId, String startHour) {
         return siteMap.get(siteId).get(startHour);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.avnconfig.ITafSiteConfig#getSite(java.lang.String)
-     */
     @Override
     public TafSiteData getSite(String siteId) throws IOException,
             ConfigurationException {
@@ -650,12 +585,17 @@ public class TafSiteConfigIni implements ITafSiteConfig {
     private HierarchicalINIConfiguration readProductMap(String product)
             throws ConfigurationException, FileNotFoundException {
         String name = TAFS_DIR + File.separator + product + PROD_DOT_EXT;
-        LocalizationFile lFile = getFile(name);
+        ILocalizationFile lFile = getFile(name);
         HierarchicalINIConfiguration config = null;
         if (lFile.exists()) {
-            File file = lFile.getFile();
-            config = new HierarchicalINIConfiguration(file);
-            configMaps.put(product, config);
+            try (InputStream is = lFile.openInputStream()) {
+                config = new HierarchicalINIConfiguration();
+                config.load(is);
+                configMaps.put(product, config);
+            } catch (IOException | LocalizationException e) {
+                throw new ConfigurationException("Error reading "
+                        + lFile.getPath(), e);
+            }
         }
         return config;
     }
@@ -670,7 +610,7 @@ public class TafSiteConfigIni implements ITafSiteConfig {
      * @return lFileArray The array of localized files in the directory with the
      *         desired extension
      */
-    private LocalizationFile[] getLfiles(String dir, String ext) {
+    private ILocalizationFile[] getLfiles(String dir, String ext) {
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext context = pm.getContext(
                 LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
@@ -718,12 +658,6 @@ public class TafSiteConfigIni implements ITafSiteConfig {
         return sb.toString();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.avnconfig.ITafSiteConfig#setSite(java.lang.String,
-     * com.raytheon.viz.avnconfig.TafSiteData)
-     */
     @Override
     public void setSite(String siteId, TafSiteData site) throws IOException,
             ConfigurationException {
@@ -731,11 +665,8 @@ public class TafSiteConfigIni implements ITafSiteConfig {
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext context = pm.getContext(
                 LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
-        LocalizationFile lFile = pm.getLocalizationFile(context, filepath);
+        ILocalizationFile lFile = pm.getLocalizationFile(context, filepath);
         try {
-            File file = lFile.getFile(false);
-
-            file.getParentFile().mkdirs();
             HierarchicalINIConfiguration config = new HierarchicalINIConfiguration();
             config.setDelimiterParsingDisabled(true);
             config.setProperty("headers.wmo", site.wmo);
@@ -749,15 +680,17 @@ public class TafSiteConfigIni implements ITafSiteConfig {
                     arrayToString(site.visibility));
             config.setProperty("thresholds.tafduration", site.hours);
             config.setProperty("sites.acars", site.acars);
-            // TODO why is this a String[] instead of just a String like the
-            // other
-            // Alternate Ids?
+            /*
+             * TODO why is this a String[] instead of just a String like the
+             * other Alternate Ids?
+             */
             config.setProperty("sites.radars", arrayToString(site.radars));
             config.setProperty("sites.gfsmos", site.gfsmos);
             config.setProperty("sites.gfslamp", site.gfslamp);
-            // TODO why is this a String[] instead of just a String like the
-            // other
-            // Alternate Ids?
+            /*
+             * TODO why is this a String[] instead of just a String like the
+             * other Alternate Ids?
+             */
             config.setProperty("sites.metar", arrayToString(site.metar));
             config.setProperty("sites.nam", site.nam);
             config.setProperty("sites.profilers", arrayToString(site.profilers));
@@ -785,20 +718,15 @@ public class TafSiteConfigIni implements ITafSiteConfig {
                 config.setProperty("qc.currentwx", "0");
             }
 
-            FileWriter writer = new FileWriter(file);
-            config.save(writer);
-            writer.close();
-            lFile.save();
+            try (SaveableOutputStream sos = lFile.openOutputStream()) {
+                config.save(sos);
+                sos.save();
+            }
         } catch (LocalizationException ex) {
             throw new ConfigurationException(ex.getMessage());
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.avnconfig.ITafSiteConfig#getSiteList()
-     */
     @Override
     public ArrayList<String> getSiteList() {
         ArrayList<String> siteList = new ArrayList<String>();
@@ -813,18 +741,13 @@ public class TafSiteConfigIni implements ITafSiteConfig {
         return siteList;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.avnconfig.ITafSiteConfig#getProductList()
-     */
     @Override
     public ArrayList<String> getProductList() {
         ArrayList<String> productList = new ArrayList<String>();
         String defaultProduct = getDefaultProduct();
 
-        for (LocalizationFile lFile : getLfiles(TAFS_DIR, PROD_EXT)) {
-            String name = lFile.getName();
+        for (ILocalizationFile lFile : getLfiles(TAFS_DIR, PROD_EXT)) {
+            String name = lFile.getPath();
             String product = name.substring(name.lastIndexOf("/") + 1,
                     name.length() - PROD_DOT_EXT_LEN);
             if (product.equals(defaultProduct) == false) {
@@ -856,12 +779,18 @@ public class TafSiteConfigIni implements ITafSiteConfig {
             IPathManager pm = PathManagerFactory.getPathManager();
             LocalizationContext context = pm.getContext(
                     LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
-            LocalizationFile lFile = pm.getLocalizationFile(context, filepath);
+            ILocalizationFile lFile = pm.getLocalizationFile(context, filepath);
             HierarchicalINIConfiguration config = new HierarchicalINIConfiguration();
             config.setDelimiterParsingDisabled(true);
-            config.load(lFile.getFile());
-            this.idsConfig = config;
+            try (InputStream is = lFile.openInputStream()) {
+                config.load(is);
+                this.idsConfig = config;
+            } catch (IOException | LocalizationException e) {
+                throw new ConfigurationException("Error reading "
+                        + lFile.getPath(), e);
+            }
         }
+
         return this.idsConfig;
     }
 
@@ -870,23 +799,18 @@ public class TafSiteConfigIni implements ITafSiteConfig {
      * 
      * @return lFile
      */
-    private LocalizationFile getIdsLfile() {
+    private ILocalizationFile getIdsLfile() {
         String filepath = IDS_FILE;
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext context = pm.getContext(
                 LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
-        LocalizationFile lFile = pm.getLocalizationFile(context, filepath);
+        ILocalizationFile lFile = pm.getLocalizationFile(context, filepath);
         return lFile;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.avnconfig.ITafSiteConfig#getIdsSiteList()
-     */
     @Override
     public ArrayList<String> getIdsSiteList() throws IOException,
-            ConfigurationException, LocalizationOpFailedException {
+            ConfigurationException, LocalizationException {
         HierarchicalINIConfiguration config = getIdsConfig();
         ArrayList<String> siteList = new ArrayList<String>();
         for (Object site : config.getSections()) {
@@ -896,71 +820,51 @@ public class TafSiteConfigIni implements ITafSiteConfig {
         return siteList;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.avnconfig.ITafSiteConfig#getIdsPil(java.lang.String)
-     */
     @Override
     public String getIdsPil(String site) throws IOException,
-            ConfigurationException, LocalizationOpFailedException {
+            ConfigurationException, LocalizationException {
         HierarchicalINIConfiguration config = getIdsConfig();
         String pil = config.getProperty(site + ".pil").toString();
         return pil;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.avnconfig.ITafSiteConfig#setIdsSite(java.lang.String,
-     * java.lang.String)
-     */
     @Override
     public void setIdsSite(String site, String pil) throws IOException,
             ConfigurationException {
         HierarchicalINIConfiguration config = getIdsConfig();
-        LocalizationFile lFile = getIdsLfile();
-        try {
-            File file = lFile.getFile(false);
+        config.setProperty(site + ".pil", pil);
 
-            config.setProperty(site + ".pil", pil);
-            config.save(file);
-            lFile.save();
+        ILocalizationFile lFile = getIdsLfile();
+        try (SaveableOutputStream sos = lFile.openOutputStream()) {
+            config.save(sos);
+            sos.save();
         } catch (LocalizationException e) {
-            throw new IOException("Unable to save file: " + lFile.getName());
+            throw new IOException("Unable to save file: " + lFile.getPath());
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.avnconfig.ITafSiteConfig#removeIdsSite(java.lang.String)
-     */
     @Override
     public synchronized void removeIdsSite(String site)
             throws ConfigurationException {
-        LocalizationFile lFile = getIdsLfile();
-        try {
-            File file = lFile.getFile(false);
+        HierarchicalINIConfiguration config = getIdsConfig();
+        HierarchicalINIConfiguration newConfig = new HierarchicalINIConfiguration();
 
-            HierarchicalINIConfiguration config = getIdsConfig();
-            HierarchicalINIConfiguration newConfig = new HierarchicalINIConfiguration();
-
-            // Do not include the site in the new config.
-            for (Object newSite : config.getSections()) {
-                if (!newSite.equals(site)) {
-                    newConfig.setProperty(newSite + ".pil",
-                            config.getProperty(newSite + ".pil"));
-                }
+        // Do not include the site in the new config.
+        for (Object newSite : config.getSections()) {
+            if (!newSite.equals(site)) {
+                newConfig.setProperty(newSite + ".pil",
+                        config.getProperty(newSite + ".pil"));
             }
-            newConfig.save(file);
-            lFile.save();
+        }
+
+        ILocalizationFile lFile = getIdsLfile();
+        try (SaveableOutputStream sos = lFile.openOutputStream()) {
+            newConfig.save(sos);
+            sos.save();
             this.idsConfig = newConfig;
-        } catch (LocalizationException ex) {
-            throw new ConfigurationException(ex.getMessage());
+        } catch (LocalizationException | IOException e) {
+            throw new ConfigurationException("Error saving " + lFile.getPath(),
+                    e);
         }
     }
 }

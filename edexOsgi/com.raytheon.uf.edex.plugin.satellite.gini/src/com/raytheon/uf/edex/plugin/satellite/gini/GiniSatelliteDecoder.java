@@ -98,6 +98,7 @@ import com.raytheon.uf.edex.plugin.satellite.gini.lookup.NumericLookupTable;
  *                                      renamed from SatelliteDecoder to GiniDecoder
  *                                      replaced database lookups with in memory tables
  * Apr 15, 2014  4388     bsteffen    Set Fill Value.
+ * Jun 23, 2016           mjames@ucar Handle UCAR FNEXRAD GINI composite imagery.
  * 
  * </pre>
  * 

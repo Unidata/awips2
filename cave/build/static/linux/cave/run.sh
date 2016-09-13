@@ -37,6 +37,8 @@
 # Jun 17, 2015  #4148     rferrel     Logback needs fewer environment variables.
 # Jul 23, 2015  ASM#13849 D. Friedman Use a unique Eclipse configuration directory
 # Aug 03, 2015  #4694     dlovely     Logback will now add user.home to LOGDIR
+# Sep 16, 2015  #4869     bkowal      Read dynamic CAVE version information at startup.
+# Apr 28, 2016  #5609     bkowal      Specify the location of the java.io.tmpdir as a jvm arg.
 #
 
 
@@ -74,7 +76,7 @@ deleteOldCaveDiskCaches &
 # Enable core dumps
 ulimit -c unlimited >> /dev/null 2>&1
 
-export LD_LIBRARY_PATH=${JAVA_INSTALL}/lib:${PYTHON_INSTALL}/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=${JAVA_INSTALL}/lib:${PYTHON_INSTALL}/lib:${PYTHON_INSTALL}/lib/python2.7/site-packages/jep:$LD_LIBRARY_PATH
 if [[ -z "$CALLED_EXTEND_LIB_PATH" ]]; then
     extendLibraryPath
 fi
@@ -96,8 +98,20 @@ export apps_dir=${HYDRO_APPS_DIR}
 SWITCHES=($SWITCHES)
 MODE="PRACTICE"
 SWITCHES+=(-mode PRACTICE)
+
+VERSION_ARGS=()
+if [ -f ${CAVE_INSTALL}/awipsVersion.txt ]; then
+   prevIFS=${IFS}
+   IFS=$'\n'
+   for line in `cat ${CAVE_INSTALL}/awipsVersion.txt`; do
+      VERSION_ARGS+=(${line})
+   done
+   IFS=${prevIFS}
+fi
+
+export TEXTWS=`hostname`
+
 hostName=`hostname -s`
-export TEXTWS=$hostName
 
 #check for gtk-2.0 value
 gtkResource=.gtkrc-2.0
@@ -152,6 +166,7 @@ pid=$!
 export LOGFILE_STARTUP_SHUTDOWN="$FULL_LOGDIR/${PROGRAM_NAME}_${pid}_${curTime}_pid_%PID%_startup-shutdown.log"
 
 createEclipseConfigurationDir
+TMP_VMARGS="--launcher.appendVmargs -vmargs -Djava.io.tmpdir=${eclipseConfigurationDir}"
 
 # At this point fork so that log files can be set up with the process pid and
 # this process can log the exit status of cave.
@@ -189,17 +204,16 @@ createEclipseConfigurationDir
   fi
 
   echo "Launching cave application using the following command: " >> ${LOGFILE_STARTUP_SHUTDOWN}
-  echo "${CAVE_INSTALL}/cave ${CAVE_INI_ARG} ${SWITCHES[@]} ${USER_ARGS[@]}" >> ${LOGFILE_STARTUP_SHUTDOWN}
+  echo "${CAVE_INSTALL}/cave ${CAVE_INI_ARG} ${SWITCHES[@]} ${USER_ARGS[@]} ${TMP_VMARGS} ${VERSION_ARGS[@]}" >> ${LOGFILE_STARTUP_SHUTDOWN}
 
   if [[ "${redirect}" == "true" ]] ; then
      # send output to /dev/null because the logback CaveConsoleAppender will capture that output 
-    exec ${CAVE_INSTALL}/cave ${CAVE_INI_ARG} "${SWITCHES[@]}" "${USER_ARGS[@]}" >> /dev/null 2>&1
+    exec ${CAVE_INSTALL}/cave ${CAVE_INI_ARG} "${SWITCHES[@]}" "${USER_ARGS[@]}" ${TMP_VMARGS} "${VERSION_ARGS[@]}" >> /dev/null 2>&1
   else
     # allow output to print to the console/terminal that launched CAVE
-    exec ${CAVE_INSTALL}/cave ${CAVE_INI_ARG} "${SWITCHES[@]}" "${USER_ARGS[@]}" 2>&1
+    exec ${CAVE_INSTALL}/cave ${CAVE_INI_ARG} "${SWITCHES[@]}" "${USER_ARGS[@]}" ${TMP_VMARGS} "${VERSION_ARGS[@]}" 2>&1
   fi
 ) &
 
 pid=$!
 logExitStatus $pid $LOGFILE_STARTUP_SHUTDOWN
-

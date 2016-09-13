@@ -17,14 +17,44 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 # ----------------------------------------------------------------------------
+# Port of iscMosaic.py
+#
+#
 #     SOFTWARE HISTORY
 #
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
+#    07/06/09        1995          bphillip       Initial Creation.
+#    01/17/13        15588         jdynina        Fixed Publish history removal
+#    03/12/13        1759          dgilling       Remove unnecessary command line
+#                                                 processing.
+#    04/24/13        1941          dgilling       Re-port WECache to match A1.
+#    05/08/13        1988          dgilling       Fix history handling bug in
+#                                                 __getDbGrid().
+#    05/23/13        1759          dgilling       Remove unnecessary imports.
+#    06/05/13        2063          dgilling       Change __siteInDbGrid() to
+#                                                 call IFPWE.history() like A1.
+#    09/05/13        2307          dgilling       Fix breakage caused by #2044.
+#    10/31/2013      2508          randerso       Change to use DiscreteGridSlice.getKeys()
+#    11/05/13        2517          randerso       Restructured logging so it coulde be used by WECache
+#                                                 Changed WECache to limit the number of cached grids kept in memory
+#    01/09/14        16952         randerso       Fix regression made in #2517 which caused errors with overlapping grids
+#    02/04/14        17042         ryu            Check in changes for randerso.
+#    04/03/2014      2737          randerso       Allow iscMosaic to blankOtherPeriods even when no grids received
+#    04/11/2014      17242         David Gillingham (code checked in by zhao)
+#    07/22/2014      17484         randerso       Update cluster lock time to prevent time out
+#    08/07/2014      3517          randerso       Improved memory utilization and error handling when unzipping input file.
+#    08/14/2014      3526          randerso       Fix bug in WECache that could incorrectly delete grids in the destination database
 #    02/17/2015      4139          randerso       Replaced call to iscTime.timeFromComponents
 #                                                 with call to calendar.timegm
 #    04/23/2015      4383          randerso       Changed to log arguments to aid in troubleshooting
-#    Apr 23, 2015    4259          njensen        Updated for new JEP API
+#    04/23/2015      4259          njensen        Updated for new JEP API
+#    04/25/2015      4952          njensen        Updated for new JEP API
+#    08/06/2015      4718          dgilling       Optimize casting when using where with
+#                                                 NumPy 1.9.
+#    10/05/2015      4951          randerso       Fixed siteInDbGrid to retrieve history from the cache so it
+#                                                 sees changes that have not yet been written to the database
+#    10/05/2015      4961          randerso       Fix __calcBlankingTimes to handle persistent grids
 #
 ##
 
@@ -73,38 +103,6 @@ from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceID
 CoordinateType = ReferenceData.CoordinateType
 from com.raytheon.uf.edex.database.cluster import ClusterLockUtils
 from com.raytheon.uf.edex.database.cluster import ClusterTask
-
-#
-# Port of iscMosaic.py
-#
-#
-#     SOFTWARE HISTORY
-#
-#    Date            Ticket#       Engineer       Description
-#    ------------    ----------    -----------    --------------------------
-#    07/06/09        1995          bphillip       Initial Creation.
-#    01/17/13        15588         jdynina        Fixed Publish history removal
-#    03/12/13        1759          dgilling       Remove unnecessary command line
-#                                                 processing.
-#    04/24/13        1941          dgilling       Re-port WECache to match A1.
-#    05/08/13        1988          dgilling       Fix history handling bug in
-#                                                 __getDbGrid().
-#    05/23/13        1759          dgilling       Remove unnecessary imports.
-#    06/05/13        2063          dgilling       Change __siteInDbGrid() to
-#                                                 call IFPWE.history() like A1.
-#    09/05/13        2307          dgilling       Fix breakage caused by #2044.
-#    10/31/2013      2508          randerso       Change to use DiscreteGridSlice.getKeys()
-#    11/05/13        2517          randerso       Restructured logging so it coulde be used by WECache
-#                                                 Changed WECache to limit the number of cached grids kept in memory
-#    01/09/14        16952         randerso       Fix regression made in #2517 which caused errors with overlapping grids
-#    02/04/14        17042         ryu            Check in changes for randerso.
-#    04/03/2014      2737          randerso       Allow iscMosaic to blankOtherPeriods even when no grids received
-#    04/11/2014      17242         David Gillingham (code checked in by zhao)
-#    07/22/2014      17484         randerso       Update cluster lock time to prevent time out
-#    08/07/2014      3517          randerso       Improved memory utilization and error handling when unzipping input file.
-#    08/14/2014      3526          randerso       Fix bug in WECache that could incorrectly delete grids in the destination database
-#    Apr 25, 2015    4952          njensen        Updated for new JEP API
-#
 
 BATCH_DELAY = 0.0
 
@@ -749,7 +747,7 @@ class IscMosaic:
                         # compute the site mask
 
                         if self.__areaMask is None:
-                            self.__areaMask = self.__computeAreaMask().getGrid().getNDArray()
+                            self.__areaMask = self.__computeAreaMask().getGrid().getNDArray().astype(numpy.bool)
 
                         # create the mergeGrid class
                         mGrid = mergeGrid.MergeGrid(self.__creTime, self.__siteID, inFillV,
@@ -1259,6 +1257,7 @@ class IscMosaic:
         outFillV = self.__determineFillValue(var)
         if outFillV == inFillV and multiplier is None:
             return grid    # no changes needed
+        outFillV = numpy.float32(outFillV)
 
         # get mask of valid points
         goodDataMask = numpy.not_equal(grid, inFillV)
@@ -1438,18 +1437,21 @@ class IscMosaic:
 
     def __calcBlankingTimes(self, inTimes):
         out = []
-        for t in range(len(inTimes)):
-            if t == 0 and inTimes[t][0] != 0:
-                out.append((0, inTimes[t][0]))
-            elif t != 0 :
-                tr = (inTimes[t - 1][1], inTimes[t][0])
-                if tr[0] != tr[1]:
-                    out.append(tr)
-        if len(out) == 0:
+        if len(inTimes) == 0:
             out.append((0, 2 ** 30 - 1 + 2 ** 30))
         else:
+            for t in range(len(inTimes)):
+                if t == 0 and inTimes[t][0] != 0:
+                    out.append((0, inTimes[t][0]))
+                elif t != 0 :
+                    tr = (inTimes[t - 1][1], inTimes[t][0])
+                    if tr[0] != tr[1]:
+                        out.append(tr)
+
             endIndex = len(inTimes) - 1
-            out.append((inTimes[endIndex][1], 2 ** 30 - 1 + 2 ** 30))
+            tr = (inTimes[endIndex][1], 2 ** 30 - 1 + 2 ** 30)
+            if tr[0] != tr[1]:
+                out.append(tr)
 
         # now limit to the modProcTime
         outLimit = []
@@ -1487,13 +1489,14 @@ class IscMosaic:
     def __siteInDbGrid(self, tr):
         if tr is None:
             return None
-        history = self.__dbwe.history(iscUtil.toJavaTimeRange(tr))
+        
+        grid, history = self._wec[tr]
 
-        itr = history.iterator()
-        while itr.hasNext():
-            h = str(itr.next())
-            if self.__siteID + "_GRID" in h:
-                return True
+        if history:
+            for h in history:
+                if self.__siteID + "_GRID" in h:
+                    return True
+
         return False
 
     #---------------------------------------------------------------------

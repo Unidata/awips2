@@ -41,8 +41,11 @@ import com.raytheon.viz.texteditor.util.VtecUtil;
  * ------------ ---------- ----------- --------------------------
  *                                     Initial creation
  * Aug 25, 2011 10719      rferrel     ugcPtrn now local to file.
- * Mar 14, 2014  DR 17175  D. Friedman Get correct time zone from times.
- * May 13, 2014  DR 17177  Qinglu Lin  Updated runQC().
+ * Mar 14, 2014 17175      D. Friedman Get correct time zone from times.
+ * May 13, 2014 17177      Qinglu Lin  Updated runQC().
+ * Mar 10, 2016 5411       randerso    Moved upper case conversion for QC checks into the 
+ *                                      specific checks that need it.
+ * 
  * </pre>
  * 
  * @version 1.0
@@ -53,6 +56,8 @@ public class TimeConsistentCheck implements IQCCheck {
 
     @Override
     public String runQC(String header, String body, String nnn) {
+        body.toUpperCase();
+
         String errorMsg = "";
         Matcher m = null;
         VtecObject vtec = VtecUtil.parseMessage(body);
@@ -82,8 +87,8 @@ public class TimeConsistentCheck implements IQCCheck {
                 currenttime.set(Calendar.MINUTE, minute);
                 currenttime.set(Calendar.SECOND, 0);
                 currenttime.setTimeZone(TimeZone.getTimeZone("GMT"));
-                if (currenttime.getTimeInMillis()
-                        - vtec.getEndTime().getTimeInMillis() > 16 * 60 * 1000) {
+                if ((currenttime.getTimeInMillis() - vtec.getEndTime()
+                        .getTimeInMillis()) > (16 * 60 * 1000)) {
                     errorMsg = "VTEC end time is 15 minutes older\n than UGC expiration times differ";
                     return errorMsg;
                 }
@@ -106,8 +111,8 @@ public class TimeConsistentCheck implements IQCCheck {
                         .parseInt(m.group(1));
 
                 Calendar secondBulletTime = new GregorianCalendar(timeZone);
-                if (secondBulletTime.get(Calendar.AM_PM) == Calendar.PM
-                        && am_pm == Calendar.AM) {
+                if ((secondBulletTime.get(Calendar.AM_PM) == Calendar.PM)
+                        && (am_pm == Calendar.AM)) {
                     int month = secondBulletTime.get(Calendar.DAY_OF_MONTH);
                     secondBulletTime.set(Calendar.DAY_OF_MONTH, month + 1);
                 }
@@ -142,8 +147,8 @@ public class TimeConsistentCheck implements IQCCheck {
 
         m = thirdBulletPtrn.matcher(body);
         if (m.find()) {
-            TimeZone timeZone = TextWarningConstants.timeZoneShortNameMap
-                    .get(m.group(4));
+            TimeZone timeZone = TextWarningConstants.timeZoneShortNameMap.get(m
+                    .group(4));
             if (timeZone == null) {
                 errorMsg += "Could not determine time zone in third bullet";
                 return errorMsg;
@@ -164,9 +169,9 @@ public class TimeConsistentCheck implements IQCCheck {
             long issuetime = Calendar.getInstance(TimeZone.getTimeZone("GMT"))
                     .getTimeInMillis();
 
-            if (thirdBullettime.getTimeInMillis() - 60 * 1000 > issuetime) {
+            if ((thirdBullettime.getTimeInMillis() - (60 * 1000)) > issuetime) {
                 errorMsg += "Event time is later than the MND\n issue time.\n";
-            } else if (issuetime - thirdBullettime.getTimeInMillis() > 15 * 60 * 1000) {
+            } else if ((issuetime - thirdBullettime.getTimeInMillis()) > (15 * 60 * 1000)) {
                 errorMsg += "The event time is more than 15 minutes\n earlier than the issue time.\n";
             }
         }

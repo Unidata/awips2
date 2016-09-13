@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.damagepath;
 
 import java.util.Map;
 
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.viz.core.VizApp;
@@ -42,6 +43,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Jun 18, 2015  #4354     dgilling     Allow individual properties object for
  *                                      each polygon.
  * Jun 30, 2015  #4354     dgilling     Fix NullPointerException.
+ * Jan 27, 2016  #5287     dgilling     Support updated 
+ *                                      EditGeoJsonPropertiesDlg.
  * 
  * </pre>
  * 
@@ -68,15 +71,17 @@ public class OpenGeoJsonPropertiesDlgAction extends AbstractRightClickAction {
 
                 final Map<String, String> geoJsonProps = damagePath
                         .getProperties();
-                EditGeoJsonPropertiesDlg dlg = new EditGeoJsonPropertiesDlg(
+                final EditGeoJsonPropertiesDlg dlg = new EditGeoJsonPropertiesDlg(
                         shell, geoJsonProps);
-                dlg.setCloseCallback(new ICloseCallback() {
+                dlg.addCloseCallback(new ICloseCallback() {
 
                     @Override
                     public void dialogClosed(Object returnValue) {
-                        if ((returnValue != null)
-                                && (!geoJsonProps.equals(returnValue))) {
-                            Map<String, String> updatedProperties = (Map<String, String>) returnValue;
+                        int returnCode = ((Number) returnValue).intValue();
+                        Map<String, String> updatedProperties = dlg
+                                .getProperties();
+                        if ((Window.OK == returnCode)
+                                && (!geoJsonProps.equals(updatedProperties))) {
                             damagePath.setProperties(updatedProperties);
                         }
                     }

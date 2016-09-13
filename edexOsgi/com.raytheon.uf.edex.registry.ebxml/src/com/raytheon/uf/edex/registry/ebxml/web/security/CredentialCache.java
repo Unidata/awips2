@@ -48,6 +48,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.registry.ebxml.RegistryUsers;
 import com.raytheon.uf.edex.registry.ebxml.dao.PersonDao;
 import com.raytheon.uf.edex.registry.ebxml.services.RegistryRESTServices;
+import com.raytheon.uf.edex.registry.ebxml.services.rest.RegistryFederationManager;
 import com.raytheon.uf.edex.registry.events.CreateAuditTrailEvent;
 import com.raytheon.uf.edex.security.SecurityConfiguration;
 
@@ -66,6 +67,7 @@ import com.raytheon.uf.edex.security.SecurityConfiguration;
  * 7/24/2014    1712        bphillip    No longer singleton
  * 1/06/2015    3918        dhladky     Fixed issue where clients can't start without central registry.
  * 5/29/2015    4448        bphillip    Added default user to registry on startup
+ * 10/20/2015   4992        dhladky     Improve error handling.
  * </pre>
  * 
  * @author bphillip
@@ -131,11 +133,20 @@ public class CredentialCache {
                                     if (centralRegistry) {
                                         user = personDao.getById(userName
                                                 + RegistryUsers.USER_SUFFIX);
-                                    } else {                                
+                                    } else {
                                         // This is a case required if you are
                                         // connected to a central registry.
                                         if (isFederationEnabled) {
-
+                                            String compareLocalUser = securityConfig
+                                                    .getProperty(RegistryFederationManager.EDEX_SECURITY_AUTH_USER);
+                                            if (!compareLocalUser
+                                                    .equals(userName)) {
+                                                statusHandler
+                                                        .error("local registry and security.properties usernames are mismatched! registry userName: "
+                                                                + userName
+                                                                + " security.properties user: "
+                                                                + compareLocalUser);
+                                            }
                                             /*
                                              * If we are not the central
                                              * registry, query the central
@@ -150,21 +161,22 @@ public class CredentialCache {
                                                                         + RegistryUsers.USER_SUFFIX);
                                             } catch (Exception e) {
                                                 throw new WebServiceException(
-                                                        "Error contacting central registry!",
-                                                        e);
+                                                        "Unable to authenicate user with central registry! userName: "
+                                                                + userName, e);
                                             }
                                         }
                                     }
-                                    
+
                                     if (isFederationEnabled) {
                                         /*
-                                         * User not found in federation mode means unauthorized
+                                         * User not found in federation mode
+                                         * means unauthorized
                                          */
                                         if (user == null) {
                                             throw new WebServiceException(
-                                                    "User ["
+                                                    "userName: "
                                                             + userName
-                                                            + " Not authorized!");
+                                                            + " Is not Authorized!!!! Check your security.properties file for a mismatch!");
 
                                         } else {
                                             /*
@@ -174,6 +186,7 @@ public class CredentialCache {
                                              */
                                             localUserName = user
                                                     .getSlotValue(RegistryUsers.USER_SLOT_NAME);
+                                            
                                             try {
                                                 password = encryption.decrypt(
                                                         securityConfig
@@ -182,7 +195,7 @@ public class CredentialCache {
                                                                 .getSlotValue(RegistryUsers.PASSWORD_SLOT_NAME));
                                             } catch (Exception e) {
                                                 throw new RegistryServiceException(
-                                                        "Error decrypting password!",
+                                                        "Error decrypting password! userName: "+localUserName,
                                                         e);
                                             }
                                             role = user
@@ -199,9 +212,9 @@ public class CredentialCache {
                                         statusHandler
                                                 .handle(Priority.INFO,
                                                         "Federation not enabled! Proceeding with default user, pass, and role!");
-                                        localUserName = securityConfig.getProperty("edex.security.auth.user");
+                                        localUserName = securityConfig.getProperty(RegistryFederationManager.EDEX_SECURITY_AUTH_USER);
                                         password = securityConfig.getSecurityProperties().getProperty(
-                                                "edex.security.auth.password");
+                                                RegistryFederationManager.EDEX_SECURITY_AUTH_PASSWORD);
                                         role = DEFAULT_ROLE;
 
                                     }

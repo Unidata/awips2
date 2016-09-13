@@ -20,21 +20,29 @@ package com.raytheon.uf.common.monitor.config;
  * further licensing information.
  **/
 
-import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 import org.opengis.referencing.crs.ProjectedCRS;
 
+import com.raytheon.uf.common.localization.ILocalizationFile;
+import com.raytheon.uf.common.localization.ILocalizationPathObserver;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.monitor.scan.ScanUtils;
 import com.raytheon.uf.common.monitor.scan.ThreatLocation;
 import com.raytheon.uf.common.monitor.scan.xml.CWATLocationsXML;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -48,6 +56,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * --/--/----                          Initial creation
  * Oct 02, 2013 2361       njensen     Use JAXBManager for XML
+ * Oct 08, 2015 4912       rferrel     Update configXml when configuration file changes
+ *                                      and removed deprecated code.
+ * Jan 12, 2016 5244       njensen     Replaced calls to deprecated LocalizationFile methods                                     
  * 
  * </pre>
  * 
@@ -56,8 +67,21 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 public class CWATLocationConfigManager {
 
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(CWATLocationConfigManager.class);
+
     private static final SingleTypeJAXBManager<CWATLocationsXML> jaxb = SingleTypeJAXBManager
             .createWithoutException(CWATLocationsXML.class);
+
+    /**
+     * Location of configuration files.
+     */
+    private static final String CWAT_DIR = "cwat";
+
+    /**
+     * Append to the site name to get the configuration file name.
+     */
+    private static final String CONFIG_FILE_SUFFIX = "Locations.xml";
 
     /**
      * FFMP Source Configuration XML object.
@@ -82,9 +106,27 @@ public class CWATLocationConfigManager {
     /** Singleton instance of this class */
     private static CWATLocationConfigManager instance = null;
 
-    /* Private Constructor */
+    /**
+     * Observer to force updating the configXml.
+     */
+    private ILocalizationPathObserver configXmlObserver = new ILocalizationPathObserver() {
+        @Override
+        public void fileChanged(ILocalizationFile file) {
+            readConfigXml();
+        }
+    };
+
+    /**
+     * Private Constructor.
+     */
     private CWATLocationConfigManager() {
         configXml = new CWATLocationsXML();
+        IPathManager pm = PathManagerFactory.getPathManager();
+        /*
+         * No need to remove the observer since the instance of this class
+         * remains until the JRE is shutdown.
+         */
+        pm.addLocalizationPathObserver(CWAT_DIR, configXmlObserver);
     }
 
     /**
@@ -98,6 +140,14 @@ public class CWATLocationConfigManager {
         }
 
         return instance;
+    }
+
+    private ILocalizationFile getConfigFile() {
+        IPathManager pm = PathManagerFactory.getPathManager();
+        LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
+                LocalizationLevel.SITE);
+        return pm.getLocalizationFile(lc, CWAT_DIR + IPathManager.SEPARATOR
+                + getSiteName() + CONFIG_FILE_SUFFIX);
     }
 
     /**
@@ -116,28 +166,33 @@ public class CWATLocationConfigManager {
      * Read the XML configuration data for the current XML file name.
      */
     public void readConfigXml() {
+        ILocalizationFile lFile = getConfigFile();
         try {
-            IPathManager pm = PathManagerFactory.getPathManager();
-            LocalizationContext lc = pm.getContext(
-                    LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-            File file = pm.getFile(lc, "cwat" + File.separatorChar
-                    + getSiteName() + "Locations.xml");
-            System.out.println("Reading -- " + file.getAbsolutePath());
-
-            CWATLocationsXML configXmltmp = jaxb.unmarshalFromXmlFile(file
-                    .getAbsolutePath());
-
-            configXml = configXmltmp;
+            if (lFile.exists()) {
+                statusHandler.info("Reading CWAT configuration file: "
+                        + lFile.getPath());
+                try (InputStream stream = lFile.openInputStream()) {
+                    // This closes the stream
+                    CWATLocationsXML configXmltmp = jaxb
+                            .unmarshalFromInputStream(stream);
+                    configXml = configXmltmp;
+                }
+            } else {
+                statusHandler.handle(Priority.WARN,
+                        "No CWAT locations file found. Generating the file: "
+                                + lFile.getPath());
+                // create a new one
+                ArrayList<ThreatLocation> locations = ScanUtils.getCWASites(
+                        getSiteCoor(), getCRS());
+                configXml = new CWATLocationsXML();
+                configXml.setThreats(locations);
+                // writes one to site
+                saveConfigXml();
+            }
 
         } catch (Exception e) {
-            System.err.println("No CWAT locations file found");
-            // create a new one
-            ArrayList<ThreatLocation> locations = ScanUtils.getCWASites(
-                    getSiteCoor(), getCRS());
-            configXml = new CWATLocationsXML();
-            configXml.setThreats(locations);
-            // writes one to site
-            saveConfigXml();
+            statusHandler.handle(Priority.WARN,
+                    "Unable to load location file: " + lFile.getPath(), e);
         }
     }
 
@@ -146,28 +201,15 @@ public class CWATLocationConfigManager {
      */
     public void saveConfigXml() {
         // Save the xml object to disk
-        IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
-                LocalizationLevel.SITE);
-        LocalizationFile newXmlFile = pm.getLocalizationFile(lc, "cwat"
-                + File.separatorChar + getSiteName() + "Locations.xml");
-
-        if (newXmlFile.getFile().getParentFile().exists() == false) {
-            // System.out.println("Creating new directory");
-
-            if (newXmlFile.getFile().getParentFile().mkdirs() == false) {
-                // System.out.println("Could not create new directory...");
-            }
-        }
-
-        try {
-            System.out.println("Saving -- "
-                    + newXmlFile.getFile().getAbsolutePath());
-            jaxb.marshalToXmlFile(configXml, newXmlFile.getFile()
-                    .getAbsolutePath());
-            newXmlFile.save();
-        } catch (Exception e) {
-            e.printStackTrace();
+        ILocalizationFile lFile = getConfigFile();
+        statusHandler
+                .info("Saving CWAT configuration file: " + lFile.getPath());
+        try (SaveableOutputStream stream = lFile.openOutputStream()) {
+            jaxb.marshalToStream(configXml, stream);
+            stream.save();
+        } catch (LocalizationException | SerializationException | IOException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to save localized file: " + lFile.getPath(), e);
         }
     }
 
@@ -203,5 +245,4 @@ public class CWATLocationConfigManager {
     public ArrayList<ThreatLocation> getLocations() {
         return configXml.getThreats();
     }
-
 }

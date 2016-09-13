@@ -45,6 +45,7 @@ import com.raytheon.viz.alerts.observers.ProductAlertObserver;
  * Feb 21, 2014  16744    dfriedman  Update all alert observers
  * Dec 04, 2015  5169     bsteffen   Allow ProductAlertObserver to send messages
  *                                   to the AutoUpdater
+ * Feb 08, 2016  5281     tjensen    Replaced disableJms with dataRefreshMethod
  * 
  * </pre>
  * 
@@ -54,15 +55,12 @@ import com.raytheon.viz.alerts.observers.ProductAlertObserver;
 
 public class DataRefreshTask implements RefreshTimerTask {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.TimerTask#run()
-     */
     @Override
     public void run() {
         IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-        if (store.getBoolean(ThinClientPreferenceConstants.P_DISABLE_JMS)) {
+        if (ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD_POLL
+                .equals(store
+                        .getString(ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD))) {
             Collection<AlertMessage> alerts = ThinClientDataUpdateTree
                     .getInstance().updateAllData();
 
@@ -75,25 +73,11 @@ public class DataRefreshTask implements RefreshTimerTask {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.thinclient.refresh.TimedRefresher.RefreshTimerTask
-     * #scheduled()
-     */
     @Override
     public void scheduled() {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.thinclient.refresh.TimedRefresher.RefreshTimerTask
-     * #stopped()
-     */
     @Override
     public void stopped() {
 

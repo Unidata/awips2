@@ -200,6 +200,11 @@ import com.vividsolutions.jts.geom.Point;
  * Nov 10, 2014 3026        dhladky     HPE BIAS displays.
  * Dec 16, 2014   3026      mpduff      Change location of text.
  * Feb 13, 2015   4121      mpduff      Change label caching.
+ * Sep 28, 2015   4756      dhladky     Multiple guidance sources.
+ * Oct 26, 2015  5056       dhladky     Simplified Guidance Interpolation.
+ * Nov 05, 2015 5070        randerso    Adjust font sizes for dpi scaling
+ * Feb 02, 2016 DR 16771    arickert    Opening the FFMP dialog in initInternal
+ * 
  * </pre>
  * 
  * @author dhladky
@@ -470,6 +475,7 @@ public class FFMPResource extends
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
         getResourceData().addChangeListener(this);
+
         monitor = getResourceData().getMonitor();
         monitor.addResourceListener(this);
 
@@ -479,6 +485,7 @@ public class FFMPResource extends
             }
             monitor.launchFFMPDialog(this);
         }
+        
         // So we are not time agnostic
         dataTimes = new ArrayList<DataTime>();
     }
@@ -1252,7 +1259,7 @@ public class FFMPResource extends
             public void run() {
 
                 if (font == null) {
-                    font = target.initializeFont("Dialog", 11, null);
+                    font = target.initializeFont("Dialog", 9, null);
                 }
 
                 font.setMagnification(getCapability(
@@ -1261,7 +1268,7 @@ public class FFMPResource extends
 
                 if (xfont == null) {
                     IFont.Style[] styles = new IFont.Style[] { IFont.Style.BOLD };
-                    xfont = target.initializeFont("Monospace", 12, styles);
+                    xfont = target.initializeFont("Monospace", 10, styles);
                 }
 
                 xfont.setMagnification(getCapability(
@@ -1291,7 +1298,7 @@ public class FFMPResource extends
 
             }
         });
-
+        
         // Set flag for HPE data
         isHpe = resourceData.dataKey.equalsIgnoreCase(HPE)
                 || resourceData.dataKey.equalsIgnoreCase(BHPE);
@@ -1670,8 +1677,17 @@ public class FFMPResource extends
      */
     private FFMPColorUtils getColorUtil() throws VizException {
         if (colorUtil == null) {
-            colorUtil = new FFMPColorUtils(getField(), getTime(),
-                    getResourceData().tableLoad);
+
+            boolean tableLoad = getResourceData().tableLoad;
+            String ffg = getFFGName();
+            if (!tableLoad) {
+                SourceXML source = FFMPSourceConfigurationManager.getInstance()
+                        .getSource(ffg);
+                ffg = source.getDisplayName();
+            }
+
+            colorUtil = new FFMPColorUtils(getField(), getTime(), ffg,
+                    tableLoad);
         }
         return colorUtil;
     }
@@ -3186,8 +3202,6 @@ public class FFMPResource extends
         FFMPVirtualGageBasinMetaData fvgbmd = null;
         FFMPBasin basin = null;
 
-        // System.out.println("*************************************************");
-
         try {
             basinPfaf = Long.parseLong(pfafString);
             dataId = basinPfaf;
@@ -3200,12 +3214,7 @@ public class FFMPResource extends
         }
 
         FFMPBasinMetaData mBasin = monitor.getTemplates(getSiteKey()).getBasin(
-                getSiteKey(), basinPfaf); /*
-                                           * TODO: mBasin is never used so it is
-                                           * not clear if this should be
-                                           * basinPfaf or dataId
-                                           */
-
+                getSiteKey(), basinPfaf);
         FFMPGraphData fgd = null;
         // VGB
         if (fvgbmd != null) {
@@ -3227,8 +3236,8 @@ public class FFMPResource extends
         Date oldestRefTime = getOldestTime();
         Date mostRecentRefTime = getPaintTime().getRefTime();
 
-        Date barrierTime = getTableTime();// DR 16148
-        Date minUriTime = getTimeOrderedKeys().get(0);// DR 16148
+        Date barrierTime = getTableTime();
+        Date minUriTime = getTimeOrderedKeys().get(0);
 
         // grabs the basins we need
         try {
@@ -3243,8 +3252,9 @@ public class FFMPResource extends
                 for (Date date : rateBasin.getValues().keySet()) {
 
                     if (date.before(minUriTime) || date.before(barrierTime)
-                            || date.after(mostRecentRefTime))
+                            || date.after(mostRecentRefTime)) {
                         continue;// DR 16148
+                    }
 
                     double dtime = FFMPGuiUtils.getTimeDiff(mostRecentRefTime,
                             date);
@@ -3257,7 +3267,7 @@ public class FFMPResource extends
 
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
-                    "FFMPMonitor: getGraphData(): missing RATE dataset.");
+                    "FFMPMonitor: getGraphData(): missing RATE dataset.", e);
         }
         try {
             qpeBasin = monitor.getGraphQPEBasin(getProduct(), getSiteKey(),
@@ -3272,8 +3282,9 @@ public class FFMPResource extends
                 for (Date date : qpeBasin.getValues().keySet()) {
 
                     if (date.before(minUriTime) || date.before(barrierTime)
-                            || date.after(mostRecentRefTime))
+                            || date.after(mostRecentRefTime)) {
                         continue;// DR 16148
+                    }
 
                     double dtime = FFMPGuiUtils.getTimeDiff(mostRecentRefTime,
                             date);
@@ -3290,7 +3301,7 @@ public class FFMPResource extends
 
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
-                    "FFMPMonitor: getGraphData(): missing QPE dataset.");
+                    "FFMPMonitor: getGraphData(): missing QPE dataset.", e);
         }
 
         try {
@@ -3314,25 +3325,15 @@ public class FFMPResource extends
                     double dtime = FFMPGuiUtils.getTimeDiff(mostRecentRefTime,
                             date);
 
-                    // TODO - START
-                    // Float qpf =
-                    // monitor.getq.get(qpfBasin.getPfaf()).getValue(
-                    // monitor.getQpfWindow().getBeforeTime(),
-                    // monitor.getQpfWindow().getAfterTime());
-
-                    // TODO - END
-
                     fgd.setQpf(dtime, (double) qpfBasin.getValue(date));
                     qpfTimes.add(dtime);
-                    // System.out.println("Have a time for QPF: " + dtime
-                    // + " value: " + (double) qpfBasin.getValue(date));
                 }
             }
 
             fgd.setQpfTimes(qpfTimes);
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
-                    "FFMPMonitor: getGraphData(): missing QPF dataset.");
+                    "FFMPMonitor: getGraphData(): missing QPF dataset.", e);
         }
 
         FFMPGuidanceInterpolation guidanceInterpolator = new FFMPGuidanceInterpolation(
@@ -3344,8 +3345,8 @@ public class FFMPResource extends
         try {
 
             guidBasin = (FFMPGuidanceBasin) monitor.getGraphGuidanceBasin(
-                    getProduct(), getSiteKey(), getDataKey(), null,
-                    oldestRefTime, FFMPRecord.ALL, basinPfaf);
+                    getProduct(), ffgGraphType, getSiteKey(), getDataKey(),
+                    null, oldestRefTime, FFMPRecord.ALL, basinPfaf);
             ArrayList<Double> guidTimes = new ArrayList<Double>();
             for (SourceXML ffgSource : getProduct().getGuidanceSourcesByType(
                     ffgGraphType)) {
@@ -3366,8 +3367,10 @@ public class FFMPResource extends
             fgd.setGuidanceTimes(guidTimes);
             guid = true;
         } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "FFMPMonitor: getGraphData(): missing GUIDANCE dataset.");
+            statusHandler
+                    .handle(Priority.PROBLEM,
+                            "FFMPMonitor: getGraphData(): missing GUIDANCE dataset.",
+                            e);
         }
 
         if (fvgbmd != null) {
@@ -3379,10 +3382,6 @@ public class FFMPResource extends
                         mostRecentRefTime);
 
                 if (virtualBasin != null) {
-                    // System.out.println("VGB DATA EXISTS!     " + pfaf +
-                    // "    "
-                    // + lid);
-
                     SortedSet<Date> vgbTimes = new TreeSet<Date>(virtualBasin
                             .getValues().descendingKeySet());
 
@@ -3399,7 +3398,8 @@ public class FFMPResource extends
             } catch (Exception e) {
                 statusHandler
                         .handle(Priority.PROBLEM,
-                                "FFMPMonitor: getGraphData(): missing VIRTUAL dataset.");
+                                "FFMPMonitor: getGraphData(): missing VIRTUAL dataset.",
+                                e);
             }
         }
 
@@ -3423,10 +3423,6 @@ public class FFMPResource extends
 
                         if (guidanceInterpolator.isInterpolate()) {
                             guidancev = guidBasin.getInterpolatedValue(
-                                    guidanceInterpolator.getSource1(),
-                                    guidanceInterpolator.getSource2(),
-                                    guidanceInterpolator
-                                            .getInterpolationOffset(),
                                     guidanceInterpolator,
                                     getGuidSourceExpiration(ffgGraphType));
                         } else {
@@ -3441,14 +3437,6 @@ public class FFMPResource extends
                         diff = FFMPUtils.getDiffValue(qpev, guidancev);
                         ratio = FFMPUtils.getRatioValue(qpev, guidancev);
                     }
-
-                    // System.out.println("----------------------------------");
-                    // System.out.println("guid is: " + guid);
-                    // System.out.println(">>> graphTime: = " + fgdQpeTime);
-                    // System.out.println(">>> qpev = " + qpev);
-                    // System.out.println(">>> guidancev = " + guidancev);
-                    // System.out.println(">>> diff = " + diff);
-                    // System.out.println(">>> ratio = " + ratio);
 
                     fgd.setRatio(fgdQpeTime, ratio);
                     fgd.setDiff(fgdQpeTime, diff);
@@ -3849,10 +3837,7 @@ public class FFMPResource extends
                 // interpolating
                 if (interp.isInterpolate()) {
                     // Interpolating between sources
-                    String source1 = interp.getSource1();
-                    String source2 = interp.getSource2();
-                    dvalue = basin.getInterpolatedValue(source1, source2,
-                            interp.getInterpolationOffset(), interp,
+                    dvalue = basin.getInterpolatedValue(interp,
                             sourceExpiration);
                 } else {
                     dvalue = basin.getValue(interp.getStandardSource(), interp,

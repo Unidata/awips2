@@ -34,6 +34,10 @@
 #    ------------    ----------    -----------    --------------------------
 #    02/12/2014          #2591     randerso       Added retry when loading combinations fails
 #    10/20/2014          #3685     randerso       Changed default of lowerCase to True if not specified
+#    11/30/2015          #5129     dgilling       Support new IFPClient.
+#    03/02/2016          #5411     randerso       Fixed exception in exception handler
+#    03/10/2016          #5411     randerso       Set argDict["mixedCaseEnabled"] flag to indicated if
+#                                                 mixed case transmission is enabled for the product
 
 import string, getopt, sys, time, os, types, math
 import ModuleAccessor
@@ -54,12 +58,14 @@ MAX_TRIES = 2
 #IFPImporter = IFPImporter.IFPImporter
 
 class TextFormatter:
-    def __init__(self, dataManager):
+    ## TODO: Remove dataManager from constructor and do not add it to 
+    ## the argDict
+    def __init__(self, dataManager, ifpClient):
         # Variable for unique combinations
         self.__comboNumber = -1
         self.dataMgr = dataManager
+        self.ifpClient = ifpClient
         self.log = logging.getLogger("FormatterRunner.TextFormatter.TextFormatter")
-        pass
 
 #    def __del__(self):
 #        for i in LatLonIds:
@@ -105,6 +111,14 @@ class TextFormatter:
         error = self.__getRunTimeVariables(fcstName, forecastDef, fcstType, module, argDict)
         if error is not None:
             return error
+
+        # Add mixedCaseEnabled flag to argDict
+        try:
+            pid = forecastDef['awipsWANPil'][4:7]
+            from com.raytheon.uf.common.dataplugin.text.db import MixedCaseProductSupport
+            argDict["mixedCaseEnabled"] = MixedCaseProductSupport.isMixedCase(pid)
+        except:
+            argDict["mixedCaseEnabled"] = False
 
         # Sanity checks
         # Unless a "smart" product,
@@ -166,13 +180,12 @@ class TextFormatter:
 
             try:
                 text = product.generateForecast(argDict)
-            except RuntimeError, e:
-                msg = e.message
-                if msg.find('java.lang.ThreadDeath') > -1:
+            except RuntimeError as e:
+                if 'java.lang.ThreadDeath' in str(e):
                     self.log.info("Formatter Canceled")
                 else:
                     self.log.error("Caught Exception: ", exc_info=True)
-                raise Exception
+                raise e
 
             # requirement for TEST phrasing for TEST products
             if argDict.get('testMode', 0):
@@ -608,7 +621,7 @@ class TextFormatter:
                 pointList = []
                 for point in points:
                     pointList.append(makePoint(point))
-                refData = makeArea(self.dataMgr.getClient().getDBGridLocation(), pointList, refname=name)
+                refData = makeArea(self.ifpClient.getDBGridLocation(), pointList, refname=name)
                 # Make sure we have at least one grid point in
                 # the edit area
                 if refData.getGrid().isAnyBitsSet():
@@ -623,7 +636,7 @@ class TextFormatter:
         else:
             from com.raytheon.uf.common.dataplugin.gfe.grid import Grid2DBit
             # Get grid cell coordinates for lat/lon
-            gridLoc = self.dataMgr.getClient().getDBGridLocation()
+            gridLoc = self.ifpClient.getDBGridLocation()
             nx = gridLoc.getNx()
             ny = gridLoc.getNy()
             cc2D = gridLoc.gridCell(float(lat), float(lon))

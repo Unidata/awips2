@@ -39,6 +39,7 @@ import com.raytheon.viz.hydrocommon.data.DataIngestFilterData;
  * Apr 18, 2013 1790       rferrel     Code clean up with non-blocking dialogs.
  * May 1,  2014 17096      xwei        Updated the filter list SQL statement
  * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
+ * Feb 17, 2016 14607      amoore      Add WFO Filter
  * </pre>
  * 
  * @author askripsky
@@ -147,6 +148,31 @@ public class DataIngestFilterDataManager {
     }
 
     /**
+     * Retrieves the WFOs from the DB
+     * 
+     * @return The WFOs from the DB
+     * @throws VizException
+     */
+    public List<String> getWFOs() throws VizException {
+        List<String> rval = new ArrayList<String>();
+
+        String extQuery = "SELECT wfo FROM wfo ORDER BY wfo";
+
+        QueryResult data = HydroDBDataManager.getInstance().runMappedQuery(
+                extQuery);
+
+        if (data != null) {
+            for (QueryResultRow currExt : data.getRows()) {
+                String wfo = (String) currExt.getColumn(data.getColumnNames()
+                        .get("wfo"));
+                rval.add(wfo);
+            }
+        }
+
+        return rval;
+    }
+
+    /**
      * Gets the ingest filter data from the database cache.
      * 
      * @param filterByPE
@@ -157,6 +183,10 @@ public class DataIngestFilterDataManager {
      *            Whether or not to filter by the location.
      * @param selectedLocation
      *            The location string to filter by.
+     * @param filterByWFO
+     *            Whether or not to filter by the WFO.
+     * @param selectedWFOs
+     *            The WFO strings to filter by.
      * @param filterBySwitches
      *            Whether or not to filter by the ingest switches.
      * @param filterByIngest
@@ -174,12 +204,14 @@ public class DataIngestFilterDataManager {
      */
     public List<DataIngestFilterData> getIngestFilter(boolean filterByPE,
             List<String> selectedPE, boolean filterByLocation,
-            String selectedLocation, boolean filterBySwitches,
+            String selectedLocation, boolean filterByWFO,
+            List<String> selectedWFOs, boolean filterBySwitches,
             boolean filterByIngest, boolean filterByOFS, boolean filterByMPE,
             boolean filterByTS, String selectedTS) throws VizException {
         return getIngestFilter(filterByPE, selectedPE, filterByLocation,
-                selectedLocation, filterBySwitches, filterByIngest,
-                filterByOFS, filterByMPE, filterByTS, selectedTS, false);
+                selectedLocation, filterByWFO, selectedWFOs, filterBySwitches,
+                filterByIngest, filterByOFS, filterByMPE, filterByTS,
+                selectedTS, false);
     }
 
     /**
@@ -193,6 +225,10 @@ public class DataIngestFilterDataManager {
      *            Whether or not to filter by the location.
      * @param selectedLocation
      *            The location string to filter by.
+     * @param filterByWFO
+     *            Whether or not to filter by the WFO.
+     * @param selectedWFOs
+     *            The WFO strings to filter by.
      * @param filterBySwitches
      *            Whether or not to filter by the ingest switches.
      * @param filterByIngest
@@ -212,7 +248,8 @@ public class DataIngestFilterDataManager {
      */
     public List<DataIngestFilterData> getIngestFilter(boolean filterByPE,
             List<String> selectedPE, boolean filterByLocation,
-            String selectedLocation, boolean filterBySwitches,
+            String selectedLocation, boolean filterByWFO,
+            List<String> selectedWFOs, boolean filterBySwitches,
             boolean filterByIngest, boolean filterByOFS, boolean filterByMPE,
             boolean filterByTS, String selectedTS, boolean forceLoad)
             throws VizException {
@@ -221,7 +258,26 @@ public class DataIngestFilterDataManager {
 
             StringBuffer whereClause = new StringBuffer();
             if (filterByLocation) {
-                whereClause.append("lid='" + selectedLocation + "'");
+                whereClause.append("ingestfilter.lid='" + selectedLocation
+                        + "'");
+            } else {
+                // not filtering by location, so allow filtering by WFO if
+                // enabled
+                if (filterByWFO && !selectedWFOs.isEmpty()) {
+                    // DCS14607, multiple list form patterns were incompatible
+                    // with apostrophe logic later on, so switching to string of
+                    // ORs)
+                    whereClause.append("(");
+
+                    for (String wfo : selectedWFOs) {
+                        whereClause.append("wfo='").append(wfo).append("' OR ");
+                    }
+
+                    // Remove the extra _OR_
+                    whereClause.setLength(whereClause.length() - 4);
+
+                    whereClause.append(")");
+                }
             }
 
             if (filterByPE && (selectedPE.size() > 0)) {
@@ -229,14 +285,17 @@ public class DataIngestFilterDataManager {
                     whereClause.append(" AND ");
                 }
 
-                whereClause.append("pe in (");
+                whereClause.append("(");
 
                 for (String currPE : selectedPE) {
-                    whereClause.append("'" + currPE + "',");
+                    // DCS14607, multiple list form patterns were incompatible
+                    // with apostrophe logic later on, so switched to string of
+                    // ORs)
+                    whereClause.append("pe='").append(currPE).append("' OR ");
                 }
 
-                // Remove the extra ,
-                whereClause.setLength(whereClause.length() - 1);
+                // Remove the extra _OR_
+                whereClause.setLength(whereClause.length() - 4);
 
                 whereClause.append(")");
             }
@@ -282,10 +341,10 @@ public class DataIngestFilterDataManager {
      * @return The display string for the data.
      */
     public String getIngestFilterString(DataIngestFilterData currData) {
-        String dataFormat = "%-9S %-4S %-6S %-7S %-6S %-7S %-5S %-5S %-5S";
+        String dataFormat = "%-9S %-4S %-4S %-6S %-7S %-6S %-7S %-5S %-5S %-5S";
 
-        return String.format(dataFormat, currData.getLid(), currData.getPe(),
-                getDisplayString(currData.getDuration()),
+        return String.format(dataFormat, currData.getLid(), currData.getWfo(),
+                currData.getPe(), getDisplayString(currData.getDuration()),
                 currData.getTypeSource(), currData.getExtremum(),
                 getDisplayString(currData.getTsRank()), currData.getIngest(),
                 currData.getOfsInput(), currData.getStg2Input());

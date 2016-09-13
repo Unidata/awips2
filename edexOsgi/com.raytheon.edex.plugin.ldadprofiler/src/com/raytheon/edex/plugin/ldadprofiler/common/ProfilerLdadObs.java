@@ -66,6 +66,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  *                                    PluginDataObject.
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
  * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
+ * Jul 23, 2015  2360     rferrel     Add name to unique constraint.
  * 
  * </pre>
  * 
@@ -75,7 +76,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "ldadprofilerseq")
-@Table(name = "ldadprofiler", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = "ldadprofiler", uniqueConstraints = { @UniqueConstraint(name = "uk_ldadprofiler_datauri_fields", columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
@@ -91,7 +92,6 @@ public class ProfilerLdadObs extends PersistablePluginDataObject implements
     public static final String PLUGIN_NAME = "ldadprofiler";
 
     private static final long serialVersionUID = 1L;
-
 
     private static final String PRESS = "PRESS";
 

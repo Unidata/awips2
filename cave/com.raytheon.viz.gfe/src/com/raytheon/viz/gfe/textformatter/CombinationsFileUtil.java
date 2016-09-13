@@ -21,6 +21,11 @@ package com.raytheon.viz.gfe.textformatter;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,15 +42,15 @@ import jep.JepException;
 
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
-import com.raytheon.uf.common.dataplugin.gfe.request.SaveCombinationsFileRequest;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.serialization.SerializationException;
@@ -54,8 +59,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.viz.gfe.core.DataManagerUIFactory;
-import com.raytheon.viz.gfe.core.internal.IFPClient;
+import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.viz.gfe.textformatter.CombinationsFileUtil.ComboData.Entry;
 
 /**
@@ -63,18 +67,31 @@ import com.raytheon.viz.gfe.textformatter.CombinationsFileUtil.ComboData.Entry;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jul 25, 2008            mnash       Initial creation
- * Aug 07, 2013       1561 njensen     Use pm.listFiles() instead of pm.listStaticFiles()
- * Sep 05, 2013     #2329  randerso    Moved genereateAutoCombinationsFile here
- *                                     Cleaned up error handling
- * Sep 30, 2013      2361  njensen     Use JAXBManager for XML
- * Feb 05, 2014     #2591  randerso    Forced retrieval of combinations file
- *                                     Implemented retry on error
- * Aug 27, 2014     #3561  randerso    Yet another attempt to fix combinations file updating
- * Sep 08, 2104     #3592  randerso    Changed to use only list site level files as all 
- *                                     combo files are saved to the site level
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Jul 25, 2008           mnash     Initial creation
+ * Aug 07, 2013  1561     njensen   Use pm.listFiles() instead of
+ *                                  pm.listStaticFiles()
+ * Sep 05, 2013  2329     randerso  Moved genereateAutoCombinationsFile here
+ *                                  Cleaned up error handling
+ * Sep 30, 2013  2361     njensen   Use JAXBManager for XML
+ * Feb 05, 2014  2591     randerso  Forced retrieval of combinations file
+ *                                  Implemented retry on error
+ * Aug 27, 2014  3561     randerso  Yet another attempt to fix combinations file
+ *                                  updating
+ * Sep 08, 2014  3592     randerso  Changed to use only list site level files as
+ *                                  all combo files are saved to the site level
+ * Oct 07, 2015  4695     dgilling  Code cleanup to remove compile warnings.
+ * Nov 12, 2015  4834     njensen   Changed LocalizationOpFailedException to
+ *                                  LocalizationException
+ * Nov 18, 2015  5129     dgilling  Support new IFPClient.
+ * Feb 05, 2016  5242     dgilling  Remove calls to deprecated Localization
+ *                                  APIs.
+ * Apr 25, 2016  5605     randerso  Switched back to writing combinations file
+ *                                  using Localization
+ * Aug 10, 2016  5828     randerso  Fix file dead lock when loading updated
+ *                                  combinations file
  * 
  * </pre>
  * 
@@ -88,7 +105,8 @@ public class CombinationsFileUtil {
 
     private static final int MAX_TRIES = 2;
 
-    public static String COMBO_DIR_PATH = FileUtil.join("gfe", "combinations");
+    public static String COMBINATIONS_DIR_PATH = FileUtil.join("gfe",
+            "combinations");
 
     public static String SAVED_COMBO_DIR = FileUtil.join("gfe", "comboData");
 
@@ -124,8 +142,7 @@ public class CombinationsFileUtil {
         }
 
         public ComboData(Map<String, Integer> comboDict) {
-            this.combos = new ArrayList<CombinationsFileUtil.ComboData.Entry>(
-                    comboDict.size());
+            this.combos = new ArrayList<>(comboDict.size());
             for (java.util.Map.Entry<String, Integer> entry : comboDict
                     .entrySet()) {
                 this.combos.add(new Entry(entry.getKey(), entry.getValue()));
@@ -149,8 +166,8 @@ public class CombinationsFileUtil {
     }
 
     public static String fileToId(LocalizationFile file) {
-        File f = new File(file.getName());
-        String id = f.getName().replace(".xml", "");
+        String id = LocalizationUtil.extractName(file.getPath()).replace(
+                ".xml", "");
         id = FileUtil.unmangle(id);
 
         return id;
@@ -166,16 +183,16 @@ public class CombinationsFileUtil {
     }
 
     public static void saveComboData(String id, Map<String, Integer> combos)
-            throws LocalizationException, SerializationException {
+            throws LocalizationException, SerializationException, IOException {
         LocalizationFile lf = idToFile(id);
-        File file = lf.getFile(false);
-        ComboData comboData = new ComboData(combos);
-        jaxb.marshalToXmlFile(comboData, file.getPath());
-        lf.save();
+        try (SaveableOutputStream out = lf.openOutputStream()) {
+            ComboData comboData = new ComboData(combos);
+            jaxb.marshalToStream(comboData, out);
+            out.save();
+        }
     }
 
-    public static void deleteComboData(String id)
-            throws LocalizationOpFailedException {
+    public static void deleteComboData(String id) throws LocalizationException {
         LocalizationFile lf = idToFile(id);
         lf.delete();
     }
@@ -205,18 +222,19 @@ public class CombinationsFileUtil {
     }
 
     public static Map<String, Integer> loadComboData(String id)
-            throws SerializationException {
+            throws SerializationException, IOException, LocalizationException {
         LocalizationFile lf = idToFile(id);
-        File file = lf.getFile();
-        ComboData comboData = jaxb.unmarshalFromXmlFile(file);
+        try (InputStream in = lf.openInputStream()) {
+            ComboData comboData = jaxb.unmarshalFromInputStream(in);
 
-        Map<String, Integer> comboDict = new HashMap<String, Integer>(
-                comboData.combos.size());
-        for (Entry entry : comboData.combos) {
-            comboDict.put(entry.zone, entry.group);
+            Map<String, Integer> comboDict = new HashMap<>(
+                    comboData.combos.size());
+            for (Entry entry : comboData.combos) {
+                comboDict.put(entry.zone, entry.group);
+            }
+
+            return comboDict;
         }
-
-        return comboDict;
     }
 
     @SuppressWarnings("unchecked")
@@ -227,19 +245,10 @@ public class CombinationsFileUtil {
         // retrieve combinations file if it's changed
         LocalizationFile lf = pm.getStaticLocalizationFile(
                 LocalizationType.CAVE_STATIC,
-                FileUtil.join(COMBO_DIR_PATH, comboName + ".py"));
+                FileUtil.join(COMBINATIONS_DIR_PATH, comboName + ".py"));
         File pyFile = null;
         if (lf != null) {
             try {
-                // get the local .py file
-                pyFile = lf.getFile(false);
-
-                // delete both the local .py and .pyo files to force retrieval
-                // and regeneration
-                pyFile.delete();
-                File pyoFile = new File(pyFile.getPath() + "o");
-                pyoFile.delete();
-
                 // retrieve the .py file
                 pyFile = lf.getFile(true);
             } catch (LocalizationException e) {
@@ -260,25 +269,22 @@ public class CombinationsFileUtil {
                         .getPath(), "CombinationsInterface.py");
 
         List<List<String>> combos = null;
-        HashMap<String, Object> map = new HashMap<String, Object>();
+        HashMap<String, Object> map = new HashMap<>();
         map.put("comboName", comboName);
-        PythonScript python = null;
         for (int retryCount = 0; retryCount < MAX_TRIES; retryCount++) {
-            try {
-                python = new PythonScript(scriptPath,
-                        PyUtil.buildJepIncludePath(
-                                GfePyIncludeUtil.getCombinationsIncludePath(),
-                                GfePyIncludeUtil.getCommonPythonIncludePath()),
-                        CombinationsFileUtil.class.getClassLoader());
-
+            try (PythonScript python = new PythonScript(scriptPath,
+                    PyUtil.buildJepIncludePath(
+                            GfePyIncludeUtil.getCombinationsIncludePath(),
+                            GfePyIncludeUtil.getCommonPythonIncludePath()),
+                    CombinationsFileUtil.class.getClassLoader())) {
                 Object com = python.execute("getCombinations", map);
                 combos = (List<List<String>>) com;
 
                 // if successfully retrieved break out of the loop
                 break;
             } catch (JepException e) {
-                // remove the .pyo file
-                new File(pyFile.getAbsolutePath() + "o").delete();
+                // remove the .pyc file
+                new File(pyFile.getAbsolutePath() + "c").delete();
 
                 // if not last try, log and try again
                 if (retryCount < (MAX_TRIES - 1)) {
@@ -292,10 +298,6 @@ public class CombinationsFileUtil {
                     throw new GfeException("Error loading combinations file: "
                             + comboName, e);
                 }
-            } finally {
-                if (python != null) {
-                    python.dispose();
-                }
             }
         }
         return combos;
@@ -305,25 +307,57 @@ public class CombinationsFileUtil {
      * Generates combinations files based on just running the formatter
      * 
      * @param zoneGroupList
-     * @param filename
+     * @param comboName
      * @throws Exception
      * @throws IOException
      */
     public static void generateAutoCombinationsFile(
-            List<List<String>> zoneGroupList, String filename) throws Exception {
-        IFPClient ifpc = DataManagerUIFactory.getCurrentInstance().getClient();
-        SaveCombinationsFileRequest req = new SaveCombinationsFileRequest();
-        req.setFileName(filename);
-        req.setCombos(zoneGroupList);
-        try {
-            statusHandler.info("Saving combinations file: " + filename);
-            ifpc.makeRequest(req);
-            statusHandler.info("Successfully saved combinations file: "
-                    + filename);
+            List<List<String>> zoneGroupList, String comboName)
+            throws Exception {
+
+        IPathManager pm = PathManagerFactory.getPathManager();
+        LocalizationContext localization = pm.getContext(
+                LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
+
+        String fileName = FileUtil.join(COMBINATIONS_DIR_PATH, comboName)
+                + ".py";
+        LocalizationFile lf = pm.getLocalizationFile(localization, fileName);
+
+        // delete the local .pyc file to force regeneration
+        File pycFile = new File(lf.getFile(false).getPath() + "c");
+        pycFile.delete();
+
+        try (SaveableOutputStream stream = lf.openOutputStream();
+                Writer outWriter = new OutputStreamWriter(stream)) {
+
+            String zoneComments = "\n# Automatically generated combinations file\n# "
+                    + comboName + "\n\nCombinations = [\n";
+            outWriter.write(zoneComments);
+
+            NumberFormat df = new DecimalFormat("00");
+            for (int i = 0; i < zoneGroupList.size(); i++) {
+                StringBuilder nextLineToWrite = new StringBuilder();
+                List<String> modZGL = new ArrayList<>(zoneGroupList.get(i)
+                        .size());
+                for (String zone : zoneGroupList.get(i)) {
+                    modZGL.add("'" + zone + "'");
+                }
+                nextLineToWrite.append("\t([");
+                nextLineToWrite.append(StringUtil.join(modZGL, ','));
+                nextLineToWrite.append("], ");
+                nextLineToWrite.append("'Region");
+                nextLineToWrite.append(df.format(i + 1));
+                nextLineToWrite.append("' ),\n");
+                outWriter.write(nextLineToWrite.toString());
+            }
+            outWriter.write("]");
+            outWriter.close();
+            stream.save();
+
         } catch (Exception e) {
-            statusHandler.error("Error saving combinations file: " + filename,
+            statusHandler.error("Error saving combinations file: " + fileName,
                     e);
-            throw e;
         }
+
     }
 }

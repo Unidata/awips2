@@ -64,10 +64,10 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * Jun 13, 2013 2044       randerso    Cleaned up JavaDoc
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
+ * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
  * Aug 14, 2015 17801      bhunderm    Fixed logic to choose the parm with lesser
  *                                     duration when have multiple grids for same fcsthr.
  * Dec 03, 2015 5168       randerso    Added ability to retrieve D2D data by fcsthr or timerange
- * 
  * </pre>
  * 
  * @author randerso
@@ -390,10 +390,7 @@ public class GFED2DDao extends GridDao {
 
         List<Date> inventory = new ArrayList<Date>(result.size());
         for (Object obj : result) {
-            // convert returned "Dates" (actually java.sql.TimeStamps) to actual
-            // java.util.Dates so equals comparisons work correctly
-            Date date = new Date(((Date) obj).getTime());
-            inventory.add(date);
+            inventory.add((Date) obj);
         }
 
         return inventory;

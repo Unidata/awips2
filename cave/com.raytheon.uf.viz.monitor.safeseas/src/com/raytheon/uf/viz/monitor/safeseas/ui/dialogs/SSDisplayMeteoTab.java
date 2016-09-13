@@ -23,20 +23,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 
+import com.raytheon.uf.common.monitor.data.MonitorConfigConstants.SafeSeasDisplay;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
+import com.raytheon.uf.common.monitor.xml.AreaXML;
+import com.raytheon.uf.common.monitor.xml.ThresholdsXML;
 import com.raytheon.uf.viz.monitor.data.RangesUtil;
 import com.raytheon.uf.viz.monitor.safeseas.threshold.SSDisplayMeteoData;
 import com.raytheon.uf.viz.monitor.safeseas.threshold.SSThresholdMgr;
 import com.raytheon.uf.viz.monitor.ui.dialogs.TabItemComp;
-import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants.SafeSeasDisplay;
-import com.raytheon.uf.viz.monitor.xml.AreaXML;
-import com.raytheon.uf.viz.monitor.xml.ThresholdsXML;
 
 /**
  * SAFESEAS Display Meteo Table
@@ -45,9 +43,11 @@ import com.raytheon.uf.viz.monitor.xml.ThresholdsXML;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 21, 2014 3086       skorolev    Cleaned code
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- -------------
+ * May 21, 2014  3086     skorolev  Cleaned code
+ * Dec 26, 2015 5114       skorolev    Corrected imports.
+ * Jun 02, 2016  5673     randerso  Fixed header alignment in threshold dialogs
  * 
  * </pre>
  * 
@@ -85,32 +85,22 @@ public class SSDisplayMeteoTab extends TabItemComp implements
      * .eclipse.swt.widgets.Composite)
      */
     @Override
-    protected void createListHeader(Composite parentComp) {
-        Composite lblComp = new Composite(parentComp, SWT.NONE);
-        GridLayout gl = new GridLayout(5, false);
-        gl.horizontalSpacing = 0;
-        gl.marginHeight = 0;
-        gl.marginWidth = 0;
-        lblComp.setLayout(gl);
-
+    protected void createListHeader() {
         /*
          * Create filler label.
          */
-        GridData gd = new GridData(73, SWT.DEFAULT);
-        Label fillerLbl = new Label(lblComp, SWT.CENTER);
-        fillerLbl.setLayoutData(gd);
+        createHeader("", 0, 0, false);
 
         /*
          * Wind
          */
-        Composite windComp = createGroupComposite(lblComp, 7, null);
-        createLabelComp(windComp, "Vis(nm)", "", false);
-        createLabelComp(windComp, "Temp(F)", "", false);
-        createLabelComp(windComp, "Dewpt(F)", "", false);
-        createLabelComp(windComp, "SLP(mb)", "", false);
-        createLabelComp(windComp, "SST(F)", "", false);
-        createLabelComp(windComp, "Wave", "Height(ft)", false);
-        createLabelComp(windComp, "Wave", "Steep\n(x1000)", false);
+        createHeader("Vis(nm)", 1, 2, true);
+        createHeader("Temp(F)", 3, 4, true);
+        createHeader("Dewpt(F)", 5, 6, true);
+        createHeader("SLP(mb)", 7, 8, true);
+        createHeader("SST(F)", 9, 10, true);
+        createHeader("Wave\nHeight(ft)", 11, 12, true);
+        createHeader("Wave\nSteep\n(x1000)", 13, 14, true);
     }
 
     /*
@@ -119,13 +109,13 @@ public class SSDisplayMeteoTab extends TabItemComp implements
      * @see com.raytheon.uf.viz.monitor.ui.dialogs.TabItemComp#populateList()
      */
     @Override
-    protected void populateList() {
+    protected void populateTable() {
         if (ssDataArray == null) {
             createDataArray();
         }
 
         boolean update = false;
-        if (dataList.getItemCount() > 0) {
+        if (dataTable.getItemCount() > 0) {
             update = true;
         }
 
@@ -138,54 +128,58 @@ public class SSDisplayMeteoTab extends TabItemComp implements
 
         double visVal = 0.0;
 
-        StringBuilder sb = null;
         SSDisplayMeteoData ssdmd = null;
 
+        int numColumns = 15;
+        new TableColumn(dataTable, SWT.LEFT);
+        for (int c = 1; c < numColumns; c++) {
+            new TableColumn(dataTable, SWT.RIGHT);
+        }
+
         for (int i = 0; i < ssDataArray.size(); i++) {
-            sb = new StringBuilder();
+
+            TableItem item;
+            if (update == true) {
+                item = dataTable.getItem(i);
+            } else {
+                item = new TableItem(dataTable, SWT.NONE);
+            }
 
             ssdmd = ssDataArray.get(i);
 
             currentAreaID = ssdmd.getAreaID();
             areaIDArray.add(currentAreaID);
 
-            sb.append(String.format(areaIdFmt, currentAreaID));
+            item.setText(0, currentAreaID);
 
             /* Visibility */
             visVal = ssdmd.getVisR();
             tmpVisStr = rangeUtil.getVisString((int) visVal);
-            sb.append(String.format(dataFmt, tmpVisStr));
+            item.setText(1, String.format(dataFmt, tmpVisStr));
 
             visVal = ssdmd.getVisY();
             tmpVisStr = rangeUtil.getVisString((int) visVal);
-            sb.append(String.format(dataFmt, tmpVisStr));
+            item.setText(2, String.format(dataFmt, tmpVisStr));
 
             /* Temperature */
-            appendIntData(sb, ssdmd.getTempR(), ssdmd.getTempY());
+            appendIntData(item, 3, ssdmd.getTempR(), ssdmd.getTempY());
 
             /* Dew point */
-            appendIntData(sb, ssdmd.getDewpointR(), ssdmd.getDewpointY());
+            appendIntData(item, 5, ssdmd.getDewpointR(), ssdmd.getDewpointY());
 
             /* SLP */
-            appendIntData(sb, ssdmd.getSlpR(), ssdmd.getSlpY());
+            appendIntData(item, 7, ssdmd.getSlpR(), ssdmd.getSlpY());
 
             /* SST */
-            appendIntData(sb, ssdmd.getSstR(), ssdmd.getSstY());
+            appendIntData(item, 9, ssdmd.getSstR(), ssdmd.getSstY());
 
             /* Wave Height */
-            appendIntData(sb, ssdmd.getWaveHgtR(), ssdmd.getWaveHgtY());
+            appendIntData(item, 11, ssdmd.getWaveHgtR(), ssdmd.getWaveHgtY());
 
             /* Wave Steep */
-            appendIntData(sb, ssdmd.getWaveSteepR(), ssdmd.getWaveSteepY());
+            appendIntData(item, 13, ssdmd.getWaveSteepR(),
+                    ssdmd.getWaveSteepY());
 
-            /* Append a space and add the data line to the list. */
-            sb.append(" ");
-
-            if (update == true) {
-                dataList.setItem(i, sb.toString());
-            } else {
-                dataList.add(sb.toString());
-            }
         }
         packListControls();
     }
@@ -271,7 +265,7 @@ public class SSDisplayMeteoTab extends TabItemComp implements
      * @return selected data
      */
     private SSDisplayMeteoData getDataAtFirstSelection() {
-        int index = dataList.getSelectionIndex();
+        int index = dataTable.getSelectionIndex();
         return ssDataArray.get(index);
     }
 
@@ -282,7 +276,7 @@ public class SSDisplayMeteoTab extends TabItemComp implements
      *            Display Meteo Data
      */
     private void updateDataArray(SSDisplayMeteoData ssdmd) {
-        int[] dataListIndexes = dataList.getSelectionIndices();
+        int[] dataListIndexes = dataTable.getSelectionIndices();
         int currentIndex = 0;
 
         for (int i = 0; i < dataListIndexes.length; i++) {
@@ -363,10 +357,10 @@ public class SSDisplayMeteoTab extends TabItemComp implements
      */
     @Override
     public void reloadData() {
-        dataList.removeAll();
+        dataTable.removeAll();
         ssDataArray.clear();
         ssDataArray = null;
-        populateList();
+        populateTable();
     }
 
     /*
@@ -396,6 +390,6 @@ public class SSDisplayMeteoTab extends TabItemComp implements
     @Override
     public void updateThresholdData(SSDisplayMeteoData ssdmd) {
         updateDataArray(ssdmd);
-        populateList();
+        populateTable();
     }
 }

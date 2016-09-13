@@ -38,7 +38,7 @@ public class CopyInputValidator implements IInputValidator {
 
     protected String scriptf;
 
-    protected IScriptUtil util;
+    protected PythonFileTemplate util;
 
     private static final Pattern VALID_NAME = Pattern
             .compile("^[\\p{Alpha}_]+\\w*");
@@ -51,10 +51,10 @@ public class CopyInputValidator implements IInputValidator {
      * @param util
      *            The script utility object that will do the work.
      */
-    public CopyInputValidator(String script, IScriptUtil util) {
+    public CopyInputValidator(String script, PythonFileTemplate util) {
         this.script = script;
         this.util = util;
-        this.scriptf = util.scripted(script);
+        this.scriptf = util.normalize(script);
     }
 
     /**
@@ -72,7 +72,7 @@ public class CopyInputValidator implements IInputValidator {
         if (!VALID_NAME.matcher(newText.trim()).matches()) {
             return "Only letters, digits, and underscores are allowed.";
         }
-        String newfname = util.scripted(newText);
+        String newfname = util.normalize(newText);
         if (scriptf.equals(newfname)) {
             return script + " cannot be copied to itself.";
         }

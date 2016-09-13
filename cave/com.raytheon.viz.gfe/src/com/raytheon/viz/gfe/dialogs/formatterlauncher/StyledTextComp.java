@@ -56,8 +56,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
-import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
-import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.ProductEditorLogger;
 import com.raytheon.uf.common.status.UFStatus;
@@ -70,7 +68,7 @@ import com.raytheon.viz.gfe.textformatter.TextFmtParserUtil;
 
 /**
  * Composite containing the product editor.
- *
+ * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -91,19 +89,19 @@ import com.raytheon.viz.gfe.textformatter.TextFmtParserUtil;
  *                                     editing of framing codes.
  * 07/02/2015  13753       lshi        Update times for products in Product Editor
  * 08/06/2015  13753       lshi        use isSystemTextChange instead of isUpdateTime
+ * 14 OCT 2015 4959        dgilling    Use WordWrapperPythonExecutor to get 
+ *                                     python calls off UI thread.
  * 12/04/2015  13753       lshi        revert 13753
- *
- *
- * 11/19/2015   5141       randerso    Changed upper() to also replace commas with ellipses
  * 12/22/2015  18428       lshi        Issuing a Correction of a corrected product via an existing
  *                                     Product Editor in GFE throws and error and unlocks text,
  *                                     wordWrap
- *
+ * Mar 10, 2016 #5479      randerso    Use improved GFEFonts API
+ * 
  * </pre>
- *
+ * 
  * @author lvenable
  * @version 1.0
- *
+ * 
  */
 
 public class StyledTextComp extends Composite {
@@ -136,10 +134,27 @@ public class StyledTextComp extends Composite {
 
     private static final String PRODUCT_PARSE_ERROR = "An unhandled exception was encountered trying to parse your text product. Please cancel and run your formatter again.";
 
+    private static final String NORM_SEP = "^\\s*$";
+
+    private static final String FUNNY_SEP = "^(\\s*)\\*(\\s*)";
+
+    private static final String NWS_SEP = "^\\..*\\.{3}";
+
+    private static final String PARA_SEP_STRING = "(" + NORM_SEP + ")|("
+            + FUNNY_SEP + ")|(" + NWS_SEP + ")";
+
+    private static final Pattern PARA_SEP_PATTERN = Pattern
+            .compile(PARA_SEP_STRING);
+
+    private static final Pattern FUNNY_SEP_PATTERN = Pattern.compile(FUNNY_SEP,
+            Pattern.MULTILINE);
+
     /**
      * Parent composite.
      */
     private final ProductEditorComp parent;
+
+    private final WordWrapPythonExecutor wrapper;
 
     /**
      * Styled text editor.
@@ -173,8 +188,6 @@ public class StyledTextComp extends Composite {
 
     private boolean dirty = false;
 
-    private PythonScript python = null;
-
     protected Color bgColor;
 
     protected Color fgColor;
@@ -189,15 +202,6 @@ public class StyledTextComp extends Composite {
 
     private final ProductEditorLogger peLog;
 
-    private static final String NORM_SEP = "^\\s*$";
-
-    private static final String FUNNY_SEP = "^(\\s*)\\*(\\s*)";
-
-    private static final String NWS_SEP = "^\\..*\\.{3}";
-
-    private static final String PARA_SEP_STRING = "(" + NORM_SEP + ")|("
-            + FUNNY_SEP + ")|(" + NWS_SEP + ")";
-
     public boolean isAutoWrapMode() {
         return autoWrapMode;
     }
@@ -208,7 +212,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Constructor.
-     *
+     * 
      * @param parent
      *            Parent composite.
      * @param wrapMode
@@ -221,6 +225,7 @@ public class StyledTextComp extends Composite {
         this.parent = parent;
         this.wrapColumn = wrapColumn;
         this.autoWrapMode = wrapMode;
+        this.wrapper = new WordWrapPythonExecutor();
 
         this.peLog = new ProductEditorLogger(parent.getProductName());
 
@@ -233,13 +238,12 @@ public class StyledTextComp extends Composite {
     private void init() {
         String fontSetting = Activator.getDefault().getPreferenceStore()
                 .getString("ProductOutputDialog_font");
-        FontData fontData;
         if (fontSetting.isEmpty()) {
-            fontData = GFEFonts.getFontData(2);
+            textFont = GFEFonts.getFont(parent.getDisplay(), 2);
         } else {
-            fontData = StringConverter.asFontData(fontSetting);
+            FontData fontData = StringConverter.asFontData(fontSetting);
+            textFont = new Font(parent.getDisplay(), fontData);
         }
-        textFont = new Font(parent.getDisplay(), fontData);
 
         createMouseListner();
 
@@ -257,30 +261,15 @@ public class StyledTextComp extends Composite {
         this.addDisposeListener(new DisposeListener() {
             @Override
             public void widgetDisposed(DisposeEvent arg0) {
+                wrapper.dispose();
                 textFont.dispose();
                 bgColor.dispose();
                 fgColor.dispose();
                 frameColor.dispose();
                 insertColor.dispose();
                 lockColor.dispose();
-                if (python != null) {
-                    python.dispose();
-                    python = null;
-                }
             }
         });
-
-        List<String> preEvals = new ArrayList<String>();
-        preEvals.add("import textwrap");
-        try {
-            python = new PythonScript(
-                    GfePyIncludeUtil.getCommonGfeIncludePath(), this.getClass()
-                            .getClassLoader(), preEvals);
-        } catch (JepException je) {
-            if (python != null) {
-                python.dispose();
-            }
-        }
     }
 
     /**
@@ -330,7 +319,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Get the StyledText editor.
-     *
+     * 
      * @return The StyledText editor.
      */
     public StyledText getTextEditorST() {
@@ -339,7 +328,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Set the product text.
-     *
+     * 
      * @param text
      *            The product text.
      */
@@ -509,7 +498,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Parse the product text string.
-     *
+     * 
      * @param productText
      *            Complete product text.
      * @throws JepException
@@ -605,7 +594,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Replacement of the text in the given range with new text.
-     *
+     * 
      * @param tip
      *            the range of text to be replaced
      * @param text
@@ -714,7 +703,7 @@ public class StyledTextComp extends Composite {
      * A verify event occurs after the user has done something to modify the
      * text (typically typed a key), but before the text is modified. The doit
      * field in the verify event indicates whether or not to modify the text.
-     *
+     * 
      * @param event
      *            Verify event that was fired.
      */
@@ -804,7 +793,7 @@ public class StyledTextComp extends Composite {
     /**
      * Check if there is selected text and if there is locked text in the
      * selected text.
-     *
+     * 
      * @return True if there is selected text that contains locked text.
      */
     private boolean selectionHasLockedText() {
@@ -818,12 +807,12 @@ public class StyledTextComp extends Composite {
 
     /**
      * Check if there is locked text in the specified range of text.
-     *
+     * 
      * @param offset
      *            The starting point of the locked text search.
      * @param length
      *            The length of the search.
-     *
+     * 
      * @return Whether or not there is text in the range that contains locked
      *         text.
      */
@@ -841,7 +830,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Check if the key being pressed is a "non-edit" key.
-     *
+     * 
      * @param event
      *            Verify event.
      * @return True if the key is an arrow or "non-edit" key.
@@ -875,7 +864,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Handle the mouse down event.
-     *
+     * 
      * @param e
      *            Event fired.
      */
@@ -990,7 +979,7 @@ public class StyledTextComp extends Composite {
     /**
      * Checks if the system is editing, e.g. updating the issue time every
      * minute, vs a user typing text in the text area
-     *
+     * 
      * @return
      */
     private boolean isSystemTextChange() {
@@ -1110,7 +1099,7 @@ public class StyledTextComp extends Composite {
                 eventCursor = event.start + event.length;
             }
 
-            wordWrap(textEditorST, eventCursor, wrapColumn);
+            wordWrap(eventCursor, wrapColumn);
 
             if (cursorOffset != eventCursor) {
                 // restore cursor position for programmatic changes
@@ -1146,7 +1135,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Getter for the column at which wrap and auto-wrap will wrap the text.
-     *
+     * 
      * @return the column number
      */
     public int getWrapColumn() {
@@ -1155,7 +1144,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Getter for the column at which wrap and auto-wrap will wrap the text.
-     *
+     * 
      * @param wrapColumn
      *            the column number
      */
@@ -1194,7 +1183,7 @@ public class StyledTextComp extends Composite {
     /**
      * Query the prefs for setting. If it does not exist, use colorDft as its
      * value. Create an SWT Color for display from the value and return it.
-     *
+     * 
      * @param prefs
      *            A preference store which might have config values.
      * @param display
@@ -1217,7 +1206,7 @@ public class StyledTextComp extends Composite {
 
     /**
      * Send a PROBLEM message if color1 is exactly equal to color2.
-     *
+     * 
      * @param color1
      *            the first color
      * @param color2
@@ -1244,7 +1233,7 @@ public class StyledTextComp extends Composite {
      * <p>
      * The getter name is different to avoid confusion with the getFgColor()
      * method of Control.
-     *
+     * 
      * @return the foreground Color
      */
     public Color getFgndColor() {
@@ -1255,7 +1244,7 @@ public class StyledTextComp extends Composite {
      * Get the framed text color of the StyledTextComp. This is the actual
      * color, not a copy. It will be disposed when the StyledTextComp is, and
      * should not be disposed before then.
-     *
+     * 
      * @return the frameColor
      */
     public Color getFrameColor() {
@@ -1266,7 +1255,7 @@ public class StyledTextComp extends Composite {
      * Get the insert color of the StyledTextComp. This is the actual color, not
      * a copy. It will be disposed when the StyledTextComp is, and should not be
      * disposed before then.
-     *
+     * 
      * @return the insertColor
      */
     public Color getInsertColor() {
@@ -1277,7 +1266,7 @@ public class StyledTextComp extends Composite {
      * Get the locked text color of the StyledTextComp. This is the actual
      * color, not a copy. It will be disposed when the StyledTextComp is, and
      * should not be disposed before then.
-     *
+     * 
      * @return the lockColor
      */
     public Color getLockColor() {
@@ -1287,9 +1276,7 @@ public class StyledTextComp extends Composite {
     /**
      * Word wrap the text in the block around cursorIndex. Adjust the cursor
      * position to account for inserted or deleted whitespace.
-     *
-     * @param st
-     *            The StyledText in which word wrap is to be performed
+     * 
      * @param cursorIndex
      *            The cursor index
      * @param width
@@ -1301,15 +1288,11 @@ public class StyledTextComp extends Composite {
      *         <li>The length of the replacemetruent text</li>
      *         </ol>
      */
-    public int[] wordWrap(StyledText st, int cursorIndex, int width) {
+    public int[] wordWrap(int cursorIndex, int width) {
+        StyledText st = getTextEditorST();
 
-        final Pattern PARA_SEP_PATTERN = Pattern.compile(PARA_SEP_STRING);
         final Matcher PARA_MATCHER = PARA_SEP_PATTERN.matcher("");
-
-        final Pattern FUNNY_SEP_PATTERN = Pattern.compile(FUNNY_SEP,
-                Pattern.MULTILINE);
         final Matcher FUNNY_SEP_MATCHER = FUNNY_SEP_PATTERN.matcher("");
-
         final String NL = st.getLineDelimiter();
 
         String line;
@@ -1435,11 +1418,8 @@ public class StyledTextComp extends Composite {
         preArgs.put("text", pre);
 
         try {
-            python.instantiatePythonClass("_wrapper", "textwrap.TextWrapper",
-                    args);
-            pre = (String) python.execute("fill", "_wrapper", preArgs);
-
-        } catch (JepException e) {
+            pre = wrapper.callWordWrapPython(args, preArgs);
+        } catch (Exception e) {
             statusHandler.error("Python error wrapping text preceding cursor:",
                     e);
         }
@@ -1462,10 +1442,8 @@ public class StyledTextComp extends Composite {
         postArgs.put("text", post);
 
         try {
-            python.instantiatePythonClass("_wrapper", "textwrap.TextWrapper",
-                    args);
-            post = (String) python.execute("fill", "_wrapper", postArgs);
-        } catch (JepException e) {
+            post = wrapper.callWordWrapPython(args, postArgs);
+        } catch (Exception e) {
             statusHandler.error("Python error wrapping text after cursor:", e);
         }
 

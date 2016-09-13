@@ -44,7 +44,6 @@ import ucar.grib.grib1.GribPDSParamTable;
 import ucar.grid.GridParameter;
 import ucar.unidata.io.RandomAccessFile;
 
-import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.edex.plugin.grib.spatial.GribSpatialCache;
 import com.raytheon.edex.plugin.grib.util.GribLevel;
@@ -101,12 +100,14 @@ import com.raytheon.uf.common.util.mapping.MultipleMappingException;
  * Jul 30, 2014  3469     bsteffen    Improve logging of invalid files.
  * Sep 09, 2014  3356     njensen     Remove CommunicationException
  * Mar 05, 2015  3959     rjpeter     Added world wrap check to subGrid.
+ * Oct 01, 2015  4868     rjpeter     Discard invalid subgrids.
+ * Dec 16, 2015  5182     tjensen     Updated GribModelLookup calls to pass in filepath.
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-public class Grib1Decoder extends AbstractDecoder {
+public class Grib1Decoder {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(Grib1Decoder.class);
 
@@ -159,7 +160,7 @@ public class Grib1Decoder extends AbstractDecoder {
             ArrayList<Grib1Record> records = g1i.getRecords();
             List<GridRecord> gribRecords = new ArrayList<GridRecord>();
             for (int i = 0; i < records.size(); i++) {
-                GridRecord rec = decodeRecord(records.get(i), raf);
+                GridRecord rec = decodeRecord(records.get(i), raf, fileName);
                 if (rec != null) {
                     gribRecords.add(rec);
                 }
@@ -194,12 +195,14 @@ public class Grib1Decoder extends AbstractDecoder {
      *            The record to decode
      * @param raf
      *            The file object
+     * @param filePath
+     *            The path of the file to decode
      * @return The decoded GridRecord
      * @throws GribException
      *             If the record cannot be decoded properly
      */
-    private GridRecord decodeRecord(Grib1Record rec, RandomAccessFile raf)
-            throws GribException {
+    private GridRecord decodeRecord(Grib1Record rec, RandomAccessFile raf,
+            String filePath) throws GribException {
 
         GridRecord retVal = new GridRecord();
 
@@ -237,15 +240,16 @@ public class Grib1Decoder extends AbstractDecoder {
 
         if ((parameter == null) || parameter.getName().equals(MISSING)) {
             try {
-                logger.warn("Unable to map Grib 1 parameter to equivalent Grib 2 parameter for center ["
-                        + centerid
-                        + "] subcenter ["
-                        + subcenterid
-                        + "] table number ["
-                        + pdsVars.getParameterTableVersion()
-                        + "] parameter number ["
-                        + pdsVars.getParameterNumber()
-                        + "]  Using grib 1 parameter mapping");
+                statusHandler
+                        .warn("Unable to map Grib 1 parameter to equivalent Grib 2 parameter for center ["
+                                + centerid
+                                + "] subcenter ["
+                                + subcenterid
+                                + "] table number ["
+                                + pdsVars.getParameterTableVersion()
+                                + "] parameter number ["
+                                + pdsVars.getParameterNumber()
+                                + "]  Using grib 1 parameter mapping");
                 GridParameter param = GribPDSParamTable.getParameterTable(
                         centerid, subcenterid,
                         pdsVars.getParameterTableVersion()).getParameter(
@@ -320,7 +324,7 @@ public class Grib1Decoder extends AbstractDecoder {
         retVal.addExtraAttribute("gridid", gridCoverage.getName());
 
         retVal.setDatasetId(createModelName(centerid, subcenterid, genProcess,
-                gridCoverage));
+                gridCoverage, filePath));
 
         // Get the level information
         float[] levelMetadata = this.convertGrib1LevelInfo(
@@ -453,6 +457,13 @@ public class Grib1Decoder extends AbstractDecoder {
         if (subCoverage != null) {
             SubGrid subGrid = GribSpatialCache.getInstance().getSubGrid(
                     modelName, gridCoverage);
+            if ((subGrid.getNX() <= 0) || (subGrid.getNY() <= 0)) {
+                // subgrid does not cover enough of CWA
+                statusHandler.info("Discarding model [" + modelName
+                        + "], sub grid does not meet minimum coverage area");
+                return null;
+            }
+
             // resize the data array
             float[][] dataArray = this.resizeDataTo2D(data,
                     gridCoverage.getNx(), gridCoverage.getNy());
@@ -504,7 +515,7 @@ public class Grib1Decoder extends AbstractDecoder {
 
         // check if FLAG.FCST_USED needs to be removed
         checkForecastFlag(retVal.getDataTime(), centerid, subcenterid,
-                genProcess, gridCoverage);
+                genProcess, gridCoverage, filePath);
 
         return retVal;
     }
@@ -644,7 +655,7 @@ public class Grib1Decoder extends AbstractDecoder {
             }
 
             // handle grid wrap for world wide grids
-            if (columnCount > 0 && wrapCount > 0) {
+            if ((columnCount > 0) && (wrapCount > 0)) {
                 for (int column = 0; column < columnCount; column++, newGridColumn++) {
                     newGrid[newGridRow][newGridColumn] = data[row][column];
                 }
@@ -919,29 +930,31 @@ public class Grib1Decoder extends AbstractDecoder {
      * @param centerId
      * @param subcenterId
      * @param process
+     * @param filePath
      * @param gridId
      * @return
      */
     private String createModelName(int centerId, int subcenterId, int process,
-            GridCoverage grid) {
+            GridCoverage grid, String filePath) {
         return GribModelLookup.getInstance().getModelName(centerId,
-                subcenterId, grid, process, null);
+                subcenterId, grid, process, null, filePath);
     }
 
     /**
      * Check if the forecast flag should be removed
      * 
      * @param time
-     *            he datatime to remove forecast flag if needed
+     *            The datatime to remove forecast flag if needed
      * @param centerId
      * @param subcenterId
      * @param process
+     * @param filePath
      * @param gridId
      */
     private void checkForecastFlag(DataTime time, int centerId,
-            int subcenterId, int process, GridCoverage grid) {
+            int subcenterId, int process, GridCoverage grid, String filePath) {
         GridModel gridModel = GribModelLookup.getInstance().getModel(centerId,
-                subcenterId, grid, process, null);
+                subcenterId, grid, process, null, filePath);
         if ((gridModel != null) && gridModel.getAnalysisOnly()) {
             time.getUtilityFlags().remove(FLAG.FCST_USED);
         }
@@ -1189,7 +1202,7 @@ public class Grib1Decoder extends AbstractDecoder {
         default:
             if ((ltype1 > 99) && (ltype1 < 200)) {
                 level1Type = 255;
-                logger.warn("GRIB1 level " + ltype1 + " not recognized");
+                statusHandler.warn("GRIB1 level " + ltype1 + " not recognized");
             }
             break;
         }
@@ -1236,7 +1249,7 @@ public class Grib1Decoder extends AbstractDecoder {
             levelName = gribLevel.getAbbreviation();
             levelUnit = gribLevel.getUnit();
         } else {
-            logger.warn("No level information for center[" + centerID
+            statusHandler.warn("No level information for center[" + centerID
                     + "], subcenter[" + subcenterID
                     + "], tableName[4.5], level value[" + levelOneValue + "]");
         }

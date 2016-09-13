@@ -24,6 +24,8 @@ import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -41,6 +43,8 @@ import com.raytheon.uf.edex.core.IContextStateProcessor;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 11, 2015  #4128     dgilling     Initial creation
+ * Nov 11, 2015  #5110     dgilling     Fixed activation check in activateSite
+ *                                      to better match A1.
  * 
  * </pre>
  * 
@@ -161,7 +165,11 @@ public final class IscServiceProvider implements IContextStateProcessor {
     public void activateSite(final String siteID, final IFPServerConfig config) {
         statusHandler.info("Checking ISC configuration for site " + siteID);
 
-        if (config.requestISC()) {
+        String irtAddress = config.iscRoutingTableAddress().get("ANCF");
+        if ((config.iscRoutingTableAddress().containsKey("ANCF"))
+                && (config.iscRoutingTableAddress().containsKey("BNCF"))
+                && (StringUtils.isNotBlank(irtAddress))
+                && (config.requestISC())) {
             if (activeInstance) {
                 statusHandler.info("Enabling ISC for site " + siteID);
 

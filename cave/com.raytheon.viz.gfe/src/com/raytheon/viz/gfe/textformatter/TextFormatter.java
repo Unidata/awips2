@@ -22,6 +22,7 @@ package com.raytheon.viz.gfe.textformatter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import com.raytheon.uf.common.status.IPerformanceStatusHandler;
@@ -32,7 +33,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData;
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData.ProductStateEnum;
@@ -54,6 +54,13 @@ import com.raytheon.viz.gfe.tasks.AbstractGfeTask;
  * Dec 1, 2010    6130     ryu         Set proper state and invoke callback
  * May 29, 2014   2841     randerso    Handle failure to queue due to pending limit
  * Apr 20, 2015  4027      randerso    Renamed ProductStateEnum with an initial capital
+ * Jul 28, 2015  4263      dgilling    Support changes to FormatterScriptFactory,
+ *                                     get DataManager instance via constructor.
+ * Aug 20, 2015  #4749     dgilling    Add cleanUp.
+ * Aug 26, 2015  #4804     dgilling    Support ability to run TextFormatters 
+ *                                     from SmartScript.
+ * Dec 08, 2015  #5129     dgilling    Pass IFPClient to getVarDict.
+ * Apr 14, 2016  #5578     dgilling    Remove getVarDict.
  * 
  * </pre>
  * 
@@ -72,37 +79,91 @@ public class TextFormatter extends AbstractGfeTask {
 
     private TextProductFinishListener listener;
 
-    private HashMap<String, Object> argMap;
+    private Map<String, Object> argMap;
 
     private ConfigData.ProductStateEnum state;
 
+    private DataManager dataMgr;
+
     /**
      * Constructor
+     * 
+     * @param productName
+     *            Name of the python module to execute.
+     * @param vtecMode
+     *            Single character code for VTEC mode--Operational,
+     *            eXperimental, Test, etc.
+     * @param databaseID
+     *            String form of the {@code DatabaseID} of the source database.
+     * @param vtecActiveTable
+     *            Name of the active table to use for hazard information.
+     * @param drtTime
+     *            DRT time to use in YYYYMMDD_HHmm format.
+     * @param testMode
+     *            Whether or not to execute in test VTEC mode.
+     * @param finish
+     *            Listener to send status updates to.
+     * @param dataMgr
+     *            the {@code DataManager} instance to use.
+     */
+    public TextFormatter(String productName, String vtecMode,
+            String databaseID, String vtecActiveTable, String drtTime,
+            int testMode, TextProductFinishListener finish, DataManager dataMgr) {
+        this(productName, vtecMode, databaseID, null, vtecActiveTable, drtTime,
+                testMode, finish, dataMgr);
+    }
+
+    /**
+     * Constructor that allows the varDict to be pre-supplied. Useful for
+     * executing formatters where no GUI popups are desired.
+     * 
+     * @param productName
+     *            Name of the python module to execute.
+     * @param vtecMode
+     *            Single character code for VTEC mode--Operational,
+     *            eXperimental, Test, etc.
+     * @param databaseID
+     *            String form of the {@code DatabaseID} of the source database.
+     * @param varDict
+     *            String form of the formatter's variable dictionary.
+     * @param vtecActiveTable
+     *            Name of the active table to use for hazard information.
+     * @param drtTime
+     *            DRT time to use in YYYYMMDD_HHmm format.
+     * @param testMode
+     *            Whether or not to execute in test VTEC mode.
+     * @param finish
+     *            Listener to send status updates to.
+     * @param dataMgr
+     *            the {@code DataManager} instance to use.
      */
     public TextFormatter(String productName, String vtecMode,
             String databaseID, String varDict, String vtecActiveTable,
-            String drtTime, int testMode, TextProductFinishListener finish) {
+            String drtTime, int testMode, TextProductFinishListener finish,
+            DataManager dataMgr) {
         super(productName);
-        String addr = null;
 
+        String addr = null;
         try {
             addr = InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e) {
             addr = UUID.randomUUID().toString();
         }
 
+        this.dataMgr = dataMgr;
+
         argMap = new HashMap<String, Object>();
         argMap.put("testMode", testMode);
         argMap.put(ArgDictConstants.DATABASE_ID, databaseID);
-        argMap.put(ArgDictConstants.SITE, DataManager.getCurrentInstance()
-                .getSiteID());
+        argMap.put(ArgDictConstants.SITE, this.dataMgr.getSiteID());
         argMap.put(ArgDictConstants.FORECAST_LIST, productName);
         argMap.put("username", System.getProperty("user.name") + ":" + addr);
-        argMap.put("dataMgr", DataManager.getCurrentInstance());
+        argMap.put("dataMgr", this.dataMgr);
         argMap.put(ArgDictConstants.VTEC_MODE, vtecMode);
-        argMap.put(ArgDictConstants.CMDLINE_VARDICT, varDict);
         argMap.put(ArgDictConstants.VTEC_ACTIVE_TABLE, vtecActiveTable);
         argMap.put("drtTime", drtTime);
+        argMap.put(ArgDictConstants.CMDLINE_VARDICT, varDict);
+
         listener = finish;
         this.state = ConfigData.ProductStateEnum.Queued;
     }
@@ -112,24 +173,27 @@ public class TextFormatter extends AbstractGfeTask {
         FormatterScript script = null;
         String forecast = null;
         try {
-            VizApp.runSyncIfWorkbench(new Runnable() {
-                @Override
-                public void run() {
-                    state = ConfigData.ProductStateEnum.Running;
-                    listener.startProgressBar(state);
-                }
-            });
+            state = ConfigData.ProductStateEnum.Running;
+            listener.startProgressBar(state);
 
             argMap.put("logFile", getLogFile().getAbsolutePath());
-            script = FormatterScriptFactory.buildFormatterScript();
-            ITimer timer = TimeUtil.getTimer();
-            timer.start();
-            forecast = (String) script.execute(argMap);
-            timer.stop();
+            script = new FormatterScriptFactory().createPythonScript();
+
             String productName = (String) argMap
                     .get(ArgDictConstants.FORECAST_LIST);
-            perfLog.logDuration("Text Formatter " + productName,
-                    timer.getElapsedTime());
+
+            String varDict = (String) argMap
+                    .get(ArgDictConstants.CMDLINE_VARDICT);
+            if (varDict != null) {
+                ITimer timer = TimeUtil.getTimer();
+                timer.start();
+                forecast = (String) script.execute(argMap);
+                timer.stop();
+                perfLog.logDuration("Text Formatter " + productName,
+                        timer.getElapsedTime());
+            } else {
+                forecast = "Formatter canceled";
+            }
 
             state = ConfigData.ProductStateEnum.Finished;
         } catch (Throwable t) {
@@ -139,21 +203,16 @@ public class TextFormatter extends AbstractGfeTask {
         } finally {
             SamplerGridSliceCache.remove(this.getId());
             SamplerGridSliceCache.remove(UI_THREAD_ID);
-            cleanUp(forecast);
+            productFinished(forecast);
             if (script != null) {
                 script.dispose();
             }
         }
     }
 
-    private void cleanUp(final String text) {
-        VizApp.runSyncIfWorkbench(new Runnable() {
-            @Override
-            public void run() {
-                listener.stopProgressBar(state);
-                listener.textProductFinished(text, state);
-            }
-        });
+    private void productFinished(final String text) {
+        listener.stopProgressBar(state);
+        listener.textProductFinished(text, state);
     }
 
     /*
@@ -171,7 +230,7 @@ public class TextFormatter extends AbstractGfeTask {
         if (this.state.equals(ProductStateEnum.Queued)
                 || this.state.equals(ProductStateEnum.New)) {
             state = ConfigData.ProductStateEnum.Failed;
-            cleanUp(null);
+            productFinished(null);
 
             this.finishedTime = SimulatedTime.getSystemTime().getTime();
             this.taskCanceled();
@@ -207,5 +266,12 @@ public class TextFormatter extends AbstractGfeTask {
                 .append(argMap.get(ArgDictConstants.VTEC_ACTIVE_TABLE));
 
         return sb.toString();
+    }
+
+    @Override
+    public void cleanUp() {
+        super.cleanUp();
+        dataMgr = null;
+        listener = null;
     }
 }

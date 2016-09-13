@@ -79,6 +79,7 @@ import com.vividsolutions.jts.geom.LineSegment;
  *  15Mar2013	15693	mgamazaychikov	 Added magnification capability.
  *  07-21-14    #3412        mapeters    Updated deprecated drawCircle call.
  *  07-29-14     3465        mapeters    Updated deprecated drawString() calls.
+ *  05-11-2015  #5070        randerso    Adjust font sizes for dpi scaling
  * </pre>
  * 
  * @author ebabin
@@ -87,8 +88,8 @@ import com.vividsolutions.jts.geom.LineSegment;
 public class DistanceBearingToolLayer extends
         AbstractMovableToolLayer<LineSegment> implements
         IContextMenuContributor {
-	
-	private IFont labelFont;
+
+    private IFont labelFont;
 
     public static final String DEFAULT_NAME = "Distance Bearing";
 
@@ -110,12 +111,14 @@ public class DistanceBearingToolLayer extends
         // add magnification capability
         getCapabilities().addCapability(new MagnificationCapability());
         deleteElementAction = new AbstractRightClickAction() {
+            @Override
             public void run() {
                 deleteSelected();
             }
         };
         deleteElementAction.setText("Delete Entire Element");
         moveElementAction = new AbstractRightClickAction() {
+            @Override
             public void run() {
                 selectedVertex = null;
                 makeSelectedLive();
@@ -123,6 +126,7 @@ public class DistanceBearingToolLayer extends
         };
         moveElementAction.setText("Move Entire Element");
         moveVertexAction = new AbstractRightClickAction() {
+            @Override
             public void run() {
                 makeSelectedLive();
             }
@@ -135,12 +139,13 @@ public class DistanceBearingToolLayer extends
         super.initInternal(target);
         setObjects(ToolsDataManager.getInstance().getDistanceBearings());
         gc = new GeodeticCalculator(descriptor.getCRS());
-        // initialize font for  magnification capability
+        // initialize font for magnification capability
         labelFont = target.initializeFont(
-                target.getDefaultFont().getFontName(), 12.0f,
+                target.getDefaultFont().getFontName(), 10,
                 new Style[] { Style.BOLD });
     }
 
+    @Override
     protected void paint(IGraphicsTarget target, PaintProperties paintProps,
             LineSegment line, SelectionStatus status) throws VizException {
         double radius = (MAGIC_CIRCLE_RADIUS * paintProps.getZoomLevel());
@@ -175,7 +180,7 @@ public class DistanceBearingToolLayer extends
             target.drawCircle(circles);
         }
         String label = computeRangeAndAzimuth(line);
-        // set font for  magnification capability
+        // set font for magnification capability
         labelFont.setMagnification(getCapability(MagnificationCapability.class)
                 .getMagnification().floatValue());
         double[] center = descriptor.worldToPixel(new double[] { line.p0.x,
@@ -187,7 +192,8 @@ public class DistanceBearingToolLayer extends
         string.setCoordinates(labelLoc[0], labelLoc[1]);
         target.drawStrings(string);
 
-        target.drawWireframeShape(wireframeShape, color, lineWidth, lineStyle, labelFont);
+        target.drawWireframeShape(wireframeShape, color, lineWidth, lineStyle,
+                labelFont);
         wireframeShape.dispose();
     }
 
@@ -226,6 +232,7 @@ public class DistanceBearingToolLayer extends
         return rangeAndAzimuth;
     }
 
+    @Override
     public String getDefaultName() {
         return DEFAULT_NAME;
     }
@@ -241,6 +248,7 @@ public class DistanceBearingToolLayer extends
         }
     }
 
+    @Override
     protected boolean isClicked(IDisplayPaneContainer container,
             Coordinate clickPoint, LineSegment line) {
         double[] point0 = container.translateInverseClick(line.p0);
@@ -264,10 +272,12 @@ public class DistanceBearingToolLayer extends
         return false;
     }
 
+    @Override
     protected LineSegment makeLive(LineSegment line) {
         return new LineSegment(new Coordinate(line.p0), new Coordinate(line.p1));
     }
 
+    @Override
     protected LineSegment move(Coordinate lastClickLoc, Coordinate clickLoc,
             LineSegment line) {
 

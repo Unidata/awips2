@@ -50,6 +50,7 @@ from awips import ThriftClient
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    12/17/10                      dgilling       Initial Creation.
+#    11/17/15         #5129        dgilling       Support changes to GetSiteTimeZoneInfoRequest.
 #    
 # 
 #
@@ -684,9 +685,17 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
         txt = ""
         wsId = WsId(progName="ifpServerText")
         if self.__metaInfo == "sitetimezone":
+            request = GetActiveSitesRequest()
+            try:
+                serverResponse = self.__thrift.sendRequest(request)
+            except Exception, e:
+                raise RuntimeError,  "Could not retrieve meta information: " + str(e)            
+            
+            siteIds = serverResponse
             request = GetSiteTimeZoneInfoRequest()
             request.setWorkstationID(wsId)
             request.setSiteID("")
+            request.setRequestedSiteIDs(siteIds)
             try:
                 serverResponse = self.__thrift.sendRequest(request)
             except Exception, e:
@@ -733,7 +742,7 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
                 raise RuntimeError,  "Could not retrieve meta information: " + str(e)
             
             if (serverResponse.isOkay()):
-                domain = serverResponse.getPayload()[0]
+                domain = serverResponse.getPayload()
                 proj = domain.getProjection()
                 txt = "ProjectionID: " + proj.getProjectionID() + "\n"
                 txt = txt + "Grid Size: " + `(domain.getNx(), domain.getNy())` + "\n"

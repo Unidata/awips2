@@ -40,8 +40,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
+import com.raytheon.uf.common.dataplugin.NullUtil;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.annotations.NullString;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.pointdata.IPointData;
@@ -66,8 +68,9 @@ import com.vividsolutions.jts.geom.Geometry;
  * May 07, 2013  1869     bsteffen    Remove dataURI column from
  *                                    PluginDataObject.
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
- * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
- * 
+ * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable 
+ * Jul 27, 2015  4360     rferrel     Named unique constraint. Made reportType and corIndicator non-nullable.
+ * Apr 20, 2016  DR18361  MPorricelli Added 1-min peak wind, snow depth, lowest pressure
  * </pre>
  * 
  * @author jkorman
@@ -75,7 +78,7 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "sfcobsseq")
-@Table(name = "sfcobs", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = "sfcobs", uniqueConstraints = { @UniqueConstraint(name = "uk_sfcobs_datauri_fields", columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
@@ -92,7 +95,8 @@ public class ObsCommon extends PersistablePluginDataObject implements
 
     //
     @DataURI(position = 1)
-    @Column
+    @NullString
+    @Column(nullable = false)
     @XmlAttribute
     @DynamicSerializeElement
     @Index(name = "reporttype_index")
@@ -100,10 +104,11 @@ public class ObsCommon extends PersistablePluginDataObject implements
 
     // Correction indicator from wmo header
     @DataURI(position = 2)
-    @Column
+    @NullString
+    @Column(nullable = false, length = 1)
     @XmlElement
     @DynamicSerializeElement
-    private String corIndicator;
+    private String corIndicator = NullUtil.NULL_STRING;
 
     @Embedded
     @DataURI(position = 3, embedded = true)
@@ -199,6 +204,23 @@ public class ObsCommon extends PersistablePluginDataObject implements
     @XmlElement
     @DynamicSerializeElement
     private Long peakWindTime = -1L;
+    // Direction of the one-minute peak wind observation in angular degrees
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    private Integer peakWindDirOneMin = -9999;
+
+    // Speed of the one-minute peak wind observation in meters per second.
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    private Double peakWindSpeedOneMin = -9999.0;
+
+    // Time of the one-minute peak wind observation.
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    private Long peakWindTimeOneMin = -1L;
 
     // The equivilent 10 meter wind speed in meters per second.
     @Transient
@@ -217,6 +239,18 @@ public class ObsCommon extends PersistablePluginDataObject implements
     @XmlElement
     @DynamicSerializeElement
     private Integer pressureAltimeter = -9999;
+
+    // Lowest pressure in Pascals.
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    private Integer lowestPressure = -9999;
+
+    // Time of the lowest pressure.
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    private Long lowestPressureTime = -1L;
 
     // Sea level pressure in Pascals.
     @Transient
@@ -377,6 +411,18 @@ public class ObsCommon extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     private Double secondarySwellWaveHeight = -9999.0;
 
+    // Snow depth in mm
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    private Double snowDepth = -9999.0;
+
+    // State of ground (category)
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    private Integer stateOfGroundWithSnow = -9999;
+
     @Transient
     @XmlElement
     @DynamicSerializeElement
@@ -450,7 +496,7 @@ public class ObsCommon extends PersistablePluginDataObject implements
      * @return the corIndicator
      */
     public String getCorIndicator() {
-        return corIndicator;
+        return NullUtil.convertNullStringToNull(this.corIndicator);
     }
 
     /**
@@ -458,7 +504,7 @@ public class ObsCommon extends PersistablePluginDataObject implements
      *            the corIndicator to set
      */
     public void setCorIndicator(String corIndicator) {
-        this.corIndicator = corIndicator;
+        this.corIndicator = NullUtil.convertNullToNullString(corIndicator);
     }
 
     /**
@@ -699,6 +745,62 @@ public class ObsCommon extends PersistablePluginDataObject implements
     public void setPeakWindTime(Long peakWindTime) {
         this.peakWindTime = peakWindTime;
     }
+    /**
+     * Get the direction of the one-minute peak wind observation.
+     *
+     * @return The direction of the one-minute peak wind observation in angular degrees
+     */
+    public Integer getPeakWindDirOneMin() {
+        return peakWindDirOneMin;
+    }
+
+    /**
+     * Set the direction of the peak wind observation.
+     *
+     * @param peakWindDirOneMin
+     *            The direction of the peak wind observation in angular degrees
+     */
+    public void setPeakWindDirOneMin(Integer peakWindDirOneMin) {
+        this.peakWindDirOneMin = peakWindDirOneMin;
+    }
+
+    /**
+     * Get the speed of the one-minute peak wind observation.
+     *
+     * @return The speed of the one-minute peak wind observation in meters per second.
+     */
+    public Double getPeakWindSpeedOneMin() {
+        return peakWindSpeedOneMin;
+    }
+
+    /**
+     * Set the speed of the one-minute peak wind observation.
+     *
+     * @param peakWindSpeedOneMin
+     *            The speed of the one-minute peak wind observation in meters per second.
+     */
+    public void setPeakWindSpeedOneMin(Double peakWindSpeedOneMin) {
+        this.peakWindSpeedOneMin = peakWindSpeedOneMin;
+    }
+
+    /**
+     * Set the time of the one-minute peak wind observation.
+     *
+     * @return The time of the one-minute peak wind observation (msecs from 1-1-1970).
+     */
+    public Long getPeakWindTimeOneMin() {
+        return peakWindTimeOneMin;
+    }
+
+    /**
+     * Get the time of the one-minute peak wind observation.
+     *
+     * @param peakWindTimeOneMin
+     *            The time of the one-minute peak wind observation (msecs from 1-1-1970).
+     */
+    public void setPeakWindTimeOneMin(Long peakWindTimeOneMin) {
+        this.peakWindTimeOneMin = peakWindTimeOneMin;
+    }
 
     /**
      * Get the equivilent 10 meter wind speed.
@@ -736,6 +838,40 @@ public class ObsCommon extends PersistablePluginDataObject implements
      */
     public void setWind20mSpeed(Double windSpeed) {
         this.wind20mSpeed = windSpeed;
+    }
+    /**
+     * Get the lowest pressure of previous hour.
+     *
+     * @return Lowest pressure in Pa
+     */
+    public Integer getLowestPressure() {
+        return lowestPressure;
+    }
+    /**
+     * Set the lowest pressure of previous hour.
+     *
+     * @param lowestPressure
+     *            The lowest pressure in Pa
+     */
+    public void setLowestPressure(Integer lowestPressure) {
+        this.lowestPressure = lowestPressure;
+    }
+    /**
+     * Get observation time of the lowest pressure of previous hour.
+     *
+     * @return Time of the lowest pressure (msecs from 1-1-1970)
+     */
+    public Long getLowestPressureTime() {
+        return lowestPressureTime;
+    }
+    /**
+     * Set the observation time of the lowest pressure.
+     *
+     * @param lowestPressureTime
+     *            The time of the lowest pressure observation (msecs from 1-1-1970).
+     */
+    public void setLowestPressureTime(Long lowestPressureTime) {
+        this.lowestPressureTime = lowestPressureTime;
     }
 
     /**
@@ -1258,6 +1394,32 @@ public class ObsCommon extends PersistablePluginDataObject implements
         secondarySwellWaveHeight = height;
     }
 
+    /**
+     * @return the snowDepth
+     */
+    public Double getSnowDepth() {
+        return snowDepth;
+    }
+    /**
+     * @param snowDepth
+     *            the snowDepth to set
+     */
+    public void setSnowDepth(Double snowDepth) {
+        this.snowDepth = snowDepth;
+    }
+    /**
+     * @return stateOfGroundWithSnow indicator
+     */
+    public Integer getStateOfGroundWithSnow() {
+        return stateOfGroundWithSnow;
+    }
+    /**
+     * @param stateOfGroundWithSnow
+     *            the stateOfGroundWithSnow indicator to set
+     */
+    public void setStateOfGroundWithSnow(Integer stateOfGroundWithSnow) {
+        this.stateOfGroundWithSnow = stateOfGroundWithSnow;
+    }
     /**
      * @return the ancClouds
      */

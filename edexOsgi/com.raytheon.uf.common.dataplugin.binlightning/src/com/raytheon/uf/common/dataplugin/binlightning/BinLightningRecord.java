@@ -56,11 +56,11 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * Record implementation for Binary Lightning plugin.
- *
+ * 
  * <pre>
- *
+ * 
  *  SOFTWARE HISTORY
- *
+ * 
  *  Date        Ticket#     Engineer    Description
  *  ----------  ----------  ----------- --------------------------
  *  Aug 10, 2007 379        jkorman     Initial Coding from prototype.
@@ -92,15 +92,17 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  *  Jun 10, 2014 3226       bclement    collections instead of lists, made data source logic public
  *  Jun 19, 2014 3214       bclement    populated pulse index array with -1 when missing pulse data
  *  Jan 22, 2014 3949       nabowle     refactor out default and unknown source constants.
- *
+ *  Jul 23, 2015 2360       rferrel     Add name to unique constraint.
+ *  Mar 08, 2016 18336      amoore      Keep-alive messages should update the legend.
+ *  May 02, 2016 18336      amoore      BinLightningRecord constructor takes source.
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "binlightningseq")
-@Table(name = BinLightningRecord.PLUGIN_NAME, uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = BinLightningRecord.PLUGIN_NAME, uniqueConstraints = { @UniqueConstraint(name = "uk_binlightning_datauri_fields", columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
@@ -155,7 +157,7 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
 
     /**
      * Constructs a grib record from a dataURI
-     *
+     * 
      * @param uri
      *            The dataURI
      */
@@ -164,8 +166,33 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
     }
 
     /**
+     * Constructs a zero-strike, keep-alive lightning record based on given
+     * date.
+     * 
+     * Record will contain datetime data only.
+     * 
+     * @param dateTime
+     *            WMO header base date.
+     * @param vendorSource
+     *            source of the record.
+     */
+    public BinLightningRecord(final Calendar dateTime, String vendorSource) {
+        source = vendorSource;
+
+        // only data shall be datetime for keep-alive
+        strikeDataArrays.put(LightningConstants.TIME_DATASET,
+                new long[] { dateTime.getTimeInMillis() });
+
+        startTime = dateTime;
+        stopTime = dateTime;
+
+        TimeRange range = new TimeRange(startTime, stopTime);
+        setDataTime(new DataTime(startTime, range));
+    }
+
+    /**
      * Construct a lightning record from a list of strikes
-     *
+     * 
      * @param strikes
      */
     public BinLightningRecord(final Collection<LightningStrikePoint> strikes) {
@@ -297,24 +324,43 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * Extract data source from strike
-     *
+     * Extract data source from strike.
+     * 
      * @param strike
-     * @return
+     *            the strike from which to get data source.
+     * @return the strike's data source. If null, return
+     *         {@link LightningConstants#DEFAULT_SOURCE}. If empty, return
+     *         {@link LightningConstants#UNKNOWN_SOURCE}.
      */
     public static String getDataSource(LightningStrikePoint strike) {
-        if (strike.getLightSource() == null) {
+        return validateSource(strike.getLightSource());
+    }
+
+    /**
+     * Examine the lightning source given, and return a pre-defined constant if
+     * it is empty or null. Return lightning source as-is if non-null and
+     * non-empty.
+     * 
+     * @param iSource
+     *            the lightning source to examine.
+     * @return a validated lightning source. If null, return
+     *         {@link LightningConstants#DEFAULT_SOURCE}. If empty, return
+     *         {@link LightningConstants#UNKNOWN_SOURCE}. If neither, return the
+     *         original input.
+     */
+    public static String validateSource(String iSource) {
+        if (iSource == null) {
             return LightningConstants.DEFAULT_SOURCE;
-        } else if (strike.getLightSource().isEmpty()) {
+        } else if (iSource.isEmpty()) {
             return LightningConstants.UNKNOWN_SOURCE;
         } else {
-            return strike.getLightSource();
+            return iSource;
         }
     }
 
     /**
      * Get the data start time time. This is the date/time of the oldest item.
-     *
+     * 
      * @return the startTime
      */
     public Calendar getStartTime() {
@@ -323,7 +369,7 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
 
     /**
      * Get the data start time time. This is the date/time of the oldest item.
-     *
+     * 
      * @param startTime
      *            the startTime to set
      */
@@ -333,7 +379,7 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
 
     /**
      * Get the data stop time time. This is the date/time of the newest item.
-     *
+     * 
      * @return the stopTime
      */
     public Calendar getStopTime() {
@@ -342,7 +388,7 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
 
     /**
      * Set the data stop time time. This is the date/time of the newest item.
-     *
+     * 
      * @param stopTime
      *            the stopTime to set
      */
@@ -352,7 +398,7 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
 
     /**
      * Get the data insert time.
-     *
+     * 
      * @return the insert_time
      */
     public Calendar getInsert_time() {
@@ -361,7 +407,7 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
 
     /**
      * Set the data insert time.
-     *
+     * 
      * @param insert_time
      *            the insert_time to set
      */
@@ -371,7 +417,7 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
 
     /**
      * gets the obsTimes
-     *
+     * 
      * @return
      */
     public long[] getObsTimes() {
@@ -381,7 +427,7 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
 
     /**
      * Gets the latitudes
-     *
+     * 
      * @return
      */
     public float[] getLatitudes() {
@@ -391,7 +437,7 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
 
     /**
      * Gets the latitudes
-     *
+     * 
      * @return
      */
     public float[] getLongitudes() {
@@ -401,7 +447,7 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
 
     /**
      * Gets the instensities
-     *
+     * 
      * @return
      */
     public int[] getIntensities() {
@@ -411,7 +457,7 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
 
     /**
      * Gets the msgTypes
-     *
+     * 
      * @return
      */
     public byte[] getMsgTypes() {
@@ -421,7 +467,7 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
 
     /**
      * Gets the strikeTypes
-     *
+     * 
      * @return
      */
     public byte[] getStrikeTypes() {
@@ -432,7 +478,7 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
 
     /**
      * Gets the strikeCounts
-     *
+     * 
      * @return
      */
     public byte[] getPulseCounts() {
@@ -443,7 +489,7 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
 
     /**
      * JJG - Get the lightning source
-     *
+     * 
      * @return
      */
     public String getSource() {
@@ -452,7 +498,7 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
 
     /**
      * JJG - Set the lightning source
-     *
+     * 
      * @param lightSource
      */
     public void setSource(String lightSource) {
@@ -461,7 +507,7 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
 
     /**
      * Sets the data arrays from the store.
-     *
+     * 
      * @param dataStore
      */
     public void retrieveFromDataStore(IDataStore dataStore)
@@ -471,7 +517,7 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
 
     /**
      * Sets the data arrays from the store.
-     *
+     * 
      * @param dataStore
      * @param includePulses
      *            extract pulse data if true

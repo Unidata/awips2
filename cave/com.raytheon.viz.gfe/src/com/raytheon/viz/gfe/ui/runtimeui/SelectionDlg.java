@@ -44,16 +44,18 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * SOFTWARE HISTORY
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * Feb 9, 2010  3353        njensen  Initial creation
- * Jul 13,2011  9291        rferrel  Convert to subclass of CaveJFACEDialog.
- * Nov 15,2012  1298        rferrel     Code cleanup for non-blocking dialogs.
+ * Feb  9, 2010  3353       njensen     Initial creation
+ * Jul 13, 2011  9291       rferrel     Convert to subclass of CaveJFACEDialog.
+ * Nov 15, 2012  1298       rferrel     Code cleanup for non-blocking dialogs.
+ * Sep 23, 2015  4871       randerso    Changed to concrete class with do nothing run method
+ *                                      Added flag to change buttons when called from procedure
  * 
  * </pre>
  * 
  * @version 1.0
  */
 
-public abstract class SelectionDlg extends CaveJFACEDialog {
+public class SelectionDlg extends CaveJFACEDialog {
     /**
      * The top composite.
      */
@@ -65,6 +67,8 @@ public abstract class SelectionDlg extends CaveJFACEDialog {
 
     private List<FieldDefinition> fieldDefs;
 
+    private boolean fromProcedure;
+
     @Override
     protected void buttonPressed(int buttonId) {
         setReturnCode(buttonId);
@@ -73,6 +77,7 @@ public abstract class SelectionDlg extends CaveJFACEDialog {
         case RUN:
             run();
             break;
+        case OK:
         case RUN_DISMISS:
             run();
             close();
@@ -83,14 +88,34 @@ public abstract class SelectionDlg extends CaveJFACEDialog {
         }
     }
 
-    public abstract void run();
+    /**
+     * Method called when the Run, Run/Dismiss, or OK buttons are pressed.
+     */
+    protected void run() {
+        // Base dialog does nothing for case when called from procedure.
+    }
 
-    public SelectionDlg(Shell parent, String title, DataManager dataMgr,
-            List<FieldDefinition> fieldDefs) {
+    /**
+     * Constructor
+     * 
+     * @param parent
+     *            parent shell
+     * @param name
+     *            name of smartTool/procedure
+     * @param dataMgr
+     *            DataManager instance to use
+     * @param fieldDefs
+     *            field definitions for dialog
+     * @param fromProcedure
+     *            true if being called from procedure
+     */
+    public SelectionDlg(Shell parent, String name, DataManager dataMgr,
+            List<FieldDefinition> fieldDefs, boolean fromProcedure) {
         super(parent);
-        this.name = title;
+        this.name = name;
         this.dataMgr = dataMgr;
         this.fieldDefs = fieldDefs;
+        this.fromProcedure = fromProcedure;
         this.setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS | SWT.RESIZE);
     }
 
@@ -104,7 +129,7 @@ public abstract class SelectionDlg extends CaveJFACEDialog {
     @Override
     protected void configureShell(Shell newShell) {
         super.configureShell(newShell);
-        newShell.setText(this.name);
+        newShell.setText(this.name + " Values");
     }
 
     /*
@@ -132,10 +157,15 @@ public abstract class SelectionDlg extends CaveJFACEDialog {
 
     @Override
     protected void createButtonsForButtonBar(Composite parent) {
-        createButton(parent, ButtonConstant.RUN.id, ButtonConstant.RUN.label,
-                false);
-        createButton(parent, ButtonConstant.RUN_DISMISS.id,
-                ButtonConstant.RUN_DISMISS.label, false);
+        if (fromProcedure) {
+            createButton(parent, ButtonConstant.OK.id, ButtonConstant.OK.label,
+                    false);
+        } else {
+            createButton(parent, ButtonConstant.RUN.id,
+                    ButtonConstant.RUN.label, false);
+            createButton(parent, ButtonConstant.RUN_DISMISS.id,
+                    ButtonConstant.RUN_DISMISS.label, false);
+        }
         createButton(parent, ButtonConstant.CANCEL.id,
                 ButtonConstant.CANCEL.label, false);
 
@@ -145,7 +175,12 @@ public abstract class SelectionDlg extends CaveJFACEDialog {
                 parent.getSize().y + 20);
     }
 
-    protected Map<String, Object> getValues() {
+    /**
+     * Get values from dialog
+     * 
+     * @return map of field labels to values
+     */
+    public Map<String, Object> getValues() {
         Map<String, Object> map = new HashMap<String, Object>();
         for (Widget w : this.comp.getWidgetList()) {
             if (!(w instanceof LabelWidget)) {

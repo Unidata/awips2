@@ -30,6 +30,7 @@
 # generated if user sets them that way.
 #
 # Author: Tim Barker
+#    2016
 #    2009-12-18: Rewritten to run from Java. Removed features that depend
 #                on prestarted Tkinter app: dialog derived from tkSimpleDialog,
 #                global-level IntVars and StringVars, IntVars and StringVars
@@ -44,7 +45,14 @@
 #                optional edge effects when working on an edit area,
 #                simplify using previous model runs, and make negative
 #                weights optional.
-#    2002-10-09: Original Implementation from Les Colin Idea
+#    2002-10-09: Original Implementation from Les Colin Idea 
+#----------------------------------------------------------------------------
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    02/10/2016      5283          nabowle        Remove NGM support.
 #---------------------------------------------------------------------
 #
 #  C O N F I G U R A T I O N   S E C T I O N
@@ -63,7 +71,7 @@ MAX_IN_COLUMN=15
 USE_NEGATIVE_WEIGHTS=1
 #
 #  List of GFE model databases that you will potentially blend.
-#  The name is followd by a number (separated by a colon) that
+#  The name is followed by a number (separated by a colon) that
 #  gives the number of versions to potentially blend.  The versions
 #  is followed by a list of elements for which to add this model
 #  (assumed to be for all elements if missing) or if the list starts
@@ -83,8 +91,6 @@ Models=("ADJMET:2",
         "GFS40BC:2:MaxT,MinT,MaxRH,MinRH,TdMrn,TdAft,T,Td,RH",
         "ADJFWC:1",
         "ADJFWCBC:1",
-        "NGM80:1",
-        "NGM80BC:1",
         "ADJMEX:2",
         "ADJMEXBC:2:MaxT,MinT,MaxRH,MinRH,TdMrn,TdAft,T,Td,RH",
         "ADJMEH:1:MaxT,MinT,PoP",
@@ -558,7 +564,7 @@ class Tool (SmartScript.SmartScript):
                     #  add up the weights again, because we cannot count
                     #  weights for grids that cannot be read.
                     #
-                    gsum=self._empty.copy()
+                    gsum=self.empty()
                     totweight=0
                     fcstweight=0
                     oldgrid=self.getGrids(self.dbIds[0],WEname,"SFC",GridTimeRange,noDataError=0,cache=0)
@@ -619,8 +625,8 @@ class Tool (SmartScript.SmartScript):
                     (mag,direc)=oldgrid
                     (uold,vold)=self.MagDirToUV(mag,direc)
                     
-                    usum=self._empty.copy()
-                    vsum=self._empty.copy()
+                    usum=self.empty()
+                    vsum=self.empty()
                     
                     totweight=0
                     fcstweight=0

@@ -30,7 +30,9 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.VizApp;
 
 /**
- * Hidden Workbench Advisor
+ * {@link WorkbenchAdvisor} to use which allows for the workbench to be started
+ * but not visible. This is used by {@link AbstractAWIPSComponent}s that need
+ * the workbench to start but do not utilize it
  * 
  * <pre>
  * 

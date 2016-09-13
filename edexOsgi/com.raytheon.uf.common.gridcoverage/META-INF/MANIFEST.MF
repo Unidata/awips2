@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Grid Coverage
 Bundle-SymbolicName: com.raytheon.uf.common.gridcoverage
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
@@ -19,5 +19,5 @@ Require-Bundle: com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.status,
  com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.dataquery,
- org.apache.commons.lang,
+ org.apache.commons.lang3;bundle-version="3.4.0",
  org.apache.commons.beanutils

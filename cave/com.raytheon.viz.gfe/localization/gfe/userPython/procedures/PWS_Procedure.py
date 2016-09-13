@@ -51,10 +51,7 @@ class Procedure (SmartScript.SmartScript):
         if len(gridList) < 1:
             return None
 
-        gridMax = zeros(gridList[0].shape) - 100000.0  # a large negative number
-        for grid in gridList:
-            gridMax = where(grid > gridMax, grid, gridMax)
-
+        gridMax = maximum.reduce(gridList)
         return gridMax
 
     def intGrid(self, gridList):

@@ -21,7 +21,7 @@
 <lambertConformalGridCoverage>
     <name>374</name>
     <description>Grid used for TPCSurge data</description>
-    <la1>20.20</la1>
+    <la1>20.192</la1>
     <lo1>-121.554</lo1>
     <firstGridPointCorner>LowerLeft</firstGridPointCorner>
     <nx>8577</nx>

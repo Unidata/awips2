@@ -24,41 +24,40 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * Allows user printer settings to be persisted to an XML file.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug 13, 2012       1053 jkorman     Initial creation
- *
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------
+ * Aug 13, 2012  1053     jkorman   Initial creation
+ * May 13, 2016  5653     randerso  Added Fit to Page setting
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
-public class UserPrintSettings  implements ISerializableObject {
+public class UserPrintSettings {
 
     public enum PRINT_ORIENTATION {
-        PORTRAIT(false),
-        LANDSCAPE(true);
-        
+        PORTRAIT(false), LANDSCAPE(true);
+
         private final boolean printLandscape;
-        
+
         private PRINT_ORIENTATION(boolean orientation) {
             this.printLandscape = orientation;
         }
 
         /**
          * Is this enum set to landscape?
+         * 
          * @return Is this enum set to landscape?
          */
         public boolean isPrintLandscape() {
@@ -67,7 +66,9 @@ public class UserPrintSettings  implements ISerializableObject {
 
         /**
          * Get the proper enum instance depending on the orientation.
-         * @param landscape The landscape mode. True return LANDSCAPE.
+         * 
+         * @param landscape
+         *            The landscape mode. True return LANDSCAPE.
          * @return
          */
         public static PRINT_ORIENTATION getPrintOrientation(boolean landscape) {
@@ -77,34 +78,37 @@ public class UserPrintSettings  implements ISerializableObject {
 
     @XmlElement
     private String printerUsed;
-    
+
     @XmlElement
     private String printerFile;
-    
+
     @XmlElement
     private boolean usePrinterFile = false;
-    
+
     @XmlElement
     private PRINT_ORIENTATION orientation = PRINT_ORIENTATION.PORTRAIT;
 
     @XmlElement
     private boolean invertBlackWhite = false;
-    
+
     @XmlElement
     private boolean printGrayScale = false;
-    
+
     @XmlElement
     private Integer copies = 1;
 
     @XmlElement
     private Integer density = 0;
-    
+
     @XmlElement
     private Integer mag = 0;
 
     @XmlElement
     private Integer scale = 100;
-    
+
+    @XmlElement
+    private boolean fitToPage = false;
+
     /**
      * Construct an instance with defaults values.
      */
@@ -113,6 +117,7 @@ public class UserPrintSettings  implements ISerializableObject {
 
     /**
      * Get the name of the printer that was used.
+     * 
      * @return The printer name.
      */
     public String getPrinterUsed() {
@@ -121,7 +126,9 @@ public class UserPrintSettings  implements ISerializableObject {
 
     /**
      * Set the name of the printer that was used.
-     * @param printerUsed  The printer name.
+     * 
+     * @param printerUsed
+     *            The printer name.
      */
     public void setPrinterUsed(String printerUsed) {
         this.printerUsed = printerUsed;
@@ -129,6 +136,7 @@ public class UserPrintSettings  implements ISerializableObject {
 
     /**
      * Get the name of the print file that was used.
+     * 
      * @return The print filename.
      */
     public String getPrinterFile() {
@@ -137,7 +145,9 @@ public class UserPrintSettings  implements ISerializableObject {
 
     /**
      * Set the name of the print file that was used.
-     * @param printerFile The print filename.
+     * 
+     * @param printerFile
+     *            The print filename.
      */
     public void setPrinterFile(String printerFile) {
         this.printerFile = printerFile;
@@ -145,6 +155,7 @@ public class UserPrintSettings  implements ISerializableObject {
 
     /**
      * Should print to file be used?
+     * 
      * @return Should print to file be used?
      */
     public boolean isUsePrinterFile() {
@@ -153,7 +164,9 @@ public class UserPrintSettings  implements ISerializableObject {
 
     /**
      * Set whether print to file was used.
-     * @param usePrinterFile Was print to file used?
+     * 
+     * @param usePrinterFile
+     *            Was print to file used?
      */
     public void setUsePrinterFile(boolean usePrinterFile) {
         this.usePrinterFile = usePrinterFile;
@@ -161,6 +174,7 @@ public class UserPrintSettings  implements ISerializableObject {
 
     /**
      * Get the print page orientation.
+     * 
      * @return The print orientation.
      */
     public PRINT_ORIENTATION getOrientation() {
@@ -169,14 +183,17 @@ public class UserPrintSettings  implements ISerializableObject {
 
     /**
      * Set the print page orientation.
-     * @param orientation The print orientation.
+     * 
+     * @param orientation
+     *            The print orientation.
      */
     public void setOrientation(PRINT_ORIENTATION orientation) {
         this.orientation = orientation;
     }
-    
+
     /**
      * Should black and white be inverted?
+     * 
      * @return Should black and white be inverted?
      */
     public boolean getInvertBlackWhite() {
@@ -185,7 +202,9 @@ public class UserPrintSettings  implements ISerializableObject {
 
     /**
      * Set whether black and white should be inverted?
-     * @param invertBlackWhite Should black and white be inverted.
+     * 
+     * @param invertBlackWhite
+     *            Should black and white be inverted.
      */
     public void setInvertBlackWhite(boolean invertBlackWhite) {
         this.invertBlackWhite = invertBlackWhite;
@@ -193,6 +212,7 @@ public class UserPrintSettings  implements ISerializableObject {
 
     /**
      * Should the print be converted to gray scale?
+     * 
      * @return Should the print be converted to gray scale?
      */
     public boolean isPrintGrayScale() {
@@ -201,7 +221,9 @@ public class UserPrintSettings  implements ISerializableObject {
 
     /**
      * Set whether the print should be converted to grayscale.
-     * @param printGrayScale Should the print be converted to grayscale.
+     * 
+     * @param printGrayScale
+     *            Should the print be converted to grayscale.
      */
     public void setPrintGrayScale(boolean printGrayScale) {
         this.printGrayScale = printGrayScale;
@@ -209,6 +231,7 @@ public class UserPrintSettings  implements ISerializableObject {
 
     /**
      * Get the number of copies that should be printed.
+     * 
      * @return The number of print copies.
      */
     public Integer getCopies() {
@@ -217,15 +240,19 @@ public class UserPrintSettings  implements ISerializableObject {
 
     /**
      * Set the number of copies that should be printed.
-     * @param copies The number of copies that should be printed.
+     * 
+     * @param copies
+     *            The number of copies that should be printed.
      */
     public void setCopies(Integer copies) {
         this.copies = copies;
     }
 
     /**
-     * Get the print density that should be used. NOTE : This value is the ordinal value
-     * returned by the control. The value does not correspond to an actual density value.
+     * Get the print density that should be used. NOTE : This value is the
+     * ordinal value returned by the control. The value does not correspond to
+     * an actual density value.
+     * 
      * @return the density
      */
     public Integer getDensity() {
@@ -233,15 +260,18 @@ public class UserPrintSettings  implements ISerializableObject {
     }
 
     /**
-     * @param density the density to set
+     * @param density
+     *            the density to set
      */
     public void setDensity(Integer density) {
         this.density = density;
     }
 
     /**
-     * Get the print magnification that should be used. NOTE : This value is the ordinal value
-     * returned by the control. The value does not correspond to an actual magnification value.
+     * Get the print magnification that should be used. NOTE : This value is the
+     * ordinal value returned by the control. The value does not correspond to
+     * an actual magnification value.
+     * 
      * @return the density
      */
     public Integer getMag() {
@@ -249,14 +279,17 @@ public class UserPrintSettings  implements ISerializableObject {
     }
 
     /**
-     * @param mag the mag to set
+     * @param mag
+     *            the mag to set
      */
     public void setMag(Integer mag) {
         this.mag = mag;
     }
 
     /**
-     * Get the print scaling that should be used. This is a percent value i.e. 100% = 100.
+     * Get the print scaling that should be used. This is a percent value i.e.
+     * 100% = 100.
+     * 
      * @return The print scaling factor.
      */
     public Integer getScale() {
@@ -264,10 +297,27 @@ public class UserPrintSettings  implements ISerializableObject {
     }
 
     /**
-     * Set the print scaling that should be used. This is a percent value i.e. 100% = 100.
-     * @param scale The print scaling factor.
+     * Set the print scaling that should be used. This is a percent value i.e.
+     * 100% = 100.
+     * 
+     * @param scale
+     *            The print scaling factor.
      */
     public void setScale(Integer scale) {
         this.scale = scale;
+    }
+
+    /**
+     * @return true if should fit to page
+     */
+    public Boolean isFitToPage() {
+        return fitToPage;
+    }
+
+    /**
+     * @param fitToPage
+     */
+    public void setFitToPage(Boolean fitToPage) {
+        this.fitToPage = fitToPage;
     }
 }

@@ -19,59 +19,32 @@
  **/
 package com.raytheon.viz.gfe.actions;
 
-import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.BreakLockDialog;
+import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
- * Action class to bring up the break locck dialog.
+ * Action to bring up the break lock dialog.
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 	Jun 17, 2008					Eric Babin Initial Creation
+ * Jun 17, 2008            Eric Babin  Initial Creation
  * Oct 27, 2012 1287       rferrel     Changes for non-blocking BreakLockDialog.
+ * Aug 27, 2015 4749       njensen     Now extends GfeShowDialogHandler
  * 
  * </pre>
  * 
- * @author ebabin
- * @version 1.0
  */
+public class ShowBreakLock extends GfeShowDialogHandler {
 
-public class ShowBreakLock extends AbstractHandler {
-    private BreakLockDialog dialog;
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
-     * .ExecutionEvent)
-     */
     @Override
-    public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        DataManager dm = DataManager.getCurrentInstance();
-        if (dm == null) {
-            return null;
-        }
-
-        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
-
-            dialog = new BreakLockDialog(shell, dm);
-            dialog.setBlockOnOpen(false);
-            dialog.open();
-        } else {
-            dialog.bringToTop();
-        }
-        return null;
+    protected CaveJFACEDialog createDialog(Shell shell, DataManager dm,
+            ExecutionEvent event) {
+        return new BreakLockDialog(shell, dm);
     }
-
 }

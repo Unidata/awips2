@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="CAVE" id="com.raytheon.viz.product.awips.CAVE" application="com.raytheon.uf.viz.application.application" useFeatures="true" includeLaunchers="true">
+<product name="CAVE" id="com.raytheon.viz.product.awips.CAVE" application="com.raytheon.uf.viz.application.application" useFeatures="true" includeLaunchers="false">
 
    <aboutInfo>
       <image path="/com.raytheon.viz.product.awips/icons/ipr.gif"/>
@@ -26,7 +26,7 @@
 -Dlogback.statusListenerClass=com.raytheon.uf.common.logback.UFLogbackInternalStatusListener
 -Dthrift.stream.maxsize=200
 -Dviz.memory.warn.threshold=98
--Dhttps.certificate.check=false
+-Dhttps.certificate.check=true
 -XX:+UnlockExperimentalVMOptions
 -XX:G1HeapRegionSize=4M
 -XX:InitiatingHeapOccupancyPercent=25
@@ -80,8 +80,9 @@
       <feature id="com.raytheon.uf.viz.dataplugins.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.d2d.core.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.viz.radar.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.radarapps.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.viz.text.feature" version="1.0.0.qualifier"/>
-      <feature id="com.raytheon.viz.grib.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.grid.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.kml.export.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.viz.gfe.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.displays.feature" version="1.0.0.qualifier"/>
@@ -92,12 +93,12 @@
       <feature id="com.raytheon.uf.viz.d2d.xy.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.ncep.displays.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.ncep.nsharp.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.viz.volumebrowser.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.d2d.nsharp.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.ncep.perspective.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.thinclient.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.npp.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.d2d.skewt.feature" version="1.0.0.qualifier"/>
-      <feature id="com.raytheon.viz.volumebrowser.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.acarssounding.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.viz.hydro.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.dat.feature" version="1.0.0.qualifier"/>

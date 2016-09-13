@@ -26,15 +26,15 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.ILocalizationFileObserver;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.LocalizationFileOutputStream;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.viz.alertview.AlertViewPrefStore;
 
 /**
@@ -49,6 +49,7 @@ import com.raytheon.uf.viz.alertview.AlertViewPrefStore;
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------
  * Jun 26, 2015  4474     bsteffen  Initial creation
+ * Aug 18, 2015  3806     njensen   Use SaveableOutputStream to save
  * 
  * </pre>
  * 
@@ -84,8 +85,9 @@ public class AlertViewLocalizationPrefStore implements AlertViewPrefStore,
     }
 
     @Override
-    public InputStream readConfigFile(String fileName) throws IOException {
-        LocalizationFile file = pathManager.getStaticLocalizationFile(
+    public InputStream openConfigInputStream(String fileName)
+            throws IOException {
+        ILocalizationFile file = pathManager.getStaticLocalizationFile(
                 LocalizationType.COMMON_STATIC, BASE_PATH + fileName);
         if (file == null) {
             return null;
@@ -99,10 +101,11 @@ public class AlertViewLocalizationPrefStore implements AlertViewPrefStore,
     }
 
     @Override
-    public OutputStream writeConfigFile(String fileName) throws IOException {
+    public OutputStream openConfigOutputStream(String fileName)
+            throws IOException {
         LocalizationContext context = pathManager.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.USER);
-        LocalizationFile file = pathManager.getLocalizationFile(context,
+        ILocalizationFile file = pathManager.getLocalizationFile(context,
                 BASE_PATH + fileName);
         if (file == null) {
             return null;
@@ -135,19 +138,16 @@ public class AlertViewLocalizationPrefStore implements AlertViewPrefStore,
 
     private class SavingOutputStream extends OutputStream {
 
-        private final LocalizationFileOutputStream stream;
+        private final SaveableOutputStream stream;
 
-        public SavingOutputStream(LocalizationFileOutputStream stream) {
+        public SavingOutputStream(SaveableOutputStream stream) {
             this.stream = stream;
         }
 
         @Override
         public void close() throws IOException {
-            try {
-                stream.closeAndSave();
-            } catch (LocalizationOpFailedException e) {
-                throw new IOException(e);
-            }
+            stream.close();
+            stream.save();
         }
 
         @Override

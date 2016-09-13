@@ -49,7 +49,7 @@ import com.raytheon.uf.common.archive.config.ArchiveConfigManager;
 import com.raytheon.uf.common.archive.config.ArchiveConstants;
 import com.raytheon.uf.common.archive.config.CategoryConfig;
 import com.raytheon.uf.common.archive.config.DisplayData;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.util.SizeUtil;
 import com.raytheon.uf.viz.archive.data.ArchiveInfo;
 import com.raytheon.uf.viz.archive.data.CategoryInfo;
@@ -83,6 +83,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Apr 10, 2014 3023       rferrel      Added setTotalSelectedSize method.
  * Apr 23, 2014 3045       rferrel      Changes to prevent race condition while getting labels.
  * Aug 26, 2014 3553       rferrel      Force redisplay of table after getting all display labels.
+ * Nov 12, 2015 4834       njensen      Changed LocalizationOpFailedException to LocalizationException
  * 
  * </pre>
  * 
@@ -473,7 +474,7 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
         String fileName = ArchiveConstants.selectFileName(type, selectName);
         try {
             manager.deleteSelection(fileName);
-        } catch (LocalizationOpFailedException e) {
+        } catch (LocalizationException e) {
             MessageDialog.openError(shell, "Case Error",
                     "Unable to delete file: " + fileName);
         }
@@ -819,6 +820,7 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
      * 
      * @param startTimeOffset
      */
+    @Override
     public void setRetentionTimes(long startTimeOffset) {
         // do nothing override by sub-classes
     }
@@ -858,6 +860,7 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
     /**
      * Perform updates once all the display data is loaded.
      */
+    @Override
     public void loadedAllDisplayData() {
         VizApp.runAsync(new Runnable() {
 

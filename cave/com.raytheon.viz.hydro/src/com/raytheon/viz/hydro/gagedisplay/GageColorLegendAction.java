@@ -20,6 +20,7 @@
 package com.raytheon.viz.hydro.gagedisplay;
 
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 
@@ -30,11 +31,12 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  * 
  * SOFTWARE HISTORY
  * 
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Jul 2, 2008	1194     	mpduff	Initial creation
- * Feb 07, 2013 1578        rferre      Changes for non-blocking GageLegend.
- * Feb 27, 2013 1790        rferrel     Bug fix for non-blocking dialogs.
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Jul 02, 2008  1194      mpduff      Initial creation
+ * Feb 07, 2013 1578       rferrel     Changes for non-blocking GageLegend.
+ * Feb 27, 2013 1790       rferrel     Bug fix for non-blocking dialogs.
+ * Jan 15, 2015 5054       randerso    Remove unnecessary new Shell
  * 
  * </pre>
  * 
@@ -68,7 +70,9 @@ public class GageColorLegendAction extends AbstractRightClickAction {
     @Override
     public void run() {
         if (dialog == null || dialog.isDisposed()) {
-            dialog = new GageLegend(new Shell());
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            dialog = new GageLegend(shell);
             dialog.open();
         } else {
             dialog.bringToTop();

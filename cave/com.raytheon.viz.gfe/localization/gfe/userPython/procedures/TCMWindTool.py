@@ -1340,7 +1340,6 @@ class Procedure (SmartScript.SmartScript):
     # wind the wind decreases linearly toward the center
     def makeRankine(self, f, latGrid, lonGrid, pieSlices, radiiFactor, timeRange):
         st = time.time()
-        grid = zeros(latGrid.shape)
         rDict = f['radii']
 
         rDict = self.interpolateQuadrants(rDict, pieSlices)
@@ -1388,7 +1387,7 @@ class Procedure (SmartScript.SmartScript):
         distanceGrid[distanceGrid == 0] =  0.01
 
         # make a grid into which we will define the wind speeds
-        grid = zeros(latGrid.shape, float32)
+        grid = self.empty()
 
         # The cyclone algorithm depends on the forecast lead time
         fcstLeadTime = (validTime - self.baseDecodedTime) / 3600
@@ -1433,8 +1432,8 @@ class Procedure (SmartScript.SmartScript):
             rDict[5.0] = tenKnotRadList
             wsList.insert(0, 5.0)
 
-        insideRMWMask = zeros(latGrid.shape)
-        self._cycloneMask = zeros(latGrid.shape, bool)
+        insideRMWMask = self.empty(bool)
+        self._cycloneMask = self.empty(bool)
         # for each rDict record and quadrant, make the grid one piece at a time
         for i in range(len(wsList) - 1):
             self.lastRadius = [None] * pieSlices
@@ -1525,7 +1524,7 @@ class Procedure (SmartScript.SmartScript):
                 if inRadius <= 1.0:
                     dSdR = (outSpeed - inSpeed) / (outRadius - inRadius)
                     grid =  where(mask, inSpeed + (dSdR * distanceGrid), grid)
-                    insideRMWMask = logical_or(insideRMWMask, mask)
+                    insideRMWMask[mask] = True
                 else:  # outside RMW
                     grid = where(mask, inSpeed * power((inRadius / distanceGrid), exponent),
                              grid)
@@ -1538,7 +1537,8 @@ class Procedure (SmartScript.SmartScript):
 ##            self.createGrid("Fcst", "NCSCorr", "SCALAR", corrGrid, self._timeRange,
 ##                    precision=3, minAllowedValue=-1.0, maxAllowedValue=1.0)
 
-            grid = where(logical_not(insideRMWMask), grid * (1 - corrGrid), grid)
+            m = logical_not(insideRMWMask)
+            grid[m] *= (1 - corrGrid)[m]
 
         maxWind = f['maxWind']   # reset again before clipping
 
@@ -1547,7 +1547,7 @@ class Procedure (SmartScript.SmartScript):
 
         # clip values between zero and the maximum allowable wind speed
         maxWind = self.getMaxAllowableWind(maxWind)
-        grid = clip(grid, 0.0, maxWind)
+        grid.clip(0.0, maxWind, grid)
         # apply the wind reduction over land
         fraction = 1.0 - (self.lessOverLand / 100.0)
         grid = self.decreaseWindOverLand(grid, fraction, self.elevation, timeRange)
@@ -1559,8 +1559,6 @@ class Procedure (SmartScript.SmartScript):
 ##        if len(interpFcstList) == 0:
 ##            return
 
-        maxWindGrid = zeros(self.getTopo().shape)
-        
         startTime = interpFcstList[0]["validTime"]
         endTime = startTime + (123 * 3600)  # 123 hours later
 
@@ -1662,7 +1660,7 @@ class Procedure (SmartScript.SmartScript):
 
         dist = circleEA.getDistanceGrid() # dist in km
 
-        corrGrid = zeros(dist.shape)
+        corrGrid = self.empty()
 
         for quad in range(pieSlices):
 

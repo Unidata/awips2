@@ -52,7 +52,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -77,25 +77,23 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * ------------ ---------- ----------- --------------------------
  * Sep 18, 2009            mnash       Initial creation
  * 03/19/2012              D. Friedman Fix determination of "Alarm" entries.
- * 12/07/2012	15555	   m.gamazaychikov	Added methods and constants for 
- * 											the implementation of proximity alarm
- * 07/24/2014   3423       randerso    Ensure ringBell is called on UI thread
- * 09/09/2014   3580       mapeters    Removed IQueryTransport usage (no longer exists).
- * 12/03/2014   ASM #16829 D. Friedman Lazy initialization of alarmAlertBell
+ * 12/07/2012   15555  m.gamazaychikov Added methods and constants for 
+ *                                     the implementation of proximity alarm
+ * 07/24/2014    3423      randerso    Ensure ringBell is called on UI thread
+ * 09/09/2014    3580      mapeters    Removed IQueryTransport usage (no longer exists).
+ * 12/03/2014   16829      D. Friedman Lazy initialization of alarmAlertBell
+ * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
+ * 11/29/2015   14995  m.gamazaychikov Made sure that non-standard latlons in 
+ *                                     LAT...LON string did not result in error.
+ * 15/01/2016    5054      randerso    Use proper parent shell
+ * 03/30/2016    5513      randerso    Fixed AlarmAlertBell to display on same monitor as parent
+ *                                     code cleanup
+ * 
  * 
  * </pre>
  * 
  * @author mnash
  * @version 1.0
- */
-
-/**
- * @author michaelg
- *
- */
-/**
- * @author michaelg
- * 
  */
 public class AlarmAlertFunctions {
 
@@ -133,10 +131,6 @@ public class AlarmAlertFunctions {
 
     private static final double ONE_DEGREE_KM = 111.20;
 
-    protected void getGIS() {
-
-    }
-
     /**
      * Create the string for distance in the dialog
      * 
@@ -153,13 +147,14 @@ public class AlarmAlertFunctions {
              * DR15555 - check the text content, if it is not a valid number set
              * the text to default 3000 mi
              */
-            Scanner scn = new Scanner(prod.getAorDistance());
-            while (scn.hasNext()) {
-                if (!scn.hasNextInt()) {
-                    prod.setAorDistance(DEFAULT_DISTANCE);
-                    break;
-                } else {
-                    scn.next();
+            try (Scanner scn = new Scanner(prod.getAorDistance())) {
+                while (scn.hasNext()) {
+                    if (!scn.hasNextInt()) {
+                        prod.setAorDistance(DEFAULT_DISTANCE);
+                        break;
+                    } else {
+                        scn.next();
+                    }
                 }
             }
             string.append("AOR+" + prod.getAorDistance() + prod.getAorLabel());
@@ -169,12 +164,10 @@ public class AlarmAlertFunctions {
         return string.toString();
     }
 
-    protected void print(String textToPrint) {
-
-    }
-
     protected static void ringBell(boolean sound) {
-        getAlarmalertbell().open(sound);
+        if (alarmAlertBell != null) {
+            alarmAlertBell.open(sound);
+        }
     }
 
     /**
@@ -191,12 +184,11 @@ public class AlarmAlertFunctions {
         List<AlarmAlertProduct> prods = findMatches(prod.getProductId(),
                 currentAlarms);
         // did we match anything?
-        boolean alertAlarm = (prods.size() > 0);
+        boolean alertAlarm = prods.size() > 0;
         if (alertAlarm) {
             String pId = prods.get(0).getProductId();
             // first go get the product. All of the matching product identifiers
-            // are
-            // the same so just get the first.
+            // are the same so just get the first.
             List<StdTextProduct> prodList = getProduct(pId);
             AlarmAlertProduct productFound = null;
             if (prodList.size() > 0) {
@@ -205,7 +197,7 @@ public class AlarmAlertFunctions {
                     String search = p.getSearchString();
 
                     boolean match = false;
-                    if ((search != null) && (search.length() > 0)) {
+                    if (search != null && search.length() > 0) {
                         if (s.indexOf(search) >= 0) {
                             match = true;
                         }
@@ -522,7 +514,6 @@ public class AlarmAlertFunctions {
             double lonE = coords[i].x;
             if (coords[i].x < centerLon) {
                 lonE = coords[i].x - deltaX;
-                ;
             } else if (coords[i].x > centerLon) {
                 lonE = coords[i].x + deltaX;
             } else if (coords[i].x == centerLon) {
@@ -551,6 +542,9 @@ public class AlarmAlertFunctions {
         String body = stp.getProduct();
         if (body.contains("LAT...LON")) {
             Coordinate[] coords = getLatLonCoords(body);
+            if (coords.length == 0) {
+                return null;
+            }
             GeometryFactory gf = new GeometryFactory();
             return gf.createLinearRing(coords);
         }
@@ -609,6 +603,9 @@ public class AlarmAlertFunctions {
         boolean pair = false;
         Double dlat, dlong;
         StringTokenizer latlonTokens = new StringTokenizer(latLon);
+        if (latLon.length() == 0) {
+            return coordinates;
+        }
         while (latlonTokens.hasMoreTokens()) {
             currentToken = latlonTokens.nextToken();
             if (!currentToken.equals(latlon)) {
@@ -618,7 +615,7 @@ public class AlarmAlertFunctions {
                     pair = false;
 
                     dlat = (double) (Integer.parseInt(latitude) / 100.0);
-                    dlong = (double) ((Integer.parseInt(longitude) / 100.0) * (-1.0));
+                    dlong = (double) (Integer.parseInt(longitude) / 100.0 * -1.0);
                     coordinates.add(new Coordinate(dlong, dlat));
                 } else {
                     latitude = currentToken;
@@ -754,7 +751,7 @@ public class AlarmAlertFunctions {
             JAXB.marshal(alarms, file.getFile());
             try {
                 file.save();
-            } catch (LocalizationOpFailedException e) {
+            } catch (LocalizationException e) {
                 statusHandler.handle(Priority.SIGNIFICANT,
                         e.getLocalizedMessage(), e);
             }
@@ -804,7 +801,7 @@ public class AlarmAlertFunctions {
                     lFile.getFile().createNewFile();
                     try {
                         lFile.save();
-                    } catch (LocalizationOpFailedException e) {
+                    } catch (LocalizationException e) {
                         statusHandler.handle(Priority.SIGNIFICANT,
                                 e.getLocalizedMessage(), e);
                     }
@@ -844,7 +841,7 @@ public class AlarmAlertFunctions {
                     w.close();
                     try {
                         lFile.save();
-                    } catch (LocalizationOpFailedException e) {
+                    } catch (LocalizationException e) {
                         statusHandler.handle(Priority.SIGNIFICANT,
                                 e.getLocalizedMessage(), e);
                     }
@@ -864,13 +861,24 @@ public class AlarmAlertFunctions {
     }
 
     /**
-     * @return the alarmalertbell
+     * @param parent
+     *            parent shell for alarm alert bell
+     * @return the alarmAlertBell
      */
-    public static AlarmAlertBell getAlarmalertbell() {
+    public static AlarmAlertBell getAlarmAlertBell(Shell parent) {
         if (alarmAlertBell == null) {
-            // No synchronize because this must be called on the UI thread anyway.
-            alarmAlertBell = new AlarmAlertBell(new Shell());
+            alarmAlertBell = new AlarmAlertBell(parent);
         }
         return alarmAlertBell;
+    }
+
+    /**
+     * Close the alarm alert bell
+     */
+    public static void closeAlarmAlertBell() {
+        if (alarmAlertBell != null) {
+            alarmAlertBell.close();
+            alarmAlertBell = null;
+        }
     }
 }

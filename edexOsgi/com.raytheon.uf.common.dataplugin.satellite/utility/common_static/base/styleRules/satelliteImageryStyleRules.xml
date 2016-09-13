@@ -452,6 +452,7 @@
 <styleRule>
 	<paramLevelMatches>
 		<parameter>N1P</parameter>
+		<parameter>DAA</parameter>
 	</paramLevelMatches>
 	<imageStyle>
 		<displayUnits>in</displayUnits>
@@ -482,6 +483,7 @@
 <styleRule>
 	<paramLevelMatches>
 		<parameter>NTP</parameter>
+		<parameter>DTA</parameter>
 	</paramLevelMatches>
 	<imageStyle>
 		<displayUnits>in</displayUnits>

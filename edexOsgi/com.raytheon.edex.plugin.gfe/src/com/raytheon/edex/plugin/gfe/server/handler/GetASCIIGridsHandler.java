@@ -32,27 +32,31 @@ import com.raytheon.uf.common.dataplugin.gfe.request.GetASCIIGridsRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.GetGridRequest;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.message.WsId;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 import com.raytheon.uf.common.time.TimeRange;
 
 /**
- * TODO Add Description
+ * Takes temporary grid in ASCII format, converts to GridSlice, and saves to
+ * requested database.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 14, 2011  #8983     dgilling     Initial creation
- * Jun 13, 2013     #2044  randerso     Refactored to use IFPServer
+ * Date         Ticket#    Engineer     Description
+ * ------------ ---------- -----------  --------------------------
+ * Apr 14, 2011 8983       dgilling     Initial creation
+ * Jun 13, 2013 2044       randerso     Refactored to use IFPServer
+ * Jan 08, 2016 5237       tgurney      Replace calls to deprecated methods of
+ *                                      LocalizationFile + add desc in javadoc
  * 
  * </pre>
  * 
@@ -63,13 +67,6 @@ import com.raytheon.uf.common.time.TimeRange;
 public class GetASCIIGridsHandler extends BaseGfeRequestHandler implements
         IRequestHandler<GetASCIIGridsRequest> {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.serialization.comm.IRequestHandler#handleRequest
-     * (com.raytheon.uf.common.serialization.comm.IServerRequest)
-     */
     @Override
     public ServerResponse<String> handleRequest(GetASCIIGridsRequest request)
             throws Exception {
@@ -84,11 +81,13 @@ public class GetASCIIGridsHandler extends BaseGfeRequestHandler implements
         ASCIIGrid aGrid = new ASCIIGrid(gridSlices,
                 request.getCoordConversionString(), request.getSiteID());
 
-        LocalizationFile tempFile = getTempFile(request.getWorkstationID());
-        aGrid.outputAsciiGridData(tempFile.getFile());
-        tempFile.save();
+        ILocalizationFile tempFile = getTempFile(request.getWorkstationID());
+        try (SaveableOutputStream tempFileStream = tempFile.openOutputStream()) {
+            aGrid.outputAsciiGridData(tempFileStream);
+            tempFileStream.save();
+        }
 
-        sr.setPayload(tempFile.getName());
+        sr.setPayload(tempFile.getPath());
 
         return sr;
     }
@@ -187,7 +186,7 @@ public class GetASCIIGridsHandler extends BaseGfeRequestHandler implements
         return limitTime.contains(t);
     }
 
-    private LocalizationFile getTempFile(WsId requestor) throws IOException {
+    private ILocalizationFile getTempFile(WsId requestor) throws IOException {
         IPathManager pathManager = PathManagerFactory.getPathManager();
         LocalizationContext ctx = pathManager.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.USER);
@@ -199,7 +198,7 @@ public class GetASCIIGridsHandler extends BaseGfeRequestHandler implements
         }
 
         File tmpFile = File.createTempFile("ifpAG", ".txt", parentDir);
-        LocalizationFile locTmpFile = pathManager.getLocalizationFile(ctx,
+        ILocalizationFile locTmpFile = pathManager.getLocalizationFile(ctx,
                 "/gfe/ifpAG/" + tmpFile.getName());
 
         return locTmpFile;

@@ -38,7 +38,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
@@ -100,6 +99,9 @@ import com.raytheon.uf.viz.alertviz.ui.dialogs.ConfigurationFileDlg.Function;
  * 07 Feb 2013	 15490	   Xiaochuan   Past this object to LayoutControlsComp.
  * 26 Aug 2013   #2293     lvenable    Fixed color memory leak and cleaned up some code.
  * 23 Oct 2013   2303      bgonzale    Old patch to fix tool tip layout.
+ * 28 Oct 2005   5054      randerso    Removed bar position as it was written but never read
+ * 25 Jan 2016   5054      randerso    Converted to stand alone window
+ * 19 Apr 2016   5517      randerso    Fix GUI sizing issues
  * 
  * </pre>
  * 
@@ -107,8 +109,8 @@ import com.raytheon.uf.viz.alertviz.ui.dialogs.ConfigurationFileDlg.Function;
  * @version 1.0
  * 
  */
-public class AlertVisConfigDlg extends Dialog implements
-        IConfigurationChangedListener, INeedsSaveListener {
+public class AlertVisConfigDlg implements IConfigurationChangedListener,
+        INeedsSaveListener {
 
     private final String CONFIG_LABEL = "Current Config: ";
 
@@ -264,16 +266,16 @@ public class AlertVisConfigDlg extends Dialog implements
     /**
      * Constructor.
      * 
-     * @param parent
-     *            Parent shell.
+     * @param display
      * @param configData
      *            Configuration data.
      */
-    public AlertVisConfigDlg(Shell parent, final AlertMessageDlg alertMsgDlg,
-            Configuration configData, ConfigContext configContext,
+    public AlertVisConfigDlg(Display display,
+            final AlertMessageDlg alertMsgDlg, Configuration configData,
+            ConfigContext configContext,
             IConfigurationChangedListener configurationChangeListener,
             IRestartListener restartListener) {
-        super(parent, 0);
+        this.display = display;
         this.configData = configData;
         this.configContext = configContext;
         sourceMap = configData.getSources();
@@ -306,8 +308,6 @@ public class AlertVisConfigDlg extends Dialog implements
      * @return True/False.
      */
     public Object open() {
-        Shell parent = getParent();
-        display = parent.getDisplay();
         shell = new Shell(display, SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE
                 | SWT.MAX);
         shell.setText("Alert Visualization Configuration");
@@ -396,6 +396,7 @@ public class AlertVisConfigDlg extends Dialog implements
         layoutControls = new LayoutControlsComp(layoutGroup, configData, this,
                 this);
         layoutGroup.addMouseTrackListener(new MouseTrackAdapter() {
+            @Override
             public void mouseHover(MouseEvent e) {
                 mttLayout.open();
             }
@@ -418,6 +419,7 @@ public class AlertVisConfigDlg extends Dialog implements
         mttCommonSetting = new MonitorToolTip(commonSettingsGroup, true);
 
         commonSettingsGroup.addMouseTrackListener(new MouseTrackAdapter() {
+            @Override
             public void mouseHover(MouseEvent e) {
                 mttCommonSetting.open();
             }
@@ -632,6 +634,7 @@ public class AlertVisConfigDlg extends Dialog implements
         mttSource = new MonitorToolTip(sourcesLbl, false);
 
         sourcesLbl.addMouseTrackListener(new MouseTrackAdapter() {
+            @Override
             public void mouseHover(MouseEvent e) {
                 mttSource.open();
             }
@@ -686,6 +689,7 @@ public class AlertVisConfigDlg extends Dialog implements
         sourcesList.setMenu(popupMenuSourceList);
 
         popupMenuSourceList.addListener(SWT.Show, new Listener() {
+            @Override
             public void handleEvent(Event event) {
                 MenuItem[] menuItems = popupMenuSourceList.getItems();
 
@@ -852,22 +856,46 @@ public class AlertVisConfigDlg extends Dialog implements
         // Filler
         new Label(prioritiesComp, SWT.NONE);
 
-        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        gd.horizontalSpan = 6;
-        Label priorityLbl = new Label(prioritiesComp, SWT.CENTER);
-        priorityLbl.setText(getPriorityLabelText());
-        priorityLbl.setFont(labelFont);
-        priorityLbl.setLayoutData(gd);
-        priorityLbl.setData(MonitorToolTip.tooltipTextKey,
-                getPrioritiesToolTipText());
+        Label label = new Label(prioritiesComp, SWT.CENTER);
+        label.setFont(labelFont);
+        label.setText("HIGH");
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        label.setLayoutData(gd);
 
-        mttPriorities = new MonitorToolTip(priorityLbl, false);
+        label = new Label(prioritiesComp, SWT.CENTER);
+        label.setFont(labelFont);
+        label.setText("<---");
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        label.setLayoutData(gd);
 
-        priorityLbl.addMouseTrackListener(new MouseTrackAdapter() {
+        label = new Label(prioritiesComp, SWT.CENTER);
+        label.setFont(labelFont);
+        label.setText("PRIORITIES");
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.horizontalSpan = 2;
+        label.setLayoutData(gd);
+        label.setData(MonitorToolTip.tooltipTextKey, getPrioritiesToolTipText());
+        mttPriorities = new MonitorToolTip(label, false);
+
+        MouseTrackAdapter hoverListener = new MouseTrackAdapter() {
+            @Override
             public void mouseHover(MouseEvent e) {
                 mttPriorities.open();
             }
-        });
+        };
+        label.addMouseTrackListener(hoverListener);
+
+        label = new Label(prioritiesComp, SWT.CENTER);
+        label.setFont(labelFont);
+        label.setText("--->");
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        label.setLayoutData(gd);
+
+        label = new Label(prioritiesComp, SWT.CENTER);
+        label.setFont(labelFont);
+        label.setText("LOW");
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        label.setLayoutData(gd);
 
         // ---------------------------------------------------------
         // Put the priority canvases on the display
@@ -1095,21 +1123,6 @@ public class AlertVisConfigDlg extends Dialog implements
     }
 
     /**
-     * Get the text for the priorities label.
-     * 
-     * @return Label text.
-     */
-    private String getPriorityLabelText() {
-        String format = "%S";
-
-        String text = "High      <---       PRIORITIES      -->      Low";
-
-        String labelStr = String.format(format, text);
-
-        return labelStr;
-    }
-
-    /**
      * Add a separator to the display.
      * 
      * @param parent
@@ -1134,7 +1147,7 @@ public class AlertVisConfigDlg extends Dialog implements
                     sourceMap.keySet());
             Boolean saveInfo = (Boolean) newSrcCatDlg.open();
 
-            if (saveInfo != null && saveInfo == true) {
+            if ((saveInfo != null) && (saveInfo == true)) {
                 String name = newSrcCatDlg.getTextKey();
                 String desc = newSrcCatDlg.getDescription();
 
@@ -1251,17 +1264,15 @@ public class AlertVisConfigDlg extends Dialog implements
         gConfig.setMode(layoutControls.getSelectedLayoutTrayMode()); // Mandatory
                                                                      // to be
                                                                      // HERE!
-        if (alertMsgDlg != null) {
-            gConfig.setPosition(alertMsgDlg.getCurrentLocation());
-        }
     }
 
     /**
      * Populate the priority controls.
      */
     private void populatePriorityControls() {
-        if (priorityControls == null)
+        if (priorityControls == null) {
             return;
+        }
 
         int index = sourcesList.getSelectionIndex();
 
@@ -1518,14 +1529,14 @@ public class AlertVisConfigDlg extends Dialog implements
     private String getCommonSettingToolTipText() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("This are general settings.  The left\n");
+        sb.append("These are general settings.  The left\n");
         sb.append("side describes how the text message\n");
         sb.append("representations will be affected\n");
         sb.append("in the main GUI (if text is turned\n");
-        sb.append(" on for thekey/priority) and the Pop-ups\n");
-        sb.append("and how long thetext blinking and system\n");
-        sb.append("audio execution willlast (again, if turned\n");
-        sb.append("on).  The right side definesother, general\n");
+        sb.append("on for the key/priority) and the Pop-ups\n");
+        sb.append("and how long the text blinking and system\n");
+        sb.append("audio execution will last (again, if turned\n");
+        sb.append("on).  The right side defines other, general\n");
         sb.append("behavior.");
         sb.append("NOTE: to make blinking or audio \n");
         sb.append("responses perpetual, set the duration to 0.");

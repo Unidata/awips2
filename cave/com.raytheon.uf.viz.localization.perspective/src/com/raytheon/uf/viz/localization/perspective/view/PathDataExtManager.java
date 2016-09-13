@@ -46,7 +46,9 @@ import com.raytheon.uf.viz.localization.filetreeview.PathData;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 7, 2012            mschenke     Initial creation
+ * Sep 7, 2012             mschenke    Initial creation
+ * Oct 13, 2015 4410       bsteffen    Allow localization perspective to mix
+ *                                     files for multiple Localization Types.
  * 
  * </pre>
  * 
@@ -108,14 +110,14 @@ public class PathDataExtManager {
                         statusHandler
                                 .handle(Priority.PROBLEM,
                                         "Skipping path extension entry with no path set");
+                        continue;
                     }
                     pd.setFilter(element.getAttribute(FILTER_ATTR));
                     String recurse = element.getAttribute(RECURSIVE_ATTR);
                     pd.setRecursive(Boolean.parseBoolean(recurse));
 
-                    pd.setType(LocalizationType.valueOf(element
-                            .getAttribute(TYPE_ATTR)));
-                    if (pd.getType() == null) {
+                    String typesString = element.getAttribute(TYPE_ATTR);
+                    if (typesString == null) {
                         // Skip if bad localization type specified
                         statusHandler.handle(
                                 Priority.PROBLEM,
@@ -126,6 +128,11 @@ public class PathDataExtManager {
                                         + element.getAttribute(TYPE_ATTR));
                         continue;
                     }
+                    List<LocalizationType> types = new ArrayList<>();
+                    for (String typeString : typesString.split(",")) {
+                        types.add(LocalizationType.valueOf(typeString));
+                    }
+                    pd.setTypes(types);
                     LocalizationPerspectiveAdapter adapter = DEFAULT_ADAPTER;
                     try {
                         if (element.getAttribute(ADAPTER_ATTR) != null) {
@@ -135,11 +142,11 @@ public class PathDataExtManager {
                     } catch (Throwable t) {
                         statusHandler
                                 .handle(Priority.PROBLEM,
-                                        "Skipping path with name: "
+                                "Error constructing adapter for path with name: "
                                                 + pd.getName()
                                                 + " and path: "
                                                 + pd.getPath()
-                                                + " due to error constructing adapter: "
+                                        + " the default adapter will be used: "
                                                 + t.getLocalizedMessage(), t);
                     }
                     pd.setAdapter(adapter);

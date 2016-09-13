@@ -20,9 +20,10 @@
 package com.raytheon.uf.viz.spellchecker.dialogs;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
@@ -64,11 +65,11 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.spellchecker.jobs.SpellCheckJob;
 
 /**
@@ -84,7 +85,12 @@ import com.raytheon.uf.viz.spellchecker.jobs.SpellCheckJob;
  * 10/23/2014   #3685      randerso    Changes to support mixed case
  * 10/30/2014   #16693     lshi        Add more swear words to the filter
  * 03/30/2015   #4344      dgilling    Make bad word filter configurable.
- * 
+ * 08/31/2015   #4781      dgilling    Improve handling of proper nouns in all 
+ *                                     caps mode, move override dictionary to
+ *                                     SITE level.
+ * 05/25/2016   DR16930    MPorricelli Added suggestionsBlackList to spellCheckJob
+ *                                     for flagging of words that are in
+ *                                     inappropriateWords.txt blacklist
  * </pre>
  * 
  * @author lvenable
@@ -96,77 +102,12 @@ public class SpellCheckDlg extends Dialog implements ISpellingProblemCollector {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SpellCheckDlg.class);
 
-    private static final Pattern DIGITS = Pattern.compile("\\d");
+    private static final String SPELLCHECKER = "spellchecker";
 
-    private static final String SUGGESTION_BLACKLIST_PATH = FileUtil.join(
-            "spellchecker", "inappropriateWords.txt");
+    private static final String SUGGESTION_BLACKLIST_PATH = SPELLCHECKER
+            + IPathManager.SEPARATOR + "inappropriateWords.txt";
 
     private static final Pattern COMMENT = Pattern.compile("^#");
-
-    /**
-     * The event handler for the check word button. It doubles as the problem
-     * collector for its internal SpellCheckJob.
-     * 
-     * @author wldougher
-     */
-    class CheckWord extends SelectionAdapter implements
-            ISpellingProblemCollector {
-
-        private SpellCheckJob wordCheckJob;
-
-        private SpellingProblem wordProblem;
-
-        /*
-         * If there's a spelling problem with the replacement word, save the
-         * fact that it was wrong and jump to the end.
-         * 
-         * @see
-         * org.eclipse.ui.texteditor.spelling.ISpellingProblemCollector#accept
-         * (org.eclipse.ui.texteditor.spelling.SpellingProblem)
-         */
-        @Override
-        public void accept(SpellingProblem problem) {
-            wordProblem = problem;
-            endCollecting();
-        }
-
-        /*
-         * 
-         * @seeorg.eclipse.ui.texteditor.spelling.ISpellingProblemCollector#
-         * beginCollecting()
-         */
-        @Override
-        public void beginCollecting() {
-            wordProblem = null;
-        }
-
-        /**
-         * Tell the user if the replacement word is spelled correctly or not.
-         * 
-         * @seeorg.eclipse.ui.texteditor.spelling.ISpellingProblemCollector# 
-         *                                                                   endCollecting
-         *                                                                   ()
-         */
-        @Override
-        public void endCollecting() {
-            if (wordProblem == null) {
-                wordCheckLbl.setText("The word is correct");
-            } else {
-                wordCheckLbl.setText(wordProblem.getMessage());
-            }
-        }
-
-        /**
-         * The action taken when the check word button is clicked.
-         */
-        @Override
-        public void widgetSelected(SelectionEvent evt) {
-            wordCheckJob = new SpellCheckJob("wordCheck");
-            wordCheckJob.setCollector(this);
-            wordCheckJob.setText(replaceWithTF.getText());
-            wordCheckJob.schedule();
-        }
-    }
 
     /**
      * A pattern to recognize "add to dictionary" proposals
@@ -189,9 +130,10 @@ public class SpellCheckDlg extends Dialog implements ISpellingProblemCollector {
             .getSystemColor(SWT.COLOR_RED));
 
     /**
-     * The simple name of the user spelling dictionary file
+     * The path to the site level spelling dictionary file
      */
-    private static final String SPELLDICT = "spelldict";
+    private static final String SPELLDICT = SPELLCHECKER
+            + IPathManager.SEPARATOR + "spelldict.txt";
 
     private Button addWordBtn;
 
@@ -260,17 +202,13 @@ public class SpellCheckDlg extends Dialog implements ISpellingProblemCollector {
 
     private boolean userDEncodingWasDefault;
 
-    private LocalizationFile userDLFile;
+    private LocalizationFile siteDictionary;
 
     private String userDToRestore;
 
     private boolean userDWasDefault;
 
     private Label wordCheckLbl;
-
-    private String category = "WORKSTATION";
-
-    private String source = "SPELL_CHECKER";
 
     private boolean sentenceWasDefault;
 
@@ -290,39 +228,24 @@ public class SpellCheckDlg extends Dialog implements ISpellingProblemCollector {
 
     private Collection<String> suggestionsBlacklist;
 
+    private final boolean isMixedCase;
+
     /**
      * Constructor.
      * 
      * @param parent
      *            Parent shell.
-     * @param styledTest
-     *            control containing the text to spell check
-     */
-    public SpellCheckDlg(Shell parent, StyledText styledText) {
-        super(parent, SWT.NONE);
-        this.styledText = styledText;
-        init();
-    }
-
-    /**
-     * Constructor. This version allows the client to pass in the category and
-     * source used for message posting.
-     * 
-     * @param parent
-     *            the parent shell
      * @param styledText
      *            control containing the text to spell check
-     * @param category
-     *            Alert VIZ category
-     * @param source
-     *            Alert VIZ source
+     * @param isMixedCase
+     *            whether or not this product is in mixed case mode.
      */
-    public SpellCheckDlg(Shell parent, StyledText styledText, String category,
-            String source) {
+    public SpellCheckDlg(Shell parent, StyledText styledText,
+            boolean isMixedCase) {
         super(parent, SWT.NONE);
         this.styledText = styledText;
-        this.category = category;
-        this.source = source;
+        this.isMixedCase = isMixedCase;
+        this.siteDictionary = getAdditionalDictionary();
         init();
     }
 
@@ -336,6 +259,7 @@ public class SpellCheckDlg extends Dialog implements ISpellingProblemCollector {
         spellCheckJob.setCollector(this);
 
         suggestionsBlacklist = getSuggestionsBlacklist();
+        spellCheckJob.setBlacklist(suggestionsBlacklist);
     }
 
     private Collection<String> getSuggestionsBlacklist() {
@@ -402,14 +326,28 @@ public class SpellCheckDlg extends Dialog implements ISpellingProblemCollector {
             return;
         }
 
+        /* skip any locked text ranges */
+        StyleRange styleRange = styledText.getStyleRangeAtOffset(problem
+                .getOffset());
+        if ((styleRange != null) && (!styleRange.isUnstyled())
+                && (!styleRange.similarTo(REDSTYLE))) {
+            scanForErrors();
+            return;
+        }
+
+        /* skip any word we set to ignore */
+        styledText.setSelectionRange(problem.getOffset(), problem.getLength());
+        String badWord = styledText.getSelectionText();
+        if (ignoreAll.contains(badWord)) {
+            scanForErrors();
+            return;
+        }
+
         this.problem = problem;
         addWordProposal = null;
 
-        styledText.setSelectionRange(problem.getOffset(), problem.getLength());
-        styledText.showSelection();
-        String badWord = styledText.getSelectionText();
-        misspelledLbl.setText(badWord);
-
+        java.util.List<String> suggestions = new ArrayList<>();
+        boolean foundProperNoun = false;
         ICompletionProposal[] proposals = problem.getProposals();
         if ((proposals != null) && (proposals.length > 0)) {
             for (ICompletionProposal proposal : proposals) {
@@ -417,9 +355,22 @@ public class SpellCheckDlg extends Dialog implements ISpellingProblemCollector {
                 Matcher pdMatch = CHANGE_TO.matcher(pdString);
                 if (pdMatch.matches()) {
                     String replString = pdMatch.group(1);
+
+                    /*
+                     * To prevent improperly flagging proper nouns in all caps
+                     * mode, we'll assume that if the spell checker suggests the
+                     * same spelling but a different case that the word is
+                     * correct and scan ahead for the next spelling mistake.
+                     */
+                    if ((!isMixedCase)
+                            && (badWord.equalsIgnoreCase(replString))) {
+                        foundProperNoun = true;
+                        break;
+                    }
+
                     if (!suggestionsBlacklist
                             .contains(replString.toUpperCase())) {
-                        suggestionList.add(replString);
+                        suggestions.add(replString);
                     }
                 }
                 Matcher addMatch = ADD_TO.matcher(pdString);
@@ -427,42 +378,33 @@ public class SpellCheckDlg extends Dialog implements ISpellingProblemCollector {
                     addWordProposal = proposal;
                 }
             }
-            if (suggestionList.getItemCount() > 0) {
-                suggestionList.select(0);
-                replaceWithTF.setText(suggestionList.getItem(0));
-            }
+
         }
 
-        StyleRange styleRange = styledText.getStyleRangeAtOffset(problem
-                .getOffset());
-        if ((styleRange == null) || styleRange.isUnstyled()
-                || styleRange.similarTo(REDSTYLE)) {
-            if (ignoreAll.contains(badWord)) {
-                scanForErrors();
-            } else {
-                replaceBtn.setEnabled(true);
-                ignoreBtn.setEnabled(true);
-                if (addWordProposal != null) {
-                    addWordBtn.setEnabled(true);
-                }
-                replaceAllBtn.setEnabled(true);
-                ignoreAllBtn.setEnabled(true);
-                checkWordBtn.setEnabled(true);
-            }
-        } else { // skip locked text ranges
+        if (foundProperNoun) {
             scanForErrors();
+            return;
         }
 
-        // Skip "misspellings" that contain numbers. I use Matcher here because
-        // for some reason, Eclipse's spell checker API's preference for this
-        // does absolutely nothing.
-        // TODO: Remove this code when Eclipse spell checking properly respects
-        // PreferenceConstants.SPELLING_IGNORE_DIGITS
-        Matcher containsDigits = DIGITS.matcher(badWord);
-        if (containsDigits.find()) {
-            scanForErrors();
+        /*
+         * We have an actual spelling error to present to the user, so now let's
+         * update all the UI.
+         */
+        misspelledLbl.setText(badWord);
+        suggestionList.setItems(suggestions.toArray(new String[0]));
+        if (suggestionList.getItemCount() > 0) {
+            suggestionList.select(0);
+            replaceWithTF.setText(suggestionList.getItem(0));
         }
-
+        styledText.showSelection();
+        replaceBtn.setEnabled(true);
+        ignoreBtn.setEnabled(true);
+        if (addWordProposal != null) {
+            addWordBtn.setEnabled(true);
+        }
+        replaceAllBtn.setEnabled(true);
+        ignoreAllBtn.setEnabled(true);
+        checkWordBtn.setEnabled(true);
     }
 
     /*
@@ -646,7 +588,20 @@ public class SpellCheckDlg extends Dialog implements ISpellingProblemCollector {
                 IDocument dummyDoc = new Document();
                 addWordProposal.apply(dummyDoc);
                 try {
-                    userDLFile.save();
+                    /*
+                     * TODO how will this work in later iterations of the
+                     * Localization API? Right now the eclipse internal spell
+                     * checker engine controls reads/writes to our locally
+                     * cached version of the file. We call save here to send the
+                     * updated file up to the localization store.
+                     * 
+                     * Probably need to consider sub-classing the eclipse spell
+                     * checker in a way that allows us to control writes to the
+                     * localization files to prevent potential collision issues
+                     * with multiple users trying to update the SITE-level
+                     * dictionary.
+                     */
+                    siteDictionary.save();
                 } catch (Exception e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Error saving user dictionary", e);
@@ -926,44 +881,113 @@ public class SpellCheckDlg extends Dialog implements ISpellingProblemCollector {
         xstore.setValue(PreferenceConstants.SPELLING_IGNORE_MIXED, false);
         xstore.setValue(PreferenceConstants.SPELLING_IGNORE_UPPER, false);
         xstore.setValue(PreferenceConstants.SPELLING_IGNORE_SENTENCE, true);
-        // In SpellCheckDlg.accept() above, we do the work of this preference,
-        // since the spell checker will still return errors that contain digits.
-        xstore.setValue(PreferenceConstants.SPELLING_IGNORE_DIGITS, true);
+        xstore.setValue(PreferenceConstants.SPELLING_IGNORE_DIGITS, false);
         xstore.setValue(PreferenceConstants.SPELLING_IGNORE_NON_LETTERS, true);
         xstore.setValue(PreferenceConstants.SPELLING_IGNORE_SINGLE_LETTERS,
                 true);
-
-        // Find/create the user dictionary
-        // Since eclipse doesn't support more than a master and user dictionary,
-        // we have a master user dictionary template which contains common words
-        // not in our master dictionary.
-        IPathManager pathManager = PathManagerFactory.getPathManager();
-        LocalizationContext ctx = pathManager.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
-        userDLFile = pathManager.getLocalizationFile(ctx, SPELLDICT);
-        if (!userDLFile.exists()) {
-            File userDFile = userDLFile.getFile();
-            if (!userDFile.exists()) {
-                try {
-                    userDFile.createNewFile();
-                    LocalizationFile defaultDLFile = pathManager
-                            .getLocalizationFile(pathManager.getContext(
-                                    LocalizationType.CAVE_STATIC,
-                                    LocalizationLevel.BASE), SPELLDICT);
-                    FileUtil.copyFile(defaultDLFile.getFile(), userDFile);
-                    userDLFile.save();
-                } catch (IOException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error creating user dictionary", e);
-                } catch (LocalizationException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error creating user dictionary", e);
-                }
-            }
-        }
-        String pathSpec = userDLFile.getFile().getAbsolutePath();
-        xstore.setValue(PreferenceConstants.SPELLING_USER_DICTIONARY, pathSpec);
+        xstore.setValue(PreferenceConstants.SPELLING_USER_DICTIONARY,
+                siteDictionary.getFile().getAbsolutePath());
         xstore.setValue(PreferenceConstants.SPELLING_USER_DICTIONARY_ENCODING,
                 DICTIONARY_ENCODING);
+    }
+
+    private LocalizationFile getAdditionalDictionary() {
+        /*
+         * Since eclipse doesn't support more than a master and user dictionary,
+         * we have a master user dictionary template (which we install at SITE
+         * level) which contains common words not in our master dictionary.
+         */
+        IPathManager pathManager = PathManagerFactory.getPathManager();
+        LocalizationContext siteCtx = pathManager.getContext(
+                LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
+        LocalizationFile siteDictionary = pathManager.getLocalizationFile(
+                siteCtx, SPELLDICT);
+        if (!siteDictionary.exists()) {
+            LocalizationContext baseCtx = pathManager.getContext(
+                    LocalizationType.CAVE_STATIC, LocalizationLevel.BASE);
+            LocalizationFile dictionaryTemplate = pathManager
+                    .getLocalizationFile(baseCtx, SPELLDICT);
+
+            try (SaveableOutputStream outStream = siteDictionary
+                    .openOutputStream();
+                    InputStream inStream = dictionaryTemplate.openInputStream()) {
+                byte[] copyBuffer = new byte[4096];
+                while (inStream.available() > 0) {
+                    int bytesRead = inStream.read(copyBuffer);
+                    outStream.write(copyBuffer, 0, bytesRead);
+                }
+                outStream.save();
+            } catch (IOException | LocalizationException e) {
+                statusHandler.error("Error creating site spelling dictionary.",
+                        e);
+            }
+        }
+
+        return siteDictionary;
+    }
+
+    /**
+     * The event handler for the check word button. It doubles as the problem
+     * collector for its internal SpellCheckJob.
+     * 
+     * @author wldougher
+     */
+    class CheckWord extends SelectionAdapter implements
+            ISpellingProblemCollector {
+
+        private SpellCheckJob wordCheckJob;
+
+        private SpellingProblem wordProblem;
+
+        /*
+         * If there's a spelling problem with the replacement word, save the
+         * fact that it was wrong and jump to the end.
+         * 
+         * @see
+         * org.eclipse.ui.texteditor.spelling.ISpellingProblemCollector#accept
+         * (org.eclipse.ui.texteditor.spelling.SpellingProblem)
+         */
+        @Override
+        public void accept(SpellingProblem problem) {
+            wordProblem = problem;
+            endCollecting();
+        }
+
+        /*
+         * 
+         * @seeorg.eclipse.ui.texteditor.spelling.ISpellingProblemCollector#
+         * beginCollecting()
+         */
+        @Override
+        public void beginCollecting() {
+            wordProblem = null;
+        }
+
+        /**
+         * Tell the user if the replacement word is spelled correctly or not.
+         * 
+         * @seeorg.eclipse.ui.texteditor.spelling.ISpellingProblemCollector# 
+         *                                                                   endCollecting
+         *                                                                   ()
+         */
+        @Override
+        public void endCollecting() {
+            if (wordProblem == null) {
+                wordCheckLbl.setText("The word is correct");
+            } else {
+                wordCheckLbl.setText(wordProblem.getMessage());
+            }
+        }
+
+        /**
+         * The action taken when the check word button is clicked.
+         */
+        @Override
+        public void widgetSelected(SelectionEvent evt) {
+            wordCheckJob = new SpellCheckJob("wordCheck");
+            wordCheckJob.setCollector(this);
+            wordCheckJob.setText(replaceWithTF.getText());
+            wordCheckJob.schedule();
+        }
     }
 }

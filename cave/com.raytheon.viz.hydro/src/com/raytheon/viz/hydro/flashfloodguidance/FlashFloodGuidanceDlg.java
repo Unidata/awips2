@@ -20,41 +20,48 @@
 package com.raytheon.viz.hydro.flashfloodguidance;
 
 import java.io.File;
-import java.sql.Timestamp;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
-import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
+import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
-import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Layout;
-import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 
+import com.raytheon.uf.common.dataplugin.shef.tables.Admin;
 import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.uf.common.ohd.AppsDefaultsDirKeys;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
@@ -77,6 +84,11 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 13 Oct 2009  2256       mpduff      Implement the dialog.
  * 07 Feb 2013  1578       rferrel     Changes for non-blocking dialog.
  * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
+ * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
+ * Jan 26, 2016 5264       bkowal      Eliminate use of System println.
+ * Mar 15, 2016 5483       randerso    Fix GUI sizing issues
+ * Mar 15, 2016 5483       bkowal      Fix GUI sizing issues
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -84,8 +96,13 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  */
 public class FlashFloodGuidanceDlg extends CaveSWTDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(getClass());
+
     /** Date format for the dates */
     private static SimpleDateFormat sdf = null;
+
+    private static SimpleDateFormat xmrgDateFormat;
 
     /** List of RFC names */
     private static final String[] RFC_NAMES = { "ABRFC", "AKRFC", "CBRFC",
@@ -96,21 +113,63 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
     private static final String[] DURATIONS = { "All", "01hr", "03hr", "06hr",
             "12hr", "24hr" };
 
+    private static final String FFG_AREA_WFO = "WFO";
+
+    private static final String FFG_AREA_RFC = "RFC";
+
+    private static final String[] FFG_AREAS = { FFG_AREA_WFO, FFG_AREA_RFC };
+
+    private static final int NUM_FFG_ROWS = 12;
+
+    private static final String ID_COLUMN_HEADER = "Id";
+
+    private static final String TYPE_COLUMN_HEADER = "Type";
+
+    private static final String FFG_NAME_REGEX = "^(.{3," + Admin.HSA_LENGTH
+            + "})(\\d{10})(\\d{2})\\.ffg$";
+
+    private static final Pattern FFG_NAME_PATTERN = Pattern
+            .compile(FFG_NAME_REGEX);
+
+    private static final int FFG_WFO_GROUP = 1;
+
+    private static final int FFG_DATE_GROUP = 2;
+
+    private static final int FFG_DURATION_GROUP = 3;
+
+    private enum CONSTANT_FFG_COLUMNS {
+        DUR_HR("DurHr"), TIMEZ("Time(Z)");
+
+        private final String text;
+
+        private CONSTANT_FFG_COLUMNS(String text) {
+            this.text = text;
+        }
+
+        public String getText() {
+            return text;
+        }
+    };
+
+    private Table ffgTable;
+
     /* Initialize the date format */
     static {
         sdf = new SimpleDateFormat("EEE MM-dd HH");
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+        sdf.setTimeZone(TimeUtil.GMT_TIME_ZONE);
+        xmrgDateFormat = new SimpleDateFormat("yyyyMMddHH");
+        xmrgDateFormat.setTimeZone(TimeUtil.GMT_TIME_ZONE);
     }
 
     /**
      * FFG option string.
      */
-    private final String ffgOptionsStr = " Gridded FFG Options: ";
+    private final String ffgOptionsStr = "Gridded FFG Options";
 
     /**
      * Areal option string.
      */
-    private final String arealOptionsStr = " Areal FFG Options: ";
+    private final String arealOptionsStr = "Areal FFG Options";
 
     /**
      * Gridded radio button.
@@ -121,21 +180,6 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
      * Areal radio button.
      */
     private Button arealRdo;
-
-    /**
-     * Font used for list controls.
-     */
-    private Font font;
-
-    /**
-     * FFG data list.
-     */
-    private List dataList;
-
-    /**
-     * ID Type label.
-     */
-    private Label idTypeLbl;
 
     /**
      * Select button.
@@ -218,7 +262,7 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
     private Button closeBtn;
 
     /** Bundle variables */
-    private final Map<String, String> parameters = new HashMap<String, String>();
+    private final Map<String, String> parameters = new HashMap<>();
 
     /**
      * The selected RFC.
@@ -241,16 +285,6 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
     private int duration = 3600;
 
     /**
-     * Holds the display string and insert time for later use.
-     */
-    private final Map<String, Date> dataMap = new HashMap<String, Date>();
-
-    /**
-     * Holds the display string and the xmrg File object.
-     */
-    private final Map<String, File> fileMap = new HashMap<String, File>();
-
-    /**
      * The wait mouse pointer.
      */
     private Cursor waitCursor = null;
@@ -267,56 +301,22 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
      *            Parent shell.
      */
     public FlashFloodGuidanceDlg(Shell parent) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
+        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
         setText("Flash Flood Guidance");
         waitCursor = parent.getDisplay().getSystemCursor(SWT.CURSOR_WAIT);
         arrowCursor = parent.getDisplay().getSystemCursor(SWT.CURSOR_ARROW);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
-     */
-    @Override
-    protected Layout constructShellLayout() {
-        // Create the main layout for the shell.
-        GridLayout mainLayout = new GridLayout(1, true);
-        mainLayout.marginHeight = 1;
-        mainLayout.marginWidth = 1;
-        return mainLayout;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
-     */
-    @Override
-    protected void disposed() {
-        font.dispose();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
-     * .eclipse.swt.widgets.Shell)
-     */
     @Override
     protected void initializeComponents(Shell shell) {
-        font = new Font(shell.getDisplay(), "Monospace", 11, SWT.NORMAL);
-
         createGridArealControls();
-        createListLabels();
-        createDataListControl();
+        createFFGDataTable();
         createDataListControlButtons();
         createOptionsGroup();
         createColorLegend();
         createBottomCloseButton();
 
-        populateDataList();
+        populateFFGDataTable();
     }
 
     /**
@@ -324,10 +324,11 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
      */
     private void createGridArealControls() {
         Group gridArealGroup = new Group(shell, SWT.NONE);
-        gridArealGroup.setText(" FFG Mode: ");
+        gridArealGroup.setText("FFG Mode");
         RowLayout gridArealLayout = new RowLayout();
-        gridArealLayout.spacing = 5;
         gridArealGroup.setLayout(gridArealLayout);
+        gridArealGroup.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
+                false));
 
         griddedRdo = new Button(gridArealGroup, SWT.RADIO);
         griddedRdo.setText("Gridded");
@@ -335,16 +336,13 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
         griddedRdo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                idTypeLbl.setText("Id");
-
                 ffgArealOptGroup.setText(ffgOptionsStr);
 
                 stackLayout.topControl = ffgOptionsComp;
                 stackComposite.layout();
 
-                // Clear the data list and reload
-                dataList.removeAll();
-                populateDataList();
+                // Clear the data table and reload
+                populateFFGDataTable();
             }
         });
 
@@ -353,73 +351,96 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
         arealRdo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                idTypeLbl.setText("Type");
-
                 ffgArealOptGroup.setText(arealOptionsStr);
 
                 stackLayout.topControl = arealOptionsComp;
                 stackComposite.layout();
 
-                // Clear the data list and reload
-                dataList.removeAll();
-                populateDataList();
+                // Clear the data table and reload
+                populateFFGDataTable();
             }
         });
     }
 
-    /**
-     * Create the labels for the data list.
-     */
-    private void createListLabels() {
-        Composite labelComp = new Composite(shell, SWT.NONE);
-        RowLayout layout = new RowLayout();
-        labelComp.setLayout(layout);
+    private void createFFGDataTable() {
+        Composite tableComp = new Composite(shell, SWT.NONE);
+        GridLayout gl = new GridLayout(1, false);
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        tableComp.setLayout(gl);
+        tableComp.setLayoutData(gd);
 
-        RowData rd = new RowData(40, SWT.DEFAULT);
-        idTypeLbl = new Label(labelComp, SWT.RIGHT);
-        idTypeLbl.setText("Id");
-        idTypeLbl.setLayoutData(rd);
-
-        rd = new RowData(65, SWT.DEFAULT);
-        Label durHrLbl = new Label(labelComp, SWT.RIGHT);
-        durHrLbl.setText("DurHr");
-        durHrLbl.setLayoutData(rd);
-
-        rd = new RowData(75, SWT.DEFAULT);
-        Label timeLbl = new Label(labelComp, SWT.RIGHT);
-        timeLbl.setText("    Time(Z)");
-        timeLbl.setLayoutData(rd);
-    }
-
-    /**
-     * Create the data list control.
-     */
-    private void createDataListControl() {
-        GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, false, false);
-        gd.widthHint = 255;
-        gd.heightHint = 250;
-        dataList = new List(shell, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
-        dataList.setLayoutData(gd);
-
-        dataList.setFont(font);
-        dataList.addMouseListener(new MouseListener() {
+        ffgTable = new Table(tableComp, SWT.BORDER | SWT.V_SCROLL | SWT.SINGLE);
+        ffgTable.setHeaderVisible(true);
+        ffgTable.setLinesVisible(true);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gd.heightHint = ffgTable.getItemHeight() * NUM_FFG_ROWS;
+        ffgTable.setLayoutData(gd);
+        ffgTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseDoubleClick(MouseEvent e) {
-                // Display data on double click
                 // Clear the previous data
                 clearData();
                 // Display the new data
                 displayData();
             }
-
-            @Override
-            public void mouseDown(MouseEvent e) {
-            }
-
-            @Override
-            public void mouseUp(MouseEvent e) {
-            }
         });
+    }
+
+    private void populateFFGDataTable() {
+        /*
+         * Clear any previous data.
+         */
+        if (ffgTable.getItemCount() > 0) {
+            ffgTable.removeAll();
+        }
+        if (ffgTable.getColumnCount() > 0) {
+            for (TableColumn tc : ffgTable.getColumns()) {
+                tc.dispose();
+            }
+        }
+
+        /*
+         * Add the table column headers.
+         */
+        final String firstColumnTxt = (griddedRdo.getSelection()) ? ID_COLUMN_HEADER
+                : TYPE_COLUMN_HEADER;
+        GC gc = new GC(ffgTable);
+        gc.setFont(ffgTable.getFont());
+        TableColumn tc = new TableColumn(ffgTable, SWT.CENTER);
+        tc.setText(firstColumnTxt);
+        tc.pack();
+        for (CONSTANT_FFG_COLUMNS ffgColumn : CONSTANT_FFG_COLUMNS.values()) {
+            tc = new TableColumn(ffgTable, SWT.CENTER);
+            tc.setText(ffgColumn.getText());
+            tc.pack();
+        }
+
+        gc.dispose();
+
+        /*
+         * Populate the table with data.
+         */
+        if (griddedRdo.getSelection()) {
+            readGriddedFfgProduct();
+        } else {
+            readArealFfgProduct();
+        }
+    }
+
+    private void addTableRows(List<FFGGuidanceData> rowDataList) {
+        Collections.sort(rowDataList, new FFGGuidanceDataComparator());
+
+        for (FFGGuidanceData rowData : rowDataList) {
+            TableItem ti = new TableItem(ffgTable, SWT.NONE);
+            ti.setData(rowData);
+            final String[] tableItemValues = new String[] {
+                    rowData.getIdentifier(), rowData.getFormattedDuration(),
+                    rowData.getFormattedDateTime() };
+            ti.setText(tableItemValues);
+        }
+        for (TableColumn tc : ffgTable.getColumns()) {
+            tc.pack();
+        }
     }
 
     /**
@@ -433,18 +454,20 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
         centeredComp.setLayoutData(gd);
 
         Composite dataControlComp = new Composite(centeredComp, SWT.NONE);
-        RowLayout layout = new RowLayout();
-        layout.spacing = 20;
-        dataControlComp.setLayout(layout);
+        gl = new GridLayout(2, true);
+        dataControlComp.setLayout(gl);
 
-        RowData rd = new RowData(80, SWT.DEFAULT);
+        final int minimumButtonWidth = dataControlComp.getDisplay().getDPI().x;
+
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false);
+        gd.minimumWidth = minimumButtonWidth;
         selectBtn = new Button(dataControlComp, SWT.PUSH);
         selectBtn.setText("Select");
-        selectBtn.setLayoutData(rd);
+        selectBtn.setLayoutData(gd);
         selectBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (dataList.getSelectionIndex() < 0) {
+                if (ffgTable.getSelectionCount() <= 0) {
                     MessageBox mb = new MessageBox(getParent(),
                             SWT.ICON_WARNING | SWT.OK);
                     mb.setText("Selection Needed");
@@ -459,18 +482,15 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
             }
         });
 
-        rd = new RowData(80, SWT.DEFAULT);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false);
+        gd.minimumWidth = minimumButtonWidth;
         clearBtn = new Button(dataControlComp, SWT.PUSH);
         clearBtn.setText("Clear");
-        clearBtn.setLayoutData(rd);
+        clearBtn.setLayoutData(gd);
         clearBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 clearData();
-                // if ( isThereFfgDataToDraw ( ) != 0 )
-                // {
-                // turnOffFfgData ( ) ;
-                // }
             }
         });
     }
@@ -508,35 +528,34 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
         ffgOptionsComp.setLayout(gl);
 
         Label ffgAreaLbl = new Label(ffgOptionsComp, SWT.RIGHT);
-        ffgAreaLbl.setText("FFG Area: ");
+        ffgAreaLbl.setText("FFG Area:");
 
-        GridData gd = new GridData(100, SWT.DEFAULT);
+        GridData gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
         ffgAreaCbo = new Combo(ffgOptionsComp, SWT.DROP_DOWN | SWT.READ_ONLY);
-        ffgAreaCbo.add("WFO");
-        ffgAreaCbo.add("RFC");
+        ffgAreaCbo.setItems(FFG_AREAS);
         ffgAreaCbo.select(0);
         ffgAreaCbo.setLayoutData(gd);
         ffgAreaCbo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (ffgAreaCbo.getText().compareTo("WFO") == 0) {
+                if (FFG_AREA_WFO.equals(ffgAreaCbo.getText())) {
                     ffgIdCbo.setEnabled(false);
                 } else {
                     ffgIdCbo.setEnabled(true);
                 }
 
-                populateDataList();
+                populateFFGDataTable();
             }
         });
 
         Label ffgIdLbl = new Label(ffgOptionsComp, SWT.RIGHT);
-        ffgIdLbl.setText("Id: ");
+        ffgIdLbl.setText("ID:");
 
         // ------------------------------------------------
         // NOTE: The FFG ID combo box data may be dynamic
         // so the items in the list may change.
         // ------------------------------------------------
-        gd = new GridData(100, SWT.DEFAULT);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
         ffgIdCbo = new Combo(ffgOptionsComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         ffgIdCbo.add("All");
         for (String s : RFC_NAMES) {
@@ -547,25 +566,18 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
         ffgIdCbo.setLayoutData(gd);
         ffgIdCbo.addSelectionListener(new SelectionAdapter() {
 
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-             * .swt.events.SelectionEvent)
-             */
             @Override
             public void widgetSelected(SelectionEvent e) {
                 selectedRFC = ffgIdCbo.getItem(ffgIdCbo.getSelectionIndex());
-                populateDataList();
+                populateFFGDataTable();
             }
 
         });
 
         Label ffgDurLbl = new Label(ffgOptionsComp, SWT.RIGHT);
-        ffgDurLbl.setText("Dur: ");
+        ffgDurLbl.setText("Duration:");
 
-        gd = new GridData(100, SWT.DEFAULT);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
         ffgDurCbo = new Combo(ffgOptionsComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         for (String s : DURATIONS) {
             ffgDurCbo.add(s);
@@ -573,26 +585,18 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
         ffgDurCbo.select(0);
         ffgDurCbo.setLayoutData(gd);
         ffgDurCbo.addSelectionListener(new SelectionAdapter() {
-
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-             * .swt.events.SelectionEvent)
-             */
             @Override
             public void widgetSelected(SelectionEvent e) {
                 int index = ffgDurCbo.getSelectionIndex();
                 selectedDur = DURATIONS[index];
-                populateDataList();
+                populateFFGDataTable();
             }
         });
 
         Label ffgDisplayLbl = new Label(ffgOptionsComp, SWT.RIGHT);
-        ffgDisplayLbl.setText("Display As: ");
+        ffgDisplayLbl.setText("Display As:");
 
-        gd = new GridData(100, SWT.DEFAULT);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
         ffgDisplayAsCbo = new Combo(ffgOptionsComp, SWT.DROP_DOWN
                 | SWT.READ_ONLY);
         ffgDisplayAsCbo.add("Grid");
@@ -606,13 +610,12 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
      */
     private void createArealOptionComposite() {
         arealOptionsComp = new Composite(stackComposite, SWT.NONE);
-        GridLayout gl = new GridLayout(2, false);
+        GridLayout gl = new GridLayout(3, false);
         arealOptionsComp.setLayout(gl);
 
         Label arealTypeLbl = new Label(arealOptionsComp, SWT.RIGHT);
-        arealTypeLbl.setText("Areal Type: ");
+        arealTypeLbl.setText("Areal Type:");
 
-        GridData gd = new GridData(100, SWT.DEFAULT);
         arealTypeCbo = new Combo(arealOptionsComp, SWT.DROP_DOWN
                 | SWT.READ_ONLY);
         arealTypeCbo.add(ResolutionLevel.ALL.getResolution());
@@ -620,25 +623,20 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
         arealTypeCbo.add(ResolutionLevel.COUNTY.getResolution());
         arealTypeCbo.add(ResolutionLevel.ZONE.getResolution());
         arealTypeCbo.select(0);
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.horizontalSpan = 2;
         arealTypeCbo.setLayoutData(gd);
         arealTypeCbo.addSelectionListener(new SelectionAdapter() {
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-             * .swt.events.SelectionEvent)
-             */
+
             @Override
             public void widgetSelected(SelectionEvent e) {
-                populateDataList();
+                populateFFGDataTable();
             }
         });
 
         Label arealDurLbl = new Label(arealOptionsComp, SWT.RIGHT);
-        arealDurLbl.setText("Dur: ");
+        arealDurLbl.setText("Duration:");
 
-        gd = new GridData(100, SWT.DEFAULT);
         arealDurCbo = new Combo(arealOptionsComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         arealDurCbo.add("All");
         arealDurCbo.add("1hr");
@@ -647,41 +645,22 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
         arealDurCbo.add("12hr");
         arealDurCbo.add("24hr");
         arealDurCbo.select(0);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.horizontalSpan = 2;
         arealDurCbo.setLayoutData(gd);
         arealDurCbo.addSelectionListener(new SelectionAdapter() {
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-             * .swt.events.SelectionEvent)
-             */
             @Override
             public void widgetSelected(SelectionEvent e) {
                 int index = arealDurCbo.getSelectionIndex();
                 selectedDur = DURATIONS[index];
-                populateDataList();
+                populateFFGDataTable();
             }
         });
 
-        // Label filler1Lbl = new Label(arealOptionsComp, SWT.NONE);
-        new Label(arealOptionsComp, SWT.NONE);
+        Label displayLbl = new Label(arealOptionsComp, SWT.NONE);
+        displayLbl.setText("Display:");
 
-        // Label filler2Lbl = new Label(arealOptionsComp, SWT.NONE);
-        new Label(arealOptionsComp, SWT.NONE);
-
-        gd = new GridData();
-        gd.horizontalSpan = 2;
-        Composite displayComp = new Composite(arealOptionsComp, SWT.NONE);
-        RowLayout rl = new RowLayout();
-        rl.spacing = 10;
-        displayComp.setLayout(rl);
-        displayComp.setLayoutData(gd);
-
-        Label displayLbl = new Label(displayComp, SWT.NONE);
-        displayLbl.setText("Display: ");
-
-        valuesChk = new Button(displayComp, SWT.CHECK);
+        valuesChk = new Button(arealOptionsComp, SWT.CHECK);
         valuesChk.setSelection(true);
         valuesChk.setText("Values");
         valuesChk.addSelectionListener(new SelectionAdapter() {
@@ -692,7 +671,7 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
             }
         });
 
-        idsChk = new Button(displayComp, SWT.CHECK);
+        idsChk = new Button(arealOptionsComp, SWT.CHECK);
         idsChk.setSelection(true);
         idsChk.setText("Ids");
         idsChk.addSelectionListener(new SelectionAdapter() {
@@ -709,7 +688,6 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
      */
     private void createColorLegend() {
         String user_id = System.getProperty("user.name");
-        // String app_name = "hydroview";
 
         java.util.List<Colorvalue> colorSet = HydroDisplayManager.getInstance()
                 .getFFGColorMap(user_id, "FFG", duration);
@@ -753,7 +731,8 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
         GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         centeredComp.setLayoutData(gd);
 
-        gd = new GridData(70, SWT.DEFAULT);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false);
+        gd.minimumWidth = centeredComp.getDisplay().getDPI().x;
         closeBtn = new Button(centeredComp, SWT.NONE);
         closeBtn.setText("Close");
         closeBtn.setLayoutData(gd);
@@ -766,30 +745,16 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
     }
 
     /**
-     * Populate the data list.
-     */
-    private void populateDataList() {
-        dataList.removeAll();
-
-        if (griddedRdo.getSelection()) {
-            readGriddedFfgProduct();
-        } else { // must be areal
-            readArealFfgProduct();
-        }
-    }
-
-    /**
      * Get the Gridded FFG products for the data list.
      */
     private void readGriddedFfgProduct() {
         FlashFloodGuidanceDataManager dman = FlashFloodGuidanceDataManager
                 .getInstance();
-        java.util.List<String> list = new ArrayList<String>();
-        Map<String, String> sortedMap = new HashMap<String, String>();
-        dataMap.clear();
+        List<FFGGuidanceData> guidanceDataList = new LinkedList<>();
 
         /* Check the FFG mode. */
-        if (ffgAreaCbo.getItem(ffgAreaCbo.getSelectionIndex()).equals("RFC")) {
+        if (FFG_AREA_RFC.equals(ffgAreaCbo.getItem(ffgAreaCbo
+                .getSelectionIndex()))) {
             java.util.List<Object[]> rs = dman.getGriddedDataList();
 
             if ((rs != null) && (rs.size() > 0)) {
@@ -843,54 +808,22 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
                         }
                     }
 
-                    String line = String.format("%5s    %2s    %s", id, durHr,
-                            dateStr);
-                    Calendar cal = Calendar.getInstance(TimeZone
-                            .getTimeZone("GMT"));
-                    cal.setTime(date);
-                    int hr = cal.get(Calendar.HOUR_OF_DAY);
-                    String hrStr = String.valueOf(hr);
-                    if (hr < 10) {
-                        hrStr = "0" + hr;
-                    }
-                    String sortLine = id + " " + durHr + " "
-                            + cal.get(Calendar.YEAR) + cal.get(Calendar.MONTH)
-                            + cal.get(Calendar.DAY_OF_MONTH) + hrStr;
-                    // + cal.get(Calendar.HOUR_OF_DAY);
-
-                    // list.add(line);
-                    sortedMap.put(sortLine, line);
-                    dataMap.put(line, date);
+                    guidanceDataList.add(new FFGGuidanceData(id, Integer
+                            .parseInt(durHr), durHr, date, dateStr));
                 }
             }
-
-            // Sort the data, first by id asc, then duration asc
-            java.util.List<String> sortList = new ArrayList<String>(
-                    sortedMap.keySet());
-            String[] data = sortList.toArray(new String[sortList.size()]);
-
-            java.util.Arrays.sort(data);
-
-            String[] sortedData = sort(data);
-
-            for (String s : sortedData) {
-                dataList.add(sortedMap.get(s));
-            }
         } else {
-            // WFO Grided data, read xmrg directory
-            String ffgDirToken = "gaff_mosaic_dir";
-
             /*
              * Retrieve the path of the WFO ffg_product file from the
              * "apps defaults" file.
              */
-            String ffgDirPath = AppsDefaults.getInstance()
-                    .getToken(ffgDirToken);
+            String ffgDirPath = AppsDefaults.getInstance().getToken(
+                    AppsDefaultsDirKeys.GAFF_MOSAIC_DIR);
             if (ffgDirPath == null) {
-                // TODO error handling
-                System.err
-                        .println("Error getting WFO FFG directory from token "
-                                + ffgDirToken);
+                statusHandler
+                        .error("Error getting WFO FFG directory from token: "
+                                + AppsDefaultsDirKeys.GAFF_MOSAIC_DIR + ".");
+                return;
             }
 
             File ffgDir = new File(ffgDirPath);
@@ -902,115 +835,62 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
                      * Check to make sure that this is a FFG file. This is done
                      * by checking the extension on the file.
                      */
-                    if (xmrg.getName().endsWith(".ffg")) {
-                        /* Parse the filename for the WFO identifier here. */
-                        String fileWfo = xmrg.getName().substring(0, 3);
-                        int index = xmrg.getName().indexOf("20");
-                        /* Parse the filename for duration and time stamp here. */
-                        String year = xmrg.getName()
-                                .substring(index, index + 4);
-                        String month = xmrg.getName().substring(index + 4,
-                                index + 6);
-                        String day = xmrg.getName().substring(index + 6,
-                                index + 8);
-                        String hour = xmrg.getName().substring(index + 8,
-                                index + 10);
-                        String durString = xmrg.getName().substring(index + 10,
-                                index + 12);
-                        // String year = xmrg.getName().substring(3, 7);
-                        // String month = xmrg.getName().substring(7, 9);
-                        // String day = xmrg.getName().substring(9, 11);
-                        // String hour = xmrg.getName().substring(11, 13);
-                        // String durString = xmrg.getName().substring(13, 15);
-
-                        Calendar cal = Calendar.getInstance(TimeZone
-                                .getTimeZone("GMT"));
-                        cal.set(Calendar.YEAR, Integer.parseInt(year));
-                        cal.set(Calendar.MONTH, Integer.parseInt(month) - 1);
-                        cal.set(Calendar.DATE, Integer.parseInt(day));
-                        cal.set(Calendar.HOUR_OF_DAY, Integer.parseInt(hour));
-                        cal.set(Calendar.MINUTE, 0);
-                        cal.set(Calendar.SECOND, 0);
-                        cal.set(Calendar.MILLISECOND, 0);
-
-                        // Dur is FFG03, FFG06, etc
-                        // selectedDur is 1hr, 3hr, etc
-                        if ((selectedDur != null)
-                                && !selectedDur.equalsIgnoreCase("All")) {
-                            if (!durString.equalsIgnoreCase(selectedDur
-                                    .substring(0, selectedDur.indexOf("h")))) {
-                                continue;
-
-                            }
-                        }
-
-                        String dateStr = sdf.format(cal.getTime());
-                        String line = String.format("%5s    %2s    %s",
-                                fileWfo, durString, dateStr);
-                        String sortLine = fileWfo + " " + durString + " "
-                                + year + month + day + hour;
-                        sortedMap.put(sortLine, line);
-                        list.add(line);
-                        dataMap.put(line, cal.getTime());
-                        fileMap.put(line, xmrg);
+                    final String fileName = xmrg.getName();
+                    final Matcher matcher = FFG_NAME_PATTERN.matcher(fileName);
+                    if (!matcher.matches()) {
+                        statusHandler.warn("Discovered unrecognized file: "
+                                + xmrg.toString()
+                                + " in the WFO FFG directory: "
+                                + ffgDirPath.toString() + ". Skipping file.");
+                        continue;
                     }
-                }
 
-                // Sort the data, first by id asc, then duration asc, date desc
-                java.util.List<String> sortList = new ArrayList<String>(
-                        sortedMap.keySet());
-                String[] data = sortList.toArray(new String[sortList.size()]);
+                    String fileWfo = matcher.group(FFG_WFO_GROUP);
+                    String xmrgDateString = matcher.group(FFG_DATE_GROUP);
+                    /*
+                     * Verify that a valid date/time can be parsed from the xmrg
+                     * date/time String.
+                     */
+                    Date xmrgDate = null;
+                    try {
+                        xmrgDate = xmrgDateFormat.parse(xmrgDateString);
+                    } catch (ParseException e) {
+                        statusHandler.error(
+                                "Failed to parse xmrg date/time: "
+                                        + xmrgDateString + " for file: "
+                                        + xmrg.toString() + ". Skipping file.",
+                                e);
+                        continue;
+                    }
+                    String durationString = matcher.group(FFG_DURATION_GROUP);
+                    /*
+                     * Verify that the duration String is numeric.
+                     */
+                    int duration = 0;
+                    try {
+                        duration = Integer.parseInt(durationString);
+                    } catch (NumberFormatException e) {
+                        statusHandler.error(
+                                "Failed to parse xmrg duration: "
+                                        + durationString + " for file: "
+                                        + xmrg.toString() + ". Skipping file.",
+                                e);
+                        continue;
+                    }
 
-                java.util.Arrays.sort(data);
-                String[] sortedData = sort(data);
-                for (String s : sortedData) {
-                    dataList.add(sortedMap.get(s));
+                    String dateStr = sdf.format(xmrgDate);
+                    FFGGuidanceData data = new FFGGuidanceData(fileWfo,
+                            duration, durationString, xmrgDate, dateStr);
+                    data.setXmrgFile(xmrg);
+                    guidanceDataList.add(data);
                 }
             }
         }
-    }
 
-    /**
-     * Sort the list of items in reverse by time.
-     * 
-     * @param strArr
-     *            The String[] sorted with time asc
-     * @return The String[] sorted with time desc
-     */
-    private String[] sort(String[] strArr) {
-        java.util.List<String> strList = new ArrayList<String>();
-        java.util.List<String> holder = new ArrayList<String>();
-        String prevDur = "";
-        String prevId = "";
-
-        for (String s : strArr) {
-            String[] parts = s.split("\\s+", 3);
-
-            if ((prevDur.equals(parts[1]) == false)
-                    || (prevId.equals(parts[0]) == false)) {
-                for (int i = holder.size() - 1; i >= 0; i--) {
-                    strList.add(holder.get(i));
-                }
-                holder.clear();
-                prevDur = parts[1];
-                prevId = parts[0];
-                holder.add(s);
-            } else {
-                holder.add(s);
-            }
-        }
-
-        for (int i = holder.size() - 1; i >= 0; i--) {
-            strList.add(holder.get(i));
-        }
-
-        return strList.toArray(new String[strList.size()]);
-        // return strArr;
+        addTableRows(guidanceDataList);
     }
 
     private void readArealFfgProduct() {
-        // Clear the map for areal data
-        dataMap.clear();
         ResolutionLevel res = null;
         String selectedItem = arealTypeCbo.getItem(arealTypeCbo
                 .getSelectionIndex());
@@ -1025,7 +905,7 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
             res = ResolutionLevel.ALL;
         }
 
-        Map<String, String> sortedMap = new TreeMap<String, String>();
+        List<FFGGuidanceData> guidanceDataList = new LinkedList<>();
         if (res == ResolutionLevel.ALL) {
             for (ResolutionLevel level : ResolutionLevel.values()) {
                 if (level.getResolution().equals("All")
@@ -1033,29 +913,13 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
                     continue; // Skip "All" and "Grid"
                 }
 
-                TreeMap<String, String> tmpMap = bldFfgList(level);
-
-                Iterator<String> iter = tmpMap.keySet().iterator();
-                while (iter.hasNext()) {
-                    String key = iter.next();
-                    sortedMap.put(key, tmpMap.get(key));
-                }
+                guidanceDataList.addAll(bldFfgList(level));
             }
         } else {
-            sortedMap = bldFfgList(res);
+            guidanceDataList = bldFfgList(res);
         }
 
-        Iterator<String> iter = sortedMap.keySet().iterator();
-        java.util.List<String> strList = new ArrayList<String>();
-        while (iter.hasNext()) {
-            strList.add(iter.next());
-        }
-
-        String[] sa = sort(strList.toArray(new String[strList.size()]));
-
-        for (String s : sa) {
-            dataList.add(sortedMap.get(s));
-        }
+        addTableRows(guidanceDataList);
     }
 
     /**
@@ -1065,24 +929,22 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
      * 
      * @param level
      */
-    private TreeMap<String, String> bldFfgList(ResolutionLevel level) {
-        TreeMap<String, String> map = new TreeMap<String, String>();
+    private List<FFGGuidanceData> bldFfgList(ResolutionLevel level) {
+        List<FFGGuidanceData> guidanceDataList = new LinkedList<>();
 
         java.util.List<Object[]> rs = FlashFloodGuidanceDataManager
                 .getInstance().getContingencyValue(level.getResolution());
 
         for (Object[] oa : rs) {
-            Timestamp validTime = (Timestamp) oa[0];
+            Date validTime = (Date) oa[0];
             int shefDur = ((Number) oa[1]).intValue();
             int dur = shefDur - ((shefDur / 1000) * 1000);
 
             // Dur is FFG03, FFG06, etc
             // selectedDur is 1hr, 3hr, etc
             if ((selectedDur != null) && !selectedDur.equalsIgnoreCase("All")) {
-                String durCheck = String.valueOf(dur);
-                if (dur < 10) {
-                    durCheck = "0" + dur;
-                }
+                String durCheck = StringUtils.leftPad(String.valueOf(dur), 2,
+                        "0");
                 if (!String.valueOf(durCheck).equalsIgnoreCase(
                         selectedDur.substring(0, selectedDur.indexOf("h")))
                         && !String.valueOf(durCheck).equals(
@@ -1094,25 +956,14 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
                 }
             }
             String dateStr = sdf.format(validTime);
-
             String id = level.getResolution();
-            String durStr = String.valueOf(dur);
-            if (dur < 10) {
-                durStr = "0" + dur;
-            }
-            String line = String
-                    .format("%-6s   %2s    %s", id, durStr, dateStr);
+            String durStr = StringUtils.leftPad(String.valueOf(dur), 2, "0");
 
-            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-            cal.setTime(validTime);
-            String sortLine = id + " " + dur + " " + cal.get(Calendar.YEAR)
-                    + cal.get(Calendar.MONTH) + cal.get(Calendar.DAY_OF_MONTH)
-                    + cal.get(Calendar.HOUR_OF_DAY);
-            map.put(sortLine, line);
-            dataMap.put(line, validTime);
+            guidanceDataList.add(new FFGGuidanceData(id, dur, durStr,
+                    validTime, dateStr));
         }
 
-        return map;
+        return guidanceDataList;
     }
 
     /**
@@ -1124,17 +975,13 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
 
         shell.setCursor(waitCursor);
 
+        FFGGuidanceData selectedRowData = (FFGGuidanceData) ffgTable
+                .getSelection()[0].getData();
+
         /* Get the selection from the list and break it up */
-        String s = dataList.getItem(dataList.getSelectionIndex());
-        String key = dataList.getItem(dataList.getSelectionIndex());
-        s = s.replaceAll("\\s+", " ").trim();
-        String[] parts = s.split(" ");
-        String site = parts[0];
-        String durationStr = parts[1];
-        String day = parts[2];
-        String date = parts[3];
-        String hour = parts[4];
-        duration = Integer.parseInt(durationStr)
+        String site = selectedRowData.getIdentifier();
+        String durationStr = selectedRowData.getFormattedDuration();
+        duration = selectedRowData.getDuration()
                 * FFGConstants.SECONDS_PER_HOUR;
 
         String paramAbr = "FFG" + durationStr + "24hr";
@@ -1160,39 +1007,42 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
             if (ffgDisplayAsCbo.getItem(ffgDisplayAsCbo.getSelectionIndex())
                     .equalsIgnoreCase("GRID")) {
                 // Display the grid
-                getParameters();
+                getParameters(selectedRowData);
 
                 if (rfcSelected) {
                     HydroDisplayManager.getInstance().displayGriddedFFG(
-                            dataMap.get(key), duration, paramAbr, rfc, res);
+                            selectedRowData.getDateTime(), duration, paramAbr,
+                            rfc, res);
                 } else {
                     HydroDisplayManager.getInstance().displayGriddedFFG(
-                            fileMap.get(key), duration, res);
+                            selectedRowData.getXmrgFile(), duration, res);
                 }
             } else {
                 /* Display the areal basin */
                 if (rfcSelected) {
                     HydroDisplayManager.getInstance()
-                            .displayRfcGriddedFFGBasin(dataMap.get(key),
-                                    duration, paramAbr, rfc, res);
+                            .displayRfcGriddedFFGBasin(
+                                    selectedRowData.getDateTime(), duration,
+                                    paramAbr, rfc, res);
                 } else {
                     HydroDisplayManager.getInstance().displayGriddedFFGBasin(
-                            fileMap.get(key), duration, res, dataMap.get(key));
+                            selectedRowData.getXmrgFile(), duration, res,
+                            selectedRowData.getDateTime());
                 }
             }
         } else {
             /* Areal Radio selected */
             java.util.List<ArealData> arealList = buildFfgArea(site,
-                    dataMap.get(key));
+                    selectedRowData.getDateTime());
 
             HydroDisplayManager.getInstance().displayArealFfg(arealList,
-                    duration, site, dataMap.get(key), valuesChk.getSelection(),
-                    idsChk.getSelection());
+                    duration, site, selectedRowData.getDateTime(),
+                    valuesChk.getSelection(), idsChk.getSelection());
         }
         // Create the legend strings
         // Build the string in the legend
-        String line = site + " " + durationStr + " hours " + day + " " + date
-                + " " + hour + ":00";
+        String line = site + " " + durationStr + " hours "
+                + selectedRowData.getFormattedDateTime() + ":00";
         colorLegend.setDisplayText("FFG Grid", line);
 
         shell.setCursor(arrowCursor);
@@ -1201,29 +1051,23 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
     /**
      * Get the parameters for the bundle
      */
-    private void getParameters() {
-        String data = dataList.getItem(dataList.getSelectionIndex());
-        String key = dataList.getItem(dataList.getSelectionIndex());
-
+    private void getParameters(FFGGuidanceData selectedRowData) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+        sdf.setTimeZone(TimeUtil.GMT_TIME_ZONE);
 
-        data = data.replaceAll("\\s+", " ");
-        data = data.trim();
-        String[] parts = data.split(" ");
         String modelname = null;
 
-        String param = "FFG" + parts[1] + "24hr";
+        String param = "FFG" + selectedRowData.getFormattedDuration() + "24hr";
 
         // Lookup the name
         String s = FlashFloodGuidanceDataManager.getInstance().rfcSiteLookup(
-                parts[0]);
+                selectedRowData.getIdentifier());
         if (s != null) {
             modelname = "FFG-" + s;
         }
         parameters.put("timespan", param);
         parameters.put("model", modelname);
-        parameters.put("reftime", sdf.format(dataMap.get(key)));
+        parameters.put("reftime", sdf.format(selectedRowData.getDateTime()));
     }
 
     private java.util.List<ArealData> buildFfgArea(String boundaryType,
@@ -1250,7 +1094,7 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
                     for (Object[] oa2 : rs2) {
                         ArealData ad = new ArealData();
                         ad.setLid((String) oa2[0]);
-                        ad.setValidTime(((Timestamp) oa2[1]));
+                        ad.setValidTime((Date) oa2[1]);
                         ad.setValue((Double) oa2[2]);
                         ad.setLat(lat);
                         ad.setLon(lon);

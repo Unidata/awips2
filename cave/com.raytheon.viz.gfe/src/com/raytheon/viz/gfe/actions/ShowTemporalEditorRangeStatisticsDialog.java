@@ -19,13 +19,12 @@
  **/
 package com.raytheon.viz.gfe.actions;
 
-import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.TemporalEditorRangeStatisticsDialog;
+import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
  * Action to launch temporal editor statistics dialog.
@@ -37,34 +36,17 @@ import com.raytheon.viz.gfe.dialogs.TemporalEditorRangeStatisticsDialog;
  * Feb 14, 2008            Eric Babin    Initial Creation
  * Jun 04, 2009 #2159      Richard Peter Moved initialization to Dialog.
  * Oct 26, 2012 1287       rferrel       Changes for non-blocking TemporalEditorRangeStatisticsDialog.
+ * Aug 27, 2015 4749       njensen       Now extends GfeShowDialogHandler
+ * 
  * </pre>
  * 
- * @author ebabin
- * @version 1.0
  */
-public class ShowTemporalEditorRangeStatisticsDialog extends AbstractHandler {
-    private TemporalEditorRangeStatisticsDialog dialog;
+public class ShowTemporalEditorRangeStatisticsDialog extends
+        GfeShowDialogHandler {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
-     * .ExecutionEvent)
-     */
     @Override
-    public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
-
-            dialog = new TemporalEditorRangeStatisticsDialog(shell);
-            dialog.setBlockOnOpen(false);
-            dialog.open();
-        } else {
-            dialog.bringToTop();
-        }
-
-        return null;
+    protected CaveJFACEDialog createDialog(Shell shell, DataManager dm,
+            ExecutionEvent event) {
+        return new TemporalEditorRangeStatisticsDialog(shell);
     }
 }

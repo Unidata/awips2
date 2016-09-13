@@ -1,0 +1,22 @@
+<pluginNotificationList>
+    <pluginNotification>
+        <endpointName>autoFaxRoute</endpointName>
+        <format>PDO</format>
+        <endpointType>VM</endpointType>
+        <metadataMap>
+            <mapping key="pluginName">
+                <constraint constraintValue="text" constraintType="EQUALS"/>
+            </mapping>
+        </metadataMap>
+    </pluginNotification>
+    <pluginNotification>
+        <endpointName>textToWatchWarn</endpointName>
+        <format>PDO</format>
+        <endpointType>DIRECTVM</endpointType>
+        <metadataMap>
+            <mapping key="pluginName">
+                <constraint constraintValue="text" constraintType="EQUALS"/>
+            </mapping>
+        </metadataMap>
+    </pluginNotification>
+</pluginNotificationList>

@@ -21,8 +21,8 @@ package com.raytheon.uf.edex.cpgsrv;
 
 import java.util.concurrent.Executor;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.urifilter.IURIFilter;
 import com.raytheon.edex.urifilter.URIFilter;
@@ -38,6 +38,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.core.IContextStateProcessor;
@@ -57,13 +58,15 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 02/07/2009   1981       dhladky    Initial Creation.
- * 30NOV2012    1372       dhladky    Added statistics.
- * 02/05/2013   1580       mpduff     EventBus refactor.
- * 02/12/2013   1615       bgonzale   Changed ProcessEvent pluginName to dataType.
+ * 02/07/2009   1981       dhladky     Initial Creation.
+ * 30NOV2012    1372       dhladky     Added statistics.
+ * 02/05/2013   1580       mpduff      EventBus refactor.
+ * 02/12/2013   1615       bgonzale    Changed ProcessEvent pluginName to dataType.
  * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
  * Apr 17, 2014 2726       rjpeter     Updated to send alerts directly to notification route.
  * Aug 26, 2014 3503       bclement    moved initialization to context state processor pre-start method
+ * Sep.09, 2015 4756       dhladky     Check for possible null filters indicating bad configurations.
+ * Dec 14, 2015 5166       kbisanz     Update logging to use SLF4J
  * </pre>
  * 
  * @author dhladky
@@ -102,7 +105,7 @@ public abstract class CompositeProductGenerator implements
     public DataTime productTime = null;
 
     /** The logger */
-    public final Log logger = LogFactory.getLog(getClass());
+    public final Logger logger = LoggerFactory.getLogger(getClass());
 
     /** monitor config **/
     public MonitorStateConfigurationManager msc = null;
@@ -111,6 +114,12 @@ public abstract class CompositeProductGenerator implements
     public Executor executor = null;
 
     protected String routeId = null;
+
+    /** Allowed interval between filter config errors **/
+    protected static final long ERROR_COUNT_INTERVAL_TIME = TimeUtil.MILLIS_PER_MINUTE * 2;
+
+    /** Keeps track of last config error message time */
+    protected long last_error_time = 0l;
 
     public CompositeProductGenerator(String name, String compositeProductType) {
         this(name, compositeProductType, null);
@@ -189,25 +198,36 @@ public abstract class CompositeProductGenerator implements
             URIFilter[] filters = getFilters();
             if (filters != null) {
                 for (URIFilter filter : filters) {
-                    synchronized (filter) {
-                        if (filter.isMatched(messages)) {
-                            try {
-                                EDEXUtil.getMessageProducer()
-                                        .sendAsync(
-                                                routeId,
-                                                SerializationUtil
-                                                        .transformToThrift(filter
-                                                                .createGenerateMessage()));
-                            } catch (Exception e) {
-                                logger.error(
-                                        getGeneratorName()
-                                                + ": filter: "
-                                                + filter.getName()
-                                                + ": failed to route filter to generator",
-                                        e);
-                            }
+                    // Safety, badly mis-configured filters can show up as null
+                    if (filter != null) {
+                        synchronized (filter) {
+                            if (filter.isMatched(messages)) {
+                                try {
+                                    EDEXUtil.getMessageProducer()
+                                            .sendAsync(
+                                                    routeId,
+                                                    SerializationUtil
+                                                            .transformToThrift(filter
+                                                                    .createGenerateMessage()));
+                                } catch (Exception e) {
+                                    logger.error(
+                                            getGeneratorName()
+                                                    + ": filter: "
+                                                    + filter.getName()
+                                                    + ": failed to route filter to generator",
+                                            e);
+                                }
 
-                            filter.reset();
+                                filter.reset();
+                            }
+                        }
+                    } else {
+                        long time = System.currentTimeMillis();
+                        if (((time - last_error_time) > ERROR_COUNT_INTERVAL_TIME)
+                                || last_error_time == 0l) {
+                            last_error_time = time;
+                            logger.error(getGeneratorName()
+                                    + ": Filter for this generator is null, check configuration!");
                         }
                     }
                 }

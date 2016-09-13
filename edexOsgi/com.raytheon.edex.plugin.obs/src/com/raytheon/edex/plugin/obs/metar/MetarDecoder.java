@@ -26,9 +26,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.measure.unit.SI;
+
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
-import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.edex.plugin.obs.metar.util.VisibilityParser;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.obs.metar.MetarRecord;
@@ -36,6 +37,8 @@ import com.raytheon.uf.common.dataplugin.obs.metar.util.SkyCover;
 import com.raytheon.uf.common.dataplugin.obs.metar.util.WeatherCondition;
 import com.raytheon.uf.common.pointdata.spatial.ObStation;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.wmo.WMOHeader;
@@ -86,6 +89,10 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
  * Jul 23, 2014  3410       bclement    location changed to floats
  * Oct 02, 2014 3693        mapeters    Added Pattern constants.
  * Apr 22, 2015 DR 16923    MPorricelli Modified cleanMessage to eliminate extra spaces
+ * Jul 13, 2015 4389        skorolev    Added correction of invalid (NUL) characters in the message.
+ * Nov 01, 2015 DR 14741    MPorricelli Modified WIND_VAR_DIR_EXP pattern to prevent its matching
+ *                                      some RVR strings
+ * Mar 08, 2016 5345        tgurney     Convert sea level pressure from hPa to Pa
  * 
  * </pre>
  * 
@@ -93,7 +100,10 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
  * @version 1
  */
 
-public class MetarDecoder extends AbstractDecoder {
+public class MetarDecoder {
+
+    private static final transient IUFStatusHandler logger = UFStatus
+            .getHandler(MetarDecoder.class);
 
     private static final char APOSTROPHE = '\'';
 
@@ -111,9 +121,11 @@ public class MetarDecoder extends AbstractDecoder {
     private static final Pattern WIND_GROUP_EXP_MPS = Pattern
             .compile("(\\d{3}|VRB)(\\d{2,3})((G)(\\d{2,3}))?MPS");
 
-    // Variable wind direction
+    // Variable wind direction: e.g. 050V120
+    // Exclude case where RVR has similar construct:
+    // e.g R13R/0600V1200FT so it will not be read as var wind dir
     private static final Pattern WIND_VAR_DIR_EXP = Pattern
-            .compile("\\d{3}V\\d{3}");
+            .compile("\\d{3}V\\d{3}(?!\\d{1}FT)");
 
     /** Regular expression for the visibility */
     // private final Pattern VISIBILITY_EXP = Pattern
@@ -268,8 +280,15 @@ public class MetarDecoder extends AbstractDecoder {
                 }
             }
             message = sbm.toString().trim();
+            // Replace all invalid NUL chars on '?' in the raw message.
+            String rawMessage = new String(message);
+            if (rawMessage.indexOf('\0') > -1) {
+                logger.warn(headers.get(WMOHeader.INGEST_FILE_NAME)
+                        + ": There are invalid NUL characters in the message.");
+                rawMessage = rawMessage.replace('\0', '?');
+            }
             MetarRecord record = new MetarRecord();
-            record.setMessageData(message);
+            record.setMessageData(rawMessage);
             message = cleanMessage(message);
 
             String remarks = null;
@@ -704,6 +723,8 @@ public class MetarDecoder extends AbstractDecoder {
                             // nothing
                         }
                         if (slp != null) {
+                            slp = (float) SI.HECTO(SI.PASCAL)
+                                    .getConverterTo(SI.PASCAL).convert(slp);
                             record.setSeaLevelPress(slp);
                         }
                     }
@@ -989,8 +1010,8 @@ public class MetarDecoder extends AbstractDecoder {
     }
 
     /**
-     * Get rid of any control characters and extraneous spaces
-     * prior to parsing data.
+     * Get rid of any control characters and extraneous spaces prior to parsing
+     * data.
      * 
      * @param message
      * @return
@@ -1004,8 +1025,8 @@ public class MetarDecoder extends AbstractDecoder {
             // not a space, then add a space to string
             if (c <= ' ') {
                 if (lastChar != ' ') {
-                   sb.append(' ');
-                   lastChar = ' ';
+                    sb.append(' ');
+                    lastChar = ' ';
                 }
             } else {
                 sb.append(c);

@@ -20,4 +20,5 @@
     -->
 <requestPatterns xmlns:ns2="group">
     <regex>^JUS[ABX].*</regex>
+    <regex>bufr3.*</regex>
 </requestPatterns>

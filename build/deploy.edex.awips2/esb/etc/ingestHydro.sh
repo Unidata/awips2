@@ -19,8 +19,11 @@
 # further licensing information.
 ##
 
-export INIT_MEM=412 # in Meg
 export MAX_MEM=796 # in Meg
+
+if [ $HIGH_MEM == "on" ]; then
+    export MAX_MEM=1024
+fi
 
 export METADATA_POOL_MAX=25
 export EDEX_DEBUG_PORT=5006

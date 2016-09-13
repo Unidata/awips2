@@ -19,11 +19,7 @@
  **/
 package com.raytheon.uf.viz.acarssounding;
 
-import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
-import com.raytheon.uf.viz.core.rsc.ResourceType;
-import com.raytheon.viz.volumebrowser.datacatalog.IDataCatalogEntry;
-import com.raytheon.viz.volumebrowser.datacatalog.PointDataCatalog;
-import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
+import com.raytheon.uf.viz.volumebrowser.dataplugin.point.PointDataCatalog;
 
 /**
  * Volume browser catalog which enables acars sounding data to work.
@@ -32,11 +28,12 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug 19, 2013 2269       bsteffen    Initial javadoc
- * Aug 19, 2013 2269       bsteffen    Fix MDCRS data and switch acars to use
- *                                     nsharp.
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------
+ * Aug 19, 2013  2269     bsteffen  Initial javadoc
+ * Aug 19, 2013  2269     bsteffen  Fix MDCRS data and switch acars to use
+ *                                  nsharp.
+ *  Aug 03, 2015  3861     bsteffen  Move resource creation to product creator
  * 
  * </pre>
  * 
@@ -46,19 +43,8 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 public class AcarsSoundingVbDataCatalog extends PointDataCatalog {
 
     @Override
-    protected String[] getPlugins(ViewMenu setting) {
+    protected String[] getPlugins() {
         return new String[] { "acarssounding" };
-    }
-
-    @Override
-    protected AbstractRequestableResourceData getResourceData(
-            IDataCatalogEntry catalogEntry, ResourceType resourceType) {
-        if (resourceType == ResourceType.SOUNDING
-                && catalogEntry.getSelectedData().getSourcesKey()
-                        .equals("acarssounding")) {
-            return new AcarsSndNSharpResourceData();
-        }
-        return super.getResourceData(catalogEntry, resourceType);
     }
 
 }

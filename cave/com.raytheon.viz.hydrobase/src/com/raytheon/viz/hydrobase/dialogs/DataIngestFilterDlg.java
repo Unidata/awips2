@@ -60,6 +60,7 @@ import com.raytheon.viz.hydrocommon.data.DataIngestFilterData;
 import com.raytheon.viz.hydrocommon.datamanager.DataIngestFilterDataManager;
 import com.raytheon.viz.hydrocommon.datamanager.DataTrashCanDataManager;
 import com.raytheon.viz.hydrocommon.datamanager.HydroDBDataManager;
+import com.raytheon.viz.hydrocommon.datamanager.LocationDataManager;
 import com.raytheon.viz.hydrocommon.util.StnClassSyncUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
@@ -77,7 +78,10 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Mar 31, 2014 #2970       lvenable    Put dispose checks in the runAsync calls.
  * May 1,  2014 17096       xwei        By default the first item of the data 
  *                                      list is selected
- *
+ * Feb 16, 2016 5354        bkowal      Only update the stnclass table after an ingest
+ *                                      filter removal if there is an associated location.                                     
+ * Feb 17, 2016 14607       amoore      Add WFO filter
+ * 
  * 
  * </pre>
  * 
@@ -97,6 +101,11 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
      * Ingest data list control.
      */
     private List ingestDataList;
+
+    /**
+     * WFO filter list control.
+     */
+    private List wfoFilterList;
 
     /**
      * Physical element filter list control.
@@ -129,6 +138,11 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
     private Button locationChk;
 
     /**
+     * WFO check box.
+     */
+    private Button wfoChk;
+
+    /**
      * Type source check box.
      */
     private Button typeSrcChk;
@@ -147,6 +161,11 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
      * Location label.
      */
     private Label locationLbl;
+
+    /**
+     * WFO label.
+     */
+    private Label wfoLbl;
 
     /**
      * Physical element label.
@@ -199,6 +218,11 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
     private Label locationSelLbl;
 
     /**
+     * WFO selected label.
+     */
+    private Label wfoSelLbl;
+
+    /**
      * Duration selected label.
      */
     private Label durationSelLbl;
@@ -227,6 +251,11 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
      * Location selected text control.
      */
     private Text locationSelectedTF;
+
+    /**
+     * WFO selected text control.
+     */
+    private Label wfoSelectedLbl;
 
     /**
      * Duration selected combo box.
@@ -385,7 +414,7 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
     private void createIngestListControls(Group parentGroup) {
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Composite listComp = new Composite(parentGroup, SWT.NONE);
-        listComp.setLayout(new GridLayout(9, false));
+        listComp.setLayout(new GridLayout(10, false));
         listComp.setLayoutData(gd);
 
         // ---------------------------------------------------
@@ -395,6 +424,11 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
         Label locationLbl = new Label(listComp, SWT.NONE);
         locationLbl.setText("Location");
         locationLbl.setLayoutData(gd);
+
+        gd = new GridData(40, SWT.DEFAULT);
+        Label wfoLbl = new Label(listComp, SWT.NONE);
+        wfoLbl.setText("WFO");
+        wfoLbl.setLayoutData(gd);
 
         gd = new GridData(40, SWT.DEFAULT);
         Label peLbl = new Label(listComp, SWT.NONE);
@@ -441,8 +475,8 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
         // ---------------------------------------------------
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.widthHint = 450;
-        gd.heightHint = 250;
-        gd.horizontalSpan = 9;
+        gd.heightHint = 380;
+        gd.horizontalSpan = 10;
         ingestDataList = new List(listComp, SWT.BORDER | SWT.SINGLE
                 | SWT.V_SCROLL);
         ingestDataList.setLayoutData(gd);
@@ -457,7 +491,7 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
         // Create the buttons below the Ingest list control
         // ---------------------------------------------------
         gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
-        gd.horizontalSpan = 6;
+        gd.horizontalSpan = 7;
 
         Button setSwitchesBtn = new Button(listComp, SWT.PUSH);
         setSwitchesBtn.setText("Set Switches for All Listed Above");
@@ -515,10 +549,31 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
                 if (locationChk.getSelection() == true) {
                     locationLbl.setEnabled(true);
                     locationFilterTF.setEnabled(true);
+                    // clear and disable wfo
+                    wfoChk.setEnabled(false);
+                    wfoChk.setSelection(false);
+                    wfoFilterList.setEnabled(false);
+                    wfoLbl.setEnabled(false);
                 } else {
                     locationLbl.setEnabled(false);
                     locationFilterTF.setEnabled(false);
+                    // enable ability to filter with wfo
+                    wfoChk.setEnabled(true);
                 }
+
+                populateLists(true);
+            }
+        });
+
+        // Filler
+        new Label(filterGroup, SWT.NONE);
+
+        wfoChk = new Button(filterGroup, SWT.CHECK);
+        wfoChk.setText("WFO");
+        wfoChk.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent event) {
+                wfoLbl.setEnabled(wfoChk.getSelection());
+                wfoFilterList.setEnabled(wfoChk.getSelection());
 
                 populateLists(true);
             }
@@ -614,6 +669,27 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
 
             @Override
             public void keyReleased(KeyEvent e) {
+                populateLists(true);
+            }
+        });
+
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, false, false);
+        wfoLbl = new Label(filterGroup, SWT.RIGHT);
+        wfoLbl.setText("WFO: ");
+        wfoLbl.setEnabled(false);
+        wfoLbl.setLayoutData(gd);
+
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gd.widthHint = 250;
+        gd.heightHint = 100;
+        gd.horizontalSpan = 3;
+        wfoFilterList = new List(filterGroup, SWT.BORDER | SWT.MULTI
+                | SWT.V_SCROLL);
+        wfoFilterList.setLayoutData(gd);
+        wfoFilterList.setEnabled(false);
+        wfoFilterList.setFont(controlFont);
+        wfoFilterList.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
                 populateLists(true);
             }
         });
@@ -725,6 +801,17 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
         locationSelectedTF = new Text(leftComp, SWT.BORDER);
         locationSelectedTF.setLayoutData(gd);
         selectedItemControls.add(locationSelectedTF);
+
+        gd = new GridData(SWT.FILL, SWT.CENTER, false, true);
+        wfoSelLbl = new Label(leftComp, SWT.RIGHT);
+        wfoSelLbl.setText("WFO: ");
+        wfoSelLbl.setLayoutData(gd);
+        selectedItemControls.add(wfoSelLbl);
+
+        gd = new GridData(80, SWT.DEFAULT);
+        wfoSelectedLbl = new Label(leftComp, SWT.BORDER);
+        wfoSelectedLbl.setLayoutData(gd);
+        selectedItemControls.add(wfoSelectedLbl);
 
         gd = new GridData(SWT.FILL, SWT.CENTER, false, true);
         durationSelLbl = new Label(leftComp, SWT.RIGHT);
@@ -910,6 +997,12 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
                 .getInstance();
 
         try {
+            // Load WFO
+            wfoFilterList.removeAll();
+            for (String currWFO : man.getWFOs()) {
+                wfoFilterList.add(currWFO);
+            }
+
             // Load Duration
             durationSelectedCbo.removeAll();
             for (String currDur : man.getShefDur()) {
@@ -962,6 +1055,7 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
 
         getIngestFilter(physElemChk.getSelection(), getSelectedPEs(),
                 locationChk.getSelection(), locationFilterTF.getText(),
+                wfoChk.getSelection(), getSelectedWFOs(),
                 switchesChk.getSelection(), masterFilterChk.getSelection(),
                 ofsFilterChk.getSelection(), mpeFilterChk.getSelection(),
                 typeSrcChk.getSelection(),
@@ -976,6 +1070,8 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
      * @param selectedPEs
      * @param locationChkSelection
      * @param locationFilterText
+     * @param wfoChkSelection
+     * @param selectedWFOs
      * @param switchesChkSelection
      * @param masterFilterChkSelection
      * @param ofsFilterChkSelection
@@ -987,7 +1083,8 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
     private void getIngestFilter(final boolean physElemChkSelection,
             final java.util.List<String> selectedPEs,
             final boolean locationChkSelection,
-            final String locationFilterText,
+            final String locationFilterText, final boolean wfoChkSelection,
+            final java.util.List<String> selectedWFOs,
             final boolean switchesChkSelection,
             final boolean masterFilterChkSelection,
             final boolean ofsFilterChkSelection,
@@ -1006,10 +1103,11 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
                 try {
                     temp = man.getIngestFilter(physElemChkSelection,
                             selectedPEs, locationChkSelection,
-                            locationFilterText, switchesChkSelection,
-                            masterFilterChkSelection, ofsFilterChkSelection,
-                            mpeFilterChkSelection, typeSrcChkSelection,
-                            typeSrcFilterCboValue, forceLoad);
+                            locationFilterText, wfoChkSelection, selectedWFOs,
+                            switchesChkSelection, masterFilterChkSelection,
+                            ofsFilterChkSelection, mpeFilterChkSelection,
+                            typeSrcChkSelection, typeSrcFilterCboValue,
+                            forceLoad);
                 } catch (VizException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Problem filter list ", e);
@@ -1075,6 +1173,22 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
     }
 
     /**
+     * Returns the selected WFOs to filter by
+     * 
+     * @return
+     */
+    private java.util.List<String> getSelectedWFOs() {
+        int[] selectedInd = wfoFilterList.getSelectionIndices();
+        java.util.List<String> wfoFilter = new ArrayList<>(selectedInd.length);
+
+        for (int i : selectedInd) {
+            wfoFilter.add(wfoFilterList.getItem(i));
+        }
+
+        return wfoFilter;
+    }
+
+    /**
      * Updates the display information in the bottom group to reflect the data
      * from the currently selected record.
      */
@@ -1084,6 +1198,9 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
                         ingestDataList.getSelectionIndex());
         // Location
         locationSelectedTF.setText(selectedData.getLid());
+
+        // WFO
+        wfoSelectedLbl.setText(selectedData.getWfo());
 
         // Duration
         for (int i = 0; i < durationSelectedCbo.getItemCount(); i++) {
@@ -1154,6 +1271,9 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
 
         // LID
         dataToSave.setLid(locationSelectedTF.getText());
+
+        // WFO not retrieved from text field because it is not part of the
+        // ingestfilter table, and is derived from the location table by LID
 
         // Duration
         dataToSave.setDuration(getSelectedIntValue(durationSelectedCbo));
@@ -1341,6 +1461,7 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
      */
     private void clearInformation() {
         locationSelectedTF.setText("");
+        wfoSelectedLbl.setText("");
         durationSelectedCbo.select(0);
         typeSrcSelectedCbo.select(0);
         extremumSelectedCbo.select(0);
@@ -1372,8 +1493,28 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
                 try {
                     HydroDBDataManager.getInstance().deleteRecord(selectedData);
 
-                    // Synchronize StnClass table
-                    StnClassSyncUtil.setStnClass(selectedData.getLid());
+                    /*
+                     * If there is not a location associated with the lid of the
+                     * ingest filter record that was just deleted, there is no
+                     * reason to sync the changes to the stnclass table because
+                     * the stnclass table defines a foreign key in which the lid
+                     * must map to a location in the location table. The ingest
+                     * filter table does not define a similar foreign key. So,
+                     * if there is not a location associated with the lid, an
+                     * associated record could never exist in the stnclass table
+                     * and any attempt to insert a record into the stnclass
+                     * table will fail.
+                     */
+
+                    if (!LocationDataManager.getInstance()
+                            .getLocationName(selectedData.getLid()).isEmpty()) {
+                        /*
+                         * an associated location exists, so the stnclass table
+                         * can be updated.
+                         */
+                        // Synchronize StnClass table
+                        StnClassSyncUtil.setStnClass(selectedData.getLid());
+                    }
                 } catch (VizException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Problem deleting record ", e);

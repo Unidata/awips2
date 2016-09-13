@@ -23,7 +23,7 @@ package com.raytheon.uf.common.dataplugin.satellite.units.goes.convert;
 import javax.measure.converter.ConversionException;
 import javax.measure.converter.UnitConverter;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * Converts a cloud amount percent to a pixel value

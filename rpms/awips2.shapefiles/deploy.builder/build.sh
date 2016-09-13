@@ -51,10 +51,6 @@ function prepareBuildEnvironment()
    if [ "${UFRAME_ECLIPSE}" = "" ]; then
       export UFRAME_ECLIPSE="${VAR_UFRAME_ECLIPSE}"
    fi
-
-   if [ "${AWIPSCM_SHARE}" = "" ]; then
-      export AWIPSCM_SHARE="/awips2/repo"
-   fi
 }
 
 function setTargetArchitecture()
@@ -87,7 +83,7 @@ function buildRPM()
       --define '_topdir %(echo ${AWIPSII_TOP_DIR})' \
       --define '_baseline_workspace %(echo ${WORKSPACE})' \
       --define '_uframe_eclipse %(echo ${UFRAME_ECLIPSE})' \
-      --define '_awipscm_share %(echo ${AWIPSCM_SHARE})' \
+      --define '_static_files %(echo ${AWIPSII_STATIC_FILES})' \
       --define '_build_root %(echo ${AWIPSII_BUILD_ROOT})' \
       --define '_component_version %(echo ${AWIPSII_VERSION})' \
       --define '_component_release %(echo ${AWIPSII_RELEASE})' \

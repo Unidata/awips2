@@ -118,6 +118,8 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * 09/21/2014   #3648      randerso    Changed deleteDatabase to handle database already being deleted by other JVM
  * 01/13/2015   #3955      randerso    Changed a few private methods to protected to allow TopoDatabase to subclass IFPGridDatabase
  * 10/13/2015   16938      ryu         Remove existing HDF5 data before calling saveGridsToHdf5 when storage type changed
+ * 11/17/2015   #5129      dgilling    Ensure ServerResponse payload is always
+ *                                     populated when calling getGridHistory.
  * 
  * </pre>
  * 
@@ -643,10 +645,9 @@ public class IFPGridDatabase extends GridDatabase {
     public ServerResponse<Map<TimeRange, List<GridDataHistory>>> getGridHistory(
             ParmID id, List<TimeRange> trs) {
         ServerResponse<Map<TimeRange, List<GridDataHistory>>> sr = new ServerResponse<Map<TimeRange, List<GridDataHistory>>>();
+        Map<TimeRange, List<GridDataHistory>> history = Collections.emptyMap();
         try {
-            Map<TimeRange, List<GridDataHistory>> history = dao.getGridHistory(
-                    getCachedParmID(id), trs);
-            sr.setPayload(history);
+            history = dao.getGridHistory(getCachedParmID(id), trs);
         } catch (DataAccessLayerException e) {
             sr.addMessage("Error getting grid history for: " + id + "\n"
                     + e.getLocalizedMessage());
@@ -656,6 +657,7 @@ public class IFPGridDatabase extends GridDatabase {
             statusHandler.handle(Priority.PROBLEM, "Unknown parmId: " + id, e);
         }
 
+        sr.setPayload(history);
         return sr;
     }
 
@@ -1935,8 +1937,10 @@ public class IFPGridDatabase extends GridDatabase {
                                     VECTOR_DIR_DATA_OFFSET,
                                     VECTOR_DIR_DATA_MULTIPLIER,
                                     magStorageInfo.getStorageType());
-                            recs[0] = storageToFloat(magRec, magStorageInfo, false);
-                            recs[1] = storageToFloat(dirRec, dirStorageInfo, true);
+                            recs[0] = storageToFloat(magRec, magStorageInfo,
+                                    false);
+                            recs[1] = storageToFloat(dirRec, dirStorageInfo,
+                                    true);
                         }
 
                         records.put(timeRange, recs);
@@ -1974,8 +1978,7 @@ public class IFPGridDatabase extends GridDatabase {
      *         conversion in parmStorageInfo.
      */
     protected FloatDataRecord storageToFloat(IDataRecord rawData,
-            ParmStorageInfo parmStorageInfo, 
-            boolean isDirRecord) {
+            ParmStorageInfo parmStorageInfo, boolean isDirRecord) {
         FloatDataRecord data;
         String storageType = parmStorageInfo.getStorageType();
         float multiplier = parmStorageInfo.getDataMultiplier();
@@ -1986,10 +1989,12 @@ public class IFPGridDatabase extends GridDatabase {
             floats = new float[rawBytes.length];
             for (int idx = 0; idx < rawBytes.length; idx++) {
                 // hex mask to treat bytes as unsigned
-                if (isDirRecord)
+                if (isDirRecord) {
                     floats[idx] = (((rawBytes[idx] & 0xff) / multiplier) + offset) % 360.0f;
-                else
-                    floats[idx] = ((rawBytes[idx] & 0xff) / multiplier) + offset;
+                } else {
+                    floats[idx] = ((rawBytes[idx] & 0xff) / multiplier)
+                            + offset;
+                }
             }
         } else if ("short".equals(storageType)) {
             short[] rawShorts = ((ShortDataRecord) rawData).getShortData();
@@ -2096,13 +2101,13 @@ public class IFPGridDatabase extends GridDatabase {
     /**
      * Removes records of a single parm from the HDF5 repository. If the records
      * do not exist in the HDF5, the operation is ignored.
-     *
+     * 
      * @param records
      *            The records to be removed
      */
     private void removeFromHDF5(List<GFERecord> records) {
         List<TimeRange> times = new ArrayList<TimeRange>(records.size());
-        for (GFERecord record: records) {
+        for (GFERecord record : records) {
             times.add(record.getTimeRange());
         }
 

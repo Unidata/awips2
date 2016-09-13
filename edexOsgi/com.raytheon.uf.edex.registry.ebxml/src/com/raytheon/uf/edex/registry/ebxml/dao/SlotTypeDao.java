@@ -25,6 +25,7 @@ import java.util.List;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 
 import org.hibernate.SQLQuery;
+import org.hibernate.StaleStateException;
 import org.hibernate.criterion.Property;
 
 import com.raytheon.uf.edex.database.dao.SessionManagedDao;
@@ -44,6 +45,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
  * 7/29/2013    2191        bphillip    Modified method to get orphaned slots
  * 12/2/2013    1829        bphillip    Changed how orphans are purged
  * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
+ * Nov 18, 2015  5006       dhladky     Deletion of duplicate slots causes errors.
  * </pre>
  * 
  * @author bphillip
@@ -78,22 +80,44 @@ public class SlotTypeDao extends SessionManagedDao<String, SlotType> {
                     parentId).isEmpty()) {
                 deleteBySlotId(slotId);
             }
-
         }
     }
 
+    /**
+     * Delete an individual slot by ID
+     * @param id
+     */
     public void deleteBySlotId(String id) {
         SlotType slot = this.getById(id);
         if (slot != null) {
-            getCurrentSession().delete(slot);
+            try {
+                getCurrentSession().delete(slot);
+            } catch (StaleStateException sse) {
+                statusHandler.warn("Registry Object to delete: " + id
+                        + " no longer exists in registry.");
+            }
         }
     }
-    
-    public void deleteBySlotId(Collection<String> ids){
-        for(Object obj: createCriteria().add(
-                Property.forName(QueryConstants.ID).in(ids))
-                .list()){
-            getCurrentSession().delete(obj);
+
+    /**
+     * Deletes a list of registry objects (SLOTS) associated with given ids.
+     * 
+     * @param ids
+     */
+    @SuppressWarnings("unchecked")
+    public void deleteBySlotId(Collection<String> ids) {
+
+        List<SlotType> objs = createCriteria()
+                .add(Property.forName(QueryConstants.ID).in(ids)).list();
+     
+        for (SlotType slot: objs) {
+            
+            try {
+                getCurrentSession().delete(slot);
+            } catch (StaleStateException sse) {
+                statusHandler.warn("Registry Object to delete: " + slot.getId()
+                        + " no longer exists in registry.");
+            }
         }
     }
 }

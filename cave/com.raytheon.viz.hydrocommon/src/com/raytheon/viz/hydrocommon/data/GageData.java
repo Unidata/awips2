@@ -19,7 +19,6 @@
  **/
 package com.raytheon.viz.hydrocommon.data;
 
-import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -40,8 +39,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTOR
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 05Nov2008    ---          dhladky     Initial Creation
- * 14Mar2012    1790       rferrel      Fix Comparable to remove eclipse warnings.
+ * 05Nov2008    ---        dhladky     Initial Creation
+ * 14Mar2012    1790       rferrel     Fix Comparable to remove eclipse warnings.
+ * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
  * 05Oct2015    17978      lbousaidi    Added getParamCode(), getShefDurCode(), convertDur(), 
  *                                      getDataFormat().    
  * </pre>
@@ -279,7 +279,7 @@ public class GageData implements Comparable<GageData> {
         }
         if (data[7] != null) {
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-            cal.setTimeInMillis(((Timestamp) data[7]).getTime());
+            cal.setTimeInMillis(((Date) data[7]).getTime());
             setTime(cal);
         }
         if (data[8] != null) {
@@ -899,9 +899,9 @@ public class GageData implements Comparable<GageData> {
     public int compareTo(GageData o) {
         int retVal = 0;
 
-        if (lid.compareTo(((GageData) o).getLid()) > 0) {
+        if (lid.compareTo(o.getLid()) > 0) {
             retVal = 1;
-        } else if (lid.compareTo(((GageData) o).getLid()) == 0) {
+        } else if (lid.compareTo(o.getLid()) == 0) {
             retVal = 0;
         } else {
             retVal = -1;

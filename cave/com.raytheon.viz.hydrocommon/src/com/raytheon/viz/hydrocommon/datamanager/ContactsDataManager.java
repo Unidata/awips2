@@ -38,6 +38,7 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  * ------------ ----------  ----------- --------------------------
  * 20 Nov 2008              lvenable    Initial creation
  * Sep 03, 2015 4846        rjpeter     List out columns in select.
+ * Jan 15, 2016 DCS18180     JingtaoD   code improvement based on code review for DR17935
  * </pre>
  * 
  * @author lvenable
@@ -121,12 +122,13 @@ public class ContactsDataManager extends HydroDataManager {
      *             Database exception.
      */
     public void deleteRecord(ContactsData contactsData) throws VizException {
-        DbUtils.escapeSpecialCharforData(contactsData);
 
+        String contacts = DbUtils.escapeSpecialCharforStr(contactsData
+                .getContact());
         StringBuilder query = new StringBuilder(DELETE_STATEMENT);
         String whereClaus = String.format(
                 " WHERE lid = '%s' AND contact = '%s' ", contactsData.getLid(),
-                contactsData.getContact());
+                contacts);
         query.append(whereClaus);
 
         runStatement(query.toString());
@@ -171,11 +173,16 @@ public class ContactsDataManager extends HydroDataManager {
      *             Database exception.
      */
     public void insertContactData(ContactsData data) throws VizException {
-        DbUtils.escapeSpecialCharforData(data);
+        ContactsData contactsDataForQuery = new ContactsData();
+        DbUtils.escapeSpecialCharforData(data, contactsDataForQuery);
 
-        String query = String.format(INSERT_STATEMENT, data.getLid(),
-                data.getContact(), data.getPhone(), data.getEmail(),
-                data.getRemark(), data.getPriority());
+        String query = String.format(INSERT_STATEMENT,
+                contactsDataForQuery.getLid(),
+                contactsDataForQuery.getContact(),
+                contactsDataForQuery.getPhone(),
+                contactsDataForQuery.getEmail(),
+                contactsDataForQuery.getRemark(),
+                contactsDataForQuery.getPriority());
 
         runStatement(query);
     }
@@ -190,13 +197,19 @@ public class ContactsDataManager extends HydroDataManager {
      */
     public void updateContactData(ContactsData data, String originalContactName)
             throws VizException {
-        DbUtils.escapeSpecialCharforData(data);
+        ContactsData contactsDataForQuery = new ContactsData();
+        DbUtils.escapeSpecialCharforData(data, contactsDataForQuery);
+
         originalContactName = DbUtils
                 .escapeSpecialCharforStr(originalContactName);
 
-        String query = String.format(UPDATE_STATEMENT, data.getContact(),
-                data.getPhone(), data.getEmail(), data.getRemark(),
-                data.getPriority(), data.getLid(), originalContactName);
+        String query = String.format(UPDATE_STATEMENT,
+                contactsDataForQuery.getContact(),
+                contactsDataForQuery.getPhone(),
+                contactsDataForQuery.getEmail(),
+                contactsDataForQuery.getRemark(),
+                contactsDataForQuery.getPriority(),
+                contactsDataForQuery.getLid(), originalContactName);
 
         runStatement(query);
     }

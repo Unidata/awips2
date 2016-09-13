@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
-import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.viz.lightning.RepeatingBinOffset;
 
 /**
  * Time and record data used to create a LightningFrame
@@ -35,8 +35,9 @@ import com.raytheon.uf.common.time.DataTime;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 9, 2014  3333      bclement     moved from LightningResource
+ * Jul 9, 2014  3333       bclement     moved from LightningResource
  * Mar 05, 2015 4233       bsteffen     include source in cache key.
+ * Sep 25, 2015 4605       bsteffen     repeat binning
  * 
  * </pre>
  * 
@@ -47,7 +48,7 @@ public class LightningFrameMetadata {
 
     private final String source;
 
-    private final BinOffset offset;
+    private final RepeatingBinOffset offset;
 
     private final DataTime frameTime;
 
@@ -56,16 +57,24 @@ public class LightningFrameMetadata {
     private final List<BinLightningRecord> processed = new ArrayList<BinLightningRecord>();
 
     public LightningFrameMetadata(String source, DataTime frameTime,
-            BinOffset offset) {
+            RepeatingBinOffset offset) {
         this.source = source;
         this.frameTime = frameTime;
         this.offset = offset;
     }
 
+    public boolean contains(DataTime time) {
+        return offset.getNormalizedTimes(time).contains(frameTime);
+    }
+
+    public String getSource() {
+        return source;
+    }
+
     /**
      * @return the offset
      */
-    public BinOffset getOffset() {
+    public RepeatingBinOffset getOffset() {
         return offset;
     }
 
@@ -81,6 +90,10 @@ public class LightningFrameMetadata {
      */
     public List<BinLightningRecord> getNewRecords() {
         return newRecords;
+    }
+
+    public boolean hasRecords() {
+        return !newRecords.isEmpty() || !processed.isEmpty();
     }
 
     /**

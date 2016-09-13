@@ -84,7 +84,7 @@ public class TextLightningParser {
     private static final String LIGHTNING_PTRN_C = "(\\d{4,4}-\\d{2,2}-\\d{2,2})T(\\d{2,2}:\\d{2,2}:\\d{2,2}),(-?\\d{1,2}.\\d{1,4}),(-?\\d{1,3}.\\d{1,4}),(0.0),(1)";
 
     private static final Pattern LTG_PTRN_C = Pattern.compile(LIGHTNING_PTRN_C);
-    
+
     // USPLN
     // 2015-06-22T22:26:56.988,20.0405176,-83.8311105,-117.00,1.50,0.25,28
     private static final String LIGHTNING_PTRN_USPLN = "(\\d{4,4}-\\d{2,2}-\\d{2,2})T(\\d{2,2}:\\d{2,2}:\\d{2,2}.\\d{3,3}),(-?\\d{1,2}.\\d{2,}),(-?\\d{1,3}.\\d{2,}),(-?\\d{1,3}\\.\\d{2,2}),(\\d{1,1}\\.\\d{2,2}),(\\d{1,1}\\.\\d{2,2}),(-?\\d{1,2})";
@@ -169,7 +169,6 @@ public class TextLightningParser {
                     // 03/23/2010 13:35:01 72.00 -157.00 -142  1
                     Matcher m = LTG_PTRN_A.matcher(line);
                     if (m.matches()) {
-                        
                         String[] date = m.group(1).split("/");
                         String[] time = m.group(2).split(":");
                         String month = date[0];
@@ -238,7 +237,7 @@ public class TextLightningParser {
                             strike.setLightSource("UNKN");
                             reports.add(strike);
                         } else {
-                        	// 2012-03-14T18:58:00,-5.5021,-45.9669,0.0,1
+                            // 2012-03-14T18:58:00,-5.5021,-45.9669,0.0,1
                             m = LTG_PTRN_C.matcher(line);
                             if (m.matches()) {
                                 String[] datec = m.group(1).split("-");

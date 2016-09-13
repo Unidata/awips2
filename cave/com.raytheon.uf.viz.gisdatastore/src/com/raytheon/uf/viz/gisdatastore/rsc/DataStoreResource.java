@@ -127,6 +127,7 @@ import com.vividsolutions.jts.geom.Point;
  * Aug 14, 2014      #3523 mapeters    Updated deprecated DrawableString.textStyle assignments.
  * Aug 21, 2014      #3459 randerso    Restructured Map resource class hierarchy
  * Nov 18, 2014      #3549 njensen     Improved performance of processRequest()
+ * Nov 05, 2015      #5070 randerso    Moved label font management up to AbstractMapResource
  * 
  * </pre>
  * 
@@ -427,7 +428,8 @@ public class DataStoreResource extends
 
                                 DrawableString ds = new DrawableString(label,
                                         null);
-                                ds.font = req.getResource().font;
+                                ds.font = req.getResource().getFont(
+                                        req.getTarget());
                                 Rectangle2D rect = req.getTarget()
                                         .getStringsBounds(ds);
 
@@ -1113,8 +1115,9 @@ public class DataStoreResource extends
     }
 
     @Override
-    protected void paintInternal(IGraphicsTarget aTarget,
+    protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
+
         PixelExtent screenExtent = (PixelExtent) paintProps.getView()
                 .getExtent();
 
@@ -1147,12 +1150,6 @@ public class DataStoreResource extends
 
         double labelMagnification = getCapability(MagnificationCapability.class)
                 .getMagnification();
-
-        if (font == null) {
-            font = aTarget.initializeFont(aTarget.getDefaultFont()
-                    .getFontName(), (float) (10 * labelMagnification), null);
-            font.setSmoothing(false);
-        }
 
         String shadingField = getCapability(ShadeableCapability.class)
                 .getShadingField();
@@ -1189,7 +1186,7 @@ public class DataStoreResource extends
 
                 boolean highlightsOnly = updateHighlights && !updateLabels
                         && !updateShading && !updateExtent;
-                queryJob.queueRequest(new Request(aTarget, this, boundingGeom,
+                queryJob.queueRequest(new Request(target, this, boundingGeom,
                         geomField, labelField, shadingField, colorMap,
                         isProduct, highlightsOnly));
                 lastExtent = expandedExtent;
@@ -1210,12 +1207,12 @@ public class DataStoreResource extends
                 && shadedShape.isDrawable()) {
             float opacity = getCapability(ShadeableCapability.class)
                     .getOpacity();
-            aTarget.drawShadedShape(shadedShape, alpha * opacity);
+            target.drawShadedShape(shadedShape, alpha * opacity);
         }
 
         if ((outlineShape != null) && outlineShape.isDrawable()
                 && getCapability(OutlineCapability.class).isOutlineOn()) {
-            aTarget.drawWireframeShape(outlineShape,
+            target.drawWireframeShape(outlineShape,
                     getCapability(ColorableCapability.class).getColor(),
                     getCapability(OutlineCapability.class).getOutlineWidth(),
                     getCapability(OutlineCapability.class).getLineStyle(),
@@ -1227,18 +1224,18 @@ public class DataStoreResource extends
 
         if ((highlightShape != null) && highlightShape.isDrawable()
                 && getCapability(OutlineCapability.class).isOutlineOn()) {
-            aTarget.drawWireframeShape(highlightShape, highlightColor,
+            target.drawWireframeShape(highlightShape, highlightColor,
                     highlightWidth, highlightStyle);
         }
 
         if ((labels != null) && isLabeled && (labelMagnification != 0)) {
-            drawLabels(aTarget, paintProps, worldToScreenRatio);
+            drawLabels(target, paintProps, worldToScreenRatio);
         }
 
         if (rubberBandExtent != null) {
-            aTarget.drawShadedRect(rubberBandExtent, RUBBER_BAND_COLOR, 0.5,
+            target.drawShadedRect(rubberBandExtent, RUBBER_BAND_COLOR, 0.5,
                     null);
-            aTarget.drawRect(rubberBandExtent, RUBBER_BAND_COLOR, 2, 1.0);
+            target.drawRect(rubberBandExtent, RUBBER_BAND_COLOR, 2, 1.0);
         }
 
         if (dragPromptCoord != null) {
@@ -1249,7 +1246,7 @@ public class DataStoreResource extends
             ds.addTextStyle(TextStyle.BOXED, new RGB(255, 255, 255));
             ds.horizontalAlignment = HorizontalAlignment.LEFT;
             ds.verticalAlignment = VerticalAlignment.BOTTOM;
-            aTarget.drawStrings(ds);
+            target.drawStrings(ds);
         }
     }
 
@@ -1279,9 +1276,8 @@ public class DataStoreResource extends
         highlightShape = result.highlightShape;
     }
 
-    private void drawLabels(IGraphicsTarget aTarget,
-            PaintProperties paintProps, double worldToScreenRatio)
-            throws VizException {
+    private void drawLabels(IGraphicsTarget target, PaintProperties paintProps,
+            double worldToScreenRatio) throws VizException {
         double offsetX = getCapability(LabelableCapability.class).getxOffset()
                 * worldToScreenRatio;
         double offsetY = getCapability(LabelableCapability.class).getyOffset()
@@ -1315,7 +1311,7 @@ public class DataStoreResource extends
             DrawableString string = new DrawableString(node.label, color);
             string.setCoordinates(node.location[0] + offsetX, node.location[1]
                     - offsetY);
-            string.font = font;
+            string.font = getFont(target);
             string.horizontalAlignment = HorizontalAlignment.CENTER;
             string.verticalAlignment = VerticalAlignment.MIDDLE;
             boolean add = true;
@@ -1347,7 +1343,7 @@ public class DataStoreResource extends
             }
         }
 
-        aTarget.drawStrings(strings);
+        target.drawStrings(strings);
     }
 
     /**
@@ -1969,16 +1965,12 @@ public class DataStoreResource extends
 
     @Override
     public void resourceChanged(ChangeType type, Object object) {
+        super.resourceChanged(type, object);
         if (type.equals(ChangeType.CAPABILITY)) {
             if (object instanceof ColorableCapability) {
                 if (this.timeRange != null) {
                     // force rebuild of shaded shape to pick up color change
                     lastExtent = null;
-                }
-            } else if (object instanceof MagnificationCapability) {
-                if (font != null) {
-                    font.dispose();
-                    font = null;
                 }
             }
         }

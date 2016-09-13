@@ -33,6 +33,7 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * ------------	----------	-----------	--------------------------
  * Dec 12, 2008	1787    	askripsky	Initial creation
  * Aug 07, 2015 4500        rjpeter     Fix type case.
+ * JUN 29, 2016 19149       amoore      Fix PK statement based on table joining.
  * </pre>
  * 
  * @author askripsky
@@ -44,6 +45,11 @@ public class DataIngestFilterData extends HydroDBData implements IHydroDBData {
      * lid - Location/Station ID
      */
     private String lid;
+
+    /**
+     * WFO.
+     */
+    private String wfo;
 
     /**
      * Physical Element
@@ -101,7 +107,8 @@ public class DataIngestFilterData extends HydroDBData implements IHydroDBData {
      */
     public DataIngestFilterData(QueryResultRow data,
             Map<String, Integer> dataMap) {
-        setLid(getDBValue("lid", data, dataMap, ""));
+        setLid(getDBValue("ingestfilter.lid", data, dataMap, ""));
+        setWfo(getDBValue("wfo", data, dataMap, ""));
         setPe(getDBValue("pe", data, dataMap, ""));
         setDuration(getDBValue("dur", data, dataMap,
                 (short) HydroConstants.MISSING_VALUE).intValue());
@@ -120,6 +127,14 @@ public class DataIngestFilterData extends HydroDBData implements IHydroDBData {
 
     public void setLid(String lid) {
         this.lid = lid;
+    }
+
+    public String getWfo() {
+        return wfo;
+    }
+
+    public void setWfo(String wfo) {
+        this.wfo = wfo;
     }
 
     public String getPe() {
@@ -198,7 +213,7 @@ public class DataIngestFilterData extends HydroDBData implements IHydroDBData {
     public String getConstrainedSelectStatement() {
         return getSelectStatement()
                 + whereClause
-                + " ORDER BY lid, pe, dur, ts, extremum, ts_rank, ingest, ofs_input, stg2_input";
+                + " ORDER BY lid, wfo, pe, dur, ts, extremum, ts_rank, ingest, ofs_input, stg2_input";
     }
 
     @Override
@@ -227,20 +242,20 @@ public class DataIngestFilterData extends HydroDBData implements IHydroDBData {
 
     @Override
     public String getPKStatement() {
-        return "lid='" + getLid() + "' AND pe='" + getPe() + "' AND dur="
-                + getDBString(getDuration()) + " AND ts='" + getTypeSource()
-                + "' AND extremum='" + getExtremum() + "'";
+        return "ingestfilter.lid='" + getLid() + "' AND pe='" + getPe()
+                + "' AND dur=" + getDBString(getDuration()) + " AND ts='"
+                + getTypeSource() + "' AND extremum='" + getExtremum() + "'";
     }
 
     @Override
     public String getSelectStatement() {
         StringBuffer rval = new StringBuffer();
 
-        String columns = "lid, pe, dur, ts, extremum, ts_rank, ingest, ofs_input, stg2_input";
+        String columns = "ingestfilter.lid, wfo, pe, dur, ts, extremum, ts_rank, ingest, ofs_input, stg2_input";
 
         rval.append("SELECT ");
         rval.append(columns);
-        rval.append(" FROM ingestfilter");
+        rval.append(" FROM ingestfilter LEFT JOIN location ON ingestfilter.lid = location.lid");
 
         return rval.toString();
     }

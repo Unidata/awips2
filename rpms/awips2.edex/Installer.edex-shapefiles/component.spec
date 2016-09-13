@@ -11,13 +11,13 @@ BuildArch: noarch
 URL: N/A
 License: N/A
 Distribution: N/A
-Vendor: Unidata
-Packager: Michael James
+Vendor: Raytheon
+Packager: %{_build_site}
 
 AutoReq: no
-provides: awips2-edex-shapefiles
-requires: awips2
-requires: awips2-edex-base
+Provides: awips2-edex-shapefiles
+Requires: awips2
+Requires: awips2-edex-base
 
 # Turn off the brp-python-bytecompile script
 %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
@@ -46,9 +46,9 @@ if [ $? -ne 0 ]; then
    exit 1 
 fi
 
-SHAPEFILES=%{_awipscm_share}/awips2-static/maps/shapefiles
+SHAPEFILES=%{_static_files}/maps/shapefiles
 if [ ! -d ${SHAPEFILES} ]; then
-   file ${SHAPEFILES}
+   echo "File ${SHAPEFILES} not found!"
    exit 1
 fi
 

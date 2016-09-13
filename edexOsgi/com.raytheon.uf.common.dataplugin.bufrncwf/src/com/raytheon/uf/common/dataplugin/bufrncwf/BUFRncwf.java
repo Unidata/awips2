@@ -19,9 +19,6 @@
  **/
 package com.raytheon.uf.common.dataplugin.bufrncwf;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.SequenceGenerator;
@@ -59,6 +56,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  *                                     PluginDataObject.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Oct 15, 2013 2361       njensen     Remove XML annotations and IDecoderGettable
+ * Jul 23, 2015 4360       rferrel     Add name to unique constraint.
+ * Feb 04, 2016 5310       tgurney     Drop dataURI column and update unique constraint.
  * 
  * </pre>
  * 
@@ -67,7 +66,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "bufrncwfseq")
-@Table(name = "bufrncwf", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = "bufrncwf", uniqueConstraints = { @UniqueConstraint(name = "uk_bufrncwf_datauri_fields", columnNames = {
+        "refTime", "latitude", "longitude", "stationId" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
@@ -223,27 +223,14 @@ public class BUFRncwf extends PersistablePluginDataObject implements
         return location;
     }
 
-    /**
-     * 
-     */
     @Override
     public PointDataView getPointDataView() {
         return pointDataView;
     }
 
-    /**
-     * 
-     */
     @Override
     public void setPointDataView(PointDataView pointDataView) {
         this.pointDataView = pointDataView;
-    }
-
-    @Override
-    @Column
-    @Access(AccessType.PROPERTY)
-    public String getDataURI() {
-        return super.getDataURI();
     }
 
     @Override

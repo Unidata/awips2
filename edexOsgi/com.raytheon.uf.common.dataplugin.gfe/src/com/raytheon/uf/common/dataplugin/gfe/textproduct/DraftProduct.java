@@ -20,12 +20,11 @@
 package com.raytheon.uf.common.dataplugin.gfe.textproduct;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.exception.LocalizationException;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -45,6 +44,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Mar 23, 2010            randerso    Initial creation
  * Mar 26, 2014  #2884     randerso    Code clean up
  * Feb 24, 2015   3978     njensen     Changed to use abstract InputStream
+ * Aug 18, 2015 3806       njensen     Use SaveableOutputStream to save
  * 
  * </pre>
  * 
@@ -88,30 +88,17 @@ public class DraftProduct {
         this.productText = productText;
     }
 
-    public void save(LocalizationFile lf) throws SerializationException,
-            LocalizationException {
+    public void save(LocalizationFile lf) throws SerializationException {
         File file = lf.getFile();
         file.getParentFile().mkdirs();
         byte[] bytes = SerializationUtil.transformToThrift(this);
 
-        FileOutputStream out = null;
-        try {
-            out = lf.openOutputStream();
-            out.write(bytes);
+        try (SaveableOutputStream sos = lf.openOutputStream()) {
+            sos.write(bytes);
+            sos.save();
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-
-        } finally {
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            e.getLocalizedMessage(), e);
-                }
-            }
         }
-        lf.save();
     }
 
     public static DraftProduct load(LocalizationFile lf)

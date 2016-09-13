@@ -66,6 +66,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                     spatial
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
+ * Jul 16, 2015 4360       rferrel     Add name to unique constraint.
  * 
  * </pre>
  * 
@@ -74,7 +75,7 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "goessoundingseq")
-@Table(name = "goessounding", uniqueConstraints = { @UniqueConstraint(columnNames = {
+@Table(name = "goessounding", uniqueConstraints = { @UniqueConstraint(name = "uk_goessounding_datauri_fields", columnNames = {
         "stationid", "reftime", "latitude", "longitude" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since

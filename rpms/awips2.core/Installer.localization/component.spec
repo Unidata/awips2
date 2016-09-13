@@ -12,11 +12,11 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Bryan Kowal
+Packager: %{_build_site}
 
 AutoReq: no
-provides: %{_component_name}
-obsoletes: awips2-localization-OAX < 16.1.4
+Provides: %{_component_name}
+Obsoletes: awips2-localization-OAX < 16.1.4
 
 %description
 AWIPS II Site Localization.
@@ -41,18 +41,61 @@ if [ -d ${RPM_BUILD_ROOT} ]; then
 fi
 
 %build
-# Build all WFO site localization Map Scales (States.xml, WFO.xml)
+# Build all WFO site localization Map Scales (Regional.xml and WFO.xml)
 BUILD_DIR=%{_baseline_workspace}/rpms/awips2.core/Installer.localization/
 UTIL=%{_baseline_workspace}/localization/utility
-file=$BUILD_DIR/wfo.dat
+#file=$BUILD_DIR/wfo.dat
+file=$BUILD_DIR/coords.dat
+regional=$BUILD_DIR/coords_regional.dat
+#<gridGeometry rangeX="LOWX HIGHX" rangeY="LOWY HIGHY" envelopeMinX="MINX" envelopeMaxX="MAXX" envelopeMinY="MINY" envelopeMaxY="MAXY">
+
 for site in $(cat $file |cut -c -3)
 do
-   lat=$(cat $file |grep $site | cut -f9)
-   lon=$(cat $file |grep $site | cut -f10)
+   lat=$(cat $file   |grep $site | cut -d"," -f2  | tr -d '[[:space:]]')
+   lon=$(cat $file   |grep $site | cut -d"," -f3  | tr -d '[[:space:]]')
+
+   # <gridGeometry rangeX="LOWX HIGHX" rangeY="LOWY HIGHY" envelopeMinX="MINX" envelopeMaxX="MAXX" envelopeMinY="MINY" envelopeMaxY="MAXY">
+   lowx=$(cat $file  |grep $site | cut -d"," -f4  | tr -d '[[:space:]]')
+   highx=$(cat $file |grep $site | cut -d"," -f5  | tr -d '[[:space:]]')
+   lowy=$(cat $file  |grep $site | cut -d"," -f6  | tr -d '[[:space:]]')
+   highy=$(cat $file |grep $site | cut -d"," -f7  | tr -d '[[:space:]]')
+   minx=$(cat $file  |grep $site | cut -d"," -f8  | tr -d '[[:space:]]')
+   maxx=$(cat $file  |grep $site | cut -d"," -f9  | tr -d '[[:space:]]')
+   miny=$(cat $file  |grep $site | cut -d"," -f10 | tr -d '[[:space:]]')
+   maxy=$(cat $file  |grep $site | cut -d"," -f11 | tr -d '[[:space:]]')
+
    # CAVE
    CAVE_DIR=$UTIL/cave_static/site/$site
    mkdir -p $CAVE_DIR
    cp -R $BUILD_DIR/utility/cave_static/* $CAVE_DIR
+   
+   grep -rl 'LOWX'  $CAVE_DIR/bundles/scales/WFO.xml | xargs sed -i 's/LOWX/'$lowx'/g'
+   grep -rl 'HIGHX' $CAVE_DIR/bundles/scales/WFO.xml | xargs sed -i 's/HIGHX/'$highx'/g'
+   grep -rl 'LOWY'  $CAVE_DIR/bundles/scales/WFO.xml | xargs sed -i 's/LOWY/'$lowy'/g'
+   grep -rl 'HIGHY' $CAVE_DIR/bundles/scales/WFO.xml | xargs sed -i 's/HIGHY/'$highy'/g'
+   grep -rl 'MINX'  $CAVE_DIR/bundles/scales/WFO.xml | xargs sed -i 's/MINX/'$minx'/g'
+   grep -rl 'MAXX'  $CAVE_DIR/bundles/scales/WFO.xml | xargs sed -i 's/MAXX/'$maxx'/g'
+   grep -rl 'MINY'  $CAVE_DIR/bundles/scales/WFO.xml | xargs sed -i 's/MINY/'$miny'/g'
+   grep -rl 'MAXY'  $CAVE_DIR/bundles/scales/WFO.xml | xargs sed -i 's/MAXY/'$maxy'/g'
+
+   lowx=$(cat $regional  |grep $site | cut -d"," -f4  | tr -d '[[:space:]]')
+   highx=$(cat $regional |grep $site | cut -d"," -f5  | tr -d '[[:space:]]')
+   lowy=$(cat $regional  |grep $site | cut -d"," -f6  | tr -d '[[:space:]]')
+   highy=$(cat $regional |grep $site | cut -d"," -f7  | tr -d '[[:space:]]')
+   minx=$(cat $regional  |grep $site | cut -d"," -f8  | tr -d '[[:space:]]')
+   maxx=$(cat $regional  |grep $site | cut -d"," -f9  | tr -d '[[:space:]]')
+   miny=$(cat $regional  |grep $site | cut -d"," -f10 | tr -d '[[:space:]]')
+   maxy=$(cat $regional  |grep $site | cut -d"," -f11 | tr -d '[[:space:]]')
+
+   grep -rl 'LOWX'  $CAVE_DIR/bundles/scales/Regional.xml | xargs sed -i 's/LOWX/'$lowx'/g'
+   grep -rl 'HIGHX' $CAVE_DIR/bundles/scales/Regional.xml | xargs sed -i 's/HIGHX/'$highx'/g'
+   grep -rl 'LOWY'  $CAVE_DIR/bundles/scales/Regional.xml | xargs sed -i 's/LOWY/'$lowy'/g'
+   grep -rl 'HIGHY' $CAVE_DIR/bundles/scales/Regional.xml | xargs sed -i 's/HIGHY/'$highy'/g'
+   grep -rl 'MINX'  $CAVE_DIR/bundles/scales/Regional.xml | xargs sed -i 's/MINX/'$minx'/g'
+   grep -rl 'MAXX'  $CAVE_DIR/bundles/scales/Regional.xml | xargs sed -i 's/MAXX/'$maxx'/g'
+   grep -rl 'MINY'  $CAVE_DIR/bundles/scales/Regional.xml | xargs sed -i 's/MINY/'$miny'/g'
+   grep -rl 'MAXY'  $CAVE_DIR/bundles/scales/Regional.xml | xargs sed -i 's/MAXY/'$maxy'/g'
+
    grep -rl 'XXX' $CAVE_DIR | xargs sed -i 's/XXX/'$site'/g'
    grep -rl 'LATITUDE' $CAVE_DIR | xargs sed -i 's/LATITUDE/'$lat'/g'
    grep -rl 'LONGITUDE' $CAVE_DIR | xargs sed -i 's/LONGITUDE/'$lon'/g'
@@ -80,13 +123,6 @@ cp -rv %{_baseline_workspace}/localization/utility/* \
 if [ $? -ne 0 ]; then
    exit 1
 fi
-
-# Copy the shapefiles (too large to include in git repo)
-#cp -rv ${AWIPSCM_SHARE}/awips2-static/shapefiles/ \
-#   ${RPM_BUILD_ROOT}/awips2/edex/data/utility/edex_static/site/OAX/
-#if [ $? -ne 0 ]; then
-#   exit 1
-#fi
 
 %pre
 
@@ -195,7 +231,8 @@ function importShapefiles()
       return 0
    fi
    
-   # Start postgres
+   # shapefiles exist
+   
    prepare
    
    # verify the both the basins and streams shapefile are present.
@@ -212,7 +249,7 @@ function importShapefiles()
       echo "warngenloc files do not exist, returning ..." >> ${log_file}   
       return 0
    fi
- 
+   
    # verify that the files the streams and basins shapefile depend on
    # are present.
    if [ ! -f ${ffmp_shp_directory}/FFMP_aggr_basins.dbf ] ||
@@ -252,7 +289,7 @@ function importShapefiles()
       echo "FATAL: failed to import the FFMP streams." >> ${log_file}
       return 0
    fi
-
+   
     # import the warngen boundaries for OAX
    /bin/bash ${a2_shp_script} \
       ${wg_shp_directory}/wg23fe15.shp mapdata warngenloc >> ${log_file} 2>&1 

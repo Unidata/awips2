@@ -1,7 +1,47 @@
-../awips2-foss/lib/* ../awips2-core-foss/lib/*
-../awips2-core/common/* ../awips2-core/edex/* ../awips2-core/features/* ../awips2-core/viz/*
-../awips2-ohd/lib/* ../awips2-ohd/edex/* ../awips2-ohd/features/* ../awips2-ohd/apps/* 
-../awips2-rpmbuild/* ../awips2-ncep/common/* ../awips2-ncep/viz/* ../awips2-ncep/features/* ../awips2-ncep/edex/* ../awips2-gsd/features/* ../awips2-gsd/viz/*
-../awips2-cimss/viz/* ../awips2-cimss/features/* ../awips2-cimss/common/* ../awips2-cimss/edex/*
-RadarServer/ edexOsgi/ cave/ ost/ localization/* 
-javaUtilities/* rpms pythonPackages nativeLib/* build/*
+build/* RadarServer/* edexOsgi/* cave/* localization/*
+javaUtilities/* rpms pythonPackages nativeLib/* 
+../awips2-core/common/* 
+../awips2-core/edex/* 
+../awips2-core/features/* 
+../awips2-core/viz/*
+../awips2-core-foss/lib/*
+../awips2-foss/lib/*
+../awips2-ohd/lib/* 
+../awips2-ohd/edex/* 
+../awips2-ohd/features/* 
+../awips2-rpm/foss
+../awips2-rpm/installers
+../awips2-ncep/common/* 
+../awips2-ncep/viz/* 
+../awips2-ncep/features/* 
+../awips2-ncep/edex/* 
+../awips2-gsd/features/* 
+../awips2-gsd/viz/*
+../awips2-cimss/viz/* 
+../awips2-cimss/features/* 
+../awips2-cimss/common/* 
+../awips2-cimss/edex/*
+../awips2-collaboration/viz/*
+../awips2-collaboration/features/*
+../awips2-collaboration/common/*
+../awips2-collaboration/openfire/*
+../awips2-collaboration/rpms-Collaboration
+../awips2-collaboration/foss
+../awips2-ogc/edex/*
+../awips2-ogc/features/*
+../awips2-ogc/foss/*
+../awips2-goesr/cave/*
+../awips2-goesr/cots/*
+../awips2-goesr/edexOsgi/*
+../awips2-nasa/edex/*
+../awips2-nasa/features/*
+../awips2-data-delivery/common/*
+../awips2-data-delivery/edex/*
+../awips2-data-delivery/features/*
+../awips2-data-delivery/viz/*
+../awips2-data-delivery/rpms-Data_Delivery
+../awips2-drawing/viz/*
+../awips2-drawing/features/*
+../awips2-nws/common/*
+../awips2-nws/edex/*
+../awips2-nws/features/*

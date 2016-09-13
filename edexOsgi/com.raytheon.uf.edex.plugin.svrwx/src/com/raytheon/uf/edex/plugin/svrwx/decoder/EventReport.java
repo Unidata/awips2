@@ -27,18 +27,19 @@ import java.util.regex.Pattern;
 /**
  * An InternalReport that contains an entire event report. The fields of a
  * report are parsed from the data, but not transformed in any way.
- *
- *
+ * 
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 25, 2014 3008       nabowle     Initial creation
- *
+ * Feb 11, 2016 5292       skorolev    Added setStationId
+ * 
  * </pre>
- *
+ * 
  * @author nabowle
  * @version 1.0
  */
@@ -67,7 +68,7 @@ public class EventReport extends InternalReport {
 
     /**
      * Constructor.
-     *
+     * 
      * @param event
      *            The event line.
      * @param pKey
@@ -126,7 +127,6 @@ public class EventReport extends InternalReport {
         return latLon;
     }
 
-
     /**
      * @return the stationId
      */
@@ -134,6 +134,12 @@ public class EventReport extends InternalReport {
         return stationId;
     }
 
+    /**
+     * @param stationId
+     */
+    public void setStationId(String stationId) {
+        this.stationId = stationId;
+    }
 
     /**
      * Builder for the EventReport to facilitate creating an EventReport from
@@ -154,7 +160,7 @@ public class EventReport extends InternalReport {
 
         /**
          * Creates an EventReport object from the event line and remarks.
-         *
+         * 
          * @return The built EventReport.
          */
         public EventReport build() {
@@ -165,7 +171,7 @@ public class EventReport extends InternalReport {
 
         /**
          * Sets the event line of the report.
-         *
+         * 
          * @param eventLine
          *            The event line.
          * @return This builder.
@@ -177,7 +183,7 @@ public class EventReport extends InternalReport {
 
         /**
          * Adds a remarks line to the report.
-         *
+         * 
          * @param rmks
          *            The remarks line.
          * @return This builder.
@@ -190,7 +196,7 @@ public class EventReport extends InternalReport {
         /**
          * Builds a String of the entire event, including the event line and all
          * remarks lines.
-         *
+         * 
          * @return The event string.
          */
         private String buildEventString() {
@@ -204,7 +210,7 @@ public class EventReport extends InternalReport {
 
         /**
          * Parses the event key field.
-         *
+         * 
          * @return The event key field.
          */
         private String parseEventKey() {
@@ -213,7 +219,7 @@ public class EventReport extends InternalReport {
 
         /**
          * Parses the time field.
-         *
+         * 
          * @return the time field.
          */
         private String parseTime() {
@@ -222,7 +228,7 @@ public class EventReport extends InternalReport {
 
         /**
          * Parses the station id field.
-         *
+         * 
          * @return The station id field.
          */
         private String parseStationId() {
@@ -237,20 +243,18 @@ public class EventReport extends InternalReport {
 
         /**
          * Parses the combined latitude/longitude field.
-         *
+         * 
          * @return The combined latitude/longitude field.
          */
         private String parseLatLon() {
             return parseFromRemarks(LATLON_PTRN);
         }
 
-
-
         /**
          * Parses the remarks field from the remarks lines. The first remarks
          * line contains other fields, starting with the station id, which are
          * not included in the remarks field.
-         *
+         * 
          * @return The parsed remarks fields.
          */
         private String parseRemarks() {
@@ -280,7 +284,7 @@ public class EventReport extends InternalReport {
 
         /**
          * Parses a field from a line.
-         *
+         * 
          * @param line
          *            The line to pull the field from.
          * @param pattern
@@ -305,7 +309,7 @@ public class EventReport extends InternalReport {
 
         /**
          * Parses a field from the first remarks line.
-         *
+         * 
          * @param pattern
          *            The pattern of the field.
          * @return The matched group, or null if the remarks or empty or the

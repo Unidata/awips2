@@ -23,20 +23,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 
+import com.raytheon.uf.common.monitor.data.MonitorConfigConstants.FogDisplay;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
+import com.raytheon.uf.common.monitor.xml.AreaXML;
+import com.raytheon.uf.common.monitor.xml.ThresholdsXML;
 import com.raytheon.uf.viz.monitor.data.RangesUtil;
 import com.raytheon.uf.viz.monitor.fog.threshold.FogDisplayMeteoData;
 import com.raytheon.uf.viz.monitor.fog.threshold.FogThresholdMgr;
 import com.raytheon.uf.viz.monitor.ui.dialogs.TabItemComp;
-import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants.FogDisplay;
-import com.raytheon.uf.viz.monitor.xml.AreaXML;
-import com.raytheon.uf.viz.monitor.xml.ThresholdsXML;
 
 /**
  * Fog Display Meteo Table.
@@ -45,9 +43,11 @@ import com.raytheon.uf.viz.monitor.xml.ThresholdsXML;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 21, 2014 3086       skorolev    Cleaned code
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- -------------
+ * May 21, 2014  3086     skorolev  Cleaned code
+ * Dec 26, 2015 5114       skorolev    Corrected imports.
+ * Jun 02, 2016  5673     randerso  Fixed header alignment in threshold dialogs
  * 
  * </pre>
  * 
@@ -84,27 +84,17 @@ public class FogDisplayMeteoTab extends TabItemComp implements
      * .eclipse.swt.widgets.Composite)
      */
     @Override
-    protected void createListHeader(Composite parentComp) {
-        Composite lblComp = new Composite(parentComp, SWT.NONE);
-        GridLayout gl = new GridLayout(5, false);
-        gl.horizontalSpacing = 0;
-        gl.marginHeight = 0;
-        gl.marginWidth = 0;
-        lblComp.setLayout(gl);
-
+    protected void createListHeader() {
         /* Create filler label. */
-        GridData gd = new GridData(68, SWT.DEFAULT);
-        Label fillerLbl = new Label(lblComp, SWT.CENTER);
-        fillerLbl.setLayoutData(gd);
+        createHeader("", 0, 0, false);
 
         /* Meteo */
-        Composite meteoComp = createGroupComposite(lblComp, 6, null);
-        createLabelComp(meteoComp, "Vis(mi)", "", true);
-        createLabelComp(meteoComp, "Ceiling", "(100ft)", false);
-        createLabelComp(meteoComp, "Temp(F)", "", false);
-        createLabelComp(meteoComp, "Dewpt(F)", "", false);
-        createLabelComp(meteoComp, "T-Td(F)", "", false);
-        createLabelComp(meteoComp, "Rel Hum(%)", "", false);
+        createHeader("Vis(mi)", 1, 2, true);
+        createHeader("Ceiling\n(100ft)", 3, 4, true);
+        createHeader("Temp(F)", 5, 6, true);
+        createHeader("Dewpt(F)", 7, 8, true);
+        createHeader("T-Td(F)", 9, 10, true);
+        createHeader("Rel Hum\n(%)", 11, 12, true);
     }
 
     /*
@@ -113,13 +103,13 @@ public class FogDisplayMeteoTab extends TabItemComp implements
      * @see com.raytheon.uf.viz.monitor.ui.dialogs.TabItemComp#populateList()
      */
     @Override
-    protected void populateList() {
+    protected void populateTable() {
         if (fogDataArray == null) {
             createDataArray();
         }
 
         boolean update = false;
-        if (dataList.getItemCount() > 0) {
+        if (dataTable.getItemCount() > 0) {
             update = true;
         }
 
@@ -132,52 +122,57 @@ public class FogDisplayMeteoTab extends TabItemComp implements
 
         double visVal = 0.0;
 
-        StringBuilder sb = null;
         FogDisplayMeteoData fdmd = null;
 
+        int numColumns = 13;
+        new TableColumn(dataTable, SWT.LEFT);
+        for (int c = 1; c < numColumns; c++) {
+            new TableColumn(dataTable, SWT.RIGHT);
+        }
+
         for (int i = 0; i < fogDataArray.size(); i++) {
-            sb = new StringBuilder();
+
+            TableItem item;
+            if (update == true) {
+                item = dataTable.getItem(i);
+            } else {
+                item = new TableItem(dataTable, SWT.NONE);
+            }
 
             fdmd = fogDataArray.get(i);
 
             currentAreaID = fdmd.getAreaID();
             areaIDArray.add(currentAreaID);
 
-            sb.append(String.format(areaIdFmt, currentAreaID));
+            item.setText(0, currentAreaID);
 
             /* Visibility */
             visVal = fdmd.getMeteoVisR();
             tmpVisStr = rangeUtil.getVisString((int) visVal);
-            sb.append(String.format(dataFmt, tmpVisStr));
+            item.setText(1, String.format(dataFmt, tmpVisStr));
 
             visVal = fdmd.getMeteoVisY();
             tmpVisStr = rangeUtil.getVisString((int) visVal);
-            sb.append(String.format(dataFmt, tmpVisStr));
+            item.setText(2, String.format(dataFmt, tmpVisStr));
 
             /* Ceiling */
-            appendIntData(sb, fdmd.getMeteoCeilingR(), fdmd.getMeteoCeilingY());
+            appendIntData(item, 3, fdmd.getMeteoCeilingR(),
+                    fdmd.getMeteoCeilingY());
 
             /* Temperature */
-            appendIntData(sb, fdmd.getMeteoTempR(), fdmd.getMeteoTempY());
+            appendIntData(item, 5, fdmd.getMeteoTempR(), fdmd.getMeteoTempY());
 
             /* Dewpoint */
-            appendIntData(sb, fdmd.getMeteoDewpointR(),
+            appendIntData(item, 7, fdmd.getMeteoDewpointR(),
                     fdmd.getMeteoDewpointY());
 
             /* T-Td */
-            appendIntData(sb, fdmd.getMeteoTtdR(), fdmd.getMeteoTtdY());
+            appendIntData(item, 9, fdmd.getMeteoTtdR(), fdmd.getMeteoTtdY());
 
             /* Relative Humidity */
-            appendIntData(sb, fdmd.getMeteoRelHumR(), fdmd.getMeteoRelHumY());
+            appendIntData(item, 11, fdmd.getMeteoRelHumR(),
+                    fdmd.getMeteoRelHumY());
 
-            /* Append a space and add the data line to the list. */
-            sb.append(" ");
-
-            if (update == true) {
-                dataList.setItem(i, sb.toString());
-            } else {
-                dataList.add(sb.toString());
-            }
         }
         packListControls();
     }
@@ -256,7 +251,7 @@ public class FogDisplayMeteoTab extends TabItemComp implements
      * @return selected data
      */
     private FogDisplayMeteoData getDataAtFirstSelection() {
-        int index = dataList.getSelectionIndex();
+        int index = dataTable.getSelectionIndex();
         return fogDataArray.get(index);
     }
 
@@ -267,7 +262,7 @@ public class FogDisplayMeteoTab extends TabItemComp implements
      *            Display Meteo Data
      */
     private void updateDataArray(FogDisplayMeteoData fdmd) {
-        int[] dataListIndexes = dataList.getSelectionIndices();
+        int[] dataListIndexes = dataTable.getSelectionIndices();
         int currentIndex = 0;
 
         for (int i = 0; i < dataListIndexes.length; i++) {
@@ -342,10 +337,10 @@ public class FogDisplayMeteoTab extends TabItemComp implements
      */
     @Override
     public void reloadData() {
-        dataList.removeAll();
+        dataTable.removeAll();
         fogDataArray.clear();
         fogDataArray = null;
-        populateList();
+        populateTable();
     }
 
     /*
@@ -375,6 +370,6 @@ public class FogDisplayMeteoTab extends TabItemComp implements
     @Override
     public void updateThresholdData(FogDisplayMeteoData fdmd) {
         updateDataArray(fdmd);
-        populateList();
+        populateTable();
     }
 }

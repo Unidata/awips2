@@ -20,7 +20,6 @@
 package com.raytheon.viz.aviation;
 
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.viz.ui.personalities.awips.AbstractCAVEDialogComponent;
 
@@ -33,9 +32,10 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEDialogComponent;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 28, 2011            mschenke     Initial creation
+ * Apr 28, 2011            mschenke    Initial creation
  * Oct 17, 2012 1229       rferrel     Changes for non-blocking
  *                                      AvnconfigDlg.
+ * Jan 26, 2016  5054      randerso    Change top level dialog to be parented to the display
  * </pre>
  * 
  * @author mschenke
@@ -53,8 +53,7 @@ public class AvnconfigComponent extends AbstractCAVEDialogComponent {
      */
     @Override
     protected void startInternal(String componentName) throws Exception {
-        AvnconfigDlg avnfspSetupDlg = new AvnconfigDlg(new Shell(
-                Display.getCurrent()));
+        AvnconfigDlg avnfspSetupDlg = new AvnconfigDlg(Display.getCurrent());
         avnfspSetupDlg.open();
         blockUntilClosed(avnfspSetupDlg);
     }

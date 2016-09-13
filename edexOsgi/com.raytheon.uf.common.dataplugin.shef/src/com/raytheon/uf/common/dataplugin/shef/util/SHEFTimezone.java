@@ -28,12 +28,15 @@ import java.util.TimeZone;
 
 
 public class SHEFTimezone {
+    public static final HashMap<String, TimeZone> sysTimeZones = new HashMap<String, TimeZone>();
+    
     public static final int TZ_NOTFOUND = -9999;
 
     public static final TimeZone GMT_TIMEZONE = TimeZone
             .getTimeZone(ShefConstants.Z);
 
     private static final HashMap<String, TimeZoneEntry> timeZoneMap = new HashMap<String, TimeZoneEntry>();
+    
     static {
         timeZoneMap.put("Z", new TimeZoneEntry("Z", 0, null,
                 "Zulu time, also Greenwich Mean Time (GMT)"));
@@ -122,9 +125,25 @@ public class SHEFTimezone {
         timeZoneMap.put("J",
                 new TimeZoneEntry("J", -480, TimeZone.getTimeZone("PRC"),
                         "China"));
+        timeZoneMap.put(
+                "G",
+                new TimeZoneEntry("G", -600, TimeZone
+                        .getTimeZone("Pacific/Guam"), "Chamorro local time"));
+        timeZoneMap
+                .put("GS",
+                        new TimeZoneEntry("GS", -600, TimeZone
+                                .getTimeZone("Pacific/Guam"),
+                                "Chamorro standard time"));
+        timeZoneMap.put(
+                "S",
+                new TimeZoneEntry("S", 660, TimeZone
+                        .getTimeZone("Pacific/Samoa"), "Samoan local time"));
+        timeZoneMap.put(
+                "SS",
+                new TimeZoneEntry("SS", 660, TimeZone
+                        .getTimeZone("Pacific/Samoa"), "Samoan standard time"));
     }
 
-    public static final HashMap<String, TimeZone> sysTimeZones = new HashMap<String, TimeZone>();
     static {
         // Use this timezone to "clone" the daylight savings time rules.
         for (String key : timeZoneMap.keySet()) {
@@ -187,15 +206,6 @@ public class SHEFTimezone {
             c.set(Calendar.SECOND, 0);
             c.set(Calendar.MILLISECOND, 0);
             
-            if(h == 1) {
-                GregorianCalendar g = (GregorianCalendar) c.clone();
-                g.set(Calendar.HOUR_OF_DAY, 0);
-                if(tz.inDaylightTime(g.getTime())) {
-                    
-                    
-                    
-                }
-            }
             System.out.println(String.format("hour = %2d time = %s", h, sdf.format(c.getTime())));
         }
 

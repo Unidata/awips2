@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bufrua Plug-in
 Bundle-SymbolicName: com.raytheon.edex.plugin.bufrua
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: com.raytheon.edex.plugin.bufrua.dao
@@ -23,4 +23,4 @@ Require-Bundle: com.raytheon.uf.common.dataplugin.bufrua;bundle-version="1.12.11
 Import-Package: com.raytheon.edex.esb,
  com.raytheon.edex.plugin,
  com.raytheon.uf.common.wmo,
- org.apache.commons.logging
+ org.slf4j

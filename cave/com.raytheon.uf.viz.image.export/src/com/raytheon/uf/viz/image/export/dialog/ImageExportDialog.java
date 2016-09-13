@@ -24,6 +24,7 @@ import java.io.File;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowData;
@@ -57,8 +58,10 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Mar 10, 2014  2867     bsteffen    Better frame range validation.
  * Oct 28, 2014  3767     bsteffen    Automatically change filename if selected
  *                                    format does not support all options.
- * Dec 4, 2014   DR16713  jgerth      Support for date/time selection
+ * Dec 04, 2014  DR16713  jgerth      Support for date/time selection
+ * Jul 07, 2015  4607     bsteffen    Prompt to save as GeoTIFF
  * Jan 18, 2016  ----     mjames@ucar datetimeButton selected by default
+ * Mar 15, 2016  5485     randerso    Fix GUI sizing issues
  * Apr 04, 2016  ----     mjames@ucar Reconfig Animate/Current button
  * 
  * </pre>
@@ -66,7 +69,6 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @author bsteffen
  * @version 1.0
  */
-
 public class ImageExportDialog extends CaveSWTDialog {
 
     protected ImageExportOptions options;
@@ -120,7 +122,7 @@ public class ImageExportDialog extends CaveSWTDialog {
         gridData = new GridData(SWT.CENTER, SWT.BOTTOM, true, false);
         buttonComposite.setLayoutData(gridData);
         initializeButtons(buttonComposite);
-        
+
         animatedButton.addSelectionListener(new SelectionAdapter() {
 
             @Override
@@ -148,6 +150,7 @@ public class ImageExportDialog extends CaveSWTDialog {
         Button button = new Button(group, SWT.PUSH);
         button.setText("Browse ...");
         button.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 selectDestinationFile();
             }
@@ -317,7 +320,7 @@ public class ImageExportDialog extends CaveSWTDialog {
             ext[index] = filter.toString();
             names[index] = format.getDescription();
             if (animatedButton.getSelection()
-                    && format == ImageFormat.ANIMATION) {
+                    && (format == ImageFormat.ANIMATION)) {
                 fileDialog.setFilterIndex(index);
             } else if (format != ImageFormat.ANIMATION) {
                 fileDialog.setFilterIndex(index);
@@ -415,8 +418,8 @@ public class ImageExportDialog extends CaveSWTDialog {
             if ((options.getFirstFrameIndex() < options.getMinFrameIndex())) {
                 message = "The first frame cannot be less than "
                         + (options.getMinFrameIndex() + 1);
-            } else if ((options.getLastFrameIndex() > options
-                    .getMaxFrameIndex() + 1)) {
+            } else if ((options.getLastFrameIndex() > (options
+                    .getMaxFrameIndex() + 1))) {
                 message = "The last frame cannot be greater than than "
                         + (options.getMaxFrameIndex() + 1);
             } else if ((options.getFirstFrameIndex() > options
@@ -461,6 +464,31 @@ public class ImageExportDialog extends CaveSWTDialog {
             } else {
                 return false;
             }
+        }
+
+        if (options.isGeoreferencable()
+                && (suffix.equals("tif") || suffix.equals("tiff"))) {
+            MessageBox mb = new MessageBox(getShell(), SWT.ICON_QUESTION
+                    | SWT.YES | SWT.NO | SWT.CANCEL);
+            mb.setText("Convert to GeoTIFF?");
+            String image = "image";
+            if (options.getFrameSelection() != FrameSelection.CURRENT) {
+                image = "images";
+            }
+            mb.setMessage("Your "
+                    + image
+                    + " can be converted to a GeoTIFF. This will allow "
+                    + "it to be properly positioned in geospatial software. Saving as a "
+                    + "GeoTIFF will reproject the image, which may introduce distortion "
+                    + "and will increase file size.\n\n"
+                    + "Reproject and include geospatial metadata?");
+            int result = mb.open();
+            if (result == SWT.CANCEL) {
+                return false;
+            }
+            options.setGeoreference(result == SWT.YES);
+        } else {
+            options.setGeoreference(false);
         }
 
         File file = options.getFileLocation();

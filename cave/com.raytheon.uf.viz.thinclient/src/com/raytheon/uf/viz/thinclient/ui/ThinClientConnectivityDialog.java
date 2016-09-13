@@ -26,11 +26,11 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 
 import com.raytheon.uf.common.localization.msgs.GetServersResponse;
@@ -45,7 +45,6 @@ import com.raytheon.uf.viz.core.localization.ConnectivityPreferenceDialog;
 import com.raytheon.uf.viz.core.localization.LocalizationConstants;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.localization.ServerRemembrance;
-import com.raytheon.uf.viz.core.localization.TextOrCombo;
 import com.raytheon.uf.viz.thinclient.Activator;
 import com.raytheon.uf.viz.thinclient.ThinClientUriUtil;
 import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
@@ -68,9 +67,17 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  *                                    but dialog doesn't realize it
  * Jun 03, 2014  3217     bsteffen    Add option to always open startup dialog.
  * Jun 24, 2014  3236     njensen     Add ability to remember multiple servers
- * 
- * 
- * 
+ * Oct 08, 2015  4891     njensen     Added tooltip to useProxyCheck
+ * Feb 08, 2016  5281     tjensen     Reworked interface to simply options
+ * Feb 15, 2016  5281     tjensen     Added check for null in validate method
+ * Feb 18, 2016  5281     tjensen     Fix issue when no JMS available.
+ * Feb 19, 2016  5281     tjensen     Fix validation when JMS not available.
+ * Mar 01, 2016  5281     tjensen     Update dataRefreshMethod when automatically 
+ *                                     enabling/disabling push
+ * Mar 15, 2016  5281     tjensen     Fix validation prior to prompt
+ * Apr 06, 2016  5281     tjensen     Fix validation of JMS when prompt disabled 
+ *                                     and using poll method.
+ * Jun 24, 2016           mjames      Simplify dialog for UCAR release.
  * </pre>
  * 
  * @author bsteffen
@@ -81,84 +88,24 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ThinClientConnectivityDialog.class, "CAVE");
 
-    private class ServicesCallback implements IConnectivityCallback {
-
-        @Override
-        public void connectionChecked(ConnectivityResult results) {
-            servicesGood = results.hasConnectivity;
-            appendDetails(buildDetails(results));
-            if (!results.hasConnectivity && status == null) {
-                status = buildErrorMessage(results);
-            }
-        }
-    }
-
-    private class PypiesCallback implements IConnectivityCallback {
-
-        @Override
-        public void connectionChecked(ConnectivityResult results) {
-            pypiesGood = results.hasConnectivity;
-            appendDetails(buildDetails(results));
-            if (!results.hasConnectivity && status == null) {
-                status = buildErrorMessage(results);
-            }
-        }
-    }
-
-    private class JmsCallback implements IConnectivityCallback {
-
-        @Override
-        public void connectionChecked(ConnectivityResult results) {
-            jmsGood = results.hasConnectivity;
-            appendDetails(buildDetails(results));
-            if (!results.hasConnectivity && status == null) {
-                status = buildErrorMessage(results);
-            }
-        }
-
-    }
-
-    private boolean servicesGood = false;
-
-    private IConnectivityCallback servicesCallback = new ServicesCallback();
-
-    private boolean pypiesGood = false;
-
-    private IConnectivityCallback pypiesCallback = new PypiesCallback();
-
-    private Button useProxyCheck;
-
-    private boolean useProxy = false;
-
-    private Button disableJmsCheck;
-
-    private Button alwaysPromptCheck;
-
-    private boolean disableJms = false;
-
-    private boolean jmsGood = false;
-
-    private boolean alwaysPrompt;
-
-    private Label jmsErrorLabel;
-
-    private IConnectivityCallback jmsCallback = new JmsCallback();
-
-    private TextOrCombo proxySrv;
+    private String dataRefreshMethod;
 
     private String proxyAddress;
 
     public ThinClientConnectivityDialog(boolean checkAlertViz) {
+<<<<<<< HEAD
         super(checkAlertViz, "AWIPS II Connectivity Preferences");
+=======
+        super(checkAlertViz, "TC Connectivity Preferences");
+>>>>>>> origin/unidata_16.2.2
         IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-        useProxy = store
-                .getBoolean(ThinClientPreferenceConstants.P_USE_PROXIES);
-        disableJms = store
-                .getBoolean(ThinClientPreferenceConstants.P_DISABLE_JMS);
+        dataRefreshMethod = store
+                .getString(ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD);
         proxyAddress = store
                 .getString(ThinClientPreferenceConstants.P_PROXY_ADDRESS);
     }
 
+<<<<<<< HEAD
     @Override
     protected void createTextBoxes(Composite textBoxComp) {
         super.createTextBoxes(textBoxComp);
@@ -329,4 +276,6 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
 
     }
 
+=======
+>>>>>>> origin/unidata_16.2.2
 }

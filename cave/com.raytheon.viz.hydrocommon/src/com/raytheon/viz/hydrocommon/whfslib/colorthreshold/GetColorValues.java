@@ -45,6 +45,9 @@ import com.raytheon.viz.hydrocommon.whfslib.IHFSDbGenerated;
  * Nov 10, 2008            randerso    Initial creation
  * May 27, 2014  3133      njensen     Organized imports, fixed == to equals
  * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
+ * Feb 12, 2016 5356       bsteffen    Fall back to using the provided
+ *                                     colorsets when no values are found.
+ * 
  * </pre>
  * 
  * @author randerso
@@ -135,7 +138,7 @@ public class GetColorValues {
         if ("hydroview".equals(application_name)
                 && "HEIGHT".equals(coloruse_name)) {
             cvHead = getDefaultColorSet(application_name, coloruse_name,
-                    threshold_unit);
+                    threshold_unit, null);
         } else {
             // Try to find a user defined color set.
             cvHead = getUserColorSet(user_id, application_name, coloruse_name,
@@ -152,8 +155,11 @@ public class GetColorValues {
 
                 // Try to find a default color set.
                 cvHead = getDefaultColorSet(application_name, coloruse_name,
-                        threshold_unit);// , pColorSetGroup);
-
+                        threshold_unit, null);
+                if ((cvHead == null) || (cvHead.size() == 0)) {
+                    cvHead = getDefaultColorSet(application_name,
+                            coloruse_name, threshold_unit, pColorSetGroup);
+                }
                 if ((cvHead == null) || (cvHead.size() == 0)) {
                     statusHandler.handle(Priority.PROBLEM, "ERROR in " + method
                             + " Colors/levels not defined for application "
@@ -224,13 +230,11 @@ public class GetColorValues {
      */
     private static List<Colorvalue> getDefaultColorSet(
             final String application_name, final String coloruse_name,
-            String threshold_unit) {// , final List<NamedColorUseSet>
-                                    // pColorSetGroup) {
+            String threshold_unit, List<NamedColorUseSet> pColorSetGroup) {
 
-        List<NamedColorUseSet> pColorSetGroup = null;
         if (application_name.equals("hmapmpe")) {
             pColorSetGroup = MPEColors.build_mpe_colors();
-        } else {
+        } else if (pColorSetGroup == null) {
             pColorSetGroup = HydroDisplayManager.getInstance()
                     .getDefaultNamedColorUseSetList();
         }

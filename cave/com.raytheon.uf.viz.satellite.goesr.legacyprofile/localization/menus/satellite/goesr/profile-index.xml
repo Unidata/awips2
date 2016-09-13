@@ -19,7 +19,13 @@
         further_licensing_information.
     -->
 <menuContributionFile>
+<<<<<<< HEAD:cave/com.raytheon.uf.viz.satellite.goesr.legacyprofile/localization/menus/satellite/goesr/profile-index.xml
     <include installTo="menu:satellite?before=GROUP2"
         fileName="menus/satellite/goesr/profileMenu.xml">
     </include>
 </menuContributionFile>
+=======
+ <include installTo="menu:obs?before=CollectionDissemSep"   
+             fileName="menus/mping/baseMPing.xml"/>
+</menuContributionFile>
+>>>>>>> origin/unidata_16.2.2:cave/com.raytheon.viz.pointdata/localization/menus/mping/index.xml

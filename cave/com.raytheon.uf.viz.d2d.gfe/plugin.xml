@@ -24,4 +24,23 @@
             name="GFE Time Series Adapter">
       </timeSeriesAdapter>
    </extension>
+<extension
+      point="com.raytheon.viz.volumebrowser.datacatalog">
+   <dataCatalog
+         catalogClass="com.raytheon.uf.viz.d2d.gfe.browser.GFEVbDataCatalog">
+   </dataCatalog>
+</extension>
+<extension
+      point="com.raytheon.viz.volumebrowser.productcreator">
+   <productCreator
+         creatorClass="com.raytheon.uf.viz.d2d.gfe.browser.GfeMapProductCreator"
+         plugins="gfe"
+         resourceType="plan_view">
+   </productCreator>
+   <productCreator
+         creatorClass="com.raytheon.viz.volumebrowser.loader.TimeSeriesProductCreator"
+         plugins="gfe"
+         resourceType="time_series">
+   </productCreator>
+</extension>
 </plugin>

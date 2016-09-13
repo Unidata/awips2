@@ -242,7 +242,7 @@ class Procedure (SmartScript.SmartScript):
                 foundProblem = True
 
                 if checkOnly:
-                    self.createGrid(MODEL, "MinGreaterThanMax", "SCALAR", mask.astype('float32'),
+                    self.createGrid(MODEL, "MinGreaterThanMax", "SCALAR", mask.astype(float32),
                                     minTR, minAllowedValue=0.0, maxAllowedValue= 1.0)
                 else:  # force the change
                     if minTR in minTLocks:
@@ -273,7 +273,7 @@ class Procedure (SmartScript.SmartScript):
                 foundProblem = True
 
                 if checkOnly:
-                    self.createGrid(MODEL, "MaxLessThanMin", "SCALAR", mask.astype('float32'),
+                    self.createGrid(MODEL, "MaxLessThanMin", "SCALAR", mask.astype(float32),
                                     maxTR, minAllowedValue=0.0, maxAllowedValue= 1.0)
                 else:   # force the change
                     if maxTR in maxTLocks:
@@ -306,7 +306,7 @@ class Procedure (SmartScript.SmartScript):
                 foundProblem = True
 
                 if checkOnly:  # just make a grid showing the mask where T < MinT
-                    self.createGrid(MODEL, "TLessThanMin", "SCALAR", tTooLow.astype('float32'), tymeRng,
+                    self.createGrid(MODEL, "TLessThanMin", "SCALAR", tTooLow.astype(float32), tymeRng,
                                     minAllowedValue=0.0, maxAllowedValue= 1.0)
                 else: # force T to the MinT value
                     if tymeRng in tLocks:
@@ -347,7 +347,7 @@ class Procedure (SmartScript.SmartScript):
                 foundProblem = True
 
                 if checkOnly:  # just make a grid
-                    self.createGrid(MODEL, "TGreaterThanMax", "SCALAR", tTooHigh.astype('float32'), tymeRng,
+                    self.createGrid(MODEL, "TGreaterThanMax", "SCALAR", tTooHigh.astype(float32), tymeRng,
                                     minAllowedValue=0.0, maxAllowedValue= 1.0)
                 else:  # force T to the MaxT value
                     if tymeRng in tLocks:
@@ -377,7 +377,7 @@ class Procedure (SmartScript.SmartScript):
             foundProblem = True
 
             if checkOnly:   # just make a grid
-                self.createGrid(MODEL, "TdGreaterThanT", "SCALAR", TdTooHigh.astype('float32'), tr,
+                self.createGrid(MODEL, "TdGreaterThanT", "SCALAR", TdTooHigh.astype(float32), tr,
                                 minAllowedValue=0.0, maxAllowedValue= 1.0)
             else: # force Td <= T
                 if tr in tdLocks:

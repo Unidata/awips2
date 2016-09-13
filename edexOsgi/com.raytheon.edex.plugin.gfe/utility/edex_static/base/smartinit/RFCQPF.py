@@ -32,8 +32,10 @@ class RFCQPFForecaster(Forecaster):
 ##--------------------------------------------------------------------------
     def calcQPF(self, tpHPC_SFC):
         #  Assign the value filtering out everything above 1000 mm
-        grid = where(greater(tpHPC_SFC, 1000), 0.0, tpHPC_SFC / 25.4)
-        return clip(grid, 0, 5)  # clip at zero and 5 inches
+        grid = tpHPC_SFC.copy()
+        grid[greater(tpHPC_SFC, 1000)] = 0.0
+        grid /= 25.4
+        return grid.clip(0, 5, grid)  # clip at zero and 5 inches
 
 def main():
     RFCQPFForecaster().run()

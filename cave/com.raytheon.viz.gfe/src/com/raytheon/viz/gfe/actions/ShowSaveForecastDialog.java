@@ -19,14 +19,12 @@
  **/
 package com.raytheon.viz.gfe.actions;
 
-import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.WESaveDialog;
+import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
  * Action to show saveForecast dialog.
@@ -35,46 +33,19 @@ import com.raytheon.viz.gfe.dialogs.WESaveDialog;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 	Feb 27, 2008					Eric Babin Initial Creation
- *  Apr 17, 2008 875       bphillip    Added interaction with server
- *  Oct 26, 2012 1287      rferrel     Changes for non-blocking WESaveDialog.
+ * Feb 27, 2008            Eric Babin  Initial Creation
+ * Apr 17, 2008 875        bphillip    Added interaction with server
+ * Oct 26, 2012 1287       rferrel     Changes for non-blocking WESaveDialog.
+ * Aug 27, 2015 4749       njensen     Now extends GfeShowDialogHandler
  * 
  * </pre>
  * 
- * @author ebabin
- * @version 1.0
  */
+public class ShowSaveForecastDialog extends GfeShowDialogHandler {
 
-public class ShowSaveForecastDialog extends AbstractHandler {
-    private WESaveDialog dialog;
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
-     * .ExecutionEvent)
-     */
     @Override
-    public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        DataManager dm = DataManager.getCurrentInstance();
-        if (dm == null) {
-            return null;
-        }
-
-        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
-
-            WESaveDialog dialog = new WESaveDialog(shell, dm);
-
-            dialog.setBlockOnOpen(false);
-            dialog.open();
-        } else {
-            dialog.bringToTop();
-        }
-
-        return null;
+    protected CaveJFACEDialog createDialog(Shell shell, DataManager dm,
+            ExecutionEvent event) {
+        return new WESaveDialog(shell, dm);
     }
-
 }

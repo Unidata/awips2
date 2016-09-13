@@ -25,8 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.text.StrMatcher;
-import org.apache.commons.lang.text.StrTokenizer;
+import org.apache.commons.lang3.text.StrMatcher;
+import org.apache.commons.lang3.text.StrTokenizer;
 
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;

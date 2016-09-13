@@ -29,7 +29,7 @@ import javax.xml.bind.JAXBException;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.cxf.clustering.FailoverFeature;
 import org.apache.cxf.clustering.SequentialStrategy;
 import org.apache.cxf.feature.Feature;

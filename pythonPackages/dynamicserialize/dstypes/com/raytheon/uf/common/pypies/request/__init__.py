@@ -26,6 +26,7 @@ __all__ = [
             'DatasetDataRequest',
             'DatasetNamesRequest',
             'DeleteFilesRequest',
+            'DeleteOrphansRequest',
             'DeleteRequest',
             'GroupsRequest',
             'RepackRequest',
@@ -38,6 +39,7 @@ from CreateDatasetRequest import CreateDatasetRequest
 from DatasetDataRequest import DatasetDataRequest
 from DatasetNamesRequest import DatasetNamesRequest
 from DeleteFilesRequest import DeleteFilesRequest
+from DeleteOrphansRequest import DeleteOrphansRequest
 from DeleteRequest import DeleteRequest
 from GroupsRequest import GroupsRequest
 from RepackRequest import RepackRequest

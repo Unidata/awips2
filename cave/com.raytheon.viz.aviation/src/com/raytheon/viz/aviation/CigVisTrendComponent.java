@@ -22,7 +22,6 @@ package com.raytheon.viz.aviation;
 import java.util.List;
 
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.viz.aviation.climatology.CigVisTrendDlg;
 import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
@@ -38,9 +37,11 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEDialogComponent;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 28, 2011            mschenke     Initial creation
+ * Apr 28, 2011            mschenke    Initial creation
  * Oct 17, 2012 1229       rferrel     Changes for non-blocking
  *                                      CigVisTrendDlg.
+ * Jan 26, 2016 5054       randerso    Change top level dialog to be parented to the display
+ * 
  * </pre>
  * 
  * @author mschenke
@@ -60,8 +61,8 @@ public class CigVisTrendComponent extends AbstractCAVEDialogComponent {
     protected void startInternal(String componentName) throws Exception {
         List<String> siteList = TafSiteConfigFactory.getInstance()
                 .getSiteList();
-        CigVisTrendDlg cigVisTrendDialog = new CigVisTrendDlg(new Shell(
-                Display.getCurrent()), siteList, StatusMessageType.Metar, null);
+        CigVisTrendDlg cigVisTrendDialog = new CigVisTrendDlg(
+                Display.getCurrent(), siteList, StatusMessageType.Metar, null);
         cigVisTrendDialog.open();
         blockUntilClosed(cigVisTrendDialog);
     }

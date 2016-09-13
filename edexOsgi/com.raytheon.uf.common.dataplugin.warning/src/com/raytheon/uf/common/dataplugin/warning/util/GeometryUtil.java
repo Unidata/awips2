@@ -28,6 +28,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometry;
  * Apr 28, 2013     1955   jsanchez     Added an ignoreUserData flag to intersection method.
  * Oct 21, 2013 DR 16632   D. Friedman  Handle zero-length input in union.
  * Dec 13, 2013 DR 16567   Qinglu Lin   Added contains().
+ * May 12, 2016 DR 18789   D. Friedman  Added intersection(g1, g2, ignoreUserData).
  * 
  * </pre>
  * 
@@ -97,6 +98,26 @@ public class GeometryUtil {
         List<Geometry> intersection = new ArrayList<Geometry>(
                 g1.getNumGeometries() + g2.getNumGeometries());
         intersection(g1, g2, intersection, false);
+        Geometry rval = gf.createGeometryCollection(intersection
+                .toArray(new Geometry[intersection.size()]));
+        rval.setUserData(g2.getUserData());
+        return rval;
+    }
+
+    /**
+     * Intersection between g1 and g2. Resulting intersection will contain user
+     * data from g2
+     * 
+     * @param g1
+     * @param g2
+     * 
+     * @return the intersection between g1 and g2
+     */
+    public static Geometry intersection(Geometry g1, Geometry g2, boolean ignoreUserData) {
+        GeometryFactory gf = new GeometryFactory();
+        List<Geometry> intersection = new ArrayList<Geometry>(
+                g1.getNumGeometries() + g2.getNumGeometries());
+        intersection(g1, g2, intersection, ignoreUserData);
         Geometry rval = gf.createGeometryCollection(intersection
                 .toArray(new Geometry[intersection.size()]));
         rval.setUserData(g2.getUserData());

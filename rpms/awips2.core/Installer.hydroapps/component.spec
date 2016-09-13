@@ -13,12 +13,12 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Bryan Kowal
+Packager: %{_build_site}
 
 AutoReq: no
-provides: awips2-hydroapps-shared
-obsoletes: awips2-hydroapps
-requires: awips2-edex-base
+Provides: awips2-hydroapps-shared
+Obsoletes: awips2-hydroapps
+Requires: awips2-edex-base
 
 %description
 AWIPS II Hydroapps Distribution - Includes applications, configurations, and
@@ -43,6 +43,13 @@ fi
 
 /bin/cp -rf %{_baseline_workspace}/files.native/awipsShare \
    %{_build_root}/awips2/edex/data/share
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+FILES_STATIC="%{_static_files}/hydroapps"
+/bin/cp -rf ${FILES_STATIC}/* \
+   %{_build_root}/awips2/edex/data/share/hydroapps/lib/native/linux32/
 if [ $? -ne 0 ]; then
    exit 1
 fi

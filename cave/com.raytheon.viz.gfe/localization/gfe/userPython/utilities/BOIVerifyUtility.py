@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
+#
 # U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
-# 
+#
 # Contractor Name:        Raytheon Company
 # Contractor Address:     6825 Pine Street, Suite 340
 #                         Mail Stop B8
 #                         Omaha, NE 68106
 #                         402.291.0100
-# 
+#
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -54,6 +54,13 @@
 #
 #   2010/04/23  ryu  Initial port to AWIPS II.
 #
+#
+# SOFTWARE HISTORY
+# Date         Ticket#    Engineer     Description
+# ------------ ---------- -----------  --------------------------
+# 03/24/2016   18773      ryu          Fix IOError from use of NetCDFVariables
+#                                      in numpy operations
+#                                      
 #=====================================================================
 
 import TimeRange, AbsTime
@@ -115,9 +122,6 @@ class BOIVerifyUtility(SmartScript.SmartScript):
     def __init__(self, dbss, eaMgr, mdMode=None, toolType="numeric"):
         SmartScript.SmartScript.__init__(self, dbss)
 
-        gridLoc = self.getGridLoc()
-        gridSize = (gridLoc.getNx().intValue(), gridLoc.getNy().intValue())
-        self._empty = zeros((gridSize[1], gridSize[0]), float)
         #
         #  Read in Config info.
         #     Each entry in BOIVerifyConfig is put into a self. variable
@@ -128,7 +132,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
         #      with an underscore _ )
         #
         names=dir(BOIVerifyConfig)
-        
+
         self.CFG={}
         #names=["VERDIR","EDITAREAS","PERCENT_COLOR","GRIDDAYS","STATDAYS",
         #       "OBSMODELS"]
@@ -187,10 +191,10 @@ class BOIVerifyUtility(SmartScript.SmartScript):
         self.checkConfig()
         #
         #  setup all the stat names.  statIDs are the 'short' and
-	#  'correct' name to use for a stat.  Various optional
-	#  names, shortened spellings, etc. are stored in statNames
-	#  dictionary for each ID.  allStats contains all the possible
-	#  names for all stats in the system.
+        #  'correct' name to use for a stat.  Various optional
+        #  names, shortened spellings, etc. are stored in statNames
+        #  dictionary for each ID.  allStats contains all the possible
+        #  names for all stats in the system.
         #
         self.statNames={"bias":["bias","error","err"],
                         "mae" :["mae","absolute error","abs error","abs err",
@@ -252,12 +256,12 @@ class BOIVerifyUtility(SmartScript.SmartScript):
            names=self.statNames[statName]
            for name in names:
               self.allStats.append(name)
-	return
+        return
 
     #=================================================================
     #  checkConfig - cross check configuration data, and make log
     #                messages about problems.
-    #          
+    #
     #                Return 0 if config is OK, return 1 if there
     #                are any problems
     #
@@ -335,7 +339,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
                 numthresh=len(thresholds)
                 if (numthresh!=self.NUMTHRESH):
                    self.logMsg("BOIVerify VERCONFIG of %s does not have %d thresholds: has %d instead"%(parm,self.NUMTHRESH,numthresh))
-                   badConfig=1                  
+                   badConfig=1
              #
              #  check for binwidth
              #
@@ -666,7 +670,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
     #                       If the ID is not found - returns 0.
     #
     def findFcstrNumFromID(self,id):
-       num=0		
+       num=0
        if id in self.FcstrIDs.values():
           for (testnum,testid) in self.FcstrIDs.items():
              if testid==id:
@@ -679,7 +683,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
     #                         if the ID is not found - returns 0.
     #
     def findFcstrNumFromName(self,name):
-       num=0		
+       num=0
        if id in self.FcstrNames.values():
           for (testnum,testname) in self.FcstrNames.items():
              if testname==name:
@@ -1021,8 +1025,8 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        if datatype<0:
           datatype=self.getVerParmType(parm)
           if datatype is None:
-             return 0       
-       (ypts,xpts)=self._empty.shape
+             return 0
+       (ypts,xpts)=self.getGridShape()
        #
        #  Open the two obs files: the index and the data
        #
@@ -1138,8 +1142,8 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        if datatype<0:
           datatype=self.getVerParmType(parm)
           if datatype is None:
-             return 0       
-       (ypts,xpts)=self._empty.shape
+             return 0
+       (ypts,xpts)=self.getGridShape()
        #
        #  Open the two fcst files: the index and the data
        #
@@ -1467,8 +1471,8 @@ class BOIVerifyUtility(SmartScript.SmartScript):
     def readRecord(self,parm,model,rec):
        if self.checkFile(parm,model)==0:
           return None
+       rec = int(rec)
        if model in self.OBSMODELS:
-          rec = int(rec)
           if self.oncType==0:
              vals=(self.oncValue[rec].astype(float)*self.oncScale[rec])+self.oncAddit[rec]
              return flipud(vals)
@@ -1729,7 +1733,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        use=logical_and(logical_and(b,s),e)
        if sometrue(sometrue(use)):
           #
-          #  get record number 
+          #  get record number
           #
           a=compress(use,self.sncRecs)
           recnum=int(a[0])
@@ -1827,7 +1831,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
     #                 compactFiles (which is VERY slow!)
     #
     def deleteRecord(self,parm,model,dellist):
-       (Scale,Addit,Valgrid)=self.packIt(self._empty)
+       (Scale,Addit,Valgrid)=self.packIt(self.empty())
        #
        #
        #
@@ -1906,18 +1910,18 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        #
        if mode=="verify":
           if model in self.OBSMODELS:
-             match=logical_and(less(self.oncStime,endtime),
-                               greater(self.oncEtime,starttime))
+             match=logical_and(less(self.oncStime[:],endtime),
+                               greater(self.oncEtime[:],starttime))
           else:
-             match=logical_and(less(self.fncStime,endtime),
-                               greater(self.fncEtime,starttime))
+             match=logical_and(less(self.fncStime[:],endtime),
+                               greater(self.fncEtime[:],starttime))
        else:
           if model in self.OBSMODELS:
-             match=logical_and(less(self.oncBtime,endtime),
-                               greater_equal(self.oncBtime,starttime))
+             match=logical_and(less(self.oncBtime[:],endtime),
+                               greater_equal(self.oncBtime[:],starttime))
           else:
-             match=logical_and(less(self.fncBtime,endtime),
-                               greater_equal(self.fncBtime,starttime))
+             match=logical_and(less(self.fncBtime[:],endtime),
+                               greater_equal(self.fncBtime[:],starttime))
        #
        #  If a mask is specified - check that too
        #
@@ -1977,11 +1981,11 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        #  Get the records that match the time periods
        #
        if mode=="verify":
-          match=logical_and(less(self.sncStime,endtime),
-                            greater(self.sncEtime,starttime))
+          match=logical_and(less(self.sncStime[:],endtime),
+                            greater(self.sncEtime[:],starttime))
        else:
-          match=logical_and(less(self.sncBtime,endtime),
-                            greater_equal(self.sncBtime,starttime))
+          match=logical_and(less(self.sncBtime[:],endtime),
+                            greater_equal(self.sncBtime[:],starttime))
        #
        #  If a mask is specified - check that too
        #
@@ -2047,26 +2051,23 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        #
        if fcstFlag==1:
           if ((model!="Official")or("ALL" in fcstrIDList)):
-             rightFcstr=ones(self.fncFcstr.shape[0])
+             rightFcstr=ones(self.fncFcstr.shape[0], dtype=bool)
           else:
-             rightFcstr=zeros(self.fncFcstr.shape[0])
+             rightFcstr=zeros(self.fncFcstr.shape[0], dtype=bool)
              for fid in fcstrIDList:
                 fnum=self.findFcstrNumFromID(fid)
-                rightFcstr=logical_or(sometrue(equal(self.fncFcstr,fnum),-1),rightFcstr)
+                rightFcstr[sometrue(equal(self.fncFcstr[:],fnum),-1)] = True
           #
           #  Get list of forecast records with right cycle
           #
           if (len(cycleList)==maxCycles):
-             rightCycle=ones(self.fncBtime.shape)
+             rightCycle=ones(self.fncBtime.shape, dtype=bool)
           else:
-             rightCycle=zeros(self.fncBtime.shape)
+             rightCycle=zeros(self.fncBtime.shape, dtype=bool)
+             rem = remainder(self.fncBtime[:], DAYSECS).astype(int)
              for cycle in cycleList:
-	        if (type(cycle) is types.StringType):
-                   cyc=int(cycle)*HOURSECS
-		else:
-		   cyc=cycle*HOURSECS
-                rem=remainder(self.fncBtime,DAYSECS).astype(int)
-                rightCycle=where(equal(rem,cyc),1,rightCycle)
+                cyc = int(cycle)*HOURSECS
+                rightCycle[equal(rem,cyc)] = True
           #
           #  get list of forecast records with right forecast hours
           #
@@ -2087,7 +2088,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
           else:
              obrecs=[]
           #
-          #  If there are forecast grids - 
+          #  If there are forecast grids -
           #
           if fcstFlag==1:
              elist1=self.fncEtime[:]
@@ -2152,8 +2153,8 @@ class BOIVerifyUtility(SmartScript.SmartScript):
           for fcstrec in fcstrecs:
              stime=self.fncStime[fcstrec]
              etime=self.fncEtime[fcstrec]
-             cross1=greater(etime,self.oncStime)
-             cross2=less(stime,self.oncEtime)
+             cross1=greater(etime,self.oncStime[:])
+             cross2=less(stime,self.oncEtime[:])
              orecs=list(compress(logical_and(cross1,cross2),self.oncRecs))
              if (len(orecs)<1):
                 obrec="-10"  #dummy obs record
@@ -2233,7 +2234,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
                     dateStyle,dateType,fromDay,numDays,dayList,
                     self.internCB)
        #
-       #  Check to see if stopping 
+       #  Check to see if stopping
        #
        if self.callbackMethod is not None:
           exit=self.callbackMethod(self.internalMessage)
@@ -2483,8 +2484,8 @@ class BOIVerifyUtility(SmartScript.SmartScript):
              (stime,etime)=verPer
              totalTime=etime-stime
              recmatch=logical_and(rightRecord,
-                                 logical_and(greater(self.fncEtime,stime),
-                                          less(self.fncStime,etime)))
+                                 logical_and(greater(self.fncEtime[:],stime),
+                                          less(self.fncStime[:],etime)))
              #
              # When there are matching records...find each basetime that
              # forecast for this period
@@ -2561,11 +2562,11 @@ class BOIVerifyUtility(SmartScript.SmartScript):
                       if exit==1:
                          return cases
                    if type(date) is types.StringType:
-		      try:
+                      try:
                          (yea,mon,day)=date.split("/")
                          starttime=calendar.timegm((int(yea),int(mon),int(day),0,0,0,0,0,0))
-		      except:
-		         continue
+                      except:
+                         continue
                    else:
                       starttime=date
                    endtime=starttime+DAYSECS-1
@@ -2634,8 +2635,8 @@ class BOIVerifyUtility(SmartScript.SmartScript):
                    return cases
              (stime,etime)=verPer
              totalTime=etime-stime
-             recmatch=logical_and(greater(self.oncEtime,stime),
-                                  less(self.oncStime,etime))
+             recmatch=logical_and(greater(self.oncEtime[:],stime),
+                                  less(self.oncStime[:],etime))
              #
              # When there are matching records...find each basetime that
              # forecast for this period
@@ -2691,15 +2692,15 @@ class BOIVerifyUtility(SmartScript.SmartScript):
                       if exit==1:
                          return cases
                    if type(date) is types.StringType:
-		      try:
+                      try:
                          (yea,mon,day)=date.split("/")
                          starttime=calendar.timegm((int(yea),int(mon),int(day),0,0,0,0,0,-1))
-		      except:
-		         continue
+                      except:
+                         continue
                    else:
                       starttime=date
                    endtime=starttime+(self.MAXFORECASTHOUR*HOURSECS)+eoff
-		   starttime=starttime+soff
+                   starttime=starttime+soff
                    tmprecs=self.listRecords(parm,model,starttime,
                                             endtime,"verify")
                    for rec in tmprecs:
@@ -2947,8 +2948,8 @@ class BOIVerifyUtility(SmartScript.SmartScript):
              (stime,etime)=verPer
              totalTime=etime-stime
              recmatch=logical_and(rightRecord,
-                                 logical_and(greater(self.sncEtime,stime),
-                                          less(self.sncStime,etime)))
+                                 logical_and(greater(self.sncEtime[:],stime),
+                                          less(self.sncStime[:],etime)))
              #
              # When there are matching records...find each basetime that
              # forecast for this period
@@ -3016,11 +3017,11 @@ class BOIVerifyUtility(SmartScript.SmartScript):
                       if exit==1:
                          return cases
                    if type(date) is types.StringType:
-		      try:
+                      try:
                          (yea,mon,day)=date.split("/")
                          starttime=calendar.timegm((int(yea),int(mon),int(day),0,0,0,0,0,0))
-		      except:
-		         continue
+                      except:
+                         continue
                    else:
                       starttime=date
                    endtime=starttime+(self.MAXFORECASTHOUR*HOURSECS)
@@ -3087,15 +3088,15 @@ class BOIVerifyUtility(SmartScript.SmartScript):
                 obrecs=[]
                 for date in dayList:
                    if type(date) is types.StringType:
-		      try:
+                      try:
                          (yea,mon,day)=date.split("/")
                          starttime=calendar.timegm((int(yea),int(mon),int(day),0,0,0,0,0,0))
-		      except:
-		         continue
+                      except:
+                         continue
                    else:
                       starttime=date
                    endtime=starttime+(self.MAXFORECASTHOUR*HOURSECS)+eoff
-		   starttime=starttime+soff
+                   starttime=starttime+soff
                    tmprecs=self.listRecords(obsModel,obsParm,starttime,endtime,"verify")
                    for obrec in tmprecs:
                       if obrec not in obrecs:
@@ -3108,7 +3109,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
                 start=self.oncStime[obrec]
                 end=self.oncEtime[obrec]
                 perList.append((start,end))
-                
+
        if self.DEBUG>=10:
           for per in perList:
              (start,end)=per
@@ -3136,7 +3137,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        periods=[]
        dateStyleLow=dateStyle.lower()
        dateTypeLow=dateType.lower()
-       if dateStyleLow=="verifying on":          
+       if dateStyleLow=="verifying on":
           if dateTypeLow=="period length":
              endtime=fromDay+DAYSECS
              starttime=fromDay-((numDays-1)*DAYSECS)
@@ -3150,11 +3151,11 @@ class BOIVerifyUtility(SmartScript.SmartScript):
              lastend=0
              for date in dayList:
                 if type(date) is types.StringType:
-		   try:
+                   try:
                       (yea,mon,day)=date.split("/")
                       starttime=calendar.timegm((int(yea),int(mon),int(day),0,0,0,0,0,0))
-		   except:
-		      continue
+                   except:
+                      continue
                 else:
                    starttime=date
                 endtime=starttime+DAYSECS
@@ -3184,11 +3185,11 @@ class BOIVerifyUtility(SmartScript.SmartScript):
              starts=[]
              for date in dayList:
                 if type(date) is types.StringType:
-		   try:
+                   try:
                       (yea,mon,day)=date.split("/")
                       starttime=calendar.timegm((int(yea),int(mon),int(day),0,0,0,0,0,0))
-		   except:
-		      continue
+                   except:
+                      continue
                 else:
                    starttime=date
                 endtime=starttime+(self.MAXFORECASTHOUR*HOURSECS)
@@ -3212,11 +3213,11 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        else:
           for date in dayList:
              if type(date) is types.StringType:
-	        try:
+                try:
                    (yea,mon,day)=date.split("/")
                    starttime=calendar.timegm((int(yea),int(mon),int(day),0,0,0,0,0,0))
-		except:
-		   continue
+                except:
+                   continue
              else:
                 starttime=date
              endtime=starttime+DAYSECS
@@ -3237,35 +3238,36 @@ class BOIVerifyUtility(SmartScript.SmartScript):
              fcstrList.append(fcstr)
        else:
           fcstrList.append(fcstrs)
+
        if ((model!="Official")or(-1 in fcstrList)):
           rightFcstr=ones(self.fncFcstr.shape[0])
        else:
           rightFcstr=zeros(self.fncFcstr.shape[0])
           for fnum in fcstrList:
-             rightFcstr=logical_or(sometrue(equal(self.fncFcstr,fnum),-1),rightFcstr)
+             rightFcstr=logical_or(sometrue(equal(self.fncFcstr[:],fnum),-1),rightFcstr)
        #
        #  Get logical array of records with right cycle
        #
        cycleList=[]
        if ((type(cycles) is types.TupleType)or(type(cycles) is types.ListType)):
           for cycle in cycles:
-	     if type(cycle) is types.StringType:
-	        cycleList.append(int(cycle))
-	     else:
+             if type(cycle) is types.StringType:
+                cycleList.append(int(cycle))
+             else:
                 cycleList.append(cycle)
        else:
           if type(cycles) is types.StringType:
-	     cycleList.append(int(cycles))
-	  else:
-	     cycleList.append(cycles)
+             cycleList.append(int(cycles))
+          else:
+             cycleList.append(cycles)
        if (-1 in cycleList):
-          rightCycle=ones(self.fncBtime.shape)
+          rightCycle=ones(self.fncBtime.shape, dtype=bool)
        else:
-          rightCycle=zeros(self.fncBtime.shape)
+          rightCycle=zeros(self.fncBtime.shape, dtype=bool)
+          rem = remainder(self.fncBtime[:], DAYSECS).astype('i')
           for cycle in cycleList:
              cyc=cycle*HOURSECS
-             rem=remainder(self.fncBtime,DAYSECS).astype('i')
-             rightCycle=where(equal(rem,cyc),1,rightCycle)
+             rightCycle[equal(rem,cyc)] = True
        #
        #  get logical array of records with right forecast hours
        #
@@ -3297,11 +3299,11 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        else:
           fcstrList.append(fcstrs)
        if ((model!="Official")or(-1 in fcstrList)):
-          rightFcstr=ones(self.sncFcstr.shape[0])
+          rightFcstr=ones(self.sncFcstr.shape[0], dtype=bool)
        else:
-          rightFcstr=zeros(self.sncFcstr.shape[0])
+          rightFcstr=zeros(self.sncFcstr.shape[0], dtype=bool)
           for fnum in fcstrList:
-             rightFcstr=logical_or(sometrue(equal(self.sncFcstr,fnum),-1),rightFcstr)
+             rightFcstr[sometrue(equal(self.sncFcstr[:],fnum),-1)] = True
        #
        #  Get logical array of records with right cycle
        #
@@ -3309,23 +3311,23 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        ctype=type(cycles)
        if ((ctype is types.TupleType)or(ctype is types.ListType)):
           for cycle in cycles:
-	     if type(cycle) is types.StringType:
-	        cycleList.append(int(cycle))
-	     else:
-                cycleList.append(cycle)
+              if type(cycle) is types.StringType:
+                  cycleList.append(int(cycle))
+              else:
+                  cycleList.append(cycle)
        else:
-          if type(cycles) is types.StringType:
-	     cycleList.append(int(cycles))
-	  else:
-             cycleList.append(cycles)
+           if type(cycles) is types.StringType:
+               cycleList.append(int(cycles))
+           else:
+               cycleList.append(cycles)
        if (-1 in cycleList):
-          rightCycle=ones(self.sncBtime.shape)
+          rightCycle=ones(self.sncBtime.shape, dtype=bool)
        else:
-          rightCycle=zeros(self.sncBtime.shape)
+          rightCycle=zeros(self.sncBtime.shape, dtype=bool)
+          rem = remainder(self.sncBtime[:], DAYSECS).astype('i')
           for cycle in cycleList:
              cyc=cycle*HOURSECS
-             rem=remainder(self.sncBtime,DAYSECS).astype('i')
-             rightCycle=where(equal(rem,cyc),1,rightCycle)
+             rightCycle[equal(rem,cyc)] = True
        #
        #  get logical array of records with right forecast hours
        #
@@ -3449,9 +3451,9 @@ class BOIVerifyUtility(SmartScript.SmartScript):
                    self.logMsg("tried to get it from saved stats - but failed",5)
           else:
              self.logMsg("not a saved edit area",2)
-	  #
-	  #  See if the named editArea even exists in the GFE system
-	  #
+          #
+          #  See if the named editArea even exists in the GFE system
+          #
           allEditAreaNames=self.editAreaList()
           if editArea not in allEditAreaNames:
              self.logMsg("editArea %s does not exist"%editArea,2)
@@ -3515,7 +3517,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
              self.logMsg("could not read observed %s grid for %s"%(model,parm),2)
              return retVal
        #
-       #  Basic point stats  
+       #  Basic point stats
        #
        if statID in ["bias","mae","rms","mse","peb"]:
           #
@@ -3575,9 +3577,9 @@ class BOIVerifyUtility(SmartScript.SmartScript):
           #  been done...so don't do that...
           #
           if vectorErr==0:
-             err=where(eaGrid,fcstGrid-obsGrid,0)
+             err=where(eaGrid,fcstGrid-obsGrid,float32(0))
           else:
-             err=where(eaGrid,err,0)
+             err=where(eaGrid,err,float32(0))
           #
           #  Now all the stat calculations
           #
@@ -3650,10 +3652,10 @@ class BOIVerifyUtility(SmartScript.SmartScript):
           #
           notFcst=logical_not(fcstOccur)
           notObs=logical_not(obsOccur)
-          hits=add.reduce(add.reduce(where(eaGrid,logical_and(fcstOccur,obsOccur),0)))
-          miss=add.reduce(add.reduce(where(eaGrid,logical_and(notFcst,obsOccur)  ,0)))
-          falr=add.reduce(add.reduce(where(eaGrid,logical_and(fcstOccur,notObs)  ,0)))
-          corn=add.reduce(add.reduce(where(eaGrid,logical_and(notFcst,notObs)    ,0)))
+          hits=count_nonzero(logical_and(eaGrid,logical_and(fcstOccur,obsOccur)))
+          miss=count_nonzero(logical_and(eaGrid,logical_and(notFcst,obsOccur)))
+          falr=count_nonzero(logical_and(eaGrid,logical_and(fcstOccur,notObs)))
+          corn=count_nonzero(logical_and(eaGrid,logical_and(notFcst,notObs)))
           total=hits+miss+falr+corn
           if abs(float(total)-fnum)>0.5:
              self.logMsg("Number in binary histogram not the same as number of points")
@@ -3770,98 +3772,98 @@ class BOIVerifyUtility(SmartScript.SmartScript):
           return corn/1.0
        if statID in ["fc","afc"]:
           nofcst=less(total,1)
-          total=where(nofcst,1,total)
+          total[nofcst] = 1
           score=(hits+corn)/total
-          score=where(nofcst,1.0,score)
+          score[nofcst] = 1.0
           return score
        if statID in ["freqo",]:
           nofcst=less(total,1)
-          total=where(nofcst,1,total)
+          total[nofcst] = 1
           score=(hits+miss)/total
-          score=where(nofcst,0.0,score)
+          score[nofcst] = 0.0
           return score
        if statID in ["freqf",]:
           nofcst=less(total,1)
-          total=where(nofcst,1,total)
+          total[nofcst] = 1
           score=(hits+falr)/total
-          score=where(nofcst,0.0,score)
+          score[nofcst] = 0.0
           return score
        if statID in ["freqbias","afreqbias"]:
           denom=hits+miss
           nofcst=less(denom,1)
-          denom=where(nofcst,1,denom)
+          denom[nofcst] = 1
           score=(hits+falr)/denom
-          score=where(nofcst,1.0,score)
+          score[nofcst] = 1.0
           return score
        if statID in ["pod","apod"]:
           denom=hits+miss
           nofcst=less(denom,1)
-          denom=where(nofcst,1,denom)
+          denom[nofcst] = 1
           score=hits/denom
-          score=where(nofcst,1.0,score)
+          score[nofcst] = 1.0
           return score
        if statID in ["far","afar"]:
           denom=falr+hits
           nofcst=less(denom,1)
-          denom==where(nofcst,1,denom)
+          denom[nofcst] = 1
           score=falr/denom
-          score=where(nofcst,0.0,score)
+          score[nofcst] = 0.0
           return score
        if statID in ["pofd","apofd"]:
           denom=falr+corn
           nofcst=less(denom,1)
-          denom=where(nofcst,1,denom)
+          denom[nofcst] = 1
           score=falr/denom
-          score=where(nofcst,0.0,score)
+          score[nofcst] = 0.0
           return score
        if statID in ["ts","ats"]:
           denom=hits+miss+falr
           nofcst=less(denom,1)
-          denom=where(nofcst,1,denom)
+          denom[nofcst] = 1
           score=hits/denom
-          score=where(nofcst,1.0,score)
+          score[nofcst] = 1.0
           return score
        if statID in ["ets","aets"]:
-          total=where(less(total,1),1,total)
+          total[less(total,1)] = 1
           hitsrand=((hits+miss)*(hits+falr))/total
           denom=hits+miss+falr-hitsrand
           nofcst=logical_and(greater(denom,-0.1),less(denom,0.1))
-          denom=where(nofcst,1,denom)
+          denom[nofcst] = 1
           score=(hits-hitsrand)/denom
-          score=where(nofcst,1.0,score)
+          score[nofcst] = 1.0
           return score
        if statID in ["hk","ahk"]:
           #pofd
           denom=falr+corn
           nofcst=less(denom,1)
-          denom=where(nofcst,1,denom)
+          denom[nofcst] = 1
           pofd=falr/denom
-          pofd=where(nofcst,0.0,pofd)
+          pofd[nofcst] = 0.0
           #pod
           denom=hits+miss
           nofcst=less(denom,1)
-          denom=where(nofcst,1,denom)
+          denom[nofcst] = 1
           pod=hits/denom
-          pod=where(nofcst,1.0,pod)
+          pod[nofcst] = 1.0
           score=pod-pofd
           return score
        if statID in ["hss","ahss"]:
-          total=where(less(total,1),1,total)
+          total[less(total,1)] = 1
           ecrand=(((hits+miss)*(hits+falr))+((corn+miss)*(corn+falr)))/total
           denom=total-ecrand
           nofcst=logical_and(greater(denom,-0.1),less(denom,0.1))
-          denom=where(nofcst,1,denom)
+          denom[nofcst] = 1
           score=(hits+corn-ecrand)/denom
-          score=where(nofcst,1.0,score)
+          score[nofcst] = 1.0
           return score
        if statID in ["oddsratio","aoddsratio"]:
           no1=logical_or(less(hits,0.5),less(corn,0.5))
           no2=logical_or(less(falr,0.5),less(miss,0.5))
           nofcst=logical_or(no1,no2)
           denom=falr*miss
-          denom=where(less(denom,1),1,denom)
+          denom[less(denom,1)] = 1
           score=(hits*corn)/denom
-          score=where(nofcst,200.0,score)
+          score[nofcst] = 200.0
           return score
     #==================================================================
     #  getVerStatScales - Main routine to get a calculate a statistic
@@ -3969,7 +3971,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        for smooth in smoothList:
           self.logMsg("smooth=%d"%smooth)
           #
-          #  Basic point stats  
+          #  Basic point stats
           #
           if statID in ["bias","mae","rms","mse","peb"]:
              #
@@ -4029,9 +4031,9 @@ class BOIVerifyUtility(SmartScript.SmartScript):
              #  been done...so don't do that...
              #
              if vectorErr==0:
-                err=where(eaGrid,fcstGrid-obsGrid,0)
+                err=where(eaGrid,fcstGrid-obsGrid,float32(0))
              else:
-                err=where(eaGrid,err,0)
+                err=where(eaGrid,err,float32(0))
              #
              #  Now all the stat calculations
              #
@@ -4099,10 +4101,10 @@ class BOIVerifyUtility(SmartScript.SmartScript):
              #
              notFcst=logical_not(fcstOccur)
              notObs=logical_not(obsOccur)
-             hits=add.reduce(add.reduce(where(eaGrid,logical_and(fcstOccur,obsOccur),0)))
-             miss=add.reduce(add.reduce(where(eaGrid,logical_and(notFcst,obsOccur)  ,0)))
-             falr=add.reduce(add.reduce(where(eaGrid,logical_and(fcstOccur,notObs)  ,0)))
-             corn=add.reduce(add.reduce(where(eaGrid,logical_and(notFcst,notObs)    ,0)))
+             hits=count_nonzero(logical_and(eaGrid,logical_and(fcstOccur,obsOccur)))
+             miss=count_nonzero(logical_and(eaGrid,logical_and(notFcst,obsOccur)))
+             falr=count_nonzero(logical_and(eaGrid,logical_and(fcstOccur,notObs)))
+             corn=count_nonzero(logical_and(eaGrid,logical_and(notFcst,notObs)))
              total=hits+miss+falr+corn
              if abs(float(total)-fnum)>0.5:
                 self.logMsg("Number in binary histogram not the same as number of points")
@@ -4172,9 +4174,9 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        #
        if srecList is None:
           self.logMsg("finding appropriate records",10)
-          recbase=equal(self.sncBtime,basetime)
-          recfit=logical_and(greater(self.sncEtime,trStart),
-                             less(self.sncStime,trEnd))
+          recbase=equal(self.sncBtime[:],basetime)
+          recfit=logical_and(greater(self.sncEtime[:],trStart),
+                             less(self.sncStime[:],trEnd))
           recmatch=logical_and(recbase,recfit)
           recnumbers=compress(recmatch,self.sncRecs)
           recnumberList=list(recnumbers)
@@ -4245,9 +4247,9 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        #
        self.logMsg("finding grids that intersect",10)
        if model not in self.OBSMODELS:
-          recbase=equal(self.fncBtime,basetime)
-          recfit=logical_and(greater(self.fncEtime,stime),
-                             less(self.fncStime,etime))
+          recbase=equal(self.fncBtime[:],basetime)
+          recfit=logical_and(greater(self.fncEtime[:],stime),
+                             less(self.fncStime[:],etime))
           recmatch=logical_and(recbase,recfit)
           recnumbers=compress(recmatch,self.fncRecs)
           recnumberList=list(recnumbers)
@@ -4255,8 +4257,8 @@ class BOIVerifyUtility(SmartScript.SmartScript):
           for recnum in recnumberList:
              retVal.append((recnum,self.fncStime[recnum],self.fncEtime[recnum]))
        else:
-          recmatch=logical_and(greater(self.oncEtime,stime),
-                             less(self.oncStime,etime))
+          recmatch=logical_and(greater(self.oncEtime[:],stime),
+                             less(self.oncStime[:],etime))
           recnumbers=compress(recmatch,self.oncRecs)
           recnumberList=list(recnumbers)
           recnumberList.sort(lambda x,y: cmp(self.oncStime[x],self.oncStime[y]))
@@ -4361,16 +4363,16 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        if recList is None:
           self.logMsg("finding grids that intersect",10)
           if model not in self.OBSMODELS:
-             recbase=equal(self.fncBtime,basetime)
-             recfit=logical_and(greater(self.fncEtime,stime),
-                                less(self.fncStime,etime))
+             recbase=equal(self.fncBtime[:],basetime)
+             recfit=logical_and(greater(self.fncEtime[:],stime),
+                                less(self.fncStime[:],etime))
              recmatch=logical_and(recbase,recfit)
              recnumbers=compress(recmatch,self.fncRecs)
              recList=list(recnumbers)
              recList.sort(lambda x,y: cmp(self.fncStime[int(x)],self.fncStime[int(y)]))
           else:
-             recmatch=logical_and(greater(self.oncEtime,stime),
-                                 less(self.oncStime,etime))
+             recmatch=logical_and(greater(self.oncEtime[:],stime),
+                                 less(self.oncStime[:],etime))
              recnumbers=compress(recmatch,self.oncRecs)
              recList=list(recnumbers)
              recList.sort(lambda x,y: cmp(self.oncStime[int(x)],self.oncStime[int(y)]))
@@ -4381,9 +4383,9 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        #  Loop over grids
        #
        totalWeights=0
-       gridtot=self._empty
-       utot=self._empty
-       vtot=self._empty
+       gridtot=self.empty()
+       utot=self.empty()
+       vtot=self.empty()
        for rec in recList:
           rec = int(rec)
           self.logMsg("reading grid",5)
@@ -4421,8 +4423,8 @@ class BOIVerifyUtility(SmartScript.SmartScript):
                    weight=1.0
                    if mode=="TimeWtAverage":
                       weight=intersectHours
-                   gridtot=gridtot+(grid*weight)
-                   totalWeights=totalWeights+weight
+                   gridtot+=(grid*weight)
+                   totalWeights+=weight
                 else:
                    retVal=grid
              elif mode=="Max":
@@ -4439,7 +4441,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
                 if retVal is None:
                    retVal=grid
              elif mode=="List":
-                retVal.append(grid) 
+                retVal.append(grid)
           else:
              if model not in self.OBSMODELS:
                 mag=  (self.fncValue[rec].astype(float)*self.fncScale[rec])+self.fncAddit[rec]
@@ -4458,8 +4460,8 @@ class BOIVerifyUtility(SmartScript.SmartScript):
                    weight=1.0
                    if mode=="TimeWtAverage":
                       weight=intersectHours
-                   utot=utot+(u*weight)
-                   vtot=vtot+(v*weight)
+                   utot+=(u*weight)
+                   vtot+=(v*weight)
                    totalWeights=totalWeights+weight
                 else:
                    retVal=(mag,direc)
@@ -4481,7 +4483,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
                 if retVal[0] is None:
                    retVal=(mag,direc)
              elif mode=="List":
-                retVal.append((mag,direc)) 
+                retVal.append((mag,direc))
        #
        #  When we had averages/sums and were adding up...
        #
@@ -4544,8 +4546,8 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        return obrecs
     #==================================================================
     #  getEndOffset - gets the END_OFFSET_HOURS for a parm (multiplied
-    #      by HOURSECS so that the value returned is in seconds.  If no 
-    #      END_OFFSET_HOURS is specified for the parm, then it returns 
+    #      by HOURSECS so that the value returned is in seconds.  If no
+    #      END_OFFSET_HOURS is specified for the parm, then it returns
     #      zero.
     #
     def getEndOffset(self,parm):
@@ -4555,9 +4557,9 @@ class BOIVerifyUtility(SmartScript.SmartScript):
           eoff=self.END_OFFSET_HOURS[parm]*HOURSECS
        return eoff
     #==================================================================
-    #  getStartOffset - gets the START_OFFSET_HOURS for a parm 
+    #  getStartOffset - gets the START_OFFSET_HOURS for a parm
     #      (multiplied by HOURSECS so that the value returned is in
-    #      seconds.  If no START_OFFSET_HOURS is specified for the 
+    #      seconds.  If no START_OFFSET_HOURS is specified for the
     #      parm, then it returns zero.
     #
     def getStartOffset(self,parm):
@@ -4662,15 +4664,15 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        cycleList=[]
        if ((type(cycles) is types.TupleType)or(type(cycles) is types.ListType)):
           for cycle in cycles:
-	     if type(cycle) is types.StringType:
-	        cycleList.append(int(cycle))
-	     else:
+             if type(cycle) is types.StringType:
+                cycleList.append(int(cycle))
+             else:
                 cycleList.append(cycle)
        else:
           if type(cycles) is types.StringType:
-	     cycleList.append(int(cycles))
-	  else:
-	     cycleList.append(cycles)
+             cycleList.append(int(cycles))
+          else:
+             cycleList.append(cycles)
        for fcstrec in fcstrecs:
           #
           #  skip forecasts from wrong cycle
@@ -4732,11 +4734,11 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        fcstrecs=[]
        for date in dayList:
           if type(date) is types.StringType:
-	     try:
+             try:
                 (yea,mon,day)=date.split("/")
                 starttime=calendar.timegm((int(yea),int(mon),int(day),0,0,0,0,0,0))
-	     except:
-	        continue
+             except:
+                continue
           else:
              starttime=date
           endtime=starttime+DAYSECS
@@ -4854,7 +4856,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
     #             so the average is over only k+1 points in that direction
     #             (though over all 2k+1 points in the other direction -
     #             if possible)
-    #          
+    #
     #             Much faster by using the cumsum function in numeric.
     #             Total across the 2k+1 points is the cumsum at the last
     #             point minus the cumsum at the point before the first
@@ -4897,7 +4899,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
           if ((k+1)<=(ny-k)): # middle
              mid[k+1:ny-k,:]=(c[k2+1:,:]-c[:-k2-1,:])/float(k2+1)
           #
-          #  Average over the second (x) dimension - making the 'out' grid 
+          #  Average over the second (x) dimension - making the 'out' grid
           #
           c=cumsum(mid,1)
           out=grid*0.0
@@ -4928,7 +4930,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
           #  Average over the first (y) dimension - making the 'mid' grid
           #
           mask=clip(mask,0,1)
-          gridmin1=where(mask,gridmin,0)
+          gridmin1=where(mask,gridmin,float32(0))
           mid=grid*0.0
           midd=grid*0.0
           c=cumsum(gridmin1,0)
@@ -4951,7 +4953,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
              mid[k+1:ny-k,:]=(c[k2+1:,:]-c[:-k2-1,:])
              midd[k+1:ny-k,:]=d[k2+1:,:]-d[:-k2-1,:]
           #
-          #  Average over the second (x) dimension - making the 'out' grid 
+          #  Average over the second (x) dimension - making the 'out' grid
           #
           c=cumsum(mid,1)
           d=cumsum(midd,1)
@@ -4989,7 +4991,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
     #               so the average is over only k+1 points in that direction
     #               (though over all 2k+1 points in the other direction -
     #               if possible)
-    #          
+    #
     #               Much faster by using the cumsum function in numeric.
     #               Total across the 2k+1 points is the cumsum at the last
     #               point minus the cumsum at the point before the first
@@ -5009,7 +5011,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
           grid1=grid
        else:
           mask=clip(mask,0,1)
-          grid1=where(mask,grid,0)
+          grid1=where(mask,grid,float32(0))
        #
        #  Average over the first (y) dimension - making the 'mid' grid
        #
@@ -5029,7 +5031,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        if ((k+1)<=(ny-k)): # middle
           mid[k+1:ny-k,:]=c[k2+1:,:]-c[:-k2-1,:]
        #
-       #  Average over the second (x) dimension - making the 'out' grid 
+       #  Average over the second (x) dimension - making the 'out' grid
        #
        c=cumsum(mid,1)
        out=grid*0.0
@@ -5057,8 +5059,8 @@ class BOIVerifyUtility(SmartScript.SmartScript):
     #                   the number of points.
     #
     def getGridSpacing(self):
-       xmax=self._empty.shape[1]
-       ymax=self._empty.shape[0]
+       xmax=self.getGridShape()[1]
+       ymax=self.getGridShape()[0]
        (lat1,lon1)=self.getLatLon(0,0)
        (lat2,lon2)=self.getLatLon(xmax-1,ymax-1)
        hypot=math.hypot(xmax-1,ymax-1)
@@ -5070,7 +5072,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        return avgspacing
     #-----------------------------------------------------------------------
     #  getCircleDistance - get the 'great circle distance' between two lat
-    #                      lon points (in km) 
+    #                      lon points (in km)
     #
     def getCircleDistance(self,lat1,lon1,lat2,lon2):
        DTR=math.pi/180.0

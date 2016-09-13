@@ -273,6 +273,7 @@
                    name="afterLayoutGroup"
                    visible="true">
              </separator>
+             <dynamic class="com.raytheon.viz.ui.actions.ToggleToolbarContributionItem" id="com.raytheon.uf.viz.d2d.ui.actions.ToggleToolbarContributionItem"/>
           </menu>
           <menu
                 id="options"
@@ -285,11 +286,6 @@
              <command
                    commandId="com.raytheon.uf.viz.d2d.ui.actions.timeOptionsAction"
                    label="Time Options"
-                   style="toggle">
-             </command>
-             <command
-                   commandId="com.raytheon.uf.viz.d2d.ui.actions.dataScaleAction"
-                   label="Data Scale"
                    style="toggle">
              </command>
              <command
@@ -335,14 +331,42 @@
                       definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
                 </reference>
              </visibleWhen>
-             <separator
-                   name="tools.start"
-                   visible="false">
-             </separator>
-             <separator
-                   name="D2D.Tools.Additions"
-                   visible="false">
-             </separator>
+             <separator name="tools.A" visible="false" />
+             <separator name="tools.B" visible="false" />
+             <separator name="tools.C" visible="false" />
+             <separator name="tools.Da" visible="false" />
+             <separator name="tools.Di" visible="false" />
+             <separator name="tools.E" visible="false" />
+             <separator name="tools.Fa" visible="false" />
+             <separator name="tools.Fe" visible="false" />
+             <separator name="tools.Fs" visible="false" />
+             <separator name="tools.G" visible="false" />
+             <separator name="tools.H" visible="false" />
+             <separator name="tools.I" visible="false" />
+             <separator name="tools.J" visible="false" />
+             <separator name="tools.K" visible="false" />
+             <separator name="tools.L" visible="false" />
+             <separator name="tools.M" visible="false" />
+             <separator name="tools.N" visible="false" />
+             <separator name="tools.O" visible="false" />
+             <separator name="tools.Pa" visible="false" />
+             <separator name="tools.Pg" visible="false" />
+             <separator name="tools.Po" visible="false" />
+             <separator name="tools.Pu" visible="false" />
+             <separator name="tools.Q" visible="false" />
+             <separator name="tools.Raa" visible="false" />
+             <separator name="tools.Rad" visible="false" />
+             <separator name="tools.Ran" visible="false" />
+             <separator name="tools.S" visible="false" />
+             <separator name="tools.Ta" visible="false" />
+             <separator name="tools.Te" visible="false" />
+             <separator name="tools.Ti" visible="false" />
+             <separator name="tools.U" visible="false" />
+             <separator name="tools.V" visible="false" />
+             <separator name="tools.W" visible="false" />
+             <separator name="tools.X" visible="false" />
+             <separator name="tools.Y" visible="false" />
+             <separator name="tools.Z" visible="false" />
           </menu>
           <menu
                 id="models"
@@ -404,8 +428,8 @@
              </dynamic>
          </menu>
        </menuContribution>
-         <menuContribution
-               locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+		<menuContribution
+			locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
              <toolbar
                   id="mapControls">
                <command
@@ -442,21 +466,21 @@
                   </visibleWhen>
                </command>
             </toolbar>
-            <toolbar
-                  id="d2d-1">
+             <toolbar
+                   id="d2d-1">
                 <command
-                   commandId="com.raytheon.uf.viz.d2d.ui.actions.loadmodebutton"
-                   id="com.raytheon.uf.viz.d2d.ui.actions.loadmode"
-                   label="Load Mode"
-                   style="pulldown"
-                   tooltip="Load Mode">
-                <visibleWhen>
-                   <reference
-                         definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
-                   </reference>
-                </visibleWhen>
+                      commandId="com.raytheon.uf.viz.d2d.ui.actions.loadmodebutton"
+                      id="com.raytheon.uf.viz.d2d.ui.actions.loadmode"
+                      label="Load Mode"
+                      style="pulldown"
+                      tooltip="Load Mode">
+                   <visibleWhen>
+                      <reference
+                            definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                      </reference>
+                   </visibleWhen>
                 </command>
-            </toolbar>
+             </toolbar>
             <toolbar
                   id="loopControls">
             <command
@@ -497,6 +521,9 @@
                      value="PREVIOUS">
                </parameter>
             </command>
+            <separator
+                  name="tools.toolbar" visible="false">
+            </separator>
             <command
                   commandId="com.raytheon.viz.ui.tools.looping.frameTool"
                   icon="icons/play-right.png"
@@ -588,7 +615,25 @@
                   </reference>
                </visibleWhen>
             </command>
+            <!--
+            <command
+                  commandId="com.raytheon.viz.radar.rsc.map.dialog"
+                  icon="icons/nsharp.png"
+                  id="com.raytheon.viz.radar.rsc.map.dialog"
+                  label="NEXRAD"
+                  mode="FORCE_TEXT"
+                  style="push"
+                  tooltip="NEXRAD">
+               <visibleWhen>
+                  <reference
+                        definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                  </reference>
+               </visibleWhen>
+            </command>
+            -->
 			<!--
+			com.raytheon.viz.radar.rsc.map.RadarMapResource
+			
             <command
                   commandId="gov.noaa.nws.ncep.ui.nsharp.palette"
                   icon="icons/nsharp.png"
@@ -777,10 +822,24 @@
                      value="10">
                </parameter>
             </command>
+            <command
+                  commandId="com.raytheon.viz.ui.actions.setframes">
+               <parameter
+                     name="frameCount"
+                     value="15">
+               </parameter>
+            </command>
             <command commandId="com.raytheon.viz.ui.actions.setframes">
                <parameter
                      name="frameCount"
                      value="20">
+               </parameter>
+            </command>
+            <command
+                  commandId="com.raytheon.viz.ui.actions.setframes">
+               <parameter
+                     name="frameCount"
+                     value="25">
                </parameter>
             </command>
             <command commandId="com.raytheon.viz.ui.actions.setframes">
@@ -877,10 +936,6 @@
        id="com.raytheon.uf.viz.d2d.ui.map.actions"
        point="org.eclipse.ui.handlers">
          <handler
-               class="com.raytheon.uf.viz.d2d.ui.actions.DataScaleAction"
-               commandId="com.raytheon.uf.viz.d2d.ui.actions.dataScaleAction">
-         </handler>
-         <handler
                class="com.raytheon.uf.viz.d2d.ui.actions.ChangeLegendModeHandler"
                commandId="com.raytheon.uf.viz.d2d.ui.actions.changeLegendMode">
          </handler>
@@ -950,7 +1005,7 @@
                class="com.raytheon.uf.viz.d2d.ui.map.actions.ToggleResourceHandler"
                commandId="com.raytheon.viz.ui.actions.toggleResource">
             <activeWhen>
-               <reference
+               <reference	
                      definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
                </reference>
             </activeWhen>
@@ -970,6 +1025,10 @@
          <handler
                class="com.raytheon.uf.viz.d2d.ui.actions.ImageCombinationAction"
                commandId="com.raytheon.uf.viz.d2d.ui.actions.imageCombination">
+         </handler>
+         <handler
+         		class="com.raytheon.uf.viz.d2d.ui.actions.ShowHistoryList"
+         		commandId="com.raytheon.viz.ui.showHistoryList">
          </handler>
 	     <handler
 	           class="com.raytheon.uf.viz.d2d.ui.actions.AddAWIPSProcedure"
@@ -1396,12 +1455,6 @@
          </commandParameter>
       </command>
       <command
-            id="com.raytheon.uf.viz.d2d.ui.actions.dataScaleAction"
-            categoryId="com.raytheon.uf.viz.d2d.ui"
-            description="Toggle the data scale enabled option"
-            name="Toggle Data Scale">
-      </command>
-      <command
             id="com.raytheon.uf.viz.d2d.ui.actions.changeLegendMode"
             categoryId="com.raytheon.uf.viz.d2d.ui"
             description="Change the mode of the legend"
@@ -1496,6 +1549,12 @@
             categoryId="com.raytheon.uf.viz.d2d.ui"
             description="Toggle the image combination option"
             name="Image Combination">
+      </command>
+      <command
+      		id="com.raytheon.viz.ui.showHistoryList"
+      		categoryId="com.raytheon.uf.viz.d2d.ui"
+      		description="Show the d2d history list"
+      		name="Show History List">
       </command>
       <command
             id="com.raytheon.viz.ui.openAWIPSProcedure"

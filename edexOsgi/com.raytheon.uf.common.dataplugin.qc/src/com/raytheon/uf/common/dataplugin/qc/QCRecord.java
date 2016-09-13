@@ -35,6 +35,7 @@ import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.annotations.NullString;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
@@ -58,6 +59,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * May 16, 2013 1869       bsteffen    Remove DataURI column from qc.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Feb 27, 2014 2852       rferrel     Add getter/setter to FakePointDataView.
+ * Jul 21, 2015 4360       rferrel     Named unique constraint.
  * 
  * </pre>
  * 
@@ -66,7 +68,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "qcseq")
-@Table(name = "qc", uniqueConstraints = { @UniqueConstraint(columnNames = {
+@Table(name = "qc", uniqueConstraints = { @UniqueConstraint(name = "uk_qc_datauri_fields", columnNames = {
         "stationid", "reftime", "qcType", "latitude", "longitude" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
@@ -128,6 +130,7 @@ public class QCRecord extends PluginDataObject implements ISpatialEnabled {
 
     @Column(nullable = false, length = 20)
     @DataURI(position = 1)
+    @NullString
     @DynamicSerializeElement
     private String qcType;
 

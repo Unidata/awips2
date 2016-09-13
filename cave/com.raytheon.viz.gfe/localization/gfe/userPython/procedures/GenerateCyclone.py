@@ -894,20 +894,20 @@ class Procedure (SmartScript.SmartScript):
         mag = windMag.copy()
 
         # make a weightingGrid
-        lower = sum(sum(backMag)) / sum(sum(ones(backMag.shape)))
+        lower = average(backMag)
         # calculate the average value over the area where blending will occur
 
         upper = lower + 10.0
 
         ringMask = logical_and(less(mag, upper), greater(mag, lower))
 
-        avgGrid = where(ringMask, backMag, 0.0)
+        avgGrid = where(ringMask, backMag, float32(0.0))
 
         # a nearly calm grid means no blending required
         if lower < 1.0:
             return windGrid
 
-        wtGrid = where(greater(mag, upper), 1.0, 0.0)
+        wtGrid = greater(mag, upper).astype(float32)
         ringMask = logical_and(less(mag, upper), greater(mag, lower))
         wtGrid = where(ringMask, (mag - lower) / (upper - lower), wtGrid)
         wtGrid[less(mag, lower)]= 0.0
@@ -918,7 +918,7 @@ class Procedure (SmartScript.SmartScript):
         mag += backMag * (1 - wtGrid)
 
         # calculate direction grid
-        onesGrid = ones(mag.shape)
+        onesGrid = ones_like(mag)
         gridU, gridV = self.MagDirToUV(onesGrid, windGrid[1])
         bgU, bgV = self.MagDirToUV(onesGrid, bgGrid[1])
         gridU *= wtGrid
@@ -997,7 +997,6 @@ class Procedure (SmartScript.SmartScript):
     # wind the wind decreases linearly toward the center
     def makeRankine(self, f, latGrid, lonGrid, pieSlices):
         st = time.time()
-        grid = zeros(latGrid.shape)
         rDict = f['radii']
         validTime = f['validTime']
         center = f['centerLocation']
@@ -1010,7 +1009,7 @@ class Procedure (SmartScript.SmartScript):
         distanceGrid[equal(distanceGrid, 0)] = 0.01
 
         # make a grid into which we will define the wind speeds
-        grid = zeros(latGrid.shape, float)
+        grid = self.empty()
 
         # insert the maxWind radii
         if f.has_key('maxWind'):
@@ -1107,12 +1106,12 @@ class Procedure (SmartScript.SmartScript):
                 else:  # outside RMW
                     grid = where(mask, inSpeed * power((inRadius / distanceGrid), exponent),
                              grid)
-                    grid = clip(grid, 0.0, 200.0)
+                    grid.clip(0.0, 200.0, grid)
 
         dirGrid = self.makeDirectionGrid(latGrid, lonGrid, center[0], center[1])
 
         # clip values between zero and maxWind
-        grid = clip(grid, 0.0, maxWind)
+        grid.clip(0.0, maxWind, grid)
         # apply the wind reduction over land
         fraction = 1.0 - (self.lessOverLand / 100.0)
         grid = self.decreaseWindOverLand(grid, fraction, self.elevation)

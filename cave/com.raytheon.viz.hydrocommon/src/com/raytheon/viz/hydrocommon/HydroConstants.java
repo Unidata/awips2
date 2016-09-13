@@ -33,6 +33,8 @@ import org.eclipse.swt.graphics.RGB;
  * ------------ ----------  ----------- --------------------------
  * Jun 17, 2008 1194        M. Duff     Initial creation.
  * 11/18/2008   1662        grichard    Added physical element enum type.
+ * 14 Sep, 2015 15102       wkwock      Implements preferred order for PE-D-TS-EXT list
+ * 26 Oct, 2015 14217       jwu         Removed DAYS_MAX & MAX_TRACES
  * 
  * </pre>
  * 
@@ -84,9 +86,6 @@ public class HydroConstants {
     /** default year */
     public static final int DEFAULT_YEAR = 1900;
 
-    /** maximum number of days for the time series */
-    public static final int DAYS_MAX = 90;
-
     /** Number of milliseconds per second */
     public static final int MILLIS_PER_SECOND = 1000;
 
@@ -110,9 +109,6 @@ public class HydroConstants {
     
     /** Number of seconds per minute */
     public static final int SECONDS_PER_MINUTE = 60;
-
-    /** Max number of traces per time series graph */
-    public static final int MAX_TRACES = 30;
 
     /** Max number of points per time series graph */
     public static final int MAX_POINTS = 5000;
@@ -261,6 +257,8 @@ public class HydroConstants {
     public static final String XMRG_DIR_TOKEN = "rfcwide_xmrg_dir";
     
     public static final String RFCMOSAIC_DIR_TOKEN = "gaq_xmrg_1hr_dir";
+
+    public static final String PREFERRED_ORDER = "/hydro/preferred_order.txt";
 
     /**
      * Enumeration used for selection of physical element.

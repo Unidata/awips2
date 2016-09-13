@@ -26,7 +26,6 @@ import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingProfile;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpStationInfo;
 import gov.noaa.nws.ncep.ui.nsharp.natives.NsharpDataHandling;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -63,7 +62,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Aug 02, 2013 2190       mschenke    Moved common npp sounding calculations to
  *                                     utility class
  * Aug 15, 2013 2260       bsteffen    Switch poessounding to NSharp.
- * 
+ * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
  * </pre>
  * 
  * @author mschenke
@@ -80,9 +79,9 @@ public abstract class AbstractNPPNSharpResourceData extends
         public NPPNsharpStationInfo(NsharpStationInfo info, DataTime time) {
             this.latitude = info.getLatitude();
             this.longitude = info.getLongitude();
-            this.reftime = new Timestamp(info.getReftime().getTime());
+            this.reftime = new Date(info.getReftime().getTime());
             if (info.getRangestarttime() != null) {
-                this.rangestarttime = new Timestamp(info.getRangestarttime()
+                this.rangestarttime = new Date(info.getRangestarttime()
                         .getTime());
             }
             this.sndType = info.getSndType();
@@ -93,7 +92,7 @@ public abstract class AbstractNPPNSharpResourceData extends
         }
 
         public void setDataTime(DataTime time) {
-            this.reftime = new Timestamp(time.getMatchRef());
+            this.reftime = new Date(time.getMatchRef());
             if (time.getUtilityFlags().contains(FLAG.PERIOD_USED)) {
                 this.timeRange = time.getValidPeriod();
             }
@@ -166,9 +165,9 @@ public abstract class AbstractNPPNSharpResourceData extends
                 Coordinate p = new Coordinate(
                         testPdv.getFloat(NPPSoundingRecord.LONGITUDE),
                         testPdv.getFloat(NPPSoundingRecord.LATITUDE));
-                if (closest == null
-                        || coordinate.distance(p) < coordinate
-                                .distance(closest)) {
+                if ((closest == null)
+                        || (coordinate.distance(p) < coordinate
+                                .distance(closest))) {
                     pdv = testPdv;
                     closest = p;
                 }

@@ -94,6 +94,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                       updated functions in 'mouseHandler' to prevent
  *                                       errors when MB1 dragging tool off screen and to
  *                                       only change cursor to hand in editable mode.
+ *  05-11-2015  #5070        randerso    Adjust font sizes for dpi scaling
  * 
  * </pre>
  * 
@@ -251,6 +252,7 @@ public class AzimuthToolLayer extends
      * 
      * @see com.raytheon.viz.core.rsc.IVizResource#getName()
      */
+    @Override
     public String getName() {
         return AZIMUTH_LOCATION;
     }
@@ -280,9 +282,10 @@ public class AzimuthToolLayer extends
      * @seecom.raytheon.viz.core.rsc.IVizResource#init(com.raytheon.viz.core.
      * IGraphicsTarget)
      */
+    @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         labelFont = target.initializeFont(
-                target.getDefaultFont().getFontName(), 12.0f,
+                target.getDefaultFont().getFontName(), 10,
                 new Style[] { Style.BOLD });
 
         for (int i = 0; i < labels.length; ++i) {
@@ -306,6 +309,7 @@ public class AzimuthToolLayer extends
      * @seecom.raytheon.viz.core.rsc.IVizResource#paint(com.raytheon.viz.core.
      * IGraphicsTarget, com.raytheon.viz.core.PixelExtent, double, float)
      */
+    @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
         labelFont.setMagnification(getCapability(MagnificationCapability.class)
@@ -416,6 +420,7 @@ public class AzimuthToolLayer extends
      * 
      * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#dispose()
      */
+    @Override
     protected void disposeInternal() {
         labelFont.dispose();
         if (shape != null) {

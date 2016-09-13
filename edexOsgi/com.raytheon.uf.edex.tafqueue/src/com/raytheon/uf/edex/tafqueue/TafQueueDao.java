@@ -29,6 +29,7 @@ import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataquery.db.QueryParam.QueryOperand;
 import com.raytheon.uf.common.tafqueue.TafQueueRecord;
 import com.raytheon.uf.common.tafqueue.TafQueueRecord.TafQueueState;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
@@ -46,6 +47,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * May 1, 2012  14715      rferrel     Initial creation
  * Mar 21, 2013 15375      zhao        Added methods for handling VFT product
  * May 07, 2014 3091       rferrel     forecasterId now a string.
+ * Nov 06, 2015 5108       rferrel     Added {@link #getRecordsByXmittime(Date, TafQueueState)}.
  * 
  * </pre>
  * 
@@ -138,6 +140,40 @@ public class TafQueueDao extends CoreDao {
         DatabaseQuery query = new DatabaseQuery(TafQueueRecord.class.getName());
         query.addQueryParam("id", idIntList, QueryOperand.IN);
         query.addOrder("xmitTime", true);
+        List<TafQueueRecord> records = (List<TafQueueRecord>) queryByCriteria(query);
+        return records;
+    }
+
+    /**
+     * Get list of records for desired transmit time and taf queue state.
+     * 
+     * @param xmittime
+     * @param state
+     * @return records
+     * @throws DataAccessLayerException
+     */
+    @SuppressWarnings("unchecked")
+    public List<TafQueueRecord> getRecordsByXmittime(Date xmittime,
+            TafQueueState state) throws DataAccessLayerException {
+        DatabaseQuery query = new DatabaseQuery(TafQueueRecord.class.getName());
+
+        /*
+         * Assume the xmittime will be converted to header time. Since the
+         * header only goes to the nearest minute must get all records for the
+         * minute in the xmittime.
+         */
+        Calendar startCalendar = TimeUtil.newCalendar();
+        startCalendar.setTime(xmittime);
+        startCalendar.set(Calendar.SECOND, 0);
+        startCalendar.set(Calendar.MILLISECOND, 0);
+        Calendar endCalendar = TimeUtil.newCalendar();
+        endCalendar.setTime(xmittime);
+        endCalendar.set(Calendar.SECOND, 59);
+        endCalendar.set(Calendar.MILLISECOND, 999);
+
+        query.addQueryParam("xmitTime", new Date[] { startCalendar.getTime(),
+                endCalendar.getTime() }, QueryOperand.BETWEEN);
+        query.addQueryParam("state", state);
         List<TafQueueRecord> records = (List<TafQueueRecord>) queryByCriteria(query);
         return records;
     }

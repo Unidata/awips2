@@ -49,7 +49,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 8, 2009  3232       mpduff      Initial creation.
+ * Nov 08, 2009 3232       mpduff      Initial creation.
+ * Nov 05, 2015 5070       randerso    Adjust font sizes for dpi scaling
  * 
  * </pre>
  * 
@@ -133,7 +134,7 @@ public class RadarGageOverlayRsc extends
         if (getProperties().isVisible()) {
             if (shape == null) {
                 IFont font = target.initializeFont(target.getDefaultFont()
-                        .getFontName(), 9, null);
+                        .getFontName(), 8, null);
 
                 DrawableString string = new DrawableString("+", null);
                 string.font = font;

@@ -685,7 +685,8 @@ class InfoDialog(doneDialog):
             maxval=maximum.reduce(maximum.reduce(mag))
             sum=add.reduce(add.reduce(mag))
             sumsqr=add.reduce(add.reduce(mag*mag))
-         numpts=add.reduce(add.reduce(ones(self.__VU._empty.shape)))
+         gs = self.__VU.getGridShape()
+         numpts=gs[0]*gs[1]
          avg=sum/numpts
          std=sqrt((sumsqr/numpts)-(avg*avg))
          self.__VU.closeFcstFile()

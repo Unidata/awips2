@@ -2,14 +2,14 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Mpe Plug-in
 Bundle-SymbolicName: com.raytheon.viz.mpe
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.15.0.qualifier
 Bundle-Activator: com.raytheon.viz.mpe.Activator
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.geotools,
  com.raytheon.viz.core,
- org.apache.commons.lang,
+ org.apache.commons.lang3;bundle-version="3.4.0",
  com.raytheon.viz.hydrocommon,
  javax.persistence;bundle-version="1.0.0",
  javax.measure;bundle-version="1.0.0",

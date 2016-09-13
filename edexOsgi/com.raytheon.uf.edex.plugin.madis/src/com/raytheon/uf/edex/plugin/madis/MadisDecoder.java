@@ -31,7 +31,6 @@ import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 import com.raytheon.edex.exception.DecoderException;
-import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.madis.MadisRecord;
 import com.raytheon.uf.common.dataplugin.madis.MadisRecord.QCD;
@@ -57,14 +56,15 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 17, 2013 2113        dhladky     QPID memory usage alleviation
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * Dec 10, 2013 2616        mpduff      Set overwrite allowed on MadisRecord.
- * jan 22, 2014 2713       dhladky     Calendar conversion.
+ * jan 22, 2014 2713        dhladky     Calendar conversion.
+ * Jul 28, 2015 4670        dhladky     Return null when processing fails.
  * </pre>
  * 
  * @author dhladky
  * @version 1
  */
 
-public class MadisDecoder extends AbstractDecoder {
+public class MadisDecoder {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(MadisDecoder.class);
@@ -95,7 +95,7 @@ public class MadisDecoder extends AbstractDecoder {
 
     private static final Pattern QUOTES_PATTERN = Pattern.compile("\"");
 
-    private final String PLUGIN_NAME;
+    public static String PLUGIN_NAME;
 
     private static ThreadLocal<SimpleDateFormat> madisDateFormat = new ThreadLocal<SimpleDateFormat>() {
 
@@ -143,14 +143,14 @@ public class MadisDecoder extends AbstractDecoder {
 
                     long time3 = System.currentTimeMillis();
                     MadisRecord rec = processMadis(headerType, line);
-                    rec.setOverwriteAllowed(true);
-                    long time4 = System.currentTimeMillis();
-                    statusHandler.handle(Priority.DEBUG,
-                            "MADIS record decode time: " + (time4 - time3)
-                                    + " ms");
 
                     if (rec != null) {
+                        rec.setOverwriteAllowed(true);
                         retList.add(rec);
+                        long time4 = System.currentTimeMillis();
+                        statusHandler.handle(Priority.DEBUG,
+                                "MADIS record decode time: " + (time4 - time3)
+                                        + " ms");
                     }
 
                     i++;
@@ -408,6 +408,7 @@ public class MadisDecoder extends AbstractDecoder {
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Couldn't parse D file row. " + stationId + e);
+            rec = null;
         }
 
         return rec;
@@ -736,6 +737,7 @@ public class MadisDecoder extends AbstractDecoder {
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Couldn't parse F file row. " + stationId + e);
+            rec = null;
         }
 
         return rec;

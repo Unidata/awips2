@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.viz.localization.perspective.view.actions;
 
+import java.util.List;
+
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -39,6 +42,11 @@ import com.raytheon.uf.viz.localization.service.ILocalizationService;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 3, 2010  6305       mpduff      Initial creation
+ * Oct 13, 2015 4410       bsteffen    Allow localization perspective to mix
+ *                                     files for multiple Localization Types.
+ * Jan 15, 2016 5242       kbisanz     Replaced LocalizationFile with
+ *                                     ILocalizationFile where possible
+ * 
  * 
  * </pre>
  * 
@@ -54,7 +62,7 @@ public class PasteFileAction extends CopyToAction {
 
     public PasteFileAction(ILocalizationService service, LocalizationFile file,
             LocalizationFileGroupData data) {
-        super(file, service);
+        super(file, data.getPathData(), service);
         setText("Paste To");
         this.dataToCopyTo = data;
         // Grab the level this file is protected at (if any)
@@ -64,39 +72,26 @@ public class PasteFileAction extends CopyToAction {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.localization.perspective.view.actions.CopyToAction
-     * #isLevelEnabled
-     * (com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
-     * )
-     */
     @Override
     protected boolean isLevelEnabled(LocalizationLevel level) {
         return pasteToProtectedLevel == null
                 || level.compareTo(pasteToProtectedLevel) <= 0;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.localization.filetreeview.actions.AbstractToAction
-     * #run
-     * (com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
-     * )
-     */
     @Override
     protected void run(LocalizationLevel level) {
         IPathManager pm = PathManagerFactory.getPathManager();
 
-        LocalizationType type = dataToCopyTo.getPathData().getType();
+        List<LocalizationType> types = dataToCopyTo.getPathData().getTypes();
+        LocalizationType type = file.getContext().getLocalizationType();
+        if (!types.contains(type)) {
+            type = types.get(0);
+        }
         LocalizationContext ctx = pm.getContext(type, level);
 
-        LocalizationFile newFile = pm.getLocalizationFile(ctx,
+        ILocalizationFile newFile = pm.getLocalizationFile(ctx,
                 dataToCopyTo.getPath());
+        removeAlternateTypeFiles(level);
         copyFile(newFile);
     }
 }

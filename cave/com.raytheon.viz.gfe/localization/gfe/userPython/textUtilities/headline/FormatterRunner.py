@@ -26,6 +26,9 @@ import JUtil, VarDictGroker
 import RedirectLogging
 import UFStatusHandler
 
+from com.raytheon.uf.viz.core import VizApp
+from com.raytheon.uf.common.gfe.ifpclient import PyFPClient
+
 #
 # Runs the text formatter to generate text products
 #   
@@ -35,15 +38,19 @@ import UFStatusHandler
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    05/29/08                      njensen       Initial Creation.
-#    12/10/14        #14946        ryu           Add getTimeZones() function.
-#    04/16/15        #14946        ryu           Fix getTimeZones to return the office TZ if timezone
-#                                                is not set for any zone in a segment.
-#    04/20/2015      #4027         randerso      Fixes for formatter autotests
+#    05/29/08                      njensen        Initial Creation.
+#    12/10/14        #14946        ryu            Add getTimeZones() function.
+#    04/16/15        #14946        ryu            Fix getTimeZones to return the office TZ if timezone
+#                                                 is not set for any zone in a segment.
+#    04/20/2015      #4027         randerso       Fixes for formatter autotests
 #    Apr 25, 2015     4952         njensen        Updated for new JEP API
-#    05/06/2015      #4467         randerso      Convert to upper case before writing to files if
-#                                                mixed case is not enabled for the product.
-#                                                Cleaned up file writing code
+#    05/06/2015      #4467         randerso       Convert to upper case before writing to files if
+#                                                 mixed case is not enabled for the product.
+#                                                 Cleaned up file writing code
+#    07/29/2015      #4263         dgilling       Support updated TextProductManager.
+#    11/30/2015      #5129         dgilling       Support new IFPClient.
+#    03/10/2016      #5411         randerso       Set argDict["mixedCaseEnabled"] flag to indicated if
+#                                                 mixed case transmission is enabled for the product
 # 
 #
 
@@ -74,6 +81,9 @@ except:
     logger = logging.getLogger()
     logger.exception("Exception occurred")
 
+## TODO: Remove use of DataManager in this code. Will need to coordinate with
+## the field developers to ensure local site overrides aren't relying on having
+## access to it.
 def executeFromJava(databaseID, site, username, dataMgr, forecastList, logFile, cmdLineVarDict=None,
                     drtTime=None, vtecMode=None, vtecActiveTable="active", testMode=0 ):
     if type(forecastList) is not list:
@@ -110,34 +120,6 @@ def executeFromJava(databaseID, site, username, dataMgr, forecastList, logFile, 
     RedirectLogging.restore()
     return forecasts
     
-def getPid(forecast):
-    # taken from ProductParser.py
-    import re
-    
-    sl = r'^'                            # start of line
-    el = r'\s*?\n'                       # end of line
-    id3 = r'[A-Za-z]{3}'                 # 3 charater word
-    empty = r'^\s*' + el                 # empty line
-    
-    wmoid = r'(?P<wmoid>[A-Z]{4}\d{2})' # wmoid
-    fsid  = r'(?P<fsid>[A-Z]{4})'       # full station id
-    pit   = r'(?P<pit>\d{6})'           # product issuance time UTC
-    ff    = r'(?P<funnyfield> ' + id3 + ')?'          # "funny" field
-    
-    # CI block
-    ci_start = sl + wmoid + ' ' + fsid + ' ' + pit + ff + el
-    awipsid = r'(?P<pil>(?P<cat>[A-Z0-9]{3})(?P<lid>[A-Z0-9]{1,3}))' + el
-    ci_block = r'(?P<ciblock>' + ci_start + awipsid + '\n?)' 
-    
-    ci_re = re.compile(ci_block)
-
-    pid = None
-    m = ci_re.search(forecast)
-    if m is not None:
-        pid = m.group('cat')
-
-    return pid
-
 def runFormatter(databaseID, site, forecastList, cmdLineVarDict, vtecMode,
                     username, dataMgr, serverFile=None,
                     editAreas=[], timeRanges=[], timePeriod=None, drtTime=None,
@@ -201,7 +183,7 @@ def runFormatter(databaseID, site, forecastList, cmdLineVarDict, vtecMode,
         testMode = 0
 
     # Create an ifpClient
-    ifpClient = dataMgr.getClient()
+    ifpClient = PyFPClient(VizApp.getWsId(), site)
     
     global GridLoc
     GridLoc = ifpClient.getDBGridLocation()
@@ -214,7 +196,7 @@ def runFormatter(databaseID, site, forecastList, cmdLineVarDict, vtecMode,
 
     import Analysis
 
-    site = str(ifpClient.getSiteID().get(0))
+    site = str(ifpClient.getSiteID()[0])
 
     # Create dictionary of arguments
     argDict = {
@@ -262,7 +244,7 @@ def runFormatter(databaseID, site, forecastList, cmdLineVarDict, vtecMode,
     time.tzset()
 
     # Create the formatter
-    formatter = TextFormatter.TextFormatter(dataMgr)
+    formatter = TextFormatter.TextFormatter(dataMgr, ifpClient)
 
     # For each Forecast Type,
     #   Create generate forecast
@@ -270,21 +252,13 @@ def runFormatter(databaseID, site, forecastList, cmdLineVarDict, vtecMode,
     outForecasts = ""   # written to output files
     for forecastType in forecastList:           
         forecast = formatter.getForecast(forecastType, argDict)        
-        forecasts = forecasts + forecast
+        forecasts += forecast
         
         # Convert data written to files to upper case if required
-        mixedCase = False
-        pid = getPid(forecast)
-        if pid is None:
-            logger.warning("Unable to determine PID: defaulting to upper case")
+        if argDict["mixedCaseEnabled"]:
+            outForecasts += forecast
         else:
-            from com.raytheon.uf.common.dataplugin.text.db import MixedCaseProductSupport
-            mixedCase = MixedCaseProductSupport.isMixedCase(str(pid))
-        
-        if mixedCase:
-            outForecasts = outForecasts + forecast
-        else:
-            outForecasts = outForecasts + forecast.upper()
+            outForecasts += forecast.upper()
 
     logger.info("Text:\n" + str(forecasts))
     
@@ -391,20 +365,22 @@ def writeToServerFile(forecasts, outputFile, writeToSite):
             return 0
     return 1
 
-def getScripts(paths, nameMap, definitionMap):
+def importModules(paths):
     global displayNameDict
     displayNameDict = {}
     
-    rval = []
-    split = paths.split(':')
+    split = paths.split(os.path.pathsep)
     for path in split:
         if not path in sys.path:
             sys.path.append(path)
-        inv = os.listdir(path)
-        inv = filter(filterScripts, inv)
-        logger.info("TextProduct FormatterLauncher Processing....")
+
+        inv = []
+        if os.path.exists(path):
+            inv = os.listdir(path)
+            inv = filter(filterScripts, inv)
+
         for pid in inv:
-            name = string.split(pid, ".")[0]
+            name = os.path.splitext(pid)[0]
             if sys.modules.has_key(name):
                 del sys.modules[name]
             try:
@@ -429,30 +405,38 @@ def getScripts(paths, nameMap, definitionMap):
                 logger.info("Formatter: No Definition Found " + 
                                      name)
                 continue
-            #fs = FormatterScript(self._dataMgr, name, mod, definition)
             dspName = getDisplayName(definition)
             if dspName is None or dspName == "None":
-                #LogStream.logVerbose("Formatter displayName is None: " + 
-                #    ppDef(definition))
                 continue
-            #LogStream.logVerbose("Formatter displayName set: ", fs.dspName(),
-            #    ppDef(definition))        
-            nameMap.put(dspName, name)
-            from com.raytheon.uf.common.dataplugin.gfe.textproduct import ProductDefinition
-            pdef = ProductDefinition()
-            pdef.setDefinition(JUtil.pyDictToJavaMap(definition))
-            definitionMap.put(dspName, pdef)
             displayNameDict[dspName] = (mod, definition)
-            #rval.append(fs)
-    #rval.sort()
+
+def getScripts(paths, getVtecCodes):
+    from java.util import ArrayList
+    from com.raytheon.uf.common.dataplugin.gfe.textproduct import ProductDefinition
+    from com.raytheon.viz.gfe.textformatter import TextProductConfigData
+    from com.raytheon.viz.gfe.textformatter import TextProductMetadata
+    
+    logger.info("TextProduct FormatterLauncher Processing....")
+    importModules(paths)    
+    textProducts = ArrayList()
+    for (displayName, value) in displayNameDict.items():
+        (module, definition) = value
+        moduleName = module.__name__
+        pdef = ProductDefinition(JUtil.pyDictToJavaMap(definition))
+        productMetadata = TextProductMetadata(moduleName, displayName, pdef)
+        textProducts.add(productMetadata)
+    
+    vtecCodes = {}
+    if getVtecCodes:
+        import VTECMessageType
+        vtecCodes = VTECMessageType.VTECMessageTypeDict
+
     logger.info("TextProduct FormatterLauncher Done....")
-    #return rval
+    return TextProductConfigData(JUtil.pyValToJavaObj(vtecCodes), textProducts)
 
 def filterScripts(name):
-    result = False
-    if name.endswith(".py") and not name.endswith("Definition.py"):
-        result = True
-    return result
+    (filename, ext) = os.path.splitext(name)
+    return ext == ".py" and not filename.endswith("Definition")
 
 def getDisplayName(definition):
     try:
@@ -481,9 +465,14 @@ def ppDef(definition):
         return s
     else:
         return "<Definition not dictionary>\n" + `definition`
+
+## TODO: Investigate if the dependency on DataManager can be removed here.
+## At the moment this passes through to ValuesDialog for building special
+## widgets in the DialogAreaComposite.    
+def getVarDict(paths, dspName, dataMgr, ifpClient, issuedBy, dataSource):
+    importModules(paths)
     
-def getVarDict(dspName, dataMgr, issuedBy, dataSource):
-    tz = str(dataMgr.getClient().getSiteTimeZone())
+    tz = str(ifpClient.getSiteTimeZone())
     os.environ['TZ'] = tz
     time.tzset()
     productDef = displayNameDict[dspName][1]
@@ -499,7 +488,7 @@ def getTimeZones(zones, officeTZ):
     import AreaDictionary
     timezones = []
     if zones is not None:
-        for zone in JUtil.javaStringListToPylist(zones):
+        for zone in zones:
             zdict = AreaDictionary.AreaDictionary.get(zone, {})
             tzs = zdict.get("ugcTimeZone", [])
             if type(tzs) is str:

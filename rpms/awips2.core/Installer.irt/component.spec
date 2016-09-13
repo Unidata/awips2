@@ -12,11 +12,11 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Bryan Kowal
+Packager: %{_build_site}
 
 AutoReq: no
-provides: awips2-irt
-requires: awips2-python
+Provides: awips2-irt
+Requires: awips2-python
 
 %description
 AWIPS II IRT Installation - Contains The AWIPS II IRT Component.
@@ -64,7 +64,7 @@ function copyLegal()
       
    rm -f %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar    
 }
-cp -r %{_awipscm_share}/packages/irt-server/* ${RPM_BUILD_ROOT}/irt
+cp -r %{_static_files}/packages/irt-server/* ${RPM_BUILD_ROOT}/irt
 
 # Copy The Configuration File To The Appropriate Directory.
 IRT_CONFIG_FILE="IRT_Config.txt"
@@ -91,38 +91,17 @@ done
 copyLegal "irt"
 
 %pre
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| Installing AWIPS II IRT...\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m   Installation Root = ${RPM_INSTALL_PREFIX}\e[m"
 
 %post
-function printFailureMessage()
-{
-   echo -e "\e[1;31m--------------------------------------------------------------------------------\e[m"
-   echo -e "\e[1;31m\| AWIPS II IRT Installation - FAILED\e[m"
-   echo -e "\e[1;31m--------------------------------------------------------------------------------\e[m"
-}
 echo ${RPM_INSTALL_PREFIX} | sed 's/\//\\\//g' > .awips2_escape.tmp
 IRT_INSTALL_ESCAPED=`cat .awips2_escape.tmp`
 rm -f .awips2_escape.tmp
 
-echo "--------------------------------------------------------------------------------"
-echo "\| Setting up AWIPS II IRT Runtime and Environment..."
-echo "--------------------------------------------------------------------------------"
 IRT_STARTUP_FILE="start_irt.sh"
 perl -p -i -e "s/%{INSTALL_PATH}%/${IRT_INSTALL_ESCAPED}/g" \
    ${RPM_INSTALL_PREFIX}/bin/${IRT_STARTUP_FILE}
 chmod a+x ${RPM_INSTALL_PREFIX}/bin/*
 
-echo -e "\e[1;32m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;32m\| AWIPS II IRT Installation - COMPLETE\e[m"
-echo -e "\e[1;32m--------------------------------------------------------------------------------\e[m"
-
 %postun
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| The AWIPS II IRT Installation Has Been Successfully Removed\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo ""
 
 %files -f component-files.txt

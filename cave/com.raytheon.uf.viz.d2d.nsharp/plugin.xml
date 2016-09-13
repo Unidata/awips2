@@ -19,7 +19,6 @@
             class="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPaletteWindow"
             id="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPaletteWindow"
             name="NSHARP"/>
-            
    </extension> 
 
 <extension point="org.eclipse.ui.perspectiveExtensions">
@@ -85,11 +84,20 @@
   </classContext>
 </extension>
 <extension
+      point="com.raytheon.viz.volumebrowser.productcreator">
+   <productCreator
+         creatorClass="com.raytheon.uf.viz.d2d.nsharp.vb.NSharpProductCreator"
+         plugins="grid,bufrua,modelsounding,poessounding,goessounding"
+         resourceType="sounding">
+   </productCreator>
+</extension>
+<extension
       point="org.eclipse.ui.commands">
    <command
          id="com.raytheon.uf.viz.d2d.nsharp.dialog"
          name="D2DNsharp">
    </command>
 </extension>
+
       
 </plugin>

@@ -1252,9 +1252,6 @@ NAM40&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
 NAM80&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
 ('NAM80',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GRID,&nbsp;&nbsp;
 '', NO,&nbsp; NO,&nbsp; 2, 0)<br>
-NGM80&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
-('NGM80',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GRID,&nbsp;&nbsp;
-'', NO,&nbsp; NO,&nbsp; 2, 0)<br>
 GFS40&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
 ('GFS40',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GRID,&nbsp;&nbsp;
 '', NO,&nbsp; NO,&nbsp; 2, 0)<br>
@@ -1275,9 +1272,6 @@ NAMMOS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
 NO,&nbsp; NO,&nbsp; 3, 0)<br>
 MRFMOS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
 ('MRFMOS',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GRID,&nbsp;&nbsp; '',
-NO,&nbsp; NO,&nbsp; 3, 0)<br>
-NGMMOS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
-('NGMMOS',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GRID,&nbsp;&nbsp; '',
 NO,&nbsp; NO,&nbsp; 3, 0)<br>
 HPCStn&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
 ('HPCSTN',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GRID,&nbsp;&nbsp; '',
@@ -1420,7 +1414,6 @@ run modules. For example, here is the section in serverConfig.py:
 &nbsp;&nbsp;&nbsp; "NAM80" : ["NAM80"],<br>
 &nbsp;&nbsp;&nbsp; "RAP40" : ["RAP40"],<br>
 &nbsp;&nbsp;&nbsp; "gfsLR" : ["gfsLR"],<br>
-&nbsp;&nbsp;&nbsp; "NGM80" : ["NGM80"],<br>
 &nbsp;&nbsp;&nbsp; "NAM12" : ["NAM12"],<br>
 &nbsp;&nbsp;&nbsp; "GFS40" : ["GFS40"],<br>
 &nbsp;&nbsp;&nbsp; "GFS190" : ["GFS190"],<br>
@@ -1514,7 +1507,6 @@ and</tt>
 &nbsp;&nbsp;&nbsp; "NAM40": ["tp", "cp"],<br>
 &nbsp;&nbsp;&nbsp; "NAM20": ["tp", "cp"],<br>
 &nbsp;&nbsp;&nbsp; "NAM12": ["tp", "cp"],<br>
-&nbsp;&nbsp;&nbsp; "NGM80": ["tp", "cp"],<br>
 &nbsp;&nbsp;&nbsp; "gfsLR": ["tp", "cp"],<br>
 &nbsp;&nbsp;&nbsp; "RAP40": ["tp", "cp"],<br>
 &nbsp;&nbsp;&nbsp; "MSAS": ["tp", "cp"],<br>
@@ -1791,8 +1783,6 @@ database.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 (RAP40, STD1_MODEL + localRAP40Parms),<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-(NGM80, STD6_MODEL + localNGM80Parms),<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 (GFS40, STD6_MODEL + localGFS40Parms),<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 (GFS190, STD6_MODEL + localGFS190Parms),<br>
@@ -1814,8 +1804,6 @@ database.
 (NAMMOS, MOS_MODEL + localMOSParms),<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 (MRFMOS, MOS_MODEL + localMOSParms),<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-(NGMMOS, MOS_MODEL + localMOSParms),<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 (HPCStn, MOS_MODEL + localMOSParms),<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;

@@ -22,6 +22,7 @@ package com.raytheon.viz.gfe.procedures.menu;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.action.IContributionItem;
@@ -32,16 +33,21 @@ import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.services.IServiceLocator;
 
 import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 
 /**
  * Abstract compound contribution item for dynamically determining the menu
- * items based on procedures
+ * items based on procedures.
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 5, 2008            njensen     Initial creation
+ * Nov 05, 2008            njensen      Initial creation
+ * Jul 27, 2015  #4263     dgilling     Support ProcedureMetadataManager.
+ * 
  * </pre>
  * 
  * @author njensen
@@ -74,17 +80,16 @@ public abstract class AbstractProcedureMenuItems extends
      */
     @Override
     protected IContributionItem[] getContributionItems() {
-
-        DataManager manager = DataManager.getCurrentInstance();
+        DataManager manager = DataManagerUIFactory.getCurrentInstance();
         if (manager != null) {
-            String[] procs = DataManager.getCurrentInstance()
-                    .getProcedureInterface().getMenuItems(getMenuName());
+            List<String> procs = manager.getProcedureInterface().getMenuItems(
+                    getMenuName());
             IServiceLocator locate = PlatformUI.getWorkbench()
                     .getActiveWorkbenchWindow();
 
             CommandContributionItemParameter[] additional = getAdditionalItems();
-            CommandContributionItemParameter[] list = new CommandContributionItemParameter[procs.length
-                    + additional.length];
+            CommandContributionItemParameter[] list = new CommandContributionItemParameter[procs
+                    .size() + additional.length];
 
             int i = 0;
             for (String proc : procs) {
@@ -95,7 +100,7 @@ public abstract class AbstractProcedureMenuItems extends
                         null, CommandContributionItem.STYLE_PUSH, null, true);
             }
 
-            System.arraycopy(additional, 0, list, procs.length,
+            System.arraycopy(additional, 0, list, procs.size(),
                     additional.length);
 
             Arrays.sort(list,

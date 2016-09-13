@@ -32,5 +32,7 @@
         <include>edex-security.xml</include>
         <include>geo-common.xml</include>
         <include>utility-request.xml</include>
+        <include>utility-common.xml</include>
+        <include>request-service</include>
     </mode>
 </edexModes>

@@ -21,20 +21,12 @@ package com.raytheon.uf.viz.xy.timeseries.util;
 
 import java.util.Stack;
 
-import org.eclipse.swt.widgets.Event;
-import org.geotools.geometry.DirectPosition2D;
-
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
-import com.raytheon.uf.viz.xy.AbstractGraphInputHandler;
 import com.raytheon.uf.viz.xy.graph.IGraph;
 import com.raytheon.uf.viz.xy.graph.XyGraphDescriptor;
+import com.raytheon.uf.viz.xy.util.AbstractGraphZoomHandler;
 import com.raytheon.viz.ui.input.PanHandler;
-import com.raytheon.viz.ui.input.preferences.MouseEvent;
-import com.raytheon.viz.ui.input.preferences.MousePreferenceManager;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -50,6 +42,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Oct 16, 2009            mschenke     Initial creation
  * Dec 11, 2013 DR 16795   D. Friedman  Transform pixel coordinate for zoom
  * Jun 18, 2014 3242       njensen      Null safety checks
+ * Jul 16, 2015 4220       mapeters     Abstract out functionality to AbstractGraphZoomHandler,
+ *                                      set this as each zoomed graph's zoomHandler
  * 
  * </pre>
  * 
@@ -57,59 +51,12 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 
-public class TimeSeriesZoomHandler extends AbstractGraphInputHandler {
-
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(TimeSeriesZoomHandler.class);
-
-    private MousePreferenceManager prefManager = MousePreferenceManager
-            .getInstance();
+public class TimeSeriesZoomHandler extends AbstractGraphZoomHandler {
 
     protected Stack<IGraph> hiddenGraphs = new Stack<IGraph>();
 
-    protected int zoomIndex = 0;
-
     public TimeSeriesZoomHandler(IRenderableDisplay display) {
         super(display);
-    }
-
-    @Override
-    public boolean handleMouseWheel(Event event, int x, int y) {
-        IDisplayPaneContainer editor = display.getContainer();
-        if (editor.getActiveDisplayPane().getDescriptor() instanceof XyGraphDescriptor == false) {
-            return super.handleMouseWheel(event, x, y);
-        } else {
-            MouseEvent mouseEvent = MouseEvent.SCROLL_FORWARD;
-            if (event.count == 0) {
-                return false;
-            } else if (event.count < 0) {
-                mouseEvent = MouseEvent.SCROLL_BACK;
-            }
-            if (prefManager.handleEvent(PanHandler.ZOOMOUT_PREF, mouseEvent)) {
-                return zoomOut(x, y);
-            } else if (prefManager.handleEvent(PanHandler.ZOOMIN_PREF,
-                    mouseEvent)) {
-                return zoomIn(x, y);
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public boolean handleMouseUp(int x, int y, int mouseButton) {
-        IDisplayPaneContainer editor = display.getContainer();
-        if (editor.getActiveDisplayPane().getDescriptor() instanceof XyGraphDescriptor == false) {
-            return super.handleMouseUp(x, y, mouseButton);
-        } else {
-            if (prefManager.handleClick(PanHandler.ZOOMIN_PREF, mouseButton)) {
-                return zoomIn(x, y);
-            } else if (prefManager.handleClick(PanHandler.ZOOMOUT_PREF,
-                    mouseButton)) {
-                return zoomOut(x, y);
-            }
-        }
-        return false;
-
     }
 
     private boolean zoomIn(int x, int y) {
@@ -130,7 +77,8 @@ public class TimeSeriesZoomHandler extends AbstractGraphInputHandler {
         } else {
             IGraph graph = desc.getGraphResource().getClosestGraph(grid);
             if (graphContainsCoordinate(graph, grid)) {
-                graph.zoom((int) Math.pow(2, zoomIndex - totalGraphs + 1), grid);
+                performZoom(graph,
+                        (int) Math.pow(2, zoomIndex - totalGraphs + 1), grid);
             } else {
                 zoomIndex--;
             }
@@ -152,7 +100,8 @@ public class TimeSeriesZoomHandler extends AbstractGraphInputHandler {
             if (zoomIndex >= totalGraphs) {
                 IGraph graph = desc.getGraphResource().getClosestGraph(grid);
                 if (graphContainsCoordinate(graph, grid)) {
-                    graph.zoom((int) Math.pow(2, zoomIndex - totalGraphs), grid);
+                    performZoom(graph,
+                            (int) Math.pow(2, zoomIndex - totalGraphs), grid);
                 } else {
                     zoomIndex++;
                 }
@@ -164,29 +113,13 @@ public class TimeSeriesZoomHandler extends AbstractGraphInputHandler {
         return true;
     }
 
-    private Coordinate translateClick(int x, int y) {
-        IDisplayPaneContainer editor = display.getContainer();
-        XyGraphDescriptor desc = (XyGraphDescriptor) editor
-                .getActiveDisplayPane().getDescriptor();
-        Coordinate grid = editor.translateClick(x, y);
-        if (grid == null) {
-            return null;
+    @Override
+    protected boolean zoom(String pref, int x, int y) {
+        if (pref.equals(PanHandler.ZOOMOUT_PREF)) {
+            return zoomOut(x, y);
+        } else if (pref.equals(PanHandler.ZOOMIN_PREF)) {
+            return zoomIn(x, y);
         }
-        /*
-         * Convert from the overall display coordinate space to the coordinate
-         * space for our resource.
-         */
-        DirectPosition2D dp = new DirectPosition2D(grid.x, grid.y);
-        try {
-            desc.getGridGeometry().getGridToCRS().transform(dp, dp);
-        } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error converting coordinate", e);
-        }
-        grid.x = dp.x;
-        grid.y = dp.y;
-        grid.z = 0;
-        return grid;
+        return false;
     }
-
 }

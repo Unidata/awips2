@@ -21,6 +21,8 @@ package com.raytheon.viz.gfe.gridmanager;
 
 import java.util.Date;
 
+import com.raytheon.viz.gfe.core.DisposableManager;
+
 /**
  * GFE Grid Manager Interface
  * 
@@ -31,16 +33,18 @@ import java.util.Date;
  * ------------ ---------- ----------- --------------------------
  * Apr 8, 2009             randerso    Initial creation
  * May 28, 2009 #2159      rjpeter     Added support for temporal editor.
+ * Aug 13, 2015  4749      njensen     Extends DisposableManager
  * </pre>
  * 
  * @author randerso
  * @version 1.0
  */
 
-public interface IGridManager {
+public interface IGridManager extends DisposableManager {
+
     public enum GridManagerState {
         GridManager, TemporalEditor
-    };
+    }
 
     /**
      * Set the selected time

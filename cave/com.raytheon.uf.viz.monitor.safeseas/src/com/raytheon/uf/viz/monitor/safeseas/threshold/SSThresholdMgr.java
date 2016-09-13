@@ -22,10 +22,10 @@ package com.raytheon.uf.viz.monitor.safeseas.threshold;
 import java.util.ArrayList;
 
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
+import com.raytheon.uf.common.monitor.data.MonitorConfigConstants.SafeSeasDisplay;
+import com.raytheon.uf.common.monitor.data.MonitorConfigConstants.SafeSeasMonitor;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
 import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
-import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants.SafeSeasDisplay;
-import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants.SafeSeasMonitor;
 
 /**
  * This class manages the SafeSeas thresholds for display and monitor.
@@ -41,6 +41,7 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants.SafeSeasMonitor;
  * Apr 28, 2014  3086      skorolev     Removed local getMonitorAreaConfig method.
  * Sep 04, 2014  3220      skorolev     Removed "site".
  * Sep 18, 2015  3873      skorolev     Adjusted to AppName and removed areaConfigMgr.
+ * Dec 26, 2015  5114      skorolev     Corrected imports.
  * 
  * </pre>
  * 

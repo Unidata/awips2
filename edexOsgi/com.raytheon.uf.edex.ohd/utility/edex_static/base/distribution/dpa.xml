@@ -19,7 +19,5 @@
         further_licensing_information.
     -->
 <requestPatterns xmlns:ns2="group">
-    <regex>^SDUS5. .... ...... ..DPA.*</regex>
-    <regex>^.{4}.81.*</regex>
     <regex>^RadarServer.*.81</regex>
 </requestPatterns>

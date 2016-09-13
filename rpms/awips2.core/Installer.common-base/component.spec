@@ -21,8 +21,13 @@ Vendor: Raytheon
 Packager: Bryan Kowal
 
 AutoReq: no
-provides: awips2-common-base
-requires: awips2-base
+Provides: awips2-common-base
+Requires: awips2-base
+Requires: netcdf = 4.1.2
+Requires: netcdf-devel = 4.1.2
+
+BuildRequires: awips2-ant
+BuildRequires: awips2-java
 
 %description
 AWIPS II Common Base - Contains common plugins utilized by both EDEX and CAVE.
@@ -39,7 +44,6 @@ if [ -d %{_build_root} ]; then
    rm -rf %{_build_root}
 fi
 /bin/mkdir -p %{_build_root}
-#/bin/mkdir %{_build_root}
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -51,10 +55,7 @@ _build_xml=build.xml
 BUILD_EDEX=%{_baseline_workspace}/build.edex
 EDEX_DIST=${BUILD_EDEX}/edex/dist
 
-_pde_build_arch=x86
-if [ "%{_build_arch}" = "x86_64" ]; then
-   _pde_build_arch=%{_build_arch}
-fi
+_pde_build_arch=x86_64
 
 cd ${BUILD_EDEX}
 /awips2/ant/bin/ant -f ${_build_xml} \

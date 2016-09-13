@@ -47,8 +47,10 @@ import com.vividsolutions.jts.geom.MultiPolygon;
  * SOFTWARE HISTORY
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
- * May 5, 2008				chammack	Initial creation
- * 04/16/2009   2262        rjpeter     Updated to handle events off the extent
+ * May  5, 2008				chammack	Initial creation
+ * Apr 16, 2009   2262      rjpeter     Updated to handle events off the extent
+ * Sep 24, 2015   4927      randerso    Fixed copy function
+ * 
  * </pre>
  * 
  * @author chammack
@@ -64,8 +66,6 @@ public class MoveCopyTool extends AbstractGFEEditTool {
     private JTSRenderable jtsRenderable;
 
     private Grid2DBit moveCopyEditInfluence;
-
-    private int button;
 
     private GridLocation gridLocation;
 
@@ -130,7 +130,7 @@ public class MoveCopyTool extends AbstractGFEEditTool {
 
                 initVisual();
 
-                copyOp = this.button == 2 ? false : true;
+                copyOp = (button == 2 ? false : true);
             }
 
             break;

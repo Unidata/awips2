@@ -1,6 +1,5 @@
 package com.raytheon.uf.common.dataplugin.ffmp;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -15,6 +14,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * 01may10      3937       dhladky     Setup
  * 01mar13      DR13228    gzhang      Add basin state
+ * Aug 08, 2015 4722        dhladky    Dynamic serialize imp not needed.
  * </pre>
  * 
  * @author dhladky
@@ -22,7 +22,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 
 @DynamicSerialize
-public class FFMPVirtualGageBasinMetaData implements ISerializableObject {
+public class FFMPVirtualGageBasinMetaData  {
 
     /** basin id(key) in GIS **/
     @DynamicSerializeElement

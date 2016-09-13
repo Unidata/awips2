@@ -17,4 +17,4 @@ Export-Package: com.raytheon.uf.edex.decodertools.aircraft,
  com.raytheon.uf.edex.decodertools.core.filterimpl,
  com.raytheon.uf.edex.decodertools.time
 Import-Package: com.raytheon.uf.common.wmo,
- org.apache.commons.logging
+ org.slf4j

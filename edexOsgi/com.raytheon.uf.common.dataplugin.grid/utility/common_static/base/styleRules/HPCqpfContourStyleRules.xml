@@ -51,6 +51,20 @@
             <parameter>ProbTP4p00in24hr</parameter>
             <parameter>ProbTP5p00in24hr</parameter>
             <parameter>ProbTP6p00in24hr</parameter>
+            <parameter>ProbTP8p00in24hr</parameter>
+            <parameter>ProbTP16p00in24hr</parameter>
+            <parameter>ProbTP0p25in72hr</parameter>
+            <parameter>ProbTP0p50in72hr</parameter>
+            <parameter>ProbTP1p00in72hr</parameter>
+            <parameter>ProbTP1p50in72hr</parameter>
+            <parameter>ProbTP2p00in72hr</parameter>
+            <parameter>ProbTP2p50in72hr</parameter>
+            <parameter>ProbTP3p00in72hr</parameter>
+            <parameter>ProbTP4p00in72hr</parameter>
+            <parameter>ProbTP5p00in72hr</parameter>
+            <parameter>ProbTP6p00in72hr</parameter>
+            <parameter>ProbTP8p00in72hr</parameter>
+            <parameter>ProbTP16p00in72hr</parameter>
         </paramLevelMatches>
         <contourStyle>
             <displayUnits>%</displayUnits>
@@ -83,7 +97,13 @@
             <parameter>TP75pct24hr</parameter>
             <parameter>TP90pct24hr</parameter>
             <parameter>TP95pct24hr</parameter>
-
+            <parameter>TP5pct72hr</parameter>
+            <parameter>TP10pct72hr</parameter>
+            <parameter>TP25pct72hr</parameter>
+            <parameter>TP50pct72hr</parameter>
+            <parameter>TP75pct72hr</parameter>
+            <parameter>TP90pct72hr</parameter>
+            <parameter>TP95pct72hr</parameter>
         </paramLevelMatches>
         <contourStyle>
             <displayUnits>in</displayUnits>

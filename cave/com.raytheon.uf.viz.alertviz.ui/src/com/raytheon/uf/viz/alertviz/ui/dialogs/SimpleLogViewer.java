@@ -20,9 +20,16 @@
 package com.raytheon.uf.viz.alertviz.ui.dialogs;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.SWT;
@@ -30,13 +37,13 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
@@ -53,12 +60,15 @@ import com.raytheon.uf.viz.alertviz.AlertvizException;
 import com.raytheon.uf.viz.alertviz.AlertvizJob;
 import com.raytheon.uf.viz.alertviz.Container;
 import com.raytheon.uf.viz.alertviz.IAlertArrivedCallback;
+import com.raytheon.uf.viz.alertviz.IAlertVizLogPurgedNotifier;
 import com.raytheon.uf.viz.alertviz.LogUtil;
 import com.raytheon.uf.viz.alertviz.LogUtil.Order;
+import com.raytheon.uf.viz.alertviz.PurgeLogJob;
 import com.raytheon.uf.viz.alertviz.SystemStatusHandler;
 import com.raytheon.uf.viz.alertviz.config.AlertMetadata;
 import com.raytheon.uf.viz.alertviz.config.Category;
 import com.raytheon.uf.viz.alertviz.config.TrayConfiguration;
+import com.raytheon.uf.viz.core.VizApp;
 
 /**
  * Implements a basic log viewer capability
@@ -71,6 +81,9 @@ import com.raytheon.uf.viz.alertviz.config.TrayConfiguration;
  * Jun 02, 2015 4473       njensen     Cleaned up warnings
  * Jul 01, 2015 4473       njensen     Fix update of table on alert arrival
  * Jun 29, 2015 4311       randerso    Reworking AlertViz dialogs to be resizable.
+ * Jan 25, 2016 5054       randerso    Converted to stand alone window
+ * Feb 11, 2016 5314       dgilling    Fix System Log functionality.
+ * Mar 31, 2016 5517       randerso    Fix GUI sizing issues
  * 
  * </pre>
  * 
@@ -78,7 +91,11 @@ import com.raytheon.uf.viz.alertviz.config.TrayConfiguration;
  * @version 1.0
  */
 
-public class SimpleLogViewer extends Dialog implements IAlertArrivedCallback {
+public class SimpleLogViewer implements IAlertArrivedCallback,
+        IAlertVizLogPurgedNotifier {
+
+    private static final String[] columnLabels = new String[] { "Time",
+            "Priority", "Source", "Category", "Message" };
 
     private Display display;
 
@@ -87,8 +104,6 @@ public class SimpleLogViewer extends Dialog implements IAlertArrivedCallback {
     private SimpleDetailsComp detailsComp;
 
     private Button showLog;
-
-    int[] range;
 
     private Table table;
 
@@ -104,20 +119,12 @@ public class SimpleLogViewer extends Dialog implements IAlertArrivedCallback {
 
     /**
      * 
-     * @param parent
+     * @param display
      */
-    public SimpleLogViewer(Shell parent) {
-        super(parent, SWT.NONE);
+    public SimpleLogViewer(Display display) {
         first = true;
 
-        display = parent.getDisplay();
-
-        // Create a new shell object and set the text for the dialog.
-        shell = new Shell(display, SWT.DIALOG_TRIM | SWT.MIN | SWT.TITLE
-                | SWT.RESIZE);
-        shell.setText("System Log");
-
-        initializeComponents();
+        this.display = display;
     }
 
     /**
@@ -148,38 +155,26 @@ public class SimpleLogViewer extends Dialog implements IAlertArrivedCallback {
         shell.setLayoutData(gd);
 
         table = new Table(shell, SWT.BORDER | SWT.VIRTUAL);
-        final TableColumn[] columns = new TableColumn[] {
-                new TableColumn(table, SWT.NONE),
-                new TableColumn(table, SWT.NONE),
-                new TableColumn(table, SWT.NONE),
-                new TableColumn(table, SWT.NONE),
-                new TableColumn(table, SWT.NONE) };
+        table.setHeaderVisible(true);
+
+        for (String label : columnLabels) {
+            TableColumn column = new TableColumn(table, SWT.NONE);
+            column.setText(label);
+        }
+
+        GC gc = new GC(table);
+        int textWidth = gc.getFontMetrics().getAverageCharWidth() * 130;
+        gc.dispose();
 
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        gd.widthHint = 800;
-        gd.heightHint = 400;
+        gd.widthHint = textWidth;
+        gd.heightHint = table.getItemHeight() * 20;
         table.setLayoutData(gd);
 
-        table.setHeaderVisible(true);
-        columns[0].setText("Time");
-        columns[0].setWidth(200);
-        columns[1].setText("Priority");
-        columns[1].setWidth(60);
-        columns[2].setText("Source");
-        columns[2].setWidth(100);
-        columns[3].setText("Category");
-        columns[3].setWidth(100);
-        columns[4].setText("Message");
-        columns[4].setWidth(100);
+
         int sz = 0;
         try {
-            range = SystemStatusHandler.getCurrentRange();
-            if ((range[0] == 0) && (range[1] == 0)) {
-                // database is empty
-                sz = 0;
-            } else {
-                sz = (range[1] - range[0]) + 1;
-            }
+            sz = SystemStatusHandler.getMessageCount();
         } catch (AlertvizException e2) {
             Container
                     .logInternal(
@@ -188,7 +183,7 @@ public class SimpleLogViewer extends Dialog implements IAlertArrivedCallback {
                             e2);
         }
 
-        table.setSortColumn(columns[0]);
+        table.setSortColumn(table.getColumn(0));
         table.setSortDirection(SWT.UP);
 
         red = new Color(display, new RGB(255, 0, 0));
@@ -199,17 +194,27 @@ public class SimpleLogViewer extends Dialog implements IAlertArrivedCallback {
         table.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
+                Integer pk = (Integer) e.item.getData();
                 int idx = table.getSelectionIndex();
+
                 StatusMessage sm = null;
                 try {
-
-                    sm = SystemStatusHandler.retrieveByPk(idx + range[0]);
+                    /*
+                     * This event is triggered during initialization before the
+                     * first TableItem has been assigned a PK in its data field.
+                     * So we fall back to item selection index just in case.
+                     */
+                    if (pk != null) {
+                        sm = SystemStatusHandler.retrieveByPk(pk.intValue());
+                    } else {
+                        sm = SystemStatusHandler.retrieveByRowOffset(idx);
+                    }
                 } catch (Exception e1) {
                     Container
                             .logInternal(
                                     Priority.ERROR,
                                     "SimpleLogViewer: exception retrieving StatusMessage by key from SystemStatusHandler: "
-                                            + (idx + range[0]), e1);
+                                            + (idx + 1), e1);
                 }
                 detailsComp.displayDetails(sm);
             }
@@ -227,12 +232,13 @@ public class SimpleLogViewer extends Dialog implements IAlertArrivedCallback {
                 int index = table.indexOf(item);
                 try {
                     StatusMessage sm = SystemStatusHandler
-                            .retrieveByPk(range[0] + index);
+                            .retrieveByRowOffset(index);
                     item.setText(0, "" + sm.getEventTime().toString());
                     item.setText(1, "" + sm.getPriority().ordinal());
                     item.setText(2, sm.getSourceKey());
                     item.setText(3, sm.getCategory());
                     item.setText(4, sm.getMessage());
+                    item.setData(Integer.valueOf(sm.getPk()));
 
                     if (sm.getPriority() == Priority.CRITICAL) {
                         item.setForeground(red);
@@ -247,14 +253,15 @@ public class SimpleLogViewer extends Dialog implements IAlertArrivedCallback {
                     }
 
                 } catch (AlertvizException e1) {
-                    Status s = new Status(IStatus.ERROR, Activator.PLUGIN_ID,
-                            "Error fetching the data", e1);
-                    ErrorDialog.openError(
-                            Display.getCurrent().getActiveShell(),
-                            "Error fetching data",
-                            "Error fetching the log data", s);
+                    Container
+                            .logInternal(
+                                    Priority.ERROR,
+                                    "SimpleLogViewer: exception retrieving StatusMessage by row offset from SystemStatusHandler: "
+                                            + index, e1);
+                    errorDialogWithStackTrace(Display.getCurrent()
+                            .getActiveShell(), "Error fetching data",
+                            "Error fetching the log data", e1);
                 }
-
             }
         });
 
@@ -263,12 +270,19 @@ public class SimpleLogViewer extends Dialog implements IAlertArrivedCallback {
         Composite buttons = new Composite(shell, SWT.NONE);
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         buttons.setLayoutData(gd);
-        buttons.setLayout(new GridLayout(3, false));
+        buttons.setLayout(new GridLayout(2, false));
+
+        int buttonWidth = buttons.getDisplay().getDPI().x;
+
+        Composite buttonsLeft = new Composite(buttons, SWT.NONE);
+        gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
+        buttonsLeft.setLayoutData(gd);
+        buttonsLeft.setLayout(new GridLayout(2, false));
 
         // Open the shell to display the dialog.
-        Button button = new Button(buttons, SWT.NONE);
-        gd = new GridData(SWT.LEFT, SWT.DEFAULT, false, false);
-        gd.widthHint = 100;
+        Button button = new Button(buttonsLeft, SWT.NONE);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false);
+        gd.minimumWidth = buttonWidth;
         button.setText("Export Log...");
         button.setLayoutData(gd);
         button.addSelectionListener(new SelectionAdapter() {
@@ -281,19 +295,21 @@ public class SimpleLogViewer extends Dialog implements IAlertArrivedCallback {
                         LogUtil.saveLogToFile(new File(fileName),
                                 new Timestamp(0), Order.AFTER);
                     } catch (AlertvizException e1) {
-                        final Status s = new Status(IStatus.ERROR,
-                                Activator.PLUGIN_ID, "Error saving log", e1);
-                        ErrorDialog.openError(shell, "Error saving log",
-                                "Error saving log", s);
+                        Container.logInternal(Priority.ERROR,
+                                "SimpleLogViewer: exception saving log file: "
+                                        + fileName, e1);
+                        errorDialogWithStackTrace(Display.getCurrent()
+                                .getActiveShell(), "Error saving log",
+                                "Error saving log", e1);
                     }
                 }
             }
 
         });
 
-        Button close = new Button(buttons, SWT.NONE);
-        gd = new GridData(SWT.LEFT, SWT.DEFAULT, false, false);
-        gd.widthHint = 100;
+        Button close = new Button(buttonsLeft, SWT.NONE);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false);
+        gd.minimumWidth = buttonWidth;
         close.setText("Close");
         close.setLayoutData(gd);
         close.addSelectionListener(new SelectionListener() {
@@ -310,9 +326,14 @@ public class SimpleLogViewer extends Dialog implements IAlertArrivedCallback {
 
         });
 
+        Composite buttonsRight = new Composite(buttons, SWT.NONE);
         gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
-        gd.widthHint = 100;
-        showLog = new Button(buttons, SWT.NONE);
+        buttonsRight.setLayoutData(gd);
+        buttonsRight.setLayout(new GridLayout(1, false));
+
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, true, false);
+        gd.minimumWidth = buttonWidth;
+        showLog = new Button(buttonsRight, SWT.NONE);
         showLog.setText("Show Log...");
         showLog.setLayoutData(gd);
         showLog.addSelectionListener(new SelectionAdapter() {
@@ -345,19 +366,31 @@ public class SimpleLogViewer extends Dialog implements IAlertArrivedCallback {
      * @return null
      */
     public Object open() {
+
+        // Create a new shell object and set the text for the dialog.
+        shell = new Shell(display, SWT.DIALOG_TRIM | SWT.MIN | SWT.TITLE
+                | SWT.RESIZE);
+        shell.setText("System Log");
+
+        initializeComponents();
+
         Point minSize = shell.computeSize(SWT.DEFAULT, SWT.DEFAULT);
         shell.setMinimumSize(minSize);
 
-        Point size = minSize;
-        shell.setSize(size);
+        shell.pack();
 
         showHideLog();
 
         AlertvizJob.getInstance().addAlertArrivedCallback(this);
+        PurgeLogJob.getInstance().addLogPurgeListener(this);
+
+        table.select(table.getItemCount() - 1);
+        table.showSelection();
+        for (TableColumn column : table.getColumns()) {
+            column.pack();
+        }
 
         shell.open();
-        table.showItem(table.getItem(table.getItemCount() - 1));
-        table.select(table.getItemCount() - 1);
 
         // Wait until the shell is disposed.
         Display display = shell.getDisplay();
@@ -367,6 +400,7 @@ public class SimpleLogViewer extends Dialog implements IAlertArrivedCallback {
             }
         }
 
+        PurgeLogJob.getInstance().removeLogPurgeListener(this);
         AlertvizJob.getInstance().removeAlertArrivedCallback(this);
         table.dispose();
         red.dispose();
@@ -403,5 +437,46 @@ public class SimpleLogViewer extends Dialog implements IAlertArrivedCallback {
         Point size = shell.getSize();
         size.y += delta;
         shell.setSize(size);
+    }
+
+    private static void errorDialogWithStackTrace(Shell parentShell,
+            String dialogTitle, String msg, Throwable t) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        t.printStackTrace(pw);
+        String trace = sw.toString();
+
+        Collection<Status> childStatuses = new ArrayList<>();
+
+        String lineSep = System.getProperty("line.separator");
+        for (String line : trace.split(lineSep)) {
+            childStatuses.add(new Status(IStatus.ERROR, Activator.PLUGIN_ID,
+                    line));
+        }
+
+        MultiStatus ms = new MultiStatus(Activator.PLUGIN_ID, IStatus.ERROR,
+                childStatuses.toArray(new Status[0]), t.getLocalizedMessage(),
+                t);
+
+        ErrorDialog.openError(parentShell, dialogTitle, msg, ms);
+    }
+
+    @Override
+    public void recordsPurged(final Collection<Integer> recordsDeleted) {
+        VizApp.runSync(new Runnable() {
+
+            @Override
+            public void run() {
+                Collection<Integer> tableItemsToDelete = new HashSet<>();
+                for (int i = 0; i < table.getItemCount(); i++) {
+                    TableItem tableItem = table.getItem(i);
+                    if (recordsDeleted.contains(tableItem.getData())) {
+                        tableItemsToDelete.add(Integer.valueOf(i));
+                    }
+                }
+                table.remove(ArrayUtils.toPrimitive(tableItemsToDelete
+                        .toArray(new Integer[0])));
+            }
+        });
     }
 }

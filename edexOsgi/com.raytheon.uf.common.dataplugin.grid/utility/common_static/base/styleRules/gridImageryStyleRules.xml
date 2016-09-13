@@ -959,49 +959,6 @@
 		</imageStyle>
 	</styleRule>
 	<!--
-		* wSp, wSp_avg, 250MB > 50MB, baseline_A, point_A
-		kt | 1.944 | 0.0 | 0 | 200 | | | 29 | 0 | 20
-	-->
-	<styleRule>
-		<paramLevelMatches>
-			<parameter>DISABLED-for-resourceType-wSp</parameter>
-			<parameter>DISABLED-for-resourceType-wSp_avg</parameter>
-			<rangeLevel units="MB">
-				<upper>250</upper>
-				<lower>50</lower>
-			</rangeLevel>
-			<!-- <resourceType>CROSS_SECTION</resourceType> -->
-			<!-- <resourceType>TIME_HEIGHT</resourceType> -->
-		</paramLevelMatches>
-		<imageStyle>
-			<displayUnits>kts</displayUnits>
-			<range scale="LINEAR">
-				<minValue>0</minValue>
-				<maxValue>200</maxValue>
-			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
-			<colorbarLabeling>
-				<increment>20</increment>
-			</colorbarLabeling>
-		</imageStyle>
-	</styleRule>
-	<!--
-		* Into, Along, IntoA, AlongA
-		kt | 1.944 | 0.0 | 0  | 1  | |m| 29 | -1 | 10
-	-->
-	<styleRule>
-		<paramLevelMatches>
-			<parameter>Into</parameter>
-			<parameter>Along</parameter>
-			<parameter>IntoA</parameter>
-			<parameter>AlongA</parameter>
-		</paramLevelMatches>
-		<imageStyle>
-			<displayUnits>kts</displayUnits>
-			<defaultColormap>Grid/gridded data</defaultColormap>
-		</imageStyle>
-	</styleRule>
-	<!--
 		* uFX
 		m/s |  1.0  | 0.0 | -100 | 100 | | | 29 | 0 | 40
 	-->
@@ -1778,43 +1735,24 @@
 		* SLI
 		C | 1 | 0 | -15 | 15 | | | 29 | 0 | 4
 	-->
-	<styleRule>
-		<paramLevelMatches>
-			<parameter>SLI</parameter>
-			<parameter>PLI</parameter>
-		</paramLevelMatches>
-		<imageStyle>
-			<displayUnits>C</displayUnits>
-			<range scale="LINEAR">
-				<minValue>-15</minValue>
-				<maxValue>15</maxValue>
-			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
-			<colorbarLabeling>
-				<increment>4</increment>
-			</colorbarLabeling>
-		</imageStyle>
-	</styleRule>
-	<!--
-		* BLI
-		C | 1 | 0 | -15 | 15 | | | 29 | 0 | 4
-	-->
-	<styleRule>
-		<paramLevelMatches>
-			<parameter>BLI</parameter>
-		</paramLevelMatches>
-		<imageStyle>
-			<displayUnits>C</displayUnits>
-			<range scale="LINEAR">
-				<minValue>-15</minValue>
-				<maxValue>15</maxValue>
-			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
-			<colorbarLabeling>
-				<increment>4</increment>
-			</colorbarLabeling>
-		</imageStyle>
-	</styleRule>
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>SLI</parameter>
+            <parameter>PLI</parameter>
+            <parameter>BLI</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits label="C">K</displayUnits>
+            <range scale="LINEAR">
+                <minValue>-15</minValue>
+                <maxValue>15</maxValue>
+            </range>
+            <defaultColormap>Grid/gridded data</defaultColormap>
+            <colorbarLabeling>
+                <increment>4</increment>
+            </colorbarLabeling>
+        </imageStyle>
+    </styleRule>
 	<!--
 		* L-I, LIsfc2x
 		C | 1 | 0 | -15 | 15 | | | 29 | 0 | 4
@@ -2155,58 +2093,6 @@
 			</colorbarLabeling>
 		</imageStyle>
 	</styleRule>
-	<!--
-		* RR, CXR, LLR, radar, baseline_A, point_A
-		dBZ | 1 | 0 |  0  | 80  | | | 80 | 0 | 5
-	-->
-	<!-- DISABLED for resourceType
-	<styleRule>
-		<paramLevelMatches>
-			<parameter>RR</parameter>
-			<parameter>CXR</parameter>
-			<parameter>LLR</parameter>
-			<creatingEntity>radar</creatingEntity>
-			<!- - <resourceType>CROSS_SECTION</resourceType> - ->
-			<!- - <resourceType>TIME_HEIGHT</resourceType> - ->
-		</paramLevelMatches>
-		<imageStyle>
-			<displayUnits>dBZ</displayUnits>
-			<range scale="LINEAR">
-				<minValue>0</minValue>
-				<maxValue>80</maxValue>
-			</range>
-			<defaultColormap>Radar/Storm Total Precip</defaultColormap>
-			<colorbarLabeling>
-				<increment>5</increment>
-			</colorbarLabeling>
-		</imageStyle>
-	</styleRule>
-	-->
-	<!--
-		* RRV, radar, baseline_A, point_A
-		kts | 1.0 | 0 | -128  | 125  | | | 70 | 0 | 20
-	-->
-	<!-- DISABLED for resourceType
-	<styleRule>
-		<paramLevelMatches>
-			<parameter>RRV</parameter>
-			<creatingEntity>radar</creatingEntity>
-			<!- - <resourceType>CROSS_SECTION</resourceType> - ->
-			<!- - <resourceType>TIME_HEIGHT</resourceType> - ->
-		</paramLevelMatches>
-		<imageStyle>
-			<displayUnits>kts</displayUnits>
-			<range scale="LINEAR">
-				<minValue>-128</minValue>
-				<maxValue>125</maxValue>
-			</range>
-			<defaultColormap>Radar/GSD/8 bit Vel</defaultColormap>
-			<colorbarLabeling>
-				<increment>20</increment>
-			</colorbarLabeling>
-		</imageStyle>
-	</styleRule>
-	-->
 	<!--
 		* g2gsh
 		kt | 1.944 | 0.0 | 0  | 1  | | | 29 | -1 | 5
@@ -3135,6 +3021,10 @@
 			<parameter>MxT12hr</parameter>
 			<parameter>MnT12hr</parameter>
 			<singleLevel units="SURFACE"></singleLevel>
+            <rangeLevel units="HEIGHT_AGL">
+                <upper>10</upper>
+                <lower>0</lower>
+            </rangeLevel>
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>F</displayUnits>
@@ -5045,6 +4935,7 @@
 			<entry pixelValue="15.239" operator="&gt;" displayValue='50' />
 			<entry pixelValue="18.287" operator="&gt;" displayValue='60' />
 			<entry pixelValue="21.335" operator="&gt;" displayValue='70' />
+			<entry pixelValue="60.96" operator="&gt;" displayValue='200' />
 		</dataMapping>	
 	</imageStyle>
  </styleRule>
@@ -5071,6 +4962,7 @@
 			<entry pixelValue="15239" operator="&gt;" displayValue='50' />
 			<entry pixelValue="18287" operator="&gt;" displayValue='60' />
 			<entry pixelValue="21033.5" operator="&gt;" displayValue='70' />
+			<entry pixelValue="60960" operator="&gt;" displayValue='200' />
 		</dataMapping>
 	</imageStyle>
  </styleRule>
@@ -5103,6 +4995,7 @@
 			<entry pixelValue="7.620" operator="&gt;" displayValue='25' />
 			<entry pixelValue="9.144" operator="&gt;" displayValue='30' />
 			<entry pixelValue="10.667" operator="&gt;" displayValue='35' />
+			<entry pixelValue="30.175" operator="&gt;" displayValue='99' />
 		</dataMapping>
 	</imageStyle>
  </styleRule>
@@ -5141,6 +5034,7 @@
 			<entry pixelValue="40" operator="&gt;" displayValue='40' />
 			<entry pixelValue="45" operator="&gt;" displayValue='45' />
 			<entry pixelValue="50" operator="&gt;" displayValue='50' />
+			<entry pixelValue="999" operator="&gt;" displayValue='999' />
 		</dataMapping>
 	</imageStyle>
  </styleRule>
@@ -5202,6 +5096,7 @@
 			<entry pixelValue="76.142" operator="&gt;" displayValue='3.0' />
 			<entry pixelValue="88.832" operator="&gt;" displayValue='3.5' />
 			<entry pixelValue="101.523" operator="&gt;" displayValue='4.0' />
+			<entry pixelValue="228.601" operator="&gt;" displayValue='9.0' />
 		</dataMapping>		
 	</imageStyle>
  </styleRule>
@@ -5225,27 +5120,31 @@
 	</paramLevelMatches>
 	<imageStyle>
 		<interpolate>false</interpolate>
-		<displayUnits label="*0.001 s^-1">*1</displayUnits>
+		<displayUnits label="s^-1">*1000</displayUnits>
+		<samplePrefs>
+			<formatString>3</formatString>
+		</samplePrefs>
 		<range scale="LINEAR">
 			<minValue>0</minValue>
-			<maxValue>25</maxValue>
+			<maxValue>0.025</maxValue>
 		</range>
 		<defaultColormap>mrms/mrmsRotation</defaultColormap>
 		<dataMapping>
 			<entry pixelValue="0" operator="&lt;" label="" />
-			<entry pixelValue="1" operator="&gt;" displayValue='1' />
-			<entry pixelValue="2" operator="&gt;" displayValue='2' />
-			<entry pixelValue="4" operator="&gt;" displayValue='4' />
-			<entry pixelValue="6" operator="&gt;" displayValue='6' />
-			<entry pixelValue="8" operator="&gt;" displayValue='8' />
-			<entry pixelValue="10" operator="&gt;" displayValue='10' />
-			<entry pixelValue="12" operator="&gt;" displayValue='12' />
-			<entry pixelValue="14" operator="&gt;" displayValue='14' />
-			<entry pixelValue="16" operator="&gt;" displayValue='16' />
-			<entry pixelValue="18" operator="&gt;" displayValue='18' />
-			<entry pixelValue="20" operator="&gt;" displayValue='20' />
-			<entry pixelValue="22" operator="&gt;" displayValue='22' />
-			<entry pixelValue="24" operator="&gt;" displayValue='24' />
+			<entry pixelValue="1" operator="&gt;" displayValue='0.001' />
+			<entry pixelValue="2" operator="&gt;" displayValue='0.002' />
+			<entry pixelValue="4" operator="&gt;" displayValue='0.004' />
+			<entry pixelValue="6" operator="&gt;" displayValue='0.006' />
+			<entry pixelValue="8" operator="&gt;" displayValue='0.008' />
+			<entry pixelValue="10" operator="&gt;" displayValue='0.010' />
+			<entry pixelValue="12" operator="&gt;" displayValue='0.012' />
+			<entry pixelValue="14" operator="&gt;" displayValue='0.014' />
+			<entry pixelValue="16" operator="&gt;" displayValue='0.016' />
+			<entry pixelValue="18" operator="&gt;" displayValue='0.018' />
+			<entry pixelValue="20" operator="&gt;" displayValue='0.020' />
+			<entry pixelValue="22" operator="&gt;" displayValue='0.022' />
+			<entry pixelValue="24" operator="&gt;" displayValue='0.024' />
+			<entry pixelValue="99" operator="&gt;" displayValue='0.099' />
 		</dataMapping>
 	</imageStyle>
  </styleRule>
@@ -5300,6 +5199,7 @@
 			<entry pixelValue="210" operator="&gt;" displayValue='7' />
 			<entry pixelValue="240" operator="&gt;" displayValue='8' />
 			<entry pixelValue="304.568" operator="&gt;" displayValue='12' />
+			<entry pixelValue="305.568" operator="&gt;" displayValue='99' />
 		</dataMapping>
 	</imageStyle>
  </styleRule>
@@ -5428,6 +5328,7 @@
 			<entry pixelValue="268.5" operator="&gt;" displayValue='6' />
 			<entry pixelValue="288.25" operator="&gt;" displayValue='8' />
 			<entry pixelValue="304.57" operator="&gt;" displayValue='12' />
+			<entry pixelValue="305.57" operator="&gt;" displayValue='99' />
 		</dataMapping>
 	</imageStyle>
  </styleRule>
@@ -5490,6 +5391,7 @@
 			<entry pixelValue="390" operator="&gt;" displayValue='390' />
 			<entry pixelValue="420" operator="&gt;" displayValue='420' />
 			<entry pixelValue="450" operator="&gt;" displayValue='450' />
+			<entry pixelValue="999" operator="&gt;" displayValue='999' />
 		</dataMapping>
 	</imageStyle>
  </styleRule>
@@ -5516,6 +5418,7 @@
 			<entry pixelValue="17" operator="&gt;" displayValue='17' />
 			<entry pixelValue="25" operator="&gt;" displayValue='25' />
 			<entry pixelValue="40" operator="&gt;" displayValue='40' />
+			<entry pixelValue="99" operator="&gt;" displayValue='99' />
 		</dataMapping>
 	</imageStyle>
  </styleRule>
@@ -5544,13 +5447,12 @@
 			<entry pixelValue="70" operator="&gt;" displayValue='70' />
 			<entry pixelValue="80" operator="&gt;" displayValue='80' />
 			<entry pixelValue="90" operator="&gt;" displayValue='90' />
+			<entry pixelValue="200" operator="&gt;" displayValue='200' />
 		</dataMapping>
 	</imageStyle>
  </styleRule>
  <styleRule>
-
     <paramLevelMatches>
-      <parameter>SPC</parameter>
       <parameter>OGRD</parameter>
       <parameter>BARO</parameter>
       <parameter>SPBARO</parameter>
@@ -5559,7 +5461,14 @@
       <displayUnits>cm/sec</displayUnits>
     </imageStyle>
   </styleRule>
-
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>SPC</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>m/s</displayUnits>
+    </imageStyle>
+  </styleRule>
 <!--   15.1 additions below -->
    <styleRule>
     <paramLevelMatches>
@@ -5639,6 +5548,274 @@
         <imageStyle>
             <displayUnits>C</displayUnits>
             <defaultColormap>Grid/gridded data</defaultColormap>
+        </imageStyle>
+    </styleRule>
+    
+<!-- * geoWM, wSp, wSp_avg, WGS kts|1.944| 0.0 | 4 | | |..|8000F0FF| | 0 | 10 -->
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>geoWM</parameter>
+            <parameter>wSp</parameter>
+            <parameter>wSp_avg</parameter>
+            <parameter>WGS</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>kts</displayUnits>
+        </imageStyle>
+    </styleRule>
+    <!-- * geoWM, wSp, wSp_avg, 1050MB > 500MB kts|1.944| 0.0 | 4 | | |..|8000F0FF| | 0 | 10 -->
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>geoWM</parameter>
+            <parameter>wSp</parameter>
+            <parameter>wSp_avg</parameter>
+            <rangeLevel units="MB">
+                <upper>1050</upper>
+                <lower>500</lower>
+            </rangeLevel>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>kts</displayUnits>
+        </imageStyle>
+    </styleRule>
+
+<!-- * geoWM, wSp, WGS, wSp_avg, Surface, BLyr > 150agl kts|1.944| 0.0 | 4 | | |..|8000F0FF| | 0 | 5 -->
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>geoWM</parameter>
+            <parameter>wSp</parameter>
+            <parameter>WGS</parameter>
+            <parameter>wSp_avg</parameter>
+            <singleLevel units="SURFACE" />
+            <rangeLevel units="BL">
+                <upper>180150</upper>
+                <lower> 30000</lower>
+            </rangeLevel>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>kts</displayUnits>
+        </imageStyle>
+    </styleRule>
+
+<!-- * ageoWM kts|1.944| 0.0 | 4 | | |..|8000F0FF| | 0 | 2 -->
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>ageoWM</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>kts</displayUnits>
+        </imageStyle>
+    </styleRule>
+    <styleRule>
+      <paramLevelMatches>
+        <parameter>Tdend</parameter>
+      </paramLevelMatches>
+      <imageStyle>
+        <displayUnits>C</displayUnits>
+        <range scale="LINEAR">
+          <minValue>-21</minValue>
+          <maxValue>-12</maxValue>
+        </range>
+        <defaultColormap>NPP/VIIRS/ZA (Vis Default)</defaultColormap>
+        <colorbarLabeling>
+          <increment>1</increment>
+        </colorbarLabeling>
+      </imageStyle>
+    </styleRule>
+    <styleRule>
+      <paramLevelMatches>
+        <parameter>SnowT</parameter>
+      </paramLevelMatches>
+      <imageStyle>
+        <displayUnits>C</displayUnits>
+        <range scale="LINEAR">
+          <minValue>-18</minValue>
+          <maxValue>0</maxValue>
+        </range>
+        <defaultColormap>Grid/gridded data</defaultColormap>
+        <colorbarLabeling>
+          <values>-18 -15 -12 -5 0</values>
+        </colorbarLabeling>
+      </imageStyle>
+    </styleRule>
+    <styleRule>
+      <paramLevelMatches>
+        <parameter>CritT1</parameter>
+      </paramLevelMatches>
+      <imageStyle>
+        <displayUnits>C</displayUnits>
+        <range scale="LINEAR">
+          <minValue>-15</minValue>
+          <maxValue>-4</maxValue>
+        </range>
+        <defaultColormap>NPP/VIIRS/IR BrightTemps</defaultColormap>
+        <colorbarLabeling>
+          <increment>1</increment>
+        </colorbarLabeling>
+      </imageStyle>
+    </styleRule>
+<!-- WPC Probablistic Winter Prediction Forecast (PWPF) -->
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>TOTSN5pct12hr</parameter>
+            <parameter>TOTSN10pct12hr</parameter>
+            <parameter>TOTSN25pct12hr</parameter>
+            <parameter>TOTSN50pct12hr</parameter>
+            <parameter>TOTSN75pct12hr</parameter>
+            <parameter>TOTSN90pct12hr</parameter>
+            <parameter>TOTSN95pct12hr</parameter>
+
+            <parameter>TOTSN5pct24hr</parameter>
+            <parameter>TOTSN10pct24hr</parameter>
+            <parameter>TOTSN25pct24hr</parameter>
+            <parameter>TOTSN50pct24hr</parameter>
+            <parameter>TOTSN75pct24hr</parameter>
+            <parameter>TOTSN90pct24hr</parameter>
+            <parameter>TOTSN95pct24hr</parameter>
+
+            <parameter>TOTSN5pct48hr</parameter>
+            <parameter>TOTSN10pct48hr</parameter>
+            <parameter>TOTSN25pct48hr</parameter>
+            <parameter>TOTSN50pct48hr</parameter>
+            <parameter>TOTSN75pct48hr</parameter>
+            <parameter>TOTSN90pct48hr</parameter>
+            <parameter>TOTSN95pct48hr</parameter>
+
+            <parameter>TOTSN5pct72hr</parameter>
+            <parameter>TOTSN10pct72hr</parameter>
+            <parameter>TOTSN25pct72hr</parameter>
+            <parameter>TOTSN50pct72hr</parameter>
+            <parameter>TOTSN75pct72hr</parameter>
+            <parameter>TOTSN90pct72hr</parameter>
+            <parameter>TOTSN95pct72hr</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits label="in">in</displayUnits>
+            <range scale="LINEAR"> 
+                <minValue>0</minValue>
+                <maxValue>49</maxValue> 
+            </range>
+            <colorbarLabeling>
+                <increment>2</increment>
+            </colorbarLabeling>
+            <defaultColormap>Grid/pwpf_snow</defaultColormap>
+            <interpolate>false</interpolate>
+        </imageStyle>
+    </styleRule>
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>FRZR5pct12hr</parameter>
+            <parameter>FRZR10pct12hr</parameter>
+            <parameter>FRZR25pct12hr</parameter>
+            <parameter>FRZR50pct12hr</parameter>
+            <parameter>FRZR75pct12hr</parameter>
+            <parameter>FRZR90pct12hr</parameter>
+            <parameter>FRZR95pct12hr</parameter>
+
+            <parameter>FRZR5pct24hr</parameter>
+            <parameter>FRZR10pct24hr</parameter>
+            <parameter>FRZR25pct24hr</parameter>
+            <parameter>FRZR50pct24hr</parameter>
+            <parameter>FRZR75pct24hr</parameter>
+            <parameter>FRZR90pct24hr</parameter>
+            <parameter>FRZR95pct24hr</parameter>
+
+            <parameter>FRZR5pct48hr</parameter>
+            <parameter>FRZR10pct48hr</parameter>
+            <parameter>FRZR25pct48hr</parameter>
+            <parameter>FRZR50pct48hr</parameter>
+            <parameter>FRZR75pct48hr</parameter>
+            <parameter>FRZR90pct48hr</parameter>
+            <parameter>FRZR95pct48hr</parameter>
+
+            <parameter>FRZR5pct72hr</parameter>
+            <parameter>FRZR10pct72hr</parameter>
+            <parameter>FRZR25pct72hr</parameter>
+            <parameter>FRZR50pct72hr</parameter>
+            <parameter>FRZR75pct72hr</parameter>
+            <parameter>FRZR90pct72hr</parameter>
+            <parameter>FRZR95pct72hr</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits label="in">in</displayUnits>
+            <range scale="LINEAR"> 
+                <minValue>0</minValue>
+                <maxValue>11</maxValue> 
+            </range>
+            <colorbarLabeling>
+                <increment>1</increment>
+            </colorbarLabeling>
+            <defaultColormap>Grid/pwpf_frzr</defaultColormap>
+            <interpolate>false</interpolate>
+        </imageStyle>
+    </styleRule>
+	<styleRule>
+        <paramLevelMatches>
+            <parameter>FRZR0.01in12hr</parameter>
+            <parameter>FRZR0.1in12hr</parameter>
+            <parameter>FRZR0.25in12hr</parameter>
+            <parameter>FRZR0.5in12hr</parameter>
+            <parameter>FRZR1in12hr</parameter>
+
+            <parameter>FRZR0.01in24hr</parameter>
+            <parameter>FRZR0.1in24hr</parameter>
+            <parameter>FRZR0.25in24hr</parameter>
+            <parameter>FRZR0.5in24hr</parameter>
+            <parameter>FRZR1in24hr</parameter>
+
+            <parameter>FRZR0.1in48hr</parameter>
+            <parameter>FRZR0.25in48hr</parameter>
+            <parameter>FRZR0.5in48hr</parameter>
+            <parameter>FRZR1in48hr</parameter>
+
+            <parameter>FRZR0.1in72hr</parameter>
+            <parameter>FRZR0.25in72hr</parameter>
+            <parameter>FRZR0.5in72hr</parameter>
+            <parameter>FRZR1in72hr</parameter>
+
+            <parameter>TOTSN1in12hr</parameter>
+            <parameter>TOTSN2in12hr</parameter>
+            <parameter>TOTSN4in12hr</parameter>
+            <parameter>TOTSN6in12hr</parameter>
+            <parameter>TOTSN8in12hr</parameter>
+            <parameter>TOTSN12in12hr</parameter>
+            <parameter>TOTSN18in12hr</parameter>
+
+            <parameter>TOTSN1in24hr</parameter>
+            <parameter>TOTSN2in24hr</parameter>
+            <parameter>TOTSN4in24hr</parameter>
+            <parameter>TOTSN6in24hr</parameter>
+            <parameter>TOTSN8in24hr</parameter>
+            <parameter>TOTSN12in24hr</parameter>
+            <parameter>TOTSN18in24hr</parameter>
+
+            <parameter>TOTSN2in48hr</parameter>
+            <parameter>TOTSN4in48hr</parameter>
+            <parameter>TOTSN8in48hr</parameter>
+            <parameter>TOTSN12in48hr</parameter>
+            <parameter>TOTSN18in48hr</parameter>
+            <parameter>TOTSN24in48hr</parameter>
+            <parameter>TOTSN30in48hr</parameter>
+
+            <parameter>TOTSN2in72hr</parameter>
+            <parameter>TOTSN4in72hr</parameter>
+            <parameter>TOTSN8in72hr</parameter>
+            <parameter>TOTSN12in72hr</parameter>
+            <parameter>TOTSN18in72hr</parameter>
+            <parameter>TOTSN24in72hr</parameter>
+            <parameter>TOTSN30in72hr</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits label="%">%/100</displayUnits>
+            <range scale="LINEAR"> 
+                <minValue>0</minValue>
+                <maxValue>100</maxValue> 
+            </range>
+            <colorbarLabeling>
+                <increment>10</increment>
+            </colorbarLabeling>
+            <defaultColormap>Grid/pwpf_prob</defaultColormap>
+            <interpolate>false</interpolate>
         </imageStyle>
     </styleRule>
 </styleRuleset>

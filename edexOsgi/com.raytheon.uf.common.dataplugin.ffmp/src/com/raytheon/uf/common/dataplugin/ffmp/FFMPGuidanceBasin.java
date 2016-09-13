@@ -10,7 +10,6 @@ import java.util.TreeMap;
 import javax.persistence.Transient;
 
 import com.raytheon.uf.common.monitor.config.FFFGDataMgr;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -25,6 +24,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 08/22/10      3437       D. Hladky   Initial release
  * 01/17/13      1478        D. Hladky  Removed un-needed XML attributes
+ * Aug 08, 2015 4722        dhladky     Dynamic serialize imp not needed.
+ * Oct 26, 2015  5056       dhladky     Simplified Guidance interpolator.
+ * Jun 21, 2016  5704       dhladky     Updated getClosest() logic to include 0.0f checks.
  * 
  * </pre>
  * 
@@ -32,7 +34,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1
  */
 @DynamicSerialize
-public class FFMPGuidanceBasin extends FFMPBasin implements ISerializableObject {
+public class FFMPGuidanceBasin extends FFMPBasin {
     
     public FFMPGuidanceBasin() {
 
@@ -247,7 +249,7 @@ public class FFMPGuidanceBasin extends FFMPBasin implements ISerializableObject 
 
                 if (guidValues.get(checkDate).containsKey(sourceName)) {
                     float val = guidValues.get(checkDate).get(sourceName);
-                    if (val != FFMPUtils.MISSING) {
+                    if (val != FFMPUtils.MISSING && val != 0.0f) {
 
                         long time1 = markerDate.getTime();
                         long time2 = checkDate.getTime();
@@ -283,7 +285,7 @@ public class FFMPGuidanceBasin extends FFMPBasin implements ISerializableObject 
 
                     float val = guidValues.get(date).get(sourceName);
 
-                    if (val != FFMPUtils.MISSING) {
+                    if (val != FFMPUtils.MISSING && val != 0.0f) {
                         rdate = date;
                     }
                 }
@@ -298,7 +300,7 @@ public class FFMPGuidanceBasin extends FFMPBasin implements ISerializableObject 
 
                         float val2 = guidValues.get(checkDate).get(sourceName);
 
-                        if (val2 != FFMPUtils.MISSING) {
+                        if (val2 != FFMPUtils.MISSING && val2 != 0.0f) {
 
                             long time2 = checkDate.getTime();
                             // as long as it is +- expiration from orig date,
@@ -326,18 +328,19 @@ public class FFMPGuidanceBasin extends FFMPBasin implements ISerializableObject 
     /**
      * Interpolate between guidance sources
      * 
-     * @param source1
-     * @param source2
-     * @param ratioOffset
+     * @param interpolation
+     * @param expiration
      * @return
      */
-    public Float getInterpolatedValue(String source1, String source2,
-            double ratioOffset, FFMPGuidanceInterpolation interpolation,
+    public Float getInterpolatedValue(FFMPGuidanceInterpolation interpolation,
             long expiration) {
 
         float value1 = 0.0f;
         float value2 = 0.0f;
 
+        String source1 = interpolation.getSource1();
+        String source2 = interpolation.getSource2();
+        double ratioOffset = interpolation.getInterpolationOffset();
         // interpolate from zero to first guidance
         if (source1.equals(source2)) {
             if ((ratioOffset == Double.NaN) || (ratioOffset == 0.0)) {

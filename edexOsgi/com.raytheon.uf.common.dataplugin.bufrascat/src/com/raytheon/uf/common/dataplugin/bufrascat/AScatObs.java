@@ -33,6 +33,7 @@ import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.annotations.NullString;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
@@ -61,6 +62,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * May 17, 2013 1869       bsteffen    Remove DataURI column from sat plot
  *                                     types.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Jul 16, 2015 4360       rferrel     Convert satId to int, wndSpd to float
+ *                                      and give name to unique constraint.
  * 
  * </pre>
  * 
@@ -69,7 +72,7 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "bufrascatseq")
-@Table(name = "bufrascat", uniqueConstraints = { @UniqueConstraint(columnNames = {
+@Table(name = "bufrascat", uniqueConstraints = { @UniqueConstraint(name = "uk_bufrascat_datauri_fields", columnNames = {
         "stationid", "refTime", "satId", "latitude", "longitude" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
@@ -88,8 +91,10 @@ public class AScatObs extends PersistablePluginDataObject implements
     private PointDataView pointDataView;
 
     @DataURI(position = 1)
+    @NullString
     @DynamicSerializeElement
-    private Integer satId;
+    @Column(nullable = false)
+    private int satId;
 
     @Embedded
     @DataURI(position = 2, embedded = true)
@@ -115,8 +120,10 @@ public class AScatObs extends PersistablePluginDataObject implements
     private Double windDir;
 
     @DataURI(position = 3)
+    @NullString
+    @Column(nullable = false)
     @DynamicSerializeElement
-    private Float windSpd;
+    private float windSpd;
 
     @DynamicSerializeElement
     @Transient
@@ -208,7 +215,7 @@ public class AScatObs extends PersistablePluginDataObject implements
     /**
      * @return the satId
      */
-    public Integer getSatId() {
+    public int getSatId() {
         return satId;
     }
 
@@ -216,7 +223,7 @@ public class AScatObs extends PersistablePluginDataObject implements
      * @param satId
      *            the satId to set
      */
-    public void setSatId(Integer satId) {
+    public void setSatId(int satId) {
         this.satId = satId;
     }
 

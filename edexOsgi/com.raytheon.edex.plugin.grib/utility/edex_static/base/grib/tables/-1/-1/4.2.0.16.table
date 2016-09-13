@@ -1,3 +1,8 @@
 # Product Discipline 0 - Meteorological products, Parameter Category 16: Forecast Radar Imagery
-# 0-191 Reserved    
-255:255:Missing
+0:0:Equivalent radar reflectivity factor for rain:m m6 m-3:REFZR
+1:1:Equivalent radar reflectivity factor for snow:m m6 m-3:REFZI
+2:2:Equivalent radar reflectivity factor for parameterized convection:m m6 m-3:REFZC
+3:3:Echo Top:m:RETOP
+4:4:Reflectivity:dB:REFD
+5:5:Composite reflectivity:dB:REFC
+

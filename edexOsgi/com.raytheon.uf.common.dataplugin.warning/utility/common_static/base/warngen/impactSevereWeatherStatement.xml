@@ -74,6 +74,9 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <followup>EXP</followup>
  </followups>
  
+ <!-- Product ID: nnn id of the product -->
+ <productId>SVS</productId>
+
  <!-- Phensigs: The list of phenomena and significance combinations that this template applies to -->
  <phensigs>
    <phensig>SV.W</phensig>
@@ -164,7 +167,6 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="stillhail" bulletText="Hail still a threat - optional"/>
   <bullet bulletName="stillwind" bulletText="Gusty winds still a threat - optional"/>
   <bullet bulletName="stillrain" bulletText="Heavy rain still a threat - optional"/>
-  <bullet bulletName="stillrain" bulletText="Heavy rain still a threat - optional"/>
   <!-- AUTO INCLUSION OF WATCHES FIXED IN 13.4.1   
   <bullet bulletName="svrboxactive" bulletGroup="watchbox" bulletText="SVR TSTM WATCH remains in effect"/>
   <bullet bulletName="torboxactive" bulletGroup="watchbox" bulletText="TORNADO WATCH remains in effect"/>
@@ -189,7 +191,6 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="**** (OPTIONAL - CHOOSE 1 OR MORE) ****" bulletType="title"/>
   <bullet bulletName="stillhail" bulletText="Hail still a threat - optional"/>
   <bullet bulletName="stillwind" bulletText="Gusty winds still a threat - optional"/>
-  <bullet bulletName="stillrain" bulletText="Heavy rain still a threat - optional"/>
   <bullet bulletName="stillrain" bulletText="Heavy rain still a threat - optional"/>
   <!-- AUTO INCLUSION OF WATCHES FIXED IN 13.4.1   
   <bullet bulletName="svrboxactive" bulletGroup="watchbox" bulletText="SVR TSTM WATCH remains in effect"/>
@@ -261,7 +262,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="*********** CALLS TO ACTION (CHOOSE 1 OR MORE) **********" bulletType="title"/>
   <bullet bulletName="torEmergencyCTA" bulletText="**TOR EMERGENCY CTA** (CATASTROPHIC Tag use only)" parseString="TORNADO EMERGENCY"/>
   <!-- There are two "default" safety rules. The first...which will probably be used by most offices...includes safety rules for mobile homes. The second...which is commented out...is for large urban areas that do not have mobile homes. If you wish to switch defaults or provide both options, remove comment tags as necessary and adjust the bulletDefault="true" as appropriate if both options are allowed -->
-  <bullet bulletName="defaultMobileCTA" bulletText="Default safety rules - includes mobile homes" parseString="IF YOU ARE OUTDOORS, IN A MOBILE HOME, OR IN A VEHICLE" bulletGroup="cta1"/>
+  <bullet bulletName="defaultMobileCTA" bulletText="Default safety rules - includes mobile homes" parseString="&quot;AVOID WINDOWS. IF YOU ARE OUTDOORS&quot;,&quot;MOBILE HOME&quot;,&quot;VEHICLE&quot;" bulletGroup="cta1"/>
   <bullet bulletName="defaultUrbanCTA" bulletText="Default safety rules for urban - no mobile homes" parseString="IF YOU ARE OUTDOORS OR IN A VEHICLE" bulletGroup="cta1"/>
   <bullet bulletName="motoristsCTA" bulletText="Safety rules for motorists" parseString="MOTORISTS SHOULD NOT TAKE SHELTER UNDER"/>
   <bullet bulletName="rainWrappedCTA" bulletText="Rain wrapped tornado" parseString="HEAVY RAINFALL MAY HIDE THIS TORNADO"/>
@@ -281,7 +282,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="dopplerSVR" bulletText="Doppler radar indicated" bulletGroup="radioset1" parseString="SOURCE...RADAR INDICATED"/>
   <bullet bulletName="trainedSpottersSVR" bulletText="Trained spotters reported" bulletGroup="radioset1" parseString="SOURCE...TRAINED WEATHER SPOTTERS"/>
   <bullet bulletName="lawEnforcementSVR" bulletText="Law Enforcement reported" bulletGroup="radioset1" parseString="SOURCE...LAW ENFORCEMENT"/>
-  <bullet bulletName="trainedSpottersSVR" bulletText="Emergency Management reported" bulletGroup="radioset1" parseString="SOURCE...EMERGENCY MANAGEMENT"/>
+  <bullet bulletName="emergencyManagementSVR" bulletText="Emergency Management reported" bulletGroup="radioset1" parseString="SOURCE...EMERGENCY MANAGEMENT"/>
   <bullet bulletName="publicSVR" bulletText="Public Reported" bulletGroup="radioset1" parseString="SOURCE...PUBLIC"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** THREAT (CHOOSE 1 each wind/hail) **********" bulletType="title"/>
@@ -307,7 +308,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="svrTorTag" bulletText="SELECT FOR TORNADO...POSSIBLE TAG" parseString="TORNADO...POSSIBLE"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******** ADDITIONAL REPORTS ********" bulletType="title"/>
-   <bullet bulletName="addlHailWindRpt" bulletText="Select to include additional hail and/or wind reports..." bulletGroup="radioset4"/>
+  <bullet bulletName="addlHailWindRpt" bulletText="Select to include additional hail and/or wind reports..." bulletGroup="radioset4"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="********* LOCATIONS IMPACTED  **********" bulletType="title"/>
   <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/>
@@ -399,7 +400,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="*********** CALLS TO ACTION (CHOOSE 1 OR MORE) **********" bulletType="title"/>
   <bullet bulletName="torEmergencyCTA" bulletText="**TOR EMERGENCY CTA** (CATASTROPHIC Tag use only)" parseString="TORNADO EMERGENCY"/>
   <!-- There are two "default" safety rules. The first...which will probably be used by most offices...includes safety rules for mobile homes. The second...which is commented out...is for large urban areas that do not have mobile homes. If you wish to switch defaults or provide both options, remove comment tags as necessary and adjust the bulletDefault="true" as appropriate if both options are allowed -->
-  <bullet bulletName="defaultMobileCTA" bulletText="Default safety rules - includes mobile homes" parseString="IF YOU ARE OUTDOORS, IN A MOBILE HOME, OR IN A VEHICLE" bulletGroup="cta1"/>
+  <bullet bulletName="defaultMobileCTA" bulletText="Default safety rules - includes mobile homes" parseString="&quot;AVOID WINDOWS. IF YOU ARE OUTDOORS&quot;,&quot;MOBILE HOME&quot;,&quot;VEHICLE&quot;" bulletGroup="cta1"/>
   <bullet bulletName="defaultUrbanCTA" bulletText="Default safety rules for urban - no mobile homes" parseString="IF YOU ARE OUTDOORS OR IN A VEHICLE" bulletGroup="cta1"/>
   <bullet bulletName="motoristsCTA" bulletText="Safety rules for motorists" parseString="MOTORISTS SHOULD NOT TAKE SHELTER UNDER"/>
   <bullet bulletName="rainWrappedCTA" bulletText="Rain wrapped tornado" parseString="HEAVY RAINFALL MAY HIDE THIS TORNADO"/>
@@ -418,7 +419,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="dopplerSVR" bulletText="Doppler radar indicated" bulletGroup="radioset1" parseString="SOURCE...RADAR INDICATED"/>
   <bullet bulletName="trainedSpottersSVR" bulletText="Trained spotters reported" bulletGroup="radioset1" parseString="SOURCE...TRAINED WEATHER SPOTTERS"/>
   <bullet bulletName="lawEnforcementSVR" bulletText="Law Enforcement reported" bulletGroup="radioset1" parseString="SOURCE...LAW ENFORCEMENT"/>
-  <bullet bulletName="trainedSpottersSVR" bulletText="Emergency Management reported" bulletGroup="radioset1" parseString="SOURCE...EMERGENCY MANAGEMENT"/>
+  <bullet bulletName="emergencyManagementSVR" bulletText="Emergency Management reported" bulletGroup="radioset1" parseString="SOURCE...EMERGENCY MANAGEMENT"/>
   <bullet bulletName="publicSVR" bulletText="Public Reported" bulletGroup="radioset1" parseString="SOURCE...PUBLIC"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** THREAT (CHOOSE 1 each wind/hail) **********" bulletType="title"/>

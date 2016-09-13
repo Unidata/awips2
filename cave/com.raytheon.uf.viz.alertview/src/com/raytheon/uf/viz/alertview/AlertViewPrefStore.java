@@ -35,6 +35,7 @@ import java.io.OutputStream;
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------
  * Jun 17, 2015  4474     bsteffen  Initial creation
+ * Aug 18, 2015  3806     njensen   Renamed config stream methods
  * 
  * </pre>
  * 
@@ -43,9 +44,11 @@ import java.io.OutputStream;
  */
 public interface AlertViewPrefStore {
 
-    public InputStream readConfigFile(String fileName) throws IOException;
+    public InputStream openConfigInputStream(String fileName)
+            throws IOException;
 
-    public OutputStream writeConfigFile(String fileName) throws IOException;
+    public OutputStream openConfigOutputStream(String fileName)
+            throws IOException;
 
     public void addListener(AlertViewPrefListener listener);
 

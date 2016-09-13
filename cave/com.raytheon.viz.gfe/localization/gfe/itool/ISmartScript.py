@@ -38,7 +38,6 @@ class ISmartScript(SmartScript.SmartScript):
         SmartScript.SmartScript.__init__(self, dbss)        
         self.__dataMgr = dbss
         self.__parmMgr = self.__dataMgr.getParmManager()       
-        self._empty = self.getTopo() * 0.0 
         
     def executeCmd(self, cmd):
         cmd = re.sub("\s*&\s*\Z", "", cmd)
@@ -131,8 +130,7 @@ class ISmartScript(SmartScript.SmartScript):
     # This method will create an empty hazards-type grid with the specified
     # name and timeRange
     def _makeEmptyHazardGrid(self, weName, timeRange):
-        gridShape = self.getTopo().shape
-        byteGrid = zeros(gridShape)
+        byteGrid = self.empty(int8)
         hazKeys = self.getDiscreteKeys("Hazards")
         currentKeys = ["<None>"]
         # make the grid
@@ -143,13 +141,13 @@ class ISmartScript(SmartScript.SmartScript):
 
 
     def _makeMask(self, zoneList):
-        mask = self._empty
+        mask = self.empty(bool)
         eaList = self.editAreaList()
         for z in zoneList:
             if z in eaList:
                 zoneArea = self.getEditArea(z)
                 zoneMask = self.encodeEditArea(zoneArea)
-                mask = numpy.logical_or(mask, zoneMask)
+                mask |= zoneMask
         return mask
     
     # adds the specified hazard to weName over the specified timeRange
@@ -177,7 +175,7 @@ class ISmartScript(SmartScript.SmartScript):
                 editMask = logical_and(equal(byteGrid, oldIndex), mask)
         
                 # poke in the new values
-                byteGrid = where(editMask, newIndex, byteGrid)
+                byteGrid[editMask] = newIndex
 
             self.createGrid("Fcst", weName, "DISCRETE", (byteGrid, hazKey),
                             tr, discreteOverlap=1, discreteAuxDataLength=4)

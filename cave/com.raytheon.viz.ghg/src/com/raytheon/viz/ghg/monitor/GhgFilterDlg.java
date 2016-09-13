@@ -21,10 +21,8 @@ package com.raytheon.viz.ghg.monitor;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -39,16 +37,16 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.activetable.ActiveTableRecord;
+import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteDefinition;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
+import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
+import com.raytheon.uf.common.gfe.ifpclient.IFPClient;
 import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.gfe.GFEServerException;
-import com.raytheon.viz.gfe.core.DataManager;
-import com.raytheon.viz.gfe.core.IReferenceSetManager;
+import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.ghg.monitor.data.GhgConfigData;
 import com.raytheon.viz.ghg.monitor.data.GhgConfigData.AlertsFilterEnum;
 import com.raytheon.viz.ghg.monitor.data.GhgData;
@@ -64,9 +62,11 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 25 MAR 2008  N/A        lvenable    Initial creation
- * 17Jun2008    1157       MW Fegan    Hooked in configuration.
+ * 17 Jun 2008  1157       MW Fegan    Hooked in configuration.
  * 28 Nov 2012  1353       rferrel     Changes for non-blocking dialog.
  * 28 Mar 2014  15769      ryu         Removed "include OrgPil" check button.
+ * 16 Dec 2015  5184       dgilling    Remove viz.gfe dependencies.
+ * 05 Feb 2016  5316       randerso    Code cleanup
  * 
  * </pre>
  * 
@@ -77,6 +77,12 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 public class GhgFilterDlg extends CaveSWTDialog {
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(GhgFilterDlg.class);
+
+    private final IFPClient ifpClient;
+
+    private final DiscreteDefinition ddef;
+
+    private final GhgFilterEngine filterEngine;
 
     /**
      * Composite containing the list controls.
@@ -104,18 +110,6 @@ public class GhgFilterDlg extends CaveSWTDialog {
             GhgConfigData.AlertsFilterEnum.GeoId,
             GhgConfigData.AlertsFilterEnum.ETN,
             GhgConfigData.AlertsFilterEnum.Seg };
-
-    public static Map<GhgConfigData.AlertsFilterEnum, String[]> filterToEnumMap = new HashMap<GhgConfigData.AlertsFilterEnum, String[]>() {
-
-        private static final long serialVersionUID = 6183513849706287870L;
-        {
-            put(GhgConfigData.AlertsFilterEnum.Action,
-                    GhgConfigData.vtecActionNames);
-            put(GhgConfigData.AlertsFilterEnum.PhenSig, GhgConfigData
-                    .getInstance().getPhenSigCodes());
-            put(GhgConfigData.AlertsFilterEnum.Pil, GhgConfigData.vtecPILNames);
-        }
-    };
 
     /**
      * Array of filter group containers that contain the list controls.
@@ -157,7 +151,7 @@ public class GhgFilterDlg extends CaveSWTDialog {
      */
     private Button incPastEventsChk;
 
-    //private Button incOrgPilEvents;
+    // private Button incOrgPilEvents;
 
     private GhgDataFilter filter = null;
 
@@ -186,12 +180,20 @@ public class GhgFilterDlg extends CaveSWTDialog {
      * 
      * @param parent
      *            Parent Shell.
+     * @param filter
+     * @param ifpClient
+     * @param ddef
+     * @param siteID4char
      */
-    public GhgFilterDlg(Shell parent, GhgDataFilter filter) {
+    public GhgFilterDlg(Shell parent, GhgDataFilter filter,
+            IFPClient ifpClient, DiscreteDefinition ddef, String siteID4char) {
         super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("GHG Monitor Filter Dialog");
 
         this.filter = filter;
+        this.ifpClient = ifpClient;
+        this.ddef = ddef;
+        this.filterEngine = new GhgFilterEngine(siteID4char);
     }
 
     @Override
@@ -239,7 +241,7 @@ public class GhgFilterDlg extends CaveSWTDialog {
         filter.includeAlerts = incAlertsChk.getSelection();
         filter.includeMapSelections = incMapSelectionsChk.getSelection();
         filter.includePastEvents = incPastEventsChk.getSelection();
-        //filter.includeOrgPilEvents = incOrgPilEvents.getSelection();
+        // filter.includeOrgPilEvents = incOrgPilEvents.getSelection();
 
         filter.name = "<Custom>";
 
@@ -270,7 +272,7 @@ public class GhgFilterDlg extends CaveSWTDialog {
         incAlertsChk.setSelection(filter.includeAlerts);
         incMapSelectionsChk.setSelection(filter.includeMapSelections);
         incPastEventsChk.setSelection(filter.includePastEvents);
-        //incOrgPilEvents.setSelection(filter.includeOrgPilEvents);
+        // incOrgPilEvents.setSelection(filter.includeOrgPilEvents);
     }
 
     /**
@@ -572,26 +574,23 @@ public class GhgFilterDlg extends CaveSWTDialog {
             }
         });
 
-        //incOrgPilEvents = new Button(filterOverrideGroup, SWT.CHECK);
-        //incOrgPilEvents.setText("Include OrgPil Events");
-        //incOrgPilEvents.setSelection(filter.includeOrgPilEvents);
-        //incOrgPilEvents.addSelectionListener(new SelectionAdapter() {
+        // incOrgPilEvents = new Button(filterOverrideGroup, SWT.CHECK);
+        // incOrgPilEvents.setText("Include OrgPil Events");
+        // incOrgPilEvents.setSelection(filter.includeOrgPilEvents);
+        // incOrgPilEvents.addSelectionListener(new SelectionAdapter() {
 
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-             * .swt.events.SelectionEvent)
-             */
         /*
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                filter.includeOrgPilEvents = incOrgPilEvents.getSelection();
-                updateDisplay();
-            }
-        });
-        */
+         * (non-Javadoc)
+         * 
+         * @see
+         * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
+         * .swt.events.SelectionEvent)
+         */
+        /*
+         * @Override public void widgetSelected(SelectionEvent e) {
+         * filter.includeOrgPilEvents = incOrgPilEvents.getSelection();
+         * updateDisplay(); } });
+         */
     }
 
     /**
@@ -621,57 +620,78 @@ public class GhgFilterDlg extends CaveSWTDialog {
      */
     private void initListData() {
         // wfos (based on ISC edit areas)
-        DataManager dm = DataManager.getCurrentInstance();
-        IReferenceSetManager refSetManager = dm.getRefManager();
-        List<ReferenceID> rIdList = refSetManager.getAvailableSets();
-
-        try {
-            // get list of known sites (WFOs) and geoIds
-            List<String> knownSites = dm.knownSites();
-
-            for (int i = 0; i < rIdList.size(); i++) {
-                ReferenceID refId = rIdList.get(i);
-                String name = refId.getName();
-                if ((name.length() == 7) && name.startsWith("ISC_")
-                        && knownSites.contains(name.substring(4))) {
-                    String wfo4 = SiteMap.getInstance().getSite4LetterId(
-                            name.substring(4));
-                    wfoList.add(wfo4);
-                } else if ((name.length() == 6) && !name.contains("_")) {
-                    geoIdList.add(name);
-                }
-            }
-
-            if (wfoList.contains("KWNS") == false) {
-                wfoList.add("KWNS");
-            }
-            if (wfoList.contains("KNHC") == false) {
-                wfoList.add("KNHC");
-            }
-
-            // Get the VTEC active table
-            List<ActiveTableRecord> activeTableList = DataManager
-                    .getCurrentInstance().getActiveTable();
-
-            // Get the etn and seg values, these are based on actual data
-            Set<String> etnSet = new TreeSet<String>();
-            Set<String> segSet = new TreeSet<String>();
-            for (ActiveTableRecord rec : activeTableList) {
-                etnSet.add(rec.getEtn());
-                segSet.add(String.valueOf(rec.getSeg()));
-
-                etnArr = etnSet.toArray(new String[etnSet.size()]);
-                segArr = segSet.toArray(new String[segSet.size()]);
-            }
-
-            // Sort the lists
-            Collections.sort(wfoList);
-            Collections.sort(geoIdList);
-        } catch (GFEServerException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        ServerResponse<List<ReferenceID>> sr = ifpClient
+                .getReferenceInventory();
+        List<ReferenceID> rIdList;
+        if (sr.isOkay()) {
+            rIdList = sr.getPayload();
+        } else {
+            statusHandler.error(String.format(
+                    "Error retrieving reference set inventory: %s",
+                    sr.message()));
+            rIdList = Collections.emptyList();
         }
+
+        // get list of known sites (WFOs) and geoIds
+        ServerResponse<List<String>> sr2 = ifpClient.getKnownSites();
+        List<String> knownSites;
+        if (sr2.isOkay()) {
+            knownSites = sr2.getPayload();
+        } else {
+            statusHandler.error(String.format(
+                    "Error retrieving known sites: %s", sr2.message()));
+            knownSites = Collections.emptyList();
+        }
+
+        for (int i = 0; i < rIdList.size(); i++) {
+            ReferenceID refId = rIdList.get(i);
+            String name = refId.getName();
+            if ((name.length() == 7) && name.startsWith("ISC_")
+                    && knownSites.contains(name.substring(4))) {
+                String wfo4 = SiteMap.getInstance().getSite4LetterId(
+                        name.substring(4));
+                wfoList.add(wfo4);
+            } else if ((name.length() == 6) && !name.contains("_")) {
+                geoIdList.add(name);
+            }
+        }
+
+        if (wfoList.contains("KWNS") == false) {
+            wfoList.add("KWNS");
+        }
+        if (wfoList.contains("KNHC") == false) {
+            wfoList.add("KNHC");
+        }
+
+        // Get the VTEC active table
+        CAVEMode opMode = CAVEMode.getMode();
+        ActiveTableMode tableName = (opMode == CAVEMode.PRACTICE) ? ActiveTableMode.PRACTICE
+                : ActiveTableMode.OPERATIONAL;
+        ServerResponse<List<ActiveTableRecord>> sr3 = ifpClient
+                .getVTECActiveTable(tableName);
+        List<ActiveTableRecord> activeTableList;
+        if (sr3.isOkay()) {
+            activeTableList = sr3.getPayload();
+        } else {
+            statusHandler.error(String.format(
+                    "Error retrieving known sites: %s", sr3.message()));
+            activeTableList = Collections.emptyList();
+        }
+
+        // Get the etn and seg values, these are based on actual data
+        Set<String> etnSet = new TreeSet<String>();
+        Set<String> segSet = new TreeSet<String>();
+        for (ActiveTableRecord rec : activeTableList) {
+            etnSet.add(rec.getEtn());
+            segSet.add(String.valueOf(rec.getSeg()));
+
+            etnArr = etnSet.toArray(new String[etnSet.size()]);
+            segArr = segSet.toArray(new String[segSet.size()]);
+        }
+
+        // Sort the lists
+        Collections.sort(wfoList);
+        Collections.sort(geoIdList);
     }
 
     /**
@@ -682,68 +702,71 @@ public class GhgFilterDlg extends CaveSWTDialog {
         /* update the state of the filter boxes */
         if (showCurrentHazardsChk.getSelection()) {
             // Get data from the active table and update the lists accordingly
-            try {
-                List<ActiveTableRecord> tableDataList = DataManager
-                        .getCurrentInstance().getActiveTable();
+            CAVEMode opMode = CAVEMode.getMode();
+            ActiveTableMode tableName = (opMode == CAVEMode.PRACTICE) ? ActiveTableMode.PRACTICE
+                    : ActiveTableMode.OPERATIONAL;
+            ServerResponse<List<ActiveTableRecord>> sr = ifpClient
+                    .getVTECActiveTable(tableName);
+            List<ActiveTableRecord> tableDataList;
+            if (sr.isOkay()) {
+                tableDataList = sr.getPayload();
+            } else {
+                statusHandler.error(String.format(
+                        "Error retrieving active table: %s", sr.message()));
+                tableDataList = Collections.emptyList();
+            }
 
-                // compile the data for each list
-                Set<String> actionSet = new HashSet<String>();
-                Set<String> phenSigSet = new HashSet<String>();
-                Set<String> pilSet = new HashSet<String>();
-                Set<String> wfoSet = new HashSet<String>();
-                Set<String> geoIdSet = new HashSet<String>();
-                Set<String> etnSet = new HashSet<String>();
-                Set<String> segSet = new HashSet<String>();
+            // compile the data for each list
+            Set<String> actionSet = new HashSet<String>();
+            Set<String> phenSigSet = new HashSet<String>();
+            Set<String> pilSet = new HashSet<String>();
+            Set<String> wfoSet = new HashSet<String>();
+            Set<String> geoIdSet = new HashSet<String>();
+            Set<String> etnSet = new HashSet<String>();
+            Set<String> segSet = new HashSet<String>();
 
-                // Get the data from the activeTable
-                for (ActiveTableRecord rec : tableDataList) {
-                    GhgData data = new GhgData(rec);
+            // Get the data from the activeTable
+            for (ActiveTableRecord rec : tableDataList) {
+                GhgData data = new GhgData(rec, ddef.getHazardDescription(
+                        "Hazards_SFC", rec.getPhensig()));
 
-                    if (GhgFilterEngine.filterCheck(data)) {
-                        actionSet.add(data.getAction());
-                        phenSigSet.add(data.getPhenSig());
-                        pilSet.add(data.getPil());
-                        wfoSet.add(data.getWfo());
-                        geoIdSet.add(data.getGeoId());
-                        etnSet.add(data.getEtn());
-                        segSet.add(data.getSegNum());
-                    }
+                if (filterEngine.filterCheck(data)) {
+                    actionSet.add(data.getAction());
+                    phenSigSet.add(data.getPhenSig());
+                    pilSet.add(data.getPil());
+                    wfoSet.add(data.getWfo());
+                    geoIdSet.add(data.getGeoId());
+                    etnSet.add(data.getEtn());
+                    segSet.add(data.getSegNum());
                 }
+            }
 
-                for (int i = 0; i < filterArray.length - 2; i++) {
-                    GhgConfigData.AlertsFilterEnum type = filterArray[i];
-                    GhgFilterListGroup group = listGroupArray.get(i);
+            for (int i = 0; i < (filterArray.length - 2); i++) {
+                GhgConfigData.AlertsFilterEnum type = filterArray[i];
+                GhgFilterListGroup group = listGroupArray.get(i);
 
-                    if (type == AlertsFilterEnum.Action) {
-                        group.setListValues(actionSet
-                                .toArray(new String[actionSet.size()]));
-                    } else if (type == AlertsFilterEnum.PhenSig) {
-                        group.setListValues(phenSigSet
-                                .toArray(new String[phenSigSet.size()]));
-                    } else if (type == AlertsFilterEnum.Pil) {
-                        group.setListValues(pilSet.toArray(new String[pilSet
-                                .size()]));
-                    } else if (type == AlertsFilterEnum.WFO) {
-                        group.setListValues(wfoSet.toArray(new String[wfoSet
-                                .size()]));
-                    } else if (type == AlertsFilterEnum.GeoId) {
-                        group.setListValues(geoIdSet
-                                .toArray(new String[geoIdSet.size()]));
-                    } else if (type == AlertsFilterEnum.ETN) {
-                        group.setListValues(etnSet.toArray(new String[etnSet
-                                .size()]));
-                    } else if (type == AlertsFilterEnum.Seg) {
-                        group.setListValues(segSet.toArray(new String[segSet
-                                .size()]));
-                    }
+                if (type == AlertsFilterEnum.Action) {
+                    group.setListValues(actionSet.toArray(new String[actionSet
+                            .size()]));
+                } else if (type == AlertsFilterEnum.PhenSig) {
+                    group.setListValues(phenSigSet
+                            .toArray(new String[phenSigSet.size()]));
+                } else if (type == AlertsFilterEnum.Pil) {
+                    group.setListValues(pilSet.toArray(new String[pilSet.size()]));
+                } else if (type == AlertsFilterEnum.WFO) {
+                    group.setListValues(wfoSet.toArray(new String[wfoSet.size()]));
+                } else if (type == AlertsFilterEnum.GeoId) {
+                    group.setListValues(geoIdSet.toArray(new String[geoIdSet
+                            .size()]));
+                } else if (type == AlertsFilterEnum.ETN) {
+                    group.setListValues(etnSet.toArray(new String[etnSet.size()]));
+                } else if (type == AlertsFilterEnum.Seg) {
+                    group.setListValues(segSet.toArray(new String[segSet.size()]));
                 }
-            } catch (VizException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
             }
         } else {
             // reset the list data
-            for (int i = 0; i < filterArray.length - 2; i++) {
+            for (int i = 0; i < (filterArray.length - 2); i++) {
                 GhgConfigData.AlertsFilterEnum type = filterArray[i];
                 GhgFilterListGroup group = listGroupArray.get(i);
                 switch (type) {

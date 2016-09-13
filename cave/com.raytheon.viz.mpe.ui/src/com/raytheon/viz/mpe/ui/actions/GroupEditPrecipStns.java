@@ -21,6 +21,8 @@ package com.raytheon.viz.mpe.ui.actions;
 
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.dialogs.GroupEditStationsDialog;
 import com.raytheon.viz.mpe.ui.dialogs.QcPrecipOptionsDialog;
@@ -39,6 +41,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * May 06, 2011   #8994    jpiatt      Added set precipitation value as zero
  * Sep 04, 2014    283     cgobs       Fixed possible selection of filtered-out gages
  * Dec 2015        17388   ptilles     Add test for mpe_dqc_6hr_24hr_set_bad token value
+ * Mar 15, 2016    18427   lbousaidi   Code Improvements for DR 18384 (Vlab 13938)
  * </pre>
  * 
  * @author snaples
@@ -46,7 +49,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 
 public class GroupEditPrecipStns {
-
+	
+    private static final IUFStatusHandler statusHandler = UFStatus.getHandler(GroupEditPrecipStns.class);
+	
     public void group_edit_precip_stations(ReferencedCoordinate rcoord) {
         int time_pos;
         int i, m, k;
@@ -60,7 +65,9 @@ public class GroupEditPrecipStns {
             coord = rcoord.asLatLon();
         } catch (Exception e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+        	 statusHandler
+             .error("Failed to convert ReferencedCoordinate to Coordinate.",
+                     e);
         }
 
         if (MPEDisplayManager.pcpn_time_step == 0) {

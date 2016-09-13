@@ -103,9 +103,10 @@ class Tool (SmartScript.SmartScript):
              mixingHt = where(readyToSet, newMh, mixingHt)
              lastTuple = (ghCube[i], thetaCube[i])
       
-        mixingHt = where(equal(mixingHt,-1), 0.0, mixingHt)
-        mixingHt = mixingHt * 3.2808
-        mixingHt = where(equal(mixingHt, 0.0), 0.0, mixingHt-Topo)
+        mixingHt[equal(mixingHt,-1)] = 0.0
+        mixingHt *= 3.2808
+        mask = not_equal(mixingHt, 0.0)
+        mixingHt[mask] -= Topo[mask]
         
         #print "MixingHT:", mixingHt[90,80], "pres:", sfcPres[90,80],
         #print sfcTheta[90,80], Topo[90,80]

@@ -23,8 +23,8 @@ package com.raytheon.uf.common.dataplugin.gfe;
 import java.lang.ref.SoftReference;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.nio.ShortBuffer;
 
-import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
@@ -33,6 +33,7 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DByte;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
+import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DShort;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.data.GeographicDataSource;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
@@ -41,6 +42,7 @@ import com.raytheon.uf.common.geospatial.interpolation.NearestNeighborInterpolat
 import com.raytheon.uf.common.geospatial.interpolation.PrecomputedGridReprojection;
 import com.raytheon.uf.common.numeric.buffer.ByteBufferWrapper;
 import com.raytheon.uf.common.numeric.buffer.FloatBufferWrapper;
+import com.raytheon.uf.common.numeric.buffer.ShortBufferWrapper;
 import com.raytheon.uf.common.numeric.dest.DataDestination;
 import com.raytheon.uf.common.numeric.filter.FillValueFilter;
 import com.raytheon.uf.common.numeric.filter.InverseFillValueFilter;
@@ -67,7 +69,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 08/13/13     #1571      randerso    Passed fill values into interpolator.
  * 03/07/14     #2791      bsteffen    Move Data Source/Destination to numeric plugin.
  * 05/19/14     #2913      bsteffen    Remove rescale option.
- * 
+ * 07/08/2015   #4617      randerso    Added support for resampling short data
  * 
  * </pre>
  * 
@@ -112,7 +114,7 @@ public class RemapGrid {
     }
 
     /**
-     * Returns a Grid2D<float> that has been remapped from the input grid in the
+     * Returns a Grid2DFloat that has been remapped from the input grid in the
      * source GridLocation domain space to the destination GridLocation domain
      * space. The input grid must be in the same coordinate system as the source
      * GridLocation. The data will be sampled and truncated to min and max.
@@ -136,13 +138,26 @@ public class RemapGrid {
             float max, float min, float outputFill) throws FactoryException,
             TransformException {
 
-        Grid2DFloat retVal = resample(input, inputFill, outputFill);
+        Grid2DFloat retVal = null;
+
+        if ((input.getXdim() != sourceGloc.gridSize().x)
+                || (input.getYdim() != sourceGloc.gridSize().y)) {
+            throw new IllegalArgumentException(
+                    "Input grid dimensions do not match source grid location dimensions");
+        }
+
+        if (sourceGloc.equals(destinationGloc)) {
+            // same as input -- copy the input grid before limiting
+            retVal = new Grid2DFloat(input);
+        } else {
+            retVal = resample(input, inputFill, outputFill);
+        }
         limitGrid(retVal, inputFill, max, min, outputFill);
         return retVal;
     }
 
     /**
-     * Returns a Grid2D<byte> that has been remapped from the input grid in the
+     * Returns a Grid2DByte that has been remapped from the input grid in the
      * source GridLocation domain space to the destination GridLocation domain
      * space. The input grid must be in the same coordinate system as the source
      * GridLocation. The data will be sampled. Points outside the area will be
@@ -179,23 +194,11 @@ public class RemapGrid {
 
         retVal = resample(input, inputFill, outputFill);
 
-        ByteBuffer buffer = retVal.getBuffer();
-        buffer.rewind();
-
-        for (int x = 0; x < retVal.getXdim(); x++) {
-            for (int y = 0; y < retVal.getYdim(); y++) {
-                byte value = retVal.get(x, y);
-                if (value == inputFill) {
-                    retVal.set(x, y, outputFill);
-                }
-            }
-        }
-
         return retVal;
     }
 
     /**
-     * Returns a Grid2D<byte> that has been remapped from the input grid in the
+     * Returns a Grid2DByte that has been remapped from the input grid in the
      * source GridLocation domain space to the destination GridLocation domain
      * space. The input grid must be in the same coordinate system as the source
      * GridLocation. The data will be sampled. Points outside the area will be
@@ -217,6 +220,47 @@ public class RemapGrid {
     public Grid2DByte remap(final Grid2DByte input, int inputFill,
             int outputFill) throws FactoryException, TransformException {
         return remap(input, (byte) inputFill, (byte) outputFill);
+    }
+
+    /**
+     * Returns a Grid2DShort that has been remapped from the input grid in the
+     * source GridLocation domain space to the destination GridLocation domain
+     * space. The input grid must be in the same coordinate system as the source
+     * GridLocation. The data will be sampled. Points outside the area will be
+     * assigned the input fillValue.
+     * 
+     * @param input
+     *            The input short data
+     * @param inputFill
+     *            The input fill value
+     * @param outputFill
+     *            The output fill value
+     * @return The remapped Grid2DShort object
+     * @throws TransformException
+     * @throws FactoryException
+     * @throws IllegalArgumentException
+     *             If the input dimensions do not match the source dimensions or
+     *             when problems occur during resampling
+     */
+    public Grid2DShort remap(final Grid2DShort input, short inputFill,
+            short outputFill) throws FactoryException, TransformException {
+
+        Grid2DShort retVal = null;
+
+        if ((input.getXdim() != sourceGloc.gridSize().x)
+                || (input.getYdim() != sourceGloc.gridSize().y)) {
+            throw new IllegalArgumentException(
+                    "Input grid dimensions do not match source grid location dimensions");
+        }
+
+        // same as input -- do nothing
+        if (sourceGloc.equals(destinationGloc)) {
+            return input;
+        }
+
+        retVal = resample(input, inputFill, outputFill);
+
+        return retVal;
     }
 
     /**
@@ -470,22 +514,20 @@ public class RemapGrid {
             float outputFill) throws FactoryException, TransformException {
 
         GridGeometry2D sourceGeometry = MapUtil.getGridGeometry(sourceGloc);
-        GridEnvelope2D sourceRange = sourceGeometry.getGridRange2D();
 
         ByteBuffer data = input.getBuffer();
         ByteBuffer resampledData = null;
 
         GridGeometry2D destGeometry = MapUtil.getGridGeometry(destinationGloc);
-        GridEnvelope2D destRange = destGeometry.getGridRange2D();
         GridReprojection interp = PrecomputedGridReprojection.getReprojection(
                 sourceGeometry, destGeometry);
 
-        DataSource source = new ByteBufferWrapper(data, sourceRange.width,
-                sourceRange.height);
+        DataSource source = new ByteBufferWrapper(data,
+                sourceGeometry.getGridRange2D());
         source = FillValueFilter.apply(source, inputFill);
 
-        ByteBufferWrapper bufferDest = new ByteBufferWrapper(destRange.width,
-                destRange.height);
+        ByteBufferWrapper bufferDest = new ByteBufferWrapper(
+                destGeometry.getGridRange2D());
         DataDestination dest = InverseFillValueFilter.apply(
                 (DataDestination) bufferDest, outputFill);
 
@@ -496,6 +538,53 @@ public class RemapGrid {
         // Remap the the output data into a Grid2DFloat object
 
         Grid2DByte retVal = new Grid2DByte(destinationGloc.getNx(),
+                destinationGloc.getNy(), resampledData);
+
+        return retVal;
+    }
+
+    /**
+     * Resamples the data from the input grid location to the destination grid
+     * location
+     * 
+     * @param input
+     *            The input data
+     * @param inputFill
+     *            the input fill value
+     * @param outputFill
+     *            the output fill value
+     * @return The resampled data
+     * @throws TransformException
+     * @throws FactoryException
+     */
+    private Grid2DShort resample(final Grid2DShort input, short inputFill,
+            short outputFill) throws FactoryException, TransformException {
+
+        GridGeometry2D sourceGeometry = MapUtil.getGridGeometry(sourceGloc);
+
+        ShortBuffer data = input.getBuffer();
+        ShortBuffer resampledData = null;
+
+        GridGeometry2D destGeometry = MapUtil.getGridGeometry(destinationGloc);
+        GridReprojection interp = PrecomputedGridReprojection.getReprojection(
+                sourceGeometry, destGeometry);
+
+        DataSource source = new ShortBufferWrapper(data,
+                sourceGeometry.getGridRange2D());
+        source = FillValueFilter.apply(source, inputFill);
+
+        ShortBufferWrapper bufferDest = new ShortBufferWrapper(
+                destGeometry.getGridRange2D());
+        DataDestination dest = InverseFillValueFilter.apply(
+                (DataDestination) bufferDest, outputFill);
+
+        interp.reprojectedGrid(new NearestNeighborInterpolation(), source, dest);
+
+        resampledData = bufferDest.getBuffer();
+
+        // Remap the the output data into a Grid2DFloat object
+
+        Grid2DShort retVal = new Grid2DShort(destinationGloc.getNx(),
                 destinationGloc.getNy(), resampledData);
 
         return retVal;
@@ -548,7 +637,6 @@ public class RemapGrid {
 
         return retVal;
     }
-
 
     private float getRot(int x, int y) {
         Grid2DFloat rotation;

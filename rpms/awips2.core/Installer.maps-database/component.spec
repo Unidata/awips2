@@ -14,11 +14,11 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Bryan Kowal
+Packager: %{_build_site}
 
 AutoReq: no
-provides: awips2-maps-database
-requires: awips2-database
+Provides: awips2-maps-database
+Requires: awips2-database
 
 %description
 AWIPS II Maps Database - includes the
@@ -45,9 +45,9 @@ fi
 cp -r %{_baseline_workspace}/build.edex/opt/db/ddl/maps/* \
    ${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share/sql/maps
 
-PATH_TO_STATIC_DDL="%{_awipscm_share}/awips2-static/maps/db"
+PATH_TO_STATIC_DDL=%{_static_files}/maps/db
 if [ ! -d ${PATH_TO_STATIC_DDL} ]; then
-   file ${PATH_TO_STATIC_DDL}
+   echo "File ${PATH_TO_STATIC_DDL} not found!"
    exit 1
 fi
 cp ${PATH_TO_STATIC_DDL}/* \
@@ -195,6 +195,7 @@ if [ "${I_STARTED_POSTGRESQL}" = "YES" ]; then
    fi
    sleep 10
 fi
+   
 %preun
 if [ "${1}" = "1" ]; then
    exit 0

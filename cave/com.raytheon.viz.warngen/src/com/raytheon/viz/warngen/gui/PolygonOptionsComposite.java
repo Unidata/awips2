@@ -29,6 +29,8 @@ import com.raytheon.viz.warngen.gui.WarngenLayer.ExtensionAreaOptions;
  * Date         Ticket#    Engineer     Description
  * ------------ ---------- ------------ --------------------------
  * 12/21/2015   DCS 17942  D. Friedman  Initial revision
+ * 03/10/2016   DCS 18509  D. Friedman  Make extension area display a separate map background.
+ * 03/22/2016   DCS 18719  D. Friedman  Add dynamic extension area option.
  * </pre>
  *
  */
@@ -39,6 +41,7 @@ public class PolygonOptionsComposite extends Composite {
     private Text extensionDistanceText;
     private Text extensionSimplificationToleranceText;
     private Button visualizeExtensionButton;
+    private Button dynamicExtensionButton;
 
     private WritableValue observableOptions;
     private boolean ignoreControls;
@@ -104,7 +107,25 @@ public class PolygonOptionsComposite extends Composite {
         warngenLayer.getObservableExtensionAreaVisible().addChangeListener(new IChangeListener() {
             @Override
             public void handleChange(ChangeEvent event) {
-                visualizeExtensionButton.setSelection(warngenLayer.isExtensionAreaVisible());
+                if (!visualizeExtensionButton.isDisposed()) {
+                    visualizeExtensionButton.setSelection(warngenLayer.isExtensionAreaVisible());
+                }
+            }
+        });
+
+        dynamicExtensionButton = new Button(this, SWT.CHECK);
+        dynamicExtensionButton.setText("Dynamic extension area");
+        dynamicExtensionButton.setLayoutData(fillGD);
+        dynamicExtensionButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                if (ignoreControls) {
+                    return;
+                }
+
+                ExtensionAreaOptions options = getExtensionAreaOptions().clone();
+                options.setDynamicArea(dynamicExtensionButton.getSelection());
+                setOptions(options);
             }
         });
 
@@ -174,6 +195,7 @@ public class PolygonOptionsComposite extends Composite {
         ignoreControls = true;
         try {
             allowExtendedPolygonButton.setSelection(options.isEnabled());
+            dynamicExtensionButton.setSelection(options.isDynamicArea());
             extensionDistanceText.setText(Double.toString(
                     metersToMile.convert(options.getDistance())));
             extensionSimplificationToleranceText.setText(Double.toString(

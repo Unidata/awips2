@@ -13,8 +13,5 @@
 		are in Kelvin and will convert if the declared unit is Celsius. Values below 
 		the threshold are assumed to be in Celsius and will be converted if the declared 
 		unit is Kelvin -->
-	<parameter abbreviation="BLI" threshold="150" />
-	<parameter abbreviation="SLI" threshold="150" />
-	<parameter abbreviation="PLI" threshold="150" />
 	<parameter abbreviation="TEMPWTR" threshold="150" />
 </temperatureCorrectionParameters>

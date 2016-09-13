@@ -33,7 +33,8 @@ from com.raytheon.uf.common.dataplugin.gfe.weather import WeatherSubKey as JavaW
 #    09/09/08                      njensen       Initial Creation.
 #    04/20/2015      4027          randerso      Added __eq__ and __hash__ so WeatherSubKey works
 #                                                correctly when used as key in a dict.
-#                                                Changed several methods which were static methods in Java                                                 
+#                                                Changed several methods which were static methods in Java
+#    12/08/2015      5129          dgilling      Remove dependency on DataManager.                                                 
 #
 
 class WeatherSubKey:
@@ -76,28 +77,22 @@ class WeatherSubKey:
     def wxDef(self):
         return WxDefinition.WxDefinition(self.__key.wxDef())
     
-def availableCoverages(dataMgr, wxType):
-    siteId = dataMgr.getSiteID()         
+def availableCoverages(siteId, wxType):
     return JUtil.javaObjToPyVal(JavaWeatherSubKey.availableCoverages(siteId, wxType))
 
-def availableAttributes(dataMgr, wxType):
-    siteId = dataMgr.getSiteID()         
+def availableAttributes(siteId, wxType):
     return JUtil.javaObjToPyVal(JavaWeatherSubKey.availableAttributes(siteId, wxType))
 
-def availableIntensities(dataMgr, wxType):
-    siteId = dataMgr.getSiteID()         
+def availableIntensities(siteId, wxType):
     return JUtil.javaObjToPyVal(JavaWeatherSubKey.availableIntensities(siteId, wxType))
 
-def availableVisibilities(dataMgr):
-    siteId = dataMgr.getSiteID()         
+def availableVisibilities(siteId):         
     return JUtil.javaObjToPyVal(JavaWeatherSubKey.availableVisibilities(siteId))
 
-def availableWxTypes(dataMgr):
-    siteId = dataMgr.getSiteID()         
+def availableWxTypes(siteId):
     return JUtil.javaObjToPyVal(JavaWeatherSubKey.availableWxTypes(siteId))
 
-def weatherSubKey(dataMgr, coverage, wxType, intensity, vis, attrList):
-    siteId = dataMgr.getSiteID()         
+def weatherSubKey(siteId, coverage, wxType, intensity, vis, attrList):
     javaSubKey = JavaWeatherSubKey(siteId, coverage, wxType,
             intensity, vis, JUtil.pyValToJavaObj(attrList))
     return WeatherSubKey(javaSubKey)    

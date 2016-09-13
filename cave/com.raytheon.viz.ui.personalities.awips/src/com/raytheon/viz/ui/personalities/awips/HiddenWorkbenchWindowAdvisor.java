@@ -23,7 +23,10 @@ import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 
 /**
- * TODO Add Description
+ * Workbench window advisor to use which allows for the workbench to be started
+ * but not visible. This is used by {@link HiddenWorkbenchAdvisor} for
+ * {@link AbstractAWIPSComponent}s that need the workbench to start but do not
+ * utilize it
  * 
  * <pre>
  * 

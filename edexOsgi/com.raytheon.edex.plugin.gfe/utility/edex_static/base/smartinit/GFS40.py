@@ -70,9 +70,9 @@ class GFS40Forecaster(Forecaster):
         return self._calcT(temps, pres, topo, stopo, gh_c, t_c)
 
     def _calcT(self, temps, pres, topo, stopo, gh_c, t_c):
-        p = self._minus
-        tmb = self._minus
-        tms = self._minus
+        p = self.newGrid(-1)
+        tmb = self.newGrid(-1)
+        tms = self.newGrid(-1)
         # go up the column to figure out the surface pressure
         for i in xrange(1, gh_c.shape[0]):
             higher = greater(gh_c[i], topo)  # identify points > topo
@@ -80,37 +80,43 @@ class GFS40Forecaster(Forecaster):
             val = self.linear(gh_c[i], gh_c[i - 1],
                               log(self.pres[i]), log(self.pres[i - 1]), topo)
             val[greater(val, 500)] = 500
-            val = clip(val, -.00001, 10)
-            p = where(logical_and(equal(p, -1), higher),
-                      exp(val), p)
+            val.clip(-.00001, 10, val)
+            
+            m = logical_and(equal(p, -1), higher)
+            p[m]= exp(val)[m]
 
             # interpolate the temperature at true elevation
             tval1 = self.linear(gh_c[i], gh_c[i - 1], t_c[i], t_c[i - 1], topo)
-            tmb = where(logical_and(equal(tmb, -1), greater(gh_c[i], topo)),
-                        tval1, tmb)
+            
+            m = logical_and(equal(tmb, -1), higher)
+            tmb[m] = tval1[m]
             # interpolate the temperature at model elevation
             tval2 = self.linear(gh_c[i], gh_c[i - 1], t_c[i], t_c[i - 1], stopo)
-            tms = where(logical_and(equal(tms, -1), greater(gh_c[i], stopo)),
-                        tval2, tms)
+            
+            m = logical_and(equal(tms, -1), greater(gh_c[i], stopo))
+            tms[m] = tval2[m]
 
 
         # define the pres. of each of the boundary layers
-        st = self._minus
+        st = self.newGrid(-1)
         # Calculate the lapse rate in units of pressure
         for i in xrange(1, len(pres)):
             val = self.linear(pres[i], pres[i - 1], temps[i], temps[i - 1], p)
             gm = greater(pres[i - 1], p)
             lm = less_equal(pres[i], p)
             mask = logical_and(gm, lm)
-            st = where(logical_and(equal(st, -1), mask),
-                       val, st)            
+            
+            m = logical_and(equal(st, -1), mask)
+            st[m] = val[m]
 
         # where topo level is above highest level in BL fields...use tmb
-        st = where(logical_and(equal(st,-1),less(p, pres[-1])), tmb, st)
+        m = logical_and(equal(st,-1),less(p, pres[-1]))
+        st[m] = tmb[m]
 
         # where topo level is below model surface...use difference
         # of t at pressure of surface and tFHAG2 and subtract from tmb
-        st = where(equal(st, -1), tmb - tms + temps[0], st)
+        m = equal(st, -1)
+        st[m] = (tmb - tms + temps[0])[m]
 
         return self.KtoF(st)
 
@@ -252,7 +258,7 @@ class GFS40Forecaster(Forecaster):
 
         #  Account for topography in the model cube, don't need to worry about
         #  this with the BL cube since those are guaranteed to be above ground
-        tmpRH_c = where(less(gh_c, topo), 0.0, rh_c)
+        tmpRH_c = where(less(gh_c, topo), float32(0.0), rh_c)
 
         #=======================================================================
         #  Create new RH and sigma cubes
@@ -278,12 +284,12 @@ class GFS40Forecaster(Forecaster):
 
             #  Compute a temporary RH grid where it is lower than the lowest 
             #  "significant" model level data
-            tmpRH = where(BL_mask, bl_RHcube[bl_i], 0.0)
+            tmpRH = where(BL_mask, bl_RHcube[bl_i], float32(0.0))
 
 
             #  Compute a temporary sigma grid for this boundary layer level
             #  where it is lower than the lowest "significant" model level
-            tmpSigma = where(BL_mask, BL_sigma[bl_i], 0.0)
+            tmpSigma = where(BL_mask, BL_sigma[bl_i], float32(0.0))
 
             #  Insert this level into the new RH and sigma cubes
             newRH_c += [tmpRH]
@@ -316,12 +322,12 @@ class GFS40Forecaster(Forecaster):
 
                 #  Compute a temporary RH grid where it is between the two 
                 #  "significant" model level data
-                tmpRH = where(BL_mask, bl_RHcube[bl_i], 0.0)
+                tmpRH = where(BL_mask, bl_RHcube[bl_i], float32(0.0))
 
 
                 #  Compute a temporary sigma grid for this boundary layer level
                 #  where it is between the two "significant" model levels
-                tmpSigma = where(BL_mask, BL_sigma[bl_i], 0.0)
+                tmpSigma = where(BL_mask, BL_sigma[bl_i], float32(0.0))
 
                 #  Insert this level into the new RH and sigma cubes
                 newRH_c += [tmpRH]
@@ -394,21 +400,18 @@ class GFS40Forecaster(Forecaster):
 ####  of QPF < 0.2 raise the PoP if it's very humid.
 ####-------------------------------------------------------------------------
     def calcPoP(self, gh_c, rh_c, QPF, topo):
-        rhavg = where(less(gh_c, topo), -1, rh_c)
-#        rhavg = where(greater(gh_c, topo + (5000 * 12 * 2.54) / 100),
-#                      -1, rhavg)
-        rhavg[greater(gh_c, topo + (5000 * 12 * 2.54) / 100)] = -1
-        count = where(not_equal(rhavg, -1), 1, 0)
-#        rhavg = where(equal(rhavg, -1), 0, rhavg)
+        rhavg = where(less(gh_c, topo), float32(-1), rh_c)
+        rhavg[greater(gh_c, topo + 5000 * 0.3048)] = -1
+        count = not_equal(rhavg, -1)
         rhavg[equal(rhavg, -1)] = 0
-        count = add.reduce(count, 0)
+        count = add.reduce(count, 0, dtype=float32)
         rhavg = add.reduce(rhavg, 0)
         ## add this much based on humidity only
         dpop = where(count, rhavg / (count + .001), 0) - 70.0
-        dpop = where(less(dpop, -30), -30, dpop)
+        dpop[less(dpop, -30)] = -30
         ## calculate the base PoP
         pop = where(less(QPF, 0.02), QPF * 1000, QPF * 350 + 13)
-        pop = pop + dpop   # add the adjustment based on humidity
+        pop += dpop   # add the adjustment based on humidity
         pop = clip(pop, 0, 100)  # clip to 100%
         return pop
 
@@ -434,11 +437,11 @@ class GFS40Forecaster(Forecaster):
         t_c = t_c[:clipindex, :, :]
         rh_c = rh_c[:clipindex, :, :]
 
-        snow = self._minus
+        snow = self.newGrid(-1)
         #
         #  make pressure cube
         #
-        pmb = ones(gh_c.shape)
+        pmb = ones_like(gh_c)
         for i in xrange(gh_c.shape[0]):
            pmb[i] = self.pres[i]
         pmb = clip(pmb, 1, 1050)
@@ -473,12 +476,13 @@ class GFS40Forecaster(Forecaster):
                  * (-wetb[i - 1])
            except:
               val = gh_c[i]
-           snow = where(logical_and(equal(snow, -1), less_equal(wetb[i], 0)),
-                      val, snow)
+              
+           m = logical_and(equal(snow, -1), less_equal(wetb[i], 0))
+           snow[m] = val[m]
         #
         #  convert to feet
         #
-        snow = snow * 3.28
+        snow *= 3.28
 
         return snow
 
@@ -491,16 +495,16 @@ class GFS40Forecaster(Forecaster):
 #        m1 = less(T, 9)
 #        m2 = greater_equal(T, 30)
 #        snowr = T * -0.5 + 22.5
-#        snowr = where(m1, 20, snowr)
-#        snowr = where(m2, 0, snowr)
+#        snowr[m1] = float32(20))
+#        snowr[m2] = float32(0)
 #        # calc. snow amount based on the QPF and the ratio
 #        snowamt = where(less_equal(FzLevel - 1000, topo * 3.28),
-#                        snowr * QPF, 0)
+#                        snowr * QPF, float32(0))
 #        # Only make snow at points where the weather is snow
 #        snowmask = logical_or(equal(Wx[0], 1), equal(Wx[0], 3))
 #        snowmask = logical_or(snowmask, logical_or(equal(Wx[0], 7),
 #                                                   equal(Wx[0], 9)))
-#        snowamt = where(snowmask, snowamt, 0)
+#        snowamt[logical_not(snowmask)] = 0
 #        return snowamt
 
 ###########################################################
@@ -529,9 +533,9 @@ class GFS40Forecaster(Forecaster):
         #cubeShape = (len(t_c) - 1, t_c.shape[1], t_c.shape[2])
         cubeShape = (len(t_c), t_c.shape[1], t_c.shape[2])
         gridShape = (t_c.shape[1], t_c.shape[2])
-        layerSR = zeros(cubeShape, dtype = float)
-        pvvAvg = zeros(cubeShape, dtype = float)
-        pvvSum = zeros(gridShape, dtype = float)
+        layerSR = zeros(cubeShape, dtype = float32)
+        pvvAvg = zeros(cubeShape, dtype = float32)
+        pvvSum = zeros(gridShape, dtype = float32)
 
         #print "cubeShape = ", cubeShape
 
@@ -547,14 +551,14 @@ class GFS40Forecaster(Forecaster):
 
             # adjust snowRatio based on lapseRate
             #lr = -(t_c[i+1] - t_c[i])
-            #lrAdj = where(greater_equal(lr,6.5), 1.0 + ((lr - lrMin) / (lrMax - lrMin)) * lrMaxAdj, 1.0)
+            #lrAdj = where(greater_equal(lr,6.5), 1.0 + ((lr - lrMin) / (lrMax - lrMin)) * lrMaxAdj, float32(1.0))
             #layerSR[i] = layerSR[i] * lrAdj
 
             # Calc avg pressure vertical velocity, scale based on RH and sum
             # reverse the pvvAvg sign so up is positive
             pvvAvg[i] = -10 * (pvv_c[i])
             # clip downward vertical velocities
-            pvvAvg[i] = where(less(pvvAvg[i], 0.0), 0.0, pvvAvg[i])
+            pvvAvg[i][less(pvvAvg[i], 0.0)] = 0.0
             # Scale vertical velocity as a function of the square of RH.
             # This scaling will efectively negate a snowratio contribution in
             # layers that are dry.
@@ -562,9 +566,9 @@ class GFS40Forecaster(Forecaster):
             pvvSum = pvvSum + pvvAvg[i]
 
         # Normalize the layerSnowRatio based on the pvv fraction of the total
-        totalSnowRatio = zeros(gridShape, dtype = float)
+        totalSnowRatio = zeros(gridShape, dtype = float32)
         #tweak the pvvSum grid to avoid division by zero
-        pvvSum = where(less_equal(pvvSum, 0.0), .0001, pvvSum)
+        pvvSum[less_equal(pvvSum, 0.0)] = .0001
         for i in range(len(layerSR)):
             srGrid = layerSR[i] * pvvAvg[i] / pvvSum
             totalSnowRatio = totalSnowRatio + srGrid
@@ -574,9 +578,9 @@ class GFS40Forecaster(Forecaster):
         # This is basically Baumgardt - Top Down Approach - No ice No dice!
         mask = logical_and(less(t_c, 265.15), greater_equal(rh_c, 50.0))
         mask = sum(mask)  # reduce to single level by adding bits verically
-        totalSnowRatio = where(equal(mask, 0), 0.0, totalSnowRatio)
+        totalSnowRatio[equal(mask, 0)] = 0.0
 
-        thicknessSnowRatio = zeros(gridShape, dtype = float)
+        thicknessSnowRatio = zeros(gridShape, dtype = float32)
 
 #########################################################
 #  Pick an applicable thickness scheme for your area
@@ -600,7 +604,7 @@ class GFS40Forecaster(Forecaster):
         else:  # "750-500"  
             thicknessSnowRatio = 20.0 - pow(((gh_MB550 - gh_MB750) - 2296.0) / 45.0 , 2)
 
-        thicknessSnowRatio = where(less(thicknessSnowRatio, 0.0), 0.0, thicknessSnowRatio)
+        thicknessSnowRatio[less(thicknessSnowRatio, 0.0)] = 0.0
 
         totalSnowRatio = (totalSnowRatio * 0.50) + (thicknessSnowRatio * 0.50)
         totalSnowRatio = where(less_equal(pvvSum, 100.0), (totalSnowRatio * 0.01 * pvvSum) + (thicknessSnowRatio * (1.0 - pvvSum * 0.01)), totalSnowRatio)
@@ -610,13 +614,12 @@ class GFS40Forecaster(Forecaster):
         mask = greater(t_c, 272.65)
         mask = sum(mask) # reduce to single level by adding bits vertically
         # if mask == 0, nowhere in the column is temp < 0.5C
-        totalSnowRatio = where(equal(mask, 0), totalSnowRatio, 0.0)
+        totalSnowRatio[not_equal(mask, 0)] = 0.0
         
         #Calculate Snowfall - taper to zero from 31 to 34 F.
         snowfall = QPF * totalSnowRatio
         snowfall = where(greater(T, 31.0), pow(35.0 - T, 2) / 16.0 * snowfall , snowfall)
-
-        snowfall = where(greater(T, 35.0), 0.0 , snowfall)
+        snowfall[greater(T, 35.0)] = 0.0
 
         # Return the new value
         return snowfall
@@ -634,10 +637,10 @@ class GFS40Forecaster(Forecaster):
         d = [0.0110, -0.0742, -0.0488, 0.0103, 0.2960, -0.1368, -0.0074, -0.0218, -0.0027]
 
         # Initialize the coeficient grids
-        aGrid = zeros(tGrid.shape) + a[-1]   #last value in list
-        bGrid = zeros(tGrid.shape) + b[-1]
-        cGrid = zeros(tGrid.shape) + c[-1]
-        dGrid = zeros(tGrid.shape) + d[-1]
+        aGrid = self.newGrid(a[-1])   #last value in list
+        bGrid = self.newGrid(b[-1])
+        cGrid = self.newGrid(c[-1])
+        dGrid = self.newGrid(d[-1])
         tDiff = zeros(tGrid.shape, dtype = float)
 
         # define grids of coefficients based on tGrid
@@ -656,8 +659,8 @@ class GFS40Forecaster(Forecaster):
                     + dGrid * pow(tDiff, 3)
 
         # Clip the snowRatio grid to 10.0 where tGrid is outside limits
-        #baseRatio = where(greater(tGrid, 1.0), 0.0, baseRatio)
-        #baseRatio = where(less(tGrid, tThresh[0]), 10.0, baseRatio)
+        #baseRatio[greater(tGrid, 1.0)] = 0.0
+        #baseRatio[less(tGrid, tThresh[0])] = 10.0
 
         return baseRatio
 
@@ -710,14 +713,14 @@ class GFS40Forecaster(Forecaster):
 
             # adjust snowRatio based on lapseRate
             #lr = -(t_c[i+1] - t_c[i])
-            #lrAdj = where(greater_equal(lr,6.5), 1.0 + ((lr - lrMin) / (lrMax - lrMin)) * lrMaxAdj, 1.0)
+            #lrAdj = where(greater_equal(lr,6.5), 1.0 + ((lr - lrMin) / (lrMax - lrMin)) * lrMaxAdj, float32(1.0))
             #layerSR[i] = layerSR[i] * lrAdj
 
             # Calc avg pressure vertical velocity, scale based on RH and sum
             # reverse the pvvAvg sign so up is positive
             pvvAvg[i] = -10 * (pvv_c[i])
             # clip downward vertical velocities
-            pvvAvg[i] = where(less(pvvAvg[i], 0.0), 0.0, pvvAvg[i])
+            pvvAvg[i][less(pvvAvg[i], 0.0)] = 0.0
             # Scale vertical velocity as a function of the square of RH.
             # This scaling will efectively negate a snowratio contribution in
             # layers that are dry.
@@ -727,7 +730,7 @@ class GFS40Forecaster(Forecaster):
         # Normalize the layerSnowRatio based on the pvv fraction of the total
         totalSnowRatio = zeros(gridShape, dtype = float)
         #tweak the pvvSum grid to avoid division by zero
-        pvvSum = where(less_equal(pvvSum, 0.0), .0001, pvvSum)
+        pvvSum[less_equal(pvvSum, 0.0)] = .0001
 
         for i in range(len(layerSR)):
             srGrid = layerSR[i] * pvvAvg[i] / pvvSum
@@ -738,7 +741,7 @@ class GFS40Forecaster(Forecaster):
         # This is basically Baumgardt - Top Down Approach - No ice No dice!
         mask = logical_and(less(t_c, 265.15), greater_equal(rh_c, 50.0))
         mask = sum(mask)  # reduce to single level by adding bits verically
-        totalSnowRatio = where(equal(mask, 0), 0.0, totalSnowRatio)
+        totalSnowRatio[equal(mask, 0)] = 0.0
 
         thicknessSnowRatio = zeros(gridShape, dtype=float)
 
@@ -766,7 +769,7 @@ class GFS40Forecaster(Forecaster):
 
 
 
-        thicknessSnowRatio = where(less(thicknessSnowRatio, 0.0), 0.0, thicknessSnowRatio)
+        thicknessSnowRatio[less(thicknessSnowRatio, 0.0)] = 0.0
         totalSnowRatio = (totalSnowRatio * 0.50) + (thicknessSnowRatio * 0.50)
         totalSnowRatio = where(less_equal(pvvSum, 100.0), (totalSnowRatio * 0.01 * pvvSum) + (thicknessSnowRatio * (1.0 - pvvSum * 0.01)), totalSnowRatio)
         totalSnowRatio = where(less(pvvSum, 1.0), thicknessSnowRatio, totalSnowRatio)
@@ -775,7 +778,7 @@ class GFS40Forecaster(Forecaster):
         mask = greater(t_c, 272.65)
         mask = sum(mask) # reduce to single level by adding bits vertically
         # if mask == 0, nowhere in the column is temp < 0.5C
-        totalSnowRatio = where(equal(mask, 0), totalSnowRatio, 0.0)  
+        totalSnowRatio[not_equal(mask, 0)] = 0.0  
 
         # Return the new value
         return totalSnowRatio
@@ -793,10 +796,10 @@ class GFS40Forecaster(Forecaster):
         d = [0.0110, -0.0742, -0.0488, 0.0103, 0.2960, -0.1368, -0.0074, -0.0218, -0.0027]
 
         # Initialize the coeficient grids
-        aGrid = zeros(tGrid.shape) + a[-1]   #last value in list
-        bGrid = zeros(tGrid.shape) + b[-1]
-        cGrid = zeros(tGrid.shape) + c[-1]
-        dGrid = zeros(tGrid.shape) + d[-1]
+        aGrid = self.newGrid(a[-1])   #last value in list
+        bGrid = self.newGrid(b[-1])
+        cGrid = self.newGrid(c[-1])
+        dGrid = self.newGrid(d[-1])
         tDiff = zeros(tGrid.shape, dtype = float)
 
         # define grids of coefficients based on tGrid
@@ -815,8 +818,8 @@ class GFS40Forecaster(Forecaster):
                     + dGrid * pow(tDiff, 3)
 
         # Clip the snowRatio grid to 10.0 where tGrid is outside limits
-        #baseRatio = where(greater(tGrid, 1.0), 0.0, baseRatio)
-        #baseRatio = where(less(tGrid, tThresh[0]), 10.0, baseRatio)
+        #baseRatio[greater(tGrid, 1.0)] = 0.0
+        #baseRatio[less(tGrid, tThresh[0])] = 10.0
 
         return baseRatio
 
@@ -841,16 +844,15 @@ class GFS40Forecaster(Forecaster):
         mask = greater_equal(gh_c, topo) # points where height > topo
         pt = []
         for i in xrange(len(self.pres)):   # for each pres. level
-            p = self._empty + self.pres[i] # get the pres. value in mb
+            p = self.newGrid(self.pres[i]) # get the pres. value in mb
             tmp = self.ptemp(t_c[i], p)    # calculate the pot. temp
             pt = pt + [tmp]                # add to the list
         pt = array(pt)
         # set up masks
-#        pt = where(mask, pt, 0)
         pt[logical_not(mask)] = 0
         avg = add.accumulate(pt, 0)
         count = add.accumulate(mask, 0)
-        mh = self._minus
+        mh = self.newGrid(-1)
         # for each pres. level, calculate a running avg. of pot temp.
         # As soon as the next point deviates from the running avg by
         # more than 3 deg. C, interpolate to get the mixing height.
@@ -860,10 +862,13 @@ class GFS40Forecaster(Forecaster):
             # calc. the interpolated mixing height
             tmh = self.linear(pt[i], pt[i - 1], gh_c[i], gh_c[i - 1], runavg)
             # assign new values if the difference is greater than 3
-            mh = where(logical_and(logical_and(mask[i], equal(mh, -1)),
-                                   greater(diffpt, 3)), tmh, mh)
+            m = logical_and(logical_and(mask[i], equal(mh, -1)),
+                                   greater(diffpt, 3))
+            mh[m] = tmh[m]
 
-        return (mh - topo) * 3.28  # convert to feet
+        mh -= topo
+        mh *= 3.28  # convert to feet
+        return mh
 
 ####-------------------------------------------------------------------------
 ####  Converts the lowest available wind level from m/s to knots
@@ -884,17 +889,18 @@ class GFS40Forecaster(Forecaster):
         # find the points that are above the 3000 foot level
         mask = greater_equal(gh_c, fatopo)
         # initialize the grids into which the value are stored
-        famag = self._minus
-        fadir = self._minus
+        famag = self.newGrid(-1)
+        fadir = self.newGrid(-1)
         # start at the bottom and store the first point we find that's
         # above the topo + 3000 feet level.
         for i in xrange(wind_c[0].shape[0]):
-            famag = where(equal(famag, -1),
-                          where(mask[i], wm[i], famag), famag)
-            fadir = where(equal(fadir, -1),
-                          where(mask[i], wd[i], fadir), fadir)
-        fadir = clip(fadir, 0, 360)  # clip the value to 0, 360
-        famag = famag * 1.94    # convert to knots
+            m = logical_and(equal(famag, -1), mask[i])
+            famag[m] = wm[i][m]
+            
+            m = logical_and(equal(fadir, -1), mask[i])
+            fadir[m] = wd[i][m]
+        fadir.clip(0, 360, fadir)  # clip the value to 0, 360
+        famag *= 1.94           # convert to knots
         return (famag, fadir)   # return the tuple of grids
 
 ####-------------------------------------------------------------------------
@@ -913,15 +919,16 @@ class GFS40Forecaster(Forecaster):
         u[logical_not(mask)] = 0
         v[logical_not(mask)] = 0
 
-        mask = add.reduce(mask) # add up the number of set points vert.
+        mask = add.reduce(mask).astype(float32) # add up the number of set points vert.
         mmask = mask + 0.0001
         # calculate the average value in the mixed layerlayer
-        u = where(mask, add.reduce(u) / mmask, 0)
-        v = where(mask, add.reduce(v) / mmask, 0)
+        u = where(mask, add.reduce(u) / mmask, float32(0))
+        v = where(mask, add.reduce(v) / mmask, float32(0))
         # convert u, v to mag, dir
         tmag, tdir = self._getMD(u, v)
-        tmag = tmag * 1.94   # convert to knots
-        tmag = clip(tmag, 0, 125)  # clip speed to 125 knots
+        #tdir.clip(0, 359.5, tdir)  #should this be added?
+        tmag *= 1.94   # convert to knots
+        tmag.clip(0, 125, tmag)  # clip speed to 125 knots
         return (tmag, tdir)
 
 ####-------------------------------------------------------------------------
@@ -942,10 +949,10 @@ class GFS40Forecaster(Forecaster):
         T = self.FtoK(T)
         p_SFC = p_SFC / 100  # sfc pres. in mb
         pres = self.pres
-        a1 = zeros(topo.shape)
-        a2 = zeros(topo.shape)
-        a3 = zeros(topo.shape)
-        aindex = zeros(topo.shape)
+        a1 = self.empty()
+        a2 = self.empty()
+        a3 = self.empty()
+        aindex = self.empty()
         # Go through the levels to identify each case type 0-3
         for i in xrange(1, gh_c.shape[0] - 1):
             # get the sfc pres. and temp.
@@ -961,7 +968,7 @@ class GFS40Forecaster(Forecaster):
             a3 = where(logical_and(equal(aindex, 2), topomask),
                        a3 + a11, a3)
             topomask = logical_and(topomask, cross)
-            aindex = where(topomask, aindex + 1, aindex)
+            aindex[topomask] += 1
             a1 = where(logical_and(equal(aindex, 0), topomask),
                        a1 + a22, a1)
             a2 = where(logical_and(equal(aindex, 1), topomask),
@@ -980,21 +987,14 @@ class GFS40Forecaster(Forecaster):
                "Chc:ZR:-:<NoVis>:", 'Chc:IP:-:<NoVis>:',
                'Chc:ZR:-:<NoVis>:^Chc:IP:-:<NoVis>:']
 
-        wx = zeros(self._empty.shape, dtype = byte)
+        wx = self.empty(int8)
         # Case d (snow)
         snowmask = equal(aindex, 0)
-#        wx = where(logical_and(snowmask, greater(a1, 0)), 2, wx)
-#        wx = where(logical_and(snowmask, less_equal(a1, 0)), 1, wx)
         wx[logical_and(snowmask, greater(a1, 0))] = 2
         wx[logical_and(snowmask, less_equal(a1, 0))] = 1
 
         # Case c (rain / snow / rainSnowMix)
         srmask = equal(aindex, 1)
-#        wx = where(logical_and(srmask, less(a1, 5.6)), 1, wx)
-#        wx = where(logical_and(srmask, greater(a1, 13.2)), 2, wx)
-#        wx = where(logical_and(srmask,
-#                               logical_and(greater_equal(a1, 5.6),
-#                                           less(a1, 13.2))), 3, wx)
         wx[logical_and(srmask, less(a1, 5.6))] = 1
         wx[logical_and(srmask, greater(a1, 13.2))] = 2
         wx[logical_and(srmask,
@@ -1005,24 +1005,16 @@ class GFS40Forecaster(Forecaster):
         # Case a (Freezing Rain / Ice Pellets)
         ipmask = equal(aindex, 2)
         ipm = greater(a1, a2 * 0.66 + 66)
-#        wx = where(logical_and(ipmask, ipm), 5, wx)
         wx[logical_and(ipmask, ipm)] = 5
         zrm = less(a1, a2 * 0.66 + 46)
-#        wx = where(logical_and(ipmask, zrm), 4, wx)
         wx[logical_and(ipmask, zrm)] = 4
         zrm = logical_not(zrm)
         ipm = logical_not(ipm)
-#        wx = where(logical_and(ipmask, logical_and(zrm, ipm)), 6, wx)
         wx[logical_and(ipmask, logical_and(zrm, ipm))] = 6
 
         # Case b (Ice pellets / rain)
         cmask = greater_equal(aindex, 3)
         ipmask = logical_and(less(a3, 2), cmask)
-#        wx = where(logical_and(ipmask, less(a1, 5.6)), 1, wx)
-#        wx = where(logical_and(ipmask, greater(a1, 13.2)), 2, wx)
-#        wx = where(logical_and(ipmask, logical_and(greater_equal(a1, 5.6),
-#                                                   less_equal(a1, 13.2))),
-#                   3, wx)
         wx[logical_and(ipmask, less(a1, 5.6))] = 1
         wx[logical_and(ipmask, greater(a1, 13.2))] = 2
         wx[logical_and(ipmask,
@@ -1030,16 +1022,10 @@ class GFS40Forecaster(Forecaster):
                                            less(a1, 13.2)))] = 3
 
         ipmask = logical_and(greater_equal(a3, 2), cmask)
-#        wx = where(logical_and(ipmask, greater(a1, 66 + 0.66 * a2)), 5, wx)
-#        wx = where(logical_and(ipmask, less(a1, 46 + 0.66 * a2)), 4, wx)
-#        wx = where(logical_and(ipmask,
-#                               logical_and(greater_equal(a1, 46 + 0.66 * a2),
-#                                           less_equal(a1, 66 + 0.66 * a2))),
-#                   6, wx)
         wx[logical_and(ipmask, greater(a1, 66 + 0.66 * a2))] = 5
         wx[logical_and(ipmask, less(a1, 46 + 0.66 * a2))] = 4
-        wx[logical_and(ipmask, logical_and(greater_equal(a1, 5.6),
-                                                   less_equal(a1, 13.2)))] = 6
+        wx[logical_and(ipmask, logical_and(greater_equal(a1, 46 + 0.66 * a2),
+                                           less_equal(a1, 66 + 0.66 * a2)))] = 6
 
         # Make showers (scattered/Chc)
 #         convecMask = greater(cp_SFC / (tp_SFC + .001), 0.5)
@@ -1052,10 +1038,9 @@ class GFS40Forecaster(Forecaster):
                 tcov = "Sct"
             key.append(key[i] + "^" + tcov
                        + ":T:<NoInten>:<NoVis>:")
-        wx = where(less_equal(sli_SFC, -3), wx + 13, wx)
+        wx[less_equal(sli_SFC, -3)] += 13
 
         # No wx where no qpf
-#        wx = where(less(QPF, 0.01), 0, wx)
         wx[less(QPF, 0.01)] = 0
 
         return(wx, key)
@@ -1072,7 +1057,7 @@ class GFS40Forecaster(Forecaster):
         m4 = logical_and(greater(QPF, 0.1), less(QPF, 0.3))
         # assign 0 to the dry grid point, 100 to the wet grid points,
         # and a ramping function to all point in between
-        cwr = where(m1, 0, where(m2, 100,
+        cwr = where(m1, float32(0), where(m2, float32(100),
                                  where(m3, 444.4 * (QPF - 0.01) + 10,
                                        where(m4, 250 * (QPF - 0.1) + 50,
                                              QPF))))
@@ -1084,22 +1069,18 @@ class GFS40Forecaster(Forecaster):
 ####-------------------------------------------------------------------------
     def calcLAL(self, tp_SFC, sli_SFC, rh_c, rh_BL030):
         bli = sli_SFC  # surface lifted index
-        ttp = self._empty + 0.00001   # nearly zero grid
-        lal = self._empty + 1         # initialize the return grid to 1
+        ttp = self.newGrid(0.00001)   # nearly zero grid
+        lal = self.newGrid(1)         # initialize the return grid to 1
         # Add one to lal if QPF > 0.5
-        lal = where(logical_and(logical_and(greater(tp_SFC, 0),
-                                            greater(ttp, 0)),
-                                greater(tp_SFC / ttp, 0.5)), lal + 1, lal)
+        lal[logical_and(greater(ttp, 0), greater(tp_SFC / ttp, 0.5))] += 1
         #  make an average rh field
         midrh = add.reduce(rh_c[6:9], 0) / 3
         # Add one to lal if mid-level rh high and low level rh low
-        lal = where(logical_and(greater(midrh, 70), less(rh_BL030, 30)),
-                    lal + 1, lal)
+        lal[logical_and(greater(midrh, 70), less(rh_BL030, 30))] += 1
 
         # Add on to lal if lifted index is <-3 and another if <-5
-        lal = where(less(bli, -3), lal + 1, lal)
-        lal = where(less(bli, -5), lal + 1, lal)
-
+        lal[less(bli, -3)] += 1
+        lal[less(bli, -5)] += 1
         return lal
 
 

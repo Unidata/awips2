@@ -5,6 +5,65 @@ overflow="visible"
 xmlns="http://www.w3.org/2000/svg" 
 xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
    <defs>
+<script type="text/python" plotDelegate="plotDelegate">
+import time
+
+class PirepTurbDelegate(PlotDelegate):
+    def __init__(self):
+        PlotDelegate.__init__(self)
+
+    def getSampleText(self, rec):
+        # use obsText for pirep
+        if rec.isValidParameter("obsText"):
+            return rec.getString("obsText")
+        # rebuild text for airep
+        sampleString = "ARP "
+        sampleString += " "
+        sampleString += " F%d" % (rec.getInt("flightLevel")/100)
+        
+        try:
+            turbFreq = rec.getString("turbFreq")
+        except ValueError:
+            turbFreq = ""
+        try:
+            turbInten = rec.getString("turbInten")
+        except ValueError:
+            turbInten = ""
+        if turbInten != ""  or turbFreq != "":
+            sampleString += " TB"
+            if turbInten != "":
+                sampleString += " "
+                sampleString += turbInten
+            if turbFreq != "":
+                sampleString += " "
+                sampleString += turbFreq
+        return sampleString
+        
+    def isValid(self, rec):
+        # DCS10257
+        # need some turbulence data
+        # only show non-severe
+        if rec.isValidParameter("turbInten"):
+            turbInten = rec.getString("turbInten")
+        else:
+            turbInten = ""
+        if rec.isValidParameter("turbFreq"):
+            turbFreq = rec.getString("turbFreq")
+        else:
+            turbFreq = ""
+        if (turbInten == "") and (turbFreq == ""):
+            # no turbulence data present
+            return False
+        elif (turbInten == "SEV") or (turbInten == "EXTRM"):
+            # turbulence data present, but not correct severity
+            return False
+        else:
+            # turbulence data present, and if severity is present it is not high
+            return True
+
+plotDelegate = PirepTurbDelegate()
+
+</script>
 <style type="text/css">
 <![CDATA[
         @font-face { font-family: "WindSymbolFont";

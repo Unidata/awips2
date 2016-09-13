@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 
 import com.raytheon.uf.common.dataplugin.tcs.Radius;
 import com.raytheon.uf.common.dataplugin.tcs.TropicalCycloneSummary;
-import com.raytheon.uf.common.dataplugin.tcs.util.Util;
+import com.raytheon.uf.common.dataplugin.tcs.util.TcsUtil;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.time.DataTime;
@@ -41,20 +41,27 @@ import com.raytheon.uf.common.wmo.WMOTimeParser;
 import com.raytheon.uf.edex.plugin.tcs.TropicalCycloneSummaryDao;
 
 /**
- * TODO Add Description
+ * Adapter for parsing a Tropical Cyclone Forecast/Advisory. TCM is the NNN of
+ * the AFOS PIL for Tropical Cyclone Forecast/Advisories. More information on
+ * the format of this product can be found at
+ * http://www.nhc.noaa.gov/aboutnhcprod.shtml#TCM and
+ * http://www.nws.noaa.gov/directives/sym/pd01006001curr.pdf.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Oct 20, 2010            jsanchez    Initial creation
- * Apr 19, 2012 457        dgilling    Use TimeTools.findDataTime()  to
- *                                     calculate times.
- * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
- * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
- * Jul 23, 2014 3410       bclement    location changed to floats
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Oct 20, 2010           jsanchez  Initial creation
+ * Apr 19, 2012  457      dgilling  Use TimeTools.findDataTime()  to calculate
+ *                                  times.
+ * Aug 30, 2013  2298     rjpeter   Make getPluginName abstract
+ * May 14, 2014  2536     bclement  moved WMO Header to common, removed
+ *                                  TimeTools usage
+ * Jul 23, 2014  3410     bclement  location changed to floats
+ * Nov 30, 2015  5149     bsteffen  Rename TcsUtil, add class javadoc
+ * Jun 22, 2016  5148     bsteffen  Handle additional cyclone types
  * 
  * </pre>
  * 
@@ -68,7 +75,7 @@ public class TCMData extends TCSDataAdapter {
             .compile("TCM(AT|EP|CP|WP)[1-5]");
 
     private static final Pattern stormNamePtrn = Pattern
-            .compile("(TROPICAL STORM|TROPICAL DEPRESSION|HURRICANE|TYPHOON)\\s{1,}(\\w{1,})");
+            .compile("^(TROPICAL STORM|TROPICAL DEPRESSION|HURRICANE|TYPHOON|SUBTROPICAL DEPRESSION|SUBTROPICAL STORM|POST-TROPICAL CYCLONE|REMNANTS OF)\\s{1,}(\\w{1,})");
 
     private static final Pattern pressurePtrn = Pattern
             .compile("(.*)PRESSURE\\s{1,}(\\d{1,5})(.*)");
@@ -209,7 +216,7 @@ public class TCMData extends TCSDataAdapter {
             }
             String mask = line;
             // Searching for the wind radius
-            if (Util.isWindRadius(type, mask, radius)) {
+            if (TcsUtil.isWindRadius(type, mask, radius)) {
                 if ((radius.getKFUnit() != 'x') && (radius.getKT_FT() != -1)
                         && (radius.getNE() != -1) && (radius.getSE() != -1)
                         && (radius.getSW() != -1) && (radius.getNW() != -1)) {

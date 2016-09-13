@@ -19,7 +19,7 @@
  **/
 package com.raytheon.viz.pointdata.rsc.retrieve;
 
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -52,7 +52,7 @@ import com.raytheon.viz.pointdata.rsc.PlotResourceData;
  * May 14, 2013 1869       bsteffen    Get plots working without dataURI
  * Jul 23, 2014 3410       bclement    location changed to floats
  * Aug 08, 2014 3477       bclement    changed plot info locations to floats
- * 
+ * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
  * </pre>
  * 
  * @author bsteffen
@@ -99,15 +99,14 @@ public class PointDataPlotInfoRetriever extends AbstractDbPlotInfoRetriever {
 
         if (data[3] instanceof DataTime) {
             stationInfo.dataTime = (DataTime) data[3];
-        } else if (data[3] instanceof Timestamp) {
-            stationInfo.dataTime = new DataTime((Timestamp) data[3]);
+        } else if (data[3] instanceof Date) {
+            stationInfo.dataTime = new DataTime((Date) data[3]);
         } else {
             String message = "Incorrect dataTime class type from database, expected "
                     + DataTime.class.getName()
                     + " or "
-                    + Timestamp.class.getName()
-                    + " but recieved a "
-                    + data[4].getClass().getName();
+                    + Date.class.getName()
+                    + " but recieved a " + data[4].getClass().getName();
             statusHandler.handle(Priority.CRITICAL, message, new Exception(
                     message));
         }

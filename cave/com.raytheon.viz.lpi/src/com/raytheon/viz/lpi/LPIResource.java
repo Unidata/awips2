@@ -41,12 +41,10 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.PointStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.maps.rsc.StyledMapResource;
-import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability;
@@ -68,6 +66,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * May 16, 2014  3163     bsteffen    Remove WORD_WRAP TextStyle and handle
  *                                    wrapping locally.
  * Aug 21, 2014 #3459     randerso    Restructured Map resource class hierarchy
+ * Nov 05, 2015 #5070     randerso    Moved label font management up to AbstractMapResource
  * 
  * </pre>
  * 
@@ -75,8 +74,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  */
 public class LPIResource extends
-        StyledMapResource<LPIResourceData, IMapDescriptor> implements
-        IResourceDataChanged {
+        StyledMapResource<LPIResourceData, IMapDescriptor> {
 
     /** Whether the resource is ready to be drawn */
     private boolean ready = false;
@@ -86,8 +84,6 @@ public class LPIResource extends
     private int maxLen = 0;
 
     private int pixelSizeHint = 90;
-
-    private IFont font;
 
     private class LPIPoint {
         public Coordinate latLon;
@@ -106,20 +102,6 @@ public class LPIResource extends
     protected LPIResource(LPIResourceData resourceData,
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
-        resourceData.addChangeListener(this);
-    }
-
-    @Override
-    public void resourceChanged(ChangeType type, Object object) {
-        if (type == ChangeType.CAPABILITY) {
-            if (object instanceof MagnificationCapability) {
-                if (font != null) {
-                    font.dispose();
-                    font = null;
-                }
-            }
-        }
-        this.issueRefresh();
     }
 
     /*
@@ -215,6 +197,7 @@ public class LPIResource extends
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
+
         if (ready) {
             int displayWidth = (int) (this.descriptor.getMapWidth() * paintProps
                     .getZoomLevel());
@@ -225,17 +208,12 @@ public class LPIResource extends
             double magnification = getCapability(MagnificationCapability.class)
                     .getMagnification();
 
-            if (this.font == null) {
-                font = target.initializeFont(target.getDefaultFont()
-                        .getFontName(), (float) (10 * magnification), null);
-            }
-
             double displayHintSize = this.pixelSizeHint * magnification;
             double minSepDist = (displayHintSize * (metersPerPixel / 1000.0))
                     / getCapability(DensityCapability.class).getDensity();
 
             DrawableString test = new DrawableString("N", null);
-            test.font = font;
+            test.font = getFont(target);
             Rectangle2D charSize = target.getStringsBounds(test);
             double charWidth = charSize.getWidth();
             double charHeight = charSize.getHeight();
@@ -279,7 +257,7 @@ public class LPIResource extends
                         String label = p.label;
                         label = label.replaceAll("([^\n]{3}\\S*)\\s+", "$1\n");
                         DrawableString string = new DrawableString(label, color);
-                        string.font = font;
+                        string.font = getFont(target);
                         string.setCoordinates(p.pixel[0] + offsetX, p.pixel[1]
                                 + offsetY);
                         string.horizontalAlignment = align;
@@ -291,20 +269,6 @@ public class LPIResource extends
 
             target.drawStrings(strings);
             target.drawPoints(pointList, color, pointStyle, 1.0f);
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#dispose()
-     */
-    @Override
-    protected void disposeInternal() {
-        resourceData.removeChangeListener(this);
-        if (font != null) {
-            font.dispose();
-            font = null;
         }
     }
 

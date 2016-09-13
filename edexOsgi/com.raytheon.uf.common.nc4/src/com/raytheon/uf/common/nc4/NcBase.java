@@ -11,7 +11,7 @@ package com.raytheon.uf.common.nc4;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 import edu.mit.ll.netcdf.LLNetcdfAttrJNI;
 import edu.mit.ll.netcdf.LLNetcdfException;
@@ -20,20 +20,20 @@ import edu.mit.ll.netcdf.LLNetcdfException;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 7, 2013            bclement     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author bclement
- * @version 1.0	
+ * @version 1.0
  */
 public abstract class NcBase {
-    
+
     protected int fileId;
 
     protected int varId;
@@ -44,7 +44,7 @@ public abstract class NcBase {
         this.fileId = fileId;
         this.varId = varId;
     }
-   
+
     /**
      * Add attribute. This method can only be called when file is in define mode
      * before {@link Netcdf#endFileDefinition()} is called.

@@ -208,8 +208,8 @@ class Tool (SmartScript.SmartScript):
          if (self.guiInfo['vectedit']==1):
             newspd=speed
             newdir=direc+zval
-            newdir=where(greater(newdir,360),subtract(newdir,360),newdir)
-            newdir=where(less(newdir,0),add(newdir,360),newdir)
+            newdir[greater(newdir, 360)] -= 360
+            newdir[less(newdir ,0)] += 360
          elif (self.guiInfo['vectedit']==0):
             newspd=clip(speed+zval,absmin,absmax)
             newdir=direc
@@ -218,8 +218,8 @@ class Tool (SmartScript.SmartScript):
             zval=self.OA.Serp(self.ylist,self.xloclist,self.yloclist,self.hloclist,
                         self.elevfactor,Topo)
             newdir=direc+zval
-            newdir=where(greater(newdir,360),subtract(newdir,360),newdir)
-            newdir=where(less(newdir,0),add(newdir,360),newdir)
+            newdir[greater(newdir, 360)] -= 360
+            newdir[less(newdir ,0)] += 360
 
          return (newspd,newdir)
 #---------------------------------------------------------------------------
@@ -623,7 +623,7 @@ class Tool (SmartScript.SmartScript):
          #  Average over the first (y) dimension - making the 'mid' grid
          #
          mask=clip(mask,0,1)
-         gridmin1=where(mask,gridmin,0)
+         gridmin1=where(mask,gridmin,float32(0))
          mid=grid*0.0
          midd=grid*0.0
          c=cumsum(gridmin1,0)

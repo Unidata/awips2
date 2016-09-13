@@ -29,6 +29,8 @@
         key="WVPER" indentText="true" />
     <contribute xsi:type="menuItem" menuText="Wind Wave Len"
         key="WVLEN" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Wave Steepness"
+        key="WSTP" indentText="true" />
     <contribute xsi:type="menuItem" menuText="Swell Hgt" key="SWELL"
         indentText="true" />
     <contribute xsi:type="menuItem" menuText="Swell Dir" key="SWdir"
@@ -48,6 +50,8 @@
     <contribute xsi:type="menuItem" menuText="Ice growth rate"
         key="ICEG" indentText="false" />
     <contribute xsi:type="menuItem" menuText="Salinity" key="SALTY"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Practical Salinity" key="SALIN"
         indentText="false" />
     <contribute xsi:type="menuItem" menuText="Sea Surface Height"
         key="SSHG" indentText="false" />
@@ -76,9 +80,9 @@
         key="USSD" indentText="false" />
     <contribute xsi:type="menuItem" menuText="V-component stokes drift"
         key="VSSD" indentText="false" />
-     <contribute xsi:type="menuItem" menuText="Period of Maximum Individual Wave Height" 
+    <contribute xsi:type="menuItem" menuText="Period of Maximum Individual Wave Height" 
         key="PMAXWH" indentText="false" />
-     <contribute xsi:type="menuItem" menuText="Maximum Individual Wave Height" 
+    <contribute xsi:type="menuItem" menuText="Maximum Individual Wave Height" 
         key="MAXWH" indentText="false" />
          <contribute xsi:type="menuItem" menuText="Mean wave period second moment" 
         key="MP2" indentText="false" /> 

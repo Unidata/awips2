@@ -29,7 +29,7 @@ class MyNAM12Forecaster(NAM12Forecaster):
 
     def calcSnowAmt(self, T, QPF):
         m2 = less_equal(T, 32)
-        snowamt = where(m2, 10.0 * QPF, 0)
+        snowamt = where(m2, 10.0 * QPF, float32(0))
         return snowamt
 
     def calcRH(self, rh_FHAG2):

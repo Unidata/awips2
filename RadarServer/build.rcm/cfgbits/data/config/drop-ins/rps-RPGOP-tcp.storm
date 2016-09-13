@@ -10,10 +10,7 @@ Velocity (V)                             V    99 256    25 -     5     -1 0 1N -
 Reflectivity (Z)                         Z    19  16   100 -     5     -1 0 1N -1 -1 N     -1      0
 Reflectivity (Z)                         Z    20  16   200 -     5     -1 0 1N -1 -1 N     -1      0
 Velocity (V)                             V    27  16   100 -     5     -1 0 1N -1 -1 N     -1      0
-Storm Rel Velocity (SRM)                 SRM  56  16   100 -     5     -1 0 1N -1 -1 N     -1      0
-Storm Rel Velocity (SRM)                 SRM  56  16   100 -    15     -1 0 1N -1 -1 N     -1      0
-Storm Rel Velocity (SRM)                 SRM  56  16   100 -    25     -1 0 1N -1 -1 N     -1      0
-Storm Rel Velocity (SRM)                 SRM  56  16   100 -    35     -1 0 1N -1 -1 N     -1      0
+Storm Rel Velocity (SRM)                 SRM  56  16   100 -  8226     -1 0 1N -1 -1 N     -1      0
 Composite Ref (CZ)                       CZ   37  16   100 -    -1     -1 0 1N  2 -1 N     -1      0
 Composite Ref (CZ)                       CZ   38  16   400 -    -1     -1 0 1N  2 -1 N     -1      0
 Lyr Comp Ref Max (LRM) Level 1           LRM  65   8     0 L    -1     -1 0 1N -1 -1 N     -1      0
@@ -43,6 +40,11 @@ Correlation Coeff (CC)                   CC  161 256    25 -  8226     -1 0 1N -
 Specific Diff Phase (KDP)                KDP 163 256    25 -  8226     -1 0 1N -1 -1 N     -1      0
 Hydrometeor Class (HC)                   HC  165 256    25 -  8226     -1 0 1N -1 -1 N     -1      0
 Melting Layer (ML)                       ML  166   0     0 -  8226     -1 0 1N -1 -1 N     -1      0
+Differential Refl (ZDR)                  ZDR 159 256    25 -     5     -1 0 1N -1 -1 Y     -1      0
+Correlation Coeff (CC)                   CC  161 256    25 -     5     -1 0 1N -1 -1 Y     -1      0
+Specific Diff Phase (KDP)                KDP 163 256    25 -     5     -1 0 1N -1 -1 Y     -1      0
+Hydrometeor Class (HC)                   HC  165 256    25 -     5     -1 0 1N -1 -1 Y     -1      0
+Melting Layer (ML)                       ML  166   0     0 -     5     -1 0 1N -1 -1 Y     -1      0
 Digital Inst Precip Rate (DPR)           DPR 176   0    25 -    -1     -1 0 1N -1 -1 N     -1      0
 Hybrid Hydrometeor Class (HHC)           HHC 177 256    25 -    -1     -1 0 1N -1 -1 N     -1      0
 One Hour Accum (OHA)                     OHA 169  16   200 -    -1     -1 0 1N -1 -1 N     -1      0

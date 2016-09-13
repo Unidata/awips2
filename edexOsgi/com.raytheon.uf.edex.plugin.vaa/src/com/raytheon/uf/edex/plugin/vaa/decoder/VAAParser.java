@@ -30,6 +30,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.raytheon.edex.esb.Headers;
+import com.raytheon.uf.common.dataplugin.NullUtil;
 import com.raytheon.uf.common.dataplugin.exception.MalformedDataException;
 import com.raytheon.uf.common.dataplugin.vaa.VAARecord;
 import com.raytheon.uf.common.dataplugin.vaa.VAASubPart;
@@ -52,6 +53,7 @@ import com.raytheon.uf.common.wmo.WMOHeader;
  * Mar 10, 2014 2807       skorolev    Added MalformedDataException for VAA decoding.
  * May 14, 2014 2536       bclement    moved WMO Header to common
  * Jul 23, 2014 3410       bclement    location changed to floats
+ * Jul 21, 2015 4360       rferrel     The {@link VAARecord}'s advisoryNumber can no longer be null.
  * 
  * </pre>
  * 
@@ -169,6 +171,7 @@ public class VAAParser implements Iterable<VAARecord> {
         VAARecord vaa = new VAARecord();
         vaa.setTraceId(traceId);
         vaa.setWmoHeader(wmoHeader.getWmoHeader());
+        vaa.setAdvisoryNumber(NullUtil.NULL_STRING);
         String cor = wmoHeader.getBBBIndicator();
         if (cor != null) {
             Matcher m = COR_P.matcher(cor);

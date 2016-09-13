@@ -2,7 +2,7 @@
 #  This file contains entries for the 2.5km Gridded LAMP database initialization.
 #
 #  Author:  Joshua Watson					Created: 09/28/2011
-#	    ERH					  	  Last Modified: 12/12/2014 
+#	    ERH					  	  Last Modified: 12/22/2015 
 #
 
 ################################################################################
@@ -14,7 +14,7 @@ class GFSLAMPGridForecaster(Forecaster):
 
     def calcCigHgt(self, cc_CLG):
         ceil = cc_CLG / 0.3048 
-        ceil = where(less(cc_CLG, 0), -99., ceil)
+        ceil[less(cc_CLG, 0)] = -99.
         return ceil
 
     def calcVis(self, vis_SFC):
@@ -25,6 +25,14 @@ class GFSLAMPGridForecaster(Forecaster):
 
     def calcTd(self, dpt_FHAG2):
         return self.KtoF(dpt_FHAG2)
+
+    def calcSky(self, tcc_SFC):
+        return clip(tcc_SFC, 0, 100)
+
+    def calcWind(self, wd_FHAG10, ws_FHAG10):
+        spd = self.convertMsecToKts(ws_FHAG10)
+        dir = wd_FHAG10
+        return (spd, dir)   
 
 ################################################################################
 #  Set this file up to run with SmartInitialization

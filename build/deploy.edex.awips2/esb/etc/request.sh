@@ -19,12 +19,18 @@
 # further licensing information.
 ##
 export INIT_MEM=128 # in Meg
-export MAX_MEM=2048 # in Meg
-export SERIALIZE_POOL_MAX_SIZE=48
+export MAX_MEM=2024 # in Meg
+export SERIALIZE_POOL_MAX_SIZE=500
 export SERIALIZE_STREAM_INIT_SIZE_MB=2
 export SERIALIZE_STREAM_MAX_SIZE_MB=8
-
+export MAX_PERM_SIZE=400m
 
 export EDEX_DEBUG_PORT=5005
 export EDEX_JMX_PORT=1616
+export LOG_CONF=logback-request.xml
 export MGMT_PORT=9601
+export HTTP_PORT=9581
+# from data delivery centralRegistry.sh
+export METADATA_POOL_TIMEOUT=60
+export CLUSTER_ID=NCF
+export SOFT_REF_LRU_POLICY_MS_PER_MB=50

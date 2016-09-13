@@ -2,20 +2,16 @@
 # LOCAL_RADARS (including terminal) - MUST HAVE THIS LINE
 
 # DIAL_RADARS - MUST HAVE THIS LINE
-kabr
+kpux
 kcys
-kdmx
+kgjx
 kgld
 kuex
-keax
-karx
-kmpx
 klnx
-kdvn
 kudx
-kfsd
-ktwx
-tmsp
+kddc
+kama
+kabx
 
 # TDWR_RADARS - MUST HAVE THIS LINE
 tadw

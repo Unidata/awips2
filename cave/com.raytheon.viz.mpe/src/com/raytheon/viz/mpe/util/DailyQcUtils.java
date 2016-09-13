@@ -67,6 +67,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Oct 14, 2015 17977      snaples     Fixed loadData to read station
  *                                     lists when new area, which means it needs to read some tokens also.
  * Nov 25, 2015 17986      snaples     Updated array func to adjust QC codes for update to dialogs.
+ * Apr 05, 2016 18350      snaples     Initialized station arrays inside of loadDataSet, was only on
+ *                                     class initialization.
  * 
  * </pre>
  * 
@@ -266,11 +268,11 @@ public class DailyQcUtils {
 
     public static int old_isom = -1;
 
-    public static ArrayList<Station> precip_stations = new ArrayList<Station>();
+    public static ArrayList<Station> precip_stations;
 
-    public static ArrayList<Station> temperature_stations = new ArrayList<Station>();
+    public static ArrayList<Station> temperature_stations;
 
-    public static ArrayList<Station> freezing_stations = new ArrayList<Station>();
+    public static ArrayList<Station> freezing_stations;
 
     public static Pdata pdata[];
 
@@ -529,7 +531,7 @@ public class DailyQcUtils {
 
     // public static BufferedWriter td_fpwr;
 
-    public DailyQcUtils() {
+    private DailyQcUtils() {
         // empty constructor
     }
 
@@ -1017,6 +1019,11 @@ public class DailyQcUtils {
         ReadQPFGrids rqg = new ReadQPFGrids();
         WriteQPFGrids wqg = new WriteQPFGrids();
 
+     // Initialize the station list arrays 
+        precip_stations = new ArrayList<Station>();
+        temperature_stations = new ArrayList<Station>();
+        freezing_stations = new ArrayList<Station>();
+        
         if ((pdata == null) || (pdata.length < 1)) {
             new_area_flag = 1;
         }
@@ -2160,5 +2167,16 @@ public class DailyQcUtils {
      */
     public void setMax_basins(int max_basins) {
         this.max_basins = max_basins;
+    }
+    
+    /**
+     * Clean up all data and remove the instance
+     * 
+     */
+    public void destroy() {
+        clearData();
+        if (instance != null) {
+            instance = null;
+        }
     }
 }

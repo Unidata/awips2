@@ -5,7 +5,7 @@
 	<property name="build.version" value="1.0.0" />
 	<property name="build.os" value="linux" />
 	<property name="build.ws" value="gtk" />
-	<property name="build.arch" value="x86" />
+	<property name="build.arch" value="x86_64" />
 	<property name="workspace.dir" value="${basedir}/../" />
 
 	<property name="pde.build.script" value="org.eclipse.pde.build_3.8.2.v20121114-140810/scripts/build.xml" />
@@ -182,10 +182,13 @@
 			<param name="feature" value="com.raytheon.viz.warngen.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
-			<param name="feature" value="com.raytheon.viz.grib.feature" />
+			<param name="feature" value="com.raytheon.uf.viz.grid.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.kml.export.feature" />
+		</antcall>
+		<antcall target="p2.build.repo">
+			<param name="feature" value="com.raytheon.uf.viz.nwsauth.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.viz.gfe.feature" />
@@ -218,9 +221,6 @@
 			<param name="feature" value="com.raytheon.uf.viz.ncep.nsharp.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
-			<param name="feature" value="com.raytheon.uf.viz.d2d.nsharp.feature" />
-		</antcall>
-		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.archive.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
@@ -230,21 +230,32 @@
 			<param name="feature" value="com.raytheon.uf.viz.thinclient.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
+			<param name="feature" value="com.raytheon.uf.viz.useradmin.feature" />
+		</antcall>
+		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.registry.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
-			<param name="feature" value="com.raytheon.uf.viz.npp.feature" />
+			<param name="feature" value="com.raytheon.uf.viz.datadelivery.feature" />
 		</antcall>
         <antcall target="p2.build.repo">
-             <param name="feature"
-                  value="com.raytheon.uf.viz.ncep.npp.feature" />
-        </antcall>		
+            <param name="feature" value="com.raytheon.uf.viz.npp.feature" />
+        </antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.d2d.skewt.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.viz.volumebrowser.feature" />
 		</antcall>
+        <antcall target="p2.build.repo">
+            <param name="feature" value="com.raytheon.uf.viz.d2d.nsharp.feature" />
+        </antcall>
+        <antcall target="p2.build.repo">
+            <param name="feature" value="com.raytheon.uf.viz.npp.sounding.feature" />
+        </antcall>
+        <antcall target="p2.build.repo">
+             <param name="feature" value="com.raytheon.uf.viz.ncep.npp.feature" />
+        </antcall>      
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.acarssounding.feature" />
 		</antcall>
@@ -252,13 +263,16 @@
                 <param name="feature" value="com.raytheon.uf.viz.ncep.npp.feature" />
                 </antcall>
 		<antcall target="p2.build.repo">
+			<param name="feature" value="com.raytheon.viz.avnfps.feature" />
+		</antcall>
+		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.dat.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.d2d.gfe.feature" />
 		</antcall>
-        	<antcall target="p2.build.repo">
-             		<param name="feature" value="com.raytheon.uf.viz.d2d.damagepath.feature" />
+        <antcall target="p2.build.repo">
+            <param name="feature" value="com.raytheon.uf.viz.d2d.damagepath.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.gisdatastore.feature" />

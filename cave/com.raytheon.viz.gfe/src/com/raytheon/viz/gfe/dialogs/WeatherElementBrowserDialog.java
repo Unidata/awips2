@@ -34,6 +34,7 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
@@ -41,7 +42,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
@@ -69,12 +70,13 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  * 06/27/2008              ebabin      Updated to properly add fields.
  * 04/30/2009   2282       rjpeter     Refactored.
  * 08/19/2009   2547       rjpeter     Fix Test/Prac database display.
- * 02/22/2012    14351      mli         update with incoming new grids.
- * 09/12/2012   #1117      dgilling    Revert previous changes, retrieve
+ * 02/22/2012   14351      mli         update with incoming new grids.
+ * 09/12/2012   1117       dgilling    Revert previous changes, retrieve
  *                                     database list from ParmManager
  *                                     not EDEX.
  * 10/30/2012   1298       rferrel     Code clean up non-blocking dialog.
  *                                      Changes for non-blocking WeatherElementGroupDialog.
+ * 03/07/2016   5444       randerso    Fix hard coded sizes of GUI elements
  * </pre>
  * 
  * @author ebabin
@@ -82,6 +84,12 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  */
 
 public class WeatherElementBrowserDialog extends CaveJFACEDialog {
+    private static final int NUM_LIST_ITEMS = 10;
+
+    private static final int NUM_SEL_ITEMS = 20;
+
+    private static final int NUM_CHARS = 20;
+
     private DataManager dataManager;
 
     private Menu sourceMenu, fieldsMenu, presMenu, miscMenu;
@@ -103,7 +111,7 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
 
     private HashMap<String, ParmID> productIDs = new HashMap<String, ParmID>();
 
-    private ToolBar sourceToolBar, fieldsToolBar, presToolBar, miscToolBar;
+    private ToolBar sourceToolBar, fieldsToolBar, planesToolBar;
 
     private ToolItem sourceToolItem, fieldsToolItem, presToolItem,
             miscToolItem;
@@ -112,28 +120,20 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
 
     private ParmID[] currentDisplayedParms;
 
-    private final Point size = new Point(603, 778);
-
     private final String IFP = "IFP";
+
+    private int charWidth;
 
     /**
      * Constructor
+     * 
+     * @param parent
+     * @param dataManager
      */
     public WeatherElementBrowserDialog(Shell parent, DataManager dataManager) {
         super(parent);
-        setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE);
+        setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE | SWT.RESIZE);
         this.dataManager = dataManager;
-    }
-
-    @Override
-    protected Control createContents(Composite parent) {
-        Control contents = super.createContents(parent);
-
-        // Point size = getInitialSize();
-        getShell().setSize(size);
-        getShell().setLocation(getInitialLocation(size));
-
-        return contents;
     }
 
     @Override
@@ -185,8 +185,11 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
      */
     private void initializeComponents(Composite parent) {
         getDatabases();
-
         loadTypesAndSites();
+
+        GC gc = new GC(parent);
+        charWidth = gc.getFontMetrics().getAverageCharWidth();
+        gc.dispose();
 
         createTypesComp(parent);
         createSourceComp(parent);
@@ -208,7 +211,7 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
         final WeatherElementGroupDialog dialog = new WeatherElementGroupDialog(
                 getShell(), dataManager, true);
         dialog.setBlockOnOpen(false);
-        dialog.setCloseCallback(new ICloseCallback() {
+        dialog.addCloseCallback(new ICloseCallback() {
 
             @Override
             public void dialogClosed(Object returnValue) {
@@ -259,14 +262,14 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
         final WeatherElementGroupDialog dialog = new WeatherElementGroupDialog(
                 getShell(), this.dataManager, false);
         dialog.setBlockOnOpen(false);
-        dialog.setCloseCallback(new ICloseCallback() {
+        dialog.addCloseCallback(new ICloseCallback() {
 
             @Override
             public void dialogClosed(Object returnValue) {
                 if (returnValue instanceof Integer) {
                     int returnCode = (Integer) returnValue;
-                    if (returnCode == Window.OK
-                            && dialog.getSelectedItem() != null) {
+                    if ((returnCode == Window.OK)
+                            && (dialog.getSelectedItem() != null)) {
                         String groupName = dialog.getSelectedItem();
                         // we may have just overridden a site or base level
                         // group, need to verify menu item can be deleted
@@ -404,6 +407,7 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
      */
     private void createTypesComp(Composite parent) {
 
+<<<<<<< HEAD
         //GridData data = new GridData(100, 200);
         //Composite comp = new Composite(parent, SWT.BORDER);
         //comp.setLayoutData(data);
@@ -428,6 +432,30 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
 //            });
 
             if (typeEntries.indexOf(entry) == 1) {
+=======
+        Group group = new Group(parent, SWT.BORDER);
+        GridData layoutData = new GridData(SWT.DEFAULT, SWT.FILL, false, true);
+        group.setLayoutData(layoutData);
+        group.setLayout(new GridLayout());
+        group.setText("Types");
+
+        for (final WEBrowserTypeRecord entry : typeEntries) {
+            final Button b = new Button(group, SWT.RADIO | SWT.BORDER);
+            layoutData = new GridData(SWT.DEFAULT, SWT.DEFAULT);
+            b.setLayoutData(layoutData);
+            b.setText(entry.getType());
+            b.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    if (b.getSelection()) {
+                        selectedType = entry;
+                        setupListsForCurrentType();
+                    }
+                }
+            });
+
+            if (typeEntries.indexOf(entry) == 0) {
+>>>>>>> origin/unidata_16.2.2
                 selectedType = entry;
                 //b.setSelection(true);
             }
@@ -828,6 +856,7 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
      * Creates the source composite.
      */
     private void createSourceComp(Composite parent) {
+<<<<<<< HEAD
     	
         Composite comp = new Composite(parent, SWT.BORDER);
         comp.setLayout(new GridLayout(1, true));
@@ -835,10 +864,18 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
         comp.setLayoutData(data);
         data = new GridData();
         data.horizontalAlignment = SWT.LEFT;
+=======
+        Group group = new Group(parent, SWT.BORDER);
+        group.setLayout(new GridLayout(1, true));
+        GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
+        group.setLayoutData(layoutData);
+        group.setText("Sources");
+>>>>>>> origin/unidata_16.2.2
 
         sourceMenu = new Menu(getParentShell(), SWT.POP_UP);
-        sourceToolBar = new ToolBar(comp, SWT.NONE);
-        sourceToolBar.setLayoutData(new GridData(90, SWT.DEFAULT));
+        sourceToolBar = new ToolBar(group, SWT.NONE);
+        sourceToolBar.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
+                false));
 
         sourceToolItem = new ToolItem(sourceToolBar, SWT.DROP_DOWN);
         sourceToolItem.setText("Source");
@@ -853,16 +890,20 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
                 sourceMenu.setVisible(true);
             }
         });
-        sourceList = new ToggleSelectList(comp, SWT.V_SCROLL | SWT.MULTI);
-        data = new GridData(130, SWT.DEFAULT);
+        sourceList = new ToggleSelectList(group, SWT.V_SCROLL | SWT.H_SCROLL
+                | SWT.MULTI);
         sourceList.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent arg0) {
                 processSourceSelection();
             }
         });
-        data = new GridData(GridData.FILL_BOTH);
-        sourceList.setLayoutData(data);
+        layoutData = new GridData(GridData.FILL_BOTH);
+        Rectangle trim = sourceList.computeTrim(0, 0, charWidth * NUM_CHARS,
+                sourceList.getItemHeight() * NUM_LIST_ITEMS);
+        layoutData.widthHint = trim.width;
+        layoutData.heightHint = trim.height;
+        sourceList.setLayoutData(layoutData);
     }
 
     private static void resetMenu(Menu menu) {
@@ -877,15 +918,25 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
      * Creates the field composite.
      */
     private void createFieldsComp(Composite parent) {
+<<<<<<< HEAD
         GridData data = new GridData(170, 200);
         Composite comp = new Composite(parent, SWT.BORDER);
         comp.setLayout(new GridLayout());
         comp.setLayoutData(data);
         data = new GridData();
         data.horizontalAlignment = SWT.CENTER;
+=======
+        Group group = new Group(parent, SWT.BORDER);
+        group.setLayout(new GridLayout());
+        GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
+        group.setLayoutData(layoutData);
+        group.setText("Fields");
+>>>>>>> origin/unidata_16.2.2
 
         fieldsMenu = new Menu(getParentShell(), SWT.POP_UP);
-        fieldsToolBar = new ToolBar(comp, SWT.NONE);
+        fieldsToolBar = new ToolBar(group, SWT.NONE);
+        fieldsToolBar.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
+                false));
         fieldsToolItem = new ToolItem(fieldsToolBar, SWT.DROP_DOWN);
         fieldsToolItem.setText("Field");
         fieldsToolItem.addSelectionListener(new SelectionAdapter() {
@@ -898,21 +949,27 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
                 fieldsMenu.setVisible(true);
             }
         });
-        fieldsList = new ToggleSelectList(comp, SWT.V_SCROLL | SWT.MULTI);
+        fieldsList = new ToggleSelectList(group, SWT.V_SCROLL | SWT.H_SCROLL
+                | SWT.MULTI);
         fieldsList.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent arg0) {
                 processFieldSelection();
             }
         });
-        data = new GridData(GridData.FILL_BOTH);
-        fieldsList.setLayoutData(data);
+        layoutData = new GridData(GridData.FILL_BOTH);
+        Rectangle trim = sourceList.computeTrim(0, 0, charWidth * NUM_CHARS,
+                sourceList.getItemHeight() * NUM_LIST_ITEMS);
+        layoutData.widthHint = trim.width;
+        layoutData.heightHint = trim.height;
+        fieldsList.setLayoutData(layoutData);
     }
 
     /**
      * Creates the plans composite.
      */
     private void createPlanesComp(Composite parent) {
+<<<<<<< HEAD
         GridData data = new GridData(220, 200);
         Composite comp = new Composite(parent, SWT.BORDER);
         comp.setLayout(new GridLayout(2, false));
@@ -920,16 +977,23 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
         data = new GridData();
         data.horizontalAlignment = SWT.CENTER;
         data.horizontalSpan = 2;
+=======
+        Group group = new Group(parent, SWT.BORDER);
+        group.setLayout(new GridLayout(2, false));
+        GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
+        group.setLayoutData(layoutData);
+        group.setText("Planes");
+>>>>>>> origin/unidata_16.2.2
 
         presMenu = new Menu(getParentShell(), SWT.POP_UP);
         miscMenu = new Menu(getParentShell(), SWT.POP_UP);
 
-        presToolBar = new ToolBar(comp, SWT.NONE);
-        miscToolBar = new ToolBar(comp, SWT.NONE);
-
-        presToolItem = new ToolItem(presToolBar, SWT.DROP_DOWN);
+        planesToolBar = new ToolBar(group, SWT.NONE);
+        planesToolBar.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
+                false));
+        presToolItem = new ToolItem(planesToolBar, SWT.DROP_DOWN);
         presToolItem.setText("Pres");
-        miscToolItem = new ToolItem(miscToolBar, SWT.DROP_DOWN);
+        miscToolItem = new ToolItem(planesToolBar, SWT.DROP_DOWN);
         miscToolItem.setText("Misc");
 
         presToolItem.addSelectionListener(new SelectionAdapter() {
@@ -937,7 +1001,7 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
             public void widgetSelected(SelectionEvent event) {
                 Rectangle rect = presToolItem.getBounds();
                 Point pt = new Point(rect.x, rect.y + rect.height);
-                pt = presToolBar.toDisplay(pt);
+                pt = planesToolBar.toDisplay(pt);
                 presMenu.setLocation(pt.x, pt.y);
                 presMenu.setVisible(true);
             }
@@ -947,14 +1011,15 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
             public void widgetSelected(SelectionEvent event) {
                 Rectangle rect = miscToolItem.getBounds();
                 Point pt = new Point(rect.x, rect.y + rect.height);
-                pt = miscToolBar.toDisplay(pt);
+                pt = planesToolBar.toDisplay(pt);
                 miscMenu.setLocation(pt.x, pt.y);
                 miscMenu.setVisible(true);
             }
 
         });
 
-        planesList = new ToggleSelectList(comp, SWT.V_SCROLL | SWT.MULTI);
+        planesList = new ToggleSelectList(group, SWT.V_SCROLL | SWT.H_SCROLL
+                | SWT.MULTI);
         planesList.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent arg0) {
@@ -962,9 +1027,13 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
             }
         });
 
-        data = new GridData(GridData.FILL_BOTH);
-        data.horizontalSpan = 2;
-        planesList.setLayoutData(data);
+        layoutData = new GridData(GridData.FILL_BOTH);
+        Rectangle trim = sourceList.computeTrim(0, 0, charWidth * NUM_CHARS,
+                sourceList.getItemHeight() * NUM_LIST_ITEMS);
+        layoutData.widthHint = trim.width;
+        layoutData.heightHint = trim.height;
+        layoutData.horizontalSpan = 2;
+        planesList.setLayoutData(layoutData);
     }
 
     private Set<String> getMenuStringSet(Menu menu) {
@@ -1017,12 +1086,14 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
      * Creates the product selection composite.
      */
     private void createProductSelctionComp(Composite parent) {
-        GridData data = new GridData(GridData.FILL_BOTH);
-        data.horizontalSpan = 4;
-
         productSelectionList = new ToggleSelectList(parent, SWT.V_SCROLL
-                | SWT.MULTI);
-        productSelectionList.setLayoutData(data);
+                | SWT.H_SCROLL | SWT.MULTI);
+        GridData layoutData = new GridData(GridData.FILL_BOTH);
+        layoutData.horizontalSpan = 4;
+        Rectangle trim = sourceList.computeTrim(0, 0, SWT.DEFAULT,
+                sourceList.getItemHeight() * NUM_SEL_ITEMS);
+        layoutData.heightHint = trim.height;
+        productSelectionList.setLayoutData(layoutData);
     }
 
     /**

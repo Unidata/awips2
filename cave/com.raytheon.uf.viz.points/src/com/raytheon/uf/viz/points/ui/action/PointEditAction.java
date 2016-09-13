@@ -19,7 +19,8 @@
  ******************************************************************************************/
 package com.raytheon.uf.viz.points.ui.action;
 
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.viz.points.ui.dialog.PointsMgrDialog;
 import com.raytheon.uf.viz.points.ui.layer.PointsToolLayer;
@@ -35,6 +36,7 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 27, 2012 875        rferrel     Initial creation
+ * Jan 15, 2015 5054       randerso    Properly parented Dialog to CAVE window
  * 
  * 
  * </pre>
@@ -63,7 +65,9 @@ public class PointEditAction extends AbstractRightClickAction {
     @Override
     public void run() {
         if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
-            dialog = new PointsMgrDialog(Display.getCurrent().getShells()[0],
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            dialog = new PointsMgrDialog(shell,
                     (PointsToolLayer) getSelectedRsc());
             dialog.setBlockOnOpen(false);
             dialog.open();

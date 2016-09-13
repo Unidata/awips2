@@ -65,7 +65,7 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.edex.grib.feature"
+         id="com.raytheon.uf.edex.grid.feature"
          version="0.0.0"/>
 
    <includes
@@ -101,18 +101,6 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.edex.ncep.nco.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.edex.binlightning.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.edex.ost.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.uf.edex.npp.feature"
          version="0.0.0"/>
 
@@ -126,22 +114,6 @@
 
    <includes
          id="com.raytheon.uf.edex.remote.script.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="gov.nasa.msfc.sport.edex.sportlma.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="gov.noaa.nws.sr.oun.edex.mping.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.edex.goesr.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="edu.wisc.ssec.cimss.edex.convectprob.feature"
          version="0.0.0"/>
 
 </feature>

@@ -25,8 +25,13 @@ import java.util.Date;
 
 import javax.imageio.ImageIO;
 
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.crs.GeographicCRS;
+import org.opengis.referencing.crs.ProjectedCRS;
+
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.datastructure.LoopProperties;
+import com.raytheon.uf.viz.core.drawables.IDescriptor;
 
 /**
  * Configuration options that control how an image is exported.
@@ -40,7 +45,8 @@ import com.raytheon.uf.viz.core.datastructure.LoopProperties;
  * Jan 20, 2014  2312     bsteffen    Initial creation
  * Mar 10, 2014  2867     bsteffen    Better frame range validation.
  * Oct 28, 2014  3767     bsteffen    Change default name to screenCapture.png
- * Dec 4, 2014   DR16713  jgerth      Support for date/time selection
+ * Dec 04, 2014  DR16713  jgerth      Support for date/time selection
+ * Jul 07, 2015  4607     bsteffen    Add georeferenced option.
  * Jan 18, 2016  ----     mjames@ucar Save images to /awips2/export/<username> rather than
  *                                    /awips2/eclipse (and avoid guessing that /home/awips exists)
  * Apr 04, 2016  ----     mjames@ucar Reconfig Animate/Current button, add 
@@ -90,7 +96,7 @@ public class ImageExportOptions {
         public abstract String[] getExtensions();
 
     }
-    
+
     String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date()); 
 
     private File fileLocation = new File("/awips2/export/" + System.getProperty("user.name") + "/screenCapture-" + timeStamp +  ".png");
@@ -117,6 +123,10 @@ public class ImageExportOptions {
 
     /** frame time for animation in ms */
     private int frameDelay = LoopProperties.DEFAULT_FRAME_TIME;
+
+    private boolean georeferencable = false;
+
+    private boolean georeference = false;
 
     public File getFileLocation() {
         return fileLocation;
@@ -206,12 +216,34 @@ public class ImageExportOptions {
         this.frameDelay = frameDelay;
     }
 
+    public boolean isGeoreferencable() {
+        return georeferencable;
+    }
+
+    public void setGeoreferencable(boolean georeferencable) {
+        this.georeferencable = georeferencable;
+    }
+
+    public boolean isGeoreference() {
+        return georeference;
+    }
+
+    public void setGeoreference(boolean georeference) {
+        this.georeference = georeference;
+    }
+
     public void populate(IDisplayPaneContainer container) {
         populate(container.getLoopProperties());
-        int frameCount = container.getActiveDisplayPane().getDescriptor()
+        IDescriptor descriptor = container.getActiveDisplayPane()
+                .getDescriptor();
+        int frameCount = descriptor
                 .getFramesInfo().getFrameCount();
         lastFrameIndex = Math.max(frameCount - 1, 0);
         maxFrameIndex = lastFrameIndex;
+        CoordinateReferenceSystem crs = descriptor.getCRS();
+        georeferencable = (crs instanceof GeographicCRS || crs instanceof ProjectedCRS);
+        georeferencable = georeferencable
+                & container.getDisplayPanes().length == 1;
     }
 
     public void populate(LoopProperties loopProperties) {

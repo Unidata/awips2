@@ -31,6 +31,7 @@ import javax.xml.bind.JAXBException;
 
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LightningStrikePoint;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
@@ -51,9 +52,11 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometry;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
+ * Date         Ticket#    Engineer     Description
+ * ------------ ---------- -----------  --------------------------
  * Jun 10, 2014 3226       bclement     Initial creation
+ * Jan 27, 2016 5237       tgurney      Replace LocalizationFile with
+ *                                      ILocalizationFile
  * 
  * </pre>
  * 
@@ -92,11 +95,11 @@ public class LightningGeoFilter {
                         LOCALIZATION_FILTER_DIR, new String[] { ".xml" }, true,
                         true);
 
-                for (LocalizationFile file : files) {
+                for (ILocalizationFile file : files) {
                     Collection<PreparedGeometry> filters = getFilterGeometries(file);
                     if (!filters.isEmpty()) {
                         String bareName = getFileNameWithoutExtension(file
-                                .getName());
+                                .getPath());
                         geometryMap.put(bareName.toLowerCase(), filters);
                     }
                 }
@@ -112,11 +115,9 @@ public class LightningGeoFilter {
      * @return empty list on error
      */
     private static Collection<PreparedGeometry> getFilterGeometries(
-            LocalizationFile file) {
+            ILocalizationFile file) {
         Collection<PreparedGeometry> rval;
-        InputStream in = null;
-        try {
-            in = file.openInputStream();
+        try (InputStream in = file.openInputStream()) {
             GeoFilterResult result = GeoFilterParser.parse(in);
             if (result.hasErrors()) {
                 for (GeoFilterException e : result.getErrors()) {
@@ -125,25 +126,10 @@ public class LightningGeoFilter {
                 log.warn("Filter parsing included errors, filters will be incomplete");
             }
             return result.getFilters();
-        } catch (JAXBException e) {
-            log.error("Unable to parse filter file: " + file.getName(), e);
+        } catch (IOException | JAXBException | LocalizationException
+                | SerializationException e) {
+            log.error("Unable to parse filter file: " + file.getPath(), e);
             rval = Collections.emptyList();
-        } catch (LocalizationException e) {
-            log.error("Unable to open filter file: " + file.getName(), e);
-            rval = Collections.emptyList();
-        } catch (SerializationException e) {
-            log.error("Unable to parse filter file: " + file.getName(), e);
-            rval = Collections.emptyList();
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    log.error(
-                            "Problem closing localization file: "
-                                    + file.getName(), e);
-                }
-            }
         }
         return rval;
     }

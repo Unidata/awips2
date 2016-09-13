@@ -1,4 +1,4 @@
-%define _ldm_version 6.12.14
+%define _ldm_version 6.13.3
 %define _ldm_src_tar ldm-%{_ldm_version}.tar.gz
 # ldm-%{_ldm_version}.tar.gz is tarred up ldm-%{_ldm_version}/src dir after
 # ISG makes retrans changes
@@ -137,14 +137,15 @@ if [ $? -ne 0 ]; then
 fi
 
 %pre
+DATE=`date -u +%Y%m%d`
 # Preserve the user etc directory before upgrading
 if [ -f /awips2/ldm/etc/ldmd.conf ]; then
    if [ -d /tmp/ldm ]; then
       rm -rf /tmp/ldm
    fi
    mkdir -p /tmp/ldm
-   cp -rp /awips2/ldm/etc/ldmd.conf /tmp/ldm/ldmd.old
-   cp -rp /awips2/ldm/etc/pqact.conf /tmp/ldm/pqact.old
+   cp -rp /awips2/ldm/etc/ldmd.conf /tmp/ldm/ldmd.${DATE}
+   cp -rp /awips2/ldm/etc/pqact.conf /tmp/ldm/pqact.${DATE}
 fi
 
 %post
@@ -289,8 +290,9 @@ else
 fi
 
 # Copy back local ldm
-if [ -d /tmp/ldm ]; then
-   cp -rp /tmp/ldm /awips2/ldm/etc
+if [ -d /tmp/ldm/ ]; then
+   cp -rp /tmp/ldm/pqact.* /awips2/ldm/etc/
+   cp -rp /tmp/ldm/ldmd.* /awips2/ldm/etc/
 fi
 
 %preun

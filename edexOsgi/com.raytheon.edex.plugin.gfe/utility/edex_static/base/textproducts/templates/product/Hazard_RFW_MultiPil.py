@@ -453,13 +453,13 @@ class TextProduct(GenericHazards.TextProduct):
                  
         if len(ctas) > 0: 
             hazardBodyPhrase = hazardBodyPhrase + \
-                               'Precautionary/preparedness actions...\n\n'
+                               'PRECAUTIONARY/PREPAREDNESS ACTIONS...\n\n'
             for c in ctas: 
                 hazardBodyPhrase = hazardBodyPhrase +  c + '\n\n'
             hazardBodyPhrase = hazardBodyPhrase + '&&\n\n' 
  
         # Make sure there is only one CAP tag pairs
-        hazardBodyPhrase = re.sub(r'&&\s*Precautionary/preparedness actions\.\.\.\n', \
+        hazardBodyPhrase = re.sub(r'&&\s*PRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.\n', \
                                   "", hazardBodyPhrase) 
 
         return hazardBodyPhrase
@@ -758,22 +758,21 @@ class TextProduct(GenericHazards.TextProduct):
 
         ### loop through the bullets and format the output
         for b in bList:
-            if b == self._locationsBullet:
+            b = b.upper()
+            if b == self._locationsBullet.upper():
                 locations = self._getLocationsList(areaDictionary, argDict, eachHazard['seg'])
                 bullets = bullets + StringUtils.StringUtils().indentText(b+"..."+locations, \
                         indentFirstString="* ", indentNextString="  ", \
                         maxWidth=65,breakStrings=[" ","..."]) + "\n\n"
-            elif b == "Extreme grassland fire danger":
+            elif b == "Extreme grassland fire danger".upper():
                 bullets = bullets + "* " + b + "...is forecast.\n\n"
  
-            elif b == "Highest threat": 
+            elif b == "Highest threat".upper(): 
                 bullets = bullets + "|* * " + b + "...is located (optional bullet)*|\n\n"
  
-            elif b == "Impacts":
+            elif b == "Impacts".upper():
                 bullets = bullets + "* " + b + "...any fires that develop will likely spread rapidly."
-                bullets = bullets + " outdoor burning is not recommended.\n\n"
- 
- 
+                bullets = bullets + " Outdoor burning is not recommended.\n\n"
             else:
                 bullets = bullets + "* " + b + "...|* Enter bullet text *|\n\n"
 
@@ -870,14 +869,14 @@ class TextProduct(GenericHazards.TextProduct):
         # Added to place line feeds in the CAP tags to keep separate from CTAs
 
         fcst = string.replace(fcst, \
-                              r"Precautionary/preparedness actions\.\.\.", \
-                              r"\nPrecautionary/preparedness actions\.\.\.\n")
+                              r"PRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.", \
+                              r"\nPRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.\n")
         # Commented out following line to prevent it from changing bullet indentation
         #fcst = string.replace(fcst, "\n ","\n")
         fcst = string.replace(fcst, "&&", "\n&&\n")
 
         # Prevent empty Call to Action Tags
-        fcst = re.sub(r'\nPrecautionary/preparedness actions\.\.\.\s*&&\n', \
+        fcst = re.sub(r'\nPRECAUTIONARY/PREPAREDNESS ACTIONS\.\.\.\s*&&\n', \
                       "", fcst)
 
         fcst = self._indentBulletText(fcst)

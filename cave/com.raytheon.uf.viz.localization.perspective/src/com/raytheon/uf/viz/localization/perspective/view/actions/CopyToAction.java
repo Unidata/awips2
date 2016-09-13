@@ -19,23 +19,28 @@
  **/
 package com.raytheon.uf.viz.localization.perspective.view.actions;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.widgets.Menu;
 
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.viz.localization.filetreeview.LocalizationFileEntryData;
+import com.raytheon.uf.viz.localization.filetreeview.PathData;
 import com.raytheon.uf.viz.localization.service.ILocalizationService;
 
 /**
@@ -48,7 +53,11 @@ import com.raytheon.uf.viz.localization.service.ILocalizationService;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 3, 2010            mschenke     Initial creation
+ * Nov 3, 2010             mschenke    Initial creation
+ * Oct 13, 2015 4410       bsteffen    Allow localization perspective to mix
+ *                                     files for multiple Localization Types.
+ * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Jan 11, 2016 5242       kbisanz     Replaced calls to deprecated LocalizationFile methods
  * 
  * </pre>
  * 
@@ -60,21 +69,22 @@ public class CopyToAction extends AbstractToAction {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(CopyToAction.class);
 
-    protected ILocalizationService service;
+    protected final ILocalizationService service;
 
-    public CopyToAction(LocalizationFile file, ILocalizationService service) {
+    protected final PathData pathData;
+
+    public CopyToAction(LocalizationFile file, PathData pathData,
+            ILocalizationService service) {
         super("Copy To", file);
         this.service = service;
+        this.pathData = pathData;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.localization.perspective.view.actions.AbstractToAction
-     * #isLevelEnabled(com.raytheon.uf.common.localization.LocalizationContext.
-     * LocalizationLevel)
-     */
+    public CopyToAction(LocalizationFileEntryData data,
+            ILocalizationService service) {
+        this(data.getFile(), data.getPathData(), service);
+    }
+
     @Override
     protected boolean isLevelEnabled(LocalizationLevel level) {
         boolean enabled = super.isLevelEnabled(level);
@@ -85,56 +95,53 @@ public class CopyToAction extends AbstractToAction {
         return enabled;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.localization.filetreeview.actions.AbstractToAction
-     * #run
-     * (com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
-     * )
-     */
     @Override
     protected void run(LocalizationLevel level) {
         IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationFile newFile = pm.getLocalizationFile(
+        ILocalizationFile newFile = pm.getLocalizationFile(
                 pm.getContext(file.getContext().getLocalizationType(), level),
-                file.getName());
+                file.getPath());
+        removeAlternateTypeFiles(level);
         copyFile(newFile);
     }
 
-    protected boolean copyFile(LocalizationFile newFile) {
-        File copyTo = newFile.getFile();
-        File copyFrom = file.getFile();
+    /**
+     * If it is possible for the target to exist for multiple localization types
+     * then delete any others that exist at the selected level so there are not
+     * multiple files at the same level after the operation completes.
+     * 
+     * @param level
+     */
+    protected void removeAlternateTypeFiles(LocalizationLevel level) {
+        IPathManager pm = PathManagerFactory.getPathManager();
 
-        // Delete local copy of existing contents
-        copyTo.delete();
-        // Make sure parent directories exist
-        if (copyTo.getParentFile().exists() == false) {
-            copyTo.getParentFile().mkdirs();
+        for (LocalizationType type : pathData.getTypes()) {
+            if (type != file.getContext().getLocalizationType()) {
+                ILocalizationFile altFile = pm.getLocalizationFile(
+                        pm.getContext(type, level), file.getPath());
+                if (altFile.exists()) {
+                    try {
+                        altFile.delete();
+                    } catch (LocalizationException e) {
+                        statusHandler.handle(Priority.PROBLEM,
+                                "Unable to delete existing " + type.name()
+                                        + " " + level + " file.", e);
+                    }
+                }
+            }
         }
+    }
 
-        try {
-            // Copy file contents locally
-            FileUtil.copyFile(copyFrom, copyTo);
-        } catch (IOException e) {
+    protected boolean copyFile(ILocalizationFile newFile) {
+        try (InputStream is = file.openInputStream();
+                SaveableOutputStream os = newFile.openOutputStream()) {
+            FileUtil.copy(is, os);
+            os.save();
+            return true;
+        } catch (LocalizationException | IOException e) {
             statusHandler
                     .handle(Priority.PROBLEM, "Error copying file contents of "
                             + file + " to " + newFile, e);
-            return false;
-        }
-
-        try {
-            // Save localization file with new contents
-            boolean rval = newFile.save();
-            if (!rval) {
-                // If failed, make sure we get the latest file
-                newFile.getFile();
-            }
-            return rval;
-        } catch (LocalizationOpFailedException e) {
-            statusHandler.handle(Priority.PROBLEM, "Error saving " + newFile
-                    + ": " + e.getLocalizedMessage(), e);
         }
         return false;
     }

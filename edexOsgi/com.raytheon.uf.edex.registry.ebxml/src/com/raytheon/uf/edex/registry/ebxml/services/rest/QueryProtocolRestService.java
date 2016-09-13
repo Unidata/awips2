@@ -19,6 +19,10 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.services.rest;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -29,6 +33,11 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.JAXBException;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.QueryManager;
@@ -37,17 +46,22 @@ import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.ResponseOptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ParameterType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
 import org.apache.commons.beanutils.ConstructorUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.raytheon.uf.common.registry.RegistryJaxbManager;
+import com.raytheon.uf.common.registry.RegistryNamespaceMapper;
 import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.common.registry.constants.Languages;
 import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.registry.services.rest.IQueryProtocolRestService;
 import com.raytheon.uf.common.serialization.JAXBManager;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.registry.ebxml.dao.QueryDefinitionDao;
 import com.raytheon.uf.edex.registry.ebxml.services.query.RegistryQueryUtil;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
@@ -67,6 +81,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
  * 5/21/2013    2022        bphillip    Added interface and moved constants
  * 10/8/2013    1682        bphillip    Refactored to use parameter definitions from the registry
  * 10/30/2013   1538        bphillip    Changed root REST service path
+ * 12/04/2015   4993        bphillip    Modified query output to more user readable format using xslt
  * </pre>
  * 
  * @author bphillip
@@ -76,6 +91,10 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
 @Service
 @Transactional
 public class QueryProtocolRestService implements IQueryProtocolRestService {
+
+    /** The logger */
+    protected final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(getClass());
 
     /** The local query manager */
     private QueryManager queryManager;
@@ -93,13 +112,15 @@ public class QueryProtocolRestService implements IQueryProtocolRestService {
      *             If errors occur while initializing the JAXBManager
      */
     public QueryProtocolRestService() throws JAXBException {
-        responseJaxb = new JAXBManager(QueryRequest.class, QueryResponse.class);
+        responseJaxb = new RegistryJaxbManager(new RegistryNamespaceMapper());
     }
 
     @GET
-    @Produces("text/xml")
-    public String executeQuery(@Context UriInfo info) throws JAXBException,
-            MsgRegistryException {
+    @Produces({ "text/html" })
+    public String executeQuery(@Context
+    UriInfo info) throws JAXBException, MsgRegistryException {
+
+        String xml = "";
         /*
          * Extract out the canonical query parameters
          */
@@ -128,6 +149,8 @@ public class QueryProtocolRestService implements IQueryProtocolRestService {
                 QueryRequest.RESPONSE_OPTION, QueryReturnTypes.REGISTRY_OBJECT);
         Boolean returnRequest = getValue(queryParameters,
                 QueryRequest.RETURN_REQUEST, Boolean.FALSE);
+        Boolean formatResponse = getValue(queryParameters,
+                QueryRequest.FORMAT_RESPONSE, Boolean.FALSE);
 
         /*
          * Create the query request object
@@ -163,12 +186,54 @@ public class QueryProtocolRestService implements IQueryProtocolRestService {
             }
         }
 
-        if (returnRequest.booleanValue()) {
-            return responseJaxb.marshalToXml(restQueryRequest);
+        QueryResponse response = null;
+        if (returnRequest) {
+            xml = responseJaxb.marshalToXml(restQueryRequest);
         } else {
-            return responseJaxb.marshalToXml(queryManager
-                    .executeQuery(restQueryRequest));
+            response = queryManager.executeQuery(restQueryRequest);
+            if (formatResponse) {
+                for (RegistryObjectType obj : response.getRegistryObjects()) {
+                    /*
+                     * The content slot must be removed since having an xml
+                     * document inside another xml document confuses the xslt
+                     * transformer. The content slot is removed here but the
+                     * change is not persisted to the registry, so the original
+                     * object remains intact.
+                     */
+                    obj.getSlot().remove(obj.getSlotByName("content"));
+                }
+            }
+            xml = responseJaxb.marshalToXml(response);
         }
+        return formatResponse ? xsltTransformResponse(xml) : xml;
+    }
+
+    /**
+     * Transforms the query response using XSLT to a more user friendly format
+     * 
+     * @param xml
+     *            The xml to format
+     * @return The formatted output
+     * @throws JAXBException
+     */
+    private String xsltTransformResponse(String xml) throws JAXBException {
+
+        try (InputStream is = new ByteArrayInputStream(xml.getBytes())) {
+            OutputStream outputStream = new ByteArrayOutputStream();
+            TransformerFactory factory = TransformerFactory.newInstance();
+            Transformer transformer = factory.newTransformer(new StreamSource(
+                    System.getProperty("ebxml.registry.webserver.home")
+                            + "/registry/formatRegistryObject.xsl"));
+            Source text = new StreamSource(is);
+            transformer.transform(text, new StreamResult(outputStream));
+            return outputStream.toString();
+        } catch (Exception e) {
+            statusHandler.error(
+                    "Error applying XSLT transform to the following xml:\n"
+                            + xml, e);
+            return xml;
+        }
+
     }
 
     /**

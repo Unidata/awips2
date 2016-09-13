@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.wmo.AFOSProductId;
@@ -52,6 +52,7 @@ import com.raytheon.uf.edex.plugin.text.impl.WMOReportData;
  * May 14, 2014 2536       bclement    moved WMO Header to common
  * Dec 03, 2014 ASM #16859 D. Friedman Use CharBuffer instead of StringBuilder.
  * Feb 17, 2014 ASM #17125 D. Friedman Fix parsing of type and date fields.
+ * Dec 09, 2015 5166       kbisanz     Update logging to use SLF4J.
  * </pre>
  * 
  * @author jkorman
@@ -76,7 +77,7 @@ public class UACollectiveSeparator extends WMOMessageSeparator {
 
     private static final String UA_NIL_C = "\\d{5} ..(AA|BB|CC|DD) {1,2} \\d{4}[0-9/] \\d{5} NIL";
 
-    private final Log logger = LogFactory.getLog(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     ArrayList<Pattern> nilPatterns = new ArrayList<Pattern>();
     {
@@ -432,7 +433,7 @@ public class UACollectiveSeparator extends WMOMessageSeparator {
             }
             */
 
-            if (! checkCharNum(buffer.charAt(0))) {
+            if (!checkCharNum(buffer.charAt(0))) {
                 buffer.get();
             }
             stationNum.append(assignTextSegment(buffer, CSPC));

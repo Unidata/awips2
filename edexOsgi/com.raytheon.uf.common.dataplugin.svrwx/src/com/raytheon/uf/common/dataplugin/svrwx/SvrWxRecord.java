@@ -21,8 +21,6 @@ package com.raytheon.uf.common.dataplugin.svrwx;
 
 import java.util.Calendar;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -35,6 +33,7 @@ import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.annotations.NullString;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.pointdata.IPointData;
@@ -60,6 +59,8 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                     PluginDataObject.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Oct 14, 2013 2361       njensen     Remove XML annotations
+ * Jul 28, 2015 4360       rferrel     Named unique constraint. Made reportType non-nullable.
+ * Jan 14, 2016 5253       tgurney     Dropped dataUri column and updated unique constraint.
  * 
  * </pre>
  * 
@@ -68,7 +69,8 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "svrwxseq")
-@Table(name = "svrwx", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = "svrwx", uniqueConstraints = { @UniqueConstraint(name = "uk_svrwx_datauri_fields", columnNames = {
+        "refTime", "reportType", "stationId", "latitude", "longitude" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
@@ -100,8 +102,9 @@ public class SvrWxRecord extends PersistablePluginDataObject implements
     protected String eventKey;
 
     @DynamicSerializeElement
-    @Column
+    @Column(nullable = false)
     @DataURI(position = 1)
+    @NullString
     protected String reportType;
 
     @Transient
@@ -140,17 +143,6 @@ public class SvrWxRecord extends PersistablePluginDataObject implements
      */
     public void setWmoHeader(String wmoHeader) {
         this.wmoHeader = wmoHeader;
-    }
-
-    /**
-     * Set the data uri for this observation.
-     * 
-     * @param dataURI
-     */
-    @Override
-    public void setDataURI(String dataURI) {
-        super.setDataURI(dataURI);
-        identifier = dataURI;
     }
 
     @Override
@@ -274,13 +266,6 @@ public class SvrWxRecord extends PersistablePluginDataObject implements
         }
         sb.append(String.format("%6.2f %7.2f:", getLatitude(), getLongitude()));
         return sb.toString();
-    }
-
-    @Override
-    @Column
-    @Access(AccessType.PROPERTY)
-    public String getDataURI() {
-        return super.getDataURI();
     }
 
     @Override

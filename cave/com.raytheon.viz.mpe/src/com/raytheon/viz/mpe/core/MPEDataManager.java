@@ -40,7 +40,7 @@ import java.util.TimeZone;
 
 import javax.persistence.Table;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.opengis.metadata.spatial.PixelOrientation;
 
 import com.raytheon.uf.common.dataplugin.shef.tables.Hourlypc;
@@ -154,9 +154,9 @@ public class MPEDataManager {
         private short[] unbiasedRadarData;
 
         private double rwBiasValUsed;
-//        private double daaBiasValUsed;
-       
-        
+
+        // private double daaBiasValUsed;
+
         private double memSpanUsed;
 
         private String editBias;
@@ -209,21 +209,18 @@ public class MPEDataManager {
         }
 
         /*
-        public double getDAABiasValUsed() {
-            return daaBiasValUsed;
-        }
-        */
-        
+         * public double getDAABiasValUsed() { return daaBiasValUsed; }
+         */
+
         public void setRwBiasValUsed(double rwBiasValUsed) {
             this.rwBiasValUsed = rwBiasValUsed;
         }
 
         /*
-        public void setDAABiasValUsed(double daaBiasValUsed) {
-            this.daaBiasValUsed = daaBiasValUsed;
-        }
-        */
-        
+         * public void setDAABiasValUsed(double daaBiasValUsed) {
+         * this.daaBiasValUsed = daaBiasValUsed; }
+         */
+
         /**
          * @return the memSpanUsed
          */
@@ -766,8 +763,8 @@ public class MPEDataManager {
     }
 
     public Map<Date, MPEDateInfo> getDateMap(boolean update) {
-            
-    	getDates(update);
+
+        getDates(update);
         return dateMap;
     }
 
@@ -781,7 +778,8 @@ public class MPEDataManager {
             for (Object[] item : results) {
                 // note db stores west longitude as positive so must negate
                 MPERadarLoc radarLoc = new MPERadarLoc((String) item[0],
-                        ((Number) item[1]).doubleValue(), -((Number) item[2]).doubleValue());
+                        ((Number) item[1]).doubleValue(),
+                        -((Number) item[2]).doubleValue());
                 radarList.add(radarLoc);
             }
         } catch (VizException e) {
@@ -833,7 +831,8 @@ public class MPEDataManager {
                     }
                     radarData.setRadAvail(radAvail);
 
-                    radarData.setRwBiasValUsed(((Number) item[3]).doubleValue());
+                    radarData
+                            .setRwBiasValUsed(((Number) item[3]).doubleValue());
                     radarData.setMemSpanUsed(((Number) item[4]).doubleValue());
                     radarData.setEditBias((String) item[5]);
                     radarData.setIgnoreRadar(!"n".equals(item[6]));
@@ -868,26 +867,28 @@ public class MPEDataManager {
         return radarResultList;
     }
 
-    public Map<String, MPERadarData> readSPRadarData(Date date)
-    {
-    	//reads DPA radar data
-    	return readRadarData(date, "rwradarresult");
-    	
+    public Map<String, MPERadarData> readSPRadarData(Date date) {
+        // reads DPA radar data
+        return readRadarData(date, "rwradarresult");
+
     }
-    
-    public Map<String, MPERadarData> readDPRadarData(Date date)
-    {
-    	//reads DAA radar data
-      	return readRadarData(date, "daaradarresult");
+
+    public Map<String, MPERadarData> readDPRadarData(Date date) {
+        // reads DAA radar data
+        return readRadarData(date, "daaradarresult");
     }
-    
-    
+
     public Map<String, MPERadarData> readRadarData(Date date, String tableName) {
         getRadars();
         StringBuffer sqlQuery = new StringBuffer();
-        sqlQuery.append("select radid,num_gages, rad_avail, rw_bias_val_used, mem_span_used, edit_bias, ignore_radar from " + 
-        				 tableName + " where obstime='" + sdf.format(date) + "' and radid in(");
-        System.out.println("Datestring actually passed in query to radar table: " + sdf.format(date));
+        sqlQuery.append("select radid,num_gages, rad_avail, rw_bias_val_used, mem_span_used, edit_bias, ignore_radar from "
+                + tableName
+                + " where obstime='"
+                + sdf.format(date)
+                + "' and radid in(");
+        System.out
+                .println("Datestring actually passed in query to radar table: "
+                        + sdf.format(date));
         for (int i = 0; i < radarList.size(); i++) {
             sqlQuery.append("'");
             sqlQuery.append(radarList.get(i).getId());
@@ -926,7 +927,8 @@ public class MPEDataManager {
                     }
                     radarData.setRadAvail(radAvail);
 
-                    radarData.setRwBiasValUsed(((Number) item[3]).doubleValue());
+                    radarData
+                            .setRwBiasValUsed(((Number) item[3]).doubleValue());
                     radarData.setMemSpanUsed(((Number) item[4]).doubleValue());
                     radarData.setEditBias((String) item[5]);
                     radarData.setIgnoreRadar(!"n".equals(item[6]));

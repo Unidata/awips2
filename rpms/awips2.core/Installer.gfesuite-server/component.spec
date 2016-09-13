@@ -12,12 +12,16 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Bryan Kowal
+Packager: %{_build_site}
 
 AutoReq: no
-provides: awips2-gfesuite-server
-requires: awips2-python
-requires: awips2-edex-gfe
+Provides: awips2-gfesuite-server
+Requires: awips2-python
+Requires: awips2-edex-gfe
+Requires: awips2-java
+
+BuildRequires: awips2-ant
+BuildRequires: awips2-java
 
 %description
 AWIPS II gfesuite-client Installation - Contains The AWIPS II gfesuite-server Component.
@@ -35,11 +39,6 @@ then
 fi
 
 %build
-# Verify that awips2-ant is installed.
-if [ ! -f /awips2/ant/bin/ant ]; then
-   echo "ERROR: Unable to find the awips2-ant executable."
-   exit 1
-fi
 
 %install
 mkdir -p ${RPM_BUILD_ROOT}/awips2/GFESuite
@@ -92,18 +91,20 @@ rm -rf ${RPM_BUILD_ROOT}
 %defattr(775,awips,fxalpha,775)
 %dir /awips2/GFESuite/hti
 /awips2/GFESuite/hti/*
+%dir /awips2/GFESuite/nwps/bin
+/awips2/GFESuite/nwps/bin/*
+%dir /awips2/GFESuite/nwps/etc
+/awips2/GFESuite/nwps/etc/*
+%dir /awips2/GFESuite/nwps/domains
+/awips2/GFESuite/nwps/domains/*
 %defattr(755,awips,fxalpha,755)
 %dir /awips2/GFESuite/bin
 /awips2/GFESuite/bin/*
 %dir /awips2/GFESuite/hti/bin
 /awips2/GFESuite/hti/bin/*
-%dir /awips2/GFESuite/nwps/bin
-/awips2/GFESuite/nwps/bin/*
 %defattr(755,awips,fxalpha,777)
 %dir /awips2/GFESuite/hti/etc
 /awips2/GFESuite/hti/etc/*
-%dir /awips2/GFESuite/nwps/domains
-/awips2/GFESuite/nwps/domains/*
 %defattr(644,awips,fxalpha,755)
 %dir /awips2/GFESuite/bin/src
 /awips2/GFESuite/bin/src/*

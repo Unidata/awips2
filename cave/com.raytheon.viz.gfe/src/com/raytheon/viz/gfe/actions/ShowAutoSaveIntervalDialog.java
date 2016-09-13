@@ -89,7 +89,7 @@ public class ShowAutoSaveIntervalDialog extends AbstractHandler {
             dialog = new AutoSaveIntervalDialog(shell, autoSaveJob);
             dialogMap.put(window, dialog);
             dialog.setBlockOnOpen(false);
-            dialog.setCloseCallback(new ICloseCallback() {
+            dialog.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {

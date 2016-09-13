@@ -29,7 +29,7 @@
 #end
 ################################################
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
-SMW${siteId}
+${productId}${siteId}
 ${ugcline}
 /${productClass}.${action}.${vtecOffice}.MA.W.${etn}.${dateUtil.format(${start}, ${timeFormat.ymdthmz})}-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
 
@@ -166,19 +166,19 @@ THIS IS A TEST MESSAGE. ##
 #if(${list.contains(${bullets}, "smallHail")})
 	#set($hailTag = "<.75")
 	#set($hailType = "small hail")
-	#set($hailCTA = ", ${hailType}")
+	#set($hailCTA = "#commaOrEllipsis()${hailType}")
 #end
 #if(${list.contains(${bullets}, "largeHail")})
 	#set($hailTag = ">.75")
 	#set($hailType = "large hail")
 	#set($severeType = "severe")
-	#set($hailCTA = ", ${hailType}")
+	#set($hailCTA = "#commaOrEllipsis()${hailType}")
 #end
 #if(${list.contains(${bullets}, "destructiveHail")})
 	#set($hailTag = ">2.0")
 	#set($hailType = "large destructive hail")
 	#set($severeType = "severe")
-	#set($hailCTA = ", ${hailType}")
+	#set($hailCTA = "#commaOrEllipsis()${hailType}")
 #end
 #if(${list.contains(${bullets}, "sightedSpout")})
 	#set($spoutType = "waterspouts")
@@ -197,22 +197,22 @@ THIS IS A TEST MESSAGE. ##
 	#set($ashfallPath = "volcanic ash")
 	#set($ctaSelected = "yes")
 	#set($ashfallCTA = "Ash is an eye and respiratory irritant and is abrasive. Those with respiratory sensitivities should take extra precautions to minimize exposure. Protect electronics and cover air intakes if ashfall is expected or confirmed. Remove ash from surfaces with water if possible to prevent excessive accumulation.")
-	#set($ashfallInfo = "An ashfall warning means that the volcano is undergoing a major eruption. It is very likely that mariners will be affected by volcanic hazards in the warning areas such as significant debris, ashfall one quarter inch or greater, lava, or lahar and debris flows.")
+	#set($ashfallInfo = "An ashfall warning means that the volcano is undergoing a major eruption. It is very likely that mariners will be affected by volcanic hazards in the warning areas such as significant debris#commaOrEllipsis()ashfall one quarter inch or greater#commaOrEllipsis()lava#commaOrEllipsis()or lahar and debris flows.")
 #end
 #if(${list.contains(${bullets}, "debrisFlow")})
 	#set($debrisflowType = "debris flow")
 	#set($debrisflowPath = "debris flow")
-	#set($debrisflowInfo = "The eruption of the volcano can cause a sudden melting of snow and ice on the mountain. This will result in a torrent of mud, ash, rock, and hot water to flow down the mountain and into the nearby waters.")
+	#set($debrisflowInfo = "The eruption of the volcano can cause a sudden melting of snow and ice on the mountain. This will result in a torrent of mud#commaOrEllipsis()ash#commaOrEllipsis()rock#commaOrEllipsis()and hot water to flow down the mountain and into the nearby waters.")
 #end
 #######################################################################
 ## Logic to create the Wind/Hail Tags used by CR.
 #######################################################################
-#set($windhailTag = "WIND...HAIL ${windTag}KTS ${hailTag}IN")
+#set($windhailTag = "WIND...HAIL ${windTag}kts ${hailTag}in")
 #######################################################################
 ## Logic to put together the threats based on Wind...Hail and Waterspout sections.
 #######################################################################
 #if(${spoutType} && ${windType} && ${hailType})
-	#set($threat = "${spoutType}, ${windType}, and ${hailType}")
+	#set($threat = "${spoutType}#commaOrEllipsis()${windType}#commaOrEllipsis()and ${hailType}")
 #elseif(${spoutType} && ${hailType})
 	#set($threat = "${spoutType} and ${hailType}")
 #elseif(${spoutType} && ${windType})
@@ -327,7 +327,7 @@ THIS IS A TEST MESSAGE. ##
 THIS IS A TEST MESSAGE. ##
 #end
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
-, ${report}located ##
+#commaOrEllipsis()${report}located ##
 #if(${stormType} == "line")
 #handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxMarineNearDistance}, ${overPhrase}, ${maxMarineOverDistance}, ${marineDistanceUnits}, ${useSecondReferenceLine})
 #else
@@ -338,7 +338,7 @@ THIS IS A TEST MESSAGE. ##
 #elseif(${movementSpeed} < ${marineStationary} || ${stationary})
 . ${reportType2} nearly stationary.
 #else
-, moving #direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} knots.
+#commaOrEllipsis()moving #direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} knots.
 #end
 
 ${ashfallInfo}
@@ -372,7 +372,7 @@ THIS IS A TEST MESSAGE. ##
 ##############################################
 
 #if(${list.contains(${bullets}, "specialEvent")})
-Those attending !**EVENT/VENUE NAME OR LOCATION**! are in the path of ${specialEvent} and should prepare for imminent dangerous weather conditions. Seek shelter now!
+Those attending !**EVENT/VENUE NAME OR LOCATION**! are in the path of ${specialEvent} and should prepare for IMMINENT DANGEROUS WEATHER CONDITIONS. SEEK SHELTER NOW!
 #end
 #####################
 ## CALL TO ACTIONS ##
@@ -396,33 +396,33 @@ ${ashfallCTA}
 
 #if(${list.contains(${bullets}, "genericCTA")})
 #if(${stormType} == "line")
-As thunderstorms move over the water, boaters can expect gusty winds and high waves. Move to safe harbor or stay close to shore until these storms pass.
+As thunderstorms move over the water#commaOrEllipsis()boaters can expect gusty winds and high waves. Move to safe harbor or stay close to shore until these storms pass.
 
 #else
-As this thunderstorm moves over the water, boaters can expect gusty winds and high waves. Move to safe harbor or stay close to shore until the storm passes.
+As this thunderstorm moves over the water#commaOrEllipsis()boaters can expect gusty winds and high waves. Move to safe harbor or stay close to shore until the storm passes.
 
 #end
 #end
 #if(${list.contains(${bullets}, "gustyWindsCTA")})
 #if(${stormType} == "line")
-Mariners can expect gusty winds, high waves, dangerous lightning, and heavy rains. Boaters should seek safe harbor immediately until these storms pass.
+Mariners can expect gusty winds#commaOrEllipsis()high waves#commaOrEllipsis()dangerous lightning#commaOrEllipsis()and heavy rains. Boaters should seek safe harbor immediately until these storms pass.
 
 #else
-Mariners can expect gusty winds, high waves, dangerous lightning, and heavy rains. Boaters should seek safe harbor immediately until this storm passes.
+Mariners can expect gusty winds#commaOrEllipsis()high waves#commaOrEllipsis()dangerous lightning#commaOrEllipsis()and heavy rains. Boaters should seek safe harbor immediately until this storm passes.
 
 #end
 #end
 #if(${list.contains(${bullets}, "hailWindsCTA")})
 #if(${stormType} == "line")
-Mariners can expect ${windCTA}${hailCTA}, high waves, dangerous lightning, and heavy rains. Boaters should seek safe harbor immediately...until these storms pass.
+Mariners can expect ${windCTA}${hailCTA}#commaOrEllipsis()high waves#commaOrEllipsis()dangerous lightning#commaOrEllipsis()and heavy rains. Boaters should seek safe harbor immediately...until these storms pass.
 
 #else
-Mariners can expect ${windCTA}${hailCTA}, high waves, dangerous lightning, and heavy rains. Boaters should seek safe harbor immediately...until this storm passes.
+Mariners can expect ${windCTA}${hailCTA}#commaOrEllipsis()high waves#commaOrEllipsis()dangerous lightning#commaOrEllipsis()and heavy rains. Boaters should seek safe harbor immediately...until this storm passes.
 
 #end
 #end
 #if(${list.contains(${bullets}, "nonThunderstormCTA")})
-Mariners can expect gusty winds and increasing waves. Boaters, especially those under sail, should seek safe harbor immediately until the high winds subside.
+Mariners can expect gusty winds and increasing waves. Boaters#commaOrEllipsis()especially those under sail#commaOrEllipsis()should seek safe harbor immediately until the high winds subside.
 
 #end
 #if(${list.contains(${bullets}, "waterspoutCTA")})
@@ -430,7 +430,7 @@ Thunderstorms can produce sudden waterspouts. Waterspouts can easily overturn bo
 
 #end
 #if(${list.contains(${bullets}, "lightningCTA")})
-Frequent lightning is occurring with this storm. If caught on the open water stay below deck if possible, keep away from ungrounded metal objects.
+Frequent lightning is occurring with this storm. If caught on the open water stay below deck if possible#commaOrEllipsis()keep away from ungrounded metal objects.
 
 #end
 #if(${list.contains(${bullets}, "reportCTA")})

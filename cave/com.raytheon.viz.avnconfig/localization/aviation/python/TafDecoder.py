@@ -321,6 +321,7 @@
 #    May 12, 2014    16928         zhao           Modified check_prev_time()
 #    Sep 17, 2014    16928         zhao           Added a line break "\n" to message 25 (since it appears together with message 49) 
 #    Jul 07, 2015    16973         zhao           Added 'DRSN' as valid value of sig weather
+#    Mar 03, 2016    18664         zhao           Fixed an indentation error in check_vsby_wx()
 #
 #
 import exceptions, re, time, types
@@ -1076,19 +1077,11 @@ class Decoder(tpg.VerboseParser):
             add_msg(self._group['obv'], 'error', 13)
 
     def check_vsby_wx(self, g):
-        # NWSI 10-813, 1.2.6
-        if 'vsby' in g and g['vsby']['str'] == 'P6SM':
-            if 'obv' in g and 'nsw' not in g:
-                for wx in g['obv']['str'].split():
-                    if wx not in _UnltdVsbyWx:
-                        raise Error(_Errors[18])
-        else:
+        if 'vsby' in g:
             try:
                 vsby = g['vsby']['value']
             except KeyError:
                 return
-            if not ('pcp' in g or 'obv' in g or 'nsw' in g):
-                add_msg(g['vsby'], 'error', 12)
             # visibility consistent with precipitation
             snow = 0
             if 'pcp' in g:
@@ -1103,29 +1096,40 @@ class Decoder(tpg.VerboseParser):
                     elif ptype in ('SN', 'DZ'):
                         snow = invalid_sn_vsby(i, vsby)
                 except TypeError:   # TS
-                    pass
-            if 'obv' in g:
-                for tok in g['obv']['str'].split():
-                    wx = tok[-2:]
-                    if wx == 'FG' and \
-                        invalid_fg_vsby(tok, vsby):
-                        raise Error(_Errors[14])
-                    if wx == 'BR' and invalid_br_vsby(vsby):
-                        raise Error(_Errors[15])
-                    if wx in ('DS', 'SS'):
-                        if tok[0] in '+-':
-                            i = tok[0]
-                        else:
-                            i = ''
-                        if invalid_ds_vsby(i, vsby):
-                            raise Error(_Errors[55])
+                    pass    
+            if g['vsby']['str'] == 'P6SM':
+                if 'obv' in g and 'nsw' not in g:
+                    for wx in g['obv']['str'].split():
+                        if wx not in _UnltdVsbyWx:
+                           raise Error(_Errors[18])
                 if snow == -1:
                     raise Error(_Errors[54])
+            # NWSI 10-813, 1.2.6       
             else:
-                if snow:
-                    raise Error(_Errors[54])
+                 if not ('pcp' in g or 'obv' in g or 'nsw' in g):
+                    add_msg(g['vsby'], 'error', 12)
+                 if 'obv' in g:
+                    for tok in g['obv']['str'].split():
+                        wx = tok[-2:]
+                        if wx == 'FG' and \
+                            invalid_fg_vsby(tok, vsby):
+                            raise Error(_Errors[14])
+                        if wx == 'BR' and invalid_br_vsby(vsby):
+                            raise Error(_Errors[15])
+                        if wx in ('DS', 'SS'):
+                            if tok[0] in '+-':
+                                i = tok[0]
+                            else:
+                                i = ''
+                            if invalid_ds_vsby(i, vsby):
+                                raise Error(_Errors[55])
+                    if snow == -1:
+                        raise Error(_Errors[54])
+                 else:
+                    if snow:
+                        raise Error(_Errors[54])
     
-    #######################################################################
+    ########################################################################
     # Methods called by the parser
     def prefix(self, s):
         pass

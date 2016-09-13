@@ -28,8 +28,8 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.raytheon.uf.common.auth.exception.AuthorizationException;
@@ -74,6 +74,7 @@ import com.raytheon.uf.edex.site.SiteAwareRegistry;
  * Feb 17, 2015 4103       dgilling    Add getLockDir for specific site, code 
  *                                     cleanup.
  * Mar 27, 2015 4103       dgilling    Support new location for svcbu.properties.
+ * Dec 15, 2015 5166       kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -94,8 +95,8 @@ public class SvcBackupUtil {
             "gfe", "svcbu.properties");
 
     /** The logger instance */
-    protected static transient Log logger = LogFactory
-            .getLog(SvcBackupUtil.class);
+    protected static transient Logger logger = LoggerFactory
+            .getLogger(SvcBackupUtil.class);
 
     /**
      * A private constructor so that Java does not attempt to create one for us.

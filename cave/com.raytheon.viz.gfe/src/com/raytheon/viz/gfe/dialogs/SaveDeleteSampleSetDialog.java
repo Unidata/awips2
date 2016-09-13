@@ -39,11 +39,18 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.dataplugin.gfe.sample.SampleId;
+import com.raytheon.uf.common.localization.ILocalizationFile;
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.viz.gfe.core.ISampleSetManager;
+import com.raytheon.viz.gfe.core.internal.SampleSetManager;
+import com.raytheon.viz.gfe.ui.AccessMgr;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
@@ -56,6 +63,8 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Mar 07, 2008            Eric Babin  Initial Creation
  * Oct 24, 2012 1287       rferrel     Code clean up for non-blocking dialog.
  * Sep 15, 2014 3592       randerso    Re-implemented to match A1
+ * Nov 19, 2014 5129       dgilling    Support SampleSetManager changes.
+ * Feb 05, 2016 5242       dgilling    Remove calls to deprecated Localization APIs.
  * 
  * </pre>
  * 
@@ -224,10 +233,21 @@ public class SaveDeleteSampleSetDialog extends CaveJFACEDialog {
 
     private void deleteSample(String name) {
         SampleId id = new SampleId(name);
-        if (id.isValid() && !this.protectedSets.contains(name)
-                && this.sets.contains(name)) {
+        if ((id.isValid()) && (!protectedSets.contains(name))
+                && (sets.contains(name))) {
+            IPathManager pm = PathManagerFactory.getPathManager();
+            LocalizationContext ctx = pm.getContext(
+                    LocalizationType.COMMON_STATIC, LocalizationLevel.USER);
+            ILocalizationFile lf = pm.getLocalizationFile(ctx,
+                    SampleSetManager.SAMPLE_SETS_DIR + id.getName() + ".xml");
+            boolean verify = AccessMgr.verifyDelete(lf.getPath(), lf
+                    .getContext().getLocalizationType(), false);
+            if (!verify) {
+                return;
+            }
+
             // LogStream.logUse("Delete", name);
-            this.sampleSetMgr.deleteSampleSet(id);
+            sampleSetMgr.deleteSampleSet(id);
         } else {
             String message = "Sample Set " + name + " is protected "
                     + "or an invalid name. ";

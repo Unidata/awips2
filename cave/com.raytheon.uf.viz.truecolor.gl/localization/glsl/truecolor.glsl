@@ -22,6 +22,8 @@ uniform float width;
 uniform int band;
 uniform int expectedMask;
 
+uniform float gamma;
+
 int toBitMask(float alpha) {
 	return int((alpha * maskMultiplier) + 0.5);
 }
@@ -64,7 +66,7 @@ vec4 applyColorBand(int colorband) {
 	if (dataValue != rawData.noDataValue && dataValue == dataValue) {
 		// Convert dataValue to cmapValue
 		float cmapValue = dataToColorMapValue(dataValue, dataMappingDataValues, dataMappingColorValues, dataMappingValues);
-		float index = getColorMappingIndex(cmapValue, colorMapping);
+		float index = pow(getColorMappingIndex(cmapValue, colorMapping), gamma);
 		
 		int currentMask = toBitMask(a);
 		int bitValue = (1 << band);

@@ -34,6 +34,7 @@ import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.annotations.NullString;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
@@ -61,6 +62,8 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                      PluginDataObject.
  * May 15, 2013 1869        bsteffen    Remove DataURI column from ldadmesonet.
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Jul 20, 2015 4360        rferrel     Named unique constraint
+ *                                       Made reportType and dataProvider not nullable
  * 
  * </pre>
  * 
@@ -70,8 +73,8 @@ import com.vividsolutions.jts.geom.Geometry;
 
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "ldadmesonetseq")
-@Table(name = "ldadmesonet", uniqueConstraints = { @UniqueConstraint(columnNames = {
-        "stationid", "reftime", "reportType", "dataProvider", "latitude",
+@Table(name = "ldadmesonet", uniqueConstraints = { @UniqueConstraint(name = "uk_ldadmesonet_datauri_fields", columnNames = {
+        "stationid", "reftime", "reporttype", "dataprovider", "latitude",
         "longitude" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
@@ -89,13 +92,15 @@ public class MesonetLdadRecord extends PersistablePluginDataObject implements
 
     //
     @DataURI(position = 1)
-    @Column
+    @NullString
+    @Column(nullable = false)
     @DynamicSerializeElement
     private String reportType;
 
     // LDAD data provider
     @DataURI(position = 2)
-    @Column
+    @NullString
+    @Column(nullable = false)
     @DynamicSerializeElement
     private String dataProvider; // Typical data providers: CDoT, KDoT, UDFCD,
 
@@ -120,7 +125,6 @@ public class MesonetLdadRecord extends PersistablePluginDataObject implements
 
     // Data provider Id
     @Column
-    // @DataURI(position = 3)
     @DynamicSerializeElement
     private String providerId; // * "110" "FA6026DA" Data Provider station Id
 

@@ -70,9 +70,9 @@ class Tool (SmartScript.SmartScript):
       #  the min/max in the edit area
       # 
       minval=variableElement_GridInfo.getMinValue()
-      minvalgrid=(editAreaMask*0.0)+minval
+      minvalgrid=self.newGrid(minval)
       maxval=variableElement_GridInfo.getMaxValue()
-      maxvalgrid=(editAreaMask*0.0)+maxval
+      maxvalgrid=self.newGrid(maxval)
       #
       #  setup valgrid with the grid that will be
       #  limited (i.e. for vectors the speed)
@@ -86,8 +86,8 @@ class Tool (SmartScript.SmartScript):
       #  area set to the max value for this element - so that the
       #  min will be found accurately.  Conversely for maxs.
       #
-      mincheck=where(greater(editAreaMask,0.5),valgrid,maxvalgrid)
-      maxcheck=where(greater(editAreaMask,0.5),valgrid,minvalgrid)
+      mincheck=where(editAreaMask,valgrid,maxvalgrid)
+      maxcheck=where(editAreaMask,valgrid,minvalgrid)
       #
       #  Find the current max/min in the edit area
       #
@@ -99,7 +99,7 @@ class Tool (SmartScript.SmartScript):
       #  you could get this from GridInfo, but you can't
       #
       resolution=1
-      if (WEname=="QPF"):
+      if (WEname=="QPF" or WEname=="IceAccum"):
          resolution=0.01
       if (WEname=="SnowAmt"):
          resolution=0.1

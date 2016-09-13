@@ -24,8 +24,8 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
@@ -73,6 +73,7 @@ import com.raytheon.uf.edex.decodertools.core.DecoderTools;
  *                                     added status  to decode.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
+ * Dec 17, 2015 5166       kbisanz     Update logging to use SLF4J
  * </pre>
  * 
  * @author jkorman
@@ -88,7 +89,7 @@ public class SfcObsDecoder extends AbstractDecoder {
             .getHandler("SfcObs:");
 
     /** The logger */
-    private final Log logger = LogFactory.getLog(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private boolean removeNILs = true;
 

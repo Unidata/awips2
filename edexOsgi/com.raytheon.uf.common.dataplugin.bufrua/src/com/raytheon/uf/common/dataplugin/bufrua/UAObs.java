@@ -83,6 +83,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                    bufrua.
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
  * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
+ * Jul 23, 2015  2360     rferrel     Add name to unique constraint.
  * 
  * </pre>
  * 
@@ -91,7 +92,7 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "bufruaseq")
-@Table(name = UAObs.PLUGIN_NAME, uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = UAObs.PLUGIN_NAME, uniqueConstraints = { @UniqueConstraint(name = "uk_bufrua_datauri_fields", columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
@@ -392,7 +393,6 @@ public class UAObs extends PersistablePluginDataObject implements
     }
 
     /**
-    /**
      * Get the station pressure at the observation site.
      * 
      * @return the pressure_station
@@ -584,7 +584,6 @@ public class UAObs extends PersistablePluginDataObject implements
     public String toString() {
         return wmoHeader;
     }
-
 
     @Override
     @Column

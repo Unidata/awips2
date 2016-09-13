@@ -19,13 +19,23 @@
  **/
 package com.raytheon.viz.gfe.dialogs.isc;
 
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -35,15 +45,14 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
+import com.raytheon.uf.common.dataplugin.gfe.request.IscRequestQueryRequest.IscQueryResponse;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
-import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.gfe.Activator;
-import com.raytheon.viz.gfe.GFEServerException;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
@@ -54,20 +63,25 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * 08/20/09      1995       lvenable    Initial port
- * 10/24/2008   1287        rferrel     Made dialog non-blocking.
- * 12/28/2012   DR15587     jzeng       Query weather elements from fcst DB 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Aug 20, 2009  1995      lvenable     Initial port
+ * Oct 24. 2008  1287      rferrel      Made dialog non-blocking.
+ * Dec 28, 2012  DR15587   jzeng        Query weather elements from fcst DB
+ * Aug 14, 2015  4750      dgilling     Remove broken query.
+ * Nov 30, 2015  5129      dgilling     Support new IFPClient.
  * 
  * </pre>
  * 
  * @author bphillip
- * @version 1
+ * @version 1.0
  */
+
 public class ISCRequestReplyDlg extends CaveSWTDialog {
     private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ISCRequestReplyDlg.class);
+
+    private final DataManager dataManager;
 
     private ListManager domainList;
 
@@ -77,15 +91,11 @@ public class ISCRequestReplyDlg extends CaveSWTDialog {
 
     private Label gridSrcLbl;
 
-    private DataManager dataMgr;
-
     private List<String> weList;
 
     private Map<String, Map<String, List<Map<String, String>>>> domainDict;
 
     private Map<String, Map<String, String>> serverDictT2S;
-
-    private String xml;
 
     private boolean iscAvailable;
 
@@ -95,12 +105,12 @@ public class ISCRequestReplyDlg extends CaveSWTDialog {
      * @param parent
      *            Parent shell.
      */
-    public ISCRequestReplyDlg(Shell parent) {
+    public ISCRequestReplyDlg(DataManager dataManager, Shell parent) {
         super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
         setText("ISC Request/Reply");
 
-        dataMgr = DataManager.getCurrentInstance();
-        iscAvailable = dataMgr.requestISC();
+        this.dataManager = dataManager;
+        this.iscAvailable = this.dataManager.requestISC();
     }
 
     @Override
@@ -224,54 +234,30 @@ public class ISCRequestReplyDlg extends CaveSWTDialog {
         sepLbl.setLayoutData(gd);
     }
 
-    @SuppressWarnings("unchecked")
     private void initializeData() {
-        Object[] response = dataMgr.doIscRequestQuery();
-        this.xml = (String) response[0];
-        this.weList = (List<String>) response[1];
-        Collections.sort(this.weList);
-        
-        /*
-         * If the weList is empty, get it from database
-         */
-        if (this.weList.isEmpty() ){
-            String query = "Select distinct (parmname) from awips.gfe";
-            List<Object[]> list = null;
-            try {
-            	list = DirectDbQuery.executeQuery(query, "metadata",
-                    QueryLanguage.SQL);
-            	for (Object[] we : list){
-                    weList.add(we[0].toString());
-            	}
-            } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error querying database", e);
-            }
-        }
+        IscQueryResponse response = dataManager.doIscRequestQuery();
 
-        
-        domainDict = (Map<String, Map<String, List<Map<String, String>>>>) response[2];
-        serverDictT2S = (Map<String, Map<String, String>>) response[4];
+        weList = new ArrayList<>(response.getRequestedParms());
+        Collections.sort(weList);
+
+        domainDict = response.getDomainDict();
+        serverDictT2S = response.getServerDictT2S();
 
         // output the list of servers and their priority
-        String s = "\n";
-        for (String key : this.domainDict.keySet()) {
-            s += "DOMAIN=" + key + "\n";
-            ArrayList<Map<String, String>> servers = (ArrayList<Map<String, String>>) this.domainDict
+        StringBuilder s = new StringBuilder("\n");
+        for (String key : domainDict.keySet()) {
+            s.append("DOMAIN=").append(key).append('\n');
+            List<Map<String, String>> servers = (List<Map<String, String>>) domainDict
                     .get(key);
             for (Map<String, String> server : servers) {
-                s += "  mhs=" + server.get("mhsid") + " host="
-                        + server.get("host") + " port=" + server.get("port")
-                        + "\n";
+                s.append("  mhs=").append(server.get("mhsid")).append(" host=")
+                        .append(server.get("host")).append(" port=")
+                        .append(server.get("port")).append('\n');
             }
 
         }
-        Activator
-                .getDefault()
-                .getLog()
-                .log(new Status(IStatus.INFO, Activator.PLUGIN_ID,
-                        "DomainDict servers:" + s));
-
+        statusHandler.handle(Priority.EVENTB,
+                "DomainDict servers:" + s.toString());
     }
 
     private void populateDomainList() {
@@ -288,37 +274,166 @@ public class ISCRequestReplyDlg extends CaveSWTDialog {
 
     private void populateWEList() {
         this.weatherElemList.clearList();
-        this.weatherElemList.addItemToList(weList.toArray(new String[] {}));
+        this.weatherElemList.addItemToList(weList.toArray(new String[0]));
         this.weatherElemList.selectAll();
         this.weatherElemList.deselectAll();
     }
 
     public void makeRequest() {
         if (iscAvailable) {
-            try {
-                List<String> weatherElements = null;
-                if (this.domainList.getSelectedItems().isEmpty()) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "No Domain has been selected");
-                    return;
-                }
-                if (this.gridSrcList.getSelectedItems().isEmpty()) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "No Grid Source has been selected");
-                    return;
-                }
-                if (this.weatherElemList.getSelectedItems().isEmpty()) {
-                    weatherElements = this.weatherElemList.getItems();
-                } else {
-                    weatherElements = this.weatherElemList.getSelectedItems();
-                }
-                String response = dataMgr.getClient().iscGetRequestXML(xml,
-                        this.gridSrcList.getSelectedItems(), weatherElements);
-                dataMgr.makeISCRequest(response);
-            } catch (GFEServerException e) {
+            List<String> weatherElements = null;
+            if (domainList.getSelectedItems().isEmpty()) {
                 statusHandler.handle(Priority.PROBLEM,
-                        "Server Problem: Error making request", e);
+                        "No Domain has been selected");
+                return;
             }
+
+            List<String> selectedServers = gridSrcList.getSelectedItems();
+            if (selectedServers.isEmpty()) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "No Grid Source has been selected");
+                return;
+            }
+            if (weatherElemList.getSelectedItems().isEmpty()) {
+                weatherElements = weatherElemList.getItems();
+            } else {
+                weatherElements = weatherElemList.getSelectedItems();
+            }
+
+            Document doc = null;
+            try {
+                doc = IrtAccess.getIscRequestXML(selectedServers,
+                        weatherElements, serverDictT2S);
+            } catch (DOMException | ParserConfigurationException e) {
+                statusHandler.error(
+                        "Unable to create XML document for request.", e);
+                return;
+            }
+
+            // output the list of servers and their priority
+            StringBuilder s = new StringBuilder("\n");
+            for (String key : domainDict.keySet()) {
+                s.append("DOMAIN=").append(key).append('\n');
+                for (String serverT : selectedServers) {
+                    Map<String, String> server = serverDictT2S.get(serverT);
+                    if (key.equals(server.get("site"))) {
+                        s.append("  mhs=").append(server.get("mhsid"))
+                                .append(" host=").append(server.get("host"))
+                                .append(" port=").append(server.get("port"))
+                                .append('\n');
+                    }
+                }
+            }
+            statusHandler.handle(Priority.EVENTB,
+                    "Chosen request servers:" + s.toString());
+
+            // send to ifpServer
+            String xmlreq = StringUtils.EMPTY;
+            try {
+                xmlreq = IrtAccess.convertXMLToString(doc);
+            } catch (TransformerException e) {
+                statusHandler.error(
+                        "Unable to write XML document for request.", e);
+                return;
+            }
+
+            dataManager.makeISCRequest(xmlreq);
+        }
+    }
+
+    private static class IrtAccess {
+
+        private IrtAccess() {
+            throw new AssertionError();
+        }
+
+        public static Document getIscRequestXML(List<String> selectedServers,
+                List<String> weatherElements,
+                Map<String, Map<String, String>> serverDictT2S)
+                throws DOMException, ParserConfigurationException {
+            DocumentBuilderFactory factory = DocumentBuilderFactory
+                    .newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+
+            Document doc = builder.newDocument();
+            Element iscReqE = doc.createElement("iscrequest");
+            doc.appendChild(iscReqE);
+            List<Map<String, String>> destinations = new ArrayList<>();
+            for (String serverT : selectedServers) {
+                Map<String, String> server = serverDictT2S.get(serverT);
+                destinations.add(server);
+            }
+            addDestinationXML(iscReqE, destinations);
+            Element welistE = doc.createElement("welist");
+            iscReqE.appendChild(welistE);
+            for (String we : weatherElements) {
+                Element weE = doc.createElement("parm");
+                weE.appendChild(doc.createTextNode(we));
+                welistE.appendChild(weE);
+            }
+
+            return doc;
+        }
+
+        public static String convertXMLToString(Document doc)
+                throws TransformerException {
+            TransformerFactory tFactory = TransformerFactory.newInstance();
+            Transformer transformer = tFactory.newTransformer();
+
+            DOMSource source = new DOMSource(doc);
+            StringWriter writer = new StringWriter();
+            StreamResult result = new StreamResult(writer);
+            transformer.transform(source, result);
+            return writer.getBuffer().toString();
+        }
+
+        private static Element addDestinationXML(Element root,
+                List<Map<String, String>> serverInfos) {
+            Element destinationsE = root.getOwnerDocument().createElement(
+                    "destinations");
+            root.appendChild(destinationsE);
+            for (Map<String, String> serverInfo : serverInfos) {
+                addAddressXML(destinationsE, serverInfo);
+            }
+            return destinationsE;
+        }
+
+        private static Element addAddressXML(Element root,
+                Map<String, String> serverInfo) {
+            Element addressE = root.getOwnerDocument().createElement("address");
+            root.appendChild(addressE);
+
+            Element mhsidE = root.getOwnerDocument().createElement("mhsid");
+            String mhsidText = MapUtils.getString(serverInfo, "mhsid", "?");
+            mhsidE.appendChild(root.getOwnerDocument()
+                    .createTextNode(mhsidText));
+            addressE.appendChild(mhsidE);
+
+            Element serverE = root.getOwnerDocument().createElement("server");
+            String serverText = MapUtils.getString(serverInfo, "host", "?");
+            serverE.appendChild(root.getOwnerDocument().createTextNode(
+                    serverText));
+            addressE.appendChild(serverE);
+
+            Element portE = root.getOwnerDocument().createElement("port");
+            String portText = MapUtils.getString(serverInfo, "port", "?");
+            portE.appendChild(root.getOwnerDocument().createTextNode(portText));
+            addressE.appendChild(portE);
+
+            Element protocolE = root.getOwnerDocument().createElement(
+                    "protocol");
+            String protocolText = MapUtils.getString(serverInfo, "protocol",
+                    "?");
+            protocolE.appendChild(root.getOwnerDocument().createTextNode(
+                    protocolText));
+            addressE.appendChild(protocolE);
+
+            Element siteE = root.getOwnerDocument().createElement("site");
+            String siteText = MapUtils.getString(serverInfo, "site", "?");
+            siteE.appendChild(root.getOwnerDocument().createTextNode(siteText));
+            addressE.appendChild(siteE);
+
+            return addressE;
         }
     }
 }

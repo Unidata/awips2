@@ -30,6 +30,7 @@ import groovy.util.logging.*
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 4, 2014  3836       bkowal      Initial Commit
+ * Dec 9, 2015  4216       dhladky     Fix multi WA deploys
  *
  * </pre>
  *
@@ -85,22 +86,7 @@ class DeployESB
          architecture = 
             (System.getProperty("os.arch") == "amd64") ? "x86_64" : "x86"
       }
-      String esbLibIllusionPath = esbDirectory + File.separator + "lib" + File.separator + 
-         "lib_illusion" + File.separator + architecture
-      if (new File(esbLibIllusionPath).exists() == false)
-      {
-         log.log(java.util.logging.Level.SEVERE,
-            "Unable to find the illusion lib associated with architecture - " + architecture)
-         System.exit(-1)
-      }
-
-      String libIllusionDestination = edexRootDirectory + File.separator + 
-         "lib" + File.separator + "lib_illusion"
-      new File(libIllusionDestination).mkdirs()
-      ant.copy( todir : libIllusionDestination, overwrite : true )
-      {
-         fileset( dir : esbLibIllusionPath )
-      }
+      
    }
 
    public static void deployEdexConfiguration(String edexRootDirectory, String esbDirectory)

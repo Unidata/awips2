@@ -31,12 +31,18 @@
 #    10/29/2013      #2476         njensen        Improved getting wx/discrete keys when retrieving data
 #    10/27/2014      #3766         randerso       Changed _getLatest to include error text returned from InitClient.createDB()
 #    Apr 23, 2015    #4259         njensen        Updated for new JEP API
+#    08/06/2015      4718          dgilling       Prevent numpy 1.9 from wasting memory by
+#                                                 upcasting scalars too high when using where.
+#    Aug 13, 2015    4704          randerso       Added NumpyJavaEnforcer support for smartInits
+#                                                 additional code cleanup
 #    Dec 03, 2015    #5168         randerso       Fixed problems running calc methods with both accumulative
 #                                                 and non-accumulative weather elements as inputs 
 #
 ##
 import string, sys, re, time, types, getopt, fnmatch, LogStream, DatabaseID, JUtil, AbsTime, TimeRange
 import SmartInitParams
+import NumpyJavaEnforcer
+
 from numpy import *
 pytime = time
 
@@ -191,7 +197,7 @@ class GridUtilities:
     #                                  temperature (K)
     #
     def TMST(self, thte, pres, tguess):
-       tg=ones(thte.shape)*tguess
+       tg=full_like(thte, tguess)
        teclip=clip(thte-270.0,0.0,5000.0)
        #
        #  if guess temp is 0 - make a more reasonable guess
@@ -307,11 +313,15 @@ class GridUtilities:
         # now make the categories
         mask3 = greater_equal(hainesT, dd['stabThresh'][1])
         mask1 = less(hainesT, dd['stabThresh'][0])
-        hainesT = where(mask3, 3, where(mask1, 1, 2))
+        hainesT = full_like(mask3, 2, dtype=float32)
+        hainesT[mask1] = 1
+        hainesT[mask3] = 3
 
         mask3 = greater_equal(hainesM, dd['moiThresh'][1])
         mask1 = less(hainesM, dd['moiThresh'][0])
-        hainesM = where(mask3, 3, where(mask1, 1, 2))
+        hainesM = full_like(mask3, 2, dtype=float32)
+        hainesM[mask1] = 1
+        hainesM[mask3] = 3
 
         return hainesT + hainesM
 
@@ -371,16 +381,24 @@ class Forecaster(GridUtilities):
         else:
             self.__stopo = None
 
-        # TODO: this is a work around to keep smart init running
-        # until we get the staticTopo_Dflt parameter populated
-#        if self.__stopo is None:
-#            LogStream.logProblem("staticTopo not available, using topo")
-#            self.__stopo = self.__topo
-
         self._editAreas = self._client.getEditAreaNames()
-        self._empty = self.__topo * 0
-        self._minus = self._empty - 1
+        
+        self.__gridShape = self.__topo.shape
+        self._empty = self.empty();
+        self._minus = self.newGrid(-1)
+        
+    def getGridShape(self):
+        """Return a tuple containing the grid shape"""
+        return self.__gridShape
 
+    def empty(self, dtype=float32):
+        """Return a grid filled with 0"""
+        return zeros(self.getGridShape(), dtype)
+    
+    def newGrid(self, initialValue, dtype=float32):
+        """Return a grid filled with initialValue"""
+        return full(self.getGridShape(), initialValue, dtype)
+    
     #--------------------------------------------------------------------------
     #  Returns a string that corresponds to the specified time range.
     #--------------------------------------------------------------------------
@@ -470,7 +488,7 @@ class Forecaster(GridUtilities):
     def getAreas(self, pbot, tbot, ptop, ttop):
         maxm = maximum(tbot, ttop)
         minm = minimum(tbot, ttop)
-        freeze = self._empty + 273.15
+        freeze = self.newGrid(273.15)
         crosses = logical_and(less(minm, freeze), greater(maxm, freeze))
         crossp = self.linear(pbot, ptop, tbot, ttop, freeze)
         crosst = freeze
@@ -500,18 +518,18 @@ class Forecaster(GridUtilities):
     #
     #--------------------------------------------------------------------------
     def wxMask(self, wx, query, isreg=0):
-        rv = zeros(wx[0].shape)
+        rv = self.empty(bool)
         if not isreg:
             for i in xrange(len(wx[1])):
                 #if fnmatch.fnmatchcase(wx[1][i], query):
-                if string.find(wx[1][i],query) >=0:
-                    rv = logical_or(rv, equal(wx[0], i))
+                if query in wx[1][i]:
+                    rv[equal(wx[0], i)] = True
         else:
             r = re.compile(query)
             for i in xrange(len(wx[1])):
                 m = r.match(wx[1][i])
                 if m is not None:
-                    rv = logical_or(rv, equal(wx[0], i))
+                    rv[equal(wx[0], i)] = True
         return rv
 
     #--------------------------------------------------------------------------
@@ -600,7 +618,8 @@ class Forecaster(GridUtilities):
         times = self.__sortTimes(methods, validTime)
         tr, numGrids = self.__process(methods, times, int(dbInfo[1]))
         stop = time.time()
-        msgTime = "Elapsed time: " + ("%-.1f" % (stop - start)) + "sec."
+        msgTime = "%s: Elapsed time: %-.1f sec." % (self.newdb().getModelIdentifier(), (stop - start))
+
         LogStream.logEvent(msgTime)
         #LogStream.logEvent("Network stats: ", self._client.getStats())
         self._announce(self.newdb(), tr, numGrids)
@@ -720,17 +739,17 @@ class Forecaster(GridUtilities):
     #  Returns a mask where points are set when the specified query is true.
     #--------------------------------------------------------------------------
     def _wxMask(self, wx, query, isreg=0):
-        rv = zeros(wx[0].shape)
+        rv = self.empty(bool)
         if not isreg:
             for i in xrange(len(wx[1])):
                 if fnmatch.fnmatchcase(wx[1][i], query):
-                    rv = logical_or(rv, equal(wx[0], i))
+                    rv[equal(wx[0], i)] = True
         else:
             r = re.compile(query)
             for i in xrange(len(wx[1])):
                 m = r.match(wx[1][i])
                 if m is not None:
-                    rv = logical_or(rv, equal(wx[0], i))
+                    rv[equal(wx[0], i)] = True
         return rv
 
     #--------------------------------------------------------------------------
@@ -983,7 +1002,7 @@ class Forecaster(GridUtilities):
 #             LogStream.logEvent("missing:",missing)
 
             if len(missing):
-                LogStream.logEvent("Skipping calc" + we + " for some times due to the following " +
+                LogStream.logEvent(self.newdb().getModelIdentifier() + ": Skipping calc" + we + " for some times due to the following " +
                                    "missing data:", missing)
             # these become the times to run the method for
             rval.append(times)
@@ -1086,11 +1105,11 @@ class Forecaster(GridUtilities):
 
         doStore = False
         if mthd.im_func is Forecaster.__exists.im_func:
-            msg = "Get : " + we + " " + self._timeRangeStr(time)
+            msg = self.newdb().getModelIdentifier() + ": Get : " + we + " " + self._timeRangeStr(time)
             LogStream.logEvent(msg)
         else:
             doStore = True
-            msg = "Calc : " + we + " " + self._timeRangeStr(time)
+            msg = self.newdb().getModelIdentifier() + ": Calc : " + we + " " + self._timeRangeStr(time)
             LogStream.logEvent(msg)
 
         try:
@@ -1119,7 +1138,7 @@ class Forecaster(GridUtilities):
                 LogStream.logEvent("Storing", we, printTR(cache['mtime'][0]))
                 self._ifpio.store(parm, cache['mtime'][0], cache[we][0])
         except:
-            LogStream.logProblem("Error while running method " + str(we) +
+            LogStream.logProblem(self.newdb().getModelIdentifier() + ": Error while running method " + str(we) +
                                  "\n" + LogStream.exc())
             cache[we] = (None, time)
 
@@ -1337,26 +1356,19 @@ class IFPIO:
         wrongType = None
         saved = False
         if type(grid) is ndarray:
-            if grid.dtype != dtype('float32'):
-                grid = grid.astype('float32')
+            grid = NumpyJavaEnforcer.checkdTypes(grid, float32)
             # scalar save
             newwe.setItemScalar(newwe.getTimeRange(tr[0]), grid)
             saved = True
         elif (type(grid) is list or type(grid) is tuple) and len(grid) == 2:
             if type(grid[0]) is ndarray and type(grid[1]) is ndarray:
-                magGrid = grid[0]
-                dirGrid = grid[1]
-                if magGrid.dtype != dtype('float32'):
-                    magGrid = magGrid.astype('float32')
-                if dirGrid.dtype != dtype('float32'):
-                    dirGrid = dirGrid.astype('float32')
+                magGrid = NumpyJavaEnforcer.checkdTypes(grid[0], float32)
+                dirGrid = NumpyJavaEnforcer.checkdTypes(grid[1], float32)
                 # vector save
                 newwe.setItemVector(newwe.getTimeRange(tr[0]), magGrid, dirGrid)
                 saved = True
             elif type(grid[0]) is ndarray and type(grid[1]) is list:
-                bgrid = grid[0]
-                if bgrid.dtype != dtype('byte'):
-                    bgrid = bgrid.astype('byte')
+                bgrid = NumpyJavaEnforcer.checkdTypes(grid[0], int8)
 
                 if gridType == "DISCRETE":
                     newwe.setItemDiscrete(newwe.getTimeRange(tr[0]), bgrid, str(grid[1]))

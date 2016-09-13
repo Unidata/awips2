@@ -379,7 +379,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
             # region has changed, need to output it
             if self._lastRegion is None or region != self._lastRegion:
-                fcst = fcst + "..." + region + "...\n   " + area + "\n"
+                fcst = fcst + "..." + region.upper() + "...\n   " + area + "\n"
                 self._lastRegion = region
                 return fcst
             else:
@@ -600,7 +600,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         ident = "   "
 
         # s is the built-up string containing the description
-        s =  "Rows include...\n"
+        s =  "ROWS INCLUDE...\n"
 
 
         # Weather

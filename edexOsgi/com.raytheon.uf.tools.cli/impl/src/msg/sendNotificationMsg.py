@@ -35,7 +35,7 @@ import os, socket
 #    10/22/10		 5849		   cjeanbap		  Updated to use AlertVizMessage.		
 #    12/08/10		 7656		   cjeanbap 	  Retrieve environment variable.
 #    05/03/11        5149          cjeanbap       Updated usage statement.
-#
+#    07/27/15        4654          skorolev       Added filters and input test.
 #
 
 from awips import NotificationMessage
@@ -50,14 +50,16 @@ environment variables DEFAULT_HOST and DEFAULT_PORT.
 
 Example usage:
     sendNotificationMsg TOPO RADAR 0 "XYZ product has been generated."
-    sendNotificationMsg ANNOUNCER LOCAL 0 "XYZ only to machine dev01" dev01
+    sendNotificationMsg ANNOUNCER LOCAL 0 "XYZ only to machine dev01" --destination dev01
     sendNotificationMsg --host={edex_localization_host_name} --port=9581 SCAN RADAR 0 "XYZ product has been generated."     
-""" )
+    sendNotificationMsg RADAR DEFAULT 0 "TEST OF filters in sendNotification FOR ALERTVIZ." -f "REGION=CR,DESK=MARINE,SITE=OAX"
+"""
+    )
       sys.exit(2) 
 
 def main():
    prog = sys.argv[0].split('/')[::-1][0].split('.')[0]
-   usage = "%(prog)s [--host hostname] [--port portnumber] source category priority message [destination]"
+   usage = "%(prog)s [--host hostname] [--port portnumber] source category priority message [-d destination] [-f filtersInput]"
    parser = PrintHelpOnErrorParser(usage=usage, conflict_handler="resolve", prog=prog)
    parser.add_argument("--host", "-h", action="store", dest="host",
                           help="Host name upon which the alertViz server is running. Default: localhost", 
@@ -73,8 +75,11 @@ def main():
                       help="Required Alert Visualization priority. An integer in the range 0-5")
    parser.add_argument("message", nargs=1,
                       help="Required Alert message to be sent.")
-   parser.add_argument("destination", nargs='?',
+   parser.add_argument("--destination", "-d", nargs='?',
                       help="Optional machine to send message to when category is LOCAL. Default: localhost")
+   parser.add_argument("--filtersInput","-f", nargs='?',
+                      help="Optional filters to send message to specific localization level. For instance -f 'SITE=OAX'")
+   
    args = parser.parse_args()
 
    portno = args.port
@@ -83,7 +88,8 @@ def main():
    priority = args.priority[0]
    source = args.source[0]
    destination = args.destination
-   
+   filtersInput = args.filtersInput
+
    if portno < 0:
       portno=os.getenv("DEFAULT_PORT", "9581");
    if category == 'LOCAL':
@@ -99,9 +105,17 @@ def main():
 
    if priority < 0 or priority > 5:
       parser.error('bad value for priority=%d' % priority)
-   
+      
+   if filtersInput is not None:
+      if not filtersInput.strip():
+         raise ValueError('Filters input must not be empty or blank')
+      else:
+         filters=dict(item.strip().split("=") for item in filtersInput.strip().split(","))
+   else:
+       filters={}
+       
    msg = NotificationMessage.NotificationMessage(host=hostname, port=portno, message=message,
-           category=category, priority=priority, source=source)
+           category=category, priority=priority, source=source, filters=filters)
    msg.send()
 
 if __name__ == "__main__":

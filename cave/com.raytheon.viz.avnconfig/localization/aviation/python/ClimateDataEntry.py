@@ -28,6 +28,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    11/17/09                      avarani        Initial Creation.
+#    01/26/2016      18395         zhao           Modified process()
 #    
 # 
 #
@@ -53,10 +54,16 @@ def start(queue, append, sites, climateDir):
     #mythread.start()
 
 # Process Data button
-def process(queue, stnPickle):
+def process(queue, stnPickle, append, sites, climateDir):
     import ClimateDataUpdate
-    cdupdate = ClimateDataUpdate.ClimateDataUpdate(queue, stnPickle)
-    cdupdate.assessData(bypass = True)
+    import cPickle as pickle
+    o = pickle.loads(stnPickle)
+    if set(sites) == set(o['sites']):
+        cdupdate = ClimateDataUpdate.ClimateDataUpdate(queue, stnPickle)
+        cdupdate.assessData(bypass = True)
+    else:
+        cdupdate = ClimateDataUpdate.ClimateDataUpdate(queue, climateDir = climateDir)
+        cdupdate.assessData(append = append, sites = sites)
     # def __continue():
     #    if mythread:
     #        mythread.bypass = True

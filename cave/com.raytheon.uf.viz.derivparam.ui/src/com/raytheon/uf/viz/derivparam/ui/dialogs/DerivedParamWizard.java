@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.viz.derivparam.ui.dialogs;
 
-import java.io.File;
-
 import com.raytheon.uf.common.derivparam.library.DerivedParameterGenerator;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -28,10 +26,10 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.localization.LocalizationPerspectiveUtils;
 import com.raytheon.uf.viz.localization.service.ILocalizationService;
 import com.raytheon.viz.ui.dialogs.CaveSWTWizard;
@@ -47,6 +45,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTWizard;
  * ------------ ---------- ----------- --------------------------
  * Dec 16, 2010            mschenke    Initial creation
  * Sep 17, 2013 2285       mschenke    Fixed serialization of DerivParamDesc
+ * Feb 12, 2016 5242       dgilling    Remove calls to deprecated Localization APIs.
  * 
  * </pre>
  * 
@@ -74,23 +73,6 @@ public class DerivedParamWizard extends CaveSWTWizard {
         addPage(newFunctionPage);
     }
 
-    /*
-     * Max, I took this out but itwill go away with the SWT Wizard stuff.
-     */
-
-    // @Override
-    // public void createPageControls(Composite pageContainer) {
-    // pageContainer.setLayout(new GridLayout(1, false));
-    // pageContainer.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
-    // false));
-    // super.createPageControls(pageContainer);
-    // }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.wizard.Wizard#performFinish()
-     */
     @Override
     public boolean performFinish() {
         IPathManager pm = PathManagerFactory.getPathManager();
@@ -102,15 +84,11 @@ public class DerivedParamWizard extends CaveSWTWizard {
             String fileName = newFunctionPage.getFunctionName() + "."
                     + newFunctionPage.getSelectedFunctionType().getExtension();
             String path = DerivedParameterGenerator.FUNCTIONS_DIR
-                    + File.separator + fileName;
+                    + IPathManager.SEPARATOR + fileName;
             LocalizationFile file = pm.getLocalizationFile(userCtx, path);
-            File f = file.getFile();
-            if (f.exists()) {
-                f.delete();
-            }
-            try {
-                FileUtil.bytes2File(functionContents.getBytes(), f);
-                file.save();
+            try (SaveableOutputStream outStream = file.openOutputStream()) {
+                outStream.write(functionContents.getBytes());
+                outStream.save();
                 functionFile = file;
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
@@ -123,13 +101,9 @@ public class DerivedParamWizard extends CaveSWTWizard {
             String path = DerivedParameterGenerator.XML_DIR
                     + IPathManager.SEPARATOR + fileName;
             LocalizationFile file = pm.getLocalizationFile(userCtx, path);
-            File f = file.getFile();
-            if (f.exists()) {
-                f.delete();
-            }
-            try {
-                FileUtil.bytes2File(definitionContents.getBytes(), f);
-                file.save();
+            try (SaveableOutputStream outStream = file.openOutputStream()) {
+                outStream.write(functionContents.getBytes());
+                outStream.save();
                 definitionFile = file;
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),

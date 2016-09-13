@@ -46,6 +46,7 @@ import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -92,6 +93,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 4/12/2011    8861       rferrel     Added file permission check in savedata
  * 10/09/2012   1229       rferrel     Change to non-blocking dialog.
  * 10/15/2012   1229       rferrel     Changes for non-blocking HelpUsageDlg.
+ * 01/26/2016   5054       randerso    Allow dialog to be parented by display
  * 
  * </pre>
  * 
@@ -193,6 +195,30 @@ public class MetarDisplayDialog extends CaveSWTDialog implements
         this.showDecoded = true;
     }
 
+    /**
+     * Constructor.
+     * 
+     * @param display
+     * 
+     * @param icaos
+     *            Array of ICAOs
+     * @param msgType
+     *            Status message type.
+     * @param statusCompRGB
+     *            Message status comp background color.
+     */
+    public MetarDisplayDialog(Display display, java.util.List<String> icaos,
+            StatusMessageType msgType, RGB statusCompRGB) {
+        super(display, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
+                | CAVE.DO_NOT_BLOCK);
+        setText("AvnFPS - METAR Display");
+
+        this.icaos = icaos;
+        this.msgType = msgType;
+        this.statusCompRGB = statusCompRGB;
+        this.showDecoded = true;
+    }
+
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -282,10 +308,10 @@ public class MetarDisplayDialog extends CaveSWTDialog implements
                     Rectangle trim = printer.computeTrim(0, 0, 0, 0);
                     Point dpi = printer.getDPI();
                     int leftMargin = dpi.x + trim.x;
-                    int rightMargin = clientArea.width - dpi.x + trim.x
+                    int rightMargin = (clientArea.width - dpi.x) + trim.x
                             + trim.width;
                     int topMargin = dpi.y + trim.y;
-                    int bottomMargin = clientArea.height - dpi.y + trim.y
+                    int bottomMargin = (clientArea.height - dpi.y) + trim.y
                             + trim.height;
 
                     int tabSize = 4;
@@ -330,20 +356,20 @@ public class MetarDisplayDialog extends CaveSWTDialog implements
                         char c = textToPrint.charAt(index);
                         index++;
                         if (c != 0) {
-                            if (c == 0x0a || c == 0x0d) {
-                                if (c == 0x0d && index < end
-                                        && textToPrint.charAt(index) == 0x0a) {
+                            if ((c == 0x0a) || (c == 0x0d)) {
+                                if ((c == 0x0d) && (index < end)
+                                        && (textToPrint.charAt(index) == 0x0a)) {
                                     index++;
                                 }
                                 if (wordBuffer.length() > 0) {
                                     String word = wordBuffer.toString();
                                     int wordWidth = gc.stringExtent(word).x;
-                                    if (x + wordWidth > rightMargin) {
+                                    if ((x + wordWidth) > rightMargin) {
                                         x = leftMargin;
                                         y += lineHeight;
-                                        if (y + lineHeight > bottomMargin) {
+                                        if ((y + lineHeight) > bottomMargin) {
                                             printer.endPage();
-                                            if (index + 1 < end) {
+                                            if ((index + 1) < end) {
                                                 y = topMargin;
                                                 printer.startPage();
                                             }
@@ -355,9 +381,9 @@ public class MetarDisplayDialog extends CaveSWTDialog implements
                                 }
                                 x = leftMargin;
                                 y += lineHeight;
-                                if (y + lineHeight > bottomMargin) {
+                                if ((y + lineHeight) > bottomMargin) {
                                     printer.endPage();
-                                    if (index + 1 < end) {
+                                    if ((index + 1) < end) {
                                         y = topMargin;
                                         printer.startPage();
                                     }
@@ -370,12 +396,12 @@ public class MetarDisplayDialog extends CaveSWTDialog implements
                                     if (wordBuffer.length() > 0) {
                                         String word = wordBuffer.toString();
                                         int wordWidth = gc.stringExtent(word).x;
-                                        if (x + wordWidth > rightMargin) {
+                                        if ((x + wordWidth) > rightMargin) {
                                             x = leftMargin;
                                             y += lineHeight;
-                                            if (y + lineHeight > bottomMargin) {
+                                            if ((y + lineHeight) > bottomMargin) {
                                                 printer.endPage();
-                                                if (index + 1 < end) {
+                                                if ((index + 1) < end) {
                                                     y = topMargin;
                                                     printer.startPage();
                                                 }
@@ -392,7 +418,7 @@ public class MetarDisplayDialog extends CaveSWTDialog implements
                             }
                         }
                     }
-                    if (y + lineHeight <= bottomMargin) {
+                    if ((y + lineHeight) <= bottomMargin) {
                         printer.endPage();
                     }
 
@@ -704,7 +730,7 @@ public class MetarDisplayDialog extends CaveSWTDialog implements
     }
 
     private void retrieveClimateData() {
-        if (stationList != null && stationList.getItemCount() != 0) {
+        if ((stationList != null) && (stationList.getItemCount() != 0)) {
             final int timeout = ClimateTimeoutManager.getInstance()
                     .getClimateMetarTimeout();
             final String site = stationList.getItem(stationList

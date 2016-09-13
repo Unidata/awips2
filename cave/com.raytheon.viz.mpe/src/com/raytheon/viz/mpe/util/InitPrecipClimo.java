@@ -38,6 +38,7 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
  * Feb 23, 2009            snaples     Initial creation
  * Feb 3, 2015  16993     snaples     Fixed if condition on cparm.
  * Mar 2, 2015  15660      snaples     Fixed issue with if statement testing CPARM and checking for both values to be true, broken logic.
+ * Apr 5, 2016  18350     snaples      Changed DailyQCUtils to instance.
  * 
  * </pre>
  * 
@@ -57,7 +58,7 @@ public class InitPrecipClimo {
         String pathName = station_climo_file;
         int stationCount = 0;
         int rec_num = 1;
-        DailyQcUtils dc = new DailyQcUtils();
+        DailyQcUtils dc = DailyQcUtils.getInstance();
         System.out.println("Starting init precip climo:");
         try {
             File infile = new File(pathName);

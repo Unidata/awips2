@@ -65,63 +65,7 @@
         <!-- ===================================================================== -->
         <!-- Steps to do after setup but before starting the build proper -->
         <!-- ===================================================================== -->
-        <target name="postSetup">        	
-                <echo message="${buildDirectory}"/>
-                <mkdir dir="${buildDirectory}/plugins"/>
-        		<echo message="com.*/**"/>
-                <copy todir="${buildDirectory}/plugins">
-                        <fileset dir="${buildDirectory}/../../../" includes="com.*/**"/>
-                </copy>
-        		<echo message="ucar.*/**"/>
-	    		<copy todir="${buildDirectory}/plugins">
-	    	    	<fileset dir="${buildDirectory}/../../../" includes="ucar.*/**"/>
-	    	    </copy>
-        		<echo message="features.*/**"/>
-                <copy todir="${buildDirectory}/features">
-                        <fileset dir="${buildDirectory}/../../../" includes="*.feature*/**"/>
-                </copy>
-        		<echo message="ncsa.*/**"/>
-                <copy todir="${buildDirectory}/plugins">
-                        <fileset dir="${buildDirectory}/../../../" includes="ncsa.*/**"/>
-                </copy>
-        		<echo message="org.*/**"/>
-                <copy todir="${buildDirectory}/plugins">
-                        <fileset dir="${buildDirectory}/../../../" includes="org.*/**"/>
-                </copy>
-        		<echo message="net.*/**"/>
-                <copy todir="${buildDirectory}/plugins">
-                        <fileset dir="${buildDirectory}/../../../" includes="net.*/**"/>
-                </copy>
-        		<echo message="ohd.*/**"/>
-                <copy todir="${buildDirectory}/plugins">
-                    <fileset dir="${buildDirectory}/../../../" includes="ohd*/**"/>
-                </copy>
-        		<echo message="javax.*/**"/>
-                <copy todir="${buildDirectory}/plugins">
-                        <fileset dir="${buildDirectory}/../../../" includes="javax.*/**"/>
-                </copy>
-                <echo message="gov.*/**"/>
-                <copy todir="${buildDirectory}/plugins">
-                    <fileset dir="${buildDirectory}/../../../" includes="gov.*/**"/>
-                </copy>
-        		<echo message="edu.*/**"/>
-                <copy todir="${buildDirectory}/plugins">
-                    <fileset dir="${buildDirectory}/../../../" includes="edu.*/**"/>
-                </copy>
-                <echo message="ogc.*/**"/>
-                <copy todir="${buildDirectory}/plugins">
-                    <fileset dir="${buildDirectory}/../../../" includes="ogc.*/**"/>
-                </copy>
-
-            	<echo message="de.*/**"/>
-                <copy todir="${buildDirectory}/plugins">
-                    <fileset dir="${buildDirectory}/../../../" includes="de.*/**"/>
-                </copy>
-
-                <echo message="ch.*/**"/>
-                <copy todir="${buildDirectory}/plugins">
-                    <fileset dir="${buildDirectory}/../../../" includes="ch.*/**"/>
-                </copy>
+        <target name="postSetup">
                 <antcall target="getBaseComponents" />
         </target>
 
@@ -172,34 +116,30 @@
         <!-- Steps to do after  running assemble. -->
         <!-- ===================================================================== -->
         <target name="postAssemble">
-        	<!-- Update the 32-bit linux CAVE zip with static files -->
-        	<zip destfile="${buildDirectory}/${buildLabel}/${buildId}-linux.gtk.x86.zip"
-        		update="true">
-        		
-        		<fileset dir="${buildDirectory}/../../static/linux"
-        			excludes="alertviz/**" />
-        		<fileset dir="${buildDirectory}/../../static/linux.x86" />
+        	<taskdef resource="net/sf/antcontrib/antlib.xml" 
+        		classpath="${builder}/../lib/ant/ant-contrib-1.0b3.jar" />       	
         	
-        	</zip>
-        	<!-- Update the 64-bit linux CAVE zip with static files -->
-        	<zip destfile="${buildDirectory}/${buildLabel}/${buildId}-linux.gtk.x86_64.zip"
-        		update="true">
+        	<!-- TODO: Is this still necessary? -->
+        	<if>
+        		<available file="${buildDirectory}/${buildLabel}/${buildId}-win32.win32.x86_64.zip" />
+        		<then>
+        			<!-- Temp zip file including all the license files -->
+        			<zip destfile="/tmp/cave/FOSS_licenses.zip">
+        				<fileset dir="${buildDirectory}/../../../rpms/legal/FOSS_licenses"/>
+        			</zip>
 
-        		<fileset dir="${buildDirectory}/../../static/linux"
-        			excludes="alertviz/**" />
-        		<fileset dir="${buildDirectory}/../../static/linux.x86_64" />        		
-        		
-        	</zip>        	
-
-        	<!-- Update the 64-bit (amd64) win32 CAVE zip with static and license files -->
-        	<zip destfile="${buildDirectory}/${buildLabel}/${buildId}-win32.win32.x86_64.zip"
-        		update="true">
+        			<!-- Update the 64-bit (amd64) win32 CAVE zip with static and license files -->
+        			<zip destfile="${buildDirectory}/${buildLabel}/${buildId}-win32.win32.x86_64.zip"
+        				update="true">
         	
-        		<fileset dir="${buildDirectory}/../../static/win32.amd64" 
-        			excludes="alertviz/**" />
-        		<zipfileset dir="${buildDirectory}/../../../rpms/legal" 
-        			includes="Master_Rights_File.pdf" prefix="cave"/>
-        	</zip>
+        				<fileset dir="${buildDirectory}/../../static/win32.amd64" 
+        					excludes="alertviz/**" />
+        				<zipfileset dir="${buildDirectory}/../../../rpms/legal" 
+        					includes="Master_Rights_File.pdf" prefix="cave"/>
+        				<zipfileset dir="/tmp/cave" includes="FOSS_licenses.zip" prefix="cave"/> 
+        			</zip>
+        		</then>
+        	</if>
 
         </target>
 
@@ -219,281 +159,7 @@
         <!-- Steps to do after the build is done. -->
         <!-- ===================================================================== -->
         <target name="postBuild">
-        	<taskdef resource="net/sf/antcontrib/antlib.xml" 
-        		classpath="${builder}/../lib/ant/ant-contrib-1.0b3.jar" />   
-        	
-		<taskdef name="xmltask"
-            	classname="com.oopsconsultancy.xmltask.ant.XmlTask">
-			<classpath>
-				<pathelement path="${builder}/../lib/ant/xmltask-v1.15.1.jar"/>
-				<pathelement path="${builder}/../lib/ant/xalan-2.7.2.jar"/>
-			</classpath>
-		</taskdef>
-        	
-            <!-- Generate the 32-bit CAVE ini files -->
-        	<var name="cave.arch" value="arch.x86" />
-        	<extractCAVEini
-        		zip.file="${buildDirectory}/${buildLabel}/${buildId}-linux.gtk.x86.zip" />
-                <!-- add the Xss jvm parameter to the 32-bit CAVE -->
-                <echo file="/tmp/cave/cave.ini" append="true" message="-Xss512k" />
-        	<antcall target="generateDynamicCAVE" />
-        	<!-- Update the 32-bit CAVE zip file -->
-        	<zip destfile="${buildDirectory}/${buildLabel}/${buildId}-linux.gtk.x86.zip" 
-         	 	 basedir="/tmp"
-        		 includes="cave/*.ini, cave/*.sh"
-        		 update="true" />
-            	
-            <!-- Generate the 64-bit CAVE ini files -->
-        	<var name="cave.arch" value="arch.x86_64" />
-        	<extractCAVEini
-        		zip.file="${buildDirectory}/${buildLabel}/${buildId}-linux.gtk.x86_64.zip" />
-        	<antcall target="generateDynamicCAVE" />
-        	<!-- Update the 64-bit cave.ini file -->
-        	<antcall target="update64BitINI" />
-            <!-- Update the 64-bit CAVE zip file -->
-            <zip destfile="${buildDirectory}/${buildLabel}/${buildId}-linux.gtk.x86_64.zip" 
-             	basedir="/tmp"
-            	includes="cave/*.ini, cave/*.sh"
-            	update="true" />
         </target>
-	
-		<macrodef name="extractCAVEini">
-			<attribute name="zip.file" />
-			<sequential>
-		
-	            <unzip src="@{zip.file}"
-	            	dest="/tmp">
-	            	<patternset>
-	            		<include name="**/cave/cave.ini" />
-	            	</patternset>
-	            </unzip>				
-				
-			</sequential>
-		</macrodef>
-	
-		<macrodef name="verifyVersion">
-			<attribute name="file.version" />
-			
-			<sequential>
-				<property name="___memorySettingsVersion___"
-					value="4.0"/>
-				<if>
-					<not>
-						<equals
-							arg1="${___memorySettingsVersion___}"
-							arg2="@{file.version}" />
-					</not>
-					<then>
-						<fail 
-							message="ERROR: memorySettings.xml Version Mismatch." />
-					</then>
-				</if>
-			</sequential>
-		</macrodef>
-		
-		<target name="generateDynamicCAVE">
-			<xmlproperty file="${builder}/memorySettings.xml" 
-				collapseAttributes="true"/>
-			
-			<verifyVersion
-				file.version="${cave-memory-settings.file-version}" />
-			
-			<property name="iniLookupScript" 
-				value="/tmp/cave/iniLookup.sh" />
-			<!-- Start the iniLookup.sh script -->
-			<echo message="#!/bin/bash${line.separator}"
-				file="${iniLookupScript}" />
-			<echo message="${line.separator}"
-				file="${iniLookupScript}" 
-				append="true" />
-			<echo message="# This auto-generated script will be sourced by caveUtil.sh.${line.separator}"
-				file="${iniLookupScript}" 
-				append="true" />
-			<echo message="export ASSOCIATED_INI=${line.separator}"
-				file="${iniLookupScript}" 
-				append="true" />
-			<echo message="${line.separator}"
-				file="${iniLookupScript}" 
-				append="true" />
-			<echo message="function retrieveAssociatedINI()${line.separator}"
-				file="${iniLookupScript}" 
-				append="true" />
-			<echo message="{${line.separator}"
-				file="${iniLookupScript}" 
-				append="true" />
-			<echo message="   # Arguments${line.separator}"
-				file="${iniLookupScript}" 
-				append="true" />
-			<echo message="   #   ${1} == one in the set: {-component, -perspective}${line.separator}"
-				file="${iniLookupScript}" 
-				append="true" />
-			<echo message="   #   ${2} == the argument that corresponds to the first argument${line.separator}"
-				file="${iniLookupScript}" 
-				append="true" />
-			<echo message="${line.separator}"
-				file="${iniLookupScript}" 
-				append="true" />
-			<echo message="   # AUTOGENERATED IF STATEMENTS."
-				file="${iniLookupScript}" 
-				append="true" />
-			
-			<xmltask source="${builder}/memorySettings.xml">
-				<call path="//${cave.arch}/memory-setting">
-					<param name="first-arg" 
-						path="command-line-args/first-arg/text()" />
-					<param name="second-arg" 
-						path="command-line-args/second-arg/text()" />
-					
-					<!-- TODO: Explore using copy and buffers to do
-					     the following actions in a better way. -->
-					<param name="max-memory"
-						path="ini-substitutions/max-memory/value/text()" />
-					<param name="max-perm"
-						path="ini-substitutions/max-perm/value/text()" />
-						
-					<actions>												
-						<!-- Create a component-specific ini file -->
-						<copy verbose="true" 
-							file="/tmp/cave/cave.ini"
-							tofile="/tmp/cave/@{second-arg}.ini" 
-							overwrite="true" />
-
-						<!-- Update the ini file -->
-						<update.ini 
-							ini.file="@{second-arg}.ini" 
-							jvm.arg="${cave-memory-settings.default-memory-setting.default-max-memory.jvm-arg}" 
-							current.value="${cave-memory-settings.default-memory-setting.default-max-memory.value}"
-							new.value="@{max-memory}" />
-						
-						<update.ini 
-							ini.file="@{second-arg}.ini" 
-							jvm.arg="${cave-memory-settings.default-memory-setting.default-max-perm.jvm-arg}" 
-							current.value="${cave-memory-settings.default-memory-setting.default-max-perm.value}"
-							new.value="@{max-perm}" />
-						
-						<!-- Add to the ini lookup utility script -->
-						<echo message="${line.separator}"
-							file="${iniLookupScript}" 
-							append="true" />
-						<echo message="   if [ &quot;$${1}&quot; == &quot;@{first-arg}&quot; ] &amp;&amp;${line.separator}"
-							file="${iniLookupScript}" 
-							append="true" />
-						<echo message="      [ &quot;$${2}&quot; == &quot;@{second-arg}&quot; ]; then${line.separator}"
-							file="${iniLookupScript}" 
-							append="true" />
-						<echo message="${line.separator}"
-							file="${iniLookupScript}" 
-							append="true" />
-						
-						<echo message="      export ASSOCIATED_INI=&quot;@{second-arg}.ini&quot;${line.separator}"
-							file="${iniLookupScript}" 
-							append="true" />
-						<echo message="      return 0${line.separator}"
-							file="${iniLookupScript}" 
-							append="true" />
-						
-						<echo message="${line.separator}"
-							file="${iniLookupScript}" 
-							append="true" />
-						<echo message="   fi${line.separator}"
-							file="${iniLookupScript}" 
-							append="true" />
-					</actions>
-				</call>
-                <!-- site type specific overrides (wfo, ncep, etc) -->
-				<call path="//${cave.arch}/site-type-override">
-					<param name="site-type" 
-						path="site-type/text()" />
-
-					<param name="max-memory"
-						path="ini-substitutions/max-memory/value/text()" />
-					<param name="max-perm"
-						path="ini-substitutions/max-perm/value/text()" />
-
-					<actions>												
-						<!-- Create a site-type-specific ini file -->
-						<copy verbose="true" 
-							file="/tmp/cave/cave.ini"
-							tofile="/tmp/cave/@{site-type}.ini" 
-							overwrite="true" />
-
-						<!-- Update the ini file -->
-						<update.ini 
-							ini.file="@{site-type}.ini" 
-							jvm.arg="${cave-memory-settings.default-memory-setting.default-max-memory.jvm-arg}" 
-							current.value="${cave-memory-settings.default-memory-setting.default-max-memory.value}"
-							new.value="@{max-memory}" />
-						
-						<update.ini 
-							ini.file="@{site-type}.ini" 
-							jvm.arg="${cave-memory-settings.default-memory-setting.default-max-perm.jvm-arg}" 
-							current.value="${cave-memory-settings.default-memory-setting.default-max-perm.value}"
-							new.value="@{max-perm}" />
-                    </actions>
-                </call>    
-			</xmltask>
-			
-			<!-- Finish the iniLookup.sh script -->
-			<echo message="${line.separator}"
-				file="${iniLookupScript}" 
-				append="true" />
-			<echo message="   return 1${line.separator}"
-				file="${iniLookupScript}" 
-				append="true" />
-			<echo message="}"
-				file="${iniLookupScript}" 
-				append="true" />
-		</target>
-	
-		<!-- Used to update cave.ini for the x86_64 cave. -->
-		<target name="update64BitINI">
-			<xmlproperty file="${builder}/memorySettings.xml" 
-				collapseAttributes="true"/>
-			
-			<property name="caveXmx" value="2560M" />
-			<property name="caveMaxPermSize" value="256m" />
-			
-			<update.ini
-				ini.file="cave.ini" 
-				jvm.arg="${cave-memory-settings.default-memory-setting.default-max-memory.jvm-arg}" 
-				current.value="${cave-memory-settings.default-memory-setting.default-max-memory.value}" 
-				new.value="${caveXmx}" />
-			
-			<update.ini 
-				ini.file="cave.ini" 
-				jvm.arg="${cave-memory-settings.default-memory-setting.default-max-perm.jvm-arg}" 
-				current.value="${cave-memory-settings.default-memory-setting.default-max-perm.value}"
-				new.value="${caveMaxPermSize}" />
-		</target>
-	
-		<macrodef name="update.ini">
-			<attribute name="ini.file" />
-			<attribute name="jvm.arg" />
-			<attribute name="current.value" />
-			<attribute name="new.value" />
-			
-			<sequential>
-				<if>
-					<not>
-						<equals arg1="@{new.value}"
-							arg2="DEFAULT" />
-					</not>
-					<then>
-						<exec executable="/bin/sed"
-							output="/tmp/cave/ini.tmp">
-							<arg value="-e" />
-							<arg value="s/@{jvm.arg}@{current.value}/@{jvm.arg}@{new.value}/" />
-							<arg value="/tmp/cave/@{ini.file}" />
-						</exec>
-						
-						<move verbose="true" 
-							file="/tmp/cave/ini.tmp"
-							tofile="/tmp/cave/@{ini.file}" 
-							overwrite="true" />
-					</then>
-				</if>
-			</sequential>
-		</macrodef>
 
         <!-- ===================================================================== -->
 

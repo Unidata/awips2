@@ -29,7 +29,7 @@ export NELON="-66.30"
 export SWLAT="43.30"
 export SWLON="-69.2"
 export RES="1.8"
-export TSTEP="1"
+export TSTEP="3"
 #
 #========================================================================
 #                  NESTED GRID CONFIGURATION                            =
@@ -46,6 +46,8 @@ export TSTEP="1"
 # You can choose STA or NON for a particular nested grid.
 #  
 export NESTGRIDS="2"
+export NESTINCG1="YES"
+#
 export NELATN1="44.42"
 export NELONN1="-67.96"
 export SWLATN1="44.27"
@@ -107,7 +109,7 @@ export NELATWT="45.05"
 export NELONWT="-66.30"
 export SWLATWT="43.30"
 export SWLONWT="-69.2"
-export GEORESWT="4.00"
+export GEORESWT="4.0"
 #
 # PARAMETERS FOR TRACKING ALGORITHM for WVTONCG=0 or =1 THIS IS ALWAYS READ 
 # *CAUTION* CHANGE THEM ONLY IF YOU KNOW WHAT YOU ARE DOING
@@ -132,7 +134,7 @@ export WVTRKPA="10. 1. 0.25 0.1 10. 1."
 export BOUNCOND="1"
 export FTPPAT1="multi_1"
 export FTPPAT1B="multi_1"
-export FTPPAT2="MIA"
+export FTPPAT2="NW-CAR"
 export NFTPATTEMPTS="3"
 export WAVECPS="multi_1.NW-CAR57.spec.swan,multi_1.NW-CAR64.spec.swan"
 #
@@ -165,44 +167,4 @@ export WAVECPS="multi_1.NW-CAR57.spec.swan,multi_1.NW-CAR64.spec.swan"
 #                         0.50 'multi_1.NW-CAR65.spec.swan'    1 &
 #                         0.75 'multi_1.NW-CAR64.spec.swan.cp' 1
 #$END BOUNSEG
-#
-#========================================================================
-#                    RIP CURRENT PROGRAM (SEE NWPS MANUAL)              =
-#========================================================================
-# IF RIP CURRENT PROGRAM WILL BE RUN, then RIPCONT=1, Otherwise =0;
-# Setting up RIPCONT here to zero will permanently disable RIP program.
-#
-export RIPPROG="0"
-export RIPDOMAIN="CG2"
-export RIPCONT="5m"
-#
-#___________________________________________________________________________
-# RAY Section: Define a pair of rays to drop data out along critical contours
-#              for rip current program.
-#
-# Example: for data output every 2km along a 5m bathy contour
-#
-# RAY 'rayname' xp yp xq yq int xp yp xq yq
-#
-# RAY 'ray1' 282.85 34.628 282.85 34.62 2000 283.00 34.655 283.00 34.62
-#
-# ISOLINE '5mcont' 'ray1' BOTtom 10
-# TABLE '5mcont' HEAD '5mtable' HSIGN TPS PDIR OUTPUT 20110825.1200 3.0 HR
-#_____________________________________________________________________________
-#
-# THE FOLLOWING LINES MUST BE COMMENTED. IF YOU ADD RIP COMMAND LINES FOR YOUR
-# DOMAIN, ADD THEM WITH THE "#" AS A FIRST CHARACTER, IF YOU DECIDE NOT TO USE RIP
-# CURRENTS (RIPCONT="0") THEY WILL REMAIN AS A COMMENTED LINES. IF YOU DECIDE TO USE
-# BOUNDARY CONDITIONS (BOUNCOND="1") NWPS WILL INCLUDE THE INFORMATION IN THE ACTUAL
-# INPUT FILES WITH NOT COMMENT CHARACTER
-# POIN '5mcont' 279.887  25.8725 
-#
-#$RIP LINES
-#$ Ray for 5m contour data.
-#$
-#RAY 'ray1' 279.88 25.85 279.91 25.85 8 279.88 25.895 279.91 25.895
-#ISOLINE '5mcont' 'ray1' BOTtom 5
-#TABLE '5mcont' HEAD '5m_contour_CG2' TIME XP YP HSIGN TPS DIR DSPR VEL WATL WIND OUTPUT YYYYMMDD.HHMM H.M HR
-#$
-#$END RIP
 #

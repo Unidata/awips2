@@ -46,6 +46,72 @@
     <vbSource key="NAM12" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="NAM40" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="RFCqpf" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+<<<<<<< HEAD
+=======
+    <vbSource key="RTGSST" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTGSSTHR" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTMA25" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTOFS-GulfMexico" category="SfcGrid/RTOFS/forecast"
+        subCategory="Atlantic" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTOFS-GulfStream" category="SfcGrid/RTOFS/forecast"
+        subCategory="Atlantic" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTOFS-GulfMaine" category="SfcGrid/RTOFS/forecast"
+        subCategory="Atlantic" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTOFS-Atlantic" category="SfcGrid/RTOFS/forecast"
+        subCategory="Atlantic" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTOFS-Alaska" category="SfcGrid/RTOFS/forecast"
+        subCategory="Global" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTOFS-Arctic" category="SfcGrid/RTOFS/forecast"
+        subCategory="Global" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTOFS-Bering" category="SfcGrid/RTOFS/forecast"
+        subCategory="Global" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTOFS-Guam" category="SfcGrid/RTOFS/forecast"
+        subCategory="Global" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTOFS-GulfAlaska" category="SfcGrid/RTOFS/forecast"
+        subCategory="Global" views="PLANVIEW TIMESERIES" />
+    <vbSource  key="RTOFS-Honolulu" category="SfcGrid/RTOFS/forecast"
+        subCategory="Global" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTOFS-HudsonBaffin" category="SfcGrid/RTOFS/forecast"
+        subCategory="Global" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTOFS-Samoa" category="SfcGrid/RTOFS/forecast"
+        subCategory="Global" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTOFS-TropPaciLowres" category="SfcGrid/RTOFS/forecast"
+        subCategory="Global" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTOFS-WestAtl" category="SfcGrid/RTOFS/forecast"
+        subCategory="Global" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTOFS-WestConus" category="SfcGrid/RTOFS/forecast"
+        subCategory="Global" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTOFS-Now-GulfMexico" category="SfcGrid/RTOFS/nowcast"
+        subCategory="Atlantic" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTOFS-Now-GulfStream" category="SfcGrid/RTOFS/nowcast"
+        subCategory="Atlantic" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTOFS-Now-GulfMaine" category="SfcGrid/RTOFS/nowcast"
+        subCategory="Atlantic" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTOFS-Now-Atlantic" category="SfcGrid/RTOFS/nowcast"
+        subCategory="Atlantic" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTOFS-Now-Alaska" category="SfcGrid/RTOFS/nowcast"
+        subCategory="Global" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTOFS-Now-Arctic" category="SfcGrid/RTOFS/nowcast"
+        subCategory="Global" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTOFS-Now-Bering" category="SfcGrid/RTOFS/nowcast"
+        subCategory="Global" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTOFS-Now-Guam" category="SfcGrid/RTOFS/nowcast"
+        subCategory="Global" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTOFS-Now-GulfAlaska" category="SfcGrid/RTOFS/nowcast"
+        subCategory="Global" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTOFS-Now-Honolulu" category="SfcGrid/RTOFS/nowcast"
+        subCategory="Global" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTOFS-Now-HudsonBaffin" category="SfcGrid/RTOFS/nowcast"
+        subCategory="Global" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTOFS-Now-Samoa" category="SfcGrid/RTOFS/nowcast"
+        subCategory="Global" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTOFS-Now-TropPaciLowres" category="SfcGrid/RTOFS/nowcast"
+        subCategory="Global" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTOFS-Now-WestAtl" category="SfcGrid/RTOFS/nowcast"
+        subCategory="Global" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTOFS-Now-WestConus" category="SfcGrid/RTOFS/nowcast"
+        subCategory="Global" views="PLANVIEW TIMESERIES" />
+>>>>>>> origin/unidata_16.2.2
     <vbSource key="RTMA" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="SeaIce" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="SPCGuide" category="SfcGrid" views="PLANVIEW TIMESERIES" />

@@ -24,7 +24,7 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Bryan Kowal
+Packager: %{_build_site}
 
 AutoReq: no
 provides: %{_component_name}
@@ -59,6 +59,86 @@ cp %{_baseline_workspace}/${PROFILE_D_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
 %pre
 
 %post
+# the length is actually 50; however, we account for 
+# the leading "* " and the trailing " *"
+CONST_BANNER_LENGTH=47
+EDEX_BANNER_TXT=
+
+function padEdexBannerLine()
+{
+	local _output="${1}"
+	local _bannerTxt="${2}"
+	
+	local outputLength=${#_output}
+	
+	if [ ${outputLength} -ge ${CONST_BANNER_LENGTH} ]; then
+	   _output=${_output:0:46}
+	   echo "* ${_output} *" >> ${_bannerTxt}
+	   return 0
+	fi
+	
+	let padLength=${CONST_BANNER_LENGTH}-${outputLength}
+	
+	printf "* ${_output} %${padLength}s\\n" \* >> ${_bannerTxt}
+	
+	return 0
+}
+
+function updateEDEXVersion()
+{
+   rm -f ${EDEX_BANNER_TXT}
+   touch ${EDEX_BANNER_TXT}
+   
+   echo "**************************************************" \
+      > ${EDEX_BANNER_TXT}
+   echo "* AWIPS II EDEX ESB Platform                     *" \
+      >> ${EDEX_BANNER_TXT}
+   padEdexBannerLine "Version: %{_component_version}-%{_component_release}" "${EDEX_BANNER_TXT}"
+   echo "* Raytheon Company                               *" \
+      >> ${EDEX_BANNER_TXT}
+   echo "*------------------------------------------------*" \
+      >> ${EDEX_BANNER_TXT}
+   padEdexBannerLine "Build Date  : %{_component_build_date}" "${EDEX_BANNER_TXT}"
+   padEdexBannerLine "Build Time  : %{_component_build_time}" "${EDEX_BANNER_TXT}"
+   padEdexBannerLine "Build System: %{_component_build_system}" "${EDEX_BANNER_TXT}"
+   echo "**************************************************" \
+      >> ${EDEX_BANNER_TXT}
+}
+
+function updateCaveVersion() {
+   # Note: the system properties echoed to the versions script are based on
+   # about.mappings in the com.raytheon.viz.product.awips plugin.
+   AWIPS_VERSION_TXT=/awips2/cave/awipsVersion.txt
+
+   echo "-DvizVersion=%{_component_version}-%{_component_release}" > ${AWIPS_VERSION_TXT}
+   echo "-DbuildDate=%{_component_build_date}" >> ${AWIPS_VERSION_TXT}
+   echo "-DbuildTime=%{_component_build_time}" >> ${AWIPS_VERSION_TXT}
+   echo "-DbuildSystem=%{_component_build_system}" >> ${AWIPS_VERSION_TXT}
+}
+
+function updateAlertVizVersion() {
+   # Note: alertviz does not include any of the branding information that CAVE does.
+   # So, we will only be utilizing the version override.
+   AWIPS_VERSION_TXT=/awips2/alertviz/awipsVersion.txt
+
+   echo "--launcher.appendVmargs" > ${AWIPS_VERSION_TXT}
+   echo "-vmargs" >> ${AWIPS_VERSION_TXT}
+   echo "-DvizVersion=%{_component_version}-%{_component_release}" >> ${AWIPS_VERSION_TXT}
+}
+
+if [ -d /awips2/cave ]; then
+   updateCaveVersion
+fi
+
+if [ -d /awips2/alertviz ]; then
+   updateAlertVizVersion
+fi
+
+EDEX_BANNER_TXT="/awips2/edex/conf/banner.txt"
+# does banner.txt exist?
+if [ -f ${EDEX_BANNER_TXT} ]; then
+   updateEDEXVersion   
+fi
 
 %preun
 

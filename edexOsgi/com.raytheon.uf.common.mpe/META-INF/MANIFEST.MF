@@ -2,10 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Mpe Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.mpe
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.geotools,
- org.apache.commons.lang,
  javax.persistence;bundle-version="1.0.0",
  javax.measure;bundle-version="1.0.0",
  com.raytheon.uf.common.serialization.comm,

@@ -1,7 +1,6 @@
 %define __prelink_undo_cmd %{nil}
 # Turn off the brp-python-bytecompile script
 %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
-%define _build_arch %(uname -i)
 
 %define _swt_version 3.8.1.v3836b
 
@@ -14,17 +13,19 @@ Version: %{_component_version}
 Release: %{_component_release}
 Group: AWIPSII
 BuildRoot: %{_build_root}
-BuildArch: %{_build_arch}
 URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Bryan Kowal
+Packager: %{_build_site}
 
 AutoReq: no
-provides: awips2-alertviz
-requires: awips2-python
-requires: awips2-java
+Provides: awips2-alertviz
+Requires: awips2-python
+Requires: awips2-java
+
+BuildRequires: awips2-ant
+BuildRequires: awips2-java
 
 %description
 AWIPS II AlertViz Distribution - the AWIPS II AlertViz application.
@@ -42,11 +43,6 @@ if [ -d %{_build_root} ]; then
 fi
 
 %build
-build_arch=%{_build_arch}
-if [ "${build_arch}" = "i386" ]; then
-   build_arch="x86"
-fi
-
 pushd . > /dev/null
 # Build alertviz.
 cd %{_baseline_workspace}/build
@@ -56,7 +52,6 @@ fi
 
 /awips2/ant/bin/ant -f build.xml \
    -Declipse.dir=%{_uframe_eclipse} \
-   -Dbuild.arch=${build_arch} \
    alertviz
 if [ $? -ne 0 ]; then
    exit 1
@@ -77,11 +72,7 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-build_arch=%{_build_arch}
-if [ "${build_arch}" = "i386" ]; then
-   build_arch="x86"
-fi
-alertviz_zip="AlertViz-linux.gtk.${build_arch}.zip"
+alertviz_zip="AlertViz-linux.gtk.x86_64.zip"
 
 pushd . > /dev/null
 cd %{_baseline_workspace}/build/alertviz/tmp/I.AlertViz

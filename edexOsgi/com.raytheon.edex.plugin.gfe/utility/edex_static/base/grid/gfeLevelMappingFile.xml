@@ -290,8 +290,32 @@
     <Level key="MAXW">
         <DatabaseLevel levelName="MAXW" levelOneValue="0.0"/>
     </Level>
+    <Level key="MB2">
+        <DatabaseLevel levelName="MB" levelOneValue="2.0" unit="hPa"/>
+    </Level>
+    <Level key="MB5">
+        <DatabaseLevel levelName="MB" levelOneValue="5.0" unit="hPa"/>
+    </Level>
+    <Level key="MB7">
+        <DatabaseLevel levelName="MB" levelOneValue="7.0" unit="hPa"/>
+    </Level>
+    <Level key="MB10">
+        <DatabaseLevel levelName="MB" levelOneValue="10.0" unit="hPa"/>
+    </Level>
+    <Level key="MB20">
+        <DatabaseLevel levelName="MB" levelOneValue="20.0" unit="hPa"/>
+    </Level>
+    <Level key="MB30">
+        <DatabaseLevel levelName="MB" levelOneValue="30.0" unit="hPa"/>
+    </Level>
     <Level key="MB50">
         <DatabaseLevel levelName="MB" levelOneValue="50.0" unit="hPa"/>
+    </Level>
+    <Level key="MB70">
+        <DatabaseLevel levelName="MB" levelOneValue="70.0" unit="hPa"/>
+    </Level>
+    <Level key="MB75">
+        <DatabaseLevel levelName="MB" levelOneValue="75.0" unit="hPa"/>
     </Level>
     <Level key="MB100">
         <DatabaseLevel levelName="MB" levelOneValue="100.0" unit="hPa"/>
@@ -496,6 +520,123 @@
     </Level>
     <Level key="BSS">
         <DatabaseLevel levelName="BSS" levelOneValue="0.0"/>
+    </Level>
+    <Level key="BSS2">
+        <DatabaseLevel levelName="BSS" levelOneValue="2.0"/>
+    </Level>
+    <Level key="BSS4">
+        <DatabaseLevel levelName="BSS" levelOneValue="4.0"/>
+    </Level>
+    <Level key="BSS6">
+        <DatabaseLevel levelName="BSS" levelOneValue="6.0"/>
+    </Level>
+    <Level key="BSS8">
+        <DatabaseLevel levelName="BSS" levelOneValue="8.0"/>
+    </Level>
+    <Level key="BSS10">
+        <DatabaseLevel levelName="BSS" levelOneValue="10.0"/>
+    </Level>
+    <Level key="BSS12">
+        <DatabaseLevel levelName="BSS" levelOneValue="12.0"/>
+    </Level>
+    <Level key="BSS15">
+        <DatabaseLevel levelName="BSS" levelOneValue="15.0"/>
+    </Level>
+    <Level key="BSS20">
+        <DatabaseLevel levelName="BSS" levelOneValue="20.0"/>
+    </Level>
+    <Level key="BSS25">
+        <DatabaseLevel levelName="BSS" levelOneValue="25.0"/>
+    </Level>
+    <Level key="BSS30">
+        <DatabaseLevel levelName="BSS" levelOneValue="30.0"/>
+    </Level>
+    <Level key="BSS35">
+        <DatabaseLevel levelName="BSS" levelOneValue="35.0"/>
+    </Level>
+    <Level key="BSS40">
+        <DatabaseLevel levelName="BSS" levelOneValue="40.0"/>
+    </Level>
+    <Level key="BSS45">
+        <DatabaseLevel levelName="BSS" levelOneValue="45.0"/>
+    </Level>
+    <Level key="BSS50">
+        <DatabaseLevel levelName="BSS" levelOneValue="50.0"/>
+    </Level>
+    <Level key="BSS60">
+        <DatabaseLevel levelName="BSS" levelOneValue="60.0"/>
+    </Level>
+    <Level key="BSS70">
+        <DatabaseLevel levelName="BSS" levelOneValue="70.0"/>
+    </Level>
+    <Level key="BSS80">
+        <DatabaseLevel levelName="BSS" levelOneValue="80.0"/>
+    </Level>
+    <Level key="BSS90">
+        <DatabaseLevel levelName="BSS" levelOneValue="90.0"/>
+    </Level>
+    <Level key="BSS100">
+        <DatabaseLevel levelName="BSS" levelOneValue="100.0"/>
+    </Level>
+    <Level key="BSS125">
+        <DatabaseLevel levelName="BSS" levelOneValue="125.0"/>
+    </Level>
+    <Level key="BSS150">
+        <DatabaseLevel levelName="BSS" levelOneValue="150.0"/>
+    </Level>
+    <Level key="BSS200">
+        <DatabaseLevel levelName="BSS" levelOneValue="200.0"/>
+    </Level>
+    <Level key="BSS250">
+        <DatabaseLevel levelName="BSS" levelOneValue="250.0"/>
+    </Level>
+    <Level key="BSS300">
+        <DatabaseLevel levelName="BSS" levelOneValue="300.0"/>
+    </Level>
+    <Level key="BSS350">
+        <DatabaseLevel levelName="BSS" levelOneValue="350.0"/>
+    </Level>
+    <Level key="BSS400">
+        <DatabaseLevel levelName="BSS" levelOneValue="400.0"/>
+    </Level>
+    <Level key="BSS500">
+        <DatabaseLevel levelName="BSS" levelOneValue="500.0"/>
+    </Level>
+    <Level key="BSS600">
+        <DatabaseLevel levelName="BSS" levelOneValue="600.0"/>
+    </Level>
+    <Level key="BSS700">
+        <DatabaseLevel levelName="BSS" levelOneValue="700.0"/>
+    </Level>
+    <Level key="BSS800">
+        <DatabaseLevel levelName="BSS" levelOneValue="800.0"/>
+    </Level>
+    <Level key="BSS900">
+        <DatabaseLevel levelName="BSS" levelOneValue="900.0"/>
+    </Level>
+    <Level key="BSS1000">
+        <DatabaseLevel levelName="BSS" levelOneValue="1000.0"/>
+    </Level>
+    <Level key="BSS1250">
+        <DatabaseLevel levelName="BSS" levelOneValue="1250.0"/>
+    </Level>
+    <Level key="BSS1500">
+        <DatabaseLevel levelName="BSS" levelOneValue="1500.0"/>
+    </Level>
+    <Level key="BSS2000">
+        <DatabaseLevel levelName="BSS" levelOneValue="2000.0"/>
+    </Level>
+    <Level key="BSS2500">
+        <DatabaseLevel levelName="BSS" levelOneValue="2500.0"/>
+    </Level>
+    <Level key="BSS3000">
+        <DatabaseLevel levelName="BSS" levelOneValue="3000.0"/>
+    </Level>
+    <Level key="BSS4000">
+        <DatabaseLevel levelName="BSS" levelOneValue="4000.0"/>
+    </Level>
+    <Level key="BSS5000">
+        <DatabaseLevel levelName="BSS" levelOneValue="5000.0"/>
     </Level>
     <Level key="NTAT">
         <DatabaseLevel levelName="NTAT" levelOneValue="0.0"/>

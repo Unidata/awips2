@@ -9,6 +9,7 @@
 #  ------------ ---------- ----------- --------------------------
 #  20080226            861 jkorman     Initial Development
 #  20111026          11393 jkorman     Updated AVN mapping
+#  20160209           5283 nabowle     Remove NGM support.
 #  @author jkorman
 #
 #*******************************************************************************
@@ -241,62 +242,65 @@
  LAMP|0 11 004|    17|vwind            
  LAMP|0 60 001|    18|PQPF_6hr         
  LAMP|0 60 002|    19|PQPF_12hr        
- LAMP|0 60 079|    20|tstorm2hr        
- LAMP|0 60 097|    21|tstorm_bestCat   
- LAMP|0 60 020|    22|precipFreezing   
- LAMP|0 60 021|    23|precipSnow       
- LAMP|0 60 022|    24|precipRain       
- LAMP|0 60 091|    25|precipType       
- LAMP|0 60 100|    26|clouds_CL        
- LAMP|0 60 108|    27|clouds_FW        
- LAMP|0 60 109|    28|clouds_SC        
- LAMP|0 60 103|    29|clouds_BK        
- LAMP|0 60 104|    30|clouds_OV        
- LAMP|0 20 011|    31|clouds_bestCat   
- LAMP|0 60 042|    32|ceiling_cat1     
- LAMP|0 60 043|    33|ceiling_cat2     
- LAMP|0 60 044|    34|ceiling_cat3     
- LAMP|0 60 080|    35|ceiling_cat4     
- LAMP|0 60 081|    36|ceiling_cat5     
- LAMP|0 60 046|    37|ceiling_cat6     
- LAMP|0 60 047|    38|ceiling_cat7     
- LAMP|0 60 048|    39|ceiling_cat8     
- LAMP|0 60 094|    40|ceiling_bestCat  
- LAMP|0 60 082|    41|c_ceiling_cat1   
- LAMP|0 60 083|    42|c_ceiling_cat2   
- LAMP|0 60 084|    43|c_ceiling_cat3   
- LAMP|0 60 085|    44|c_ceiling_cat4   
- LAMP|0 60 086|    45|c_ceiling_cat5   
- LAMP|0 60 087|    46|c_ceiling_cat6   
- LAMP|0 60 088|    47|c_ceiling_cat7   
- LAMP|0 60 089|    48|c_ceiling_cat8   
- LAMP|0 60 194|    49|c_ceiling_bestCat
- LAMP|0 60 049|    50|vis_cat1         
- LAMP|0 60 112|    51|vis_cat2         
- LAMP|0 60 118|    52|vis_cat3         
- LAMP|0 60 113|    53|vis_cat4         
- LAMP|0 60 114|    54|vis_cat5         
- LAMP|0 60 115|    55|vis_cat6         
- LAMP|0 60 190|    56|vis_bestCat      
- LAMP|0 60 200|    57|cvis_cat1        
- LAMP|0 60 201|    58|cvis_cat2        
- LAMP|0 60 202|    59|cvis_cat3        
- LAMP|0 60 203|    60|cvis_cat4        
- LAMP|0 60 204|    61|cvis_cat5        
- LAMP|0 60 205|    62|cvis_cat6        
- LAMP|0 60 193|    63|cvis_bestCat     
- LAMP|0 60 057|    64|obVis_cat4       
- LAMP|0 60 055|    65|obVis_cat2       
- LAMP|0 60 116|    66|obVis_cat5       
- LAMP|0 60 117|    67|obVis_cat3       
- LAMP|0 60 054|    68|obVis_cat1       
- LAMP|0 60 096|    69|obVis_bestCat    
- LAMP|0 60 025|    70|POP_showers      
- LAMP|0 60 023|    71|POP_drizzle      
- LAMP|0 60 024|    72|POP_rain         
- LAMP|0 60 092|    73|POP_bestCat      
- LAMP|0 60 148|    74|POP_hour         
- LAMP|0 60 195|    75|POP_hour_bestCat 
+ LAMP|0 60 079|    20|ltg2hr
+ LAMP|0 60 197|    21|ltg_bestCat
+ LAMP|0 60 078|    22|cnvstorm2hr
+ LAMP|0 60 196|    23|cnvstorm_bestCat
+ LAMP|0 60 097|    24|tstorm_bestCat   
+ LAMP|0 60 020|    25|precipFreezing   
+ LAMP|0 60 021|    26|precipSnow       
+ LAMP|0 60 022|    27|precipRain       
+ LAMP|0 60 091|    28|precipType       
+ LAMP|0 60 100|    29|clouds_CL        
+ LAMP|0 60 108|    30|clouds_FW        
+ LAMP|0 60 109|    31|clouds_SC        
+ LAMP|0 60 103|    32|clouds_BK        
+ LAMP|0 60 104|    33|clouds_OV        
+ LAMP|0 20 011|    34|clouds_bestCat   
+ LAMP|0 60 042|    35|ceiling_cat1     
+ LAMP|0 60 043|    36|ceiling_cat2     
+ LAMP|0 60 044|    37|ceiling_cat3     
+ LAMP|0 60 080|    38|ceiling_cat4     
+ LAMP|0 60 081|    39|ceiling_cat5     
+ LAMP|0 60 046|    40|ceiling_cat6     
+ LAMP|0 60 047|    41|ceiling_cat7     
+ LAMP|0 60 048|    42|ceiling_cat8     
+ LAMP|0 60 094|    43|ceiling_bestCat  
+ LAMP|0 60 082|    44|c_ceiling_cat1   
+ LAMP|0 60 083|    45|c_ceiling_cat2   
+ LAMP|0 60 084|    46|c_ceiling_cat3   
+ LAMP|0 60 085|    47|c_ceiling_cat4   
+ LAMP|0 60 086|    48|c_ceiling_cat5   
+ LAMP|0 60 087|    49|c_ceiling_cat6   
+ LAMP|0 60 088|    50|c_ceiling_cat7   
+ LAMP|0 60 089|    51|c_ceiling_cat8   
+ LAMP|0 60 194|    52|c_ceiling_bestCat
+ LAMP|0 60 049|    53|vis_cat1         
+ LAMP|0 60 112|    54|vis_cat2         
+ LAMP|0 60 118|    55|vis_cat3         
+ LAMP|0 60 113|    56|vis_cat4         
+ LAMP|0 60 114|    57|vis_cat5         
+ LAMP|0 60 115|    58|vis_cat6         
+ LAMP|0 60 190|    59|vis_bestCat      
+ LAMP|0 60 200|    60|cvis_cat1        
+ LAMP|0 60 201|    61|cvis_cat2        
+ LAMP|0 60 202|    62|cvis_cat3        
+ LAMP|0 60 203|    63|cvis_cat4        
+ LAMP|0 60 204|    64|cvis_cat5        
+ LAMP|0 60 205|    65|cvis_cat6        
+ LAMP|0 60 193|    66|cvis_bestCat     
+ LAMP|0 60 057|    67|obVis_cat4       
+ LAMP|0 60 055|    68|obVis_cat2       
+ LAMP|0 60 116|    69|obVis_cat5       
+ LAMP|0 60 117|    70|obVis_cat3       
+ LAMP|0 60 054|    71|obVis_cat1       
+ LAMP|0 60 096|    72|obVis_bestCat    
+ LAMP|0 60 025|    73|POP_showers      
+ LAMP|0 60 023|    74|POP_drizzle      
+ LAMP|0 60 024|    75|POP_rain         
+ LAMP|0 60 092|    76|POP_bestCat      
+ LAMP|0 60 148|    77|POP_hour         
+ LAMP|0 60 195|    78|POP_hour_bestCat 
 #---------------------------------------
 #Model|Descrip | Index|Mnemonic         
 #---------------------------------------
@@ -330,80 +334,3 @@
   MRF|0 60 090|    45|QPF24hr_bestCat  
   MRF|0 60 059|    46|tstorm12hr       
   MRF|0 60 060|    47|tstorm24hr       
-#---------------------------------------
-#Model|Descrip | Index|Mnemonic         
-#---------------------------------------
-  NGM|0 12 200|    11|maxTemp24Hour    
-  NGM|0 12 201|    12|minTemp24Hour    
-  NGM|0 12 001|    13|temperature      
-  NGM|0 12 003|    14|dewpoint         
-  NGM|0 11 001|    15|windDir          
-  NGM|0 11 002|    16|windSpeed        
-  NGM|0 11 200|    17|windSpeedInflated
-  NGM|0 11 003|    18|uwind            
-  NGM|0 11 004|    19|vwind            
-  NGM|0 60 001|    20|POP6hr           
-  NGM|0 60 002|    21|POP12hr          
-  NGM|0 60 058|    22|tstorm6hr        
-  NGM|0 60 059|    23|tstorm12hr       
-  NGM|0 60 060|    24|tstorm24hr       
-  NGM|0 60 061|    25|severe6hr        
-  NGM|0 60 062|    26|severe12hr       
-  NGM|0 60 063|    27|severe24hr       
-  NGM|0 60 020|    28|precipFreezing   
-  NGM|0 60 021|    29|precipSnow       
-  NGM|0 60 022|    30|precipRain       
-  NGM|0 60 091|    31|precipType       
-  NGM|0 60 071|    32|PQPF6hr          
-  NGM|0 60 004|    33|QPF6hr_cat4      
-  NGM|0 60 007|    34|QPF6hr_cat3      
-  NGM|0 60 010|    35|QPF6hr_cat2      
-  NGM|0 60 013|    36|QPF6hr_cat1      
-  NGM|0 60 090|    38|QPF6hr_bestCat   
-  NGM|0 60 072|    39|PQPF12hr         
-  NGM|0 60 005|    40|QPF12hr_cat5     
-  NGM|0 60 008|    41|QPF12hr_cat4     
-  NGM|0 60 011|    42|QPF12hr_cat3     
-  NGM|0 60 014|    43|QPF12hr_cat2     
-  NGM|0 60 016|    44|QPF12hr_cat1     
-  NGM|0 60 090|    46|QPF12hr_bestCat  
-  NGM|0 60 026|    47|snow6hr_cat2     
-  NGM|0 60 029|    48|snow6hr_cat1     
-  NGM|0 60 093|    50|snow6hr_bestCat  
-  NGM|0 60 027|    51|snow12hr_cat4    
-  NGM|0 60 030|    52|snow12hr_cat3    
-  NGM|0 60 032|    53|snow12hr_cat2    
-  NGM|0 60 034|    54|snow12hr_cat1    
-  NGM|0 60 093|    56|snow12hr_bestCat 
-  NGM|0 60 038|    57|clouds_CL        
-  NGM|0 60 039|    58|clouds_SC        
-  NGM|0 60 040|    59|clouds_BK        
-  NGM|0 60 041|    60|clouds_OV        
-  NGM|0 20 011|    61|clouds_bestCat   
-  NGM|0 60 042|    62|ceiling_cat1     
-  NGM|0 60 043|    63|ceiling_cat2     
-  NGM|0 60 044|    64|ceiling_cat3     
-  NGM|0 60 045|    65|ceiling_cat4     
-  NGM|0 60 046|    66|ceiling_cat5     
-  NGM|0 60 047|    67|ceiling_cat6     
-  NGM|0 60 048|    68|ceiling_cat7     
-  NGM|0 60 094|    69|ceiling_bestCat  
-  NGM|0 60 049|    70|vis_cat1         
-  NGM|0 60 050|    71|vis_cat2         
-  NGM|0 60 051|    72|vis_cat3         
-  NGM|0 60 052|    73|vis_cat4         
-  NGM|0 60 053|    74|vis_cat5         
-  NGM|0 60 095|    75|vis_bestCat      
-  NGM|0 60 054|    76|obVis_cat1       
-  NGM|0 60 055|    77|obVis_cat2       
-  NGM|0 60 056|    78|obVis_cat3       
-  NGM|0 60 057|    79|obVis_cat4       
-  NGM|0 60 096|    80|obVis_bestCat    
-  NGM|0 14 032|    81|sunHours         
-  NGM|0 14 200|    82|sunPop           
-  NGM|0 14 020|    83|solarRad         
-  NGM|0 60 023|    84|POP_drizzle      
-  NGM|0 60 024|    85|POP_rain         
-  NGM|0 60 025|    86|POP_showers      
-  NGM|0 60 092|    87|POP_bestCat      
-  NGM|0 60 099|    88|Cig_Vis          

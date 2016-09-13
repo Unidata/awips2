@@ -1,21 +1,3 @@
-package com.raytheon.uf.edex.maintenance;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import com.raytheon.uf.common.dataplugin.PluginProperties;
-import com.raytheon.uf.common.datastorage.DataStoreFactory;
-import com.raytheon.uf.common.datastorage.IDataStore;
-import com.raytheon.uf.common.datastorage.StorageException;
-import com.raytheon.uf.common.datastorage.StorageProperties.Compression;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
-import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
-
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
@@ -35,9 +17,27 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
+package com.raytheon.uf.edex.maintenance;
+
+import java.io.File;
+import java.util.Set;
+
+import com.raytheon.uf.common.dataplugin.PluginProperties;
+import com.raytheon.uf.common.datastorage.DataStoreFactory;
+import com.raytheon.uf.common.datastorage.IDataStore;
+import com.raytheon.uf.common.datastorage.StorageException;
+import com.raytheon.uf.common.datastorage.StorageProperties.Compression;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.util.registry.GenericRegistry;
+import com.raytheon.uf.common.util.registry.RegistryException;
+import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
+import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
 /**
- * Repacks all point data hdf5 files.
+ * Repacks all data hdf5 files.
  * 
  * <pre>
  * 
@@ -48,18 +48,21 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  * Nov 1, 2011             njensen     Initial creation
  * Jan 14, 2013 1469       bkowal      Removed the hdf5 data directory
  * Mar 21, 2013 1814       rjpeter     Fixed logging of exception.
+ * Feb 16, 2016 5363       dhladky     Added ability to register non-point data plugins for repack.
+ * 
  * </pre>
  * 
  * @author njensen
  * @version 1.0
  */
 
-public class DataStoreRepacker {
+public class DataStoreRepacker extends
+        GenericRegistry<String, PluginProperties> {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DataStoreRepacker.class);
 
-    private List<String> pluginsToRepack;
+    private boolean isScanned = false;
 
     private Compression compression = Compression.NONE;
 
@@ -67,31 +70,37 @@ public class DataStoreRepacker {
         this.compression = Compression.valueOf(compression);
     }
 
+    /**
+     * repack the list of registered plugins
+     */
     public void repack() {
-        if (pluginsToRepack == null) {
-            scanForPluginsToRepack();
+        if (!isScanned) {
+            scanForPointDataPlugins();
         }
 
-        // TODO change log statement if more than pointdata is hooked into this
-        statusHandler.info("Starting repack of pointdata datastore");
-        for (String plugin : pluginsToRepack) {
+        for (String plugin : getRegisteredObjects()) {
+
             IDataStore ds = DataStoreFactory.getDataStore(new File(plugin));
             try {
+                statusHandler.info("Starting repack of " + plugin
+                        + " datastore");
+                long time = TimeUtil.currentTimeMillis();
                 ds.repack(compression);
+                long etime = TimeUtil.currentTimeMillis();
+                statusHandler.info("Completed repack of " + plugin
+                        + " datastore. Took: " + (etime - time) + " ms");
             } catch (StorageException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
+                statusHandler.handle(Priority.PROBLEM,
+                        "Failed to repack datastore for plugin " + plugin, e);
             }
         }
-        // TODO change log statement if more than pointdata is hooked into this
-        statusHandler.info("Completed repack of pointdata datastore");
     }
 
-    private void scanForPluginsToRepack() {
-        // TODO currently this is set up to just detect pointdata plugins, this
-        // can be changed in the future. If this is changed, you need to
-        // change the log statements in repack()
-        pluginsToRepack = new ArrayList<String>();
+    /**
+     * Finds point data plugins and adds them to the repack registry
+     */
+    private void scanForPointDataPlugins() {
+
         Set<String> plugins = PluginRegistry.getInstance()
                 .getRegisteredObjects();
         for (String plugin : plugins) {
@@ -99,8 +108,17 @@ public class DataStoreRepacker {
                     .getRegisteredObject(plugin);
             Class<?> daoClass = props.getDao();
             if (PointDataPluginDao.class.isAssignableFrom(daoClass)) {
-                pluginsToRepack.add(plugin);
+                try {
+                    register(plugin, props);
+                } catch (RegistryException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Failed registering plugin " + plugin
+                                    + " for repack.", e);
+                }
             }
         }
+
+        isScanned = true;
     }
+
 }

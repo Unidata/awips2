@@ -62,8 +62,6 @@ flags = {'-r':('text_get_prod','Read data from the database'),
          
          '-c':('afos_cmds','Reviews AFOS commands'),
          
-         '-tA':('trig_add','Add trigger(s) to populate the subscription table.'),
-         '-tR':('trig_del','Remove trigger(s) from the subscription table.'),
          '-n':('site_node', 'Display the current site')
          }
 
@@ -175,9 +173,7 @@ usage: textdb -r AFOSCmd                 Does a standard afos read
        textdb -s -r SS                   Displays XXX list for state [SS]
        textdb -pil -a productID script  Adds a PIL watch warning product with script pathname
        textdb -pil -d productID script  Deletes a PIL watch warning product with script pathname
-       textdb -c                         Reviews AFOS commands
-       textdb -tA script                 Add trigger(s) to subscription table
-       textdb -tR all                    Remove trigger(s) from subscriptions table     
+       textdb -c                         Reviews AFOS commands  
        textdb -n [site]                  Gets current node (CCC) site for running edex
 """
 # AFOS commands summary. Displayed when text database CLI tool is run with

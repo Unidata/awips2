@@ -21,6 +21,7 @@ package com.raytheon.viz.hydro;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.viz.hydrocommon.HydroDisplayManager;
@@ -34,9 +35,10 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 24, 2008            mpduff     Initial creation
+ * Oct 24, 2008            mpduff      Initial creation
  * Feb 05, 2013 1578       rferrel     Made dialog non-blocking.
- * 
+ * Jan 26, 2016 5054       randerso    Allow dialog to be parented to display
+ * Mar 17, 2016 5483       randerso    Added constructors to allow setting of SWT style
  * 
  * </pre>
  * 
@@ -76,7 +78,43 @@ public abstract class CaveHydroSWTDialog extends CaveSWTDialog {
      * @param caveStyle
      */
     protected CaveHydroSWTDialog(Shell parentShell, int caveStyle) {
-        super(parentShell, SWT.DIALOG_TRIM, caveStyle | CAVE.DO_NOT_BLOCK);
+        this(parentShell, SWT.NONE, caveStyle | CAVE.DO_NOT_BLOCK);
+    }
+
+    /**
+     * Construct to specify cave style and make it non-blocking.
+     * 
+     * @param parentShell
+     * @param swtStyle
+     * @param caveStyle
+     */
+    protected CaveHydroSWTDialog(Shell parentShell, int swtStyle, int caveStyle) {
+        super(parentShell, SWT.DIALOG_TRIM | swtStyle, caveStyle
+                | CAVE.DO_NOT_BLOCK);
+    }
+
+    /**
+     * Construct top level dialog specifying cave style and make it
+     * non-blocking.
+     * 
+     * @param display
+     * @param caveStyle
+     */
+    protected CaveHydroSWTDialog(Display display, int caveStyle) {
+        this(display, SWT.NONE, caveStyle | CAVE.DO_NOT_BLOCK);
+    }
+
+    /**
+     * Construct top level dialog specifying cave style and make it
+     * non-blocking.
+     * 
+     * @param display
+     * @param swtStyle
+     * @param caveStyle
+     */
+    protected CaveHydroSWTDialog(Display display, int swtStyle, int caveStyle) {
+        super(display, SWT.DIALOG_TRIM | swtStyle, caveStyle
+                | CAVE.DO_NOT_BLOCK);
     }
 
     /**

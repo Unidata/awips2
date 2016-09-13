@@ -77,6 +77,7 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  *                                     for Png Images... is rebuilt after
  *                                     return from the dialog.
  * Sep 15, 2015 4858       dgilling    Disable all features in DRT mode.
+ * Nov 18, 2015 5129       dgilling    Support new IFPClient.
  * 
  * </pre>
  * 
@@ -185,8 +186,9 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
                 gmtTime.setTimeZone(TimeZone.getTimeZone("GMT"));
                 SimpleDateFormat localTime = new SimpleDateFormat(
                         TIME_FORMAT_STRING);
-                localTime.setTimeZone(TimeZone.getTimeZone(dataManager
-                        .getClient().getSiteTimeZone()));
+                localTime.setTimeZone(TimeZone
+                        .getTimeZone(dataManager.getParmManager()
+                                .compositeGridLocation().getTimeZone()));
                 String curLocalTime = localTime.format(curTime);
                 String curGMTTime = gmtTime.format(curTime);
 

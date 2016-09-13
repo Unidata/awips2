@@ -38,6 +38,7 @@ import org.eclipse.core.runtime.jobs.Job;
  * ------------ ---------- ----------- --------------------------
  * Jan 28, 2011            bkowal      Initial creation
  * May 06, 2013   1976     mpduff      Moved c.getDataForGraph() inside .runasync block
+ * Mar 17, 2016  #5483     randerso    Updated for use in reworked TabularTimeSeriesDlg
  * 
  * </pre>
  * 
@@ -50,16 +51,13 @@ public class TimeSeriesDataJobManager extends Job {
         REQUEST_TYPE_GRAPH, REQUEST_TYPE_TABULAR
     }
 
+    /**
+     * Constructor
+     */
     public TimeSeriesDataJobManager() {
         super("");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime.
-     * IProgressMonitor)
-     */
     @Override
     protected IStatus run(IProgressMonitor monitor) {
         REQUEST_TYPE requestType = (REQUEST_TYPE) this
@@ -81,14 +79,16 @@ public class TimeSeriesDataJobManager extends Job {
         } else if (requestType == TimeSeriesDataJobManager.REQUEST_TYPE.REQUEST_TYPE_TABULAR) {
             TabularTimeSeriesDlg tabularTimeSeriesDlg = (TabularTimeSeriesDlg) this
                     .getProperty(new QualifiedName(null, "TabularTimeSeriesDlg"));
-            String selection = (String) this.getProperty(new QualifiedName(
-                    null, "selection"));
-            tabularTimeSeriesDlg.getDataForTable(selection);
+            tabularTimeSeriesDlg.getDataForTable();
         }
 
         return Status.OK_STATUS;
     }
 
+    /**
+     * @param jobChangeListener
+     * @param tsDisplayCanvas
+     */
     public void scheduleGetGraphData(IJobChangeListener jobChangeListener,
             TimeSeriesDisplayCanvas tsDisplayCanvas) {
 
@@ -101,14 +101,17 @@ public class TimeSeriesDataJobManager extends Job {
         this.schedule();
     }
 
+    /**
+     * @param jobChangeListener
+     * @param tabularTimeSeriesDlg
+     */
     public void scheduleGetTableData(IJobChangeListener jobChangeListener,
-            TabularTimeSeriesDlg tabularTimeSeriesDlg, String selection) {
+            TabularTimeSeriesDlg tabularTimeSeriesDlg) {
         this.setName("Retrieving Tabular Data ...");
         this.setProperty(new QualifiedName(null, "REQUEST_TYPE"),
                 TimeSeriesDataJobManager.REQUEST_TYPE.REQUEST_TYPE_TABULAR);
         this.setProperty(new QualifiedName(null, "TabularTimeSeriesDlg"),
                 tabularTimeSeriesDlg);
-        this.setProperty(new QualifiedName(null, "selection"), selection);
         this.addJobChangeListener(jobChangeListener);
         this.schedule();
     }

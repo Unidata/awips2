@@ -2,12 +2,11 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Volume Browser Plug-in
 Bundle-SymbolicName: com.raytheon.viz.volumebrowser;singleton:=true
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: Raytheon
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
+Require-Bundle: org.eclipse.core.runtime,
  net.sf.swtaddons,
  com.raytheon.uf.viz.core,
  com.raytheon.viz.ui,
@@ -27,20 +26,14 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.xy.timeheight,
  com.raytheon.uf.viz.xy.varheight,
  com.raytheon.uf.viz.xy.timeseries,
- com.raytheon.uf.viz.d2d.nsharp,
- gov.noaa.nws.ncep.ui.nsharp,
  com.raytheon.uf.common.dataplugin,
  com.raytheon.viz.grid,
- com.raytheon.uf.common.dataplugin.grid,
- com.raytheon.uf.viz.objectiveanalysis,
- com.raytheon.viz.pointdata,
- com.raytheon.uf.common.pointdata,
- com.raytheon.uf.common.comm,
- com.raytheon.uf.common.derivparam;bundle-version="1.14.0",
  com.raytheon.uf.viz.datacube,
  com.raytheon.uf.viz.core.grid;bundle-version="1.15.0"
 Export-Package: com.raytheon.viz.volumebrowser,
  com.raytheon.viz.volumebrowser.datacatalog,
+ com.raytheon.viz.volumebrowser.loader,
+ com.raytheon.viz.volumebrowser.util,
  com.raytheon.viz.volumebrowser.vbui,
  com.raytheon.viz.volumebrowser.xml
 Import-Package: com.raytheon.uf.common.inventory.exception,

@@ -49,6 +49,7 @@ import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.tools.generic.ListTool;
 
+import com.raytheon.uf.common.dataplugin.text.db.MixedCaseProductSupport;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.WarningConstants;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
@@ -153,6 +154,10 @@ import com.vividsolutions.jts.io.WKTReader;
  * Jul 15, 2015 DR17716 mgamazaychikov Change to Geometry class in total intersection calculations.
  * Oct 21, 2105   5021     randerso    Fix issue with CORs for mixed case
  * Feb  9, 2016 DR18421    D. Friedman Don't call ToolsDataManager.setStormTrackData if there is no storm motion.
+ * Feb 17, 2016 DR 17531   Qinglu Lin  Added calStormVelocityAndEventLocation(), updated runTemplate().
+ * Mar 10, 2016 5411       randerso    Added productId and mixedCaseEnabled to Velocity context
+ * May 25, 2016 DR18789    D. Friedman Extract timezone calculation to method and add short circuit logic.
+ * 
  * </pre>
  * 
  * @author njensen
@@ -187,6 +192,8 @@ public class TemplateRunner {
     /**
      * Read cwa and timezone info from officeCityTimezone.txt, and put them into
      * map officeCityTimezone.
+     * 
+     * @return officeCityTimezone map
      */
     public static Map<String, String> createOfficeTimezoneMap() {
         Map<String, String> officeCityTimezone = new HashMap<String, String>();
@@ -214,6 +221,127 @@ public class TemplateRunner {
         return officeCityTimezone;
     }
 
+    private static Set<String> determineTimezones(WarngenLayer warngenLayer,
+            AffectedAreas[] areas, Geometry warningArea) throws VizException {
+        Map<String, Double> intersectSize = new HashMap<String, Double>();
+        double minSize = 1.0E-3d;
+        Set<String> timeZones = new HashSet<String>();
+        for (AffectedAreas affectedAreas : areas) {
+            if (affectedAreas.getTimezone() != null) {
+                // Handles counties that span two time zones
+                String oneLetterTimeZones = affectedAreas.getTimezone()
+                        .trim();
+                if (oneLetterTimeZones.length() == 1) {
+                    timeZones.add(String.valueOf(oneLetterTimeZones
+                            .charAt(0)));
+                }
+            }
+        }
+        if (timeZones.size() > 1) {
+            return timeZones;
+        }
+        for (AffectedAreas affectedAreas : areas) {
+            if (affectedAreas.getTimezone() != null) {
+                // Handles counties that span two time zones
+                String oneLetterTimeZones = affectedAreas.getTimezone()
+                        .trim();
+                if (oneLetterTimeZones.length() > 1) {
+                    // Determine if one letter timezone is going to be
+                    // put into timeZones.
+                    Geometry[] poly1, poly2;
+                    int n1, n2;
+                    double size, totalSize;
+                    String[] oneLetterTZ = new String[oneLetterTimeZones.length()];
+                    for (int i = 0; i < oneLetterTimeZones.length(); i++) {
+                        oneLetterTZ[i] = String
+                                .valueOf(oneLetterTimeZones.charAt(i));
+                        Geometry timezoneGeom = warngenLayer
+                                .getTimezoneGeom(oneLetterTZ[i]);
+                        long t0 = System.currentTimeMillis();
+                        poly1 = null;
+                        poly2 = null;
+                        n1 = 0;
+                        n2 = 0;
+                        size = 0.0d;
+                        totalSize = 0.0d;
+                        if ((timezoneGeom != null)
+                                && (warningArea != null)) {
+                            if (intersectSize.get(oneLetterTZ[i]) != null) {
+                                continue;
+                            }
+                            poly1 = new Geometry[warningArea
+                                    .getNumGeometries()];
+                            n1 = warningArea.getNumGeometries();
+                            for (int j = 0; j < n1; j++) {
+                                poly1[j] = warningArea.getGeometryN(j);
+                            }
+                            poly2 = new Geometry[timezoneGeom
+                                    .getNumGeometries()];
+                            n2 = timezoneGeom.getNumGeometries();
+                            for (int j = 0; j < n2; j++) {
+                                poly2[j] = timezoneGeom.getGeometryN(j);
+                            }
+                            // Calculate the total size of intersection
+                            for (Geometry p1 : poly1) {
+                                for (Geometry p2 : poly2) {
+                                    try {
+                                        size = p1.intersection(p2)
+                                                .getArea();
+                                    } catch (TopologyException e) {
+                                        statusHandler
+                                                .handle(Priority.VERBOSE,
+                                                        "Geometry error calculating the total size of intersection.",
+                                                        e);
+                                    }
+                                    if (size > 0.0) {
+                                        totalSize += size;
+                                    }
+                                }
+                                if (totalSize > minSize) {
+                                    break; // save time when the size of
+                                           // poly1 or poly2 is large
+                                }
+                            }
+                            intersectSize
+                                    .put(oneLetterTZ[i], totalSize);
+                        } else {
+                            throw new VizException(
+                                    "Either timezoneGeom or/and warningArea is null. "
+                                            + "Timezone cannot be determined.");
+                        }
+                        perfLog.logDuration(
+                                "runTemplate size computation",
+                                System.currentTimeMillis() - t0);
+                        if (totalSize > minSize) {
+                            timeZones.add(oneLetterTZ[i]);
+                        }
+                    }
+                    // If timeZones has nothing in it when the hatched
+                    // area is very small,
+                    // use the timezone of larger intersection size.
+                    if (timeZones.size() == 0) {
+                        if (intersectSize.size() > 1) {
+                            if (intersectSize.get(oneLetterTZ[0]) > intersectSize
+                                    .get(oneLetterTZ[1])) {
+                                timeZones.add(oneLetterTZ[0]);
+                            } else {
+                                timeZones.add(oneLetterTZ[1]);
+                            }
+                        } else {
+                            throw new VizException(
+                                    "The size of intersectSize is less than 1, "
+                                            + "timezone cannot be determined.");
+                        }
+                    }
+                }
+            } else {
+                throw new VizException(
+                        "Calling to area.getTimezone() returns null.");
+            }
+        }
+        return timeZones;
+    }
+
     /**
      * Executes a warngen template given the polygon from the Warngen Layer and
      * the Storm tracking information from StormTrackDisplay
@@ -222,6 +350,8 @@ public class TemplateRunner {
      * @param startTime
      * @param endTime
      * @param selectedBullets
+     * @param followupData
+     * @param backupData
      * @param selectedUpdate
      * @param backupSite
      * @return the generated product
@@ -277,11 +407,21 @@ public class TemplateRunner {
                     .getWarngenOfficeShort());
         }
 
+        String productId = config.getProductId();
+        if (productId == null) {
+            statusHandler.warn("Warngen configuration file: "
+                    + warngenLayer.getTemplateName() + ".xml"
+                    + " does not contain a <productId> tag.");
+        }
+
         String stormType = stormTrackState.displayType == DisplayType.POLY ? "line"
                 : "single";
         context.put("stormType", stormType);
         context.put("mathUtil", new WarnGenMathTool());
         context.put("dateUtil", new DateUtil());
+        context.put("productId", productId);
+        context.put("mixedCaseEnabled",
+                MixedCaseProductSupport.isMixedCase(productId));
         context.put("pointComparator", new ClosestPointComparator());
 
         String action = followupData != null ? followupData.getAct()
@@ -317,113 +457,8 @@ public class TemplateRunner {
                 context.put(ia, intersectAreas.get(ia));
             }
 
-            Map<String, Double> intersectSize = new HashMap<String, Double>();
-            String[] oneLetterTZ;
-            double minSize = 1.0E-3d;
             if ((areas != null) && (areas.length > 0)) {
-                Set<String> timeZones = new HashSet<String>();
-                for (AffectedAreas affectedAreas : areas) {
-                    if (affectedAreas.getTimezone() != null) {
-                        // Handles counties that span two time zones
-                        String oneLetterTimeZones = affectedAreas.getTimezone()
-                                .trim();
-                        oneLetterTZ = new String[oneLetterTimeZones.length()];
-                        if (oneLetterTimeZones.length() == 1) {
-                            timeZones.add(String.valueOf(oneLetterTimeZones
-                                    .charAt(0)));
-                        } else {
-                            // Determine if one letter timezone is going to be
-                            // put into timeZones.
-                            Geometry[] poly1, poly2;
-                            int n1, n2;
-                            double size, totalSize;
-                            for (int i = 0; i < oneLetterTimeZones.length(); i++) {
-                                oneLetterTZ[i] = String
-                                        .valueOf(oneLetterTimeZones.charAt(i));
-                                Geometry timezoneGeom = warngenLayer
-                                        .getTimezoneGeom(oneLetterTZ[i]);
-                                t0 = System.currentTimeMillis();
-                                poly1 = null;
-                                poly2 = null;
-                                n1 = 0;
-                                n2 = 0;
-                                size = 0.0d;
-                                totalSize = 0.0d;
-                                if ((timezoneGeom != null)
-                                        && (warningArea != null)) {
-                                    if (intersectSize.get(oneLetterTZ[i]) != null) {
-                                        continue;
-                                    }
-                                    poly1 = new Geometry[warningArea
-                                            .getNumGeometries()];
-                                    n1 = warningArea.getNumGeometries();
-                                    for (int j = 0; j < n1; j++) {
-                                        poly1[j] = warningArea.getGeometryN(j);
-                                    }
-                                    poly2 = new Geometry[timezoneGeom
-                                            .getNumGeometries()];
-                                    n2 = timezoneGeom.getNumGeometries();
-                                    for (int j = 0; j < n2; j++) {
-                                        poly2[j] = timezoneGeom.getGeometryN(j);
-                                    }
-                                    // Calculate the total size of intersection
-                                    for (Geometry p1 : poly1) {
-                                        for (Geometry p2 : poly2) {
-                                            try {
-                                                size = p1.intersection(p2)
-                                                        .getArea();
-                                            } catch (TopologyException e) {
-                                                statusHandler
-                                                        .handle(Priority.VERBOSE,
-                                                                "Geometry error calculating the total size of intersection.",
-                                                                e);
-                                            }
-                                            if (size > 0.0) {
-                                                totalSize += size;
-                                            }
-                                        }
-                                        if (totalSize > minSize) {
-                                            break; // save time when the size of
-                                                   // poly1 or poly2 is large
-                                        }
-                                    }
-                                    intersectSize
-                                            .put(oneLetterTZ[i], totalSize);
-                                } else {
-                                    throw new VizException(
-                                            "Either timezoneGeom or/and warningArea is null. "
-                                                    + "Timezone cannot be determined.");
-                                }
-                                perfLog.logDuration(
-                                        "runTemplate size computation",
-                                        System.currentTimeMillis() - t0);
-                                if (totalSize > minSize) {
-                                    timeZones.add(oneLetterTZ[i]);
-                                }
-                            }
-                            // If timeZones has nothing in it when the hatched
-                            // area is very small,
-                            // use the timezone of larger intersection size.
-                            if (timeZones.size() == 0) {
-                                if (intersectSize.size() > 1) {
-                                    if (intersectSize.get(oneLetterTZ[0]) > intersectSize
-                                            .get(oneLetterTZ[1])) {
-                                        timeZones.add(oneLetterTZ[0]);
-                                    } else {
-                                        timeZones.add(oneLetterTZ[1]);
-                                    }
-                                } else {
-                                    throw new VizException(
-                                            "The size of intersectSize is less than 1, "
-                                                    + "timezone cannot be determined.");
-                                }
-                            }
-                        }
-                    } else {
-                        throw new VizException(
-                                "Calling to area.getTimezone() returns null.");
-                    }
-                }
+                Set<String> timeZones = determineTimezones(warngenLayer, areas, warningArea);
 
                 Map<String, String> officeCityTimezone = createOfficeTimezoneMap();
                 String cityTimezone = null;
@@ -454,12 +489,25 @@ public class TemplateRunner {
                 }
             }
 
+            wx = new Wx(config, stormTrackState,
+                    warngenLayer.getStormLocations(stormTrackState),
+                    startTime.getTime(), DateUtil.roundDateTo15(endTime)
+                            .getTime(), warnPolygon);
+
+            // duration: convert millisecond to minute
+            long duration = (wx.getEndTime().getTime() - wx.getStartTime()
+                    .getTime()) / (1000 * 60);
+            context.put("duration", duration);
+
+            context.put("event", eventTime);
+
+            StormTrackData std = ToolsDataManager.getInstance()
+                    .getStormTrackData();
+            std.setDate(simulatedTime);
+
             // CAN and EXP products follow different rules as followups
-            if (!((selectedAction == WarningAction.CAN) || (selectedAction == WarningAction.EXP))) {
-                wx = new Wx(config, stormTrackState,
-                        warngenLayer.getStormLocations(stormTrackState),
-                        startTime.getTime(), DateUtil.roundDateTo15(endTime)
-                                .getTime(), warnPolygon);
+            if (!((selectedAction == WarningAction.CAN) ||
+                    (selectedAction == WarningAction.EXP))) {
                 if (selectedAction == WarningAction.COR) {
                     wwaMNDTime = wx.getStartTime().getTime();
                 } else {
@@ -471,12 +519,6 @@ public class TemplateRunner {
                         DateUtil.roundDateTo15(selectedAction == WarningAction.EXT ? endTime
                                 : wx.getEndTime()));
 
-                // duration: convert millisecond to minute
-                long duration = (wx.getEndTime().getTime() - wx.getStartTime()
-                        .getTime()) / (1000 * 60);
-                context.put("duration", duration);
-
-                context.put("event", eventTime);
                 if (selectedAction == WarningAction.COR) {
                     context.put("TMLtime", eventTime);
                 } else {
@@ -512,50 +554,10 @@ public class TemplateRunner {
                     }
                 }
 
-                // Now create the "other areas
+                calStormVelocityAndEventLocation(std, simulatedTime, wx, context,
+                        warngenLayer, stormTrackState, selectedAction, wkt,
+                        threeLetterSiteId, etn, phenSig);
 
-                StormTrackData std = ToolsDataManager.getInstance()
-                        .getStormTrackData();
-                std.setDate(simulatedTime);
-                std.setMotionDirection((int) wx.getMovementDirection());
-                std.setMotionSpeed((int) Math.round(wx.getMovementSpeed("kn")));
-
-                context.put("movementSpeed", wx.getMovementSpeed());
-                context.put("movementInKnots", wx.getMovementSpeed("kn"));
-                double movementDirectionRounded = wx
-                        .getMovementDirectionRounded() + 180;
-                while (movementDirectionRounded >= 360) {
-                    movementDirectionRounded -= 360;
-                }
-                context.put("movementDirectionRounded",
-                        movementDirectionRounded);
-                double motionDirection = std.getMotionDirection() + 180;
-                while (motionDirection >= 360) {
-                    motionDirection -= 360;
-                }
-                context.put("movementDirection", motionDirection);
-                Coordinate[] stormLocs = warngenLayer
-                        .getStormLocations(stormTrackState);
-                // Convert to Point2D representation as Velocity requires
-                // getX() and getY() methods which Coordinate does not have
-                if (selectedAction == WarningAction.COR) {
-                    AbstractWarningRecord oldWarn = CurrentWarnings
-                            .getInstance(threeLetterSiteId)
-                            .getNewestByTracking(etn, phenSig);
-                    String loc = oldWarn.getLoc();
-                    if (loc != null) {
-                        Geometry locGeom = wkt.read(loc);
-                        stormLocs = locGeom.getCoordinates();
-                    }
-                } else {
-                    stormLocs = GisUtil.d2dCoordinates(stormLocs);
-                }
-                Point2D.Double[] coords = new Point2D.Double[stormLocs.length];
-                for (int i = 0; i < stormLocs.length; i++) {
-                    coords[i] = new Point2D.Double(stormLocs[i].x,
-                            stormLocs[i].y);
-                }
-                context.put("eventLocation", coords);
                 if (std.getMotionSpeed() > 0) {
                     t0 = System.currentTimeMillis();
                     ToolsDataManager.getInstance().setStormTrackData(std);
@@ -568,8 +570,6 @@ public class TemplateRunner {
                 AbstractWarningRecord oldWarn = CurrentWarnings.getInstance(
                         threeLetterSiteId).getNewestByTracking(etn, phenSig);
                 context.put("now", simulatedTime);
-                context.put("event", eventTime);
-                context.put("TMLtime", eventTime);
                 context.put("start", oldWarn.getStartTime().getTime());
                 context.put("expire", oldWarn.getEndTime().getTime());
                 Calendar canOrExpCal = Calendar.getInstance();
@@ -587,34 +587,38 @@ public class TemplateRunner {
                 if (oldWarn.getLoc() != null) {
                     // Convert to Point2D representation as Velocity requires
                     // getX() and getY() methods which Coordinate does not have
-                    Point2D.Double[] coords;
-                    Coordinate[] locs;
                     if (selectedAction == WarningAction.CAN) {
+                        context.put("TMLtime", eventTime);
+                        Point2D.Double[] coords;
+                        Coordinate[] locs;
                         locs = warngenLayer.getStormLocations(stormTrackState);
                         locs = GisUtil.d2dCoordinates(locs);
                         coords = new Point2D.Double[locs.length];
-                    } else {
-                        Geometry locGeom = wkt.read(oldWarn.getLoc());
-                        locs = locGeom.getCoordinates();
-                        coords = new Point2D.Double[locs.length];
-                    }
-                    for (int i = 0; i < locs.length; i++) {
-                        coords[i] = new Point2D.Double(locs[i].x, locs[i].y);
-                    }
-                    context.put("eventLocation", coords);
-                    context.put("movementDirection", oldWarn.getMotdir());
-                    context.put("movementInKnots", oldWarn.getMotspd());
+                        for (int i = 0; i < locs.length; i++) {
+                            coords[i] = new Point2D.Double(locs[i].x, locs[i].y);
+                        }
+                        context.put("eventLocation", coords);
+                        context.put("movementDirection", oldWarn.getMotdir());
+                        context.put("movementInKnots", oldWarn.getMotspd());
 
-                    // StormTrackData motion direction is between -180/180,
-                    // whereas a WarningRecord motion direction is between
-                    // -360/360
-                    double motionDirection = AdjustAngle.to180Degrees(oldWarn
-                            .getMotdir() - 180);
-                    StormTrackData std = ToolsDataManager.getInstance()
-                            .getStormTrackData();
-                    std.setDate(simulatedTime);
-                    std.setMotionDirection(motionDirection);
-                    std.setMotionSpeed(oldWarn.getMotspd());
+                        // StormTrackData motion direction is between -180/180,
+                        // whereas a WarningRecord motion direction is between
+                        // -360/360
+                        double motionDirection = AdjustAngle.to180Degrees(oldWarn
+                                .getMotdir() - 180);
+                        std.setMotionDirection(motionDirection);
+                        std.setMotionSpeed(oldWarn.getMotspd());
+                    } else {
+                        context.put("TMLtime", simulatedTime);
+                        wx = new Wx(config, stormTrackState, warngenLayer
+                                .getStormLocations(stormTrackState),
+                                startTime.getTime(), DateUtil.
+                                roundDateTo15(endTime).getTime(), warnPolygon);
+                        calStormVelocityAndEventLocation(std, simulatedTime, wx,
+                                context, warngenLayer, stormTrackState,
+                                selectedAction, wkt, threeLetterSiteId, etn,
+                                phenSig);
+                    }
                     if (std.getMotionSpeed() > 0) {
                         t0 = System.currentTimeMillis();
                         ToolsDataManager.getInstance().setStormTrackData(std);
@@ -750,9 +754,10 @@ public class TemplateRunner {
                                 hhmmEnd = message.indexOf("...", hhmmStart);
                             } else {
                                 if (hhmmEnd > 0) {
-                                    context.put("corToNewMarker", "cortonewmarker");
-                                    context.put("corEventtime",
-                                            message.substring(hhmmStart, hhmmEnd));
+                                    context.put("corToNewMarker",
+                                            "cortonewmarker");
+                                    context.put("corEventtime", message
+                                            .substring(hhmmStart, hhmmEnd));
                                 }
                             }
                         }
@@ -980,6 +985,56 @@ public class TemplateRunner {
                     FipsUtil.getUgcLine(areas, endTime, 0));
         }
         return rval;
+    }
+
+    /*
+     * Calculate storm speed, direction, and event coordinates, and
+     * add name/value pairs to context.
+     */
+    private static void calStormVelocityAndEventLocation(StormTrackData std,
+            Date simulatedTime, Wx wx, VelocityContext context,
+            WarngenLayer warngenLayer, StormTrackState stormTrackState,
+            WarningAction selectedAction, WKTReader wkt, String threeLetterSiteId,
+            String etn, String phenSig) throws Exception {
+        std.setMotionDirection((int) wx.getMovementDirection());
+        std.setMotionSpeed((int) Math.round(wx.getMovementSpeed("kn")));
+
+        context.put("movementSpeed", wx.getMovementSpeed());
+        context.put("movementInKnots", wx.getMovementSpeed("kn"));
+        double movementDirectionRounded = wx
+                .getMovementDirectionRounded() + 180;
+        while (movementDirectionRounded >= 360) {
+            movementDirectionRounded -= 360;
+        }
+        context.put("movementDirectionRounded",
+                movementDirectionRounded);
+        double motionDirection = std.getMotionDirection() + 180;
+        while (motionDirection >= 360) {
+            motionDirection -= 360;
+        }
+        context.put("movementDirection", motionDirection);
+        Coordinate[] stormLocs = warngenLayer
+                .getStormLocations(stormTrackState);
+        // Convert to Point2D representation as Velocity requires
+        // getX() and getY() methods which Coordinate does not have
+        if (selectedAction == WarningAction.COR) {
+            AbstractWarningRecord oldWarn = CurrentWarnings
+                    .getInstance(threeLetterSiteId)
+                    .getNewestByTracking(etn, phenSig);
+            String loc = oldWarn.getLoc();
+            if (loc != null) {
+                Geometry locGeom = wkt.read(loc);
+                stormLocs = locGeom.getCoordinates();
+            }
+        } else {
+            stormLocs = GisUtil.d2dCoordinates(stormLocs);
+        }
+        Point2D.Double[] coords = new Point2D.Double[stormLocs.length];
+        for (int i = 0; i < stormLocs.length; i++) {
+            coords[i] = new Point2D.Double(stormLocs[i].x,
+                    stormLocs[i].y);
+        }
+        context.put("eventLocation", coords);
     }
 
 }

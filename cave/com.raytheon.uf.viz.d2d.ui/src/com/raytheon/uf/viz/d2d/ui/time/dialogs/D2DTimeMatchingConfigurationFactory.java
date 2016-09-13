@@ -67,6 +67,10 @@ import com.raytheon.uf.viz.d2d.ui.actions.TimeOptionsAction;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 5, 2009            bgonzale     Initial creation
+ * Oct 5, 2015  4934      bsteffen     Do not re-use datatimes for overlays in
+ *                                     VALID_TIME_SEQ
+ * Mar 3, 2016  5436      bsteffen     Do not throw illegal state exception
+ *                                     when in an unexpected state.
  * 
  * </pre>
  * 
@@ -79,8 +83,10 @@ public class D2DTimeMatchingConfigurationFactory extends
 
     private TimeOptionsAction timeOptionsAction;
 
-    // When loading multiple resources all resources will be clones of
-    // currentConfig until resetMultiload is called by the time matcher.
+    /*
+     * When loading multiple resources all resources will be clones of
+     * currentConfig until resetMultiload is called by the time matcher.
+     */
     protected TimeMatchingConfiguration currentConfig = null;
 
     /**
@@ -93,6 +99,7 @@ public class D2DTimeMatchingConfigurationFactory extends
      *      load_get_needed_info { keys inventoryNeeded }
      * </pre>
      */
+    @Override
     public TimeMatchingConfiguration getConfiguration(LoadProperties loadProps,
             D2DTimeMatcher matcher, DataTime[] availableTimes,
             IDescriptor descriptor) throws VizException {
@@ -202,17 +209,21 @@ public class D2DTimeMatchingConfigurationFactory extends
         d2dProps.setTimeConfig(config);
 
         currentConfig = config.clone();
-        if (config != null) {
-            currentConfig.setLoadMode(nextLoadMode);
-            if (nextLoadMode == LoadMode.VALID_TIME_SEQ) {
-                // delta for the first resource means space between frames, for
-                // overlays it means an offset from the time match basis, we
-                // don't want to be offset.
-                currentConfig.setDelta(null);
-            }
-            if (nextLoadMode != config.getLoadMode()) {
-                changeLoadMode(nextLoadMode);
-            }
+        currentConfig.setLoadMode(nextLoadMode);
+        if (nextLoadMode == LoadMode.VALID_TIME_SEQ) {
+            /*
+             * delta for the first resource means space between frames, for
+             * overlays it means an offset from the time match basis, we don't
+             * want to be offset.
+             */
+            currentConfig.setDelta(null);
+            /*
+             * Overlay resources should just time match against the basis, not necessarily use the exact same times.
+             */
+            currentConfig.setDataTimes(null);
+        }
+        if (nextLoadMode != config.getLoadMode()) {
+            changeLoadMode(nextLoadMode);
         }
         return config;
     }
@@ -228,6 +239,7 @@ public class D2DTimeMatchingConfigurationFactory extends
      *      load_get_needed_info { keys inventoryNeeded }
      * </pre>
      */
+    @Override
     public TimeMatchingConfiguration getOverlayConfiguration(
             LoadProperties loadProps, D2DTimeMatcher matcher,
             DataTime[] availableTimes, IDescriptor descriptor)
@@ -272,9 +284,10 @@ public class D2DTimeMatchingConfigurationFactory extends
                     DataTime bestTime = null;
                     long validDist = 0;
                     if (!targetTime.getUtilityFlags().contains(FLAG.FCST_USED)) {
-                        // for non forecast products(Satellite) accept the
-                        // closest
-                        // record within two minutes.
+                        /*
+                         * for non forecast products(Satellite) accept the
+                         * closest record within two minutes.
+                         */
                         validDist = 120000;
                     }
                     for (DataTime availableTime : availableTimes) {
@@ -346,16 +359,14 @@ public class D2DTimeMatchingConfigurationFactory extends
         d2dProps.setTimeConfig(config);
 
         currentConfig = config.clone();
-        if (config != null) {
-            currentConfig.setLoadMode(nextLoadMode);
-            if (nextLoadMode != config.getLoadMode()) {
-                changeLoadMode(nextLoadMode);
-            }
+        currentConfig.setLoadMode(nextLoadMode);
+        if (nextLoadMode != config.getLoadMode()) {
+            changeLoadMode(nextLoadMode);
         }
         return config;
     }
 
-    private boolean hasForecasts(DataTime[] availableTimes) throws VizException {
+    private boolean hasForecasts(DataTime[] availableTimes) {
         boolean haveForecasts = false;
         for (DataTime dataTime : availableTimes) {
             haveForecasts = (dataTime.getUtilityFlags()

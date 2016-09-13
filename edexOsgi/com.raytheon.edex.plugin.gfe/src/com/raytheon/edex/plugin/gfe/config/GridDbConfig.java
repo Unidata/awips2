@@ -24,8 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.gfe.config.ProjectionData;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
@@ -51,6 +51,9 @@ import com.raytheon.uf.common.dataplugin.gfe.weather.WxDefinition;
  *                                     Cloned ParmStorageInfo when requested so we have
  *                                     a unique instance per database.
  * 01/13/2015   #3955      randerso    Fixed NullPointerException when extraWEPrecision is null
+ * 10/30/2015   #5019      dgilling    Fix creation of ParmID when parm name
+ *                                     specifies name and level together.
+ * 12/15/2015   #5166      kbisanz     Update logging to use SLF4J
  * 
  * </pre>
  * 
@@ -59,7 +62,7 @@ import com.raytheon.uf.common.dataplugin.gfe.weather.WxDefinition;
  */
 
 public class GridDbConfig {
-    private final Log theLogger = LogFactory.getLog(this.getClass());
+    private final Logger theLogger = LoggerFactory.getLogger(this.getClass());
 
     private HashMap<String, ParmStorageInfo> _parmInfoDict;
 
@@ -210,8 +213,7 @@ public class GridDbConfig {
         if (pos != -1) {
             parmID = new ParmID(config.parmName.substring(0, pos),
                     new DatabaseID(databaseID),
-                    config.parmName.substring(config.parmName.length() - pos
-                            - 1));
+                    config.parmName.substring(pos + 1));
         } else {
             parmID = new ParmID(config.parmName, new DatabaseID(databaseID));
         }

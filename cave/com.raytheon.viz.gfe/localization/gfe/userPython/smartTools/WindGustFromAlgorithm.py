@@ -28,6 +28,13 @@
 #          Matthew H. Belk      NWS Taunton, MA       Last Modified: 06/16/03
 #          Mathewson            FSL                   Modified: 3/30/04
 #             -change in model names to OB3 names
+#----------------------------------------------------------------------------
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    02/10/2016      5283          nabowle        Remove NGM support.
 # ----------------------------------------------------------------------------
 
 ToolType = "numeric"
@@ -47,7 +54,11 @@ VariableList = [
          ("Momentum algorithm:", "RUC", "radio", ["RUC", "Power"]),
          ("Use BL Winds:", "No", "radio", ["Yes", "No"]),
          ("Model:", "NAM12", "radio",
+<<<<<<< HEAD
                     ["GFS80", "NAM12", "gfsLR", "NGM80", "RAP40"])
+=======
+                    ["GFS80", "NAM12", "gfsLR", "RUC80"])
+>>>>>>> origin/unidata_16.2.2
 ]
 
 
@@ -365,12 +376,16 @@ class Tool (SmartScript.SmartScript):
             self._modelCube = ["MB1000", "MB850", "MB700", "MB500", "MB300"]
             self._blCube = []
 
+<<<<<<< HEAD
         elif self._model.find( 'NGM80') != -1:
             self._modelCube = ["MB1000", "MB950", "MB850", "MB700", "MB500",
                                "MB400", "MB300"]
             self._blCube = ["FH1829", "FH2743", "FH3658"]
 
         elif self._model.find( 'RAP40') != -1:
+=======
+        elif self._model.find( 'RUC80') != -1:
+>>>>>>> origin/unidata_16.2.2
             self._modelCube = ["MB1000", "MB950", "MB900", "MB850", "MB800",
                                "MB750", "MB700", "MB650", "MB600", "MB550",
                                "MB500", "MB450", "MB400", "MB350", "MB300"]

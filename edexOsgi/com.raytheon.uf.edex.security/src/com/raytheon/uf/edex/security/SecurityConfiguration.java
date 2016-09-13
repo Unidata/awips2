@@ -50,6 +50,7 @@ import com.raytheon.uf.edex.core.modes.EDEXModesUtil;
  * ------------ ----------  ----------- --------------------------
  * 6/5/2014     1712        bphillip    Initial Creation
  * 7/10/2014    1717        bphillip    Added authorization policy
+ * 7/5/2016                 mjames@ucar Shorter resrouces path
  * </pre>
  * 
  * @author bphillip
@@ -59,8 +60,7 @@ public class SecurityConfiguration implements HttpAuthSupplier {
 
     /** The directory containing security related files such as keystores */
     private static final String SECURITY_DIR = EDEXModesUtil.CONF_DIR
-            + File.separator + "resources/site" + File.separator
-            + System.getenv("AW_SITE_IDENTIFIER") + File.separator;
+            + File.separator + "resources/";
 
     /** The properties file containing the security configuration items */
     private static final String SECURITY_PROPERTIES_FILE = SECURITY_DIR

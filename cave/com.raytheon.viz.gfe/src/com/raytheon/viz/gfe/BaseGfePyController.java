@@ -52,7 +52,8 @@ import com.raytheon.viz.gfe.smartscript.FieldDefinition;
  *                                      calls from python copying/casting to correct types
  * Feb 05, 2015  4089      njensen     Replaced previous hardening with ensureResultType()
  * Apr 23, 2015  4259      njensen     Updated for new JEP API
- * Jul 07, 2015  14739     ryu         Added getVarDict().
+ * Jul 17, 2015  4575      njensen     Changed varDict from String to Map
+ * Sep 16, 2015  4871      randerso    Return modified varDict from Tool/Procedure
  * 
  * </pre>
  * 
@@ -125,30 +126,27 @@ public abstract class BaseGfePyController extends PythonScriptController {
      *            a string representation of a python dictionary
      * @throws JepException
      */
-    public void setVarDict(String varDict) throws JepException {
+    public void setVarDict(Map<String, Object> varDict) throws JepException {
         if (varDict == null) {
             jep.eval("varDict = None");
         } else {
-            jep.eval("varDict = " + varDict);
+            jep.set("varDict", varDict);
+            jep.eval("import JUtil");
+            jep.eval("varDict = JUtil.javaObjToPyVal(varDict)");
         }
     }
 
     /**
      * Gets a module's varDict (variable list inputs)
      * 
-     * @return   a string representation of a python dictionary
+     * @return the varDict
+     * @throws JepException
      */
-    public String getVarDict() {
-        String varDict = null;
-        try {
-            jep.eval("temp = str(varDict)");
-            varDict = (String) jep.getValue("temp");
-            jep.eval("temp = None");
-        } catch (JepException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Exception while getting varDict", e);
-        }
-        return varDict;
+    public Map<String, Object> getVarDict() throws JepException {
+        @SuppressWarnings("unchecked")
+        Map<String, Object> javaDict = (Map<String, Object>) jep
+                .getValue("varDict");
+        return javaDict;
     }
 
     /**
@@ -174,22 +172,6 @@ public abstract class BaseGfePyController extends PythonScriptController {
         }
 
         return fieldDefs;
-    }
-
-    public String transformVarDict(Map<String, Object> map) {
-        String varDict = null;
-        try {
-            jep.eval("import JUtil");
-            jep.set("varDictMap", map);
-            jep.eval("temp = JUtil.javaMapToPyDict(varDictMap)");
-            varDict = (String) jep.getValue("temp");
-            jep.eval("varDictMap = None");
-            jep.eval("temp = None");
-        } catch (JepException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Exception while transforming varDict", e);
-        }
-        return varDict;
     }
 
     /**

@@ -20,7 +20,6 @@
 package com.raytheon.uf.viz.monitor.ffmp.ui.dialogs;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -37,7 +36,7 @@ import com.raytheon.uf.viz.monitor.ffmp.FFMPMonitor;
 import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPTableColumnXML;
 
 /**
- * TODO Add Description
+ * Table column/row configuration container
  * 
  * <pre>
  * 
@@ -48,6 +47,7 @@ import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPTableColumnXML;
  * Mar 8, 2011            lvenable     Initial creation
  * Mar 8, 2012	DR 14406  gzhang       Fixing QPF Column Title Missing 
  * Feb 19, 2013  1635     dhladky      Fixed multiple guidance displays
+ * Sep 21, 2015  4756     dhladky      Multiple guidance source upgrades.
  * </pre>
  * 
  * 
@@ -252,7 +252,7 @@ public class FfmpTableConfigData {
         ProductXML productXml = sourceConfigManager.getProduct(name);
 
         ffgNames = prodRunXml.getGuidanceTypes(productXml);
-        
+
         String includedQpf = FFMPConfig.getInstance().getFFMPConfigData().getIncludedQPF();
         if ((includedQpf != null) && (includedQpf.equalsIgnoreCase("xxxxx") == false)) {
             qpfType = includedQpf;
@@ -264,7 +264,6 @@ public class FfmpTableConfigData {
         }
 
         ArrayList<String> guidTypes = productXml.getAvailableGuidanceTypes();
-        Collections.sort(guidTypes);
 
         ffmpTableColMap.put(COLUMN_NAME.NAME.getColumnName(),
                 COLUMN_NAME.NAME.getColumnName());
@@ -422,4 +421,5 @@ public class FfmpTableConfigData {
     public void setFfgGraphType(String ffgGraphType) {
         this.ffgGraphType = ffgGraphType;
     }
+
 }

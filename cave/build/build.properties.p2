@@ -1,6 +1,5 @@
 # This build.properties file is used exclusively by the cave pde p2 builds.
 
-topLevelElementType=feature
 buildType=I
 buildId=CAVE
 buildLabel=${buildType}.${buildId}
@@ -14,7 +13,7 @@ skipFetch=true
 skipMaps=true
 baseos=linux
 basews=gtk
-basearch=x86
+basearch=x86_64
 
 logExtension=.log
 javacDebugInfo=false

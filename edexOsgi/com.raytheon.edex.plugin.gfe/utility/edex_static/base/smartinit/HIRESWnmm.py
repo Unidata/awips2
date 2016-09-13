@@ -68,9 +68,9 @@ class HIRESWnmmForecaster(Forecaster):
         return self._calcT(temps, pres, topo, stopo, gh_c, t_c)
 
     def _calcT(self, temps, pres, topo, stopo, gh_c, t_c):
-        p = self._minus
-        tmb = self._minus
-        tms = self._minus
+        p = self.newGrid(-1)
+        tmb = self.newGrid(-1)
+        tms = self.newGrid(-1)
         # go up the column to figure out the surface pressure
         for i in xrange(1, gh_c.shape[0]):
             higher = greater(gh_c[i], topo)  # identify points > topo
@@ -78,35 +78,44 @@ class HIRESWnmmForecaster(Forecaster):
             val = self.linear(gh_c[i], gh_c[i - 1],
                               log(self.pres[i]), log(self.pres[i - 1]), topo)
             val[greater(val, 500)] = 500
-            val = clip(val, -.00001, 10)
-            p = where(logical_and(equal(p, -1), higher),
-                      exp(val), p)
+            val.clip(-.00001, 10, val)
+            
+            m = logical_and(equal(p, -1), higher)
+            p[m]= exp(val)[m]
+
             # interpolate the temperature at true elevation
             tval1 = self.linear(gh_c[i], gh_c[i - 1], t_c[i], t_c[i - 1], topo)
-            tmb = where(logical_and(equal(tmb, -1), greater(gh_c[i], topo)),
-                        tval1, tmb)
+            
+            m = logical_and(equal(tmb, -1), higher)
+            tmb[m] = tval1[m]
             # interpolate the temperature at model elevation
             tval2 = self.linear(gh_c[i], gh_c[i - 1], t_c[i], t_c[i - 1], stopo)
-            tms = where(logical_and(equal(tms, -1), greater(gh_c[i], stopo)),
-                        tval2, tms)
+            
+            m = logical_and(equal(tms, -1), greater(gh_c[i], stopo))
+            tms[m] = tval2[m]
 
 
         # define the pres. of each of the boundary layers
-        st = self._minus
+        st = self.newGrid(-1)
         # Calculate the lapse rate in units of pressure
         for i in xrange(1, len(pres)):
             val = self.linear(pres[i], pres[i - 1], temps[i], temps[i - 1], p)
             gm = greater(pres[i - 1], p)
             lm = less_equal(pres[i], p)
             mask = logical_and(gm, lm)
-            st = where(logical_and(equal(st, -1), mask),
-                       val, st)            
+            
+            m = logical_and(equal(st, -1), mask)
+            st[m] = val[m]
+
         # where topo level is above highest level in BL fields...use tmb
-        st = where(logical_and(equal(st,-1),less(p, pres[-1])), tmb, st)
+        m = logical_and(equal(st,-1),less(p, pres[-1]))
+        st[m] = tmb[m]
 
         # where topo level is below model surface...use difference
         # of t at pressure of surface and tFHAG2 and subtract from tmb
-        st = where(equal(st, -1), tmb - tms + temps[0], st)
+        m = equal(st, -1)
+        st[m] = (tmb - tms + temps[0])[m]
+
         return self.KtoF(st)
 
 ####-------------------------------------------------------------------------
@@ -172,22 +181,23 @@ class HIRESWnmmForecaster(Forecaster):
 ##  Calculates the Freezing level based on height and temperature
 ##  cubes.  Finds the height at which freezing occurs.
 ##--------------------------------------------------------------------------
-##    def calcFzLevel(self, gh_c, t_c, topo):
-##        fzl = self._minus
-##
-##        # for each level in the height cube, find the freezing level
-##        for i in xrange(gh_c.shape[0]):
-##            try:
-##                val = gh_c[i-1] + (gh_c[i] - gh_c[i-1]) / (t_c[i] - t_c[i-1])\
-##                      * (273.15 - t_c[i-1])
-##            except:
-##                val = gh_c[i]
-##            ## save the height value in fzl
-##            fzl = where(logical_and(equal(fzl, -1),
-##                                    less_equal(t_c[i], 273.15)), val, fzl)
-##
-##        return fzl * 3.28   # convert to feet
-
+#     def calcFzLevel(self, gh_c, t_c, topo):
+#         fzl = self.newGrid(-1)
+# 
+#         # for each level in the height cube, find the freezing level
+#         for i in xrange(gh_c.shape[0]):
+#             try:
+#                 val = gh_c[i-1] + (gh_c[i] - gh_c[i-1]) / (t_c[i] - t_c[i-1])\
+#                       * (273.15 - t_c[i-1])
+#             except:
+#                 val = gh_c[i]
+#             ## save the height value in fzl
+#             m =logical_and(equal(fzl, -1), less_equal(t_c[i], 273.15))
+#             fzl[m] = val[m]
+# 
+#         fzl *= 3.28   # convert to feet
+#         return fzl
+#
 ##--------------------------------------------------------------------------
 ##  Calculates the mixing height for the given sfc temperature,
 ##  temperature cube, height cube and topo
@@ -196,28 +206,31 @@ class HIRESWnmmForecaster(Forecaster):
         mask = greater_equal(gh_c, topo) # points where height > topo
         pt = []
         for i in xrange(len(self.pres)):   # for each pres. level
-            p = self._empty + self.pres[i] # get the pres. value in mb
+            p = self.newGrid(self.pres[i]) # get the pres. value in mb
             tmp = self.ptemp(t_c[i], p)    # calculate the pot. temp
             pt = pt + [tmp]                # add to the list
         pt = array(pt)
-#        pt = where(mask, pt, 0)
+        # set up masks
         pt[logical_not(mask)] = 0
         avg = add.accumulate(pt, 0)
         count = add.accumulate(mask, 0)
-        mh = self._minus
+        mh = self.newGrid(-1)
         # for each pres. level, calculate a running avg. of pot temp.
         # As soon as the next point deviates from the running avg by
         # more than 3 deg. C, interpolate to get the mixing height.
         for i in xrange(1, avg.shape[0]):
-            runavg = avg[i] / (count[i] + .0001)
-            diffpt = pt[i] - runavg
+            runavg = avg[i] / (count[i] + .0001) # calc. running avg
+            diffpt = pt[i] - runavg  # calc. difference
             # calc. the interpolated mixing height
             tmh = self.linear(pt[i], pt[i - 1], gh_c[i], gh_c[i - 1], runavg)
             # assign new values if the difference is greater than 3
-            mh = where(logical_and(logical_and(mask[i], equal(mh, -1)),
-                                   greater(diffpt, 3)), tmh, mh)
-        return (mh - topo) * 3.28  # convert to feet
+            m = logical_and(logical_and(mask[i], equal(mh, -1)),
+                                   greater(diffpt, 3))
+            mh[m] = tmh[m]
 
+        mh -= topo
+        mh *= 3.28  # convert to feet
+        return mh
 
 ####-------------------------------------------------------------------------
 ####  Converts the lowest available wind level from m/s to knots
@@ -238,17 +251,18 @@ class HIRESWnmmForecaster(Forecaster):
         # find the points that are above the 3000 foot level
         mask = greater_equal(gh_c, fatopo)
         # initialize the grids into which the value are stored
-        famag = self._minus
-        fadir = self._minus
+        famag = self.newGrid(-1)
+        fadir = self.newGrid(-1)
         # start at the bottom and store the first point we find that's
         # above the topo + 3000 feet level.
         for i in xrange(wind_c[0].shape[0]):
-            famag = where(equal(famag, -1),
-                          where(mask[i], wm[i], famag), famag)
-            fadir = where(equal(fadir, -1),
-                          where(mask[i], wd[i], fadir), fadir)
-        fadir = clip(fadir, 0, 360)  # clip the value to 0, 360
-        famag = famag * 1.94    # convert to knots
+            m = logical_and(equal(famag, -1), mask[i])
+            famag[m] = wm[i][m]
+            
+            m = logical_and(equal(fadir, -1), mask[i])
+            fadir[m] = wd[i][m]
+        fadir.clip(0, 360, fadir)  # clip the value to 0, 360
+        famag *= 1.94           # convert to knots
         return (famag, fadir)   # return the tuple of grids
 
 ##--------------------------------------------------------------------------
@@ -258,7 +272,7 @@ class HIRESWnmmForecaster(Forecaster):
 ##  a vector average of the wind field in that layer.
 ##--------------------------------------------------------------------------
     def calcTransWind(self, MixHgt, wind_c, gh_c, topo):
-        nmh = MixHgt * 0.3048 # convert MixHt from feet -> meters
+        nmh = MixHgt * 0.3048  # convert MixHt from feet -> meters
         u, v = self._getUV(wind_c[0], wind_c[1])  # get the wind grids
         # set a mask at points between the topo and topo + MixHt
         mask = logical_and(greater_equal(gh_c, topo),
@@ -266,16 +280,17 @@ class HIRESWnmmForecaster(Forecaster):
         # set the points outside the layer to zero
         u[logical_not(mask)] = 0
         v[logical_not(mask)] = 0
-        mask = add.reduce(mask) # add up the number of set points vert.
+
+        mask = add.reduce(mask).astype(float32) # add up the number of set points vert.
         mmask = mask + 0.0001
         # calculate the average value in the mixed layerlayer
-        u = where(mask, add.reduce(u) / mmask, 0)
-        v = where(mask, add.reduce(v) / mmask, 0)
+        u = where(mask, add.reduce(u) / mmask, float32(0))
+        v = where(mask, add.reduce(v) / mmask, float32(0))
         # convert u, v to mag, dir
         tmag, tdir = self._getMD(u, v)
-        tdir = clip(tdir, 0, 359.5)
-        tmag = tmag * 1.94  # convert to knots
-        tmag = clip(tmag, 0, 125)  # clip speed to 125 knots
+        tdir.clip(0, 359.5, tdir)
+        tmag *= 1.94   # convert to knots
+        tmag.clip(0, 125, tmag)  # clip speed to 125 knots
         return (tmag, tdir)
 
 ##--------------------------------------------------------------------------
@@ -290,7 +305,7 @@ class HIRESWnmmForecaster(Forecaster):
         m4 = logical_and(greater(QPF, 0.1), less(QPF, 0.3))
         # assign 0 to the dry grid point, 100 to the wet grid points,
         # and a ramping function to all point in between
-        cwr = where(m1, 0, where(m2, 100,
+        cwr = where(m1, float32(0), where(m2, float32(100),
                                  where(m3, 444.4 * (QPF - 0.01) + 10,
                                        where(m4, 250 * (QPF - 0.1) + 50,
                                              QPF))))

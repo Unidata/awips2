@@ -30,9 +30,9 @@ import javax.persistence.Transient;
 
 import com.raytheon.uf.common.dataplugin.ffmp.collections.ArrayBackedMap;
 import com.raytheon.uf.common.dataplugin.ffmp.collections.BasinMapFactory;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * FFMP basin/aggregated value holder
@@ -51,6 +51,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Apr 26, 2013 1954        bsteffen    Minor code cleanup throughout FFMP.
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * Jul 31, 2013 2242        bsteffen    Optimize FFMP NavigableMap memory.
+ * Aug 08, 2015 4722        dhladky     Dynamic serialize imp not needed.
+ * Oct 10, 2015 4756        dhladky     Prevent null values from being inserted.
+ * Oct 26, 2015 5056        dhladky     Better debugging info.
+ * Feb 11, 2016 5273        tjensen     Fixed getAccumValue not tracking latest time.
+ * Jun 03, 2016 19090       dhladky (code checked in by zhao) Fixed a bug in Accum calculation 
  * 
  * </pre>
  * 
@@ -58,7 +63,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1
  */
 @DynamicSerialize
-public class FFMPBasin implements ISerializableObject, Cloneable {
+public class FFMPBasin implements Cloneable {
 
     /** pfafstetter id(key) in GIS **/
     @DynamicSerializeElement
@@ -68,12 +73,12 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
     @DynamicSerializeElement
     protected boolean aggregated = false;
 
-    /** object used in calculations 
-     *  not serialized!
+    /**
+     * object used in calculations not serialized!
      **/
     @Transient
     protected NavigableMap<Date, Float> values;
-    
+
     /**
      * Set to either the values map or the BasinMapFactory that was used to
      * create it to enable correct synchronization.
@@ -91,6 +96,7 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
 
     /**
      * Get the float array of serialized values
+     * 
      * @return
      */
     public float[] getSerializedValues() {
@@ -129,7 +135,7 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
     public void setAggregated(boolean aggregated) {
         this.aggregated = aggregated;
     }
-    
+
     public boolean contains(Date date) {
         return values.containsKey(date);
     }
@@ -180,7 +186,7 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
             long expirationTime, boolean rate) {
         float dvalue = 0.0f;
         Date prevDate = null;
-      
+
         // map ordered newest first, so grab from newest date to oldest date
         if (afterDate.before(beforeDate) && (!values.isEmpty())) {
 
@@ -189,7 +195,7 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
                 float factor = 0.0f;
 
                 for (Entry<Date, Float> entry : values.subMap(beforeDate,
-                        false, afterDate, false).entrySet()) {
+                        false, afterDate, true).entrySet()) {
                     Date tdate = entry.getKey();
                     float val = entry.getValue();
 
@@ -199,25 +205,23 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
                             prevDate = beforeDate;
                         }
 
-						if (val > 0.0f) {
-							
-							if ((prevDate.getTime() - tdate.getTime()) > expirationTime) {
-								// handle the gap and accumulate the book ends
-								// of it
-								factor = ((prevDate.getTime() - (prevDate
-										.getTime() - expirationTime)) / (1000.0f * 60.0f * 60.0f));
+                        if (val > 0.0f) {
 
-							} else {
-								factor = ((prevDate.getTime() - tdate
-										.getTime()) / (1000.0f * 60.0f * 60.0f));
-							}
-							// do absolute values so it dosen't matter which way
-							// you traverse the list
-							val = val * Math.abs(factor);
-							
-						}
+                            if ((prevDate.getTime() - tdate.getTime()) > expirationTime) {
+                                // handle the gap and accumulate the book ends
+                                // of it
+                                factor = ((prevDate.getTime() - (prevDate
+                                        .getTime() - expirationTime)) / (TimeUtil.MILLIS_PER_HOUR*1.0f));
+                            } else {
+                                factor = ((prevDate.getTime() - tdate.getTime()) / (TimeUtil.MILLIS_PER_HOUR*1.0f));
+                            }
+                            // do absolute values so it dosen't matter which way
+                            // you traverse the list
+                            val = val * Math.abs(factor);
+
+                        }
                     }
-  
+
                     dvalue += val;
                     prevDate = tdate;
                 }
@@ -245,20 +249,22 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
 
         return val;
     }
-    
+
     /**
      * Used for mosaic sources where the times come in irregularly (QPF)
+     * 
      * @param date
      * @param buffer
      * @return
      */
     public Float getAverageValue(Date date, long buffer) {
-    	Date afterDate = new Date(date.getTime()-(buffer/2));
-    	Date beforeDate = new Date(date.getTime()+(buffer/2));
-    	//System.out.println("AfterDate: "+afterDate+ " BeforeDate: "+beforeDate);
-    	return getAverageValue(afterDate, beforeDate);
+        Date afterDate = new Date(date.getTime() - (buffer / 2));
+        Date beforeDate = new Date(date.getTime() + (buffer / 2));
+        // System.out.println("AfterDate: "+afterDate+
+        // " BeforeDate: "+beforeDate);
+        return getAverageValue(afterDate, beforeDate);
     }
-    
+
     /**
      * Gets the average value within a time window, used for mosaic
      * 
@@ -266,54 +272,53 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
      * @param beforeDate
      * @return
      */
-	public Float getAverageValue(Date afterDate, Date beforeDate) {
-		Float val = 0.0f;
-		int i = 0;
+    public Float getAverageValue(Date afterDate, Date beforeDate) {
+        Float val = 0.0f;
+        int i = 0;
 
         synchronized (valuesSynchronization) {
 
-			for (Date date : values.keySet()) {
-				if (date.before(beforeDate) && date.after(afterDate)) {
-					float val1 = values.get(date);
-					if (val1 > 0.0) {
-						val += val1;
-						i++;
-					}
-				}
-			}
+            for (Date date : values.keySet()) {
+                if (date.before(beforeDate) && date.after(afterDate)) {
+                    float val1 = values.get(date);
+                    if (val1 > 0.0) {
+                        val += val1;
+                        i++;
+                    }
+                }
+            }
 
-			if (i != 0) {
-				val = val / i;
-			}
-		}
+            if (i != 0) {
+                val = val / i;
+            }
+        }
 
-		return val;
-	}
-	
-	/**
+        return val;
+    }
+
+    /**
      * Gets the average value within a time window, used for mosaic
      * 
      * @param afterDate
      * @param beforeDate
      * @return
      */
-	public Float getMaxValue(Date afterDate, Date beforeDate) {
-		Float val = 0.0f;
+    public Float getMaxValue(Date afterDate, Date beforeDate) {
+        Float val = 0.0f;
 
         synchronized (valuesSynchronization) {
 
-			for (Date date : values.keySet()) {
-				if (date.before(beforeDate) && date.after(afterDate)) {
-					if (val > values.get(date)) {
-						val = values.get(date);
-					}
-				}
-			}
-		}
+            for (Date date : values.keySet()) {
+                if (date.before(beforeDate) && date.after(afterDate)) {
+                    if (val > values.get(date)) {
+                        val = values.get(date);
+                    }
+                }
+            }
+        }
 
-		return val;
-	}
-
+        return val;
+    }
 
     /**
      * Adds a date/value pair
@@ -322,6 +327,12 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
      * @param value
      */
     public void setValue(Date date, Float dvalue) {
+
+        // Do not allow null values to be added!
+        if (dvalue == null) {
+            return;
+        }
+
         synchronized (valuesSynchronization) {
             values.put(date, dvalue);
         }
@@ -357,6 +368,7 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
 
     /**
      * Useful constructor
+     * 
      * @param pfaf
      * @param aggregated
      */
@@ -366,7 +378,7 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
         values = new TreeMap<Date, Float>(Collections.reverseOrder());
         valuesSynchronization = values;
     }
-    
+
     public FFMPBasin(Long pfaf, boolean aggregated,
             BasinMapFactory<Date> mapFactory) {
         setPfaf(pfaf);
@@ -393,20 +405,20 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
         }
         serializedValues = null;
     }
-    
+
     /**
      * populates the serialized array
      */
     public void serialize() {
-        
+
         serializedValues = new float[values.size()];
         int i = 0;
-        
-        for (Date date: values.descendingKeySet()) {
+
+        for (Date date : values.descendingKeySet()) {
             serializedValues[i] = values.get(date);
             i++;
         }
-        //System.out.println("wrote :"+i+" pfaf : "+pfaf);
+        // System.out.println("wrote :"+i+" pfaf : "+pfaf);
     }
 
     /**
@@ -419,9 +431,9 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
             synchronized (valuesSynchronization) {
                 ArrayList<Date> removes = new ArrayList<Date>();
                 for (Date mdate : values.keySet()) {
-                	if (mdate.before(date)) {
-                		removes.add(mdate);
-                	}
+                    if (mdate.before(date)) {
+                        removes.add(mdate);
+                    }
                 }
 
                 for (Date rdate : removes) {
@@ -438,6 +450,7 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
         buff.append("PFAF ID: " + pfaf + "\n");
         buff.append("Aggregated : " + aggregated + "\n");
         for (Date date : values.keySet()) {
+            buff.append("Date : " + date + "\n");
             buff.append("Value : " + values.get(date) + "\n");
         }
         return buff.toString();

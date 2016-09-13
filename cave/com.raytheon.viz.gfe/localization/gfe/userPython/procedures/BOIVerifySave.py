@@ -867,16 +867,16 @@ class Procedure (SmartScript.SmartScript):
       #  setup sum/counter for average
       #
       if parmName in ("MaxT","MaxRH","PoP"):
-         sum=self._empty-150.0
+         sum=self.newGrid(-150.0)
       elif parmName in ("MinT","MinRH"):
-         sum=self._empty+150.0
+         sum=self.newGrid(150.0)
       else:
-         sum=self._empty
+         sum=self.empty()
          if GridType.VECTOR.equals(wxType):
-            sumv=self._empty
-      cnt = zeros_like(self._empty)
-      all = ones_like(self._empty)
-      ptcount=add.reduce(add.reduce(all))
+            sumv=self.empty()
+      cnt = self.empty()
+      gridShape = self.getGridShape()
+      ptcount=gridShape[0]*gridShape[1]
       #
       #  foreach time range...get the ISC composite for
       #  that hour

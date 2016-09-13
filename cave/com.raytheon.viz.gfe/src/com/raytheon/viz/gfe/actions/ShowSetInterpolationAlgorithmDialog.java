@@ -19,46 +19,33 @@
  **/
 package com.raytheon.viz.gfe.actions;
 
-import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.SetInterpolationAlgorithmDialog;
+import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
  * Action to show interpolation algorithm dialog.
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
  * Feb 27, 2008             Eric Babin  Initial Creation
- * Jun 4, 2008		#1161	randerso	Reworked
+ * Jun 04, 2008 1161        randerso    Reworked
  * Oct 26, 2012 1287        rferrel     Change for non-blocking SetInterpolationAlgorithmDialog.
+ * Aug 27, 2015 4749        njensen     Now extends GfeShowDialogHandler
  * 
  * </pre>
  * 
- * @author ebabin
- * @version 1.0
  */
-public class ShowSetInterpolationAlgorithmDialog extends AbstractHandler {
-    private SetInterpolationAlgorithmDialog dialog;
+public class ShowSetInterpolationAlgorithmDialog extends GfeShowDialogHandler {
 
     @Override
-    public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
-
-            dialog = new SetInterpolationAlgorithmDialog(shell);
-            dialog.setBlockOnOpen(false);
-            dialog.open();
-        } else {
-            dialog.bringToTop();
-        }
-
-        return null;
+    protected CaveJFACEDialog createDialog(Shell shell, DataManager dm,
+            ExecutionEvent event) {
+        return new SetInterpolationAlgorithmDialog(shell);
     }
 }

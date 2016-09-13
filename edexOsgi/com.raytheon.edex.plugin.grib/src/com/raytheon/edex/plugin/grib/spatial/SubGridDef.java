@@ -40,6 +40,7 @@ import com.raytheon.uf.common.geospatial.MapUtil;
  * Jun 25, 2010           rjpeter     Initial creation
  * Oct 15, 2013  2473     bsteffen    Remove deprecated ISerializableObject.
  * Mar 04, 2015  3959     rjpeter     Make nx/ny int.
+ * Mar 04, 2016  5414     rjpeter     Allow subgrids to be specifically disabled.
  * </pre>
  * 
  * @author rjpeter
@@ -53,17 +54,17 @@ public class SubGridDef {
     @XmlList
     private List<String> modelNames;
 
-    @XmlElement
-    private String referenceModel;
-
-    @XmlElement
+    @XmlElement(required = true)
     private String referenceGrid;
 
-    @XmlElement(required = true)
+    @XmlElement
     private int nx;
 
-    @XmlElement(required = true)
+    @XmlElement
     private int ny;
+
+    @XmlElement
+    private Boolean noSubGrid;
 
     @XmlElement
     private Boolean shiftWest;
@@ -98,32 +99,31 @@ public class SubGridDef {
         this.ny = ny;
     }
 
+    public boolean isSubGridDisabled() {
+        return Boolean.TRUE.equals(noSubGrid) || (nx <= 0) || (ny <= 0);
+    }
+
+    /**
+     * @return the noSubGrid
+     */
+    public Boolean getNoSubGrid() {
+        return noSubGrid;
+    }
+
+    /**
+     * @param noSubGrid
+     *            the noSubGrid to set
+     */
+    public void setNoSubGrid(Boolean noSubGrid) {
+        this.noSubGrid = noSubGrid;
+    }
+
     public Boolean getShiftWest() {
         return shiftWest;
     }
 
     public void setShiftWest(Boolean shiftWest) {
         this.shiftWest = shiftWest;
-    }
-
-    /**
-     * a model may have more than one grid so use reference grid instead.
-     * 
-     * @return
-     */
-    @Deprecated
-    public String getReferenceModel() {
-        return referenceModel;
-    }
-
-    /**
-     * a model may have more than one grid so use reference grid instead.
-     * 
-     * @param referenceModel
-     */
-    @Deprecated
-    public void setReferenceModel(String referenceModel) {
-        this.referenceModel = referenceModel;
     }
 
     public String getReferenceGrid() {

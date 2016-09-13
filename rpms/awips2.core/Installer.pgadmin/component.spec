@@ -9,7 +9,7 @@
 Name: awips2-pgadmin3
 Summary: AWIPS II pgadmin3 Distribution
 Version: %{_pgadmin3_version}
-Release: 2
+Release: %{_component_version}.%{_component_release}%{?dist}
 Group: AWIPSII
 BuildRoot: %{_build_root}
 BuildArch: %{_build_arch}
@@ -17,23 +17,22 @@ URL: N/A
 License: N/A
 Distribution: N/A
 Vendor: Raytheon
-Packager: Bryan Kowal
+Packager: %{_build_site}
 
 AutoReq: no
 BuildRequires: awips2-postgresql
-BuildRequires: postgresql 
-BuildRequires: postgresql-devel
-BuildRequires: postgresql-libs
-BuildRequires: wxGTK 
+BuildRequires: wxGTK
 BuildRequires: wxGTK-devel
+BuildRequires: libxml2
+BuildRequires: libxslt
 
-provides: awips2-pgadmin3
-requires: awips2-psql
-requires: wxGTK
+Provides: awips2-pgadmin3
+Requires: awips2-psql
+Requires: wxGTK
 
 %description
 AWIPS II pgadmin3 Distribution - A custom compilation of the pgadmin3 client compatible with
-CentOS / Redhat 5.5.
+CentOS / Redhat 6.4.
 
 %prep
 # Ensure that a "buildroot" has been specified.
@@ -75,7 +74,7 @@ cd %{_pgadmin3_build_loc}/pgadmin3-%{_pgadmin3_version}
 export CPPFLAGS="-I/awips2/postgresql/include -I/awips2/postgresql/include/server"
 export LDFLAGS="-L/awips2/postgresql/lib"
 
-./configure --prefix=/awips2/pgadmin3
+./configure --prefix=/awips2/pgadmin3 --with-pgsql=/awips2/postgresql
 if [ $? -ne 0 ]; then
    exit 1
 fi

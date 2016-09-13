@@ -25,7 +25,9 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ucar.ma2.Array;
 import ucar.nc2.Attribute;
@@ -64,6 +66,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  *                                     instead of using WMO header
  * May 01, 2013 1962       bsteffen    Allow Viirs Decoder to accept numeric
  *                                     missing values.
+ * Dec 16, 2015 5166       kbisanz     Update logging to use SLF4J
+ *                                     by adding private logger
  * 
  * </pre>
  * 
@@ -72,6 +76,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  */
 
 public class VIIRSDecoder extends AbstractNPPDecoder {
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final GeometryFactory gf = new GeometryFactory();
 
@@ -134,8 +140,7 @@ public class VIIRSDecoder extends AbstractNPPDecoder {
             LocalizationFile mappingFile = PathManagerFactory.getPathManager()
                     .getStaticLocalizationFile(VIIRS_MAPPING_FILE);
             in = mappingFile.openInputStream();
-            mapping = (VIIRSHeaderMapping) manager
-                    .unmarshalFromInputStream(in);
+            mapping = (VIIRSHeaderMapping) manager.unmarshalFromInputStream(in);
         } catch (Exception e) {
             throw new RuntimeException(
                     "Error deserializing VIIRS header mapping file", e);
@@ -247,15 +252,15 @@ public class VIIRSDecoder extends AbstractNPPDecoder {
                                     missingValues[i] = Float
                                             .parseFloat(split[i]);
                                 }
-                            } else if(attr.getDataType().isNumeric()){
-                                if(attr.isArray()){
+                            } else if (attr.getDataType().isNumeric()) {
+                                if (attr.isArray()) {
                                     missingValues = new float[attr.getLength()];
                                     for (int i = 0; i < missingValues.length; i += 1) {
                                         missingValues[i] = attr
                                                 .getNumericValue(i)
                                                 .floatValue();
                                     }
-                                }else{
+                                } else {
                                     missingValues = new float[] { attr
                                             .getNumericValue().floatValue() };
                                 }

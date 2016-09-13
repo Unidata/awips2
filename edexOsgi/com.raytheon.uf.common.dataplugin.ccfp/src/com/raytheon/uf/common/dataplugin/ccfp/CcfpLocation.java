@@ -27,6 +27,7 @@ import org.hibernate.annotations.Type;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.annotations.NullFloat;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -49,6 +50,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Apr 15, 2014 3001        bgonzale    Refactored to common package,
  *                                      com.raytheon.uf.common.dataplugin.ccfp.
  * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
+ * Jul 20, 2015 4360        rferrel     DataURI's boxLat and boxLong no longer nullable.
  * 
  * 
  * </pre>
@@ -68,12 +70,14 @@ public class CcfpLocation implements ISpatialObject {
     private Geometry geometry;
 
     @DataURI(position = 0)
-    @Column
+    @NullFloat
+    @Column(nullable = false)
     @DynamicSerializeElement
     private double boxLat;
 
     @DataURI(position = 1)
-    @Column
+    @NullFloat
+    @Column(nullable = false)
     @DynamicSerializeElement
     private double boxLong;
 

@@ -1,37 +1,39 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 package com.raytheon.uf.common.monitor.config;
 
-import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import com.raytheon.uf.common.localization.FileUpdatedMessage;
-import com.raytheon.uf.common.localization.ILocalizationFileObserver;
+import com.raytheon.uf.common.localization.ILocalizationFile;
+import com.raytheon.uf.common.localization.ILocalizationPathObserver;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.SaveableOutputStream;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.monitor.events.MonitorConfigEvent;
 import com.raytheon.uf.common.monitor.events.MonitorConfigListener;
 import com.raytheon.uf.common.monitor.xml.FFMPSourceConfigXML;
@@ -45,9 +47,9 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * FFMPSourceConfigurationManager
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
@@ -55,13 +57,16 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Apr 26, 2013 1954       bsteffen    Minor code cleanup throughout FFMP.
  * Aug 18, 2013  1742      dhladky     Concurrent mod exception on update fixed
  * Oct 02, 2013  2361      njensen     Use JAXBManager for XML
- * 
+ * Aug 15, 2015  4722      dhladky     Added new types to be used for new Guidance sources, etc
+ * Sep 17, 2015  4756      dhladky     Fixed bugs for multiple guidance sources.
+ * Feb 15, 2016 5244       nabowle     Replace deprecated LocalizationFile methods.
+ *
  * </pre>
- * 
+ *
  */
 
 public class FFMPSourceConfigurationManager implements
-        ILocalizationFileObserver {
+        ILocalizationPathObserver {
 
     /** Path to FFMP Source config. */
     private static final String CONFIG_FILE_NAME = "ffmp"
@@ -70,10 +75,11 @@ public class FFMPSourceConfigurationManager implements
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(FFMPSourceConfigurationManager.class);
 
-    // This needs to initialize before the instance since the constructor will
-    // makes use of JAXB. JVM spec 12.4.2 step 9 indicates this will
-    // initialize ahead of the instance since it is earlier in
-    // in the text source.
+    /*
+     * This needs to initialize before the instance since the constructor will
+     * makes use of JAXB. JVM spec 12.4.2 step 9 indicates this will initialize
+     * ahead of the instance since it is earlier in in the text source.
+     */
     private static final SingleTypeJAXBManager<FFMPSourceConfigXML> jaxb = SingleTypeJAXBManager
             .createWithoutException(FFMPSourceConfigXML.class);
 
@@ -95,19 +101,19 @@ public class FFMPSourceConfigurationManager implements
 
     private List<String> accumulators = null;
 
-    private LocalizationFile lf = null;
-
     private List<MonitorConfigListener> listeners = new CopyOnWriteArrayList<MonitorConfigListener>();
 
     /* Private Constructor */
     private FFMPSourceConfigurationManager() {
         configXml = new FFMPSourceConfigXML();
+        IPathManager pm = PathManagerFactory.getPathManager();
+        pm.addLocalizationPathObserver(CONFIG_FILE_NAME, this);
         readConfigXml();
     }
 
     /**
      * Get an instance of this singleton.
-     * 
+     *
      * @return Instance of this class
      */
     public static FFMPSourceConfigurationManager getInstance() {
@@ -127,32 +133,32 @@ public class FFMPSourceConfigurationManager implements
      */
     public synchronized void readConfigXml() {
         IPathManager pm = PathManagerFactory.getPathManager();
-
         try {
             LocalizationContext lc = pm.getContext(
                     LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-            lf = pm.getLocalizationFile(lc, CONFIG_FILE_NAME);
-            lf.addFileUpdatedObserver(this);
-            File file = lf.getFile();
+            ILocalizationFile lf = pm.getLocalizationFile(lc, CONFIG_FILE_NAME);
 
-            FFMPSourceConfigXML configXmltmp = jaxb.unmarshalFromXmlFile(file);
+            try (InputStream is = lf.openInputStream()) {
+                FFMPSourceConfigXML configXmltmp = jaxb
+                        .unmarshalFromInputStream(is);
 
-            configXml = configXmltmp;
-
+                configXml = configXmltmp;
+            }
         } catch (Exception e) {
-            System.err.println("No SITE FFMP Source configuration file found");
+            statusHandler.error("No SITE FFMP Source configuration file found");
 
             // fall back to BASE
             LocalizationContext lc = pm.getContext(
                     LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
-            lf = pm.getLocalizationFile(lc, CONFIG_FILE_NAME);
-            lf.addFileUpdatedObserver(this);
-            File file = lf.getFile();
+            ILocalizationFile lf = pm.getLocalizationFile(lc, CONFIG_FILE_NAME);
 
             FFMPSourceConfigXML configXmltmp = null;
-            try {
-                configXmltmp = jaxb.unmarshalFromXmlFile(file);
-            } catch (SerializationException e1) {
+            try (InputStream is = lf.openInputStream()) {
+                configXmltmp = jaxb.unmarshalFromInputStream(is);
+
+                configXml = configXmltmp;
+            } catch (SerializationException | LocalizationException
+                    | IOException e1) {
                 statusHandler.handle(Priority.ERROR,
                         "Couldn't deserialize file.", e1);
             }
@@ -171,19 +177,12 @@ public class FFMPSourceConfigurationManager implements
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
                 LocalizationLevel.SITE);
-        LocalizationFile newXmlFile = pm.getLocalizationFile(lc,
+        ILocalizationFile newXmlFile = pm.getLocalizationFile(lc,
                 CONFIG_FILE_NAME);
-        File file = newXmlFile.getFile();
 
-        if (file.getParentFile().exists() == false) {
-            file.getParentFile().mkdirs();
-        }
-
-        try {
-            jaxb.marshalToXmlFile(configXml, file.getAbsolutePath());
-            newXmlFile.save();
-            lf = newXmlFile;
-            lf.addFileUpdatedObserver(this);
+        try (SaveableOutputStream sos = newXmlFile.openOutputStream()) {
+            jaxb.marshalToStream(configXml, sos);
+            sos.save();
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR, "Couldn't save config file.",
                     e);
@@ -193,7 +192,7 @@ public class FFMPSourceConfigurationManager implements
 
     /**
      * Gets you your sources for this product
-     * 
+     *
      * @param productName
      * @return
      */
@@ -203,7 +202,7 @@ public class FFMPSourceConfigurationManager implements
 
     /**
      * Get the rate sourceXML by product
-     * 
+     *
      * @return
      */
     public SourceXML getSource(String source) {
@@ -212,7 +211,7 @@ public class FFMPSourceConfigurationManager implements
 
     /**
      * source by display name
-     * 
+     *
      * @param displayName
      * @return
      */
@@ -222,17 +221,18 @@ public class FFMPSourceConfigurationManager implements
 
     /**
      * Get the virtual gage basin implementations
-     * 
+     *
      * @param name
      * @return
      */
     public List<String> getVirtuals() {
         if (virtuals == null) {
             virtuals = new ArrayList<String>();
-        }
-        for (SourceXML xml : configXml.getSource()) {
-            if (xml.getSourceType().equals(SOURCE_TYPE.GAGE.getSourceType())) {
-                virtuals.add(xml.getSourceName());
+
+            for (SourceXML xml : configXml.getSource()) {
+                if (xml.getSourceType().equals(SOURCE_TYPE.GAGE.getSourceType())) {
+                    virtuals.add(xml.getSourceName());
+                }
             }
         }
         return virtuals;
@@ -240,17 +240,18 @@ public class FFMPSourceConfigurationManager implements
 
     /**
      * Get the Guidance sources
-     * 
+     *
      * @return
      */
     public ArrayList<String> getGuidances() {
         if (guidances == null) {
             guidances = new ArrayList<String>();
-        }
-        for (SourceXML xml : configXml.getSource()) {
-            if (xml.getSourceType()
-                    .equals(SOURCE_TYPE.GUIDANCE.getSourceType())) {
-                guidances.add(xml.getSourceName());
+
+            for (SourceXML xml : configXml.getSource()) {
+                if (xml.getSourceType().equals(
+                        SOURCE_TYPE.GUIDANCE.getSourceType())) {
+                    guidances.add(xml.getSourceName());
+                }
             }
         }
         return guidances;
@@ -258,7 +259,7 @@ public class FFMPSourceConfigurationManager implements
 
     /**
      * Get the Guidance Display Names
-     * 
+     *
      * @return List of display names
      */
     public ArrayList<String> getGuidanceDisplayNames() {
@@ -278,65 +279,88 @@ public class FFMPSourceConfigurationManager implements
 
     /**
      * Get the QPE sources
-     * 
+     *
      * @return
      */
     public List<String> getQPESources() {
         if (accumulators == null) {
             accumulators = new ArrayList<String>();
-        }
-        for (SourceXML xml : configXml.getSource()) {
-            if (xml.getSourceType().equals(SOURCE_TYPE.QPE.getSourceType())) {
-                accumulators.add(xml.getSourceName());
+
+            for (SourceXML xml : configXml.getSource()) {
+                if (xml.getSourceType().equals(SOURCE_TYPE.QPE.getSourceType())) {
+                    accumulators.add(xml.getSourceName());
+                }
             }
         }
         return accumulators;
     }
 
     /**
-     * Get the QPE sources
-     * 
+     * Get the Rate sources
+     *
      * @return
      */
     public List<String> getRates() {
         if (rates == null) {
             rates = new ArrayList<String>();
-        }
-        for (SourceXML xml : configXml.getSource()) {
-            if (xml.getSourceType().equals(SOURCE_TYPE.RATE.getSourceType())) {
-                rates.add(xml.getSourceName());
+
+            for (SourceXML xml : configXml.getSource()) {
+                if (xml.getSourceType()
+                        .equals(SOURCE_TYPE.RATE.getSourceType())) {
+                    rates.add(xml.getSourceName());
+                }
             }
         }
-        return accumulators;
+        return rates;
     }
 
     /**
      * Get the QPF sources
-     * 
+     *
      * @return
      */
     public ArrayList<String> getQPFSources() {
         if (forecasts == null) {
             forecasts = new ArrayList<String>();
-        }
-        for (SourceXML xml : configXml.getSource()) {
-            if (xml.getSourceType().equals(SOURCE_TYPE.QPF.getSourceType())) {
-                forecasts.add(xml.getSourceName());
+
+            for (SourceXML xml : configXml.getSource()) {
+                if (xml.getSourceType().equals(SOURCE_TYPE.QPF.getSourceType())) {
+                    forecasts.add(xml.getSourceName());
+                }
             }
         }
         return forecasts;
     }
 
     /**
-     * 
-     * Enumeration of the types of processible data
-     * 
+     * Get sources with the same family, used for source bins in FFMPGenerator
+     *
+     * @return
+     */
+    public ArrayList<String> getFamilySources(String family) {
+
+        ArrayList<String> familySources = new ArrayList<String>();
+        for (SourceXML xml : configXml.getSource()) {
+            if (xml.getSourceFamily() != null
+                    && xml.getSourceFamily().equals(family)) {
+                familySources.add(xml.getSourceName());
+            }
+        }
+
+        return familySources;
+    }
+
+    /**
+     *
+     * Enumeration of the types of FFMP can process
+     *
      * @author dhladky
      * @version 1.0
      */
     public enum DATA_TYPE {
 
-        RADAR("RADAR"), XMRG("XMRG"), GRID("GRID"), PDO("PDO"), DB("DB");
+        RADAR("RADAR"), XMRG("XMRG"), GRID("GRID"), PDO("PDO"), DB("DB"), NETCDF(
+                "NETCDF");
 
         private final String dataType;
 
@@ -350,9 +374,9 @@ public class FFMPSourceConfigurationManager implements
     };
 
     /**
-     * 
+     *
      * Enumeration of the types of data types
-     * 
+     *
      * @author dhladky
      * @version 1.0
      */
@@ -372,9 +396,9 @@ public class FFMPSourceConfigurationManager implements
     };
 
     /**
-     * 
+     *
      * Enumeration of the types of data types
-     * 
+     *
      * @author dhladky
      * @version 1.0
      */
@@ -394,31 +418,31 @@ public class FFMPSourceConfigurationManager implements
     };
 
     /**
-     * 
-     * Enumeration of the guidance of data types
-     * 
+     *
+     * Enumeration of Guidance data types
+     *
      * @author dhladky
      * @version 1.0
      */
     public enum GUIDANCE_TYPE {
 
-        RFC("RFC");
+        RFC("RFC"), ARCHIVE("ARCHIVE");
 
-        private final String rfc;
+        private final String gtype;
 
         private GUIDANCE_TYPE(String name) {
-            rfc = name;
+            gtype = name;
         }
 
         public String getGuidanceType() {
-            return rfc;
+            return gtype;
         }
     };
 
     /**
-     * 
-     * Enumeration of the types of data processable
-     * 
+     *
+     * Enumeration of the types of data FFMP can process
+     *
      * @author dhladky
      * @version 1.0
      */
@@ -434,6 +458,8 @@ public class FFMPSourceConfigurationManager implements
             return DATA_TYPE.PDO;
         } else if (type.equals(DATA_TYPE.DB.getDataType())) {
             return DATA_TYPE.DB;
+        } else if (type.equals(DATA_TYPE.NETCDF.getDataType())) {
+            return DATA_TYPE.NETCDF;
         }
         return null;
     }
@@ -448,7 +474,7 @@ public class FFMPSourceConfigurationManager implements
 
     /**
      * Gets the product XML
-     * 
+     *
      * @param productName
      * @return
      */
@@ -471,7 +497,7 @@ public class FFMPSourceConfigurationManager implements
 
     /**
      * Finds the primary source this source is within
-     * 
+     *
      * @param source
      * @return
      */
@@ -485,8 +511,8 @@ public class FFMPSourceConfigurationManager implements
     }
 
     @Override
-    public void fileUpdated(FileUpdatedMessage message) {
-        if (message.getFileName().equals(CONFIG_FILE_NAME)) {
+    public void fileChanged(ILocalizationFile file) {
+        if (file.getPath().equals(CONFIG_FILE_NAME)) {
             try {
                 readConfigXml();
                 // inform listeners
@@ -497,11 +523,10 @@ public class FFMPSourceConfigurationManager implements
                 statusHandler.handle(
                         Priority.WARN,
                         "FFMPSourceConfigurationManager: "
-                                + message.getFileName()
+                                + file.getPath()
                                 + " couldn't be updated.", e);
             }
         }
-
     }
 
 }

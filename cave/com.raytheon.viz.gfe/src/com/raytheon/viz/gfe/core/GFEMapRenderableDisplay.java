@@ -53,6 +53,7 @@ import com.raytheon.viz.gfe.rsc.GFEResource;
  * ------------- -------- ----------- --------------------------
  * Feb 19, 2009           chammack    Initial creation
  * Jan 23, 2014  2703     bsteffen    Always get resource time from descriptor.
+ * Aug 13, 2015  4749     njensen     Set dataMgr to null on dispose
  * 
  * </pre>
  * 
@@ -111,6 +112,7 @@ public class GFEMapRenderableDisplay extends PlainMapRenderableDisplay
         if (dataMgr != null) {
             dataMgr.getSpatialDisplayManager()
                     .removeSpatialEditorTimeChangedListener(this);
+            dataMgr = null;
         }
         super.dispose();
     }

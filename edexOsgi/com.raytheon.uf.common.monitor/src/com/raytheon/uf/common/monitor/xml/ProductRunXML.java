@@ -1,6 +1,7 @@
 package com.raytheon.uf.common.monitor.xml;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -20,6 +21,7 @@ import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.SOUR
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20 Jan, 2011 7484         dhladky     Initial creation
+ * 21 Sep, 2015 4756         dhladky     Source ordering for guidance sources.
  * </pre>
  * 
  * @author dhladky
@@ -272,6 +274,8 @@ public class ProductRunXML {
                 guidTypes = overrideGuidTypes;
             }
         }
+        
+        Collections.sort(guidTypes);
 
         return guidTypes;
     }

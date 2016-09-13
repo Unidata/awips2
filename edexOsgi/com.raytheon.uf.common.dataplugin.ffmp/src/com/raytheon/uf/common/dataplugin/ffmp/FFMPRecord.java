@@ -91,6 +91,8 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
  * Oct 14, 2013  2361     njensen     Removed XML annotations
  * May 01, 2014  3026     mpduff      Added metadata column.
  * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
+ * Jul 23, 2015  2360     rferrel     Add name to unique constraint.
+ * Oct 10, 2015  4756     dhladky     Got rid of e.printStacks.
  * 
  * </pre>
  * 
@@ -99,7 +101,7 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "ffmpseq")
-@Table(name = "ffmp", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = "ffmp", uniqueConstraints = { @UniqueConstraint(name = "uk_ffmp_datauri_fields", columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.

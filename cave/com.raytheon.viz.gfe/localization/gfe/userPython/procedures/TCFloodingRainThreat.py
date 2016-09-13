@@ -369,7 +369,7 @@ class Procedure (SmartScript.SmartScript):
     # or basin.
     def getRFCFlashFloodGrid(self, productList, varDict):
 
-        ffgGrid = self._empty
+        ffgGrid = self.empty()
         foundGrids = False
         factor = varDict["Gridded/Text FFG Blending Factor"]
         
@@ -403,7 +403,8 @@ class Procedure (SmartScript.SmartScript):
             rfcMask = self.encodeEditArea(rfcEA)
             
             mask = (tempGrid > 0.0) & rfcMask
-            ffgGrid = where(mask, tempGrid/25.4, ffgGrid)
+            ffgGrid[mask] = tempGrid[mask]
+            ffgGrid[mask] /= 25.4
             foundGrids = True
             
             
@@ -418,7 +419,7 @@ class Procedure (SmartScript.SmartScript):
         # Make another FFG grid from the text guidance
         editAreaList = self.editAreaList()
 
-        ffgTextGrid = self._empty
+        ffgTextGrid = self.empty()
         for prod in productList:
 
             # Uncomment the next line to fetch FFG data from a file
@@ -435,7 +436,7 @@ class Procedure (SmartScript.SmartScript):
                 refArea = self.getEditArea(area)
                 mask = self.encodeEditArea(refArea)
                 value = ffgDict[area]
-                ffgTextGrid = where(mask, value, ffgTextGrid)
+                ffgTextGrid[mask] = value
 
         # Comment this in to see intermediate FFG from text guidance
 ##        tr = self.getTimeRange("Today")
@@ -476,10 +477,10 @@ class Procedure (SmartScript.SmartScript):
         if len(trList) == 0:
             return None
 
-        qpfGrid = self._empty
+        qpfGrid = self.empty()
         for tr in trList:
             grid = self.getGrids("Fcst", "QPF", "SFC", timeRange, mode="First")
-            qpfGrid = qpfGrid + grid
+            qpfGrid += grid
 
         return qpfGrid
 
@@ -535,8 +536,7 @@ class Procedure (SmartScript.SmartScript):
 
         trList = self.makeTimeRangeList(timeRange, 6)
 
-        maxFloodThreat = self._empty
-        cumqpf = self._empty
+        maxFloodThreat = self.empty()
         
         # Fetch the FFG grid either from gridded data or the text product
         #print "Getting FFG Grid Now: "
@@ -572,9 +572,9 @@ class Procedure (SmartScript.SmartScript):
                                   str(tr), "S")
                 continue
 
-            tempffgGrid = where(equal(ffgGrid, 0.0), 1000.0, ffgGrid)
+            tempffgGrid = where(equal(ffgGrid, 0.0), float32(1000.0), ffgGrid)
             ratioGrid = qpfGrid / tempffgGrid
-            ratioGrid = where(equal(ffgGrid, 0.0), 0.0, ratioGrid)
+            ratioGrid[equal(ffgGrid, 0.0)] = 0.0
             
             # Clip the ratioGrid to 8.0 to prevent problems when displaying
             ratioGrid.clip(0.0, 8.0, ratioGrid)
@@ -589,7 +589,7 @@ class Procedure (SmartScript.SmartScript):
                             ratioGrid, tr, precision=2,
                             minAllowedValue = 0, maxAllowedValue=1000)
 
-            floodThreat = zeros(self.getTopo().shape)
+            floodThreat = self.empty()
             
             for e in range(len(erps) - 1):
                 for r in range(len(ratios) - 1):
@@ -603,7 +603,7 @@ class Procedure (SmartScript.SmartScript):
                                           less(erpGrid, eMax))
                     mask = logical_and(ratioMask, erpMask)
                     keyIndex = self.getIndex(threatMatrix[r][e], threatKeys)
-                    floodThreat = where(mask, keyIndex, floodThreat)
+                    floodThreat[mask] = keyIndex
                     
             # Now set the values we found missing to the None key
             noneIndex = self.getIndex("None", threatKeys)
@@ -617,7 +617,7 @@ class Procedure (SmartScript.SmartScript):
                         discreteAuxDataLength=2,
                         defaultColorTable="gHLS_new")        
             
-            maxFloodThreat = where(floodThreat > maxFloodThreat, floodThreat, maxFloodThreat)
+            maxFloodThreat = maximum(floodThreat, maxFloodThreat)
 
         # make a 6 hour TimeRange
         # startTime = trList[0].startTime()

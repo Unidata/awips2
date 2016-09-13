@@ -38,6 +38,7 @@
 #####                                  several DRs related to unique part-of-state codes, watch boxes, etc..
 #####    Bookbinder        10-30-2015  Added several additional fe_area codes and cleaned up watch logic.
 #####    Evan Bookbinder   12-01-2015  Fixed single column output
+#####    Richard Barnhill   5-10-2016  Fixed "OF" to "of" to conform to mixed case
 ##############################################################################################################
 #*
 Mile Marker Test Code                                     
@@ -57,6 +58,17 @@ $simplify is a boolean value (true or false)
          - false is a big list (MM 2...3...AND 4)   
 ###################################################################################################
 *#
+### AUTHOR: RON ANDERSON
+### PURPOSE: INSERT COMMA OR ELLIPSIS AS APPROPRIATE
+#macro(commaOrEllipsis)
+#if($mixedCaseEnabled)
+, ##
+#else
+...##
+#end
+#end
+########END MACRO
+
 
 ### AUTHORS: EVAN BOOKBINDER & MIKE DANGELO
 ### PURPOSE: OUTPUT MILE MARKER, ROAD, INTERSECTION INFO
@@ -426,7 +438,7 @@ south##
 #if(${AFcounter} == ${dirListSize})
 #set($afPhrase = "${afPhrase} and ")
 #else
-#set($afPhrase = "${afPhrase}, ")
+#set($afPhrase = "${afPhrase}#commaOrEllipsis()")
 #end
 #end
 #if((${dir} == "BB") || (${dir} == "bb"))
@@ -613,7 +625,7 @@ along a line extending from #outputLineOfStorms($used1, $nearText, $nearThreshol
 #set($used2 = [])
 #lineOfStorms($used2, $used, $points2, $threshold, $units)
 #if(${used1.size()} == ${used2.size()})
-, or along a line extending from #outputLineOfStorms($used2, $nearText, $nearThreshold, $overThreshold, $units)##
+#commaOrEllipsis()or along a line extending from #outputLineOfStorms($used2, $nearText, $nearThreshold, $overThreshold, $units)##
 #end
 #end
 #else
@@ -637,11 +649,11 @@ ${point1.roundedDistance} #capitalize($units "NONE") #direction(${point1.opposit
 ${location}##
 #if($point2 && $useSecondRef && ${point2.name} != ${point1.name})
 #if($point2.roundedDistance <= $overThreshold)
-, or ${overText} ##
+#commaOrEllipsis()or ${overText} ##
 #elseif($point2.roundedDistance <= $nearThreshold)
-, or ${nearText} ##
+#commaOrEllipsis()or ${nearText} ##
 #else
-, or ${point2.roundedDistance} #capitalize($units "NONE") #direction(${point2.oppositeRoundedAzimuth}) of ##
+#commaOrEllipsis()or ${point2.roundedDistance} #capitalize($units "NONE") #direction(${point2.oppositeRoundedAzimuth}) of ##
 #end
 #if(${point2.partOfArea}) 
 #set($location = "#areaFormat(${point2.partOfArea} true false false) ${point2.name}")
@@ -1486,7 +1498,7 @@ ${pathcastLead}
 #if ($count == $numCities - 1)
 #set($pathcastString = "${pathcastString} and ")
 #elseif($count < $numCities)
-#set($pathcastString = "${pathcastString}, ")
+#set($pathcastString = "${pathcastString}#commaOrEllipsis()")
 #end
 #end 
 #set($pathcastString = "#capitalize(${pathcastString}, 'FIRST') around ${dateUtil.format(${pc.time}, ${timeFormat.clock}, ${pc.timeZone})}.")
@@ -1511,7 +1523,7 @@ ${location}##
 #if($count == $numOtherPoints - 1)
  and ##
 #elseif($count < $numOtherPoints)
-, ##
+#commaOrEllipsis()##
 #else
 .
 #end
@@ -1527,7 +1539,7 @@ ${otherLead} will remain over ${noLocPhrase} of ##
 ### NEED TO CODE THIS ONCE SECTION IS ADDED
 #set($numOtherPoints = ${list.size($otherPoints)})
 #if($numOtherPoints > 0)
-, including the following locations: ##
+#commaOrEllipsis()including the following locations: ##
 #set($count = 0)
 #foreach(${loc} in ${otherPoints})
 #set($count = $count + 1)
@@ -1541,7 +1553,7 @@ ${location}##
 #if($count == $numOtherPoints - 1)
  and ##
 #elseif($count < $numOtherPoints)
-, ##
+#commaOrEllipsis()##
 #else
 .##
 #end
@@ -1689,7 +1701,7 @@ ${bulletLead}
 #set($count = $count + 1)
 #if($count < $numMajorPoints)
 #if($columns == 0)
-#set($strOutput = "${location}, ")
+#set($strOutput = "${location}#commaOrEllipsis()")
 #else
 #set($strOutput = "${location}...")
 #end
@@ -1749,7 +1761,7 @@ and ${strOutput}
 #capitalize(${ruralPhrase}, 'FIRSTONLY') will remain over mainly open waters.
 #else
 ## NO MAJOR POINTS FOUND. LIST RURAL AREAS
-#capitalize(${ruralPhrase}, 'FIRSTONLY') will remain over ${noLocPhrase} OF #headlineLocList(${areas} true true true false)##
+#capitalize(${ruralPhrase}, 'FIRSTONLY') will remain over ${noLocPhrase} of #headlineLocList(${areas} true true true false)##
 #set($numMinorPoints = ${list.size($otherLocList)})
 #if(${numMinorPoints} == 1)
 , which includes ##

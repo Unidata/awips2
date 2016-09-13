@@ -63,7 +63,7 @@ import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.PlatformUI;
 
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -87,12 +87,13 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * October-2010              epolster    Initial Creation. 
+ * October-2010            epolster    Initial Creation. 
  * Jul 31, 2012 #875       rferrel     Integrated into CAVE.
  * Oct  2, 2012 #1234      rferrel     Clicking on new group/point when no
  *                                      node selected will now add the new
  *                                      to the root node.
  * Apr 01, 2014 #2976      lvenable     Added SWT dispose checks in runAsync call.
+ * Nov 30, 2015  4834      njensen      Remove LocalizationOpFailedException
  * 
  * </pre>
  * 
@@ -353,6 +354,7 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
                 && !getShell().getDisplay().isDisposed()) {
             loadTreeInput();
             getShell().getDisplay().syncExec(new Runnable() {
+                @Override
                 public void run() {
                     pointsTreeViewer.setInput(getTableInput());
                 }
@@ -424,7 +426,7 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
             setCursorBusy(true);
             editSelectedNode = true;
             selectedNode = dataManager.createTempGroup(parentNode);
-        } catch (LocalizationOpFailedException e1) {
+        } catch (LocalizationException e1) {
             statusHandler.handle(
                     Priority.PROBLEM,
                     "Unable to create a temporary group under: "
@@ -546,6 +548,7 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
         final Text modText = new Text(composite, SWT.NONE);
         final int inset = showBorder ? 1 : 0;
         composite.addListener(SWT.Resize, new Listener() {
+            @Override
             public void handleEvent(Event e) {
                 Rectangle rect = composite.getClientArea();
                 modText.setBounds(rect.x + inset, rect.y + inset, rect.width
@@ -553,6 +556,7 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
             }
         });
         Listener textListener = new Listener() {
+            @Override
             public void handleEvent(final Event e) {
                 switch (e.type) {
                 case SWT.KeyUp:

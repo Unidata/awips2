@@ -77,12 +77,7 @@
 #
 import logging, os, time
 import ConfigParser, Queue
-#import tables
-#import Tkinter as tk
-#import Pmw
-#import Avn, AvnLib, Busy, ClimLib, ErrorRedirect, MessageBar
-import Avn, AvnLib, Busy, ClimLib
-#from HelpDialog import HelpDialog
+import Avn, AvnLib, ClimLib
 
 _Help = {
     'title': 'METAR Display Help',

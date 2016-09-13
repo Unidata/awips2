@@ -21,8 +21,8 @@
 <mercatorGridCoverage>
     <name>196</name>
     <description>Grid over - Hawaii (Mercator)</description>
-    <la1>18.067</la1>
-    <lo1>-161.525001</lo1>
+    <la1>18.073</la1>
+    <lo1>-161.525</lo1>
     <firstGridPointCorner>LowerLeft</firstGridPointCorner>
     <nx>321</nx>
     <ny>225</ny>

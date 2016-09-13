@@ -16,6 +16,7 @@
     <alias base="MPE-Mosaic">mosaicMPE</alias>
     <alias base="HPE">localHPE</alias>
     <alias base="HRRR">HRRR</alias>
+    <alias base="HWRF">HWRF</alias>
     <alias base="BHPE">localBHPE</alias>
     <alias base="RFCqpf">qpf218</alias>
     <alias base="nogaps">nogaps</alias>
@@ -37,7 +38,6 @@
     <alias base="ukmet228">ukmetNH</alias>
     <alias base="ETA">eta211</alias>
     <alias base="AVN">avn202</alias>
-    <alias base="NGM">ngm211</alias>
     <alias base="MRF">mrf202</alias>
     <alias base="MRF21">mrf202</alias>
     <alias base="MRF22">mrf202</alias>
@@ -48,8 +48,6 @@
     <alias base="GFS201">gfs201</alias>
     <alias base="mrfNH">mrf201</alias>
     <alias base="GFS213">gfs213</alias>
-    <alias base="NGM213">ngm213</alias>
-    <alias base="NGM202">ngm202</alias>
     <alias base="AVN211">avn211</alias>
     <alias base="mesoEta212">mesoEta212</alias>
     <alias base="mesoEta215">mesoEta215</alias>
@@ -58,7 +56,6 @@
     <alias base="MRF203">mrf203</alias>
     <alias base="MRF204">mrf204</alias>
     <alias base="MRF205">mrf205</alias>
-    <alias base="NGM207">ngm207</alias>
     <alias base="ETA207">eta207</alias>
     <alias base="AVN-NorthernHemisphere">avnNH</alias>
     <alias base="AVN37">avnNH</alias>
@@ -102,7 +99,7 @@
     <alias base="RUC130">ruc130</alias>
     <alias base="RTMA25">rtmaNDFD</alias>
     <alias base="URMA25">urmaNDFD</alias>
-    <alias base="NamDNG5">NamDNG5</alias>
+    <alias base="namdng25">NamDNG</alias>
     <alias base="GlobalWave">GlobalWave</alias>
     <alias base="AKwave10">AKwave10</alias>
     <alias base="AKwave4">AKwave4</alias>
@@ -111,9 +108,9 @@
     <alias base="WCwave4">WCwave4</alias>
     <alias base="WNAwave10">WNAwave10</alias>
     <alias base="WNAwave4">WNAwave4</alias>
-    <alias base="AK-NamDNG5">AkNamDNG5</alias>
-    <alias base="HI-NamDNG5">HiNamDNG5</alias>
-    <alias base="PR-NamDNG5">PrNamDNG5</alias>
+    <alias base="AK-NamDNG3">NamDNG</alias>
+    <alias base="HI-NamDNG5">NamDNG</alias>
+    <alias base="PR-NamDNG5">NamDNG</alias>
     <alias base="HiResW-ARW-East">HiResW-arwEast</alias>
     <alias base="HiResW-ARW-West">HiResW-arwWest</alias>
     <alias base="HiResW-ARW-AK">HiResW-arwAK</alias>
@@ -231,4 +228,15 @@
     <alias base="FFG-TIR">RFCFFG_ParameterInfo</alias>
     <alias base="FFG-TUA">RFCFFG_ParameterInfo</alias>
     <alias base="NationalBlend">NationalBlend</alias>
+    <alias base="NationalBlendPR">NationalBlend</alias>
+    <alias base="NationalBlendHI">NationalBlend</alias>
+    <alias base="NationalBlendAK">NationalBlend</alias>
+    <alias base="PGBlended">PGBlended</alias>
+    <alias base="PGBlended-Night">PGBlended</alias>
+    <alias base="NCOM-USEAST">ncom</alias>
+    <alias base="NCOM-AMSEAS">ncom</alias>
+    <alias base="NCOM-SOCAL">ncom</alias>
+    <alias base="NCOM-ALASKA">ncom</alias>
+    <alias base="NCOM-HAWAII">ncom</alias>
+    <alias base="PWPF">PWPF</alias>
 </aliasList>

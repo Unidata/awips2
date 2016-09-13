@@ -23,7 +23,7 @@ $column = a boolean expression (true or false)
 
 EXAMPLE OF OUTPUT FOR ONE DATABASE ONLY:
 
-#pmarkers(${universitiesName},${universitiesGid}, "", "", true)
+#pmarkers(${universitiesName},${universitiesGid}, ""#commaOrEllipsis()"", true)
  where your warning box covers 3 points in the databaseName "universitiesName"
  yields:
 This includes...

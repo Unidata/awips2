@@ -19,6 +19,10 @@
  **/
 package com.raytheon.edex.plugin.gfe.server;
 
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,8 +30,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import com.raytheon.edex.plugin.gfe.cache.gridlocations.GridLocationCache;
+import com.raytheon.edex.plugin.gfe.config.GridDbConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.edex.plugin.gfe.db.dao.IscSendRecordDao;
 import com.raytheon.edex.plugin.gfe.reference.MapManager;
@@ -35,6 +42,7 @@ import com.raytheon.edex.plugin.gfe.server.database.NetCDFDatabaseManager;
 import com.raytheon.edex.plugin.gfe.server.database.TopoDatabaseManager;
 import com.raytheon.edex.plugin.gfe.server.lock.LockManager;
 import com.raytheon.uf.common.dataplugin.PluginException;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
@@ -43,8 +51,14 @@ import com.raytheon.uf.common.dataplugin.gfe.slice.ScalarGridSlice;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 
 /**
@@ -62,6 +76,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * Nov 20, 2013  #2331     randerso    Added getTopoData method
  * Oct 07, 2014  #3684     randerso    Restructured IFPServer start up
  * Mar 11, 2015  #4128     dgilling    Remove unregister from IRT to IRTManager.
+ * Nov 11, 2015  #5110     dgilling    Add initIRT.
  * 
  * </pre>
  * 
@@ -206,6 +221,8 @@ public class IFPServer {
         new MapManager(config);
 
         this.gridParmMgr = new GridParmManager(siteId, config);
+
+        initIRT();
     }
 
     private void dispose() {
@@ -339,4 +356,93 @@ public class IFPServer {
         return getTopoMgr().getTopoData(gloc);
     }
 
+    private void initIRT() {
+        /*
+         * no web address or request not enabled, so no need to verify ISC
+         * configuraation
+         */
+        String irtAddress = config.iscRoutingTableAddress().get("ANCF");
+        if ((!config.iscRoutingTableAddress().containsKey("ANCF"))
+                || (!config.iscRoutingTableAddress().containsKey("BNCF"))
+                || (StringUtil.isEmptyString(irtAddress))
+                || (!config.requestISC())) {
+            StringBuilder oz = new StringBuilder(
+                    "IRT (ISC Routing Table) Registration Information");
+            Map<String, String> addresses = config.iscRoutingTableAddress();
+            SortedSet<String> sorted = new TreeSet<>(addresses.keySet());
+            for (String key : sorted) {
+                String value = addresses.get(key);
+                oz.append("\nIRTAddress:      ").append(key).append(' ')
+                        .append(value);
+            }
+            oz.append("\nRequestISC flag: ").append(config.requestISC());
+
+            statusHandler.info(oz.toString());
+        }
+
+        // determine which parms are wanted
+        List<String> parmsWanted = config.requestedISCparms();
+        if (parmsWanted.isEmpty()) {
+            // get known list of databases
+            List<DatabaseID> dbs = getGridParmMgr().getDbInventory()
+                    .getPayload();
+
+            // find the ISC database
+            for (DatabaseID dbId : dbs) {
+                if ((dbId.getModelName().equals("ISC"))
+                        && (dbId.getDbType().equals(""))
+                        && (dbId.getSiteId().equals(siteId))) {
+                    GridDbConfig gdc = config.gridDbConfig(dbId);
+                    parmsWanted = gdc.parmAndLevelList();
+                    break;
+                }
+            }
+
+            statusHandler.info("ParmsWanted: " + parmsWanted);
+            config.setRequestedISCparms(parmsWanted);
+        }
+
+        // determine isc areas that are wanted
+        List<String> iscWfosWanted = config.requestedISCsites();
+        if (iscWfosWanted.isEmpty()) {
+            IPathManager pathMgr = PathManagerFactory.getPathManager();
+            LocalizationContext commonStaticConfig = pathMgr.getContext(
+                    LocalizationType.COMMON_STATIC,
+                    LocalizationLevel.CONFIGURED);
+            commonStaticConfig.setContextName(siteId);
+
+            DirectoryStream.Filter<Path> filter = new DirectoryStream.Filter<Path>() {
+
+                @Override
+                public boolean accept(Path entry) throws IOException {
+                    Path fileName = entry.getFileName();
+                    if (fileName != null) {
+                        return fileName.toString().matches(
+                                "ISC_\\p{Alnum}{3}\\.xml");
+                    }
+                    return false;
+                }
+            };
+
+            Path editAreaDir = pathMgr.getFile(commonStaticConfig,
+                    "gfe" + IPathManager.SEPARATOR + "editAreas").toPath();
+            iscWfosWanted = new ArrayList<String>();
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(
+                    editAreaDir, filter)) {
+                List<String> knownSites = config.allSites();
+
+                for (Path editArea : stream) {
+                    String name = editArea.getFileName().toString()
+                            .replace("ISC_", "").replace(".xml", "");
+                    if (knownSites.contains(name)) {
+                        iscWfosWanted.add(name);
+                    }
+                }
+            } catch (IOException e) {
+                statusHandler.error(
+                        "Unable to retrieve list of ISC edit areas.", e);
+            }
+            config.setRequestedISCsites(iscWfosWanted);
+        }
+    }
 }

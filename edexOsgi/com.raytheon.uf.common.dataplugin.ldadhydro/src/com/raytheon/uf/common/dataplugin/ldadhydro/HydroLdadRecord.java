@@ -70,6 +70,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                      PluginDataObject.
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * Oct 15, 2013 2361        njensen     Remove XML annotations and IDecoderGettable
+ * Jul 23, 2015 2360        rferrel     Add name to unique constraint.
  * 
  * </pre>
  * 
@@ -79,7 +80,7 @@ import com.vividsolutions.jts.geom.Geometry;
 
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "ldadhydroseq")
-@Table(name = "ldadhydro", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = "ldadhydro", uniqueConstraints = { @UniqueConstraint(name = "uk_ldadhydro_datauri_fields", columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
@@ -453,7 +454,7 @@ public class HydroLdadRecord extends PersistablePluginDataObject implements
     }
 
     /**
-    /**
+     * 
      * @param providerId
      *            the providerId to set
      */

@@ -65,10 +65,10 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.monitor.config.FFMPRunConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.DATA_TYPE;
+import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.GUIDANCE_TYPE;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.SOURCE_TYPE;
 import com.raytheon.uf.common.monitor.config.FFMPTemplateConfigurationManager;
 import com.raytheon.uf.common.monitor.events.MonitorConfigEvent;
@@ -138,6 +138,12 @@ import com.raytheon.uf.edex.plugin.ffmp.common.FFTIRatioDiff;
  * Apr 24, 2014 2940       dhladky     Prevent storage of bad records.
  * Jul 10, 2014 2914       garmendariz Remove EnvProperties
  * Aug 26, 2014 3503       bclement    removed constructDataURI() call
+ * Aug 08, 2015 4722       dhladky     Generalized the processing of FFMP data types.
+ * Sep 09, 2015 4756       dhladky     Further generalization of FFG processing.
+ * Sep 21, 2015 4756       dhladky     Allow ARCHIVE types to not be purged out.
+ * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Jan 27, 2016 5237       tgurney     Replace deprecated LocalizationFile method calls
+ * 
  * </pre>
  * 
  * @author dhladky
@@ -153,8 +159,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
     /**
      * Public constructor for FFMPGenerator
      * 
-     * @param name
-     * @param compositeProductType
+     * @param executor
      */
     public FFMPGenerator(Executor executor) {
 
@@ -393,7 +398,8 @@ public class FFMPGenerator extends CompositeProductGenerator implements
             DomainXML domain = runner.getPrimaryDomain();
             try {
                 tmp.add(new FFMPURIFilter(getSiteString(runner) + ":"
-                        + getRFCString(runner) + ":" + domain.getCwa()));
+                        + getGuidanceComparedString(runner) + ":"
+                        + domain.getCwa()));
 
                 statusHandler.handle(Priority.INFO, "Created FFMP Filter.."
                         + " primary Domain: " + domain.getCwa());
@@ -429,13 +435,15 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                             synchronized (filter) {
 
                                 if (filter.isMatched(messages)) {
+                                    // does this filter use RFC FFG?
+                                    if (filter.rfc != null) {
+                                        if (!ffgCheck) {
 
-                                    if (!ffgCheck) {
-
-                                        filter = getFFG(filter);
-                                        filter.setValidTime(filter
-                                                .getCurrentTime());
-                                        ffgCheck = true;
+                                            filter = getFFG(filter);
+                                            filter.setValidTime(filter
+                                                    .getCurrentTime());
+                                            ffgCheck = true;
+                                        }
                                     }
 
                                     dispatch(filter);
@@ -554,7 +562,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
     /**
      * Set list of CWA's
      * 
-     * @param cwas
+     * @param domains
      */
     public void setDomains(ArrayList<DomainXML> domains) {
         this.domains = domains;
@@ -690,6 +698,12 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                 // Go over all of the sites, if mosaic source, can be many.
                 for (String siteKey : sites) {
 
+                    // No dataKey hash?, dataKey comes from primary source
+                    // (siteKey)
+                    if (dataKey == null) {
+                        dataKey = siteKey;
+                    }
+
                     FFMPRecord ffmpRec = new FFMPRecord();
                     ffmpRec.setSourceName(ffmpProduct.getSourceName());
                     ffmpRec.setDataKey(dataKey);
@@ -758,8 +772,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                             String sourceSiteDataKey = getSourceSiteDataKey(
                                     source, dataKey, ffmpRec);
                             ffmpData.remove(sourceSiteDataKey);
-                            statusHandler.info("Removing from memory: "
-                                    + sourceSiteDataKey);
                         }
                     }
                 }
@@ -803,7 +815,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
         /**
          * 
          * @param domain
-         * @return
          */
         public void createUnifiedGeometries(DomainXML domain) {
             ArrayList<String> hucsToGen = new ArrayList<String>();
@@ -886,12 +897,13 @@ public class FFMPGenerator extends CompositeProductGenerator implements
     }
 
     /**
-     * Gets the string buffer for the RFC's
+     * Gets the string buffer for the Guidance sources you wish to compare in
+     * FFMP
      * 
      * @param run
      * @return
      */
-    private String getRFCString(FFMPRunXML run) {
+    private String getGuidanceComparedString(FFMPRunXML run) {
         StringBuffer buf = new StringBuffer();
 
         for (SourceIngestConfigXML ingest : run.getSourceIngests()) {
@@ -901,7 +913,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                 int i = 0;
                 for (String dataKey : ingest.getDataKey()) {
                     if (i < (ingest.getDataKey().size() - 1)) {
-                        buf.append(dataKey + ",");
+                        buf.append(dataKey).append(",");
                     } else {
                         buf.append(dataKey);
                     }
@@ -909,12 +921,13 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                 }
                 break;
             }
+            // TODO: Implement other types when available
         }
         return buf.toString();
     }
 
     /**
-     * Gets the string buffer for the sites, specific to RADAR type data
+     * Gets the string buffer for the domain site definition.
      * 
      * @param run
      * @return
@@ -925,8 +938,9 @@ public class FFMPGenerator extends CompositeProductGenerator implements
         for (ProductRunXML product : run.getProducts()) {
             SourceXML source = getSourceConfig().getSource(
                     product.getProductName());
-            if (source.getDataType().equals(DATA_TYPE.RADAR.getDataType())) {
-                buf.append(product.getProductKey() + ",");
+            // XMRG types have a different ingest route for FFMP
+            if (!source.getDataType().equals(DATA_TYPE.XMRG.getDataType())) {
+                buf.append(product.getProductKey()).append(",");
             }
         }
         sites = buf.toString();
@@ -959,14 +973,10 @@ public class FFMPGenerator extends CompositeProductGenerator implements
             statusHandler.handle(Priority.INFO, "Wrote FFMP source Bin File: "
                     + sourceList.getSourceId());
 
-        } catch (SerializationException se) {
-            se.printStackTrace();
-        } catch (FileNotFoundException fnfe) {
-            fnfe.printStackTrace();
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        } catch (LocalizationOpFailedException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            statusHandler.error(
+                    "Error writing FFMP source bin file for source "
+                            + sourceList.getSourceId(), e);
         }
     }
 
@@ -989,13 +999,13 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                     FileUtil.file2bytes(f.getFile(), true));
         } catch (FileNotFoundException fnfe) {
             statusHandler.handle(Priority.ERROR,
-                    "Unable to locate file " + f.getName());
+                    "Unable to locate file " + f.getPath());
         } catch (SerializationException se) {
             statusHandler.handle(Priority.ERROR,
-                    "Unable to read file " + f.getName());
+                    "Unable to read file " + f.getPath());
         } catch (IOException ioe) {
             statusHandler.handle(Priority.ERROR,
-                    "General IO problem with file " + f.getName(), ioe);
+                    "General IO problem with file " + f.getPath(), ioe);
         }
 
         return sbl;
@@ -1045,7 +1055,8 @@ public class FFMPGenerator extends CompositeProductGenerator implements
     }
 
     /**
-     * Do pull strategy on FFG data
+     * Do pull strategy on FFG data, currently works with Gridded FFG sources
+     * only. (There are only gridded sources so far)
      * 
      * @param filter
      * @return
@@ -1054,13 +1065,14 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
         ArrayList<String> uris = new ArrayList<String>();
 
+        // Check RFC types
         for (String rfc : filter.getRFC()) {
             // get a hash of the sources and their grib ids
             Set<String> sources = FFMPUtils.getFFGParameters(rfc);
-            if (sources != null) {
-                if (sources.size() > 0) {
-                    for (String source : sources) {
+            if (sources != null && sources.size() > 0) {
+                for (String source : sources) {
 
+                    try {
                         SourceXML sourceXml = getSourceConfig().getSource(
                                 source);
 
@@ -1068,34 +1080,78 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
                             String plugin = getSourceConfig().getSource(source)
                                     .getPlugin();
-                            uris.add(FFMPUtils.getFFGDataURI(rfc, source,
-                                    plugin));
+                            uris.add(FFMPUtils.getFFGDataURI(GUIDANCE_TYPE.RFC,
+                                    rfc, source, plugin));
                         }
+                    } catch (Exception e) {
+                        statusHandler.error(
+                                "Problem with extracting guidance source URI's. source="
+                                        + source, e);
                     }
                 }
             }
         }
+
+        // Check for ARCHIVE types
+        ArrayList<String> guidSources = getSourceConfig().getGuidances();
+        if (guidSources != null && guidSources.size() > 0) {
+            for (String guidSource : guidSources) {
+
+                try {
+                    SourceXML sourceXml = getSourceConfig().getSource(
+                            guidSource);
+
+                    if (sourceXml != null
+                            && sourceXml.getGuidanceType() != null
+                            && sourceXml.getGuidanceType().equals(
+                                    GUIDANCE_TYPE.ARCHIVE.getGuidanceType())) {
+                        String plugin = sourceXml.getPlugin();
+                        String[] uriComps = FFMPUtils
+                                .parseGridDataPath(sourceXml.getDataPath());
+                        /*
+                         * datasetid is UriComp[3], parameter abbreviation is
+                         * UriComp[7]
+                         */
+                        uris.add(FFMPUtils.getFFGDataURI(GUIDANCE_TYPE.ARCHIVE,
+                                uriComps[3], uriComps[7], plugin));
+                    }
+                } catch (Exception e) {
+                    statusHandler.error(
+                            "Problem with extracting guidance source URI's. source: "
+                                    + guidSource, e);
+                }
+            }
+        }
+
         // treat it like a regular uri in the filter.
         if (uris.size() > 0) {
             for (String dataUri : uris) {
                 // add your pattern checks to the key
                 for (Pattern pattern : filter.getMatchURIs().keySet()) {
-                    statusHandler.handle(Priority.DEBUG,
-                            "Pattern: " + pattern.toString() + " Key: "
-                                    + dataUri);
-                    try {
-                        if (pattern.matcher(dataUri).find()) {
-                            // matches one of them, which one?
-                            String matchKey = filter.getPatternName(pattern);
-                            // put the sourceName:dataPath key into the sources
-                            // array list
-                            filter.getSources().put(matchKey, dataUri);
+                    /*
+                     * Safety, eliminates chance of unattached source config
+                     * uri's coming in that have no pattern attached to them.
+                     */
+                    if (dataUri != null && pattern != null) {
+                        statusHandler.handle(Priority.INFO, "Pattern: "
+                                + pattern.toString() + " Key: " + dataUri);
+                        try {
+                            if (pattern.matcher(dataUri).find()) {
+                                // matches one of them, which one?
+                                String matchKey = filter
+                                        .getPatternName(pattern);
+                                /*
+                                 * put the sourceName:dataPath key into the
+                                 * sources array list.
+                                 */
+                                filter.getSources().put(matchKey, dataUri);
+                            }
+                        } catch (Exception e) {
+                            statusHandler
+                                    .handle(Priority.ERROR,
+                                            "Unable to locate new FFG file. "
+                                                    + dataUri, e);
                         }
-                    } catch (Exception e) {
-                        statusHandler.handle(
-                                Priority.ERROR,
-                                "Unable to locate new FFG file. "
-                                        + pattern.toString(), e);
                     }
                 }
             }
@@ -1107,7 +1163,8 @@ public class FFMPGenerator extends CompositeProductGenerator implements
     /**
      * get the FFMP data container for this source
      * 
-     * @param sourceName
+     * @param siteSourceKey
+     * @param backDate
      * 
      * @return
      */
@@ -1232,9 +1289,25 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                     SOURCE_TYPE.GUIDANCE.getSourceType())) {
                 sourceName = source.getDisplayName();
                 sourceSiteDataKey = sourceName;
-                // FFG is so infrequent go back a day
-                backDate = new Date(config.getDate().getTime()
-                        - (TimeUtil.MILLIS_PER_HOUR * FFG_SOURCE_CACHE_TIME));
+                /**
+                 * Some FFG is ARCHIVE, don't purge, backdate == refTime The
+                 * reset (RFCFFG) set to refTime - 1 day.
+                 */
+                if (source.getGuidanceType().equals(
+                        GUIDANCE_TYPE.ARCHIVE.getGuidanceType())) {
+                    /**
+                     * ARCHIVE types have the refTime of when it was loaded.
+                     * This will have it look back 1 day previous to the reftime
+                     * and purge anything older than that.
+                     */
+                    backDate = new Date(
+                            ffmpRec.getDataTime().getRefTime().getTime()
+                                    - (TimeUtil.MILLIS_PER_HOUR * FFG_SOURCE_CACHE_TIME));
+                } else {
+                    backDate = new Date(
+                            config.getDate().getTime()
+                                    - (TimeUtil.MILLIS_PER_HOUR * FFG_SOURCE_CACHE_TIME));
+                }
             } else {
                 sourceName = ffmpRec.getSourceName();
                 sourceSiteDataKey = sourceName + "-" + ffmpRec.getSiteKey()
@@ -1365,9 +1438,9 @@ public class FFMPGenerator extends CompositeProductGenerator implements
      * load existing container
      * 
      * @param sourceSiteDataKey
-     * @param hucs
      * @param siteKey
      * @param wfo
+     * @param backDate
      * @return
      */
     public FFMPDataContainer loadFFMPDataContainer(String sourceSiteDataKey,
@@ -1397,11 +1470,12 @@ public class FFMPGenerator extends CompositeProductGenerator implements
             fdc.setAggregateData(record);
         }
 
-        // sometimes a record will sit around for a long time and it will have
-        // data going back to the last precip event
-        // this can be an enormous amount of time. Want to get the data dumped
-        // from memory ASAP.
-        if (fdc != null) {
+        /**
+         * sometimes a record will sit around for a long time and it will have
+         * data going back to the last precip event this can be an enormous
+         * amount of time. Want to get the data dumped from memory ASAP.
+         */
+        if (fdc != null && backDate != null) {
             fdc.purge(backDate);
         }
 
@@ -1478,8 +1552,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
         /**
          * The actual work gets done here
          */
-        public void write() throws Exception {
-
+        public void write() {
             try {
 
                 FFMPAggregateRecord aggRecord = null;
@@ -1523,7 +1596,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                         // write it, allowing, and in fact encouraging replacing
                         // the last one
                         dataStore.addDataRecord(rec, sp);
-                        dataStore.store(StoreOp.OVERWRITE);
+                        dataStore.store(StoreOp.REPLACE);
 
                     } catch (Exception e) {
                         statusHandler.handle(
@@ -1631,7 +1704,8 @@ public class FFMPGenerator extends CompositeProductGenerator implements
     /**
      * Write your FFTI Data files
      * 
-     * @param sourceList
+     * @param ffti
+     * @param fftiName
      */
     public void writeFFTIFile(FFTIData ffti, String fftiName) {
 
@@ -1650,21 +1724,15 @@ public class FFMPGenerator extends CompositeProductGenerator implements
             statusHandler.handle(Priority.DEBUG, "Wrote FFMP FFTI file: "
                     + fftiName);
 
-        } catch (SerializationException se) {
-            se.printStackTrace();
-        } catch (FileNotFoundException fnfe) {
-            fnfe.printStackTrace();
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        } catch (LocalizationOpFailedException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            statusHandler.error("Error writing FFTI file " + fftiName, e);
         }
     }
 
     /**
      * Read out your FFTI Files
      * 
-     * @param sourceId
+     * @param fftiName
      * @return
      */
     public FFTIData readFFTIData(String fftiName) {
@@ -1680,16 +1748,16 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                     FileUtil.file2bytes(f.getFile(), true));
         } catch (FileNotFoundException fnfe) {
             statusHandler.handle(Priority.ERROR,
-                    "Unable to locate file " + f.getName(), fnfe);
+                    "Unable to locate file " + f.getPath(), fnfe);
         } catch (SerializationException se) {
             statusHandler.handle(Priority.ERROR, "Unable to serialize file "
-                    + f.getName(), se);
+                    + f.getPath(), se);
         } catch (IOException ioe) {
             statusHandler.handle(Priority.ERROR,
-                    "IO problem reading file " + f.getName(), ioe);
+                    "IO problem reading file " + f.getPath(), ioe);
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR,
-                    "General Exception reading file " + f.getName(), e);
+                    "General Exception reading file " + f.getPath(), e);
         }
 
         return ffti;
@@ -1828,7 +1896,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
             }
 
             ffmpData.remove(siteDataKey);
-            statusHandler.info("Removing from memory: " + siteDataKey);
             accumulator.setReset(false);
             writeFFTIData(siteDataKey, accumulator);
         }
@@ -1982,7 +2049,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
             // replace or insert it
             ffmpData.remove(qpeSiteSourceDataKey);
-            statusHandler.info("Removing from memory: " + qpeSiteSourceDataKey);
             values.setReset(false);
             writeFFTIData(siteDataKey, values);
         }
@@ -1997,7 +2063,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
      * surge being sent to pypies.
      * 
      * @param record
-     * @return
      */
     private synchronized void persistRecord(FFMPRecord record) {
 

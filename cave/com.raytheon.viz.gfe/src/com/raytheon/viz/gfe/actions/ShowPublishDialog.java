@@ -19,15 +19,13 @@
  **/
 package com.raytheon.viz.gfe.actions;
 
-import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.dialogs.PublishDialog;
+import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
 
 /**
@@ -37,59 +35,18 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 6, 2008             Eric Babin  Initial Creation
+ * Mar 06, 2008            Eric Babin  Initial Creation
  * Oct 25, 2012 1287       rferrel     Changes for non-blocking PublishDialog.
+ * Aug 27, 2015 4749       njensen     Now extends GfeShowDialogHandler
  * Sep 09, 2015 4858       dgilling    Don't allow publishing when 
  *                                     SimulatedTime is enabled.
  * 
  * </pre>
  * 
- * @author ebabin
- * @version 1.0
+
  */
+public class ShowPublishDialog extends GfeShowDialogHandler {
 
-public class ShowPublishDialog extends AbstractHandler {
-
-    private PublishDialog dialog;
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
-     * .ExecutionEvent)
-     */
-    @Override
-    public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
-        if (!SimulatedTimeOperations.isTransmitAllowed()) {
-            SimulatedTimeOperations.displayFeatureLevelWarning(shell,
-                    "Publish Grids to Official");
-            return null;
-        }
-
-        DataManager dm = DataManagerUIFactory.getCurrentInstance();
-        if (dm == null) {
-            return null;
-        }
-
-        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
-            dialog = new PublishDialog(shell, dm);
-            dialog.setBlockOnOpen(false);
-            dialog.open();
-        } else {
-            dialog.bringToTop();
-        }
-
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.core.commands.AbstractHandler#isEnabled()
-     */
     @Override
     public boolean isEnabled() {
         if (!super.isEnabled()) {
@@ -102,5 +59,16 @@ public class ShowPublishDialog extends AbstractHandler {
                     .equals(dm.getParmManager().getProductDB());
         }
         return false;
+    }
+    @Override
+    protected CaveJFACEDialog createDialog(Shell shell, DataManager dm,
+            ExecutionEvent event) {
+        if (!SimulatedTimeOperations.isTransmitAllowed()) {
+            SimulatedTimeOperations.displayFeatureLevelWarning(shell,
+                    "Publish Grids to Official");
+            return null;
+        }
+
+        return new PublishDialog(shell, dm);
     }
 }

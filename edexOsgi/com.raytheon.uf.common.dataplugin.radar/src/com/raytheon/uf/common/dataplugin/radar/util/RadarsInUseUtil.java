@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -21,8 +21,8 @@ package com.raytheon.uf.common.dataplugin.radar.util;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,6 +36,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -43,16 +44,18 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 /**
  * Provides easy interface to grab configured sites for radar and various other
  * things
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 14, 2010            mnash     Initial creation
+ * Jul 14, 2010            mnash       Initial creation
+ * Feb 15, 2016 5244       nabowle     Replace deprecated LocalizationFile methods.
  * 
+ *
  * </pre>
- * 
+ *
  * @author mnash
  * @version 1.0
  */
@@ -120,25 +123,27 @@ public class RadarsInUseUtil {
                     + radarSite + ".  Using the base file.");
         }
         if (file != null) {
-            BufferedReader buf = new BufferedReader(new FileReader(
-                    file.getFile()));
-            String temp = buf.readLine();
-            temp = buf.readLine();
-            String radarType = "";
-            List<String> sites = new ArrayList<String>();
-            while (temp != null) {
-                temp = temp.trim();
-                if (temp.startsWith("#")) {
-                    sites = new ArrayList<String>();
-                    radarType = temp.substring(1, temp.indexOf(" ", 2));
-                    siteMap.put(radarType.trim(), sites);
-                } else if (!temp.trim().isEmpty()) {
-                    sites.add(temp);
-                }
+            try (BufferedReader buf = new BufferedReader(new InputStreamReader(
+                    file.openInputStream()))) {
+                String temp = buf.readLine();
                 temp = buf.readLine();
+                String radarType = "";
+                List<String> sites = new ArrayList<String>();
+                while (temp != null) {
+                    temp = temp.trim();
+                    if (temp.startsWith("#")) {
+                        sites = new ArrayList<String>();
+                        radarType = temp.substring(1, temp.indexOf(" ", 2));
+                        siteMap.put(radarType.trim(), sites);
+                    } else if (!temp.trim().isEmpty()) {
+                        sites.add(temp);
+                    }
+                    temp = buf.readLine();
+                }
+            } catch (LocalizationException e) {
+                throw new IOException("Error while reading " + file.getPath(),
+                        e);
             }
-            buf.close();
-
         }
     }
 

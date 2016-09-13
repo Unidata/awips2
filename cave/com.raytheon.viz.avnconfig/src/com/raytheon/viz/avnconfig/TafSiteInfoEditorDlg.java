@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -33,6 +33,7 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -53,7 +54,7 @@ import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.pointdata.spatial.ObStation;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -67,7 +68,7 @@ import com.vividsolutions.jts.geom.Point;
 
 /**
  * TAF site information editor dialog.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -83,12 +84,15 @@ import com.vividsolutions.jts.geom.Point;
  * 15 Oct 2012  1229       rferrel     Changes for non-blocking TextEditorSetupDlg.
  * 15 OCT 2012  1229       rferrel     Changes for non-blocking HelpUsageDlg.
  * 11 Sep 2013  2277       mschenke    Got rid of ScriptCreator references
- * 
+ * Nov 30, 2015 4834       njensen     Remove LocalizationOpFailedException
+ * Feb 09, 2016 5283       nabowle     Remove NGM MOS support.
+ * 15 Mar 2016  5481       randerso    Fix GUI sizing problems
+ *
  * </pre>
- * 
+ *
  * @author lvenable
  * @version 1.0
- * 
+ *
  */
 public class TafSiteInfoEditorDlg extends CaveSWTDialog {
     private final transient IUFStatusHandler statusHandler = UFStatus
@@ -245,7 +249,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Constructor.
-     * 
+     *
      * @param parent
      *            Parent shell.
      */
@@ -307,7 +311,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Converts an array into a comma separated string
-     * 
+     *
      * @param array
      * @return string
      */
@@ -358,7 +362,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
         // Create the composite for the controls.
         // ------------------------------------------
         Composite controlComp = new Composite(shell, SWT.NONE);
-        GridLayout gl = new GridLayout(7, false);
+        GridLayout gl = new GridLayout(3, false);
         controlComp.setLayout(gl);
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         controlComp.setLayoutData(gd);
@@ -366,9 +370,15 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
         Label siteIdLbl = new Label(controlComp, SWT.NONE);
         siteIdLbl.setText("Site ID:");
 
-        gd = new GridData(40, SWT.DEFAULT);
         siteIdTF = new Text(controlComp, SWT.BORDER);
         siteIdTF.setBackground(incorrectColor);
+
+        // Using WWWW as an example of 4 wider characters
+        GC gc = new GC(siteIdTF);
+        int siteWidth = gc.textExtent("WWWW").x;
+        gc.dispose();
+
+        gd = new GridData(siteWidth, SWT.DEFAULT);
         siteIdTF.setLayoutData(gd);
         siteIdTF.addKeyListener(new KeyAdapter() {
             @Override
@@ -379,11 +389,12 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
             }
         });
 
-        int buttonWidth = 80;
-
-        gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
-        gd.widthHint = buttonWidth;
-        Button loadBtn = new Button(controlComp, SWT.PUSH);
+        Composite buttonComp = new Composite(controlComp, SWT.NONE);
+        buttonComp.setLayout(new GridLayout(5, false));
+        buttonComp.setLayoutData(new GridData(SWT.RIGHT, SWT.DEFAULT, true,
+                false));
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        Button loadBtn = new Button(buttonComp, SWT.PUSH);
         loadBtn.setText("Load");
         loadBtn.setToolTipText("Retrieves data for selected site");
         loadBtn.setLayoutData(gd);
@@ -394,8 +405,8 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
             }
         });
 
-        gd = new GridData(buttonWidth, SWT.DEFAULT);
-        Button updateBtn = new Button(controlComp, SWT.PUSH);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        Button updateBtn = new Button(buttonComp, SWT.PUSH);
         updateBtn.setText("Update");
         updateBtn.setToolTipText("Retrieves site info from fxa data files");
         updateBtn.setLayoutData(gd);
@@ -408,8 +419,8 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
             }
         });
 
-        gd = new GridData(buttonWidth, SWT.DEFAULT);
-        Button saveBtn = new Button(controlComp, SWT.PUSH);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        Button saveBtn = new Button(buttonComp, SWT.PUSH);
         saveBtn.setText("Save");
         saveBtn.setToolTipText("Saves site info to a file");
         saveBtn.setLayoutData(gd);
@@ -451,7 +462,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
                     } catch (ConfigurationException e) {
                         msgStatusComp.setMessageText("Error saving data for "
                                 + siteIdTF.getText(), new RGB(255, 0, 0));
-                    } catch (LocalizationOpFailedException e) {
+                    } catch (LocalizationException e) {
                         msgStatusComp.setMessageText("Error saving data for "
                                 + siteIdTF.getText(), new RGB(255, 0, 0));
                     } catch (IOException e) {
@@ -462,8 +473,8 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
             }
         });
 
-        gd = new GridData(buttonWidth, SWT.DEFAULT);
-        Button closeBtn = new Button(controlComp, SWT.PUSH);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        Button closeBtn = new Button(buttonComp, SWT.PUSH);
         closeBtn.setText("Close");
         closeBtn.setToolTipText("Closes this dialog");
         closeBtn.setLayoutData(gd);
@@ -474,8 +485,8 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
             }
         });
 
-        gd = new GridData(buttonWidth, SWT.DEFAULT);
-        Button helpBtn = new Button(controlComp, SWT.PUSH);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        Button helpBtn = new Button(buttonComp, SWT.PUSH);
         helpBtn.setText("Help");
         helpBtn.setToolTipText("Shows help");
         helpBtn.setLayoutData(gd);
@@ -504,6 +515,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
         // ------------------------------------------
         Composite controlComp = new Composite(shell, SWT.NONE);
         GridLayout gl = new GridLayout(2, false);
+        gl.marginWidth = 0;
         controlComp.setLayout(gl);
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         controlComp.setLayoutData(gd);
@@ -513,12 +525,12 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
         // -----------------------------------------------
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Group tafHeadersGroup = new Group(controlComp, SWT.NONE);
-        tafHeadersGroup.setText(" TAF Headers ");
+        tafHeadersGroup.setText("TAF Headers");
         gl = new GridLayout(4, false);
         tafHeadersGroup.setLayout(gl);
         tafHeadersGroup.setLayoutData(gd);
 
-        gd = new GridData(60, SWT.DEFAULT);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
         Label wmoLbl = new Label(tafHeadersGroup, SWT.RIGHT);
         wmoLbl.setText("WMO");
         wmoLbl.setLayoutData(gd);
@@ -528,7 +540,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
         wmoTF.setBackground(incorrectColor);
         wmoTF.setLayoutData(gd);
 
-        gd = new GridData(60, SWT.DEFAULT);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
         Label afosLbl = new Label(tafHeadersGroup, SWT.RIGHT);
         afosLbl.setText("AFOS");
         afosLbl.setLayoutData(gd);
@@ -543,17 +555,17 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
         // -----------------------------------------------
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Group tafDurationGroup = new Group(controlComp, SWT.NONE);
-        tafDurationGroup.setText(" TAF Duration ");
+        tafDurationGroup.setText("TAF Duration");
         gl = new GridLayout(2, false);
         tafDurationGroup.setLayout(gl);
         tafDurationGroup.setLayoutData(gd);
 
-        gd = new GridData(80, SWT.DEFAULT);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
         Label hoursLbl = new Label(tafDurationGroup, SWT.RIGHT);
         hoursLbl.setText("Hours");
         hoursLbl.setLayoutData(gd);
 
-        gd = new GridData(30, SWT.DEFAULT);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
         hoursSpnr = new Spinner(tafDurationGroup, SWT.BORDER);
         hoursSpnr.setDigits(0);
         hoursSpnr.setIncrement(6);
@@ -573,7 +585,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
         // -----------------------------------------------
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Group tafHeadersGroup = new Group(shell, SWT.NONE);
-        tafHeadersGroup.setText(" Thresholds ");
+        tafHeadersGroup.setText("Thresholds");
         GridLayout gl = new GridLayout(5, false);
         tafHeadersGroup.setLayout(gl);
         tafHeadersGroup.setLayoutData(gd);
@@ -628,12 +640,12 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
         // -----------------------------------------------
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Group geographyGroup = new Group(shell, SWT.NONE);
-        geographyGroup.setText(" Geography ");
+        geographyGroup.setText("Geography");
         GridLayout gl = new GridLayout(8, false);
         geographyGroup.setLayout(gl);
         geographyGroup.setLayoutData(gd);
 
-        gd = new GridData(60, SWT.DEFAULT);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
         Label latLbl = new Label(geographyGroup, SWT.RIGHT);
         latLbl.setText("Latitude");
         latLbl.setLayoutData(gd);
@@ -643,7 +655,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
         latitudeTF.setBackground(incorrectColor);
         latitudeTF.setLayoutData(gd);
 
-        gd = new GridData(70, SWT.DEFAULT);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
         Label lonLbl = new Label(geographyGroup, SWT.RIGHT);
         lonLbl.setText("Longitude");
         lonLbl.setLayoutData(gd);
@@ -653,7 +665,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
         longitudeTF.setBackground(incorrectColor);
         longitudeTF.setLayoutData(gd);
 
-        gd = new GridData(70, SWT.DEFAULT);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
         Label elevationLbl = new Label(geographyGroup, SWT.RIGHT);
         elevationLbl.setText("Elevation");
         elevationLbl.setLayoutData(gd);
@@ -663,7 +675,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
         elevationTF.setBackground(incorrectColor);
         elevationTF.setLayoutData(gd);
 
-        gd = new GridData(70, SWT.DEFAULT);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
         Label runwaysLbl = new Label(geographyGroup, SWT.RIGHT);
         runwaysLbl.setText("Runway(s)");
         runwaysLbl.setLayoutData(gd);
@@ -683,7 +695,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
         // -----------------------------------------------
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Group altIdsGroup = new Group(shell, SWT.NONE);
-        altIdsGroup.setText(" Alternate Ids ");
+        altIdsGroup.setText("Alternate IDs");
         GridLayout gl = new GridLayout(8, false);
         altIdsGroup.setLayout(gl);
         altIdsGroup.setLayoutData(gd);
@@ -798,7 +810,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
     private void createQC() {
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Group qcGroup = new Group(shell, SWT.NONE);
-        qcGroup.setText(" QC Checks ");
+        qcGroup.setText("QC Checks");
         GridLayout gl = new GridLayout(1, false);
         qcGroup.setLayout(gl);
         qcGroup.setLayoutData(gd);
@@ -843,31 +855,37 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
         // -----------------------------------------------
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Group templatesGroup = new Group(shell, SWT.NONE);
-        templatesGroup.setText(" Templates ");
+        templatesGroup.setText("Templates");
         GridLayout gl = new GridLayout(1, false);
         templatesGroup.setLayout(gl);
         templatesGroup.setLayoutData(gd);
 
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         Composite controlComp = new Composite(templatesGroup, SWT.NONE);
-        gl = new GridLayout(6, false);
+        gl = new GridLayout(3, true);
+        gl.marginHeight = 0;
+        gl.marginWidth = 0;
+        gl.horizontalSpacing = 10;
         controlComp.setLayout(gl);
         controlComp.setLayoutData(gd);
 
-        Label issueLbl = new Label(controlComp, SWT.NONE);
+        Composite issueComp = new Composite(controlComp, SWT.NONE);
+        gl = new GridLayout(2, false);
+        gl.marginHeight = 0;
+        gl.marginWidth = 0;
+        issueComp.setLayout(gl);
+        issueComp.setLayoutData(new GridData(SWT.DEFAULT, SWT.DEFAULT));
+
+        Label issueLbl = new Label(issueComp, SWT.NONE);
         issueLbl.setText("Issue");
 
-        issueCbo = new Combo(controlComp, SWT.DROP_DOWN | SWT.READ_ONLY);
+        issueCbo = new Combo(issueComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         for (String startHour : START_HOURS) {
             issueCbo.add(startHour + "Z");
         }
         issueCbo.select(0);
 
-        gd = new GridData(10, SWT.DEFAULT);
-        Label filler1 = new Label(controlComp, SWT.NONE);
-        filler1.setLayoutData(gd);
-
-        gd = new GridData(80, SWT.DEFAULT);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Button editBtn = new Button(controlComp, SWT.PUSH);
         editBtn.setText("Edit");
         editBtn.setToolTipText("Template editor");
@@ -914,14 +932,10 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
             }
         });
 
-        gd = new GridData(10, SWT.DEFAULT);
-        Label filler2 = new Label(controlComp, SWT.NONE);
-        filler2.setLayoutData(gd);
-
-        gd = new GridData(80, SWT.DEFAULT);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Button makeBtn = new Button(controlComp, SWT.PUSH);
         makeBtn.setText("Make");
-        editBtn.setToolTipText("Makes default templates");
+        makeBtn.setToolTipText("Makes default templates");
         makeBtn.setLayoutData(gd);
         makeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -962,12 +976,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
                     } catch (FileNotFoundException e) {
                         msgStatusComp.setMessageText(e.getMessage(), new RGB(
                                 255, 0, 0));
-                    } catch (ConfigurationException e) {
-                        msgStatusComp.setMessageText(
-                                "Error creating templates for "
-                                        + siteIdTF.getText(),
-                                new RGB(255, 0, 0));
-                    } catch (LocalizationOpFailedException e) {
+                    } catch (ConfigurationException | LocalizationException e) {
                         msgStatusComp.setMessageText(
                                 "Error creating templates for "
                                         + siteIdTF.getText(),
@@ -988,7 +997,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Query for a icao station's information.
-     * 
+     *
      * @param icao
      *            - station ID
      * @return obStation
@@ -1107,7 +1116,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Validate the data and color the text fields accordingly.
-     * 
+     *
      * @return boolean - True if all the data is valid.
      */
     private boolean validateData() {
@@ -1254,7 +1263,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Validate AFOS
-     * 
+     *
      * @return boolean
      */
     private boolean isAfosValid() {
@@ -1263,7 +1272,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Validate Site ID
-     * 
+     *
      * @return boolean
      */
     private boolean isSiteIdValid() {
@@ -1275,7 +1284,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Validate WMO
-     * 
+     *
      * @return boolean
      */
     private boolean isWmoValid() {
@@ -1284,7 +1293,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Validate runway list
-     * 
+     *
      * @return boolean
      */
     private boolean isRunwayValid() {
@@ -1299,7 +1308,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
             for (String runway : runways) {
                 int runwayInt = Integer.parseInt(runway.trim());
 
-                if (runwayInt < 0 || runwayInt > 360) {
+                if ((runwayInt < 0) || (runwayInt > 360)) {
                     throw new Exception();
                 }
             }
@@ -1312,7 +1321,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Validate Height for Radar Cutoff list.
-     * 
+     *
      * @return boolean
      */
     private boolean isRadarHeightValid(String text) {
@@ -1346,7 +1355,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Validate Height for Profiler Cutoff list.
-     * 
+     *
      * @return boolean
      */
     private boolean isProfilerHeightValid(String text) {
@@ -1380,7 +1389,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Validate METAR
-     * 
+     *
      * @return boolean
      */
     private boolean isMetarValid() {
@@ -1403,7 +1412,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Validate Profilers list
-     * 
+     *
      * @return boolean
      */
     private boolean isProfilerValid() {
@@ -1427,7 +1436,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Validate Radars list
-     * 
+     *
      * @return boolean
      */
     private boolean isRadarValid() {
@@ -1451,7 +1460,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Validate Visibility list
-     * 
+     *
      * @return boolean
      */
     private boolean isVsbyValid() {
@@ -1467,7 +1476,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
             for (String vsby : vsbys) {
                 double d = Double.parseDouble(vsby.trim());
 
-                if (d < 0.0 || d > 10.0) {
+                if ((d < 0.0) || (d > 10.0)) {
                     throw new Exception();
                 }
 
@@ -1487,7 +1496,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Validate Ceiling list
-     * 
+     *
      * @return boolean
      */
     private boolean isCigValid() {
@@ -1503,7 +1512,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
             for (String cig : cigs) {
                 int i = Integer.parseInt(cig.trim());
 
-                if (i < 0 || i > 30000) {
+                if ((i < 0) || (i > 30000)) {
                     throw new Exception();
                 }
 
@@ -1522,8 +1531,8 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
     }
 
     /**
-     * Validate ACARS, ETA, ETAMOS, GFSLAMP, GFSMOS, and NGMMOS
-     * 
+     * Validate ACARS, ETA, ETAMOS, GFSLAMP, and GFSMOS.
+     *
      * @return boolean
      */
     private boolean isOtherValid(String text) {
@@ -1538,7 +1547,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Validate Latitude
-     * 
+     *
      * @return boolean
      */
     private boolean isLatitudeValid() {
@@ -1547,7 +1556,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
         try {
             double lat = Double.parseDouble(latitudeTF.getText().trim());
 
-            if (lat < -90.0 || lat > 90.0) {
+            if ((lat < -90.0) || (lat > 90.0)) {
                 throw new Exception();
             }
         } catch (Exception e) {
@@ -1559,7 +1568,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Validate Longitude
-     * 
+     *
      * @return boolean
      */
     private boolean isLongitudeValid() {
@@ -1568,7 +1577,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
         try {
             double lon = Double.parseDouble(longitudeTF.getText().trim());
 
-            if (lon < -180.0 || lon > 180.0) {
+            if ((lon < -180.0) || (lon > 180.0)) {
                 throw new Exception();
             }
         } catch (Exception e) {
@@ -1580,7 +1589,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
 
     /**
      * Validate Elevation
-     * 
+     *
      * @return boolean
      */
     private boolean isElevationValid() {

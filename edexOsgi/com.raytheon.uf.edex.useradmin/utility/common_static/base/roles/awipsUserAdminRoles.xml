@@ -7,9 +7,8 @@
          This permission allows the user to access and edit AWIPS 2 User Administration 
        </description>
    </permission>
-<!--  DELETE THIS LINE - Change AuthorizedUserName to an actual user name.  
-   <user userId="AuthorizedUserName">
+   <!-- edit userId here -->
+   <user userId="awips">
       <userPermission>awips.user.admin</userPermission>
    </user>
-   DELETE THIS LINE -->
 </nwsRoleData>

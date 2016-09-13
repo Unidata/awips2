@@ -21,8 +21,6 @@ package com.raytheon.uf.common.dataplugin.tcg;
 
 import java.util.Calendar;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -31,10 +29,9 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
-import org.hibernate.annotations.Index;
-
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.annotations.NullString;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.pointdata.IPointData;
@@ -60,21 +57,19 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                     PluginDataObject.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Oct 15, 2013 2361       njensen     Removed XML annotations
+ * Jul 28, 2015 4360       rferrel     Named unique constraint. Made productType and modelName non-nullable.
+ * Jan 28, 2016 5286       tgurney     Drop dataURI column and update unique constraint.
+ * Aug 04, 2016 5783       tgurney     Add forecasttime to unique constraint
  * 
  * </pre>
  * 
  * @author jsanchez
- * @version 1.0
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "tcgseq")
-@Table(name = "tcg", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
-/*
- * Both refTime and forecastTime are included in the refTimeIndex since
- * forecastTime is unlikely to be used.
- */
-@org.hibernate.annotations.Table(appliesTo = "tcg", indexes = { @Index(name = "tcg_refTimeIndex", columnNames = {
-        "refTime", "forecastTime" }) })
+@Table(name = "tcg", uniqueConstraints = { @UniqueConstraint(name = "uk_tcg_datauri_fields", columnNames = {
+        "refTime", "forecastTime", "productType", "modelName", "latitude",
+        "longitude", "stationId" }) })
 @DynamicSerialize
 public class TropicalCycloneGuidance extends PersistablePluginDataObject
         implements ISpatialEnabled, IPointData {
@@ -96,12 +91,14 @@ public class TropicalCycloneGuidance extends PersistablePluginDataObject
 
     @DynamicSerializeElement
     @DataURI(position = 1)
-    @Column
+    @NullString
+    @Column(nullable = false)
     protected String productType = "";
 
     @DynamicSerializeElement
     @DataURI(position = 2)
-    @Column
+    @NullString(value = "NONE")
+    @Column(nullable = false)
     protected String modelName = "NONE";
 
     @Embedded
@@ -149,17 +146,6 @@ public class TropicalCycloneGuidance extends PersistablePluginDataObject
 
     public void setModelName(String modelName) {
         this.modelName = modelName;
-    }
-
-    /**
-     * Set the data uri for this observation.
-     * 
-     * @param dataURI
-     */
-    @Override
-    public void setDataURI(String dataURI) {
-        super.setDataURI(dataURI);
-        identifier = dataURI;
     }
 
     @Override
@@ -275,13 +261,6 @@ public class TropicalCycloneGuidance extends PersistablePluginDataObject
         }
         sb.append(String.format("%6.2f %7.2f:", getLatitude(), getLongitude()));
         return sb.toString();
-    }
-
-    @Override
-    @Column
-    @Access(AccessType.PROPERTY)
-    public String getDataURI() {
-        return super.getDataURI();
     }
 
     @Override

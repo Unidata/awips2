@@ -24,12 +24,13 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
@@ -65,6 +66,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 15 Oct 2012  1229       rferrel     Changes for non-blocking TextEditorSetupDlg.
  * 15 Oct 2012  1229       rferrel     Changed for non-blocking HelpUsageDlg.
  * 13 Feb 2013  1549       rferrel     Minor code cleanup.
+ * 26 Jan 2016  5054       randerso    Change top level dialog to be parented to the display
+ * 15 Mar 2016  5481       randerso    Fix GUI sizing problems
  * 
  * </pre>
  * 
@@ -112,11 +115,10 @@ public class AvnconfigDlg extends CaveSWTDialog {
     /**
      * Constructor.
      * 
-     * @param parent
-     *            Parent shell.
+     * @param display
      */
-    public AvnconfigDlg(Shell parent) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
+    public AvnconfigDlg(Display display) {
+        super(display, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
                 | CAVE.INDEPENDENT_SHELL | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS Setup");
     }
@@ -125,14 +127,8 @@ public class AvnconfigDlg extends CaveSWTDialog {
     protected void initializeComponents(Shell shell) {
         // Create the main layout for the shell.
         GridLayout mainLayout = new GridLayout(1, false);
-        mainLayout.marginHeight = 3;
-        mainLayout.marginWidth = 3;
-        mainLayout.verticalSpacing = 5;
         shell.setLayout(mainLayout);
 
-        // ---------------------------------------------
-        // Create the menus at the top of the dialog.
-        // ---------------------------------------------
         createMenus();
 
         createMainControls();
@@ -144,6 +140,9 @@ public class AvnconfigDlg extends CaveSWTDialog {
      * Create the menus at the top of the display.
      */
     private void createMenus() {
+        // ---------------------------------------------
+        // Create the menus at the top of the dialog.
+        // ---------------------------------------------
         Menu menuBar = new Menu(shell, SWT.BAR);
 
         createFileMenu(menuBar);
@@ -240,36 +239,18 @@ public class AvnconfigDlg extends CaveSWTDialog {
      * Create the main controls.
      */
     private void createMainControls() {
-        // ------------------------------------------
-        // Create the composite for the controls.
-        // ------------------------------------------
-        Composite controlComp = new Composite(shell, SWT.NONE);
-        GridLayout gl = new GridLayout(1, false);
-        gl.marginWidth = 20;
-        controlComp.setLayout(gl);
-
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        controlComp.setLayoutData(gd);
-
-        // Create the setup label
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        Label avnfpsLbl = new Label(controlComp, SWT.CENTER);
-        avnfpsLbl.setText("AvnFPS Setup");
-        avnfpsLbl.setLayoutData(gd);
-
         // -------------------------------------------
         // Create a button composite for the buttons
         // -------------------------------------------
-        Composite buttonComp = new Composite(controlComp, SWT.BORDER);
-        gl = new GridLayout(1, false);
-        gl.verticalSpacing = 15;
+        Composite buttonComp = new Composite(shell, SWT.NONE);
+        GridLayout gl = new GridLayout(1, true);
+        gl.marginHeight = 0;
+        gl.marginWidth = 0;
         buttonComp.setLayout(gl);
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         buttonComp.setLayoutData(gd);
 
-        int buttonWidth = 170;
-
-        gd = new GridData(buttonWidth, SWT.DEFAULT);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Button textEditorBtn = new Button(buttonComp, SWT.PUSH);
         textEditorBtn.setText("Text Editor");
         textEditorBtn.setLayoutData(gd);
@@ -285,7 +266,7 @@ public class AvnconfigDlg extends CaveSWTDialog {
             }
         });
 
-        gd = new GridData(buttonWidth, SWT.DEFAULT);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Button monitorRulesBtn = new Button(buttonComp, SWT.PUSH);
         monitorRulesBtn.setText("Monitoring Rules");
         monitorRulesBtn.setLayoutData(gd);
@@ -301,7 +282,7 @@ public class AvnconfigDlg extends CaveSWTDialog {
             }
         });
 
-        gd = new GridData(buttonWidth, SWT.DEFAULT);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Button tafSiteInfoBtn = new Button(buttonComp, SWT.PUSH);
         tafSiteInfoBtn.setText("TAF Site Info");
         tafSiteInfoBtn.setLayoutData(gd);
@@ -317,7 +298,7 @@ public class AvnconfigDlg extends CaveSWTDialog {
             }
         });
 
-        gd = new GridData(buttonWidth, SWT.DEFAULT);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Button tafProductsBtn = new Button(buttonComp, SWT.PUSH);
         tafProductsBtn.setText("TAF Products");
         tafProductsBtn.setLayoutData(gd);
@@ -333,7 +314,7 @@ public class AvnconfigDlg extends CaveSWTDialog {
             }
         });
 
-        gd = new GridData(buttonWidth, SWT.DEFAULT);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Button climateBtn = new Button(buttonComp, SWT.PUSH);
         climateBtn.setText("Climate Data");
         climateBtn.setLayoutData(gd);
@@ -355,13 +336,15 @@ public class AvnconfigDlg extends CaveSWTDialog {
      */
     private void createBottomMessageControls() {
         msgStatusComp = new MessageStatusComp(shell, null, null);
+        GridData layoutData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+
+        // Set width to try to make dialog width similar to before
+        GC gc = new GC(msgStatusComp);
+        layoutData.widthHint = gc.getFontMetrics().getAverageCharWidth() * 30;
+        gc.dispose();
+        msgStatusComp.setLayoutData(layoutData);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
-     */
     @Override
     protected void preOpened() {
         super.preOpened();

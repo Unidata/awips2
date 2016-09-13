@@ -20,8 +20,8 @@
 
 package com.raytheon.edex.uengine.tasks;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstract class for tasks to be executed from the JavaScript uEngine.
@@ -31,6 +31,7 @@ import org.apache.commons.logging.LogFactory;
  * Date             PR#             Engineer            Description
  * -----------      ----------      ------------        --------------------------
  * Mar 27, 2007                     njensen             Initial Creation
+ * Dec 10, 2015     5166            kbisanz             Update logging to use SLF4J
  * 
  * </PRE>
  * 
@@ -38,7 +39,8 @@ import org.apache.commons.logging.LogFactory;
 @Deprecated
 public abstract class ScriptTask {
     /** The logger */
-    protected final transient Log logger = LogFactory.getLog(getClass());
+    protected final transient Logger logger = LoggerFactory
+            .getLogger(getClass());
 
     /**
      * Performs the process the task was designed to complete.

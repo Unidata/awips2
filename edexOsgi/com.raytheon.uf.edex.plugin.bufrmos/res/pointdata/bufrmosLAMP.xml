@@ -73,7 +73,10 @@
   <parameter name="precipType" numDims="1" type="INT" />
   <parameter name="refTime" numDims="1" type="LONG" unit="s"/>
   <parameter name="temperature" numDims="1" type="FLOAT" unit="K" />
-  <parameter name="tstorm2hr" numDims="1" type="INT" unit="%"/>
+  <parameter name="ltg2hr" numDims="1" type="INT" unit="%"/>
+  <parameter name="ltg_bestCat" numDims="1" type="INT" />
+  <parameter name="cnvstorm2hr" numDims="1" type="INT" unit="%"/>
+  <parameter name="cnvstorm_bestCat" numDims="1" type="INT" />
   <parameter name="tstorm_bestCat" numDims="1" type="INT" />
   <parameter name="uwind" numDims="1" type="FLOAT" unit="m/s" />
   <parameter name="vis_bestCat" numDims="1" type="INT" />

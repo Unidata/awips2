@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="com.raytheon.viz.ui.contextualMenu">
+      <contextualMenu
+            actionClass="com.raytheon.uf.viz.daylight.transition.DaylightTransitionAction"
+            capabilityClass="com.raytheon.viz.core.rsc.BlendedResource"
+            name="com.raytheon.uf.viz.daylight.transition.AutoTransitionAction"
+            sortID="52">
+      </contextualMenu>
+      <contextualMenu
+            actionClass="com.raytheon.uf.viz.daylight.transition.ConfigureDaylightTransitionAction"
+            capabilityClass="com.raytheon.uf.viz.daylight.transition.resource.DaylightTransitionBlendedResource"
+            name="com.raytheon.uf.viz.daylight.transition.ConfigureDaylightTransitionAction"
+            sortID="53">
+      </contextualMenu>
+   </extension>
+</plugin>

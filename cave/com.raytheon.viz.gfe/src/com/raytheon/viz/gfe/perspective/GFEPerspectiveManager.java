@@ -66,11 +66,11 @@ import com.raytheon.viz.gfe.core.ISpatialDisplayManager;
 import com.raytheon.viz.gfe.core.internal.GFESpatialDisplayManager;
 import com.raytheon.viz.gfe.rsc.GFELegendResourceData;
 import com.raytheon.viz.gfe.statusline.ISCSendEnable;
+import com.raytheon.viz.gfe.tasks.TaskManager;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.cmenu.ZoomMenuAction;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.perspectives.AbstractCAVEPerspectiveManager;
-import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
 
 /**
@@ -94,6 +94,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * Dec 09, 2013     #2367   dgilling    Remove shutdown of ProcedureJob and
  *                                      SmartToolJob.
  * Jan 14, 2014      2594   bclement    added low memory notification
+ * Aug 24, 2015      4749   dgilling    Shutdown TaskManager on perspective close.
  * Sep 21, 2015      4858   dgilling    Display warning message when DRT mode is enabled.
  * </pre>
  * 
@@ -258,16 +259,8 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager
         DataManagerUIFactory.dispose(perspectiveWindow);
 
         FormatterlauncherAction.closeDialog();
-    }
 
-    @Override
-    public void deactivate() {
-        super.deactivate();
-        if (IWorkbenchPage.CHANGE_RESET.equals(VizPerspectiveListener
-                .getInstance().getPerspectiveChangeId(
-                        GFEPerspective.ID_PERSPECTIVE))) {
-            FormatterlauncherAction.closeFormatters();
-        }
+        TaskManager.getInstance().shutdown();
     }
 
     @Override

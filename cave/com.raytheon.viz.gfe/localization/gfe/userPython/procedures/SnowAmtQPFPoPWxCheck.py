@@ -321,7 +321,7 @@ class Procedure (SmartScript.SmartScript):
             gridTR = snowAmtInfoList[snowAmtIndex].gridTime()
             # zeros is from Numeric. It creates an array of all zeros for
             # the given dimensions and numeric type.
-            qpfSum = zeros(snowAmtGrid.shape, float32)
+            qpfSum = self.empty()
             qpfGrids = self.getGrids(
                 'Fcst', 'QPF', 'SFC', gridTR, mode='List', noDataError=0,
                 cache=0)
@@ -378,7 +378,7 @@ The SnowAmt/QPF Check skipped the time range.''' % gridTR
                 # the values of consistMask where self.cwaMask is one and
                 # I want the "good result", which is zero, where
                 # self.cwaMask is zero.
-                consistMask = where(self.cwaMask, consistMask, 0)
+                consistMask[logical_not(self.cwaMask)] = 0
                 # ravel and sometrue are from Numeric.
                 if not sometrue(ravel(consistMask)):
                     # This is the good result, even though it may not be
@@ -512,7 +512,7 @@ The SnowAmt/Wx Check skipped the time range.''' % gridTR
             ipMask = self.wxMask(wxGrid, ':IP:')
             snowMask = logical_or(logical_or(sMask, swMask), ipMask)
             del (sMask, swMask, ipMask)
-            wxMask = where(snowMask, 0, 1)
+            wxMask = logical_not(snowMask)
             # "Truth" table for the logical comparison follows
             # SnowAmt >= 0.1, 1; SnowAmt < 0.1, 0
             # Wx has S, SW, or IP, 0; Wx doesn't have S, SW, or IP, 1
@@ -522,7 +522,7 @@ The SnowAmt/Wx Check skipped the time range.''' % gridTR
             # SnowAmt < 0.1 (0) and Wx doesn't have (1) = 0 (Good result)
             #
             consistMask = logical_and(nonZeroMask, wxMask)
-            consistMask = where(self.cwaMask, consistMask, 0)
+            consistMask[logical_not(self.cwaMask)] = 0
             consistMaskList.append(consistMask)
             if not sometrue(ravel(consistMask)):
                 # There were no inconsistencies with this Wx grid. Since only
@@ -585,7 +585,7 @@ The SnowAmt/Wx Check skipped the time range.''' % gridTR
             ipMask = self.wxMask(wxGrid, ':IP:')
             snowMask = logical_or(logical_or(sMask, swMask), ipMask)
             del (sMask, swMask, ipMask)
-            wxMask = where(snowMask, 0, 1)
+            wxMask = logical_not(snowMask)
             # "Truth" table for the logical comparison follows
             # SnowAmt >= 0.1, 1; SnowAmt < 0.1, 0
             # Wx has S, SW, or IP, 0; Wx doesn't have S, SW, or IP, 1
@@ -596,7 +596,7 @@ The SnowAmt/Wx Check skipped the time range.''' % gridTR
             #
             # All Wx grids overlapping the SnowAmt grid must be consistent.
             consistMask = logical_and(nonZeroMask, wxMask)
-            consistMask = where(self.cwaMask, consistMask, 0)
+            consistMask[logical_not(self.cwaMask)] = 0
             if sometrue(ravel(consistMask)):
                 # I'll highlight the SnowAmt grids and Wx grids in
                 # gridTR as I did with QPF. However, I'll make
@@ -706,7 +706,7 @@ The QPF/PoP Check skipped the time range.''' % gridTR
             # PoP != 0 (0) and QPF > 0 (1) => 0 (Good result)
             # PoP = 0 (1) and QPF > 0 (1) => 1 (Bad result)
             consistMask = logical_and(qpfNonZeroMask, popZeroMask)
-            consistMask = where(self.cwaMask, consistMask, 0)
+            consistMask[logical_not(self.cwaMask)] = 0
             if sometrue(ravel(consistMask)):
                 # The good result is if the logical_and returns zeros
                 # for every grid point, that is "none true". So, if
@@ -741,7 +741,7 @@ The QPF/PoP Check skipped the time range.''' % gridTR
             # PoP <= 50 (0) and QPF = 0 (1) => 0 (Good result)
 
             consistMask2 = logical_and(qpfZeroMask, popGreater50Mask)
-            consistMask2 = where(self.cwaMask, consistMask2, 0)
+            consistMask2[logical_not(self.cwaMask)] = 0
             if sometrue(ravel(consistMask2)):
                 # The good result is if the logical_and returns zeros
                 # for every grid point, that is "none true". So, if
@@ -848,7 +848,7 @@ The QPF/Wx Check skipped the time range.''' % gridTR
             del (rMask, rwMask, lMask, zlMask, zrMask)
             precipMask = logical_or(snowMask, rainMask)
             del (snowMask, rainMask)
-            wxMask = where(precipMask, 0, 1)
+            wxMask = logical_not(precipMask)
             # QPF >= 0.01, 1; QPF < 0.01, 0
             # Wx has precip, 0; Wx doesn't have precip, 1
             # QPF >= 0.01 (1) and Wx has (0) = 0 (Good result)
@@ -856,7 +856,7 @@ The QPF/Wx Check skipped the time range.''' % gridTR
             # QPF < 0.01 (0) and Wx has (0) = 0 (Good result)
             # QPF < 0.01 (0) and Wx doesn't have (1) = 0 (Good result)
             consistMask = logical_and(qpfNonZeroMask, wxMask)
-            consistMask = where(self.cwaMask, consistMask, 0)
+            consistMask[logical_not(self.cwaMask)] = 0
             consistMaskList.append(consistMask)
             if not sometrue(ravel(consistMask)):
                 # There were no inconsistencies with this Wx grid. Since only
@@ -931,7 +931,7 @@ The QPF/Wx Check skipped the time range.''' % gridTR
             del (rMask, rwMask, lMask, zlMask, zrMask)
             precipMask = logical_or(snowMask, rainMask)
             del (snowMask, rainMask)
-            wxMask = where(precipMask, 0, 1)
+            wxMask = logical_not(precipMask)
             # QPF >= 0.01, 1; QPF < 0.01, 0
             # Wx has precip, 0; Wx doesn't have precip, 1
             # QPF >= 0.01 (1) and Wx has (0) = 0 (Good result)
@@ -941,7 +941,7 @@ The QPF/Wx Check skipped the time range.''' % gridTR
             #
             # All Wx grids overlapping the SnowAmt grid must be consistent.
             consistMask = logical_and(qpfNonZeroMask, wxMask)
-            consistMask = where(self.cwaMask, consistMask, 0)
+            consistMask[logical_not(self.cwaMask)] = 0
             if sometrue(ravel(consistMask)):
                 wxGridTR = wxInfoList[wxIndex].gridTime()
                 tempGridStartTime = wxGridTR.startTime().unixTime()

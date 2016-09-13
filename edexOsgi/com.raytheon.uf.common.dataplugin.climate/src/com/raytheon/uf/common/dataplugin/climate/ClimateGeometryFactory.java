@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.common.dataplugin.climate;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -48,9 +47,9 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * ------------- -------- ----------- --------------------------
  * May 14, 2015  4409     mapeters    Initial creation.
  * May 21, 2015  4409     mapeters    Extract query results correctly in getTimeColumnNames()
+ * Aug 05, 2015  4486     rjpeter     Changed Timestamp to Date.
  * Aug 21, 2015  4409     mapeters    Alias columns that are automatically retrieved when
  *                                    getting geometry data
- * 
  * </pre>
  * 
  * @author mapeters
@@ -278,14 +277,11 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
          * one index later.
          */
         Object potentialDataTimeElement = null;
-        if (results.length > startIndex + 1) {
+        if (results.length > (startIndex + 1)) {
             potentialDataTimeElement = results[startIndex + 1];
         }
 
-        if (dataTimeElement instanceof Timestamp) {
-            // For tables with one Timestamp representing DataTime
-            dataTime = new DataTime((Timestamp) dataTimeElement);
-        } else if (dataTimeElement instanceof Date) {
+        if (dataTimeElement instanceof Date) {
             Date date = (Date) dataTimeElement;
             if (potentialDataTimeElement instanceof Date) {
                 // For tables with start Date and end Date
@@ -295,7 +291,7 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
                 dataIndex++;
             } else {
                 // For tables with one Date
-                dataTime = new DataTime(new Timestamp(date.getTime()));
+                dataTime = new DataTime(new Date(date.getTime()));
             }
         } else if (dataTimeElement instanceof Integer) {
             int firstValue = (int) dataTimeElement;
@@ -619,7 +615,7 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
     private static String buildDataTimesConstraint(
             List<String> timeColumnNames, DataTime... dataTimes) {
         StringBuilder dataTimesConstraint = new StringBuilder();
-        if (dataTimes != null && dataTimes.length > 0) {
+        if ((dataTimes != null) && (dataTimes.length > 0)) {
             if (timeColumnNames.contains(YEAR)) {
                 dataTimesConstraint.append(buildInConstraint(YEAR,
                         Calendar.YEAR, dataTimes));
@@ -641,7 +637,7 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
                             .append(dataTimes[i].getRefTime()).append("'")
                             .append(" between ").append(PERIOD_START)
                             .append(" and ").append(PERIOD_END);
-                    if (i < dataTimes.length - 1) {
+                    if (i < (dataTimes.length - 1)) {
                         dataTimesConstraint.append(" or ");
                     }
                 }
@@ -654,7 +650,7 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
                 for (int i = 0; i < dataTimes.length; i++) {
                     dataTimesConstraint.append("'")
                             .append(dataTimes[i].getRefTime()).append("'");
-                    if (i < dataTimes.length - 1) {
+                    if (i < (dataTimes.length - 1)) {
                         dataTimesConstraint.append(",");
                     }
                 }
@@ -679,7 +675,7 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
         for (int i = 0; i < dataTimes.length; i++) {
             inConstraint.append(dataTimes[i].getRefTimeAsCalendar().get(
                     calendarField));
-            if (i < dataTimes.length - 1) {
+            if (i < (dataTimes.length - 1)) {
                 inConstraint.append(",");
             }
         }
@@ -699,7 +695,7 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
             dayOfYearInConstraint
                     .append(String.format("%02d-%02d", month, day));
             dayOfYearInConstraint.append("'");
-            if (i < dataTimes.length - 1) {
+            if (i < (dataTimes.length - 1)) {
                 dayOfYearInConstraint.append(",");
             }
         }

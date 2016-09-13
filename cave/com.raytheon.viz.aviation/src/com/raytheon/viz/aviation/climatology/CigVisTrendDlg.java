@@ -43,6 +43,7 @@ import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
@@ -72,8 +73,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 4/14/2011    8861       rferrel     Use SaveImageDlg class
  * 10/09/2912   1229       rferrel     Made non-blocking
  * 10/15/2012   1229       rferrel     Changes for non-blocking HelpUsageDlg.
- * 12 Aug 2013  #2256      lvenable    Disposed of images after printing and removed
+ * 08/12/2013   2256       lvenable    Disposed of images after printing and removed
  *                                     cursor memory leak.
+ * 01/26/2016   5054       randerso    Change top level dialog to be parented to the display
  * 
  * </pre>
  * 
@@ -220,6 +222,29 @@ public class CigVisTrendDlg extends CaveSWTDialog {
     public CigVisTrendDlg(Shell parent, java.util.List<String> icaos,
             StatusMessageType msgType, RGB statusCompRGB) {
         super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
+                | CAVE.DO_NOT_BLOCK);
+        setText("AvnFPS - Ceiling/Visibility Trend");
+
+        this.icaos = icaos;
+        this.msgType = msgType;
+        this.statusCompRGB = statusCompRGB;
+    }
+
+    /**
+     * Constructor.
+     * 
+     * @param display
+     * 
+     * @param icaos
+     *            Array of ICAOs
+     * @param msgType
+     *            Status message type.
+     * @param statusCompRGB
+     *            Message status comp background color.
+     */
+    public CigVisTrendDlg(Display display, java.util.List<String> icaos,
+            StatusMessageType msgType, RGB statusCompRGB) {
+        super(display, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
                 | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS - Ceiling/Visibility Trend");
 
@@ -558,7 +583,7 @@ public class CigVisTrendDlg extends CaveSWTDialog {
         getBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (siteList != null && siteList.getItemCount() != 0) {
+                if ((siteList != null) && (siteList.getItemCount() != 0)) {
                     CigVisTrendDataManager dataMgr = CigVisTrendDataManager
                             .getInstance();
                     dataMgr.getMetar(siteList.getItem(siteList
@@ -576,7 +601,7 @@ public class CigVisTrendDlg extends CaveSWTDialog {
             @SuppressWarnings("unchecked")
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (siteList != null && siteList.getItemCount() != 0) {
+                if ((siteList != null) && (siteList.getItemCount() != 0)) {
                     CigVisTrendDataManager dataMgr = CigVisTrendDataManager
                             .getInstance();
 
@@ -594,12 +619,12 @@ public class CigVisTrendDlg extends CaveSWTDialog {
                         int minutes = tms.get(Calendar.MINUTE);
                         int h0 = hour - 1;
                         int h1 = hour + 1;
-                        trendHourComp.setValueText(hour * 15
+                        trendHourComp.setValueText((hour * 15)
                                 + Math.round(minutes / 4.0));
                         trendHourComp.validateValueInputs();
                         trendHourComp.setRangeText(
-                                h0 * 15 + Math.round(minutes / 4.0), h1 * 15
-                                        + Math.round(minutes / 4.0));
+                                (h0 * 15) + Math.round(minutes / 4.0),
+                                (h1 * 15) + Math.round(minutes / 4.0));
                         trendHourComp.validateRangeInputs();
 
                         int yday = tms.get(Calendar.DAY_OF_YEAR);
@@ -623,7 +648,7 @@ public class CigVisTrendDlg extends CaveSWTDialog {
                             vis1 = Double.parseDouble(range[1]);
                         }
 
-                        if (vis0 > vsby || vsby >= vis1) {
+                        if ((vis0 > vsby) || (vsby >= vis1)) {
                             double[] visArray = { 0.0, 0.4, 1.1, 3.1, 6.1,
                                     Integer.MAX_VALUE };
 
@@ -631,7 +656,7 @@ public class CigVisTrendDlg extends CaveSWTDialog {
                                 vis0 = visArray[i - 1];
                                 vis1 = visArray[i];
 
-                                if (vis0 <= vsby && vsby < vis1) {
+                                if ((vis0 <= vsby) && (vsby < vis1)) {
                                     break;
                                 }
                             }
@@ -662,7 +687,7 @@ public class CigVisTrendDlg extends CaveSWTDialog {
                             cig1 = Integer.parseInt(range[1]);
                         }
 
-                        if (cig0 > cig || cig >= cig1) {
+                        if ((cig0 > cig) || (cig >= cig1)) {
                             int[] cigArray = { 0, 210, 610, 1020, 3130, 5050,
                                     Integer.MAX_VALUE };
 
@@ -670,7 +695,7 @@ public class CigVisTrendDlg extends CaveSWTDialog {
                                 cig0 = cigArray[i - 1];
                                 cig1 = cigArray[i];
 
-                                if (cig0 <= cig && cig < cig1) {
+                                if ((cig0 <= cig) && (cig < cig1)) {
                                     break;
                                 }
                             }
@@ -729,7 +754,7 @@ public class CigVisTrendDlg extends CaveSWTDialog {
                             ff1 = Double.parseDouble(range[1]);
                         }
 
-                        if (ff0 > ff || ff >= ff1) {
+                        if ((ff0 > ff) || (ff >= ff1)) {
                             double[] ffArray = { 0, 5, 12, 32,
                                     Integer.MAX_VALUE };
 
@@ -737,7 +762,7 @@ public class CigVisTrendDlg extends CaveSWTDialog {
                                 ff0 = ffArray[i];
                                 ff1 = ffArray[i + 1];
 
-                                if (ff0 <= ff && ff < ff1) {
+                                if ((ff0 <= ff) && (ff < ff1)) {
                                     break;
                                 }
                             }
@@ -864,7 +889,7 @@ public class CigVisTrendDlg extends CaveSWTDialog {
     }
 
     private void retrieveData() {
-        if (siteList != null && siteList.getItemCount() != 0) {
+        if ((siteList != null) && (siteList.getItemCount() != 0)) {
             statusMessageComp.setMessageText(
                     "Retrieving data for "
                             + siteList.getItem(siteList.getSelectionIndex())

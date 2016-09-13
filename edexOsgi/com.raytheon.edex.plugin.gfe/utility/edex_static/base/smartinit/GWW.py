@@ -40,7 +40,6 @@ class GWWForecaster(Forecaster):
         editAreaMask = equal(grid, 0.0)
         dataMask = greater(htsgw_SFC, 0.0)
         # points where elevation = 0
-        topoMask = editAreaMask * 0
         topoGrid = self.getTopo()
         topoMask = less_equal(topoGrid, 0.0)
 
@@ -84,8 +83,8 @@ class GWWForecaster(Forecaster):
 ##--------------------------------------------------------------------------
     def calcWind(self, wind_SFC):
         # extract the wind speed and direction
-        mag = where(greater(wind_SFC[0], 100), 0, wind_SFC[0]*1.94) # convert
-        dir = where(greater(wind_SFC[0], 100), 0, wind_SFC[1])
+        mag = where(greater(wind_SFC[0], 100), float32(0), wind_SFC[0]*1.94) # convert
+        dir = where(greater(wind_SFC[0], 100), float32(0), wind_SFC[1])
         dir = clip(dir, 0, 359.5)
         return (mag, dir)
 
@@ -139,24 +138,24 @@ class GWWForecaster(Forecaster):
     def offset(self, a, x, y):
         sy1, sy2 = self.getindicies(y, a.shape[0])
         sx1, sx2 = self.getindicies(x, a.shape[1])
-        b = zeros(a.shape, a.dtype)
+        b = zeros_like(a)
         b[sy1,sx1] = a[sy2,sx2]
         return b
 
 ##--------------------------------------------------------------------------
 ## Given a numeric array of 1s and 0s this method returns a similar
-## array with cells set that emcompass the mask, unset everwhere else
+## array with cells set that encompass the mask, unset everywhere else
 ##--------------------------------------------------------------------------
     def getMaskBorder(self, mask):
-        border = zeros(mask.shape)
+        border = mask.copy()
         for i in [-1, 0, 1]:
             for j in [-1, 0, 1]:
-                border = logical_or(border, self.offset(mask, i, j))
-        return logical_xor(border, mask)
+                border[self.offset(mask, i, j)] = True
+        return border
 
 ##--------------------------------------------------------------------------
 ## Given a numeric array of 1s and 0s this method returns a list of
-## the (x, y) indicies that are set to 1.
+## the (x, y) indices that are set to 1.
 ##--------------------------------------------------------------------------
     def getMaskIndicies(self, mask):
         flatIndicies = flatnonzero(mask)  # get the indicies of the set cells

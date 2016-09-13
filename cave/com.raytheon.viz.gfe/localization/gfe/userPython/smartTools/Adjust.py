@@ -103,9 +103,9 @@ class Tool (SmartScript.SmartScript):
         else:
            editAreaMask=ea
            topoMask=editAreaMask*Topo
-           topoMaskMin=where(equal(topoMask,0),100000,topoMask)
-           maxtopo=maximum.reduce(maximum.reduce(topoMask))
-           mintopo=minimum.reduce(minimum.reduce(topoMaskMin))
+           topoMaskMin = where(equal(topoMask, 0), float32(100000), topoMask)
+           maxtopo = amax(topoMask)
+           mintopo = amin(topoMaskMin)
            topodiff=(maxtopo-mintopo)+0.0001
            if (elev=="Mountain"):
                elevgrid=editAreaMask*((Topo-mintopo)/topodiff)

@@ -8,7 +8,7 @@ CURRENT_RELEASE="${AWIPSII_RELEASE}"
 
 CURRENT_DATE=`date +"%m-%d-%Y"`
 
-CORE_RPM_DIR="${AWIPSCM_SHARE}/awips2-rpms/rpms"
+CORE_RPM_DIR="${AWIPSII_STATIC_FILES}/awips2-rpms/rpms"
 ECLIPSE_RPM_DIR="/usr/src/redhat/RPMS/i386"
 ECLIPSE_RPM="awips2-eclipse-3.6.1-1.i386.rpm"
 JAVA_RPM="awips2-java-1.6.0_17-2.i386.rpm"

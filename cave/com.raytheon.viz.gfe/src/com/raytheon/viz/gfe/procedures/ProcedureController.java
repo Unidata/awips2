@@ -20,38 +20,31 @@
 package com.raytheon.viz.gfe.procedures;
 
 import java.util.List;
-import java.util.Map;
 
 import jep.JepException;
 
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
-import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.python.PyConstants;
 import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.uf.common.time.util.ITimer;
-import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.viz.gfe.BaseGfePyController;
 import com.raytheon.viz.gfe.core.DataManager;
 
 /**
- * Manages and runs the procedures in the system
+ * Manages and runs the procedures in the system.
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 5, 2008             njensen      Initial creation
- * Jan 8, 2013  1486       dgilling     Support changes to BaseGfePyController.
- * 02/12/2013        #1597 randerso    Added logging to support GFE Performance metrics
+ * Nov 05, 2008            njensen      Initial creation
+ * Jan 08, 2013  1486      dgilling     Support changes to BaseGfePyController.
+ * Feb 12, 2013  #1597     randerso     Added logging to support GFE Performance metrics
+ * Jul 27, 2015  #4263     dgilling     Refactor and make abstract.
  * 
  * </pre>
  * 
@@ -59,31 +52,18 @@ import com.raytheon.viz.gfe.core.DataManager;
  * @version 1.0
  */
 
-public class ProcedureController extends BaseGfePyController {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(ProcedureController.class);
+public abstract class ProcedureController extends BaseGfePyController {
 
-    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+    protected final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(getClass());
+
+    protected final IPerformanceStatusHandler perfLog = PerformanceStatus
             .getHandler("GFE:");
-
-    private LocalizationFile proceduresDir;
-
-    private LocalizationFile utilitiesDir;
 
     public ProcedureController(String filePath, String anIncludePath,
             ClassLoader classLoader, DataManager dataManager)
             throws JepException {
         super(filePath, anIncludePath, classLoader, dataManager, "Procedure");
-
-        LocalizationContext baseCtx = PathManagerFactory.getPathManager()
-                .getContext(LocalizationType.CAVE_STATIC,
-                        LocalizationLevel.BASE);
-
-        proceduresDir = GfePyIncludeUtil.getProceduresLF(baseCtx);
-        proceduresDir.addFileUpdatedObserver(this);
-
-        utilitiesDir = GfePyIncludeUtil.getUtilitiesLF(baseCtx);
-        utilitiesDir.addFileUpdatedObserver(this);
 
         String scriptPath = GfePyIncludeUtil.getProceduresIncludePath();
 
@@ -103,65 +83,4 @@ public class ProcedureController extends BaseGfePyController {
         jep.eval("import sys");
         jep.eval("sys.argv = ['ProcedureInterface']");
     }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.common.python.PythonInterpreter#dispose()
-     */
-    @Override
-    public void dispose() {
-        proceduresDir.removeFileUpdatedObserver(this);
-        utilitiesDir.removeFileUpdatedObserver(this);
-
-        super.dispose();
-    }
-
-    /**
-     * Runs the procedure's execute method
-     * 
-     * @param procedureName
-     *            the name of the procedure being executed
-     * @param args
-     *            the arguments to the tool
-     * @return the result of the tool's execution
-     * @throws JepException
-     */
-    public Object executeProcedure(String procedureName,
-            Map<String, Object> args) throws JepException {
-        ITimer timer = TimeUtil.getTimer();
-        timer.start();
-
-        if (!isInstantiated(procedureName)) {
-            instantiatePythonScript(procedureName);
-        }
-        args.put(PyConstants.METHOD_NAME, "execute");
-        args.put(PyConstants.MODULE_NAME, procedureName);
-        args.put(PyConstants.CLASS_NAME, pythonClassName);
-
-        statusHandler.handle(Priority.DEBUG, "Running procedure: "
-                + procedureName);
-
-        internalExecute("runProcedure", INTERFACE, args);
-        Object result = getExecutionResult();
-
-        timer.stop();
-        perfLog.logDuration("Running procedure " + procedureName,
-                timer.getElapsedTime());
-        return result;
-    }
-
-    @Override
-    protected void evaluateArgument(String argName, Object argValue)
-            throws JepException {
-        if (argValue instanceof TimeRange) {
-            jep.set("timeRangeTemp", argValue);
-            jep.eval(argName + " = TimeRange.TimeRange(timeRangeTemp)");
-        } else if (argName.startsWith("varDict")) {
-            jep.eval(argName + " = varDict");
-        } else {
-            super.evaluateArgument(argName, argValue);
-        }
-    }
-
 }

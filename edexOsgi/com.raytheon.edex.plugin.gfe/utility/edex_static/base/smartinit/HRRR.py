@@ -7,7 +7,7 @@ class HRRRForecaster(Forecaster):
 
 #    def calcClgHgt(self, cc_CCL):
 #        ceil = cc_CCL * .03280839
-#        ceil = where(less_equal(ceil, 0.0), 250.0, ceil)
+#        ceil[less_equal(ceil, 0.0)] = 250.0
 #        return ceil
 
     def calcVis(self, vis_SFC):
@@ -92,8 +92,8 @@ class HRRRForecaster(Forecaster):
         m1=less(T,9.0)
         m2=greater_equal(T,30.0)
         snowr=(T*-0.5)+22.5
-        snowr=where(m1,20,snowr)
-        snowr=where(m2,0,snowr)
+        snowr[m1] = 20
+        snowr[m2] = 0
         snowamt=QPF*snowr
         return snowamt
 
@@ -156,16 +156,16 @@ class HRRRForecaster(Forecaster):
                "Chc:ZR:-:<NoVis>:", 'Chc:IP:-:<NoVis>:',
                'Chc:ZR:-:<NoVis>:^Chc:IP:-:<NoVis>:']
 
-        wx = self._empty
-        wx = where(logical_and(greater(QPF,0.02),greater(T,35)), 2, wx)
-        wx = where(equal(crain_SFC, 1), 2, wx)
-        wx = where(equal(cfrzr_SFC, 1), 4, wx)
-        wx = where(equal(cicep_SFC, 1), 5, wx)
-        wx = where(equal(csnow_SFC, 1), 1, wx) 
+        wx = self.empty(int8)
+        wx[logical_and(greater(QPF, 0.02), greater(T, 35))] = 2
+        wx[equal(crain_SFC, 1)] = 2
+        wx[equal(cfrzr_SFC, 1)] = 4
+        wx[equal(cicep_SFC, 1)] = 5
+        wx[equal(csnow_SFC, 1)] = 1 
 
         # Make showers (scattered/Chc)
         convecMask = less(refc_EA, 35)
-        wx = where(logical_and(not_equal(wx, 0), convecMask), wx + 6, wx)
+        wx[logical_and(not_equal(wx, 0), convecMask)] += 6
 
         # Thunder
         for i in xrange(len(key)):
@@ -174,10 +174,10 @@ class HRRRForecaster(Forecaster):
                 tcov = "Sct"
             key.append(key[i] + "^" + tcov
                        + ":T:<NoInten>:<NoVis>:")
-        wx = where(logical_and(greater_equal(bli_BL0180, -3), greater_equal(refc_EA, 35)), wx + 13, wx)
+        wx[logical_and(greater_equal(bli_BL0180, -3), greater_equal(refc_EA, 35))] += 13
 
         # No wx where no qpf
-        wx = where(less(QPF, 0.01), 0, wx)
+        wx[less(QPF, 0.01)] = 0
         return(wx, key)
 
 def main():

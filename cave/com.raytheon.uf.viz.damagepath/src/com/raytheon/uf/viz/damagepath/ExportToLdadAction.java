@@ -22,6 +22,11 @@ package com.raytheon.uf.viz.damagepath;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.geotools.data.simple.SimpleFeatureCollection;
 
 import com.raytheon.uf.common.damagepath.request.ExportToLdadRequest;
@@ -48,6 +53,7 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  * Jun 08, 2015  #4355     dgilling    Initial creation
  * Jun 18, 2015  #4354     dgilling    Support FeatureCollections so each 
  *                                     polygon can have its own properties.
+ * Mar 11, 2016  #5288     dgilling    Rewrite to spawn async Job.
  * 
  * </pre>
  * 
@@ -56,6 +62,56 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  */
 
 public class ExportToLdadAction extends AbstractRightClickAction {
+
+    private static class ExportDamagePathToLdadJob extends Job {
+
+        private static final String PLUGIN_ID = "com.raytheon.uf.viz.damagepath";
+
+        private final DamagePathLayer<?> layer;
+
+        protected ExportDamagePathToLdadJob(DamagePathLayer<?> layer) {
+            super("Exporting Damage Path to LDAD");
+            this.layer = layer;
+        }
+
+        @Override
+        protected IStatus run(IProgressMonitor monitor) {
+            try (ByteArrayOutputStream outStream = new ByteArrayOutputStream()) {
+                SimpleFeatureCollection featureCollection = layer
+                        .buildFeatureCollection();
+
+                new SimpleGeoJsonService().serialize(featureCollection,
+                        outStream);
+                byte[] jsonData = outStream.toByteArray();
+
+                try {
+                    String siteID = LocalizationManager.getInstance()
+                            .getCurrentSite();
+                    IServerRequest request = new ExportToLdadRequest(siteID,
+                            jsonData);
+                    String errorMsg = (String) ThriftClient
+                            .sendRequest(request);
+                    if (StringUtils.isNotEmpty(errorMsg)) {
+                        String msg = "Could not export damage path data to LDAD: "
+                                + errorMsg;
+                        statusHandler.error(msg);
+                        return new Status(IStatus.ERROR, PLUGIN_ID, msg);
+                    }
+                } catch (VizException e) {
+                    String msg = "Error processing ExportToLdadRequest.";
+                    statusHandler.error(msg, e);
+                    return new Status(IStatus.ERROR, PLUGIN_ID, msg, e);
+                }
+            } catch (JsonException | IOException e) {
+                String msg = "Error serializing Damage Path data to GeoJSON.";
+                statusHandler.error(msg, e);
+                return new Status(IStatus.ERROR, PLUGIN_ID, msg, e);
+            }
+
+            statusHandler.info("Damage Path successfully exported.");
+            return Status.OK_STATUS;
+        }
+    }
 
     protected static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ExportToLdadAction.class);
@@ -66,32 +122,7 @@ public class ExportToLdadAction extends AbstractRightClickAction {
 
     @Override
     public void run() {
-        String siteID = LocalizationManager.getInstance().getCurrentSite();
-        byte[] jsonData;
-
-        try (ByteArrayOutputStream outStream = new ByteArrayOutputStream()) {
-            DamagePathLayer<?> layer = (DamagePathLayer<?>) getSelectedRsc();
-            SimpleFeatureCollection featureCollection = layer
-                    .buildFeatureCollection();
-
-            new SimpleGeoJsonService().serialize(featureCollection, outStream);
-            jsonData = outStream.toByteArray();
-        } catch (JsonException | IOException e) {
-            statusHandler.error(
-                    "Error serializing Damage Path data to GeoJSON.", e);
-            return;
-        }
-
-        try {
-            IServerRequest request = new ExportToLdadRequest(siteID, jsonData);
-            String errorMsg = (String) ThriftClient.sendRequest(request);
-            if (errorMsg != null && !errorMsg.isEmpty()) {
-                statusHandler
-                        .error("Could not export damage path data to LDAD: "
-                                + errorMsg);
-            }
-        } catch (VizException e) {
-            statusHandler.error("Error processing ExportToLdadRequest.", e);
-        }
+        new ExportDamagePathToLdadJob((DamagePathLayer<?>) getSelectedRsc())
+                .schedule();
     }
 }

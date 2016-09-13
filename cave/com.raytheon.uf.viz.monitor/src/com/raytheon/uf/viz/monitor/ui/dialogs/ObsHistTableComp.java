@@ -33,55 +33,58 @@ import com.raytheon.uf.viz.monitor.data.TableData;
  * Observation History table composite.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 6, 2009            lvenable     Initial creation
- *
+ * Apr  6, 2009            lvenable    Initial creation
+ * Feb 23, 2016  #5393     randerso    Fix column width issues, code cleanup
+ * 
  * </pre>
- *
+ * 
  * @author lvenable
  * @version 1.0
  */
-public class ObsHistTableComp extends TableComp
-{
+public class ObsHistTableComp extends TableComp {
     /**
      * Common table configuration data.
      */
     private CommonTableConfig tableConfig;
-    
+
     /**
      * Observation type.
      */
     private ObsHistType obsType;
-    
+
     /**
      * Constructor.
-     * @param parent Parent composite.
-     * @param data Table data.
-     * @param appName Application name.
-     * @param obsType Observation type.
+     * 
+     * @param parent
+     *            Parent composite.
+     * @param data
+     *            Table data.
+     * @param appName
+     *            Application name.
+     * @param obsType
+     *            Observation type.
      */
-    public ObsHistTableComp(Composite parent, TableData data, CommonConfig.AppName appName,
-            ObsHistType obsType)
-    {
+    public ObsHistTableComp(Composite parent, TableData data,
+            CommonConfig.AppName appName, ObsHistType obsType) {
         super(parent, data, appName);
-        
+
         this.obsType = obsType;
-        
-        tableConfig = CommonTableConfig.getInstance();  
-        
+
+        tableConfig = CommonTableConfig.getInstance();
+
         init();
     }
-    
+
     /**
      * Method not used.
      */
     @Override
-    protected void addTopTableControls(Composite parentComp)
-    {
+    protected void addTopTableControls(Composite parentComp) {
         // Don't need to do anything here...
     }
 
@@ -89,8 +92,7 @@ public class ObsHistTableComp extends TableComp
      * Method not used.
      */
     @Override
-    protected void tableMouseDownAction(MouseEvent event)
-    {
+    protected void tableMouseDownAction(MouseEvent event) {
         // Don't need to do anything here...
     }
 
@@ -98,68 +100,51 @@ public class ObsHistTableComp extends TableComp
      * Method not used.
      */
     @Override
-    protected void tableMouseHoverAction(MouseEvent event)
-    {
-       // Don't need to do anything here...
+    protected void tableMouseHoverAction(MouseEvent event) {
+        // Don't need to do anything here...
     }
 
     /**
      * Get the observation history column index.
-     * @param appName Application name.
-     * @param sortCol Column to sort on.
+     * 
+     * @param appName
+     *            Application name.
+     * @param sortCol
+     *            Column to sort on.
      * @return The column index of the column to be sorted.
      */
     @Override
-    protected int getColumnIndex(AppName appName, String sortCol)
-    {
+    protected int getColumnIndex(AppName appName, String sortCol) {
         return tableConfig.getObsHistColumnIndex(appName, obsType, sortCol);
     }
 
     /**
      * Get the array of column keys used to access the column metadata.
-     * @param app Application name.
+     * 
+     * @param app
+     *            Application name.
      * @return String array of column keys.
      */
     @Override
-    protected String[] getColumnKeys(AppName app)
-    {
+    protected String[] getColumnKeys(AppName app) {
         return tableConfig.getObsHistColumnKeys(app, obsType);
     }
 
     /**
-     * Get the default column width.
-     * @param appName Application name.
-     * @return Default column width.
-     */
-    @Override
-    protected int getDefaultColWidth(AppName appName)
-    {
-        return tableConfig.getTableDefaultColWidth(appName);
-    }
-
-    /**
-     * Get the table attribute data for the specified column. 
-     * @param colName Column name.
+     * Get the table attribute data for the specified column.
+     * 
+     * @param colName
+     *            Column name.
      * @return The attribute data.
      */
     @Override
-    protected ColumnAttribData getColumnAttribteData(String colName)
-    {
+    protected ColumnAttribData getColumnAttributeData(String colName) {
         return tableConfig.getObsHistColumnAttr(colName);
     }
 
     @Override
-    protected void tableColRightMouseAction(MouseEvent event)
-    {
+    protected void tableColRightMouseAction(MouseEvent event) {
         // TODO Auto-generated method stub
-        
-    }
 
-	@Override
-	protected void packColumns() {
-	      for (int i = 0; i < table.getColumnCount(); i++) {
-	          table.getColumn(i).pack();
-	          table.getColumn(i).setWidth(table.getColumn(i).getWidth() + 5);
-	      }
-	}
+    }
 }

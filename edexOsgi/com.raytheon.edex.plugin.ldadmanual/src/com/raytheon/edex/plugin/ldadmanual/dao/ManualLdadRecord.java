@@ -63,6 +63,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
  * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
  * Jul 23, 2014  3410     bclement    location changed to floats
+ * Jul 23, 2015  2360     rferrel     Add name to unique constraint.
  * 
  * </pre>
  * 
@@ -72,7 +73,7 @@ import com.vividsolutions.jts.geom.Geometry;
 
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "ldad_manualseq")
-@Table(name = "ldad_manual", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = "ldad_manual", uniqueConstraints = { @UniqueConstraint(name = "uk_ldad_manual_datauri_fields", columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
@@ -2139,7 +2140,6 @@ public class ManualLdadRecord extends PluginDataObject implements
     public void setLocation(SurfaceObsLocation location) {
         this.location = location;
     }
-
 
     /**
      * @return the timeObs

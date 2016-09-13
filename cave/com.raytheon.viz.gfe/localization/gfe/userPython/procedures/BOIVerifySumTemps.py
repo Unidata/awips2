@@ -22,6 +22,7 @@
 #    11/21/13        16770         ryu            Change name of temporary files
 #                                                 for dual domain.
 #    11/26/2014      #649          zhao           changed "dbName" to "dbid"  
+#    02/10/2016      5283          nabowle        Remove NGM support.
 #=====================================================================
 #
 #  S T A R T   C O N F I G U R A T I O N   S E C T I O N
@@ -57,7 +58,7 @@ BADTHRESHOLD=10
 MODLIST=["Official","MOSGuideBC","MOSGuide","GFS40","GFS40BC",
          "ADJMAV","ADJMAVBC","NAM12","NAM12BC","DGEX","DGEXBC",
          "ADJMEX","ADJMEXBC","ADJMET","ADJMETBC","SREF","SREFBC",
-         "NGM80","NGM80BC","ADJFWC","ADJFWCBC","ADJDGX","ADJDGXBC",]
+         "ADJFWC","ADJFWCBC","ADJDGX","ADJDGXBC",]
 #
 #  The e-mail address to be 'From' when e-mails are sent
 #     an example:  EMAIL_FROM_ADDRES="timothy.barker@noaa.gov"
@@ -153,7 +154,6 @@ class Procedure (SmartScript.SmartScript):
       self.VU.setVerbose(0)
       self.VU.logMsg("Starting BOIVerifySumTemps")
 
-      self._empty = self.VU._empty
       #
       #
       #
@@ -161,7 +161,6 @@ class Procedure (SmartScript.SmartScript):
       self.eaMask=ravel(self.eaGrid)
       self.numpoints=add.reduce(self.eaMask)
       self.obsModel=OBSMODEL
-      grid=self._empty
       #
       #  See if a time is provided in a /tmp/<siteId>_SumTemps.time file
       #  or otherwise get the current system time
@@ -453,7 +452,7 @@ class Procedure (SmartScript.SmartScript):
          #
          #  Calculate the variance in that grid
          #
-         obsgrid=where(self.eaMask,ravel(ogrid),0)
+         obsgrid=where(self.eaMask,ravel(ogrid),float32(0))
          obsgrid2=obsgrid*obsgrid
          std=sqrt(float(add.reduce(obsgrid2))/self.numpoints-((float(add.reduce(obsgrid))/self.numpoints)**2))
          stds[key]=std
@@ -471,7 +470,7 @@ class Procedure (SmartScript.SmartScript):
             records=obsCases[prevkey]
             pgrid=self.VU.getVerGrids(self.obsModel,pbasetime,parm,pstime,petime,recList=records)
             if pgrid is not None:
-               prevgrid=where(self.eaMask,ravel(pgrid),0)
+               prevgrid=where(self.eaMask,ravel(pgrid),float32(0))
                chggrid=obsgrid-prevgrid
                chgs[key]=add.reduce(chggrid)/self.numpoints
                abschgs[key]=add.reduce(abs(chggrid))/self.numpoints
@@ -483,7 +482,7 @@ class Procedure (SmartScript.SmartScript):
          anomstr="              "
          cgrid=self.getClimoGrid(parm,pyea,pmon,pday)
          if cgrid is not None:
-            climgrid=where(self.eaMask,ravel(cgrid),0)
+            climgrid=where(self.eaMask,ravel(cgrid),float32(0))
             anomgrid=obsgrid-climgrid
             anom[key]=add.reduce(anomgrid)/self.numpoints
             absanom[key]=add.reduce(abs(anomgrid))/self.numpoints

@@ -24,8 +24,8 @@ import java.util.regex.Pattern;
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.SI;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
@@ -53,14 +53,16 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20071010            391 jkorman     Initial coding.
- * 20071203            410 jkorman     JavaDoc complaints.
- * 20080116            798 jkorman     Changed logging levels.
- * Sep 18, 2014 #3627      mapeters    Convert units using {@link UnitConverter}, removed 
- *                                     unused duration field, made patterns constant.
- * Sep 26, 2014 #3629      mapeters    Replaced static imports.
- * Sep 30, 2014 #3629      mapeters    Conformed to changes in ISynoptic constants.
- * May 26, 2015 #4525      mapeters    Fix pressure unit conversion.
+ * 20071010     391        jkorman     Initial coding.
+ * 20071203     410        jkorman     JavaDoc complaints.
+ * 20080116     798        jkorman     Changed logging levels.
+ * Sep 18, 2014 3627       mapeters    Convert units using {@link UnitConverter}, removed
+ *                                      unused duration field, made patterns constant.
+ * Sep 26, 2014 3629       mapeters    Replaced static imports.
+ * Sep 30, 2014 3629       mapeters    Conformed to changes in ISynoptic constants.
+ * May 26, 2015 4525       mapeters    Fix pressure unit conversion.
+ * Dec 17, 2015 5166       kbisanz     Update logging to use SLF4J
+ * Apr 20, 2016 DR18361    MPorricelli Added decoding of snowDepth
  * 
  * </pre>
  * 
@@ -80,7 +82,7 @@ public class SynopticSec3Decoder extends AbstractSectionDecoder {
     private static final Pattern P912 = Pattern.compile("912\\d{2}");
 
     /** The logger */
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     private DataItem maxTemperature = null; // (group 1xxxx)
 
@@ -97,6 +99,10 @@ public class SynopticSec3Decoder extends AbstractSectionDecoder {
     private Double windGust911 = null;
 
     private Double windGust912 = null;
+
+    private DataItem snowDepth = null;
+
+    private Integer stateOfGroundWithSnow = -9999;
 
     private static final UnitConverter daPaToPa = SI.DEKA(SI.PASCAL)
             .getConverterTo(SI.PASCAL);
@@ -163,6 +169,8 @@ public class SynopticSec3Decoder extends AbstractSectionDecoder {
                     // jjj regional data
                     closeGroup(3);
                 } else if ("4".equals(element.substring(0, 1)) && doGroup(4)) {
+                    stateOfGroundWithSnow = AbstractSfcObsDecoder.getInt(element, 1, 2);
+                    snowDepth = SynopticGroups.decodeSnowDepth(element, 3);
                     closeGroup(4);
                 } else if (P589.matcher(element).find() && doGroup(5)) {
                     int sign = 0;
@@ -273,7 +281,12 @@ public class SynopticSec3Decoder extends AbstractSectionDecoder {
                 receiver.addPressure(press);
             }
         }
-
+        if (snowDepth != null) {
+            receiver.setSnowDepth(snowDepth.getDataValue());
+        }
+        if ((stateOfGroundWithSnow != null) && (stateOfGroundWithSnow >= -9999)) {
+            receiver.setStateOfGroundWithSnow(stateOfGroundWithSnow);
+        }
         // Use the 10 minute gust data if present
         if (windGust910 != null) {
             receiver.setWindGust(windGust910);

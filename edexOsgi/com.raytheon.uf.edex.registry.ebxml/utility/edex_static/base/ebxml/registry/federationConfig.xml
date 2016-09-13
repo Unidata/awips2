@@ -4,14 +4,14 @@
 	<specificationVersion>4.0</specificationVersion>
 	<catalogingLatency>PT0.000S</catalogingLatency>
 	<replicationSyncLatency>PT0.000S</replicationSyncLatency>
-	<siteDescription>AWIPS Network Control Facility</siteDescription>
-	<sitePrimaryContactFirstName>National</sitePrimaryContactFirstName>
-	<sitePrimaryContactMiddleName>Weather</sitePrimaryContactMiddleName>
-	<sitePrimaryContactLastName>Service</sitePrimaryContactLastName>
-	<siteAddressStreetNumber>1325</siteAddressStreetNumber>
-	<siteAddressStreet>East West Highway</siteAddressStreet>
-	<siteAddressCity>Silver Spring</siteAddressCity>
-	<siteAddressState>MD</siteAddressState>
+	<siteDescription>AWIPS DD Central Registry</siteDescription>
+	<sitePrimaryContactFirstName>Unidata</sitePrimaryContactFirstName>
+	<sitePrimaryContactMiddleName>Program</sitePrimaryContactMiddleName>
+	<sitePrimaryContactLastName>Center</sitePrimaryContactLastName>
+	<siteAddressStreetNumber>3300</siteAddressStreetNumber>
+	<siteAddressStreet>Mitchell Lane</siteAddressStreet>
+	<siteAddressCity>Boulder</siteAddressCity>
+	<siteAddressState>CO</siteAddressState>
 	<siteAddressCountry>USA</siteAddressCountry>
-	<siteAddressPostalCode>20910</siteAddressPostalCode>
+	<siteAddressPostalCode>80301</siteAddressPostalCode>
 </federationProperties>

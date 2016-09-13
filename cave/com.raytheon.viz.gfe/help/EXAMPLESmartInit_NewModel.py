@@ -35,8 +35,8 @@ class GWWForecaster(Forecaster):
         return clip(grid, 0, 100)
 
     def calcWind(self, wind_SFC):
-        mag = where(greater(wind_SFC[0], 50), 0, wind_SFC[0]*1.94)
-        dir = where(greater(wind_SFC[0], 50), 0, wind_SFC[1])
+        mag = where(greater(wind_SFC[0], 50), float32(0), wind_SFC[0]*1.94)
+        dir = where(greater(wind_SFC[0], 50), float32(0), wind_SFC[1])
         dir = clip(dir, 0, 359.5)
         return (mag, dir)
 

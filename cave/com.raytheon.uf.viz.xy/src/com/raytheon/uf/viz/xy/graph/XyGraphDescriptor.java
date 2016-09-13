@@ -46,6 +46,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------- -------- ----------- --------------------------
  * Sep 29, 2009           mschenke    Initial creation
  * Oct 23, 2013  2491     bsteffen    Remove ISerializableObject
+ * Jul 16, 2015  4220     mapeters    Listen for resources being removed from resourceList
  * 
  * 
  * </pre>
@@ -57,16 +58,13 @@ import com.vividsolutions.jts.geom.Coordinate;
 public class XyGraphDescriptor extends AbstractDescriptor implements
         RemoveListener {
 
-    protected int verticalFrameCount = 0;
-
-    protected double zoomLevel = 1.0f;
-
     public XyGraphDescriptor() {
         this(new PixelExtent(0, 1000, 0, 1000));
     }
 
     public XyGraphDescriptor(PixelExtent anExtent) {
         super(createGridGeometry(anExtent, DefaultEngineeringCRS.CARTESIAN_2D));
+        resourceList.addPreRemoveListener(this);
     }
 
     public IGraph getGraph(IGraphableResource<?, ?> rsc) {

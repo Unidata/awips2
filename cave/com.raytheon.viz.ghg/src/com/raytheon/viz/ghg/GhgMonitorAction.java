@@ -25,6 +25,7 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.viz.ghg.exception.GhgMissingDataException;
 import com.raytheon.viz.ghg.monitor.GhgMonitorDlg;
 
 /**
@@ -32,11 +33,12 @@ import com.raytheon.viz.ghg.monitor.GhgMonitorDlg;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Mar 26, 2008 1033		lvenable	Initial creation
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Mar 26, 2008 1033        lvenable    Initial creation
  * Nov 15, 2012 1298        rferrel     Changes for non-blocking GhgMonitorDlg.
  * Mar 28, 2013 1790        rferrel     Bug fix for non-blocking dialogs.
+ * Dec 16, 2015 5184        dgilling    Handle GhgMissingDataException.
  * 
  * </pre>
  * 
@@ -50,10 +52,15 @@ public class GhgMonitorAction extends AbstractHandler {
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
         if (monitorDlg == null || monitorDlg.isDisposed()) {
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
-            monitorDlg = new GhgMonitorDlg(shell);
-            monitorDlg.open();
+            try {
+                Shell shell = PlatformUI.getWorkbench()
+                        .getActiveWorkbenchWindow().getShell();
+                monitorDlg = new GhgMonitorDlg(shell);
+                monitorDlg.open();
+            } catch (GhgMissingDataException e) {
+                throw new ExecutionException(
+                        "Could not retrieve data needed for GHG monitor.", e);
+            }
         } else {
             monitorDlg.bringToTop();
         }
