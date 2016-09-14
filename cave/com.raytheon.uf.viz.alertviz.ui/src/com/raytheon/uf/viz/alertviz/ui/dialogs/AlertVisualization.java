@@ -102,6 +102,7 @@ import com.raytheon.uf.viz.core.VizApp;
  *                                     other dispose methods are called.
  * 25 Jan 2016  5054       randerso    Removed dummy parent shell
  * 08 Feb 2016  5312       randerso    Changed to build tray menu on demand
+ * 14 Sep 2016             mjames@ucar Hiding dialog by default.
  * 
  * </pre>
  * 
@@ -185,7 +186,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
     /**
      * Show alert Dialog flag
      */
-    private boolean showAlertDlg = true;
+    private boolean showAlertDlg = false;
 
     private boolean ackAll = false;
 
@@ -219,12 +220,9 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
         this.display = display;
         this.runningStandalone = runningStandalone;
         ConfigurationManager.getInstance().addListener(this);
-        if (Boolean.getBoolean("SystemTray")) {
-            showAlertDlg = Boolean.getBoolean("ShowAlertVizBar");
-            doNotDisturb = true;
-        }
+        showAlertDlg = false;
+        doNotDisturb = true;
         initializeComponents();
-
         AlertvizJob.getInstance().addAlertArrivedCallback(this);
     }
 
@@ -287,12 +285,12 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
      * Initialize the alert message dialog.
      */
     private void initAlertMessageDialog() {
-        alertMessageDlg = new AlertMessageDlg(display, this, showAlertDlg,
+        alertMessageDlg = new AlertMessageDlg(display, this, false,
                 configData, audioMgr);
         display.syncExec(new Runnable() {
             @Override
             public void run() {
-                alertMessageDlg.open();
+                alertMessageDlg.showDialog(false);
             }
         });
     }
