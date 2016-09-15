@@ -234,7 +234,7 @@ public class PydevSetup {
     public static void preventFundingPopup() {
         IPreferenceStore pydevPrefStore = PydevPlugin.getDefault()
                 .getPreferenceStore();
-        pydevPrefStore.setValue(PydevShowBrowserMessage.PYDEV_FUNDING_SHOW_AT_TIME,
+        pydevPrefStore.setValue(PydevShowBrowserMessage.PYDEV_FUNDING_SHOWN,
                 "true");
     }
 
