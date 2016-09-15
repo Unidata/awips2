@@ -21,6 +21,11 @@
       <menuContribution
             allPopups="false"
             locationURI="menu:import">
+           <command
+                commandId="com.raytheon.uf.viz.gisdatastore.actions.ImportGis"
+                label="GIS Data/Shapefile"
+                style="push">
+          </command>
       </menuContribution>
    </extension>
    <extension
