@@ -93,7 +93,7 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
     private String proxyAddress;
 
     public ThinClientConnectivityDialog(boolean checkAlertViz) {
-        super(checkAlertViz, "TC Connectivity Preferences");
+        super(checkAlertViz, "AWIPS Connectivity Preferences");
         IPreferenceStore store = Activator.getDefault().getPreferenceStore();
         dataRefreshMethod = store
                 .getString(ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD);
