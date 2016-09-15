@@ -20,7 +20,7 @@
 package com.raytheon.uf.edex.netcdf.decoder.exception;
 
 /**
- * Generic Net
+ * Generic exception for issues encountered while decoding Netcdf Files.
  * 
  * <pre>
  *
@@ -29,11 +29,11 @@ package com.raytheon.uf.edex.netcdf.decoder.exception;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 28, 2015 4699       nabowle     Initial creation
+ * Jun 16, 2016 5584       nabowle     Finished writing the javadoc.
  *
  * </pre>
  *
  * @author nabowle
- * @version 1.0
  */
 
 public class NetcdfDecoderException extends Exception {
