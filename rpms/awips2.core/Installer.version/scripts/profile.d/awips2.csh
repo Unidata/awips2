@@ -1,5 +1,6 @@
 #!/bin/csh
 if ( ${USER} == "root" ) then
+  alias ldmadmin service edex_ldm
   exit 1
 endif
 alias cave /awips2/cave/run.sh -alertviz -component thinclient
