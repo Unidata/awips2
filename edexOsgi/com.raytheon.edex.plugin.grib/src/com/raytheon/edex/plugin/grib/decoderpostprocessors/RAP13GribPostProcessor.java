@@ -41,7 +41,7 @@ import com.raytheon.uf.common.dataplugin.grid.GridRecord;
  * @author bphillip
  * @version 1
  */
-public class RUC130GribPostProcessor extends DecoderPostProcessor {
+public class RAP13GribPostProcessor extends DecoderPostProcessor {
 
     @Override
     public GridRecord[] process(GridRecord record) throws GribException {

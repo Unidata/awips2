@@ -8,11 +8,9 @@
                 <resource>
                     <loadProperties />
                     <resourceData xsi:type="nucapsSoundingMapResourceData">
-                        <nsharpResourceData>${soundingResourceData}</nsharpResourceData>
-                        <resourceName>${name;Unknown}</resourceName>
                         <metadataMap>
                             <mapping key="pluginName"> 
-                                <constraint constraintValue="${pluginName}"
+                                <constraint constraintValue="nucaps"
                                     constraintType="EQUALS" />
                             </mapping>
                         </metadataMap>
@@ -22,4 +20,3 @@
         </displays>
     </displayList>
 </bundle>
-

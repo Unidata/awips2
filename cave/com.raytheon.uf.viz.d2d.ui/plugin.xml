@@ -85,95 +85,42 @@
                    label="New Window"
                    style="push">
              </command>
-			 
              <separator
                    name="saveSeparator"
                    visible="true">
              </separator>
-             		
 			 <command
                    commandId="com.raytheon.viz.ui.loadSerialized"
                    label="Open Bundle"
                    style="push">
              </command>
              <command
-                   commandId="com.raytheon.viz.ui.saveProcedure"
-                   label="Save Bundle"
-                   style="push">
+				   commandId="com.raytheon.viz.ui.saveProcedure"
+				   label="Save Bundle"
+				   style="push">
              </command>
-
-       		 <separator
-                   name="importSeparator"
+             <command
+				   commandId="com.raytheon.viz.ui.saveBundle"
+				   label="Save Bundle Locally"
+				   style="push">
+             </command>
+	         <separator
+                   name="importExportSeparator"
                    visible="true">
              </separator>
-             
-	         <command
-	               commandId="com.raytheon.uf.viz.image.file.rsc"
-	               label="Import Image"
-	               style="push">
-	         </command>
-             <command
-	               commandId="com.raytheon.uf.viz.image.file.rsc"
-	               label="Import Background"
-	               style="push">
-	             <parameter
-	                   name="imageImportMode"
-	                   value="Background">
-	             </parameter>
-	         </command>
-	         <command
-	               commandId="com.raytheon.uf.viz.gisdatastore.actions.ImportGis"
-	               label="Import GIS Data"
-	               style="push">
-	         </command>
-	         <command
-	               commandId="com.raytheon.viz.bcd.openBCD"
-	               label="Import BCD File"
-	               style="push">
-	         </command>
-	         <command
-	               commandId="com.raytheon.viz.geotiff.openGeoTiff"
-	               label="Import GeoTIFF"
-	               style="push">
-	         </command>
-	         <command
-	               commandId="com.raytheon.viz.lpi.openLPI"
-	               label="Import LPI File"
-	               style="push">
-	         </command>
-	         <command
-	               commandId="com.raytheon.viz.spi.openSPI"
-	               label="Import SPI File"
-	               style="push">
-	         </command>
-	         
-             <separator
-                   name="exportSeparator"
-                   visible="true">
-             </separator>
-             
-             <command
-                   commandId="com.raytheon.viz.ui.saveBundle"
-                   label="Export Bundle"
-                   style="push">
-             </command>
-             <command
-	             commandId="com.raytheon.uf.viz.image.export.save"
-	             label="Export Image"
-	             style="push">
-       		 </command>
-             <command
-                   commandId="com.raytheon.uf.viz.kml.export.exportKML"
-                   label="Export KML"
-                   style="push">
-             </command>
-	         <command
-	             commandId="com.raytheon.uf.viz.image.export.print"
-	             label="Print Screen"
-	             style="push">
-	             <parameter name="frameSelection" value="current">
-	             </parameter>
-	         </command>
+             <menu
+                   id="import"
+                   label="Import">
+             </menu>
+             <menu
+                   id="export"
+                   label="Export">
+			     <command
+		             commandId="com.raytheon.viz.ui.saveBundle"
+		             label="Map Window"
+		             style="push">
+		         </command>
+             </menu>
           </menu>
           <menu
                 id="view"

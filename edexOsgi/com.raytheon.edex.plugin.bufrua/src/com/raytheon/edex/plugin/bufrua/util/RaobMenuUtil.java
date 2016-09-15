@@ -42,7 +42,9 @@ import com.raytheon.uf.edex.menus.AbstractMenuUtil;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 15, 2010            mnash     Initial creation
+ * Jul 15, 2010            mnash       Initial creation
+ * Sep 15, 2016            mjames@ucar Do not show placeholder if local uair
+ *                                     stations are not defined.
  * 
  * </pre>
  * 
@@ -86,12 +88,6 @@ public class RaobMenuUtil extends AbstractMenuUtil {
         menuTemplate.contributions = contributions
                 .toArray(new CommonAbstractMenuContribution[contributions
                         .size()]);
-        if (localSites.size() == 0 && otherSites.size() == 0) {
-            menuTemplate.contributions = new CommonAbstractMenuContribution[1];
-            menuTemplate.contributions[0] = new CommonPlaceholderMenuContribution();
-            menuTemplate.contributions[0].id = "upperAirPlaceholder";
-            ((CommonPlaceholderMenuContribution) menuTemplate.contributions[0]).menuText = "Not Configured";
-        }
         toXml(menuTemplate, "menus" + File.separator + "upperair"
                 + File.separator + "baseRAOB.xml");
         statusHandler.info("Finished processing raob menus.");
