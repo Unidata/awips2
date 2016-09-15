@@ -37,7 +37,20 @@
          point="org.eclipse.ui.menus">
       <menuContribution
             locationURI="menu:import">
-        
+           <command
+                commandId="com.raytheon.uf.viz.image.file.rsc"
+                label="Background"
+                style="push">
+              <parameter
+                    name="imageImportMode"
+                    value="Background">
+              </parameter>
+          </command>
+          <command
+                commandId="com.raytheon.uf.viz.image.file.rsc"
+                label="Image"
+                style="push">
+          </command>
          
          
       </menuContribution>

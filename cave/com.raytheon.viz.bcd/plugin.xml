@@ -38,6 +38,11 @@
          point="org.eclipse.ui.menus">
       <menuContribution
             locationURI="menu:import">
+            <command
+                 commandId="com.raytheon.viz.bcd.openBCD"
+                 label="BCD File..."
+                 style="push">
+            </command>
       </menuContribution>
    </extension>
    <extension

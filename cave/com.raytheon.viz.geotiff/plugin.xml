@@ -46,6 +46,11 @@
          point="org.eclipse.ui.menus">
       <menuContribution
             locationURI="menu:import">
+            <command
+                  commandId="com.raytheon.viz.geotiff.openGeoTiff"
+                  label="GeoTIFF"
+                  style="push">
+            </command>
       </menuContribution>
    </extension>
 
