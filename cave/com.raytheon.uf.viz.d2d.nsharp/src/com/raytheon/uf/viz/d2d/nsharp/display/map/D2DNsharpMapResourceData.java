@@ -19,8 +19,6 @@
  */
 package com.raytheon.uf.viz.d2d.nsharp.display.map;
 
-import gov.noaa.nws.ncep.ui.nsharp.display.map.NsharpMapResource;
-import gov.noaa.nws.ncep.ui.nsharp.display.map.NsharpMapResourceData;
 import gov.noaa.nws.ncep.viz.common.ui.Markers.MarkerState;
 import gov.noaa.nws.ncep.viz.common.ui.Markers.MarkerTextSize;
 import gov.noaa.nws.ncep.viz.common.ui.Markers.MarkerType;

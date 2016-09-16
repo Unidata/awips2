@@ -36,6 +36,7 @@ import com.raytheon.uf.viz.alertviz.ui.dialogs.AlertVisualization;
  * ------------ ---------- ----------- --------------------------
  * May 6, 2015             mschenke    Initial creation
  * Jun 3, 2015   4473      njensen     Hooked up embedded and exit status
+ * Sep 14,2016             mjames      Always run in standalone mode.
  *
  * </pre>
  * 
@@ -57,7 +58,7 @@ public class AlertVizUILauncher {
                 @Override
                 public void run() {
                     AlertVizUILauncher.this.alertViz = new AlertVisualization(
-                            !AlertVizUILauncher.this.service.isEmbedded(),
+                            true,
                             Display.getCurrent());
                 }
             });

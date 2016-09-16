@@ -42,15 +42,16 @@ case $1 in
 
 'start')
 	if ! clean_ldm; then exit 1 ; fi
-	echo -n "Starting AWIPS II LDM:"
         su ${LDM_USER} -lc "ldmadmin start"
 	;;
 
 'stop')
-	echo -n "Stopping AWIPS II LDM:"
 	su ${LDM_USER} -lc "ldmadmin stop"
 	;;
 
+'restart')
+	su ${LDM_USER} -lc "ldmadmin restart"
+	;;
 *)
 	echo "usage: $0 {start|stop|restart}"
 	RETVAL=1

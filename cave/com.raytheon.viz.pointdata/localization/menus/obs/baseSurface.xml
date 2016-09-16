@@ -19,17 +19,17 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="bundleItem" file="bundles/SurfaceColorTemp.xml" 
+		menuText="Surface Temperature" id="MetarPlot">
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/SurfacePlotWinds.xml"
+			menuText="Surface Winds" id="MetarPlot">
+    </contribute>
 	<contribute xsi:type="bundleItem" file="bundles/SurfacePlotMetar.xml"
 			menuText="METAR Station Plot" id="MetarPlot">
     </contribute>
-	<contribute xsi:type="bundleItem" file="bundles/SurfaceColorTemp.xml" 
-		menuText="METAR Color Temps" id="MetarPlot">
-	</contribute> 
-	<contribute xsi:type="bundleItem" file="bundles/SurfacePlotWinds.xml"
-			menuText="METAR Winds" id="MetarPlot">
-    </contribute>
 	<contribute xsi:type="bundleItem" file="bundles/SurfaceMSLP.xml" 
-			menuText="METAR MSLP Plots" id="MetarPlot">
+			menuText="METAR MSLP Plot" id="MetarPlot">
 	</contribute> 
 	<contribute xsi:type="bundleItem" file="bundles/MetarPrecipPlot.xml" 
            menuText="METAR 24hr Precip" id="24HrPrecip">

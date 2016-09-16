@@ -2304,7 +2304,7 @@
 	</model>
 
 	<model>
-		<name>gefs</name>
+		<name>GEFS</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
 		<grid>2</grid>
@@ -2314,7 +2314,7 @@
 	</model>
 
 	<model>
-		<name>gefs</name>
+		<name>GEFS</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
 		<grid>3</grid>
@@ -2324,7 +2324,7 @@
 	</model>
 
 	<model>
-		<name>gefs</name>
+		<name>GEFS</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
 		<grid>361181001</grid>
@@ -2334,7 +2334,7 @@
 	</model>
 
 	<model>
-		<name>gefs</name>
+		<name>GEFS</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
 		<grid>372</grid>
@@ -2344,7 +2344,7 @@
 	</model>
 
 	<model>
-		<name>gefs</name>
+		<name>GEFS</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
 		<grid>375</grid>

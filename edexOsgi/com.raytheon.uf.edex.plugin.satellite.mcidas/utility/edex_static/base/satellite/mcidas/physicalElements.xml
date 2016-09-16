@@ -61,6 +61,12 @@
 		<entry><key ss="86" band="15"/><value name="Imager 12.4 micron IR" /></entry>
 		<entry><key ss="86" band="16"/><value name="Imager 13.3 micron IR" /></entry> 
 		
+		<!-- WINDSAT -->
+		<entry><key ss="3" band="1"/><value name="Brightness Temperature" /></entry>
+		
+		<!-- ESPC/SSMIS.OWS -->
+		<entry><key ss="10" band="22"/><value name="Channel 22" /></entry>
+
 		<!-- GOES13 -->
 		<entry><key ss="180" band="1"/><value name="Imager Visible" /></entry>
 		<entry><key ss="180" band="2"/><value name="Imager 3.5-4.0 micron IR (Fog)" units="IRPixel" /></entry>

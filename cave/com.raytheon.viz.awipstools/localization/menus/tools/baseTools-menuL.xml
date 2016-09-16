@@ -20,10 +20,6 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-    <contribute xsi:type="command"
-		commandId="com.raytheon.viz.awipstools.lapstools"
-		menuText="LAPS tools..." id="lapsTools" />
-	
 	<!-- example arbitrary command below, commandAction parameter is required, 
 	the others default to false if undefined.  If captureOutput is true then after 
 	the launched command closes a dialog box will show the contents printed to 
