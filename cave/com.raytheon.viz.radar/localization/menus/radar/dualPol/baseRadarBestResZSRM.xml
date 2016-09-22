@@ -19,7 +19,27 @@
 		further_licensing_information.
 	-->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<contribute xsi:type="titleItem" titleText="------ Best Res Z+SRM8 combo ------"
+	<contribute xsi:type="titleItem" titleText="------ Two-Panel Display  ------"
+		id="BestResZSRM8" />
+	<contribute xsi:type="bundleItem"
+		file="bundles/site/Radar_kabr.xml" menuText="Refl. and Velocity"
+		id="${icao}N0QN0U">
+		<substitute key="product1" value="94" />
+		<substitute key="product2" value="99" />
+	</contribute>
+	<contribute xsi:type="bundleItem"
+		file="bundles/site/Radar_kabr.xml" menuText="DVL and EET"
+		id="${icao}DVL">
+		<substitute key="product1" value="134" />
+		<substitute key="product2" value="135" />
+	</contribute>
+	<contribute xsi:type="bundleItem"
+		file="bundles/site/Radar_kabr.xml" menuText="HHC and DAA"
+		id="${icao}HHC">
+		<substitute key="product1" value="177" />
+		<substitute key="product2" value="171" />
+	</contribute>
+	<contribute xsi:type="titleItem" titleText="------ Refl. and Velocity  ------"
 		id="BestResZSRM8" />
 	<contribute xsi:type="bundleItem"
 		file="bundles/DefaultRadarBlendedBestRes.xml" menuText="0.5 Z+SRM8"

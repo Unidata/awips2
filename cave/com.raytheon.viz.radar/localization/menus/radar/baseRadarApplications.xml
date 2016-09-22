@@ -41,10 +41,6 @@
 		-->
 		<contribute xsi:type="command" commandId="com.raytheon.viz.awipstools.estimatedactualvelocity" menuText="Estimated Actual Velocity" 
 			id="${icao}EstimatedActualVelocity" />
-		<contribute xsi:type="command"
-			commandId="com.raytheon.viz.ui.viz.radarapps.fsi.startFSI" menuText="4-D Storm Investigator (FSI)"
-			id="${icao}4DStormInvestigatorFSI" />
-			
 		<!-- 
 		<contribute xsi:type="command"
 			commandId="com.raytheon.viz.radar.ui.RadarDisplayControls" menuText="Radar Display Controls..."
