@@ -2,14 +2,33 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Netcdf
 Bundle-SymbolicName: com.raytheon.uf.edex.netcdf
-Bundle-Version: 1.15.1.qualifier
+Bundle-Version: 1.16.1.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Require-Bundle: ucar.nc2;bundle-version="4.2.0",
- com.raytheon.uf.common.time;bundle-version="1.14.0",
- com.raytheon.uf.common.dataplugin.level;bundle-version="1.14.1"
-Export-Package: com.raytheon.uf.edex.netcdf.decoder.exception,
+Require-Bundle: ucar.nc2,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.common.dataplugin.level,
+ com.raytheon.uf.common.util,
+ com.raytheon.uf.common.parameter,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.serialization,
+ javax.measure,
+ org.slf4j,
+ org.apache.commons.beanutils
+Export-Package: com.raytheon.uf.edex.netcdf.decoder,
+ com.raytheon.uf.edex.netcdf.decoder.exception,
  com.raytheon.uf.edex.netcdf.decoder.util,
  com.raytheon.uf.edex.netcdf.description,
+ com.raytheon.uf.edex.netcdf.description.data,
+ com.raytheon.uf.edex.netcdf.description.data.mask,
  com.raytheon.uf.edex.netcdf.description.date,
- com.raytheon.uf.edex.netcdf.description.exception
+ com.raytheon.uf.edex.netcdf.description.exception,
+ com.raytheon.uf.edex.netcdf.description.field,
+ com.raytheon.uf.edex.netcdf.description.field.date,
+ com.raytheon.uf.edex.netcdf.description.field.direct,
+ com.raytheon.uf.edex.netcdf.description.field.indirect,
+ com.raytheon.uf.edex.netcdf.description.field.level,
+ com.raytheon.uf.edex.netcdf.description.field.parameter,
+ com.raytheon.uf.edex.netcdf.description.match,
+ com.raytheon.uf.edex.netcdf.description.product
