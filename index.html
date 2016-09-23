@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
 <meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
 <meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
-<meta itemprop="name" content="AWIPS - Unidata AWIPS II">
+<meta itemprop="name" content="AWIPS - Unidata AWIPS">
 <meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
 
 
@@ -15,7 +15,7 @@
 
 <title>
   
-    Unidata AWIPS II -
+    Unidata AWIPS -
    AWIPS
 </title>
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
@@ -34,7 +34,7 @@
 
 
 </head>
-<body id="unidata-awips-ii">
+<body id="unidata-awips">
 
 <main id="content-container" class="polymer-content">
   <app-drawer id="sidebar" unresolved>
@@ -60,7 +60,7 @@
         <h1>
         
           About
-        : Unidata AWIPS II
+        : Unidata AWIPS
         </h1>
       </header>
     </site-banner>
@@ -74,7 +74,7 @@
         <h1>
           
           About
-          : Unidata AWIPS II
+          : Unidata AWIPS
         </h1>
       </header>
 
@@ -98,10 +98,6 @@
 
 <p>Unidata AWIPS source code and binaries (RPMs) are considered to be in the public domain, meaning there are no restrictions on any download, modification, or distribution in any form (original or modified).  Unidata AWIPS contains no proprietery content and is therefore not subject to export controls as stated in the <a href="https://github.com/Unidata/awips2/blob/unidata_16.2.2/rpms/legal/Master_Rights_File.pdf">Master Rights</a> licensing file.</p>
 
-<h1 id="license-1">License</h1>
-
-<p>Unidata AWIPS source code and binaries (RPMs) are considered to be in the public domain, meaning there are no restrictions on any download, modification, or distribution in any form (original or modified).  Unidata AWIPS contains no proprietery content and is therefore not subject to export controls as stated in the <a href="https://github.com/Unidata/awips2/blob/unidata_16.2.2/rpms/legal/Master_Rights_File.pdf">Master Rights</a> licensing file.</p>
-
 <h2 id="software-components">Software Components</h2>
 
 <ul>
@@ -116,13 +112,13 @@
   <li><a href="#pypies">PyPIES</a></li>
 </ul>
 
-<p>The primary AWIPS II application for data ingest, processing, and storage is the Environmental Data EXchange (<strong>EDEX</strong>) server; the primary AWIPS II application for visualization/data manipulation is the Common AWIPS Visualization Environment (<strong>CAVE</strong>) client, which is typically installed on a workstation separate from other AWIPS II components.</p>
+<p>The primary AWIPS application for data ingest, processing, and storage is the Environmental Data EXchange (<strong>EDEX</strong>) server; the primary AWIPS application for visualization/data manipulation is the Common AWIPS Visualization Environment (<strong>CAVE</strong>) client, which is typically installed on a workstation separate from other AWIPS components.</p>
 
-<p>In addition to programs developed specifically for AWIPS, AWIPS II uses several commercial off-the-shelf (COTS) and Free or Open Source software (FOSS) products to assist in its operation. The following components, working together and communicating, compose the entire AWIPS II system.</p>
+<p>In addition to programs developed specifically for AWIPS, AWIPS uses several commercial off-the-shelf (COTS) and Free or Open Source software (FOSS) products to assist in its operation. The following components, working together and communicating, compose the entire AWIPS system.</p>
 
 <h3 id="edex">EDEX</h3>
 
-<p>The main server for AWIPS II.  Qpid sends alerts to EDEX when data stored by the LDM is ready for processing.  These Qpid messages include file header information which allows EDEX to determine the appropriate data decoder to use.  The default ingest server (simply named ingest) handles all data ingest other than grib messages, which are processed by a separate ingestGrib server.  After decoding, EDEX writes metadata to the database via Postgres and saves the processed data in HDF5 via PyPIES.   A third EDEX server, request, feeds requested data to CAVE clients. EDEX ingest and request servers are started and stopped with the commands <code>edex start</code> and <code>edex stop</code>, which runs the system script <code>/etc/rc.d/init.d/edex_camel</code></p>
+<p>The main server for AWIPS.  Qpid sends alerts to EDEX when data stored by the LDM is ready for processing.  These Qpid messages include file header information which allows EDEX to determine the appropriate data decoder to use.  The default ingest server (simply named ingest) handles all data ingest other than grib messages, which are processed by a separate ingestGrib server.  After decoding, EDEX writes metadata to the database via Postgres and saves the processed data in HDF5 via PyPIES.   A third EDEX server, request, feeds requested data to CAVE clients. EDEX ingest and request servers are started and stopped with the commands <code>edex start</code> and <code>edex stop</code>, which runs the system script <code>/etc/rc.d/init.d/edex_camel</code></p>
 
 <ul>
   <li><a href="docs/install/install-edex.html">Read More: How to Install EDEX</a></li>
@@ -130,7 +126,7 @@
 
 <h3 id="cave">CAVE</h3>
 
-<p>Common AWIPS Visualization Environment. The data rendering and visualization tool for AWIPS II. CAVE contains of a number of different data display configurations called perspectives.  Perspectives used in operational forecasting environments include <strong>D2D</strong> (Display Two-Dimensional), <strong>GFE</strong> (Graphical Forecast Editor), and <strong>NCP</strong> (National Centers Perspective). CAVE is started with the command <code>/awips2/cave/cave.sh</code> or <code>cave.sh</code></p>
+<p>Common AWIPS Visualization Environment. The data rendering and visualization tool for AWIPS. CAVE contains of a number of different data display configurations called perspectives.  Perspectives used in operational forecasting environments include <strong>D2D</strong> (Display Two-Dimensional), <strong>GFE</strong> (Graphical Forecast Editor), and <strong>NCP</strong> (National Centers Perspective). CAVE is started with the command <code>/awips2/cave/cave.sh</code> or <code>cave.sh</code></p>
 
 <ul>
   <li><a href="docs/install/install-cave.html">Read More: How to Install CAVE</a></li>
@@ -146,7 +142,7 @@
 
 <p><a href="http://www.unidata.ucar.edu/software/ldm/">http://www.unidata.ucar.edu/software/ldm/</a></p>
 
-<p>The <strong>LDM</strong> (Local Data Manager), developed and supported by Unidata, is a suite of client and server programs designed for data distribution, and is the fundamental component comprising the Unidata Internet Data Distribution (IDD) system. In AWIPS II, the LDM provides data feeds for grids, surface observations, upper-air profiles, satellite and radar imagery and various other meteorological datasets.   The LDM writes data directly to file and alerts EDEX via Qpid when a file is available for processing.  The LDM is started and stopped with the commands <code>edex start</code> and <code>edex stop</code>, which runs the commands <code>service edex_ldm start</code> and <code>service edex_ldm stop</code></p>
+<p>The <strong>LDM</strong> (Local Data Manager), developed and supported by Unidata, is a suite of client and server programs designed for data distribution, and is the fundamental component comprising the Unidata Internet Data Distribution (IDD) system. In AWIPS, the LDM provides data feeds for grids, surface observations, upper-air profiles, satellite and radar imagery and various other meteorological datasets.   The LDM writes data directly to file and alerts EDEX via Qpid when a file is available for processing.  The LDM is started and stopped with the commands <code>edex start</code> and <code>edex stop</code>, which runs the commands <code>service edex_ldm start</code> and <code>service edex_ldm stop</code></p>
 
 <h3 id="edexbridge">edexBridge</h3>
 
@@ -156,7 +152,7 @@
 
 <p><a href="http://qpid.apache.org">http://qpid.apache.org</a></p>
 
-<p><strong>Apache Qpid</strong>, the Queue Processor Interface Daemon, is the messaging system used by AWIPS II to facilitate communication between services.  When the LDM receives a data file to be processed, it employs <strong>edexBridge</strong> to send EDEX ingest servers a message via Qpid.  When EDEX has finished decoding the file, it sends CAVE a message via Qpid that data are available for display or further processing. Qpid is started and stopped by <code>edex start</code> and <code>edex stop</code>, and is controlled by the system script <code>/etc/rc.d/init.d/qpidd</code></p>
+<p><strong>Apache Qpid</strong>, the Queue Processor Interface Daemon, is the messaging system used by AWIPS to facilitate communication between services.  When the LDM receives a data file to be processed, it employs <strong>edexBridge</strong> to send EDEX ingest servers a message via Qpid.  When EDEX has finished decoding the file, it sends CAVE a message via Qpid that data are available for display or further processing. Qpid is started and stopped by <code>edex start</code> and <code>edex stop</code>, and is controlled by the system script <code>/etc/rc.d/init.d/qpidd</code></p>
 
 <h3 id="postgresql">PostgreSQL</h3>
 <p><a href="http://www.postgresql.org">http://www.postgresql.org</a></p>
@@ -167,11 +163,11 @@
 
 <p><a href="http://www.hdfgroup.org/HDF5/">http://www.hdfgroup.org/HDF5/</a></p>
 
-<p><a href="http://www.hdfgroup.org/HDF5/"><strong>Hierarchical Data Format (v.5)</strong></a> is the primary data storage format used by AWIPS II for processed grids, satellite and radar imagery and other products.   Similar to netCDF, developed and supported by Unidata, HDF5 supports multiple types of data within a single file.  For example, a single HDF5 file of radar data may contain multiple volume scans of base reflectivity and base velocity as well as derived products such as composite reflectivity.  The file may also contain data from multiple radars. HDF5 is stored in <code>/awips2/edex/data/hdf5/</code></p>
+<p><a href="http://www.hdfgroup.org/HDF5/"><strong>Hierarchical Data Format (v.5)</strong></a> is the primary data storage format used by AWIPS for processed grids, satellite and radar imagery and other products.   Similar to netCDF, developed and supported by Unidata, HDF5 supports multiple types of data within a single file.  For example, a single HDF5 file of radar data may contain multiple volume scans of base reflectivity and base velocity as well as derived products such as composite reflectivity.  The file may also contain data from multiple radars. HDF5 is stored in <code>/awips2/edex/data/hdf5/</code></p>
 
 <h3 id="pypies-httpd-pypies">PyPIES (httpd-pypies)</h3>
 
-<p><strong>PyPIES</strong>, Python Process Isolated Enhanced Storage, was created for AWIPS II to isolate the management of HDF5 Processed Data Storage from the EDEX processes.  PyPIES manages access, i.e., reads and writes, of data in the HDF5 files.  In a sense, PyPIES provides functionality similar to a DBMS (i.e PostgreSQL for metadata); all data being written to an HDF5 file is sent to PyPIES, and requests for data stored in HDF5 are processed by PyPIES.</p>
+<p><strong>PyPIES</strong>, Python Process Isolated Enhanced Storage, was created for AWIPS to isolate the management of HDF5 Processed Data Storage from the EDEX processes.  PyPIES manages access, i.e., reads and writes, of data in the HDF5 files.  In a sense, PyPIES provides functionality similar to a DBMS (i.e PostgreSQL for metadata); all data being written to an HDF5 file is sent to PyPIES, and requests for data stored in HDF5 are processed by PyPIES.</p>
 
 <p>PyPIES is implemented in two parts: 1. The PyPIES manager is a Python application that runs as part of an Apache HTTP server, and handles requests to store and retrieve data. 2. The PyPIES logger is a Python process that coordinates logging. PyPIES is started and stopped by <code>edex start</code> and <code>edex stop</code>, and is controlled by the system script <code>/etc/rc.d/init.d/https-pypies</code></p>
 
