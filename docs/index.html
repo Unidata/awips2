@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
 <meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
 <meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
-<meta itemprop="name" content="AWIPS II - Unidata AWIPS II">
+<meta itemprop="name" content="AWIPS - Unidata AWIPS II">
 <meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
 
 
@@ -16,21 +16,21 @@
 <title>
   
     Unidata AWIPS II -
-   AWIPS II
+   AWIPS
 </title>
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
 <link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
 <link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
-<link href="/awips2/css/site2.css?20160829" rel="stylesheet">
-<link href="/awips2/css/site2_sd_rules.css?20160829" rel="stylesheet" shim-shadowdom>
+<link href="/awips2/css/site2.css?20160923" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20160923" rel="stylesheet" shim-shadowdom>
 
 
 
-<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160829"></script>
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160923"></script>
 <!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
 <link rel="import" href="/awips2/components/polymer/polymer.html">
 <link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
-<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160829">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160923">
 
 
 </head>
@@ -40,7 +40,7 @@
   <app-drawer id="sidebar" unresolved>
     <div layout vertical id="sidebar-content">
       <div id="logo-container" layout horizontal center>
-        <a href="/awips2/" class="logo"><img src="/awips2/images/logos/awips2.png" alt="AWIPS II User Guide"></a>
+        <a href="/awips2/" class="logo"><img src="/awips2/images/logos/awips2.png" alt="Unidata AWIPS User Guide"></a>
       </div>
 
       <docs-menu unresolved flex
@@ -88,11 +88,19 @@
   }
 </style>
 
-<p>AWIPS II is a weather forecasting display and analysis package being developed by the <a href="http://www.nws.noaa.gov/ost/SEC/AE/">National Weather Service</a> and <a href="http://www.raytheon.com/capabilities/products/awips/">Raytheon</a>. AWIPS II is a Java application consisting of a data-rendering client (<a href="#cave">CAVE</a>, which runs on Red Hat/CentOS Linux and Mac OS X) and a backend data server (<a href="#edex">EDEX</a>, which runs only on Linux)</p>
+<p>AWIPS (formerly know as AWIPS II or AWIPS2) is a weather forecasting display and analysis package developed by the <a href="http://www.nws.noaa.gov/ost/SEC/AE/">National Weather Service</a> and <a href="http://www.raytheon.com/capabilities/products/awips/">Raytheon</a>. AWIPS is a Java application consisting of a data-rendering client (<a href="#cave">CAVE</a>, which runs on Red Hat/CentOS Linux and Mac OS X) and a backend data server (<a href="#edex">EDEX</a>, which runs only on 64-bit CentOS or RedHat)</p>
 
-<p>AWIPS II takes a unified approach to data ingest, and most data types follow a standard path through the system, starting with an <a href="#ldm">LDM</a> client requesting data from Unidata’s <a href="http://www.unidata.ucar.edu/projects/#idd">IDD</a>.  These data are decoded into HDF5 and PostgreSQL/PostGIS metadata, and renderable with the <a href="#cave">CAVE</a> client and the <a href="https://github.com/Unidata/python-awips">Python Data Access Framework</a>.</p>
+<p>AWIPS takes a unified approach to data ingest, and most data types follow a standard path through the system, starting with an <a href="#ldm">LDM</a> client requesting data from Unidata’s <a href="http://www.unidata.ucar.edu/projects/#idd">IDD</a>, which are then decoded and stored as HDF5 and PostgreSQL/PostGIS metadata. Unidata supports two visualization frameworks for rendering AWIPS data: 1) <a href="#cave">CAVE</a>, 2) the <a href="https://github.com/Unidata/python-awips">Python Data Access Framework (python-awips)</a>.</p>
 
 <p><img src="http://www.unidata.ucar.edu/software/awips2/images/awips2_coms.png" alt="image" /></p>
+
+<h1 id="license">License</h1>
+
+<p>Unidata AWIPS source code and binaries (RPMs) are considered to be in the public domain, meaning there are no restrictions on any download, modification, or distribution in any form (original or modified).  Unidata AWIPS contains no proprietery content and is therefore not subject to export controls as stated in the <a href="https://github.com/Unidata/awips2/blob/unidata_16.2.2/rpms/legal/Master_Rights_File.pdf">Master Rights</a> licensing file.</p>
+
+<h1 id="license-1">License</h1>
+
+<p>Unidata AWIPS source code and binaries (RPMs) are considered to be in the public domain, meaning there are no restrictions on any download, modification, or distribution in any form (original or modified).  Unidata AWIPS contains no proprietery content and is therefore not subject to export controls as stated in the <a href="https://github.com/Unidata/awips2/blob/unidata_16.2.2/rpms/legal/Master_Rights_File.pdf">Master Rights</a> licensing file.</p>
 
 <h2 id="software-components">Software Components</h2>
 
@@ -116,9 +124,17 @@
 
 <p>The main server for AWIPS II.  Qpid sends alerts to EDEX when data stored by the LDM is ready for processing.  These Qpid messages include file header information which allows EDEX to determine the appropriate data decoder to use.  The default ingest server (simply named ingest) handles all data ingest other than grib messages, which are processed by a separate ingestGrib server.  After decoding, EDEX writes metadata to the database via Postgres and saves the processed data in HDF5 via PyPIES.   A third EDEX server, request, feeds requested data to CAVE clients. EDEX ingest and request servers are started and stopped with the commands <code>edex start</code> and <code>edex stop</code>, which runs the system script <code>/etc/rc.d/init.d/edex_camel</code></p>
 
+<ul>
+  <li><a href="docs/install/install-edex.html">Read More: How to Install EDEX</a></li>
+</ul>
+
 <h3 id="cave">CAVE</h3>
 
 <p>Common AWIPS Visualization Environment. The data rendering and visualization tool for AWIPS II. CAVE contains of a number of different data display configurations called perspectives.  Perspectives used in operational forecasting environments include <strong>D2D</strong> (Display Two-Dimensional), <strong>GFE</strong> (Graphical Forecast Editor), and <strong>NCP</strong> (National Centers Perspective). CAVE is started with the command <code>/awips2/cave/cave.sh</code> or <code>cave.sh</code></p>
+
+<ul>
+  <li><a href="docs/install/install-cave.html">Read More: How to Install CAVE</a></li>
+</ul>
 
 <p><img src="http://www.unidata.ucar.edu/software/awips2/images/Unidata_AWIPS2_CAVE.png" alt="CAVE" /></p>
 
@@ -181,7 +197,7 @@
 <script src="/awips2/js/prettify/prettify.js"></script>
 
 <!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
-<script src="/awips2/js/app.js?20160829"></script>
+<script src="/awips2/js/app.js?20160923"></script>
 
 
   </scroll-area>

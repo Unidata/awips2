@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
 <meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
 <meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
-<meta itemprop="name" content="AWIPS II - Local DOM Basics and API">
+<meta itemprop="name" content="AWIPS - Local DOM Basics and API">
 <meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
 
 
@@ -16,21 +16,21 @@
 <title>
   
     Local DOM Basics and API -
-   AWIPS II
+   AWIPS
 </title>
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
 <link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
 <link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
-<link href="/awips2/css/site2.css?20160829" rel="stylesheet">
-<link href="/awips2/css/site2_sd_rules.css?20160829" rel="stylesheet" shim-shadowdom>
+<link href="/awips2/css/site2.css?20160923" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20160923" rel="stylesheet" shim-shadowdom>
 
 
 
-<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160829"></script>
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160923"></script>
 <!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
 <link rel="import" href="/awips2/components/polymer/polymer.html">
 <link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
-<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160829">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160923">
 
 
 </head>
@@ -40,7 +40,7 @@
   <app-drawer id="sidebar" unresolved>
     <div layout vertical id="sidebar-content">
       <div id="logo-container" layout horizontal center>
-        <a href="/awips2/" class="logo"><img src="/awips2/images/logos/awips2.png" alt="AWIPS II User Guide"></a>
+        <a href="/awips2/" class="logo"><img src="/awips2/images/logos/awips2.png" alt="Unidata AWIPS User Guide"></a>
       </div>
 
       <docs-menu unresolved flex
@@ -98,15 +98,15 @@
 DOM</em>. This is distinct from the element’s children which are sometimes called
 its <em>light DOM</em> for clarity.</p>
 
-<p>AWIPS II supports multiple local DOM implementations. On browsers
+<p>AWIPS supports multiple local DOM implementations. On browsers
 that support shadow DOM, shadow DOM may be used to create local DOM. On other
-supported browsers, AWIPS II provides local DOM via a custom
+supported browsers, AWIPS provides local DOM via a custom
 implementation called <em>shady DOM</em> which is inspired by shadow DOM.</p>
 
-<p>Shady DOM requires you to use the <a href="#dom-api">AWIPS II DOM API</a> when manipulating DOM from JavaScript. This interface covers most of the common DOM methods and properties, and is compatible with both shady DOM and native shadow DOM.</p>
+<p>Shady DOM requires you to use the <a href="#dom-api">AWIPS DOM API</a> when manipulating DOM from JavaScript. This interface covers most of the common DOM methods and properties, and is compatible with both shady DOM and native shadow DOM.</p>
 
 <p class="alert alert-info"><strong>Note:</strong> 
-Currently AWIPS II uses shady DOM by default on all browsers.
+Currently AWIPS uses shady DOM by default on all browsers.
 To opt-in to using shadow DOM where available, see <a href="settings.html">Global settings</a></p>
 
 <h2 id="template-stamping">Local DOM template</h2>
@@ -146,7 +146,7 @@ testing. For caveats about defining elements in the main document, see
 
 <h2 id="node-finding">Automatic node finding</h2>
 
-<p>AWIPS II automatically builds a map of statically created instance nodes 
+<p>AWIPS automatically builds a map of statically created instance nodes 
 in  its local DOM, to provide convenient access to frequently used nodes without
 the need to query for them manually.  Any node specified in the
 element’s template with an <code>id</code> is stored on the <code>this.$</code> hash by <code>id</code>.</p>
@@ -208,7 +208,7 @@ simple selector.</p>
 <p>In shadow DOM, the browser maintains separate light DOM and shadow DOM trees, and creates a 
 merged view (the <em>composed tree</em>) for rendering purposes.</p>
 
-<p>In shady DOM, AWIPS II maintains its own light DOM and shady DOM trees.
+<p>In shady DOM, AWIPS maintains its own light DOM and shady DOM trees.
 The document’s DOM tree is effectively the composed tree.</p>
 
 <h2 id="dom-api">DOM API</h2>
@@ -226,7 +226,7 @@ of nodes return an <code>Array</code>, not a <code>NodeList</code>.</p>
   </li>
   <li>
     <p><strong>Local DOM root</strong>. Use the <code>root</code> property to access a 
-AWIPS II element’s local DOM root — equivalent to 
+AWIPS element’s local DOM root — equivalent to 
 the shadow root in native shadow DOM.</p>
   </li>
   <li>
@@ -299,7 +299,7 @@ distribution.</p>
 
 <h3 id="work-with-local-dom">Work with local DOM</h3>
 
-<p>Every AWIPS II element has a <code>this.root</code> property which is the
+<p>Every AWIPS element has a <code>this.root</code> property which is the
 root of its local DOM tree. You can manipulate the tree using <code>Polymer.dom</code> methods:</p>
 
 <pre><code>// Append to local DOM
@@ -613,7 +613,7 @@ Polymer.dom(this.$.container).insertBefore(insert, this.$.first);
 <script src="/awips2/js/prettify/prettify.js"></script>
 
 <!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
-<script src="/awips2/js/app.js?20160829"></script>
+<script src="/awips2/js/app.js?20160923"></script>
 
 
   </scroll-area>

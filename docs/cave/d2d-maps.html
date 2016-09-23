@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
 <meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
 <meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
-<meta itemprop="name" content="AWIPS - Behaviors">
+<meta itemprop="name" content="AWIPS - Maps and Overlays">
 <meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
 
 
@@ -15,7 +15,7 @@
 
 <title>
   
-    Behaviors -
+    Maps and Overlays -
    AWIPS
 </title>
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
@@ -34,7 +34,7 @@
 
 
 </head>
-<body id="behaviors">
+<body id="maps-and-overlays">
 
 <main id="content-container" class="polymer-content">
   <app-drawer id="sidebar" unresolved>
@@ -58,9 +58,7 @@
 
       <header class="shrink">
         <h1>
-        
-          EDEX Admin
-        : Behaviors
+         Maps and Overlays
         </h1>
       </header>
     </site-banner>
@@ -72,134 +70,21 @@
 
       <header class="onlyonmobile">
         <h1>
-          
-          EDEX Admin
-          : Behaviors
+          : Maps and Overlays
         </h1>
       </header>
 
-      
+      <p>These programs are accessible though the <strong>Maps</strong> dropdown menu.</p>
+
 <!--TOC_START-->
-<ul id="markdown-toc">
-  <li><a href="#defining-behaviors" id="markdown-toc-defining-behaviors">Defining behaviors</a></li>
-  <li><a href="#extending" id="markdown-toc-extending">Extending behaviors</a></li>
-</ul>
 <!--TOC_END-->
 
-<p>AWIPS supports extending custom element prototypes with 
-shared code modules called <em>behaviors</em>.</p>
-
-<p>A behavior is an object that looks similar to a typical
-AWIPS prototype.  A behavior can define <a href="registering-elements.html#basic-callbacks">lifecycle callbacks
-</a>,  <a href="properties.html">declared
-properties</a>, <a href="registering-elements.html#host-attributes">default attributes</a>,
-<a href="properties.html#observing-changes-to-multiple-properties"><code>observers</code></a>, and <a href="events.html#event-listeners"><code>listeners</code></a>.</p>
-
-<p>To add a behavior to a AWIPS element definition, include it in a
-<code>behaviors</code> array on the prototype.</p>
-
-<pre><code>Polymer({
-  is: 'super-element',
-  behaviors: [SuperBehavior]
-});
-</code></pre>
-
-<p>For lifecycle events, the lifecycle callback is called for each 
-behavior in the order given in the <code>behaviors</code> array, followed by the 
-callback on the prototype.</p>
-
-<p>Any non-lifecycle functions on the behavior object are mixed into
-the base prototype, <strong>unless the prototype already defines a function 
-of the same name.</strong>  If multiple behaviors define the same function, the 
-<strong>last</strong> behavior in the <code>behaviors</code> array takes precedence over other 
-behaviors.</p>
-
-<h2 id="defining-behaviors">Defining behaviors</h2>
-
-<p>To define a behavior, create a JavaScript object that you can reference from your element definition.
-The following example simply adds <code>HighlightBehavior</code> to the global scope:</p>
-
-<p><code>highlight-behavior.html</code>:</p>
-
-<pre><code>&lt;script&gt;
-    HighlightBehavior = {
-
-      properties: {
-        isHighlighted: {
-          type: Boolean,
-          value: false,
-          notify: true,
-          observer: '_highlightChanged'
-        }
-      },
-      
-      listeners: {
-        click: '_toggleHighlight'
-      },
-      
-      created: function() {
-        console.log('Highlighting for ', this, 'enabled!');
-      },
-
-      _toggleHighlight: function() {
-        this.isHighlighted = !this.isHighlighted;
-      },
-      
-      _highlightChanged: function(value) {
-        this.toggleClass('highlighted', value);
-      }
-
-    };
-&lt;/script&gt;
-</code></pre>
-
-<p><code>my-element.html</code>:</p>
-
-<pre><code>&lt;link rel="import" href="highlight-behavior.html"&gt;
-
-&lt;script&gt;
-  Polymer({
-    is: 'my-element',
-    behaviors: [HighlightBehavior]
-  });
-&lt;/script&gt;
-</code></pre>
-
-<p>AWIPS doesn’t specify any
-particular method for referencing your behaviors. Behaviors created by the AWIPS
-team are added to the AWIPS object. When creating your own behaviors, you should 
-use some other namespace to avoid collisions with future AWIPS behaviors. For example:</p>
-
-<pre><code>window.MyBehaviors = window.MyBehaviors || {};
-MyBehaviors.HighlightBehavior = { ... }
-</code></pre>
-
-<p>Here the <code>MyBehaviors</code> namespace is explicitly added to the global <code>window</code> object, so the behavior can be referenced from your elements as <code>MyBehaviors.HighlightBehavior</code>.</p>
-
-<h2 id="extending">Extending behaviors</h2>
-
-<p>To extend a behavior, or create a behavior that includes an existing behavior, you can define a 
-behavior as an array of behaviors:</p>
-
-<pre><code>&lt;!-- import an existing behavior --&gt;
-&lt;link rel="import" href="oldbehavior.html"&gt;
-
-&lt;script&gt;
-  // Implement the extended behavior
-  NewBehaviorImpl = {
-    // new stuff here 
-  }
-
-  // Define the behavior
-  NewBehavior = [ OldBehavior, NewBehaviorImpl ]
-&lt;/script&gt;
-</code></pre>
-
-<p>As with the element’s <code>behaviors</code> array, the rightmost behavior takes precedence over behaviors earlier in the array. 
-In this case, anything defined in <code>NewBehaviorImpl</code> takes precedence over anything defined in <code>OldBehavior</code>.</p>
-
-<p>Naming each element in the behavior array is a good practice, since it allows behaviors to explicitly reference methods 
-on the behaviors they extend (for example, <code>NewBehaviorImpl</code> can call to methods on <code>OldBehavior</code>).</p>
+<ul>
+  <li>Interstates</li>
+  <li>Interstates and US Highways</li>
+  <li>Warning Areas (with station identifier)</li>
+  <li>WSR-88D Station Locations</li>
+</ul>
 
 
     </article>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
 <meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
 <meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
-<meta itemprop="name" content="AWIPS II - Data flow">
+<meta itemprop="name" content="AWIPS - Data flow">
 <meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
 
 
@@ -16,21 +16,21 @@
 <title>
   
     Data flow -
-   AWIPS II
+   AWIPS
 </title>
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
 <link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
 <link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
-<link href="/awips2/css/site2.css?20160829" rel="stylesheet">
-<link href="/awips2/css/site2_sd_rules.css?20160829" rel="stylesheet" shim-shadowdom>
+<link href="/awips2/css/site2.css?20160923" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20160923" rel="stylesheet" shim-shadowdom>
 
 
 
-<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160829"></script>
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160923"></script>
 <!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
 <link rel="import" href="/awips2/components/polymer/polymer.html">
 <link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
-<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160829">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160923">
 
 
 </head>
@@ -40,7 +40,7 @@
   <app-drawer id="sidebar" unresolved>
     <div layout vertical id="sidebar-content">
       <div id="logo-container" layout horizontal center>
-        <a href="/awips2/" class="logo"><img src="/awips2/images/logos/awips2.png" alt="AWIPS II User Guide"></a>
+        <a href="/awips2/" class="logo"><img src="/awips2/images/logos/awips2.png" alt="Unidata AWIPS User Guide"></a>
       </div>
 
       <docs-menu unresolved flex
@@ -95,7 +95,7 @@
 
 <h2 id="data-decoding">Data Decoding</h2>
 
-<p>Data decoding is defined as the process of converting data from a raw format into a decoded format that is usable by CAVE.  In AWIPS II, data decoding is performed by the EDEX Ingest proessing (<strong>ingest</strong> and <strong>ingestGrib</strong>).</p>
+<p>Data decoding is defined as the process of converting data from a raw format into a decoded format that is usable by CAVE.  In AWIPS, data decoding is performed by the EDEX Ingest proessing (<strong>ingest</strong> and <strong>ingestGrib</strong>).</p>
 
 <ol>
   <li>EDEX Ingest obtains the “data available” message from the Qpid message broker, and determines the appropriate data decoder based on the message contents. EDEX Ingest then forwards the message to the chosen decoder.  Finally, the message is removed from the message queue.</li>
@@ -105,7 +105,7 @@
   <li>EDEX Ingest sends a message to the CAVE client indicating that newly-decoded data is available.</li>
 </ol>
 
-<p>It is important to note that in AWIPS II all data types are processed by either the standard <strong>ingest</strong> process, or by the <strong>ingestGrib</strong> process, which handles all grib message ingestion. Once this data decoding process is complete, clients may obtain and perform additional processing on the data, including displaying data in CAVE.</p>
+<p>It is important to note that in AWIPS all data types are processed by either the standard <strong>ingest</strong> process, or by the <strong>ingestGrib</strong> process, which handles all grib message ingestion. Once this data decoding process is complete, clients may obtain and perform additional processing on the data, including displaying data in CAVE.</p>
 
 <h3 id="processed-data-storage-architecture">Processed Data Storage Architecture</h3>
 
@@ -117,7 +117,7 @@
   <li>1) The <strong>EDEX Process</strong> sends serialized data, area data, and certain point data to PyPIES.</li>
   <li>2) <strong>PyPIES</strong> writes the data to the HDF5 data store.</li>
   <li>3) <strong>EDEX</strong> send the metadata to the Postgres DBMS</li>
-  <li>4) <strong>Postgres</strong> writes the metadata to the AWIPS II database.</li>
+  <li>4) <strong>Postgres</strong> writes the metadata to the AWIPS database.</li>
 </ul>
 
 <p>For data not stored in HDF5, Steps 1 and 2 are skipped.</p>
@@ -126,7 +126,7 @@
 
 <ul>
   <li>3) <strong>EDEX</strong> requests the metadata from Postgres.</li>
-  <li>4) <strong>Postgres</strong> reads the AWIPS II database and returns the requested metadata to EDEX.</li>
+  <li>4) <strong>Postgres</strong> reads the AWIPS database and returns the requested metadata to EDEX.</li>
   <li>1) <strong>EDEX</strong> sends a data request to PyPIES.</li>
   <li>2) <strong>PyPIES</strong> reads the data from the HDF5 data store and returns it to EDEX.</li>
 </ul>
@@ -147,7 +147,7 @@
 
 <h2 id="data-purge-architecture">Data Purge Architecture</h2>
 
-<p>Raw data storage and processed data storage use two different purge mechanisms.  For processed data storage, AWIPS II implements a plugin based purge strategy, where the user has the option to change the purge frequency for each plugin individually.</p>
+<p>Raw data storage and processed data storage use two different purge mechanisms.  For processed data storage, AWIPS implements a plugin based purge strategy, where the user has the option to change the purge frequency for each plugin individually.</p>
 
 <h3 id="raw-data-purge">Raw Data Purge</h3>
 
@@ -156,7 +156,7 @@
 <ol>
   <li>An <strong>ldm</strong> user cron job executes ldmadmin.</li>
   <li><strong>ldmadmin</strong> executes the LDM scour program.</li>
-  <li>The <strong>LDM scour program</strong> deletes outdated data from AWIPS II Raw Data Storage.</li>
+  <li>The <strong>LDM scour program</strong> deletes outdated data from AWIPS Raw Data Storage.</li>
 </ol>
 
 <h3 id="processed-data-purge">Processed Data Purge</h3>
@@ -192,7 +192,7 @@
 <script src="/awips2/js/prettify/prettify.js"></script>
 
 <!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
-<script src="/awips2/js/app.js?20160829"></script>
+<script src="/awips2/js/app.js?20160923"></script>
 
 
   </scroll-area>

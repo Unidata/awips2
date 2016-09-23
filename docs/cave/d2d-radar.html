@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
 <meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
 <meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
-<meta itemprop="name" content="AWIPS II - Radar Menu">
+<meta itemprop="name" content="AWIPS - Radar Menu">
 <meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
 
 
@@ -16,21 +16,21 @@
 <title>
   
     Radar Menu -
-   AWIPS II
+   AWIPS
 </title>
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
 <link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
 <link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
-<link href="/awips2/css/site2.css?20160829" rel="stylesheet">
-<link href="/awips2/css/site2_sd_rules.css?20160829" rel="stylesheet" shim-shadowdom>
+<link href="/awips2/css/site2.css?20160923" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20160923" rel="stylesheet" shim-shadowdom>
 
 
 
-<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160829"></script>
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160923"></script>
 <!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
 <link rel="import" href="/awips2/components/polymer/polymer.html">
 <link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
-<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160829">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160923">
 
 
 </head>
@@ -40,7 +40,7 @@
   <app-drawer id="sidebar" unresolved>
     <div layout vertical id="sidebar-content">
       <div id="logo-container" layout horizontal center>
-        <a href="/awips2/" class="logo"><img src="/awips2/images/logos/awips2.png" alt="AWIPS II User Guide"></a>
+        <a href="/awips2/" class="logo"><img src="/awips2/images/logos/awips2.png" alt="Unidata AWIPS User Guide"></a>
       </div>
 
       <docs-menu unresolved flex
@@ -92,18 +92,18 @@
       <li><a href="#dlv" id="markdown-toc-dlv">DLV</a></li>
       <li><a href="#eet" id="markdown-toc-eet">EET</a></li>
       <li><a href="#hhc" id="markdown-toc-hhc">HHC</a></li>
-      <li><a href="#n1p" id="markdown-toc-n1p">N1P</a></li>
-      <li><a href="#ntp" id="markdown-toc-ntp">NTP</a></li>
+      <li><a href="#daa" id="markdown-toc-daa">DAA</a></li>
+      <li><a href="#dta" id="markdown-toc-dta">DTA</a></li>
     </ul>
   </li>
-  <li><a href="#mosaic" id="markdown-toc-mosaic">Mosaic</a>    <ul>
+  <li><a href="#mosaic-radar-plots" id="markdown-toc-mosaic-radar-plots">Mosaic Radar Plots</a>    <ul>
       <li><a href="#n0q" id="markdown-toc-n0q">N0Q</a></li>
       <li><a href="#dsp" id="markdown-toc-dsp">DSP</a></li>
-      <li><a href="#dta" id="markdown-toc-dta">DTA</a></li>
-      <li><a href="#daa" id="markdown-toc-daa">DAA</a></li>
+      <li><a href="#dta-1" id="markdown-toc-dta-1">DTA</a></li>
+      <li><a href="#daa-1" id="markdown-toc-daa-1">DAA</a></li>
     </ul>
   </li>
-  <li><a href="#applications" id="markdown-toc-applications">Applications</a>    <ul>
+  <li><a href="#radar-applications" id="markdown-toc-radar-applications">Radar Applications</a>    <ul>
       <li><a href="#estimated-actual-velocity-eav" id="markdown-toc-estimated-actual-velocity-eav">Estimated Actual Velocity (EAV)</a></li>
       <li><a href="#four-dimensional-stormcell-investigator-fsi" id="markdown-toc-four-dimensional-stormcell-investigator-fsi">Four-dimensional Stormcell Investigator (FSI)</a></li>
       <li><a href="#v-r-shear" id="markdown-toc-v-r-shear">V-R Shear</a></li>
@@ -163,34 +163,52 @@ panel</strong> submenu.</p>
 
 <h1 id="mrms">MRMS</h1>
 
+<hr />
+
 <h1 id="fnexrad-composites">FNEXRAD Composites</h1>
 
 <h2 id="dhr">DHR</h2>
 
+<p><img src="../images/dhr.png" alt="image" /></p>
+
 <h2 id="dlv">DLV</h2>
+
+<p><img src="../images/dvl.png" alt="image" /></p>
 
 <h2 id="eet">EET</h2>
 
+<p><img src="../images/eet.png" alt="image" /></p>
+
 <h2 id="hhc">HHC</h2>
 
-<h2 id="n1p">N1P</h2>
+<p><img src="../images/hhc.png" alt="image" /></p>
 
-<h2 id="ntp">NTP</h2>
+<h2 id="daa">DAA</h2>
 
-<h1 id="mosaic">Mosaic</h1>
+<p><img src="../images/daa.png" alt="image" /></p>
+
+<h2 id="dta">DTA</h2>
+
+<p><img src="../images/dta.png" alt="image" /></p>
+
+<hr />
+
+<h1 id="mosaic-radar-plots">Mosaic Radar Plots</h1>
 
 <p>Mosaics available via this menu use data from up to nine nearby radars. Additional optional
-mosaics on cascading menus provide a limited list of radar products from a predefined set of WSR-88D radars within a given region. Your System Manager or site Administrator can set up such mosaics by: <code>/awips2/edex/data/utility/common_static/site//radar/radarInUse.txt</code>. A mosaicInfo.txt table will only work while logged on to an AWIPS workstation.</p>
+mosaics on cascading menus provide a limited list of radar products from a predefined set of WSR-88D radars within a given region. Your System Manager or site Administrator can set up such mosaics by: <code>/awips2/edex/data/utility/common_static/site/&lt;SITE&gt;/radar/radarInUse.txt</code>. A mosaicInfo.txt table will only work while logged on to an AWIPS workstation.</p>
 
 <h2 id="n0q">N0Q</h2>
 
 <h2 id="dsp">DSP</h2>
 
-<h2 id="dta">DTA</h2>
+<h2 id="dta-1">DTA</h2>
 
-<h2 id="daa">DAA</h2>
+<h2 id="daa-1">DAA</h2>
 
-<h1 id="applications">Applications</h1>
+<hr />
+
+<h1 id="radar-applications">Radar Applications</h1>
 
 <h2 id="estimated-actual-velocity-eav">Estimated Actual Velocity (EAV)</h2>
 
@@ -238,7 +256,7 @@ the echoes of interest.</li>
 <script src="/awips2/js/prettify/prettify.js"></script>
 
 <!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
-<script src="/awips2/js/app.js?20160829"></script>
+<script src="/awips2/js/app.js?20160923"></script>
 
 
   </scroll-area>

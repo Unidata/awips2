@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
 <meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
 <meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
-<meta itemprop="name" content="AWIPS II - Data binding">
+<meta itemprop="name" content="AWIPS - Data binding">
 <meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
 
 
@@ -16,21 +16,21 @@
 <title>
   
     Data binding -
-   AWIPS II
+   AWIPS
 </title>
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
 <link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
 <link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
-<link href="/awips2/css/site2.css?20160829" rel="stylesheet">
-<link href="/awips2/css/site2_sd_rules.css?20160829" rel="stylesheet" shim-shadowdom>
+<link href="/awips2/css/site2.css?20160923" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20160923" rel="stylesheet" shim-shadowdom>
 
 
 
-<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160829"></script>
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160923"></script>
 <!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
 <link rel="import" href="/awips2/components/polymer/polymer.html">
 <link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
-<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160829">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160923">
 
 
 </head>
@@ -40,7 +40,7 @@
   <app-drawer id="sidebar" unresolved>
     <div layout vertical id="sidebar-content">
       <div id="logo-container" layout horizontal center>
-        <a href="/awips2/" class="logo"><img src="/awips2/images/logos/awips2.png" alt="AWIPS II User Guide"></a>
+        <a href="/awips2/" class="logo"><img src="/awips2/images/logos/awips2.png" alt="Unidata AWIPS User Guide"></a>
       </div>
 
       <docs-menu unresolved flex
@@ -374,7 +374,7 @@ one-way, <strong>upward</strong> (child-to-host).)</p>
 <h3 id="change-notification-protocol">Change notification protocol</h3>
 
 <p>When you configure a declared property with the <code>notify</code> flag set to <code>true</code>,
-AWIPS II propagates data changes upward by firing events:</p>
+AWIPS propagates data changes upward by firing events:</p>
 
 <ul>
   <li>
@@ -389,16 +389,16 @@ whose <code>e.detail.value</code> attribute has the changing property’s new va
   </li>
 </ul>
 
-<p>When using a AWIPS II element with other elements or frameworks, you can 
+<p>When using a AWIPS element with other elements or frameworks, you can 
 manually attach an <code>on-<var>property</var>-changed</code> listener to an element to
 be notified of property changes, and take the necessary actions based on the new value.</p>
 
-<p>This is essentially what AWIPS II does when you create a two-way data
+<p>This is essentially what AWIPS does when you create a two-way data
 binding.</p>
 
 <h3 id="two-way-native">Two-way binding to native elements</h3>
 
-<p>As mentioned above, AWIPS II uses an event naming convention to achieve two-way
+<p>As mentioned above, AWIPS uses an event naming convention to achieve two-way
 binding.</p>
 
 <p>To two-way bind to native elements or non-Polymer elements that <em>don’t</em>
@@ -419,7 +419,7 @@ custom change event name in the annotation using the following syntax:</p>
 &lt;video url="..." current-time="{{hostTime::timeupdate}}"&gt;
 </code></pre>
 
-<p>Note: When binding to standard notifying properties on AWIPS II elements,
+<p>Note: When binding to standard notifying properties on AWIPS elements,
 specifying the event name is unnecessary, as the default convention will be
 used.  The following constructions are equivalent:</p>
 
@@ -451,7 +451,7 @@ following ways:</p>
 
 <ul>
   <li>
-    <p>Using a AWIPS II 
+    <p>Using a AWIPS 
 <a href="#property-binding">property binding</a> to another element.</p>
   </li>
   <li>
@@ -857,7 +857,7 @@ names.</p>
 <script src="/awips2/js/prettify/prettify.js"></script>
 
 <!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
-<script src="/awips2/js/app.js?20160829"></script>
+<script src="/awips2/js/app.js?20160923"></script>
 
 
   </scroll-area>
