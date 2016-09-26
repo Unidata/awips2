@@ -126,15 +126,7 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.viz.nwsauth.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.uf.viz.thinclient.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.useradmin.feature"
          version="0.0.0"/>
 
    <includes
@@ -166,15 +158,7 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.viz.dat.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.uf.viz.d2d.gfe.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.collaboration.feature"
          version="0.0.0"/>
 
    <includes
@@ -191,14 +175,6 @@
 
    <includes
          id="com.raytheon.uf.viz.aviation.advisory.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.datadelivery.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="edu.wisc.ssec.cimss.viz.convectprob.feature"
          version="0.0.0"/>
 
    <includes
