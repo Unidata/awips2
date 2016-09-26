@@ -98,10 +98,6 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.viz.hydro.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.uf.viz.d2d.xy.feature"
          version="0.0.0"/>
 
@@ -154,10 +150,6 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.viz.avnfps.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.uf.viz.d2d.gfe.feature"
          version="0.0.0"/>
 
@@ -195,6 +187,10 @@
 
    <includes
          id="gov.noaa.nws.mdl.viz.boundaryTool.common.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.satellite.goesr.feature"
          version="0.0.0"/>
 
    <requires>
