@@ -72,10 +72,6 @@
             name="RPS List Editor">
       </command>
       <command
-            id="com.raytheon.viz.ui.viz.radarapps.fsi.startFSI"
-            name="4-D Storm Investigator (FSI)">
-      </command>
-      <command
             id="com.raytheon.uf.viz.radarapps.config.configurator"
             name="RadarServer Configurator">
       </command>

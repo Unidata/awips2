@@ -36,13 +36,6 @@
     </include>
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
-             <substitute key="modelName" value="ECMF-Global" />
-             <substitute key="menuName" value="ECMF Global" />
-             <substitute key="frameCount" value="41" />
-             <substitute key="TP" value="TP6hr"/>
-    </include>
-	<include installTo="menu:models" 
-             fileName="menus/volume/allFamilies.xml">
              <substitute key="modelName" value="GFS" />
              <substitute key="menuName" value="GFS Global" />
              <substitute key="frameCount" value="180" />
@@ -52,6 +45,13 @@
              fileName="menus/volume/allFamilies.xml">
              <substitute key="modelName" value="GFS20" />
              <substitute key="menuName" value="GFS 20km" />
+             <substitute key="frameCount" value="41" />
+             <substitute key="TP" value="TP"/>
+    </include>
+	<include installTo="menu:models" 
+             fileName="menus/volume/lampFamilies.xml">
+             <substitute key="modelName" value="LAMP2p5" />
+             <substitute key="menuName" value="GFS-LAMP" />
              <substitute key="frameCount" value="41" />
              <substitute key="TP" value="TP"/>
     </include>
@@ -99,19 +99,18 @@
     </include>
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
-             <substitute key="modelName" value="RAP40" />
-             <substitute key="menuName" value="RAP 40km" />
+             <substitute key="modelName" value="RAP20" />
+             <substitute key="menuName" value="RAP 20km" />
              <substitute key="frameCount" value="19" />
              <substitute key="TP" value="TP"/>
     </include>
 	<include installTo="menu:models" 
              fileName="menus/volume/allFamilies.xml">
-             <substitute key="modelName" value="UKMET-Global" />
-             <substitute key="menuName" value="UKMET Global" />
-             <substitute key="frameCount" value="29" />
-             <substitute key="TP" value="TP6hr"/>
+             <substitute key="modelName" value="RAP40" />
+             <substitute key="menuName" value="RAP 40km" />
+             <substitute key="frameCount" value="19" />
+             <substitute key="TP" value="TP"/>
     </include>
-	
 	<include installTo="menu:models" 
              fileName="menus/volume/mesoFamilies.xml">
              <substitute key="modelName" value="NDFD" />
@@ -119,7 +118,6 @@
              <substitute key="frameCount" value="2" />
              <substitute key="TP" value="TP"/>
     </include>
-	
 	<include installTo="menu:models" 
              fileName="menus/volume/mesoFamilies.xml">
              <substitute key="modelName" value="RTMA" />
