@@ -57,7 +57,7 @@
                         <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="true"/>
                         <capabilities>
                             <capability xsi:type="colorableCapability" colorAsString="white"/>
-                            <capability xsi:type="densityCapability" density="1.0"/>
+                            <capability xsi:type="densityCapability" density="0.25"/>
                             <capability xsi:type="magnificationCapability" magnification="1.0"/>
                             <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
                             <capability xsi:type="displayTypeCapability" displayType="CONTOUR"/>

@@ -82,10 +82,5 @@
 	        <substitute key="posOffset" value="1800"/>
 	        <substitute key="negOffset" value="1800"/>       
 	    </contribute>
-	    
-	    <contribute xsi:type="separator" id="msasSeparator"/>
-	    <contribute xsi:type="titleItem" 
-			titleText="------ MSAS Obs------" id="msasLine"/>
-		<contribute xsi:type="subinclude" fileName="menus/obs/baseMSASObs.xml"/>
     </contribute>
 </menuTemplate>
