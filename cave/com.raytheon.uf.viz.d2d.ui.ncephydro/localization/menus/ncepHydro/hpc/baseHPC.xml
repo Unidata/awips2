@@ -18,14 +18,14 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="mm" name="12 Hr Accum Precip" abbreviation="TP12hr" xmlns:ns2="group">
-    <Method models="SREF212" name="Alias">
-        <Field abbreviation="TP12mean"/>
-    </Method>
-    <Method name="Alias">
-        <Field abbreviation="2xTP6hr"/>
-    </Method>
-    <Method name="Supplement" models="ETA GFS212">
-        <Field abbreviation="2xTP6hr"/>
-    </Method>
-</DerivedParameter>
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+ 	<contribute xsi:type="bundleItem" file="bundles/ncepHydro/hpc/HPCqpfNDFD.xml" 
+              menuText="HPC QPF 6hr (Grid)" id="HPCQPF6hr">
+              <substitute key="frameCount" value="2" />
+              <substitute key="param" value="tpHPCndfd" />
+    </contribute>
+
+    <contribute xsi:type="subinclude" fileName="menus/ncepHydro/hpc/hpcMenus.xml"/>
+
+</menuTemplate>

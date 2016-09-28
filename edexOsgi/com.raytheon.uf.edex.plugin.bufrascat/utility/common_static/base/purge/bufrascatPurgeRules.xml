@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <purgeRuleSet>
 	<defaultRule>
-		<versionsToKeep>200</versionsToKeep>
+		<versionsToKeep>12</versionsToKeep>
 		<delta>=00-01:00:00</delta>
 		<round>00-01:00:00</round>
 	</defaultRule>

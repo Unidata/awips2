@@ -18,14 +18,7 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="mm" name="12 Hr Accum Precip" abbreviation="TP12hr" xmlns:ns2="group">
-    <Method models="SREF212" name="Alias">
-        <Field abbreviation="TP12mean"/>
-    </Method>
-    <Method name="Alias">
-        <Field abbreviation="2xTP6hr"/>
-    </Method>
-    <Method name="Supplement" models="ETA GFS212">
-        <Field abbreviation="2xTP6hr"/>
-    </Method>
-</DerivedParameter>
+<menuContributionFile>
+ <include installTo="menu:obs?before=CollectionDissemSep"   
+             fileName="menus/mping/baseMPing.xml"/>
+</menuContributionFile>

@@ -39,7 +39,7 @@
 						plotModelFile="svrWxDesign.svg" pixelSizeHint="45"
 						retrieveData="false" isUpdatingOnMetadataOnly="false"
 						isRequeryNecessaryOnTimeMatch="true">
-						<binOffset posOffset="21600" negOffset="21600" virtualOffset="0"/>
+						<binOffset posOffset="1800" negOffset="1800" virtualOffset="0"/>
 						<metadataMap>
 							<mapping key="pluginName">
 								<constraint constraintValue="svrwx" constraintType="EQUALS" />
@@ -71,7 +71,7 @@
 						plotModelFile="svrWxDesign.svg" pixelSizeHint="45"
 						retrieveData="false" isUpdatingOnMetadataOnly="false"
 						isRequeryNecessaryOnTimeMatch="true">
-						<binOffset posOffset="21600" negOffset="21600" virtualOffset="0"/>
+						<binOffset posOffset="1800" negOffset="1800" virtualOffset="0"/>
 						<metadataMap>
 							<mapping key="pluginName">
 								<constraint constraintValue="svrwx" constraintType="EQUALS" />
@@ -103,7 +103,7 @@
 						plotModelFile="svrWxDesign.svg" pixelSizeHint="45"
 						retrieveData="false" isUpdatingOnMetadataOnly="false"
 						isRequeryNecessaryOnTimeMatch="true">
-						<binOffset posOffset="21600" negOffset="21600" virtualOffset="0"/>
+						<binOffset posOffset="1800" negOffset="1800" virtualOffset="0"/>
 						<metadataMap>
 							<mapping key="pluginName">
 								<constraint constraintValue="svrwx" constraintType="EQUALS" />

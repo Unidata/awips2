@@ -39,4 +39,3 @@ Export-Package: com.raytheon.viz.pointdata,
  com.raytheon.viz.pointdata.rsc.retrieve,
  com.raytheon.viz.pointdata.util
 Bundle-ClassPath: com.raytheon.viz.pointdata.jar
-Import-Package: com.raytheon.uf.common.dataplugin.obs.metar

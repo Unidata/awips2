@@ -2154,21 +2154,21 @@
 		</imageStyle>
 	</styleRule>
 	<!--
-		* NBE, ETA, NAM40, AK-NAM95, AK-NAM45, AK-NAM22, NAM12, AK-NAM11, GFS95, GFS40
+		* NBE, ETA, mesoEta212, ETA207, mesoEta216, mesoEta217, ETA218, ETA242, GFS213, GFS212
 		J/kg | -1| 0 | -1000 | -1 | |,x| 29 | 0 | 100
 	-->
 	<styleRule>
 		<paramLevelMatches>
 			<parameter>NBE</parameter>
 			<creatingEntity>ETA</creatingEntity>
-			<creatingEntity>NAM40</creatingEntity>
-			<creatingEntity>AK-NAM95</creatingEntity>
-			<creatingEntity>AK-NAM45</creatingEntity>
-			<creatingEntity>AK-NAM22</creatingEntity>
-			<creatingEntity>NAM12</creatingEntity>
-			<creatingEntity>AK-NAM11</creatingEntity>
-			<creatingEntity>GFS95</creatingEntity>
-			<creatingEntity>GFS40</creatingEntity>
+			<creatingEntity>mesoEta212</creatingEntity>
+			<creatingEntity>ETA207</creatingEntity>
+			<creatingEntity>mesoEta216</creatingEntity>
+			<creatingEntity>mesoEta217</creatingEntity>
+			<creatingEntity>ETA218</creatingEntity>
+			<creatingEntity>ETA242</creatingEntity>
+			<creatingEntity>GFS213</creatingEntity>
+			<creatingEntity>GFS212</creatingEntity>
 		</paramLevelMatches>
 		<imageStyle>
 			<!-- filterLow="true" -->
@@ -3949,14 +3949,14 @@
 		</imageStyle>
 	</styleRule>
 	<!--
-		* NBE, RAP13, Layer
+		* NBE, RUC130, Layer
 		J/kg | 1 | 0 | -1000  | -1  | |,x | 29 | -1 | 100
 	-->
 	<!-- DISABLED for plane type "EA"
 	<styleRule>
 		<paramLevelMatches>
 			<parameter>NBE</parameter>
-			<creatingEntity>RAP13</creatingEntity>
+			<creatingEntity>RUC130</creatingEntity>
 			<singleLevel units="EA" />
 		</paramLevelMatches>
 		<imageStyle>
@@ -4480,14 +4480,14 @@
 		</imageStyle>
 	</styleRule>
 	<!--
-		* RUC, RAP13, RAP40, PR
+		* RUC, RUC130, RUC236, PR
 		in/hr | 141.732 | 0.0 | 0.005 | 16 |x|,c| 12 | 8 | 0.01 0.25 0.5 1 2 4 8 16
 	-->
 	<styleRule>
 		<paramLevelMatches>
 			<creatingEntity>RUC</creatingEntity>
-			<creatingEntity>RAP13</creatingEntity>
-			<creatingEntity>RAP40</creatingEntity>
+			<creatingEntity>RUC130</creatingEntity>
+			<creatingEntity>RUC236</creatingEntity>
 			<parameter>PR</parameter>
 		</paramLevelMatches>
 		<imageStyle>

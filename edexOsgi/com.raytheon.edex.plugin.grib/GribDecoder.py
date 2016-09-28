@@ -762,7 +762,7 @@ class GribDecoder():
             # is impossible to define anything larger than a 5x2 grid with this
             # spacing so we assume it is invalid and try to calculate a better
             # value. 65.535 was chosen because it is the value encoded in the
-            # PR-GFS model and it is completely wrong. This value is probably
+            # GFS161 model and it is completely wrong. This value is probably
             # an artifact of converting from grib1 to grib2 since in grib1 this
             # value would be encoded as an unsigned short with all bits as 1
             # which is a special value in grib1, but in grib2 its just wrong

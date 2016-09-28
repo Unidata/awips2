@@ -220,7 +220,7 @@ SnD_NMM-NCEP_21600-0 snowd6hr
 // Catchall that always maps probability of precip over 0.245mm(1/100 in) to POP.
 TP0.254mm POP
 
-// Throw 1-hr and 2-hr precip on  the floor for RAP13
+// Throw 1-hr and 2-hr precip on  the floor for RUC13
 CP_RUC2-NCEP_165x165_7200-0 PWS64
 CP_RUC2-NCEP_165x165_10800-0 PWS64
 LgSP_RUC2-NCEP_165x165_7200-0 PWS64

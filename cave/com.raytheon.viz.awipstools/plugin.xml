@@ -71,6 +71,10 @@
           id="com.raytheon.viz.awipstools.home"
           name="Home">
     </command>
+    <command
+          id="com.raytheon.viz.awipstools.lapstools"
+          name="LAPS tools">
+    </command>
      <command
           id="com.raytheon.viz.awipstools.unitscalculator"
           name="Units">
@@ -198,5 +202,38 @@
             class="com.raytheon.viz.awipstools.ui.action.ArbitraryHandler"
             commandId="com.raytheon.viz.awipstools.arbitrary">
       </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+       <menuContribution
+            locationURI="toolbar:d2d-2?after=tools.toolbar">
+            <command
+                  commandId="com.raytheon.uf.viz.ui.loadbundle"
+                  icon="icons/points.gif"
+                  label="Points">
+				<visibleWhen>
+                   <reference
+                         definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                   </reference>
+                </visibleWhen>
+			    <parameter
+			          name="bundleFile"
+			          value="bundles/tools/Points.xml">
+			    </parameter>
+            </command>
+            <command
+                  commandId="com.raytheon.uf.viz.ui.loadbundle"
+                  icon="icons/Baseline.gif"
+                  label="Baselines">
+				<visibleWhen>
+                   <reference
+                         definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                   </reference>
+                </visibleWhen>
+			    <parameter
+			          name="bundleFile"
+			          value="bundles/tools/Baselines.xml" />
+            </command>
+       </menuContribution>
    </extension>
 </plugin>

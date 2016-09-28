@@ -409,8 +409,8 @@ build_hourly_enable    : ON      # Enable the build_hourly application
 # The following tokens are most likely to be customized by the user
 #  (the first 4 MUST be customized at each site in the .Apps_defaults_site file)
 # ----------------------------------------------------------------
-hv_center_lat          : 40.0    # HydroView center latitude
-hv_center_lon          : -105.0  # HydroView center longitude
+hv_center_lat          : 35.0    # HydroView center latitude
+hv_center_lon          : -97.8   # HydroView center longitude
 hv_height_in_pixels    : 900     # Hydroview map height in pixels
 hv_width_in_pixels     : 1200    # Hydroview map width in pixels
 hv_map_width           : 320     # HydroView map width (nautical miles)

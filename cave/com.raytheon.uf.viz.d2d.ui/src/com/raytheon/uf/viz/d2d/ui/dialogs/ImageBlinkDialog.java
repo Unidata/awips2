@@ -253,7 +253,7 @@ public class ImageBlinkDialog extends CaveSWTDialog implements
         buttonComp.setLayoutData(gd);
 
         Button b = new Button(buttonComp, SWT.PUSH);
-        b.setText("Enable");
+        b.setText("Enable Range");
         b.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -265,7 +265,7 @@ public class ImageBlinkDialog extends CaveSWTDialog implements
         b.setLayoutData(gd);
 
         b = new Button(buttonComp, SWT.PUSH);
-        b.setText("Disable");
+        b.setText("Disable Range");
         b.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
