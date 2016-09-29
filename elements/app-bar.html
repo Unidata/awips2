@@ -13,6 +13,7 @@
 <link rel="import" href="../components/paper-dropdown/paper-dropdown.html">
 <link rel="import" href="../components/core-menu/core-menu.html">
 <link rel="import" href="../components/paper-item/paper-item.html">
+<script src="https://code.jquery.com/jquery-1.12.3.min.js"></script>
 
 <polymer-element name="app-bar" attributes="theme home badge">
   <template>
@@ -33,30 +34,49 @@
     </div>
   </template>
   <script>
+    var $rows;
     Polymer({
       theme: 'dark',
       home: false,
       showingSearch: false,
       badge: '',
       toggleSearch: function(e, detail, sender) {
+
+        $rows = $('table tr');
+
         if (e) { // comes first
           e.stopPropagation();
         }
         if (e.target === this.$.input) {
           return;
         }
-
-        this.showingSearch = !this.showingSearch;
-        this.classList.toggle('search-on');
+        this.showingSearch = true;
+        this.classList.add('search-on');
         this.async(function() {
           this.$.input.focus();
         });
+
       },
-      disableSearch: function() {
-        this.classList.remove('search-on');
-        this.showingSearch = false;
+      disableSearch: function(e, detail, sender) {
+
+        if (sender.value == "") {
+          this.classList.remove('search-on');
+          this.showingSearch = false;
+        }
+
       },
       onKeyPress: function(e, detail, sender) {
+
+        $rows = $('table tr');
+        var val = '^(?=.*\\b' + $.trim(sender.value).split(/\s+/).join('\\b)(?=.*\\b') + ').*$',
+                reg = RegExp(val, 'i'),
+                text;
+
+        $rows.show().filter(function() {
+          text = $(this).text().replace(/\s+/g, ' ');
+          return !reg.test(text);
+        }).hide();
+
         if (e.keyCode == 13) { // Enter
           if (sender.value) {
             recordSearch(sender.value);
