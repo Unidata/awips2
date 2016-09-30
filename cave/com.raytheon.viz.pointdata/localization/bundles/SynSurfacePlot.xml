@@ -24,7 +24,13 @@
 			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 			<descriptor xsi:type="mapDescriptor" currentAnimationMode="Temporal">
 				<resource>
-               		<loadProperties loadWithoutData="true"/>
+               		<loadProperties loadWithoutData="true">
+                   		<capabilities>
+						    <capability xsi:type="magnificationCapability" magnification="1.25"/>
+						    <capability xsi:type="densityCapability" density="2"/>
+						    <capability xsi:type="colorableCapability" colorAsString="white"/>
+						</capabilities>
+               		</loadProperties>
 					<properties isSystemResource="false" isBlinking="false"
 						isMapLayer="false" isHoverOn="false"
 						isVisible="true" />

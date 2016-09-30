@@ -44,11 +44,6 @@
 							<mapping key="reportType">
 								<constraint constraintValue="METAR" constraintType="EQUALS" />
 							</mapping>
-							<!--
-							<mapping key="windSpeed">
-                                <constraint constraintValue="0.01" constraintType="GREATER_THAN" />
-                            </mapping>
-							-->
 							<mapping key="pluginName">
 								<constraint constraintValue="obs" constraintType="EQUALS" />
 							</mapping>

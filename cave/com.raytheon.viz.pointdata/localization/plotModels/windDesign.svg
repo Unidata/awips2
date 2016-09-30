@@ -5,35 +5,12 @@ overflow="visible"
 xmlns="http://www.w3.org/2000/svg" 
 xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
    <defs>
-<script type="text/python" plotDelegate="plotDelegate">
-import re
-
-class ObsPlotDelegate(PlotDelegate):
-    def __init__(self):
-        PlotDelegate.__init__(self)
-
-    def getSampleText(self, rec):
-        sampleString = rec.getString("rawMETAR")
-        #strip WMO header
-        sampleString = re.sub("(\\s|\\S)+(METAR)", "\\2", sampleString)
-        #strip all multiple spaces and replace newlines with spaces
-        sampleString = re.sub("(\\s)+", " ", sampleString)
-
-        return sampleString
-
-plotDelegate = ObsPlotDelegate()
-
-</script>
 <style type="text/css">
 <![CDATA[
         @font-face { font-family: "WindSymbolFont";
                 src: url(WindSymbols.svg#WindSymbols); }
         @font-face { font-family: "StandardFont";
                 src: url(Standard.svg#Standard); }
-        @font-face { font-family: "WxSymbolFont";
-                src: url(WxSymbols.svg#WxSymbols); }
-        @font-face { font-family: "SpecialSymbolFont";
-                src: url(SpecialSymbols.svg#SpecialSymbols); }
         text.barb
             {
                 fill: none;
@@ -56,27 +33,11 @@ plotDelegate = ObsPlotDelegate()
                 font-family: StandardFont;
                 font-size: 1em;
             }
-        text.weather
-            {
-                fill: none;
-                font-size: 1em;
-                stroke-width: 1px;
-                font-family: WxSymbolFont;
-
-            }
-        text.special
-            {
-                fill: none;
-                font-size: 1em;
-                stroke-width: 1px;
-                font-size: 1em;
-                font-family: SpecialSymbolFont;
-            }
 ]]>
 </style>
 
 <symbol overflow="visible" id="plotData" class="info">
-  <text id="rawMETARText" plotMode="sample" class="text" plotParam="rawMETAR" x="0" y="0">0</text> 
+  <text id="windSpeedText" plotMode="sample" class="text" plotParam="windSpeed" x="0" y="0">0</text> 
   <g id="windVaneText" plotMode="barb" plotParam="windSpeed,windDir,windGust" plotUnit="kts" x="0" y="0" transform="rotate(0,0,0)">
     <text id="windArrowText" class="barb" x="0" y="0">arrow</text>
   </g>
