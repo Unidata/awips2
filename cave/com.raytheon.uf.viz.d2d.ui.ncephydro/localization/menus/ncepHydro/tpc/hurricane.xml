@@ -19,23 +19,6 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<contribute xsi:type="titleItem" titleText="------ Track Summaries ------"
-		id="TrackSummaryLine" />
-	<contribute xsi:type="bundleItem" file="bundles/TrackSummaryPlot.xml"
-		menuText="Atlantic" id="atlanticTrackSummary">
-		<substitute key="productType" value="TCMAT1,TCMAT2,TCMAT3,TCMAT4,TCMAT5" />
-		<substitute key="legend" value="Atlantic" />
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/TrackSummaryPlot.xml"
-		menuText="E Pacific" id="easternPacificTrackSummary">
-		<substitute key="productType" value="TCMEP1,TCMEP2,TCMEP3,TCMEP4,TCMEP5,TCMCP1,TCMCP2,TCMCP3,TCMCP4,TCMCP5" />
-		<substitute key="legend" value="E Pacific" />
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/TrackSummaryPlot.xml"
-		menuText="W Pacific" id="westernPacificTrackSummary">
-		<substitute key="productType" value="TCMCP1,TCMCP2,TCMCP3,TCMCP4,TCMCP5,TCMWP1,TCMWP2,TCMWP3,TCMWP4,TCMWP5,TCP" />
-		<substitute key="legend" value="W Pacific" />
-	</contribute>
 	<contribute xsi:type="subMenu" menuText="Hourly Forecasts">
 		<contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"
 			menuText="AT1" id="AT1">
