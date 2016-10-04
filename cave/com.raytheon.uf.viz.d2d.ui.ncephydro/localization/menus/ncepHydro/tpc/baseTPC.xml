@@ -19,6 +19,10 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="bundleItem" file="bundles/TrackSummaryPlot.xml"
+		menuText="Hurricane Track Summaries" id="hurricaneTrackSummary">
+		<substitute key="productType" value="TCMAT1,TCMAT2,TCMAT3,TCMAT4,TCMAT5,TCMEP1,TCMEP2,TCMEP3,TCMEP4,TCMEP5,TCMCP1,TCMCP2,TCMCP3,TCMCP4,TCMCP5,TCMCP1,TCMCP2,TCMCP3,TCMCP4,TCMCP5,TCMWP1,TCMWP2,TCMWP3,TCMWP4,TCMWP5,TCP" />
+	</contribute>
 	<contribute xsi:type="subMenu" menuText="Hurricane"
 	            id="ncepHydro.tpc.hurricane">
 	    <contribute xsi:type="subinclude" fileName="menus/ncepHydro/tpc/hurricane.xml"/>

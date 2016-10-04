@@ -121,3 +121,6 @@ if [ -d ${LDM_INSTALL} ]; then
   fi
 fi
 
+if [ -d /awips2/yajsw/lib/core/jna/com/sun/jna ]; then
+  export LD_LIBRARY_PATH=/awips2/yajsw/lib/core/jna/com/sun/jna/linux-amd64:$LD_LIBRARY_PATH
+fi

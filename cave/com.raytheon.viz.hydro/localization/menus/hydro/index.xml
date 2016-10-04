@@ -19,10 +19,10 @@
         further_licensing_information.
     -->
 <menuContributionFile>
-    <include installTo="menu:ncepHydro?after=SPC" 
+    <include installTo="menu:ncepHydro?after=TPC" 
              fileName="menus/hydro/baseHydroQPE.xml"
              subMenu="QPE"/>
-    <include installTo="menu:ncepHydro?after=SPC" 
+    <include installTo="menu:ncepHydro?after=TPC" 
              fileName="menus/hydro/baseHydroQPF.xml"
              subMenu="QPF"/>
     <include installTo="menu:ncepHydro?before=HydroMenuEnd" 

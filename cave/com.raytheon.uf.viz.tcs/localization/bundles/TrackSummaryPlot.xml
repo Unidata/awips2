@@ -27,7 +27,7 @@
 					<loadProperties loadWithoutData="true">
 						<capabilities/>
 					</loadProperties>
-					<resourceData xsi:type="tcsResourceData" plotSource="${legend} Hurricane Tracks"
+					<resourceData xsi:type="tcsResourceData" plotSource="Hurricane Tracks"
 						isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
 							<mapping key="pluginName">
