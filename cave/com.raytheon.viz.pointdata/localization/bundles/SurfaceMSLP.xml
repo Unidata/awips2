@@ -27,8 +27,7 @@
                		<loadProperties loadWithoutData="true">
                    		<capabilities>
 						    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
-						    <capability xsi:type="magnificationCapability" magnification="2"/>
-						    <capability xsi:type="densityCapability" density=".5"/>
+						    <capability xsi:type="densityCapability" density="1.5"/>
 						    <capability xsi:type="colorableCapability" colorAsString="white"/>
 						</capabilities>
                		</loadProperties>

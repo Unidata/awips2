@@ -148,7 +148,7 @@ public class MetarTempResource extends
 
     // To avoid synchronization issues with data request, updates, and removals
     // do it all on this thread.
-    private Job dataProcessJob = new Job("Loading Temp Data") {
+    private Job dataProcessJob = new Job("Loading Sfc Temps") {
 
         @Override
         protected IStatus run(IProgressMonitor monitor) {
@@ -333,10 +333,10 @@ public class MetarTempResource extends
             }
         }
     }
-
+    
     @Override
     public String getName() {
-        return "METAR Surface Temps";
+    	return "Surface Temps [F]";
     }
 
     @Override
