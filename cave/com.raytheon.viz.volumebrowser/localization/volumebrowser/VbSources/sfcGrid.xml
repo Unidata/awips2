@@ -48,7 +48,8 @@
     <vbSource key="RFCqpf" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="RTGSST" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="RTGSSTHR" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-    <vbSource key="RTMA25" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTMA" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="RTMA5" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="RTOFS-GulfMexico" category="SfcGrid/RTOFS/forecast"
         subCategory="Atlantic" views="PLANVIEW TIMESERIES" />
     <vbSource key="RTOFS-GulfStream" category="SfcGrid/RTOFS/forecast"
