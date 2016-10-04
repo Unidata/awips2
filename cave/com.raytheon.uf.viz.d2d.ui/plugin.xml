@@ -574,6 +574,11 @@
 			         </reference>
 			      </visibleWhen>
             </command>
+   <command
+         commandId="SetBrowserViewType"
+         label="Plot Type"
+         style="pulldown">
+   </command>
 
          </toolbar>
          </menuContribution>
@@ -823,6 +828,30 @@
           			class="com.raytheon.uf.viz.d2d.ui.DensityPopulator"
           			id="com.raytheon.uf.viz.d2d.ui.densityPopulator">
 				</dynamic>
+         </menuContribution>
+         <menuContribution
+               allPopups="false"
+               locationURI="menu:SetBrowserViewType">
+            <command
+                  commandId="com.raytheon.viz.volumebrowser.crossSection"
+                  label="Cross Section">
+            </command>
+            <command
+                  commandId="com.raytheon.viz.volumebrowser.timeSeries"
+                  label="Time Series">
+            </command>
+            <command
+                  commandId="com.raytheon.viz.volumebrowser.timeHeight"
+                  label="Time Height">
+            </command>
+            <command
+                  commandId="com.raytheon.viz.volumebrowser.varHeight"
+                  label="Var vs. Height">
+            </command>
+            <command
+                  commandId="com.raytheon.viz.volumebrowser.sounding"
+                  label="Model Soundings">
+            </command>
          </menuContribution>
        </extension>
          
@@ -1505,6 +1534,10 @@
             categoryId="com.raytheon.uf.viz.d2d.ui"
       	    description="Toggles a blended resource"
             name="Toggle Layer"/>
+     <command
+           id="SetBrowserViewType"
+           name="Set Volume Browser View Type">
+     </command>
    </extension>
    <extension
          point="com.raytheon.viz.ui.perspectiveManager">

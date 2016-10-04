@@ -28,12 +28,29 @@
             id="com.raytheon.viz.volumebrowser.volumeBrowser"
             name="Volume Browser">
       </command>
-   </extension>
-   <extension
-         point="org.eclipse.ui.commands">
       <command
             id="com.raytheon.viz.volumebrowser.volumeBrowserRef"
             name="Volume Browser">
+      </command>
+      <command
+            id="com.raytheon.viz.volumebrowser.crossSection"
+            name="Cross Section">
+      </command>
+      <command
+            id="com.raytheon.viz.volumebrowser.timeHeight"
+            name="Time Height">
+      </command>
+      <command
+            id="com.raytheon.viz.volumebrowser.timeSeries"
+            name="Time Series">
+      </command>
+      <command
+            id="com.raytheon.viz.volumebrowser.varHeight"
+            name="Var vs. Height">
+      </command>
+      <command
+            id="com.raytheon.viz.volumebrowser.sounding"
+            name="Model Soundings">
       </command>
    </extension>
    <extension
@@ -41,6 +58,26 @@
       <handler
             class="com.raytheon.viz.volumebrowser.vbui.VolumeBrowserAction"
             commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef">
+      </handler>
+      <handler
+            class="com.raytheon.viz.volumebrowser.vbui.CrossSectionAction"
+            commandId="com.raytheon.viz.volumebrowser.crossSection">
+      </handler>
+      <handler
+            class="com.raytheon.viz.volumebrowser.vbui.TimeHeightAction"
+            commandId="com.raytheon.viz.volumebrowser.timeHeight">
+      </handler>
+      <handler
+            class="com.raytheon.viz.volumebrowser.vbui.VarHeightAction"
+            commandId="com.raytheon.viz.volumebrowser.varHeight">
+      </handler>
+      <handler
+            class="com.raytheon.viz.volumebrowser.vbui.TimeSeriesAction"
+            commandId="com.raytheon.viz.volumebrowser.timeSeries">
+      </handler>
+      <handler
+            class="com.raytheon.viz.volumebrowser.vbui.SoundingAction"
+            commandId="com.raytheon.viz.volumebrowser.sounding">
       </handler>
    </extension>
    <extension point="com.raytheon.uf.viz.core.alterBundle">
@@ -73,6 +110,26 @@
              <command
                    commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef"
                    label="Volume Browser">
+             </command>
+             <command
+                   commandId="com.raytheon.viz.volumebrowser.crossSection"
+                   label="Cross Section">
+             </command>
+             <command
+                   commandId="com.raytheon.viz.volumebrowser.timeSeries"
+                   label="Time Series">
+             </command>
+             <command
+                   commandId="com.raytheon.viz.volumebrowser.timeHeight"
+                   label="Time Height">
+             </command>
+             <command
+                   commandId="com.raytheon.viz.volumebrowser.varHeight"
+                   label="Var vs. Height">
+             </command>
+             <command
+                   commandId="com.raytheon.viz.volumebrowser.sounding"
+                   label="Model Soundings">
              </command>
              <separator name="afterVB" visible="false"/>
              <separator name="ensemble" visible="false"/>
