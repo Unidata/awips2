@@ -46,17 +46,17 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
  * @author lvenable
  * @version 1.0
  */
-public class VolumeBrowserAction extends AbstractHandler {
+public class SoundingAction extends AbstractHandler {
 
     /**
      * Volume Browser dialog.
      */
     private static VolumeBrowserDlg volumeBrowserDlg = null;
-
+    
     public static VolumeBrowserDlg getVolumeBrowserDlg() {
         return volumeBrowserDlg;
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -68,9 +68,9 @@ public class VolumeBrowserAction extends AbstractHandler {
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                 .getShell();
-
+        
         if (volumeBrowserDlg == null) {
-            volumeBrowserDlg = new VolumeBrowserDlg(shell, ViewMenu.PLANVIEW);
+            volumeBrowserDlg = new VolumeBrowserDlg(shell, ViewMenu.SOUNDING);
             volumeBrowserDlg.addListener(SWT.Dispose, new Listener() {
                 @Override
                 public void handleEvent(Event event) {

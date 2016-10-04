@@ -19,7 +19,6 @@
  **/
 package com.raytheon.viz.volumebrowser.vbui;
 
-import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.SWT;
@@ -32,7 +31,7 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 
 /**
  * 
- * Action to bring up the Volume Browser Dialog.
+ * Action to bring up the Cross Section Dialog.
  * 
  * <pre>
  * 
@@ -46,17 +45,17 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
  * @author lvenable
  * @version 1.0
  */
-public class VolumeBrowserAction extends AbstractHandler {
+public class CrossSectionAction extends VolumeBrowserAction {
 
     /**
      * Volume Browser dialog.
      */
     private static VolumeBrowserDlg volumeBrowserDlg = null;
-
+    
     public static VolumeBrowserDlg getVolumeBrowserDlg() {
         return volumeBrowserDlg;
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -68,9 +67,9 @@ public class VolumeBrowserAction extends AbstractHandler {
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                 .getShell();
-
+        
         if (volumeBrowserDlg == null) {
-            volumeBrowserDlg = new VolumeBrowserDlg(shell, ViewMenu.PLANVIEW);
+            volumeBrowserDlg = new VolumeBrowserDlg(shell, ViewMenu.CROSSSECTION);
             volumeBrowserDlg.addListener(SWT.Dispose, new Listener() {
                 @Override
                 public void handleEvent(Event event) {

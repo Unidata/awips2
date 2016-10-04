@@ -131,24 +131,32 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
      */
     private DataListsProdTableComp listTableComp;
 
-    public final String DIALOG_TITLE = "Volume Browser";
-
     private SpaceTimeMenu previousSpaceTimeMenu = null;
 
     private boolean initialized = false;
 
     private IPointChangedListener pointChangeListener;
 
+    private ViewMenu type = null;
+
+    public ViewMenu getType() {
+		return type;
+	}
+
+	public void setType(ViewMenu type) {
+		this.type = type;
+	}
     /**
      * Constructor.
      * 
      * @param parent
      *            Parent shell.
      */
-    public VolumeBrowserDlg(Shell parent) {
+    public VolumeBrowserDlg(Shell parent, ViewMenu viewMenu) {
         super(parent, SWT.SHELL_TRIM | SWT.RESIZE, CAVE.INDEPENDENT_SHELL
                 | CAVE.DO_NOT_BLOCK);
-        setText(DIALOG_TITLE);
+        setType(viewMenu);
+        setText(viewMenu.getDisplayString());
 
         dialogSettings = new VolumeBrowserDialogSettings();
         VizGlobalsManager.addListener(VizConstants.LOADMODE_ID, this);
@@ -527,8 +535,8 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
         // Create the "Settings" menu
         // -------------------------------------
         settingsMI = new MenuItem(menuBar, SWT.CASCADE);
-        settingsMI.setText(ViewMenu.PLANVIEW.displayString);
-        settingsMI.setData(ViewMenu.PLANVIEW);
+        settingsMI.setText(type.displayString);
+        settingsMI.setData(type);
 
         // Create the "Settings" menu item
         Menu settingsMenu = new Menu(menuBar);
