@@ -81,6 +81,10 @@ function lookupRPM()
       export RPM_SPECIFICATION="${python_site__dir}/Installer.nose"
       return 0
    fi
+   if [ "${1}" = "awips2-python-gfe" ]; then
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.gfe"
+      return 0
+   fi
    if [ "${1}" = "awips2-python-numpy" ]; then
       export RPM_SPECIFICATION="${installer_dir}/numpy/"
       return 0
