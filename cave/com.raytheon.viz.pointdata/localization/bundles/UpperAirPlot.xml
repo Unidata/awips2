@@ -29,7 +29,7 @@
 						isMapLayer="false" isHoverOn="false"
 						isVisible="true" />
 					<resourceData xsi:type="plotResourceData" levelKey="${levelKey}"
-						plotSource="${plotSource}" plotModelFile="${plotModelFile;raobUpperDesign}.svg" 
+						plotSource="${plotSource}" plotModelFile="raobUpperDesign.svg" 
 						isUpdatingOnMetadataOnly="true" isRequeryNecessaryOnTimeMatch="true">
 						<binOffset posOffset="3600" negOffset="3600" virtualOffset="0"/>
 						<metadataMap>

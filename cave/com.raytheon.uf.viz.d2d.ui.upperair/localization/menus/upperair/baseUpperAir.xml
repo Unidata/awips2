@@ -22,62 +22,8 @@
 	<contribute xsi:type="bundleItem" file="bundles/npp/nucapsAvailability.xml"
 			menuText="NUCAPS Soundings" id="NUCAPSAvailability">
 	</contribute>
-
     <contribute xsi:type="subMenu" id="UAplots" menuText="Upper Air plots">
-        <contribute xsi:type="titleItem" titleText="------ NCEP ------" />
-        <contribute xsi:type="separator" id="NCEPEnd"
-            visible="false" />
-
-        <contribute xsi:type="titleItem" titleText="------ RAOB ------" />
-        <contribute xsi:type="bundleItem" file="bundles/UpperAirPlot.xml"
-            menuText="150 hPa" id="150hPa">
-            <substitute key="levelKey" value="150MB" />
-            <substitute key="plotSource" value="raob 150" />
-        </contribute>
-        <contribute xsi:type="bundleItem" file="bundles/UpperAirPlot.xml"
-            menuText="200 hPa" id="200hPa">
-            <substitute key="levelKey" value="200MB" />
-            <substitute key="plotSource" value="raob 200" />
-        </contribute>
-        <contribute xsi:type="bundleItem" file="bundles/UpperAirPlot.xml"
-            menuText="250 hPa" id="250hPa">
-            <substitute key="levelKey" value="250MB" />
-            <substitute key="plotSource" value="raob 250" />
-        </contribute>
-        <contribute xsi:type="bundleItem" file="bundles/UpperAirPlot.xml"
-            menuText="300 hPa" id="300hPa">
-            <substitute key="levelKey" value="300MB" />
-            <substitute key="plotSource" value="raob 300" />
-        </contribute>
-        <contribute xsi:type="bundleItem" file="bundles/UpperAirPlot.xml"
-            menuText="400 hPa" id="400hPa">
-            <substitute key="levelKey" value="400MB" />
-            <substitute key="plotSource" value="raob 400" />
-        </contribute>
-        <contribute xsi:type="bundleItem" file="bundles/UpperAirPlot.xml"
-            menuText="500 hPa" id="500hPa">
-            <substitute key="levelKey" value="500MB" />
-            <substitute key="plotSource" value="raob 500" />
-        </contribute>
-        <contribute xsi:type="bundleItem" file="bundles/UpperAirPlot.xml"
-            menuText="700 hPa" id="700hPa">
-            <substitute key="levelKey" value="700MB" />
-            <substitute key="plotSource" value="raob 700" />
-            <substitute key="plotModelFile" value="raobLowerDesign" />
-        </contribute>
-        <contribute xsi:type="bundleItem" file="bundles/UpperAirPlot.xml"
-            menuText="850 hPa" id="850hPa">
-            <substitute key="levelKey" value="850MB" />
-            <substitute key="plotSource" value="raob 850" />
-            <substitute key="plotModelFile" value="raobLowerDesign" />
-        </contribute>
-        <contribute xsi:type="bundleItem" file="bundles/UpperAirPlot.xml"
-            menuText="925 hPa" id="925hPa">
-            <substitute key="levelKey" value="925MB" />
-            <substitute key="plotSource" value="raob 925" />
-            <substitute key="plotModelFile" value="raobLowerDesign" />
-        </contribute>
+        <contribute xsi:type="separator" id="NCEPEnd" visible="false" />
     </contribute>
-
     <contribute xsi:type="separator" id="baseUpperAirEnd" />
 </menuTemplate>

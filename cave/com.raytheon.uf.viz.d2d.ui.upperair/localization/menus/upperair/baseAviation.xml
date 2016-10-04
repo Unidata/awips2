@@ -20,40 +20,10 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <contribute xsi:type="subMenu" id="Aviation" menuText="Aviation">
-        <contribute xsi:type="titleItem"
-            titleText="------ Convection Products ------" />
-        <contribute xsi:type="separator" id="ConvectionProductsStart"
-            visible="false" />
         <contribute xsi:type="bundleItem" file="bundles/BufrNcwf.xml"
             menuText="NCWF" id="NCWF">
         </contribute>
-        <contribute xsi:type="separator" id="ConvectionProductsEnd" />
-
-        <contribute xsi:type="titleItem" titleText="------ Icing Products ------" />
-        <contribute xsi:type="separator" id="IcingProductsEnd" />
-
-        <contribute xsi:type="titleItem"
-            titleText="------ Turbulence Products ------" />
-        <contribute xsi:type="separator" id="TurbulenceProductsEnd" />
-
-        <contribute xsi:type="titleItem"
-            titleText="------ Visibility Products ------" />
-        <contribute xsi:type="separator" id="VisibilityProductsEnd" />
-
-        <contribute xsi:type="titleItem" titleText="------ Tropical Cyclone ------" />
-        <contribute xsi:type="separator" id="TropicalCycloneEnd" />
-
-        <contribute xsi:type="titleItem" titleText="------ Volcanic Ash ------" />
-        <contribute xsi:type="separator" id="VolcanicAshStart"
-            visible="false" />
-        <contribute xsi:type="separator" id="VolcanicAshEnd" />
-
-        <contribute xsi:type="titleItem" titleText="------ Center Weather ------" />
-        <contribute xsi:type="separator" id="CenterWeatherEnd" />
-
-        <contribute xsi:type="titleItem"
-            titleText="------ Significant Weather ------" />
-        <contribute xsi:type="separator" id="SignificantWeatherEnd" />
+        <contribute xsi:type="separator" id="AviationProducts" visible="false" />
     </contribute>
     <contribute xsi:type="separator" id="AviationMenuEnd" />
 </menuTemplate>

@@ -69,21 +69,15 @@ xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
             }
 ]]>
 </style>
-
 <symbol overflow="visible" id="plotData" class="info">
     <text id="sampleText" plotMode="sample" class="text" plotParam="rawReport" x="0" y="0">0</text>
-
 	<text id="wvTypeText" plotMode="table" class="text" plotParam="wvType" plotLookupTable="waveTypeLookup.txt"  style="text-anchor: end;" x="0" y="0"> </text>
-
 	<text id="periodText" plotMode="text" plotParam="wvPeriod" plotFormat="%1.0f" style="text-anchor: end;" x="-10" y="-10">018</text>
 	<text id="heightText" plotMode="text" plotParam="wvHeight" plotUnit="ft" plotFormat="%1.0f" style="text-anchor: start;" x="10" y="-10">018</text>
-	
 	<text id="periodText" plotMode="text" plotParam="primarySwellWavePeriod" plotFormat="%1.0f" style="text-anchor: end;" x="-10" y="0">018</text>
 	<text id="heightText" plotMode="text" plotParam="primarySwellWaveHeight" plotUnit="ft" plotFormat="%1.0f" style="text-anchor: start;" x="10" y="0">018</text>
-	
 	<text id="periodText" plotMode="text" plotParam="secondarySwellWavePeriod" plotFormat="%1.0f" style="text-anchor: end;" x="-10" y="10">018</text>
 	<text id="heightText" plotMode="text" plotParam="secondarySwellWaveHeight" plotUnit="ft" plotFormat="%1.0f" style="text-anchor: start;" x="10" y="10">018</text>
-
     <g id="primSwellWave" plotMode="arrowuv" plotParam="ONE,primarySwellWaveDir,ONE" x="0" y="0" transform="rotate(0,0,0)">
       <text id="pSwellWaveDirText" class="arrow1" x="0" y="0"> </text>
       <text id="pSwellInd" class="text" x="0" y="35" style="text-anchor: middle">0</text>
@@ -92,8 +86,6 @@ xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
       <text id="sSwellWaveDirText" class="arrow2" x="0" y="0"> </text>
       <text id="sSwellInd" class="text" x="0" y="25" style="text-anchor: middle">0</text>
   </g>
-
-
 </symbol>
 </defs>
 <use id="wind" x="40" y="40" width="80" height="80" visibility="visible" xlink:href="#plotData"/>

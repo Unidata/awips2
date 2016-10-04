@@ -19,16 +19,6 @@
         further_licensing_information.
     -->
 <menuContributionFile>
-    <include installTo="menu:Aviation?after=ConvectionProductsStart"
-        fileName="menus/upperair/baseAviationConvectionProducts.xml" />
-    <include installTo="menu:Aviation?before=IcingProductsEnd"
-        fileName="menus/upperair/baseAviationIcingProducts.xml" />
-    <include installTo="menu:Aviation?before=TurbulenceProductsEnd"
-        fileName="menus/upperair/baseAviationTurbulenceProducts.xml" />
-    <include installTo="menu:Aviation?before=VisibilityProductsEnd"
-        fileName="menus/upperair/baseAviationVisibilityProducts.xml" />
-    <include installTo="menu:Aviation?before=TropicalCycloneEnd"
-        fileName="menus/upperair/baseAviationTropicalCyclone.xml" />
-    <include installTo="menu:Aviation?after=VolcanicAshStart"
-        fileName="menus/upperair/baseAviationVolcanicAsh.xml" />
+    <include installTo="menu:Aviation?after=AviationProducts"
+        fileName="menus/upperair/baseAviationProducts.xml" />
 </menuContributionFile>

@@ -6,26 +6,6 @@ xmlns="http://www.w3.org/2000/svg"
 contentScriptType="text/python"
 xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
    <defs>
-<script type="text/python" plotDelegate="plotDelegate">
-from qcplot import QCReport
-
-class MaritimePlotDelegate(PlotDelegate):
-    def __init__(self):
-        PlotDelegate.__init__(self)
-
-    def getSampleText(self, rec):
-        raw = rec.getString("rawReport")
-        if raw.startswith("BBXX"):
-            raw = raw[5:]
-        elif raw.startswith("CMAN"):
-            raw = raw[11:]
-        elif raw.startswith("MAROB"):
-            raw = raw[7:]
-        return raw		
-
-plotDelegate = MaritimePlotDelegate()
-
-</script>
 <style type="text/css">
 <![CDATA[
         @font-face { font-family: "WindSymbolFont";
@@ -92,8 +72,8 @@ plotDelegate = MaritimePlotDelegate()
   <text id="pressure" plotMode="text" plotParam="seaLevelPress" plotUnit="daPa" plotFormat="%5.0f" plotTrim="2" style="text-anchor: start;" x="10px" y="-10px">018</text>
   <text id="pressChngText" plotMode="text" plotParam="pressChange3Hour" plotUnit="daPa" plotFormat="%02.0f" style="text-anchor: start;" x="10px" y="0">018</text>
   <text id="chngCharText" plotMode="table" class="weather" plotLookupTable="press_change_char_lookup.txt" plotParam="pressChangeChar" style="text-anchor: start;" x="35px" y="0">KOAX</text>
-  <text id="tempText" plotMode="text" plotParam="temperature" plotUnit="°F" plotFormat="%3.0f" style="text-anchor: end;" x="-10px" y="-10px">75</text>
-  <text id="dewText" plotMode="text" plotParam="dewpoint" plotUnit="°F" plotFormat="%3.0f" style="text-anchor: end;" x="-10px" y="10px">59</text> 
+  <text id="tempText" plotMode="text" plotParam="temperature" plotUnit="F" plotFormat="%3.0f" style="text-anchor: end;" x="-10px" y="-10px">75</text>
+  <text id="dewText" plotMode="text" plotParam="dewpoint" plotUnit="F" plotFormat="%3.0f" style="text-anchor: end;" x="-10px" y="10px">59</text> 
   <g id="windVaneText" plotMode="barb" plotParam="windSpeed,windDir,windGust" plotUnit="kts" x="0" y="0" transform="rotate(0,0,0)">
     <text id="windVaneText" class="arrow" x="0" y="0">0</text>
     <text id="windArrowText" class="barb" x="0" y="0">arrow</text>

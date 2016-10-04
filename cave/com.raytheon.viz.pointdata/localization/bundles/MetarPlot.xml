@@ -24,10 +24,6 @@
 			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 			<descriptor xsi:type="mapDescriptor" currentAnimationMode="Temporal">
 				<resource>
-                    <loadProperties>
-						<capabilities>
-						</capabilities>
-					</loadProperties>
 					<properties isSystemResource="false" isBlinking="false"
 						isMapLayer="false" isHoverOn="false"
 						isVisible="true" />

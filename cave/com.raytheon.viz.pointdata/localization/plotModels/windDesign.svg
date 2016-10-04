@@ -7,24 +7,8 @@ xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
    <defs>
 <style type="text/css">
 <![CDATA[
-        @font-face { font-family: "WindSymbolFont";
-                src: url(WindSymbols.svg#WindSymbols); }
         @font-face { font-family: "StandardFont";
                 src: url(Standard.svg#Standard); }
-        text.barb
-            {
-                fill: none;
-                font-size: 1em;
-                font-size: 1em;
-                font-family: WindSymbolFont;
-            }
-        text.arrow
-            {
-                fill: none;
-                font-size: 1em;
-                font-size: 1em;
-                font-family: WindSymbolFont;
-            }
         text.text
             {
                 fill: none;
