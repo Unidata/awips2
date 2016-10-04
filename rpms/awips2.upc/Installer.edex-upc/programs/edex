@@ -24,9 +24,10 @@
 #                                                                       #
 #-----------------------------------------------------------------------#
 # ChangeLog                                                             #
-# 07/2011 M.James/Unidata       Created                                 #
-# 10/2015 M.James/Unidata       Log files fixed; purge check added      #
-# 11/2015 M.James/Unidata       Added CAVE user count as "edex users"   #
+# 07/2011 M.James/Unidata	Created					#
+# 10/2015 M.James/Unidata	Log files fixed; purge check added	#
+# 11/2015 M.James/Unidata	Added CAVE user count as "edex users"	#
+# 10/2016 M.James/Unidata	No longer need to edit ldmd.conf	#
 #-----------------------------------------------------------------------#
 . /etc/profile.d/awips2.sh
 # directories definitions
@@ -38,7 +39,6 @@ LOG_PATH=${EDEX_PATH}/logs
 # files
 PG_FILE=${DATA_PATH}/pg_hba.conf
 EDEX_ENV_FILE=${EDEX_PATH}/bin/setup.env
-LDMD_CONF=${AWIPS_HOME}/ldm/etc/ldmd.conf
 
 # valid options
 options=( 'status' 'start' 'stop' 'log' 'setup' 'purge' 'users')
@@ -50,9 +50,9 @@ IP=`/sbin/ifconfig $usedev | grep -v "inet6" | grep "inet" | awk '{ print $2 }' 
 
 # truncate
 IP_CIDR="${IP%.*}"
-editFiles=($PG_FILE $EDEX_ENV_FILE $LDMD_CONF)
-boolFiles=(true true true)
-editFuncs=(edit_pg edit_edex edit_ldm)
+editFiles=($PG_FILE $EDEX_ENV_FILE)
+boolFiles=(true true)
+editFuncs=(edit_pg edit_edex)
 
 YMD=`date '+%Y%m%d'`
 
@@ -208,12 +208,6 @@ edit_pg() { # edex pg_hba.conf
    echo '       File backed up to '$PG_FILE'.setup_'$YMD
 }
 
-edit_ldm() { # edex ldmd.conf and registry.xml
-   sed -i.setup_$YMD 's/EDEX_HOSTNAME/localhost/g' $LDMD_CONF
-   echo '[edit] Hostname localhost added to '$LDMD_CONF
-}
-
-
 edit_edex() { # setup.env automatic edit
    sed -i.setup_$YMD 's/localhost/'$HOSTNAME'/g' $EDEX_ENV_FILE
    echo '[edit] '$HOSTNAME' added to '$EDEX_ENV_FILE
@@ -295,7 +289,8 @@ edex_setup() { # setup IP subnet and domains for EDEX, prompt user for confirm
       echo '      ** Missing '$HOSTNAME
       continue=true
    fi
-
+   #echo '[edit] ldm regutil...'
+   su - awips -c 'regutil -s '$HOSTNAME' /hostname'
    echo ''
    edex_edits
    if [ $continue=true ]; then

@@ -28,14 +28,14 @@
                    		<capabilities>
 						    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
 						    <capability xsi:type="magnificationCapability" magnification="1.5"/>
-						    <capability xsi:type="densityCapability" density="99999.0"/>
+						    <capability xsi:type="densityCapability" density="3"/>
 						    <capability xsi:type="colorableCapability" colorAsString="white"/>
 						</capabilities>
                		</loadProperties>
 					<properties isSystemResource="false" isBlinking="false"
 						isMapLayer="false" isHoverOn="false"
 						isVisible="true" />
-					<resourceData xsi:type="metarTempResourceData" plotSource="Sfc Temp"
+					<resourceData xsi:type="metarTempResourceData" plotSource="Surface Temps [F]"
 						plotModelFile="colorTemp.svg" spiFile="basemaps/MTR.spi"
 						isUpdatingOnMetadataOnly="true" retrieveData="false"
 						isRequeryNecessaryOnTimeMatch="true" isTopOfTheHour="true" pixelSizeHint="45">
