@@ -28,6 +28,8 @@ class GetGridDataResponse(object):
         self.siteNyValues = None
         self.siteLatGrids = None
         self.siteLonGrids = None
+        self.siteEnvelopes = None
+        self.siteCrsWkt = None
 
     def getGridData(self):
         return self.gridData
@@ -58,4 +60,16 @@ class GetGridDataResponse(object):
 
     def setSiteLonGrids(self, siteLonGrids):
         self.siteLonGrids = siteLonGrids
+
+    def getSiteEnvelopes(self):
+        return self.siteEnvelopes
+
+    def setSiteEnvelopes(self, siteEnvelopes):
+        self.siteEnvelopes = siteEnvelopes
+
+    def getSiteCrsWkt(self):
+        return self.siteCrsWkt
+
+    def setSiteCrsWkt(self, siteCrsWkt):
+        self.siteCrsWkt = siteCrsWkt
 

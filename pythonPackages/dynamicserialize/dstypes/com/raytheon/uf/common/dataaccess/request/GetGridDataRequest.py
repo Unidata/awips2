@@ -27,6 +27,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    05/28/13         #2023        dgilling       Initial Creation.    
+#    05/28/13         #5916        bsteffen       Add includeLatLonData
 #
 #
 
@@ -39,6 +40,7 @@ class GetGridDataRequest(AbstractDataAccessRequest):
         super(GetGridDataRequest, self).__init__()
         self.requestedTimes = None
         self.requestedPeriod = None
+        self.includeLatLonData = True
 
     def getRequestedTimes(self):
         return self.requestedTimes
@@ -51,3 +53,9 @@ class GetGridDataRequest(AbstractDataAccessRequest):
 
     def setRequestedPeriod(self, requestedPeriod):
         self.requestedPeriod = requestedPeriod
+
+    def getIncludeLatLonData(self):
+        return self.includeLatLonData
+
+    def setIncludeLatLonData(self, includeLatLonData):
+         self.includeLatLonData = includeLatLonData;

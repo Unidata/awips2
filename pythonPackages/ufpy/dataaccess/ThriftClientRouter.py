@@ -39,7 +39,7 @@
 #                                                 getRequiredIdentifiers() and
 #                                                 getOptionalIdentifiers()
 #    08/01/16        2416          tgurney        Add getNotificationFilter()
-#    11/10/16        5900          bsteffen       Correct grid shape
+#    10/13/16        5916          bsteffen       Correct grid shape, allow lazy grid lat/lon
 #
 
 
@@ -51,6 +51,7 @@ from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import G
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetAvailableTimesRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetGeometryDataRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetGridDataRequest
+from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetGridLatLonRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetAvailableParametersRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetAvailableLevelsRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetRequiredIdentifiersRequest
@@ -59,16 +60,42 @@ from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import G
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetSupportedDatatypesRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetNotificationFilterRequest
 
-from awips import ThriftClient
-from awips.dataaccess import PyGeometryData
-from awips.dataaccess import PyGridData
+from ufpy import ThriftClient
+from ufpy.dataaccess import PyGeometryData
+from ufpy.dataaccess import PyGridData
 
+class LazyGridLatLon(object):
+    def __init__(self, client, nx, ny, envelope, crsWkt):
+        self._latLonGrid = None
+        self._client = client
+        self._request = GetGridLatLonRequest()
+        self._request.setNx(nx);
+        self._request.setNy(ny);
+        self._request.setEnvelope(envelope);
+        self._request.setCrsWkt(crsWkt);
 
+    def __call__(self):
+        # Its important that the data is cached internally so that if multiple
+        # GridData are sharing the same delegate then they can also share a
+        # single request for the LatLon information.
+        if self._latLonGrid is None:
+            response = self._client.sendRequest(self._request)
+            nx = response.getNx()
+            ny = response.getNy()
+            latData = numpy.reshape(numpy.array(response.getLats()), (ny, nx))
+            lonData = numpy.reshape(numpy.array(response.getLons()), (ny, nx))
+            self._latLonGrid = (lonData, latData)
+        return self._latLonGrid
+        
 class ThriftClientRouter(object):
 
     def __init__(self, host='localhost'):
         self._client = ThriftClient.ThriftClient(host)
-
+        self._lazyLoadGridLatLon = False
+    
+    def setLazyLoadGridLatLon(self, lazyLoadGridLatLon):
+        self._lazyLoadGridLatLon = lazyLoadGridLatLon
+    
     def getAvailableTimes(self, request, refTimeOnly):
         timesRequest = GetAvailableTimesRequest()
         timesRequest.setRequestParameters(request)
@@ -78,6 +105,7 @@ class ThriftClientRouter(object):
 
     def getGridData(self, request, times):
         gridDataRequest = GetGridDataRequest()
+        gridDataRequest.setIncludeLatLonData(not self._lazyLoadGridLatLon)
         gridDataRequest.setRequestParameters(request)
         # if we have an iterable times instance, then the user must have asked
         # for grid data with the List of DataTime objects
@@ -95,15 +123,23 @@ class ThriftClientRouter(object):
         for location in locNames:
             nx = response.getSiteNxValues()[location]
             ny = response.getSiteNyValues()[location]
-            latData = numpy.reshape(numpy.array(response.getSiteLatGrids()[location]), (ny, nx))
-            lonData = numpy.reshape(numpy.array(response.getSiteLonGrids()[location]), (ny, nx))
-            locSpecificData[location] = (nx, ny, (lonData, latData))
-
+            if self._lazyLoadGridLatLon:
+                envelope = response.getSiteEnvelopes()[location]
+                crsWkt = response.getSiteCrsWkt()[location]
+                delegate = LazyGridLatLon(self._client, nx, ny, envelope, crsWkt)
+                locSpecificData[location] = (nx, ny, delegate)
+            else:
+                latData = numpy.reshape(numpy.array(response.getSiteLatGrids()[location]), (ny, nx))
+                lonData = numpy.reshape(numpy.array(response.getSiteLonGrids()[location]), (ny, nx))
+                locSpecificData[location] = (nx, ny, (lonData, latData))
         retVal = []
         for gridDataRecord in response.getGridData():
             locationName = gridDataRecord.getLocationName()
             locData = locSpecificData[locationName]
-            retVal.append(PyGridData.PyGridData(gridDataRecord, locData[0], locData[1], locData[2]))
+            if self._lazyLoadGridLatLon:
+                retVal.append(PyGridData.PyGridData(gridDataRecord, locData[0], locData[1], latLonDelegate=locData[2]))
+            else:
+                retVal.append(PyGridData.PyGridData(gridDataRecord, locData[0], locData[1], locData[2]))
         return retVal
 
     def getGeometryData(self, request, times):

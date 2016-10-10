@@ -39,24 +39,16 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 4, 2013            dgilling     Initial creation
+ * Jun 4, 2013             dgilling    Initial creation
+ * Oct 18, 2016 5916       bsteffen    Allow lazy loading of lat/lon data
  * 
  * </pre>
  * 
  * @author dgilling
- * @version 1.0
  */
-
 public final class GetGridDataHandler implements
         IRequestHandler<GetGridDataRequest> {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.serialization.comm.IRequestHandler#handleRequest
-     * (com.raytheon.uf.common.serialization.comm.IServerRequest)
-     */
     @Override
     public GetGridDataResponse handleRequest(final GetGridDataRequest request)
             throws Exception {
@@ -73,7 +65,7 @@ public final class GetGridDataHandler implements
         }
 
         GetGridDataResponse response = new GetGridDataResponse(
-                Arrays.asList(gridData));
+                Arrays.asList(gridData), request.isIncludeLatLonData());
         return response;
     }
 }

@@ -83,6 +83,14 @@
         <constructor-arg ref="getGridDataHandler" />
     </bean>
 
+    <bean id="getGridLatLonHandler"
+        class="com.raytheon.uf.edex.dataaccess.handler.GetGridLatLonHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataaccess.request.GetGridLatLonRequest" />
+        <constructor-arg ref="getGridLatLonHandler" />
+    </bean>
+
     <bean id="getNotificationFilterHandler"
         class="com.raytheon.uf.edex.dataaccess.handler.GetNotificationFilterHandler" />
     <bean factory-bean="handlerRegistry" factory-method="register">
