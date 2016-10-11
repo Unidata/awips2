@@ -626,11 +626,11 @@
 			         </reference>
 			      </visibleWhen>
             </command>
-   <command
-         commandId="SetBrowserViewType"
-         label="Plot Type"
-         style="pulldown">
-   </command>
+		   <command
+		         commandId="SetBrowserViewType"
+		         label="Plot Type"
+		         style="pulldown">
+		   </command>
 
          </toolbar>
          </menuContribution>
@@ -884,26 +884,46 @@
          <menuContribution
                allPopups="false"
                locationURI="menu:SetBrowserViewType">
-            <command
-                  commandId="com.raytheon.viz.volumebrowser.crossSection"
-                  label="Cross Section">
-            </command>
-            <command
-                  commandId="com.raytheon.viz.volumebrowser.timeSeries"
-                  label="Time Series">
-            </command>
-            <command
-                  commandId="com.raytheon.viz.volumebrowser.timeHeight"
-                  label="Time Height">
-            </command>
-            <command
-                  commandId="com.raytheon.viz.volumebrowser.varHeight"
-                  label="Var vs. Height">
-            </command>
-            <command
-                  commandId="com.raytheon.viz.volumebrowser.sounding"
-                  label="Model Soundings">
-            </command>
+	         <command
+	               commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef"
+	               label="Cross Sections">
+	            <parameter
+	                  name="viewType"
+	                  value="CROSSSECTION">
+	            </parameter>
+	         </command>
+	         <command
+	               commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef"
+	               label="Time Series">
+	            <parameter
+	                  name="viewType"
+	                  value="TIMESERIES">
+	            </parameter>
+	         </command>
+	         <command
+	               commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef"
+	               label="Time Height">
+	            <parameter
+	                  name="viewType"
+	                  value="TIMEHEIGHT">
+	            </parameter>
+	         </command>
+	         <command
+	               commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef"
+	               label="Var vs. Height">
+	            <parameter
+	                  name="viewType"
+	                  value="VARVSHGT">
+	            </parameter>
+	         </command>
+	         <command
+	               commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef"
+	               label="Model Soundings">
+	            <parameter
+	                  name="viewType"
+	                  value="SOUNDING">
+	            </parameter>
+	         </command>
          </menuContribution>
        </extension>
          
