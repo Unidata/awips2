@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 
 /**
@@ -40,6 +41,7 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 9, 2009  #2161      lvenable     Initial creation
+ * Oct 4, 2016  -----      mjames@ucar  use parameter viewType to select ViewMenu
  * 
  * </pre>
  * 
@@ -56,8 +58,8 @@ public class VolumeBrowserAction extends AbstractHandler {
     public static VolumeBrowserDlg getVolumeBrowserDlg() {
         return volumeBrowserDlg;
     }
-
-    /*
+    
+	/*
      * (non-Javadoc)
      * 
      * @see
@@ -65,21 +67,19 @@ public class VolumeBrowserAction extends AbstractHandler {
      * .ExecutionEvent)
      */
     @Override
-    public Object execute(ExecutionEvent arg0) throws ExecutionException {
+    public Object execute(ExecutionEvent event) throws ExecutionException {
+
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                 .getShell();
-
-        if (volumeBrowserDlg == null) {
-            volumeBrowserDlg = new VolumeBrowserDlg(shell, ViewMenu.PLANVIEW);
-            volumeBrowserDlg.addListener(SWT.Dispose, new Listener() {
-                @Override
-                public void handleEvent(Event event) {
-                    volumeBrowserDlg = null;
-                }
-            });
-
-        }
-
+                
+        volumeBrowserDlg = new VolumeBrowserDlg(shell, 
+        		ViewMenu.valueOf(event.getParameter("viewType")));
+        volumeBrowserDlg.addListener(SWT.Dispose, new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                volumeBrowserDlg = null;
+            }
+        });
         volumeBrowserDlg.open();
 
         return null;

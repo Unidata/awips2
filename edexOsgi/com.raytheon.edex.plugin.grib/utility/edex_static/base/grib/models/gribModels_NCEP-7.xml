@@ -1509,15 +1509,6 @@
 	</model>
 
 	<model>
-		<name>MSAS</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<process>
-			<id>100</id>
-		</process>
-	</model>
-
-	<model>
 		<name>GfsBufr</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -2895,16 +2886,6 @@
 		<center>7</center>
 		<subcenter>4</subcenter>
 		<grid>825553001</grid>
-		<process>
-			<id></id>
-		</process>
-	</model>
-
-	<model>
-		<name>ESTOFS-Pacific</name>
-		<center>7</center>
-		<subcenter>4</subcenter>
-		<grid></grid>
 		<process>
 			<id></id>
 		</process>

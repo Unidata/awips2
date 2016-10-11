@@ -33,17 +33,4 @@
 		</process>
 	</model>
 
-	<!-- SUBCENTER 0 -->
-
-	<model>
-		<name>LAPS</name>
-		<center>59</center>
-		<subcenter>0</subcenter>
-		<process>
-			<id>103</id>
-		</process>
-	</model>
-	
-	<!-- END SUBCENTER 0 -->
-	
 </gribModelSet>

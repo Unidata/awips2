@@ -1,21 +1,21 @@
 # Product Discipline 0: Meteorological products, Parameter Category 1: moisture category
-0:0:Specific Humidity:kg kg-1:SPF H
-1:1:Relative Humidity:%:R H
+0:0:Specific Humidity:kg kg-1:SPFH
+1:1:Relative Humidity:%:RH
 2:2:Humidity Mixing Ratio:kg kg-1:MIXR
-3:3:Precipitable Water:kg m-2:P WAT
+3:3:Precipitable Water:kg m-2:PWAT
 4:4:Vapor Pressure:Pa:VAPP
-5:5:Saturation Deficit:Pa:SAT D
+5:5:Saturation Deficit:Pa:SATD
 6:6:Evaporation:kg m-2:EVP
 7:7:Precipitation Rate:kg m-2 s-1:PRATE
-8:8:Total Precipitation:kg m-2:A PCP
+8:8:Total Precipitation:kg m-2:APCP
 9:9:Large-Scale Precipitation (non-convective):kg m-2:NCPCP
 10:10:Convective Precipitation:kg m-2:ACPCP
-11:11:Snow Depth:m:SNO D
+11:11:Snow Depth:m:SNOD
 12:12:Snowfall Rate Water Equivalent:kg m-2 s-1:SRWEQ
 13:13:Water Equivalent of Accumulated Snow Depth:kg m-2:WEASD
-14:14:Convect Snow:kg m-2:SNO C
-15:15:Large-Scale Snow:kg m-2:SNO L
-16:16:Snow Melt:kg m-2:SNO M
+14:14:Convect Snow:kg m-2:SNOC
+15:15:Large-Scale Snow:kg m-2:SNOL
+16:16:Snow Melt:kg m-2:SNOM
 17:17:Snow Age:day:SNOAG
 18:18:Absolute Humidity:kg m-3:ABSH
 19:19:Precipitation Type:See Table 4.201:PTYPE

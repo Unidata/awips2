@@ -156,7 +156,6 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
         super(parent, SWT.SHELL_TRIM | SWT.RESIZE, CAVE.INDEPENDENT_SHELL
                 | CAVE.DO_NOT_BLOCK);
         setType(viewMenu);
-        setText(viewMenu.getDisplayString());
 
         dialogSettings = new VolumeBrowserDialogSettings();
         VizGlobalsManager.addListener(VizConstants.LOADMODE_ID, this);
@@ -940,6 +939,7 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
         shell.setMinimumSize(10, 10);
 
         ViewMenu setting = (ViewMenu) settingsMI.getData();
+        setText(setting.getDisplayString());
         SpaceTimeMenu spaceTime = null;
 
         if (spaceTimeMI != null) {

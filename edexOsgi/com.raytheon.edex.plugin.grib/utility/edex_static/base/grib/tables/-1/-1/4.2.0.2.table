@@ -23,7 +23,7 @@
 21:21:Maximum wind speed:m/s:MAXWS
 22:22:Wind speed gust:m/s:WGS
 23:23:u-component of wind gust:m/s:UGUST
-24:24:v-component of wind gust:m/s:UGUST
+24:24:v-component of wind gust:m/s:VGUST
 25:25:Vertical speed shear:s^-1:VWSH
 26:26:Horizontal momentum flux:N/m^2:MFLX
 27:27:U-component storm motion:m/s:USTM
