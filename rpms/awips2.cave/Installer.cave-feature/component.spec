@@ -16,8 +16,8 @@ BuildRoot: /tmp
 URL: N/A
 License: N/A
 Distribution: N/A
-Vendor: Raytheon
-Packager: Bryan Kowal
+Vendor: %{_build_vendor}
+Packager: %{_build_site}
 
 AutoReq: no
 provides: %{_component_name} = %{_component_version}

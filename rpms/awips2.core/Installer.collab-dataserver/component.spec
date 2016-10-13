@@ -10,7 +10,7 @@ BuildArch: %{_build_arch}
 URL: N/A
 License: N/A
 Distribution: N/A
-Vendor: Raytheon
+Vendor: %{_build_vendor}
 Packager: Bradley Gonzales
 
 AutoReq: no

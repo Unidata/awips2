@@ -24,7 +24,7 @@ if [ "$myhost" = "cpsbn" ]; then
   chmod 664 /dev/p_LOST && chgrp awips /dev/p_LOST
 
   if [ -f /etc/profile.d/AWIPS.sh ];then
-   . /etc/profile.d/awips2.sh
+   . /etc/profile.d/AWIPS.sh
   else
    echo "AWIPS file not found.Install AWIPS and proceed."
    echo "Exiting."

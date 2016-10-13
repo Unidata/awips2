@@ -12,7 +12,7 @@ BuildArch: noarch
 URL: N/A
 License: N/A
 Distribution: N/A
-Vendor: Raytheon
+Vendor: %{_build_vendor}
 Packager: %{_build_site}
 
 AutoReq: no
@@ -108,10 +108,10 @@ if [ $? -ne 0 ]; then
 fi
 
 RPM_PROJECT="%{_baseline_workspace}/rpms"
-POSTGRES_INITD="%{_baseline_workspace}/rpms/awips2.core/Installer.postgres/scripts/init.d/edex_postgres"
-QPID_INITD="%{_baseline_workspace}/foss/qpid-java-broker-0.32/src/patch/qpid-java-broker-0.32/wrapper/qpidd"
+POSTGRES_INITD="%{_baseline_workspace}/installers/RPMs/postgresql/scripts/init.d/edex_postgres"
+QPID_INITD="%{_baseline_workspace}/installers/RPMs/qpid-java-broker/scripts/init.d/qpidd"
 EDEX_INITD="${RPM_PROJECT}/awips2.edex/Installer.edex/scripts/init.d/edex_camel"
-HTTPD_PYPIES_INITD="%{_baseline_workspace}/rpms/awips2.core/Installer.httpd-pypies/configuration/etc/init.d/httpd-pypies"
+HTTPD_PYPIES_INITD="%{_baseline_workspace}/installers/RPMs/httpd-pypies/configuration/etc/init.d/httpd-pypies"
 
 # Copy the startup scripts.
 cp ${POSTGRES_INITD} \

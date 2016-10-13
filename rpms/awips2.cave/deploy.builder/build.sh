@@ -1,10 +1,8 @@
-#!/bin/bash -vf
+#!/bin/bash
 # This script will build the AWIPS II Viz RPMs.
 
 # Build Variables:
 # -----------------------------------------------------------------------------
-VAR_AWIPSII_TOP_DIR="/home/mjames/rpmbuild"
-VAR_WORKSPACE="/awips2/jenkins/buildspace/workspace"
 VAR_AWIPSII_BUILD_ROOT="/tmp/awips-component"
 VAR_AWIPSII_VERSION=""
 VAR_AWIPSII_RELEASE=""
@@ -12,25 +10,20 @@ VAR_UFRAME_ECLIPSE="/awips2/eclipse"
 VAR_REPO_DEST="/tmp/repo"
 # -----------------------------------------------------------------------------
 
-if [ "${AWIPSII_TOP_DIR}" = "" ] &&
-   [ "${VAR_AWIPSII_TOP_DIR}" = "" ]; then
+if [ "${AWIPSII_TOP_DIR}" = "" ]; then
    echo "ERROR: You Must Set the AWIPSII_TOP_DIR Environment Variable."
+   echo "Unable to Continue ... Terminating."
+   exit 1
+fi
+
+if [ "${WORKSPACE}" = "" ]; then
+   echo "ERROR: You Must Set the WORKSPACE Environment Variable."
    echo "Unable to Continue ... Terminating."
    exit 1
 fi
 
 function prepareBuildEnvironment()
 {
-   if [ "${AWIPSII_TOP_DIR}" = "" ]; then
-      # /awips2/jenkins/buildspace/workspace/tmp/rpms_built_dir/
-      #export AWIPSII_TOP_DIR="${VAR_AWIPSII_TOP_DIR}"
-      export AWIPSII_TOP_DIR="${VAR_WORKSPACE}/tmp/rpms_built_dir"
-   fi
-
-   if [ "${WORKSPACE}" = "" ]; then
-      export WORKSPACE="${VAR_WORKSPACE}"
-   fi
-
    if [ "${AWIPSII_BUILD_ROOT}" = "" ]; then
       export AWIPSII_BUILD_ROOT="${VAR_AWIPSII_BUILD_ROOT}"
    fi
@@ -55,8 +48,8 @@ function prepareBuildEnvironment()
       export UFRAME_ECLIPSE="${VAR_UFRAME_ECLIPSE}"
    fi
 
-   if [ "${AWIPSII_STATIC_FILES}" = "" ]; then
-      export AWIPSII_STATIC_FILES="${VAR_AWIPSII_STATIC_FILES}"
+   if [ "${REPO_DEST}" = "" ]; then
+      export REPO_DEST="${VAR_REPO_DEST}"
    fi
 }
 
@@ -95,7 +88,6 @@ ncep_product=com.raytheon.viz.product.awips/nawips.product
 if [ ${prepare_dir} ]; then
     rm -rf ${prepare_dir}
 fi
-echo "creating ${prepare_dir}"
 mkdir ${prepare_dir}
 
 # First, we need to build the dependency utility.
@@ -110,8 +102,12 @@ if [ $? -ne 0 ]; then
 fi
 
 _context_qualifier=`date +"%Y%m%d%H"`
-_pde_launcher_jar=${UFRAME_ECLIPSE}/plugins/org.eclipse.equinox.launcher_1.3.0.v20120522-1813.jar
-_pde_product_xml=${UFRAME_ECLIPSE}/plugins/org.eclipse.pde.build_3.8.2.v20121114-140810/scripts/productBuild/productBuild.xml
+
+#get name of org.eclipse.pde.build in ECLIPSE_HOME with version label
+PDE_BUILD=`ls -d ${UFRAME_ECLIPSE}/plugins/org.eclipse.pde.build_*`
+
+_pde_launcher_jar=`ls ${UFRAME_ECLIPSE}/plugins/org.eclipse.equinox.launcher_*.jar`
+_pde_product_xml=${PDE_BUILD}/scripts/productBuild/productBuild.xml
 
 cd ${prepare_dir}
 # Prepare for the CAVE repository build. Need to create more resuse for a single build
@@ -126,7 +122,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-_pde_build_xml=${UFRAME_ECLIPSE}/plugins/org.eclipse.pde.build_3.8.2.v20121114-140810/scripts/build.xml
+_pde_build_xml=${PDE_BUILD}/scripts/build.xml
 repo_dist_dir=${pde2_build_dir}/dist
 
 mkdir -p ${pde2_base_dir}
@@ -232,7 +228,6 @@ done
 rm -fv ${pde_build_dir}/I.CAVE/CAVE-linux.gtk.x86_64.zip
 pushd . > /dev/null 2>&1
 cd ${pde_build_dir}/I.CAVE
-echo "executing zip"
 zip -r CAVE-linux.gtk.x86_64.zip cave 
 popd > /dev/null
 cp ${pde_build_dir}/I.CAVE/CAVE-linux.gtk.x86_64.zip ${WORKSPACE}/rpms/awips2.cave/setup/dist/

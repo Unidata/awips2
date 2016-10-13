@@ -2,7 +2,7 @@
 # Turn off the brp-python-bytecompile script
 %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
 
-%define _swt_version 3.8.1.v3836b
+%define _swt_version 3.104.1.v20150825-0743
 
 #
 # AWIPS II AlertViz Spec File
@@ -16,7 +16,7 @@ BuildRoot: %{_build_root}
 URL: N/A
 License: N/A
 Distribution: N/A
-Vendor: Raytheon
+Vendor: %{_build_vendor}
 Packager: %{_build_site}
 
 AutoReq: no
@@ -81,10 +81,6 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-# install the alertviz autostart script.
-viz_rpm_dir="%{_baseline_workspace}/rpms/awips2.cave"
-alertviz_project="${viz_rpm_dir}/Installer.alertviz"
-
 # install the gnome session kill script for cave and alertviz
 script_="%{_baseline_workspace}/build/static/linux/cave/awips2VisualizeUtility.sh"
 /bin/cp ${script_} %{_build_root}/etc/gdm/PostSession
@@ -104,25 +100,8 @@ fi
 echo -e "\nInstalling A2 gdm PostSession Default script"
 cp /etc/gdm/PostSession/awips2VisualizeUtility.sh /etc/gdm/PostSession/Default
 
-#pushd . > /dev/null 2>&1
-#cd /awips2/alertviz/plugins
-# Forcefully unzip: org.eclipse.swt.gtk.linux.x86_64_*.jar
-# : if x86_64
-#if [ -f org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar ]; then
-#   mkdir org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}
-#   unzip -qq org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar \
-#      -d org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}
-#   rm -f org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar
-#   mv org.eclipse.swt.gtk.linux.x86_64_%{_swt_version} \
-#      org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar
-#fi
-#
-#popd > /dev/null 2>&1
-
 %preun
-rm -rf org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar
 %postun
-rm -rf org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
@@ -132,9 +111,6 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2
 %dir /awips2/alertviz
 /awips2/alertviz/.eclipseproduct
-%docdir /awips2/alertviz/about_files
-%dir /awips2/alertviz/about_files
-/awips2/alertviz/about_files/*
 %doc /awips2/alertviz/about.html
 %dir /awips2/alertviz/alertvizEnvironment
 /awips2/alertviz/alertviz.ini
@@ -148,7 +124,6 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %defattr(755,awips,awips,755)
 /awips2/alertviz/alertviz
-/awips2/alertviz/*.so
 /awips2/alertviz/*.sh
 
 %attr(644,root,root) /etc/gdm/PostSession/awips2VisualizeUtility.sh

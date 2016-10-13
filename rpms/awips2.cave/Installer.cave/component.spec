@@ -1,12 +1,15 @@
 # RPM Metadata
-%define _component_name           awips2-cave
 %define _component_project_dir    awips2.cave/Installer.cave
 %define _component_zip_file_name  CAVE-linux.gtk.%{_build_arch}.zip
 %define _component_desc           "awips2-cave"
 
-%define _swt_version 3.8.1.v3836b
-%define _ui_version 3.8.2.v20121018-234953
-%define _jface_version 3.8.0.v20120912-135020
+#%define _swt_version 3.8.1.v3836b
+#%define _ui_version 3.8.2.v20121018-234953
+#%define _jface_version 3.8.0.v20120912-135020
+%define _swt_version 3.104.1.v20150825-0743
+%define _ui_version 3.107.0.v20150507-1945
+%define _jface_version 3.11.0.v20150602-1400
+
 #
 # awips2-cave Spec File
 #
@@ -24,11 +27,11 @@ BuildRoot: /tmp
 URL: N/A
 License: N/A
 Distribution: N/A
-Vendor: Raytheon
-Packager: Bryan Kowal
+Vendor: %{_build_vendor}
+Packager: %{_build_site}
 
 AutoReq: no
-provides: %{_component_name}
+provides: awips2-cave
 provides: awips2-base-component
 provides: awips2-base
 requires: awips2-java
@@ -330,12 +333,11 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/cave/caveEnvironment
 /awips2/cave/caveEnvironment/*
 /awips2/cave/cave
-/awips2/cave/*.sh
-/awips2/cave/*.so
-%dir /awips2/cave/lib%{_build_bits}
-/awips2/cave/lib%{_build_bits}/*
 /awips2/cave/epl-v10.html
 /awips2/cave/notice.html
 /awips2/cave/readme/readme_eclipse.html
-
+/awips2/cave/*.sh
+/awips2/cave/*.so
+%dir /awips2/cave/lib64
+/awips2/cave/lib64/*
 

@@ -28,12 +28,14 @@
             id="com.raytheon.viz.volumebrowser.volumeBrowser"
             name="Volume Browser">
       </command>
-   </extension>
-   <extension
-         point="org.eclipse.ui.commands">
       <command
             id="com.raytheon.viz.volumebrowser.volumeBrowserRef"
             name="Volume Browser">
+            <commandParameter
+                  id="viewType"
+                  name="viewType"
+                  optional="false">
+            </commandParameter>
       </command>
    </extension>
    <extension
@@ -70,16 +72,78 @@
          point="org.eclipse.ui.menus">
       <menuContribution
             locationURI="menu:models?after=top">
-             <command
-                   commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef"
-                   label="Volume Browser">
-             </command>
-             <separator name="afterVB" visible="false"/>
-             <separator name="ensemble" visible="false"/>
-             <separator name="VolumeBundles" visible="true"/>
-             <separator name="ComparisonFamilies" visible="true"/>
-             <separator name="SurfaceFamilies" visible="false"/>
-             <separator name="StdEnvDataPackageFamilies" visible="true"/>
+         <command
+               commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef"
+               label="Volume Browser">
+            <parameter
+                  name="viewType"
+                  value="PLANVIEW">
+            </parameter>
+         </command>
+         <command
+               commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef"
+               label="Cross Sections">
+            <parameter
+                  name="viewType"
+                  value="CROSSSECTION">
+            </parameter>
+         </command>
+         <command
+               commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef"
+               label="Time Series">
+            <parameter
+                  name="viewType"
+                  value="TIMESERIES">
+            </parameter>
+         </command>
+         <command
+               commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef"
+               label="Time Height">
+            <parameter
+                  name="viewType"
+                  value="TIMEHEIGHT">
+            </parameter>
+         </command>
+         <command
+               commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef"
+               label="Var vs. Height">
+            <parameter
+                  name="viewType"
+                  value="VARVSHGT">
+            </parameter>
+         </command>
+         <command
+               commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef"
+               label="Model Soundings">
+            <parameter
+                  name="viewType"
+                  value="SOUNDING">
+            </parameter>
+         </command>
+         <separator
+               name="afterVB"
+               visible="false">
+         </separator>
+         <separator
+               name="ensemble"
+               visible="true">
+         </separator>
+         <separator
+               name="VolumeBundles"
+               visible="true">
+         </separator>
+         <separator
+               name="ComparisonFamilies"
+               visible="true">
+         </separator>
+         <separator
+               name="SurfaceFamilies"
+               visible="false">
+         </separator>
+         <separator
+               name="StdEnvDataPackageFamilies"
+               visible="true">
+         </separator>
       </menuContribution>
     </extension>
     <extension

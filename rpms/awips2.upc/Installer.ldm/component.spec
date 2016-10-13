@@ -16,8 +16,8 @@ BuildArch: noarch
 URL: N/A
 License: N/A
 Distribution: N/A
-Vendor: Unidata
-Packager: Michael James
+Vendor: %{_build_vendor}
+Packager: %{_build_site}
 
 AutoReq: no
 Requires: awips2-qpid-lib
@@ -279,6 +279,23 @@ fi
 /bin/rm -rf ${_ldm_dir}/SOURCES
 if [ $? -ne 0 ]; then
    exit 1
+fi
+
+if [ ! -h /awips2/ldm/logs ]; then
+  ln -s /awips2/ldm/var/logs /awips2/ldm/
+fi
+if [ ! -h /awips2/ldm/data ]; then
+  ln -s /awips2/ldm/var/data /awips2/ldm/
+fi
+if getent passwd awips &>/dev/null; then
+  /bin/chown -R awips:awips ${_ldm_dir} /awips2/data_store
+  cd /awips2/ldm/src/
+  make install_setuids
+else
+  echo "--- Warning: group awips does not exist"
+  echo "--- you will need to check owner/group/permissions for /awips2/ldm"
+  echo "tried to run 'chown -R awips:awips /awips2/ldm; cd /awips2/ldm/src/; make install_setuids'"
+  echo ""
 fi
 
 # Copy back local ldm

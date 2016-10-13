@@ -15,8 +15,8 @@
  13:13:Pressure altitude:m:PALT
  14:14:Density altitude:m:DALT
  15:15:5-wave geopotential height:gpm:5WAVH
- 16:16:Zonal flux of gravity wave stress:N/m^2:UGWD
- 17:17:Meridional flux of gravity wave stress:N/m^2:VGWD
+ 16:16:Zonal flux of gravity wave stress:N/m^2:U-GWD
+ 17:17:Meridional flux of gravity wave stress:N/m^2:V-GWD
  18:18:Planetary boundary layer height:m:HPBL
  19:19:5-wave geopotential height anomaly:gpm:5WAVA
  20:20:Standard Deviation Of Sub-Grid Scale Orography:m:SDSGSO
