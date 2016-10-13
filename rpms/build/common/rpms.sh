@@ -1,4 +1,4 @@
-#!/bin/bash -vf
+#!/bin/bash
 
 function buildOpenfire()
 {
@@ -12,7 +12,7 @@ function buildOpenfire()
       --define '_topdir %(echo ${AWIPSII_TOP_DIR})' \
       --define '_baseline_workspace %(echo ${WORKSPACE})' \
       --define '_uframe_eclipse %(echo ${UFRAME_ECLIPSE})' \
-      --define '_static_files %(echo ${AWIPSII_STATIC_FILES})' \
+      --define '_awipscm_share %(echo ${AWIPSCM_SHARE})' \
       --define '_build_root %(echo ${AWIPSII_BUILD_ROOT})' \
       --define '_component_version %(echo ${AWIPSII_VERSION})' \
       --define '_component_release %(echo ${AWIPSII_RELEASE})' \

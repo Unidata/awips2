@@ -90,6 +90,10 @@
          version="0.0.0"/>
 
    <includes
+         id="com.raytheon.uf.viz.dat.feature"
+         version="0.0.0"/>
+
+   <includes
          id="com.raytheon.uf.viz.ncep.core.feature"
          version="0.0.0"/>
 

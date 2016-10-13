@@ -23,8 +23,8 @@ function lookupRPM()
 
    awips2_ade_dir="${rpms_dir}/awips2.ade"
    awips2_cave_dir="${rpms_dir}/awips2.cave"
-   awips2_edex_dir="${rpms_dir}/awips2.edex"
    awips2_core_dir="${rpms_dir}/awips2.core"
+   awips2_edex_dir="${rpms_dir}/awips2.edex"
    awips2_qpid_dir="${rpms_dir}/awips2.qpid"
    awips2_upc_dir="${rpms_dir}/awips2.upc"
    python_site__dir="${rpms_dir}/python.site-packages"
@@ -38,11 +38,11 @@ function lookupRPM()
    fi
    # foss rpms -> python rpms.
    if [ "${1}" = "awips2-maven" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/maven/"
+      export RPM_SPECIFICATION="${installer_dir}/maven-3.2.3/"
       return 0
    fi
    if [ "${1}" = "awips2-python" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/python/"
+      export RPM_SPECIFICATION="${installer_dir}/python-2.7.10/"
       return 0
    fi
    if [ "${1}" = "awips2-python-cherrypy" ]; then
@@ -50,47 +50,36 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-python-h5py" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/h5py/"
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.h5py/"
       return 0
    fi
-   if [ "${1}" = "awips2-python-setuptools" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/setuptools/"
-      return 0
-   fi
-   if [ "${1}" = "awips2-python-matplotlib" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/matplotlib/"
-      return 0
-   fi
-   if [ "${1}" = "awips2-python-dateutil" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/python-dateutil/"
-      return 0
-   fi
-   if [ "${1}" = "awips2-python-pytz" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/pytz/"
-      return 0
-   fi
-   if [ "${1}" = "awips2-python-six" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/six/"
-      return 0
-   fi
-   if [ "${1}" = "awips2-python-pyparsing" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/pyparsing/"
-      return 0
-   fi
-   if [ "${1}" = "awips2-python-nose" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.nose"
+   if [ "${1}" = "awips2-python-jimporter" ]; then
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.jimporter"
       return 0
    fi
    if [ "${1}" = "awips2-python-gfe" ]; then
       export RPM_SPECIFICATION="${python_site__dir}/Installer.gfe"
       return 0
    fi
+   if [ "${1}" = "awips2-python-matplotlib" ]; then
+      export RPM_SPECIFICATION="${installer_dir}/matplotlib"
+      return 0
+   fi
+   if [ "${1}" = "awips2-python-nose" ]; then
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.nose"
+      return 0
+   fi
    if [ "${1}" = "awips2-python-numpy" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/numpy/"
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.numpy"
+
       return 0
    fi
    if [ "${1}" = "awips2-python-jep" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/jep/"
+      export RPM_SPECIFICATION="${installer_dir}/jep"
+      return 0
+   fi
+   if [ "${1}" = "awips2-python-pil" ]; then
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.pil"
       return 0
    fi
    if [ "${1}" = "awips2-python-pmw" ]; then
@@ -102,19 +91,19 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-python-qpid" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/qpid-python"
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.qpid"
       return 0
    fi
    if [ "${1}" = "awips2-python-scientific" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/scientific"
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.scientific"
       return 0
    fi
    if [ "${1}" = "awips2-python-scipy" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/scipy/"
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.scipy"
       return 0
    fi
-   if [ "${1}" = "awips2-python-tables" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/tables/"
+   if [ "${1}" = "awips2-python-pyparsing" ]; then
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.pyparsing"
       return 0
    fi
    if [ "${1}" = "awips2-python-basemap" ]; then
@@ -176,7 +165,7 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-python-shapely" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/shapely/"
+      export RPM_SPECIFICATION="${installer_dir}/shapely"
       return 0
    fi
 
@@ -199,10 +188,6 @@ function lookupRPM()
    fi
    if [ "${1}" = "awips2-database" ]; then
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.database"
-      return 0
-   fi
-   if [ "${1}" = "awips2-edex-configuration" ]; then
-      export RPM_SPECIFICATION="${awips2_edex_dir}/Installer.edex-configuration"
       return 0
    fi
    if [ "${1}" = "awips2-database-standalone-configuration" ]; then
@@ -262,28 +247,19 @@ function lookupRPM()
    fi
 
    # foss rpms.
-   if [ "${1}" = "awips2-qpid-java" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/qpid-java"
-      return 0
-   fi
-   if [ "${1}" = "awips2-qpid-lib" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/qpid-lib"
-      return 0
-   fi
-   if [ "${1}" = "awips2-qpid-java-broker" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/qpid-java-broker"
+   if [ "${1}" = "-qpid" ]; then
       return 0
    fi
    if [ "${1}" = "awips2-ant" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/ant"
+      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.ant"
       return 0
    fi
    if [ "${1}" = "awips2-httpd-pypies" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/httpd-pypies"
+      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.httpd-pypies"
       return 0
    fi
    if [ "${1}" = "awips2-java" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/java"
+      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.java"
       return 0
    fi
    if [ "${1}" = "awips2-groovy" ]; then
@@ -294,12 +270,12 @@ function lookupRPM()
       export RPM_SPECIFICATION="${awips2_upc_dir}/Installer.ldm"
       return 0
    fi
-   if [ "${1}" = "awips2-postgresql" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/postgresql"
-      return 0
-   fi
    if [ "${1}" = "awips2-edex-upc" ]; then
       export RPM_SPECIFICATION="${awips2_upc_dir}/Installer.edex-upc"
+      return 0
+   fi
+   if [ "${1}" = "awips2-postgres" ]; then
+      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.postgres"
       return 0
    fi
    if [ "${1}" = "awips2-pgadmin3" ]; then
@@ -311,11 +287,19 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-eclipse" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/eclipse"
+      export RPM_SPECIFICATION="${awips2_ade_dir}/Installer.eclipse"
+      return 0
+   fi
+   if [ "${1}" = "awips2-openfire" ]; then
+      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.xmpp"
+      return 0
+   fi
+   if [ "${1}" = "awips2-collab-dataserver" ]; then
+      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.collab-dataserver"
       return 0
    fi
    if [ "${1}" = "awips2-yajsw" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/yajsw"
+      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.yajsw"
       return 0
    fi
 

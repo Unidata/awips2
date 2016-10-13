@@ -39,6 +39,6 @@ function WA_rpm_build()
 			buildRPMExec "${RPM_SPECIFICATION}"
 		done
 		
+		return 0 
 	done
-	return 0 
 }

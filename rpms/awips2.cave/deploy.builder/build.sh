@@ -214,7 +214,7 @@ for feature in `cat ${prepare_dir}/awipsInstall.txt`; do
     CAVE_EXE="${pde_build_dir}/I.CAVE/cave/cave"
     NOSPLASH_ARG="-nosplash"
     DIRECTOR_APP="-application org.eclipse.equinox.p2.director"
-    DESTINATION_ARG="-destination ${pde_build_dir}/I.CAVE/cave"
+    #DESTINATION_ARG="-destination ${pde_build_dir}/I.CAVE/cave"
     INSTALL_ARG="-i ${feature}.feature.group"
     UNINSTALL_ARG="-u ${feature}.feature.group"
     # Used to ensure that the awips2-java is used.
@@ -278,7 +278,7 @@ for feature in `cat ${prepare_dir}/ncepInstall.txt`; do
     CAVE_EXE="${pde_build_dir}/I.CAVE/cave/cave"
     NOSPLASH_ARG="-nosplash"
     DIRECTOR_APP="-application org.eclipse.equinox.p2.director"
-    DESTINATION_ARG="-destination ${pde_build_dir}/I.CAVE/cave"
+    #DESTINATION_ARG="-destination ${pde_build_dir}/I.CAVE/cave"
     INSTALL_ARG="-i ${feature}.feature.group"
     UNINSTALL_ARG="-u ${feature}.feature.group"
     # Used to ensure that the awips2-java is used.
