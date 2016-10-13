@@ -46,15 +46,8 @@ if [ ${RC} -ne 0 ]; then
 fi
 
 # Copy the CAVE zip file to the awips2.cave dist directory.
-CAVE_ZIP_NAME_32="CAVE-linux.gtk.x86.zip"
 CAVE_ZIP_NAME_64="CAVE-linux.gtk.x86_64.zip"
 CAVE_ZIP_LOC="cave/tmp/I.CAVE"
-CAVE_ZIP="${CAVE_ZIP_LOC}/${CAVE_ZIP_NAME_32}"
-if [ ! -f ${CAVE_ZIP} ]; then
-   echo "ERROR: ${CAVE_ZIP} does not exist."
-   exit 1
-fi
-cp -v ${CAVE_ZIP} ${CAVE_RPM_DIST_DIR}
 CAVE_ZIP="${CAVE_ZIP_LOC}/${CAVE_ZIP_NAME_64}"
 if [ ! -f ${CAVE_ZIP} ]; then
    echo "ERROR: ${CAVE_ZIP} does not exist."
@@ -73,7 +66,7 @@ fi
 time /awips2/ant/bin/ant -f p2-build.xml \
    -Declipse.dir=${UFRAME_ECLIPSE} \
    -Dbuild.version=${AWIPSII_VERSION} \
-   -Dbuild.arch=${CAVE_BUILD_ARCH} \
+   -Dbuild.arch=x86_64 \
    -Declipse.dir=${UFRAME_ECLIPSE}
 RC=$?
 

@@ -16,13 +16,12 @@ Prefix: %{_component_default_prefix}
 URL: N/A
 License: N/A
 Distribution: N/A
-Vendor: Raytheon
+Vendor: %{_build_vendor}
 Packager: %{_build_site}
 
 AutoReq: no
 Provides: awips2-database
 Provides: awips2-static-user
-Requires: libpng
 Requires: awips2-postgresql
 Requires: awips2-psql
 Requires: awips2-database-configuration
@@ -75,7 +74,7 @@ cp -r %{_baseline_workspace}/${EXPECTED_PATH_TO_CONFIG}/${CONFIG_FILE_TO_INCLUDE
 
 # Copy The SQL Scripts That The Database RPM Will Need To The
 # Temporary Directory.
-DIRS_TO_COPY=('hmdb' 'migrated' 'setup' 'vtec' 'ebxml' 'events')
+DIRS_TO_COPY=('hmdb' 'migrated' 'setup' 'ebxml' 'events')
 for dir in ${DIRS_TO_COPY[*]};
 do
    cp -r %{_baseline_workspace}/${PATH_TO_DDL}/${dir}/* \
@@ -272,9 +271,9 @@ fi
 
 execute_initial_sql_script ${SQL_SHARE_DIR}/initial_setup_server.sql
 
-/awips2/psql/bin/psql -U awips -d metadata -c "CREATE EXTENSION postgis;"
-/awips2/psql/bin/psql -U awips -d metadata -c "CREATE EXTENSION postgis_topology;"
-execute_psql_sql_script /awips2/postgresql/share/contrib/postgis-2.0/legacy.sql metadata
+/awips2/psql/bin/psql -U ${AWIPS_DEFAULT_USER} -d metadata -c "CREATE EXTENSION postgis;"
+/awips2/psql/bin/psql -U ${AWIPS_DEFAULT_USER} -d metadata -c "CREATE EXTENSION postgis_topology;"
+execute_psql_sql_script /awips2/postgresql/share/contrib/postgis-2.2/legacy.sql metadata
 execute_psql_sql_script ${SQL_SHARE_DIR}/permissions.sql metadata
 execute_psql_sql_script ${SQL_SHARE_DIR}/fxatext.sql metadata
 
@@ -287,7 +286,6 @@ su ${AWIPS_DEFAULT_USER} -c \
    
 update_createEbxml
 execute_psql_sql_script ${SQL_SHARE_DIR}/createEbxml.sql metadata
-execute_psql_sql_script ${SQL_SHARE_DIR}/vtec_initial_setup.sql metadata
 
 control_pg_ctl "stop"
 

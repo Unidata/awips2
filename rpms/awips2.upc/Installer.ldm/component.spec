@@ -16,8 +16,8 @@ BuildArch: noarch
 URL: N/A
 License: N/A
 Distribution: N/A
-Vendor: Unidata
-Packager: Michael James
+Vendor: %{_build_vendor}
+Packager: %{_build_site}
 
 AutoReq: no
 Requires: awips2-qpid-lib

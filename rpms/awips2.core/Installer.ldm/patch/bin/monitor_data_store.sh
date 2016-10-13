@@ -6,7 +6,7 @@ then
 	exit 0
 fi
 
-cd /awips2/data_store
+cd /data_store
 while true
 do
 	for _dir in `ls`

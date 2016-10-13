@@ -19,10 +19,6 @@
 			<max-memory>
 				<value>1536M</value>
 			</max-memory>
-			
-			<max-perm>
-				<value>4046m</value>
-			</max-perm>
 		</ini-substitutions>	
 	</memory-setting>
 	-->
@@ -32,11 +28,6 @@
 			<jvm-arg>-Xmx</jvm-arg>
 			<value>6144M</value>
 		</default-max-memory>
-		
-		<default-max-perm>
-			<jvm-arg>-XX:MaxPermSize=</jvm-arg>
-			<value>256m</value>
-		</default-max-perm>
 	</default-memory-setting>
 	
 		<!-- 
@@ -54,10 +45,6 @@
 				<max-memory>
 					<value>3072M</value>
 				</max-memory>
-			
-				<max-perm>
-					<value>256m</value>
-				</max-perm>
 			</ini-substitutions>
 		</memory-setting>
 	
@@ -71,10 +58,6 @@
 				<max-memory>
 					<value>384M</value>
 				</max-memory>
-			
-				<max-perm>
-					<value>96M</value>
-				</max-perm>
 			</ini-substitutions>
 		</memory-setting>
 	
@@ -88,10 +71,6 @@
 				<max-memory>
 					<value>512M</value>
 				</max-memory>
-			
-				<max-perm>
-					<value>128M</value>
-				</max-perm>
 			</ini-substitutions>
 		</memory-setting>
 
@@ -105,10 +84,6 @@
                                 <max-memory>
                                         <value>2048M</value>
                                 </max-memory>
-
-                                <max-perm>
-                                        <value>DEFAULT</value>
-                                </max-perm>
                         </ini-substitutions>
                 </memory-setting>
 	
@@ -122,10 +97,6 @@
 				<max-memory>
 					<value>256M</value>
 				</max-memory>
-			
-				<max-perm>
-					<value>64M</value>
-				</max-perm>
 			</ini-substitutions>
 		</memory-setting>
 
@@ -137,12 +108,8 @@
 		
 			<ini-substitutions>
 				<max-memory>
-					<value>2048M</value>
+					<value>4048M</value>
 				</max-memory>
-			
-				<max-perm>
-					<value>DEFAULT</value>
-				</max-perm>
 			</ini-substitutions>
 		</memory-setting>
 		
@@ -156,10 +123,6 @@
                 <max-memory>
                     <value>256M</value>
                 </max-memory>
-            
-                <max-perm>
-                    <value>64M</value>
-                </max-perm>
             </ini-substitutions>
         </memory-setting>
         
@@ -173,10 +136,6 @@
                 <max-memory>
                     <value>256M</value>
                 </max-memory>
-            
-                <max-perm>
-                    <value>64M</value>
-                </max-perm>
             </ini-substitutions>
         </memory-setting>
         
@@ -190,10 +149,6 @@
                 <max-memory>
                     <value>256M</value>
                 </max-memory>
-            
-                <max-perm>
-                    <value>64M</value>
-                </max-perm>
             </ini-substitutions>
         </memory-setting>
         
@@ -207,10 +162,6 @@
                 <max-memory>
                     <value>256M</value>
                 </max-memory>
-            
-                <max-perm>
-                    <value>64M</value>
-                </max-perm>
             </ini-substitutions>
         </memory-setting>
         
@@ -224,10 +175,6 @@
                 <max-memory>
                     <value>256M</value>
                 </max-memory>
-            
-                <max-perm>
-                    <value>64M</value>
-                </max-perm>
             </ini-substitutions>
         </memory-setting>
         
@@ -241,10 +188,6 @@
                 <max-memory>
                     <value>256M</value>
                 </max-memory>
-            
-                <max-perm>
-                    <value>64M</value>
-                </max-perm>
             </ini-substitutions>
         </memory-setting>
         
@@ -258,10 +201,6 @@
                 <max-memory>
                     <value>256M</value>
                 </max-memory>
-            
-                <max-perm>
-                    <value>64M</value>
-                </max-perm>
             </ini-substitutions>
         </memory-setting>
         
@@ -275,10 +214,6 @@
                 <max-memory>
                     <value>256M</value>
                 </max-memory>
-            
-                <max-perm>
-                    <value>64M</value>
-                </max-perm>
             </ini-substitutions>
         </memory-setting>
         
@@ -292,10 +227,6 @@
                 <max-memory>
                     <value>256M</value>
                 </max-memory>
-            
-                <max-perm>
-                    <value>64M</value>
-                </max-perm>
             </ini-substitutions>
         </memory-setting>
 
@@ -307,10 +238,6 @@
 				<max-memory>
 					<value>6144M</value>
 				</max-memory>
-			
-				<max-perm>
-					<value>DEFAULT</value>
-				</max-perm>
 			</ini-substitutions>
         </site-type-override>
 
@@ -320,10 +247,6 @@
 				<max-memory>
 					<value>2048M</value>
 				</max-memory>
-			
-				<max-perm>
-					<value>DEFAULT</value>
-				</max-perm>
 			</ini-substitutions>
         </site-type-override>
 
@@ -333,10 +256,6 @@
 				<max-memory>
 					<value>3072M</value>
 				</max-memory>
-			
-				<max-perm>
-					<value>DEFAULT</value>
-				</max-perm>
 			</ini-substitutions>
         </site-type-override>
 
@@ -346,10 +265,6 @@
 				<max-memory>
 					<value>2560M</value>
 				</max-memory>
-			
-				<max-perm>
-					<value>DEFAULT</value>
-				</max-perm>
 			</ini-substitutions>
         </site-type-override>
 	

@@ -13,8 +13,8 @@ Prefix: /awips2/ant
 URL: N/A
 License: N/A
 Distribution: N/A
-Vendor: Raytheon
-Packager: Bryan Kowal
+Vendor: %{_build_vendor}
+Packager: %{_build_site}
 
 AutoReq: no
 provides: awips2-ant
@@ -51,7 +51,7 @@ function copyLegal()
    tar -cjf %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
       %{_baseline_workspace}/rpms/legal/FOSS_licenses/
    
-   cp "%{_baseline_workspace}/FOSS_COTS_License.pdf" \
+   cp "%{_baseline_workspace}/rpms/legal/Master_Rights_File.pdf" \
       %{_build_root}/${COMPONENT_BUILD_DIR}/licenses
    cp %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
       %{_build_root}/${COMPONENT_BUILD_DIR}/licenses

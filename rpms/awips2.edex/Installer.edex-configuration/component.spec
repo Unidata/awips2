@@ -11,7 +11,7 @@ BuildRoot: %{_build_root}
 URL: N/A
 License: N/A
 Distribution: N/A
-Vendor: Raytheon
+Vendor: %{_build_vendor}
 Packager: %{_build_site}
 
 AutoReq: no
@@ -83,6 +83,12 @@ popd > /dev/null
 # remove any .gitignore files
 # currently, the ebxml webapp includes a .gitignore file
 /usr/bin/find ${RPM_BUILD_ROOT}/awips2/edex -name .gitignore -exec rm -f {} \;
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+# remove the test logback configuration used for development
+rm -f ${RPM_BUILD_ROOT}/awips2/edex/conf/logback-test.xml
 if [ $? -ne 0 ]; then
    exit 1
 fi
