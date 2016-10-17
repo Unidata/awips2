@@ -102,12 +102,8 @@ if [ $? -ne 0 ]; then
 fi
 
 _context_qualifier=`date +"%Y%m%d%H"`
-
-#get name of org.eclipse.pde.build in ECLIPSE_HOME with version label
-PDE_BUILD=`ls -d ${UFRAME_ECLIPSE}/plugins/org.eclipse.pde.build_*`
-
-_pde_launcher_jar=`ls ${UFRAME_ECLIPSE}/plugins/org.eclipse.equinox.launcher_*.jar`
-_pde_product_xml=${PDE_BUILD}/scripts/productBuild/productBuild.xml
+_pde_launcher_jar=${UFRAME_ECLIPSE}/plugins/org.eclipse.equinox.launcher_1.3.0.v20120522-1813.jar
+_pde_product_xml=${UFRAME_ECLIPSE}/plugins/org.eclipse.pde.build_3.8.2.v20121114-140810/scripts/productBuild/productBuild.xml
 
 cd ${prepare_dir}
 # Prepare for the CAVE repository build. Need to create more resuse for a single build
@@ -122,7 +118,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-_pde_build_xml=${PDE_BUILD}/scripts/build.xml
+_pde_build_xml=${UFRAME_ECLIPSE}/plugins/org.eclipse.pde.build_3.8.2.v20121114-140810/scripts/build.xml
 repo_dist_dir=${pde2_build_dir}/dist
 
 mkdir -p ${pde2_base_dir}
@@ -234,7 +230,7 @@ cp ${pde_build_dir}/I.CAVE/CAVE-linux.gtk.x86_64.zip ${WORKSPACE}/rpms/awips2.ca
 
 cd ${WORKSPACE}/rpms/awips2.cave
 buildRPMExec "Installer.cave" "awips2-cave"
-#buildRPMExec "Installer.cave-wrapper" ""
+buildRPMExec "Installer.cave-wrapper" ""
 
 rm -rf ${pde_build_dir}
 mkdir -p ${pde_build_dir}

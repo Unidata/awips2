@@ -2,7 +2,7 @@
 # Turn off the brp-python-bytecompile script
 %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
 
-%define _swt_version 3.104.1.v20150825-0743
+%define _swt_version 3.8.1.v3836b
 
 #
 # AWIPS II AlertViz Spec File
@@ -16,7 +16,7 @@ BuildRoot: %{_build_root}
 URL: N/A
 License: N/A
 Distribution: N/A
-Vendor: %{_build_vendor}
+Vendor: Raytheon
 Packager: %{_build_site}
 
 AutoReq: no
@@ -132,6 +132,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2
 %dir /awips2/alertviz
 /awips2/alertviz/.eclipseproduct
+%docdir /awips2/alertviz/about_files
+%dir /awips2/alertviz/about_files
+/awips2/alertviz/about_files/*
 %doc /awips2/alertviz/about.html
 %dir /awips2/alertviz/alertvizEnvironment
 /awips2/alertviz/alertviz.ini
@@ -145,6 +148,7 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %defattr(755,awips,fxalpha,755)
 /awips2/alertviz/alertviz
+/awips2/alertviz/*.so
 /awips2/alertviz/*.sh
 
 %attr(644,root,root) /etc/xdg/autostart/awips2-alertviz.desktop

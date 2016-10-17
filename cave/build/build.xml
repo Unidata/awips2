@@ -11,16 +11,14 @@
                 value="awips.product" />
 	<!-- Copy the zip file that is produced to this location. -->
 	<property name="destination.dir"
-		value="/awips2/jenkins/build/dump/" />
+		value="" />
 	
 	<target name="usage">
 		<echo 
 			message="usage: ant -f ${basedir}/build.xml [alertviz] [cave]" />
 	</target>
 	
-	<target name="init">
-		<antcall target="clean" />
-		
+	<target name="init">	
 		<exec executable="/usr/bin/find"
 		outputproperty="launcher.jar">
 			<arg value="${eclipse.dir}/plugins" />
