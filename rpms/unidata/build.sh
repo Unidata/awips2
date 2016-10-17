@@ -73,7 +73,7 @@ cp -v ${dir}/buildEnvironment.sh .
 # check rpms/build/x86_64/build.sh for these groups
 #
 pwd
-/bin/bash ${_build_sh_directory}/build.sh ${1} > ${dir}/build${1}-${timestamp}.log
+/bin/bash ${_build_sh_directory}/build.sh ${1} ${2} > ${dir}/build${1}-${timestamp}.log
 
 popd > /dev/null 2>&1
 

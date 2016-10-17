@@ -98,47 +98,56 @@ if [ "${1}" = "-WA" ]; then
    exit 0
 fi
 
-if [ "${1}" = "-rh6" ]; then
-   #buildCAVE
+
+if [ "${1}" = "-viz" ]; then
+   buildCAVE
    #buildRPM "awips2-alertviz"
-   #buildEDEX
-   buildRPM "awips2-common-base"
-   buildRPM "awips2-notification"
-   buildRPM "awips2-hydroapps-shared"
-   buildRPM "awips2-java"
-   buildRPM "awips2-python"
-   buildRPM "awips2-python-cherrypy"
-   buildRPM "awips2-python-nose"
-   buildRPM "awips2-python-qpid"
-   buildRPM "awips2-python-werkzeug"
-   buildRPM "awips2-python-numpy"
-   buildRPM "awips2-python-pupynere"
-   buildRPM "awips2-python-h5py"
-   buildRPM "awips2-python-matplotlib"
-   buildRPM "awips2-python-scientific"
-   buildRPM "awips2-python-scipy"
-   buildRPM "awips2-python-tables"
+   exit 0
+fi
+
+if [ "${1}" = "-rh6" ]; then
+   buildRPM "awips2-postgresql"
+   #buildCAVE
+   exit 0
+   buildRPM "awips2-alertviz"
+   buildEDEX
+   buildRPM "awips2-ldm"
+   #buildRPM "awips2-common-base"
+   #buildRPM "awips2-notification"
+   #buildRPM "awips2-hydroapps-shared"
+   #buildRPM "awips2-java"
+   #buildRPM "awips2-python"
+   #buildRPM "awips2-python-cherrypy"
+   #buildRPM "awips2-python-nose"
+   #buildRPM "awips2-python-qpid"
+   #buildRPM "awips2-python-werkzeug"
+   #buildRPM "awips2-python-numpy"
+   #buildRPM "awips2-python-pupynere"
+   #buildRPM "awips2-python-h5py"
+   #buildRPM "awips2-python-matplotlib"
+   #buildRPM "awips2-python-scientific"
+   #buildRPM "awips2-python-scipy"
+   ##buildRPM "awips2-python-tables"
    buildRPM "awips2-python-pmw"
    buildRPM "awips2-python-tpg"
    buildRPM "awips2-python-awips"
-   buildRPM "awips2-python-shapely"
+   #buildRPM "awips2-python-shapely"
    buildRPM "awips2-python-jep"
    buildRPM "awips2-python-dateutil"
    buildRPM "awips2-python-pytz"
    buildRPM "awips2-python-six"
    buildRPM "awips2-python-pyparsing"
    buildRPM "awips2-python-setuptools"
-   buildRPM "awips2-ant"
-   buildRPM "awips2-maven"
-   buildRPM "awips2-tools"
-   buildRPM "awips2-eclipse"
-   buildRPM "awips2-postgresql"
-   buildRPM "awips2-pgadmin3"
-   buildRPM "awips2-httpd-pypies"
-   buildRPM "awips2-qpid-lib"
-   buildRPM "awips2-qpid-java"
-   buildRPM "awips2-qpid-java-broker"
-   buildRPM "awips2-ldm"
+   #buildRPM "awips2-ant"
+   #buildRPM "awips2-maven"
+   #buildRPM "awips2-tools"
+   #buildRPM "awips2-eclipse"
+   #buildRPM "awips2-postgresql"
+   #buildRPM "awips2-pgadmin3"
+   #buildRPM "awips2-httpd-pypies"
+   #buildRPM "awips2-qpid-lib"
+   #buildRPM "awips2-qpid-java"
+   #buildRPM "awips2-qpid-java-broker"
    buildRPM "awips2-database-standalone-configuration"
    buildRPM "awips2-database"
    buildRPM "awips2-maps-database"

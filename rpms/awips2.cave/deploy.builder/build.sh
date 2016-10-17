@@ -210,7 +210,7 @@ for feature in `cat ${prepare_dir}/awipsInstall.txt`; do
     CAVE_EXE="${pde_build_dir}/I.CAVE/cave/cave"
     NOSPLASH_ARG="-nosplash"
     DIRECTOR_APP="-application org.eclipse.equinox.p2.director"
-    DESTINATION_ARG="-destination ${pde_build_dir}/I.CAVE/cave"
+    #DESTINATION_ARG="-destination ${pde_build_dir}/I.CAVE/cave"
     INSTALL_ARG="-i ${feature}.feature.group"
     UNINSTALL_ARG="-u ${feature}.feature.group"
     # Used to ensure that the awips2-java is used.
@@ -234,7 +234,7 @@ cp ${pde_build_dir}/I.CAVE/CAVE-linux.gtk.x86_64.zip ${WORKSPACE}/rpms/awips2.ca
 
 cd ${WORKSPACE}/rpms/awips2.cave
 buildRPMExec "Installer.cave" "awips2-cave"
-buildRPMExec "Installer.cave-wrapper" ""
+#buildRPMExec "Installer.cave-wrapper" ""
 
 rm -rf ${pde_build_dir}
 mkdir -p ${pde_build_dir}
@@ -273,7 +273,7 @@ for feature in `cat ${prepare_dir}/ncepInstall.txt`; do
     CAVE_EXE="${pde_build_dir}/I.CAVE/cave/cave"
     NOSPLASH_ARG="-nosplash"
     DIRECTOR_APP="-application org.eclipse.equinox.p2.director"
-    DESTINATION_ARG="-destination ${pde_build_dir}/I.CAVE/cave"
+    #DESTINATION_ARG="-destination ${pde_build_dir}/I.CAVE/cave"
     INSTALL_ARG="-i ${feature}.feature.group"
     UNINSTALL_ARG="-u ${feature}.feature.group"
     # Used to ensure that the awips2-java is used.

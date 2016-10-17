@@ -37,7 +37,6 @@ provides: awips2-base
 requires: awips2-java
 requires: awips2-python
 requires: openmotif
-requires: libMrm.so.4
 requires: libXp.so.6
 requires: libg2c.so.0
 requires: libstdc++
@@ -65,6 +64,13 @@ if [ ! -f ${CAVE_DIST_DIR}/%{_component_zip_file_name} ]; then
 fi
 
 %build
+pushd . > /dev/null 2>&1
+cd %{_baseline_workspace}/rpms/awips2.cave/Installer.cave/scripts/memory/iniFileGenerator/src
+/awips2/java/bin/javac main/*
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+popd > /dev/null 2>&1
 
 %install
 mkdir -p ${RPM_BUILD_ROOT}/awips2
@@ -72,6 +78,14 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 mkdir -p ${RPM_BUILD_ROOT}/etc/xdg/autostart
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+# autostart scripts.
+CAVE_SCRIPTS_DIR="%{_baseline_workspace}/rpms/%{_component_project_dir}/scripts"
+CAVE_AUTO_SCRIPT="${CAVE_SCRIPTS_DIR}/autostart/"
+cp ${CAVE_AUTO_SCRIPT}/*.desktop ${RPM_BUILD_ROOT}/etc/xdg/autostart
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -84,6 +98,26 @@ cp ${CAVE_DIST_DIR}/%{_component_zip_file_name} \
 cd ${RPM_BUILD_ROOT}/awips2
 unzip %{_component_zip_file_name}
 rm -f %{_component_zip_file_name}
+
+
+_build_cave_static="%{_baseline_workspace}/build/static"
+# we want the common directory, the common linux directory, and the architecture-specific Linux directory.
+_common_dir="${_build_cave_static}/common/cave"
+_linux_dir="${_build_cave_static}/linux/cave"
+_linux_arch_dir="${_build_cave_static}/linux.x86_64/cave"
+
+cp -rv ${_common_dir}/* ${RPM_BUILD_ROOT}/awips2/cave
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+cp -rv ${_linux_dir}/* ${RPM_BUILD_ROOT}/awips2/cave
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+cp -rv ${_linux_arch_dir}/* ${RPM_BUILD_ROOT}/awips2/cave
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 
 # The AWIPS II version script.
 VERSIONS_SCRIPT="rpms/utility/scripts/versions.sh"
@@ -98,6 +132,23 @@ cp %{_baseline_workspace}/${TEXTWS_SCRIPT} ${RPM_BUILD_ROOT}/awips2/cave
 if [ $? -ne 0 ]; then
    exit 1
 fi
+
+CAVE_DIST_DIR="%{_baseline_workspace}/rpms/awips2.cave/setup/dist"
+_cave_zip=${CAVE_DIST_DIR}/%{_component_zip_file_name}
+_mem_settings_xml=%{_baseline_workspace}/rpms/awips2.cave/Installer.cave/scripts/memory/memorySettings.xml
+_ini_destination=${RPM_BUILD_ROOT}/awips2/cave
+
+pushd . > /dev/null 2>&1
+cd %{_baseline_workspace}/rpms/awips2.cave/Installer.cave/scripts/memory/iniFileGenerator/src
+/awips2/java/bin/java main/IniFileGenerator "${_cave_zip}" "${_mem_settings_xml}" "${_ini_destination}"
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+rm -fv main/*.class
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+popd > /dev/null 2>&1
 
 %pre
 if [ "${1}" = "2" ]; then
@@ -164,6 +215,7 @@ if [ -d /awips2/cave ]; then
 fi
 
 %post
+rm -f /etc/xdg/autostart/awips2-cave.desktop
 MACHINE_BIT=`uname -i`
 if [ "${MACHINE_BIT}" = "i386" ]
 then
@@ -328,7 +380,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/cave/plugins
 /awips2/cave/plugins/*
 /awips2/cave/.eclipseproduct
- 
+/awips2/cave/etc/aviation/thresholds/KUES.hdf5 
 %defattr(755,awips,fxalpha,755)
 %dir /awips2/cave/caveEnvironment
 /awips2/cave/caveEnvironment/*
@@ -340,4 +392,4 @@ rm -rf ${RPM_BUILD_ROOT}
 /awips2/cave/*.so
 %dir /awips2/cave/lib64
 /awips2/cave/lib64/*
-
+%attr(644,root,root) /etc/xdg/autostart/awips2-cave.desktop
