@@ -136,8 +136,8 @@ if [ -d /awips2/cave ]; then
    # TODO: need to make CAVE RPMs do a better job of cleaning up files that they are
    # responsible for.
    echo -e "\e[1;31mERROR: the /awips2/cave directory already exists. /awips2/cave\e[m"
-   echo -e "\e[1;31m       must be REMOVED before the installation will proceed.\e[m"
-   exit 1
+   echo -e "\e[1;31m       will be removed.\e[m"
+   rm -rf /awips2/cave
 fi
 
 %post
