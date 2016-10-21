@@ -20,12 +20,13 @@ Vendor: %{_build_vendor}
 Packager: %{_build_site}
 
 AutoReq: no
+Requires: gempak
 Requires: awips2-qpid-lib
-requires: awips2-python
-requires: compat-gcc-34-g77
-requires: pax, gcc, libxml2-devel
-requires: libtool, libpng-devel
-provides: awips2-ldm
+Requires: awips2-python
+Requires: compat-gcc-34-g77
+Requires: pax, gcc, libxml2-devel
+Requires: libtool, libpng-devel
+Provides: awips2-ldm
 
 %description
 AWIPS II LDM Distribution - Contains AWIPS II LDM.
