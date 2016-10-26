@@ -21,16 +21,16 @@
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
 <link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
 <link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
-<link href="/awips2/css/site2.css?20160929" rel="stylesheet">
-<link href="/awips2/css/site2_sd_rules.css?20160929" rel="stylesheet" shim-shadowdom>
+<link href="/awips2/css/site2.css?20161026" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20161026" rel="stylesheet" shim-shadowdom>
 
 
 
-<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160929"></script>
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20161026"></script>
 <!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
 <link rel="import" href="/awips2/components/polymer/polymer.html">
 <link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
-<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160929">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20161026">
 
 
 </head>
@@ -81,8 +81,9 @@
       
 <!--TOC_START-->
 <ul id="markdown-toc">
+  <li><a href="#nexrad-radar-display" id="markdown-toc-nexrad-radar-display">NEXRAD Radar Display</a></li>
   <li><a href="#nexrad--tdwr-station-menus" id="markdown-toc-nexrad--tdwr-station-menus">NEXRAD &amp; TDWR Station Menus</a></li>
-  <li><a href="#best-res-zsrm8" id="markdown-toc-best-res-zsrm8">Best Res Z+SRM8</a></li>
+  <li><a href="#best-res-zsrm8--zv" id="markdown-toc-best-res-zsrm8--zv">Best Res Z+SRM8 / Z+V</a></li>
   <li><a href="#panel-zsrm-zdrv-kdphc-ccsw" id="markdown-toc-panel-zsrm-zdrv-kdphc-ccsw">4-panel Z+SRM, ZDR+V, KDP+HC, CC+SW</a></li>
   <li><a href="#panel-z-zdr-hckdp-cc" id="markdown-toc-panel-z-zdr-hckdp-cc">4-panel Z, ZDR, HC+KDP, CC</a></li>
   <li><a href="#best-res-base-products" id="markdown-toc-best-res-base-products">Best Res Base Products</a></li>
@@ -112,14 +113,21 @@
 </ul>
 <!--TOC_END-->
 
+<h1 id="nexrad-radar-display">NEXRAD Radar Display</h1>
+
+<p>The Unidata D2D Perspective features a selectable NEXRAD station display over a loop of the <a href="http://www.unidata.ucar.edu/data/radar.html#fnexrad">FNEXRAD</a> Digital Hybrid Reflectivity product. Selecting any station will open a two-panel reflectivity and velocity view for the selected station.</p>
+
+<p><img src="../images/nexrad-display.png" alt="image" /></p>
+
+<p><img src="../images/radar-two-panel.png" alt="image" /></p>
+
 <h1 id="nexrad--tdwr-station-menus">NEXRAD &amp; TDWR Station Menus</h1>
 
 <p>Individual NEXRAD station menus are accessible in <strong>Radar</strong> &gt; <strong>NEXRAD Stations</strong> and are grouped alphabetically for a condensed submenu structure.  With only the NEXRAD3 feedtype (NEXAD2 being disabled), notice that only some of the menu items will out with available data.</p>
 
 <p><img src="../images/rnJIkyR.png" alt="image" /></p>
 
-<h1 id="best-res-zsrm8">Best Res Z+SRM8</h1>
-<p># Best Res Z+V</p>
+<h1 id="best-res-zsrm8--zv">Best Res Z+SRM8 / Z+V</h1>
 
 <p>The radar combination products Z+SRM and Z+V are precombined formats of the reflectivity and storm relative motion or velocity, displayed together via a single menu selection. SRM products include the storm motion vector information, which is plotted in the upper left corner of the Main Display Pane.</p>
 
@@ -256,7 +264,7 @@ the echoes of interest.</li>
 <script src="/awips2/js/prettify/prettify.js"></script>
 
 <!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
-<script src="/awips2/js/app.js?20160929"></script>
+<script src="/awips2/js/app.js?20161026"></script>
 
 
   </scroll-area>

@@ -21,16 +21,16 @@
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
 <link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
 <link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
-<link href="/awips2/css/site2.css?20160929" rel="stylesheet">
-<link href="/awips2/css/site2_sd_rules.css?20160929" rel="stylesheet" shim-shadowdom>
+<link href="/awips2/css/site2.css?20161026" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20161026" rel="stylesheet" shim-shadowdom>
 
 
 
-<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160929"></script>
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20161026"></script>
 <!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
 <link rel="import" href="/awips2/components/polymer/polymer.html">
 <link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
-<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160929">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20161026">
 
 
 </head>
@@ -84,46 +84,10 @@
   <li><a href="#metar" id="markdown-toc-metar">METAR</a></li>
   <li><a href="#synoptic" id="markdown-toc-synoptic">Synoptic</a></li>
   <li><a href="#maritime" id="markdown-toc-maritime">Maritime</a></li>
-  <li><a href="#hazards" id="markdown-toc-hazards">Hazards</a></li>
-  <li><a href="#surface-metar-synoptic-other-station-plots" id="markdown-toc-surface-metar-synoptic-other-station-plots">Surface, Metar, Synoptic, Other Station Plots</a></li>
   <li><a href="#national-convective-weather-forecast-awc" id="markdown-toc-national-convective-weather-forecast-awc">National Convective Weather Forecast (AWC)</a></li>
   <li><a href="#center-weather-advisories-cwa" id="markdown-toc-center-weather-advisories-cwa">Center Weather Advisories (CWA)</a></li>
   <li><a href="#mos-products" id="markdown-toc-mos-products">MOS Products</a></li>
-  <li><a href="#lightning" id="markdown-toc-lightning">Lightning</a>    <ul>
-      <li><a href="#uspn" id="markdown-toc-uspn">USPN</a></li>
-    </ul>
-  </li>
-  <li><a href="#ascat-winds" id="markdown-toc-ascat-winds">ASCAT Winds</a></li>
-  <li><a href="#maritime-1" id="markdown-toc-maritime-1">Maritime</a>    <ul>
-      <li><a href="#maritime-plots" id="markdown-toc-maritime-plots">Maritime Plots</a></li>
-      <li><a href="#safeseas" id="markdown-toc-safeseas">SAFESEAS</a></li>
-    </ul>
-  </li>
-  <li><a href="#hazards-1" id="markdown-toc-hazards-1">Hazards</a>    <ul>
-      <li><a href="#warnings" id="markdown-toc-warnings">Warnings</a></li>
-      <li><a href="#flood-warnings" id="markdown-toc-flood-warnings">Flood Warnings</a></li>
-      <li><a href="#marine-warnings" id="markdown-toc-marine-warnings">Marine Warnings</a></li>
-      <li><a href="#storm-reports" id="markdown-toc-storm-reports">Storm Reports</a></li>
-      <li><a href="#sps" id="markdown-toc-sps">SPS</a></li>
-      <li><a href="#all-warnings" id="markdown-toc-all-warnings">All Warnings</a></li>
-    </ul>
-  </li>
-  <li><a href="#lightning-1" id="markdown-toc-lightning-1">Lightning</a>    <ul>
-      <li><a href="#nldn" id="markdown-toc-nldn">NLDN</a></li>
-      <li><a href="#nldn-grid" id="markdown-toc-nldn-grid">NLDN Grid</a></li>
-    </ul>
-  </li>
-  <li><a href="#fog-monitor" id="markdown-toc-fog-monitor">Fog Monitor</a>    <ul>
-      <li><a href="#configure-fog-monitor-area" id="markdown-toc-configure-fog-monitor-area">Configure Fog Monitor Area</a></li>
-      <li><a href="#configure-algorithm-thresholds" id="markdown-toc-configure-algorithm-thresholds">Configure Algorithm Thresholds</a></li>
-      <li><a href="#configure-visibility-thresholds-for-alertviz-monitoring" id="markdown-toc-configure-visibility-thresholds-for-alertviz-monitoring">Configure Visibility Thresholds for Alertviz Monitoring</a></li>
-    </ul>
-  </li>
-  <li><a href="#snow" id="markdown-toc-snow">SNOW</a>    <ul>
-      <li><a href="#configure-snow-monitor-area" id="markdown-toc-configure-snow-monitor-area">Configure SNOW Monitor Area</a></li>
-      <li><a href="#configure-snow-thresholds-for-alertviz-monitoring" id="markdown-toc-configure-snow-thresholds-for-alertviz-monitoring">Configure SNOW Thresholds for Alertviz Monitoring</a></li>
-    </ul>
-  </li>
+  <li><a href="#lightning" id="markdown-toc-lightning">Lightning</a></li>
 </ul>
 <!--TOC_END-->
 
@@ -147,45 +111,19 @@
     <ul>
       <li><strong>Sea State</strong> plots provide information on the wave period and height and swell period and height. The wave type, whether a standard wave or a wind wave, is denoted at the origin of the plot by a “+” or a “w”, respectively. An “x” at the plot origin signifies that no wave type was reported. If reported, the directions of the primary and secondary swells are denoted with arrows labeled “1” and “2”, respectively. The arrows point in the direction the swell is moving.</li>
       <li><strong>Maritime Clouds/Visibility</strong> plots contain a station circle denoting sky coverage and the visibility along with standard symbols for obstructions to visibility.</li>
-      <li><strong>Scatterometer Winds</strong> are obtained from the ASCAT instrument on EUMETSAT’s MetOp-A polar orbiting satellite. This instrument sends pulses of radiation to the ocean surface and measures the amount of energy, called backscatter, it receives back. When you sample these observations, the time, satellite ID, wind direction, and wind speed are provided. With the polar orbiting scanning, a given region will generally be sampled about every 12 hours. ASCAT Winds (25 km retrieval resolution but interpolated and displayed at 12.5 km resolution) can be launched from either the CAVE Obs menu or from the Satellite menu You can access the Scatterometer Winds menu options by
-selecting <strong>Surface</strong> &gt; <strong>Other Maritime Plots</strong> &gt; <strong>Scatterometer Winds</strong>. The ASCAT Scatterometer Ocean Winds product is displayable on CAVE at all scales: N. Hemisphere, North America, CONUS, Regional, State(s), and WFO.</li>
-      <li><strong>SAFESEAS</strong> is the System on AWIPS for Forecasting and Evaluation of Seas and Lakes. It is a set of AWIPS applications that continuously monitor marine and adjacent overland conditions for specific marine and weather hazards. SAFESEAS helps make faster, earlier, and higher-quality decisions regarding marine watches and warnings. SAFESEAS is primarily intended to support any WFO with marine forecast responsibilities; however, non-marine WFOs also may find its monitoring capabilities to be of practical use. The SAFESEAS menu option is available under the OBs menu’s Maritime section; but only available at marine WFOs; local WFOs can be reconfigured to include this option. The SAFESEAS menu has two Fog Monitoring products. These products include a Fog Monitoring Table tool and a Fog Monitor Levels color table. For more information about the Fog Monitor, refer to the Fog Monitor User’s Guide. You can access the Fog Monitor from the Obs menu under the Hazards section and also through the SAFESEAS monitor threat level CAVE icon on the main menu. This guide opens in Adobe® Reader®.</li>
+      <li><strong>Scatterometer Winds</strong> are obtained from the ASCAT instrument on EUMETSAT’s MetOp-A polar orbiting satellite. This instrument sends pulses of radiation to the ocean surface and measures the amount of energy, called backscatter, it receives back. When you sample these observations, the time, satellite ID, wind direction, and wind speed are provided. With the polar orbiting scanning, a given region will generally be sampled about every 12 hours. ASCAT Winds (25 km retrieval resolution but interpolated and displayed at 12.5 km resolution) can be launched from either the CAVE Obs menu or from the Satellite menu You can access the Scatterometer Winds menu options by selecting <strong>Surface</strong> &gt; <strong>Other Maritime Plots</strong> &gt; <strong>Scatterometer Winds</strong>. The ASCAT Scatterometer Ocean Winds product is displayable on CAVE at all scales: N. Hemisphere, North America, CONUS, Regional, State(s), and WFO.</li>
     </ul>
   </li>
 </ul>
 
-<h1 id="hazards">Hazards</h1>
-
-<p>The Hazards section covers local and regional plots, marine warnings, local storm reports, lightning plots, and monitoring of fog and winter weather hazards.</p>
-
-<ul>
-  <li>
-    <p><strong>SNOW</strong>: the System for Nowcasting Of Winter weather (SNOW) is an application suite for
-continuously monitoring surface observations for detecting winter weather threats.</p>
-  </li>
-  <li>
-    <p><strong>Lightning</strong>: this menu option plots cloud-to-ground (CG) lightning flashes for specified time intervals. The data is then used to determine the intensity or frequency of CG lightning accompanying a thunderstorm for a particular area.</p>
-  </li>
-  <li>
-    <p><strong>Fog</strong>: This menu option plots the fog threat level and displays the Fog Threat Level
-Zone/County table. You can also access the Fog Monitor from the SAFESEAS monitor threat
-level CAVE icon on the main menu, only available at marine WFOs.</p>
-  </li>
-  <li>
-    <p><strong>Other Warning Displays</strong>: This section of the menu is defined locally, and may not be
-present at your site.</p>
-  </li>
-  <li>
-    <p><strong>Local Storm Reports</strong>: Local Storm Report (LSR) plots are generated from spotter reports
-that were entered into the LSR text database and decoded into the correct point data format. The LSR graphical user interface (GUI) is a stand-alone AWIPS application designed to provide forecasters with an easy and quick way to create, manage, and send the LSR public text product. This text product contains noteworthy weather events for which the forecaster has either received or sought out real-time observations.</p>
-  </li>
-</ul>
-
-<h1 id="surface-metar-synoptic-other-station-plots">Surface, Metar, Synoptic, Other Station Plots</h1>
-
 <p><img src="../images/Rathudf.png" alt="image" /></p>
 
 <p><img src="../images/s7YS0cg.png" alt="image" /></p>
+
+<ul>
+  <li><strong>Local Storm Reports</strong>: Local Storm Report (LSR) plots are generated from spotter reports
+that were entered into the LSR text database and decoded into the correct point data format. The LSR graphical user interface (GUI) is a stand-alone AWIPS application designed to provide forecasters with an easy and quick way to create, manage, and send the LSR public text product. This text product contains noteworthy weather events for which the forecaster has either received or sought out real-time observations.</li>
+</ul>
 
 <h1 id="national-convective-weather-forecast-awc">National Convective Weather Forecast (AWC)</h1>
 
@@ -221,112 +159,14 @@ that were entered into the LSR text database and decoded into the correct point 
 
 <h1 id="lightning">Lightning</h1>
 
-<p>(only available for US-based .edu domains)</p>
-
-<h2 id="uspn">USPN</h2>
+<p>This menu item provides three options for displaying lightning flash plots over specified 1 minute, 5 minute, 15 minute and 1 hour intervals.</p>
 
 <ul>
-  <li>1 hour plot</li>
-  <li>15 minute plot</li>
-  <li>15 minute plot Pos/Neg</li>
-  <li>5 minute plot</li>
-  <li>1 hour lightning sequence plot</li>
-  <li>1 minute lightning sequence plot</li>
+  <li><strong><a href="http://www.unidata.ucar.edu/data/lightning/uspln.html">USPLN (United States Precision Lightning Network)</a></strong>: WSI Corporation USPLN lightning data has been made available exclusively to universities for education and research use.  Unidata serves USPLN lightning stroke data from the <code>LIGHTNING</code> LDM data feed. Registration is required to request this data, and the free feed is available on an annually renewed basis. USPLN data is not available to the public.</li>
+  <li><strong><a href="http://www.vaisala.com/en/products/thunderstormandlightningdetectionsystems/Pages/NLDN.aspx">NLDN (National Lightning Detection Network)</a></strong>: The NLDN option plots cloud-to-ground (CG) lightning flashes for specified time intervals across the continental United States. NLDN lightning data can be displayed as a grid image displaying the cloud-to-ground density values for a selected resolution (1km, 3km, 5km, 8km, 20km, and 40km).</li>
+  <li><strong><a href="http://www.vaisala.com/en/products/thunderstormandlightningdetectionsystems/Pages/GLD360.aspx">GLD (Global Lightning Dataset)</a></strong>: The GLD option plots cloud-to-ground (CG) lightning flashes for specified time intervals on a global-scale. GLD lightning data can also be displayed as a grid image displaying the cloud-to-ground density values for a selected resolution (1km, 3km, 5km, 8km, 20km, and 40km).</li>
+  <li><strong><a href="https://www.earthnetworks.com/networks/lightning/">ENI Total Lightning</a></strong>: In addition to displaying CG lightning flashes, the Total Lightning option also displays Cloud Flash (CF) lightning and Pulses. CF lightning are lightning flashes which do not strike the ground such as in-cloud, cloud-to-cloud, and cloud-to-air lightning. Lightning pulses are electromagnetic pulses that radiate outward from the lightning channel. ENI total lightning data can be displayed as a grid image displaying the cloud-to-ground, cloud flash, and lightning pulse density values for a selected resolution (1km, 3km, 5km, 8km, 20km, and 40km).</li>
 </ul>
-
-<h1 id="ascat-winds">ASCAT Winds</h1>
-
-<p>The Advanced Scatterometer (ASCAT)  25 km windsoverlaid on top of GOES East water wapor:</p>
-
-<p><img src="../images/X8MpdM4.png" alt="image" /></p>
-
-<h1 id="maritime-1">Maritime</h1>
-
-<h2 id="maritime-plots">Maritime Plots</h2>
-
-<ul>
-  <li>Fixed Buoys</li>
-  <li>Moving Maritime</li>
-  <li>MAROB</li>
-  <li>Fixed Sea State</li>
-  <li>Moving Sea State</li>
-  <li>MAROB Sea State</li>
-  <li>Maritime Clouds/Vis</li>
-  <li>MAROB Clouds/Vis</li>
-</ul>
-
-<h2 id="safeseas">SAFESEAS</h2>
-
-<p>need to do with linux client</p>
-
-<ul>
-  <li>
-    <p>Configure SAFESEAS Monitor Area</p>
-  </li>
-  <li>
-    <p>Configure SAFESEAS Thresholds for Alertviz Monitoring</p>
-  </li>
-</ul>
-
-<h1 id="hazards-1">Hazards</h1>
-
-<h2 id="warnings">Warnings</h2>
-
-<h2 id="flood-warnings">Flood Warnings</h2>
-
-<h2 id="marine-warnings">Marine Warnings</h2>
-
-<h2 id="storm-reports">Storm Reports</h2>
-
-<h2 id="sps">SPS</h2>
-
-<h2 id="all-warnings">All Warnings</h2>
-
-<h1 id="lightning-1">Lightning</h1>
-
-<h2 id="nldn">NLDN</h2>
-
-<ul>
-  <li>1 hour plot</li>
-  <li>15 minute plot</li>
-  <li>15 minute Pos/Neg plot</li>
-  <li>5 minute plot</li>
-  <li>1 minute lightning sequence plot</li>
-  <li>1 minute cloud flash sequence plot</li>
-</ul>
-
-<h2 id="nldn-grid">NLDN Grid</h2>
-
-<p>Available at 1km, 3km, 5km, 8km, 20km, 40km resolution</p>
-
-<ul>
-  <li>60 min cloud to ground density</li>
-  <li>60 min cloud flash density</li>
-  <li>60 min total flash density</li>
-  <li>60 min pulse density</li>
-  <li>15 min cloud to ground density</li>
-  <li>15 min cloud flash density</li>
-  <li>15 min total flash density</li>
-  <li>15 min pulse density</li>
-  <li>5 min cloud to ground density</li>
-  <li>5 min cloud flash density</li>
-  <li>5 min total flash density</li>
-  <li>5 min pulse density</li>
-</ul>
-
-<h1 id="fog-monitor">Fog Monitor</h1>
-
-<h2 id="configure-fog-monitor-area">Configure Fog Monitor Area</h2>
-
-<h2 id="configure-algorithm-thresholds">Configure Algorithm Thresholds</h2>
-
-<h2 id="configure-visibility-thresholds-for-alertviz-monitoring">Configure Visibility Thresholds for Alertviz Monitoring</h2>
-
-<h1 id="snow">SNOW</h1>
-
-<h2 id="configure-snow-monitor-area">Configure SNOW Monitor Area</h2>
-
-<h2 id="configure-snow-thresholds-for-alertviz-monitoring">Configure SNOW Thresholds for Alertviz Monitoring</h2>
 
     </article>
 
@@ -349,7 +189,7 @@ that were entered into the LSR text database and decoded into the correct point 
 <script src="/awips2/js/prettify/prettify.js"></script>
 
 <!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
-<script src="/awips2/js/app.js?20160929"></script>
+<script src="/awips2/js/app.js?20161026"></script>
 
 
   </scroll-area>

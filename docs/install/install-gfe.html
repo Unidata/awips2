@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
 <meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
 <meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
-<meta itemprop="name" content="AWIPS User Manual - CAVE Menus">
+<meta itemprop="name" content="AWIPS User Manual - GFE/EDEX Install and Config">
 <meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
 
 
@@ -15,7 +15,7 @@
 
 <title>
   
-    CAVE Menus -
+    GFE/EDEX Install and Config -
    AWIPS User Manual
 </title>
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
@@ -34,7 +34,7 @@
 
 
 </head>
-<body id="cave-menus">
+<body id="gfe/edex-install-and-config">
 
 <main id="content-container" class="polymer-content">
   <app-drawer id="sidebar" unresolved>
@@ -58,9 +58,7 @@
 
       <header class="shrink">
         <h1>
-        
-          Maps, Projections, and Bundles
-        : CAVE Menus
+         GFE/EDEX Install and Config
         </h1>
       </header>
     </site-banner>
@@ -72,110 +70,41 @@
 
       <header class="onlyonmobile">
         <h1>
-          
-          Maps, Projections, and Bundles
-          : CAVE Menus
+          : GFE/EDEX Install and Config
         </h1>
       </header>
 
-      <p><strong>File &gt; New Map</strong></p>
+      <p>A non-operational version of the AWIPS Graphical Forecast Editor (GFE) server can be installed on top of an existing EDEX server with the command</p>
 
-<p>Opens a new map editor tab with the default projection (CONUS Polar Stereographic).</p>
+<pre><code>yum groupinstall awips2-gfe-server
+</code></pre>
 
-<p><img src="../images/67Wwz3L.png" alt="image" /></p>
+<h1 id="start-and-stop">Start and Stop</h1>
 
-<p>This can also be done by <strong>right-click</strong> on any tab and selecting <strong>New Editor</strong></p>
+<p>The GFE server starts and stop along with AWIPS EDEX.  After installing the above group, run</p>
 
-<p><img src="../images/Sd3qL6LJ55.gif" alt="image" /></p>
+<pre><code>edex stop
+edex start
+</code></pre>
 
-<h1 id="projections">Projections</h1>
+<p>and then watch the EDEX log for GFE site activation</p>
 
-<p><strong>File &gt; New Projection</strong></p>
+<pre><code>edex log 
 
-<p>Create a new map projection.</p>
+INFO  [pool-2-thread-1] GFESiteActivation: EDEX - Activating BOU...
+INFO  [pool-2-thread-1] GFESiteActivation: EDEX - IFPServerConfigManager initializing...
+INFO  [pool-2-thread-1] GFESiteActivation: EDEX - Activating IFPServer...A
+...
+INFO  [pool-2-thread-1] GFESiteActivation: EDEX - Adding BOU to active sites list.
+INFO  [pool-2-thread-1] GFESiteActivation: EDEX - BOU successfully activated
+</code></pre>
 
-<p><img src="../images/VANzMW2.png" alt="image" /></p>
+<h1 id="localization">Localization</h1>
 
-<h1 id="bundles">Bundles</h1>
+<p>The localization site is defined in <code>/awips2/edex/bin/setup.env</code> and defaults to BOU (Boulder, Colorado)</p>
 
-<p><strong>File &gt; Save Bundle</strong></p>
-
-<p>Save a product display within the AWIPS system, synching the bundle between CAVE and the EDEX server.</p>
-
-<p><img src="../images/xl53gG4.png" alt="image" /></p>
-
-<p><strong>File &gt; Load Bundle</strong></p>
-
-<p>Load a previously-saved bundle from within the AWIPS system.</p>
-
-<p><img src="../images/VWiGMHp.png" alt="image" /></p>
-
-<p><strong>File &gt; Delete Bundle</strong></p>
-
-<p>Select and remove a saved bundle.</p>
-
-<p><img src="../images/eRqHZpD.png" alt="image" /></p>
-
-<p><strong>File &gt; Load Bundle from Disk</strong></p>
-
-<p>Load a previously-saved display from a path within the file directory of the workstation.</p>
-
-<p><strong>File &gt; Save Bundle to Disk</strong></p>
-
-<p>Save a product display to a path within the file directory of the workstation.</p>
-
-<p><strong>File &gt; Load Map from Disk</strong></p>
-
-<p>Load a map or product display from a path within the file directory of the workstation.</p>
-
-<p><strong>File &gt; Save Map to Disk</strong></p>
-
-<p>Save a map or product display to a path within the file directory of the workstation.</p>
-
-<h1 id="import--export">Import / Export</h1>
-
-<p><strong>File &gt; Import</strong></p>
-
-<p>Import GIS Data, BCD File, GeoTIFF, LPI File, Shapefile, SPI File, or a D2D Display. The “GIS Data” option opens the GIS application, which provides the ability to import geospatial data from varying GIS data sources. The GIS application has been incorporated into CAVE for use with FX-Net.</p>
-
-<p><strong>File &gt; Export &gt; Image</strong></p>
-
-<p>which captures a screenshot of the current view</p>
-
-<p><img src="../images/UxmboZS.png" alt="image" /></p>
-
-<p><strong>File &gt; Export &gt; Print Screen</strong></p>
-
-<p>will bring up the workstation print dialog.</p>
-
-<p><strong>File &gt; Export &gt; KML</strong></p>
-
-<p>The “Export” submenu also includes a “KML” option, which allows users to save D2D displays or
-GFE grids in the KML (Keyhole Markup Language) file format. When zipped (compressed), the KML
-file format forms a KMZ file, which can be used in applications such as Google Earth.</p>
-
-<p><img src="../images/YRP9kOM.png" alt="image" /></p>
-
-<p>The KML dialog box includes options to select frames to export. This includes exporting all frames,
-the current/displayed frame, a range of frames, and, in GFE, the selected time range as highlighted in
-the Grid Manager. Additional options are available for selection under the “Other Options” section:</p>
-
-<ul>
-  <li>
-    <p><strong>Export Hidden</strong>: When selected, all displayed and hidden products listed in the Product Legend section of the Main Display Pane will be exported.</p>
-  </li>
-  <li>
-    <p><strong>Export Maps</strong>: When selected, all enabled maps displayed within the Main Display Pane will be
-exported.</p>
-  </li>
-  <li>
-    <p><strong>Shade Earth</strong>: When selected, a shaded background is applied to the exported product. If loaded in Google Earth, the earth will be overlaid with a black backdrop, and data will be displayed as it would in D2D with a black background.</p>
-  </li>
-  <li>
-    <p><strong>Show Background Tiles</strong>: When selected, data (such as plot data) will display on top of black
-tiles when loaded in Google Earth.</p>
-  </li>
-</ul>
+<pre><code>export AW_SITE_IDENTIFIER=BOU
+</code></pre>
 
 
     </article>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
 <meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
 <meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
-<meta itemprop="name" content="AWIPS User Manual - CAVE Menus">
+<meta itemprop="name" content="AWIPS User Manual - Localization Perspective">
 <meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
 
 
@@ -15,7 +15,7 @@
 
 <title>
   
-    CAVE Menus -
+    Localization Perspective -
    AWIPS User Manual
 </title>
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
@@ -34,7 +34,7 @@
 
 
 </head>
-<body id="cave-menus">
+<body id="localization-perspective">
 
 <main id="content-container" class="polymer-content">
   <app-drawer id="sidebar" unresolved>
@@ -59,8 +59,8 @@
       <header class="shrink">
         <h1>
         
-          Maps, Projections, and Bundles
-        : CAVE Menus
+          CAVE User Guide
+        : Localization Perspective
         </h1>
       </header>
     </site-banner>
@@ -73,110 +73,106 @@
       <header class="onlyonmobile">
         <h1>
           
-          Maps, Projections, and Bundles
-          : CAVE Menus
+          CAVE User Guide
+          : Localization Perspective
         </h1>
       </header>
 
-      <p><strong>File &gt; New Map</strong></p>
+      <p>The localization perspective was developed to provide a user with an easy way to perform configuration of CAVE.  It is launched from the perspective button in the main CAVE display.  Making changes in localization is really an act of <em>overriding</em> files which exist at a lower level (BASE being the lowest).</p>
 
-<p>Opens a new map editor tab with the default projection (CONUS Polar Stereographic).</p>
+<p><img src="../images/image_1.png" alt="image alt text" /></p>
 
-<p><img src="../images/67Wwz3L.png" alt="image" /></p>
-
-<p>This can also be done by <strong>right-click</strong> on any tab and selecting <strong>New Editor</strong></p>
-
-<p><img src="../images/Sd3qL6LJ55.gif" alt="image" /></p>
-
-<h1 id="projections">Projections</h1>
-
-<p><strong>File &gt; New Projection</strong></p>
-
-<p>Create a new map projection.</p>
-
-<p><img src="../images/VANzMW2.png" alt="image" /></p>
-
-<h1 id="bundles">Bundles</h1>
-
-<p><strong>File &gt; Save Bundle</strong></p>
-
-<p>Save a product display within the AWIPS system, synching the bundle between CAVE and the EDEX server.</p>
-
-<p><img src="../images/xl53gG4.png" alt="image" /></p>
-
-<p><strong>File &gt; Load Bundle</strong></p>
-
-<p>Load a previously-saved bundle from within the AWIPS system.</p>
-
-<p><img src="../images/VWiGMHp.png" alt="image" /></p>
-
-<p><strong>File &gt; Delete Bundle</strong></p>
-
-<p>Select and remove a saved bundle.</p>
-
-<p><img src="../images/eRqHZpD.png" alt="image" /></p>
-
-<p><strong>File &gt; Load Bundle from Disk</strong></p>
-
-<p>Load a previously-saved display from a path within the file directory of the workstation.</p>
-
-<p><strong>File &gt; Save Bundle to Disk</strong></p>
-
-<p>Save a product display to a path within the file directory of the workstation.</p>
-
-<p><strong>File &gt; Load Map from Disk</strong></p>
-
-<p>Load a map or product display from a path within the file directory of the workstation.</p>
-
-<p><strong>File &gt; Save Map to Disk</strong></p>
-
-<p>Save a map or product display to a path within the file directory of the workstation.</p>
-
-<h1 id="import--export">Import / Export</h1>
-
-<p><strong>File &gt; Import</strong></p>
-
-<p>Import GIS Data, BCD File, GeoTIFF, LPI File, Shapefile, SPI File, or a D2D Display. The “GIS Data” option opens the GIS application, which provides the ability to import geospatial data from varying GIS data sources. The GIS application has been incorporated into CAVE for use with FX-Net.</p>
-
-<p><strong>File &gt; Export &gt; Image</strong></p>
-
-<p>which captures a screenshot of the current view</p>
-
-<p><img src="../images/UxmboZS.png" alt="image" /></p>
-
-<p><strong>File &gt; Export &gt; Print Screen</strong></p>
-
-<p>will bring up the workstation print dialog.</p>
-
-<p><strong>File &gt; Export &gt; KML</strong></p>
-
-<p>The “Export” submenu also includes a “KML” option, which allows users to save D2D displays or
-GFE grids in the KML (Keyhole Markup Language) file format. When zipped (compressed), the KML
-file format forms a KMZ file, which can be used in applications such as Google Earth.</p>
-
-<p><img src="../images/YRP9kOM.png" alt="image" /></p>
-
-<p>The KML dialog box includes options to select frames to export. This includes exporting all frames,
-the current/displayed frame, a range of frames, and, in GFE, the selected time range as highlighted in
-the Grid Manager. Additional options are available for selection under the “Other Options” section:</p>
+<p>Once opened, the perspective allows the user to configure SITE and USER-level configuration files which are used to localize or customize the CAVE experience. Most of the site data configuration files that control the baseline localization are not accessible through this interface.  Examples of things that can be accessed through the perspective include (this list is not all-inclusive):</p>
 
 <ul>
   <li>
-    <p><strong>Export Hidden</strong>: When selected, all displayed and hidden products listed in the Product Legend section of the Main Display Pane will be exported.</p>
+    <p>NCP Predefined Areas, Color Maps and Style Rules</p>
   </li>
   <li>
-    <p><strong>Export Maps</strong>: When selected, all enabled maps displayed within the Main Display Pane will be
-exported.</p>
+    <p>D2D Volume Browser Controls</p>
   </li>
   <li>
-    <p><strong>Shade Earth</strong>: When selected, a shaded background is applied to the exported product. If loaded in Google Earth, the earth will be overlaid with a black backdrop, and data will be displayed as it would in D2D with a black background.</p>
+    <p>D2D Bundles - Scales (WFO, State(s), etc.)</p>
   </li>
   <li>
-    <p><strong>Show Background Tiles</strong>: When selected, data (such as plot data) will display on top of black
-tiles when loaded in Google Earth.</p>
+    <p>CAVE Map Overlays, Color Maps and Style Rules</p>
+  </li>
+  <li>
+    <p>AvnFPS Configuration</p>
+  </li>
+  <li>
+    <p>GFE Tools and Utilities</p>
+  </li>
+  <li>
+    <p>Hydro Apps_defaults</p>
+  </li>
+  <li>
+    <p>WarnGen Velocity Templates and Configuration Files</p>
   </li>
 </ul>
 
+<p>The left panel contains a directory heirarchy of CAVE files for D2D, GFE, and NCP, which can be copied and edited as <em>user</em> localization files.</p>
+
+<p><img src="../images/image_2.jpg" alt="image alt text" /></p>
+
+<p>There may be several versions of each file including <strong>BASE</strong>, <strong>CONFIGURED</strong> (GFE only), <strong>SITE</strong>, <strong>WORKSTATION</strong>, and <strong>USER</strong>.  Each file version is listed separately under the actual file name.</p>
+
+<p>The <strong><em>File Editor</em></strong> view opens the selected configuration file in an appropriate editor.  For example, a Python file is opened in a Python editor, and an XML file is opened in an XML editor.</p>
+
+<h2 id="customize-cave-menus">Customize CAVE Menus</h2>
+
+<p>Navigate to <strong>CAVE</strong> &gt; <strong>Menus</strong> and select a submenu (e.g. <strong>satellite</strong>).  This directory lists all of the menu file contributions made by this data plugin.   Most data menu directories will have an <code>index.xml</code> file from which you can investigate the menu structure and made needed changes.</p>
+
+<p>Selecting a file such as <strong>index.xml</strong> will show a sub-menu with a default localization level (typically <strong>BASE</strong> or <strong>CONFIGURED</strong>). Double-click this tab to open in the file editor (you may need to click <strong>Source</strong> at the bottom of the view to see the raw XML).  Right-click this tab and select <strong>Copy To</strong> &gt; <strong>User (awips)</strong> and you will see the file localization versions update with the new copy. Select this file to edit, and override, the existing version.</p>
+
+<h2 id="add-a-new-predefined-area-to-ncp">Add a new Predefined Area to NCP</h2>
+
+<p>In the Localization Perspective, navigate to ‘<strong>NCEP - Predefined Area Menus</strong>’, double-click ‘<strong>AreaMenus.xml</strong>’, and then right-click ‘<strong>BASE</strong>’ and select ‘<strong>Copy To - User</strong>’.  You can also copy to <strong>Desk</strong> or <strong>Workstation</strong> localization.</p>
+
+<p><img src="../images/image_4.png" alt="image alt text" /></p>
+
+<p>You will see a new ‘<strong>USER (username)</strong>’ or <strong>‘WORKSTATION (name)’ **entry for the file **AreaMenus.xml</strong>.</p>
+
+<p><img src="../images/image_5.png" alt="image alt text" /></p>
+
+<p>Double-click the new file and copy or create a new AreaMenuItem entry, such as a new CONUS Mercator projection called <strong>CONUS_Mercator</strong>:</p>
+
+<pre><code>&lt;AreaMenuItem subMenuName="" menuName="CONUS (Mercator)"&gt;
+
+    &lt;source&gt;PREDEFINED_AREA&lt;/source&gt;
+
+    &lt;areaName&gt;CONUS_Mercator&lt;/areaName&gt;
+
+&lt;/AreaMenuItem&gt;
+</code></pre>
+
+<p><img src="../images/image_6.png" alt="image alt text" /></p>
+
+<p>Now you can either copy and post an existing xml area file, or simple create one in the NCP.  Switch back to the NCP, and select ‘<strong>Area - World</strong>’ to load a known Mercator projection.  Zoom in to the continental United States and then from the menu bar select ‘<strong>File - Save Area</strong>’ and name it <strong>CONUS_Mercator</strong> so it matches the name string given in the above AreaMenuItem.</p>
+
+<p><img src="../images/image_7.png" alt="image alt text" /></p>
+
+<p><img src="../images/image_8.png" alt="image alt text" /></p>
+
+<p>You can switch back to the Localization Perspective to confirm that the file was saved.  It will be viewable under <strong>NCEP - Predefined Areas</strong> and, in this example, be called <strong>CONUS_Mercator.xml</strong>.</p>
+
+<p><img src="../images/image_9.png" alt="image alt text" /></p>
+
+<p>CAVE needs to be restarted in order for the new menu item to show up under the NCP <strong>Area</strong> menu.</p>
+
+<p><img src="../images/image_10.png" alt="image alt text" /></p>
+
+<p>Switch to the new Area to confirm.</p>
+
+<p><img src="../images/image_11.png" alt="image alt text" /></p>
+
+<p>On your workstation you can find the new USER localization files in ~/caveData</p>
+
+<p>awips@edex:~/caveData&gt; <strong>find ./ -name CONUS_Mercator.xml</strong></p>
+
+<p>./etc/user/mjames/ncep/PredefinedAreas/CONUS_Mercator.xml</p>
+
+<p>./.localization/NCEP/Predefined Areas/CONUS_Mercator.xml</p>
 
     </article>
 

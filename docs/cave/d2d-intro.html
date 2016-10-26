@@ -21,16 +21,16 @@
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
 <link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
 <link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
-<link href="/awips2/css/site2.css?20160929" rel="stylesheet">
-<link href="/awips2/css/site2_sd_rules.css?20160929" rel="stylesheet" shim-shadowdom>
+<link href="/awips2/css/site2.css?20161026" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20161026" rel="stylesheet" shim-shadowdom>
 
 
 
-<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160929"></script>
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20161026"></script>
 <!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
 <link rel="import" href="/awips2/components/polymer/polymer.html">
 <link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
-<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160929">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20161026">
 
 
 </head>
@@ -95,45 +95,83 @@
 
 <p><img src="../images/iuNDS6J.png" alt="image" /></p>
 
-<h1 id="preferences">Preferences</h1>
+<h1 id="map-projections">Map Projections</h1>
 
-<p><strong>CAVE &gt; Preferences</strong></p>
+<p>The first toolbar menu item is a dropdown menu for different geographic areas and map projections.  The default view is always <strong>CONUS</strong>, which is a North Polar Steregraphic projection centered on the Continental United States.</p>
 
-<p>Set the Localization Site and/or derver for the workstation; configure mouse operations, change performance levels, font magnification, and text workstation hostname.</p>
+<p>Default projections and areas available in the menu</p>
 
-<p><img src="../images/ymFRs6S.png" alt="image" /></p>
+<ul>
+  <li><strong>N. Hemisphere</strong> (North Polar Stereographic)</li>
+  <li><strong>Regional</strong> (for the selected localization site)</li>
+  <li><strong>WFO</strong> (for the selected localization site)</li>
+  <li><strong>World Mercator</strong></li>
+  <li><strong>World CED</strong></li>
+  <li><strong>World Mollweide</strong></li>
+  <li>and <strong>Regional</strong> Mercator projections for <strong>Africa</strong>, <strong>Australia/NZ</strong>, <strong>South America</strong>, <strong>Europe</strong>, <strong>Alaska</strong>, <strong>Hawaii</strong>, <strong>Puerto Rico</strong>, <strong>Japan</strong>, <strong>Pacific Ocean</strong>, and the north and south poles.</li>
+</ul>
 
-<h1 id="switching-perspectives">Switching Perspectives</h1>
-
-<p><strong>CAVE &gt; Perspective</strong></p>
-
-<p>D2D is one of many available CAVE perspectives.  By selecting the <strong>CAVE</strong> &gt; <strong>Perspective</strong> menu you can switch into the <strong>GFE</strong>, <strong>Hydro</strong>, <strong>Localization</strong>, <strong>MPE</strong>, or <strong>National Centers Perspective</strong> (which is available in the <strong>Other…</strong> submenu. Nobody seems to know why the NCP is not listed with the other perspectives, or how to make it appear with them).</p>
-
-<p><img src="../images/OU6rWMD.png" alt="image" /></p>
+<p><img src="../images/mapscales.jpg" alt="image" /></p>
 
 <h1 id="resource-stack">Resource Stack</h1>
 
 <p>At bottom-right of the map window the the Resource Stack, which displays all loaded resources and map overlays, and allows for interaction and customization with the resource via a <strong>right-click menu</strong>.</p>
 
-<h2 id="left-click-resource-name-to-hide">Left-Click Resource Name to Hide</h2>
+<blockquote>
+  <h4 id="left-click-resource-name-to-hide">Left-Click Resource Name to Hide</h4>
+</blockquote>
 
 <p>A left click on any resource in the stack will hide the resource and turn the label gray.  Clicking the name again makes the resource visible.</p>
 
 <p><img src="../images/rASkR3Rp6y.gif" alt="image" /></p>
 
-<h2 id="hold-right-click-resource-name-for-menu">Hold-Right-Click Resource Name for Menu</h2>
+<blockquote>
+  <h4 id="left-click-background-to-hide-resource-types">Left-Click Background to Hide Resource Types</h4>
+</blockquote>
+
+<p>A left click of the mouse anywhere on the map will hide the Resource Stack display names, which may help to declutter the view if a number of data types are loaded at once.</p>
+
+<blockquote>
+  <h4 id="hold-right-click-background-for-display-menu">Hold-Right-Click Background for Display Menu</h4>
+</blockquote>
+
+<p>Holding down the right mouse button anywhere in the map view will open a right-click menu</p>
+
+<p><img src="../images/rightclickmenu.gif" alt="image" /></p>
+
+<blockquote>
+  <h4 id="show-map-legends">Show Map Legends</h4>
+</blockquote>
+
+<p>From the above menu select <strong>Show Map Legends</strong> and watch the Resource Stack show only map resources which are loaded to the view.</p>
+
+<p><img src="../images/maplayers.png" alt="image" /></p>
+
+<blockquote>
+  <h4 id="toggle-2-or-4-panel-layout">Toggle 2 or 4-Panel Layout</h4>
+</blockquote>
+
+<p>Right-click hold in the view and select <strong>Two Panel Layout</strong> or <strong>Four Panel Layout</strong> to create duplicates of the current view (note that any data loaded to the <em>view</em> will be loaded to <em>both displays within the view</em>).</p>
+
+<p>From this multi-pane display, hold-right-click again and you will see the <strong>Single Panel Layout</strong> option to switch back to a standard view (defaulting to the left of two, and top-left of four).</p>
+
+<blockquote>
+  <h4 id="sample-loaded-resources">Sample Loaded Resources</h4>
+</blockquote>
+
+<p>Most data types have a right-click menu option for reading out the pixel value, displayed as multi-line text for multiple resources.</p>
+
+<p><img src="../images/ui4fNI3X0C.gif" alt="image" /></p>
+
+<blockquote>
+  <h4 id="hold-right-click-resource-name-for-menu">Hold-Right-Click Resource Name for Menu</h4>
+</blockquote>
 
 <p>Drag the mouse over a loaded resource and <strong>hold</strong> the right mouse button until a menu appears (simply clicking the resource with the right mouse button will toggle its visibility).</p>
 
 <p>The hold-right-click menu allows you to control individual resource <strong>Image Properties</strong>, <strong>Change Colormaps</strong>, change resource color, width, density, and magnification, <strong>move resources up and down</strong> in the stack, as well as configure custom options with other interactive resources.</p>
 
 <p><img src="../images/lP4W1kmTIh.gif" alt="image" /></p>
-
-<h2 id="hold-right-click-the-map-background">Hold-Right-Click the Map Background</h2>
-
-<p>for additional options, such as greater control over the resource stack legend, toggling a <strong>4-panel display</strong>, selecting a <strong>Zoom</strong> level, and setting a <strong>Background Color</strong>.  Most loaded resources will also have a menu option for reading out the pixel values:</p>
-
-<p><img src="../images/ui4fNI3X0C.gif" alt="image" /></p>
 
 <h1 id="product-browser">Product Browser</h1>
 
@@ -217,6 +255,47 @@ makes All-Tilts radar legends more usable.</p>
 
 <p>You can now set the background display color on your workstation. You can also set the background display color for a single pane via mouse Button 3 (B3).</p>
 
+<h1 id="switching-perspectives">Switching Perspectives</h1>
+
+<p><strong>CAVE &gt; Perspective</strong></p>
+
+<p>D2D is one of many available CAVE perspectives.  By selecting the <strong>CAVE</strong> &gt; <strong>Perspective</strong> menu you can switch into the <strong>GFE</strong>, <strong>Hydro</strong>, <strong>Localization</strong>, <strong>MPE</strong>, or <strong>National Centers Perspective</strong> (which is available in the <strong>Other…</strong> submenu. Nobody seems to know why the NCP is not listed with the other perspectives, or how to make it appear with them).</p>
+
+<p><img src="../images/OU6rWMD.png" alt="image" /></p>
+
+<h1 id="preferences">Preferences</h1>
+
+<p>Preferences and settings for the CAVE client can be found in the <strong>CAVE &gt; Preferences</strong> menu.</p>
+
+<p>Set the Localization Site and server for the workstation; configure mouse operations, change performance levels, font magnification, and text workstation hostname.</p>
+
+<p><img src="../images/ymFRs6S.png" alt="image" /></p>
+
+<h1 id="load-mode">Load Mode</h1>
+
+<p>Also under the Display Properties option is Load Mode, which provides different ways to display data by manipulating previous model runs and inventories of data sets. The selected load mode is shown on the toolbar when the Load Mode menu is closed.</p>
+
+<p>A description of the Load Mode options follow.</p>
+
+<ul>
+  <li><strong>Latest</strong>: Displays forecast data only from the latest model run, but also backfills at the beginning of the loop with available frames from previous runs to satisfy the requested number of
+frames.</li>
+  <li><strong>Valid time seq</strong>: Displays the most recent data and fills empty frames with previous data. For models, it provides the product from the latest possible run for every available valid time.</li>
+  <li><strong>No Backfill</strong>: Displays model data only from the most recent model run time with no backfilling to fill out a loop. Using this Load Mode prevents the mixing of old and new data.</li>
+  <li><strong>Previous run</strong>: Displays the previous model run, backfilling with frames from previous runs at the beginning of the loop to satisfy the requested number of frames.</li>
+  <li><strong>Prev valid time seq</strong>: Displays the previous model run and fills empty frames with previous model data or analyses.</li>
+  <li><strong>Prognosis loop</strong>: Shows a sequence of n-hour forecasts from successive model runs.</li>
+  <li><strong>Analysis loop</strong>: Loads a sequence of model analyses but no forecasts.</li>
+  <li><strong>dProg/dt</strong>: Selects forecasts from different model runs that all have the same valid times. This load mode is available only when there are no other products loaded in the large display
+pane.</li>
+  <li><strong>Forced</strong>: Puts the latest version of a selected product in all frames without time-matching.</li>
+  <li><strong>Forecast match</strong>: Overlays a model product only when its forecast times match those of an initially loaded product. This load mode is available only when another product is already
+loaded in the large display pane.</li>
+  <li><strong>Inventory</strong>: Selecting a product when the load mode is set to Inventory brings up a Dialog Box with the available forecast and inventory times from which you can select the product you
+want. Inventory loads into the currently displayed frame.</li>
+  <li><strong>Slot</strong>: Puts the latest version of a selected product in the currently displayed frame.</li>
+</ul>
+
     </article>
 
     <footer>
@@ -238,7 +317,7 @@ makes All-Tilts radar legends more usable.</p>
 <script src="/awips2/js/prettify/prettify.js"></script>
 
 <!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
-<script src="/awips2/js/app.js?20160929"></script>
+<script src="/awips2/js/app.js?20161026"></script>
 
 
   </scroll-area>

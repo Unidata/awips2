@@ -21,16 +21,16 @@
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
 <link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
 <link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
-<link href="/awips2/css/site2.css?20160929" rel="stylesheet">
-<link href="/awips2/css/site2_sd_rules.css?20160929" rel="stylesheet" shim-shadowdom>
+<link href="/awips2/css/site2.css?20161026" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20161026" rel="stylesheet" shim-shadowdom>
 
 
 
-<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20160929"></script>
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20161026"></script>
 <!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
 <link rel="import" href="/awips2/components/polymer/polymer.html">
 <link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
-<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20160929">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20161026">
 
 
 </head>
@@ -118,51 +118,72 @@
 <h1 id="vb-tools">VB Tools</h1>
 
 <blockquote>
-  <h2 id="baselines">Baselines</h2>
+  <h3 id="baselines">Baselines</h3>
 </blockquote>
 
-<blockquote>
-  <h2 id="points">Points</h2>
-</blockquote>
+<p>Selecting Baselines displays 10 lines, labeled A-A’ to J-J’, along which cross-sections can be
+constructed from within the Volume Browser.  These baseline resources are <strong>editable</strong>.</p>
+
+<p>If you are zoomed in over an area when you load baselines and none appear, press the middle mouse button (B3) to “snap” a baseline to where the mouse cursor is. The system chooses a baseline that has not been recently used. If you
+are working with a baseline, a second click with B3 will return you to the original baseline, even
+if you modified another baseline.</p>
 
 <blockquote>
-  <h2 id="choose-by-id">Choose by ID</h2>
+  <h3 id="points">Points</h3>
 </blockquote>
+
+<p>Points are used to generate model soundings, time-height cross-sections, time series, and variable vs.
+height plots using the Volume Browser. As with the Baselines, the locations of these Points can be
+edited in the following manner:</p>
+
+<ul>
+  <li><strong>“Snapping” an Interactive Point</strong>: If you are zoomed in over an area when you load Interactive
+Points and no Points appear, click B3 to “snap” a Point to where the mouse cursor is positioned.
+The system chooses a Point that has not been recently used. If you are currently working with a
+Point, then a second B3 click will place another Point at the location of your cursor.</li>
+  <li><strong>Dynamic Reference Map</strong>: When you generate a model sounding, a time-height cross-section, a
+time series, or a variable vs. height plot, a small reference map indicating the location(s) of the
+plotted sounding(s) is provided in the upper left corner of the Main Display Pane.</li>
+</ul>
+
+<p>Points may be created, deleted, hidden, and manipulated (location, name, font, and color). Points are
+not limited in terms of number, location, or designation. Points may also be assigned to different
+groups to facilitate their use.</p>
 
 <h1 id="display-types">Display Types</h1>
 
 <blockquote>
-  <h2 id="plan-view-default">Plan View (default)</h2>
+  <h3 id="plan-view-default">Plan View (default)</h3>
 </blockquote>
 
 <p>The default option for the Volume Browser. From the Plan-view perspective, data are plotted onto horizontal surfaces. The Plan view Planes are discussed in the planes section that follows. The additional options menu that appears in the Volume Browser menu bar allows you to choose whether you want the Plan view data to Animate in Time or Animate in Space.</p>
 
 <blockquote>
-  <h2 id="cross-section">Cross Section</h2>
+  <h3 id="cross-section">Cross Section</h3>
 </blockquote>
 
 <p>Allows you to view gridded data as vertical slices along specific baselines. You need to use either the Interactive Baseline Tool or the predefined latitude/longitude baselines to specify the slice you wish to see. One of the additional options menus that appear in the Volume Browser menu bar allows you to choose whether you want the cross-section data to animate in time or space, while the other options menu allows you to adjust the vertical resolution. Descriptions of these options follows. (Note that the Fields and Planes submenu labels have changed after selecting “Cross section.”)</p>
 
 <blockquote>
-  <h2 id="time-height">Time Height</h2>
+  <h3 id="time-height">Time Height</h3>
 </blockquote>
 
 <p>Used in conjunction with the Interactive Points Tool to enable you to view a time height cross section of a full run of gridded model data for a specific location. Additional options menus in the Volume Browser menu bar allow you to choose the direction in which you want the data to be plotted, and to adjust the vertical resolution.</p>
 
 <blockquote>
-  <h2 id="var-vs-hgt">Var vs Hgt</h2>
+  <h3 id="var-vs-hgt">Var vs Hgt</h3>
 </blockquote>
 
 <p>Enables you to view a profile of a meteorological model field as it changes through height, which is displayed in millibars. By using the Interactive Points Tool, you can select one or more locations from which to plot the data.</p>
 
 <blockquote>
-  <h2 id="sounding">Sounding</h2>
+  <h3 id="sounding">Sounding</h3>
 </blockquote>
 
 <p>Works in conjunction with the Interactive Points Tool to enable you to generate a Skew-T chart for a specific location, no additional menus appear in the Volume Browser when the Soundings setting is chosen.</p>
 
 <blockquote>
-  <h2 id="time-series">Time Series</h2>
+  <h3 id="time-series">Time Series</h3>
 </blockquote>
 
 <p>Used in conjunction with the Interactive Points Tool to enable you to plot gridded data on a time versus data value graph for a specified point.</p>
@@ -170,13 +191,13 @@
 <h1 id="animation-types">Animation Types</h1>
 
 <blockquote>
-  <h2 id="time">Time</h2>
+  <h3 id="time">Time</h3>
 </blockquote>
 
 <p>The default option for the Volume Browser. It allows you to view model data through time</p>
 
 <blockquote>
-  <h2 id="space">Space</h2>
+  <h3 id="space">Space</h3>
 </blockquote>
 
 <p>Allows you to loop through a series of predefined latitude or longitude cross-sectional slices at a fixed time.</p>
@@ -202,7 +223,7 @@
 <script src="/awips2/js/prettify/prettify.js"></script>
 
 <!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
-<script src="/awips2/js/app.js?20160929"></script>
+<script src="/awips2/js/app.js?20161026"></script>
 
 
   </scroll-area>
