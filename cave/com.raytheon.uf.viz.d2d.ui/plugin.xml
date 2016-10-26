@@ -1713,12 +1713,6 @@
           value="bundles/scales" 
           recursive="true">
        </path>
-       <path
-          application="D2D"
-          localizationType="COMMON_STATIC"
-          name="Purge Rules"
-          value="purge">
-    	</path>
     	<path
           application="D2D"
           localizationType="CAVE_STATIC"
