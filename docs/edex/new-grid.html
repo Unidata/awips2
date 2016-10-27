@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/Organization">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="chrome=1" />
+<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
+<meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
+<meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
+<meta itemprop="name" content="AWIPS User Manual - Add a New Grid to EDEX">
+<meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
+
+
+<meta itemprop="image" content="https://www.polymer-project.org/images/instacod.png">
+
+
+<title>
+  
+    Add a New Grid to EDEX -
+   AWIPS User Manual
+</title>
+<link rel="publisher" href="https://plus.google.com/107187849809354688692">
+<link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
+<link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
+<link href="/awips2/css/site2.css?20161027" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20161027" rel="stylesheet" shim-shadowdom>
+
+
+
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20161027"></script>
+<!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
+<link rel="import" href="/awips2/components/polymer/polymer.html">
+<link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20161027">
+
+
+</head>
+<body id="add-a-new-grid-to-edex">
+
+<main id="content-container" class="polymer-content">
+  <app-drawer id="sidebar" unresolved>
+    <div layout vertical id="sidebar-content">
+      <div id="logo-container" layout horizontal center>
+        <a href="/awips2/" class="logo"><img src="/awips2/images/logos/awips2.png" alt="Unidata AWIPS User Guide"></a>
+      </div>
+
+      <docs-menu unresolved flex
+		 baseurl='/awips2'
+                 coreElements='{"core-header-panel":"components/core-header-panel/core-header-panel.html","core-transition-pages":"components/core-animated-pages/transitions/core-transition-pages.html","core-animated-pages":"components/core-animated-pages/core-animated-pages.html","core-overlay":"components/core-overlay/core-overlay.html","core-toolbar":"components/core-toolbar/core-toolbar.html","core-image":"components/core-image/core-image.html","core-shared-lib":"components/core-shared-lib/core-shared-lib.html","core-a11y-keys":"components/core-a11y-keys/core-a11y-keys.html","core-menu-button":"components/core-menu-button/core-menu-button.html","core-icon":"components/core-icon/core-icon.html","core-selection":"components/core-selection/core-selection.html","core-style":"components/core-style/core-style.html","core-menu":"components/core-menu/core-menu.html","core-submenu":"components/core-menu/core-submenu.html","core-list":"components/core-list/core-list.html","core-dropdown-menu":"components/core-dropdown-menu/core-dropdown-menu.html","core-input":"components/core-input/core-input.html","core-iconset-svg":"components/core-iconset-svg/core-iconset-svg.html","core-field":"components/core-field/core-field.html","core-selector":"components/core-selector/core-selector.html","core-media-query":"components/core-media-query/core-media-query.html","core-animation-group":"components/core-animation/core-animation-group.html","core-animation":"components/core-animation/core-animation.html","core-animation-keyframe":"components/core-animation/core-animation.html","core-animation-prop":"components/core-animation/core-animation.html","core-dropdown":"components/core-dropdown/core-dropdown.html","core-dropdown-base":"components/core-dropdown/core-dropdown-base.html","core-pages":"components/core-pages/core-pages.html","core-meta":"components/core-meta/core-meta.html","core-splitter":"components/core-splitter/core-splitter.html","core-scroll-header-panel":"components/core-scroll-header-panel/core-scroll-header-panel.html","core-tooltip":"components/core-tooltip/core-tooltip.html","core-localstorage":"components/core-localstorage/core-localstorage.html","core-scroll-threshold":"components/core-scroll-threshold/core-scroll-threshold.html","core-drag-drop":"components/core-drag-drop/core-drag-drop.html","core-iconset":"components/core-iconset/core-iconset.html","core-label":"components/core-label/core-label.html","core-signals":"components/core-signals/core-signals.html","core-transition":"components/core-transition/core-transition.html","core-scaffold":"components/core-scaffold/core-scaffold.html","core-drawer-panel":"components/core-drawer-panel/core-drawer-panel.html","core-range":"components/core-range/core-range.html","core-collapse":"components/core-collapse/core-collapse.html","core-xhr":"components/core-ajax/core-xhr.html","core-ajax":"components/core-ajax/core-ajax.html","core-icon-button":"components/core-icon-button/core-icon-button.html","core-item":"components/core-item/core-item.html"}'
+                 paperElements='{"paper-dropdown":"components/paper-dropdown/paper-dropdown.html","paper-dropdown-transition":"components/paper-dropdown/paper-dropdown-transition.html","paper-item":"components/paper-item/paper-item.html","paper-dropdown-menu":"components/paper-dropdown-menu/paper-dropdown-menu.html","paper-checkbox":"components/paper-checkbox/paper-checkbox.html","paper-button":"components/paper-button/paper-button.html","paper-button-base":"components/paper-button/paper-button-base.html","paper-menu-button":"components/paper-menu-button/paper-menu-button.html","paper-radio-group":"components/paper-radio-group/paper-radio-group.html","paper-toast":"components/paper-toast/paper-toast.html","paper-char-counter":"components/paper-input/paper-char-counter.html","paper-autogrow-textarea":"components/paper-input/paper-autogrow-textarea.html","paper-input":"components/paper-input/paper-input.html","paper-input-decorator":"components/paper-input/paper-input-decorator.html","paper-slider":"components/paper-slider/paper-slider.html","paper-toggle-button":"components/paper-toggle-button/paper-toggle-button.html","paper-fab":"components/paper-fab/paper-fab.html","paper-ripple":"components/paper-ripple/paper-ripple.html","paper-icon-button":"components/paper-icon-button/paper-icon-button.html","paper-tabs":"components/paper-tabs/paper-tabs.html","paper-tab":"components/paper-tabs/paper-tab.html","paper-shadow":"components/paper-shadow/paper-shadow.html","paper-radio-button":"components/paper-radio-button/paper-radio-button.html","paper-dialog":"components/paper-dialog/paper-dialog.html","paper-action-dialog":"components/paper-dialog/paper-action-dialog.html","paper-dialog-base":"components/paper-dialog/paper-dialog-base.html","paper-dialog-transition":"components/paper-dialog/paper-dialog-transition.html","paper-spinner":"components/paper-spinner/paper-spinner.html","paper-progress":"components/paper-progress/paper-progress.html"}'></docs-menu>
+    </div>
+  </app-drawer>
+
+  <scroll-area sidebar unresolved class="scrolling">
+    <site-banner type="guide" shortname="Docs" unresolved>
+      
+<app-bar theme="light" class="bar fixed">
+</app-bar>
+
+      <header class="shrink">
+        <h1>
+         Add a New Grid to EDEX
+        </h1>
+      </header>
+    </site-banner>
+
+    
+    
+
+    <article class="show-permalinks">
+
+      <header class="onlyonmobile">
+        <h1>
+          : Add a New Grid to EDEX
+        </h1>
+      </header>
+
+      <p>The process of adding a grid to AWIPS II is not trivial.   A geospatial file must exist on the EDEX server which defines the projection and navigation of the new grid, and a reference point must exist in the matching grid definition file (such as <strong>gribModels_NCEP-7.xml</strong>).  This guide will walk you through an example using a regional WRF floater produced 4 times daily at Unidata.</p>
+
+<p>Grib data is disseminated in two versions, simple referred to as Grib 1 and Grib 2.  The specifications for each grib version can be found on the NCEP website at the following URLs:</p>
+
+<p>Grib 1:   <a href="http://www.nco.ncep.noaa.gov/pmb/docs/on388/">http://www.nco.ncep.noaa.gov/pmb/docs/on388/</a></p>
+
+<p>Grib 2:   <a href="http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc.shtml">http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc.shtml</a></p>
+
+<p>There are five pieces of information that must exist to have grib data recognized in AWIPS II:</p>
+
+<ol>
+  <li>
+    <p>Parameter tables for the center/subcenter.</p>
+  </li>
+  <li>
+    <p>A parameter information file.</p>
+  </li>
+  <li>
+    <p>An entry in a grib.xml distribution file.</p>
+  </li>
+  <li>
+    <p>A file containing geospatial information for the grib data must be in place before EDEX starts.</p>
+  </li>
+  <li>
+    <p>An entry in one of the various gribModels xml files.</p>
+  </li>
+</ol>
+
+<p>For most models (CONUS NCEP generated models), 1 and 2 will already exist.  3 is satisfied by our “.<em>grib.</em>” regular expression in <code>grib.xml</code>.  4 and 5 must be added if they do not exist.</p>
+
+<p>If EDEX can not determine the grid information from files 4 and 5, it will still decode and store data into HDF5 and metadata, using the default label <code>GribModel:7:0:98</code>.  Steps have been taken to eliminate as many unknown models as possible; however, if a site is bringing in a locally run model it’s likely that some configuration will have to be completed for the model to store properly.</p>
+
+<h2 id="exercise---adding-a-new-grid-to-edex">EXERCISE - Adding a New Grid to EDEX</h2>
+
+<p>Download an example grib1 file with wget from the following location:</p>
+
+<pre><code>wget www.unidata.ucar.edu/staff/mjames/14102318_nmm_d01.GrbF00600
+</code></pre>
+
+<p>Remember that the data distribution file (<code>/awips2/edex/data/utility/edex_static/base/distribution/grib.xml</code>) will match filenames against the regular expression “<strong>.<em>grib.</em></strong>”, so we need to append a .grib file extension to our WRF grib1 file.</p>
+
+<pre><code> mv 14102318_nmm_d01.GrbF00600 14102318_nmm_d01.GrbF00600.grib
+</code></pre>
+
+<p>Copy the file to the manual ingest point <code>/awips2/edex/data/manual/</code></p>
+
+<pre><code>cp 14102318_nmm_d01.GrbF00600.grib /awips2/edex/data/manual/
+</code></pre>
+
+<p>Check that the file has been picked up from manual ingest:</p>
+
+<pre><code>ls -al /awips2/edex/data/manual/
+total 8
+drwxrwxr-x  2 awips fxalpha 4096 Oct 26 08:34 .
+drwxr-xr-x 11 awips fxalpha 4096 Oct 26 08:28 ..
+</code></pre>
+
+<p>Check that the file has been copied to the raw data store manual directory:</p>
+
+<pre><code>ls -la /data_store/manual/
+
+total 20
+drwxrwxrwx   5 awips fxalpha 4096 Oct 26 08:31 .
+drwxrwxr-x. 22 awips fxalpha 4096 Oct 23 14:07 ..
+drwxrwxrwx   3 awips fxalpha 4096 Oct 26 08:31 grib
+drwxrwxrwx   4 awips fxalpha 4096 Oct 25 18:08 mcidas
+drwxrwxrwx   4 awips fxalpha 4096 Oct 25 18:06 satellite
+
+ls -la /data_store/manual/grib/20141026/14/
+total 27180
+drwxrwxrwx 2 awips fxalpha     4096 Oct 26 08:31 .
+drwxrwxrwx 3 awips fxalpha     4096 Oct 26 08:31 ..
+-rw-rw-rw- 1 awips fxalpha 27820168 Oct 26 08:31 14102318_nmm_d01.GrbF00600.grib
+</code></pre>
+
+<p>Check the most recent log files in <code>/awips2/edex/logs/</code></p>
+
+<pre><code>ls -latr /awips2/edex/logs/
+</code></pre>
+
+<p>Grep for part of the filename (<code>14102318_nmm_d01</code>) in the <code>edex-ingestGrib-yyyymmdd.log</code> file:</p>
+
+<pre><code>grep 14102318_nmm_d01 edex-ingestGrib-20141026.log
+INFO  2014-10-26 14:31:51,571 [Ingest.GribDecode-6] Ingest: EDEX: Ingest - grib1:: /awips2/data_store/manual/grib/20141026/14/14102318_nmm_d01.GrbF00600.grib processed in: 0.1200 (sec) Latency: 21.8080 (sec)
+INFO  2014-10-26 14:31:51,576 [Ingest.GribDecode-1] Ingest: EDEX: Ingest - grib1:: /awips2/data_store/manual/grib/20141026/14/14102318_nmm_d01.GrbF00600.grib processed in: 0.1180 (sec) Latency: 21.8140 (sec)
+INFO  2014-10-26 14:31:51,598 [Ingest.GribDecode-7] Ingest: EDEX: Ingest - grib1:: /awips2/data_store/manual/grib/20141026/14/14102318_nmm_d01.GrbF00600.grib processed in: 0.4230 (sec) Latency: 21.8360 (sec)
+INFO  2014-10-26 14:31:51,676 [Ingest.GribDecode-4] Ingest: EDEX: Ingest - grib1:: /awips2/data_store/manual/grib/20141026/14/14102318_nmm_d01.GrbF00600.grib processed in: 0.2240 (sec) Latency: 21.9140 (sec)
+
+...
+</code></pre>
+
+<p>Count the number of decoding notifications in the log file:</p>
+
+<pre><code>grep 14102318_nmm_d01 edex-ingestGrib-20141026.log | wc -l
+799
+</code></pre>
+
+<p>At this point, we have confirmed that EDEX grib ingest works correctly for this file, and that the entire record was decoded.  But how to be sure?  With the NCEP utility wgrib, which provides a product inventory of grib1 messages (wgrib2 is the equivalent for grib2 messages).</p>
+
+<p>Run wgrib on the grib1 message to dump the contents to your screen:</p>
+
+<pre><code>./wgrib 14102318_nmm_d01.GrbF00600.grib
+...
+790:27472390:d=14102318:HPBL:kpds5=221:kpds6=1:kpds7=0:TR=0:P1=6:P2=0:TimeU=1:sfc:6hr fcst:NAve=0
+791:27537224:d=14102318:CAPE:kpds5=157:kpds6=116:kpds7=23040:TR=0:P1=6:P2=0:TimeU=1:90-0 mb above gnd:6hr fcst:NAve=0
+792:27579244:d=14102318:CIN:kpds5=156:kpds6=116:kpds7=23040:TR=0:P1=6:P2=0:TimeU=1:90-0 mb above gnd:6hr fcst:NAve=0
+793:27625066:d=14102318:CAPE:kpds5=157:kpds6=116:kpds7=65280:TR=0:P1=6:P2=0:TimeU=1:255-0 mb above gnd:6hr fcst:NAve=0
+794:27655678:d=14102318:CIN:kpds5=156:kpds6=116:kpds7=65280:TR=0:P1=6:P2=0:TimeU=1:255-0 mb above gnd:6hr fcst:NAve=0
+795:27701500:d=14102318:PLPL:kpds5=141:kpds6=116:kpds7=65280:TR=0:P1=6:P2=0:TimeU=1:255-0 mb above gnd:6hr fcst:NAve=0
+796:27739718:d=14102318:GUST:kpds5=180:kpds6=1:kpds7=0:TR=0:P1=6:P2=0:TimeU=1:sfc:6hr fcst:NAve=0
+797:27773960:d=14102318:LAND:kpds5=81:kpds6=1:kpds7=0:TR=0:P1=6:P2=0:TimeU=1:sfc:6hr fcst:NAve=0
+798:27781758:d=14102318:ICEC:kpds5=91:kpds6=1:kpds7=0:TR=0:P1=6:P2=0:TimeU=1:sfc:6hr fcst:NAve=0
+799:27785754:d=14102318:ALBDO:kpds5=84:kpds6=1:kpds7=0:TR=0:P1=6:P2=0:TimeU=1:sfc:6hr fcst:NAve=0
+
+./wgrib 14102318_nmm_d01.GrbF00600.grib | wc -l
+799
+</code></pre>
+
+<p>799 messages in the grib1 file, 799 “processed in” messages in <code>edex-ingestGrib</code> log file.  So far so good.</p>
+
+<p>Now the question becomes, where did this decoded file go to in our EDEX system, and was it matched to a geospatial grid file? (The answer is no).</p>
+
+<pre><code>psql metadata
+
+psql (9.2.4)
+Type "help" for help.
+
+metadata=# \dt grid*
+           List of relations
+ Schema |     Name     | Type  | Owner
+--------+--------------+-------+-------
+ awips  | grid         | table | awips
+ awips  | grid_info    | table | awips
+ awips  | gridcoverage | table | awips
+</code></pre>
+
+<p>To return the most recently added grids:</p>
+
+<pre><code>metadata=# select * from grid order by inserttime desc;
+</code></pre>
+
+<p>Note: if you have the LDM and ingestGrib currently processing live data via the IDD, you may have to wade through more recent entries to find the newly-ingested WRF grids.  If you turn off the LDM (or just the NGRID and CONDUIT feeds), the manual ingest file will be the latest in postgres.</p>
+
+<p>To return the most recently added grids which have not matched a geospatial grid file (using the ‘GribModel’ string in the model name dataURI):</p>
+
+<pre><code>metadata=# select * from grid_info where datasetid like '%GribModel%';
+                                                       |    8413
+
+ 11530106 |        21600 | 2014-10-23 18:00:00 | [FCST_USED]              | 2014-10-24 00:00:00 | 2014-10-24 00:00:00 | 2014-10-26 14:31:51.394 | /grid/2014-10-23_18:00:00.0_(6)/GribModel:7:0:89/null/null/261/BLI/BL/0.0/180.0                                                          |    8401
+ 11530102 |        21600 | 2014-10-23 18:00:00 | [FCST_USED]              | 2014-10-24 00:00:00 | 2014-10-24 00:00:00 | 2014-10-26 14:31:51.375 | /grid/2014-10-23_18:00:00.0_(6)/GribModel:7:0:89/null/null/261/vW/BL/120.0/150.0                                                         |    8400
+ 11530101 |        21600 | 2014-10-23 18:00:00 | [FCST_USED]              | 2014-10-24 00:00:00 | 2014-10-24 00:00:00 | 2014-10-26 14:31:51.371 | /grid/2014-10-23_18:00:00.0_(6)/GribModel:7:0:89/null/null/261/CAPE/BL/0.0/180.0
+</code></pre>
+
+<p>Notice the dataURI of <code>/grid/2014-10-23_18:00:00.0_(6)/GribModel:7:0:89/null/null/261/CAPE/BL/0.0/180.0</code>, and speficially the <code>GribModel:7:0:89/null</code> portion.  How do we know that this is our WRF grib file decoded?</p>
+
+<p>Check the count!</p>
+
+<pre><code>metadata=# select count(*) from grid_info where datasetid like '%GribModel%';
+
+ count
+
+-------
+
+   799
+
+(1 row)
+</code></pre>
+
+<p>799 records confirms that this is our WRF grib file.</p>
+
+<p>What does <code>GribModel:7:0:89</code> mean? A refresher:</p>
+
+<p>GribModel = default name for grid not found</p>
+
+<pre><code>7 = center ID (NCEP)
+
+0 = subcenter ID
+
+89 = process ID
+</code></pre>
+
+<p>At this point, EDEX manual ingest and decoding has been confirmed to work, but we need the WRF grib file matched against a geospatial grid file.  Luckily, this bootstrap method provides us with a record of grid projection in the <code>gridcoverage</code> table (hint, the entry containing the WRF grid coverage will be the most recently added record)</p>
+
+<pre><code>metadata=# select * from gridcoverage order by id desc;
+
+            dtype             | id  |                                                crs                                                |         dx
+
+        |         dy         | firstgridpointcorner |                                                                                          the_geom                                                                                          |       la1        |        lo1        |    name     |  n
+x  |  ny  | spacingunit |  la2   | latin |   lo2    | majoraxis | minoraxis |    lad    |        lov        |      latin1      |      latin2
+------------------------------+-----+---------------------------------------------------------------------------------------------------+------------
+--------+--------------------+----------------------+------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------+------------------+-------------------+-------------+---
+---+------+-------------+--------+-------+----------+-----------+-----------+-----------+-------------------+------------------+------------------
+ LambertConformalGridCoverage | 261 | PROJCS["Lambert Conformal (SP: 45.36800003051758/45.36800003051758, Origin: -67.0770034790039)", +|   4.2969999
+3133545 |   4.29699993133545 | LowerLeft            | 010300000001000000050000009BA5CAC8A71852C04C83DD3E98214540F9266FBE54F64EC07248FBC38E224540CA1B6
+2A203AD4EC0E64C5DE38E1F4840C1E325036A3E52C03E3F5D417D1E48409BA5CAC8A71852C04C83DD3E98214540 | 42.2830009460449 | -72.3610000610352 |             |  2
+01 |  155 | km          |        |       |          |   6378160 |   6356775 |           | -67.0770034790039 | 45.3680000305176 | 45.3680000305176
+                              |     |   GEOGCS["WGS84(DD)",
+</code></pre>
+
+<p>The information we need for this grid is such:</p>
+
+<pre><code>metadata=# select id,nx,ny, dx,dy,majoraxis,minoraxis,la1,lo1,lov,latin1, latin2 from gridcoverage where id=261;
+
+ id  | nx  | ny  |        dx        |        dy        | majoraxis | minoraxis |       la1        |        lo1        |        lov        |      lati
+
+n1      |      latin2
+
+-----+-----+-----+------------------+------------------+-----------+-----------+------------------+-------------------+-------------------+----------
+
+--------+------------------
+
+ 261 | 201 | 155 | 4.29699993133545 | 4.29699993133545 |   6378160 |   6356775 | 42.2830009460449 | -72.3610000610352 | -67.0770034790039 | 45.368000
+
+0305176 | 45.3680000305176
+
+(1 row)
+
+45.3680000305176
+</code></pre>
+
+<h3 id="geospatial-files">GEOSPATIAL FILES</h3>
+
+<ol>
+  <li>
+    <p>A file containing geospatial information for the grib data.  Geospatial information files are stored in:</p>
+
+    <pre><code> /awips2/edex/data/utility/edex_static/base/grib/grids
+    
+ /awips2/edex/data/utility/edex_static/site/LLL/grib/grids
+</code></pre>
+  </li>
+</ol>
+
+<p>An easy tip is to grep for existing similar navigation (using majoraxis or minoraxis, or both):</p>
+
+<pre><code>    cd /awips2/edex/data/utility/edex_static/base/grib/grids
+
+    grep 6378160 -A4 -B12 *
+    ...
+    RUCIcing.xml-&lt;lambertConformalGridCoverage&gt;
+    RUCIcing.xml-    &lt;name&gt;305&lt;/name&gt;
+    RUCIcing.xml-    &lt;description&gt;Regional - CONUS (Lambert Conformal)&lt;/description&gt;
+    RUCIcing.xml-    &lt;la1&gt;16.322&lt;/la1&gt;
+    RUCIcing.xml-    &lt;lo1&gt;-125.955&lt;/lo1&gt;
+    RUCIcing.xml-    &lt;firstGridPointCorner&gt;LowerLeft&lt;/firstGridPointCorner&gt;
+    RUCIcing.xml-    &lt;nx&gt;151&lt;/nx&gt;
+    RUCIcing.xml-    &lt;ny&gt;113&lt;/ny&gt;
+    RUCIcing.xml-    &lt;dx&gt;40.63525&lt;/dx&gt;
+    RUCIcing.xml-    &lt;dy&gt;40.63525&lt;/dy&gt;
+    RUCIcing.xml-    &lt;spacingUnit&gt;km&lt;/spacingUnit&gt;
+    RUCIcing.xml-    &lt;minorAxis&gt;6356775.0&lt;/minorAxis&gt;
+    RUCIcing.xml:    &lt;majorAxis&gt;6378160.0&lt;/majorAxis&gt;
+    RUCIcing.xml-    &lt;lov&gt;-95.0&lt;/lov&gt;
+    RUCIcing.xml-    &lt;latin1&gt;25.0&lt;/latin1&gt;
+    RUCIcing.xml-    &lt;latin2&gt;25.0&lt;/latin2&gt;
+    RUCIcing.xml-&lt;/lambertConformalGridCoverage&gt;
+</code></pre>
+
+<p>Copy the RUCIcing.xml template to the new <code>grids</code> directory:</p>
+
+<pre><code>    cp RUCIcing.xml wrf.xml
+</code></pre>
+
+<p>And edit the new wrf.xml file to include the necessary projection information (example provided):</p>
+
+<pre><code>vi wrf.xml
+
+&lt;lambertConformalGridCoverage&gt;
+    &lt;name&gt;201155&lt;/name&gt;
+    &lt;description&gt;Regional - CONUS (Lambert Conformal)&lt;/description&gt;
+    &lt;la1&gt;42.2830009460449&lt;/la1&gt;
+    &lt;lo1&gt;-72.3610000610352&lt;/lo1&gt;
+    &lt;firstGridPointCorner&gt;LowerLeft&lt;/firstGridPointCorner&gt;
+    &lt;nx&gt;201&lt;/nx&gt;
+    &lt;ny&gt;155&lt;/ny&gt;
+    &lt;dx&gt;4.29699993133545&lt;/dx&gt;
+    &lt;dy&gt;4.29699993133545&lt;/dy&gt;
+    &lt;spacingUnit&gt;km&lt;/spacingUnit&gt;
+    &lt;minorAxis&gt;6356775.0&lt;/minorAxis&gt;
+    &lt;majorAxis&gt;6378160.0&lt;/majorAxis&gt;
+    &lt;lov&gt;-67.0770034790039&lt;/lov&gt;
+    &lt;latin1&gt;45.3680000305176&lt;/latin1&gt;
+    &lt;latin2&gt;45.3680000305176&lt;/latin2&gt;
+&lt;/lambertConformalGridCoverage&gt;
+</code></pre>
+
+<h3 id="grid-model-files">GRID MODEL FILES</h3>
+
+<ol>
+  <li>
+    <p>A grib model xml file with a unique numerical grid identifier.  The contents between the <code>&lt;grid&gt;</code> tags must match the contents between the <code>&lt;name&gt;</code> tags in the geospatial information file.  Grib model xml files are found in:</p>
+
+    <p>/awips2/edex/data/utility/edex_static/base/grid/models</p>
+
+    <p>/awips2/edex/data/utility/edex_static/site/LLL/grid/models</p>
+  </li>
+</ol>
+
+<p>Notice <code>&lt;name&gt;201155&lt;/name&gt;</code> defined from the number of grid points (201 x 155) in the previous geospatial file.  This is the name that must be matched in our new file <code>gribModels_UPC.xml</code>, which requires an entry in order for this grid to work.</p>
+
+<p>First we create a site localization <code>models</code> directory:</p>
+
+<pre><code>cd /awips2/edex/data/utility/edex_static/base/grib/models/
+
+vi gribModels_UPC.xml
+</code></pre>
+
+<p>The contents of this file should be such:</p>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;gribModelSet&gt;
+    &lt;model&gt;
+        &lt;name&gt;WRF&lt;/name&gt;
+        &lt;center&gt;7&lt;/center&gt;
+        &lt;subcenter&gt;0&lt;/subcenter&gt;
+        &lt;grid&gt;201155&lt;/grid&gt;
+        &lt;process&gt;
+            &lt;id&gt;89&lt;/id&gt;
+        &lt;/process&gt;
+    &lt;/model&gt;
+&lt;/gribModelSet&gt;
+</code></pre>
+
+<p>Recall the known IDs of the grid:</p>
+
+<pre><code>7 = center ID (NCEP)
+0 = subcenter ID
+89 = process ID
+</code></pre>
+
+<p>And notice <code>&lt;grid&gt;201155&lt;/grid&gt;</code> is used to identify the new <code>wrf.xml</code> file that we created.</p>
+
+<p>With the new entry in <code>gribModels_UPC.xml</code> referencing our new <code>wrf.xml</code> geospatial file, we can test WRF ingest once again, but we have to restart the <strong>ingestGrib</strong> JVM to re-read the new files.</p>
+
+<p>As root:</p>
+
+<pre><code>service edex_camel restart
+Stopping EDEX Camel (request): OK
+Stopping EDEX Camel (ingest): OK
+Stopping EDEX Camel (ingestGrib): OK
+Starting EDEX Camel (request): OK
+Starting EDEX Camel (ingest): OK
+Starting EDEX Camel (ingestGrib): OK
+</code></pre>
+
+<p>Remember to check <code>/awips2/edex/logs/</code> and the “<strong>edex</strong>” command to be sure that no typos result in the JVM crashing on start (usually give the process a minute or two to spin up and check that process IDs are returned with “<strong>edex</strong>”).  If you left the LDM on while restarting the JVM, when the JVM comes back live you will see “<strong>processed in</strong>” messages by tailing the log file.</p>
+
+<p>Now we can manually copy the WRF grib1 file over to <code>/awips2/edex/data/manual/</code> again (if we set things up correctly we will not get a persistence error by ingesting the same data since it should be matched to “<strong>WRF</strong>” and not default to <code>GribModel:7:0:89</code>.</p>
+
+<pre><code>cp 14102318_nmm_d01.GrbF00600.grib /awips2/edex/data/manual/
+
+tail -f /awips2/edex/logs/edex-ingestGrib-20141026.log
+
+INFO  2014-10-26 15:17:50,675 [Ingest.GribDecode-6] Ingest: EDEX: Ingest - grib1:: /awips2/data_store/manual/grib/20141026/15/14102318_nmm_d01.GrbF00600.grib processed in: 0.3040 (sec) Latency: 9.3930 (sec)
+INFO  2014-10-26 15:17:50,703 [Ingest.GribDecode-2] Ingest: EDEX: Ingest - grib1:: /awips2/data_store/manual/grib/20141026/15/14102318_nmm_d01.GrbF00600.grib processed in: 0.1350 (sec) Latency: 9.4210 (sec)
+INFO  2014-10-26 15:17:50,725 [Ingest.GribDecode-1] Ingest: EDEX: Ingest - grib1:: /awips2/data_store/manual/grib/20141026/15/14102318_nmm_d01.GrbF00600.grib processed in: 0.3790 (sec) Latency: 9.4430 (sec)
+</code></pre>
+
+<p>Now we check in postgres again to see if the dataURI includes the “<strong>WRF</strong>” name rather than “<strong>GribModel:7:0:89</strong>”</p>
+
+<pre><code>    psql metadata
+
+    metadata=# select * from grid order by inserttime desc;
+        id    | forecasttime |       reftime       |       utilityflags       |      rangeend       |     rangestart      |       inserttime        |
+                                                                  datauri                                                                  | info_id
+        
+        ----------+--------------+---------------------+--------------------------+---------------------+---------------------+-------------------------+----
+           ---------------------------------------------------------------------------------------------------------------------------------------+---------
+             11585397 |        21600 | 2014-10-23 18:00:00 | [FCST_USED]              | 2014-10-24 00:00:00 | 2014-10-24 00:00:00 | 2014-10-26 15:34:12.456 | /gr
+            id/2014-10-23_18:00:00.0_(6)/WRF/null/null/261/ICEC/SFC/0.0/-999999.0                                                                  |    9215
+             11585395 |        21600 | 2014-10-23 18:00:00 | [FCST_USED]              | 2014-10-24 00:00:00 | 2014-10-24 00:00:00 | 2014-10-26 15:34:12.449 | /gr
+            id/2014-10-23_18:00:00.0_(6)/WRF/null/null/261/LAND/SFC/0.0/-999999.0                                                                  |    9213
+             11585396 |        21600 | 2014-10-23 18:00:00 | [FCST_USED]
+</code></pre>
+
+<p>SUCCESS!</p>
+
+<p>We have now added a new grid to EDEX.  In order to display it in NCP or D2D we need to edit new localization files for either or both perspective.</p>
+
+<h3 id="troubleshooting-grib-ingest">Troubleshooting Grib Ingest</h3>
+
+<p>If you ingest a piece of data and the parameter appears as unknown in the metadata database, ensure that the correct parameter tables are in place for the center/subcenter.</p>
+
+<p>Make sure the latitude and longitude entries in your coverage specification file match those of your ingested raw grib file. There is a tolerance of +/- 0.1 degree to keep in mind when defining your coverage area.</p>
+
+<p>If some of the information is unknown, using a grib utility application such as <em>wgrib</em> and <em>wgrib2</em> (not delivered) can be useful in determining the information that must be added to correctly process a new grib file.</p>
+
+    </article>
+
+    <footer>
+  <div>
+    <div class="links">
+      <a href="https://www.facebook.com/unidata" title="Unidata on Facebook" tabindex="-1"><paper-button><core-icon icon="social:post-facebook"></core-icon>Facebook</paper-button></a>
+      <a href="https://twitter.com/intent/follow?screen_name=unidata" data-twitter-follow title="Follow @Unidata on Twitter" tabindex="-1"><paper-button><core-icon icon="social:post-twitter"></core-icon>Twitter</paper-button></a>
+      <a href="https://github.com/Unidata/awips2"><paper-button class="github" tabindex="-1"><core-icon icon="social:post-github"></core-icon>GitHub</paper-button></a>
+      <a href="https://github.com/Unidata/awips2/issues/new" tabindex="-1"><paper-button><core-icon icon="bug-report"></core-icon>File a bug</paper-button></a>
+    </div>
+
+  </div>
+</footer>
+
+
+
+
+
+<script src="/awips2/js/prettify/prettify.js"></script>
+
+<!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
+<script src="/awips2/js/app.js?20161027"></script>
+
+
+  </scroll-area>
+
+</main>
+
+</body>
+</html>
