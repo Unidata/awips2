@@ -62,24 +62,4 @@
          commandId="com.raytheon.uf.viz.image.export.save">
    </handler>
 </extension>
-<extension
-      point="org.eclipse.ui.menus">
-   <menuContribution
-         locationURI="menu:export">
-       <command
-             commandId="com.raytheon.uf.viz.image.export.save"
-             label="Image"
-             style="push">
-       </command>
-       <command
-             commandId="com.raytheon.uf.viz.image.export.print"
-             label="Print Screen"
-             style="push">
-             <parameter
-                   name="frameSelection"
-                   value="current">
-             </parameter>
-       </command>
-   </menuContribution>
-</extension>
 </plugin>

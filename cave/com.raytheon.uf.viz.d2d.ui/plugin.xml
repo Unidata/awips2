@@ -85,6 +85,10 @@
                    label="New Window"
                    style="push">
              </command>
+             <menu
+                   id="import"
+                   label="Import">
+             </menu>
              <separator
                    name="saveSeparator"
                    visible="true">
@@ -104,23 +108,29 @@
 				   label="Save Bundle Locally"
 				   style="push">
              </command>
-	         <separator
-                   name="importExportSeparator"
+             <separator
+                   name="exportSeparator"
                    visible="true">
              </separator>
-             <menu
-                   id="import"
-                   label="Import">
-             </menu>
-             <menu
-                   id="export"
-                   label="Export">
-			     <command
-		             commandId="com.raytheon.viz.ui.saveBundle"
-		             label="Map Window"
-		             style="push">
-		         </command>
-             </menu>
+             <command
+                   commandId="com.raytheon.uf.viz.image.export.save"
+                   label="Save Image"
+                   style="push">
+             </command>
+             <command
+                   commandId="com.raytheon.uf.viz.kml.export.exportKML"
+                   label="Save KML"
+                   style="push">
+             </command>
+             <command
+                   commandId="com.raytheon.uf.viz.image.export.print"
+                   label="Print Screen"
+                   style="push">
+                <parameter
+                      name="frameSelection"
+                      value="current">
+                </parameter>
+             </command>
           </menu>
           <menu
                 id="view"
