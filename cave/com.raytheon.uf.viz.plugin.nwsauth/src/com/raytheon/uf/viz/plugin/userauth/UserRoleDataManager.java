@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.plugin.nwsauth;
+package com.raytheon.uf.viz.plugin.userauth;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,16 +60,16 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * @version 1.0
  */
 
-public class NwsRoleDataManager {
+public class UserRoleDataManager {
     /** Status handler */
     private static final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(NwsRoleDataManager.class);
+            .getHandler(UserRoleDataManager.class);
 
-    private static final NwsRoleDataManager instance = new NwsRoleDataManager();
+    private static final UserRoleDataManager instance = new UserRoleDataManager();
 
     private Map<String, NwsRoleData> roleDataMap = new HashMap<String, NwsRoleData>();
 
-    private NwsRoleDataManager() {
+    private UserRoleDataManager() {
         retrieveRoleDataFromServer();
     }
 
@@ -78,7 +78,7 @@ public class NwsRoleDataManager {
      * 
      * @return an instance
      */
-    public static NwsRoleDataManager getInstance() {
+    public static UserRoleDataManager getInstance() {
         return instance;
     }
 

@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.plugin.nwsauth;
+package com.raytheon.uf.viz.plugin.userauth;
 
 import com.raytheon.uf.common.auth.req.AbstractPrivilegedRequest;
 import com.raytheon.uf.common.auth.resp.UserNotAuthenticated;
@@ -44,7 +44,7 @@ import com.raytheon.uf.viz.core.requests.INotAuthHandler;
  * @version 1.0
  */
 
-public class NwsNotAuthHandler implements INotAuthHandler {
+public class UserNotAuthHandler implements INotAuthHandler {
 
     /*
      * (non-Javadoc)
@@ -61,7 +61,7 @@ public class NwsNotAuthHandler implements INotAuthHandler {
         String message = "User: <" + user.uniqueId()
                 + "> is not authenticated to perform request:"
                 + request.getClass();
-        UFStatus.getHandler(NwsNotAuthHandler.class).handle(Priority.PROBLEM,
+        UFStatus.getHandler(UserNotAuthHandler.class).handle(Priority.PROBLEM,
                 message);
         throw new VizException(message);
     }
@@ -80,7 +80,7 @@ public class NwsNotAuthHandler implements INotAuthHandler {
             message = "Error sending request for user: "
                     + response.getRequest().getUser().uniqueId().toString();
         }
-        UFStatus.getHandler(NwsNotAuthHandler.class).handle(Priority.PROBLEM,
+        UFStatus.getHandler(UserNotAuthHandler.class).handle(Priority.PROBLEM,
                 message);
         throw new VizException(message);
     }

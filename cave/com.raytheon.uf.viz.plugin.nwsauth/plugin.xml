@@ -4,7 +4,7 @@
    <extension
          point="com.raytheon.uf.viz.core.userManager">
       <userManager
-            class="com.raytheon.uf.viz.plugin.nwsauth.NwsUserManager">
+            class="com.raytheon.uf.viz.core.auth.BasicUserManager">
       </userManager>
    </extension>
 
