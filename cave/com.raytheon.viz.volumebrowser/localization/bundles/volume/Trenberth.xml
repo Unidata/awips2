@@ -8,7 +8,7 @@
                                 <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="true"/>
                                 <capabilities>
                                     <capability xsi:type="colorMapCapability">
-                                        <colorMapParameters colorMapName="GFE/ndfdMaxMinT">
+                                        <colorMapParameters colorMapName="Grid/ndfdMaxMinT">
                                             <persisted>
                                                 <colorMapMin>-5.0E-5</colorMapMin>
                                                 <colorMapMax>3.0E-4</colorMapMax>
