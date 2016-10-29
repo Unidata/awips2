@@ -65,8 +65,6 @@ public class RadarsInUseUtil {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(RadarsInUseUtil.class);
 
-    public static final String DIAL_CONSTANT = "DIAL_RADARS";
-
     public static final String LOCAL_CONSTANT = "LOCAL_RADARS";
 
     public static final String ASR_CONSTANT = "ASR_RADARS";

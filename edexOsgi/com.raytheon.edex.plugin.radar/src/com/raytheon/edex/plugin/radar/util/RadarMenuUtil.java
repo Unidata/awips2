@@ -173,118 +173,8 @@ public class RadarMenuUtil extends AbstractMenuUtil implements
         toXml(menuContributionFile, "menus" + File.separator + "radar"
                 + File.separator + "index.xml");
 
-        // now on to dial radars
-        radars = RadarsInUseUtil.getSite(getSite(),
-                RadarsInUseUtil.DIAL_CONSTANT);
-
-        // create MenuTemplateFile for the dialRadars.xml
         MenuTemplateFile menuTemplateFile = new MenuTemplateFile();
-        menuTemplateFile.contributions = new CommonIncludeMenuContribution[radars
-                .size()];
-
         CommonIncludeMenuContribution includeMenuContribution = null;
-        for (int i = radars.size() - 1; i >= 0; i--) {
-            includeMenuContribution = new CommonIncludeMenuContribution();
-            includeMenuContribution.substitutions = vars;
-
-            boolean terminal = TerminalRadarUtils.isTerminalRadar(radars.get(i)
-                    .toLowerCase());
-            if (terminal) {
-                List<Double> elevations = map.get(radars.get(i));
-                includeMenuContribution.fileName = new File(path + "dualPol"
-                        + File.separator + File.separator
-                        + "baseTerminalLocalRadarMenu.xml");
-                vars = new VariableSubstitution[(elevations.size() + 1)
-                        + NUM_POSSIBLE_RADARS + 1];
-                vars[0] = new VariableSubstitution();
-                vars[0].key = "icao";
-                vars[0].value = radars.get(i);
-                for (int j = 1; j <= elevations.size(); j++) {
-                    vars[j] = new VariableSubstitution();
-                    vars[j].key = "elev" + (j - 1);
-                    vars[j].value = String.valueOf(elevations.get(j - 1));
-                }
-                for (int j = 1; j <= elevations.size(); j++) {
-                    vars[j + elevations.size()] = new VariableSubstitution();
-                    vars[j + elevations.size()].key = "suppressErrors"
-                            + (j - 1);
-                    vars[j + elevations.size()].value = "false";
-                }
-                for (int j = elevations.size() + 1; j <= NUM_POSSIBLE_RADARS; j++) {
-                    vars[j + elevations.size()] = new VariableSubstitution();
-                    vars[j + elevations.size()].key = "suppressErrors"
-                            + (j - 1);
-                    vars[j + elevations.size()].value = "true";
-                }
-                includeMenuContribution.substitutions = vars;
-                terminal = true;
-            } else {
-                if (SsssRadarUtil.isSsssRadar(radars.get(i).toLowerCase())) {
-                    String ssssRadar = radars.get(i).toLowerCase();
-                    includeMenuContribution.fileName = new File(path
-                            + ssssRadar + File.separator
-                            + "baseLocalRadarMenu.xml");
-                } else {
-                    includeMenuContribution.fileName = new File(path
-                            + "dualPol" + File.separator
-                            + "baseLocalRadarMenu.xml");
-                }
-                vars = new VariableSubstitution[1];
-                vars[0] = new VariableSubstitution();
-                vars[0].key = "icao";
-                vars[0].value = radars.get(i);
-                includeMenuContribution.substitutions = vars;
-            }
-            menuTemplateFile.contributions[radars.size() - 1 - i] = includeMenuContribution;
-        }
-
-        Arrays.sort(menuTemplateFile.contributions);
-        // only want 12 radars in the dial radar menu, otherwise put it in
-        // submenus
-        if (menuTemplateFile.contributions.length > 12) {
-            double numMenus = Math
-                    .ceil(((double) menuTemplateFile.contributions.length) / 12);
-            int perMenu = (int) (menuTemplateFile.contributions.length
-                    / numMenus + 1);
-            statusHandler.info("For " + menuTemplateFile.contributions.length
-                    + " dial radars, menus have increased to " + (int) numMenus
-                    + " with an average of " + perMenu + " per menu");
-            List<CommonAbstractMenuContribution> list = Arrays
-                    .asList(menuTemplateFile.contributions);
-            menuTemplateFile.contributions = new CommonSubmenuContribution[(int) numMenus];
-
-            int count = 0;
-            for (int i = 0; i < numMenus; i++) {
-                menuTemplateFile.contributions[i] = new CommonSubmenuContribution();
-                int numCount = 0;
-                if (list.size() - count < perMenu) {
-                    numCount = list.size() - count;
-                    ((CommonSubmenuContribution) menuTemplateFile.contributions[i]).contributions = new CommonIncludeMenuContribution[list
-                            .size() - count];
-                    ((CommonSubmenuContribution) menuTemplateFile.contributions[i]).menuText = ((CommonIncludeMenuContribution) list
-                            .get(count)).substitutions[0].value
-                            + "-"
-                            + ((CommonIncludeMenuContribution) list.get(perMenu
-                                    * i + list.size() - count - 1)).substitutions[0].value;
-                } else {
-                    numCount = perMenu;
-                    ((CommonSubmenuContribution) menuTemplateFile.contributions[i]).contributions = new CommonIncludeMenuContribution[perMenu];
-                    ((CommonSubmenuContribution) menuTemplateFile.contributions[i]).menuText = ((CommonIncludeMenuContribution) list
-                            .get(count)).substitutions[0].value
-                            + "-"
-                            + ((CommonIncludeMenuContribution) list.get(perMenu
-                                    * (i + 1) - 1)).substitutions[0].value;
-                }
-                for (int j = 0; j < numCount; j++) {
-                    ((CommonSubmenuContribution) menuTemplateFile.contributions[i]).contributions[j] = list
-                            .get(count);
-                    count++;
-                }
-            }
-        }
-
-        toXml(menuTemplateFile, "menus" + File.separator + "radar"
-                + File.separator + "dialRadars.xml");
 
         CommonSubmenuContribution submenuContribution = new CommonSubmenuContribution();
         List<CommonAbstractMenuContribution> contributions = new ArrayList<CommonAbstractMenuContribution>();
@@ -297,7 +187,6 @@ public class RadarMenuUtil extends AbstractMenuUtil implements
                     .size()];
             submenuContribution.menuText = "ASR-11 Radar";
             submenuContribution.id = "asr11radarsubmenu";
-            menuTemplateFile = new MenuTemplateFile();
             for (int i = radars.size() - 1; i >= 0; i--) {
                 includeMenuContribution = new CommonIncludeMenuContribution();
                 vars = new VariableSubstitution[1];

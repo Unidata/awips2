@@ -231,7 +231,7 @@ public final class AfosBrowserModel {
         radarIDList.addAll(RadarsInUseUtil.getSite(curSite,
                 RadarsInUseUtil.ASR_CONSTANT));
         radarIDList.addAll(RadarsInUseUtil.getSite(curSite,
-                RadarsInUseUtil.DIAL_CONSTANT));
+                RadarsInUseUtil.MOSAIC_CONSTANT));
         radarIDList.addAll(RadarsInUseUtil.getSite(curSite,
                 RadarsInUseUtil.LOCAL_CONSTANT));
         List<String> radarIDListTrunc = new ArrayList<String>();

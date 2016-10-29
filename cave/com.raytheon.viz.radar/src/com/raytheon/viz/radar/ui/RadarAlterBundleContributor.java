@@ -103,7 +103,7 @@ public class RadarAlterBundleContributor extends AlterBundleContributorAdapter {
         List<String> radars = new ArrayList<String>(RadarsInUseUtil.getSite(
                 site, RadarsInUseUtil.LOCAL_CONSTANT));
         radars.addAll(RadarsInUseUtil.getSite(site,
-                RadarsInUseUtil.DIAL_CONSTANT));
+                RadarsInUseUtil.MOSAIC_CONSTANT));
         radars.addAll(RadarsInUseUtil.getSite(site,
                 RadarsInUseUtil.ARSR_CONSTANT));
         radars.addAll(RadarsInUseUtil.getSite(site,
