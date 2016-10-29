@@ -78,6 +78,8 @@ do
    grep -rl 'MINY'  $CAVE_DIR/bundles/scales/WFO.xml | xargs sed -i 's/MINY/'$miny'/g'
    grep -rl 'MAXY'  $CAVE_DIR/bundles/scales/WFO.xml | xargs sed -i 's/MAXY/'$maxy'/g'
 
+   cp $CAVE_DIR/bundles/scales/WFO.xml /home/awips/awips2-core/viz/com.raytheon.uf.viz.core.maps/localization/bundles/scales/WFO/$site.xml
+
    lowx=$(cat $regional  |grep $site | cut -d"," -f4  | tr -d '[[:space:]]')
    highx=$(cat $regional |grep $site | cut -d"," -f5  | tr -d '[[:space:]]')
    lowy=$(cat $regional  |grep $site | cut -d"," -f6  | tr -d '[[:space:]]')
