@@ -42,11 +42,6 @@
 
              <command
                    commandId="com.raytheon.viz.ui.actions.titleAction"
-                   label="------ Profiler ------" id="PROFILER">
-             </command>
-             <separator name="ProfilerMenuEnd" visible="false"/>
-             <command
-                   commandId="com.raytheon.viz.ui.actions.titleAction"
                    label="------ Radar ------" id="RADAR">
                 
              </command>
