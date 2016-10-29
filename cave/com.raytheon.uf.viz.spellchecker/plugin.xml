@@ -20,15 +20,4 @@
     -->
 <?eclipse version="3.8"?>
 <plugin>
-   <extension
-         point="com.raytheon.uf.viz.localization.localizationpath">
-      <path
-            application="TextWS"
-            extensionFilter=".txt"
-            localizationType="CAVE_STATIC"
-            name="Spell Checker"
-            recursive="false"
-            value="spellchecker">
-      </path>
-   </extension>
 </plugin>

@@ -1702,13 +1702,6 @@
        <path
           application="D2D"
           localizationType="CAVE_STATIC"
-          name="Procedures"
-          value="procedures" 
-          recursive="true">
-       </path>
-       <path
-          application="D2D"
-          localizationType="CAVE_STATIC"
           name="Map Scales"
           value="bundles/scales" 
           recursive="true">

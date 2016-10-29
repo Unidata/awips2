@@ -19,48 +19,48 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
+		<contribute xsi:type="bundleItem" file="bundles/grid/DefaultSurface.xml"
 			menuText="GFS" id="gfssurface" useReferenceTime="true">
 			<substitute key="modelName" value="GFS"/>
 			<substitute key="TP" value="TP"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
+		<contribute xsi:type="bundleItem" file="bundles/grid/DefaultSurface.xml"
 			menuText="${ARWmodel1}" id="arwEastsurface" useReferenceTime="true" suppressErrors="${ARWsuppress1;false}">
 			<substitute key="modelName" value="${ARWmodel1}"/>
 			<substitute key="TP" value="TP3hr"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
+		<contribute xsi:type="bundleItem" file="bundles/grid/DefaultSurface.xml"
 			menuText="${ARWmodel2}" id="arwWestsurface" useReferenceTime="true" suppressErrors="${ARWsuppress2;false}">
 			<substitute key="modelName" value="${ARWmodel2}"/>
 			<substitute key="TP" value="TP3hr"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
+		<contribute xsi:type="bundleItem" file="bundles/grid/DefaultSurface.xml"
 			menuText="${MMMmodel1}" id="mmmEastsurface" useReferenceTime="true" suppressErrors="${MMMsuppress1;false}">
 			<substitute key="modelName" value="${MMMmodel1}"/>
 			<substitute key="TP" value="TP3hr"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
+		<contribute xsi:type="bundleItem" file="bundles/grid/DefaultSurface.xml"
 			menuText="${MMMmodel2}" id="mmmWestsurface" useReferenceTime="true" suppressErrors="${MMMsuppress2;false}">
 			<substitute key="modelName" value="${MMMmodel2}"/>
 			<substitute key="TP" value="TP3hr"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/HRRR.xml"
+		<contribute xsi:type="bundleItem" file="bundles/grid/HRRR.xml"
 			menuText="HRRR" id="hrrrsurface" useReferenceTime="true">
 			<substitute key="modelName" value="HRRR"/>
 			<substitute key="TP" value="TP1hr"/>
 			<substitute key="frameCount" value="16"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
+		<contribute xsi:type="bundleItem" file="bundles/grid/DefaultSurface.xml"
 			menuText="NAM 12km" id="nam12surface" useReferenceTime="true">
 			<substitute key="modelName" value="NAM12"/>
 			<substitute key="TP" value="TP3hr"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
+		<contribute xsi:type="bundleItem" file="bundles/grid/DefaultSurface.xml"
 			menuText="NAM 40km" id="nam40surface" useReferenceTime="true">
 			<substitute key="modelName" value="NAM40"/>
 			<substitute key="TP" value="TP3hr"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
+		<contribute xsi:type="bundleItem" file="bundles/grid/DefaultSurface.xml"
 			menuText="RAP 13km" id="rap13surface" useReferenceTime="true">
 			<substitute key="modelName" value="RAP13"/>
 			<substitute key="TP" value="TP3hr"/>

@@ -21,150 +21,150 @@
 -->
 <menuContributionFile>
 	<include installTo="menu:models" 
-             fileName="menus/volume/cmcFamilies.xml">
+             fileName="menus/grid/cmcFamilies.xml">
              <substitute key="modelName" value="CMC" />
              <substitute key="menuName" value="CMC" />
              <substitute key="frameCount" value="19" />
              <substitute key="TP" value="TP"/>
     </include>
 	<include installTo="menu:models" 
-             fileName="menus/volume/allFamilies.xml">
+             fileName="menus/grid/allFamilies.xml">
              <substitute key="modelName" value="DGEX" />
              <substitute key="menuName" value="DGEX" />
              <substitute key="frameCount" value="41" />
              <substitute key="TP" value="TP"/>
     </include>
 	<include installTo="menu:models" 
-             fileName="menus/volume/allFamilies.xml">
+             fileName="menus/grid/allFamilies.xml">
              <substitute key="modelName" value="GFS" />
              <substitute key="menuName" value="GFS Global" />
              <substitute key="frameCount" value="180" />
              <substitute key="TP" value="TP"/>
     </include>
 	<include installTo="menu:models" 
-             fileName="menus/volume/allFamilies.xml">
+             fileName="menus/grid/allFamilies.xml">
              <substitute key="modelName" value="GFS20" />
              <substitute key="menuName" value="GFS 20km" />
              <substitute key="frameCount" value="41" />
              <substitute key="TP" value="TP"/>
     </include>
 	<include installTo="menu:models" 
-             fileName="menus/volume/lampFamilies.xml">
+             fileName="menus/grid/lampFamilies.xml">
              <substitute key="modelName" value="LAMP2p5" />
              <substitute key="menuName" value="GFS-LAMP" />
              <substitute key="frameCount" value="41" />
              <substitute key="TP" value="TP"/>
     </include>
 	<include installTo="menu:models" 
-             fileName="menus/volume/allFamilies.xml">
+             fileName="menus/grid/allFamilies.xml">
              <substitute key="modelName" value="HRRR" />
              <substitute key="menuName" value="HRRR" />
              <substitute key="frameCount" value="19" />
              <substitute key="TP" value="TP"/>
     </include>
 	<include installTo="menu:models" 
-             fileName="menus/volume/allFamilies.xml">
+             fileName="menus/grid/allFamilies.xml">
              <substitute key="modelName" value="NAM12" />
              <substitute key="menuName" value="NAM 12km" />
              <substitute key="frameCount" value="41" />
              <substitute key="TP" value="TP3hr"/>
     </include>
 	<include installTo="menu:models" 
-             fileName="menus/volume/allFamilies.xml">
+             fileName="menus/grid/allFamilies.xml">
              <substitute key="modelName" value="NAM40" />
              <substitute key="menuName" value="NAM 40km" />
              <substitute key="frameCount" value="41" />
              <substitute key="TP" value="TP3hr"/>
     </include>
 	<include installTo="menu:models" 
-             fileName="menus/volume/allFamilies.xml">
+             fileName="menus/grid/allFamilies.xml">
              <substitute key="modelName" value="NamDNG" />
              <substitute key="menuName" value="NamDNG 2.5km" />
              <substitute key="frameCount" value="41" />
              <substitute key="TP" value="TP3hr"/>
     </include>
     <include installTo="menu:models" 
-             fileName="menus/volume/allFamilies.xml">
+             fileName="menus/grid/allFamilies.xml">
              <substitute key="modelName" value="NAVGEM" />
              <substitute key="menuName" value="NAVGEM" />
              <substitute key="frameCount" value="63" />
              <substitute key="TP" value="TP3hr"/>
     </include>
 	<include installTo="menu:models" 
-             fileName="menus/volume/allFamilies.xml">
+             fileName="menus/grid/allFamilies.xml">
              <substitute key="modelName" value="RAP13" />
              <substitute key="menuName" value="RAP 13km" />
              <substitute key="frameCount" value="19" />
              <substitute key="TP" value="TP"/>
     </include>
 	<include installTo="menu:models" 
-             fileName="menus/volume/allFamilies.xml">
+             fileName="menus/grid/allFamilies.xml">
              <substitute key="modelName" value="RAP20" />
              <substitute key="menuName" value="RAP 20km" />
              <substitute key="frameCount" value="19" />
              <substitute key="TP" value="TP"/>
     </include>
 	<include installTo="menu:models" 
-             fileName="menus/volume/allFamilies.xml">
+             fileName="menus/grid/allFamilies.xml">
              <substitute key="modelName" value="RAP40" />
              <substitute key="menuName" value="RAP 40km" />
              <substitute key="frameCount" value="19" />
              <substitute key="TP" value="TP"/>
     </include>
 	<include installTo="menu:models" 
-             fileName="menus/volume/mesoFamilies.xml">
+             fileName="menus/grid/mesoFamilies.xml">
              <substitute key="modelName" value="NDFD" />
              <substitute key="menuName" value="NDFD" />
              <substitute key="frameCount" value="2" />
              <substitute key="TP" value="TP"/>
     </include>
 	<include installTo="menu:models" 
-             fileName="menus/volume/mesoFamilies.xml">
+             fileName="menus/grid/mesoFamilies.xml">
              <substitute key="modelName" value="RTMA" />
              <substitute key="menuName" value="RTMA" />
              <substitute key="frameCount" value="2" />
              <substitute key="TP" value="TP"/>
     </include>
 	<include installTo="menu:models" 
-             fileName="menus/volume/mesoFamilies.xml">
+             fileName="menus/grid/mesoFamilies.xml">
              <substitute key="modelName" value="URMA25" />
              <substitute key="menuName" value="URMA" />
              <substitute key="frameCount" value="2" />
              <substitute key="TP" value="TP"/>
     </include>
 	<include installTo="menu:models" 
-             fileName="menus/volume/baseComparisonFamilies.xml">
+             fileName="menus/grid/baseComparisonFamilies.xml">
     </include>
     <include installTo="menu:models" 
-             fileName="menus/volume/ww3.xml">
+             fileName="menus/grid/ww3.xml">
              <substitute key="modelName" value="FNMOC-WW3" />
              <substitute key="menuName" value="FNMOC WW3" />
              <substitute key="frameCount" value="39" />
              <substitute key="TP" value="TP"/>
     </include>
     <include installTo="menu:models" 
-             fileName="menus/volume/WaveWatch.xml">
+             fileName="menus/grid/WaveWatch.xml">
              <substitute key="modelName" value="WaveWatch" />
              <substitute key="menuName" value="NOAA WW3" />
              <substitute key="frameCount" value="32" />
              <substitute key="TP" value="TP"/>
     </include>
 	<include installTo="menu:models" 
-             fileName="menus/volume/WaveWatch.xml">
+             fileName="menus/grid/WaveWatch.xml">
              <substitute key="modelName" value="GlobalWave" />
              <substitute key="menuName" value="NCEP WW3 Global" />
              <substitute key="frameCount" value="32" />
              <substitute key="TP" value="TP"/>
     </include>
    	<include installTo="menu:models" 
-             fileName="menus/volume/oceanFamilies.xml">
+             fileName="menus/grid/oceanFamilies.xml">
              <substitute key="modelName" value="ESTOFS" />
              <substitute key="menuName" value="ESTOFS" />
              <substitute key="frameCount" value="41" />
              <substitute key="TP" value="TP"/>
     </include>
 	<include installTo="menu:models" 
-             fileName="menus/volume/oceanFamilies.xml">
+             fileName="menus/grid/oceanFamilies.xml">
              <substitute key="modelName" value="ETSS" />
              <substitute key="menuName" value="ETSS Storm Surge" />
              <substitute key="frameCount" value="41" />

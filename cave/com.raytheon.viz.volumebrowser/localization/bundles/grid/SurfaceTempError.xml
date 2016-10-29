@@ -40,14 +40,14 @@
                         <alertParser xsi:type="dataCubeAlertMessageParser"/>
                     </resourceData>
                 </resource>
- <resource>
+ 				<resource>
                             <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
                                 <resourceType>PLAN_VIEW</resourceType>
                                 <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="true"/>
                                 <capabilities>
                                     <capability xsi:type="magnificationCapability" magnification="1.0"/>
                                     <capability xsi:type="densityCapability" density="0.75"/>
-                                    <capability xsi:type="colorableCapability" colorAsString="black"/>        
+                                    <capability xsi:type="colorableCapability" colorAsString="gray30"/>        
                                     <capability xsi:type="displayTypeCapability" displayType="CONTOUR"/>
                                     <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
                                 </capabilities>
@@ -58,7 +58,7 @@
                             <resourceData xsi:type="gridResourceData" sampling="true" spatial="false" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
                         <metadataMap>
                             <mapping key="info.parameter.abbreviation">
-                                <constraint constraintValue="T" constraintType="EQUALS"/>
+                                <constraint constraintValue="Terranl" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.datasetId">
                                 <constraint constraintValue="${modelName}" constraintType="EQUALS"/>
@@ -140,7 +140,7 @@
                     <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
                         <metadataMap>
                             <mapping key="info.parameter.abbreviation">
-                                <constraint constraintValue="T" constraintType="EQUALS"/>
+                                <constraint constraintValue="Terranl" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.datasetId">
                                 <constraint constraintValue="${modelName}" constraintType="EQUALS"/>

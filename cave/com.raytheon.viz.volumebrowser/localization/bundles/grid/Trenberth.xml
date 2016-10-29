@@ -59,7 +59,7 @@
                                     <capability xsi:type="magnificationCapability" magnification="1.0"/>
                                     <capability xsi:type="displayTypeCapability" displayType="CONTOUR"/>
                                     <capability xsi:type="densityCapability" density="0.25"/>
-                                    <capability xsi:type="colorableCapability" colorAsString="black"/>
+                                    <capability xsi:type="colorableCapability" colorAsString="gray30"/>
                                 </capabilities>
                             </loadProperties>
                             <properties isVisible="true" isHoverOn="false" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="CONTOUR">

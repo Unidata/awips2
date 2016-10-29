@@ -20,26 +20,17 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<contribute xsi:type="subMenu" menuText="${menuName}">
-		<contribute xsi:type="bundleItem" file="bundles/volume/WW3-TSWH.xml"
-			    menuText="Significant Wave Height" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
+		<contribute xsi:type="bundleItem" file="bundles/grid/2mTemperature.xml"
+			    menuText="2m Temperature and 10m Wind" id="" useReferenceTime="true">
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/WW3-WVHGT.xml"
-			    menuText="Wind Wave Height" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
+		<contribute xsi:type="bundleItem" file="bundles/grid/DewpointTemp.xml"
+			    menuText="2m Dewpoint Temperature" id="" useReferenceTime="true">
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/WW3-SwellHeightDirection.xml"
-			    menuText="Swell Height and Direction" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
+		<contribute xsi:type="bundleItem" file="bundles/grid/SfcRH.xml"
+			    menuText="Sfc Relative Humidity" id="" useReferenceTime="true">
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/WW3-PeakWavePeriod.xml"
-			    menuText="Peak Wave Period" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
-		</contribute>
-		<contribute xsi:type="titleItem" titleText="------------------------"/>
-		<contribute xsi:type="bundleItem" file="bundles/volume/WW3-FourPanel.xml"
-			    menuText="Four Panel Display" id="" useReferenceTime="true">
-			<substitute key="frameCount" value="${frameCount}"/>
+		<contribute xsi:type="bundleItem" file="bundles/grid/Precip.xml"
+			    menuText="1 Hr Precip Accumulation" id="" useReferenceTime="true">
 		</contribute>
 	</contribute>
 </menuTemplate>

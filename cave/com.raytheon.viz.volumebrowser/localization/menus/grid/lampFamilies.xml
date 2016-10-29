@@ -20,34 +20,34 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<contribute xsi:type="subMenu" menuText="${menuName}">
-		<contribute xsi:type="bundleItem" file="bundles/volume/SurfaceTempWind.xml"
+		<contribute xsi:type="bundleItem" file="bundles/grid/SurfaceTempWind.xml"
 			    menuText="Sfc Temperature" id="" useReferenceTime="true">
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/SurfaceTempError.xml"
+		<contribute xsi:type="bundleItem" file="bundles/grid/SurfaceTempError.xml"
 			    menuText="Sfc Temperature Error" id="" useReferenceTime="true">
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/DewpointTemp.xml"
+		<contribute xsi:type="bundleItem" file="bundles/grid/DewpointTemp.xml"
 			    menuText="Sfc Dewpoint Temperature" id="" useReferenceTime="true">
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/DewpointTempError.xml"
+		<contribute xsi:type="bundleItem" file="bundles/grid/DewpointTempError.xml"
 			    menuText="Sfc Dewpoint Temperature Error" id="" useReferenceTime="true">
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/SfcRH.xml"
+		<contribute xsi:type="bundleItem" file="bundles/grid/SfcRH.xml"
 			    menuText="Sfc Relative Humidity" id="" useReferenceTime="true">
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/CeilingHeight.xml"
+		<contribute xsi:type="bundleItem" file="bundles/grid/CeilingHeight.xml"
 			    menuText="Ceiling Height" id="" useReferenceTime="true">
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/LightningPotential.xml"
+		<contribute xsi:type="bundleItem" file="bundles/grid/LightningPotential.xml"
 			    menuText="2hr Lightning Potential" id="" useReferenceTime="true">
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/LightningProbability.xml"
+		<contribute xsi:type="bundleItem" file="bundles/grid/LightningProbability.xml"
 			    menuText="2hr Lightning Probability" id="" useReferenceTime="true">
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/ConvectionPotential.xml"
+		<contribute xsi:type="bundleItem" file="bundles/grid/ConvectionPotential.xml"
 			    menuText="2hr Convection Potential" id="" useReferenceTime="true">
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/ConvectionProbability.xml"
+		<contribute xsi:type="bundleItem" file="bundles/grid/ConvectionProbability.xml"
 			    menuText="2hr Convection Probability" id="" useReferenceTime="true">
 		</contribute>
 	</contribute>

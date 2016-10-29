@@ -19,55 +19,55 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFourPanel.xml"
+		<contribute xsi:type="bundleItem" file="bundles/grid/DefaultFourPanel.xml"
 			menuText="DGEX" id="dgex4panel" useReferenceTime="true">
 			<substitute key="modelName" value="DGEX"/>
 			<substitute key="TP" value="TP"/>
 			<substitute key="frameCount" value="41"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFourPanel.xml"
+		<contribute xsi:type="bundleItem" file="bundles/grid/DefaultFourPanel.xml"
 			menuText="GFS" id="gfs4panel" useReferenceTime="true">
 			<substitute key="modelName" value="GFS"/>
 			<substitute key="TP" value="TP"/>
 			<substitute key="frameCount" value="41"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFourPanel.xml"
+		<contribute xsi:type="bundleItem" file="bundles/grid/DefaultFourPanel.xml"
 			menuText="GFS 40km" id="gfs404panel" useReferenceTime="true">
 			<substitute key="modelName" value="GFS40"/>
 			<substitute key="TP" value="TP6hr"/>
 			<substitute key="frameCount" value="41"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFourPanel.xml"
+		<contribute xsi:type="bundleItem" file="bundles/grid/DefaultFourPanel.xml"
 			menuText="NAM 12km" id="nam124panel" useReferenceTime="true">
 			<substitute key="modelName" value="NAM12"/>
 			<substitute key="TP" value="TP3hr"/>
 			<substitute key="frameCount" value="29"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFourPanel.xml"
+		<contribute xsi:type="bundleItem" file="bundles/grid/DefaultFourPanel.xml"
 			menuText="NAM 40km" id="nam404panel" useReferenceTime="true">
 			<substitute key="modelName" value="NAM40"/>
 			<substitute key="TP" value="TP3hr"/>
 			<substitute key="frameCount" value="29"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFourPanel.xml"
+		<contribute xsi:type="bundleItem" file="bundles/grid/DefaultFourPanel.xml"
 			menuText="NamDNG" id="namDng4panel" useReferenceTime="true">
 			<substitute key="modelName" value="NamDNG"/>
 			<substitute key="TP" value="TP6hr"/>
 			<substitute key="frameCount" value="15"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFourPanel.xml"
+		<contribute xsi:type="bundleItem" file="bundles/grid/DefaultFourPanel.xml"
 			menuText="RAP 13km" id="rap134panel" useReferenceTime="true">
 			<substitute key="modelName" value="RAP-13km"/>
 			<substitute key="TP" value="TP3hr"/>
 			<substitute key="frameCount" value="19"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFourPanel.xml"
+		<contribute xsi:type="bundleItem" file="bundles/grid/DefaultFourPanel.xml"
 			menuText="HRRR" id="rap4panel" useReferenceTime="true">
 			<substitute key="modelName" value="HRRR"/>
 			<substitute key="TP" value="TP3hr"/>
 			<substitute key="frameCount" value="9"/>
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFourPanel.xml"
+		<contribute xsi:type="bundleItem" file="bundles/grid/DefaultFourPanel.xml"
 			menuText="NAVGEM" id="navgem4panel" useReferenceTime="true">
 			<substitute key="modelName" value="NAVGEM"/>
 			<substitute key="TP" value="TP3hr"/>

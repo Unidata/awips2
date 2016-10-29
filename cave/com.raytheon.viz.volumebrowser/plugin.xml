@@ -56,14 +56,14 @@
        <path
           application="D2D"
           localizationType="CAVE_STATIC"
-          name="Volume Browser"
+          name="Volume Browser Sources"
           value="volumebrowser" 
           recursive="true">
        </path>
        <path
           application="D2D"
           localizationType="CAVE_STATIC"
-          name="Height Scales"
+          name="Volume Browser Height Scales"
           value="scales" 
           recursive="true">
        </path>
