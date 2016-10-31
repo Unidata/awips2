@@ -141,15 +141,11 @@ class DeployInstall
          DeployPythonPackages.deploy(this.pythonRootDirectory, 
             this.projectInformationMap["pythonPackages"], this.pythonPackagesToDeploy)
       }
-      if (this.localizationSitesToDeploy.length > 0)
-      {
-         for (String localizationSite : this.localizationSitesToDeploy)
-         {
-            String localizationProject = "localization." + localizationSite
-            DeployEdexSiteLocalization.deploy(this.edexRootDirectory, 
-               this.projectInformationMap[localizationProject], localizationSite)
-         }
-      }
+
+      String localizationProject = "localization"
+      DeployEdexSiteLocalization.deploy(this.edexRootDirectory, 
+         this.projectInformationMap[localizationProject], "BOU")
+
    }
 
    // remove the existing deployment
