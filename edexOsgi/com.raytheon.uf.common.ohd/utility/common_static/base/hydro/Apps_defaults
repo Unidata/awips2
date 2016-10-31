@@ -153,7 +153,7 @@ hv_map_width       : 860     # HydroView map width (nautical miles)
 whfs_primary_radar : FTG     # WHFS primary radar id, for Stage II 
 whfs_tz            : MST6MDT # WHFS time zone code 
 
-apps_dir           : $(SHARE_DIR)/hydroapps   # Hydrologic applications directory
+apps_dir           : /awips2/edex/data/share/hydroapps   # Hydrologic applications directory
 
 data_archive_root  : /awips2/data_store  # root directory of the data archive
 
@@ -1148,7 +1148,7 @@ dsp_error_dir    : $(pproc_local_data)/dsp_error   # DSP error files
 dsp_arch_dir     : $(pproc_local_data)/dsp_archive # DSP archives
 
 
-hpe_grib_input_dir     :  $(EDEX_HOME)/data/local/hpegrib                                       
+hpe_grib_input_dir     :  /awips2/edex/data/local/hpegrib
 hpe_generate_list      :  DHRMOSAIC,BDHRMOSAIC,ERMOSAIC,LSATPRE,EBMOSAIC
 hpe_qpe_fieldtype      :  ERMOSAIC  # field type to be saved as qpe
 

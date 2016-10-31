@@ -70,6 +70,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * Jan 26, 2016 5264       bkowal       Added validation of certain directories. Fixed
  *                                      warnings.
  * Feb 01, 2016 5264       bkowal       Replace status handler with slf4j logging.
+ * Oct 31, 2016            mjames@ucar  Less logging.
  * 
  * </pre>
  * 
@@ -185,7 +186,6 @@ public class AppsDefaults {
 
             baseMap = new HashMap<>();
             if (_appsDefaultsNationalFile.exists()) {
-                logger.info("BASE file exists, updating map...");
                 update(baseMap, _appsDefaultsNationalFile);
                 tokenSet.addAll(baseMap.keySet());
             }
@@ -206,8 +206,6 @@ public class AppsDefaults {
 
     private void checkAppsDefaults(Map<String, String> propertiesMap,
             String containingFile) {
-        logger.info("Validating Apps Defaults properties in: " + containingFile
-                + " ...");
         for (String key : AppsDefaultsDirKeys.DIR_KEYS_TO_VALIDATE) {
             String valueToValidate = propertiesMap.get(key);
             if (valueToValidate == null) {
@@ -233,8 +231,6 @@ public class AppsDefaults {
                     .append(".");
             logger.error(sb.toString());
         }
-        logger.info("Finished validation of Apps Defaults properties in: "
-                + containingFile + ".");
     }
 
     private void updateDirectories() {
@@ -249,8 +245,6 @@ public class AppsDefaults {
         if (_appsDefaultsUserFile.exists()) {
             logger.info("Setting user Apps_defaults file: "
                     + _appsDefaultsUserFile);
-        } else {
-            logger.info("No user Apps_defaults file found.");
         }
 
         _appsDefaultsSiteFile = pm.getLocalizationFile(pm.getContext(
@@ -260,16 +254,13 @@ public class AppsDefaults {
             logger.info("Setting site Apps_defaults file: "
                     + _appsDefaultsSiteFile);
         } else {
-            logger.warn("No site Apps_defaults file found.");
+            logger.info("No site Apps_defaults file found.");
         }
 
         _appsDefaultsNationalFile = pm.getLocalizationFile(pm.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.BASE),
                 Apps_defaults_FILENAME);
-        if (_appsDefaultsNationalFile.exists()) {
-            logger.info("Setting base Apps_defaults file: "
-                    + _appsDefaultsNationalFile);
-        } else {
+        if ( !_appsDefaultsNationalFile.exists()) {
             logger.error("No base Apps_defaults file found.");
         }
 
@@ -307,7 +298,6 @@ public class AppsDefaults {
         if (file != null && file.exists()) {
             BufferedReader reader = null;
             try {
-                logger.info("Reading " + file + " into AppsDefaults");
                 reader = new BufferedReader(new InputStreamReader(
                         file.openInputStream()));
                 String line = null;
