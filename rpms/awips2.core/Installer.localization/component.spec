@@ -68,7 +68,10 @@ do
    CAVE_DIR=$UTIL/cave_static/site/$site
    mkdir -p $CAVE_DIR
    cp -R $BUILD_DIR/utility/cave_static/* $CAVE_DIR
-   
+
+   mkdir -p ~/awips2-builds/localization/localization/utility/cave_static/site/$site
+   cp -R $BUILD_DIR/utility/cave_static/* ~/awips2-builds/localization/localization/utility/cave_static/site/$site
+
    grep -rl 'LOWX'  $CAVE_DIR/bundles/scales/WFO.xml | xargs sed -i 's/LOWX/'$lowx'/g'
    grep -rl 'HIGHX' $CAVE_DIR/bundles/scales/WFO.xml | xargs sed -i 's/HIGHX/'$highx'/g'
    grep -rl 'LOWY'  $CAVE_DIR/bundles/scales/WFO.xml | xargs sed -i 's/LOWY/'$lowy'/g'
@@ -78,7 +81,7 @@ do
    grep -rl 'MINY'  $CAVE_DIR/bundles/scales/WFO.xml | xargs sed -i 's/MINY/'$miny'/g'
    grep -rl 'MAXY'  $CAVE_DIR/bundles/scales/WFO.xml | xargs sed -i 's/MAXY/'$maxy'/g'
 
-   cp $CAVE_DIR/bundles/scales/WFO.xml /home/awips/awips2-core/viz/com.raytheon.uf.viz.core.maps/localization/bundles/scales/WFO/$site.xml
+   cp $CAVE_DIR/bundles/scales/WFO.xml ~/awips2-core/viz/com.raytheon.uf.viz.core.maps/localization/bundles/scales/WFO/$site.xml
 
    lowx=$(cat $regional  |grep $site | cut -d"," -f4  | tr -d '[[:space:]]')
    highx=$(cat $regional |grep $site | cut -d"," -f5  | tr -d '[[:space:]]')
