@@ -21,16 +21,16 @@
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
 <link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
 <link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
-<link href="/awips2/css/site2.css?20161028" rel="stylesheet">
-<link href="/awips2/css/site2_sd_rules.css?20161028" rel="stylesheet" shim-shadowdom>
+<link href="/awips2/css/site2.css?20161031" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20161031" rel="stylesheet" shim-shadowdom>
 
 
 
-<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20161028"></script>
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20161031"></script>
 <!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
 <link rel="import" href="/awips2/components/polymer/polymer.html">
 <link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
-<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20161028">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20161031">
 
 
 </head>
@@ -83,7 +83,7 @@
 <ul id="markdown-toc">
   <li><a href="#default-ldm-feeds-for-edex" id="markdown-toc-default-ldm-feeds-for-edex">Default LDM Feeds for EDEX</a></li>
   <li><a href="#optional-ldm-feeds" id="markdown-toc-optional-ldm-feeds">Optional LDM Feeds</a></li>
-  <li><a href="#stop--start-the-ldm" id="markdown-toc-stop--start-the-ldm">Stop &amp; Start the LDM</a></li>
+  <li><a href="#restart-the-ldm" id="markdown-toc-restart-the-ldm">Restart the LDM</a></li>
   <li><a href="#monitor-incoming-data-feeds" id="markdown-toc-monitor-incoming-data-feeds">Monitor Incoming Data Feeds</a></li>
   <li><a href="#logging" id="markdown-toc-logging">Logging</a></li>
 </ul>
@@ -93,22 +93,16 @@
 
 <p>from <code>/awips2/ldm/etc/ldmd.conf</code></p>
 
-<pre><code>REQUEST NEXRAD3 ".(DHR|DPR|DSP|DTA|DAA|DVL|EET|HHC|N0Q|N0S|N0U|OHA).*" idd.unidata.ucar.edu
+<pre><code>REQUEST NEXRAD3 "./p(DHR|DPR|DSP|DTA|DAA|DVL|EET|HHC|N0Q|N0S|N0U|OHA|NVW|NTV|NST)." idd.unidata.ucar.edu
 REQUEST FNEXRAD|IDS|DDPLUS|UNIWISC ".*" idd.unidata.ucar.edu
 REQUEST NGRID ".*" idd.unidata.ucar.edu
 REQUEST NOTHER "^TIP... KNES.*" idd.unidata.ucar.edu
 REQUEST HDS|NIMAGE ".*" idd.unidata.ucar.edu
 
-REQUEST CONDUIT ".(pgrb2.0p50|awip12|awip3d|awp236|awp252|nwstg/NWS_0).[0]$"    idd.unidata.ucar.edu
-REQUEST CONDUIT ".(pgrb2.0p50|awip12|awip3d|awp236|awp252|nwstg/NWS_0).[1]$"    idd.unidata.ucar.edu
-REQUEST CONDUIT ".(pgrb2.0p50|awip12|awip3d|awp236|awp252|nwstg/NWS_0).[2]$"    idd.unidata.ucar.edu
-REQUEST CONDUIT ".(pgrb2.0p50|awip12|awip3d|awp236|awp252|nwstg/NWS_0).[3]$"    idd.unidata.ucar.edu
-REQUEST CONDUIT ".(pgrb2.0p50|awip12|awip3d|awp236|awp252|nwstg/NWS_0).[4]$"    idd.unidata.ucar.edu
-REQUEST CONDUIT ".(pgrb2.0p50|awip12|awip3d|awp236|awp252|nwstg/NWS_0).[5]$"    idd.unidata.ucar.edu
-REQUEST CONDUIT ".(pgrb2.0p50|awip12|awip3d|awp236|awp252|nwstg/NWS_0).[6]$"    idd.unidata.ucar.edu
-REQUEST CONDUIT ".(pgrb2.0p50|awip12|awip3d|awp236|awp252|nwstg/NWS_0).[7]$"    idd.unidata.ucar.edu
-REQUEST CONDUIT ".(pgrb2.0p50|awip12|awip3d|awp236|awp252|nwstg/NWS_0).[8]$"    idd.unidata.ucar.edu
-REQUEST CONDUIT ".(pgrb2.0p50|awip12|awip3d|awp236|awp252|nwstg/NWS_0).[9]$"    idd.unidata.ucar.edu
+REQUEST CONDUIT "nam" idd.unidata.ucar.edu
+REQUEST CONDUIT "rap" idd.unidata.ucar.edu
+REQUEST CONDUIT "pgrb2" idd.unidata.ucar.edu
+REQUEST CONDUIT "nwstg" idd.unidata.ucar.edu
 </code></pre>
 
 <blockquote>
@@ -134,24 +128,12 @@ REQUEST        LIGHTNING       ".*"    idd.unidata.ucar.edu
 <pre><code>REQUEST FSL2 "^GRIB2.FSL.HRRR" hrrr.unidata.ucar.edu
 </code></pre>
 
-<h1 id="stop--start-the-ldm">Stop &amp; Start the LDM</h1>
+<h1 id="restart-the-ldm">Restart the LDM</h1>
 
-<ol>
-  <li>
-    <p>as user <code>root</code>:</p>
+<pre><code>sudo service edex_ldm restart
 
-    <pre><code> service edex_ldm stop
- service edex_ldm start
+ldmadmin restart
 </code></pre>
-  </li>
-  <li>
-    <p>as user <code>awips</code>:</p>
-
-    <pre><code> ldmadmin stop
- ldmadmin start
-</code></pre>
-  </li>
-</ol>
 
 <h1 id="monitor-incoming-data-feeds">Monitor Incoming Data Feeds</h1>
 
@@ -212,7 +194,7 @@ Aug 26 15:05:14 edextest edexBridge[5812] NOTE: Sent 17 messages (0 at the end o
 <script src="/awips2/js/prettify/prettify.js"></script>
 
 <!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
-<script src="/awips2/js/app.js?20161028"></script>
+<script src="/awips2/js/app.js?20161031"></script>
 
 
   </scroll-area>
