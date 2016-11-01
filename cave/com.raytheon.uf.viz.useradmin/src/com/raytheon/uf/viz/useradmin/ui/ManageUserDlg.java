@@ -36,14 +36,14 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.uf.common.plugin.nwsauth.xml.NwsRoleData;
 import com.raytheon.uf.common.plugin.nwsauth.xml.RoleXML;
 import com.raytheon.uf.common.plugin.nwsauth.xml.UserXML;
-import com.raytheon.uf.viz.plugin.nwsauth.NwsRoleDataManager;
+import com.raytheon.uf.viz.plugin.userauth.UserRoleDataManager;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.widgets.duallist.DualList;
 import com.raytheon.viz.ui.widgets.duallist.DualListConfig;
 import com.raytheon.viz.ui.widgets.duallist.IUpdate;
 
 /**
- * Edit user di
+ * Edit user dialog.
  * 
  * <pre>
  * 
@@ -178,7 +178,7 @@ public class ManageUserDlg extends CaveSWTDialog implements IUpdate {
         stackComp.setLayout(stackLayout);
         stackComp.setLayoutData(gd);
 
-        NwsRoleDataManager manager = NwsRoleDataManager.getInstance();
+        UserRoleDataManager manager = UserRoleDataManager.getInstance();
         ArrayList<String> selectedList = new ArrayList<String>();
         ArrayList<String> fullList = new ArrayList<String>();
         String availableLabel = "Available Roles:";
@@ -309,7 +309,7 @@ public class ManageUserDlg extends CaveSWTDialog implements IUpdate {
         String[] permissions = permDualList.getSelectedListItems();
         String[] roles = roleDualList.getSelectedListItems();
 
-        NwsRoleDataManager man = NwsRoleDataManager.getInstance();
+        UserRoleDataManager man = UserRoleDataManager.getInstance();
         NwsRoleData roleData = man.getRoleData(application);
 
         if (type.equalsIgnoreCase("User")) {

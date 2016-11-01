@@ -21,7 +21,7 @@ javacFailOnError=true
 javacVerbose=true
 javacSource=1.7
 javacTarget=1.7
-compilerArg=-g:lines,source
+compilerArg=-g:lines,source -nowarn
 
 generate.p2.metadata=true
 p2.metadata.repo=file:/${buildDirectory}/repository

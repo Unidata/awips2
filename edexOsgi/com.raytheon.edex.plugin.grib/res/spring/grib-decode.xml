@@ -34,8 +34,8 @@
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.MSASPostProcessor</value>
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.OverwriteGribPostProcessor</value>
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.RTMAGribPostProcessor</value>
-                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.RUC130GribPostProcessor</value>
-                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.RUC236GribPostProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.RAP13GribPostProcessor</value>
+                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.RAP40GribPostProcessor</value>
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.TemperatureCorrectionPostProcessor</value>
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.precipitation.PrecipAccumPostProcessor</value>
             </list>

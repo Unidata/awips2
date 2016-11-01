@@ -33,6 +33,8 @@ do
    grep -rl 'xxx'   $CAVE_DIR/Radar_$sitell.xml | xargs sed -i 's/xxx/'$sitell'/g'
    grep -rl 'LATITUDE'  $CAVE_DIR/Radar_$sitell.xml | xargs sed -i 's/LATITUDE/'$lat'/g'
    grep -rl 'LONGITUDE' $CAVE_DIR/Radar_$sitell.xml | xargs sed -i 's/LONGITUDE/'$lon'/g'
+   
+   cp $CAVE_DIR/Radar_$sitell.xml /home/awips/awips2-core/viz/com.raytheon.uf.viz.core.maps/localization/bundles/scales/WSR88D/
 
 done
 

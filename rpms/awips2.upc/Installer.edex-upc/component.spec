@@ -11,8 +11,8 @@ BuildRoot: /tmp
 URL: N/A
 License: N/A
 Distribution: N/A
-Vendor: Unidata
-Packager: Michael James
+Vendor: %{_build_vendor}
+Packager: %{_build_site}
 
 AutoReq: no
 Requires: awips2-tools, awips2-edex-configuration, awips2-database-standalone-configuration

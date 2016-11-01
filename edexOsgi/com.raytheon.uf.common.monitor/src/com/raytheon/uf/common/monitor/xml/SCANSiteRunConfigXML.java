@@ -94,7 +94,7 @@ public class SCANSiteRunConfigXML {
         if (sites != null) {
             for (SCANSiteXML site : getSites()) {
                 if (site.getMenuLocation()
-                        .equals(RadarsInUseUtil.DIAL_CONSTANT)) {
+                        .equals(RadarsInUseUtil.MOSAIC_CONSTANT)) {
                     isites.add(site.getScanSite());
                 }
             }

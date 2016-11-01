@@ -32,7 +32,6 @@ javaUtilities/* rpms pythonPackages nativeLib/*
 ../awips2-ogc/features/*
 ../awips2-ogc/foss/*
 ../awips2-goesr/cave/*
-../awips2-goesr/cots/*
 ../awips2-goesr/edexOsgi/*
 ../awips2-nasa/edex/*
 ../awips2-nasa/features/*

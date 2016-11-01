@@ -17,8 +17,8 @@ BuildArch: %{_build_arch}
 URL: N/A
 License: N/A
 Distribution: N/A
-Vendor: Raytheon
-Packager: Bryan Kowal
+Vendor: %{_build_vendor}
+Packager: %{_build_site}
 
 AutoReq: no
 Provides: awips2-common-base
@@ -49,18 +49,15 @@ if [ $? -ne 0 ]; then
 fi
 
 %build
-_hybrid_target=buildHybrid
 
-_build_xml=build.xml
 BUILD_EDEX=%{_baseline_workspace}/build.edex
 EDEX_DIST=${BUILD_EDEX}/edex/dist
 
-_pde_build_arch=x86_64
-
 cd ${BUILD_EDEX}
-/awips2/ant/bin/ant -f ${_build_xml} \
-   -Dbuild.arch=${_pde_build_arch} \
-   -Duframe.eclipse=%{_uframe_eclipse} ${_hybrid_target}
+/awips2/ant/bin/ant -f build.xml \
+   -Dbuild.arch=x86_64 \
+   -Duframe.eclipse=%{_uframe_eclipse} \
+   buildHybrid
 if [ $? -ne 0 ]; then
    exit 1
 fi

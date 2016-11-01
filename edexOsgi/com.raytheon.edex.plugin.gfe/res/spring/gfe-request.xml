@@ -502,7 +502,7 @@
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
                     <to
-                        uri="log:svcBackup?level=ERROR"/>
+                        uri="log:svcBackup?level=WARN"/>
                 </doCatch>
             </doTry>
         </route>

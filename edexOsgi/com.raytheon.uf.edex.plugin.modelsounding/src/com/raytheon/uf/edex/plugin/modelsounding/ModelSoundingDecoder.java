@@ -86,8 +86,6 @@ import com.raytheon.uf.edex.plugin.modelsounding.decoder.ModelSoundingDataAdapte
 public class ModelSoundingDecoder extends AbstractDecoder implements
         IDescriptorFactorySelector {
 
-    public static final String SPI_FILE = "basemaps/modelBufr.spi";
-
     // Name of the plugin controlling this decoder.
     public static final String PLUGIN_NAME = "modelsounding";
 

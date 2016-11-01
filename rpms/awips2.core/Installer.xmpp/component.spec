@@ -19,8 +19,8 @@ BuildRoot: /tmp
 URL: %{_xmpp_software_url}
 License: %{_xmpp_software_license}
 Distribution: N/A
-Vendor: Raytheon
-Packager: Bryan Kowal
+Vendor: %{_build_vendor}
+Packager: %{_build_site}
 
 AutoReq: no
 requires: awips2-java

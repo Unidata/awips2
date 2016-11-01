@@ -11,31 +11,11 @@
 		<property name="modelSoundingPersistenceManager" ref="modelsoundingPersistenceManager" />
 	</bean>
 
-    <!-- Filter down sounding data -->
-    <!-- bean id="mdlsndgFilter" class="com.raytheon.uf.edex.decodertools.core.filterimpl.PluginDataObjectFilter">
-        <constructor-arg type="java.lang.String" value="modelSounding_filters.xml" />
-    </bean -->
-
 	<bean id="mdlsndgDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="modelsoundingPluginName" />
 		<constructor-arg value="jms-durable:queue:Ingest.modelsounding"/>
 	</bean>
-
-    <bean id="modelBufrListener" class="com.raytheon.uf.edex.plugin.modelsounding.ingest.ModelBufrSubscriber" />
-
-    <bean factory-bean="ndmProc" factory-method="registerListener">
-        <constructor-arg value="modelBufr.spi" />
-        <constructor-arg ref="modelBufrListener" />
-    </bean>
-    <bean factory-bean="ndmProc" factory-method="registerListener">
-        <constructor-arg value="modelBufrStationInfo.txt" />
-        <constructor-arg ref="modelBufrListener" />
-    </bean>
-    <bean factory-bean="ndmProc" factory-method="registerListener">
-        <constructor-arg value="modelBufrStationList.txt" />
-        <constructor-arg ref="modelBufrListener" />
-    </bean>
 
     <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
         <constructor-arg ref="modelsounding-camel"/>
@@ -46,20 +26,6 @@
 		xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler">
 		
-		<!--
-		<endpoint id="modelsndgFileEndpoint"
-		    uri="file:${edex.home}/data/sbn/mdlsndg?noop=true&amp;idempotent=false" />
-
-		<route id="modelsndgFileConsumerRoute">
-			<from ref="modelsndgFileEndpoint" />
-			<bean ref="fileToString" />
-            <setHeader headerName="pluginName">
-                <constant>modelsounding</constant>
-            </setHeader>
-			<to uri="jms-durable:queue:Ingest.modelsounding" />
-		</route>
-        -->
- 
 		<!-- Begin Model Sounding routes -->
 		<route id="modelsndgIngestRoute">
 			<from uri="jms-durable:queue:Ingest.modelsounding"/>

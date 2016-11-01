@@ -187,8 +187,6 @@
             	
             		<fileset dir="${buildDirectory}/../../static/win32.amd64" 
             			excludes="cave/**" />
-        		<zipfileset dir="${buildDirectory}/../../../rpms/legal" 
-        			includes="Master_Rights_File.pdf" prefix="alertviz"/>
             	</zip>
         </target>
 

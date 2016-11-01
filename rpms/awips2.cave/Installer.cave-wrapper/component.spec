@@ -20,7 +20,7 @@ BuildRoot: /tmp
 URL: N/A
 License: N/A
 Distribution: N/A
-Vendor: Raytheon
+Vendor: %{_build_vendor}
 Packager: %{_build_site}
 
 AutoReq: no
@@ -65,17 +65,6 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 mkdir -p ${RPM_BUILD_ROOT}/etc/xdg/autostart
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-mkdir -p ${RPM_BUILD_ROOT}/etc/profile.d
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-
-# The profile.d scripts
-PROFILE_D_DIR="%{_baseline_workspace}/rpms/common/environment/awips2-cave/profile.d"
-cp ${PROFILE_D_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -172,10 +161,6 @@ fi
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(644,root,root,-)
-/etc/profile.d/awips2Cave.csh
-/etc/profile.d/awips2Cave.sh
-
 %defattr(644,awips,fxalpha,755)
 %dir /awips2
 %dir /awips2/cave

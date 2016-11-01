@@ -25,7 +25,7 @@ import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 
 /**
  * Grib post processor implementation to eliminate 2-3hr duration grids from the
- * RUC130 model
+ * RAP13 model
  *
  * <pre>
  *

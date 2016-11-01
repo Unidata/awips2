@@ -50,14 +50,7 @@ class DeployEdexSiteLocalization
 
    public static void deploy(String edexRootDirectory, ProjectInformation projectInformation, String site)
    {
-      if (projectInformation == null)
-      {
-         log.log(java.util.logging.Level.WARNING,
-            "Unable to find the localization project associated with site " + site + 
-            "; skipping localization deployment")
-         return
-      }
-
+	   
       String localizationDestination = edexRootDirectory + File.separator + EDEX_LOCALIZATION_DIRECTORY
       new File(localizationDestination).mkdirs()
 
@@ -67,7 +60,7 @@ class DeployEdexSiteLocalization
       log.info "Deploying localization for site ... " + site
       ant.copy( todir : localizationDestination, overwrite : true )
       {
-         fileset( dir : projectInformation.projectFullLocation + File.separator + "utility" )
+         fileset( dir : "../../localization/localization/utility" )
       }
    }
 }

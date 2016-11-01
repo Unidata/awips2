@@ -16,7 +16,7 @@ Prefix: %{_component_default_prefix}
 URL: N/A
 License: N/A
 Distribution: N/A
-Vendor: Raytheon
+Vendor: %{_build_vendor}
 Packager: %{_build_site}
 
 AutoReq: no
@@ -75,7 +75,7 @@ cp -r %{_baseline_workspace}/${EXPECTED_PATH_TO_CONFIG}/${CONFIG_FILE_TO_INCLUDE
 
 # Copy The SQL Scripts That The Database RPM Will Need To The
 # Temporary Directory.
-DIRS_TO_COPY=('hmdb' 'migrated' 'setup' 'vtec' 'ebxml' 'events')
+DIRS_TO_COPY=('hmdb' 'migrated' 'setup' 'ebxml' 'events')
 for dir in ${DIRS_TO_COPY[*]};
 do
    cp -r %{_baseline_workspace}/${PATH_TO_DDL}/${dir}/* \
@@ -287,7 +287,6 @@ su ${AWIPS_DEFAULT_USER} -c \
    
 update_createEbxml
 execute_psql_sql_script ${SQL_SHARE_DIR}/createEbxml.sql metadata
-execute_psql_sql_script ${SQL_SHARE_DIR}/vtec_initial_setup.sql metadata
 
 control_pg_ctl "stop"
 

@@ -1,7 +1,8 @@
 #!/bin/bash -f
 #
-# usage: gini DAA 
+# usage: '/awips2/ldm/bin/gini daa' (lowercase)
 #		this will create and ingest an uncompressed GINI file in EDEX
+# author: Michael James <mjames@ucar.edu>
 #
 
 if [[ ! -e /home/gempak/GEMPAK7/Gemenviron.profile ]]; then

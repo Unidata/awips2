@@ -17,8 +17,8 @@
 *** 16,22 ****
   License: N/A
   Distribution: N/A
-  Vendor: Raytheon
-- Packager: Bryan Kowal
+  Vendor: %{_build_vendor}
+- Packager: %{_build_site}
   
   provides: awips2-%{_component_name}
   requires: awips2

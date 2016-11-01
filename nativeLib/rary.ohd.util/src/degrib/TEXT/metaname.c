@@ -616,7 +616,7 @@ GRIB2LocalTable NCEP_LclTable[] = {
    /* 12 */ {0, 1, 203, "FRIME", "Rime Factor", "-", UC_NONE},
    /* 13 */ {0, 1, 204, "TCOLR", "Total Column Integrated Rain", "kg/(m/m)", UC_NONE},
    /* 14 */ {0, 1, 205, "TCOLS", "Total Column Integrated Snow", "kg/(m/m)", UC_NONE},
-   /* 15 */ {0, 2, 192, "VWSH", "Vertical speed sheer", "1/s", UC_NONE},
+   /* 15 */ {0, 2, 192, "VWSH", "Vertical speed shear", "1/s", UC_NONE},
    /* 16 */ {0, 2, 193, "MFLX", "Horizontal Momentum Flux", "N/(m^2)", UC_NONE},
    /* 17 */ {0, 2, 194, "USTM", "U-Component Storm Motion", "m/s", UC_NONE},
    /* 18 */ {0, 2, 195, "VSTM", "V-Component Storm Motion", "m/s", UC_NONE},

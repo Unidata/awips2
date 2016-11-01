@@ -18,13 +18,6 @@
 		<ant antfile="${basedir}/../../build/deploy.edex.awips2/deploy/deploy-esb.xml" />
 		<!-- deploy esb configuration -->
 		<ant antfile="${basedir}/../../build/deploy.edex.awips2/deploy/deploy-esb-configuration.xml" />
-		<!-- optionally: deploy gfesuite -->
-		<if>
-			<equals arg1="${deploy.gfesuite}" arg2="true" />
-			<then>
-				<ant antfile="${basedir}/deploy-common/deploy-gfesuite.xml" />
-			</then>
-		</if>
 		<!-- deploy edex plugins -->
 		<!-- which feature do we want to deploy? -->
 		<if>

@@ -31,7 +31,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.plugin.nwsauth.xml.NwsRoleData;
-import com.raytheon.uf.viz.plugin.nwsauth.NwsRoleDataManager;
+import com.raytheon.uf.viz.plugin.userauth.UserRoleDataManager;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -154,7 +154,7 @@ public class NewDlg extends CaveSWTDialog {
 
     private void handleOK() {
         if (newTextField.getText() != null && newTextField.getText().length() > 0) {
-            NwsRoleDataManager manager = NwsRoleDataManager.getInstance();
+            UserRoleDataManager manager = UserRoleDataManager.getInstance();
             NwsRoleData roleData = manager.getRoleData(application);
             if (type.equalsIgnoreCase("User")) {
                 roleData.addUser(newTextField.getText().trim());

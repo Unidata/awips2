@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Version=1.0
+Name=No Name
+Name[en_US]=CAVE
+Exec=/bin/bash -i -c "sleep 1; /awips2/cave/cave.sh"

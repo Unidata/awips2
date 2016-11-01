@@ -1,4 +1,5 @@
 #!/bin/bash
+. /etc/profile.d/awips2.sh
 
 # User-configurable environment parameters that are used during the build.
 
@@ -15,7 +16,7 @@ export BUILD_WORKSPACE=${BUILD_DIR}/workspace
 # baseline is...
 export BASELINE="${JENKINS_WORKSPACE}"
 export AWIPSII_VERSION="16.2.2"
-export AWIPSII_RELEASE="4"
+export AWIPSII_RELEASE="1"
 
 export AWIPSII_TOP_DIR="${BUILD_WORKSPACE}/tmp/rpms_built_dir"
 

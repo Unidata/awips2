@@ -15,7 +15,7 @@ BuildRoot: %{_build_root}
 URL: N/A
 License: N/A
 Distribution: N/A
-Vendor: Raytheon
+Vendor: %{_build_vendor}
 
 provides: awips2-%{_component_name}
 requires: awips2

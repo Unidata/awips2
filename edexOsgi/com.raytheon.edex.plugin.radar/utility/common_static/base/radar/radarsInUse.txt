@@ -1,18 +1,6 @@
 # DO NOT EDIT LINES BEGINNING WITH '#'
 # LOCAL_RADARS (including terminal) - MUST HAVE THIS LINE
 
-# DIAL_RADARS - MUST HAVE THIS LINE
-kpux
-kcys
-kgjx
-kgld
-kuex
-klnx
-kudx
-kddc
-kama
-kabx
-
 # TDWR_RADARS - MUST HAVE THIS LINE
 tadw
 tatl

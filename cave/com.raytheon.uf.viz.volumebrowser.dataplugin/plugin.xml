@@ -58,7 +58,7 @@
       </productCreator>
       <productCreator
             creatorClass="com.raytheon.viz.volumebrowser.loader.TimeSeriesProductCreator"
-            plugins="goessounding,poessounding,profiler,bufrmosLAMP,modelsounding,radar,ldadmesonet"
+            plugins="goessounding,poessounding,profiler,bufrmosLAMP,modelsounding,radar"
             resourceType="time_series">
       </productCreator>
       <productCreator

@@ -88,11 +88,6 @@ export HYDRO_APPS_DIR="/awips2/edex/data/share/hydroapps"
 
 export EDEX_HOME=/awips2/edex 
 export LOCALIZATION_ROOT=~/caveData/common
-export PGSQL_DRIVER_DIR=`ls -1d /awips2/cave/plugins/org.postgres_*` 
-if [ $? -ne 0 ]; then
-   echo "FATAL: Unable to locate the PostgreSQL JDBC Driver."
-   exit 1
-fi
 export apps_dir=${HYDRO_APPS_DIR} 
 
 SWITCHES=($SWITCHES)
@@ -112,6 +107,47 @@ fi
 export TEXTWS=`hostname`
 
 hostName=`hostname -s`
+
+# check number of running caves
+if [[ -z $IGNORE_NUM_CAVES ]]; then
+   # get total memory on system in bytes
+   mem=( `free -b | grep "Mem:"` )
+   mem=${mem[1]}
+   # get max amount of system memory used before we warn
+   memThreshold=$(echo "$mem * $MAX_MEM_PROPORTION" | bc)
+   # remove decimal
+   printf -v memThreshold "%.0f" "$memThreshold"
+   # get launcher.ini argument determined by user arguments
+   lookupINI "$@"
+   launcherRegex='--launcher.ini\s(.+\.ini)'
+   # default to cave.ini
+   targetIni="/awips2/cave/cave.ini"
+   if [[ $CAVE_INI_ARG =~ $launcherRegex ]]
+   then
+        targetIni="${BASH_REMATCH[1]}"
+   fi
+   # read max memory that could be used by this instance
+   memOfLaunchingCave=$(readMemFromIni "$targetIni")
+   # read total max memory of caves already running
+   getTotalMemOfRunningCaves
+   # add them together
+   _totalAfterStart=$(($memOfLaunchingCave + $_totalRunningMem))
+   if [[ "$_totalAfterStart" -ge "$memThreshold" ]]; then
+      # convert to megs for display
+      memOfLaunchingCave=$(($memOfLaunchingCave / $BYTES_IN_MB))
+      _totalRunningMem=$(($_totalRunningMem / $BYTES_IN_MB))
+      getPidsOfMyRunningCaves
+      memMsg="$_numPids CAVE applications already running with a combined max memory of ${_totalRunningMem}MB. "
+      memMsg+="The requested application has a max memory requirement of ${memOfLaunchingCave}MB. "
+      memMsg+="Starting may impact system performance and stability.\n\nProceed?"
+      zenity --question --title "Low Available Memory for Application"  --text "$memMsg"
+      cancel="$?"
+
+      if [[ "$cancel" == "1" ]]; then
+         exit
+      fi
+   fi
+fi
 
 #check for gtk-2.0 value
 gtkResource=.gtkrc-2.0
@@ -158,7 +194,7 @@ if [ ! -d $FULL_LOGDIR ]; then
 fi
 
 # delete any old disk caches in the background
-deleteOldCaveLogs &
+#deleteOldCaveLogs &
 
 curTime=`date +%Y%m%d_%H%M%S`
 
@@ -217,3 +253,4 @@ TMP_VMARGS="--launcher.appendVmargs -vmargs -Djava.io.tmpdir=${eclipseConfigurat
 
 pid=$!
 logExitStatus $pid $LOGFILE_STARTUP_SHUTDOWN
+

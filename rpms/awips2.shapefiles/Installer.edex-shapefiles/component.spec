@@ -11,8 +11,8 @@ BuildArch: noarch
 URL: N/A
 License: N/A
 Distribution: N/A
-Vendor: Unidata
-Packager: Michael James
+Vendor: %{_build_vendor}
+Packager: %{_build_site}
 
 AutoReq: no
 provides: awips2-edex-shapefiles
@@ -120,24 +120,6 @@ function prepare()
 
 # Make sure postgres is running
 prepare
-
-# Import supplementary shapefiles
-names=(NHAdomain StormSurgeWW)
-for file in ${names[@]}
-do
-  # Check if the table exists (lowercase) and if not then import
-  MAPS_DB=`${PSQL} -U awips maps -c "\dt mapdata.*"|grep ${file,,}|awk '{print $3}'`
-  if [ "${MAPS_DB}" != ${file,,} ]; then
-    /bin/bash ${a2_shp_script} ${shp_directory}/${file}/${file}.shp \
-      mapdata ${file,,} 0.064,0.016,0.004,0.001 \
-      awips 5432 /awips2 >> ${log_file} 2>&1
-    if [ $? -ne 0 ]; then
-      echo "FATAL: failed to import the $file shapefile."
-    fi
-  else 
-    echo "$file already exists in maps.mapdata."
-  fi
-done
 
 # if we started PostgreSQL, shut it down
 if [ "${I_STARTED_POSTGRESQL}" = "YES" ]; then

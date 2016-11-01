@@ -21,7 +21,6 @@
 <vbSourceList>
     <vbSource key="bufrmosLAMP" name="GFSLAMP-Stn" category="Point"
         views="TIMESERIES" />
-    <vbSource name="Ldad" key="ldadmesonet" category="Point" views="TIMESERIES" />
     <vbSource key="obs" name="Metar" category="Point" views="TIMESERIES" />
     <vbSource key="obsOA" name="MetarOA" category="Point"
         views="PLANVIEW TIMESERIES" />

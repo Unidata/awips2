@@ -8765,7 +8765,6 @@
 	</grib1Parameter>
 
 <!-- fnmoc -->
-
 	<grib1Parameter>
 		<center>58</center>
 		<grib1TableVersion>3</grib1TableVersion>
@@ -8846,7 +8845,15 @@
 		<grib2category>1</grib2category>
 		<grib2Value>11</grib2Value>
 	</grib1Parameter>
-
+	<!-- NCODA -->
+	<grib1Parameter>
+		<center>58</center>
+		<grib1TableVersion>3</grib1TableVersion>
+		<grib1Value>80</grib1Value>
+		<grib2discipline>10</grib2discipline>
+		<grib2category>3</grib2category>
+		<grib2Value>0</grib2Value>
+	</grib1Parameter>
 	<grib1Parameter>
 		<center>58</center>
 		<grib1TableVersion>3</grib1TableVersion>
