@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-        <bundle name="2 Panel WSR-88D KCAE">
+        <bundle name="2 Panel WSR-88D XXX">
             <displayList>
-                <displays xsi:type="d2DMapRenderableDisplay" magnification="1.0" density="1.0" scale="WSR-88D KCAE" mapCenter="-81.1186 33.9486 0.0" zoomLevel="1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <displays xsi:type="d2DMapRenderableDisplay" magnification="1.0" density="1.0" scale="WSR-88D XXX" mapCenter="LONGITUDE LATITUDE 0.0" zoomLevel="1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                     <descriptor xsi:type="mapDescriptor">
                         <resource>
                             <loadProperties loadWithoutData="true">
@@ -24,7 +24,7 @@
                                         <constraint constraintType="EQUALS" constraintValue="${product1}"/>
                                     </mapping>
                                     <mapping key="icao">
-                                        <constraint constraintType="EQUALS" constraintValue="kcae"/>
+                                        <constraint constraintType="EQUALS" constraintValue="xxx"/>
                                     </mapping>
                                     <mapping key="pluginName">
                                         <constraint constraintType="EQUALS" constraintValue="radar"/>
@@ -118,7 +118,7 @@
                                 <geomField>the_geom</geomField>
                             </resourceData>
                         </resource>
-                        <gridGeometry rangeX="0 9999" rangeY="0 9999" envelopeMinX="-9395300.991653208" envelopeMaxX="-8645300.991653208" envelopeMinY="3642546.326889482" envelopeMaxY="4392546.326889481">
+                        <gridGeometry rangeX="LOWX HIGHX" rangeY="LOWY HIGHY" envelopeMinX="MINX" envelopeMaxX="MAXX" envelopeMinY="MINY" envelopeMaxY="MAXY">
 			    <CRS>PROJCS["Mercator_1SP",
   GEOGCS["WGS84(DD)",
     DATUM["WGS84",
@@ -141,7 +141,7 @@
                         </gridGeometry>
                     </descriptor>
                 </displays>
-                <displays xsi:type="d2DMapRenderableDisplay" magnification="1.0" density="1.0" scale="WSR-88D KCAE" mapCenter="-81.1186 33.9486 0.0" zoomLevel="1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <displays xsi:type="d2DMapRenderableDisplay" magnification="1.0" density="1.0" scale="WSR-88D XXX" mapCenter="LONGITUDE LATITUDE 0.0" zoomLevel="1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                     <descriptor xsi:type="mapDescriptor">
                         <resource>
                             <loadProperties loadWithoutData="true">
@@ -164,7 +164,7 @@
                                         <constraint constraintType="EQUALS" constraintValue="${product2}"/>
                                     </mapping>
                                     <mapping key="icao">
-                                        <constraint constraintType="EQUALS" constraintValue="kcae"/>
+                                        <constraint constraintType="EQUALS" constraintValue="xxx"/>
                                     </mapping>
                                     <mapping key="pluginName">
                                         <constraint constraintType="EQUALS" constraintValue="radar"/>
@@ -279,7 +279,7 @@
                                 <geomField>the_geom</geomField>
                             </resourceData>
                         </resource>
-                        <gridGeometry rangeX="0 9999" rangeY="0 9999" envelopeMinX="-9395300.991653208" envelopeMaxX="-8645300.991653208" envelopeMinY="3642546.326889482" envelopeMaxY="4392546.326889481">
+                        <gridGeometry rangeX="LOWX HIGHX" rangeY="LOWY HIGHY" envelopeMinX="MINX" envelopeMaxX="MAXX" envelopeMinY="MINY" envelopeMaxY="MAXY">
                            <CRS>PROJCS["Mercator_1SP",
   GEOGCS["WGS84(DD)",
     DATUM["WGS84",
