@@ -1,93 +1,117 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
+#
 # U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
-# 
+#
 # Contractor Name:        Raytheon Company
 # Contractor Address:     6825 Pine Street, Suite 340
 #                         Mail Stop B8
 #                         Omaha, NE 68106
 #                         402.291.0100
-# 
+#
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
 
 from __future__ import print_function
+from shapely.geometry import box, Point
 from ufpy.dataaccess import DataAccessLayer as DAL
 
 import baseDafTestCase
-import dafTestsArgsUtil
-import sys
 import unittest
 
+#
+# Test DAF support for grid data
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    01/19/16        4795          mapeters       Initial Creation.
+#    04/11/16        5548          tgurney        Cleanup
+#    04/18/16        5548          tgurney        More cleanup
+#    06/09/16        5587          tgurney        Typo in id values test
+#    10/13/16        5942          bsteffen       Test envelopes
+#
+
+
 class GridTestCase(baseDafTestCase.DafTestCase):
-    """
-    Tests that grid data can be retrieved through the DAF, primarily ensuring
-    that no unexpected exceptions are thrown while retrieving it and that the
-    returned data is not None. The only data validation that is performed is to
-    check that all retrieved grid data have the same shape.
-    """
+    """Test DAF support for grid data"""
 
     datatype = "grid"
 
     model = "GFS160"
 
-    @classmethod
-    def setUpClass(cls):
-        print("STARTING GRID TESTS\n\n")
+    envelope = box(-97.0, 41.0, -96.0, 42.0)
 
-    def testParameters(self):
+    def testGetAvailableParameters(self):
         req = DAL.newDataRequest(self.datatype)
         req.addIdentifier("info.datasetId", self.model)
-
         self.runParametersTest(req)
 
-    def testLocations(self):
+    def testGetAvailableLocations(self):
         req = DAL.newDataRequest(self.datatype)
         req.addIdentifier("info.datasetId", self.model)
-
         self.runLocationsTest(req)
 
-    def testLevels(self):
+    def testGetAvailableLevels(self):
         req = DAL.newDataRequest(self.datatype)
         req.addIdentifier("info.datasetId", self.model)
-
         self.runLevelsTest(req)
 
-    def testTimes(self):
+    def testGetAvailableTimes(self):
         req = DAL.newDataRequest(self.datatype)
         req.addIdentifier("info.datasetId", self.model)
         req.setLevels("2FHAG")
-
         self.runTimesTest(req)
 
-    def testGridData(self):
+    def testGetGridData(self):
         req = DAL.newDataRequest(self.datatype)
         req.addIdentifier("info.datasetId", self.model)
         req.setLevels("2FHAG")
         req.setParameters("T")
-
         self.runGridDataTest(req)
 
-    @classmethod
-    def tearDownClass(cls):
-        print("GRID TESTS COMPLETE\n\n\n")
+    def testGetIdentifierValues(self):
+        req = DAL.newDataRequest(self.datatype)
+        req.addIdentifier("info.datasetId", 'ENSEMBLE')
+        req.setLevels("2FHAG")
+        req.setParameters("T")
+        idValues = DAL.getIdentifierValues(req, 'info.ensembleId')
+        self.assertTrue(hasattr(idValues, '__iter__'))
+        self.assertIn('ctl1', idValues)
+        self.assertIn('p1', idValues)
+        self.assertIn('n1', idValues)
 
-def getArgs():
-    parser = dafTestsArgsUtil.getParser()
-    parser.add_argument("-m", action="store", dest="model", default=GridTestCase.model,
-                        help="model to retrieve data for",
-                        metavar="modelName")
-    return parser.parse_args()
+    def testGetInvalidIdentifierValuesThrowsException(self):
+        self.runInvalidIdValuesTest()
 
-if __name__ == '__main__':
-    args = getArgs()
-    dafTestsArgsUtil.handleArgs(args)
-    GridTestCase.model = args.model
-    unittest.main(argv=sys.argv[:1])
+    def testGetNonexistentIdentifierValuesThrowsException(self):
+        self.runNonexistentIdValuesTest()
+
+        
+    def testGetDataWithEnvelope(self):
+        req = DAL.newDataRequest(self.datatype)
+        req.addIdentifier('info.datasetId', self.model)
+        req.setLevels('2FHAG')
+        req.setParameters('T')
+        req.setEnvelope(self.envelope)
+        gridData = self.runGridDataTest(req)
+        lons, lats = gridData[0].getLatLonCoords()
+        lons = lons.reshape(-1)
+        lats = lats.reshape(-1)
+        
+        # Ensure all points are within one degree of the original box
+        # to allow slight margin of error for reprojection distortion.
+        testEnv = box(self.envelope.bounds[0] - 1, self.envelope.bounds[1] - 1,
+                      self.envelope.bounds[2] + 1, self.envelope.bounds[3] + 1 )
+        
+        for i in range(len(lons)):
+            self.assertTrue(testEnv.contains(Point(lons[i], lats[i])))
+            
+        

@@ -1,63 +1,70 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
+#
 # U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
-# 
+#
 # Contractor Name:        Raytheon Company
 # Contractor Address:     6825 Pine Street, Suite 340
 #                         Mail Stop B8
 #                         Omaha, NE 68106
 #                         402.291.0100
-# 
+#
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
 
 from __future__ import print_function
 from ufpy.dataaccess import DataAccessLayer as DAL
+from dynamicserialize.dstypes.com.raytheon.uf.common.dataquery.requests import RequestConstraint
 
 import baseDafTestCase
-import dafTestsArgsUtil
-import sys
 import unittest
 
+#
+# Test DAF support for modelsounding data
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    01/19/16        4795          mapeters       Initial Creation.
+#    04/11/16        5548          tgurney        Cleanup
+#    04/18/16        5548          tgurney        More cleanup
+#    06/09/16        5587          bsteffen       Add getIdentifierValues tests
+#    06/13/16        5574          tgurney        Add advanced query tests
+#
+#
+
+
 class ModelSoundingTestCase(baseDafTestCase.DafTestCase):
-    """
-    Tests that modelsounding data can be retrieved through the DAF, simply
-    ensuring that no unexpected exceptions are thrown while retrieving it and
-    that the returned data is not None.
-    """
+    """Test DAF support for modelsounding data"""
 
     datatype = "modelsounding"
 
-    @classmethod
-    def setUpClass(cls):
-        print("STARTING MODELSOUNDING TESTS\n\n")
-
-    def testParameters(self):
+    def testGetAvailableParameters(self):
         req = DAL.newDataRequest(self.datatype)
 
         self.runParametersTest(req)
 
-    def testLocations(self):
+    def testGetAvailableLocations(self):
         req = DAL.newDataRequest(self.datatype)
         req.addIdentifier("reportType", "ETA")
 
         self.runLocationsTest(req)
 
-    def testTimes(self):
+    def testGetAvailableTimes(self):
         req = DAL.newDataRequest(self.datatype)
         req.addIdentifier("reportType", "ETA")
         req.setLocationNames("KOMA")
 
         self.runTimesTest(req)
 
-    def testGeometryData(self):
+    def testGetGeometryData(self):
         req = DAL.newDataRequest(self.datatype)
         req.addIdentifier("reportType", "ETA")
         req.setLocationNames("KOMA")
@@ -85,10 +92,103 @@ class ModelSoundingTestCase(baseDafTestCase.DafTestCase):
 
         print("getGeometryData() complete\n\n")
 
-    @classmethod
-    def tearDownClass(cls):
-        print("MODELSOUNDING TESTS COMPLETE\n\n\n")
+    def testGetIdentifierValues(self):
+        req = DAL.newDataRequest(self.datatype)
+        optionalIds = set(DAL.getOptionalIdentifiers(req))
+        self.runGetIdValuesTest(optionalIds)
 
-if __name__ == '__main__':
-    dafTestsArgsUtil.parseAndHandleArgs()
-    unittest.main(argv=sys.argv[:1])
+    def testGetInvalidIdentifierValuesThrowsException(self):
+        self.runInvalidIdValuesTest()
+
+    def testGetNonexistentIdentifierValuesThrowsException(self):
+        self.runNonexistentIdValuesTest()
+
+    def _runConstraintTest(self, key, operator, value):
+        req = DAL.newDataRequest(self.datatype)
+        constraint = RequestConstraint.new(operator, value)
+        req.setParameters('dataURI')
+        req.setLocationNames('KOMA', 'KORD', 'KOFK', 'KLNK')
+        req.addIdentifier(key, constraint)
+        return self.runGeometryDataTest(req)
+
+    # We can filter on reportType but it is not possible to retrieve the value
+    # of reportType directly. We can look inside the dataURI instead.
+    #
+    # For cases like '<=' and '>' the best we can do is send the request and
+    # see if it throws back an exception.
+    #
+    # Can also eyeball the number of returned records.
+
+    def testGetDataWithEqualsString(self):
+        geometryData = self._runConstraintTest('reportType', '=', 'ETA')
+        for record in geometryData:
+            self.assertIn('/ETA/', record.getString('dataURI'))
+
+    def testGetDataWithEqualsUnicode(self):
+        geometryData = self._runConstraintTest('reportType', '=', u'ETA')
+        for record in geometryData:
+            self.assertIn('/ETA/', record.getString('dataURI'))
+
+    # No numeric tests since no numeric identifiers are available.
+
+    def testGetDataWithEqualsNone(self):
+        geometryData = self._runConstraintTest('reportType', '=', None)
+
+    def testGetDataWithNotEquals(self):
+        geometryData = self._runConstraintTest('reportType', '!=', 'ETA')
+        for record in geometryData:
+            self.assertNotIn('/ETA/', record.getString('dataURI'))
+
+    def testGetDataWithNotEqualsNone(self):
+        geometryData = self._runConstraintTest('reportType', '!=', None)
+
+    def testGetDataWithGreaterThan(self):
+        geometryData = self._runConstraintTest('reportType', '>', 'ETA')
+
+    def testGetDataWithLessThan(self):
+        geometryData = self._runConstraintTest('reportType', '<', 'ETA')
+
+    def testGetDataWithGreaterThanEquals(self):
+        geometryData = self._runConstraintTest('reportType', '>=', 'ETA')
+
+    def testGetDataWithLessThanEquals(self):
+        geometryData = self._runConstraintTest('reportType', '<=', 'ETA')
+
+    def testGetDataWithInTuple(self):
+        collection = ('ETA', 'GFS')
+        geometryData = self._runConstraintTest('reportType', 'in', collection)
+        for record in geometryData:
+            dataURI = record.getString('dataURI')
+            self.assertTrue('/ETA/' in dataURI or '/GFS/' in dataURI)
+
+    def testGetDataWithInList(self):
+        collection = ['ETA', 'GFS']
+        geometryData = self._runConstraintTest('reportType', 'in', collection)
+        for record in geometryData:
+            dataURI = record.getString('dataURI')
+            self.assertTrue('/ETA/' in dataURI or '/GFS/' in dataURI)
+
+    def testGetDataWithInGenerator(self):
+        collection = ('ETA', 'GFS')
+        generator = (item for item in collection)
+        geometryData = self._runConstraintTest('reportType', 'in', generator)
+        for record in geometryData:
+            dataURI = record.getString('dataURI')
+            self.assertTrue('/ETA/' in dataURI or '/GFS/' in dataURI)
+
+    def testGetDataWithInvalidConstraintTypeThrowsException(self):
+        with self.assertRaises(ValueError):
+            self._runConstraintTest('reportType', 'junk', 'ETA')
+
+    def testGetDataWithInvalidConstraintValueThrowsException(self):
+        with self.assertRaises(TypeError):
+            self._runConstraintTest('reportType', '=', {})
+
+    def testGetDataWithEmptyInConstraintThrowsException(self):
+        with self.assertRaises(ValueError):
+            self._runConstraintTest('reportType', 'in', [])
+
+    def testGetDataWithNestedInConstraintThrowsException(self):
+        collection = ('ETA', 'GFS', ())
+        with self.assertRaises(TypeError):
+            self._runConstraintTest('reportType', 'in', collection)
