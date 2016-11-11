@@ -2,6 +2,10 @@
 %define _component_project_dir    awips2.cave/Installer.cave
 %define _component_zip_file_name  CAVE-linux.gtk.%{_build_arch}.zip
 %define _component_desc           "awips2-cave"
+# Other vars:
+#   %{_component_build_date}
+#   %{_component_build_time}
+#   %{_component_build_system}
 
 %define _swt_version 3.8.1.v3836b
 %define _ui_version 3.8.2.v20121018-234953
@@ -207,6 +211,22 @@ if [ -f /awips2/.cave/installCAVECommon.sh ]; then
    
    # cleanup
    rm -rf /awips2/.cave
+fi
+
+
+function updateCaveVersion() {
+   # Note: the system properties echoed to the versions script are based on
+   # about.mappings in the com.raytheon.viz.product.awips plugin.
+   AWIPS_VERSION_TXT=/awips2/cave/awipsVersion.txt
+
+   echo "-DvizVersion=%{_component_version}-%{_component_release}" > ${AWIPS_VERSION_TXT}
+   echo "-DbuildDate=%{_component_build_date}" >> ${AWIPS_VERSION_TXT}
+   echo "-DbuildTime=%{_component_build_time}" >> ${AWIPS_VERSION_TXT}
+   echo "-DbuildSystem=%{_component_build_system}" >> ${AWIPS_VERSION_TXT}
+}
+
+if [ -d /awips2/cave ]; then
+   updateCaveVersion
 fi
 
 %preun
