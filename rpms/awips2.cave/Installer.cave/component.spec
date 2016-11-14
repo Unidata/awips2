@@ -89,6 +89,7 @@ Obsoletes: awips2-cave-viz-thinclient
 Obsoletes: awips2-cave-viz-useradmin
 Obsoletes: awips2-cave-viz-volumebrowser
 Obsoletes: awips2-cave-viz-warngen
+Obsoletes: awips2-alertviz
 
 %description
 %{_component_desc}
