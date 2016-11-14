@@ -199,7 +199,7 @@ fi
 curTime=`date +%Y%m%d_%H%M%S`
 
 pid=$!
-export LOGFILE_STARTUP_SHUTDOWN="$FULL_LOGDIR/${PROGRAM_NAME}_${pid}_${curTime}_pid_%PID%_startup-shutdown.log"
+export LOGFILE_STARTUP_SHUTDOWN="$FULL_LOGDIR/${PROGRAM_NAME}_pid_%PID%_logs.log"
 
 createEclipseConfigurationDir
 TMP_VMARGS="--launcher.appendVmargs -vmargs -Djava.io.tmpdir=${eclipseConfigurationDir}"

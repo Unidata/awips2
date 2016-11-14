@@ -972,10 +972,6 @@
                </activeWhen>
          </handler>
          <handler
-               class="com.raytheon.uf.viz.d2d.ui.actions.LocateCursorAction"
-               commandId="com.raytheon.uf.viz.d2d.ui.actions.locateCursorAction">
-         </handler>
-         <handler
                class="com.raytheon.uf.viz.d2d.ui.actions.LoadModeHandler"
                commandId="com.raytheon.uf.viz.d2d.ui.actions.setloadmode">
          </handler>
@@ -1136,12 +1132,6 @@
             commandId="com.raytheon.uf.viz.d2d.ui.actions.changeLegendMode"
             schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="NUMPAD_ENTER">
-      </key>
-      <key
-      		contextId="com.raytheon.uf.viz.d2d.ui"
-            commandId="com.raytheon.uf.viz.d2d.ui.actions.showPrintDialog"
-            schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="M1+P">
       </key>
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
@@ -1417,12 +1407,6 @@
       </key>
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
-            commandId="com.raytheon.uf.viz.d2d.ui.actions.locateCursorAction"
-            schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="F12">
-      </key>
-      <key
-      		contextId="com.raytheon.uf.viz.d2d.ui"
             commandId="com.raytheon.viz.ui.tools.looping.loopProperties"
             schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="M1+L">
@@ -1510,12 +1494,6 @@
       <command
             id="com.raytheon.viz.ui.actions.notImplemented"
             name="Data Scale">
-      </command>
-      <command
-            id="com.raytheon.uf.viz.d2d.ui.actions.locateCursorAction"
-            categoryId="com.raytheon.uf.viz.d2d.ui"
-            description="Locates the cursor on the screen"
-            name="Locate Cursor">
       </command>
       <command
             id="com.raytheon.uf.viz.d2d.ui.actions.displayPropertiesAction"
