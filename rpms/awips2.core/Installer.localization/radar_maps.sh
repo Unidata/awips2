@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BUILD_DIR=/home/awips/awips2-builds/rpms/awips2.core/Installer.localization/
+BUILD_DIR=/home/mjames/awips2-builds/rpms/awips2.core/Installer.localization/
 CAVE_DIR=$BUILD_DIR/utility/cave_static/bundles/scales/radar/
 mkdir -p $CAVE_DIR
 rm -rf $CAVE_DIR/*
@@ -20,7 +20,7 @@ do
    maxy=$(cat $file  |grep $site | cut -d"," -f11 | tr -d '[[:space:]]')
 
    sitell=$(echo $site | tr '[:upper:]' '[:lower:]')
-   cp -R $BUILD_DIR/utility/cave_static/bundles/scales/RadarTwoPanel.xml $CAVE_DIR/Radar_$sitell.xml
+   cp -R $BUILD_DIR/RadarTwoPanel.xml $CAVE_DIR/Radar_$sitell.xml
    grep -rl 'LOWX'  $CAVE_DIR/Radar_$sitell.xml | xargs sed -i 's/LOWX/'$lowx'/g'
    grep -rl 'HIGHX' $CAVE_DIR/Radar_$sitell.xml | xargs sed -i 's/HIGHX/'$highx'/g'
    grep -rl 'LOWY'  $CAVE_DIR/Radar_$sitell.xml | xargs sed -i 's/LOWY/'$lowy'/g'
@@ -34,15 +34,15 @@ do
    grep -rl 'LATITUDE'  $CAVE_DIR/Radar_$sitell.xml | xargs sed -i 's/LATITUDE/'$lat'/g'
    grep -rl 'LONGITUDE' $CAVE_DIR/Radar_$sitell.xml | xargs sed -i 's/LONGITUDE/'$lon'/g'
    
-   cp $CAVE_DIR/Radar_$sitell.xml /home/awips/awips2-core/viz/com.raytheon.uf.viz.core.maps/localization/bundles/scales/WSR88D/
+   cp $CAVE_DIR/Radar_$sitell.xml /home/mjames/awips2-core/viz/com.raytheon.uf.viz.core.maps/localization/bundles/scales/WSR88D/
 
 done
 
 
-cp $CAVE_DIR/* /home/awips/awips2-builds/cave/com.raytheon.viz.radar/localization/bundles/site/
-rm -rf /home/awips/awips2-builds/cave/com.raytheon.viz.radar/localization/bundles/site/Radar_comp.xml
-rm -rf /home/awips/awips2-builds/cave/com.raytheon.viz.radar/localization/bundles/site/Radar_info.xml
-rm -rf /home/awips/awips2-builds/cave/com.raytheon.viz.radar/localization/bundles/site/Radar_proc.xml
+cp $CAVE_DIR/* /home/mjames/awips2-builds/cave/com.raytheon.viz.radar/localization/bundles/site/
+rm -rf /home/mjames/awips2-builds/cave/com.raytheon.viz.radar/localization/bundles/site/Radar_comp.xml
+rm -rf /home/mjames/awips2-builds/cave/com.raytheon.viz.radar/localization/bundles/site/Radar_info.xml
+rm -rf /home/mjames/awips2-builds/cave/com.raytheon.viz.radar/localization/bundles/site/Radar_proc.xml
 
 #	com.raytheon.viz.radar/localization/bundles/site/Radar_comp.xml
 #	com.raytheon.viz.radar/localization/bundles/site/Radar_info.xml

@@ -29,6 +29,9 @@
                                     <mapping key="pluginName">
                                         <constraint constraintType="EQUALS" constraintValue="radar"/>
                                     </mapping>
+                                    <mapping key="primaryElevationAngle">
+                                        <constraint constraintType="EQUALS" constraintValue="0.5"/>
+                                    </mapping>
                                 </metadataMap>
                             </resourceData>
                         </resource>
@@ -165,6 +168,9 @@
                                     </mapping>
                                     <mapping key="pluginName">
                                         <constraint constraintType="EQUALS" constraintValue="radar"/>
+                                    </mapping>
+                                    <mapping key="primaryElevationAngle">
+                                        <constraint constraintType="EQUALS" constraintValue="0.5"/>
                                     </mapping>
                                 </metadataMap>
                             </resourceData>

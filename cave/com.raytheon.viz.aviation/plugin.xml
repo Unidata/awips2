@@ -71,21 +71,4 @@
    		<component key="cigvisdist" class="com.raytheon.viz.aviation.CigVisDistComponent"/>
    		<component key="cigvistrend" class="com.raytheon.viz.aviation.CigVisTrendComponent"/>
    </extension>
-   <extension
-        point="com.raytheon.uf.viz.localization.localizationpath">
-        <path
-                application="AvnFPS"
-                localizationType="CAVE_STATIC"
-                name="Configuration"
-                value="aviation/config"
-                recursive="true">
-        </path>
-        <path
-                application="AvnFPS"
-                localizationType="CAVE_STATIC"
-                name="Avnwatch"
-                value="aviation/avnwatch"
-                recursive="true">
-        </path>          
-       </extension> 
 </plugin>

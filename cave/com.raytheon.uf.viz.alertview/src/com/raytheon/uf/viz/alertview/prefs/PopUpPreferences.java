@@ -79,7 +79,7 @@ public class PopUpPreferences {
 
     public PopUpPreferences() {
         /* Everything needs reasonable defaults to keep PreferenceFile happy. */
-        filter = Priority.ERROR.name().toLowerCase();
+        filter = "warnPlus";
         duration = 5000;
         corner = PopUpCorner.LOWER_RIGHT;
         width = 500;

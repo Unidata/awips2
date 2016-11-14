@@ -116,11 +116,11 @@
    <includes
          id="com.raytheon.uf.viz.d2d.nsharp.feature"
          version="0.0.0"/>
-
+<!--
    <includes
          id="com.raytheon.uf.viz.archive.feature"
          version="0.0.0"/>
-
+-->
    <includes
          id="com.raytheon.uf.viz.ncep.perspective.feature"
          version="0.0.0"/>
@@ -196,11 +196,6 @@
    <includes
          id="com.raytheon.uf.viz.satellite.goesr.feature"
          version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.useradmin.feature"
-         version="0.0.0"/>
-
    <includes
          id="com.raytheon.viz.hydro.feature"
          version="0.0.0"/>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="com.raytheon.uf.viz.core.userManager">
+      <userManager
+            class="com.raytheon.uf.viz.core.auth.BasicUserManager">
+      </userManager>
+   </extension>
+
+</plugin>

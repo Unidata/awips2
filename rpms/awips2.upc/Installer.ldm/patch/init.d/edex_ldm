@@ -25,17 +25,17 @@ function clean_ldm() {
                 return ${myRetVal}
         fi
 	echo
-	if [[ -f ${LDM_INSTALL}/var/queues/ldm.pq ]] 
+	if [[ ! -f ${LDM_INSTALL}/var/queues/ldm.pq ]] 
 	then
-		echo -ne "\nDeleting the ldm queue:\t"
-		su ${LDM_USER} -lc "ldmadmin delqueue" > /dev/null 2>&1 && success || failure
-		echo
+            echo -ne "\nCreating LDM queue:\t"
+            su ${LDM_USER} -lc "ldmadmin mkqueue" > /dev/null 2>&1 && success || failure
+            if [[ ${myRetVal} -ne 0 ]]
+            then
+                return ${myRetVal}
+            fi
+            echo
 	fi
-        echo -ne "\nCreating the ldm queue:\t"
-        su ${LDM_USER} -lc "ldmadmin mkqueue" > /dev/null 2>&1 && success || failure
-	myRetVal=$?
-        echo
-	return ${myRetVal}
+	return 0
 }
 
 case $1 in

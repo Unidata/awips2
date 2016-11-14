@@ -217,8 +217,13 @@
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.ncep.nsharp.feature" />
 		</antcall>
+		<!--
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.archive.feature" />
+		</antcall>
+		-->
+		<antcall target="p2.build.repo">
+			<param name="feature" value="com.raytheon.uf.viz.alertview.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.ncep.perspective.feature" />
@@ -276,6 +281,12 @@
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature" value="edu.wisc.ssec.cimss.viz.convectprob.feature" />
+		</antcall>
+		<antcall target="p2.build.repo">
+			<param name="feature" value="gov.noaa.nws.mdl.viz.boundaryTool.common.feature" />
+		</antcall>
+		<antcall target="p2.build.repo">
+			<param name="feature" value="com.raytheon.uf.viz.satellite.goesr.feature" />
 		</antcall>
 		<antcall target="cleanup.features" />
 	</target>
