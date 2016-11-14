@@ -199,7 +199,6 @@ fi
 curTime=`date +%Y%m%d_%H%M%S`
 
 pid=$!
-export LOGFILE_STARTUP_SHUTDOWN="$FULL_LOGDIR/${PROGRAM_NAME}_pid_%PID%_logs.log"
 
 createEclipseConfigurationDir
 TMP_VMARGS="--launcher.appendVmargs -vmargs -Djava.io.tmpdir=${eclipseConfigurationDir}"
@@ -207,10 +206,6 @@ TMP_VMARGS="--launcher.appendVmargs -vmargs -Djava.io.tmpdir=${eclipseConfigurat
 # At this point fork so that log files can be set up with the process pid and
 # this process can log the exit status of cave.
 (
-  # can we write to log directory
-  if [ -w $FULL_LOGDIR ]; then
-    touch ${LOGFILE_STARTUP_SHUTDOWN}
-  fi
 
   # remove "-noredirect" flag from command-line if set so it doesn't confuse any
   # commands we call later.
@@ -239,9 +234,6 @@ TMP_VMARGS="--launcher.appendVmargs -vmargs -Djava.io.tmpdir=${eclipseConfigurat
     nohup ${CAVE_INSTALL}/monitorThreads.sh $pid >> /dev/null 2>&1 &
   fi
 
-  echo "Launching cave application using the following command: " >> ${LOGFILE_STARTUP_SHUTDOWN}
-  echo "${CAVE_INSTALL}/cave ${CAVE_INI_ARG} ${SWITCHES[@]} ${USER_ARGS[@]} ${TMP_VMARGS} ${VERSION_ARGS[@]}" >> ${LOGFILE_STARTUP_SHUTDOWN}
-
   if [[ "${redirect}" == "true" ]] ; then
      # send output to /dev/null because the logback CaveConsoleAppender will capture that output 
     exec ${CAVE_INSTALL}/cave ${CAVE_INI_ARG} "${SWITCHES[@]}" "${USER_ARGS[@]}" ${TMP_VMARGS} "${VERSION_ARGS[@]}" >> /dev/null 2>&1
@@ -250,7 +242,4 @@ TMP_VMARGS="--launcher.appendVmargs -vmargs -Djava.io.tmpdir=${eclipseConfigurat
     exec ${CAVE_INSTALL}/cave ${CAVE_INI_ARG} "${SWITCHES[@]}" "${USER_ARGS[@]}" ${TMP_VMARGS} "${VERSION_ARGS[@]}" 2>&1
   fi
 ) &
-
-pid=$!
-logExitStatus $pid $LOGFILE_STARTUP_SHUTDOWN
 
