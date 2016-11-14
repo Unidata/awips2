@@ -2,6 +2,6 @@
 Type=Application
 Encoding=UTF-8
 Version=1.0
-Name=No Name
+Name=TextWS
 Name[en_US]=TextWS
 Exec=/bin/bash -i -c "sleep 2; /awips2/cave/textWS.sh"

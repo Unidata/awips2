@@ -213,7 +213,6 @@ if [ -f /awips2/.cave/installCAVECommon.sh ]; then
    rm -rf /awips2/.cave
 fi
 
-
 function updateCaveVersion() {
    # Note: the system properties echoed to the versions script are based on
    # about.mappings in the com.raytheon.viz.product.awips plugin.
@@ -229,8 +228,11 @@ if [ -d /awips2/cave ]; then
    updateCaveVersion
 fi
 
+chown -R awips:fxalpha /awips2/cave
+
 %preun
 %postun
+rm -rf /awips2/cave
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
