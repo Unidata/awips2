@@ -1101,12 +1101,6 @@
       </key>
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
-            commandId="com.raytheon.uf.viz.d2d.ui.actions.showPrintDialog"
-            schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="M1+P">
-      </key>
-      <key
-      		contextId="com.raytheon.uf.viz.d2d.ui"
             commandId="com.raytheon.viz.ui.loadSerialized"
             schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="M1+O">
@@ -1116,12 +1110,6 @@
             contextId="com.raytheon.uf.viz.d2d.ui"
             schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="M1+N">
-      </key>
-      <key
-      		contextId="com.raytheon.uf.viz.d2d.ui"
-            commandId="com.raytheon.viz.ui.clear"
-            schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="M1+C">
       </key>
       <key
             commandId="com.raytheon.viz.ui.tools.looping.frameTool"
@@ -1149,34 +1137,6 @@
             <parameter
                   id="operation"
                   value="NEXT">
-            </parameter>
-      </key>
-      <key
-            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
-            contextId="com.raytheon.viz.ui.loopContext"
-            schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="M1+ARROW_LEFT">
-            <parameter
-                  id="mode"
-                  value="TIME_AND_SPACE">
-            </parameter>
-            <parameter
-                  id="operation"
-                  value="FIRST">
-            </parameter>
-      </key>
-      <key
-            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
-            contextId="com.raytheon.viz.ui.loopContext"
-            schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="M1+ARROW_RIGHT">
-            <parameter
-                  id="mode"
-                  value="TIME_AND_SPACE">
-            </parameter>
-            <parameter
-                  id="operation"
-                  value="LAST">
             </parameter>
       </key>
       <key
@@ -1376,12 +1336,6 @@
             commandId="com.raytheon.uf.viz.d2d.ui.actions.imageCombination"
             schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="INSERT">
-      </key>
-      <key
-      		contextId="com.raytheon.uf.viz.d2d.ui"
-            commandId="com.raytheon.uf.viz.d2d.ui.actions.locateCursorAction"
-            schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="F12">
       </key>
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
