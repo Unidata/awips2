@@ -47,5 +47,4 @@ com.raytheon.uf.viz.npp.sounding.feature
 com.raytheon.uf.viz.ncep.npp.feature
 com.raytheon.uf.viz.ncep.perspective.feature
 com.raytheon.uf.viz.d2d.skewt.feature
-gov.noaa.gsd.viz.ensemble.feature
 com.raytheon.uf.viz.satellite.goesr.feature

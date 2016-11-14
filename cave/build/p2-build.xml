@@ -277,9 +277,6 @@
 			<param name="feature" value="com.raytheon.uf.viz.d2d.ui.awips.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
-			<param name="feature" value="gov.noaa.gsd.viz.ensemble.feature" />
-		</antcall>
-		<antcall target="p2.build.repo">
 			<param name="feature" value="edu.wisc.ssec.cimss.viz.convectprob.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
