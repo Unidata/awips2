@@ -1,20 +1,9 @@
 <project default="main" basedir=".">
 	<property name="localization.sites" value="BOU" />
 	<property name="deploy.python" value="true" />
-	<!-- 
-		The python packages to deploy - provided that 
-		deploy.python is true 
-	-->
-	<property name="python.packages" 
-		value="pypies" />
-	<!-- EDEX root directory - defaults to /awips2/edex -->
+	<property name="python.packages" value="pypies" />
 	<property name="edex.root" value="/awips2/edex" />
-	<!-- Python root directory - defaults to /awips2/python -->
 	<property name="python.root" value="/awips2/python" />
-	<!--
-		if groovy.path is not manually set, groovy must be
-		on the PATH.
-	-->
 	<property name="groovy.path" value="" />
 	<property name="architecture" value="x86_64" />
 	

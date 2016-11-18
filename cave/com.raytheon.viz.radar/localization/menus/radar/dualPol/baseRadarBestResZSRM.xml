@@ -19,6 +19,7 @@
 		further_licensing_information.
 	-->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<!--
 	<contribute xsi:type="titleItem" titleText="------ Two-Panel Display  ------"
 		id="BestResZSRM8" />
 	<contribute xsi:type="bundleItem"
@@ -39,6 +40,7 @@
 		<substitute key="product1" value="177" />
 		<substitute key="product2" value="171" />
 	</contribute>
+	-->
 	<contribute xsi:type="titleItem" titleText="------ Refl. and Velocity  ------"
 		id="BestResZSRM8" />
 	<contribute xsi:type="bundleItem"

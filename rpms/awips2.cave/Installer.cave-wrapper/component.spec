@@ -64,7 +64,7 @@ mkdir -p ${RPM_BUILD_ROOT}/awips2/cave
 if [ $? -ne 0 ]; then
    exit 1
 fi
-mkdir -p ${RPM_BUILD_ROOT}/etc/xdg/autostart
+mkdir -p ${RPM_BUILD_ROOT}/usr/share/applications
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -85,8 +85,7 @@ fi
 
 # text-workstation autostart script.
 CAVE_SCRIPTS_DIR="%{_baseline_workspace}/rpms/%{_component_project_dir}/scripts"
-TEXTWS_AUTO_SCRIPT="${CAVE_SCRIPTS_DIR}/autostart/awips2-textws.desktop"
-cp ${TEXTWS_AUTO_SCRIPT} ${RPM_BUILD_ROOT}/etc/xdg/autostart
+cp ${CAVE_SCRIPTS_DIR}/autostart/cave.desktop ${RPM_BUILD_ROOT}/usr/share/applications/
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -142,12 +141,6 @@ popd > /dev/null 2>&1
 
 %pre
 %post
-# Remove the text-workstation autostart script if we have not been installed
-# on an xt workstation
-if [ ! "`hostname | cut -b 1-2`" = "xt" ]; then
-   rm -f /etc/xdg/autostart/awips2-textws.desktop
-fi
-
 # relocate any localization files installed by awips2-cave
 /bin/bash /awips2/cave/relocateLocalization.sh
 if [ $? -ne 0 ]; then
@@ -172,9 +165,10 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/cave/caveEnvironment
 /awips2/cave/caveEnvironment/*
 /awips2/cave/*.sh
+/awips2/cave/cave.png
 /awips2/cave/VizUpdater.jar
 # not a noarch RPM due to the presence of the architecture-specific libraries.
 %dir /awips2/cave/lib64
 /awips2/cave/lib64/*
 
-%attr(644,root,root) /etc/xdg/autostart/awips2-textws.desktop
+%attr(644,root,root) /usr/share/applications/cave.desktop
