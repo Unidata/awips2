@@ -4,11 +4,6 @@
       <level value="INFO"/>
    </logger>
 
-   <logger name="PerformanceLogger" additivity="false">
-      <level value="DEBUG"/>
-      <appender-ref ref="PerformanceLogAsync" />
-   </logger>
-
    <!-- used by c3p0 -->
    <logger name="com.mchange">
       <level value="ERROR"/>

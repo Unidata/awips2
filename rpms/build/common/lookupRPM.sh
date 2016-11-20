@@ -113,10 +113,6 @@ function lookupRPM()
       export RPM_SPECIFICATION="${python_site__dir}/Installer.pyparsing"
       return 0
    fi
-   if [ "${1}" = "awips2-python-basemap" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.basemap"
-      return 0
-   fi
    if [ "${1}" = "awips2-python-metpy" ]; then
       export RPM_SPECIFICATION="${python_site__dir}/Installer.metpy"
       return 0

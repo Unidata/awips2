@@ -9,7 +9,7 @@
 Name: awips2-ldm
 Summary: AWIPS II LDM Distribution
 Version: %{_component_version}.%{_component_release}
-Release: %{_ldm_version}%{?dist}
+Release: %{_ldm_version}
 Group: AWIPSII
 BuildRoot: /tmp
 BuildArch: noarch
@@ -20,11 +20,13 @@ Vendor: %{_build_vendor}
 Packager: %{_build_site}
 
 AutoReq: no
+Requires: gempak
 Requires: awips2-qpid-lib
-requires: awips2-python
-requires: pax, gcc, libxml2-devel
-requires: libtool, libpng-devel
-provides: awips2-ldm
+Requires: awips2-python
+Requires: compat-gcc-34-g77
+Requires: pax, gcc, libxml2-devel
+Requires: libtool, libpng-devel
+Provides: awips2-ldm
 
 %description
 AWIPS II LDM Distribution - Contains AWIPS II LDM.
@@ -47,6 +49,10 @@ fi
 
 # create the ldm directory
 /bin/mkdir -p %{_build_root}/awips2/ldm/SOURCES
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+/bin/mkdir -p %{_build_root}/etc/ld.so.conf.d
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -114,6 +120,10 @@ do
 done
 
 # copy environment scripts to their destination
+/bin/cp ld.so.conf.d/* %{_build_root}/etc/ld.so.conf.d
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 /bin/cp logrotate.d/* %{_build_root}/etc/logrotate.d
 if [ $? -ne 0 ]; then
    exit 1
@@ -142,8 +152,8 @@ fi
 %post
 _ldm_dir=/awips2/ldm
 _ldm_root_dir=${_ldm_dir}/ldm-%{_ldm_version}
-_myHost=`hostname -f`
-_myHostShort=`hostname`
+_myHost=`hostname`
+_myHost=`echo ${_myHost} | cut -f1 -d'-'`
 
 # Remove old ldm dir
 rm -rf ${_ldm_root_dir}
@@ -179,72 +189,25 @@ if [ $? -ne 0 ]; then
    echo "FATAL: make install has failed!"
    exit 1
 fi
-# Don't make root actions or else edexBridge will not run on el7
-#make root-actions LDMHOME=/awips2/ldm > root-actions.log 2>&1
-#if [ $? -ne 0 ]; then
-#   echo "FATAL: root-actions has failed!"
-#   exit 1
-#fi
-#g++ edexBridge.cpp -I${_ldm_root_dir}/src/pqact \
-#   -I${_ldm_root_dir}/include \
-#   -I${_ldm_root_dir}/src \
-#   -I/awips2/qpid/include \
-#   -L${_ldm_root_dir}/lib \
-#   -L/awips2/qpid/lib \
-#   -l ldm -l xml2 -l qpidclient -l qpidmessaging -l qpidcommon -l qpidtypes -o edexBridge
-
-/awips2/ldm/bin/regutil -s ${_myHost} /hostname
-/awips2/ldm/bin/regutil -s 1500M /queue/size
-#sed -i 's/EDEX_HOSTNAME/'$_myHostShort'/' ${_ldm_dir}/etc/ldmd.conf
-#sed -i 's/<size>500M<\/size>/<size>1500M<\/size>/' ${_ldm_dir}/etc/registry.xml
-
-if [ ! -h /awips2/ldm/logs ]; then
-  ln -s /awips2/ldm/var/logs /awips2/ldm/
+make root-actions LDMHOME=/awips2/ldm > root-actions.log 2>&1
+if [ $? -ne 0 ]; then
+   echo "FATAL: root-actions has failed!"
+   exit 1
 fi
-if [ ! -h /awips2/ldm/data ]; then
-  ln -s /awips2/ldm/var/data /awips2/ldm/
-fi
-if [ ! -d /awips2/data_store ]; then
-  mkdir -p /awips2/data_store
-fi
-if [ ! -h /data_store ]; then
-  ln -s /awips2/data_store /data_store
-fi
-
 # Unpack patch tar files
 cd ${_ldm_dir}/SOURCES
-_patch_dirs=( 'decoders' 'etc' )
-for patchdir in ${_patch_dirs[*]};
+_PATCH_DIRS=( 'bin' 'decoders' 'etc' )
+for patchDir in ${_PATCH_DIRS[*]};
 do
-   /bin/tar -xf ${patchdir}.tar -C ${_ldm_dir}
+   /bin/tar -xf ${patchDir}.tar -C ${_ldm_dir}
    if [ $? -ne 0 ]; then
       exit 1
    fi
-   /bin/rm -f ${patchdir}.tar
+   /bin/rm -f ${patchDir}.tar
    if [ $? -ne 0 ]; then
       exit 1
    fi
 done
-/bin/tar -xf bin.tar -C ${_ldm_dir}/ldm-%{_ldm_version}
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-/bin/rm -f bin.tar
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-
-if getent passwd awips &>/dev/null; then
-  /bin/chown -R awips:awips ${_ldm_dir} /awips2/data_store
-  #cd /awips2/ldm/src/
-  #make install_setuids
-else
-  echo "--- Warning: group awips does not exist"
-  echo "--- you will need to check owner/group/permissions for /awips2/ldm"
-  echo "tried to run 'chown -R awips:awips /awips2/ldm; cd /awips2/ldm/src/; make install_setuids'"
-  echo ""
-fi
-
 /bin/chmod a+x ${_ldm_dir}/bin/*
 
 # build decrypt_file
@@ -254,6 +217,11 @@ if [ $? -ne 0 ]; then
    echo "FATAL: failed to untar decrypt_file.tar!"
    exit 1
 fi
+#/bin/tar -xf edexBridge.tar
+#if [ $? -ne 0 ]; then
+#   echo "FATAL: failed to untar edexBridge.tar!"
+#   exit 1
+#fi
 /bin/rm -f *.tar
 if [ $? -ne 0 ]; then
    echo "FATAL: failed to remove decrypt_file.tar!"
@@ -273,6 +241,27 @@ if [ $? -ne 0 ]; then
    echo "FATAL: failed to move built decrypt_file to ldm decoders directory!"
    exit 1
 fi
+#cd ../edexBridge
+#if [ $? -ne 0 ]; then
+#   exit 1
+#fi
+#g++ edexBridge.cpp -I${_ldm_root_dir}/src/pqact \
+#   -I${_ldm_root_dir}/include \
+#   -I${_ldm_root_dir}/src \
+#   -I/awips2/qpid/include \
+#   -L${_ldm_root_dir}/lib \
+#   -L/awips2/qpid/lib \
+#   -l ldm -l xml2 -l qpidclient -l qpidmessaging -l qpidcommon -l qpidtypes -o edexBridge
+#if [ $? -ne 0 ]; then
+#   echo "FATAL: failed to build edexBridge!"
+#   exit 1
+#fi
+#/bin/mv edexBridge ${_ldm_dir}/bin/edexBridge
+#if [ $? -ne 0 ]; then
+#   echo "FATAL: failed to move edexBridge to ldm bin directory!"
+#   exit 1
+#fi
+cd ..
 
 /sbin/ldconfig
 
@@ -318,4 +307,5 @@ rm -rf ${RPM_BUILD_ROOT}
 /awips2/ldm/SOURCES/*
 %attr(755,root,root) /etc/init.d/edex_ldm
 %attr(600,awips,awips) /var/spool/cron/awips
+%attr(755,root,root) /etc/ld.so.conf.d/awips2-ldm.conf
 %attr(755,root,root) /etc/logrotate.d/ldm.log

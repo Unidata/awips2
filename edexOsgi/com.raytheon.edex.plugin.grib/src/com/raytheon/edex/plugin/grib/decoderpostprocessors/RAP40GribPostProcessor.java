@@ -25,7 +25,7 @@ import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 
 /**
  * Grib post processor implementation to eliminate invalid 7HR and 8HR forecast
- * grids from the RUC236 model
+ * grids from the RAP40 model
  * 
  * <pre>
  * 

@@ -626,11 +626,13 @@
 			         </reference>
 			      </visibleWhen>
             </command>
+            <!--
 		   <command
 		         commandId="SetBrowserViewType"
 		         label="Plot Type"
 		         style="pulldown">
 		   </command>
+		   -->
 
          </toolbar>
          </menuContribution>
@@ -881,6 +883,7 @@
           			id="com.raytheon.uf.viz.d2d.ui.densityPopulator">
 				</dynamic>
          </menuContribution>
+         <!--
          <menuContribution
                allPopups="false"
                locationURI="menu:SetBrowserViewType">
@@ -925,6 +928,7 @@
 	            </parameter>
 	         </command>
          </menuContribution>
+         -->
        </extension>
          
          
@@ -1606,10 +1610,12 @@
             categoryId="com.raytheon.uf.viz.d2d.ui"
       	    description="Toggles a blended resource"
             name="Toggle Layer"/>
+     <!--
      <command
            id="SetBrowserViewType"
            name="Set Volume Browser View Type">
      </command>
+     -->
    </extension>
    <extension
          point="com.raytheon.viz.ui.perspectiveManager">

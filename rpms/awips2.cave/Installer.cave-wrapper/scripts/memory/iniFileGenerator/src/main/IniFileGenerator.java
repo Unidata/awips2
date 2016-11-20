@@ -108,6 +108,10 @@ public class IniFileGenerator {
                 .getDefaultMemorySetting().getDefaultMaxMemory().getJvmArg()
                 + caveMemorySettings.getDefaultMemorySetting()
                         .getDefaultMaxMemory().getValue();
+        final String defaultMaxPerm = caveMemorySettings
+                .getDefaultMemorySetting().getDefaultMaxPerm().getJvmArg()
+                + caveMemorySettings.getDefaultMemorySetting()
+                        .getDefaultMaxPerm().getValue();
 
         try (BufferedWriter bw = Files.newBufferedWriter(
                 this.iniPath.resolve("iniLookup.sh"), Charset.defaultCharset())) {
@@ -123,6 +127,14 @@ public class IniFileGenerator {
                         .getMaxMemory().getValue())) {
                     maxMemory = defaultMaxMemory;
                 }
+                String maxPerm = caveMemorySettings.getDefaultMemorySetting()
+                        .getDefaultMaxPerm().getJvmArg()
+                        + memorySetting.getIniSubsitution().getMaxPerm()
+                                .getValue();
+                if ("DEFAULT".equals(memorySetting.getIniSubsitution()
+                        .getMaxPerm().getValue())) {
+                    maxPerm = defaultMaxPerm;
+                }
 
                 this.writeIniLookupEntry(bw, memorySetting.getCommandLineArgs()
                         .getFirstArg(), memorySetting.getCommandLineArgs()
@@ -133,7 +145,8 @@ public class IniFileGenerator {
                 try (BufferedWriter iniBw = Files.newBufferedWriter(iniPath,
                         Charset.defaultCharset())) {
                     iniBw.write(iniContents
-                            .replace(defaultMaxMemory, maxMemory));
+                            .replace(defaultMaxMemory, maxMemory).replace(
+                                    defaultMaxPerm, maxPerm));
                 }
             }
             this.finishIniLookup(bw);
@@ -150,12 +163,21 @@ public class IniFileGenerator {
                     .getMaxMemory().getValue())) {
                 maxMemory = defaultMaxMemory;
             }
+            String maxPerm = caveMemorySettings.getDefaultMemorySetting()
+                    .getDefaultMaxPerm().getJvmArg()
+                    + siteTypeOverride.getIniSubsitution().getMaxPerm()
+                            .getValue();
+            if ("DEFAULT".equals(siteTypeOverride.getIniSubsitution()
+                    .getMaxPerm().getValue())) {
+                maxPerm = defaultMaxPerm;
+            }
 
             final Path iniPath = this.iniPath.resolve(siteTypeOverride
                     .getSiteType() + INI_EXT);
             try (BufferedWriter iniBw = Files.newBufferedWriter(iniPath,
                     Charset.defaultCharset())) {
-                iniBw.write(iniContents.replace(defaultMaxMemory, maxMemory));
+                iniBw.write(iniContents.replace(defaultMaxMemory, maxMemory)
+                        .replace(defaultMaxPerm, maxPerm));
             }
         }
     }
@@ -301,6 +323,9 @@ public class IniFileGenerator {
         @XmlElement(name = "default-max-memory")
         private DefaultJvmArgValuePair defaultMaxMemory;
 
+        @XmlElement(name = "default-max-perm")
+        private DefaultJvmArgValuePair defaultMaxPerm;
+
         private DefaultMemorySetting() {
         }
 
@@ -310,6 +335,14 @@ public class IniFileGenerator {
 
         public void setDefaultMaxMemory(DefaultJvmArgValuePair defaultMaxMemory) {
             this.defaultMaxMemory = defaultMaxMemory;
+        }
+
+        public DefaultJvmArgValuePair getDefaultMaxPerm() {
+            return defaultMaxPerm;
+        }
+
+        public void setDefaultMaxPerm(DefaultJvmArgValuePair defaultMaxPerm) {
+            this.defaultMaxPerm = defaultMaxPerm;
         }
     }
 
@@ -440,6 +473,9 @@ public class IniFileGenerator {
         @XmlElement(name = "max-memory")
         private SubstitutionValue maxMemory;
 
+        @XmlElement(name = "max-perm")
+        private SubstitutionValue maxPerm;
+
         private IniSubsitution() {
         }
 
@@ -449,6 +485,14 @@ public class IniFileGenerator {
 
         public void setMaxMemory(SubstitutionValue maxMemory) {
             this.maxMemory = maxMemory;
+        }
+
+        public SubstitutionValue getMaxPerm() {
+            return maxPerm;
+        }
+
+        public void setMaxPerm(SubstitutionValue maxPerm) {
+            this.maxPerm = maxPerm;
         }
     }
 

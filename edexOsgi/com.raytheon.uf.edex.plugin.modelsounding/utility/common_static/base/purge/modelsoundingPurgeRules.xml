@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<purgeRuleSet>
+	<defaultRule>
+		<versionsToKeep>96</versionsToKeep>
+	</defaultRule>
+</purgeRuleSet>
