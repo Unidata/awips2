@@ -28,10 +28,11 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    06/03/13                      dgilling       Initial Creation.
-#    01/06/14         #2537        bsteffen       Share geometry WKT.
-#    03/19/14         #2882        dgilling       Raise an exception when getNumber()
+#    01/06/14        2537          bsteffen       Share geometry WKT.
+#    03/19/14        2882          dgilling       Raise an exception when getNumber()
 #                                                 is called for data that is not a 
 #                                                 numeric Type.
+#    06/09/16        5574          mapeters       Handle 'SHORT' type in getNumber().
 #    
 #
 
@@ -61,7 +62,7 @@ class PyGeometryData(IGeometryData, PyData.PyData):
     def getNumber(self, param):         
         value = self.__dataMap[param][0]
         t = self.getType(param)        
-        if t == 'INT':            
+        if t == 'INT' or t == 'SHORT':
             return int(value)
         elif t == 'LONG':
             return long(value)

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<contribute xsi:type="bundleItem" file="bundles/grid/WinterFnFourPanelFamily.xml"
+				menuText="ECMWF-HiRes" id="ecmwfHiRes" useReferenceTime="true">
+				<substitute key="TP" value="TP"/>
+				<substitute key="frameCount" value="41"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/WinterFnFourPanelFamily.xml"
+				menuText="GFS20" id="gfs20" useReferenceTime="true">
+				<substitute key="modelName" value="GFS20"/> 
+				<substitute key="TP" value="TP"/>
+				<substitute key="frameCount" value="55"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/WinterFnFourPanelFamily.xml"
+				menuText="GFS" id="gfs1deg" useReferenceTime="true">
+				<substitute key="modelName" value="${GFSmodel}"/>
+				<substitute key="TP" value="TP"/>
+				<substitute key="frameCount" value="41"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/WinterFnFourPanelFamily.xml"
+				menuText="NAM12" id="nam12" useReferenceTime="true">
+				<substitute key="modelName" value="${NAM12model}"/>
+				<substitute key="TP" value="TP3hr"/>
+				<substitute key="frameCount" value="29"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/WinterFnFourPanelFamily.xml"
+				menuText="NAM40" id="nam40" useReferenceTime="true">
+				<substitute key="modelName" value="${NAM40model}"/>
+				<substitute key="TP" value="TP3hr"/>
+				<substitute key="frameCount" value="29"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/WinterFnFourPanelFamily.xml"
+				menuText="NAM80" id="nam80" useReferenceTime="true">
+				<substitute key="modelName" value="ETA"/>
+				<substitute key="TP" value="TP6hr"/>
+				<substitute key="frameCount" value="15"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/WinterFnFourPanelFamily.xml"
+				menuText="RAP13" id="rap13" useReferenceTime="true">
+				<substitute key="modelName" value="${RAP13model}"/>
+				<substitute key="TP" value="TP3hr"/>
+				<substitute key="frameCount" value="19"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/WinterFnFourPanelFamily.xml"
+				menuText="RAP" id="rap" useReferenceTime="true">
+				<substitute key="modelName" value="${RAPmodel}"/>
+				<substitute key="TP" value="TP3hr"/>
+				<substitute key="frameCount" value="9"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/WinterFnFourPanelFamily.xml"
+				menuText="UKMET" id="ukmet" useReferenceTime="true">
+				<substitute key="TP" value="TP6hr"/>
+				<substitute key="frameCount" value="15"/>
+			</contribute>
+</menuTemplate>

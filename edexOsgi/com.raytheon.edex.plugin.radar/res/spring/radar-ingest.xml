@@ -92,21 +92,8 @@
 		<constructor-arg ref="radarServerConnectionHandler" />
 	</bean>
 	
-    <bean id="radarMenuCreator" class="com.raytheon.edex.plugin.radar.util.RadarMenuUtil"/>
     <bean id="import88dLocations" class="com.raytheon.edex.plugin.radar.util.Import88DLocationsUtil"/>
 	
-    <bean factory-bean="ndmProc" factory-method="registerListener">
-        <constructor-arg value="elevationLists.txt" />
-        <constructor-arg ref="radarMenuCreator" />
-    </bean>
-    <bean factory-bean="ndmProc" factory-method="registerListener">
-        <constructor-arg value="tdwrElevations.txt" />
-        <constructor-arg ref="radarMenuCreator" />
-    </bean>
-    <bean factory-bean="ndmProc" factory-method="registerListener">
-        <constructor-arg value="ssssElevationLists.txt" />
-        <constructor-arg ref="radarMenuCreator" />
-    </bean>
     <bean factory-bean="ndmProc" factory-method="registerListener">
         <constructor-arg value="fsl-w88d.shp" />
         <constructor-arg ref="import88dLocations" />

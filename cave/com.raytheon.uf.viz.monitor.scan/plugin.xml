@@ -44,21 +44,4 @@
             renderingOrderId="CONTOUR">
       </resource>
    </extension>
-   <extension
-         point="com.raytheon.uf.viz.localization.localizationpath">
-      <path
-            application="D2D"
-            localizationType="cave_static"
-            name="SCAN"
-            recursive="true"
-            value="scan">
-      </path>
-            <path
-            application="D2D"
-            localizationType="common_static"
-            name="SCAN COMMON"
-            recursive="true"
-            value="scan">
-      </path>
-   </extension>
   </plugin>

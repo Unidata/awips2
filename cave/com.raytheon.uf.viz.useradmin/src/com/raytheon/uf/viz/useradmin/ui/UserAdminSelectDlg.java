@@ -50,7 +50,7 @@ import com.raytheon.uf.common.plugin.nwsauth.xml.RoleXML;
 import com.raytheon.uf.common.useradmin.request.UserAdminConstants;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
-import com.raytheon.uf.viz.plugin.nwsauth.NwsRoleDataManager;
+import com.raytheon.uf.viz.plugin.userauth.UserRoleDataManager;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -131,7 +131,7 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
      */
     @Override
     protected void initializeComponents(Shell shell) {
-        NwsRoleDataManager man = NwsRoleDataManager.getInstance();
+        UserRoleDataManager man = UserRoleDataManager.getInstance();
         GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         GridLayout gl = new GridLayout(1, false);
         shell.setLayout(gl);
@@ -214,7 +214,7 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
                             + "Are you sure you want to close without saving?");
                     int answer = messageDialog.open();
                     if (answer == SWT.YES) {
-                        NwsRoleDataManager.getInstance().reloadRoleData();
+                        UserRoleDataManager.getInstance().reloadRoleData();
                         close();
                         return;
                     }
@@ -495,7 +495,7 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
      * Populates Lists
      */
     private void populateLists() {
-        NwsRoleDataManager man = NwsRoleDataManager.getInstance();
+        UserRoleDataManager man = UserRoleDataManager.getInstance();
         if (appCombo.isDisposed() || userList.isDisposed()
                 || userTab.isDisposed() || roleTab.isDisposed()
                 || roleList.isDisposed()) {
@@ -544,7 +544,7 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
      * Populates User Role List.
      */
     private void populateUserRoleList() {
-        NwsRoleDataManager man = NwsRoleDataManager.getInstance();
+        UserRoleDataManager man = UserRoleDataManager.getInstance();
         if (appCombo.isDisposed() || userList.isDisposed()
                 || userPermList.isDisposed()) {
             return;
@@ -576,7 +576,7 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
      * Populates Permission List.
      */
     private void populatePermissionList() {
-        NwsRoleDataManager man = NwsRoleDataManager.getInstance();
+        UserRoleDataManager man = UserRoleDataManager.getInstance();
         rolePermList.removeAll();
         String app = appCombo.getItem(appCombo.getSelectionIndex());
         if (roleList.getSelectionIndex() != -1) {
@@ -611,7 +611,7 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
         int response = messageDialog.open();
 
         if (response == SWT.YES) {
-            NwsRoleDataManager man = NwsRoleDataManager.getInstance();
+            UserRoleDataManager man = UserRoleDataManager.getInstance();
             String app = appCombo.getItem(appCombo.getSelectionIndex());
             man.deleteUser(user, app);
             dirty = true;
@@ -646,7 +646,7 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
         int response = messageDialog.open();
 
         if (response == SWT.YES) {
-            NwsRoleDataManager man = NwsRoleDataManager.getInstance();
+            UserRoleDataManager man = UserRoleDataManager.getInstance();
             String app = appCombo.getItem(appCombo.getSelectionIndex());
             man.deleteRole(role, app);
             dirty = true;
@@ -700,7 +700,7 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
                     String selection = list.getItem(list.getSelectionIndex());
                     StringBuilder messageText = new StringBuilder();
                     boolean roleFlag = false;
-                    NwsRoleDataManager man = NwsRoleDataManager.getInstance();
+                    UserRoleDataManager man = UserRoleDataManager.getInstance();
                     for (RoleXML role : man.getRoleData(selectedApplication)
                             .getRoleList()) {
                         if (selection.equals(role.getRoleId())) {
@@ -778,7 +778,7 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
      * Handle OK button.
      */
     private void handleOK() {
-        NwsRoleDataManager manager = NwsRoleDataManager.getInstance();
+        UserRoleDataManager manager = UserRoleDataManager.getInstance();
         manager.save(selectedApplication);
         dirty = false;
     }
@@ -798,7 +798,7 @@ public class UserAdminSelectDlg extends CaveSWTDialog implements
         VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
-                NwsRoleDataManager.getInstance().reloadRoleData();
+                UserRoleDataManager.getInstance().reloadRoleData();
 
                 if (!UserAdminSelectDlg.this.isDisposed()) {
                     populateLists();

@@ -971,16 +971,10 @@
     <extension
           point="com.raytheon.uf.viz.localization.localizationpath">
        <path
-             application="Hydro Apps"
+             application="Hydro"
              localizationType="COMMON_STATIC"
-             name="Hydro"
+             name="Hydro Apps"
              value="hydro">
-       </path>
-       <path
-             application="Hydro Apps"
-             localizationType="COMMON_STATIC"
-             name="SHEF"
-             value="shef">
        </path>
     </extension>
     <extension

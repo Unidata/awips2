@@ -189,7 +189,7 @@ public class ExtProductsUI extends Composite implements RadarEventListener,
         List<String> sites = RadarsInUseUtil.getSite(site,
                 RadarsInUseUtil.LOCAL_CONSTANT);
         sites.addAll(RadarsInUseUtil.getSite(site,
-                RadarsInUseUtil.DIAL_CONSTANT));
+                RadarsInUseUtil.MOSAIC_CONSTANT));
         for (RadarConfig rc : cfgReply.config) {
             if (rc.getRadarID().equals(currentSelection))
                 newSelection = rc;

@@ -212,6 +212,7 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "-localization" ]; then
+      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.localization"
       return 0
    fi
    if [ "${1}" = "awips2-maps-database" ]; then

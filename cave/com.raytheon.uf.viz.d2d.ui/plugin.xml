@@ -85,6 +85,10 @@
                    label="New Window"
                    style="push">
              </command>
+             <menu
+                   id="import"
+                   label="Import">
+             </menu>
              <separator
                    name="saveSeparator"
                    visible="true">
@@ -104,23 +108,29 @@
 				   label="Save Bundle Locally"
 				   style="push">
              </command>
-	         <separator
-                   name="importExportSeparator"
+             <separator
+                   name="exportSeparator"
                    visible="true">
              </separator>
-             <menu
-                   id="import"
-                   label="Import">
-             </menu>
-             <menu
-                   id="export"
-                   label="Export">
-			     <command
-		             commandId="com.raytheon.viz.ui.saveBundle"
-		             label="Map Window"
-		             style="push">
-		         </command>
-             </menu>
+             <command
+                   commandId="com.raytheon.uf.viz.image.export.save"
+                   label="Save Image"
+                   style="push">
+             </command>
+             <command
+                   commandId="com.raytheon.uf.viz.kml.export.exportKML"
+                   label="Save KML"
+                   style="push">
+             </command>
+             <command
+                   commandId="com.raytheon.uf.viz.image.export.print"
+                   label="Print Screen"
+                   style="push">
+                <parameter
+                      name="frameSelection"
+                      value="current">
+                </parameter>
+             </command>
           </menu>
           <menu
                 id="view"
@@ -962,10 +972,6 @@
                </activeWhen>
          </handler>
          <handler
-               class="com.raytheon.uf.viz.d2d.ui.actions.LocateCursorAction"
-               commandId="com.raytheon.uf.viz.d2d.ui.actions.locateCursorAction">
-         </handler>
-         <handler
                class="com.raytheon.uf.viz.d2d.ui.actions.LoadModeHandler"
                commandId="com.raytheon.uf.viz.d2d.ui.actions.setloadmode">
          </handler>
@@ -1126,12 +1132,6 @@
             commandId="com.raytheon.uf.viz.d2d.ui.actions.changeLegendMode"
             schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="NUMPAD_ENTER">
-      </key>
-      <key
-      		contextId="com.raytheon.uf.viz.d2d.ui"
-            commandId="com.raytheon.uf.viz.d2d.ui.actions.showPrintDialog"
-            schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="M1+P">
       </key>
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
@@ -1407,12 +1407,6 @@
       </key>
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
-            commandId="com.raytheon.uf.viz.d2d.ui.actions.locateCursorAction"
-            schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="F12">
-      </key>
-      <key
-      		contextId="com.raytheon.uf.viz.d2d.ui"
             commandId="com.raytheon.viz.ui.tools.looping.loopProperties"
             schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="M1+L">
@@ -1500,12 +1494,6 @@
       <command
             id="com.raytheon.viz.ui.actions.notImplemented"
             name="Data Scale">
-      </command>
-      <command
-            id="com.raytheon.uf.viz.d2d.ui.actions.locateCursorAction"
-            categoryId="com.raytheon.uf.viz.d2d.ui"
-            description="Locates the cursor on the screen"
-            name="Locate Cursor">
       </command>
       <command
             id="com.raytheon.uf.viz.d2d.ui.actions.displayPropertiesAction"
@@ -1702,23 +1690,10 @@
        <path
           application="D2D"
           localizationType="CAVE_STATIC"
-          name="Procedures"
-          value="procedures" 
-          recursive="true">
-       </path>
-       <path
-          application="D2D"
-          localizationType="CAVE_STATIC"
           name="Map Scales"
           value="bundles/scales" 
           recursive="true">
        </path>
-       <path
-          application="D2D"
-          localizationType="COMMON_STATIC"
-          name="Purge Rules"
-          value="purge">
-    	</path>
     	<path
           application="D2D"
           localizationType="CAVE_STATIC"

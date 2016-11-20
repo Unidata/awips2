@@ -26,15 +26,6 @@
      	<substitute key="posOffset" value="900"/>
         <substitute key="negOffset" value="900"/> 
 	</contribute>
-    <contribute xsi:type="bundleItem" file="bundles/LDADMesoQCPlot.xml" 
-              menuText="30 min stn plot + QC" id="local30minstnQCplot">
-        <substitute key="svgPrefix" value="ldadQC"/>
-        <substitute key="legend" value="30 min LDAD QC Plot"/>
-        <substitute key="posOffset" value="900"/>
-        <substitute key="negOffset" value="900"/>
-        <substitute key="plugin" value="qc"/> 
-        <substitute key="qcType" value="ldadmesonet"/> 
-    </contribute>
 	<contribute xsi:type="subMenu" menuText="Other Local Plots">
 		<contribute xsi:type="bundleItem" file="bundles/LDADMesoPlot.xml" 
 	        	menuText="15 min stn plot" id="local15minstnplot">
@@ -43,15 +34,6 @@
 	     	<substitute key="posOffset" value="450"/>
 	        <substitute key="negOffset" value="450"/> 
 		</contribute>
-	    <contribute xsi:type="bundleItem" file="bundles/LDADMesoQCPlot.xml" 
-	              menuText="15 min stn plot + QC" id="local15minstnQCplot">
-	        <substitute key="svgPrefix" value="ldadQC"/>
-	        <substitute key="legend" value="15 min LDAD QC Plot"/>
-	        <substitute key="posOffset" value="450"/>
-	        <substitute key="negOffset" value="450"/>
-	        <substitute key="plugin" value="qc"/> 
-           <substitute key="qcType" value="ldadmesonet"/> 
-	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/LDADMesoPlot.xml" 
 	        	menuText="5 min stn plot" id="local5minstnplot">
 	        <substitute key="svg" value="ldadMesoDesign.svg"/>

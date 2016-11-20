@@ -145,8 +145,15 @@
 #$ tags.  Token names and commented lines should at column 1.
 
 #AWIPS_MODIFICATION_BLOCK_BEGIN
+fxa_local_site     : BOU     
+mpe_site_id        : bou     
+hv_center_lat      : 40.0    # HydroView center latitude 
+hv_center_lon      : -105.0  # HydroView center longitude 
+hv_map_width       : 860     # HydroView map width (nautical miles) 
+whfs_primary_radar : FTG     # WHFS primary radar id, for Stage II 
+whfs_tz            : MST6MDT # WHFS time zone code 
 
-apps_dir           : $(SHARE_DIR)/hydroapps   # Hydrologic applications directory
+apps_dir           : /awips2/edex/data/share/hydroapps   # Hydrologic applications directory
 
 data_archive_root  : /awips2/data_store  # root directory of the data archive
 
@@ -162,19 +169,19 @@ vsys_dir           : $(apps_dir)/rfc/verify   #base verify directory
 #AWIPS_MODIFICATION_BLOCK_END
 
 #===================== Apps/Script Execution Tokens =================================
-WhfsSrv                                        : ON
-WhfsSrv.purge_files                            : ON
-WhfsSrv.run_db_purge                           : ON
-WhfsSrv.run_floodseq                           : ON
+WhfsSrv                                        : OFF
+WhfsSrv.purge_files                            : OFF
+WhfsSrv.run_db_purge                           : OFF
+WhfsSrv.run_floodseq                           : OFF
 PprocSrv                                       : ON
 PprocSrv.purge_mpe_files                       : ON
 PprocSrv.purge_hpe_file                        : ON
 MpeFieldGenSrv.run_mpe_fieldgen                : ON
 WhfsSrv.run_pdc_pp                             : ON
-WhfsSrv.run_alarm_whfs                         : ON
-WhfsSrv.run_alarm_whfs.run_roc_checker         : ON
-WhfsSrv.run_alarm_whfs.run_report_alarm        : ON
-WhfsSrv.run_alarm_whfs.run_report_alarm.textdb : ON
+WhfsSrv.run_alarm_whfs                         : OFF
+WhfsSrv.run_alarm_whfs.run_roc_checker         : OFF
+WhfsSrv.run_alarm_whfs.run_report_alarm        : OFF
+WhfsSrv.run_alarm_whfs.run_report_alarm.textdb : OFF
 ArealQpeGenSrv                                 : ON
 DqcPreProcSrv                                  : ON
 DqcPreProcSrv.run_dqc_preprocessor             : ON
@@ -252,10 +259,6 @@ rax_pghost         : localhost     # The machine PostGres is running on for the 
 # vacuum log dir token.
 vacuum_log_dir     : $(whfs_log_dir)/vacuum
 
-# WHFS specific tokens
-whfs_tz                : EST5EDT # WHFS time zone for local time
-whfs_primary_radar     : TLX     # WHFS primary radar id, for Stage II
-
 #  damcat tokens
 damcat_hostoffice_type    :  wfo      # source of run-from office
 damcat_office_datasource  :  ohd      # which data source is used
@@ -330,14 +333,14 @@ shef_post_baddata  : REJECT   # PE/REJECT - post data that have failed the gross
 shef_procobs       : OFF  # ON/OFF - post Processed data values (i.e., TS=P*) to
                           #          the observation data tables (=ON) or to
                           #          the ProcValue table (=OFF)
-shef_post_latest   : ON   # ON/OFF - post/don't post data to the LatestObsValue table
+shef_post_latest   : OFF  # ON/OFF - post/don't post data to the LatestObsValue table
                           # VALID_ONLY - post data to the LatestObsValue table
                           #              ONLY if the gross range check is passed
-shef_post_link     : ON   # ON/OFF - post/don't post data to the ProductLink table
-shef_load_maxfcst  : ON   # ON/OFF - after each product that resulted in forecast
+shef_post_link     : OFF  # ON/OFF - post/don't post data to the ProductLink table
+shef_load_maxfcst  : OFF  # ON/OFF - after each product that resulted in forecast
                           #          height or discharge data being posted, load
                           #          the maximum forecast data into the RiverStatus table
-shef_alertalarm    : ON   # ON/OFF - causes shefdecoder to screen data against
+shef_alertalarm    : OFF  # ON/OFF - causes shefdecoder to screen data against
                           #          alert and alarm thresholds
 # -- Intermediate output from ShefParser prior to post
 shef_out : OFF
@@ -402,18 +405,15 @@ gage_pp_data       : $(pproc_local_data)/gpp_input  # input data files location
 gage_pp_log        : $(pproc_log)/gage_pp     # daily log files location
 gage_pp_sleep	   : 10	  # sleep duration in seconds in between queries
 gage_pp_enable         : ON      # gpp enabled; shef uses to determine post
-shef_post_precip       : OFF     # post to Precip/CurPrecip tables
+shef_post_precip       : ON     # post to Precip/CurPrecip tables
 build_hourly_enable    : ON      # Enable the build_hourly application
 
 # ----------------------------------------------------------------
 # The following tokens are most likely to be customized by the user
 #  (the first 4 MUST be customized at each site in the .Apps_defaults_site file)
 # ----------------------------------------------------------------
-hv_center_lat          : 35.0    # HydroView center latitude
-hv_center_lon          : -97.8   # HydroView center longitude
 hv_height_in_pixels    : 900     # Hydroview map height in pixels
 hv_width_in_pixels     : 1200    # Hydroview map width in pixels
-hv_map_width           : 320     # HydroView map width (nautical miles)
 hv_pointdata_display   : ON      # Hydroview point data display flag (ON, OFF)
 hv_hours_in_window     : 4       # Change window hours
 hv_zoom_out_limit      : 20      # Limits how far the map can be zoomed out
@@ -467,9 +467,8 @@ event_expire_withinhr  : 3   # in RiverPro
 gaff_execution         : ON   # ON/OFF token for the gen_areal_ffg process
                               # the gen_areal_ffg process is run from the
                               # process_dpa_files script at WFOs
-gaff_rfc_list          : ABRFC,LMRFC  # list of RFCs to be mosaicked
-                                      # list is comma separated, no embedded
-                                      #    spaces are allowed
+
+gaff_rfc_list          : MBRFC,NCRFC,NWRFC,CNRFC,CBRFC,WGRFC,ABRFC,LMRFC,SERFC,OHRFC,MARFC,NERFC  # list of RFCs to be mosaicked
 gaff_input_dir         : $(EDEX_HOME)/data/processing
                              # directory containing gridded FFG
                              #    generated by RFCs
@@ -888,7 +887,6 @@ mpe_fieldgen_product_dir   :   $(mpe_dir)
 
 ### MPE station list tokens
 mpe_station_list_dir   :  $(mpe_app_dir)/station_lists
-mpe_site_id            :  ounx
 mpe_area_names         :  $(mpe_site_id)
 
 ### MPE static data files
@@ -966,8 +964,8 @@ mpe_localfield3_dir		   :   $(mpe_fieldgen_product_dir)/localfield3
 
 ### Tokens related to the MPE Editor map display.
 mpe_config_dir             :   $(whfs_config_dir)
-mpe_center_lat             :   39.8
-mpe_center_lon             :   -98.55
+mpe_center_lat             :   40.0
+mpe_center_lon             :   -105.0
 mpe_height_in_pixels       :   900
 mpe_width_in_pixels        :   1200
 mpe_map_width              :   1320
@@ -1150,7 +1148,7 @@ dsp_error_dir    : $(pproc_local_data)/dsp_error   # DSP error files
 dsp_arch_dir     : $(pproc_local_data)/dsp_archive # DSP archives
 
 
-hpe_grib_input_dir     :  $(EDEX_HOME)/data/local/hpegrib                                       
+hpe_grib_input_dir     :  /awips2/edex/data/local/hpegrib
 hpe_generate_list      :  DHRMOSAIC,BDHRMOSAIC,ERMOSAIC,LSATPRE,EBMOSAIC
 hpe_qpe_fieldtype      :  ERMOSAIC  # field type to be saved as qpe
 

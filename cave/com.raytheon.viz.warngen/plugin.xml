@@ -89,16 +89,6 @@
 		</menuContribution>
    </extension>
    <extension
-       point="com.raytheon.uf.viz.localization.localizationpath">
-       <path
-          application="D2D"
-          localizationType="COMMON_STATIC"
-          name="Warngen"
-          value="warngen" 
-          recursive="true">
-       </path>
-    </extension>
-   <extension
          point="com.raytheon.viz.ui.contextualMenu">
       <contextualMenu
             actionClass="com.raytheon.viz.warngen.gui.ShowExtensionAreaToggleAction"

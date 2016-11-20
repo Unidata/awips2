@@ -105,17 +105,6 @@ function updateEDEXVersion()
       >> ${EDEX_BANNER_TXT}
 }
 
-function updateCaveVersion() {
-   # Note: the system properties echoed to the versions script are based on
-   # about.mappings in the com.raytheon.viz.product.awips plugin.
-   AWIPS_VERSION_TXT=/awips2/cave/awipsVersion.txt
-
-   echo "-DvizVersion=%{_component_version}-%{_component_release}" > ${AWIPS_VERSION_TXT}
-   echo "-DbuildDate=%{_component_build_date}" >> ${AWIPS_VERSION_TXT}
-   echo "-DbuildTime=%{_component_build_time}" >> ${AWIPS_VERSION_TXT}
-   echo "-DbuildSystem=%{_component_build_system}" >> ${AWIPS_VERSION_TXT}
-}
-
 function updateAlertVizVersion() {
    # Note: alertviz does not include any of the branding information that CAVE does.
    # So, we will only be utilizing the version override.
@@ -125,10 +114,6 @@ function updateAlertVizVersion() {
    echo "-vmargs" >> ${AWIPS_VERSION_TXT}
    echo "-DvizVersion=%{_component_version}-%{_component_release}" >> ${AWIPS_VERSION_TXT}
 }
-
-if [ -d /awips2/cave ]; then
-   updateCaveVersion
-fi
 
 if [ -d /awips2/alertviz ]; then
    updateAlertVizVersion

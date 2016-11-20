@@ -1,5 +1,6 @@
 #!/bin/bash -v
 set -xe
+rm -rf /awips2/jenkins/buildspace/workspace/AWIPS2-UPC_build/baseline/
 
 export JENKINS_WORKSPACE=/home/${USER}/awips2-builds
 

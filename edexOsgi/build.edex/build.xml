@@ -79,10 +79,12 @@
 			<param name="feature"
 				value="com.raytheon.uf.edex.radar.feature" />
 		</antcall>
+		<!--
 		<antcall target="build">
 			<param name="feature"
 				value="com.raytheon.uf.edex.dat.feature" />
 		</antcall>
+		-->
 		<antcall target="build">
 			<param name="feature"
 				value="com.raytheon.uf.edex.ncep.feature" />
@@ -118,6 +120,10 @@
 		<antcall target="build">
 		    <param name="feature"
 		        value="edu.wisc.ssec.cimss.edex.convectprob.feature" />
+		</antcall>
+		<antcall target="build">
+			<param name="feature"
+				value="com.raytheon.uf.edex.binlightning.feature" />
 		</antcall>
 		<antcall target="build">
 			<param name="feature"

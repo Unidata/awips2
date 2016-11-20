@@ -110,7 +110,8 @@ if [ "${1}" = "-rh6" ]; then
    #buildEDEX
    #buildRPM "awips2-ldm"
    #buildRPM "awips2-pypies"
-   buildRPM "awips2-tools"
+   #buildRPM "awips2-tools"
+   buildLocalizationRPMs
    exit 0
    #buildRPM "awips2-common-base"
    #buildRPM "awips2-notification"
