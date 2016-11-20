@@ -78,6 +78,7 @@ Obsoletes: awips2-cave-viz-ncep-dataplugins
 Obsoletes: awips2-cave-viz-ncep-displays
 Obsoletes: awips2-cave-viz-ncep-nsharp
 Obsoletes: awips2-cave-viz-ncep-perspective
+Obsoletes: awips2-cave-viz-ncep-npp
 Obsoletes: awips2-cave-viz-npp
 Obsoletes: awips2-cave-viz-nwsauth
 Obsoletes: awips2-cave-viz-radar
