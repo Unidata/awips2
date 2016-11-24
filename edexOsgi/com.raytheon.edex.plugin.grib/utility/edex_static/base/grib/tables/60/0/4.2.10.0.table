@@ -1,0 +1,6 @@
+# Product Discipline 10: Oceanographic products, Parameter Category 0: Waves
+# 192-254 Reserved for local use
+192:192:Wave Steepness::WSTP
+255:255:Missing
+
+
