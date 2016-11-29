@@ -174,8 +174,7 @@ else
 fi
 
 
-echo "15.1.1 Updating radar table to include volume scan number."
-
+echo "Updates for 15.1.1: Checking radar table for volume scan number."
 SQL="
 DO \$\$
 BEGIN
@@ -185,13 +184,185 @@ EXCEPTION
 END;
 \$\$
 "
-/awips2/psql/bin/psql -U ${DB_OWNER} -d metadata -c "${SQL}"
+${PSQL} -U ${DB_OWNER} -d metadata -c "${SQL}"
 if [[ $? != 0 ]]
 then
     echo "Radar update not needed. Continuing..."
 else
-  /awips2/psql/bin/psql -U ${DB_OWNER} -d metadata -c "UPDATE radar SET volumescannumber=0 WHERE volumescannumber IS NULL;"
+  ${PSQL} -U ${DB_OWNER} -d metadata -c "UPDATE radar SET volumescannumber=0 WHERE volumescannumber IS NULL;"
   echo "Done"
+fi
+
+# 16.2.2. deltaScripts
+table_exists() {
+    ${PSQL} -U ${DB_OWNER} -Aqt -d metadata -c \
+    "select 1 from information_schema.tables where table_name = '$1'"
+}
+# Given table name as argument, return the name of the FK constraint referencing bufrmos_location.
+get_constraint_name() {
+    ${PSQL} -U ${DB_OWNER} -Aqt -d metadata << EOF
+    SELECT tc.constraint_name
+    FROM information_schema.table_constraints AS tc 
+    JOIN information_schema.key_column_usage AS kcu
+    ON tc.constraint_name = kcu.constraint_name
+    JOIN information_schema.constraint_column_usage AS ccu
+    ON ccu.constraint_name = tc.constraint_name
+    WHERE constraint_type = 'FOREIGN KEY'
+    AND tc.table_name='$1'
+    and ccu.table_name = 'bufrmos_location';
+EOF
+}
+
+# Check for existence of bufrmos_locationseq
+sequence_exists() {
+    ${PSQL} -U ${DB_OWNER} -Aqt -d metadata << EOF
+    select 0
+    from information_schema.sequences
+    where sequence_name = 'bufrmos_locationseq'
+EOF
+}
+
+get_min_pk() {
+    ${PSQL} -U ${DB_OWNER} -Aqt -d metadata << EOF
+    select min(id) id
+    from bufrmos_location;
+EOF
+}
+
+get_max_pk() {
+    ${PSQL} -U ${DB_OWNER} -Aqt -d metadata << EOF
+    select max(id) id
+    from bufrmos_location;
+EOF
+}
+
+last_bufrmos_locationseq_value() { 
+    ${PSQL} -U ${DB_OWNER} -Aqt -d metadata -c \
+        "select last_value from bufrmos_locationseq;"
+}
+
+if [[ $(table_exists bufrmod_location) == "1" ]]; then
+
+  if [[ "$(sequence_exists)" != "0" ]]; then
+    echo "INFO: bufrmos_locationseq does not exist in the database"
+    echo "INFO: Attempting to create bufrmos_locationseq"
+    ${PSQL} -U ${DB_OWNER} -d metadata -c \
+        "create sequence bufrmos_locationseq increment 1 start 1;" > /dev/null
+    if [[ "$?" != "0" || "$(sequence_exists)" != "0" ]]; then
+        echo "ERROR: Failed to create bufrmos_locationseq"
+        exit 1
+    else
+        echo "INFO Successfully created bufrmos_locationseq"
+    fi
+  fi
+
+  min_pk="$(get_min_pk)"
+  max_pk="$(get_max_pk)"
+
+  if [[ ("$min_pk" -gt 0) && ("$max_pk" -le "$(last_bufrmos_locationseq_value)") ]]; then
+    echo "INFO: bufrmos_locationseq is already updated."
+  fi
+
+  all_tables=(bufrmosavn bufrmoseta bufrmosgfs bufrmoshpc bufrmoslamp bufrmosmrf)
+  tables=
+  fkeys=
+
+  for table in "${all_tables[@]}"; do
+    if [[ $(table_exists $table) == "1" ]]; then
+        tables+=("$table")
+        fkeys+=("$(get_constraint_name $table)")
+    fi
+  done
+
+  scriptfile=$(mktemp)
+
+  if [[ "$scriptfile" == "" ]]; then
+    echo "ERROR: Failed to create temp file for script in /tmp"
+    exit 1
+  fi
+
+  echo "begin transaction;" > $scriptfile
+
+  for i in $(seq 1 $(expr ${#tables[@]} - 1)); do
+    cat << EOF >> $scriptfile
+alter table ${tables[$i]}
+drop constraint ${fkeys[$i]},
+add constraint ${fkeys[$i]}
+      FOREIGN KEY (location_id)
+      REFERENCES bufrmos_location (id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE NO ACTION;
+EOF
+  done
+
+  cat << EOF >> $scriptfile
+UPDATE bufrmos_location
+   SET id=nextval('bufrmos_locationseq');
+EOF
+
+  for i in $(seq 1 $(expr ${#tables[@]} - 1)); do
+    cat << EOF >> $scriptfile
+alter table ${tables[$i]}
+drop constraint ${fkeys[$i]},
+add constraint ${fkeys[$i]}
+      FOREIGN KEY (location_id)
+      REFERENCES bufrmos_location (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION;
+EOF
+  done
+
+  echo "commit;" >> $scriptfile
+
+  echo "INFO: Updating bufrmos_location keys. This may take a few minutes..."
+
+  ${PSQL} -U ${DB_OWNER} -d metadata < $scriptfile
+
+  rm -f $scriptfile
+
+  echo "INFO: Removing bufrquikscat table if it exists."
+
+  ${PSQL} -U ${DB_OWNER} -d metadata -c "DROP TABLE IF EXISTS bufrquikscat;"  > /dev/null 
+  ${PSQL} -U ${DB_OWNER} -d metadata -c "DROP SEQUENCE IF EXISTS bufrquikscatseq;"  > /dev/null 
+  ${PSQL} -U ${DB_OWNER} -d fxatext -q -c "DROP TABLE IF EXISTS watchwarn CASCADE;"  > /dev/null 
+  if [ $? -eq 0 ]; then
+      echo "INFO: watchwarn table successfully dropped."
+  else
+      echo "WARN: Unable to drop watchwarn table."
+      exit 1
+  fi
+
+  echo "INFO: Updating TOTSN and FRZR parameter names."
+  ${PSQL} -U ${DB_OWNER} -d metadata -c "UPDATE parameter SET name = '12hr ' || name WHERE abbreviation like 'TOTSN%pct12hr' AND name NOT LIKE '12hr%';"  > /dev/null 
+  ${PSQL} -U ${DB_OWNER} -d metadata -c "UPDATE parameter SET name = '12hr ' || name WHERE abbreviation like 'TOTSN%in12hr' AND name NOT LIKE '12hr%';" > /dev/null 
+  ${PSQL} -U ${DB_OWNER} -d metadata -c "UPDATE parameter SET name = '12hr ' || name WHERE abbreviation like 'FRZR%pct12hr' AND name NOT LIKE '12hr%';" > /dev/null 
+  ${PSQL} -U ${DB_OWNER} -d metadata -c "UPDATE parameter SET name = '12hr ' || name WHERE abbreviation like 'FRZR%in12hr' AND name NOT LIKE '12hr%';" > /dev/null 
+
+  # echo "Updating 24hr parameter names."
+  ${PSQL} -U ${DB_OWNER} -d metadata -c "UPDATE parameter SET name = '24hr ' || name WHERE abbreviation like 'TOTSN%pct24hr' AND name NOT LIKE '24hr%';" > /dev/null 
+  ${PSQL} -U ${DB_OWNER} -d metadata -c "UPDATE parameter SET name = '24hr ' || name WHERE abbreviation like 'TOTSN%in24hr' AND name NOT LIKE '24hr%';"  > /dev/null 
+  ${PSQL} -U ${DB_OWNER} -d metadata -c "UPDATE parameter SET name = '24hr ' || name WHERE abbreviation like 'FRZR%pct24hr' AND name NOT LIKE '24hr%';" > /dev/null 
+  ${PSQL} -U ${DB_OWNER} -d metadata -c "UPDATE parameter SET name = '24hr ' || name WHERE abbreviation like 'FRZR%in24hr' AND name NOT LIKE '24hr%';" > /dev/null 
+
+  #echo "Updating 48hr parameter names."
+  ${PSQL} -U ${DB_OWNER} -d metadata -c "UPDATE parameter SET name = '48hr ' || name WHERE abbreviation like 'TOTSN%pct48hr' AND name NOT LIKE '48hr%';" > /dev/null 
+  ${PSQL} -U ${DB_OWNER} -d metadata -c "UPDATE parameter SET name = '48hr ' || name WHERE abbreviation like 'TOTSN%in48hr' AND name NOT LIKE '48hr%';" > /dev/null 
+  ${PSQL} -U ${DB_OWNER} -d metadata -c "UPDATE parameter SET name = '48hr ' || name WHERE abbreviation like 'FRZR%pct48hr' AND name NOT LIKE '48hr%';"  > /dev/null 
+  ${PSQL} -U ${DB_OWNER} -d metadata -c "UPDATE parameter SET name = '48hr ' || name WHERE abbreviation like 'FRZR%in48hr' AND name NOT LIKE '48hr%';"  > /dev/null 
+
+  #echo "Updating 72hr parameter names."
+  ${PSQL} -U ${DB_OWNER} -d metadata -c "UPDATE parameter SET name = '72hr ' || name WHERE abbreviation like 'TOTSN%pct72hr' AND name NOT LIKE '72hr%';"  > /dev/null 
+  ${PSQL} -U ${DB_OWNER} -d metadata -c "UPDATE parameter SET name = '72hr ' || name WHERE abbreviation like 'TOTSN%in72hr' AND name NOT LIKE '72hr%';"  > /dev/null 
+  ${PSQL} -U ${DB_OWNER} -d metadata -c "UPDATE parameter SET name = '72hr ' || name WHERE abbreviation like 'FRZR%pct72hr' AND name NOT LIKE '72hr%';"  > /dev/null 
+  ${PSQL} -U ${DB_OWNER} -d metadata -c "UPDATE parameter SET name = '72hr ' || name WHERE abbreviation like 'FRZR%in72hr' AND name NOT LIKE '72hr%';"  > /dev/null 
+
+  echo "INFO: Attempting to drop bufrmosngm table"
+
+  ${PSQL} -U ${DB_OWNER} -d metadata -c "DROP TABLE IF EXISTS bufrmosngm" 
+
+  echo "INFO: Attempting to remove bufrmosNGM plugin references from other tables"
+
+  ${PSQL} -U ${DB_OWNER} -d metadata -c "DELETE FROM plugin_info where name = 'bufrmosNGM'"  > /dev/null 
+  ${PSQL} -U ${DB_OWNER} -d metadata -c "DELETE FROM purgejobs where plugin = 'bufrmosNGM'"  > /dev/null 
+
 fi
 
 # stop PostgreSQL if we started it.
