@@ -26,8 +26,6 @@ import org.apache.camel.Processor;
 
 import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
-import com.raytheon.uf.common.status.IPerformanceStatusHandler;
-import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
 
@@ -54,9 +52,6 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  */
 
 public class GribDecoder implements Processor {
-
-    private final IPerformanceStatusHandler perfLog = PerformanceStatus
-            .getHandler("");
 
     /**
      * @see org.apache.camel.Processor.process(Exchange)
@@ -105,8 +100,6 @@ public class GribDecoder implements Processor {
             }
         }
         timer.stop();
-        perfLog.logDuration("Grib" + gribEdition + ": Time to Decode",
-                timer.getElapsedTime());
         exchange.getIn().setBody(records);
 
     }

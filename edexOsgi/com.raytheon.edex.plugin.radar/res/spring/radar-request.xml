@@ -21,4 +21,10 @@
         <constructor-arg ref="getRadarDataRecordHandler"/>
     </bean>
   	
+  	<bean id="radarMenuUtil" class="com.raytheon.edex.plugin.radar.util.RadarMenuUtil" />
+  	<bean id="radarMenus" factory-bean="menuCreationRegistry" factory-method="register">
+  		<constructor-arg value="radar"/>
+  		<constructor-arg ref="radarMenuUtil"/>
+  	</bean>
+  
   </beans>

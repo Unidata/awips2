@@ -57,7 +57,7 @@
         <substitute key="colormap" value="Radar/8-bit STP"/>
 		<substitute key="interpolate" value="true"/>
     </contribute>
-	<contribute xsi:type="titleItem" titleText="------ Local Mosaic ------"
+	<contribute xsi:type="titleItem" titleText="------ NEXRAD Mosaic ------"
 		id="RadarMosaic" />
 	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
 		menuText="N0Q - Base Reflectivity" id="Radar05Reflectivity">

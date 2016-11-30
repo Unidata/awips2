@@ -78,6 +78,7 @@ Obsoletes: awips2-cave-viz-ncep-dataplugins
 Obsoletes: awips2-cave-viz-ncep-displays
 Obsoletes: awips2-cave-viz-ncep-nsharp
 Obsoletes: awips2-cave-viz-ncep-perspective
+Obsoletes: awips2-cave-viz-ncep-npp
 Obsoletes: awips2-cave-viz-npp
 Obsoletes: awips2-cave-viz-nwsauth
 Obsoletes: awips2-cave-viz-radar
@@ -89,6 +90,7 @@ Obsoletes: awips2-cave-viz-thinclient
 Obsoletes: awips2-cave-viz-useradmin
 Obsoletes: awips2-cave-viz-volumebrowser
 Obsoletes: awips2-cave-viz-warngen
+Obsoletes: awips2-alertviz
 
 %description
 %{_component_desc}
@@ -130,11 +132,6 @@ unzip %{_component_zip_file_name}
 rm -f %{_component_zip_file_name}
 
 %pre
-if [ "${1}" = "2" ]; then
-   echo "The %{_component_name} rpm cannot be upgraded. Re-install CAVE to update to a newer version of this RPM."
-   exit 1
-fi
-
 # /awips2/cave must not exist.
 if [ -d /awips2/cave ]; then
    # TODO: need to make CAVE RPMs do a better job of cleaning up files that they are
@@ -249,17 +246,12 @@ rm -rf ${RPM_BUILD_ROOT}
 /awips2/cave/cave.ini
 %dir /awips2/cave/configuration
 /awips2/cave/configuration/*
-%doc /awips2/cave/epl-v10.html
 %dir /awips2/cave/features
 /awips2/cave/features/*
-%doc /awips2/cave/notice.html
 %dir /awips2/cave/p2
 /awips2/cave/p2/*
 %dir /awips2/cave/plugins
 /awips2/cave/plugins/*
-%docdir /awips2/cave/readme
-%dir /awips2/cave/readme
-/awips2/cave/readme/*
 /awips2/cave/.eclipseproduct
  
 %defattr(755,awips,fxalpha,755)

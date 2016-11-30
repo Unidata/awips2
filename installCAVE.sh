@@ -50,15 +50,29 @@ echo "Running 'yum groupinstall awips2-cave'"
 echo ''
 yum groupinstall awips2-cave -y 2>&1 | tee -a /tmp/cave-install.log
 
-if getent passwd awips &>/dev/null; then
-  echo ''
-  echo "Setting permissions to user awips:fxalpha"
-  /bin/chown -R awips:fxalpha /awips2/cave /awips2/alertviz
+if [[ $(grep "release 7" /etc/redhat-release) ]]; then
+  if getent passwd awips &>/dev/null; then
+    echo ''
+    echo "Setting permissions to user awips:awips"
+    /bin/chown -R awips:awips /awips2/cave /awips2/alertviz
+  else
+    echo ''
+    echo "--- user awips does not exist"
+    echo "--- you should set owner/group permissions for /awips2/cave and /awips2/alertviz:"
+    echo "tried to run 'chown -R awips:awips /awips2/cave /awips2/alertviz'"
+  fi
+
 else
-  echo ''
-  echo "--- user awips does not exist"
-  echo "--- you should set owner/group permissions for /awips2/cave and /awips2/alertviz:"
-  echo "tried to run 'chown -R awips:fxalpha /awips2/cave /awips2/alertviz'"
+  if getent passwd awips &>/dev/null; then
+    echo ''
+    echo "Setting permissions to user awips:fxalpha"
+    /bin/chown -R awips:fxalpha /awips2/cave /awips2/alertviz
+  else
+    echo ''
+    echo "--- user awips does not exist"
+    echo "--- you should set owner/group permissions for /awips2/cave and /awips2/alertviz:"
+    echo "tried to run 'chown -R awips:fxalpha /awips2/cave /awips2/alertviz'"
+  fi
 fi
 echo ""
 echo "Done..."

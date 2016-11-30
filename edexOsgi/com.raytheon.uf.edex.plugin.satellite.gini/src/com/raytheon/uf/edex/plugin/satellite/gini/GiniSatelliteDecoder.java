@@ -44,9 +44,7 @@ import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
-import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.util.ITimer;
@@ -122,9 +120,6 @@ public class GiniSatelliteDecoder {
     private static final int GINI_HEADER_SIZE = 512;
 
     private static final int INITIAL_READ = GINI_HEADER_SIZE + 128;
-
-    private final IPerformanceStatusHandler perfLog = PerformanceStatus
-            .getHandler("Satellite:");
 
     public static final String LOOKUP_LOCALIZATION_DIR = System.getProperty(
             "gini.lookup.table.dir", "satellite/gini/lookuptables");
@@ -563,7 +558,6 @@ public class GiniSatelliteDecoder {
                 record.setMessageData(dataRec);
             }
             timer.stop();
-            perfLog.logDuration("Time to Decode", timer.getElapsedTime());
         } catch (Throwable e) {
             statusHandler.error("Error decoding satellite", e);
             record = null;
