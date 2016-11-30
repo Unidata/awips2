@@ -32,21 +32,21 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Archive data information for retention, purging and archiving. An example:
  * 
  * <pre>
- * &lt;archive>
- *   &lt;name>Raw&lt;/name>
- *   &lt;rootDir>/data_store/&lt;/rootDir>
- *   &lt;!-- default retention hours for a category. -->
- *   &lt;defaultRetentionHours>168&lt;/defaultRetentionHours>
- *   &lt;category>
- *     &lt;name>Model grib&lt;/name>
+ * <archive>
+ *   <name>Raw</name>
+ *   <rootDir>/data_store/</rootDir>
+ *   <!-- default retention hours for a category. -->
+ *   <defaultRetentionHours>168</defaultRetentionHours>
+ *   <category>
+ *     <name>Model grib</name>
  *     ...
- *   &lt;/category>
- *   &lt;category>
- *     &lt;name>Model grib2&lt;/name>
+ *   </category>
+ *   <category>
+ *     <name>Model grib2</name>
  *     ...
- *   &lt;/category>
+ *   </category>
  *   ...
- * &lt;archive>
+ * <archive>
  * </pre>
  * 
  * <pre>
