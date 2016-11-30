@@ -822,264 +822,160 @@
 	</contribute>
 	<contribute xsi:type="subMenu" menuText="${icao} SW"
 		id="${icao}TerminalSpectrumWidth">
-		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
 			menuText="${elev0} SW" id="${icao}Terminal${elev0}SpecWidth" suppressErrors="${suppressErrors0}">
 			<substitute key="icao" value="${icao}" />
-			<substitute key="product1" value="184" />
-            <substitute key="product2" value="185" />
-            <substitute key="product3" value="" />
-            <substitute key="product4" value="" />
-            <substitute key="mode" value="" />
+			<substitute key="product" value="185" />
 			<substitute key="elevation" value="${elev0}--${elev0}" />
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
 			menuText="${elev1} SW" id="${icao}Terminal${elev1}SpecWidth" suppressErrors="${suppressErrors1}">
 			<substitute key="icao" value="${icao}" />
-			<substitute key="product1" value="184" />
-            <substitute key="product2" value="185" />
-            <substitute key="product3" value="" />
-            <substitute key="product4" value="" />
-            <substitute key="mode" value="" />
+			<substitute key="product" value="185" />
 			<substitute key="elevation" value="${elev1}--${elev1}" />
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
 			menuText="${elev2} SW" id="${icao}Terminal${elev2}SpecWidth" suppressErrors="${suppressErrors2}">
 			<substitute key="icao" value="${icao}" />
-			<substitute key="product1" value="184" />
-            <substitute key="product2" value="185" />
-            <substitute key="product3" value="" />
-            <substitute key="product4" value="" />
-            <substitute key="mode" value="" />
+			<substitute key="product" value="185" />
 			<substitute key="elevation" value="${elev2}--${elev2}" />
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
 			menuText="${elev3} SW" id="${icao}Terminal${elev3}SpecWidth" suppressErrors="${suppressErrors3}">
 			<substitute key="icao" value="${icao}" />
-			<substitute key="product1" value="184" />
-            <substitute key="product2" value="185" />
-            <substitute key="product3" value="" />
-            <substitute key="product4" value="" />
-            <substitute key="mode" value="" />
+			<substitute key="product" value="185" />
 			<substitute key="elevation" value="${elev3}--${elev3}" />
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
 			menuText="${elev4} SW" id="${icao}Terminal${elev4}SpecWidth" suppressErrors="${suppressErrors4}">
 			<substitute key="icao" value="${icao}" />
-			<substitute key="product1" value="184" />
-            <substitute key="product2" value="185" />
-            <substitute key="product3" value="" />
-            <substitute key="product4" value="" />
-            <substitute key="mode" value="" />
+			<substitute key="product" value="185" />
 			<substitute key="elevation" value="${elev4}--${elev4}" />
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
 			menuText="${elev5} SW" id="${icao}Terminal${elev5}SpecWidth" suppressErrors="${suppressErrors5}">
 			<substitute key="icao" value="${icao}" />
-			<substitute key="product1" value="184" />
-            <substitute key="product2" value="185" />
-            <substitute key="product3" value="" />
-            <substitute key="product4" value="" />
-            <substitute key="mode" value="" />
+			<substitute key="product" value="185" />
 			<substitute key="elevation" value="${elev5}--${elev5}" />
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml" 
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml" 
 			menuText="${elev6} SW" id="${icao}Terminal${elev6}SpecWidth" suppressErrors="${suppressErrors6}">
 			<substitute key="icao" value="${icao}" />
-			<substitute key="product1" value="184" />
-            <substitute key="product2" value="185" />
-            <substitute key="product3" value="" />
-            <substitute key="product4" value="" />
-            <substitute key="mode" value="" />
+			<substitute key="product" value="185" />
 			<substitute key="elevation" value="${elev6}--${elev6}" />
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
 			menuText="${elev7} SW" id="${icao}Terminal${elev7}SpecWidth" suppressErrors="${suppressErrors7}">
 			<substitute key="icao" value="${icao}" />
-			<substitute key="product1" value="184" />
-            <substitute key="product2" value="185" />
-            <substitute key="product3" value="" />
-            <substitute key="product4" value="" />
-            <substitute key="mode" value="" />
+			<substitute key="product" value="185" />
 			<substitute key="elevation" value="${elev7}--${elev7}" />
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
 			menuText="${elev8} SW" id="${icao}Terminal${elev8}SpecWidth" suppressErrors="${suppressErrors8}">
 			<substitute key="icao" value="${icao}" />
-			<substitute key="product1" value="184" />
-            <substitute key="product2" value="185" />
-            <substitute key="product3" value="" />
-            <substitute key="product4" value="" />
-            <substitute key="mode" value="" />
+			<substitute key="product" value="185" />
 			<substitute key="elevation" value="${elev8}--${elev8}" />
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
 			menuText="${elev9} SW" id="${icao}Terminal${elev9}SpecWidth" suppressErrors="${suppressErrors9}">
 			<substitute key="icao" value="${icao}" />
-			<substitute key="product1" value="184" />
-            <substitute key="product2" value="185" />
-            <substitute key="product3" value="" />
-            <substitute key="product4" value="" />
-            <substitute key="mode" value="" />
+			<substitute key="product" value="185" />
 			<substitute key="elevation" value="${elev9}--${elev9}" />
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
 			menuText="${elev10} SW" id="${icao}Terminal${elev10}SpecWidth" suppressErrors="${suppressErrors10}">
 			<substitute key="icao" value="${icao}" />
-			<substitute key="product1" value="184" />
-            <substitute key="product2" value="185" />
-            <substitute key="product3" value="" />
-            <substitute key="product4" value="" />
-            <substitute key="mode" value="" />
+			<substitute key="product" value="185" />
 			<substitute key="elevation" value="${elev10}--${elev10}" />
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
 			menuText="${elev11} SW" id="${icao}Terminal${elev11}SpecWidth" suppressErrors="${suppressErrors11}">
 			<substitute key="icao" value="${icao}" />
-			<substitute key="product1" value="184" />
-            <substitute key="product2" value="185" />
-            <substitute key="product3" value="" />
-            <substitute key="product4" value="" />
-            <substitute key="mode" value="" />
+			<substitute key="product" value="185" />
 			<substitute key="elevation" value="${elev11}--${elev11}" />
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
 			menuText="${elev12} SW" id="${icao}Terminal${elev12}SpecWidth" suppressErrors="${suppressErrors12}">
 			<substitute key="icao" value="${icao}" />
-			<substitute key="product1" value="184" />
-            <substitute key="product2" value="185" />
-            <substitute key="product3" value="" />
-            <substitute key="product4" value="" />
-            <substitute key="mode" value="" />
+			<substitute key="product" value="185" />
 			<substitute key="elevation" value="${elev12}--${elev12}" />
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
 			menuText="${elev13} SW" id="${icao}Terminal${elev13}SpecWidth" suppressErrors="${suppressErrors13}">
 			<substitute key="icao" value="${icao}" />
-			<substitute key="product1" value="184" />
-            <substitute key="product2" value="185" />
-            <substitute key="product3" value="" />
-            <substitute key="product4" value="" />
-            <substitute key="mode" value="" />
+			<substitute key="product" value="185" />
 			<substitute key="elevation" value="${elev13}--${elev13}" />
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
 			menuText="${elev14} SW" id="${icao}Terminal${elev14}SpecWidth" suppressErrors="${suppressErrors14}">
 			<substitute key="icao" value="${icao}" />
-			<substitute key="product1" value="184" />
-            <substitute key="product2" value="185" />
-            <substitute key="product3" value="" />
-            <substitute key="product4" value="" />
-            <substitute key="mode" value="" />
+			<substitute key="product" value="185" />
 			<substitute key="elevation" value="${elev14}--${elev14}" />
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
 			menuText="${elev15} SW" id="${icao}Terminal${elev15}SpecWidth" suppressErrors="${suppressErrors15}">
 			<substitute key="icao" value="${icao}" />
-			<substitute key="product1" value="184" />
-            <substitute key="product2" value="185" />
-            <substitute key="product3" value="" />
-            <substitute key="product4" value="" />
-            <substitute key="mode" value="" />
+			<substitute key="product" value="185" />
 			<substitute key="elevation" value="${elev15}--${elev15}" />
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
 			menuText="${elev16} SW" id="${icao}Terminal${elev16}SpecWidth" suppressErrors="${suppressErrors16}">
 			<substitute key="icao" value="${icao}" />
-			<substitute key="product1" value="184" />
-            <substitute key="product2" value="185" />
-            <substitute key="product3" value="" />
-            <substitute key="product4" value="" />
-            <substitute key="mode" value="" />
+			<substitute key="product" value="185" />
 			<substitute key="elevation" value="${elev16}--${elev16}" />
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
 			menuText="${elev17} SW" id="${icao}Terminal${elev17}SpecWidth" suppressErrors="${suppressErrors17}">
 			<substitute key="icao" value="${icao}" />
-			<substitute key="product1" value="184" />
-            <substitute key="product2" value="185" />
-            <substitute key="product3" value="" />
-            <substitute key="product4" value="" />
-            <substitute key="mode" value="" />
+			<substitute key="product" value="185" />
 			<substitute key="elevation" value="${elev17}--${elev17}" />
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
 			menuText="${elev18} SW" id="${icao}Terminal${elev18}SpecWidth" suppressErrors="${suppressErrors18}">
 			<substitute key="icao" value="${icao}" />
-			<substitute key="product1" value="184" />
-            <substitute key="product2" value="185" />
-            <substitute key="product3" value="" />
-            <substitute key="product4" value="" />
-            <substitute key="mode" value="" />
+			<substitute key="product" value="185" />
 			<substitute key="elevation" value="${elev18}--${elev18}" />
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
 			menuText="${elev19} SW" id="${icao}Terminal${elev19}SpecWidth" suppressErrors="${suppressErrors19}">
 			<substitute key="icao" value="${icao}" />
-			<substitute key="product1" value="184" />
-            <substitute key="product2" value="185" />
-            <substitute key="product3" value="" />
-            <substitute key="product4" value="" />
-            <substitute key="mode" value="" />
+			<substitute key="product" value="185" />
 			<substitute key="elevation" value="${elev19}--${elev19}" />
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
 			menuText="${elev20} SW" id="${icao}Terminal${elev20}SpecWidth" suppressErrors="${suppressErrors20}">
 			<substitute key="icao" value="${icao}" />
-			<substitute key="product1" value="184" />
-            <substitute key="product2" value="185" />
-            <substitute key="product3" value="" />
-            <substitute key="product4" value="" />
-            <substitute key="mode" value="" />
+			<substitute key="product" value="185" />
 			<substitute key="elevation" value="${elev20}--${elev20}" />
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
 			menuText="${elev21} SW" id="${icao}Terminal${elev21}SpecWidth" suppressErrors="${suppressErrors21}">
 			<substitute key="icao" value="${icao}" />
-			<substitute key="product1" value="184" />
-            <substitute key="product2" value="185" />
-            <substitute key="product3" value="" />
-            <substitute key="product4" value="" />
-            <substitute key="mode" value="" />
+			<substitute key="product" value="185" />
 			<substitute key="elevation" value="${elev21}--${elev21}" />
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
 			menuText="${elev22} SW" id="${icao}Terminal${elev22}SpecWidth" suppressErrors="${suppressErrors22}">
 			<substitute key="icao" value="${icao}" />
-			<substitute key="product1" value="184" />
-            <substitute key="product2" value="185" />
-            <substitute key="product3" value="" />
-            <substitute key="product4" value="" />
-            <substitute key="mode" value="" />
+			<substitute key="product" value="185" />
 			<substitute key="elevation" value="${elev22}--${elev22}" />
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
 			menuText="${elev23} SW" id="${icao}Terminal${elev23}SpecWidth" suppressErrors="${suppressErrors23}">
 			<substitute key="icao" value="${icao}" />
-			<substitute key="product1" value="184" />
-            <substitute key="product2" value="185" />
-            <substitute key="product3" value="" />
-            <substitute key="product4" value="" />
-            <substitute key="mode" value="" />
+			<substitute key="product" value="185" />
 			<substitute key="elevation" value="${elev23}--${elev23}" />
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
 			menuText="${elev24} SW" id="${icao}Terminal${elev24}SpecWidth" suppressErrors="${suppressErrors24}">
 			<substitute key="icao" value="${icao}" />
-			<substitute key="product1" value="184" />
-            <substitute key="product2" value="185" />
-            <substitute key="product3" value="" />
-            <substitute key="product4" value="" />
-            <substitute key="mode" value="" />
+			<substitute key="product" value="185" />
 			<substitute key="elevation" value="${elev24}--${elev24}" />
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
 			menuText="All SW" id="${icao}TerminalAllSpecWidth" >
 			<substitute key="icao" value="${icao}" />
-			<substitute key="product1" value="184" />
-            <substitute key="product2" value="185" />
-            <substitute key="product3" value="" />
-            <substitute key="product4" value="" />
-            <substitute key="mode" value="" />
+			<substitute key="product" value="185" />
 			<substitute key="elevation" value="0.0--360.0" />
 		</contribute>
 	</contribute>
