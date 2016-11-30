@@ -66,9 +66,7 @@ import com.raytheon.uf.common.dataplugin.radar.util.TiltAngleBin;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
@@ -153,9 +151,6 @@ public class RadarDecoder {
     private RadarStationDao radarStationDao = new RadarStationDao();
 
     private final String RADAR = "RADAR";
-
-    private final IPerformanceStatusHandler perfLog = PerformanceStatus
-            .getHandler("Radar:");
 
     public RadarDecoder() throws DecoderException {
 
@@ -456,7 +451,6 @@ public class RadarDecoder {
             finalizeRecord(record);
 
             timer.stop();
-            perfLog.logDuration("Time to Decode", timer.getElapsedTime());
 
             recordList.add(record);
         }
