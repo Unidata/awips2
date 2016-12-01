@@ -22,9 +22,11 @@
 	<contribute xsi:type="bundleItem" file="bundles/SurfaceColorTemp.xml" 
 		menuText="Surface Temperature" id="ColorTempPlot">
 	</contribute>
+	<!--
 	<contribute xsi:type="bundleItem" file="bundles/SurfacePlotWinds.xml"
 			menuText="Surface Winds" id="MetarWindPlot">
     </contribute>
+      -->
 	<contribute xsi:type="bundleItem" file="bundles/SurfacePlotMetar.xml"
 			menuText="METAR Station Plot" id="MetarStnPlot">
     </contribute>
