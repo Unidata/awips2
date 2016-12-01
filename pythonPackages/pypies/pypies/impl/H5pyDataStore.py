@@ -46,6 +46,7 @@
 #    Sep 14, 2015       4868       rjpeter        Updated writePartialHDFData to create the dataset if
 #                                                 it doesn't exist.
 #    Oct 20, 2015       4982       nabowle        Verify datatypes match when replacing data.
+#    Nov 30, 2016                  mjames@ucar    Change == None to is None (for numpy array).
 #
 
 import h5py, os, numpy, pypies, re, logging, shutil, time, types, traceback
@@ -162,7 +163,7 @@ class H5pyDataStore(IDataStore.IDataStore):
         recMaxDims = rec.getMaxSizes()
         for i in range(nDims):
             szDims1[i] = szDims[nDims - i - 1]
-            if recMaxDims == None or recMaxDims[i] == 0:
+            if recMaxDims is None or recMaxDims[i] == 0:
                 maxDims[i] = None
             else:
                 maxDims[i] = recMaxDims[i]
