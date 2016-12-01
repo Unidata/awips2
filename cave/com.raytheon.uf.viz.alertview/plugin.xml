@@ -15,7 +15,7 @@
     <extension
          point="org.eclipse.ui.menus">
          <menuContribution
-            locationURI="menu:CAVE?after=browsers">
+            locationURI="menu:d2dFile?after=afterNewGroup">
             <command
               commandId="com.raytheon.uf.viz.alertview.openAlertView"
               label="Open AlertView"

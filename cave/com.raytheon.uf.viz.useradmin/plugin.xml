@@ -5,7 +5,7 @@
          point="org.eclipse.ui.menus">
       <menuContribution
             allPopups="false"
-            locationURI="menu:CAVE?after=group1">
+            locationURI="menu:d2dFile?after=group1">
          <command
                commandId="com.raytheon.uf.viz.useradmin.useradminui"
                label="AWIPS User Administration..."

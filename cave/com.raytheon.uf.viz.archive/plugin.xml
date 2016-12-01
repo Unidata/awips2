@@ -23,7 +23,7 @@
    <extension
          point="org.eclipse.ui.menus">
          <menuContribution
-               locationURI="menu:CAVE?after=group1">
+               locationURI="menu:d2dFile?after=group1">
                <menu
                      label="Archive"
                      id="archive">
