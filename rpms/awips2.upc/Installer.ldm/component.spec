@@ -20,12 +20,12 @@ Vendor: %{_build_vendor}
 Packager: %{_build_site}
 
 AutoReq: no
-Requires: awips2-qpid-lib
+Requires: awips2, awips2-qpid-lib
 Requires: awips2-python
-Requires: compat-gcc-34-g77
 Requires: pax, gcc, libxml2-devel
 Requires: libtool, libpng-devel
 Provides: awips2-ldm
+BuildRequires: awips2-qpid-lib, awips2-python
 
 %description
 AWIPS II LDM Distribution - Contains AWIPS II LDM.
@@ -169,11 +169,14 @@ if [ $? -ne 0 ]; then
 fi
 
 # build ldm
-rm -f /awips2/ldm/runtime
+. /etc/profile.d/awips2.sh
+rm -f ${_ldm_dir}/runtime
 cd ${_ldm_root_dir}/src
 if [ $? -ne 0 ]; then
+   echo "FATAL: ldm source not found!"
    exit 1
 fi
+echo "INFO: running configure"
 ./configure --disable-max-size --disable-root-actions --prefix=${_ldm_root_dir} CFLAGS='-g -O0' > configure.log 2>&1
 if [ $? -ne 0 ]; then
    echo "FATAL: ldm configure has failed!"
@@ -182,7 +185,9 @@ fi
 # Fix libtool incompatibility in source tar ball
 rm -f libtool
 ln -s /usr/bin/libtool libtool
+echo "INFO: running make"
 make LDMHOME=/awips2/ldm > make.log 2>&1
+echo "INFO: running make install"
 make install LDMHOME=/awips2/ldm > install.log 2>&1
 if [ $? -ne 0 ]; then
    echo "FATAL: make install has failed!"
@@ -193,12 +198,24 @@ if [ $? -ne 0 ]; then
    echo "FATAL: root-actions has failed!"
    exit 1
 fi
-# Unpack patch tar files
+# Unpack patch tar files (/awips2/ldm/bin must be symlink by now to /awips2/ldm/runtime/bin)
 cd ${_ldm_dir}/SOURCES
-_PATCH_DIRS=( 'bin' 'decoders' 'etc' )
+_PATCH_DIRS=( 'decoders' 'etc' )
 for patchDir in ${_PATCH_DIRS[*]};
 do
    /bin/tar -xf ${patchDir}.tar -C ${_ldm_dir}
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+   /bin/rm -f ${patchDir}.tar
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+done
+_PATCH_DIRS=( 'bin' )
+for patchDir in ${_PATCH_DIRS[*]};
+do
+   /bin/tar -xf ${patchDir}.tar -C ${_ldm_dir}/ldm-%{_ldm_version}/
    if [ $? -ne 0 ]; then
       exit 1
    fi
