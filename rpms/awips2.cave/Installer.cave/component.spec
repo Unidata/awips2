@@ -225,7 +225,7 @@ if [ -d /awips2/cave ]; then
    updateCaveVersion
 fi
 
-chown -R awips:fxalpha /awips2/cave
+chown -R awips:awips /awips2/cave
 
 %preun
 %postun
@@ -242,6 +242,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/cave/about_files
 /awips2/cave/about_files/*
 %doc /awips2/cave/about.html
+/awips2/cave/epl-v10.html
+/awips2/cave/notice.html
+/awips2/cave/readme/readme_eclipse.html
 /awips2/cave/artifacts.xml 
 /awips2/cave/cave.ini
 %dir /awips2/cave/configuration

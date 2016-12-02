@@ -1,6 +1,6 @@
 #!/bin/bash -v
 set -xe
-rm -rf /awips2/jenkins/buildspace/workspace/AWIPS2-UPC_build/baseline/
+#rm -rf /awips2/jenkins/buildspace/workspace/AWIPS2-UPC_build/baseline/
 
 export JENKINS_WORKSPACE=/home/${USER}/awips2-builds
 
@@ -81,10 +81,10 @@ popd > /dev/null 2>&1
 export rpm_end_dir="${AWIPSII_VERSION}-${AWIPSII_RELEASE}"
 
 if [ "$(ls -A ${AWIPSII_TOP_DIR}/RPMS/x86_64/)" ]; then
-   mv ${AWIPSII_TOP_DIR}/RPMS/x86_64/* /awips2/jenkins/build/awips2_${AWIPSII_VERSION}/x86_64/
+   mv ${AWIPSII_TOP_DIR}/RPMS/x86_64/* /awips2/jenkins/build/awips2-el7/x86_64/
 fi
 if [ "$(ls -A ${AWIPSII_TOP_DIR}/RPMS/noarch/)" ]; then
-   mv ${AWIPSII_TOP_DIR}/RPMS/noarch/* /awips2/jenkins/build/awips2_${AWIPSII_VERSION}/noarch/
+   mv ${AWIPSII_TOP_DIR}/RPMS/noarch/* /awips2/jenkins/build/awips2-el7/noarch/
 fi
 
 END_TIME=`date "+%s"`
