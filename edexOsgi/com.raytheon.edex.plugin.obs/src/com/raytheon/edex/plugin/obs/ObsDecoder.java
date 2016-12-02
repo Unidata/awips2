@@ -28,8 +28,6 @@ import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.edex.plugin.obs.metar.MetarDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.status.IPerformanceStatusHandler;
-import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.wmo.WMOHeader;
@@ -66,9 +64,6 @@ public class ObsDecoder extends AbstractDecoder {
     /** The logger */
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final IPerformanceStatusHandler perfLog = PerformanceStatus
-            .getHandler("Obs:");
-
     private String traceId = null;
 
     /**
@@ -98,7 +93,6 @@ public class ObsDecoder extends AbstractDecoder {
                     }
                 }
                 timer.stop();
-                perfLog.logDuration("Time to Decode", timer.getElapsedTime());
             }
         } catch (Exception e) {
             logger.error(traceId + "- Error in ObsDecoder", e);

@@ -20,7 +20,6 @@ Vendor: %{_build_vendor}
 Packager: %{_build_site}
 
 AutoReq: no
-Requires: gempak
 Requires: awips2-qpid-lib
 Requires: awips2-python
 Requires: compat-gcc-34-g77

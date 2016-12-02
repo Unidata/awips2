@@ -1,23 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-    <!--
-        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
-        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
-        
-        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
-        This_software_product_contains_export-restricted_data_whose
-        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
-        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
-        an_export_license_or_other_authorization.
-        
-        Contractor_Name:________Raytheon_Company
-        Contractor_Address:_____6825_Pine_Street,_Suite_340
-        ________________________Mail_Stop_B8
-        ________________________Omaha,_NE_68106
-        ________________________402.291.0100
-        
-        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
-        further_licensing_information.
-    -->
 <!-- 
  * SOFTWARE HISTORY
  * 
@@ -141,15 +122,30 @@
      -->
 <archive>
     <name>Processed</name>
-    <rootDir>/archive/</rootDir>
+    <rootDir>/awips2/edex/data/archive/</rootDir>
     <defaultRetentionHours>168</defaultRetentionHours>
-     <category>
-        <name>Decision Assistance</name>
-         <selectedRetentionHours>168</selectedRetentionHours>
-         <dataSet>
-            <dirPattern>(cwat|fog|ffmp|fssobs|preciprate|qpf|scan|vil)/.*(\d{4})-(\d{2})-(\d{2})-(\d{2}).*</dirPattern>
+    <category>
+        <name>Radar</name>
+        <selectedRetentionHours>168</selectedRetentionHours>
+        <dataSet>
+            <dirPattern>radar/(.*)/(.*)/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
             <displayLabel>{1}</displayLabel>
-            <dateGroupIndices>2,3,4,5</dateGroupIndices>
+            <dateGroupIndices>3,4,5,6</dateGroupIndices>
+        </dataSet>
+    </category>
+    <category>
+        <name>Model</name>
+        <selectedRetentionHours>168</selectedRetentionHours>
+        <dataSet>
+            <dirPattern>(grid)/(.*)/(.*)/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})-.*</dirPattern>
+            <displayLabel>{2}</displayLabel>
+            <dateGroupIndices>4,5,6,7</dateGroupIndices>
+        </dataSet>
+        <dataSet>
+            <dirPattern>(modelsounding)/(.*)/.*/.*(\d{4})-(\d{2})-(\d{2})-(\d{2}).*</dirPattern>
+            <dirPattern>(bufrmos)(.*)/.*(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
+            <displayLabel>{1} - {2}</displayLabel>
+            <dateGroupIndices>3,4,5,6</dateGroupIndices>
         </dataSet>
     </category>
     <category>
@@ -176,21 +172,6 @@
         </dataSet>
     </category>
     <category>
-        <name>Model</name>
-        <selectedRetentionHours>168</selectedRetentionHours>
-        <dataSet>
-            <dirPattern>(grid)/(.*)/(.*)/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})-.*</dirPattern>
-            <displayLabel>{2}</displayLabel>
-            <dateGroupIndices>4,5,6,7</dateGroupIndices>
-        </dataSet>
-        <dataSet>
-            <dirPattern>(modelsounding)/(.*)/.*/.*(\d{4})-(\d{2})-(\d{2})-(\d{2}).*</dirPattern>
-            <dirPattern>(bufrmos)(.*)/.*(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
-            <displayLabel>{1} - {2}</displayLabel>
-            <dateGroupIndices>3,4,5,6</dateGroupIndices>
-        </dataSet>
-    </category>
-    <category>
         <name>Products</name>
         <selectedRetentionHours>168</selectedRetentionHours>
         <dataSet>
@@ -204,7 +185,7 @@
         <name>Observation</name>
         <selectedRetentionHours>168</selectedRetentionHours>
         <dataSet>
-            <dirPattern>(acars|airep|binlightning|bufrascat|bufrhdw|bufrmthdw|bufrssmi|idft|lsr|obs|pirep|recco|svrwx)/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
+            <dirPattern>(acars|airep|binlightning|bufrhdw|bufrmthdw|bufrssmi|idft|lsr|obs|pirep|recco|svrwx)/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
             <dirPattern>(sfcobs)/.*/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
             <displayLabel>{1}</displayLabel>
             <dateGroupIndices>2,3,4,5</dateGroupIndices>
@@ -235,13 +216,12 @@
         </dataSet>
     </category>
     <category>
-    <!-- Find mosaic dataset and add here. -->
-        <name>radar</name>
-        <selectedRetentionHours>168</selectedRetentionHours>
-        <dataSet>
-            <dirPattern>radar/(.*)/(.*)/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
+        <name>Decision Assistance</name>
+         <selectedRetentionHours>168</selectedRetentionHours>
+         <dataSet>
+            <dirPattern>(cwat|fog|ffmp|fssobs|preciprate|qpf|scan|vil)/.*(\d{4})-(\d{2})-(\d{2})-(\d{2}).*</dirPattern>
             <displayLabel>{1}</displayLabel>
-            <dateGroupIndices>3,4,5,6</dateGroupIndices>
+            <dateGroupIndices>2,3,4,5</dateGroupIndices>
         </dataSet>
     </category>
 </archive>

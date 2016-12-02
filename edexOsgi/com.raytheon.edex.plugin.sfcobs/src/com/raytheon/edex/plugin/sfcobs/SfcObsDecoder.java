@@ -34,8 +34,6 @@ import com.raytheon.edex.plugin.sfcobs.decoder.ISfcObsDecoder;
 import com.raytheon.edex.plugin.sfcobs.decoder.SfcObsDecoderFactory;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
-import com.raytheon.uf.common.status.IPerformanceStatusHandler;
-import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.wmo.WMOHeader;
@@ -84,9 +82,6 @@ public class SfcObsDecoder extends AbstractDecoder {
     // private static final long ALLOWABLE_TIME = 15 * 60 * 1000;
     // Name of the plugin controlling this decoder.
     public static final String PLUGIN_NAME = "sfcobs";
-
-    private final IPerformanceStatusHandler perfLog = PerformanceStatus
-            .getHandler("SfcObs:");
 
     /** The logger */
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -178,7 +173,6 @@ public class SfcObsDecoder extends AbstractDecoder {
             }
         }
         timer.stop();
-        perfLog.logDuration("Time to Decode", timer.getElapsedTime());
         return retVal.toArray(new PluginDataObject[retVal.size()]);
     }
 

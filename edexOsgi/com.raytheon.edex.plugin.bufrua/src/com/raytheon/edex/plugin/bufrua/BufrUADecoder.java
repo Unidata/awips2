@@ -36,8 +36,6 @@ import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.ObStation;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
-import com.raytheon.uf.common.status.IPerformanceStatusHandler;
-import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.wmo.WMOHeader;
@@ -93,8 +91,6 @@ public class BufrUADecoder extends AbstractBUFRDecoder {
 
     private BUFRUAAdapterFactory adapterFactory;
 
-    private final IPerformanceStatusHandler perfLog = PerformanceStatus
-            .getHandler("BufrUA:");
 
     /**
      * 
@@ -157,7 +153,6 @@ public class BufrUADecoder extends AbstractBUFRDecoder {
                 }
             }
             timer.stop();
-            perfLog.logDuration("Time to Decode", timer.getElapsedTime());
         }
         return decodedData;
     }

@@ -121,7 +121,7 @@
 	<contribute xsi:type="separator" id="RadarDialRadarsSeparator" />
 	<contribute xsi:type="subMenu" menuText="NEXRAD Stations"
 		id="RadarMenuDialRadarsSubMenu">
-		<contribute xsi:type="subinclude" fileName="menus/radar/dialRadars.xml" />
+		<contribute xsi:type="subinclude" fileName="menus/radar/allRadars.xml" />
 	</contribute>
 	<contribute xsi:type="subMenu" menuText="TDWR Stations"
 		id="RadarMenuDialRadarsSubMenu">

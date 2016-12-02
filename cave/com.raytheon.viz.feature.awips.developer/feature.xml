@@ -116,11 +116,7 @@
    <includes
          id="com.raytheon.uf.viz.d2d.nsharp.feature"
          version="0.0.0"/>
-<!--
-   <includes
-         id="com.raytheon.uf.viz.archive.feature"
-         version="0.0.0"/>
--->
+
    <includes
          id="com.raytheon.uf.viz.ncep.perspective.feature"
          version="0.0.0"/>
@@ -192,8 +188,13 @@
    <includes
          id="com.raytheon.uf.viz.satellite.goesr.feature"
          version="0.0.0"/>
+
    <includes
          id="com.raytheon.viz.hydro.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="edu.wisc.ssec.cimss.viz.convectprob.feature"
          version="0.0.0"/>
 
    <requires>
