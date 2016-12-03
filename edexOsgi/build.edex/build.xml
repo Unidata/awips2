@@ -118,20 +118,8 @@
 				value="com.raytheon.uf.edex.remote.script.feature" />
 		</antcall>
 		<antcall target="build">
-		    <param name="feature"
-		        value="edu.wisc.ssec.cimss.edex.convectprob.feature" />
-		</antcall>
-		<antcall target="build">
 			<param name="feature"
 				value="com.raytheon.uf.edex.binlightning.feature" />
-		</antcall>
-		<antcall target="build">
-			<param name="feature"
-				value="gov.nasa.msfc.sport.edex.sportlma.feature" />
-		</antcall>
-		<antcall target="build">
-			<param name="feature"
-				value="gov.nasa.msfc.sport.edex.glmdecoder.feature" />
 		</antcall>
 		<antcall target="build">
 			<param name="feature"
