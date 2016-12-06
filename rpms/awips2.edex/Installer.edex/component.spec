@@ -16,10 +16,11 @@ Packager: %{_build_site}
 provides: awips2-edex
 provides: awips2-base-component
 provides: awips2-base
-requires: awips2-python
-requires: awips2-java
-requires: awips2-psql
-requires: awips2-yajsw
+Requires: awips2-python
+Requires: awips2-java
+Requires: awips2-psql
+Requires: awips2-yajsw
+Requires: libpng12
 Obsoletes: awips2-edex-grib < 16.1.6
 
 %{?filter_setup:

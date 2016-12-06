@@ -43,11 +43,13 @@ if [ ! -d ${TOPO_DIR} ]; then
    echo "Directory ${TOPO_DIR} not found!"
    exit 1
 fi
-
+#defaultTopo.h5  gtopo30.h5  modelStaticTopo.h5  staticTopo.h5  usTopo.dat.gz
 TOPO_TO_COPY=\
 (\
+   'defaultTopo.h5'\
+   'modelStaticTopo.h5'\
+   'staticTopo.h5'\
    'gtopo30.h5'\
-   'defaultTopo.h5' \
    'usTopo.dat.gz' \
 )
 # !!!!! WARNING - THIS WILL TAKE A LONG TIME !!!!!
@@ -75,3 +77,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/edex/data/hdf5/topo
 /awips2/edex/data/hdf5/topo/*
 %docdir /awips2/edex/data/hdf5/topo/licenses
+# rpm -qlp ./noarch/awips2-data.hdf5-topo-16.2.2-2.el7.centos.noarch.rpm
+#/awips2/edex/data/hdf5
+#/awips2/edex/data/hdf5/topo
+#/awips2/edex/data/hdf5/topo/defaultTopo.h5
+#/awips2/edex/data/hdf5/topo/gtopo30.h5
+#/awips2/edex/data/hdf5/topo/usTopo.dat.gz
