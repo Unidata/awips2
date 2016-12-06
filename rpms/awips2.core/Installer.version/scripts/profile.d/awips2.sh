@@ -75,16 +75,16 @@ if [ -d ${NOTIFICATION_INSTALL} ]; then
       fi
       export LD_LIBRARY_PATH=${_lib_dir}:${LD_LIBRARY_PATH}
    fi
-   # Determine if the qpid lib directory is already on LD_LIBRARY_PATH
-   CHECK_PATH=`echo ${LD_LIBRARY_PATH} | grep ${QPID_LIB_DIR}`
-   if [ "${CHECK_PATH}" = "" ]; then
-      export LD_LIBRARY_PATH=${QPID_LIB_DIR}:$LD_LIBRARY_PATH
-   fi
    # Determine if awips2-notification Is Already Part Of The Path.
    CHECK_PATH=`echo ${PATH} | grep ${NOTIFICATION_INSTALL}`
    if [ "${CHECK_PATH}" = "" ]; then
       export PATH=${NOTIFICATION_INSTALL}/bin:${PATH}
    fi
+fi
+# Determine if the qpid lib directory is already on LD_LIBRARY_PATH
+CHECK_PATH=`echo ${LD_LIBRARY_PATH} | grep ${QPID_LIB_DIR}`
+if [ "${CHECK_PATH}" = "" ]; then
+   export LD_LIBRARY_PATH=${QPID_LIB_DIR}:$LD_LIBRARY_PATH
 fi
 if [ -d ${POSTGRESQL_INSTALL} ]; then
    # Determine if awips2-postgresql is Already On LD_LIBRARY_PATH
