@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
 <meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
 <meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
-<meta itemprop="name" content="AWIPS User Manual - Behaviors">
+<meta itemprop="name" content="Unidata AWIPS User Manual - Behaviors">
 <meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
 
 
@@ -14,23 +14,24 @@
 
 
 <title>
+  Unidata AWIPS User Manual
   
-    Behaviors -
-   AWIPS User Manual
+    - Behaviors
+  
 </title>
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
 <link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
 <link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
-<link href="/awips2/css/site2.css?20161101" rel="stylesheet">
-<link href="/awips2/css/site2_sd_rules.css?20161101" rel="stylesheet" shim-shadowdom>
+<link href="/awips2/css/site2.css?20161206" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20161206" rel="stylesheet" shim-shadowdom>
 
 
 
-<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20161101"></script>
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20161206"></script>
 <!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
 <link rel="import" href="/awips2/components/polymer/polymer.html">
 <link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
-<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20161101">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20161206">
 
 
 </head>
@@ -86,16 +87,16 @@
 </ul>
 <!--TOC_END-->
 
-<p>AWIPS User Manual supports extending custom element prototypes with 
+<p>Unidata AWIPS User Manual supports extending custom element prototypes with 
 shared code modules called <em>behaviors</em>.</p>
 
 <p>A behavior is an object that looks similar to a typical
-AWIPS User Manual prototype.  A behavior can define <a href="registering-elements.html#basic-callbacks">lifecycle callbacks
+Unidata AWIPS User Manual prototype.  A behavior can define <a href="registering-elements.html#basic-callbacks">lifecycle callbacks
 </a>,  <a href="properties.html">declared
 properties</a>, <a href="registering-elements.html#host-attributes">default attributes</a>,
 <a href="properties.html#observing-changes-to-multiple-properties"><code>observers</code></a>, and <a href="events.html#event-listeners"><code>listeners</code></a>.</p>
 
-<p>To add a behavior to a AWIPS User Manual element definition, include it in a
+<p>To add a behavior to a Unidata AWIPS User Manual element definition, include it in a
 <code>behaviors</code> array on the prototype.</p>
 
 <pre><code>Polymer({
@@ -165,10 +166,10 @@ The following example simply adds <code>HighlightBehavior</code> to the global s
 &lt;/script&gt;
 </code></pre>
 
-<p>AWIPS User Manual doesn’t specify any
-particular method for referencing your behaviors. Behaviors created by the AWIPS User Manual
-team are added to the AWIPS User Manual object. When creating your own behaviors, you should 
-use some other namespace to avoid collisions with future AWIPS User Manual behaviors. For example:</p>
+<p>Unidata AWIPS User Manual doesn’t specify any
+particular method for referencing your behaviors. Behaviors created by the Unidata AWIPS User Manual
+team are added to the Unidata AWIPS User Manual object. When creating your own behaviors, you should 
+use some other namespace to avoid collisions with future Unidata AWIPS User Manual behaviors. For example:</p>
 
 <pre><code>window.MyBehaviors = window.MyBehaviors || {};
 MyBehaviors.HighlightBehavior = { ... }
@@ -223,7 +224,7 @@ on the behaviors they extend (for example, <code>NewBehaviorImpl</code> can call
 <script src="/awips2/js/prettify/prettify.js"></script>
 
 <!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
-<script src="/awips2/js/app.js?20161101"></script>
+<script src="/awips2/js/app.js?20161206"></script>
 
 
   </scroll-area>
