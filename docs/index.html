@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
 <meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
 <meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
-<meta itemprop="name" content="Unidata AWIPS User Manual - About AWIPS">
+<meta itemprop="name" content="Unidata AWIPS User Manual - Introduction and Overview">
 <meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
 
 
@@ -16,32 +16,32 @@
 <title>
   Unidata AWIPS User Manual
   
-    - About AWIPS
+    - Introduction and Overview
   
 </title>
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
 <link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
 <link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
-<link href="/awips2/css/site2.css?20161206" rel="stylesheet">
-<link href="/awips2/css/site2_sd_rules.css?20161206" rel="stylesheet" shim-shadowdom>
+<link href="/awips2/css/site2.css?20161207" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20161207" rel="stylesheet" shim-shadowdom>
 
 
 
-<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20161206"></script>
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20161207"></script>
 <!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
 <link rel="import" href="/awips2/components/polymer/polymer.html">
 <link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
-<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20161206">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20161207">
 
 
 </head>
-<body id="about-awips">
+<body id="introduction-and-overview">
 
 <main id="content-container" class="polymer-content">
   <app-drawer id="sidebar" unresolved>
     <div layout vertical id="sidebar-content">
       <div id="logo-container" layout horizontal center>
-        <a href="/awips2/" class="logo"><img src="/awips2/images/logos/awips2.png" alt="Unidata AWIPS User Guide"></a>
+        <a href="/awips2/" class="logo"><img style="width:200px;" src="/awips2/images/logos/awips2.png" alt="Unidata AWIPS User Guide"></a>
       </div>
 
       <docs-menu unresolved flex
@@ -52,18 +52,19 @@
   </app-drawer>
 
   <scroll-area sidebar unresolved class="scrolling">
-    <site-banner type="about" shortname="Introducing" unresolved>
+    <site-banner type="about" shortname="" unresolved>
       
 <app-bar theme="light" class="bar fixed">
 </app-bar>
 
+
+          
       <header class="shrink">
         <h1>
-        
-          Overview
-        : About AWIPS
+             Introduction and Overview
         </h1>
       </header>
+          
     </site-banner>
 
     
@@ -73,9 +74,7 @@
 
       <header class="onlyonmobile">
         <h1>
-          
-          Overview
-          : About AWIPS
+          : Introduction and Overview
         </h1>
       </header>
 
@@ -89,22 +88,27 @@
   }
 </style>
 
-<p>AWIPS (formerly know as AWIPS II or AWIPS2) is a weather forecasting display and analysis package developed by the <a href="http://www.nws.noaa.gov/ost/SEC/AE/">National Weather Service</a> and <a href="http://www.raytheon.com/capabilities/products/awips/">Raytheon</a>. AWIPS is a Java application consisting of a data-rendering client (<a href="#cave">CAVE</a>, which runs on Red Hat/CentOS Linux and Mac OS X) and a backend data server (<a href="#edex">EDEX</a>, which runs only on 64-bit CentOS or RedHat)</p>
+<blockquote>
+  <p>This manual is maintained by the <a href="https://www.unidata.ucar.edu">Unidata Program Center</a>, a <a href="https://www.ucp.ucar.edu/">UCAR Community Program</a>.</p>
+</blockquote>
 
-<p>AWIPS takes a unified approach to data ingest, and most data types follow a standard path through the system, starting with an <a href="#ldm">LDM</a> client requesting data from Unidata’s <a href="http://www.unidata.ucar.edu/projects/#idd">IDD</a>, which are then decoded and stored as HDF5 and PostgreSQL/PostGIS metadata. Unidata supports two visualization frameworks for rendering AWIPS data: 1) <a href="#cave">CAVE</a>, 2) the <a href="https://github.com/Unidata/python-awips">Python Data Access Framework (python-awips)</a>.</p>
+<p><a href="http://www.unidata.ucar.edu/software/awips2/">Unidata AWIPS</a> is a meteorological display and analysis package originally developed by the <a href="http://www.nws.noaa.gov/ost/SEC/AE/">National Weather Service</a> and <a href="http://www.raytheon.com/capabilities/products/awips/">Raytheon</a>, repackaged by Unidata to support non-operational use in research and education by <a href="http://president.ucar.edu/governance/members/universities-representatives">UCAR member institutions</a>.</p>
 
-<p><img src="http://www.unidata.ucar.edu/software/awips2/images/awips2_coms.png" alt="image" /></p>
+<p>AWIPS takes a unified approach to data ingest, and most data types follow a path through the system starting with an <a href="#ldm">LDM</a> client requesting data from the <a href="http://www.unidata.ucar.edu/projects/#idd">Unidata IDD</a>. These data files are then decoded and stored as HDF5 and Postgres metadata by <a href="docs/install/install-edex.html">EDEX</a>.</p>
 
-<h1 id="license">License</h1>
+<p>Unidata supports two visualization frameworks for rendering AWIPS data: <a href="docs/install/install-cave.html">CAVE</a>, and the  <a href="http://python-awips.readthedocs.io">Python Data Access Framework (python-awips)</a>.</p>
+
+<h2 id="license">License</h2>
 
 <p>Unidata AWIPS source code and binaries (RPMs) are considered to be in the public domain, meaning there are no restrictions on any download, modification, or distribution in any form (original or modified).  Unidata AWIPS contains no proprietery content and is therefore not subject to export controls as stated in the <a href="https://github.com/Unidata/awips2/blob/unidata_16.2.2/rpms/legal/Master_Rights_File.pdf">Master Rights</a> licensing file.</p>
+
+<p><img style="float:right;width:450px;" src="http://www.unidata.ucar.edu/software/awips2/images/awips2_coms.png" /></p>
 
 <h2 id="software-components">Software Components</h2>
 
 <ul>
   <li><a href="#edex">EDEX</a></li>
   <li><a href="#cave">CAVE</a></li>
-  <li><a href="#alertviz">Alertviz</a></li>
   <li><a href="#ldm">LDM</a></li>
   <li><a href="#edexbridge">edexBridge</a></li>
   <li><a href="#qpid">Qpid</a></li>
@@ -135,10 +139,6 @@
 
 <p><img src="http://www.unidata.ucar.edu/software/awips2/images/Unidata_AWIPS2_CAVE.png" alt="CAVE" /></p>
 
-<h3 id="alertviz">Alertviz</h3>
-
-<p><strong>Alertviz</strong> is a modernized version of an AWIPS I application, designed to present various notifications, error messages, and alarms to the user (forecaster). AlertViz can be executed either independently or from CAVE itself.  In the Unidata CAVE client, Alertviz is run within CAVE and is not required to be run separately.  The toolbar is also <strong>hidden from view</strong> and is accessed by right-click on the desktop taskbar icon.</p>
-
 <h3 id="ldm">LDM</h3>
 
 <p><a href="http://www.unidata.ucar.edu/software/ldm/">http://www.unidata.ucar.edu/software/ldm/</a></p>
@@ -156,6 +156,7 @@
 <p><strong>Apache Qpid</strong>, the Queue Processor Interface Daemon, is the messaging system used by AWIPS to facilitate communication between services.  When the LDM receives a data file to be processed, it employs <strong>edexBridge</strong> to send EDEX ingest servers a message via Qpid.  When EDEX has finished decoding the file, it sends CAVE a message via Qpid that data are available for display or further processing. Qpid is started and stopped by <code>edex start</code> and <code>edex stop</code>, and is controlled by the system script <code>/etc/rc.d/init.d/qpidd</code></p>
 
 <h3 id="postgresql">PostgreSQL</h3>
+
 <p><a href="http://www.postgresql.org">http://www.postgresql.org</a></p>
 
 <p><strong>PostgreSQL</strong>, known simply as Postgres, is a relational database management system (DBMS) which handles the storage and retrieval of metadata, database tables and some decoded data.  The storage and reading of EDEX metadata is handled by the Postgres DBMS.  Users may query the metadata tables by using the termainal-based front-end for Postgres called <strong>psql</strong>. Postgres is started and stopped by <code>edex start</code> and <code>edex stop</code>, and is controlled by the system script <code>/etc/rc.d/init.d/edex_postgres</code></p>
@@ -194,7 +195,7 @@
 <script src="/awips2/js/prettify/prettify.js"></script>
 
 <!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
-<script src="/awips2/js/app.js?20161206"></script>
+<script src="/awips2/js/app.js?20161207"></script>
 
 
   </scroll-area>
