@@ -219,11 +219,11 @@ do
 done
 popd > /dev/null 2>&1
 if getent passwd awips &>/dev/null; then
-  /bin/chown -R awips:awips /awips2/cave
+  /bin/chown -R awips:fxalpha /awips2/cave
 else
-  echo "--- Warning: user/group awips:awips does not exist"
+  echo "--- Warning: user/group awips:fxalpha does not exist"
   echo "--- you will need to check owner/group/permissions for /awips2/cave"
-  echo "tried to run 'chown -R awips:awips /awips2/cave'"
+  echo "tried to run 'chown -R awips:fxalpha /awips2/cave'"
   echo ""
 fi
 
@@ -288,6 +288,6 @@ echo "uninstall COMPLETE: ${LOG_TIMESTAMP}"
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(644,awips,awips,755)
+%defattr(644,awips,fxalpha,755)
 %dir /awips2/cave/.repository
 /awips2/cave/.repository/*

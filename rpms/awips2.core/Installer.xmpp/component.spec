@@ -130,7 +130,7 @@ rm -f %{_topdir}/BUILD/%{_xmpp_server}-files.txt
 rm -rf ${RPM_BUILD_ROOT}
 
 %files -f %{_xmpp_server}-files.txt
-%defattr(644,awips,awips,755)
+%defattr(644,awips,fxalpha,755)
 %dir /awips2
 
 %defattr(755,root,root,755)

@@ -62,9 +62,9 @@ mkdir -p ${RPM_BUILD_ROOT}/awips2/tools/bin
 rm -rf ${RPM_BUILD_ROOT}/*
 
 %files
-%attr(755,awips,awips) /awips2/tools/bin/edex
-%attr(755,awips,awips) /awips2/tools/bin/arinfo
-%attr(755,awips,awips) /awips2/tools/bin/areas
-%attr(755,awips,awips) /awips2/tools/bin/wgrib
-%attr(755,awips,awips) /awips2/tools/bin/wgrib2
-%attr(644,awips,awips) /awips2/tools/bin/sat/imgtyp.tbl
+%attr(755,awips,fxalpha) /awips2/tools/bin/edex
+%attr(755,awips,fxalpha) /awips2/tools/bin/arinfo
+%attr(755,awips,fxalpha) /awips2/tools/bin/areas
+%attr(755,awips,fxalpha) /awips2/tools/bin/wgrib
+%attr(755,awips,fxalpha) /awips2/tools/bin/wgrib2
+%attr(644,awips,fxalpha) /awips2/tools/bin/sat/imgtyp.tbl

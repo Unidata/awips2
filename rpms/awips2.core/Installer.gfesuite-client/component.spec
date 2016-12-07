@@ -79,14 +79,14 @@ fi
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(644,awips,awips,755)
+%defattr(644,awips,fxalpha,755)
 %dir /awips2/GFESuite
-%defattr(755,awips,awips,755)
+%defattr(755,awips,fxalpha,755)
 /awips2/GFESuite/bin/*
-%defattr(644,awips,awips,755)
+%defattr(644,awips,fxalpha,755)
 %dir /awips2/GFESuite/bin/src
 %dir /awips2/GFESuite/exportgrids
 /awips2/GFESuite/exportgrids/*
-%defattr(644,awips,awips,775)
+%defattr(644,awips,fxalpha,775)
 %dir /awips2/GFESuite/products
 /awips2/GFESuite/products/*

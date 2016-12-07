@@ -72,7 +72,7 @@ done
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(664,awips,awips,775)
+%defattr(664,awips,fxalpha,775)
 %dir /awips2/edex/data/hdf5
 %dir /awips2/edex/data/hdf5/topo
 /awips2/edex/data/hdf5/topo/*

@@ -293,13 +293,13 @@ if [ ! -h /awips2/ldm/data ]; then
   ln -s /awips2/ldm/var/data /awips2/ldm/
 fi
 if getent passwd awips &>/dev/null; then
-  /bin/chown -R awips:awips ${_ldm_dir} /awips2/data_store
+  /bin/chown -R awips:fxalpha ${_ldm_dir} /awips2/data_store
   cd /awips2/ldm/src/
   make install_setuids
 else
   echo "--- Warning: group awips does not exist"
   echo "--- you will need to check owner/group/permissions for /awips2/ldm"
-  echo "tried to run 'chown -R awips:awips /awips2/ldm; cd /awips2/ldm/src/; make install_setuids'"
+  echo "tried to run 'chown -R awips:fxalpha /awips2/ldm; cd /awips2/ldm/src/; make install_setuids'"
   echo ""
 fi
 
@@ -317,11 +317,11 @@ fi
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(-,awips,awips,-)
+%defattr(-,awips,fxalpha,-)
 %dir /awips2/ldm
 %dir /awips2/ldm/SOURCES
 /awips2/ldm/SOURCES/*
 %attr(755,root,root) /etc/init.d/edex_ldm
-%attr(600,awips,awips) /var/spool/cron/awips
+%attr(600,awips,fxalpha) /var/spool/cron/awips
 %attr(755,root,root) /etc/ld.so.conf.d/awips2-ldm.conf
 %attr(755,root,root) /etc/logrotate.d/ldm.log

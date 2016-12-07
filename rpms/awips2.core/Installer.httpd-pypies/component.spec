@@ -627,7 +627,7 @@ echo "cleaning"
 rm -rf $RPM_BUILD_ROOT
 
 %files
-%defattr(-,awips,awips)
+%defattr(-,awips,fxalpha)
 
 %doc ABOUT_APACHE README CHANGES LICENSE VERSIONING NOTICE
 
@@ -705,11 +705,11 @@ rm -rf $RPM_BUILD_ROOT
 /awips2/httpd_pypies%{contentdir}/error/include/*.html
 /awips2/httpd_pypies%{contentdir}/noindex/*
 
-#%attr(0710,awips,awips) %dir /awips2/httpd_pypies/run/httpd
-%attr(0700,awips,awips) %dir /awips2/httpd_pypies%{_localstatedir}/log/httpd
-%attr(0700,awips,awips) %dir /awips2/httpd_pypies%{_localstatedir}/lib/dav
-%attr(0700,awips,awips) %dir /awips2/httpd_pypies%{_localstatedir}/cache/httpd
-%attr(0700,awips,awips) %dir /awips2/httpd_pypies%{_localstatedir}/cache/httpd/proxy
+#%attr(0710,awips,fxalpha) %dir /awips2/httpd_pypies/run/httpd
+%attr(0700,awips,fxalpha) %dir /awips2/httpd_pypies%{_localstatedir}/log/httpd
+%attr(0700,awips,fxalpha) %dir /awips2/httpd_pypies%{_localstatedir}/lib/dav
+%attr(0700,awips,fxalpha) %dir /awips2/httpd_pypies%{_localstatedir}/cache/httpd
+%attr(0700,awips,fxalpha) %dir /awips2/httpd_pypies%{_localstatedir}/cache/httpd/proxy
 
 %{_unitdir}/*.service
 

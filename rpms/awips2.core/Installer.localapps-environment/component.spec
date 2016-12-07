@@ -57,5 +57,5 @@ fi
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(755,awips,awips,-)
+%defattr(755,awips,fxalpha,-)
 /etc/profile.d/*

@@ -151,7 +151,7 @@ rm -rf ${RPM_BUILD_ROOT}
 rm -rf %{_tools_build_loc}
 
 %files
-%defattr(644,awips,awips,755)
+%defattr(644,awips,fxalpha,755)
 %dir /awips2/tools
 %dir /awips2/tools/include
 /awips2/tools/include/*
@@ -161,6 +161,6 @@ rm -rf %{_tools_build_loc}
 %dir /awips2/tools/licenses
 /awips2/tools/licenses/*
 
-%defattr(755,awips,awips,755)
+%defattr(755,awips,fxalpha,755)
 %dir /awips2/tools/bin
 /awips2/tools/bin/*

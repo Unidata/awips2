@@ -162,10 +162,10 @@ echo -e "\e[1;32m---------------------------------------------------------------
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(644,awips,awips,755)
+%defattr(644,awips,fxalpha,755)
 %dir /awips2/eclipse
 /awips2/eclipse/*
-%defattr(755,awips,awips,755)
+%defattr(755,awips,fxalpha,755)
 /awips2/eclipse/about.html
 /awips2/eclipse/artifacts.xml
 /awips2/eclipse/eclipse

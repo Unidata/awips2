@@ -80,13 +80,13 @@ fi
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(644,awips,awips,755)
+%defattr(644,awips,fxalpha,755)
 %dir /awips2/GFESuite
 /awips2/GFESuite/nwps/*
-%defattr(775,awips,awips,775)
+%defattr(775,awips,fxalpha,775)
 /awips2/GFESuite/hti*
-%defattr(755,awips,awips,755)
+%defattr(755,awips,fxalpha,755)
 /awips2/GFESuite/bin/*
 %dir /awips2/GFESuite/exportgrids
-%defattr(755,awips,awips,777)
+%defattr(755,awips,fxalpha,777)
 /awips2/GFESuite/ServiceBackup*

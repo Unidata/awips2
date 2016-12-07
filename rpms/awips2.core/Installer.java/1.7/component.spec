@@ -194,7 +194,7 @@ rm -rf ${RPM_BUILD_ROOT}
 rm -rf %{_java_build_loc}
 
 %files
-%defattr(644,awips,awips,755)
+%defattr(644,awips,fxalpha,755)
 %dir /awips2/java
 %dir /awips2/java/bin
 
@@ -244,7 +244,7 @@ rm -rf %{_java_build_loc}
 
 /awips2/java/src.zip
 
-%defattr(755,awips,awips,755)
+%defattr(755,awips,fxalpha,755)
 /awips2/java/bin/*
 /awips2/java/lib/*
 /awips2/java/jre/bin/*

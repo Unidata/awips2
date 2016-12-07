@@ -154,11 +154,11 @@ fi
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(644,awips,awips,755)
+%defattr(644,awips,fxalpha,755)
 %dir /awips2
 %dir /awips2/edex
 
-%defattr(755,awips,awips,755)
+%defattr(755,awips,fxalpha,755)
 %dir /awips2/edex/bin
 /awips2/edex/bin/*.sh
 

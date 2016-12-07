@@ -160,7 +160,7 @@ fi
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(644,awips,awips,755)
+%defattr(644,awips,fxalpha,755)
 %dir /awips2
 %dir /awips2/edex
 %dir /awips2/edex/bin
@@ -175,5 +175,5 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/edex/logs
 %dir /awips2/edex/webapps
 %config(noreplace) /awips2/edex/bin/setup.env
-%defattr(755,awips,awips,755)
+%defattr(755,awips,fxalpha,755)
 /awips2/edex/bin/*.sh

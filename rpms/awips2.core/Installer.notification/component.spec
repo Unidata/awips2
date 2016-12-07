@@ -116,7 +116,7 @@ rm -rf ${RPM_BUILD_ROOT}
 rm -rf %{_cdt_build_loc}
 
 %files
-%defattr(644,awips,awips,755)
+%defattr(644,awips,fxalpha,755)
 %dir /awips2/notification
 %dir /awips2/notification/include
 /awips2/notification/include/*
@@ -128,6 +128,6 @@ rm -rf %{_cdt_build_loc}
 %dir /awips2/notification/src
 /awips2/notification/src/*
 
-%defattr(755,awips,awips,755)
+%defattr(755,awips,fxalpha,755)
 %dir /awips2/notification/bin
 /awips2/notification/bin/*

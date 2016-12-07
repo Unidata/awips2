@@ -119,12 +119,12 @@ rm -rf ${RPM_BUILD_ROOT}
 rm -rf %{_pgadmin3_build_loc}
 
 %files
-%defattr(644,awips,awips,755)
+%defattr(644,awips,fxalpha,755)
 %dir /awips2
 %dir /awips2/pgadmin3
 %dir /awips2/pgadmin3/share
 /awips2/pgadmin3/share/*
 
-%defattr(755,awips,awips,755)
+%defattr(755,awips,fxalpha,755)
 %dir /awips2/pgadmin3/bin
 /awips2/pgadmin3/bin/*

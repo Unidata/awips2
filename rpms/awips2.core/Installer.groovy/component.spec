@@ -64,7 +64,7 @@ fi
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(644,awips,awips,755)
+%defattr(644,awips,fxalpha,755)
 
 %dir /awips2/groovy
 %dir /awips2/groovy/conf
@@ -84,5 +84,5 @@ rm -rf ${RPM_BUILD_ROOT}
 %doc /awips2/groovy/LICENSE.txt
 %doc /awips2/groovy/NOTICE.txt
 
-%defattr(755,awips,awips,755)
+%defattr(755,awips,fxalpha,755)
 /awips2/groovy/bin/*

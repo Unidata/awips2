@@ -83,7 +83,7 @@ fi
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(644,awips,awips,755)
+%defattr(644,awips,fxalpha,755)
 %dir /awips2
 %dir /awips2/collab-dataserver
 %dir /awips2/collab-dataserver/bin
@@ -91,7 +91,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/collab-dataserver/lib
 /awips2/collab-dataserver/lib/*
 
-%defattr(775,awips,awips,775)
+%defattr(775,awips,fxalpha,775)
 %dir /awips2/collab-dataserver/lib/uframe
 /awips2/collab-dataserver/lib/uframe/*
 %dir /awips2/collab-dataserver/lib/foss

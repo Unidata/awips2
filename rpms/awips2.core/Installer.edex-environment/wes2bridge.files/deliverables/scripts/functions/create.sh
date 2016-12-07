@@ -126,7 +126,7 @@ function createEnvironment()
    fi
 
    # 6) Adjust permissions.
-   chown -R awips:awips ${EDEX_ENV_DIR}/${env_name}
+   chown -R awips:fxalpha ${EDEX_ENV_DIR}/${env_name}
    if [ $? -ne 0 ]; then
       return 1
    fi
