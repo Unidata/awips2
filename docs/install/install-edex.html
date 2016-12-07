@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
 <meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
 <meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
-<meta itemprop="name" content="Unidata AWIPS User Manual - EDEX Install and Config">
+<meta itemprop="name" content="Unidata AWIPS User Manual - EDEX Data Server Installation">
 <meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
 
 
@@ -16,7 +16,7 @@
 <title>
   Unidata AWIPS User Manual
   
-    - EDEX Install and Config
+    - EDEX Data Server Installation
   
 </title>
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
@@ -35,7 +35,7 @@
 
 
 </head>
-<body id="edex-install-and-config">
+<body id="edex-data-server-installation">
 
 <main id="content-container" class="polymer-content">
   <app-drawer id="sidebar" unresolved>
@@ -59,7 +59,7 @@
 
       <header class="shrink">
         <h1>
-         EDEX Install and Config
+         EDEX Data Server Installation
         </h1>
       </header>
     </site-banner>
@@ -71,119 +71,139 @@
 
       <header class="onlyonmobile">
         <h1>
-          : EDEX Install and Config
+          : EDEX Data Server Installation
         </h1>
       </header>
 
-      <p><a href="http://www.unidata.ucar.edu/software/awips2/installEDEX.sh"><paper-button raised="" role="button" tabindex="0"><core-icon icon="file-download" aria-label="file-download" role="img"></core-icon>64-bit Linux</paper-button></a></p>
+      <h1 id="core-icon-iconfalinux-aria-labelfile-download-roleimgcore-icon-edex-for-linux"><core-icon icon="fa:linux" aria-label="file-download" role="img"></core-icon> EDEX for Linux</h1>
+
+<p><a href="http://www.unidata.ucar.edu/software/awips2/installEDEX.sh"><paper-button raised="" role="button" tabindex="0"><core-icon icon="file-download" aria-label="file-download" role="img"></core-icon>installEDEX.sh</paper-button></a> Installs to subdirectories in<code>/awips2</code></p>
+
+<h2 id="linux-system-requirements">Linux System Requirements</h2>
 
 <blockquote>
-  <p><strong>EDEX can only be installed on CentOS/RHEL 6 or 7</strong></p>
-</blockquote>
-
-<hr />
-
-<h1 id="system-requirements">System Requirements</h1>
-
-<ul>
-  <li><strong>64-bit CentOS/RHEL 6 or 7</strong></li>
-  <li><strong>8 CPU</strong> cores (16 recommended)</li>
-  <li><strong>16GB</strong> RAM (32+GB recommended for full IDD processing)</li>
-  <li><strong>500GB</strong> disk space, more if you plan to build a data archive.</li>
-  <li>An <strong>SSD</strong> mounted to <code>/awips2</code> contain the entire software system and data files.</li>
-</ul>
-
-<blockquote>
-  <h2 id="notes">Notes</h2>
   <ul>
-    <li>EDEX can scale to any system by reducing the volume of incoming data and/or turning off certain decoders (for example, with 4 core</li>
-    <li>As of AWIPS 16.2.2, scouring of <code>/awips2/data_store</code> is performed at 30 minutes past every hour, and the default retention rate is</li>
+    <li><strong>64-bit</strong> CentOS/RHEL 6 or 7</li>
+    <li><strong>8 CPU</strong> cores (16 recommended)</li>
+    <li><strong>16GB</strong> RAM (32+GB recommended for full IDD processing)</li>
+    <li><strong>500GB</strong> disk space, more if you build a data archive. An <strong>SSD is an especially good idea here</strong>, mounted to <code>/awips2/edex/data/hdf5</code>  to contain the decoded data files, or mounted to <code>/awips2</code> to contain the entire AWIPS software system.</li>
   </ul>
 </blockquote>
 
-<h1 id="linux-one-time-setup">Linux One-Time Setup</h1>
+<p>EDEX <strong>can scale to any system</strong>, either by adjusting the incoming data feeds, or the resources allocated to each data type (read more), but when selecting a server, <strong>more is always better</strong>.</p>
 
-<p>Create user and group <strong>awips:fxalpha</strong>.  IP tables will need to be configured to allow specific TCP connections for EDEX: ports <strong>5672</strong>, <strong>9581</strong> and <strong>9582</strong>.</p>
-
-<ul>
-  <li>
-    <p><code>groupadd fxalpha &amp;&amp; useradd -G fxalpha awips</code></p>
-  </li>
-  <li>
-    <p><code>mkdir -p /awips2/data_store</code></p>
-  </li>
-  <li>
-    <p><code>vi /etc/sysconfig/iptables</code></p>
-
-    <pre><code> # Firewall configuration written by system-config-firewall
- # Manual customization of this file is not recommended.
- *filter
- :INPUT ACCEPT [0:0]
- :FORWARD ACCEPT [0:0]
- :OUTPUT ACCEPT [0:0]
- -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
- -A INPUT -p icmp -j ACCEPT
- -A INPUT -i lo -j ACCEPT
- -A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
- -A INPUT -m state --state NEW -m tcp -p tcp --dport 5672 -j ACCEPT
- -A INPUT -m state --state NEW -m tcp -p tcp --dport 9581 -j ACCEPT
- -A INPUT -m state --state NEW -m tcp -p tcp --dport 9582 -j ACCEPT
- -A INPUT -j REJECT --reject-with icmp-host-prohibited
- -A FORWARD -j REJECT --reject-with icmp-host-prohibited
- COMMIT
-</code></pre>
-  </li>
-  <li>
-    <p><code>service iptables restart</code></p>
-  </li>
-  <li>
-    <p><code>vi /etc/sysconfig/selinux</code></p>
-
-    <pre><code>  # This file controls the state of SELinux on the system.
-  # SELINUX= can take one of these three values:
-  #     enforcing - SELinux security policy is enforced.
-  #     permissive - SELinux prints warnings instead of enforcing.
-  #     disabled - No SELinux policy is loaded.
-  SELINUX=disabled
-  # SELINUXTYPE= can take one of these two values:
-  #     targeted - Targeted processes are protected,
-  #     mls - Multi Level Security protection.
-  SELINUXTYPE=targeted
-</code></pre>
-  </li>
-  <li>
-    <p><code>reboot</code></p>
-
-    <p>Only required if iptables was updated in step 5.</p>
-  </li>
-  <li>
-    <p><code>df -h</code></p>
-
-    <p>Make sure you have 15GB of storage on <code>/</code> for the <code>/awips2</code> software, and then ensure you have 500GB (or more) of fast IO file storage (SSD or NFS) available to mount the directories <code>/awips2/edex/data/hdf5</code> and <code>/awips2/data_store</code>.</p>
-
-    <ul>
-      <li>
-        <p>All of <code>/awips2</code> on an SSD</p>
-
-        <p>For example:</p>
-
-        <pre><code>  Filesystem      Size  Used Avail Use% Mounted on
-  /dev/sda1        30G  2.5G   26G   9% /
-  tmpfs            28G     0   28G   0% /dev/shm
-  /dev/sdc1       788G   81G  667G  11% /awips2
-  /dev/sdb1       788G   69M  748G   1% /mnt/resource
-</code></pre>
-      </li>
-      <li>
-        <p><code>/awips2/edex/data/hdf5</code> on an SSD</p>
-      </li>
-    </ul>
-  </li>
-</ul>
+<p><strong>64-bit CentOS/RHEL 6 and 7</strong> are the only supported Linux operating systems. You may have luck with Fedora Core 12 to 14 and Scientific Linux. EDEX is not developed, tested, or supported on Debian, Ubuntu, SUSE, Solaris, OS X, or Windows.</p>
 
 <hr />
 
-<h1 id="edex-install">EDEX Install</h1>
+<h1 id="linux-one-time-setup-as-root">Linux One-Time Setup (as root)</h1>
+
+<h2 id="create-user-and-group-awipsfxalpha">1. Create user and group <strong>awips:fxalpha</strong></h2>
+
+<p><code>groupadd fxalpha &amp;&amp; useradd -G fxalpha awips</code></p>
+
+<h2 id="configure-iptables-to-allow-tcp-connections-on-ports-5672-9581-and-9582">2. Configure iptables to allow TCP connections on ports <strong>5672</strong>, <strong>9581</strong> and <strong>9582</strong></h2>
+
+<ul>
+  <li>
+    <p>To open ports to <strong>all connections</strong></p>
+
+    <p><code>vi /etc/sysconfig/iptables</code></p>
+
+    <pre><code>  *filter
+  :INPUT ACCEPT [0:0]
+  :FORWARD ACCEPT [0:0]
+  :OUTPUT ACCEPT [0:0]
+  -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+  -A INPUT -p icmp -j ACCEPT
+  -A INPUT -i lo -j ACCEPT
+  -A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
+  -A INPUT -m state --state NEW -m tcp -p tcp --dport 5672 -j ACCEPT
+  -A INPUT -m state --state NEW -m tcp -p tcp --dport 9581 -j ACCEPT
+  -A INPUT -m state --state NEW -m tcp -p tcp --dport 9582 -j ACCEPT
+  -A INPUT -j REJECT --reject-with icmp-host-prohibited
+  -A FORWARD -j REJECT --reject-with icmp-host-prohibited
+  COMMIT
+</code></pre>
+  </li>
+  <li>
+    <p>To open ports to <strong>specific IP addresses</strong></p>
+
+    <p><code>vi /etc/sysconfig/iptables</code></p>
+
+    <pre><code>  *filter
+  :INPUT DROP [0:0]
+  :FORWARD DROP [0:0]
+  :OUTPUT ACCEPT [0:0]
+  :EXTERNAL - [0:0]
+  :EDEX - [0:0]
+    
+  -A INPUT -i lo -j ACCEPT
+  -A INPUT -p icmp --icmp-type any -j ACCEPT
+  -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+  -A INPUT -s 128.117.140.0/24 -j EDEX
+  -A INPUT -s 128.117.156.0/24 -j EDEX
+  -A INPUT -j EXTERNAL
+  -A EXTERNAL -j REJECT
+    
+  -A EDEX -m state --state NEW -p tcp --dport 22 -j ACCEPT
+  -A EDEX -m state --state NEW -p tcp --dport 5672 -j ACCEPT
+  -A EDEX -m state --state NEW -p tcp --dport 9581 -j ACCEPT
+  -A EDEX -m state --state NEW -p tcp --dport 9582 -j ACCEPT
+  -A EDEX -j REJECT
+  COMMIT
+</code></pre>
+
+    <blockquote>
+      <p>In this example, the IP range <code>128.117.140.0/24</code> will match all 128.117.140.* addresses, while <code>128.117.156.0/24</code> will match 128.117.156.*.</p>
+    </blockquote>
+  </li>
+</ul>
+
+<h2 id="restart-iptables">3. Restart iptables</h2>
+
+<p><code>service iptables restart</code></p>
+
+<h2 id="disable-selinux">4. Disable SELinux</h2>
+
+<p><code>vi /etc/sysconfig/selinux</code></p>
+
+<pre><code># This file controls the state of SELinux on the system.
+# SELINUX= can take one of these three values:
+#     enforcing - SELinux security policy is enforced.
+#     permissive - SELinux prints warnings instead of enforcing.
+#     disabled - No SELinux policy is loaded.
+SELINUX=disabled
+# SELINUXTYPE= can take one of these two values:
+#     targeted - Targeted processes are protected,
+#     mls - Multi Level Security protection.
+SELINUXTYPE=targeted
+</code></pre>
+
+<blockquote>
+  <p><a href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Security-Enhanced_Linux/sect-Security-Enhanced_Linux-Enabling_and_Disabling_SELinux-Disabling_SELinux.html">Read more about selinux at redhat.com</a></p>
+</blockquote>
+
+<h2 id="reboot">4. <code>reboot</code></h2>
+
+<p>Only required if iptables was updated.</p>
+
+<h2 id="data-disks">5. Data Disks</h2>
+
+<p><code>/awips2</code> requires 20GB for installed software.</p>
+
+<p><code>/awips2/data_store</code> will contain the last hours’ worth of raw data written by the LDM (~20GB).  Scouring of this directory is performed by EDEX to only retain the last hours worth of data (previously with <code>ldmadmin scour</code> the minimum was <em>24 hours</em>).</p>
+
+<p><code>/awips2/edex/data/hdf5</code> requires 500GB for live data ingest of all IDD feeds. We recommend mounting an <strong>SSD</strong> here, or to the entire <code>/awips2</code> filesystem (or both, as shown):</p>
+
+<pre><code>    Filesystem      Size  Used Avail Use% Mounted on
+    /dev/sda1        30G  2.5G   26G   9% /
+    tmpfs            28G     0   28G   0% /dev/shm
+    /dev/sdc1       788G   81G  667G  11% /awips2
+    /dev/sdb1       788G   41G  708G  10% /awips2/edex/data/hdf5
+</code></pre>
+
+<h2 id="install-edex">6. Install EDEX</h2>
 
 <ul>
   <li>
@@ -197,38 +217,37 @@
   </li>
 </ul>
 
-<p>This will install to <code>/awips2/edex</code>, <code>/awips2/data</code> and other directories.</p>
+<p>What does <code>installEDEX.sh</code> do?</p>
 
 <blockquote>
-  <p>64-bit CentOS/RHEL 6 and 7 are the only supported Linux operating systems. You may have luck with Fedora Core 12 to 14 and Scientific Linux. EDEX is not supported on Debian, Ubuntu, SUSE, Solaris, OS X, or Windows.</p>
+  <ol>
+    <li>Downloads <a href="http://www.unidata.ucar.edu/software/awips2/doc/awips2.repo">awips2.repo</a> or <a href="http://www.unidata.ucar.edu/software/awips2/doc/el7.repo">el7.repo</a> to <code>/etc/yum.repos.d/awips2.repo</code></li>
+    <li>Runs <code>yum clean all</code></li>
+    <li>Runs <code>yum groupinstall awips2-server</code></li>
+  </ol>
 </blockquote>
 
-<h2 id="what-does-installedexsh-do">What does installEDEX.sh do?</h2>
+<h2 id="edex-setup">7. <code>edex setup</code></h2>
 
-<ol>
-  <li>Downloads <a href="http://www.unidata.ucar.edu/software/awips2/doc/awips2.repo">http://www.unidata.ucar.edu/software/awips2/doc/awips2.repo</a> to <code>/etc/yum.repos.d/awips2.repo</code></li>
-  <li>Runs <code>yum clean all</code></li>
-  <li>Runs <code>yum groupinstall awips2-server</code></li>
-</ol>
-
-<hr />
-
-<h1 id="final-steps">Final Steps</h1>
+<p>The command <code>edex setup</code> attempts to add the domain name of your server.</p>
 
 <ul>
   <li>
-    <p><code>/awips2/edex/bin/setup.env</code> should contain the <strong>fully-qualified domain name</strong> which can be externally resolved (localhost will not work). The command <code>edex setup</code> attempts to add the domain name of your EDEX machine to the file, but you should <strong>always confirm this manually</strong>.</p>
+    <p><code>/awips2/edex/bin/setup.env</code> <strong>should contain the fully-qualified domain name</strong>, externally resolved, localhost will not work.</p>
+
+    <pre><code>  export AW_SITE_IDENTIFIER=BOU
+  export EDEX_SERVER=edex.westus.cloudapp.azure.com
+</code></pre>
   </li>
   <li>
     <p><code>/awips2/ldm/etc/ldmd.conf</code> contains the upstream server (default <em>idd.unidata.ucar.edu</em>, which requires you connect form a .edu domain). This file also contains the <strong>edexBridge</strong> hostname (default <em>localhost</em>).</p>
-  </li>
-  <li>
-    <p>selinux should be <strong>disabled</strong> <a href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Security-Enhanced_Linux/sect-Security-Enhanced_Linux-Enabling_and_Disabling_SELinux-Disabling_SELinux.html">(read more about selinux at redhat.com)</a></p>
-  </li>
-  <li>
-    <p>Security Limits - <strong>/etc/security/limits.conf</strong></p>
 
-    <p>Qpid is known to crash on systems without a high security limit for user processes and files. The file <code>/etc/security/limits.conf</code> defines the number of each for the awips user (This is automatically configured by the <code>installEDEX.sh</code> script).</p>
+    <pre><code>  EXEC    "pqact -e"
+  EXEC    "edexBridge -s localhost"
+</code></pre>
+  </li>
+  <li>
+    <p><code>/etc/security/limits.conf</code> defines the number of user processes and files (this step is automatically performed by <code>installEDEX.sh</code>). Without these definitions, Qpid is known to crash during periods of high ingest.</p>
 
     <pre><code>  awips soft nproc 65536
   awips soft nofile 65536
@@ -236,17 +255,23 @@
   </li>
 </ul>
 
+<h2 id="edex-start">8. <code>edex start</code></h2>
+
+<hr />
+
 <h1 id="important-directories">Important Directories</h1>
 
 <ul>
-  <li><strong>/awips2</strong> - This folder contains all of the installed AWIPS software.</li>
-  <li><strong>/awips2/edex/data/hdf5</strong> - Contains the HDF5 component of the data store and shared static data and hydro apps.</li>
-  <li><strong>/awips2/edex/data/utility</strong> - Contains localization store and EDEX configuration files.</li>
-  <li><strong>/awips2/ldm</strong> - LDM account home directory.</li>
-  <li><strong>/awips2/ldm/etc</strong> - Location of <em>ldmd.conf</em> and <em>pqact.conf</em>.</li>
-  <li><strong>/awips2/ldm/logs</strong> - Location of LDM logs.</li>
-  <li><strong>/awips2/data_store</strong> - Raw Data Store File System</li>
-  <li><strong>/awips2/GFESuite</strong> - Contains scripts and data relating to inter site coordination (ISC) and service backup.</li>
+  <li><code>/awips2</code> - Contains all of the installed AWIPS software.</li>
+  <li><code>/awips2/edex/logs</code> - EDEX logs.</li>
+  <li><code>/awips2/httpd_pypies/var/log/httpd</code> - httpd-pypies logs.</li>
+  <li><code>/awips2/data/pg_log</code> - PostgreSQL logs.</li>
+  <li><code>/awips2/qpid/log</code> - Qpid logs.</li>
+  <li><code>/awips2/edex/data/hdf5</code> - HDF5 data store.</li>
+  <li><code>/awips2/edex/data/utility</code> - Localization store and configuration files.</li>
+  <li><code>/awips2/ldm/etc</code> - Location of <strong>ldmd.conf</strong> and <strong>pqact.conf</strong></li>
+  <li><code>/awips2/ldm/logs</code> - LDM logs.</li>
+  <li><code>/awips2/data_store</code> - Raw data store.</li>
 </ul>
 
     </article>

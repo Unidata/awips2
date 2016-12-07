@@ -1,0 +1,27 @@
+{
+  "name": "polymer-font-awesome-icons",
+  "version": "4.2.0-b2",
+  "authors": [
+    "Sacha Kyvner <philya@gmail.com>"
+  ],
+  "description": "Polymer/core-icon compatible iconset based on Font Awesome SVG font",
+  "main": "fa-icons.html",
+  "keywords": [
+    "Font Awesome",
+    "Polymer",
+    "Icons",
+    "Icon Set",
+    "web-components"
+  ],
+  "dependencies": {
+    "core-icon": "Polymer/core-icon",
+    "core-iconset-svg": "Polymer/core-iconset-svg",
+    "polymer": "Polymer/polymer"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/philya/font-awesome-polymer-icons",
+  "ignore": [
+    "**/.*",
+    "bower_components"
+  ]
+}
