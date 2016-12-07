@@ -3,11 +3,11 @@
 # ldm-%{_ldm_version}.tar.gz is tarred up ldm-%{_ldm_version}/src dir after
 # ISG makes retrans changes
 #
-# AWIPS II LDM Spec File
+# AWIPS LDM Spec File
 #
 %define __prelink_undo_cmd %{nil}
 Name: awips2-ldm
-Summary: AWIPS II LDM Distribution
+Summary: AWIPS LDM Distribution
 Version: %{_component_version}.%{_component_release}
 Release: %{_ldm_version}
 Group: AWIPSII
@@ -28,7 +28,7 @@ Requires: libtool, libpng-devel
 Provides: awips2-ldm
 
 %description
-AWIPS II LDM Distribution - Contains AWIPS II LDM.
+AWIPS LDM Distribution
 
 %prep
 # Ensure that a "buildroot" has been specified.
