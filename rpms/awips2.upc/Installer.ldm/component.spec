@@ -8,8 +8,8 @@
 %define __prelink_undo_cmd %{nil}
 Name: awips2-ldm
 Summary: AWIPS II LDM Distribution
-Version: %{_component_version}.%{_component_release}
-Release: %{_ldm_version}
+Version: %{_ldm_version}
+Release: 1%{?dist}
 Group: AWIPSII
 BuildRoot: /tmp
 BuildArch: noarch
@@ -293,7 +293,7 @@ if [ ! -h /awips2/ldm/data ]; then
   ln -s /awips2/ldm/var/data /awips2/ldm/
 fi
 if getent passwd awips &>/dev/null; then
-  /bin/chown -R awips:fxalpha ${_ldm_dir} /awips2/data_store
+  /bin/chown -R awips:fxalpha ${_ldm_dir}
   cd /awips2/ldm/src/
   make install_setuids
 else

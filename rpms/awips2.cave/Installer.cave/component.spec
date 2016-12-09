@@ -26,7 +26,7 @@
 Name: %{_component_name}
 Summary: awips2-cave Installation
 Version: %{_component_version}
-Release: %{_component_release}
+Release: %{_component_release}%{?dist}
 Group: AWIPSII
 BuildRoot: /tmp
 URL: N/A

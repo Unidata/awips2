@@ -18,7 +18,7 @@ Packager: %{_build_site}
 
 AutoReq: no
 Requires: awips2-tools, awips2-edex-configuration, awips2-database-standalone-configuration
-Requires: awips2-postgresql, awips2-ldm
+Requires: awips2-postgresql
 Requires: ksh, libstdc++(x86-32), libgfortran(x86-32)
 
 provides: awips2-edex-upc

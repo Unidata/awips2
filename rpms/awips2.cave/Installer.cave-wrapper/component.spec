@@ -14,8 +14,8 @@
 Name: %{_component_name}
 Summary: awips2-cave-wrapper Installation
 Version: %{_component_version}
-Release: %{_component_release}
-Group: AWIPSII
+Release: %{_component_release}%{?dist}
+Group: AWIPS
 BuildRoot: /tmp
 URL: N/A
 License: N/A

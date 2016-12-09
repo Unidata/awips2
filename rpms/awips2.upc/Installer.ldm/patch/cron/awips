@@ -1,5 +1,4 @@
-# LDM scour has been replaced by EDEX scour (16.2.2+)
-#0 * * * * /awips2/ldm/bin/ldmadmin scour >> /awips2/ldm/logs/scour.log 2>&1
+0 * * * * /awips2/ldm/bin/ldmadmin scour >> /awips2/ldm/logs/scour.log 2>&1
 # rotate logs
 0 17 * * * /awips2/ldm/bin/ldmadmin newlog
 # nex2gini for daa and dta (lower case)
