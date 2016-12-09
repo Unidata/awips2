@@ -186,7 +186,7 @@ ArealQpeGenSrv                                 : ON
 DqcPreProcSrv                                  : ON
 DqcPreProcSrv.run_dqc_preprocessor             : ON
 MpeRUCFreezingLevel                            : ON
-MpeLightningSrv                                : ON
+MpeLightningSrv                                : OFF
 #====================================================================================
 
 #===================== run_report_alarm Configuration ===============================
