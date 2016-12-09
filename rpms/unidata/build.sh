@@ -1,8 +1,11 @@
 #!/bin/bash -v
 set -xe
-#rm -rf /awips2/jenkins/buildspace/workspace/AWIPS2-UPC_build/baseline/
-
 export JENKINS_WORKSPACE=/home/${USER}/awips2-builds
+
+if [[ ${2} == 'buildCAVE'  ]]; then
+    echo "cleaning buildspace for CAVE build"
+    rm -rf /awips2/jenkins/buildspace/workspace/AWIPS2-UPC_build/baseline/
+fi
 
 # determine where we are ...
 path_to_script=`readlink -f $0`
