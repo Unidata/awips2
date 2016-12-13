@@ -1,5 +1,6 @@
 #!/bin/csh
 if ( ${USER} == "root" ) then
+  setenv LD_LIBRARY_PATH /usr/lib:/lib:/usr/lib64:/lib64
   alias ldmadmin service edex_ldm
   exit 1
 endif

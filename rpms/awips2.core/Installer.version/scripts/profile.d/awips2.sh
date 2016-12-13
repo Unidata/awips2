@@ -1,6 +1,7 @@
 #!/bin/bash
 PATH=/awips2/tools/bin:$PATH
 if [[ ${USER} = "root" ]]; then
+  export LD_LIBRARY_PATH=/usr/lib:/lib:/usr/lib64:/lib64
   alias ldmadmin='service edex_ldm'
   return
 fi
