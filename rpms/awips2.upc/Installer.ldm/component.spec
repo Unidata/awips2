@@ -3,13 +3,13 @@
 # ldm-%{_ldm_version}.tar.gz is tarred up ldm-%{_ldm_version}/src dir after
 # ISG makes retrans changes
 #
-# AWIPS II LDM Spec File
+# AWIPS LDM Spec File
 #
 %define __prelink_undo_cmd %{nil}
 Name: awips2-ldm
-Summary: AWIPS II LDM Distribution
-Version: %{_ldm_version}
-Release: 1%{?dist}
+Summary: AWIPS LDM Distribution
+Version: %{_component_version}.%{_component_release}
+Release: %{_ldm_version}
 Group: AWIPSII
 BuildRoot: /tmp
 BuildArch: noarch
@@ -28,7 +28,7 @@ Provides: awips2-ldm
 BuildRequires: awips2-qpid-lib, awips2-python
 
 %description
-AWIPS II LDM Distribution - Contains AWIPS II LDM.
+AWIPS LDM Distribution
 
 %prep
 # Ensure that a "buildroot" has been specified.
@@ -173,10 +173,8 @@ fi
 rm -f ${_ldm_dir}/runtime
 cd ${_ldm_root_dir}/src
 if [ $? -ne 0 ]; then
-   echo "FATAL: ldm source not found!"
    exit 1
 fi
-echo "INFO: running configure"
 ./configure --disable-max-size --disable-root-actions --prefix=${_ldm_root_dir} CFLAGS='-g -O0' > configure.log 2>&1
 if [ $? -ne 0 ]; then
    echo "FATAL: ldm configure has failed!"
@@ -185,9 +183,7 @@ fi
 # Fix libtool incompatibility in source tar ball
 rm -f libtool
 ln -s /usr/bin/libtool libtool
-echo "INFO: running make"
 make LDMHOME=/awips2/ldm > make.log 2>&1
-echo "INFO: running make install"
 make install LDMHOME=/awips2/ldm > install.log 2>&1
 if [ $? -ne 0 ]; then
    echo "FATAL: make install has failed!"
@@ -198,7 +194,7 @@ if [ $? -ne 0 ]; then
    echo "FATAL: root-actions has failed!"
    exit 1
 fi
-# Unpack patch tar files (/awips2/ldm/bin must be symlink by now to /awips2/ldm/runtime/bin)
+# Unpack patch tar files
 cd ${_ldm_dir}/SOURCES
 _PATCH_DIRS=( 'decoders' 'etc' )
 for patchDir in ${_PATCH_DIRS[*]};
@@ -297,7 +293,7 @@ if getent passwd awips &>/dev/null; then
   cd /awips2/ldm/src/
   make install_setuids
 else
-  echo "--- Warning: group awips does not exist"
+  echo "--- Warning: group fxalpha does not exist"
   echo "--- you will need to check owner/group/permissions for /awips2/ldm"
   echo "tried to run 'chown -R awips:fxalpha /awips2/ldm; cd /awips2/ldm/src/; make install_setuids'"
   echo ""

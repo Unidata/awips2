@@ -90,27 +90,27 @@ edex_status() { # report back edex server on/off status
    fi
 
    # CHECK EDEX
-   edex_ingest_ps=`ps aux | grep ingest | grep -v ingestGrib | grep -v ingestDat | awk '{ print $15 }'`
+   edex_ingest_ps=`ps aux | grep edex.run.mode\=ingest | grep -v ingestGrib | grep -v ingestDat | awk '{ print $15 }'`
    if [ -z $edex_ingest_ps ]; then
       echo ' EDEXingest  :: not running'
    else
-      edex_ingest_pid=`ps aux | grep ingest | grep -v ingestGrib | grep -v ingestDat | awk '{ print $2 }'`
+      edex_ingest_pid=`ps aux | grep edex.run.mode\=ingest | grep -v ingestGrib | grep -v ingestDat | awk '{ print $2 }'`
       echo ' EDEXingest  :: running :: pid '$edex_ingest_pid''
    fi
    
-   edex_ingestGrib_ps=`ps aux | grep ingestGrib | awk '{ print $15 }'`
+   edex_ingestGrib_ps=`ps aux | grep edex.run.mode\=ingestGrib | awk '{ print $15 }'`
    if [ -z $edex_ingestGrib_ps ]; then
       echo ' EDEXgrib    :: not running'
    else
-      edex_ingestGrib_pid=`ps aux | grep ingestGrib | awk '{ print $2 }'`
+      edex_ingestGrib_pid=`ps aux | grep edex.run.mode\=ingestGrib | awk '{ print $2 }'`
       echo ' EDEXgrib    :: running :: pid '$edex_ingestGrib_pid''
    fi
    
-   edex_request_ps=`ps aux | grep request | awk '{ print $15 }'`
+   edex_request_ps=`ps aux | grep edex.run.mode\=request | awk '{ print $15 }'`
    if [ -z $edex_request_ps ]; then
       echo ' EDEXrequest :: not running'   
    else
-      edex_request_pid=`ps aux | grep request | awk '{ print $2 }'`
+      edex_request_pid=`ps aux | grep edex.run.mode\=request | awk '{ print $2 }'`
       echo ' EDEXrequest :: running :: pid '$edex_request_pid''
    fi
 

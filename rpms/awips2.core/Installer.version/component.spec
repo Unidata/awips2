@@ -29,7 +29,7 @@ Packager: %{_build_site}
 AutoReq: no
 provides: %{_component_name}
 requires: awips2-base-component
-requires: wget unzip bc
+requires: wget, unzip, bc, iptables-services
 
 %description
 %{_component_desc}
