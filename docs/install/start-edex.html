@@ -22,16 +22,16 @@
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
 <link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
 <link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
-<link href="/awips2/css/site2.css?20161207" rel="stylesheet">
-<link href="/awips2/css/site2_sd_rules.css?20161207" rel="stylesheet" shim-shadowdom>
+<link href="/awips2/css/site2.css?20161214" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20161214" rel="stylesheet" shim-shadowdom>
 
 
 
-<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20161207"></script>
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20161214"></script>
 <!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
 <link rel="import" href="/awips2/components/polymer/polymer.html">
 <link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
-<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20161207">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20161214">
 
 
 </head>
@@ -78,33 +78,34 @@
         </h1>
       </header>
 
-      <h1 id="quick-start">Quick Start</h1>
-
-<p>(as root)</p>
-
-<ul>
-  <li><code>edex start</code></li>
-  <li><code>edex log ldm</code> - watch for live incoming data</li>
-  <li><code>edex log</code>  - watch for active data decoding messages</li>
+      
+<!--TOC_START-->
+<ul id="markdown-toc">
+  <li><a href="#edex-start" id="markdown-toc-edex-start">edex start</a></li>
+  <li><a href="#edex-stop" id="markdown-toc-edex-stop">edex stop</a></li>
+  <li><a href="#edex-setup" id="markdown-toc-edex-setup">edex setup</a></li>
+  <li><a href="#edex-log" id="markdown-toc-edex-log">edex log</a></li>
+  <li><a href="#edex-users" id="markdown-toc-edex-users">edex users</a></li>
+  <li><a href="#edex-purge" id="markdown-toc-edex-purge">edex purge</a></li>
+  <li><a href="#edex-memory-configuration" id="markdown-toc-edex-memory-configuration">EDEX Memory Configuration</a></li>
+  <li><a href="#edex-plugin-configuration" id="markdown-toc-edex-plugin-configuration">EDEX Plugin Configuration</a></li>
 </ul>
+<!--TOC_END-->
 
-<p>AWIPS EDEX services are managed by the <code>edex</code> program</p>
+<p>There are five EDEX service installed into <code>/etc/init.d/</code>, four of which run on boot:</p>
 
-<pre><code>&gt; edex
-
-[edex status]
- postgres    :: not running
- pypies      :: not running
- qpid        :: not running
- EDEXingest  :: not running
- EDEXgrib    :: not running
- EDEXrequest :: not running
- ldmadmin    :: not running
-
- edex (status|start|stop|setup|log|purge|users)
+<pre><code>service postgres start
+service httpd-pypies start
+service qpidd start
+service edex_camel start
 </code></pre>
 
-<p>The list of available commands is shown at the botton of the command output (<a href="#edex-start">edex start</a>, <a href="#edex-stop">edex stop</a>, <a href="#edex-setup">edex setup</a>, <a href="#edex-log">edex log</a>, <a href="#edex-purge">edex purge</a>, <a href="#edex-users">edex users</a>).</p>
+<p>The fifth, <code>edex_ldm</code>, does <strong>not run at boot</strong> to prevent filling up disk space if EDEX is not running.</p>
+
+<pre><code>service edex_ldm start
+</code></pre>
+
+<p>All of these services are started and stopped by a single program <code>edex</code>,</p>
 
 <h1 id="edex-start">edex start</h1>
 
@@ -161,9 +162,8 @@ Stopping AWIPS LDM:Stopping the LDM server...
  :: No log specified - Defaulting to ingest log
  :: Viewing /awips2/edex/logs/edex-ingest-20151209.log. Press CTRL+C to exit
 
-INFO  2015-12-09 18:34:42,825 [Ingest.binlightning-1] Ingest: EDEX: Ingest - binlightning:: /awips2/data_store/entlightning/20151209/18/SFPA42_KWBC_091833_38031177.2015120918 processed in: 0.0050 (sec) Latency: 0.0550 (sec)
-Time spent in persist: 68
-INFO  2015-12-09 18:34:45,951 [Ingest.obs-1] Ingest: EDEX: Ingest - obs:: /awips2/data_store/metar/20151209/18/SAIN31_VABB_091830_131392869.2015120918 processed in: 0.0810 (sec) Latency: 0.1800 (sec)\
+INFO [Ingest.binlightning-1] /awips2/data_store/SFPA42_KWBC_091833_38031177.2015120918 processed in: 0.0050 (sec) Latency: 0.0550 (sec)
+INFO [Ingest.obs-1] /awips2/data_store/metar/SAIN31_VABB_091830_131392869.2015120918 processed in: 0.0810 (sec) Latency: 0.1800 (sec)
 </code></pre>
 
 <p>More edex logs…</p>
@@ -187,36 +187,80 @@ user@101.253.20.225
 user@192.168.1.67
 awips@0.0.0.0
 awips@sdsmt.edu
-...
 </code></pre>
 
 <h1 id="edex-purge">edex purge</h1>
-<p>to view any stuck purge jobs in PortgreSQL (a rare but serious problem if your disk fills up).  The solution to this is to run <code>edex purge reset</code>.</p>
 
-<h1 id="etcinitd-scripts"><code>/etc/init.d</code> scripts</h1>
+<p>To view any stuck purge jobs in PortgreSQL (a rare but serious problem if your disk fills up).  The solution to this is to run <code>edex purge reset</code>.</p>
 
-<p>There are four EDEX services which run on boot:</p>
+<hr />
 
-<pre><code>service postgres start
-service httpd-pypies start
-service qpidd start
-service edex_camel start
+<h1 id="edex-memory-configuration">EDEX Memory Configuration</h1>
+
+<p>The directory <code>/awips2/edex/etc/</code> contains files which define the amount of memory used for each of the three EDEX JVMs (ingest, ingestGrib, request):</p>
+
+<pre><code>ls -al /awips2/edex/etc/
+-rw-r--r-- 1 awips fxalpha 1501 Dec  7 00:37 default.sh
+-rw-r--r-- 1 awips fxalpha 1655 Dec 12 19:47 ingestGrib.sh
+-rw-r--r-- 1 awips fxalpha  937 Dec 12 19:46 ingest.sh
+-rw-r--r-- 1 awips fxalpha 1231 Dec 12 19:47 request.sh
 </code></pre>
 
-<p>There is also an LDM init script called <code>edex_ldm</code> which does <strong>not run at boot</strong> (to prevent filling up disk space without EDEX processing or scouring):</p>
+<p>Each file contains the <strong>Xmx</strong> definition for maximum memory:</p>
 
-<pre><code>service edex_ldm start
+<pre><code>export INIT_MEM=512 # in Meg
+export MAX_MEM=4096 # in Meg
 </code></pre>
 
-<p>The service config files are located in <code>/etc/init.d/</code> and can be edited by <strong>root</strong>:</p>
+<p>After editing these files, you must restart edex (<code>service edex_camel restart</code>).</p>
 
-<pre><code>ls -la /etc/init.d/ |grep -e edex -e pypies -e qpid
+<hr />
 
--rwxr--r--   1 root  root     6693 Nov  7 17:53 edex_camel
--rwxr-xr-x   1 root  root     1422 Oct 29 15:28 edex_ldm
--rwxr--r--   1 root  root     2416 Sep  7 15:48 edex_postgres
--rwxr-xr-x   1 root  root     5510 Aug 26 13:05 httpd-pypies
--rwxr-xr-x   1 root  root     3450 Aug 26 13:04 qpidd
+<h1 id="edex-plugin-configuration">EDEX Plugin Configuration</h1>
+
+<p>The directory <code>/awips2/edex/conf/modes</code> contains XML files with rules defining which plugins are included or excluded with each JVM (ingest, ingestGrid, request):</p>
+
+<pre><code>ls -la /awips2/edex/conf/modes
+-rw-r--r-- 1 awips fxalpha 1982 Dec  6 21:26 grid-modes.xml
+-rw-r--r-- 1 awips fxalpha  928 Dec  6 21:24 ingest-modes.xml
+-rw-r--r-- 1 awips fxalpha 1689 Dec  6 21:24 request-modes.xml
+</code></pre>
+
+<p>EDEX services are all registered through spring. By including or excluding specific spring files we can determine at startup which services the EDEX instance should start.</p>
+
+<p>All mode files are merged at startup. Modes files with modes that have the same name are combined so the end result is an aggregate of patterns in all files.  Include and exclude tags should have regular expressions that are compatible with Java’s Pattern class.  If you provide no <code>&lt;include&gt;</code> tag for a particular mode, the include defaults to <code>.*</code>.</p>
+
+<p>An example of <code>/awips2/edex/conf/modes/ingest-modes.xml</code>, with a number of unused plugin decoders excluded because the data are not available outside of the SBN:</p>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;
+&lt;edexModes&gt;
+	&lt;mode name="ingest"&gt;
+		&lt;exclude&gt;.*request.*&lt;/exclude&gt;
+		&lt;exclude&gt;edex-security.xml&lt;/exclude&gt;
+		&lt;exclude&gt;rpgenvdata.*&lt;/exclude&gt;
+		&lt;exclude&gt;taf.*&lt;/exclude&gt;
+		&lt;exclude&gt;ldad.*&lt;/exclude&gt;
+		&lt;exclude&gt;ghcd.*&lt;/exclude&gt;
+		&lt;exclude&gt;geomag.*&lt;/exclude&gt;
+		&lt;exclude&gt;mping.*&lt;/exclude&gt;
+		&lt;exclude&gt;modis.*&lt;/exclude&gt;
+		&lt;exclude&gt;mosaic.*&lt;/exclude&gt;
+		&lt;exclude&gt;shef.*&lt;/exclude&gt;
+		&lt;exclude&gt;madis.*&lt;/exclude&gt;
+		&lt;exclude&gt;idft.*&lt;/exclude&gt;
+		&lt;exclude&gt;ffmp.*&lt;/exclude&gt;
+		&lt;exclude&gt;stormtrack.*&lt;/exclude&gt;
+		&lt;exclude&gt;solarimage.*&lt;/exclude&gt;
+		&lt;exclude&gt;retrieval.*&lt;/exclude&gt;
+		&lt;exclude&gt;regionalsat.*&lt;/exclude&gt;
+		&lt;exclude&gt;pointset-netcdf.*&lt;/exclude&gt;
+		&lt;exclude&gt;ncscat.*&lt;/exclude&gt;
+		&lt;exclude&gt;profiler.*&lt;/exclude&gt;
+		&lt;exclude&gt;bufrobs.*&lt;/exclude&gt;
+		&lt;exclude&gt;bufrmthdw.*&lt;/exclude&gt;
+		&lt;exclude&gt;sgwh.*&lt;/exclude&gt;
+	&lt;/mode&gt;
+&lt;/edexModes&gt;
 </code></pre>
 
 
@@ -241,7 +285,7 @@ service edex_camel start
 <script src="/awips2/js/prettify/prettify.js"></script>
 
 <!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
-<script src="/awips2/js/app.js?20161207"></script>
+<script src="/awips2/js/app.js?20161214"></script>
 
 
   </scroll-area>

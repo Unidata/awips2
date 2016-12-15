@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
 <meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
 <meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
-<meta itemprop="name" content="Unidata AWIPS User Manual - Changing Localization Site">
+<meta itemprop="name" content="Unidata AWIPS User Manual - Change CAVE Localization Site">
 <meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
 
 
@@ -16,26 +16,26 @@
 <title>
   Unidata AWIPS User Manual
   
-    - Changing Localization Site
+    - Change CAVE Localization Site
   
 </title>
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
 <link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
 <link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
-<link href="/awips2/css/site2.css?20161207" rel="stylesheet">
-<link href="/awips2/css/site2_sd_rules.css?20161207" rel="stylesheet" shim-shadowdom>
+<link href="/awips2/css/site2.css?20161214" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20161214" rel="stylesheet" shim-shadowdom>
 
 
 
-<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20161207"></script>
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20161214"></script>
 <!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
 <link rel="import" href="/awips2/components/polymer/polymer.html">
 <link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
-<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20161207">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20161214">
 
 
 </head>
-<body id="changing-localization-site">
+<body id="change-cave-localization-site">
 
 <main id="content-container" class="polymer-content">
   <app-drawer id="sidebar" unresolved>
@@ -61,7 +61,7 @@
           
       <header class="shrink">
         <h1>
-             Changing Localization Site
+             Change CAVE Localization Site
         </h1>
       </header>
           
@@ -74,21 +74,17 @@
 
       <header class="onlyonmobile">
         <h1>
-          : Changing Localization Site
+          : Change CAVE Localization Site
         </h1>
       </header>
 
-      <h1 id="five-pane-layout">Five Pane Layout</h1>
+      <h1 id="localization-preferences">Localization Preferences</h1>
 
-<p>The default localization site is OAX (a large contingent of Raytheon AWIPS developers work in Omaha and the OAX WFO was the first to integrate and test AWIPS).   Unidata AWIPS 16.1.4 (and later) allow switching the localization site to any NWS WFO ID.  Releases before 16.1.4 are stuck on OAX unless the server administrator manually changes or adds other localization sites (just update to the latest…).</p>
+<p>The default localization site for Unidata AWIPS is BOU (Boulder, Colorado, where UCAR is located).  When you are prompted to connect to an EDEX server, you can change the WFO ID as well.</p>
 
-<p>In the menubar, seelct <strong>View &gt; 5 Pane Layout</strong> to make visible a left sidebar containing hemispheric, regional, state, and WFO-level maps.  These maps can be toggled/selected/swapped with a right click.</p>
+<p><img src="../images/connect.png" alt="" /></p>
 
-<p><img src="../images/cave-localization-2.png" alt="" /></p>
-
-<h1 id="change-localization-site-for-cave">Change Localization Site for CAVE</h1>
-
-<p>Under <strong>CAVE &gt; Preferences &gt; Localization</strong> you will see controls both for site and EDEX server name.</p>
+<p>Since release 16.1.4, CAVE users can switch the localization site to any valid NWS WFO from <strong>CAVE &gt; Preferences &gt; Localization</strong>, where edits canbe made to both the site ID and EDEX server name. Click <strong>Restart</strong> after changes are applied.</p>
 
 <p><img src="../images/cave-localization-3.png" alt="" /></p>
 
@@ -96,77 +92,11 @@
 
 <p><img src="../images/cave-localization-4.png" alt="" /></p>
 
-<p>On restart you will see the sidebar maps positioned for your selected site.</p>
+<h1 id="wfo-map-scales">WFO Map Scales</h1>
 
-<p><img src="../images/cave-localization-5.png" alt="" /></p>
+<p>AWIPS release 16.2.2 contains all WFO map scales selectable in the left-most dropdown (<strong>CONUS</strong> by default).</p>
 
-<h1 id="grid-levels-and-parameters">Grid Levels and Parameters</h1>
-
-<p><a href="http://nbviewer.ipython.org/github/Unidata/python-awips/blob/master/examples/notebooks/Grid_Levels_and_Parameters.ipynb">Notebook</a></p>
-
-<h2 id="list-available-parameters-for-a-grid-name">List Available Parameters for a Grid Name</h2>
-
-<pre><code>from awips.dataaccess import DataAccessLayer
-
-# Select HRRR
-DataAccessLayer.changeEDEXHost("edex-cloud.unidata.ucar.edu")
-request = DataAccessLayer.newDataRequest()
-request.setDatatype("grid")
-request.setLocationNames("GFS40")
-
-# Print parm list
-available_parms = DataAccessLayer.getAvailableParameters(request)
-available_parms.sort()
-for parm in available_parms:
-    print parm
-</code></pre>
-
-<h2 id="list-available-levels-for-parameter">List Available Levels for Parameter</h2>
-
-<pre><code># Set parm to u-wind
-request.setParameters("uW")
-
-# Print level list
-available_levels = DataAccessLayer.getAvailableLevels(request)
-available_levels.sort()
-for level in available_levels:
-    print level
-</code></pre>
-
-<h2 id="construct-wind-field-from-u-and-v-components">Construct Wind Field from U and V Components</h2>
-
-<pre><code>import numpy
-from metpy.units import units
-
-# Set level for u-wind
-request.setLevels("10.0FHAG")
-t = DataAccessLayer.getAvailableTimes(request)
-# Select last time for u-wind
-response = DataAccessLayer.getGridData(request, [t[-1]])
-data_uw = response[-1]
-lons,lats = data_uw.getLatLonCoords()
-
-# Select v-wind
-request.setParameters("vW")
-# Select last time for v-wind
-response = DataAccessLayer.getGridData(request, [t[-1]])
-data_uv = response[-1]
-
-# Print 
-print 'Time :', t[-1]
-print 'Model:', data_uv.getLocationName()
-print 'Unit :', data_uv.getUnit()
-print 'Parms :', data_uw.getParameter(), data_uv.getParameter()
-print data_uv.getRawData().shape
-
-# Calculate total wind speed
-spd = numpy.sqrt( data_uw.getRawData()**2 + data_uv.getRawData()**2 )
-spd = spd * units.knot
-print "windArray =", spd
-
-data = data_uw
-</code></pre>
-
+<p><img src="../images/map_scales.png" alt="" /></p>
 
     </article>
 
@@ -189,7 +119,7 @@ data = data_uw
 <script src="/awips2/js/prettify/prettify.js"></script>
 
 <!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
-<script src="/awips2/js/app.js?20161207"></script>
+<script src="/awips2/js/app.js?20161214"></script>
 
 
   </scroll-area>

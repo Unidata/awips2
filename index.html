@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
 <meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
 <meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
-<meta itemprop="name" content="Unidata AWIPS User Manual - Introduction and Overview">
+<meta itemprop="name" content="Unidata AWIPS User Manual - Unidata AWIPS User Manual">
 <meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
 
 
@@ -16,26 +16,26 @@
 <title>
   Unidata AWIPS User Manual
   
-    - Introduction and Overview
+    - Unidata AWIPS User Manual
   
 </title>
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
 <link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
 <link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
-<link href="/awips2/css/site2.css?20161207" rel="stylesheet">
-<link href="/awips2/css/site2_sd_rules.css?20161207" rel="stylesheet" shim-shadowdom>
+<link href="/awips2/css/site2.css?20161214" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20161214" rel="stylesheet" shim-shadowdom>
 
 
 
-<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20161207"></script>
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20161214"></script>
 <!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
 <link rel="import" href="/awips2/components/polymer/polymer.html">
 <link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
-<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20161207">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20161214">
 
 
 </head>
-<body id="introduction-and-overview">
+<body id="unidata-awips-user-manual">
 
 <main id="content-container" class="polymer-content">
   <app-drawer id="sidebar" unresolved>
@@ -61,7 +61,7 @@
           
       <header class="shrink">
         <h1>
-             Introduction and Overview
+             Unidata AWIPS User Manual
         </h1>
       </header>
           
@@ -74,7 +74,7 @@
 
       <header class="onlyonmobile">
         <h1>
-          : Introduction and Overview
+          : Unidata AWIPS User Manual
         </h1>
       </header>
 
@@ -88,90 +88,68 @@
   }
 </style>
 
-<blockquote>
-  <p>This manual is maintained by the <a href="https://www.unidata.ucar.edu">Unidata Program Center</a>, a <a href="https://www.ucp.ucar.edu/">UCAR Community Program</a>.</p>
-</blockquote>
+<ul>
+  <li><a href="docs/about.html">About Unidata AWIPS</a></li>
+  <li><a href="docs/install/install-cave.html">Install CAVE</a></li>
+  <li><a href="docs/install/install-edex.html">Install EDEX</a></li>
+</ul>
 
-<p><a href="http://www.unidata.ucar.edu/software/awips2/">Unidata AWIPS</a> is a meteorological display and analysis package originally developed by the <a href="http://www.nws.noaa.gov/ost/SEC/AE/">National Weather Service</a> and <a href="http://www.raytheon.com/capabilities/products/awips/">Raytheon</a>, repackaged by Unidata to support non-operational use in research and education by <a href="http://president.ucar.edu/governance/members/universities-representatives">UCAR member institutions</a>.</p>
+<h2 id="cave-user-guide">CAVE User Guide</h2>
 
-<p>AWIPS takes a unified approach to data ingest, and most data types follow a path through the system starting with an <a href="#ldm">LDM</a> client requesting data from the <a href="http://www.unidata.ucar.edu/projects/#idd">Unidata IDD</a>. These data files are then decoded and stored as HDF5 and Postgres metadata by <a href="docs/install/install-edex.html">EDEX</a>.</p>
+<ul>
+  <li><a href="docs/cave/d2d-intro.html">The D2D Perspective</a></li>
+  <li><a href="docs/cave/ncp.html">The NCP Perspective</a></li>
+  <li><a href="docs/cave/localization-perspective.html">Localization Perspective</a></li>
+  <li><a href="docs/cave/d2d-system-menus.html">Views, Projections, and Bundles</a></li>
+  <li><a href="docs/cave/d2d-grids.html">Gridded Model Display</a></li>
+  <li><a href="docs/cave/d2d-models.html">Volume Browser</a></li>
+  <li><a href="docs/cave/d2d-obs.html">Surface Obs</a></li>
+  <li><a href="docs/cave/d2d-satellite.html">Satellite Products</a></li>
+  <li><a href="docs/cave/d2d-radar.html">Radar Data</a></li>
+  <li><a href="docs/cave/d2d-uair.html">Upper Air</a></li>
+  <li><a href="docs/cave/d2d-hydro.html">NCEP/Hydro</a></li>
+  <li><a href="docs/cave/d2d-maps.html">Map Overlays</a></li>
+  <li><a href="docs/cave/d2d-gis.html">GIS Data</a></li>
+  <li><a href="docs/cave/d2d-tools.html">Display Tools</a></li>
+  <li><a href="docs/cave/d2d-radar-tools.html">Radar Tools</a></li>
+  <li><a href="docs/cave/d2d-edit-menus.html">Editing D2D Menus</a></li>
+  <li><a href="docs/cave/cave-localization.html">Change Localization</a></li>
+  <li><a href="docs/cave/cave-keyboard-shortcuts.html">Keyboard Shortcuts</a></li>
+</ul>
 
-<p>Unidata supports two visualization frameworks for rendering AWIPS data: <a href="docs/install/install-cave.html">CAVE</a>, and the  <a href="http://python-awips.readthedocs.io">Python Data Access Framework (python-awips)</a>.</p>
+<h2 id="edex-user-guide">EDEX User Guide</h2>
+
+<ul>
+  <li><a href="docs/install/start-edex.html">EDEX Start and Stop</a></li>
+  <li><a href="docs/edex/ldm.html">LDM Feeds</a></li>
+  <li><a href="docs/edex/new-grid.html">Add a New Grid</a></li>
+  <li><a href="docs/devguide/data-distribution-files.html">Data Distribution Files</a></li>
+  <li><a href="docs/edex/data-purge.html">Data Purging</a></li>
+  <li><a href="docs/edex/edex-users.html">Monitoring Users</a></li>
+  <li><a href="docs/edex/data-plugins.html">EDEX Data Plugins</a></li>
+</ul>
+
+<h2 id="useful-tables">Useful Tables</h2>
+
+<ul>
+  <li><a href="docs/appendix-grid-parameters.html">AWIPS Grid Parameters</a></li>
+  <li><a href="docs/appendix-acronyms.html">Acronyms and Abbreviations</a></li>
+  <li><a href="docs/appendix-cots.html">COTS and FOSS</a></li>
+  <li><a href="docs/appendix-wsr88d.html">WSR-88D Products</a></li>
+</ul>
+
+<h2 id="external-links">External Links</h2>
+
+<ul>
+  <li><a href="http://python-awips.readthedocs.io" target="_blank">python-awips Data Access Framework</a></li>
+  <li><a href="http://www.unidata.ucar.edu/software/awips2/" target="_blank">Unidata AWIPS News</a></li>
+  <li><a href="docs/pdf/index.html">NWS Documentation</a></li>
+  <li><a href="https://github.com/Unidata/awips2" target="_blank">AWIPS Source Code on Github</a></li>
+</ul>
 
 <h2 id="license">License</h2>
 
 <p>Unidata AWIPS source code and binaries (RPMs) are considered to be in the public domain, meaning there are no restrictions on any download, modification, or distribution in any form (original or modified).  Unidata AWIPS contains no proprietery content and is therefore not subject to export controls as stated in the <a href="https://github.com/Unidata/awips2/blob/unidata_16.2.2/rpms/legal/Master_Rights_File.pdf">Master Rights</a> licensing file.</p>
-
-<p><img style="float:right;width:450px;" src="http://www.unidata.ucar.edu/software/awips2/images/awips2_coms.png" /></p>
-
-<h2 id="software-components">Software Components</h2>
-
-<ul>
-  <li><a href="#edex">EDEX</a></li>
-  <li><a href="#cave">CAVE</a></li>
-  <li><a href="#ldm">LDM</a></li>
-  <li><a href="#edexbridge">edexBridge</a></li>
-  <li><a href="#qpid">Qpid</a></li>
-  <li><a href="#postgresql">PostgreSQL</a></li>
-  <li><a href="#hdf5">HDF5</a></li>
-  <li><a href="#pypies">PyPIES</a></li>
-</ul>
-
-<p>The primary AWIPS application for data ingest, processing, and storage is the Environmental Data EXchange (<strong>EDEX</strong>) server; the primary AWIPS application for visualization/data manipulation is the Common AWIPS Visualization Environment (<strong>CAVE</strong>) client, which is typically installed on a workstation separate from other AWIPS components.</p>
-
-<p>In addition to programs developed specifically for AWIPS, AWIPS uses several commercial off-the-shelf (COTS) and Free or Open Source software (FOSS) products to assist in its operation. The following components, working together and communicating, compose the entire AWIPS system.</p>
-
-<h3 id="edex">EDEX</h3>
-
-<p>The main server for AWIPS.  Qpid sends alerts to EDEX when data stored by the LDM is ready for processing.  These Qpid messages include file header information which allows EDEX to determine the appropriate data decoder to use.  The default ingest server (simply named ingest) handles all data ingest other than grib messages, which are processed by a separate ingestGrib server.  After decoding, EDEX writes metadata to the database via Postgres and saves the processed data in HDF5 via PyPIES.   A third EDEX server, request, feeds requested data to CAVE clients. EDEX ingest and request servers are started and stopped with the commands <code>edex start</code> and <code>edex stop</code>, which runs the system script <code>/etc/rc.d/init.d/edex_camel</code></p>
-
-<ul>
-  <li><a href="docs/install/install-edex.html">Read More: How to Install EDEX</a></li>
-</ul>
-
-<h3 id="cave">CAVE</h3>
-
-<p>Common AWIPS Visualization Environment. The data rendering and visualization tool for AWIPS. CAVE contains of a number of different data display configurations called perspectives.  Perspectives used in operational forecasting environments include <strong>D2D</strong> (Display Two-Dimensional), <strong>GFE</strong> (Graphical Forecast Editor), and <strong>NCP</strong> (National Centers Perspective). CAVE is started with the command <code>/awips2/cave/cave.sh</code> or <code>cave.sh</code></p>
-
-<ul>
-  <li><a href="docs/install/install-cave.html">Read More: How to Install CAVE</a></li>
-</ul>
-
-<p><img src="http://www.unidata.ucar.edu/software/awips2/images/Unidata_AWIPS2_CAVE.png" alt="CAVE" /></p>
-
-<h3 id="ldm">LDM</h3>
-
-<p><a href="http://www.unidata.ucar.edu/software/ldm/">http://www.unidata.ucar.edu/software/ldm/</a></p>
-
-<p>The <strong>LDM</strong> (Local Data Manager), developed and supported by Unidata, is a suite of client and server programs designed for data distribution, and is the fundamental component comprising the Unidata Internet Data Distribution (IDD) system. In AWIPS, the LDM provides data feeds for grids, surface observations, upper-air profiles, satellite and radar imagery and various other meteorological datasets.   The LDM writes data directly to file and alerts EDEX via Qpid when a file is available for processing.  The LDM is started and stopped with the commands <code>edex start</code> and <code>edex stop</code>, which runs the commands <code>service edex_ldm start</code> and <code>service edex_ldm stop</code></p>
-
-<h3 id="edexbridge">edexBridge</h3>
-
-<p>edexBridge, invoked in the LDM configuration file <code>/awips2/ldm/etc/ldmd.conf</code>, is used by the LDM to post “data available” messaged to Qpid, which alerts the EDEX Ingest server that a file is ready for processing.</p>
-
-<h3 id="qpid">Qpid</h3>
-
-<p><a href="http://qpid.apache.org">http://qpid.apache.org</a></p>
-
-<p><strong>Apache Qpid</strong>, the Queue Processor Interface Daemon, is the messaging system used by AWIPS to facilitate communication between services.  When the LDM receives a data file to be processed, it employs <strong>edexBridge</strong> to send EDEX ingest servers a message via Qpid.  When EDEX has finished decoding the file, it sends CAVE a message via Qpid that data are available for display or further processing. Qpid is started and stopped by <code>edex start</code> and <code>edex stop</code>, and is controlled by the system script <code>/etc/rc.d/init.d/qpidd</code></p>
-
-<h3 id="postgresql">PostgreSQL</h3>
-
-<p><a href="http://www.postgresql.org">http://www.postgresql.org</a></p>
-
-<p><strong>PostgreSQL</strong>, known simply as Postgres, is a relational database management system (DBMS) which handles the storage and retrieval of metadata, database tables and some decoded data.  The storage and reading of EDEX metadata is handled by the Postgres DBMS.  Users may query the metadata tables by using the termainal-based front-end for Postgres called <strong>psql</strong>. Postgres is started and stopped by <code>edex start</code> and <code>edex stop</code>, and is controlled by the system script <code>/etc/rc.d/init.d/edex_postgres</code></p>
-
-<h3 id="hdf5">HDF5</h3>
-
-<p><a href="http://www.hdfgroup.org/HDF5/">http://www.hdfgroup.org/HDF5/</a></p>
-
-<p><a href="http://www.hdfgroup.org/HDF5/"><strong>Hierarchical Data Format (v.5)</strong></a> is the primary data storage format used by AWIPS for processed grids, satellite and radar imagery and other products.   Similar to netCDF, developed and supported by Unidata, HDF5 supports multiple types of data within a single file.  For example, a single HDF5 file of radar data may contain multiple volume scans of base reflectivity and base velocity as well as derived products such as composite reflectivity.  The file may also contain data from multiple radars. HDF5 is stored in <code>/awips2/edex/data/hdf5/</code></p>
-
-<h3 id="pypies-httpd-pypies">PyPIES (httpd-pypies)</h3>
-
-<p><strong>PyPIES</strong>, Python Process Isolated Enhanced Storage, was created for AWIPS to isolate the management of HDF5 Processed Data Storage from the EDEX processes.  PyPIES manages access, i.e., reads and writes, of data in the HDF5 files.  In a sense, PyPIES provides functionality similar to a DBMS (i.e PostgreSQL for metadata); all data being written to an HDF5 file is sent to PyPIES, and requests for data stored in HDF5 are processed by PyPIES.</p>
-
-<p>PyPIES is implemented in two parts: 1. The PyPIES manager is a Python application that runs as part of an Apache HTTP server, and handles requests to store and retrieve data. 2. The PyPIES logger is a Python process that coordinates logging. PyPIES is started and stopped by <code>edex start</code> and <code>edex stop</code>, and is controlled by the system script <code>/etc/rc.d/init.d/https-pypies</code></p>
 
 
     </article>
@@ -195,7 +173,7 @@
 <script src="/awips2/js/prettify/prettify.js"></script>
 
 <!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
-<script src="/awips2/js/app.js?20161207"></script>
+<script src="/awips2/js/app.js?20161214"></script>
 
 
   </scroll-area>

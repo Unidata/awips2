@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
 <meta name="google-site-verification" content="k0e8DrbD40s54xHNBqwIsRrSSAkZoprwtEYDnNY06bU" />
 <meta name="google-site-verification" content="pnjjbQFvjPwaWhEXY6nSyaS9iyghmH-M_yLHBveDX2M">
-<meta itemprop="name" content="Unidata AWIPS User Manual - System Architecture">
+<meta itemprop="name" content="Unidata AWIPS User Manual - Introduction and Overview">
 <meta itemprop="description" content="Polymer is a library that uses the latest web technologies to let you create custom HTML elements. Build anything from a button to a complete application as an encapsulated, reusable element that works across desktop and mobile.">
 
 
@@ -16,7 +16,7 @@
 <title>
   Unidata AWIPS User Manual
   
-    - System Architecture
+    - Introduction and Overview
   
 </title>
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
@@ -35,7 +35,7 @@
 
 
 </head>
-<body id="system-architecture">
+<body id="introduction-and-overview">
 
 <main id="content-container" class="polymer-content">
   <app-drawer id="sidebar" unresolved>
@@ -52,7 +52,7 @@
   </app-drawer>
 
   <scroll-area sidebar unresolved class="scrolling">
-    <site-banner type="guide" shortname="Docs" unresolved>
+    <site-banner type="about" shortname="" unresolved>
       
 <app-bar theme="light" class="bar fixed">
 </app-bar>
@@ -61,9 +61,7 @@
           
       <header class="shrink">
         <h1>
-            
-              EDEX Admin
-            : System Architecture
+             Introduction and Overview
         </h1>
       </header>
           
@@ -76,24 +74,41 @@
 
       <header class="onlyonmobile">
         <h1>
-          
-          EDEX Admin
-          : System Architecture
+          : Introduction and Overview
         </h1>
       </header>
 
-      <p>AWIPS takes a unified approach to data ingest, and most data types follow a standard path through the system. At a high level, data flow describes the path taken by a piece of data from its source to its display by a client system. This path starts with data requested and stored by an <a href="#ldm">LDM</a> client and includes the decoding of the data and storing of decoded data in a form readable and displayable by the end user.</p>
+      <style>
+  .benchmark img {
+    max-width: 500px;
+  }
+  .benchmark figcaption {
+    font-weight: bold;
+    margin-bottom: 16px;
+  }
+</style>
 
-<p>The AWIPS ingest and request processes are a highly distributed system, and the messaging broken <a href="#qpid">Qpid</a> is used for inter-process communication.</p>
+<blockquote>
+  <p>This manual is maintained by the <a href="https://www.unidata.ucar.edu">Unidata Program Center</a>, a <a href="https://www.ucp.ucar.edu/">UCAR Community Program</a>.</p>
+</blockquote>
 
-<p><img src="http://www.unidata.ucar.edu/software/awips2/images/awips2_coms.png" alt="image" /></p>
+<p><a href="http://www.unidata.ucar.edu/software/awips2/">Unidata AWIPS</a> is a meteorological display and analysis package originally developed by the <a href="http://www.nws.noaa.gov/ost/SEC/AE/">National Weather Service</a> and <a href="http://www.raytheon.com/capabilities/products/awips/">Raytheon</a>, repackaged by Unidata to support non-operational use in research and education by <a href="http://president.ucar.edu/governance/members/universities-representatives">UCAR member institutions</a>.</p>
+
+<p>AWIPS takes a unified approach to data ingest, and most data types follow a path through the system starting with an <a href="#ldm">LDM</a> client requesting data from the <a href="http://www.unidata.ucar.edu/projects/#idd">Unidata IDD</a>. These data files are then decoded and stored as HDF5 and Postgres metadata by <a href="docs/install/install-edex.html">EDEX</a>.</p>
+
+<p>Unidata supports two visualization frameworks for rendering AWIPS data: <a href="docs/install/install-cave.html">CAVE</a>, and the  <a href="http://python-awips.readthedocs.io">Python Data Access Framework (python-awips)</a>.</p>
+
+<h2 id="license">License</h2>
+
+<p>Unidata AWIPS source code and binaries (RPMs) are considered to be in the public domain, meaning there are no restrictions on any download, modification, or distribution in any form (original or modified).  Unidata AWIPS contains no proprietery content and is therefore not subject to export controls as stated in the <a href="https://github.com/Unidata/awips2/blob/unidata_16.2.2/rpms/legal/Master_Rights_File.pdf">Master Rights</a> licensing file.</p>
+
+<p><img style="float:right;width:450px;" src="http://www.unidata.ucar.edu/software/awips2/images/awips2_coms.png" /></p>
 
 <h2 id="software-components">Software Components</h2>
 
 <ul>
   <li><a href="#edex">EDEX</a></li>
   <li><a href="#cave">CAVE</a></li>
-  <li><a href="#alertviz">Alertviz</a></li>
   <li><a href="#ldm">LDM</a></li>
   <li><a href="#edexbridge">edexBridge</a></li>
   <li><a href="#qpid">Qpid</a></li>
@@ -110,15 +125,19 @@
 
 <p>The main server for AWIPS.  Qpid sends alerts to EDEX when data stored by the LDM is ready for processing.  These Qpid messages include file header information which allows EDEX to determine the appropriate data decoder to use.  The default ingest server (simply named ingest) handles all data ingest other than grib messages, which are processed by a separate ingestGrib server.  After decoding, EDEX writes metadata to the database via Postgres and saves the processed data in HDF5 via PyPIES.   A third EDEX server, request, feeds requested data to CAVE clients. EDEX ingest and request servers are started and stopped with the commands <code>edex start</code> and <code>edex stop</code>, which runs the system script <code>/etc/rc.d/init.d/edex_camel</code></p>
 
+<ul>
+  <li><a href="docs/install/install-edex.html">Read More: How to Install EDEX</a></li>
+</ul>
+
 <h3 id="cave">CAVE</h3>
 
 <p>Common AWIPS Visualization Environment. The data rendering and visualization tool for AWIPS. CAVE contains of a number of different data display configurations called perspectives.  Perspectives used in operational forecasting environments include <strong>D2D</strong> (Display Two-Dimensional), <strong>GFE</strong> (Graphical Forecast Editor), and <strong>NCP</strong> (National Centers Perspective). CAVE is started with the command <code>/awips2/cave/cave.sh</code> or <code>cave.sh</code></p>
 
+<ul>
+  <li><a href="docs/install/install-cave.html">Read More: How to Install CAVE</a></li>
+</ul>
+
 <p><img src="http://www.unidata.ucar.edu/software/awips2/images/Unidata_AWIPS2_CAVE.png" alt="CAVE" /></p>
-
-<h3 id="alertviz">Alertviz</h3>
-
-<p><strong>Alertviz</strong> is a modernized version of an AWIPS I application, designed to present various notifications, error messages, and alarms to the user (forecaster). AlertViz can be executed either independently or from CAVE itself.  In the Unidata CAVE client, Alertviz is run within CAVE and is not required to be run separately.  The toolbar is also <strong>hidden from view</strong> and is accessed by right-click on the desktop taskbar icon.</p>
 
 <h3 id="ldm">LDM</h3>
 
@@ -137,6 +156,7 @@
 <p><strong>Apache Qpid</strong>, the Queue Processor Interface Daemon, is the messaging system used by AWIPS to facilitate communication between services.  When the LDM receives a data file to be processed, it employs <strong>edexBridge</strong> to send EDEX ingest servers a message via Qpid.  When EDEX has finished decoding the file, it sends CAVE a message via Qpid that data are available for display or further processing. Qpid is started and stopped by <code>edex start</code> and <code>edex stop</code>, and is controlled by the system script <code>/etc/rc.d/init.d/qpidd</code></p>
 
 <h3 id="postgresql">PostgreSQL</h3>
+
 <p><a href="http://www.postgresql.org">http://www.postgresql.org</a></p>
 
 <p><strong>PostgreSQL</strong>, known simply as Postgres, is a relational database management system (DBMS) which handles the storage and retrieval of metadata, database tables and some decoded data.  The storage and reading of EDEX metadata is handled by the Postgres DBMS.  Users may query the metadata tables by using the termainal-based front-end for Postgres called <strong>psql</strong>. Postgres is started and stopped by <code>edex start</code> and <code>edex stop</code>, and is controlled by the system script <code>/etc/rc.d/init.d/edex_postgres</code></p>

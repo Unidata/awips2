@@ -22,16 +22,16 @@
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
 <link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
 <link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
-<link href="/awips2/css/site2.css?20161207" rel="stylesheet">
-<link href="/awips2/css/site2_sd_rules.css?20161207" rel="stylesheet" shim-shadowdom>
+<link href="/awips2/css/site2.css?20161214" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20161214" rel="stylesheet" shim-shadowdom>
 
 
 
-<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20161207"></script>
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20161214"></script>
 <!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
 <link rel="import" href="/awips2/components/polymer/polymer.html">
 <link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
-<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20161207">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20161214">
 
 
 </head>
@@ -105,6 +105,10 @@
 
 <p><code>groupadd fxalpha &amp;&amp; useradd -G fxalpha awips</code></p>
 
+<p>or if the awips account already exists:</p>
+
+<p><code>groupadd fxalpha &amp;&amp; usermod -G fxalpha awips</code></p>
+
 <h2 id="configure-iptables-to-allow-tcp-connections-on-ports-5672-9581-and-9582">2. Configure iptables to allow TCP connections on ports <strong>5672</strong>, <strong>9581</strong> and <strong>9582</strong></h2>
 
 <ul>
@@ -166,6 +170,16 @@
 <h2 id="restart-iptables">3. Restart iptables</h2>
 
 <p><code>service iptables restart</code></p>
+
+<blockquote>
+  <p>For CentOS 7 error: Redirecting to /bin/systemctl restart  iptables.service
+Failed to restart iptables.service: Unit iptables.service failed to load: No such file or directory.</p>
+
+  <pre><code>yum install iptables-services
+systemctl enable iptables
+service iptables restart
+</code></pre>
+</blockquote>
 
 <h2 id="disable-selinux">4. Disable SELinux</h2>
 
@@ -306,7 +320,7 @@ SELINUXTYPE=targeted
 <script src="/awips2/js/prettify/prettify.js"></script>
 
 <!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
-<script src="/awips2/js/app.js?20161207"></script>
+<script src="/awips2/js/app.js?20161214"></script>
 
 
   </scroll-area>

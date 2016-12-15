@@ -22,16 +22,16 @@
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
 <link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
 <link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
-<link href="/awips2/css/site2.css?20161207" rel="stylesheet">
-<link href="/awips2/css/site2_sd_rules.css?20161207" rel="stylesheet" shim-shadowdom>
+<link href="/awips2/css/site2.css?20161214" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20161214" rel="stylesheet" shim-shadowdom>
 
 
 
-<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20161207"></script>
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20161214"></script>
 <!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
 <link rel="import" href="/awips2/components/polymer/polymer.html">
 <link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
-<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20161207">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20161214">
 
 
 </head>
@@ -78,15 +78,35 @@
         </h1>
       </header>
 
-      <blockquote>
-  <p>The NCP perspective can be selected from the menu <strong>CAVE</strong> -&gt; <strong>Perspective</strong> -&gt; <strong>Other</strong> menu.</p>
-</blockquote>
+      
+<!--TOC_START-->
+<ul id="markdown-toc">
+  <li><a href="#ncp-toolbar" id="markdown-toc-ncp-toolbar">NCP Toolbar</a>    <ul>
+      <li><a href="#load-a-single-data-product" id="markdown-toc-load-a-single-data-product">Load a single data product</a></li>
+      <li><a href="#load-a-bundle" id="markdown-toc-load-a-bundle">Load a Bundle</a></li>
+      <li><a href="#timeline" id="markdown-toc-timeline">Timeline</a></li>
+      <li><a href="#save-a-bundle" id="markdown-toc-save-a-bundle">Save a Bundle</a></li>
+      <li><a href="#manage-bundles" id="markdown-toc-manage-bundles">Manage Bundles</a></li>
+    </ul>
+  </li>
+  <li><a href="#manage-data" id="markdown-toc-manage-data">Manage Data</a>    <ul>
+      <li><a href="#edit-resource" id="markdown-toc-edit-resource">Edit Resource</a></li>
+      <li><a href="#edit-attribute" id="markdown-toc-edit-attribute">Edit Attribute</a></li>
+    </ul>
+  </li>
+  <li><a href="#add-a-grid-resource-in-ncp" id="markdown-toc-add-a-grid-resource-in-ncp">Add a Grid Resource in NCP</a></li>
+  <li><a href="#multi-pane-display-----------------------------------------1" id="markdown-toc-multi-pane-display-----------------------------------------1">Multi-Pane Display                                         1</a></li>
+  <li><a href="#load-bundle" id="markdown-toc-load-bundle">Load Bundle</a></li>
+  <li><a href="#manage-bundles-1" id="markdown-toc-manage-bundles-1">Manage Bundles</a></li>
+  <li><a href="#right-click-edit-grid-attributes" id="markdown-toc-right-click-edit-grid-attributes">Right-Click Edit Grid Attributes</a></li>
+</ul>
+<!--TOC_END-->
 
 <h1 id="ncp-toolbar">NCP Toolbar</h1>
 
-<p>The NCP toolbar includes two buttons to load <strong>Data</strong> and <strong>Bundles</strong>, respectively.  The toolbar also include a <strong>Clear</strong> button, <strong>Zoom</strong> and <strong>Unzoom</strong>, <strong>Auto Update</strong>, and the <strong>NSHARP</strong> plugin.</p>
+<p>The NCP toolbar includes two buttons to load <strong>Data</strong> and <strong>Bundles</strong>, respectively.  The toolbar also include a <strong>Clear</strong> button, <strong>Zoom</strong> and <strong>Unzoom</strong>,  and the <strong>NSHARP</strong> plugin.</p>
 
-<p><img src="../images/image_6.png" alt="image" /></p>
+<p><img src="../images/ncp_image_6.png" alt="image" /></p>
 
 <h2 id="load-a-single-data-product">Load a single data product</h2>
 
@@ -102,7 +122,7 @@
   </li>
 </ol>
 
-<p><img src="../images/image_7.png" alt="image" /></p>
+<p><img src="../images/ncp_image_7.png" alt="image" /></p>
 
 <p><strong>Latest Available Data Time</strong> or <strong>Cycle Time</strong> is underneath the Attributes column at bottom-right.</p>
 
@@ -125,13 +145,13 @@
   </li>
 </ul>
 
-<p><img src="../images/image_8.png" alt="image" /></p>
+<p><img src="../images/ncp_image_8.png" alt="image" /></p>
 
 <h2 id="timeline">Timeline</h2>
 
 <p>A timeline is displayed for available data. Here, the user may choose the dominant resource, number of frames, time range, reference time, etc. for the products to be displayed.</p>
 
-<p><img src="../images/image_9.png" alt="image" /></p>
+<p><img src="../images/ncp_image_9.png" alt="image" /></p>
 
 <p>Clicking “<strong>Load</strong>” will keep open the Resource Manager while the selected data layers are loaded to the map. ”<strong>Load and Close</strong>” will display data and close the Resource Manager.</p>
 
@@ -151,7 +171,7 @@
   </li>
 </ol>
 
-<p><img src="../images/image_10.png" alt="image" /></p>
+<p><img src="../images/ncp_image_10.png" alt="image" /></p>
 
 <p>After saving a Bundle, its a good idea to confirm that it loads correctly. Select “<strong>Bundle</strong>” -&gt; “<strong>Load Bundle</strong>” to find your newly created Bundle.</p>
 
@@ -171,7 +191,7 @@
 
 <h1 id="manage-data">Manage Data</h1>
 
-<p><img src="../images/image_11.png" alt="image" /></p>
+<p><img src="../images/ncp_image_11.png" alt="image" /></p>
 
 <h2 id="edit-resource">Edit Resource</h2>
 
@@ -184,60 +204,6 @@
 <p>Using gridded data, selecting an Attribute to edit allows you to change the GEMPAK syntax used to define the resource.</p>
 
 <p><img src="../images/image_13.png" alt="image" /></p>
-
-<h1 id="cave-import-data-formats">CAVE Import Data Formats</h1>
-
-<p>CAVE supported the following geo-referenced data files. CAVE can import the following through formats through the <strong>CAVE</strong> -&gt; <strong>Import</strong> menu.</p>
-
-<ol>
-  <li>
-    <p><strong>GIS Data</strong></p>
-  </li>
-  <li>
-    <p><strong>BCD File</strong></p>
-  </li>
-  <li>
-    <p><strong>GeoTIFF</strong></p>
-  </li>
-  <li>
-    <p><strong>LPI File</strong></p>
-  </li>
-  <li>
-    <p><strong>SPI File</strong></p>
-  </li>
-  <li>
-    <p><strong>Displays</strong></p>
-  </li>
-</ol>
-
-<p><img src="../images/image_14.png" alt="image" /></p>
-
-<h2 id="cave-export-data-formats">CAVE Export Data Formats</h2>
-
-<p>CAVE can export to the following through the <strong>CAVE</strong> -&gt; <strong>Export</strong> menu.</p>
-
-<ol>
-  <li>
-    <p><strong>KML</strong></p>
-  </li>
-  <li>
-    <p><strong>Editor Display</strong></p>
-  </li>
-  <li>
-    <p><strong>Perspective Display</strong></p>
-  </li>
-  <li>
-    <p><strong>Capture Current Frame</strong></p>
-  </li>
-  <li>
-    <p><strong>Capture All Frames</strong></p>
-  </li>
-  <li>
-    <p><strong>Print Screen</strong></p>
-  </li>
-</ol>
-
-<p><img src="../images/image_15.png" alt="image" /></p>
 
 <h1 id="add-a-grid-resource-in-ncp">Add a Grid Resource in NCP</h1>
 
@@ -410,7 +376,7 @@
 <script src="/awips2/js/prettify/prettify.js"></script>
 
 <!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
-<script src="/awips2/js/app.js?20161207"></script>
+<script src="/awips2/js/app.js?20161214"></script>
 
 
   </scroll-area>
