@@ -259,48 +259,93 @@ public class MetarTempResource extends
         DataMappingPreferences preferences = new DataMappingPreferences();
 
         DataMappingEntry entry = new DataMappingEntry();
-        entry.setDisplayValue(20.);
+        entry.setDisplayValue(-50.);
         entry.setPixelValue(0.0);
         preferences.addEntry(entry);
-
-        entry = new DataMappingEntry();
-        entry.setDisplayValue(30.);
+	    
+	entry = new DataMappingEntry();
+        entry.setDisplayValue(-40.);
         entry.setPixelValue(1.0);
         preferences.addEntry(entry);
-
-        entry = new DataMappingEntry();
-        entry.setDisplayValue(40.);
+	    
+	entry = new DataMappingEntry();
+        entry.setDisplayValue(-30.);
         entry.setPixelValue(2.0);
         preferences.addEntry(entry);
 
         entry = new DataMappingEntry();
-        entry.setDisplayValue(50.5);
+        entry.setDisplayValue(-20.);
         entry.setPixelValue(3.0);
         preferences.addEntry(entry);
 
         entry = new DataMappingEntry();
-        entry.setDisplayValue(60.);
+        entry.setDisplayValue(-10.);
         entry.setPixelValue(4.0);
         preferences.addEntry(entry);
 
-        entry = new DataMappingEntry();
-        entry.setDisplayValue(70.);
+	entry = new DataMappingEntry();
+        entry.setDisplayValue(0.);
         entry.setPixelValue(5.0);
         preferences.addEntry(entry);
 
         entry = new DataMappingEntry();
-        entry.setDisplayValue(80.);
+        entry.setDisplayValue(10.);
         entry.setPixelValue(6.0);
         preferences.addEntry(entry);
 
         entry = new DataMappingEntry();
-        entry.setDisplayValue(90.);
+        entry.setDisplayValue(20.);
         entry.setPixelValue(7.0);
         preferences.addEntry(entry);
 
         entry = new DataMappingEntry();
-        entry.setDisplayValue(100.);
+        entry.setDisplayValue(30.);
         entry.setPixelValue(8.0);
+        preferences.addEntry(entry);
+
+        entry = new DataMappingEntry();
+        entry.setDisplayValue(40.);
+        entry.setPixelValue(9.0);
+        preferences.addEntry(entry);
+
+        entry = new DataMappingEntry();
+        entry.setDisplayValue(50.);
+        entry.setPixelValue(10.0);
+        preferences.addEntry(entry);
+
+        entry = new DataMappingEntry();
+        entry.setDisplayValue(60.);
+        entry.setPixelValue(11.0);
+        preferences.addEntry(entry);
+
+        entry = new DataMappingEntry();
+        entry.setDisplayValue(70.);
+        entry.setPixelValue(12.0);
+        preferences.addEntry(entry);
+
+        entry = new DataMappingEntry();
+        entry.setDisplayValue(80.);
+        entry.setPixelValue(13.0);
+        preferences.addEntry(entry);
+
+        entry = new DataMappingEntry();
+        entry.setDisplayValue(90.);
+        entry.setPixelValue(14.0);
+        preferences.addEntry(entry);
+
+        entry = new DataMappingEntry();
+        entry.setDisplayValue(100.);
+        entry.setPixelValue(15.0);
+        preferences.addEntry(entry);
+	    
+	entry = new DataMappingEntry();
+        entry.setDisplayValue(110.);
+        entry.setPixelValue(16.0);
+        preferences.addEntry(entry);
+
+        entry = new DataMappingEntry();
+        entry.setDisplayValue(120.);
+        entry.setPixelValue(17.0);
         preferences.addEntry(entry);
 
         params.setDisplayUnit(Unit.ONE);
