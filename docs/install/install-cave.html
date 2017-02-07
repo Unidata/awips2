@@ -14,24 +14,24 @@
 
 
 <title>
+  
+    Download and Install CAVE - 
+  
   Unidata AWIPS User Manual
-  
-    - Download and Install CAVE
-  
 </title>
 <link rel="publisher" href="https://plus.google.com/107187849809354688692">
 <link rel="shortcut icon" href="http://www.unidata.ucar.edu/favicon.ico">
 <link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
-<link href="/awips2/css/site2.css?20161220" rel="stylesheet">
-<link href="/awips2/css/site2_sd_rules.css?20161220" rel="stylesheet" shim-shadowdom>
+<link href="/awips2/css/site2.css?20170207" rel="stylesheet">
+<link href="/awips2/css/site2_sd_rules.css?20170207" rel="stylesheet" shim-shadowdom>
 
 
 
-<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20161220"></script>
+<script src="/awips2/components/webcomponentsjs/webcomponents.min.js?20170207"></script>
 <!-- TODO: remove when https://github.com/Polymer/polymer/issues/391 is fixed -->
 <link rel="import" href="/awips2/components/polymer/polymer.html">
 <link rel="stylesheet" href="/awips2/css/elements/docs-menu.css">
-<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20161220">
+<link rel="import" href="/awips2/elements/common_elements.vulcanized.html?20170207">
 
 
 </head>
@@ -80,9 +80,26 @@
 
       <p><img style="width:300px;float:right;" src="../../images/Unidata_AWIPS2_CAVE.png" /></p>
 
-<h1 id="core-icon-iconfaapple-aria-labelfile-download-roleimgcore-icon-cave-for-os-x"><core-icon icon="fa:apple" aria-label="file-download" role="img"></core-icon> CAVE for OS X</h1>
+<h1 id="core-icon-iconfaapple-aria-labelfile-download-roleimgcore-icon-cave-for-macos"><core-icon icon="fa:apple" aria-label="file-download" role="img"></core-icon> CAVE for macOS</h1>
 
-<p><a href="http://www.unidata.ucar.edu/downloads/awips2/awips2-cave-16.2.2.dmg"><paper-button raised="" role="button" tabindex="0"><core-icon icon="file-download" aria-label="file-download" role="img"></core-icon>awips2-cave-16.2.2.dmg</paper-button></a> writes  config files to <code>~/Library/CAVE</code></p>
+<blockquote>
+  <p>10.11 (El Capitan) or lower</p>
+</blockquote>
+
+<p><a href="http://www.unidata.ucar.edu/downloads/awips2/awips2-cave-16.2.2.dmg"><paper-button raised="" role="button" tabindex="0"><core-icon icon="file-download" aria-label="file-download" role="img"></core-icon>awips2-cave-16.2.2.dmg</paper-button></a></p>
+
+<ul>
+  <li>Writes  config files to <code>~/Library/CAVE</code></li>
+  <li>
+    <p>macOS 10.12 (Sierra) not fully supported! Sierra requires cave be run from the command line:</p>
+
+    <blockquote>
+      <p>New to 10.12 is Gatekeeper Path Randomization, which prevents applications delivered outside of the Mac App Store from running by normal means (taskbar icon or finder).</p>
+
+      <p>CAVE on Sierra should be run from the terminal with the command <code>/Applications/CAVE/cave.app/Contents/MacOS/cave</code></p>
+    </blockquote>
+  </li>
+</ul>
 
 <p><br /></p>
 
@@ -98,7 +115,7 @@
 
 <hr />
 
-<h1 id="core-icon-iconfalinux-aria-labelfile-download-roleimgcore-icon-x8664-linux-centosrhel-6-or-7"><core-icon icon="fa:linux" aria-label="file-download" role="img"></core-icon> x86_64 Linux (CentOS/RHEL 6 or 7)</h1>
+<h1 id="core-icon-iconfalinux-aria-labelfile-download-roleimgcore-icon-64-bit-linux-centosrhel-6-or-7"><core-icon icon="fa:linux" aria-label="file-download" role="img"></core-icon> 64-bit Linux (CentOS/RHEL 6 or 7)</h1>
 
 <p><a href="http://www.unidata.ucar.edu/software/awips2/installCAVE.sh"><paper-button raised="" role="button" tabindex="0"><core-icon icon="file-download" aria-label="file-download" role="img"></core-icon>installCAVE.sh</paper-button></a> installs to <code>/awips2/cave</code> and writes files to <code>~/caveData</code></p>
 
@@ -109,7 +126,7 @@
 <h2 id="linux-requirements">Linux Requirements</h2>
 
 <ul>
-  <li>64-bit CentOS/RHEL 6 or 7</li>
+  <li>x86_64_ CentOS/RHEL 6 or 7</li>
   <li>OpenGL 2.0</li>
   <li>4GB RAM</li>
   <li><a href="http://www.nvidia.com/Download/index.aspx?lang=en-us">Latest NVIDIA driver</a> for your graphics card</li>
@@ -136,7 +153,7 @@
 
 <h2 id="localization-preferences-error">Localization Preferences Error</h2>
 
-<p>You can reset CAVE by removing the <code>~/caveData</code> directory (on OS X <code>~/Library/CAVE</code>) and then run <code>cave</code> again to connect to an EDEX server.  Your local files have been removed, but if you are re-connecting to an EDEX server you have used before, the remote files will sync again to your local <code>~/caveData</code> (bundles, colormaps, etc.).</p>
+<p>You can reset CAVE by removing the <code>~/caveData</code> directory (on macOS <code>~/Library/CAVE</code>) and then run <code>cave</code> again to connect to an EDEX server.  Your local files have been removed, but if you are re-connecting to an EDEX server you have used before, the remote files will sync again to your local <code>~/caveData</code> (bundles, colormaps, etc.).</p>
 
 <h2 id="no-images-displayed">No Images Displayed</h2>
 
@@ -163,7 +180,7 @@
 <script src="/awips2/js/prettify/prettify.js"></script>
 
 <!-- <script src="/awips2/js/bower_components/smoothscroll/smoothscroll.js"></script> -->
-<script src="/awips2/js/app.js?20161220"></script>
+<script src="/awips2/js/app.js?20170207"></script>
 
 
   </scroll-area>
