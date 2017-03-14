@@ -1,0 +1,359 @@
+C MODULE UREOR2
+C-----------------------------------------------------------------------
+C
+C  ROUTINE TO READ SEGMENT DATA FROM THE OLD ESP PARAMETER FILE
+C  AND WRITES IT TO THE NEW PARAMETER FILE.
+C
+      SUBROUTINE UREOR2 (IORFCC,OBSLT,IRECN,MLISTC,LISTC,NSEGCP,
+     *   MP,P,MT,T,MTS,TS,ISTAT)
+C
+      CHARACTER*8 SEGID,ESEGID
+C
+      DIMENSION LISTC(MLISTC)     
+      DIMENSION P(MP),T(MT),TS(MTS)
+      DIMENSION OBSLT(2)
+      DIMENSION RDSEGN(2),IOBSLT(2)
+      DIMENSION IARRAY(3)
+C
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/fcunit'
+      INCLUDE 'common/fcrunc'
+      INCLUDE 'common/fcsegn'
+      INCLUDE 'common/fcsegp'
+      INCLUDE 'common/ep'
+      INCLUDE 'common/esp'
+      INCLUDE 'common/ets'
+      INCLUDE 'common/esprec'
+      INCLUDE 'common/espseg'
+      INCLUDE 'common/espfle'
+      INCLUDE 'urcommon/urunts'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/reorder/RCS/ureor2.f,v $
+     . $',                                                             '
+     .$Id: ureor2.f,v 1.5 2002/02/11 21:13:07 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      ISTAT=0
+C
+C  SET DEBUG LEVEL
+      LDEBUG=IFBUG('ESPP')
+C
+C  CHECK IF MAXIMUM NUMBER OF SEGMENTS EXCEEDED
+      IF (IRSEG.GT.MLISTC) THEN
+         WRITE (IPR,130) IRSEG,MLISTC
+         CALL SUERRS (IPR,2,-1)
+         ISTAT=1
+         GO TO 120
+         ENDIF
+C
+C  CHECK IF SEGMENT ALREADY PROCESSED
+      IF (LISTC(IRSEG).EQ.1) THEN
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IPR,140) IRSEG
+            CALL SULINE (IPR,1)
+            ENDIF
+         GO TO 120
+         ENDIF
+C
+      LISTC(IRSEG)=1
+C
+C  GET SEGMENT INFORMATION
+      CALL FGETSG (SEGID,IRSEG,MP,P,MT,T,MTS,TS,1,1,IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (IPR,150) IRSEG,IERR
+         CALL SUERRS (IPR,2,-1)
+         ISTAT=1
+         GO TO 120
+         ENDIF
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IPR,*) 'SEGID=',SEGID
+         CALL SULINE (IPR,1)
+         WRITE (IPR,160) IDSEGN,IRSEG,IEREC
+         CALL SULINE (IPR,1)
+         ENDIF
+C
+      IF (SEGID.EQ.'MFNW1') THEN
+CCC         WRITE (IPR,*) 'SEGID=',SEGID
+         ENDIF
+C
+C  IEREC (IN COMMON FCSEGN) IS RECORD LOCATION IN ESP PARAMETER FILE
+C  IF IEREC=0, THEN THE SEGMENT IS NOT PART OF THE ESP RUN
+      IF (IEREC.EQ.0) THEN
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IPR,170) IDSEGN
+            CALL SULINE (IPR,1)
+            ENDIF
+         GO TO 120
+         ENDIF
+C
+C  READ RECORD FROM OLD ESPPARM FILE
+10    CALL UREADT (KUESPP,IEREC,ESPDAT,ISTAT)
+      IF (ISTAT.NE.0) THEN
+         WRITE (IPR,190) 'READING',IEREC,KUESPP
+         CALL SUERRS (IPR,2,-1)
+         ISTAT=1
+         GO TO 120
+         ENDIF
+C
+      CALL UMEMOV (ESPDAT(1),ESEGID,2)
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IPR,*) 'ESEGID=',ESEGID
+         CALL SULINE (IPR,1)
+         ENDIF
+C
+C  CHECK IF OBSOLETE ESP SEGMENT
+      IF (ESPDAT(1).EQ.OBSLT(1).AND.ESPDAT(2).EQ.OBSLT(2)) THEN
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IPR,180) IEREC,OBSLT,IDSEGN
+            CALL SULINE (IPR,1)
+            ENDIF
+         WRITE (IPR,200) IEREC,OBSLT
+         CALL SUWRNS (IPR,2,-1)
+         GO TO 20
+         ENDIF
+C
+      IERECN=0
+      INDERR=0
+C
+C  SET INDICATOR IF TO ALWAYS SEARCH FOR SEGMENT
+      ISRCHA=1
+      IF (ISRCHA.EQ.1) GO TO 20
+C
+C  CHECK SEGMENT IDENTIFIER
+      CALL UMEMOV (IDSEGN,RDSEGN,2)
+      IF (RDSEGN(1).EQ.ESPDAT(1).AND.RDSEGN(2).EQ.ESPDAT(2)) THEN
+         IERECN=IEREC
+         GO TO 80
+         ENDIF
+C
+C  SEGMENT NOT FOUND AT SPECIFIED RECORD
+      WRITE (IPR,210) IEREC,IDSEGN
+      CALL SUWRNS (IPR,2,-1)
+C
+20    IREC=2
+      CALL UMEMOV (OBSLT,IOBSLT,2)
+C
+C  READ ESP SEGMENT RECORD
+30    IFILLA=0
+      ICHKID=0
+      CALL ESPRDF (IFILLA,ICHKID,IREC,TSESP,MTSESP,PESP,MPESP,
+     *   SPESP,MSPESP,IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (IPR,220) IERR
+         CALL SUERRS (IPR,2)
+         INDERR=1
+         GO TO 60
+         ENDIF
+C
+C  CHECK IF LAST ESP SEGMENT
+      IF (NSREC.EQ.0) THEN
+         WRITE (IPR,230) IDSEGN
+         CALL SUERRS (IPR,2,-1)
+         INDERR=1
+         GO TO 70
+         ENDIF
+C
+C  CHECK IF OBSOLETE ESP SEGMENT
+      IF (ID(1).EQ.IOBSLT(1).AND.ID(2).EQ.IOBSLT(2)) GO TO 50
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IPR,240) ID,IREC
+         CALL SULINE (IPR,1)
+         ENDIF
+C
+C  CHECK IF SPECIFIED SEGMENT
+      IF (ID(1).EQ.IDSEGN(1).AND.ID(2).EQ.IDSEGN(2)) THEN
+         IERECN=IREC
+         IF (ISRCHA.EQ.0) THEN
+            WRITE (IPR,250) IDSEGN,IERECN
+            CALL SULINE (IPR,2)
+            ENDIF
+         GO TO 80
+         ENDIF
+C
+C  CHECK IF ALL SEGMENTS PROCESSED
+50    IF (NSREC.LT.NXREC) THEN
+         IREC=NSREC
+         GO TO 30
+         ENDIF
+C
+60    IF (IERECN.EQ.0) THEN
+         WRITE (IPR,260) IDSEGN
+         CALL SUWRNS (IPR,2,-1)
+C     CHECK IF FC FILES WERE REORDERED
+         IF (IORFCC.EQ.0) THEN
+            IUNIT=KFSGST
+            ELSE
+               IUNIT=LFSGST
+            ENDIF
+C     UPDATE FCSEGSTS FILE
+         IEREC=0
+         CALL UWRITT (IUNIT,IRSEG,IDSEGN,ISTAT)
+         IF (ISTAT.NE.0) THEN
+            WRITE (IPR,190) 'WRITING',IRSEG,IUNIT
+            CALL SUERRS (IPR,2,-1)
+            ISTAT=1
+            GO TO 120
+            ENDIF
+         WRITE (IPR,270) IDSEGN
+         CALL SULINE (IPR,2,-1)
+         INDERR=1
+         ENDIF
+C
+70    IF (INDERR.EQ.1) GO TO 120
+C
+      IF (IEREC.NE.IERECN) THEN
+         IEREC=IERECN
+         GO TO 10
+         ENDIF
+C
+80    IRECO=IEREC
+      IRECN=IRECN+1
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IPR,*) 'IRECN=',IRECN
+         CALL SULINE (IPR,1)
+         ENDIF
+C
+C  COMPUTE NUMBER OF ADDITIONAL RECORDS TO BE COPIED
+      NRECA=(((16+ESPDAT(14)+ESPDAT(15)+ESPDAT(16))+(LRECL-1))/LRECL)-1
+      NXSEGN=IRECN+NRECA+1
+      ESPDAT(3)=NXSEGN+0.01
+C
+C  WRITE RECORDS TO NEW ESPPARM FILE
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IPR,*) 'IRECN=',IRECN
+         CALL SULINE (IPR,1)
+         ENDIF
+      CALL UWRITT (LUESPP,IRECN,ESPDAT,ISTAT)
+      IF (ISTAT.NE.0) THEN
+         WRITE (IPR,190) 'WRITING',IRECN,LUESPP
+         CALL SUERRS (IPR,2,-1)
+         ISTAT=1
+         GO TO 120
+         ENDIF
+      IRECN1=IRECN
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IPR,*) ' NRECA=',NRECA
+         CALL SULINE (IPR,1)
+         ENDIF
+      IF (NRECA.GT.0) THEN
+         DO 90 IRECA=1,NRECA
+            IRECN=IRECN+1
+            IF (LDEBUG.GT.0) THEN
+               WRITE (IPR,*) 'IRECN=',IRECN
+               CALL SULINE (IPR,1)
+               ENDIF
+            CALL UREADT (KUESPP,IRECO+IRECA,ESPDAT,ISTAT)
+            IF (ISTAT.NE.0) THEN
+               WRITE (IPR,190) 'READING',IRECN,LUESPP
+               CALL SUERRS (IPR,2,-1)
+               ISTAT=1
+               GO TO 120
+               ENDIF
+            CALL UWRITT (LUESPP,IRECN,ESPDAT,ISTAT)
+            IF (ISTAT.NE.0) THEN
+               WRITE (IPR,190) 'WRITING',IRECN,LUESPP
+               CALL SUERRS (IPR,2,-1)
+               ISTAT=1
+               GO TO 120
+               ENDIF
+90          CONTINUE
+         ENDIF
+C
+C  CHECK IF OLD AND NEW ESPPARM RECORD NUMBER DIFFERENT
+      IF (IEREC.NE.IRECN1) THEN
+C     CHECK IF FC FILES WERE REORDERED
+         IF (IORFCC.EQ.0) THEN
+            IUNIT=KFSGST
+            GO TO 110
+            ENDIF
+         IRSEG=0
+C     GET NUMBER OF SEGMENTS DEFINED
+         IREC=1
+         CALL UREADT (LFSGPT,IREC,NS,IERR)
+         IF (NS.EQ.0) THEN
+            WRITE (IPR,280)
+            CALL SUERRS (IPR,2,-1)
+            ISTAT=1
+            GO TO 120
+            ENDIF
+C     FIND RECORD NUMBER OF SEGMENT IN NEW FCSEGSTS FILE
+         DO 100 I=1,NS
+            IREC=I+2
+            CALL UREADT (LFSGPT,IREC,IARRAY,IERR)
+            IF (IDSEGN(1).EQ.IARRAY(1).AND.IDSEGN(2).EQ.IARRAY(2)) THEN
+               IRSEG=IARRAY(3)
+               IUNIT=LFSGST
+               CALL UREADT (IUNIT,IRSEG,IDSEGN,ISTAT)
+               GO TO 110
+               ENDIF
+100         CONTINUE
+         WRITE (IPR,290) IDSEGN
+         CALL SUERRS (IPR,2,-1)
+         ISTAT=1
+         GO TO 120
+110      IF (LDEBUG.GT.0) THEN
+            WRITE (IPR,*)
+     *         ' IUNIT=',IUNIT,
+     *         ' IRSEG=',IRSEG,
+     *         ' '
+            CALL SULINE (IPR,1)
+            ENDIF
+C     UPDATE FCSEGSTS FILE
+         IEREC=IRECN1
+         CALL UWRITT (IUNIT,IRSEG,IDSEGN,ISTAT)
+         IF (ISTAT.NE.0) THEN
+            WRITE (IPR,190) 'WRITING',IRSEG,IUNIT
+            CALL SUERRS (IPR,2,-1)
+            ISTAT=1
+            GO TO 120
+            ENDIF
+         ENDIF
+C
+      NSEGCP=NSEGCP+1
+C
+120   RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+130   FORMAT ('0*** ERROR - RECORD NUMBER FOR SEGMENT NUMBER (',I4,') ',
+     *   'EXCEEDS DIMENSION OF ARRAY LISTC (',I4,').')
+140   FORMAT (' SEGMENT AT RECORD ',I5,' ALREADY PROCESSED')
+150   FORMAT ('0*** ERROR - IN UREOR2 - CALLING ROUTINE FGETSG ',
+     *   'FOR SEGMENT NUMBER ',I4,'. IERR=',I2)
+160   FORMAT (' FGETSG CALLED: IDSEGN=',2A4,3X,'IRSEG=',I6,3X,
+     *   'IEREC=',I6)
+170   FORMAT (' IEREC IS ZERO FOR SEGMENT ',2A4)
+180   FORMAT (' SEGMENT AT ESPPARM RECORD ',I4,
+     *   ' IS ',2A4,
+     *   ' FOR SEGMENT ',2A4)
+190   FORMAT ('0*** ERROR - IN UREOR2 - ',A,' RECORD ',I4,
+     *   ' FOR UNIT ',I3,'.')
+200   FORMAT ('0*** WARNING - SEGMENT IN RECORD ',I4,
+     *   ' OF THE OLD ESP PARAMETER FILE ',
+     *   'IS ',2A4,'.')
+210   FORMAT ('0*** WARNING - SEGMENT NAME IN RECORD ',I4,
+     *   ' OF THE OLD ESP PARAMETER FILE ',
+     *   'IS DIFFERENT THAN THAT IN COMMON FCSEGN (',2A4,').')
+220   FORMAT ('0***ERROR - IN UREOR2 - CALLING ROUTINE ESPRDF. '
+     *   'IERR=',I2)
+230   FORMAT ('0*** ERROR - SEGMENT ',2A4,' NOT FOUND IN ',
+     *   ' THE OLD ESP PARAMETER FILE.')
+240   FORMAT (' ID=',2A4,' IREC=',I4)
+250   FORMAT ('0*** NOTE - SEGMENT ',2A4,' FOUND AT RECORD ',I4,
+     *   ' OF THE OLD ESP PARAMETER FILE.')
+260   FORMAT ('0*** WARNING - SEGMENT ',2A4,' NOT FOUND IN ',
+     *   'THE OLD ESP PARAMETER FILE.')
+270   FORMAT ('0*** NOTE - ESP SEGMENT RECORD NUMBER FOR SEGMENT ',2A4,
+     *   ' SET TO ZERO IN THE SEGMENT STATUS FILE.')
+280   FORMAT ('0*** ERROR - IN UREOR2 - NO SEGMENTS DEFINED IN ',
+     *   'NEW FCSEGPTR FILE.')
+290   FORMAT ('0*** ERROR - IN UREOR2 - SEGMENT ',2A4,' NOT FOUND IN ',
+     *   'NEW FCSEGPTR FILE.')
+C
+        END

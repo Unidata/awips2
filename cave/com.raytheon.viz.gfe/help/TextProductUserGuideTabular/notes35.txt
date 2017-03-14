@@ -1,0 +1,2 @@
+The "getScalarValue" method takes a numerical value and returns a text string equivalent.  The "getVectorValue" method can be used for Vector weather elements.
+

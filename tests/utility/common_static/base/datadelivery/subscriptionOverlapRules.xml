@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<subscriptionOverlapConfig>
+    <!-- Each value is represented by a percent, 0-100 -->
+    <maxAllowedParameterDuplication>65</maxAllowedParameterDuplication>
+    <maxAllowedForecastHourDuplication>65</maxAllowedForecastHourDuplication>
+    <maxAllowedCycleDuplication>65</maxAllowedCycleDuplication>
+    <maxAllowedSpatialDuplication>65</maxAllowedSpatialDuplication>
+    <!--
+        Available options:
+        MATCH_ANY: Any of the maxAllowed options will
+        cause the subscription to be considered overlapping.
+
+        MATCH_ALL: All maxAllowed options must be exceeded
+        to cause the subscription to be considered overlapping.
+
+        AT_LEAST_HALF: At least half of the maxAllowed options
+        must be exceeded to cause the subscription to be considered
+        overlapping.
+    -->
+    <matchStrategy>MATCH_ANY</matchStrategy>
+</subscriptionOverlapConfig>

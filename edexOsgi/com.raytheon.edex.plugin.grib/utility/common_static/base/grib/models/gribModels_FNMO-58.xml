@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This_software_was_developed_and_/_or_modified_by_Raytheon_Company, pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government. 
+	U.S._EXPORT_CONTROLLED_TECHNICAL_DATA This_software_product_contains_export-restricted_data_whose 
+	export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires 
+	an_export_license_or_other_authorization. Contractor_Name:________Raytheon_Company 
+	Contractor_Address:_____6825_Pine_Street,_Suite_340 ________________________Mail_Stop_B8 
+	________________________Omaha,_NE_68106 ________________________402.291.0100 
+	See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for further_licensing_information. -->
+
+
+<gribModelSet>
+
+	<!-- Unidata Additions -->
+
+	<model>
+		<name>NAVGEM</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>720361001</grid>
+		<process>
+			<id>58</id>
+			<id>18</id>
+		</process>
+	</model>
+
+	<model>
+		<name>COAMPS-Europe</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>301188</grid>
+		<process>
+			<id>13</id>
+		</process>
+	</model>
+
+	<model> 
+		<name>COAMPS-WesternAtlantic</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>301254</grid>
+		<process>
+			<id>13</id>
+		</process>
+	</model>
+
+	<model> 
+		<name>COAMPS-NortheastPacific</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>271151</grid>
+		<process>
+			<id>13</id>
+		</process>
+	</model>
+
+	<model> 
+		<name>COAMPS-CentralAmerica</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>461298</grid>
+		<process>
+			<id>13</id>
+		</process>
+	</model>
+
+	<model> 
+		<name>COAMPS-SouthernCalifornia</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>128141</grid>
+		<process>
+			<id>13</id>
+		</process>
+	</model>
+
+	<model>
+		<name>FNMOC-WW3</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>360181</grid>
+		<process>
+			<id>110</id>
+		</process>
+	</model>
+
+	<model> 
+		<name>FNMOC-WW3-Europe</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>301188</grid>
+		<process>
+			<id>11</id>
+		</process>
+	</model>
+
+	<model> 
+		<name>FNMOC-FAROP</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>360181001</grid>
+		<process>
+			<id>135</id>
+		</process>
+	</model>
+	<model>
+		<name>FNMOC-NCODA</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>1440721</grid>
+		<process>
+			<id>78</id>
+		</process>
+	</model>
+
+
+	<!-- END Unidata Additions -->
+	
+	<!-- SUBCENTER 20 -->
+
+	<model>
+		<name>nogaps</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>401</grid>
+		<process>
+			<id>58</id>
+			<id>18</id>
+		</process>
+	</model>
+
+	<model>
+		<name>nogaps</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>362181001</grid>
+		<process>
+			<id>58</id>
+			<id>18</id>
+		</process>
+	</model>
+
+	<model>
+		<name>nogaps</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>362181002</grid>
+		<process>
+			<id>58</id>
+			<id>18</id>
+		</process>
+	</model>
+
+	<model>
+		<name>nogaps</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>2291</grid>
+		<process>
+			<id>58</id>
+			<id>18</id>
+		</process>
+	</model>
+
+	<model>
+		<name>fens</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>2291</grid>
+		<process>
+			<id>50</id>
+		</process>
+	</model>
+
+	<model>
+		<name>nogaps</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>361181002</grid>
+		<process>
+			<id>18</id>
+			<id>58</id>
+		</process>
+	</model>
+
+	<model>
+		<name>fens</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>361181002</grid>
+		<process>
+			<id>50</id>
+		</process>
+	</model>
+	
+	<model>
+		<name>fnmocWave</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>401</grid>
+		<process>
+			<id>110</id>
+		</process>
+	</model>
+
+	<model>
+		<name>fnmocWave</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>362181001</grid>
+		<process>
+			<id>110</id>
+		</process>
+	</model>
+
+	<model>
+		<name>fnmocWave</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>362181002</grid>
+		<process>
+			<id>110</id>
+		</process>
+	</model>
+
+	<model>
+		<name>FNMOC-WW3</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>2291</grid>
+		<process>
+			<id>110</id>
+		</process>
+	</model>
+
+	<model>
+		<name>fnmocWave</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>361181002</grid>
+		<process>
+			<id>110</id>
+		</process>
+	</model>
+
+</gribModelSet>

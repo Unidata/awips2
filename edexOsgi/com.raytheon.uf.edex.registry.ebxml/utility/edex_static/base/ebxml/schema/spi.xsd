@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+        Copyright (c) OASIS Open 2002-2011. All Rights Reserved.
+
+	All capitalized terms in the following text have the meanings assigned to them
+   	in the OASIS Intellectual Property Rights Policy (the "OASIS IPR Policy"). The
+	full Policy may be found at the OASIS website.
+
+	This document and translations of it may be copied and furnished to others, and
+	derivative works that comment on or otherwise explain it or assist in its
+	implementation may be prepared, copied, published, and distributed, in whole or
+	in part, without restriction of any kind, provided that the above copyright
+	notice and this section are included on all such copies and derivative works.
+	However, this document itself may not be modified in any way, including by
+	removing the copyright notice or references to OASIS, except as needed for the
+	purpose of developing any document or deliverable produced by an OASIS
+	Technical Committee (in which case the rules applicable to copyrights, as set
+	forth in the OASIS IPR Policy, must be followed) or as required to translate it
+	into languages other than English.
+
+	The limited permissions granted above are perpetual and will not be revoked by
+	OASIS or its successors or assigns.
+
+	This document and the information contained herein is provided on an "AS IS"
+	basis and OASIS DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+	LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION HEREIN WILL NOT
+	INFRINGE ANY OWNERSHIP RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR
+	FITNESS FOR A PARTICULAR PURPOSE.
+-->
+<schema targetNamespace="urn:oasis:names:tc:ebxml-regrep:xsd:spi:4.0" 
+  xmlns="http://www.w3.org/2001/XMLSchema" 
+  xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0" 
+  xmlns:rs="urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0" 
+  xmlns:tns="urn:oasis:names:tc:ebxml-regrep:xsd:spi:4.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.w3.org/2001/XMLSchema  http://www.w3.org/2001/XMLSchema.xsd"
+  elementFormDefault="qualified"
+  attributeFormDefault="unqualified"
+  >
+  
+  <!-- Import the rim.xsd file with XML schema mapping from RIM -->
+  <import namespace="urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0" schemaLocation="rim.xsd"/>
+  <import namespace="urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0" schemaLocation="rs.xsd"/>
+  
+  <element name="ValidateObjectsRequest">
+    <annotation>
+      <documentation xml:lang="en">Request to validate specified objects.</documentation>
+    </annotation>
+    <complexType>
+      <complexContent>
+        <extension base="rs:RegistryRequestType">
+          <sequence>
+            <!-- Query and ObjectRefList select objects to validate -->
+            <element name="Query" type="rim:QueryType" minOccurs="0" maxOccurs="1" />
+            <element ref="rim:ObjectRefList" minOccurs="0" maxOccurs="1" />
+            <element name="OriginalObjects" type="rim:RegistryObjectListType" minOccurs="0" maxOccurs="1"/>
+            <!-- The Invocation Control File (optional). -->
+            <element name="InvocationControlFile" type="rim:ExtrinsicObjectType" minOccurs="0" maxOccurs="unbounded"/>
+          </sequence>
+        </extension>
+      </complexContent>
+    </complexType>
+  </element>
+  <element name="ValidateObjectsResponse">
+    <annotation>
+      <documentation xml:lang="en">Response to request to validate specified objects.</documentation>
+    </annotation>
+    <complexType>
+      <complexContent>
+        <extension base="rs:RegistryResponseType">
+          <sequence/>
+        </extension>
+      </complexContent>
+    </complexType>
+  </element>
+  
+  <element name="CatalogObjectsRequest">
+    <annotation>
+      <documentation xml:lang="en">Request to catalog specified objects.</documentation>
+    </annotation>
+    <complexType>
+      <complexContent>
+        <extension base="rs:RegistryRequestType">
+          <sequence>
+            <!-- Query and ObjectRefList select objects to catalog -->
+            <element name="Query" type="rim:QueryType" minOccurs="0" maxOccurs="1" />
+            <element ref="rim:ObjectRefList" minOccurs="0" maxOccurs="1" />
+            <element name="OriginalObjects" type="rim:RegistryObjectListType" minOccurs="0" maxOccurs="1"/>
+            <!-- The Invocation Control File (optional). -->
+            <element name="InvocationControlFile" type="rim:ExtrinsicObjectType" minOccurs="0" maxOccurs="unbounded"/>
+          </sequence>
+        </extension>
+      </complexContent>
+    </complexType>
+  </element>
+  <element name="CatalogObjectsResponse">
+    <annotation>
+      <documentation xml:lang="en">Response to request to catalog specified objects.</documentation>
+    </annotation>
+    <complexType>
+      <complexContent>
+        <extension base="rs:RegistryResponseType">
+        </extension>
+      </complexContent>
+    </complexType>
+  </element>
+  
+  <element name="FilterObjectsRequest">
+    <annotation>
+      <documentation xml:lang="en">Request to filter specified objects.</documentation>
+    </annotation>
+    <complexType>
+      <complexContent>
+        <extension base="rs:RegistryRequestType">
+          <sequence>
+            <element name="OriginalObjects" type="rim:RegistryObjectListType" minOccurs="1" maxOccurs="1"/>
+            <!-- The Invocation Control File (optional). -->
+            <element name="InvocationControlFile" type="rim:ExtrinsicObjectType" minOccurs="0" maxOccurs="unbounded"/>
+          </sequence>
+        </extension>
+      </complexContent>
+    </complexType>
+  </element>
+  <element name="FilterObjectsResponse">
+    <annotation>
+      <documentation xml:lang="en">Response to request to catalog specified objects.</documentation>
+    </annotation>
+    <complexType>
+      <complexContent>
+        <extension base="rs:RegistryResponseType">
+        </extension>
+      </complexContent>
+    </complexType>
+  </element>
+  
+  <complexType name="ValidationExceptionType">
+    <complexContent>
+      <extension base="rs:RegistryExceptionType">
+        <sequence/>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="CatalogingExceptionType">
+    <complexContent>
+      <extension base="rs:RegistryExceptionType">
+        <sequence/>
+      </extension>
+    </complexContent>
+  </complexType>
+  
+  <complexType name="FilteringExceptionType">
+    <complexContent>
+      <extension base="rs:RegistryExceptionType">
+        <sequence/>
+      </extension>
+    </complexContent>
+  </complexType>
+  
+</schema>

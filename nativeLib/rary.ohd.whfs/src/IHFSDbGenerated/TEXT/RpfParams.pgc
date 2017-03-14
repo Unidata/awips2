@@ -1,0 +1,722 @@
+/*
+    File: RpfParams.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:29 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "RpfParams.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct RpfParams_t
+{
+    long		obshrs;
+    long		fcsthrs;
+    char		missval[13];
+    char		misscat[13];
+    char		misstim[13];
+    long		rvsexphrs;
+    long		flsexphrs;
+    long		flwexphrs;
+
+    int		ind_missval;
+    int		ind_misscat;
+    int		ind_misstim;
+} RpfParams_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+RpfParams * GetRpfParams(const char * where)
+{
+
+    RpfParams * listPtr = NULL;
+    RpfParams * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM RpfParams ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RpfParams_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRpfParams() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRpfParams() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRpfParams() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.obshrs, :dbs.fcsthrs, 
+    :dbs.missval:dbs.ind_missval, :dbs.misscat:dbs.ind_misscat, 
+    :dbs.misstim:dbs.ind_misstim, :dbs.rvsexphrs, 
+    :dbs.flsexphrs, :dbs.flwexphrs    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRpfParams() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (RpfParams *) malloc(sizeof(RpfParams))) != NULL)
+        {
+
+            structPtr->obshrs = dbs.obshrs;
+
+            structPtr->fcsthrs = dbs.fcsthrs;
+
+            strcpy(structPtr->missval, dbs.missval);
+            setNullIfIndicated(dbs.ind_missval, CHAR, structPtr->missval);
+
+            strcpy(structPtr->misscat, dbs.misscat);
+            setNullIfIndicated(dbs.ind_misscat, CHAR, structPtr->misscat);
+
+            strcpy(structPtr->misstim, dbs.misstim);
+            setNullIfIndicated(dbs.ind_misstim, CHAR, structPtr->misstim);
+
+            structPtr->rvsexphrs = dbs.rvsexphrs;
+
+            structPtr->flsexphrs = dbs.flsexphrs;
+
+            structPtr->flwexphrs = dbs.flwexphrs;
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.obshrs, :dbs.fcsthrs, 
+        :dbs.missval:dbs.ind_missval, :dbs.misscat:dbs.ind_misscat, 
+        :dbs.misstim:dbs.ind_misstim, :dbs.rvsexphrs, 
+        :dbs.flsexphrs, :dbs.flwexphrs        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetRpfParams() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+RpfParams * SelectRpfParams(const char * where)
+{
+
+    RpfParams * listPtr = NULL;
+    RpfParams * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM RpfParams ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RpfParams_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRpfParams() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRpfParams() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRpfParams() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.obshrs, :dbs.fcsthrs, 
+    :dbs.missval:dbs.ind_missval, :dbs.misscat:dbs.ind_misscat, 
+    :dbs.misstim:dbs.ind_misstim, :dbs.rvsexphrs, 
+    :dbs.flsexphrs, :dbs.flwexphrs    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRpfParams() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (RpfParams *) malloc(sizeof(RpfParams))) != NULL)
+        {
+
+            structPtr->obshrs = dbs.obshrs;
+
+            structPtr->fcsthrs = dbs.fcsthrs;
+
+            strcpy(structPtr->missval, dbs.missval);
+            setNullIfIndicated(dbs.ind_missval, CHAR, structPtr->missval);
+
+            strcpy(structPtr->misscat, dbs.misscat);
+            setNullIfIndicated(dbs.ind_misscat, CHAR, structPtr->misscat);
+
+            strcpy(structPtr->misstim, dbs.misstim);
+            setNullIfIndicated(dbs.ind_misstim, CHAR, structPtr->misstim);
+
+            structPtr->rvsexphrs = dbs.rvsexphrs;
+
+            structPtr->flsexphrs = dbs.flsexphrs;
+
+            structPtr->flwexphrs = dbs.flwexphrs;
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.obshrs, :dbs.fcsthrs, 
+        :dbs.missval:dbs.ind_missval, :dbs.misscat:dbs.ind_misscat, 
+        :dbs.misstim:dbs.ind_misstim, :dbs.rvsexphrs, 
+        :dbs.flsexphrs, :dbs.flwexphrs        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectRpfParams() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectRpfParamsCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM RpfParams ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRpfParams() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRpfParams() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRpfParams() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRpfParams() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutRpfParams(const RpfParams * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RpfParams_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    dbs.obshrs = structPtr->obshrs;
+
+    dbs.fcsthrs = structPtr->fcsthrs;
+
+    strcpy(dbs.missval, structPtr->missval);
+    dbs.ind_missval = getIndicator(CHAR, (void *)structPtr->missval);
+
+    strcpy(dbs.misscat, structPtr->misscat);
+    dbs.ind_misscat = getIndicator(CHAR, (void *)structPtr->misscat);
+
+    strcpy(dbs.misstim, structPtr->misstim);
+    dbs.ind_misstim = getIndicator(CHAR, (void *)structPtr->misstim);
+
+    dbs.rvsexphrs = structPtr->rvsexphrs;
+
+    dbs.flsexphrs = structPtr->flsexphrs;
+
+    dbs.flwexphrs = structPtr->flwexphrs;
+
+
+    EXEC SQL INSERT INTO RpfParams (obshrs,fcsthrs,
+        missval,misscat,misstim,
+        rvsexphrs,flsexphrs,flwexphrs        )
+        VALUES (
+         :dbs.obshrs, :dbs.fcsthrs, :dbs.missval:dbs.ind_missval,
+         :dbs.misscat:dbs.ind_misscat, :dbs.misstim:dbs.ind_misstim, :dbs.rvsexphrs,
+         :dbs.flsexphrs, :dbs.flwexphrs);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutRpfParams() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertRpfParams(const RpfParams * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RpfParams_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    dbs.obshrs = structPtr->obshrs;
+
+    dbs.fcsthrs = structPtr->fcsthrs;
+
+    strcpy(dbs.missval, structPtr->missval);
+    dbs.ind_missval = getIndicator(CHAR, (void *)structPtr->missval);
+
+    strcpy(dbs.misscat, structPtr->misscat);
+    dbs.ind_misscat = getIndicator(CHAR, (void *)structPtr->misscat);
+
+    strcpy(dbs.misstim, structPtr->misstim);
+    dbs.ind_misstim = getIndicator(CHAR, (void *)structPtr->misstim);
+
+    dbs.rvsexphrs = structPtr->rvsexphrs;
+
+    dbs.flsexphrs = structPtr->flsexphrs;
+
+    dbs.flwexphrs = structPtr->flwexphrs;
+
+
+    EXEC SQL INSERT INTO RpfParams (obshrs,fcsthrs,
+        missval,misscat,misstim,
+        rvsexphrs,flsexphrs,flwexphrs        )
+        VALUES (
+         :dbs.obshrs, :dbs.fcsthrs, :dbs.missval:dbs.ind_missval,
+         :dbs.misscat:dbs.ind_misscat, :dbs.misstim:dbs.ind_misstim, :dbs.rvsexphrs,
+         :dbs.flsexphrs, :dbs.flwexphrs);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertRpfParams() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateRpfParams(const RpfParams *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RpfParams_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    dbs.obshrs = structPtr->obshrs;
+
+    dbs.fcsthrs = structPtr->fcsthrs;
+
+    strcpy(dbs.missval, structPtr->missval);
+    dbs.ind_missval = getIndicator(CHAR, (void *)structPtr->missval);
+
+    strcpy(dbs.misscat, structPtr->misscat);
+    dbs.ind_misscat = getIndicator(CHAR, (void *)structPtr->misscat);
+
+    strcpy(dbs.misstim, structPtr->misstim);
+    dbs.ind_misstim = getIndicator(CHAR, (void *)structPtr->misstim);
+
+    dbs.rvsexphrs = structPtr->rvsexphrs;
+
+    dbs.flsexphrs = structPtr->flsexphrs;
+
+    dbs.flwexphrs = structPtr->flwexphrs;
+
+
+    sprintf(queryBuffer, " UPDATE RpfParams SET " );
+    strcat(queryBuffer, "obshrs = ? , fcsthrs = ? , missval = ? , misscat = ? , misstim = ? ,     ");
+    strcat(queryBuffer, "rvsexphrs = ? , flsexphrs = ? , flwexphrs = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateRpfParams() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.obshrs, :dbs.fcsthrs, :dbs.missval:dbs.ind_missval, :dbs.misscat:dbs.ind_misscat, :dbs.misstim:dbs.ind_misstim,
+     :dbs.rvsexphrs, :dbs.flsexphrs, :dbs.flwexphrs;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateRpfParams() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteRpfParams(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM RpfParams ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteRpfParams() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeRpfParams( RpfParams * structPtr)
+{
+    RpfParams* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( RpfParams * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetRpfParamsDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetRpfParamsErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

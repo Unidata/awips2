@@ -1,0 +1,177 @@
+#!/bin/ksh
+#
+# load_rpf_backup_msg
+# 
+# version:  July 6, 2006
+#
+# This script performs the real work in posting the 
+# RiverPro information associated with backup information
+# from neighboring sites.  It is called from the process_rpf_backup_msg
+#
+# The script takes the incoming message, cleans up the file, then 
+# extracts the info within the file for the three database
+# tables, and loads the information into the database. 
+#
+
+# set up SOME environment variables for WHFS applications
+
+RUN_FROM_DIR=`dirname $0`
+#. $RUN_FROM_DIR/../../set_hydro_env
+export RPF_LOG_DIR=$(get_apps_defaults rpf_log_dir)
+export WHFS_PRODUCT_DIR=$(get_apps_defaults whfs_product_dir)
+export DB_NAME=$(get_apps_defaults db_name)
+export RPF_LOG_DIR=$(get_apps_defaults rpf_log_dir)
+export WHFS_PRODUCT_DIR=$(get_apps_defaults whfs_product_dir)
+export DB_NAME=$(get_apps_defaults db_name)
+
+
+#
+#  assign the args to local variables
+
+FILENAME=$1
+PRODUCTID=$2
+PACKEDTIME=$3
+WFO_SOURCE=$4
+
+#
+# define the log file names.
+# this name must be consistent with the name in the calling script.
+#
+
+LOGFILE=$RPF_LOG_DIR/process_backup_$PACKEDTIME.log.from$WFO_SOURCE
+
+Dte=`date -u`
+/bin/echo Begin load_rpf_backup_msg at $Dte >> $LOGFILE
+
+#
+# create a new output file by removing the two header lines
+# from the product and the extra carriage returns that are added by
+# the distributeProduct operations.  also change the backslash-newline
+# sequence to be newline
+#
+
+NEWFILENAME=$WHFS_PRODUCT_DIR/$PRODUCTID.$PACKEDTIME.from$WFO_SOURCE
+/bin/sed -e '1,2d' $FILENAME | /usr/bin/tr -d '\015' > $NEWFILENAME
+
+
+# for testing possibilities...
+#cat $FILENAME | /usr/bin/tr -d '\015' | sed 's/\\n\\n/\\n/g' | sed 's/\\n/\n/g' > $NEWFILENAME
+#cat $FILENAME | /usr/bin/tr -d '\015' > $NEWFILENAME
+
+#
+# parse the three sets of data in the file into individual load files.
+# use an embedded awk script to do this.  just in case,
+# remove any files beforehand since the files is always appended to.
+# these work files get purged from the product dir via a cron.
+#
+
+VTECEVENT_FILE=$WHFS_PRODUCT_DIR/VTECevent_$PACKEDTIME.load.$WFO_SOURCE
+FPPREVPROD_FILE=$WHFS_PRODUCT_DIR/FpPrevProd_$PACKEDTIME.load.$WFO_SOURCE
+TEXTPRODUCT_FILE=$WHFS_PRODUCT_DIR/TextPoduct_$PACKEDTIME.load.$WFO_SOURCE
+
+if [ -s $VTECEVENT_FILE ] 
+then
+  rm -f $VTECEVENT_FILE
+fi
+
+if [ -s $FPPREVPROD_FILE ] 
+then
+  rm -f $FPPREVPROD_FILE
+fi
+
+if [ -s $TEXTPRODUCT_FILE ] 
+then
+  rm -f $TEXTPRODUCT_FILE
+fi
+
+awk 'BEGIN {FS=" ";
+           header_mode=0
+           file_name=""
+           }
+
+$1=="table:vtecevent"   { header_mode=1; file_name=file1 }     
+$1=="table:fpprevprod"  { header_mode=1; file_name=file2 }
+$1=="table:textproduct" { header_mode=1; file_name=file3 }
+
+$1!="table:vtecevent" && $1!="table:fpprevprod" && $1!="table:textproduct" { 
+  if ( header_mode == 1 ) print >> file_name;
+ }' file1=$VTECEVENT_FILE  file2=$FPPREVPROD_FILE file3=$TEXTPRODUCT_FILE $NEWFILENAME
+
+#
+# load the three data sets by using \copy table from file in Postgres, note that
+# the load will fail if there is duplicate data
+#
+
+/bin/echo Loading VTECevent, FpPrevProd, TextProduct records. >> $LOGFILE
+/bin/echo Duplicate record errors can be ignored. >> $LOGFILE
+
+#
+# load the VTECevent data
+#
+
+/bin/echo Loading VTECevent table......... >> $LOGFILE
+$POSTGRESQLBINDIR/psql -d $DB_NAME -c "\COPY VTECevent FROM $VTECEVENT_FILE USING DELIMITERS '|' WITH NULL as ''" >> $LOGFILE 2>&1
+
+#
+# load the FpPrevProd table
+#
+
+/bin/echo Loading FpPrevProd table......... >> $LOGFILE
+$POSTGRESQLBINDIR/psql -d $DB_NAME -c  "\COPY FpPrevProd FROM $FPPREVPROD_FILE USING DELIMITERS '|' WITH NULL as ''" >> $LOGFILE 2>&1
+
+#
+# load the TextProduct table
+#
+
+/bin/echo Loading TextProduct table......... >> $LOGFILE
+$POSTGRESQLBINDIR/psql -d $DB_NAME -c "\COPY TextProduct FROM $TEXTPRODUCT_FILE USING DELIMITERS '|' WITH NULL as ''" >> $LOGFILE 2>&1
+
+
+# When a new product id arrives for the first time, make an entry to the
+# PurgeProduct table for the product id. This is needed to ensure 
+# that there are not unlimited number of products for the product id in
+# the TextProduct table.
+
+
+/bin/echo Make entry to PurgeProduct per product id >> $LOGFILE
+
+TIMESTR=`date -u +"%F %k:%M:%S"`
+
+YEARSTR=`echo $PACKEDTIME | cut -c1-4`
+MONSTR=`echo $PACKEDTIME  | cut -c5-6`
+DAYSTR=`echo $PACKEDTIME  | cut -c7-8`
+HOURSTR=`echo $PACKEDTIME | cut -c9-10`
+MINSTR=`echo $PACKEDTIME  | cut -c11-12`
+SECSTR=`echo $PACKEDTIME  | cut -c13-14`
+PRODUCTTIME="$YEARSTR-$MONSTR-$DAYSTR $HOURSTR:$MINSTR:$SECSTR" 
+
+product_id_num=$(echo "SELECT count(*) FROM PurgeProduct "\
+                      "WHERE product_id='$PRODUCTID';" | $POSTGRESQLBINDIR/psql -d $DB_NAME -t)
+			
+
+
+if [ $product_id_num -eq 0 ]
+then
+
+   echo "INSERT INTO PurgeProduct "\
+        "VALUES ('$PRODUCTID',"\
+        "3, '$PRODUCTTIME','$TIMESTR');" | $POSTGRESQLBINDIR/psql -d $DB_NAME
+	
+else
+ 
+   echo "UPDATE PurgeProduct "\
+        "SET producttime='$PRODUCTTIME', "\
+        "postingtime='$TIMESTR'" \
+	"WHERE product_id='$PRODUCTID';" | $POSTGRESQLBINDIR/psql -d $DB_NAME
+fi   
+
+#
+#
+		 
+Dte=`date -u`
+/bin/echo Completed load_rpf_backup_msg at $Dte >> $LOGFILE
+
+
+return 0
+
+#

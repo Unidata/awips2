@@ -1,0 +1,106 @@
+C MEMBER GDPG24
+C  (from old member PPGDPG24)
+C
+      SUBROUTINE GDPG24(PG24)
+C
+C.....THIS SUBROUTINE IS CALLED UPON TO DUMP ON THE DEBUG PRINTER THE
+C.....NON-MISSING ELEMENTS OF THE PG24 DATA ARRAY.
+C
+C.....ORIGINALLY WRITTEN BY:
+C
+C.....JERRY M. NUNN       WGRFC, FT. WORTH, TEXAS       AUGUST 18, 1988
+C
+      INTEGER*2 PG24(1)
+C
+      DIMENSION IGADR(5), IRAIN(5)
+C
+      INCLUDE 'common/pudbug'
+      INCLUDE 'gcommon/gsize'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_maro/RCS/gdpg24.f,v $
+     . $',                                                             '
+     .$Id: gdpg24.f,v 1.1 1995/09/17 19:01:28 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+  900 FORMAT(1H0, '*** ENTER SUBROUTINE GDPG24 ***')
+  901 FORMAT(1H0, '*** EXIT SUBROUTINE GDPG24 ***')
+  902 FORMAT(1H0, 'PG24 DATA ARRAY DUMP -- DISPLAY THE NON-MISSING ELEME
+     *NTS OF THE PG24 DATA ARRAY')
+  903 FORMAT(1X, 5(3X, 'PG24(', I5, ') = ', I5))
+  904 FORMAT(1X, 4(3X, 'PG24(', I5, ') = ', I5))
+  905 FORMAT(1X, 3(3X, 'PG24(', I5, ') = ', I5))
+  906 FORMAT(1X, 2(3X, 'PG24(', I5, ') = ', I5))
+  907 FORMAT(4X, 'PG24(', I5, ') = ', I5)
+  908 FORMAT(1H0, 'END OF DUMP...THERE ARE ', I5, ' NON-MISSING ELEMENTS
+     * IN THE PG24 DATA ARRAY.')
+C
+      IF(IPTRCE .GE. 3) WRITE(IOPDBG,900)
+      WRITE(IOPDBG,902)
+C
+C.....SCAN THRU THE PG24 DATA ARRAY.
+C
+      NP = 0
+      NUM = 0
+      NPGRID = 1
+C
+  100 IF(PG24(NPGRID) .EQ. MSGGRD) GOTO 200
+C
+C.....WHEN A NON MISSING ENTRY IS FOUND...STORE IN THE OUTPUT BUFFER
+C.....THE GRID POINT ADDRESS AND THE PRECIPITATION.
+C
+      NP = NP + 1
+C
+C.....STORE THE GRID POINT ADDRESS AND THE PRECIPITATION.
+C.....WHEN FIVE ENTRIES ARE IN THE BUFFER...PRINT IT OUT.
+C
+      IF(NP .LE. 5) GOTO 150
+      NP = 5
+      GOTO 300
+C
+  150 IGADR(NP) = NPGRID
+      IRAIN(NP) = PG24(NPGRID)
+      NUM = NUM + 1
+C
+  200 NPGRID = NPGRID + 1
+      IF(NPGRID .GT. NGRID) GOTO 300
+      GOTO 100
+C
+C.....PRINT OUT THE OUTPUT BUFFER.
+C
+  300 IF(NP .EQ. 5) GOTO 800
+      IF(NP .EQ. 4) GOTO 700
+      IF(NP .EQ. 3) GOTO 600
+      IF(NP .EQ. 2) GOTO 500
+      IF(NP .EQ. 1) GOTO 400
+      IF(NP .EQ. 0) GOTO 875
+      GOTO 875
+C
+  400 WRITE(IOPDBG,907) (IGADR(KP), IRAIN(KP), KP = 1, NP)
+      GOTO 850
+C
+  500 WRITE(IOPDBG,906) (IGADR(KP), IRAIN(KP), KP = 1, NP)
+      GOTO 850
+C
+  600 WRITE(IOPDBG,905) (IGADR(KP), IRAIN(KP), KP = 1, NP)
+      GOTO 850
+C
+  700 WRITE(IOPDBG,904) (IGADR(KP), IRAIN(KP), KP = 1, NP)
+      GOTO 850
+C
+  800 WRITE(IOPDBG,903) (IGADR(KP), IRAIN(KP), KP = 1, NP)
+      GOTO 850
+C
+  850 NP = 0
+      IF(NPGRID .GT. NGRID) GOTO 875
+      GOTO 100
+C
+  875 WRITE(IOPDBG,908) NUM
+      IF(IPTRCE .GE. 3) WRITE(IOPDBG,901)
+C
+      RETURN
+      END

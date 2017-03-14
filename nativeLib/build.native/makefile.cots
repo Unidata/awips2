@@ -1,0 +1,43 @@
+# cots makefile for compiling a cots project from source contained
+# within a tar file.  the cots project is assumed to use the gnu
+# build system
+
+.SILENT:
+
+tar_files = $(wildcard *.tar.bz2 *.tar.gz)
+
+target_dir = $(realpath .)/$(INSTALL_TO)
+
+ifndef make_dir
+make_dir = $(realpath .)/$(basename $(basename $(tar_files)))
+endif
+
+install_complete_marker = installed~
+
+all: $(make_dir) $(install_complete_marker)
+
+$(make_dir):
+ifneq ($(strip $(tar_files)),)
+	@tar -xf $(tar_files)
+endif		
+
+$(install_complete_marker):
+	/bin/sh -c "cd $(strip $(make_dir));./configure $(configure_options) --prefix=$(target_dir)"
+	$(MAKE) -C $(make_dir) -j2
+	$(MAKE) -C $(make_dir) install
+	@echo "$(basename $(basename $(tar_files))) installed to: $(target_dir)"
+	@echo on `date` to $(INSTALL_TO) > $(install_complete_marker)
+	@echo configure_options: $(configure_options) >>  $(install_complete_marker)
+	@echo environment: `env` >> $(install_complete_marker)
+
+clean:
+	-@rm -f $(install_complete_marker)
+	-$(MAKE) -C $(make_dir) uninstall
+	-$(MAKE) -C $(make_dir) $@
+	-@rm -f $(make_dir)/Makefile
+	-@rm -rf $(make_dir)
+	
+.PHONY: all
+
+%:
+	@make -C $(make_dir) $@

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+        Copyright (c) OASIS Open 2002-2011. All Rights Reserved.
+
+	All capitalized terms in the following text have the meanings assigned to them
+   	in the OASIS Intellectual Property Rights Policy (the "OASIS IPR Policy"). The
+	full Policy may be found at the OASIS website.
+
+	This document and translations of it may be copied and furnished to others, and
+	derivative works that comment on or otherwise explain it or assist in its
+	implementation may be prepared, copied, published, and distributed, in whole or
+	in part, without restriction of any kind, provided that the above copyright
+	notice and this section are included on all such copies and derivative works.
+	However, this document itself may not be modified in any way, including by
+	removing the copyright notice or references to OASIS, except as needed for the
+	purpose of developing any document or deliverable produced by an OASIS
+	Technical Committee (in which case the rules applicable to copyrights, as set
+	forth in the OASIS IPR Policy, must be followed) or as required to translate it
+	into languages other than English.
+
+	The limited permissions granted above are perpetual and will not be revoked by
+	OASIS or its successors or assigns.
+
+	This document and the information contained herein is provided on an "AS IS"
+	basis and OASIS DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+	LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION HEREIN WILL NOT
+	INFRINGE ANY OWNERSHIP RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR
+	FITNESS FOR A PARTICULAR PURPOSE.
+-->
+<definitions name="regrep-server-binding" 
+  targetNamespace="urn:oasis:names:tc:ebxml-regrep:wsdl:registry:bindings:4.0" 
+  xmlns="http://schemas.xmlsoap.org/wsdl/" 
+  xmlns:bindings="urn:oasis:names:tc:ebxml-regrep:wsdl:registry:bindings:4.0" 
+  xmlns:interfaces="urn:oasis:names:tc:ebxml-regrep:wsdl:registry:interfaces:4.0" 
+  xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" 
+  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+  xmlns:tns="urn:oasis:names:tc:ebxml-regrep:wsdl:registry:bindings:4.0" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://schemas.xmlsoap.org/wsdl/ http://schemas.xmlsoap.org/wsdl"
+  >
+  <documentation>
+    $Header:$
+    Author: Matt MacKenzie, Farrukh Najmi
+    This is the the normative SOAP binding in WSDL for the OASIS ebXML Registry services.
+  </documentation>
+  <import location="regrep-server-interface.wsdl" namespace="urn:oasis:names:tc:ebxml-regrep:wsdl:registry:interfaces:4.0"/>
+  <binding name="QueryManagerSOAPBinding" type="interfaces:QueryManager">
+    <documentation>
+      SOAP Binding for QueryManager interface.
+    </documentation>
+    
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <operation name="executeQuery">
+      <soap:operation soapAction="urn:oasis:names:tc:ebxml-regrep:wsdl:registry:bindings:4.0:QueryManager#executeQuery"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="registryException">
+        <soap:fault name="registryException" use="literal"/>
+      </fault>
+    </operation>
+  </binding>
+  <binding name="LifecycleManagerSOAPBinding" type="interfaces:LifecycleManager">
+    <documentation>
+      SOAP Binding for LifecycleManager interface.
+    </documentation>
+    
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <operation name="removeObjects">
+      <soap:operation soapAction="urn:oasis:names:tc:ebxml-regrep:wsdl:registry:bindings:4.0:LifecycleManager#removeObjects"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="registryException">
+        <soap:fault name="registryException" use="literal"/>
+      </fault>
+    </operation>
+    <operation name="submitObjects">
+      <soap:operation soapAction="urn:oasis:names:tc:ebxml-regrep:wsdl:registry:bindings:4.0:LifecycleManager#submitObjects"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="registryException">
+        <soap:fault name="registryException" use="literal"/>
+      </fault>
+    </operation>
+    <operation name="updateObjects">
+      <soap:operation soapAction="urn:oasis:names:tc:ebxml-regrep:wsdl:registry:bindings:4.0:LifecycleManager#updateObjects"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="registryException">
+        <soap:fault name="registryException" use="literal"/>
+      </fault>
+    </operation>
+  </binding>
+</definitions>

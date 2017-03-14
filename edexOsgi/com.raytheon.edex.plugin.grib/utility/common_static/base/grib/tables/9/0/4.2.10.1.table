@@ -1,0 +1,10 @@
+# Product Discipline 10: Oceanographic products, Parameter Category 1: Currents
+0:0:Current direction:Degree true:DIRC
+1:1:Current speed:m/s:SPC
+# The HFR models are sending data in cm/s which does not match the standard grib2
+# units. The reason for this change for center 9 subcenter 0.
+2:2:u-component of current:cm/s:UOGRD
+3:3:v-component of current:cm/s:VOGRD
+# 4-191 Reserved
+#192-254 Reserved for local use
+255:255:Missing

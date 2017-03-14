@@ -1,0 +1,314 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-31smp i686) [Netscape]">
+  <meta name="Author" content="Mark Mathewson">
+  <title>VTECPartners.py</title>
+</head>
+<body style="background-color: rgb(255, 255, 255);">
+<h1 class="3Heading">VTECPartners</h1>
+December 30, 2011<br>
+<div class="3Heading"><br>
+<a name="TableofContents"></a>Table of Contents
+<br>
+<a href="#Overview">Overview</a>
+<br>
+<a href="#Format">Format</a><br>
+<a href="#ModificationTechnique">Modification Technique</a>
+<br>
+<a href="#EnablingSharing">Enabling the Sharing of VTEC Tables</a><br>
+<hr width="100%"></div>
+<h2 class="3Heading">
+<a name="Overview"></a>Overview</h2>
+The VTECPartners.py file is the baseline supplied configuration file
+for VTEC active table coordination.&nbsp; The file controls the
+following aspects of VTEC:<br>
+<ul>
+  <li>Definition of the national Storm Prediction Center VTEC id for
+use in the Merge VTEC and VTECDecoder routines.</li>
+  <li>List of coordination sites from which their VTEC active table
+will be retrieved and merged into our VTEC active table.</li>
+  <li>Coordination interval for active tables.</li>
+  <li>List of site filters used for VTEC decoding and merging.</li>
+  <li>Backup file purge time.</li>
+  <li>Text capture categories for the VTEC Decoder</li>
+  <li>Mapping of pils from initial issuance to update/cancel pils.<br>
+  </li>
+</ul>
+The <a href="localVTECPartners.html">localVTECPartners.py</a> file is
+used to override baseline entries in the VTECPartners.py file.<br>
+<hr style="width: 100%; height: 2px;"><br>
+<ul>
+</ul>
+<h2><a name="Format"></a>Format</h2>
+<span style="font-weight: normal;"><br>
+</span>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">Contains a list of request
+sites.&nbsp; These are the AWIPS site identifiers (nominally
+3-letters).&nbsp; Requests will be sent from EDEX to these
+sites at the interval specified in the VTEC_REMOTE_TABLE_FETCH_TIME
+entry.<br>
+      </td>
+      <td style="vertical-align: top; width: 350px;"><span
+ style="font-family: monospace; font-weight: bold;"></span><span
+ style="font-family: monospace; font-weight: bold;"></span><br
+ style="font-family: monospace; font-weight: bold;">
+      <span style="font-family: monospace; font-weight: bold;">VTEC_TABLE_REQUEST_SITES
+= []</span></td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">The Tornado Watches and Severe
+Thunderstorm watches from SPC are handled differently than the local
+office watches.&nbsp; The tropical storm and hurricane watch/warnings
+are also handled differently. These entries identifies the VTEC site
+identifier
+for SPC and TPC.<br>
+      </td>
+      <td style="vertical-align: top; width: 350px;"><span
+ style="font-family: monospace; font-weight: bold;"></span><br
+ style="font-family: monospace; font-weight: bold;">
+      <span style="font-family: monospace; font-weight: bold;">VTEC_SPC_SITE
+= 'KWNS'<br>
+VTEC_TPC_SITE = 'KNHC'<br>
+      </span></td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">A site filter is applied when
+active tables from remote sites are merged into our active table.&nbsp;
+If this was not done, your active table would soon end up containing
+records from every site in the country.&nbsp; Your adjacent sites and
+your backup offices should be listed in this field.&nbsp; These entries
+are VTEC site identifiers, which are always 4-letters in length, such
+as KBOU.<br>
+      <br>
+To not apply any filter, set this value to None (through
+localVTECPartners).<br>
+      </td>
+      <td style="vertical-align: top; width: 350px;"><span
+ style="font-family: monospace; font-weight: bold;"></span><span
+ style="font-family: monospace; font-weight: bold;"></span><br
+ style="font-family: monospace; font-weight: bold;">
+      <span style="font-family: monospace; font-weight: bold;">VTEC_MERGE_SITES
+= []</span></td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">The VTECDecoder receives text
+bulletins from the AWIPS data stream and decodes them for VTEC
+entries.&nbsp; This entry is used to specify which site's will be
+included in the VTECDecoder stream.&nbsp; If a VTEC site id is detected
+in an incoming product and that site is not included in this list, the
+entry will be discarded.&nbsp; These entries are VTEC site identifiers,
+which are always 4-letters in length, such as PAFC.<br>
+      <br>
+To not apply any filter, set this value to None (through
+localVTECPartners).<br>
+      </td>
+      <td style="vertical-align: top; width: 350px;"><span
+ style="font-family: monospace; font-weight: bold;"></span><span
+ style="font-family: monospace; font-weight: bold;"></span><br
+ style="font-family: monospace; font-weight: bold;">
+      <span style="font-family: monospace; font-weight: bold;">VTEC_DECODER_SITES
+= []</span></td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">The VTECDecoder captures the
+segment text for each product.&nbsp;&nbsp; Only a few of the product
+formatters require this text. Since the text is large when compared
+with the size of the rest of the record, we only capture text for
+certain product categories.&nbsp;&nbsp; The
+VTEC_CAPTURE_TEXT_CATEGORIES defines the product categories for which
+we capture and save text into the active table.<br>
+      <br>
+If this definition is changed, old records will also be updated and
+their text field possibly removed.<br>
+      </td>
+      <td style="vertical-align: top; width: 350px;"><span
+ style="font-family: monospace; font-weight: bold;"></span><span
+ style="font-family: monospace; font-weight: bold;"></span><br
+ style="font-family: monospace; font-weight: bold;">
+      <span style="font-family: monospace; font-weight: bold;">VTEC_CAPTURE_TEXT_CATEGORIES
+= ['WSW', 'NPW']</span><br
+ style="font-family: monospace; font-weight: bold;">
+      <br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Remapping of product pils.&nbsp;
+This is required for certain VTEC events if a hazard is created in one
+pil and then updated or cancelled in another pil.&nbsp; Example is the
+TO.W (Tornado Warning), which is issued in the TOR pil but
+updated/cancelled in the SVS pil.&nbsp; In order for the table matching
+purging to work correctly, the pils in the followup products must be
+mapped back to the original.&nbsp; This is *only* for use for
+non-GFE/GHG issued products since the GHG logic uses the pil
+information to calculate VTEC. This is a dictionary of (phen,sig,pil)
+with the remapped pil as the value.&nbsp; These values should not be
+changed.<br>
+      </td>
+      <td style="vertical-align: top; width: 350px;"><span
+ style="font-family: monospace; font-weight: bold;">VTEC_MAPPED_PILS = {</span><br
+ style="font-family: monospace; font-weight: bold;">
+      <span style="font-family: monospace; font-weight: bold;">&nbsp;
+('TO','W','SVS'): 'TOR', ('SV','W','SVS'): 'SVR', ('FF','W','FLS'):
+'FFW',</span><br style="font-family: monospace; font-weight: bold;">
+      <span style="font-family: monospace; font-weight: bold;">&nbsp;
+('FL','W','FLS'): 'FLW', ('MA','W','MWS'): 'SMW', ('EW','W','SVS'):
+'EWW',</span><br style="font-family: monospace; font-weight: bold;">
+      <span style="font-family: monospace; font-weight: bold;">&nbsp; }</span><br>
+      <br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">This entry defines the purge
+interval in hours for the backups of the active table.&nbsp; Each time
+the active table is updated, a backup copy is made.<br>
+      </td>
+      <td style="vertical-align: top; width: 350px;"><span
+ style="font-family: monospace; font-weight: bold;"></span><br
+ style="font-family: monospace; font-weight: bold;">
+      <span style="font-family: monospace; font-weight: bold;">VTEC_BACKUP_TABLE_PURGE_TIME
+= 168</span><br>
+      <br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">This entry defines the
+coordination interval for updating your active table with adjacent
+site's active tables.&nbsp; It is specified in seconds.<br>
+      </td>
+      <td style="vertical-align: top; width: 350px;"><span
+ style="font-family: monospace; font-weight: bold;"></span><br
+ style="font-family: monospace; font-weight: bold;">
+      <span style="font-family: monospace; font-weight: bold;">VTEC_REMOTE_TABLE_FETCH_TIME
+= 60*60</span></td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">This entry determines whether my
+sites will respond to VTEC table requests from other sites.&nbsp; If
+set to 1, then we will return our filtered VTEC table to the requestor
+site.<br>
+      </td>
+      <td style="vertical-align: top; width: 350px;"><span
+ style="font-weight: bold; font-family: monospace;"></span><br
+ style="font-weight: bold; font-family: monospace;">
+      <span style="font-weight: bold; font-family: monospace;">#VTEC_RESPOND_TO_TABLE_REQUESTS
+= 1</span><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">This section handles the default
+configuration for VTECPartners.&nbsp; Do not change this section.&nbsp;
+The first part of the section contains a dictionary of failed site, and
+its primary and secondary backup sites.&nbsp; Other functions are used
+to define the default values for the configuration.&nbsp; The import
+section deals with the localVTECPartners configuration file, which is
+used to override
+the baseline entries.<br>
+      </td>
+      <td style="vertical-align: top; width: 350px;"><span
+ style="font-family: monospace; font-weight: bold;">#--------------------------</span><br
+ style="font-family: monospace; font-weight: bold;">
+      <span style="font-family: monospace; font-weight: bold;">#DO NOT
+CHANGE ANY CODE BELOW THIS NOTICE</span><br
+ style="font-family: monospace; font-weight: bold;">
+      <span style="font-family: monospace; font-weight: bold;">#--------------------------</span><br
+ style="font-family: monospace; font-weight: bold;">
+      <span style="font-family: monospace; font-weight: bold;"></span></td>
+    </tr>
+  </tbody>
+</table>
+<span style="font-weight: normal;"><br>
+</span><span style="font-family: monospace; font-weight: bold;"></span><br
+ style="font-family: monospace; font-weight: bold;">
+<br>
+<big><big><big><span style="font-weight: bold; color: rgb(255, 0, 0);"></span></big></big></big><br>
+<hr style="width: 100%; height: 2px;">
+<h2><a name="ModificationTechnique"></a>Modification Technique</h2>
+The modification technique requires the user to create a
+localVTECPartners.py file in the <i>/awips2/edex/data/utility/common_static/site/SITE_ID/vtec</i>
+directory and then override
+just those elements required.&nbsp; Refer to the <a
+ href="localVTECPartners.html">localVTECPartners.py</a> documentation.<br>
+<hr style="width: 100%; height: 2px;">
+<h2><a name="EnablingSharing"></a>Enabling Sharing of VTEC Table</h2>
+Enabling Sharing of the VTEC Active Table is important in order to keep
+your active table in sync with other site's active tables.&nbsp;
+Normally, the active tables for the main site and backup site are kept
+up to date since they are fed by the same text bulletin data
+feed.&nbsp; However, if the AWIPS system was down and products were
+missed, or you are backing up a site that is far remote from your
+normal domain, the sharing of the VTEC active table is
+important.&nbsp;&nbsp; Sharing of the VTEC active table also will allow
+the site to recovery from a corrupted VTEC active table through manual
+intervention.<br>
+<br>
+Sharing of the VTEC active table is accomplished through these steps:<br>
+<ol>
+  <li>Creation of a localVTECPartners.py file.</li>
+  <li>Enabling your site to respond to other requests for your active
+table.</li>
+  <li>Enabling your site to request other sites active table.</li>
+  <li>Restarting the EDEX.<br>
+  </li>
+</ol>
+Refer to the <a href="localVTECPartners.html">localVTECPartners.py</a>
+documentation for more details on the syntax of the
+localVTECPartners.py file.&nbsp; Basically you will create a file in
+<i>/awips2/edex/data/utility/common_static/site/SITE_ID/vtec</i> 
+called localVTECPartners.py and it will contain at least
+the following information:<br>
+<br>
+<span style="font-weight: bold; font-family: monospace;">import
+VTECPartners</span><br
+ style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">from
+VTECPartners import *</span><br
+ style="font-weight: bold; font-family: monospace;">
+<br style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">VTEC_RESPOND_TO_TABLE_REQUESTS
+= 1</span><br style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">VTEC_REMOTE_TABLE_FETCH_TIME
+= 60*60&nbsp; #60 minutes</span><br>
+<br>
+<br>
+Additionally you may want to specify the sites that you will request
+active tables from, although by default this is set up to be your
+primary and secondary backup sites, and sites that include you as their
+primary and secondary backup sites.&nbsp;&nbsp; You may want to pare
+down the list to only 2 or 3 sites to cut down on WAN traffic.&nbsp; If
+you want to modify the list, then you will have an additional entry
+such as:<br>
+<br>
+<span style="font-family: monospace; font-weight: bold;">VTEC_TABLE_REQUEST_SITES
+= ['DVN','DMX']</span><br>
+<br>
+After you have enabled the sharing, you should examine your <a
+ href="VTEC.html#LogFiles">ingestAT, dumpAT, iscDataRec log
+files</a> to
+ensure operations are working as desired.<br>
+<br>
+<b>Note:</b> The sites specified in
+VTEC_TABLE_REQUEST_SITES do not represent AWIPS physical sites, but
+EDEX servers running the specified site domain.&nbsp; Thus if you specify
+'DMX', the software will discover all of the EDEX servers on the network
+running the domain 'DMX' and choose one of the servers to request
+the VTEC table updates from.&nbsp; The software will first try to
+find a message handler ID that matches the domain id, with the known
+primary GFE location (dx3/98000000), and then will check other
+hosts and ports and perhaps different message handler ids for the 'DMX'
+domain.&nbsp; The log files will indicate where the requests are sent.<br>
+<br>
+<big><big><big><span style="font-weight: bold; color: rgb(255, 0, 0);"></span></big></big></big>
+<hr style="width: 100%; height: 2px;"><br>
+<div class="Body">&nbsp;<a href="#Overview">Back To Top</a>
+<br>
+&nbsp;<a href="GFESuite.html#TableOfContents">Back To TOC</a></div>
+</body>
+</html>

@@ -1,0 +1,5821 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization..
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<styleRuleset>
+    <!-- Pressure at MaxWind -->
+    <styleRule>
+       <paramLevelMatches>
+           <parameter>P</parameter>
+           <singleLevel units="MAXW">
+             <value>0</value>
+           </singleLevel>
+       </paramLevelMatches>
+       <imageStyle>
+           <displayUnits>mb</displayUnits>
+           <range levelScale="LINEAR" adaptive="true">
+               <minValue>0</minValue>
+               <maxValue>600</maxValue>
+           </range>
+           <defaultColormap>Grid/gridded data</defaultColormap>
+            <colorbarLabeling>
+                <increment>50</increment>
+            </colorbarLabeling>
+       </imageStyle>
+    </styleRule>
+    <!-- ESTOFS -->
+    <styleRule>
+       <paramLevelMatches>
+           <parameter>ELEV</parameter>
+           <parameter>ETSRG</parameter>
+           <parameter>ETCWL</parameter>
+       </paramLevelMatches>
+       <imageStyle>
+           <displayUnits>ft</displayUnits>
+       </imageStyle>
+    </styleRule>
+
+<!-- HRRR -->
+<styleRule>
+  <paramLevelMatches>
+    <parameter>MaxWHRRR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+    <displayUnits>kts</displayUnits>
+    <defaultColormap>Grid/gridded data</defaultColormap>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+    <creatingEntity>HRRR</creatingEntity>
+    <parameter>CPOFP</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+    <interpolate>false</interpolate>
+    <displayUnits>%</displayUnits>
+    <range scale="LINEAR">
+      <minValue>-50</minValue>
+      <maxValue>100</maxValue>
+    </range>
+    <defaultColormap>Grid/gridded data</defaultColormap>
+    <dataMapping>
+      <entry pixelValue="-50.0" operator="=" label="" />
+      <entry pixelValue="0" operator="&gt;" displayValue='0.0' />
+      <entry pixelValue="25" operator="&gt;" displayValue='25.0' />
+      <entry pixelValue="50" operator="&gt;" displayValue='50.0' />
+      <entry pixelValue="75" operator="&gt;" displayValue='75.0' />
+    </dataMapping>
+  </imageStyle>
+</styleRule>
+	<!--
+		* GH, GHxSM, Topo, zAGL
+		km  | 0.001 | 0.0 | 0 | 1 | | | 29 | -1 | 0.1
+	for HRRR-East  -->
+	<styleRule>
+		<paramLevelMatches>
+		   <parameter>GH</parameter>
+		   <parameter>GHxSM</parameter>
+		   <parameter>zAGL</parameter>
+		   <creatingEntity>HRRR-East</creatingEntity>
+		   <creatingEntity>HRRR-West</creatingEntity>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>ft</displayUnits>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>4000</maxValue>
+			</range>
+		</imageStyle>
+	</styleRule>   
+	    
+	<!--
+		* GH, GHxSM, Topo, zAGL
+		km  | 0.001 | 0.0 | 0 | 1 | | | 29 | -1 | 0.1
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>GH</parameter>
+			<parameter>GHxSM</parameter>
+			<parameter>zAGL</parameter>
+            <parameter>Topo</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>ft</displayUnits>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* GH, GHxSM, GH_avg, 0to5, RMGH2, 1050MB > 50MB, 1000MB-850MB > 700MB-300MB
+		dam  | 0.1 | 0.0 | 0 | 1 | | | 29 | -1 | 1
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>GH</parameter>
+			<parameter>GHxSM</parameter>
+			<parameter>GH_avg</parameter>
+			<parameter>0to5</parameter>
+			<parameter>RMGH2</parameter>
+			<rangeLevel units="MB">
+				<upper>1050</upper>
+				<lower>50</lower>
+			</rangeLevel>
+			<rangeLevel units="MB">
+				<upper>1000850</upper>
+				<lower>700300</lower>
+			</rangeLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>dam</displayUnits>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>WGH</parameter>
+			<rangeLevel units="MB">
+				<upper>1050</upper>
+				<lower>50</lower>
+			</rangeLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>m</displayUnits>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>100</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* dZ, 1000MB-500MB, 700MB-300MB
+		dam  | 0.1 | 0.0 | 450 | 590 | | | 29 | 0 | 30
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>dZ</parameter>
+			<singleLevel units="MB">
+				<value>1000500</value>
+			</singleLevel>
+			<singleLevel units="MB">
+				<value> 700300</value>
+			</singleLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>dam</displayUnits>
+			<range scale="LINEAR">
+				<minValue>450</minValue>
+				<maxValue>590</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>30</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* dZ, 850MB-500MB
+		dam  | 0.1 | 0.0 | 335 | 475 | | | 29 | 0 | 30
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>dZ</parameter>
+			<singleLevel units="MB">
+				<value>850500</value>
+			</singleLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>dam</displayUnits>
+			<range scale="LINEAR">
+				<minValue>335</minValue>
+				<maxValue>475</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>30</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* dZ, 1000MB-850MB
+		dam  | 0.1 | 0.0 | 100 | 150 | | | 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>dZ</parameter>
+			<singleLevel units="MB">
+				<value>1000850</value>
+			</singleLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>dam</displayUnits>
+			<range scale="LINEAR">
+				<minValue>100</minValue>
+				<maxValue>150</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* dZ, 850MB-700MB
+		dam  | 0.1 | 0.0 | 120 | 175 | | | 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>dZ</parameter>
+			<singleLevel units="MB">
+				<value>850700</value>
+			</singleLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>dam</displayUnits>
+			<range scale="LINEAR">
+				<minValue>120</minValue>
+				<maxValue>175</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* dZ, 700MB-500MB
+		dam  | 0.1 | 0.0 | 220 | 275 | | | 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>dZ</parameter>
+			<singleLevel units="MB">
+				<value>700500</value>
+			</singleLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>dam</displayUnits>
+			<range scale="LINEAR">
+				<minValue>220</minValue>
+				<maxValue>275</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* dZ, 500MB-300MB
+		dam  | 0.1 | 0.0 | 320 | 400 | | | 29 | 0 | 20
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>dZ</parameter>
+			<singleLevel units="MB">
+				<value>500300</value>
+			</singleLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>dam</displayUnits>
+			<range scale="LINEAR">
+				<minValue>320</minValue>
+				<maxValue>400</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>20</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* dZ, 300MB-200MB
+		dam  | 0.1 | 0.0 | 240 | 300 | | | 29 | 0 | 20
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>dZ</parameter>
+			<singleLevel units="MB">
+				<value>300200</value>
+			</singleLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>dam</displayUnits>
+			<range scale="LINEAR">
+				<minValue>240</minValue>
+				<maxValue>300</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>20</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		Base (fallback) temperature rule, specifies no level information or
+		scaling information, but specifies unit conversion
+		* T, TxSM, DpT, TW, TV
+		C | 1.0 |-273.15| 0  | 1  | | | 29 | -1 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>T</parameter>
+			<parameter>TxSM</parameter>
+			<parameter>DpT</parameter>
+			<parameter>TW</parameter>
+			<parameter>TV</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>C</displayUnits>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<!--
+		Rule for temperature grids at surface
+		* T, TV, TxSM, Surface, BLyr > 150agl
+		F | 1.8 |-459.67| -40 | 115 | | | 29 | 0 | 20
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>T</parameter>
+			<parameter>TV</parameter>
+			<parameter>TxSM</parameter>
+			<singleLevel units="SURFACE" />
+			<rangeLevel units="BL">
+				<upper>180150</upper>
+				<lower> 30000</lower>
+			</rangeLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>F</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-100</minValue>
+				<maxValue>115</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>20</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* T, TV, TxSM, 1050MB > 500MB, log
+		C | 1.0 |-273.15| -40 > -45  | 45 > 5 | | | 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>T</parameter>
+			<parameter>TV</parameter>
+			<parameter>TxSM</parameter>
+			<rangeLevel units="MB">
+				<upper>1050</upper>
+				<lower>500</lower>
+			</rangeLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>C</displayUnits>
+			<range levelScale="LOG">
+				<minValue>-100</minValue>
+				<minValue2>-100</minValue2>
+				<maxValue>45</maxValue>
+				<maxValue2>5</maxValue2>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* T, TV, TxSM, 500MB > 250MB, log
+		C | 1.0 |-273.15| -45 > -70 | 5 > -35 | | | 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>T</parameter>
+			<parameter>TV</parameter>
+			<parameter>TxSM</parameter>
+			<rangeLevel units="MB">
+				<upper>500</upper>
+				<lower>250</lower>
+			</rangeLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>C</displayUnits>
+			<range levelScale="LOG">
+				<minValue>-100</minValue>
+				<minValue2>-100</minValue2>
+				<maxValue>5</maxValue>
+				<maxValue2>-35</maxValue2>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* T, TV, TxSM, 250MB > 100MB, log
+		C | 1.0 |-273.15| -70 > -90 | -35 > -40 | | | 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>T</parameter>
+			<parameter>TV</parameter>
+			<parameter>TxSM</parameter>
+			<rangeLevel units="MB">
+				<upper>250</upper>
+				<lower>100</lower>
+			</rangeLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>C</displayUnits>
+			<range levelScale="LOG">
+				<minValue>-100</minValue>
+				<minValue2>-100</minValue2>
+				<maxValue>-35</maxValue>
+				<maxValue2>-40</maxValue2>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* DpT, TW, Surface, BLyr > 150agl
+		F | 1.8 |-459.67| -60 | 90| | | 29 | 0 | 20
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>DpT</parameter>
+			<parameter>TW</parameter>
+			<singleLevel units="SURFACE" />
+			<rangeLevel units="BL">
+				<upper>180150</upper>
+				<lower> 30000</lower>
+			</rangeLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>F</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-60</minValue>
+				<maxValue>90</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>20</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* DpT, TW, 1050MB > 500MB, log
+		C | 1.0 |-273.15| -60 > -60  | 35 > 5 | | | 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>DpT</parameter>
+			<parameter>TW</parameter>
+			<rangeLevel units="MB">
+				<upper>1050</upper>
+				<lower>500</lower>
+			</rangeLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>C</displayUnits>
+			<range levelScale="LOG">
+				<minValue>-100</minValue>
+				<minValue2>-100</minValue2>
+				<maxValue>35</maxValue>
+				<maxValue2>5</maxValue2>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* DpT, TW, 500MB > 250MB, log
+		C | 1.0 |-273.15| -60 > -100 | 5 > -40 | | | 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>DpT</parameter>
+			<parameter>TW</parameter>
+			<rangeLevel units="MB">
+				<upper>500</upper>
+				<lower>250</lower>
+			</rangeLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>C</displayUnits>
+			<range levelScale="LOG">
+				<minValue>-100</minValue>
+				<minValue2>-100</minValue2>
+				<maxValue>5</maxValue>
+				<maxValue2>-40</maxValue2>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* DpT, TW, 250MB > 100MB
+		C | 1.0 |-273.15| -100 | -40 | | | 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>DpT</parameter>
+			<parameter>TW</parameter>
+			<rangeLevel units="MB">
+				<upper>250</upper>
+				<lower>100</lower>
+			</rangeLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>C</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-100</minValue>
+				<maxValue>-40</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* DpD, Tsprd, DpTsprd
+		C | 1.0 |0| -2 | 40 | | | 29 | 0 | 5
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>DpD</parameter>
+			<parameter>Tsprd</parameter>
+			<parameter>DpTsprd</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits label="C">K</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-2</minValue>
+				<maxValue>40</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>5</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* DpD, Tsprd, DpTsprd, Surface, BLyr > 150agl
+		F | 1.8 |0| -4 | 60 | | | 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>DpD</parameter>
+			<parameter>Tsprd</parameter>
+			<parameter>DpTsprd</parameter>
+			<singleLevel units="SURFACE" />
+			<rangeLevel units="BL">
+				<upper>180150</upper>
+				<lower> 30000</lower>
+			</rangeLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits label="F">°R</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-4</minValue>
+				<maxValue>60</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* Terranl, DpTerranl
+		F | 1.8 |0| -4 | 20 | | | 29 | 0 | 2
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>Terranl</parameter>
+			<parameter>DpTerranl</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits label="F">°R</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-4</minValue>
+				<maxValue>20</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>2</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* HIdx
+		F | 1.8 |-459.67| -60 | 125 | | | 29 | 0 | 20
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>HIdx</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>F</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-60</minValue>
+				<maxValue>125</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>20</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* PoT, EPT, EPTs
+		K | 1.0 | 0.0 | 0  | 1  | | | 29 | -1 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>PoT</parameter>
+			<parameter>EPT</parameter>
+			<parameter>EPTs</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>K</displayUnits>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* PoT, Surface, BLyr > 150agl
+		K | 1.0 | 0.0 | 233| 318 | | | 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>PoT</parameter>
+			<singleLevel units="SURFACE" />
+			<rangeLevel units="BL">
+				<upper>180150</upper>
+				<lower> 30000</lower>
+			</rangeLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>K</displayUnits>
+			<range scale="LINEAR">
+				<minValue>233</minValue>
+				<maxValue>318</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* PoT, 1050MB > 500MB, log
+		K | 1.0 | 0.0 | 233 > 278  | 318 > 348 | | | 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>PoT</parameter>
+			<rangeLevel units="MB">
+				<upper>1050</upper>
+				<lower>500</lower>
+			</rangeLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>K</displayUnits>
+			<range levelScale="LOG">
+				<minValue>233</minValue>
+				<minValue2>278</minValue2>
+				<maxValue>318</maxValue>
+				<maxValue2>348</maxValue2>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* EPT, Surface, BLyr > 150agl
+		K | 1.0 | 0.0 | 233| 375 | | | 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>EPT</parameter>
+			<singleLevel units="SURFACE" />
+			<rangeLevel units="BL">
+				<upper>180150</upper>
+				<lower> 30000</lower>
+			</rangeLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>K</displayUnits>
+			<range scale="LINEAR">
+				<minValue>233</minValue>
+				<maxValue>375</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* EPT, 1050MB > 500MB, log
+		C | 1.0 | 0.0 | 233 > 278  | 375 > 348 | | | 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>EPT</parameter>
+			<rangeLevel units="MB">
+				<upper>1050</upper>
+				<lower>500</lower>
+			</rangeLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>K</displayUnits>
+			<range levelScale="LOG">
+				<minValue>233</minValue>
+				<minValue2>278</minValue2>
+				<maxValue>375</maxValue>
+				<maxValue2>348</maxValue2>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* PoT, EPT, 500MB > 250MB, log
+		C | 1.0 | 0.0 | 278 > 303 | 318 > 358 | | | 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>PoT</parameter>
+			<parameter>EPT</parameter>
+			<rangeLevel units="MB">
+				<upper>500</upper>
+				<lower>250</lower>
+			</rangeLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>K</displayUnits>
+			<range levelScale="LOG">
+				<minValue>278</minValue>
+				<minValue2>303</minValue2>
+				<maxValue>318</maxValue>
+				<maxValue2>358</maxValue2>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* PoT, EPT, 250MB > 100MB, log
+		C | 1.0 | 0.0 | 303 > 353 | 358 > 450 | | | 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>PoT</parameter>
+			<parameter>EPT</parameter>
+			<rangeLevel units="MB">
+				<upper>250</upper>
+				<lower>100</lower>
+			</rangeLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>K</displayUnits>
+			<range levelScale="LOG">
+				<minValue>303</minValue>
+				<minValue2>353</minValue2>
+				<maxValue>358</maxValue>
+				<maxValue2>450</maxValue2>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* WD
+		deg| 1.0 | 0.0 | -20 | 380 | | | 29 | 0 | 30
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>WD</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits label="deg">°</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-20</minValue>
+				<maxValue>380</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>30</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* WDea
+		deg| 1.0 | 0.0 | 0 | 20 | | | 29 | 0 | 0.5
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>WDea</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits label="deg">°</displayUnits>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>20</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>0.5</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* wSpea
+		kt | 1.944 | 0.0 | 0  | 10 | | | 29 | 0  | 1
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>wSpea</parameter>
+			<parameter>WGSea</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>kts</displayUnits>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>10</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>1</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* wSp, wSp_avg, wSp_std, WGS
+		kt | 1.944 | 0.0 | 0  | 1  | | | 29 | -1 | 5
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>wSp</parameter>
+			<parameter>wSp_avg</parameter>
+			<parameter>wSp_std</parameter>
+			<parameter>WGS</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>kts</displayUnits>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* wSp, wSp_avg, 850MB > 250MB, log
+		kt | 1.944 | 0.0 | 0 | 75 > 200 | | | 29 | 0 | 20
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>wSp</parameter>
+			<parameter>wSp_avg</parameter>
+			<rangeLevel units="MB">
+				<upper>850</upper>
+				<lower>200</lower>
+			</rangeLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>kts</displayUnits>
+			<range levelScale="LOG">
+				<minValue>0</minValue>
+				<minValue2>0</minValue2>
+				<maxValue>75</maxValue>
+				<maxValue2>200</maxValue2>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>20</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* wSp, WGS, wSp_avg, Surface, BLyr > 150agl, 1050MB > 850MB
+		kt | 1.944 | 0.0 | 0 | 75 | | | 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>wSp</parameter>
+			<parameter>WGS</parameter>
+			<parameter>wSp_avg</parameter>
+			<singleLevel units="SURFACE" />
+			<rangeLevel units="BL">
+				<upper>180150</upper>
+				<lower> 30000</lower>
+			</rangeLevel>
+			<rangeLevel units="MB">
+				<upper>1050</upper>
+				<lower>850</lower>
+			</rangeLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>kts</displayUnits>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>75</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* uFX
+		m/s |  1.0  | 0.0 | -100 | 100 | | | 29 | 0 | 40
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>uFX</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>m/s</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-100</minValue>
+				<maxValue>100</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>40</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* dT, 1000MB-500MB > 850MB-500MB
+		C  | 1.0 | 0.0 | 0 > 0 | 50 > 35 | | | 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>dT</parameter>
+			<rangeLevel units="MB">
+				<upper>1000500</upper>
+				<lower> 850500</lower>
+			</rangeLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>C</displayUnits>
+			<range levelScale="LINEAR">
+				<minValue>0</minValue>
+				<minValue2>0</minValue2>
+				<maxValue>50</maxValue>
+				<maxValue2>35</maxValue2>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* dT, 700MB-300MB
+		C  | 1.0 | 0.0 | 0 | 50 | | | 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>dT</parameter>
+			<singleLevel units="MB">
+				<value>700300</value>
+			</singleLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>C</displayUnits>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>50</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* dT, 1000MB-850MB, 850MB-700MB
+		C  | 1.0 | 0.0 | -16 | 16 | | | 29 | 0 | 5
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>dT</parameter>
+			<singleLevel units="MB">
+				<value>1000850</value>
+			</singleLevel>
+			<singleLevel units="MB">
+				<value> 850700</value>
+			</singleLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>C</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-16</minValue>
+				<maxValue>16</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>5</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* dT, 700MB-500MB > 500MB-300MB
+		C  | 1.0 | 0.0 | 0 > 0 | 27 > 35 | | | 29 | 0 | 5
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>dT</parameter>
+			<rangeLevel units="MB">
+				<upper>700500</upper>
+				<lower>500300</lower>
+			</rangeLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>C</displayUnits>
+			<range levelScale="LINEAR">
+				<minValue>0</minValue>
+				<minValue2>0</minValue2>
+				<maxValue>27</maxValue>
+				<maxValue2>35</maxValue2>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>5</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* dT, 300MB-200MB
+		C  | 1.0 | 0.0 | -26 | 26 | | | 29 | 0 | 5
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>dT</parameter>
+			<singleLevel units="MB">
+				<value>300200</value>
+			</singleLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>C</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-26</minValue>
+				<maxValue>26</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>5</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* RH, SMC, MAXRH3hr, MAXRH12hr, MINRH3hr, MINRH12hr
+		%   | 1.0 | 0.0 | -5 | 105 | | | 33 | 0 | 20
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>RH</parameter>
+			<parameter>SMC</parameter>
+			<parameter>MAXRH3hr</parameter>
+			<parameter>MAXRH12hr</parameter>
+			<parameter>MINRH3hr</parameter>
+			<parameter>MINRH12hr</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>%</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-5</minValue>
+				<maxValue>105</maxValue>
+			</range>
+			<defaultColormap>Grid/warm to cold</defaultColormap>
+			<colorbarLabeling>
+				<increment>20</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* PVV, NetIO
+		-ubar/s | -10 | 0.0 | 0.5 | 30 |x|m| 29 | 6 | 0 1 2 5 10 20
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>PVV</parameter>
+			<parameter>NetIO</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits label="-ubar/s">(Pa/s)*-0.1</displayUnits>
+			<range scale="LOG" mirror="true">
+				<minValue>0.5</minValue>
+				<maxValue>30</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>0 1 2 5 10 20</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* PVV, Profiler
+		-ubar/s | -10 | 0.0 | 1 | 120 |x|m| 29 | 7 | 0 2 5 10 20 50 100
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>PVV</parameter>
+			<creatingEntity>Profiler</creatingEntity>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits label="-ubar/s">(Pa/s)*-0.1</displayUnits>
+			<range scale="LOG" mirror="true">
+				<minValue>1</minValue>
+				<maxValue>120</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>0 2 5 10 20 50 100</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* VV
+		m/s | 1.0 | 0.0 | 0.5 | 30 |x|m| 29 | 10 | .01 .02 .05 .1 .2 .5 1 2 5 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>VV</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>m/s</displayUnits>
+			<range scale="LOG" mirror="true">
+				<minValue>0.5</minValue>
+				<maxValue>30</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>.01 .02 .05 .1 .2 .5 1 2 5 10</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* TP, CP, St-Pr, TP3hr, TP6hr, SPAcc
+		in | 0.0394 | 0.0 | 0.005 | 12 |x|,c| 29 | 7 | 0.01 0.03 0.1 0.3 1 3 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>TP</parameter>
+			<parameter>CP</parameter>
+			<parameter>St-Pr</parameter>
+			<parameter>TP1hr</parameter>
+			<parameter>TP3hr</parameter>
+			<parameter>TP6hr</parameter>
+			<parameter>SPAcc</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>in</displayUnits>
+			<range scale="LOG">
+				<minValue>0.005</minValue>
+				<maxValue>12</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>0.01 0.03 0.1 0.3 1 3 10</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* TP12hr, TP24hr, TP36hr, TP48hr, TPrun, TP120hr
+		in | 0.0394 | 0.0 | 0.005 | 12 |x|,c| 29 | 7 | 0.01 0.03 0.1 0.3 1 3 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>TP12hr</parameter>
+			<parameter>TP24hr</parameter>
+			<parameter>TP36hr</parameter>
+			<parameter>TP48hr</parameter>
+			<parameter>TPrun</parameter>
+			<parameter>TP120hr</parameter>
+                        <parameter>TP72hr</parameter>
+                        <parameter>TP168hr</parameter>
+                        <parameter>TP6hr_std</parameter>
+                        <parameter>TP6hr_avg</parameter>
+                        <parameter>TP24hr_avg</parameter> 
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>in</displayUnits>
+			<range scale="LOG">
+				<minValue>0.005</minValue>
+				<maxValue>12</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>0.01 0.03 0.1 0.3 1 3 10</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* TP, SPAcc, Laps
+		in | 39.4 | 0.0 | 0.005 | 12 |x|,c| 29 | 7 | 0.01 0.03 0.1 0.3 1 3 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>TP</parameter>
+			<parameter>SPAcc</parameter>
+			<creatingEntity>Laps</creatingEntity>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>in</displayUnits>
+			<range scale="LOG">
+				<minValue>0.005</minValue>
+				<maxValue>12</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>0.01 0.03 0.1 0.3 1 3 10</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* PW
+		in | 0.0394 | 0.0 | 1e-5 | 3.5 |x|,c| 29 | -1 | .1
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>PW</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>in</displayUnits>
+			<range scale="LOG" />
+			<defaultColormap>Grid/gridded data</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* PW, Laps
+		in | 39.4 | 0.0 | 0.0 | 3.5 | | | 29 | 0 | .5
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>PW</parameter>
+			<creatingEntity>Laps</creatingEntity>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>in</displayUnits>
+			<range scale="LINEAR">
+				<minValue>0.0</minValue>
+				<maxValue>3.5</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>0.5</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* SHx, mixRat
+		g/kg | 1.0 | 0.0 | 0.1 | 30 |x|,c| 33 | 7 | .2 .5 1 2 5 10 20
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>SHx</parameter>
+			<parameter>mixRat</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>g/kg</displayUnits>
+			<range scale="LOG">
+				<minValue>0.1</minValue>
+				<maxValue>30</maxValue>
+			</range>
+			<defaultColormap>Grid/warm to cold</defaultColormap>
+			<colorbarLabeling>
+				<values>.2 .5 1 2 5 10 20</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* msl-P, msl-P2, Alti
+		mb | 1.0 | 0.0 | 950 | 1050 | | | 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>msl-P</parameter>
+			<parameter>msl-P2</parameter>
+			<parameter>PMSL</parameter>
+			<parameter>MMSP</parameter>
+			<parameter>Alti</parameter>
+			<parameter>MSLSA</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>mb</displayUnits>
+			<range scale="LINEAR">
+				<minValue>950</minValue>
+				<maxValue>1050</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* AV, Tdef, geoVort
+		/1e5s | 1e5 | 0 | -5 | 30 | | | 29 | 0 | 5
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>AV</parameter>
+			<parameter>Tdef</parameter>
+			<parameter>geoVort</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits label="/1e5s">/s*1.0E5</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-5</minValue>
+				<maxValue>30</maxValue>
+			</range>
+			<defaultColormap>Grid/Vorticity</defaultColormap>
+			<colorbarLabeling>
+				<increment>5</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* RV
+		/1e5s | 1e5 | 0 | -15 | 15 | | | 29 | 0 | 5
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>RV</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits label="/1e5s">/s*1.0E5</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-15</minValue>
+				<maxValue>15</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>5</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* wDiv
+		/1e5s | 1e5 | 0 | -30 | 30 | | | 29 | 0 | 5
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>wDiv</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits label="/1e5s">/s*1.0E5</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-30</minValue>
+				<maxValue>30</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>5</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* VAdv,dVAdv,PIVA
+		/1e9s | 1e9 | 0 | .5 | 30 |x|m| 29 | -1 | .1
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>VAdv</parameter>
+			<parameter>dVAdv</parameter>
+			<parameter>PIVA</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits label="/1e9s">/s*1.0E9</displayUnits>
+			<range scale="LOG" mirror="true" adaptive="true" />
+			<defaultColormap>Grid/gridded data</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* TAdv
+		C/12hr |43200| 0 | -20 | 20 | | | 29 | 0 | 5
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>TAdv</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits label="C/12hr">K/h*12</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-20</minValue>
+				<maxValue>20</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>5</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* EPTC
+		C/hr |-3600| 0 | -100 | 100 | | | 29 | 0 | 25
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>EPTC</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits label="C/hr">K/(h*-1)</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-100</minValue>
+				<maxValue>100</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>25</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* PoTA, EPTA
+		C/12hr |43200| 0 | -20 | 20 | | | 29 | 0 | 5
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>PoTA</parameter>
+			<parameter>EPTA</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits label="C/12hr">K/h*12</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-20</minValue>
+				<maxValue>20</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>5</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* MAdv
+		g/kg/12hr |43200| 0 | 0 | 1 | |m| 29 | -1 | 1
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>MAdv</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits label="g/kg/12hr">(g/kg)/h*12</displayUnits>
+			<range mirror="true" />
+			<defaultColormap>Grid/gridded data</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* MCon
+		g/kg/12hr |43200| 0 | 0 | 1 | |m| 29 | -1 | 1
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>MCon</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits label="g/kg/12hr">(g/kg)/h*12</displayUnits>
+			<range mirror="true" />
+			<defaultColormap>Grid/gridded data</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* MCon, Laps, Surface
+		g/kg/12hr |-43200| 0 | 0 | 1 | |m| 29 | -1 | 1
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>MCon</parameter>
+			<creatingEntity>Laps</creatingEntity>
+			<singleLevel units="SURFACE" />
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits label="g/kg/12hr">((g/kg)/h*12)</displayUnits>
+			<range mirror="true" />
+			<defaultColormap>Grid/gridded data</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* P, CPr
+		mb | 1 | 0 | 1100 | 500 | | | 29 | 0 | 100
+	-->
+ 
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>P</parameter>
+			<parameter>CPr</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>mb</displayUnits>
+			<range scale="LINEAR" adaptive="true">
+				<minValue>500</minValue>
+				<maxValue>1100</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>100</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+
+	<!--
+		* P, CPr, Trop, MaxWind
+		mb | 1 | 0 | 550 | 50 | | | 29 | 0 | 100
+	-->
+	<!--
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>P</parameter>
+			<parameter>CPr</parameter>
+			<singleLevel units="TROP" />
+			<singleLevel units="MAXW" />
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>mb</displayUnits>
+			<range scale="LINEAR">
+				<minValue>50</minValue>
+				<maxValue>550</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>100</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	-->
+	<!--
+		* CPr, 1050MB > 700MB
+		mb | 1 | 0 | 350 > 300 | 1100 > 750 | | | 29 | 0 | 100
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>CPr</parameter>
+			<rangeLevel units="MB">
+				<upper>1050</upper>
+				<lower>700</lower>
+			</rangeLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>mb</displayUnits>
+			<range levelScale="LINEAR">
+				<minValue>350</minValue>
+				<minValue2>300</minValue2>
+				<maxValue>1100</maxValue>
+				<maxValue2>750</maxValue2>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>100</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* CPr, 700MB > 300MB
+		mb | 1 | 0 | 300 > 100 | 750 > 325 | | | 29 | 0 | 50
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>CPr</parameter>
+			<rangeLevel units="MB">
+				<upper>700</upper>
+				<lower>300</lower>
+			</rangeLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>mb</displayUnits>
+			<range levelScale="LINEAR">
+				<minValue>300</minValue>
+				<minValue2>100</minValue2>
+				<maxValue>750</maxValue>
+				<maxValue2>325</maxValue2>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>50</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* CPr, 300MB > 50MB
+		mb | 1 | 0 | 100 > 0 | 325 > 110 | | | 29 | 0 | 20
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>CPr</parameter>
+			<rangeLevel units="MB">
+				<upper>300</upper>
+				<lower>50</lower>
+			</rangeLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>mb</displayUnits>
+			<range levelScale="LINEAR">
+				<minValue>100</minValue>
+				<minValue2>0</minValue2>
+				<maxValue>325</maxValue>
+				<maxValue2>110</maxValue2>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>20</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	
+	<!--
+		* CPr, P
+		mb | 1 | 0 | 1 | 2 | | | 29 | -1 | 25
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>CPr</parameter>
+			<parameter>P</parameter>
+			<parameter>Perranl</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>mb</displayUnits>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* CPrD
+		mb | 1 | 0 | 1 | 2 |x| | 29 | -1 | 1
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>CPrD</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>mb</displayUnits>
+			<range scale="LOG" />
+			<defaultColormap>Grid/gridded data</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<!-- XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX -->
+	<!--
+		* pV
+		PVU | 9.8e4 | 0 | .8 | 19 |x|,c| 29 | 6 | 1 1.5 2 5 10 15
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>pV</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits label="PVU">K/hPa/s*1.0E-5</displayUnits>
+			<range scale="LOG">
+				<minValue>0.8</minValue>
+				<maxValue>19</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>1 1.5 2 5 10 15</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* pVeq, EPVs, EPVg, MpV
+		PVU | 9.8e4 | 0 | .8 | 19 |x|m| 29 | -1| .1
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>pVeq</parameter>
+			<parameter>EPVs</parameter>
+			<parameter>EPVg</parameter>
+			<parameter>MpV</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits label="PVU">K/hPa/s*1.0E-5</displayUnits>
+			<range scale="LOG" mirror="true" adaptive="true" />
+			<defaultColormap>Grid/gridded data</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* SLI
+		C | 1 | 0 | -15 | 15 | | | 29 | 0 | 4
+	-->
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>SLI</parameter>
+            <parameter>PLI</parameter>
+            <parameter>BLI</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits label="C">K</displayUnits>
+            <range scale="LINEAR">
+                <minValue>-15</minValue>
+                <maxValue>15</maxValue>
+            </range>
+            <defaultColormap>Grid/gridded data</defaultColormap>
+            <colorbarLabeling>
+                <increment>4</increment>
+            </colorbarLabeling>
+        </imageStyle>
+    </styleRule>
+	<!--
+		* L-I, LIsfc2x
+		C | 1 | 0 | -15 | 15 | | | 29 | 0 | 4
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>L-I</parameter>
+			<parameter>LIsfc2x</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>C</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-15</minValue>
+				<maxValue>15</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>4</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* shWlt
+		C | 1 | 0 | -15 | 15 | | | 29 | 0 | 4
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>shWlt</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>C</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-15</minValue>
+				<maxValue>15</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>4</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* gamma
+		C/km | 1000 | 0 | -5 | 10 | | | 29 | 0 | 1
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>gamma</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits label="C/km">K/km</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-5</minValue>
+				<maxValue>10</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>1</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* gammaE
+		K/km | 1000 | 0 | -20 | 5 | | | 29 | 0 | 2
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>gammaE</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>K/km</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-20</minValue>
+				<maxValue>5</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>2</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* qDiv, fnD, fsD
+		K/m^2/1e16s |1e16| 0.0 | 1 | 75 |x|m| 29 | 5 | 2 5 10 20 50
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>qDiv</parameter>
+			<parameter>fnD</parameter>
+			<parameter>fsD</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits label="K/m^2/1e16s">K/(m^2/s)*1.0E16</displayUnits>
+			<range scale="LOG" mirror="true">
+				<minValue>1</minValue>
+				<maxValue>75</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>2 5 10 20 50</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* fGen
+		K^2/m^2/1e15s |1e15| 0.0 | .5 | 35 |x|m| 29 | 5 | 1 2 5 10 20
+	-->
+	 <styleRule>
+    <paramLevelMatches>
+      <parameter>fGen</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits label="K^2/m^2/1e15s">K^2/(m^2/s)*1.0E15</displayUnits>
+      <range mirror="true" scale="LOG">
+        <minValue>0.5</minValue>
+        <maxValue>35</maxValue>
+      </range>
+      <defaultColormap>Grid/gridded data</defaultColormap>
+      <colorbarLabeling>
+        <values>1 2 5 10 20</values>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+	<!--
+		* PT3
+		mb | 0.01 | 0 | -12 | 12 | | | 29 | 0 | 3
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>PT3</parameter>
+			<parameter>TSLSA</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>mb</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-12</minValue>
+				<maxValue>12</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>3</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* MSG, 280K > 350K
+		km  | 0.001 | 0.0 | 0  | 1  | | | 29 | -1 | 0.1
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>MSG</parameter>
+			<rangeLevel units="THETA">
+				<upper>350</upper>
+				<lower>280</lower>
+			</rangeLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>km</displayUnits>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* TKE
+		J/kg | 1.0 | 0.0 | .5 | 120 |x|,c| 29 | 7 | 1 2 5 10 20 50 100
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>TKE</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>J/kg</displayUnits>
+			<range scale="LOG">
+				<minValue>0.5</minValue>
+				<maxValue>120</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>1 2 5 10 20 50 100</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* Vis, Surface
+		mi | 0.0006207 | 0 | .1 | 20 |x|,,c| 29 | -1 | .05
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>Vis</parameter>
+			<parameter>Viserranl</parameter>
+			<singleLevel units="SURFACE" />
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterHigh="true" -->
+			<displayUnits>mi</displayUnits>
+			<range scale="LOG" />
+			<defaultColormap>Grid/gridded data</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<!-- The "* CloudBase, CloudCeiling, zAGL" rule must come first in AWIPS 2 -->
+	<!--
+		* CloudBase, CloudCeiling, zAGL
+		hft | 0.0328084 | 0 | 1  | 120  |x| | 29 | 7 | 2 6 10 20 30 50 100
+	-->
+	<!-- Cloud levels not implemented so this is DISABLED
+	<styleRule>
+		<paramLevelMatches>
+			<singleLevel units="CBL" />
+			<singleLevel units="CLG" />
+			<parameter>zAGL</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>hft</displayUnits>
+			<range scale="LOG">
+				<minValue>1</minValue>
+				<maxValue>120</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>2 6 10 20 30 50 100</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	-->
+	<!--
+		* CloudTop, EchoTop, ConvCloudTop, CloudBase, CloudCeiling, GH, zAGL
+		kft | 0.00328084 | 0 | 0  | 50  | | | 29 | 0 | 5
+	-->
+	<!-- Cloud levels not implemented so this is DISABLED
+	<styleRule>
+		<paramLevelMatches>
+			<singleLevel units="CTL" />
+			<singleLevel units="ETOP" />
+			<singleLevel units="CCTL" />
+			<singleLevel units="CBL" />
+			<singleLevel units="CLG" />
+			<parameter>GH</parameter>
+			<parameter>zAGL</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>kft</displayUnits>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>50</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>5</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	-->
+	<!--
+		* RR, CXR, LLR
+		dBZ | 1 | 0 |  0  | 80  | | | 80 | 0 | 5
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>RR</parameter>
+			<parameter>CXR</parameter>
+			<parameter>LLR</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>dBZ</displayUnits>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>80</maxValue>
+			</range>
+			<defaultColormap>Radar/Storm Total Precip</defaultColormap>
+			<colorbarLabeling>
+				<increment>5</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* RRV
+		kts | 1.944 | 0 | -128  | 125  | | | 70 | 0 | 20
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>RRV</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>kts</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-128</minValue>
+				<maxValue>125</maxValue>
+			</range>
+			<defaultColormap>Radar/GSD/8 bit Vel</defaultColormap>
+			<colorbarLabeling>
+				<increment>20</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* RR, CXR, LLR, radar
+		dBZ | 1 | 0 |  0  | 80  | | ,,,p| 80 | 0 | 5
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>RR</parameter>
+			<parameter>CXR</parameter>
+			<parameter>LLR</parameter>
+			<creatingEntity>radar</creatingEntity>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- pixelate="true" -->
+			<displayUnits>dBZ</displayUnits>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>80</maxValue>
+			</range>
+			<defaultColormap>Radar/Storm Total Precip</defaultColormap>
+			<colorbarLabeling>
+				<increment>5</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* RRV, radar
+		kts | 1.0 | 0 | -128  | 125  | | ,,,p| 70 | 0 | 20
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>RRV</parameter>
+			<creatingEntity>radar</creatingEntity>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- pixelate="true" -->
+			<displayUnits>kts</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-128</minValue>
+				<maxValue>125</maxValue>
+			</range>
+			<defaultColormap>Radar/GSD/8 bit Vel</defaultColormap>
+			<colorbarLabeling>
+				<increment>20</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* g2gsh
+		kt | 1.944 | 0.0 | 0  | 1  | | | 29 | -1 | 5
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>g2gsh</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>kts</displayUnits>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* PBE, cCape, loCape, muCape, dCape
+		J/kg | 1 | 0 | 10  | 4500  | |,x | 29 | 0 | 1000
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>PBE</parameter>
+			<parameter>cCape</parameter>
+			<parameter>loCape</parameter>
+			<parameter>muCape</parameter>
+			<parameter>dCape</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>J/kg</displayUnits>
+			<range scale="LINEAR">
+				<minValue>10</minValue>
+				<maxValue>4500</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>1000</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* NBE, cCin
+		J/kg | 1 | 0 | -1000  | -1  | |,x | 29 | 0 | 100
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>NBE</parameter>
+			<parameter>cCin</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>J/kg</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-1000</minValue>
+				<maxValue>-1</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>100</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* NBE, ETA, mesoEta212, ETA207, mesoEta216, mesoEta217, ETA218, ETA242, GFS213, GFS212
+		J/kg | -1| 0 | -1000 | -1 | |,x| 29 | 0 | 100
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>NBE</parameter>
+			<creatingEntity>ETA</creatingEntity>
+			<creatingEntity>mesoEta212</creatingEntity>
+			<creatingEntity>ETA207</creatingEntity>
+			<creatingEntity>mesoEta216</creatingEntity>
+			<creatingEntity>mesoEta217</creatingEntity>
+			<creatingEntity>ETA218</creatingEntity>
+			<creatingEntity>ETA242</creatingEntity>
+			<creatingEntity>GFS213</creatingEntity>
+			<creatingEntity>GFS212</creatingEntity>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>J/kg</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-1000</minValue>
+				<maxValue>-1</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>100</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* SAcc, SSAcc, SnD, Surface
+		in | .03937 | 0 | .05 | 50 |x|,c| 29 | 6 | 0.1 0.3 1 3 10 30
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>SAcc</parameter>
+			<parameter>SSAcc</parameter>
+			<parameter>SnD</parameter>
+			<singleLevel units="SURFACE" />
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>in</displayUnits>
+			<range scale="LOG">
+				<minValue>.05</minValue>
+				<maxValue>50</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>0.1 0.3 1 3 10 30</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* SAcc, SSAcc, Surface, Laps
+		in | 39.37 | 0 | 05 | 50 |x|,c| 29 | 6 | 0.1 0.3 1 3 10 30
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>SAcc</parameter>
+			<parameter>SSAcc</parameter>
+			<singleLevel units="SURFACE" />
+			<creatingEntity>Laps</creatingEntity>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>in</displayUnits>
+			<range scale="LOG">
+				<minValue>.05</minValue>
+				<maxValue>50</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>0.1 0.3 1 3 10 30</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* SA3hr, SA6hr, SA12hr, SA24hr, SA36hr, SA48hr, SArun, Surface
+		in | .03937 | 0 | .05 | 50 |x|,c| 29 | 6 | 0.1 0.3 1 3 10 30
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>SA3hr</parameter>
+			<parameter>SA6hr</parameter>
+			<parameter>SA12hr</parameter>
+			<parameter>SA24hr</parameter>
+			<parameter>SA36hr</parameter>
+			<parameter>SA48hr</parameter>
+			<parameter>SArun</parameter>
+			<singleLevel units="SURFACE" />
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>in</displayUnits>
+			<range scale="LOG">
+				<minValue>.05</minValue>
+				<maxValue>50</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>0.1 0.3 1 3 10 30</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>WEASD</parameter>
+			<singleLevel units="SURFACE"></singleLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>in</displayUnits>
+			<range scale="LOG">
+				<minValue>.05</minValue>
+				<maxValue>50</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>0.1 0.3 1 3 10 30</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* TOTSN, Surface
+		in | 39.37 | 0 | 05 | 50 |x|,c| 29 | 6 | 0.1 0.3 1 3 10 30
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>TOTSN</parameter>
+            <parameter>TOTSN6hr</parameter>
+			<singleLevel units="SURFACE" />
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>in</displayUnits>
+			<range scale="LOG">
+				<minValue>5</minValue>
+				<maxValue>50</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>0.1 0.3 1 3 10 30</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* ILW, Surface
+		kg/m^2 | 1000 | 0 | .05 | 5  |x|,c| 29 | 9 | .1 .2 .3 .5 .7 1 2 3 4
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>ILW</parameter>
+			<singleLevel units="SURFACE" />
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>kg/m^2</displayUnits>
+			<range scale="LOG">
+				<minValue>.05</minValue>
+				<maxValue>5</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>.1 .2 .3 .5 .7 1 2 3 4</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* CIce, CW, HyC, ClCond, RAIN, SNOW, PICE
+		g/m^3 | 1 | 0 | 1e-6 | 5  | |,c| 29 | 4 | 1 2 3 4
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>CIce</parameter>
+			<parameter>CW</parameter>
+			<parameter>HyC</parameter>
+			<parameter>ClCond</parameter>
+			<parameter>RAIN</parameter>
+			<parameter>SNOW</parameter>
+			<parameter>PICE</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>g/m^3</displayUnits>
+			<range scale="LINEAR">
+				<minValue>1e-6</minValue>
+				<maxValue>5</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>1 2 3 4</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* SCP, CCP
+		% | 100 | 0 | 5 | 105 | | | 33 | 0 | 20
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>SCP</parameter>
+			<parameter>CCP</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>%</displayUnits>
+			<range scale="LINEAR">
+				<minValue>5</minValue>
+				<maxValue>105</maxValue>
+			</range>
+			<defaultColormap>Grid/warm to cold</defaultColormap>
+			<colorbarLabeling>
+				<increment>20</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* P, 1500m
+		mb | 1.0 | 0.0 | 950 | 1050 | | | 29 | 0 | 10
+	-->
+	<!-- DISABLED for 1500m = 1500 FH
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>P</parameter>
+			<singleLevel units="FH">
+				<value>1500</value>
+			</singleLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>mb</displayUnits>
+			<range scale="LINEAR">
+				<minValue>950</minValue>
+				<maxValue>1050</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	-->
+	<!--
+		* dGH12
+		dam  | 0.1 | 0.0 | -50 | 50 | | | 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>dGH12</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>dam</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-50</minValue>
+				<maxValue>50</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* PAdv
+		ubar/s |1000| 0 | 0.5 | 400 |x|m| 29 | 7 | 0 1 3 10 30 100 300
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>PAdv</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits label="ubar/s">(Pa/s)*0.1</displayUnits>
+			<range scale="LOG" mirror="true">
+				<minValue>0.5</minValue>
+				<maxValue>400</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>0 1 3 10 30 100 300</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* DpDt
+		-ubar/s |-1000| 0 | 0.5 | 400 |x|m| 29 | 7 | 0 1 3 10 30 100 300
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>DpDt</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits label="-ubar/s">(Pa/s)*-0.1</displayUnits>
+			<range scale="LOG" mirror="true">
+				<minValue>0.5</minValue>
+				<maxValue>400</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>0 1 3 10 30 100 300</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* TP_HPC,TP_ACR,TP_ALR,TP_FWR,TP_KRF,TP_MSR,TP_ORN
+		in |0.0394|0.0|0.005|12|x|,c| 29| 7| 0.01 0.03 0.1 0.3 1 3 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>TP_HPC</parameter>
+			<parameter>TP_ACR</parameter>
+			<parameter>TP_ALR</parameter>
+			<parameter>TP_FWR</parameter>
+			<parameter>TP_KRF</parameter>
+			<parameter>TP_MSR</parameter>
+			<parameter>TP_ORN</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>in</displayUnits>
+			<range scale="LOG">
+				<minValue>0.005</minValue>
+				<maxValue>12</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>0.01 0.03 0.1 0.3 1 3 10</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* TP_PTR,TP_RHA,TP_RSA,TP_STR,TP_TAR,TP_TIR,TP_TUA
+		in |0.0394|0.0|0.005|12|x|,c| 29| 7| 0.01 0.03 0.1 0.3 1 3 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>TP_PTR</parameter>
+			<parameter>TP_RHA</parameter>
+			<parameter>TP_RSA</parameter>
+			<parameter>TP_STR</parameter>
+			<parameter>TP_TAR</parameter>
+			<parameter>TP_TIR</parameter>
+			<parameter>TP_TUA</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>in</displayUnits>
+			<range scale="LOG">
+				<minValue>0.005</minValue>
+				<maxValue>12</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>0.01 0.03 0.1 0.3 1 3 10</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* dP6hr,dP3hr,dP1hr
+		mb | 1.0 | 0.0 | -12 | 12 | | | 29,80 |0| 3
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>dP6hr</parameter>
+			<parameter>dP3hr</parameter>
+			<parameter>dP1hr</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- brightness="0.80" -->
+			<displayUnits>mb</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-12</minValue>
+				<maxValue>12</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>3</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* PGrdM
+		ubars/km|1e6| 0 | 0 | 70 | | | 29,80 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>PGrdM</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- brightness="0.80" -->
+			<displayUnits label="ubars/km">dPa/km</displayUnits>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>70</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* df
+		C | 1.0 | 0.0 | .1 | 40 | | | 29,80 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>df</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- brightness="0.80" -->
+			<displayUnits>C</displayUnits>
+			<range scale="LINEAR">
+				<minValue>0.1</minValue>
+				<maxValue>40</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* TGrdM
+		C/1000km    |1e6| 0 | 0 | 70 | | | 29,80 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>TGrdM</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- brightness="0.80" -->
+			<displayUnits label="C/1000km">K/km*1.0E3</displayUnits>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>70</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* EPTGrdM
+		K/100km   |1e5| 0 | 0 | 70 | | | 29,80 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>EPTGrdM</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>K/(km*100)</displayUnits>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>70</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* BRNSHR
+		| 1 | 0.0 | 0 | 200. | | | 29,80 | 0 | 20
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>BRNSHR</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- brightness="0.80" -->
+			<displayUnits></displayUnits> <!-- ????????????? No units  -->
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>200</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>20</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* BRN
+		| 1 | 0.0 | 0 | 150. | | | 29,80 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>BRN</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- brightness="0.80" -->
+			<displayUnits></displayUnits> <!-- ????????????? No units-->
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>150</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* HI
+		|1.|0.|1|7| | | 29,80 | 4 | 2.5 3.5 4.5 5.5
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>HI</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- brightness="0.80" -->
+			<displayUnits></displayUnits> <!-- ????????????? No units-->
+			<range scale="LINEAR">
+				<minValue>1</minValue>
+				<maxValue>7</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>2.5 3.5 4.5 5.5</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* ShrMag
+		kts/km | 1944 | 0.0 | 0 | 50. | | | 29,80 | 0 | 5
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>ShrMag</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- brightness="0.80" -->
+			<displayUnits>kts/km</displayUnits>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>50</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>5</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* BlkMag
+		kts | 1.944 | 0.0 | 0 | 100. | | | 29,80 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>BlkMag</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- brightness="0.80" -->
+			<displayUnits>kts</displayUnits>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>100</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* CumShr
+		kts | 1.944 | 0.0 | 0 | 150. | | | 29,80 | 0 | 20
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>CumShr</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- brightness="0.80" -->
+			<displayUnits>kts</displayUnits>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>150</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>20</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* CumNrm
+		kts/km | 1944 | 0.0 | 0 | 100. | | | 29,80 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>CumNrm</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- brightness="0.80" -->
+			<displayUnits>kts/km</displayUnits>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>100</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* VGP
+		| 1 | 0.0 | 0 | .5 | | | 29,80 | 0 | .05
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>VGP</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- brightness="0.80" -->
+			<displayUnits></displayUnits>  <!-- ????????????? No units-->
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>0.5</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>0.05</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* EHI
+		| 1 | 0.0 | 0 | 8. | | | 29,80 | 0 | 0.5
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>EHI</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- brightness="0.80" -->
+			<displayUnits></displayUnits> <!-- ????????????? No units-->
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>8</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>0.5</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* TQIND
+		C |1.|0.|0|1|||29| -1 | 4
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>TQIND</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>C</displayUnits>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* SSi
+		|1.|0|  0. | 300.  | || 29,80 | 0 | 50
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>SSi</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- brightness="0.80" -->
+			<displayUnits>mb/K</displayUnits>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>300</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>50</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* TotQi
+		|0.5|0|  0 | 400 | || 29,80 | 0 | 100
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>TotQi</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- brightness="0.80" -->
+			<displayUnits label="gmb/KgK">g·hPa/(kg·K)</displayUnits>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>400</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>100</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* MSFmi
+		mbm/Ks |0.0005|0|  0 | 5.  | || 29,80 | 0 | 0.5
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>MSFmi</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- brightness="0.80" -->
+			<displayUnits label="mbm/Ks">g·hPa·m/(kg·K·s)*5.0E-4</displayUnits>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>5</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>0.5</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* MSFDi
+		gubarm/KgKs^2 |500 |0|  -15. | 15.  | || 29,80 | 0 | 5
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>MSFDi</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- brightness="0.80" -->
+			<displayUnits label="gubarm/KgKs^2">(g*hPa*m)/(kg*K*s^2)*5.0E2</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-15.</minValue>
+				<maxValue>15.</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>5</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* GH_avg
+		dam  | 0.1 | 0.0 | 0 | 1 | | | 29 | -1 | 1
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>GH_avg</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>dam</displayUnits>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* RH_avg
+		%   | 1.0 | 0.0 | -5 | 105 | | | 33 | 0 | 20
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>RH_avg</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>%</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-5</minValue>
+				<maxValue>105</maxValue>
+			</range>
+			<defaultColormap>Grid/warm to cold</defaultColormap>
+			<colorbarLabeling>
+				<increment>20</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* TP_avg, TPrun_avg
+		in | 0.0394 | 0.0 | 0.005 | 12 |x|,c| 29 | 7 | 0.01 0.03 0.1 0.3 1 3 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>TP_avg</parameter>
+			<parameter>TPrun_avg</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>in</displayUnits>
+			<range scale="LOG">
+				<minValue>0.005</minValue>
+				<maxValue>12</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>0.01 0.03 0.1 0.3 1 3 10</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* TP_std, TPrun_std
+		in | 0.0394 | 0.0 | 0.005 | 12 |x|,c| 29 | 7 | 0.01 0.03 0.1 0.3 1 3 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>TP_std</parameter>
+			<parameter>TPrun_std</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>in</displayUnits>
+			<range scale="LOG">
+				<minValue>0.005</minValue>
+				<maxValue>12</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>0.01 0.03 0.1 0.3 1 3 10</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* T_avg
+		C | 1.0 |-273.15| 0  | 1  | | | 29 | -1 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>T_avg</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>C</displayUnits>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* T_std
+		C | 1.0 | 0 | 0  | 1  | | | 29 | -1 | 1
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>T_std</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits label="C">K</displayUnits>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* T_avg, Surface, MnT_avg, MxT_avg, MnT, MxT, MnT3hr, MxT3hr, MnT6hr, MxT6hr, MxT12hr, MnT12hr
+		F | 1.8 |-459.67| -40 | 115 | | | 29 | 0 | 20
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>T_avg</parameter>
+			<parameter>MnT_avg</parameter>
+			<parameter>MxT_avg</parameter>
+			<parameter>MnT</parameter>
+			<parameter>MxT</parameter>
+			<parameter>MnT3hr</parameter>
+			<parameter>MxT3hr</parameter>
+			<parameter>MnT6hr</parameter>
+			<parameter>MxT6hr</parameter>
+			<parameter>MxT12hr</parameter>
+			<parameter>MnT12hr</parameter>
+			<singleLevel units="SURFACE"></singleLevel>
+            <rangeLevel units="HEIGHT_AGL">
+                <upper>10</upper>
+                <lower>0</lower>
+            </rangeLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>F</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-40</minValue>
+				<maxValue>115</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>20</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* T_std, Surface, MnT_std, MxT_std
+		F | 1.8 | 0 | 0 | 1 | | | 29 | -1 | 1
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>T_std</parameter>
+			<parameter>MnT_std</parameter>
+			<parameter>MxT_std</parameter>
+			<singleLevel units="SURFACE"></singleLevel>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits label="F">°R</displayUnits>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* msl-P_avg
+		mb | 1.0 | 0.0 | 950 | 1050 | | | 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>msl-P_avg</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>mb</displayUnits>
+			<range scale="LINEAR">
+				<minValue>950</minValue>
+				<maxValue>1050</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* CorfFM, CorfM
+		kts  | 1.944 | 0.0 | 0 | 1 | | | 29 | -1 | 0.1
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>CorfFM</parameter>
+			<parameter>CorfM</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>kts</displayUnits>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* PFrnt
+		K/m/1e10s  | 1e10 | 0.0 | 0 | 1 | | | 29 | -1 | 0.1
+	-->
+	 <styleRule>
+    <paramLevelMatches>
+      <parameter>PFrnt</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <range adaptive="false" scale="LINEAR">
+        <minValue>-100</minValue>
+        <maxValue>100</maxValue>
+      </range>
+      <displayUnits label="K/m/1e10s">K/m/s*1.0E-10</displayUnits>
+      <defaultColormap>Grid/Frontogenesis</defaultColormap>
+      <colorbarLabeling>
+        <increment>20</increment>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+	<!--
+		* DivF, DivFn, DivFs
+		K/m/1e14s^2  | 1e14 | 0.0 | 0 | 1 | | | 29 | -1 | 0.1
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>DivF</parameter>
+			<parameter>DivFn</parameter>
+			<parameter>DivFs</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits label="K/m/1e14s^2">K/m/s^2*1.0E-14</displayUnits>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* PTAN, PPAN
+		%   | 1.0 | 0.0 | 33 | 100 | |,x| 29 | 7 | 35 40 50 60 70 80 90
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>PTAN</parameter>
+			<parameter>PPAN</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>%</displayUnits>
+			<range scale="LINEAR">
+				<minValue>33</minValue>
+				<maxValue>100</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>35 40 50 60 70 80 90</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* PTBN, PPBN
+		%   | 1.0 | 0.0 | 33 | 100 | |,x| 33 | 7 | 35 40 50 60 70 80 90
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>PTBN</parameter>
+			<parameter>PPBN</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>%</displayUnits>
+			<range scale="LINEAR">
+				<minValue>33</minValue>
+				<maxValue>100</maxValue>
+			</range>
+			<defaultColormap>Grid/warm to cold</defaultColormap>
+			<colorbarLabeling>
+				<values>35 40 50 60 70 80 90</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* PTNN, PPNN
+		%   | 1.0 | 0.0 | 33 | 100 | |,x| 29 | 7 | 35 40 50 60 70 80 90
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>PTNN</parameter>
+			<parameter>PPNN</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>%</displayUnits>
+			<range scale="LINEAR">
+				<minValue>33</minValue>
+				<maxValue>100</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>35 40 50 60 70 80 90</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* diam
+		km  | 0.001 | 0.0 | 0 | 1 | | | 29 | -1 | 0.1
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>diam</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>km</displayUnits>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* ICEG
+		in/3hr  | 425196.85 | 0 | -0.2 | 4.2 | |  | 29 | 0 | 0.4
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>ICEG</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits label="in/3hr">in/h*3</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-0.2</minValue>
+				<maxValue>4.2</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>0.4</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* TP, MPE
+		in | 0.0394 | 0.0 | 0.005 | 12 |x| | 85 | 7 | 0.01 0.03 0.1 0.3 1 3 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>TP</parameter>
+			<creatingEntity>MPE</creatingEntity>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>in</displayUnits>
+			<range scale="LOG">
+				<minValue>0.005</minValue>
+				<maxValue>12</maxValue>
+			</range>
+			<defaultColormap>Grid/truncated gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>0.01 0.03 0.1 0.3 1 3 10</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* TPCWindProb, Prob34, Prob50, Prob64
+		%  | 1.0 | 0 | 5 | 105 | |,c| 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<creatingEntity>TPCWindProb</creatingEntity>
+			<parameter>Prob34</parameter>
+			<parameter>Prob50</parameter>
+			<parameter>Prob64</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>%</displayUnits>
+			<range scale="LINEAR">
+				<minValue>5</minValue>
+				<maxValue>105</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* MOSGuide, POP3hr, POP6hr, POP12hr, ThP3hr, ThP6hr, ThP12hr
+		%  | 1.0 | 0 | 5 | 105 | |,c| 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<creatingEntity>MOSGuide</creatingEntity>
+			<parameter>POP3hr</parameter>
+			<parameter>POP6hr</parameter>
+			<parameter>POP12hr</parameter>
+			<parameter>ThP3hr</parameter>
+			<parameter>ThP6hr</parameter>
+			<parameter>ThP12hr</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>%</displayUnits>
+			<range scale="LINEAR">
+				<minValue>5</minValue>
+				<maxValue>105</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* PMSLmean
+		mb | 0.01 | 0.0 | 950 | 1050 | | | 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>PMSLmean</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits label="mb">hPa</displayUnits>
+			<range scale="LINEAR">
+				<minValue>950</minValue>
+				<maxValue>1050</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* PMSLsprd
+		mb | 0.01 | 0.0 |  0  |  15  | | | 29 | 0 | 2
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>PMSLsprd</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits label="mb">hPa</displayUnits>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>15</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>2</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* Tmean, DpTmean
+		C | 1.0 |-273.15| 0  | 1  | | | 29 | -1 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>Tmean</parameter>
+			<parameter>DpTmean</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>C</displayUnits>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* Tmean, DpTmean, Surface
+		F | 1.8 |-459.67| -40 | 115 | | | 29 | 0 | 20
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>Tmean</parameter>
+			<parameter>DpTmean</parameter>
+			<singleLevel units="SURFACE" />
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>F</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-40</minValue>
+				<maxValue>115</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>20</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* TP3mean, TP3sprd, TP6mean, TP6sprd, TP12mean, TP12sprd, TP24mean, TP24sprd,SNOL12mean, SNOL12sprd
+		in | 0.0394 | 0.0 | 0.005 | 12 |x|,c| 29 | 7 | 0.01 0.03 0.1 0.3 1 3 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>TP3mean</parameter>
+			<parameter>TP3sprd</parameter>
+			<parameter>TP6mean</parameter>
+			<parameter>TP6sprd</parameter>
+			<parameter>TP12mean</parameter>
+			<parameter>TP12sprd</parameter>
+			<parameter>TP24mean</parameter>
+			<parameter>TP24sprd</parameter>
+			<parameter>SNOL12mean</parameter>
+			<parameter>SNOL12sprd</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>in</displayUnits>
+			<range scale="LOG">
+				<minValue>0.005</minValue>
+				<maxValue>12</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>0.01 0.03 0.1 0.3 1 3 10</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	-->
+	<!--
+		* PWmean, PWsprd
+		in | 0.0394 | 0.0 | 1e-5 | 3.5 |x|,c| 29 | -1 | .1
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>PWmean</parameter>
+			<parameter>PWsprd</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>in</displayUnits>
+			<range scale="LOG" />
+			<defaultColormap>Grid/gridded data</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* WSmean, wSpmean, WSsprd, wSpsprd
+		kt | 1.944 | 0.0 | 0  | 1  | | | 29 | -1 | 5
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>WSmean</parameter>
+			<parameter>wSpmean</parameter>
+			<parameter>WSsprd</parameter>
+			<parameter>wSpsprd</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>kts</displayUnits>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* TP3c1, TP3c2, TP3c3, TP3c4, TP3c5, TP3c6, TP3c7, TP3c8
+		%  | 1.0 | 0 | 5 | 105 | |,c| 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>TP3c1</parameter>
+			<parameter>TP3c2</parameter>
+			<parameter>TP3c3</parameter>
+			<parameter>TP3c4</parameter>
+			<parameter>TP3c5</parameter>
+			<parameter>TP3c6</parameter>
+			<parameter>TP3c7</parameter>
+			<parameter>TP3c8</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>%</displayUnits>
+			<range scale="LINEAR">
+				<minValue>5</minValue>
+				<maxValue>105</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* TP6c1, TP6c2, TP6c3, TP6c4, TP6c5, TP6c6, TP6c7, TP6c8
+		%  | 1.0 | 0 | 5 | 105 | |,c| 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>TP6c1</parameter>
+			<parameter>TP6c2</parameter>
+			<parameter>TP6c3</parameter>
+			<parameter>TP6c4</parameter>
+			<parameter>TP6c5</parameter>
+			<parameter>TP6c6</parameter>
+			<parameter>TP6c7</parameter>
+			<parameter>TP6c8</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>%</displayUnits>
+			<range scale="LINEAR">
+				<minValue>5</minValue>
+				<maxValue>105</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* TP12c1, TP12c2, TP12c3, TP12c4, TP12c5, TP12c6, TP12c7, TP12c8
+		%  | 1.0 | 0 | 5 | 105 | |,c| 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>TP12c1</parameter>
+			<parameter>TP12c2</parameter>
+			<parameter>TP12c3</parameter>
+			<parameter>TP12c4</parameter>
+			<parameter>TP12c5</parameter>
+			<parameter>TP12c6</parameter>
+			<parameter>TP12c7</parameter>
+			<parameter>TP12c8</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>%</displayUnits>
+			<range scale="LINEAR">
+				<minValue>5</minValue>
+				<maxValue>105</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* TP24c1, TP24c2, TP24c3, TP24c4, TP24c5, TP24c6, TP24c7, TP24c8
+		%  | 1.0 | 0 | 5 | 105 | |,c| 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>TP24c1</parameter>
+			<parameter>TP24c2</parameter>
+			<parameter>TP24c3</parameter>
+			<parameter>TP24c4</parameter>
+			<parameter>TP24c5</parameter>
+			<parameter>TP24c6</parameter>
+			<parameter>TP24c7</parameter>
+			<parameter>TP24c8</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>%</displayUnits>
+			<range scale="LINEAR">
+				<minValue>5</minValue>
+				<maxValue>105</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* SNOL12c1, SNOL12c2, SNOL12c3, SNOL12c4, SNOL12c5, SNOL12c6, SNOL12c7, SNOL12c8,SNOL12c9, SNOL12c10
+		%  | 1.0 | 0 | 5 | 105 | |,c| 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>SNOL12c1</parameter>
+			<parameter>SNOL12c2</parameter>
+			<parameter>SNOL12c3</parameter>
+			<parameter>SNOL12c4</parameter>
+			<parameter>SNOL12c5</parameter>
+			<parameter>SNOL12c6</parameter>
+			<parameter>SNOL12c7</parameter>
+			<parameter>SNOL12c8</parameter>
+			<parameter>SNOL12c9</parameter>
+			<parameter>SNOL12c10</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>%</displayUnits>
+			<range scale="LINEAR">
+				<minValue>5</minValue>
+				<maxValue>105</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	-->
+	<!--
+		* Tc1, WSc1, WSc2, WSc3, WSc4, CAPEc1, CAPEc2, CAPEc3, CAPEc4, CAPEc5
+		%  | 1.0 | 0 | 5 | 105 | |,c| 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>Tc1</parameter>
+			<parameter>WSc1</parameter>
+			<parameter>WSc2</parameter>
+			<parameter>WSc3</parameter>
+			<parameter>WSc4</parameter>
+			<parameter>CAPEc1</parameter>
+			<parameter>CAPEc2</parameter>
+			<parameter>CAPEc3</parameter>
+			<parameter>CAPEc4</parameter>
+			<parameter>CAPEc5</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>%</displayUnits>
+			<range scale="LINEAR">
+				<minValue>5</minValue>
+				<maxValue>105</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* PLIxc1, PLIxc2, PLIxc3, PLIxc4, PLIxc5
+		%  | 1.0 | 0 | 5 | 105 | |,c| 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>PLIxc1</parameter>
+			<parameter>PLIxc2</parameter>
+			<parameter>PLIxc3</parameter>
+			<parameter>PLIxc4</parameter>
+			<parameter>PLIxc5</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>%</displayUnits>
+			<range scale="LINEAR">
+				<minValue>5</minValue>
+				<maxValue>105</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* Visc1, Visc2
+		%  | 1.0 | 0 | 5 | 105 | |,c| 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>Visc1</parameter>
+			<parameter>Visc2</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>%</displayUnits>
+			<range scale="LINEAR">
+				<minValue>5</minValue>
+				<maxValue>105</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* Cigc1, Cigc2, Cigc3
+		%  | 1.0 | 0 | 5 | 105 | |,c| 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>Cigc1</parameter>
+			<parameter>Cigc2</parameter>
+			<parameter>Cigc3</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>%</displayUnits>
+			<range scale="LINEAR">
+				<minValue>5</minValue>
+				<maxValue>105</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* CRAINc1, CSNOWc1, CFRZRc1, CICEPc1
+		%  | 1.0 | 0 | 5 | 105 | |,c| 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>CRAINc1</parameter>
+			<parameter>CSNOWc1</parameter>
+			<parameter>CFRZRc1</parameter>
+			<parameter>CICEPc1</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>%</displayUnits>
+			<range scale="LINEAR">
+				<minValue>5</minValue>
+				<maxValue>105</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* uztwc, uzfwc, lztwc, lzfpc, lzfsc, adimc
+		%  | 1.0 | 0 | -1 | 102 | |,c,,c| 92 | 15 | 0. 7. 14. 21. 28. 35. 42. 50. 57. 64.     71. 78. 85. 92. 100.
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>uztwc</parameter>
+			<parameter>uzfwc</parameter>
+			<parameter>lztwc</parameter>
+			<parameter>lzfpc</parameter>
+			<parameter>lzfsc</parameter>
+			<parameter>adimc</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- pixelate="true" filterLow="true" -->
+			<displayUnits>%</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-1</minValue>
+				<maxValue>102</maxValue>
+			</range>
+			<defaultColormap>DHM Sacramento Soil Moisture Accounting</defaultColormap>
+			<colorbarLabeling>
+				<values>0. 7. 14. 21. 28. 35. 42. 50. 57. 64. 71. 78. 85. 92. 100.</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* water_depth
+		in | 1.0 | 0 | -0.08 | 3.05| |,c,,c| 93 | 15 | 0.01 0.05 0.1 0.25 0.50 0.75 1.0      1.25 1.5 1.75 2.0 2.25 2.5 2.75 3.0
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>water_depth</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- pixelate="true" filterLow="true" -->
+			<displayUnits>in</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-0.08</minValue>
+				<maxValue>3.05</maxValue>
+			</range>
+			<defaultColormap>DHM Water Depth</defaultColormap>
+			<colorbarLabeling>
+				<values>0.01 0.05 0.1 0.25 0.50 0.75 1.0 1.25 1.5 1.75 2.0 2.25 2.5 2.75 3.0</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* routed_flow
+		cfs | 1.0 | 1 | -25 | 2900 ||,c,c,c| 94 | 15 | 1 100 200 400 600 800 1000 1200       1400 1600 1800 2000 2400 2600 2800
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>routed_flow</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- pixelate="true" filterLow="true" filterHigh="true" -->
+			<displayUnits label="cfs">ft^3/s</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-25</minValue>
+				<maxValue>2900</maxValue>
+			</range>
+			<defaultColormap>DHM Routed Flow L</defaultColormap>
+			<colorbarLabeling>
+				<values>1 100 200 400 600 800 1000 1200 1400 1600 1800 2000 2400 2600 2800</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* routed_flow_m
+		cfs | 1.0 | 0 | 2700 | 50500 |x|,c,c,c| 95 | 14 | 3000 4000 5000 7000 9000 11000      14000 17000 20000 24000 28000 32000 36000 45000
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>routed_flow_m</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- pixelate="true" filterLow="true" filterHigh="true" -->
+			<displayUnits label="cfs">ft^3/s</displayUnits>
+			<range scale="LOG">
+				<minValue>2700</minValue>
+				<maxValue>50500</maxValue>
+			</range>
+			<defaultColormap>DHM Routed Flow M</defaultColormap>
+			<colorbarLabeling>
+				<values>3000 4000 5000 7000 9000 11000 14000 17000 20000 24000 28000 32000 36000 45000</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* routed_flow_h
+		cfs | 1.0 | 0 | 46000 | 375000 |x|,c,c,c| 96 | 12 | 50000 58000 64000 75000 90000      105000 130000 145000 230000 260000 300000 350000
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>routed_flow_h</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- pixelate="true" filterLow="true" filterHigh="true" -->
+			<displayUnits label="cfs">ft^3/s</displayUnits>
+			<range scale="LOG">
+				<minValue>46000</minValue>
+				<maxValue>375000</maxValue>
+			</range>
+			<defaultColormap>DHM Routed Flow H</defaultColormap>
+			<colorbarLabeling>
+				<values>50000 58000 64000 75000 90000 105000 130000 145000 230000 260000 300000 350000</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* routed_flow_c
+		cfs | 1.0 | 0 | 150 | 450000 |x|,,,c| 97 | 10 | 1 200 800 1400 2000 2800 5000 11000       64000 350000
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>routed_flow_c</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- pixelate="true" -->
+			<displayUnits label="cfs">ft^3/s</displayUnits>
+			<range scale="LOG">
+				<minValue>150</minValue>
+				<maxValue>450000</maxValue>
+			</range>
+			<defaultColormap>DHM Routed Flow C</defaultColormap>
+			<colorbarLabeling>
+				<values>1 200 800 1400 2000 2800 5000 11000 64000 350000</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* LAMPTstorm, ThP
+		%  | 1.0 | 0 | 5 | 105 | |,c| 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<creatingEntity>LAMPTstorm</creatingEntity>
+			<parameter>ThP</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>%</displayUnits>
+			<range scale="LINEAR">
+				<minValue>5</minValue>
+				<maxValue>105</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* LAMPTstorm, CTSTM
+		| 1.0 | 0 | 0 | 1 | |,c| 91 | 0 |1
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<creatingEntity>LAMPTstorm</creatingEntity>
+			<parameter>CTSTM</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits></displayUnits>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>1</maxValue>
+			</range>
+			<defaultColormap>LAMP/CTSTM Best Category</defaultColormap>
+			<colorbarLabeling>
+				<increment>1</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* OPCWave180, HTSGW
+		ft | 3.28084 | 0 | 0  | 50  | | | 29 | 0 | 5
+	-->
+	<!--
+		* OPCWave181, HTSGW
+		ft | 3.28084 | 0 | 0  | 50  | | | 29 | 0 | 5
+	-->
+	<!--
+		* OPCWave182, HTSGW
+		ft | 3.28084 | 0 | 0  | 50  | | | 29 | 0 | 5
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<creatingEntity>OPCWave181</creatingEntity>
+			<creatingEntity>OPCWave180</creatingEntity>
+			<creatingEntity>OPCWave182</creatingEntity>
+			<parameter>HTSGW</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>ft</displayUnits>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>50</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>5</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<styleRule>
+		<paramLevelMatches>
+			<creatingEntity>GRLKwave</creatingEntity>
+			<parameter>HTSGW</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>m</displayUnits>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* ECMWF-HiRes, TP, TP_ECMWF, TP_ECMWF12hr, TP12hr, TP24hr, TP36hr, TP48hr, TPrun
+		in | 39.4 | 0.0 | 0.005 | 12 |x|,c| 29 | 7 | 0.01 0.03 0.1 0.3 1 3 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<creatingEntity>ECMWF-HiRes</creatingEntity>
+			<parameter>TP</parameter>
+			<parameter>TP_ECMWF</parameter>
+			<parameter>TP_ECMWF12hr</parameter>
+			<parameter>TP12hr</parameter>
+			<parameter>TP24hr</parameter>
+			<parameter>TP36hr</parameter>
+			<parameter>TP48hr</parameter>
+			<parameter>TPrun</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>in</displayUnits>
+			<range scale="LOG">
+				<minValue>0.005</minValue>
+				<maxValue>12</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>0.01 0.03 0.1 0.3 1 3 10</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* NBE, RUC130, Layer
+		J/kg | 1 | 0 | -1000  | -1  | |,x | 29 | -1 | 100
+	-->
+	<!-- DISABLED for plane type "EA"
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>NBE</parameter>
+			<creatingEntity>RUC130</creatingEntity>
+			<singleLevel units="EA" />
+		</paramLevelMatches>
+		<imageStyle>
+			<!- - filterLow="true" - ->
+			<displayUnits>J/kg</displayUnits>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	-->
+	<!--
+		* HPE, BHPE, PR
+		in/hr | .0394 | 0.0 | 0.005 | 16 |x|,c| 72 | 8 | 0.01 0.25 0.5 1 2 4 8 16
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<creatingEntity>HPE</creatingEntity>
+			<creatingEntity>BHPE</creatingEntity>
+			<parameter>PR</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits label="in/hr">in/h</displayUnits>
+			<range scale="LOG">
+				<minValue>0.005</minValue>
+				<maxValue>16</maxValue>
+			</range>
+			<defaultColormap>Radar/OSF/256 Level Reflectivity</defaultColormap>
+			<colorbarLabeling>
+				<values>0.01 0.25 0.5 1 2 4 8 16</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* HPE, BHPE, SPAcc
+		in | .0394 | 0.0 | 0.005 | 16 |x|,c| 81 | 8 | 0.01 0.25 0.5 1 2 4 8 16
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<creatingEntity>HPE</creatingEntity>
+			<creatingEntity>BHPE</creatingEntity>
+			<parameter>SPAcc</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>in</displayUnits>
+			<range scale="LOG">
+				<minValue>0.005</minValue>
+				<maxValue>16</maxValue>
+			</range>
+			<defaultColormap>Radar/OSF/Storm Total Precip</defaultColormap>
+			<colorbarLabeling>
+				<values>0.01 0.25 0.5 1 2 4 8 16</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* HC
+		| 1 | 0 | 1 | 254 | | ,,,p | 15 | 60 |
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>HC</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- pixelate="true" -->
+			<displayUnits></displayUnits>
+			<range scale="LINEAR">
+				<minValue>1</minValue>   <!-- AWIPS I GribImgDecoder scaling -->
+				<maxValue>254</maxValue>
+			</range>
+			<defaultColormap>Radar/DualPol/Hydrometeor Class</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* BASSW
+		kts | 1 | 0 | 0 | 50 | |  | 29 | 0 | 4
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>BASSW</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>kts</displayUnits>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>50</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>4</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* ZDR
+		dB | 1 | 0 | -4 | 8 | |  | 29 | 0 | 1
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>ZDR</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>dB</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-4</minValue>
+				<maxValue>8</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>1</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* KDP
+		deg/km  | 1 | 0 | -2 | 10 | |  | 29 | 0 | 1
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>KDP</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits label="deg/km">°/km</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-2</minValue>
+				<maxValue>10</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>1</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* COCO
+		| 1 | 0 | 0 | 1.05 | |  | 29 | 0 | 0.1
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>COCO</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits></displayUnits><!-- ???? -->
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>1.05</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>0.1</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<styleRule>
+		<paramLevelMatches>
+		    <creatingEntity>TPCSurgeProb</creatingEntity>
+			<parameter>Surge10pctCumul_wTide</parameter>
+			<parameter>Surge20pctCumul_wTide</parameter>
+			<parameter>Surge30pctCumul_wTide</parameter>
+			<parameter>Surge40pctCumul_wTide</parameter>
+			<parameter>Surge50pctCumul_wTide</parameter>
+			<parameter>Surge10pctIncr_PHISH</parameter>
+			<parameter>Surge20pctIncr_PHISH</parameter>
+			<parameter>Surge30pctIncr_PHISH</parameter>
+			<parameter>Surge40pctIncr_PHISH</parameter>
+			<parameter>Surge50pctIncr_PHISH</parameter>
+			<parameter>Surge10pctCumul_PHISH</parameter>
+			<parameter>Surge20pctCumul_PHISH</parameter>
+			<parameter>Surge30pctCumul_PHISH</parameter>
+			<parameter>Surge40pctCumul_PHISH</parameter>
+			<parameter>Surge50pctCumul_PHISH</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>ft</displayUnits>
+			<displayFlags>NoPlane</displayFlags>
+			<range scale="LINEAR">
+				<minValue>-5</minValue>
+				<maxValue>35</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>-5 -3 0 3 5 7 9 11 13 15 17 19 21 23 25 27 29 31 33 35
+				</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<styleRule>
+		<paramLevelMatches>
+			<creatingEntity>TPCSurgeProb</creatingEntity>
+			<parameter>PSurge2ftCumul_wTide</parameter>
+			<parameter>PSurge3ftCumul_wTide</parameter>
+			<parameter>PSurge4ftCumul_wTide</parameter>
+			<parameter>PSurge5ftCumul_wTide</parameter>
+			<parameter>PSurge6ftCumul_wTide</parameter>
+			<parameter>PSurge7ftCumul_wTide</parameter>
+			<parameter>PSurge8ftCumul_wTide</parameter>
+			<parameter>PSurge9ftCumul_wTide</parameter>
+			<parameter>PSurge10ftCumul_wTide</parameter>
+			<parameter>PSurge11ftCumul_wTide</parameter>
+			<parameter>PSurge12ftCumul_wTide</parameter>
+			<parameter>PSurge13ftCumul_wTide</parameter>
+			<parameter>PSurge14ftCumul_wTide</parameter>
+			<parameter>PSurge15ftCumul_wTide</parameter>
+			<parameter>PSurge16ftCumul_wTide</parameter>
+			<parameter>PSurge17ftCumul_wTide</parameter>
+			<parameter>PSurge18ftCumul_wTide</parameter>
+			<parameter>PSurge19ftCumul_wTide</parameter>
+			<parameter>PSurge20ftCumul_wTide</parameter>
+			<parameter>PSurge21ftCumul_wTide</parameter>
+			<parameter>PSurge22ftCumul_wTide</parameter>
+			<parameter>PSurge23ftCumul_wTide</parameter>
+			<parameter>PSurge24ftCumul_wTide</parameter>
+			<parameter>PSurge25ftCumul_wTide</parameter>
+			<parameter>PSurge0ftIncr_PHISH</parameter>
+			<parameter>PSurge1ftIncr_PHISH</parameter>
+			<parameter>PSurge2ftIncr_PHISH</parameter>
+			<parameter>PSurge3ftIncr_PHISH</parameter>
+			<parameter>PSurge4ftIncr_PHISH</parameter>
+			<parameter>PSurge5ftIncr_PHISH</parameter>
+			<parameter>PSurge6ftIncr_PHISH</parameter>
+			<parameter>PSurge7ftIncr_PHISH</parameter>
+			<parameter>PSurge8ftIncr_PHISH</parameter>
+			<parameter>PSurge9ftIncr_PHISH</parameter>
+			<parameter>PSurge10ftIncr_PHISH</parameter>
+			<parameter>PSurge11ftIncr_PHISH</parameter>
+			<parameter>PSurge12ftIncr_PHISH</parameter>
+			<parameter>PSurge13ftIncr_PHISH</parameter>
+			<parameter>PSurge14ftIncr_PHISH</parameter>
+			<parameter>PSurge15ftIncr_PHISH</parameter>
+			<parameter>PSurge16ftIncr_PHISH</parameter>
+			<parameter>PSurge17ftIncr_PHISH</parameter>
+			<parameter>PSurge18ftIncr_PHISH</parameter>
+			<parameter>PSurge19ftIncr_PHISH</parameter>
+			<parameter>PSurge20ftIncr_PHISH</parameter>
+			<parameter>PSurge0ftCumul_PHISH</parameter>
+			<parameter>PSurge1ftCumul_PHISH</parameter>
+			<parameter>PSurge2ftCumul_PHISH</parameter>
+			<parameter>PSurge3ftCumul_PHISH</parameter>
+			<parameter>PSurge4ftCumul_PHISH</parameter>
+			<parameter>PSurge5ftCumul_PHISH</parameter>
+			<parameter>PSurge6ftCumul_PHISH</parameter>
+			<parameter>PSurge7ftCumul_PHISH</parameter>
+			<parameter>PSurge8ftCumul_PHISH</parameter>
+			<parameter>PSurge9ftCumul_PHISH</parameter>
+			<parameter>PSurge10ftCumul_PHISH</parameter>
+			<parameter>PSurge11ftCumul_PHISH</parameter>
+			<parameter>PSurge12ftCumul_PHISH</parameter>
+			<parameter>PSurge13ftCumul_PHISH</parameter>
+			<parameter>PSurge14ftCumul_PHISH</parameter>
+			<parameter>PSurge15ftCumul_PHISH</parameter>
+			<parameter>PSurge16ftCumul_PHISH</parameter>
+			<parameter>PSurge17ftCumul_PHISH</parameter>
+			<parameter>PSurge18ftCumul_PHISH</parameter>
+			<parameter>PSurge19ftCumul_PHISH</parameter>
+			<parameter>PSurge20ftCumul_PHISH</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>%</displayUnits>
+			<displayFlags>NoPlane</displayFlags>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>100</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>5 10 20 30 40 50 60 70 80 90 100</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+    <!-- Aviation data -->
+	<!--
+		* ICNG, ICPRB
+		%  | 100.0 | 0 | 5 | 105 | |,c| 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>ICNG</parameter>
+			<parameter>ICPRB</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>%*100.0</displayUnits>
+			<range scale="LINEAR">
+				<minValue>5</minValue>
+				<maxValue>105</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--  * SIPD
+  | 240 | 0 | 12 | 228 | |,,,p| 101 | 63 |
+-->
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>TIPD</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>%</displayUnits>
+            <range scale="LINEAR">
+                <minValue>-0.1</minValue>
+                <maxValue>100.05</maxValue>
+            </range>
+            <defaultColormap>Grid/gridded data</defaultColormap>
+            <colorbarLabeling>
+                <increment>10</increment>
+            </colorbarLabeling>
+        </imageStyle>
+    </styleRule>
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>ICIP</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits label="%">%/100.0</displayUnits>
+			<range scale="LINEAR">
+				<minValue>5</minValue>
+				<maxValue>105</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>    
+	<!--  * TURB
+  | 200 | 0 | 1| 254 | |,,,p| 99 | 61 |
+-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>TPFI</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+            <displayUnits>*1</displayUnits>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>1</maxValue>
+			</range>
+			<defaultColormap>Grid/clear_air_turb</defaultColormap>
+            <dataMapping>
+            	<entry pixelValue="0.0" operator="&gt;" label="NO DATA" />
+                <entry pixelValue="0.17" operator="&gt;" displayValue='0.170'  label="Light" />
+                <entry pixelValue="0.42" operator="&gt;" displayValue='0.239'  label="Moderate" />
+                <entry pixelValue="0.70" operator="&gt;" displayValue='0.539'  label="Severe" />
+                <entry pixelValue="0.96" operator="&gt;" displayValue='0.959'  label="Extreme" />
+            </dataMapping>
+		</imageStyle>
+	</styleRule>
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>CAT</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+            <displayUnits label=" ">%</displayUnits>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>1</maxValue>
+			</range>
+			<defaultColormap>Grid/clear_air_turb</defaultColormap>
+            <dataMapping>
+                <entry pixelValue="0.0" operator="&gt;" label="NO DATA" />
+                <entry pixelValue="0.17" operator="&gt;" displayValue='0.170'  label="Light" />
+                <entry pixelValue="0.42" operator="&gt;" displayValue='0.239'  label="Moderate" />
+                <entry pixelValue="0.70" operator="&gt;" displayValue='0.539'  label="Severe" />
+                <entry pixelValue="0.96" operator="&gt;" displayValue='0.959'  label="Extreme" />
+            </dataMapping>
+		</imageStyle>
+	</styleRule>
+	<!--  * ICSEV
+  | 50 | 0 | 1 | 254 | |,,,p| 100 | 62 | 
+-->
+	<styleRule>
+		<paramLevelMatches>
+            <parameter>ICI</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<interpolate>false</interpolate>
+			<displayUnits>*1</displayUnits>
+			<range scale="LINEAR">
+                <minValue>0</minValue>
+                <maxValue>5</maxValue>
+			</range>
+			<defaultColormap>Grid/icing_severity</defaultColormap>
+            <dataMapping>
+            	<entry pixelValue="0.0" operator="&gt;" label="NO DATA" />
+                <entry pixelValue="0.9398" operator="&gt;" displayValue='1.00' label="Trace" />
+                <entry pixelValue="2.035" operator="&gt;" displayValue='2.00' label="Light" />
+                <entry pixelValue="2.98" operator="&gt;" displayValue='3.00' label="Moderate" />
+                <entry pixelValue="3.92" operator="&gt;" displayValue='4.00' label="Heavy" />
+            </dataMapping>
+		</imageStyle>
+	</styleRule>
+
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>SLDP</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+        	<interpolate>false</interpolate>
+			<displayUnits label="">%</displayUnits>
+			<range scale="LINEAR">
+                <minValue>0</minValue>
+                <maxValue>1</maxValue>
+			</range>
+			<defaultColormap>Grid/icing_sld</defaultColormap>
+            <dataMapping> 
+            	<entry pixelValue="0.0" operator="&gt;" label="NO DATA" />
+                <entry pixelValue="0.047" operator="&gt;" displayValue='0.10' label="SLD" />
+                <entry pixelValue="0.47" operator="&gt;" displayValue='0.5' label="SLD" />
+                <entry pixelValue="0.894117647" operator="&gt;" displayValue='0.9' label="SLD" />
+            </dataMapping>
+		</imageStyle>
+    </styleRule>
+    <!-- Aviation data -->
+	<!--
+		* PTAM, PPAM, PTAS, PPAS
+		%   | 1.0 | 0.0 | 5 | 70 | |,x| 33 | 8 | 5 10 20 30 40 50 60 70
+	-->
+	<!--
+		* PTBM, PPBM, PTBS, PPBS
+		%   | 1.0 | 0.0 | 5 | 70 | |,x| 33 | 8 | 5 10 20 30 40 50 60 70
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>PTAM</parameter>
+			<parameter>PPAM</parameter>
+			<parameter>PTAS</parameter>
+			<parameter>PPAS</parameter>
+			<parameter>PTBM</parameter>
+			<parameter>PPBM</parameter>
+			<parameter>PTBS</parameter>
+			<parameter>PPBS</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>%</displayUnits>
+			<range scale="LINEAR">
+				<minValue>5</minValue>
+				<maxValue>70</maxValue>
+			</range>
+			<defaultColormap>Grid/warm to cold</defaultColormap>
+			<colorbarLabeling>
+				<values>5 10 20 30 40 50 60 70</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* MCon, BLyr, HiResW-NMM-East, HiResW-NMM-West, HiResW-ARW-East, HiResW-ARW-West, HiResW-NMM-AK, HiResW-NMM-PR, HiResW-NMM-SJU, HiResW-ARW-AK, HiResW-ARW-PR, HiResW-ARW-SJU
+		g/kg/12hr |-43200000| 0 | 0 | 1 | |m| 29 | -1 | 1
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>MCon</parameter>
+			<singleLevel units="BL">
+				<value>30000</value>
+			</singleLevel>
+			<creatingEntity>HiResW-NMM-East</creatingEntity>
+			<creatingEntity>HiResW-NMM-West</creatingEntity>
+			<creatingEntity>HiResW-ARW-East</creatingEntity>
+			<creatingEntity>HiResW-ARW-West</creatingEntity>
+			<creatingEntity>HiResW-NMM-AK</creatingEntity>
+			<creatingEntity>HiResW-NMM-PR</creatingEntity>
+			<creatingEntity>HiResW-NMM-SJU</creatingEntity>
+			<creatingEntity>HiResW-ARW-AK</creatingEntity>
+			<creatingEntity>HiResW-ARW-PR</creatingEntity>
+			<creatingEntity>HiResW-ARW-SJU</creatingEntity>
+                        <creatingEntity>HRRR</creatingEntity>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits label="g/kg/12hr">((g/kg)/(h*12))*-0.001</displayUnits>
+			<range mirror="true" />
+			<defaultColormap>Grid/gridded data</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* snowd3hr, snowd6hr, Surface
+		in | .03937 | 0 | .05 | 50 |x|,c| 29 | 8 | 0.001 0.01 0.1 0.3 1 3 10 30
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>snowd3hr</parameter>
+			<parameter>snowd6hr</parameter>
+			<singleLevel units="SURFACE" />
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>in</displayUnits>
+			<range scale="LOG">
+				<minValue>.05</minValue>
+				<maxValue>50</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<values>0.001 0.01 0.1 0.3 1 3 10 30</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* SPCGuide, PTOR
+		%  | 1.0 | 0 | 1 | 105 | |,c| 29 | 0 | 10
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<creatingEntity>SPCGuide</creatingEntity>
+			<parameter>PTOR</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits>%</displayUnits>
+			<range scale="LINEAR">
+				<minValue>1</minValue>
+				<maxValue>105</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>10</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<!--
+		* RUC, RUC130, RUC236, PR
+		in/hr | 141.732 | 0.0 | 0.005 | 16 |x|,c| 12 | 8 | 0.01 0.25 0.5 1 2 4 8 16
+	-->
+	<styleRule>
+		<paramLevelMatches>
+			<creatingEntity>RUC</creatingEntity>
+			<creatingEntity>RUC130</creatingEntity>
+			<creatingEntity>RUC236</creatingEntity>
+			<parameter>PR</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<!-- filterLow="true" -->
+			<displayUnits label="in/hr">in/h</displayUnits>
+			<range scale="LOG">
+				<minValue>0.005</minValue>
+				<maxValue>16</maxValue>
+			</range>
+			<defaultColormap>Radar/DualPol/Differential Refl</defaultColormap>
+			<colorbarLabeling>
+				<values>0.01 0.25 0.5 1 2 4 8 16</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>RDSP1</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>dBZ</displayUnits>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>255</maxValue>
+			</range>
+			<defaultColormap>Radar/MDL/10 km Radar Coded Message</defaultColormap>
+			<dataMapping>
+				<entry pixelValue='0' displayValue='0' label="" />
+				<entry pixelValue='48' displayValue='15' />
+				<entry pixelValue='96' displayValue='30' />
+				<entry pixelValue='128' displayValue='40' />
+				<entry pixelValue='144' displayValue='45' />
+				<entry pixelValue='160' displayValue='50' />
+				<entry pixelValue='176' displayValue='55' />
+				<entry pixelValue='255' displayValue='79.6875' label="" />
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+
+	
+	<styleRule>
+		<paramLevelMatches>
+			<creatingEntity>NCWF</creatingEntity>
+			<parameter>CWDI</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<defaultColormap>NCWF Convective Grid</defaultColormap>
+			<displayUnits>*1</displayUnits>
+			<range scale="LINEAR">
+			</range>
+			<dataMapping>
+				<entry pixelValue="16" displayValue="0"/>
+				<entry pixelValue="80" displayValue="3.0"/>
+				<entry pixelValue="150" displayValue="4.0"/>
+				<entry pixelValue="200" displayValue="5.0"/>
+				<entry pixelValue="220" displayValue="6.0" label=""/>
+			</dataMapping>
+		</imageStyle>
+	</styleRule> 	
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>FFG0124hr</parameter>
+			<parameter>FFG0324hr</parameter>
+			<parameter>FFG0624hr</parameter>
+			<singleLevel units="SURFACE" />
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>in</displayUnits>
+			<range>
+				<minValue>0.0</minValue>
+ 				<maxValue>16</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>2</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>MSTAV</parameter>
+			<singleLevel units="SURFACE" />
+		</paramLevelMatches>
+		<imageStyle>
+		<defaultColormap>Radar/GSD/Packed (Z - V) - Reflectivity</defaultColormap>
+			<displayUnits>%</displayUnits>
+			<range scale="LINEAR">
+			</range>
+			<dataMapping>
+				<!--
+				<entry pixelValue="0" displayValue="50" label="NO DATA" />
+				-->
+				<entry pixelValue="48" displayValue="100" label="Cld" />
+				<entry pixelValue="96" displayValue="250" label="Snw"/>
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>sce</parameter>
+			<singleLevel units="SURFACE" />
+		</paramLevelMatches>
+		<imageStyle>
+		<defaultColormap>Grid/gridded data</defaultColormap>
+			<displayUnits>kft</displayUnits>
+			<range scale="LINEAR">
+			</range>
+			<dataMapping>
+				<entry pixelValue="16" displayValue="0" />
+				<entry pixelValue="70" displayValue="5" />
+				<entry pixelValue="124" displayValue="10" />
+				<entry pixelValue="178" displayValue="15" />
+				<entry pixelValue="240" label="Cld"/>
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>swe</parameter>
+			<singleLevel units="SURFACE" />
+		</paramLevelMatches>
+		<imageStyle>
+		<defaultColormap>Grid/truncated warm to cold</defaultColormap>
+			<displayUnits>in</displayUnits>
+			<range scale="LINEAR">
+			</range>
+			<dataMapping>
+				<!--
+				<entry pixelValue="0" displayValue="-1.463" label=""/>
+				-->
+				<entry pixelValue="16" displayValue="0" />
+				<entry pixelValue="38" displayValue="2" />
+				<entry pixelValue="60" displayValue="4" />
+				<entry pixelValue="82" displayValue="6" />
+				<entry pixelValue="104" displayValue="8" />
+				<entry pixelValue="125" displayValue="10" />
+				<entry pixelValue="140" displayValue="20" />
+				<entry pixelValue="165" displayValue="40" />
+				<entry pixelValue="190" displayValue="60" />
+				<entry pixelValue="215" displayValue="80" />
+				<entry pixelValue="240" displayValue="100" />
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+	
+	<styleRule>
+        <paramLevelMatches>
+            <singleLevel units="SURFACE" />
+            <parameter>tpHPC</parameter>
+            <creatingEntity>HPCqpf</creatingEntity>
+        </paramLevelMatches>
+        <imageStyle>
+            <defaultColormap>Grid/gridded data</defaultColormap>
+            <displayUnits>in</displayUnits>
+            <range scale="LOG">
+                <minValue>0.005</minValue>
+                <maxValue>12</maxValue>
+            </range>
+            <colorbarLabeling>
+                <values>0.01 0.03 0.1 0.3 1.0 3.0 10.0</values>
+            </colorbarLabeling>
+        </imageStyle>
+    </styleRule>
+	
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>tpHPC</parameter>
+			<creatingEntity>RFCqpf</creatingEntity>
+			<singleLevel units="SURFACE" />
+		</paramLevelMatches>
+		<imageStyle>
+		<defaultColormap>Grid/gridded data</defaultColormap>
+			<displayUnits>in</displayUnits>
+			<range scale="LINEAR">
+			</range>
+			<dataMapping>
+				<entry pixelValue="1" displayValue="0.0" />
+				<entry pixelValue="201" displayValue="1.574" />
+				<entry pixelValue="253" displayValue="19.68" />
+			</dataMapping>
+			<colorbarLabeling>
+				<values>0.25 0.5 0.75 1.0 1.25 5 10 15</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	
+	<styleRule>
+		<paramLevelMatches>
+			<singleLevel units="SURFACE" />
+			<parameter>TP6hr</parameter>
+			<creatingEntity>RFCqpf</creatingEntity>
+			<creatingEntity>QPF-ACR</creatingEntity>
+			<creatingEntity>QPF-ALR</creatingEntity>
+			<creatingEntity>QPF-FWR</creatingEntity>
+			<creatingEntity>QPF-KRF</creatingEntity>
+			<creatingEntity>QPF-MSR</creatingEntity>
+			<creatingEntity>QPF-ORN</creatingEntity>
+			<creatingEntity>QPF-PTR</creatingEntity>
+			<creatingEntity>QPF-RHA</creatingEntity>
+			<creatingEntity>QPF-RSA</creatingEntity>
+			<creatingEntity>QPF-STR</creatingEntity>
+			<creatingEntity>QPF-TAR</creatingEntity>
+			<creatingEntity>QPF-TIR</creatingEntity>
+		</paramLevelMatches>
+		<imageStyle>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<displayUnits>in</displayUnits>
+			<range scale="LOG">
+				<minValue>0.005</minValue>
+				<maxValue>12</maxValue>
+			</range>
+			<colorbarLabeling>
+				<values>0.01 0.03 0.1 0.3 1.0 3.0 10.0</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>PQPF23hr</parameter>
+			<parameter>PQPF33hr</parameter>
+			<parameter>PQPF43hr</parameter>
+			<parameter>PQPF53hr</parameter>
+			<parameter>PQPF63hr</parameter>
+			<parameter>PVORT3hr</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<defaultColormap>Radar/MDL/0-3Hr Radar-Based Probabilities</defaultColormap>
+			<displayUnits>%</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-2</minValue>
+				<maxValue>125.5</maxValue>
+			</range>
+			<colorbarLabeling>
+				<values>0.0 20.0 40.0 60.0 80.0</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>SCQP3hr</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>5</maxValue>
+			</range>
+			<defaultColormap>Radar/MDL/0-3Hr Radar-Based Categorical</defaultColormap>
+			<displayUnits>in</displayUnits>
+			<colorbarLabeling>
+				<values>0.10 0.50 1.00 2.00</values>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>KI</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>C</displayUnits>
+		</imageStyle>
+	</styleRule>
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>CC</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <range scale="LINEAR">
+                <minValue>-328</minValue>
+                <maxValue>12000</maxValue>
+            </range>
+            <displayUnits>ft</displayUnits>
+            <interpolate>false</interpolate>
+            <defaultColormap>Grid/warm to cold</defaultColormap>
+            <dataMapping>
+                <entry pixelValue="0.0" operator="&lt;" label="NONE" />
+                <entry pixelValue="30" operator="&gt;" displayValue='100.0' label="100" />
+                <entry pixelValue="70" operator="&gt;" displayValue='200.0' label="200" />
+                <entry pixelValue="150" operator="&gt;" displayValue='5000.0' label="5000" />
+                <entry pixelValue="222" operator="&gt;" displayValue='11999.0' label="12k" />
+            </dataMapping>
+        </imageStyle>
+    </styleRule>
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>PTvA</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>K/hPa/s*1.0E-5</displayUnits>
+        </imageStyle>
+    </styleRule>
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>Mmag</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits label="gm/kgs">g*m/(kg*s)</displayUnits>
+        </imageStyle>
+    </styleRule>
+    <!-- <sourceTag>HIRESW -->
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>PVV</parameter>
+            <creatingEntity>HiResW-NMM-East</creatingEntity>
+            <creatingEntity>HiResW-NMM-West</creatingEntity>
+            <creatingEntity>HiResW-ARW-East</creatingEntity>
+            <creatingEntity>HiResW-ARW-West</creatingEntity>
+            <creatingEntity>HiResW-NMM-AK</creatingEntity>
+            <creatingEntity>HiResW-NMM-PR</creatingEntity>
+            <creatingEntity>HiResW-NMM-SJU</creatingEntity>
+            <creatingEntity>HiResW-ARW-AK</creatingEntity>
+            <creatingEntity>HiResW-ARW-PR</creatingEntity>
+            <creatingEntity>HiResW-ARW-SJU</creatingEntity>
+            <creatingEntity>HRRR</creatingEntity>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits label="-ubar/s">(Pa/s)*-0.1</displayUnits>
+            <range scale="LOG" mirror="true">
+                <minValue>10</minValue>
+                <maxValue>350</maxValue>
+            </range>
+            <defaultColormap>Grid/gridded data</defaultColormap>
+            <colorbarLabeling>
+                <values>0 10 25 50 100 200 300</values>
+            </colorbarLabeling>
+        </imageStyle>
+    </styleRule>
+    <styleRule>
+        <paramLevelMatches>
+            <creatingEntity>HiResW-NMM-East</creatingEntity>
+            <creatingEntity>HiResW-NMM-West</creatingEntity>
+            <creatingEntity>HiResW-ARW-East</creatingEntity>
+            <creatingEntity>HiResW-ARW-West</creatingEntity>
+            <creatingEntity>HiResW-NMM-AK</creatingEntity>
+            <creatingEntity>HiResW-NMM-PR</creatingEntity>
+            <creatingEntity>HiResW-NMM-SJU</creatingEntity>
+            <creatingEntity>HiResW-ARW-AK</creatingEntity>
+            <creatingEntity>HiResW-ARW-PR</creatingEntity>
+            <creatingEntity>HiResW-ARW-SJU</creatingEntity>
+            <creatingEntity>HRRR</creatingEntity>
+            <parameter>AV</parameter>
+            <parameter>Tdef</parameter>
+            <parameter>geoVort</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits label="/1e5s">/s*1.0E5</displayUnits>
+            <range scale="LOG" mirror="true">
+                <minValue>5</minValue>
+                <maxValue>300</maxValue>
+            </range>
+            <defaultColormap>Grid/Vorticity</defaultColormap>
+            <colorbarLabeling>
+                <increment>10</increment>
+            </colorbarLabeling>
+        </imageStyle>
+    </styleRule>
+    <!-- </sourceTag>HIRESW -->
+    <!-- <sourceTag>ER-sportsst -->
+    <styleRule>
+        <paramLevelMatches>
+            <creatingEntity>ER-SPORT-SST</creatingEntity>
+            <parameter>T</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <interpolate>false</interpolate>
+            <displayUnits>F</displayUnits>
+            <range scale="LINEAR">
+                <minValue>25</minValue>
+                <maxValue>100</maxValue>
+            </range>
+            <defaultColormap>Grid/gridded data</defaultColormap>
+            <colorbarLabeling>
+                <values>32 40 50 60 70 80 90</values>
+            </colorbarLabeling>
+        </imageStyle>
+    </styleRule>
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>LATE</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <range scale="LINEAR">
+                <minValue>0</minValue>
+                <maxValue>17</maxValue>
+            </range>
+            <defaultColormap>Grid/gridded data</defaultColormap>
+            <colorbarLabeling>
+                <values>1 3 5 7 9 11 13 15 17</values>
+            </colorbarLabeling>
+        </imageStyle>
+    </styleRule>
+<!-- </sourceTag>ER-sportsst -->
+	<styleRule>
+        <paramLevelMatches>
+            <parameter>TEMPWTR</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>C</displayUnits>
+        </imageStyle>
+    </styleRule>
+
+ <styleRule>
+    <paramLevelMatches>
+      <parameter>zAGL</parameter>
+      <parameter>GH</parameter>
+      <singleLevel units="FRZ" />
+      <singleLevel units="TW0" />
+      <singleLevel units="WBZ" />      
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>ft</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>20000</maxValue>
+      </range>
+      <defaultColormap>Grid/gridded data</defaultColormap>
+      <colorbarLabeling>
+        <increment>5000</increment>
+      </colorbarLabeling>
+    </imageStyle>
+ </styleRule>
+ <!-- MRMS Echo Top Products-->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>EchoTop18</parameter>
+		<parameter>EchoTop30</parameter>
+		<parameter>EchoTop50</parameter>
+		<parameter>EchoTop60</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits>kft</displayUnits>
+		<range scale="LINEAR">
+			<minValue>0</minValue>
+			<maxValue>70</maxValue>
+		</range>
+		<defaultColormap>mrms/mrmsEchoTops</defaultColormap>
+		<dataMapping>
+			<entry pixelValue="0" operator="&lt;" label="" />
+			<entry pixelValue="0.0015" operator="&gt;" displayValue='0.005' />
+			<entry pixelValue="3.048" operator="&gt;" displayValue='10' />
+			<entry pixelValue="6.095" operator="&gt;" displayValue='20' />
+			<entry pixelValue="9.144" operator="&gt;" displayValue='30' />
+			<entry pixelValue="12.191" operator="&gt;" displayValue='40' />
+			<entry pixelValue="15.239" operator="&gt;" displayValue='50' />
+			<entry pixelValue="18.287" operator="&gt;" displayValue='60' />
+			<entry pixelValue="21.335" operator="&gt;" displayValue='70' />
+			<entry pixelValue="60.96" operator="&gt;" displayValue='200' />
+		</dataMapping>	
+	</imageStyle>
+ </styleRule>
+ <!-- MRMS Composite Reflectivity Height -->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>HeightCompositeReflectivity</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits>kft</displayUnits>
+		<range scale="LINEAR">
+			<minValue>0</minValue>
+			<maxValue>70</maxValue>
+		</range>
+		<defaultColormap>mrms/mrmsEchoTops</defaultColormap>
+		<dataMapping>
+			<entry pixelValue="0" operator="&lt;" label="" />
+			<entry pixelValue="1.5" operator="&gt;" displayValue='0.005' />
+			<entry pixelValue="3048" operator="&gt;" displayValue='10' />
+			<entry pixelValue="6095" operator="&gt;" displayValue='20' />
+			<entry pixelValue="9144" operator="&gt;" displayValue='30' />
+			<entry pixelValue="12191" operator="&gt;" displayValue='40' />
+			<entry pixelValue="15239" operator="&gt;" displayValue='50' />
+			<entry pixelValue="18287" operator="&gt;" displayValue='60' />
+			<entry pixelValue="21033.5" operator="&gt;" displayValue='70' />
+			<entry pixelValue="60960" operator="&gt;" displayValue='200' />
+		</dataMapping>
+	</imageStyle>
+ </styleRule>
+ <!-- MRMS Thickness Products -->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>H50AboveM20C</parameter>
+		<parameter>H60AboveM20C</parameter>
+		<parameter>H50Above0C</parameter>
+		<parameter>H60Above0C</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits>kft</displayUnits>
+		<range scale="LINEAR">
+			<minValue>-20</minValue>
+			<maxValue>35</maxValue>
+		</range>
+		<defaultColormap>mrms/mrmsThickness</defaultColormap>
+		<dataMapping>
+			<entry pixelValue="-6.095" operator="&lt;" displayValue='-20' />
+			<entry pixelValue="-4.572" operator="&lt;" displayValue='-15' />
+			<entry pixelValue="-3.048" operator="&lt;" displayValue='-10' />
+			<entry pixelValue="-1.524" operator="&lt;" displayValue='-5' />
+			<entry pixelValue="0" operator="&gt;" displayValue='0'/>
+			<entry pixelValue="1.524" operator="&gt;" displayValue='5' />
+			<entry pixelValue="3.048" operator="&gt;" displayValue='10' />
+			<entry pixelValue="4.572" operator="&gt;" displayValue='15' />
+			<entry pixelValue="6.095" operator="&gt;" displayValue='20' />
+			<entry pixelValue="7.620" operator="&gt;" displayValue='25' />
+			<entry pixelValue="9.144" operator="&gt;" displayValue='30' />
+			<entry pixelValue="10.667" operator="&gt;" displayValue='35' />
+			<entry pixelValue="30.175" operator="&gt;" displayValue='99' />
+		</dataMapping>
+	</imageStyle>
+ </styleRule>
+ <!-- MRMS CG Lightning Density-->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>LightningDensity1min</parameter>
+		<parameter>LightningDensity5min</parameter>
+		<parameter>LightningDensity15min</parameter>
+		<parameter>LightningDensity30min</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits label=" flashes/min*km^2">*1</displayUnits>
+		<range scale="LINEAR">
+			<minValue>-0.19</minValue>
+			<maxValue>50</maxValue>
+		</range>
+		<defaultColormap>mrms/mrmsLightning</defaultColormap>
+		<dataMapping>
+			<entry pixelValue="-0.19" operator="&lt;" label="" />
+			<entry pixelValue="0" operator="&gt;" displayValue='0' />
+			<entry pixelValue="0.001" operator="&gt;" displayValue='0.001' />
+			<entry pixelValue="0.10" operator="&gt;" displayValue='0.10' />
+			<entry pixelValue="0.25" operator="&gt;" displayValue='0.25' />
+			<entry pixelValue="0.50" operator="&gt;" displayValue='0.50' />
+			<entry pixelValue="1" operator="&gt;" displayValue='1' />
+			<entry pixelValue="2" operator="&gt;" displayValue='2' />
+			<entry pixelValue="5" operator="&gt;" displayValue='5' />
+			<entry pixelValue="10" operator="&gt;" displayValue='10' />
+			<entry pixelValue="15" operator="&gt;" displayValue='15' />
+			<entry pixelValue="20" operator="&gt;" displayValue='20' />
+			<entry pixelValue="25" operator="&gt;" displayValue='25' />
+			<entry pixelValue="30" operator="&gt;" displayValue='30' />
+			<entry pixelValue="35" operator="&gt;" displayValue='35' />
+			<entry pixelValue="40" operator="&gt;" displayValue='40' />
+			<entry pixelValue="45" operator="&gt;" displayValue='45' />
+			<entry pixelValue="50" operator="&gt;" displayValue='50' />
+			<entry pixelValue="999" operator="&gt;" displayValue='999' />
+		</dataMapping>
+	</imageStyle>
+ </styleRule>
+ <!-- MRMS Lightning Probability-->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>LightningProbabilityNext30min</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits>%</displayUnits>
+		<range scale="LINEAR">
+			<minValue>0</minValue>
+			<maxValue>100</maxValue>
+		</range>
+		<defaultColormap>mrms/mrmsPOSH</defaultColormap>
+		<dataMapping>
+			<entry pixelValue="0" operator="&lt;" displayValue='0' label="" />
+			<entry pixelValue="10" operator="&gt;" displayValue='10' />
+			<entry pixelValue="20" operator="&gt;" displayValue='20' />
+			<entry pixelValue="30" operator="&gt;" displayValue='30' />
+			<entry pixelValue="40" operator="&gt;" displayValue='40' />
+			<entry pixelValue="50" operator="&gt;" displayValue='50' />
+			<entry pixelValue="60" operator="&gt;" displayValue='60' />
+			<entry pixelValue="70" operator="&gt;" displayValue='70' />
+			<entry pixelValue="80" operator="&gt;" displayValue='80' />
+			<entry pixelValue="90" operator="&gt;" displayValue='90' />
+			<entry pixelValue="100" operator="&gt;" displayValue='100' />
+		</dataMapping>	 		
+	</imageStyle>
+ </styleRule>
+ <!-- MRMS MESH Products -->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>MESH</parameter>
+		<parameter>MESHTrack30min</parameter>
+		<parameter>MESHTrack60min</parameter>
+		<parameter>MESHTrack120min</parameter>
+		<parameter>MESHTrack240min</parameter>
+		<parameter>MESHTrack360min</parameter>
+		<parameter>MESHTrack1440min</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits>in</displayUnits>
+		<range scale="LINEAR">
+			<minValue>0</minValue>
+			<maxValue>4.0</maxValue>
+		</range>
+		<defaultColormap>mrms/mrmsHail</defaultColormap>
+		<dataMapping>
+			<entry pixelValue="0" operator="&lt;" label="" />
+			<entry pixelValue="0.126" operator="&gt;" displayValue='0.005'/>
+			<entry pixelValue="12.690" operator="&gt;" displayValue='0.5' />
+			<entry pixelValue="25.381" operator="&gt;" displayValue='1.0' />
+			<entry pixelValue="38.071" operator="&gt;" displayValue='1.5' />
+			<entry pixelValue="50.761" operator="&gt;" displayValue='2.0' />
+			<entry pixelValue="63.452" operator="&gt;" displayValue='2.5' />
+			<entry pixelValue="76.142" operator="&gt;" displayValue='3.0' />
+			<entry pixelValue="88.832" operator="&gt;" displayValue='3.5' />
+			<entry pixelValue="101.523" operator="&gt;" displayValue='4.0' />
+			<entry pixelValue="228.601" operator="&gt;" displayValue='9.0' />
+		</dataMapping>		
+	</imageStyle>
+ </styleRule>
+ <!-- MRMS Shear & Rotation Tracks Products -->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>MergedAzShear02kmAGL</parameter>
+		<parameter>MergedAzShear36kmAGL</parameter>
+		<parameter>RotationTrackLL30min</parameter>
+		<parameter>RotationTrackLL60min</parameter>
+		<parameter>RotationTrackLL120min</parameter>
+		<parameter>RotationTrackLL240min</parameter>
+		<parameter>RotationTrackLL360min</parameter>
+		<parameter>RotationTrackLL1440min</parameter>
+		<parameter>RotationTrackML30min</parameter>
+		<parameter>RotationTrackML60min</parameter>
+		<parameter>RotationTrackML120min</parameter>
+		<parameter>RotationTrackML240min</parameter>
+		<parameter>RotationTrackML360min</parameter>
+		<parameter>RotationTrackML1440min</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits label="s^-1">*1000</displayUnits>
+		<samplePrefs>
+			<formatString>3</formatString>
+		</samplePrefs>
+		<range scale="LINEAR">
+			<minValue>0</minValue>
+			<maxValue>0.025</maxValue>
+		</range>
+		<defaultColormap>mrms/mrmsRotation</defaultColormap>
+		<dataMapping>
+			<entry pixelValue="0" operator="&lt;" label="" />
+			<entry pixelValue="1" operator="&gt;" displayValue='0.001' />
+			<entry pixelValue="2" operator="&gt;" displayValue='0.002' />
+			<entry pixelValue="4" operator="&gt;" displayValue='0.004' />
+			<entry pixelValue="6" operator="&gt;" displayValue='0.006' />
+			<entry pixelValue="8" operator="&gt;" displayValue='0.008' />
+			<entry pixelValue="10" operator="&gt;" displayValue='0.010' />
+			<entry pixelValue="12" operator="&gt;" displayValue='0.012' />
+			<entry pixelValue="14" operator="&gt;" displayValue='0.014' />
+			<entry pixelValue="16" operator="&gt;" displayValue='0.016' />
+			<entry pixelValue="18" operator="&gt;" displayValue='0.018' />
+			<entry pixelValue="20" operator="&gt;" displayValue='0.020' />
+			<entry pixelValue="22" operator="&gt;" displayValue='0.022' />
+			<entry pixelValue="24" operator="&gt;" displayValue='0.024' />
+			<entry pixelValue="99" operator="&gt;" displayValue='0.099' />
+		</dataMapping>
+	</imageStyle>
+ </styleRule>
+ <!-- MRMS Precipitation Type -->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>PrecipType</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits>*1</displayUnits>
+		<range scale="LINEAR">
+			<minValue>0</minValue>
+			<maxValue>100</maxValue>
+		</range>
+		<defaultColormap>mrms/mrmsPrecipType</defaultColormap>
+		<dataMapping>
+			<entry pixelValue="0.00" operator="&lt;" label="No Data" />
+			<entry pixelValue="1.00" operator="=" displayValue='1.00' label="Warm Stratiform" />
+			<entry pixelValue="3.00" operator="=" displayValue='3.00' label="Snow" />
+			<entry pixelValue="6.00" operator="=" displayValue='6.00' label="Convective" />
+			<entry pixelValue="7.00" operator="=" displayValue='7.00' label="Hail" />
+			<entry pixelValue="10.00" operator="=" displayValue='10.00' label="Cold Stratiform" />
+			<entry pixelValue="91.00" operator="=" displayValue='91.00' label="Tropical Stratiform" />
+			<entry pixelValue="96.00" operator="=" displayValue='96.00' label="Tropical Convection" />
+           </dataMapping>
+	</imageStyle>
+ </styleRule>
+ <!-- MRMS Precipitation Rate -->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>PrecipRate</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits label= "in/hr">in/h</displayUnits>
+		<range scale="LINEAR">
+			<minValue>-0.05</minValue>
+			<maxValue>12.0</maxValue>
+		</range>
+		
+		<defaultColormap>mrms/mrmsSPRDP</defaultColormap>
+		<dataMapping>
+			<entry pixelValue="-1" operator="&lt;" label="" />
+			<entry pixelValue="1" operator="&gt;" displayValue='0.01' />
+			<entry pixelValue="30" operator="&gt;" displayValue='1' />
+			<entry pixelValue="60" operator="&gt;" displayValue='2' />
+			<entry pixelValue="90" operator="&gt;" displayValue='3' />
+			<entry pixelValue="120" operator="&gt;" displayValue='4' />
+			<entry pixelValue="150" operator="&gt;" displayValue='5' />
+			<entry pixelValue="180" operator="&gt;" displayValue='6' />
+			<entry pixelValue="210" operator="&gt;" displayValue='7' />
+			<entry pixelValue="240" operator="&gt;" displayValue='8' />
+			<entry pixelValue="304.568" operator="&gt;" displayValue='12' />
+			<entry pixelValue="305.568" operator="&gt;" displayValue='99' />
+		</dataMapping>
+	</imageStyle>
+ </styleRule>
+ <!-- MRMS RQI-->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>RadarQualityIndex</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits label="">*1</displayUnits>
+		<range scale="LINEAR">
+			<minValue>0</minValue>
+			<maxValue>1</maxValue>
+		</range>
+		<defaultColormap>mrms/mrmsRQI</defaultColormap>
+		<dataMapping>
+			<entry pixelValue="0" operator="&lt;" displayValue='0' label="" />
+			<entry pixelValue="0.1" operator="&gt;" displayValue='0.1' />
+			<entry pixelValue="0.2" operator="&gt;" displayValue='0.2' />
+			<entry pixelValue="0.3" operator="&gt;" displayValue='0.3' />
+			<entry pixelValue="0.4" operator="&gt;" displayValue='0.4' />
+			<entry pixelValue="0.5" operator="&gt;" displayValue='0.5' />
+			<entry pixelValue="0.6" operator="&gt;" displayValue='0.6' />
+			<entry pixelValue="0.7" operator="&gt;" displayValue='0.7' />
+			<entry pixelValue="0.8" operator="&gt;" displayValue='0.8' />
+			<entry pixelValue="0.9" operator="&gt;" displayValue='0.9' />
+			<entry pixelValue="1.0" operator="&gt;" displayValue='1.0' />
+		</dataMapping>	
+	</imageStyle>
+ </styleRule>
+ <!-- MRMS Reflectivity Products -->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>CONUSMergedReflectivity</parameter>
+		<parameter>CONUSPlusMergedReflectivity</parameter>
+		<parameter>MergedReflectivityQCComposite</parameter>
+		<parameter>MergedReflectivityQC</parameter>
+		<parameter>Reflectivity0C</parameter>
+		<parameter>ReflectivityM5C</parameter>
+		<parameter>ReflectivityM10C</parameter>
+		<parameter>ReflectivityM15C</parameter>
+		<parameter>ReflectivityM20C</parameter>
+		<parameter>ReflectivityAtLowestAltitude</parameter>
+		<parameter>SeamlessHSR</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits label="dBZ">*1</displayUnits>
+		<range scale="LINEAR">
+			<minValue>-34</minValue>
+			<maxValue>82</maxValue>
+		</range>
+		<defaultColormap>mrms/mrmsReflectivity</defaultColormap>
+		<dataMapping>
+			<entry pixelValue="-20" operator="&gt;" displayValue='-20' />
+			<entry pixelValue="-10" operator="&gt;" displayValue='-10' />
+			<entry pixelValue="0" operator="&gt;" displayValue='0' />
+			<entry pixelValue="10" operator="&gt;" displayValue='10' />
+			<entry pixelValue="20" operator="&gt;" displayValue='20' />
+			<entry pixelValue="30" operator="&gt;" displayValue='30' />
+			<entry pixelValue="40" operator="&gt;" displayValue='40' />
+			<entry pixelValue="50" operator="&gt;" displayValue='50' />
+			<entry pixelValue="60" operator="&gt;" displayValue='60' />
+			<entry pixelValue="70" operator="&gt;" displayValue='70' />
+			<entry pixelValue="80" operator="&gt;" displayValue='80' />
+			<entry pixelValue="90" operator="&gt;" displayValue='90' />
+		</dataMapping>	 		
+	</imageStyle>
+ </styleRule>
+ <!-- MRMS QPE Products -->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>RadarOnlyQPE01H</parameter>
+		<parameter>RadarOnlyQPE03H</parameter>
+		<parameter>RadarOnlyQPE06H</parameter>
+		<parameter>RadarOnlyQPE12H</parameter>
+		<parameter>RadarOnlyQPE24H</parameter>
+		<parameter>RadarOnlyQPE48H</parameter>
+		<parameter>RadarOnlyQPE72H</parameter>
+		<parameter>GaugeCorrQPE01H</parameter>
+		<parameter>GaugeCorrQPE03H</parameter>
+		<parameter>GaugeCorrQPE06H</parameter>
+		<parameter>GaugeCorrQPE12H</parameter>
+		<parameter>GaugeCorrQPE24H</parameter>
+		<parameter>GaugeCorrQPE48H</parameter>
+		<parameter>GaugeCorrQPE72H</parameter>
+		<parameter>GaugeOnlyQPE01H</parameter>
+		<parameter>GaugeOnlyQPE03H</parameter>
+		<parameter>GaugeOnlyQPE06H</parameter>
+		<parameter>GaugeOnlyQPE12H</parameter>
+		<parameter>GaugeOnlyQPE24H</parameter>
+		<parameter>GaugeOnlyQPE48H</parameter>
+		<parameter>GaugeOnlyQPE72H</parameter>
+		<parameter>MountainMapperQPE01H</parameter>
+		<parameter>MountainMapperQPE03H</parameter>
+		<parameter>MountainMapperQPE06H</parameter>
+		<parameter>MountainMapperQPE12H</parameter>
+		<parameter>MountainMapperQPE24H</parameter>
+		<parameter>MountainMapperQPE48H</parameter>
+		<parameter>MountainMapperQPE72H</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits>in</displayUnits>
+		<range scale="LINEAR">
+			<minValue>-0.05</minValue>
+			<maxValue>12.0</maxValue>
+		</range>
+		<defaultColormap>mrms/mrmsQPEDP</defaultColormap> 
+		<dataMapping>
+			<entry pixelValue="0" operator="&lt;" label="" />
+			<entry pixelValue="18.75" operator="&gt;" displayValue='0' />
+			<entry pixelValue="37.5" operator="&gt;" displayValue='0.1' />
+			<entry pixelValue="56.25" operator="&gt;" displayValue='0.25' />
+			<entry pixelValue="75" operator="&gt;" displayValue='0.5' />
+			<entry pixelValue="93.75" operator="&gt;" displayValue='0.75' />
+			<entry pixelValue="112.5" operator="&gt;" displayValue='1' />
+			<entry pixelValue="132.25" operator="&gt;" displayValue='1.25' />
+			<entry pixelValue="151" operator="&gt;" displayValue='1.50' />
+			<entry pixelValue="170.75" operator="&gt;" displayValue='1.75' />
+			<entry pixelValue="191.5" operator="&gt;" displayValue='2' />
+			<entry pixelValue="208.25" operator="&gt;" displayValue='2.5' />
+			<entry pixelValue="228" operator="&gt;" displayValue='3' />
+			<entry pixelValue="246.75" operator="&gt;" displayValue='4' />
+			<entry pixelValue="268.5" operator="&gt;" displayValue='6' />
+			<entry pixelValue="288.25" operator="&gt;" displayValue='8' />
+			<entry pixelValue="304.57" operator="&gt;" displayValue='12' />
+			<entry pixelValue="305.57" operator="&gt;" displayValue='99' />
+		</dataMapping>
+	</imageStyle>
+ </styleRule>
+ <!-- MRMS POSH -->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>POSH</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits>%</displayUnits>
+		<range scale="LINEAR">
+			<minValue>0</minValue>
+			<maxValue>100</maxValue>
+		</range>
+		<defaultColormap>mrms/mrmsPOSH</defaultColormap>
+		<dataMapping>
+			<entry pixelValue="0" operator="&lt;" displayValue='0' label="" />
+			<entry pixelValue="10" operator="&gt;" displayValue='10' />
+			<entry pixelValue="20" operator="&gt;" displayValue='20' />
+			<entry pixelValue="30" operator="&gt;" displayValue='30' />
+			<entry pixelValue="40" operator="&gt;" displayValue='40' />
+			<entry pixelValue="50" operator="&gt;" displayValue='50' />
+			<entry pixelValue="60" operator="&gt;" displayValue='60' />
+			<entry pixelValue="70" operator="&gt;" displayValue='70' />
+			<entry pixelValue="80" operator="&gt;" displayValue='80' />
+			<entry pixelValue="90" operator="&gt;" displayValue='90' />
+			<entry pixelValue="100" operator="&gt;" displayValue='100' />
+		</dataMapping>		
+	</imageStyle>
+ </styleRule>
+ <!-- MRMS SHI -->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>SHI</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits label="">*1</displayUnits>
+		<range scale="LINEAR">
+			<minValue>-1</minValue>
+			<maxValue>450</maxValue>
+		</range>
+		<defaultColormap>mrms/mrmsSHI</defaultColormap>
+		<dataMapping>
+			<entry pixelValue="-1.00" operator="=" label="" />
+			<entry pixelValue="0" operator="&gt;" displayValue='0' />
+			<entry pixelValue="30" operator="&gt;" displayValue='30' />
+			<entry pixelValue="60" operator="&gt;" displayValue='60' />
+			<entry pixelValue="90" operator="&gt;" displayValue='90' />
+			<entry pixelValue="120" operator="&gt;" displayValue='120' />
+			<entry pixelValue="150" operator="&gt;" displayValue='150' />
+			<entry pixelValue="180" operator="&gt;" displayValue='180' />
+			<entry pixelValue="210" operator="&gt;" displayValue='210' />
+			<entry pixelValue="240" operator="&gt;" displayValue='240' />
+			<entry pixelValue="270" operator="&gt;" displayValue='270' />
+			<entry pixelValue="300" operator="&gt;" displayValue='300' />
+			<entry pixelValue="330" operator="&gt;" displayValue='330' />
+			<entry pixelValue="360" operator="&gt;" displayValue='360' />
+			<entry pixelValue="390" operator="&gt;" displayValue='390' />
+			<entry pixelValue="420" operator="&gt;" displayValue='420' />
+			<entry pixelValue="450" operator="&gt;" displayValue='450' />
+			<entry pixelValue="999" operator="&gt;" displayValue='999' />
+		</dataMapping>
+	</imageStyle>
+ </styleRule>
+ <!-- MRMS VII -->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>VII</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits>kg*m^-2</displayUnits>
+		<range scale="LINEAR">
+			<minValue>-1</minValue>
+			<maxValue>40</maxValue>
+		</range>
+		<defaultColormap>mrms/mrmsVII</defaultColormap>
+		<dataMapping>
+			<entry pixelValue="-1.00" operator="&lt;" label="" />
+			<entry pixelValue="0" operator="&gt;" displayValue='0' />
+			<entry pixelValue="3.33" operator="&gt;" displayValue='3.33' />
+			<entry pixelValue="6.53" operator="&gt;" displayValue='6.53' />
+			<entry pixelValue="9.33" operator="&gt;" displayValue='9.33' />
+			<entry pixelValue="12.13" operator="&gt;" displayValue='12.13' />
+			<entry pixelValue="17" operator="&gt;" displayValue='17' />
+			<entry pixelValue="25" operator="&gt;" displayValue='25' />
+			<entry pixelValue="40" operator="&gt;" displayValue='40' />
+			<entry pixelValue="99" operator="&gt;" displayValue='99' />
+		</dataMapping>
+	</imageStyle>
+ </styleRule>
+ <!-- MRMS VIL -->
+ <styleRule>
+	<paramLevelMatches>
+		<parameter>MRMSVIL</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<interpolate>false</interpolate>
+		<displayUnits>kg*m^-2</displayUnits>
+		<range scale="LINEAR">
+			<minValue>-34.00</minValue>
+			<maxValue>82.00</maxValue>
+		</range>
+		<defaultColormap>mrms/mrmsVIL</defaultColormap>
+		<dataMapping>
+			<entry pixelValue="-34.00" operator="&gt;" label="" />
+			<entry pixelValue="0" operator="&gt;" displayValue='0' />
+			<entry pixelValue="10" operator="&gt;" displayValue='10' />
+			<entry pixelValue="20" operator="&gt;" displayValue='20' />
+			<entry pixelValue="30" operator="&gt;" displayValue='30' />
+			<entry pixelValue="40" operator="&gt;" displayValue='40' />
+			<entry pixelValue="50" operator="&gt;" displayValue='50' />
+			<entry pixelValue="60" operator="&gt;" displayValue='60' />
+			<entry pixelValue="70" operator="&gt;" displayValue='70' />
+			<entry pixelValue="80" operator="&gt;" displayValue='80' />
+			<entry pixelValue="90" operator="&gt;" displayValue='90' />
+			<entry pixelValue="200" operator="&gt;" displayValue='200' />
+		</dataMapping>
+	</imageStyle>
+ </styleRule>
+ <styleRule>
+    <paramLevelMatches>
+      <parameter>OGRD</parameter>
+      <parameter>BARO</parameter>
+      <parameter>SPBARO</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>cm/sec</displayUnits>
+    </imageStyle>
+  </styleRule>
+  <styleRule>
+    <paramLevelMatches>
+      <parameter>SPC</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>m/s</displayUnits>
+    </imageStyle>
+  </styleRule>
+<!--   15.1 additions below -->
+   <styleRule>
+    <paramLevelMatches>
+      <parameter>50dbzZ</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits label="ft">ft</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>50000</maxValue>
+      </range>
+      <defaultColormap>Grid/gridded data</defaultColormap>
+      <colorbarLabeling>
+        <increment>10000</increment>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+   <styleRule>
+    <paramLevelMatches>
+      <parameter>RRtype</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits label=" ">dB</displayUnits>
+      <range>
+        <minValue>0</minValue>
+        <maxValue>321</maxValue>
+      </range>
+      <defaultColormap>Grid/Reflectivity PType</defaultColormap>
+      <interpolate>false</interpolate>
+	   <dataMapping>
+	    <entry pixelValue="39" displayValue="39" operator="=" label="SN" />
+		<entry pixelValue="40" displayValue="40" operator="=" label="SN" />
+		<entry pixelValue="120" displayValue="120" operator="=" label="PL" />
+		<entry pixelValue="200" displayValue="200" operator="=" label="FZRA" />
+		<entry pixelValue="280" displayValue="280" operator="=" label="RA" />
+	  </dataMapping>
+    </imageStyle>
+  </styleRule>
+   <styleRule>
+    <paramLevelMatches>
+      <parameter>WCD</parameter>      
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>m</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>6000</maxValue>
+      </range>
+      <defaultColormap>Grid/gridded data</defaultColormap>
+      <colorbarLabeling>
+        <increment>2000</increment>
+      </colorbarLabeling>
+    </imageStyle>
+  </styleRule>
+  
+  <!-- Style Rule for nwpsCG1 to display Sig. Wave Height and Swell Height 
+       in ft.  -->
+   <styleRule>
+    <paramLevelMatches>
+      <creatingEntity>nwpsCG1</creatingEntity>
+      <parameter>SWELL</parameter>
+      <parameter>HTSGW</parameter>
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>ft</displayUnits>
+    </imageStyle>
+  </styleRule>
+
+<!-- Max and Min T and Tw within a vertical layer      -->
+     <styleRule>
+        <paramLevelMatches>
+            <parameter>TwMax</parameter>
+            <parameter>TwMin</parameter>
+            <parameter>Tmax</parameter>
+            <parameter>Tmin</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>C</displayUnits>
+            <defaultColormap>Grid/gridded data</defaultColormap>
+        </imageStyle>
+    </styleRule>
+    
+<!-- * geoWM, wSp, wSp_avg, WGS kts|1.944| 0.0 | 4 | | |..|8000F0FF| | 0 | 10 -->
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>geoWM</parameter>
+            <parameter>wSp</parameter>
+            <parameter>wSp_avg</parameter>
+            <parameter>WGS</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>kts</displayUnits>
+        </imageStyle>
+    </styleRule>
+    <!-- * geoWM, wSp, wSp_avg, 1050MB > 500MB kts|1.944| 0.0 | 4 | | |..|8000F0FF| | 0 | 10 -->
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>geoWM</parameter>
+            <parameter>wSp</parameter>
+            <parameter>wSp_avg</parameter>
+            <rangeLevel units="MB">
+                <upper>1050</upper>
+                <lower>500</lower>
+            </rangeLevel>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>kts</displayUnits>
+        </imageStyle>
+    </styleRule>
+
+<!-- * geoWM, wSp, WGS, wSp_avg, Surface, BLyr > 150agl kts|1.944| 0.0 | 4 | | |..|8000F0FF| | 0 | 5 -->
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>geoWM</parameter>
+            <parameter>wSp</parameter>
+            <parameter>WGS</parameter>
+            <parameter>wSp_avg</parameter>
+            <singleLevel units="SURFACE" />
+            <rangeLevel units="BL">
+                <upper>180150</upper>
+                <lower> 30000</lower>
+            </rangeLevel>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>kts</displayUnits>
+        </imageStyle>
+    </styleRule>
+
+<!-- * ageoWM kts|1.944| 0.0 | 4 | | |..|8000F0FF| | 0 | 2 -->
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>ageoWM</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>kts</displayUnits>
+        </imageStyle>
+    </styleRule>
+    <styleRule>
+      <paramLevelMatches>
+        <parameter>Tdend</parameter>
+      </paramLevelMatches>
+      <imageStyle>
+        <displayUnits>C</displayUnits>
+        <range scale="LINEAR">
+          <minValue>-21</minValue>
+          <maxValue>-12</maxValue>
+        </range>
+        <defaultColormap>NPP/VIIRS/ZA (Vis Default)</defaultColormap>
+        <colorbarLabeling>
+          <increment>1</increment>
+        </colorbarLabeling>
+      </imageStyle>
+    </styleRule>
+    <styleRule>
+      <paramLevelMatches>
+        <parameter>SnowT</parameter>
+      </paramLevelMatches>
+      <imageStyle>
+        <displayUnits>C</displayUnits>
+        <range scale="LINEAR">
+          <minValue>-18</minValue>
+          <maxValue>0</maxValue>
+        </range>
+        <defaultColormap>Grid/gridded data</defaultColormap>
+        <colorbarLabeling>
+          <values>-18 -15 -12 -5 0</values>
+        </colorbarLabeling>
+      </imageStyle>
+    </styleRule>
+    <styleRule>
+      <paramLevelMatches>
+        <parameter>CritT1</parameter>
+      </paramLevelMatches>
+      <imageStyle>
+        <displayUnits>C</displayUnits>
+        <range scale="LINEAR">
+          <minValue>-15</minValue>
+          <maxValue>-4</maxValue>
+        </range>
+        <defaultColormap>NPP/VIIRS/IR BrightTemps</defaultColormap>
+        <colorbarLabeling>
+          <increment>1</increment>
+        </colorbarLabeling>
+      </imageStyle>
+    </styleRule>
+<!-- WPC Probablistic Winter Prediction Forecast (PWPF) -->
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>TOTSN5pct12hr</parameter>
+            <parameter>TOTSN10pct12hr</parameter>
+            <parameter>TOTSN25pct12hr</parameter>
+            <parameter>TOTSN50pct12hr</parameter>
+            <parameter>TOTSN75pct12hr</parameter>
+            <parameter>TOTSN90pct12hr</parameter>
+            <parameter>TOTSN95pct12hr</parameter>
+
+            <parameter>TOTSN5pct24hr</parameter>
+            <parameter>TOTSN10pct24hr</parameter>
+            <parameter>TOTSN25pct24hr</parameter>
+            <parameter>TOTSN50pct24hr</parameter>
+            <parameter>TOTSN75pct24hr</parameter>
+            <parameter>TOTSN90pct24hr</parameter>
+            <parameter>TOTSN95pct24hr</parameter>
+
+            <parameter>TOTSN5pct48hr</parameter>
+            <parameter>TOTSN10pct48hr</parameter>
+            <parameter>TOTSN25pct48hr</parameter>
+            <parameter>TOTSN50pct48hr</parameter>
+            <parameter>TOTSN75pct48hr</parameter>
+            <parameter>TOTSN90pct48hr</parameter>
+            <parameter>TOTSN95pct48hr</parameter>
+
+            <parameter>TOTSN5pct72hr</parameter>
+            <parameter>TOTSN10pct72hr</parameter>
+            <parameter>TOTSN25pct72hr</parameter>
+            <parameter>TOTSN50pct72hr</parameter>
+            <parameter>TOTSN75pct72hr</parameter>
+            <parameter>TOTSN90pct72hr</parameter>
+            <parameter>TOTSN95pct72hr</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits label="in">in</displayUnits>
+            <range scale="LINEAR"> 
+                <minValue>0</minValue>
+                <maxValue>49</maxValue> 
+            </range>
+            <colorbarLabeling>
+                <increment>2</increment>
+            </colorbarLabeling>
+            <defaultColormap>Grid/pwpf_snow</defaultColormap>
+            <interpolate>false</interpolate>
+        </imageStyle>
+    </styleRule>
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>FRZR5pct12hr</parameter>
+            <parameter>FRZR10pct12hr</parameter>
+            <parameter>FRZR25pct12hr</parameter>
+            <parameter>FRZR50pct12hr</parameter>
+            <parameter>FRZR75pct12hr</parameter>
+            <parameter>FRZR90pct12hr</parameter>
+            <parameter>FRZR95pct12hr</parameter>
+
+            <parameter>FRZR5pct24hr</parameter>
+            <parameter>FRZR10pct24hr</parameter>
+            <parameter>FRZR25pct24hr</parameter>
+            <parameter>FRZR50pct24hr</parameter>
+            <parameter>FRZR75pct24hr</parameter>
+            <parameter>FRZR90pct24hr</parameter>
+            <parameter>FRZR95pct24hr</parameter>
+
+            <parameter>FRZR5pct48hr</parameter>
+            <parameter>FRZR10pct48hr</parameter>
+            <parameter>FRZR25pct48hr</parameter>
+            <parameter>FRZR50pct48hr</parameter>
+            <parameter>FRZR75pct48hr</parameter>
+            <parameter>FRZR90pct48hr</parameter>
+            <parameter>FRZR95pct48hr</parameter>
+
+            <parameter>FRZR5pct72hr</parameter>
+            <parameter>FRZR10pct72hr</parameter>
+            <parameter>FRZR25pct72hr</parameter>
+            <parameter>FRZR50pct72hr</parameter>
+            <parameter>FRZR75pct72hr</parameter>
+            <parameter>FRZR90pct72hr</parameter>
+            <parameter>FRZR95pct72hr</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits label="in">in</displayUnits>
+            <range scale="LINEAR"> 
+                <minValue>0</minValue>
+                <maxValue>11</maxValue> 
+            </range>
+            <colorbarLabeling>
+                <increment>1</increment>
+            </colorbarLabeling>
+            <defaultColormap>Grid/pwpf_frzr</defaultColormap>
+            <interpolate>false</interpolate>
+        </imageStyle>
+    </styleRule>
+	<styleRule>
+        <paramLevelMatches>
+            <parameter>FRZR0.01in12hr</parameter>
+            <parameter>FRZR0.1in12hr</parameter>
+            <parameter>FRZR0.25in12hr</parameter>
+            <parameter>FRZR0.5in12hr</parameter>
+            <parameter>FRZR1in12hr</parameter>
+
+            <parameter>FRZR0.01in24hr</parameter>
+            <parameter>FRZR0.1in24hr</parameter>
+            <parameter>FRZR0.25in24hr</parameter>
+            <parameter>FRZR0.5in24hr</parameter>
+            <parameter>FRZR1in24hr</parameter>
+
+            <parameter>FRZR0.1in48hr</parameter>
+            <parameter>FRZR0.25in48hr</parameter>
+            <parameter>FRZR0.5in48hr</parameter>
+            <parameter>FRZR1in48hr</parameter>
+
+            <parameter>FRZR0.1in72hr</parameter>
+            <parameter>FRZR0.25in72hr</parameter>
+            <parameter>FRZR0.5in72hr</parameter>
+            <parameter>FRZR1in72hr</parameter>
+
+            <parameter>TOTSN1in12hr</parameter>
+            <parameter>TOTSN2in12hr</parameter>
+            <parameter>TOTSN4in12hr</parameter>
+            <parameter>TOTSN6in12hr</parameter>
+            <parameter>TOTSN8in12hr</parameter>
+            <parameter>TOTSN12in12hr</parameter>
+            <parameter>TOTSN18in12hr</parameter>
+
+            <parameter>TOTSN1in24hr</parameter>
+            <parameter>TOTSN2in24hr</parameter>
+            <parameter>TOTSN4in24hr</parameter>
+            <parameter>TOTSN6in24hr</parameter>
+            <parameter>TOTSN8in24hr</parameter>
+            <parameter>TOTSN12in24hr</parameter>
+            <parameter>TOTSN18in24hr</parameter>
+
+            <parameter>TOTSN2in48hr</parameter>
+            <parameter>TOTSN4in48hr</parameter>
+            <parameter>TOTSN8in48hr</parameter>
+            <parameter>TOTSN12in48hr</parameter>
+            <parameter>TOTSN18in48hr</parameter>
+            <parameter>TOTSN24in48hr</parameter>
+            <parameter>TOTSN30in48hr</parameter>
+
+            <parameter>TOTSN2in72hr</parameter>
+            <parameter>TOTSN4in72hr</parameter>
+            <parameter>TOTSN8in72hr</parameter>
+            <parameter>TOTSN12in72hr</parameter>
+            <parameter>TOTSN18in72hr</parameter>
+            <parameter>TOTSN24in72hr</parameter>
+            <parameter>TOTSN30in72hr</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits label="%">%/100</displayUnits>
+            <range scale="LINEAR"> 
+                <minValue>0</minValue>
+                <maxValue>100</maxValue> 
+            </range>
+            <colorbarLabeling>
+                <increment>10</increment>
+            </colorbarLabeling>
+            <defaultColormap>Grid/pwpf_prob</defaultColormap>
+            <interpolate>false</interpolate>
+        </imageStyle>
+    </styleRule>
+</styleRuleset>

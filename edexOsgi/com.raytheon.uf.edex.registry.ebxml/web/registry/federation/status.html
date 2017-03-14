@@ -1,0 +1,207 @@
+<!--
+This software was developed and / or modified by Raytheon Company,
+pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+
+U.S. EXPORT CONTROLLED TECHNICAL DATA
+This software product contains export-restricted data whose
+export/transfer/disclosure is restricted by U.S. law. Dissemination
+to non-U.S. persons whether in the United States or abroad requires
+an export license or other authorization.
+
+Contractor Name:        Raytheon Company
+Contractor Address:     6825 Pine Street, Suite 340
+                        Mail Stop B8  
+                        Omaha, NE 68106
+                        402.291.0100
+
+See the AWIPS II Master Rights File ("Master Rights File.pdf") for 
+further licensing information.
+-->
+
+<!--
+
+Navigation pane containing links
+
+SOFTWARE HISTORY
+
+Date         Ticket#     Engineer    Description
+------------ ----------  ----------- --------------------------
+10/15/2013   1682        bphillip    Initial implementation
+5/11/2015    4448        bphillip    Separated EBXML Registry from Data Delivery
+</pre>
+
+@author bphillip
+@version 1
+-->
+<html>
+
+<head>
+    <style type="text/css">
+        span {font-weight:bold;}
+        a {font-weight:bold;}
+        td {width:200px; background:    #A9A9A9;}
+        th {width:200px; background:    #A9A9A9;}
+        button {width:190px;}
+        input{width:300px;}
+        table {border:0;}
+        select {width:200px;}
+        body {  font-family: Helvetica;
+                  margin-left: 75px;
+                  margin-right: 75px;
+                  background: #D3D3D3;}
+    </style>
+    
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+       <script type="text/javascript" src='/registry/registryUtil.js'></script> 
+       <script type="text/javascript" src='/htmlUtil.js'></script> 
+      <title>Federation Status</title>
+</head>
+
+<body onload="populate()">
+<h3>Federation Status</h3>
+
+
+<table>
+    <tr>
+        <td>Cluster ID:</td>
+        <td><span id="clusterIdSpan">[Unknown]</span></td> 
+    </tr>
+    <tr>
+        <td>Site ID:</td>
+        <td><span id="registrySiteIdSpan">[Unknown]</span></td>
+    </tr>
+    <tr>
+        <td>Federated:</td>
+        <td><span id="federatedSpan">[Unknown]</span></td>
+    </tr>
+    <tr>
+        <td>Replicating To:</td>
+        <td><span id="replicatingToSpan">Retrieving Registry List...</span></td>
+    </tr>
+    <tr>
+        <td>Replicating From:</td>
+        <td><span id="replicatingFromSpan">Retrieving Registry List...</span></td>
+    </tr>
+</table>
+
+<br><br>
+
+<table border ="1">
+    <tr>
+        <td>Synchronize With:</td>
+        <td><select id="syncWithRegistrySelect"></select></td>
+        <td style='width:90px'><button type="button" style='width:90px' onclick="sync()">Sync</button></td>
+    </tr>
+    <tr>
+        <td>Subscribe To:</td>
+        <td><select id="subscribeToRegistrySelect"></select></td>
+        <td style='width:90px'><button type="button" style='width:90px' onclick="subscribe()">Subscribe</button></td>
+    </tr>
+    <tr>
+        <td>Unsubscribe From:</td>
+        <td><select id="unsubscribeFromRegistrySelect"></select></td>
+        <td style='width:90px'><button type="button" style='width:90px' onclick="unsubscribe()">Unsubscribe</button></td>
+    </tr>
+</table>
+<br>
+
+<b>Federation Members:<b>
+<span id="federationMembersSpan"></span>
+
+<br>
+<br>
+
+<b>Object Types Replicated:</b>
+<span id="replicatedObjectListSpan">Retrieving Object List...</span>
+<br>
+<br>
+
+</body>
+
+<script language="JavaScript"> 
+
+    function subscribe(){
+        var registryId = getComboValue("subscribeToRegistrySelect")
+        callRestService("rest/federation/subscribeToRegistry",registryId);
+        location.reload(false)
+    }
+
+    function resubmitSubs(){
+        var registryId = getComboValue("resubmitSubsToRegistrySelect")
+        callRestService("rest/federation/subscribeToRegistry",registryId);
+    }
+
+    function unsubscribe(){
+        var registryId = getComboValue("unsubscribeFromRegistrySelect")
+        callRestService("rest/federation/unsubscribeFromRegistry",registryId);
+        location.reload(false) 
+    }
+
+    function sync(){
+        var registryId = getComboValue("syncWithRegistrySelect")
+        callRestService("rest/federation/synchronizeWithRegistry",registryId);
+    }
+
+    function populate(){
+        var isFederated = callRestService("rest/federation/isFederated")
+        var clusterId=callRestService("rest/federation/clusterId");
+        var siteId=callRestService("rest/federation/siteId");
+        var objectTypes = callRestService("rest/federation/getObjectTypesReplicated").split(",")
+        var federationMembers = new Array()
+        
+        document.getElementById("federatedSpan").innerHTML=isFederated
+        document.getElementById("clusterIdSpan").innerHTML=clusterId
+        document.getElementById("registrySiteIdSpan").innerHTML=siteId
+        
+        if(isFederated == "true"){
+            var replicatingToString = callRestService("rest/federation/getReplicatingTo")
+            var replicatingTo = replicatingToString.split(",")
+            var replicatingFromString = callRestService("rest/federation/getReplicatingFrom")
+            var replicatingFrom = replicatingFromString.split(",")
+        
+            var registries = callRestService("rest/federation/getFederationMembers").split("\n")
+            var memberHTML = "<table border='1'><tr><th>Site</th><th>Base URL</th><th>Conformance Profile</th><th>Specification Version</th></tr>"
+            for(var i = 0; i < registries.length-1;i++){
+                var tokens = registries[i].split(",")
+                memberHTML+="<tr>"
+                memberHTML+="<td>"+tokens[0]+"</td>"
+                memberHTML+="<td>"+tokens[1]+"</td>"
+                memberHTML+="<td>"+tokens[2]+"</td>"
+                memberHTML+="<td>"+tokens[3]+"</td>"
+                memberHTML+="</tr>"
+                federationMembers[i]=tokens[0]
+            }
+            memberHTML+="</table>"
+            
+            var objectTypeHTML = "<table border='1'><tr><th style='width:30px;'></th><th>Object Type</th></tr>"
+            for(var i = 0; i < objectTypes.length-1;i++){
+                objectTypeHTML+="<tr>"
+                objectTypeHTML+="<td style='width:30px;'>"+(i+1)+"</td>"
+                objectTypeHTML+="<td>"+objectTypes[i]+"</td>"
+                objectTypeHTML+="</tr>"
+            }
+            objectTypeHTML+="</table>";
+            
+            for(var i = 0; i < federationMembers.length;i++){
+                var member=federationMembers[i]
+                if(replicatingFrom.indexOf(member)== -1 && member!=clusterId){
+                    addOptionToList("subscribeToRegistrySelect",member,member)
+                }
+                if(member!=clusterId){
+                    addOptionToList("syncWithRegistrySelect",member,member)
+                }
+                if(replicatingFrom.indexOf(member) != -1){
+                    addOptionToList("unsubscribeFromRegistrySelect",member,member)
+                }
+            }
+            
+            document.getElementById("replicatedObjectListSpan").innerHTML=objectTypeHTML
+            document.getElementById("replicatingToSpan").innerHTML=replicatingToString
+            document.getElementById("replicatingFromSpan").innerHTML=replicatingFromString
+            document.getElementById("federationMembersSpan").innerHTML=memberHTML
+        }
+        
+    }
+</script>
+
+</html>

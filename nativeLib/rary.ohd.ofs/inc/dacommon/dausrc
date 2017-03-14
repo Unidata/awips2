@@ -1,0 +1,10 @@
+C                                           *--> FROM DACOMMON.DAUSRC
+C  ASAP USER CONTROL INFORMATION
+      COMMON /DAUSRC/ MXUSRC,NMUSRC,
+     *                NUCREC(20),CTRLID(20),ICPPDB(20),NUCPRD(20),
+     *                MAXLIN(20),UCNAME(20),IPRFLG(20),IACTIV(20),
+     *                IUCRX1(2,20),IPRMES(20),IPROUT(20),IPSFLG(20),
+     *                IXFRFG(20),IUCRX2(11,20),IUCRX3(16,20)
+      CHARACTER*8 CTRLID
+      CHARACTER*24 UCNAME
+C

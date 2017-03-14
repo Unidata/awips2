@@ -1,0 +1,108 @@
+# 35 36 37 38 41 50 51 57 65 66 67 81 85 86 90
+s/^0 *$/0|STImotion/g
+s/^2 *$/2|GSM/g
+s/^3 *$/3|PRR/g
+s/^8 *$/8|PTL/g
+s/^12 *$/12|CPM/g
+s/^14 *$/14|CCM/g
+#s/^16 *$/16|Z 1km 3bit/g
+#s/^17 *$/17|Z 2km 3bit/g
+#s/^18 *$/18|Z 4km 3bit/g
+s/^19 *$/19|Z 1km 4bit/g
+s/^20 *$/20|Z 2km 4bit/g
+#s/^21 *$/21|Z 4km 4bit/g
+#s/^22 *$/22|V 0.25km 3bit/g
+#s/^23 *$/23|V 0.5km 3bit/g
+#s/^24 *$/24|V 1km 3bit/g
+s/^25 *$/25|V 0.25km 4bit/g
+s/^26 *$/26|V 0.5km 4bit/g
+s/^27 *$/27|V 1km 4bit/g
+s/^28 *$/28|SW 0.25km 3bit/g
+s/^29 *$/29|SW 0.5km 3bit/g
+s/^30 *$/30|SW 1km 3bit/g
+s/^31 *$/31|USP 2km 4bit/g
+s/^32 *$/32|DHR 1km 8bit/g
+s/^33 *$/33|HSR 1km 4bit/g
+s/^34 *$/34|CFC 1km 3bit/g
+#s/^35 *$/35|CZ 1km 3bit/g
+#s/^36 *$/36|CZ 4km 3bit/g
+s/^37 *$/37|CZ 1km 4bit/g
+s/^38 *$/38|CZ 4km 4bit/g
+s/^41 *$/41|ET 4km 4bit/g
+s/^48 *$/48|VWP/g
+s/^50 *$/50|RCS 1km 4bit/g
+s/^51 *$/51|VCS 0.5km 4bit/g
+#s/^55 *$/55|SRR 0.5km 4bit/g
+s/^56 *$/56|SRM 1km 4bit/g
+s/^57 *$/57|VIL 4km 4bit/g
+s/^58 *$/58|STI/g
+s/^59 *$/59|HI/g
+s/^60 *$/60|M/g
+s/^61 *$/61|TVS/g
+s/^62 *$/62|SS/g
+s/^65 *$/65|LRM 4km 3bit/g
+s/^66 *$/66|LRM 4km 3bit/g
+s/^67 *$/67|APR 4km 3bit/g
+s/^74 *$/74|RCM/g
+s/^75 *$/75|FTM/g
+s/^78 *$/78|OHP 2km 4bit/g
+s/^79 *$/79|THP 2km 4bit/g
+s/^80 *$/80|STP 2km 4bit/g
+s/^81 *$/81|DPA 4km 8bit/g
+s/^82 *$/82|SPD 40km 3bit/g
+s/^84 *$/84|VAD/g
+s/^85 *$/85|RCS 1km 3bit/g
+s/^86 *$/86|VCS 0.5km 3bit/g
+s/^90 *$/90|LRM 4km 3bit/g
+s/^93 *$/93|DBV 1km 8bit/g
+s/^94 *$/94|Z 1km 8bit/g
+s/^99 *$/99|V 0.25km 8bit/g
+s/^100 *$/100|VSDT/g
+s/^101 *$/101|STIT/g
+s/^102 *$/102|HIT/g
+s/^103 *$/103|MT/g
+s/^104 *$/104|TVST/g
+s/^107 *$/107|OHPT/g
+s/^108 *$/108|THPT/g
+s/^109 *$/109|STPT/g
+s/^132 *$/132|CLR 1km 4bit/g
+s/^133 *$/133|CLD 1km 4bit/g
+s/^134 *$/134|DVL 1km 8bit/g
+s/^135 *$/135|EET 1km 8bit/g
+s/^136 *$/136|SO/g
+s/^137 *$/137|ULR 1km 4bit/g
+s/^138 *$/138|STP 2km 8bit/g
+s/^139 *$/139|MRU/g
+s/^140 *$/140|GFM/g
+s/^141 *$/141|MD/g
+s/^143 *$/143|TRU/g
+s/^144 *$/144|OSW 2km 4bit/g
+s/^145 *$/145|OSD 2km 4bit/g
+s/^146 *$/146|SSW 2km 4bit/g
+s/^147 *$/147|SSD 2km 4bit/g
+s/^149 *$/149|DMD/g
+s/^150 *$/150|USW 2km 4bit/g
+s/^151 *$/151|USD 2km 4bit/g
+s/^152 *$/152|RSS/g
+s/^153 *$/153|Z 0.25km 0.5Deg 8bit/g
+s/^154 *$/154|V 0.25km 0.5Deg 8bit/g
+s/^155 *$/155|SW 0.25km 0.5Deg 8bit/g
+#s/^158 *$/158|ZDR 1km 4bit/g
+s/^159 *$/159|ZDR 0.25km 8bit/g
+#s/^160 *$/160|CC 1km 4bit/g
+s/^161 *$/161|CC 0.25km 8bit/g
+#s/^162 *$/162|KDP 1km 4bit/g
+s/^163 *$/163|KDP 0.25km 8bit/g
+#s/^164 *$/164|HC 1km 4bit/g
+s/^165 *$/165|HC 0.25km 8bit/g
+s/^166 *$/166|ML/g
+s/^169 *$/169|OHA 2km 4bit/g
+s/^170 *$/170|DAA 0.25km 8bit/g
+s/^171 *$/171|STA 2km 4bit/g
+s/^172 *$/172|STA 0.25km 8bit/g
+s/^173 *$/173|DUA 0.25km 8bit/g
+s/^174 *$/174|DOD 0.25km 8bit/g
+s/^175 *$/175|DSD 0.25km 8bit/g
+s/^176 *$/176|DPR 0.25km gen/g
+s/^177 *$/177|HHC 0.25km 8bit/g
+s/^202 *$/202|SCC/g

@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bufrncwf Plug-in
+Bundle-SymbolicName: com.raytheon.uf.viz.ncwf;singleton:=true
+Bundle-Version: 1.15.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.uf.viz.ncwf.rsc
+Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.15.0",
+ com.raytheon.uf.common.dataplugin;bundle-version="1.14.0",
+ com.raytheon.uf.common.dataplugin.bufrncwf;bundle-version="1.14.0",
+ com.raytheon.uf.common.pointdata;bundle-version="1.15.0",
+ com.raytheon.viz.pointdata;bundle-version="1.14.1",
+ com.raytheon.uf.common.geospatial;bundle-version="1.14.2",
+ com.raytheon.uf.viz.core.grid;bundle-version="1.15.0",
+ com.raytheon.viz.grid;bundle-version="1.15.0",
+ org.eclipse.swt;bundle-version="3.8.1"
+Import-Package: com.raytheon.viz.core.rsc.jts

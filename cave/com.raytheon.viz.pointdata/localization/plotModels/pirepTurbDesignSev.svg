@@ -1,0 +1,99 @@
+<?xml version="1.0"?>
+<svg width="80" height="80" 
+viewBox="0 0 80 80" 
+overflow="visible" 
+xmlns="http://www.w3.org/2000/svg" 
+xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
+   <defs>
+<script type="text/python" plotDelegate="plotDelegate">
+import time
+
+class PirepTurbDelegate(PlotDelegate):
+    def __init__(self):
+        PlotDelegate.__init__(self)
+
+    def getSampleText(self, rec):
+        # use obsText for pirep
+        if rec.isValidParameter("obsText"):
+            return rec.getString("obsText")
+        # rebuild text for airep
+        sampleString = "ARP "
+        sampleString += " "
+        sampleString += " F%d" % (rec.getInt("flightLevel")/100)
+        
+        try:
+            turbFreq = rec.getString("turbFreq")
+        except ValueError:
+            turbFreq = ""
+        try:
+            turbInten = rec.getString("turbInten")
+        except ValueError:
+            turbInten = ""
+        if turbInten != ""  or turbFreq != "":
+            sampleString += " TB"
+            if turbInten != "":
+                sampleString += " "
+                sampleString += turbInten
+            if turbFreq != "":
+                sampleString += " "
+                sampleString += turbFreq
+        return sampleString
+        
+    def isValid(self, rec):
+        # DCS10257
+        # need turbulence severity data
+        # only show severe
+        if rec.isValidParameter("turbInten"):
+            turbInten = rec.getString("turbInten")
+            if (turbInten == "SEV") or (turbInten == "EXTRM"):
+                # high severity
+                return True
+            else:
+                # low or empty severity
+                return False
+        else:
+            # no turbulence severity data, so cannot have high turbulence severity
+            return False
+
+plotDelegate = PirepTurbDelegate()
+
+</script>
+<style type="text/css">
+<![CDATA[
+        @font-face { font-family: "WindSymbolFont";
+                src: url(WindSymbols.svg#WindSymbols); }
+        @font-face { font-family: "StandardFont";
+                src: url(Standard.svg#Standard); }
+        @font-face { font-family: "WxSymbolFont";
+                src: url(WxSymbols.svg#WxSymbols); }
+        @font-face { font-family: "SpecialSymbolFont";
+                src: url(SpecialSymbols.svg#SpecialSymbols); }
+
+        text.text
+            {
+                fill: none;
+                font-size: 1em;
+                stroke-width: 1px;
+                font-family: StandardFont;
+                font-size: 1em;
+            }
+        text.weather
+            {
+                fill: none;
+                font-size: 1em;
+                stroke-width: 1px;
+                font-family: WxSymbolFont;
+
+            }
+]]>
+</style>
+<symbol overflow="visible" id="plotData" class="info">
+  <text id="sampleText" plotMode="sample" plotParam="obsText"> </text> 
+  <text id="turbInensity" plotMode="table" class="weather" plotLookupTable="turb_intens_trans.txt" plotParam="turbInten" x="0" y="0">0</text>
+  <text id="fltLvlText" plotMode="text" plotParam="flightLevel" plotFormat="%3.0f" plotUnit="hft" style="text-anchor: end;" x="-15px" y="0px">75</text>
+  <text id="turbFreq" plotMode="table" class="weather" plotLookupTable="turb_freq_trans.txt" plotParam="turbFreq" style="text-anchor: end" x="0" y="-10">0</text>
+</symbol>
+
+</defs>
+<use id="wind" x="40" y="40" width="80" height="80" visibility="visible" xlink:href="#plotData"/>
+</svg>

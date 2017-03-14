@@ -1,0 +1,115 @@
+C MEMBER XU2326
+C  (from old member FCXU2326)
+C
+      SUBROUTINE XU2326(SUNUM,PO,W,LOCWS)
+C--------------------------------------------------------------------
+C  SUBROUTINE TO SELECT THE MAXIMUM VALUE OF VARIOUS QUANTITIES OF
+C  PRIOR EXECUTED SCHEMES. (BKA SU#23 - SETMAX)
+C
+C  THIS ROUTINE REQUIRES THAT AT LEAST ONE SCHEME HAD BEEN EXECUTED
+C  PRIOR TO THE EXECUTION OF THIS UTILITY. THIS IS BECAUSE YOU CAN'T
+C  TAKE THE MAXIMUM OF ZERO VALUES.
+C
+C  THE MAXIMUM OF VARIOUS QUANTITIES CAN BE SCANNED (ONE PER UTILITY):
+C
+C    1) INSTANTANEOUS DISCHARGE
+C    2) MEAN DISCHARGE
+C    3) POOL ELEVATION
+C
+C---------------------------------------------------------------------
+C  WRITTEN BY - JOE OSTROWSKI - HRL - AUGUST 1983
+C---------------------------------------------------------------------
+C
+      INCLUDE 'common/resv26'
+      INCLUDE 'common/exg26'
+      INCLUDE 'common/fdbug'
+C
+      DIMENSION PO(1),W(1),LOCWS(1),TYPE(2,3)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_res/RCS/xu2326.f,v $
+     . $',                                                             '
+     .$Id: xu2326.f,v 1.2 1997/09/22 16:08:49 page Exp $
+     . $' /
+C    ===================================================================
+C
+      DATA TYPE/4HQ-IN,4HST  ,4HQ-ME,4HAN  ,4HPOOL,4H    /
+C
+      IF (IBUG.GE.1) WRITE(IODBUG,1600)
+ 1600 FORMAT('   *** ENTER XU2326 ***')
+C
+C  IF NO SCHEMES HAVE BEEN EXECUTED BEFORE THIS UTILITY, WE CAN'T
+C  EXECUTE THIS UTILITY.
+C
+      IF (NSCHEX.EQ.0) GO TO 9000
+C
+C  GET POINTER INFO
+C
+      CALL XPTR26(SUNUM,PO,IORD,IBASE,LEVEL,LOCPM,LOCTS,LOCCO)
+C
+C  SET EXECUTION FLAG
+C
+      LOCEX = IORD*3
+      W(LOCEX) = 1.01
+C
+C  GET QUANTITY TO BE SCANNED FOR.
+C   1 = INSTANTANEOUS DISCHARGE
+C   2 = MEAN DISCHARGE
+C   3 = POOL ELEVATION
+C
+      IWHICH = PO(LOCPM)
+      IPOS = 0
+C
+      IF (IBUG.GE.2) WRITE(IODBUG,1650) TYPE(1,IWHICH),TYPE(2,IWHICH)
+ 1650 FORMAT(/'   *** LOOKING FOR THE MAXIMUM ',2A4)
+C
+      IF (IWHICH.EQ.1) IPOS = 3
+      IF (IWHICH.EQ.2) IPOS = 2
+      IF (IWHICH.EQ.3) IPOS = 5
+C
+C  NOW LOOK FOR MAXIMUM OF SELECTED QUANTITY.
+C
+      INUM = 0
+      VALMAX = -999999999.
+      LOCSUV = LOCWS(3)
+C
+      IF (IBUG.GE.2) WRITE(IODBUG,1660) NSCHEX
+ 1660 FORMAT(/'  * LOOKING FOR MAXIMUM OF ',I2,' QUANTITIES.')
+C
+      DO 100 I=1,NSCHEX
+      VCHEK = W(LOCSUV+(I-1)*6+IPOS)
+C
+      IF (IBUG.GE.2) WRITE(IODBUG,1665) I,VCHEK
+ 1665 FORMAT('    VALUE NO. ',I2,' = ',F12.3)
+C
+      IF (VCHEK.LE.VALMAX) GO TO 90
+C
+      INUM = I
+      VALMAX = VCHEK
+      GO TO 100
+ 90   SUNX =  W(LOCSUV+(I-1)*6+1)
+      CALL XPTR26(SUNX,PO,IORD,IBASE,LEVEL,LOCPM,LOCTS,LOCCO)
+C
+C  RESET EXECUTION FLAG TO NOT EXECUTED
+C
+      LOCEX = IORD*3
+      W(LOCEX) = 0.01
+  100 CONTINUE
+C
+C  MUST REASSIGN ALL QUANTITIES FOUND AT MAXIMUM FOR USE IN THE CALLING
+C  ROUTINE (BOOKKEEPING AND OTHER TASKS, YOU KNOW)
+C
+      QOM   = W(LOCSUV+(INUM-1)*6+2)
+      QO2   = W(LOCSUV+(INUM-1)*6+3)
+      ELEV2 = W(LOCSUV+(INUM-1)*6+5)
+      S2    = W(LOCSUV+INUM*6)
+C
+C  THAT'S IT. WE'RE DONE WITH 'SETMAX'
+C
+ 9000 CONTINUE
+      IF (IBUG.GE.1) WRITE(IODBUG,1699)
+ 1699 FORMAT('    *** EXIT XU2326 ***')
+      RETURN
+      END

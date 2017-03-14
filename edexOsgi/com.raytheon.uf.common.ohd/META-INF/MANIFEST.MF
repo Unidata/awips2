@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Ohd Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.ohd
+Bundle-Version: 1.16.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: com.raytheon.uf.common.localization,
+ javax.persistence,
+ org.slf4j;bundle-version="1.7.12"
+Export-Package: com.raytheon.uf.common.ohd
+Import-Package: com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.util
+
+

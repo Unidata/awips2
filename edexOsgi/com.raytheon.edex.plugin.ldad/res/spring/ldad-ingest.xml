@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<!--  unused...
+	<bean id="ldadDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="ldad" />
+		<constructor-arg value="jms-durable:queue:Ingest.ldad" />
+	</bean>
+
+	<camelContext id="ldad-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+		<endpoint id="ldadFileEndpoint" uri="file:${edex.home}/data/sbn/ldad?noop=true" />
+		<route id="ldadFileConsumerRoute">
+			<from ref="ldadFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+				<constant>ldad</constant>
+			</setHeader>
+			<to uri="jms-durable:queue:Ingest.ldad" />
+		</route>
+
+		<route id="ldadIngestRoute">
+			<from uri="jms-durable:queue:Ingest.ldad" />
+			<multicast>
+				<try>
+					<to uri="direct-vm:ldadmesonetIngest" />
+					<catch>
+						<exception>java.lang.Throwable</exception>
+						<to uri="log:ldadmesonet?level=ERROR"/>
+					</catch>
+				</try>
+				<try>
+					<to uri="direct-vm:ldadhydroIngest" />
+					<catch>
+						<exception>java.lang.Throwable</exception>
+						<to uri="log:ldadhydro?level=ERROR"/>
+					</catch>
+				</try>
+				<try>
+					<to uri="direct-vm:ldadmanualIngest" />
+					<catch>
+						<exception>java.lang.Throwable</exception>
+						<to uri="log:ldadmanual?level=ERROR"/>
+					</catch>
+				</try>
+			</multicast>
+			<bean ref="processUtil" method="delete"/>
+		</route>
+	</camelContext>
+	-->
+</beans>

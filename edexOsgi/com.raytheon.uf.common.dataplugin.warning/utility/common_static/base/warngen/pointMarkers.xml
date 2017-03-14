@@ -1,0 +1,36 @@
+ <!--
+ CREATED 1-07-2013 BY EVAN BOOKBINDER
+ CREATED 2-6-2013 BY DAVE TOMALAK USING MILEMARKER TEMPLATE WRITTEN BY EVAN 
+   BOOKBINDER AND MIKE DANGELO AS EXAMPLE
+  
+ FOR EACH DATABASE TABLE IMPORTED USING THE importMarkersInfo.sh SCRIPT,
+ THERE WILL BE TWO pointSource OBJECTS CREATED THROUGH THE CODE BELOW. 
+ ONLY THE pointSource variable (unique name to each object) AND
+          pointSource attribute (the tablename created from importMarkersInfo.sh)
+ SHOULD BE MODIFIED.
+  
+ <pointSource variable="locpointsName">
+    <pointSource>locpoints</pointSource>
+ 	<pointField>NAME</pointField>
+ 	<searchMethod>POINTS</searchMethod>
+ 	<withinPolygon>true</withinPolygon>
+ 	<maxResults>1000</maxResults>
+ 	<distanceThreshold>100</distanceThreshold>
+ 	<sortBy>
+		<sort>gid</sort>
+	</sortBy>
+ </pointSource>
+ 
+ <pointSource variable="locpointsGid">
+    <pointSource>locpoints</pointSource>
+ 	<pointField>GID</pointField>
+ 	<searchMethod>POINTS</searchMethod>
+ 	<withinPolygon>true</withinPolygon>
+ 	<maxResults>1000</maxResults>
+ 	<distanceThreshold>100</distanceThreshold>
+  	<sortBy>
+		<sort>gid</sort>
+	</sortBy>
+ </pointSource>
+ 
+ -->

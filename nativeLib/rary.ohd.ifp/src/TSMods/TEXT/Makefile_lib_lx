@@ -1,0 +1,65 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ifp-TSMods library file
+#
+#  cmt: File made on Thu Oct 26 14:49:08 EDT 2006 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob81/ohd/ifp/lib
+
+ARFLAGS  = rv
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU
+
+INSERTS      = -I/fs/hseb/ob81/ohd/ifp/inc  \
+               -I/fs/hseb/ob81/ohd/ofs/inc  \
+               -I/fs/hseb/ob81/ohd/util/inc  \
+               -I/fs/hseb/ob81/ohd/calb/inc
+
+INSERTS_CC   = -I/usr/X11R6/include  \
+               -I/usr/include/pgsql  \
+               -I/usr/include/pgsql/informix/esql  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .c .h .o .a
+
+.c.a:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libTSMods_t.a:  \
+     $(LIB)/libTSMods_t.a(change_y_axis_max.o)  \
+     $(LIB)/libTSMods_t.a(copy_one_mp_drawing_area.o)  \
+     $(LIB)/libTSMods_t.a(exit_mp_cb.o)  \
+     $(LIB)/libTSMods_t.a(mods_plot.o)  \
+     $(LIB)/libTSMods_t.a(mp_change_ts.o)  \
+     $(LIB)/libTSMods_t.a(mp_create_mods.o)  \
+     $(LIB)/libTSMods_t.a(mp_Create_ts_array.o)  \
+     $(LIB)/libTSMods_t.a(mp_crosshairs.o)  \
+     $(LIB)/libTSMods_t.a(mp_date_hr.o)  \
+     $(LIB)/libTSMods_t.a(mp_done.o)  \
+     $(LIB)/libTSMods_t.a(mp_draw_end_obs_line.o)  \
+     $(LIB)/libTSMods_t.a(mp_draw_rectangles.o)  \
+     $(LIB)/libTSMods_t.a(mp_draw_x_axis.o)  \
+     $(LIB)/libTSMods_t.a(mp_label_axis.o)  \
+     $(LIB)/libTSMods_t.a(mp_mousetracker.o)  \
+     $(LIB)/libTSMods_t.a(mp_rubberband.o)  \
+     $(LIB)/libTSMods_t.a(mp_undo_change_ts.o)  \
+     $(LIB)/libTSMods_t.a(plot_mod.o)  \
+     $(LIB)/libTSMods_t.a(resize_mp_form_widget.o)  \
+     $(LIB)/libTSMods_t.a(resize_mp_graph.o)  \
+     $(LIB)/libTSMods_t.a(resize_mp_x_axis.o)  \
+     $(LIB)/libTSMods_t.a(resize_mp_y_axis.o)  \
+     $(LIB)/libTSMods_t.a(rz_mp_x_axis_label.o)  \
+     $(LIB)/libTSMods_t.a(rz_mp_y_axis_label.o)
+

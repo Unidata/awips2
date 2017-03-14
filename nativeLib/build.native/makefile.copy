@@ -1,0 +1,49 @@
+# copies files from one location to another
+
+.SILENT:
+
+uninstall_script=uninstall~
+
+init:
+ifndef INSTALL_FROM
+	echo INSTALL_FROM is not defined
+	echo set the environment variable INSTALL_FROM to indicate the source directory
+	exit 1
+endif	
+ifndef INSTALL_TO
+	echo INSTALL_TO is not defined
+	echo set the environment variable INSTALL_TO to indicate the dest. directory
+	exit 1
+endif
+
+clean: init uninstall
+	# remove the uninstall script
+	rm -f $(uninstall_script)
+
+uninstall: $(uninstall_script)
+	# execute the uninstall script
+	bash $(uninstall_script)	
+
+all: init uninstall
+	# copies files from environment variable INSTALL_FROM to INSTALL_TO
+	mkdir -p $(INSTALL_TO)
+	rsync -au --exclude="*~" --exclude=".svn" $(INSTALL_FROM)/ $(INSTALL_TO)
+	# finished
+
+$(uninstall_script):
+	# create uninstall script
+	echo "cd $(INSTALL_TO); if [ \$$? != 0 ]; then exit 0; fi" > $(uninstall_script)
+	bash -c 'cd $(INSTALL_FROM); find . -type f -exec echo rm -f {} \;' >> $(uninstall_script)
+	bash -c 'cd $(INSTALL_FROM); find . -type l -exec echo unlink {} \;' >> $(uninstall_script)
+	bash -c 'cd $(INSTALL_FROM); find . -depth -type d -exec echo rmdir {} \;' >> $(uninstall_script)
+	echo "exit 0" >> $(uninstall_script)
+	sed -i -e "s|.*/.svn.*||" -e "s|.*~$$||" $(uninstall_script)
+	sed -i -e "s|rmdir .$$|cd ..; rmdir $$(basename $(INSTALL_TO))|" $(uninstall_script)
+	chmod a+x $(uninstall_script)
+	# finished
+
+
+%:
+	# nothing to do
+
+.PHONY: init all clean

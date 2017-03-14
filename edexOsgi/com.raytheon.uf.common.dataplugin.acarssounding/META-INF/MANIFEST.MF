@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Acarssounding Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.acarssounding
+Bundle-Version: 1.14.1.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
+ javax.persistence,
+ javax.measure,
+ org.hibernate;bundle-version="1.0.0"
+Export-Package: com.raytheon.uf.common.dataplugin.acarssounding

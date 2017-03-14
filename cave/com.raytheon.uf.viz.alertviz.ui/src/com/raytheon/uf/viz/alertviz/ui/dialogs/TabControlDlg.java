@@ -1,0 +1,514 @@
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
+package com.raytheon.uf.viz.alertviz.ui.dialogs;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Monitor;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TabFolder;
+
+/**
+ * Tab control dialog that displays the messages for the different mode layouts.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 2008                    mschenke    Initial creation
+ * Apr 02, 2009            lvenable    TTR fixes.
+ * Dec 01, 2010  5632      cjeanbap    Added sort based on category.
+ * Mar 02, 2011  5632      cjeanbap    Added sort based on category.
+ * Feb 06, 2013 14501      Xiaochuan   Using getCategoriesFromConfig() to
+ *                                     set categoryList[] in clearOptionCbo.
+ * 29 Jan 2016  5289       tgurney     Add missing close button in trim
+ * Apr 01, 2016  5517      randerso    Fix GUI sizing issues
+ * 
+ * </pre>
+ * 
+ * @author mschenke
+ * @version 1.0
+ */
+public class TabControlDlg extends Dialog {
+
+    /**
+     * Class is a singleton, here is the instance
+     */
+    private static TabControlDlg instance;
+
+    /**
+     * The shell for the dialog
+     */
+    private Shell shell;
+
+    /**
+     * The composite that is contained in the dialog
+     */
+    private Composite mainComp;
+
+    /**
+     * The composite that holds the tabFolder and detailsText
+     */
+    private SashForm topComp;
+
+    /**
+     * The TabFolder that is in the composite
+     */
+    private TabFolder tabFolder;
+
+    /**
+     * Combo Box that gets updated depending on Tab Selected
+     */
+    private Combo clearOptionCbo;
+
+    /**
+     * Button to show or hide details
+     */
+    private Button showHide;
+
+    /**
+     * List of textMsgLogs
+     */
+    private List<TextMsgLog> logs;
+
+    /**
+     * Styled text for details
+     */
+    private StyledText detailsText;
+
+    private static Rectangle bounds;
+
+    private static int[] weights = { 500, 500 };
+
+    private static boolean visible = false;
+
+    /**
+     * Get the instance of the TabControl dialog
+     * 
+     * @param parent
+     *            Parent shell.
+     * @return Instance of this class.
+     */
+    public static TabControlDlg getInstance(Shell parent) {
+
+        if (instance == null || instance.isDisposed()) {
+            instance = new TabControlDlg(parent);
+        }
+
+        return instance;
+    }
+
+    /**
+     * Basic constructor
+     * 
+     * @param parent
+     *            The parent shell
+     */
+    private TabControlDlg(Shell parent) {
+        super(parent, SWT.TITLE);
+
+        logs = new ArrayList<TextMsgLog>();
+
+        initShell();
+    }
+
+    /**
+     * Initialize shell data.
+     */
+    private void initShell() {
+        Shell parent = getParent();
+
+        shell = new Shell(parent, SWT.RESIZE | SWT.TITLE | SWT.CLOSE);
+
+        GridLayout mainLayout = new GridLayout(1, false);
+        shell.setLayout(mainLayout);
+
+        initComponents();
+    }
+
+    /**
+     * Initialize components in shell.
+     */
+    private void initComponents() {
+        mainComp = new Composite(shell, SWT.NONE);
+        mainComp.setLayout(new GridLayout(1, false));
+
+        shell.addListener(SWT.Close, new Listener() {
+
+            @Override
+            public void handleEvent(Event event) {
+                if (visible) {
+                    int[] currentWeights = topComp.getWeights();
+                    weights[0] = currentWeights[0];
+                    weights[1] = currentWeights[1];
+                }
+                bounds = shell.getBounds();
+            }
+        });
+
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        // TODO: clean this up
+        gd.widthHint = 800;
+        gd.heightHint = 285;
+        mainComp.setLayoutData(gd);
+
+        topComp = new SashForm(mainComp, SWT.HORIZONTAL);
+        topComp.setLayout(new GridLayout(2, false));
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        topComp.setLayoutData(gd);
+
+        tabFolder = new TabFolder(topComp, SWT.BORDER);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        tabFolder.setLayoutData(gd);
+
+        tabFolder.addDisposeListener(new DisposeListener() {
+            @Override
+            public void widgetDisposed(DisposeEvent e) {
+                logs.clear();
+            }
+        });
+
+        tabFolder.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                int index = tabFolder.getSelectionIndex();
+                if (index < 0 || logs.size() == 0) {
+                    return;
+                }
+                TextMsgLog log = logs.get(index);
+                shell.setText("Log list for: " + log.getFullText());
+                populateClearOptionsCombo(log);
+                detailsText.setText(log.getLogText());
+                clearOptionCbo.select(logs.get(index)
+                        .getClearOptionCboSelectedIndex());
+            }
+        });
+
+        detailsText = new StyledText(topComp, SWT.V_SCROLL | SWT.H_SCROLL
+                | SWT.BORDER);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gd.widthHint = 400;
+        gd.heightHint = 285;
+        detailsText.setLayoutData(gd);
+        detailsText.setEditable(false);
+
+        createBottomButtons();
+
+        topComp.setWeights(weights);
+
+        handleShowHide(visible);
+    }
+
+    /**
+     * Creates the bottom buttons of the dialog.
+     */
+    private void createBottomButtons() {
+        GridData gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
+        Composite buttonComp = new Composite(mainComp, SWT.NONE);
+        buttonComp.setLayoutData(gd);
+        buttonComp.setLayout(new GridLayout(4, true));
+
+        clearOptionCbo = new Combo(buttonComp, SWT.DROP_DOWN | SWT.READ_ONLY);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        clearOptionCbo.setLayoutData(gd);
+        clearOptionCbo.addSelectionListener(new SelectionListener() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                int index = tabFolder.getSelectionIndex();
+                if (index < 0) {
+                    return;
+                }
+                if (clearOptionCbo.getItemCount() >= 2) {
+                    int position = clearOptionCbo.getSelectionIndex();
+                    String category = clearOptionCbo.getItem(position);
+                    logs.get(index).displayCategoryMessages(category);
+                    if (index == 0) {
+                        clearOptionCbo.select(position);
+                    }
+                    logs.get(index).setClearOptionCboSelectedIndex(position);
+                }
+            }
+
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+            }
+        });
+
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        Button clearBtn = new Button(buttonComp, SWT.PUSH);
+        clearBtn.setText("Clear");
+        clearBtn.setLayoutData(gd);
+        clearBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                int index = tabFolder.getSelectionIndex();
+                if (index < 0) {
+                    return;
+                }
+                logs.get(index).clearMessages();
+                updateDetails("");
+            }
+        });
+
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        Button closeBtn = new Button(buttonComp, SWT.PUSH);
+        closeBtn.setText("Close");
+        closeBtn.setLayoutData(gd);
+        closeBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                dispose();
+            }
+        });
+
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        showHide = new Button(buttonComp, SWT.PUSH);
+        showHide.setText("Show Details...");
+        showHide.setLayoutData(gd);
+        showHide.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                handleShowHide(!visible);
+            }
+        });
+    }
+
+    private void handleShowHide(boolean show) {
+        visible = show;
+        detailsText.setVisible(visible);
+        SashForm sf = topComp;
+        if (visible) {
+            showHide.setText("Hide Details...");
+            sf.setWeights(weights);
+        } else {
+            showHide.setText("Show Details");
+            int[] currentWeights = topComp.getWeights();
+            weights[0] = currentWeights[0];
+            weights[1] = currentWeights[1];
+            sf.setWeights(new int[] { 1000, 0 });
+        }
+
+        topComp.layout();
+        mainComp.layout();
+    }
+
+    /**
+     * Populates the clear options combo box with values of current LogDlg tab
+     * being displayed, called when tabitem has changed
+     * 
+     * @param log
+     *            TextMsgLog that is in current tab.
+     */
+    public void populateClearOptionsCombo(TextMsgLog log) {
+        clearOptionCbo.removeAll();
+
+        clearOptionCbo.add("All");
+
+        String[] categoryList = log.getCategoriesFromConfig();
+        for (int i = 0; i < categoryList.length; i++) {
+            clearOptionCbo.add(categoryList[i]);
+        }
+
+        clearOptionCbo.select(0);
+        log.setClearOptionCbo(clearOptionCbo);
+    }
+
+    /**
+     * Open the dialog.
+     */
+    public void open() {
+        shell.layout();
+        shell.pack();
+
+        if (bounds != null) {
+            shell.setBounds(bounds);
+            shell.setFocus();
+        } else {
+            setInitialDialogLocation();
+        }
+
+        shell.open();
+
+        Display display = shell.getDisplay();
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch()) {
+                display.sleep();
+            }
+        }
+    }
+
+    /**
+     * Sets the initial Location of the dialog, above parent if parent is on
+     * bottom half of monitor or below parent if parent is on top half of
+     * monitor.
+     */
+    private void setInitialDialogLocation() {
+        Shell parent = getParent().getShell();
+        Display display = parent.getDisplay();
+
+        // get any monitors height
+        Monitor any = (display.getMonitors())[0];
+        Rectangle monSize = any.getBounds();
+        int monY = monSize.height;
+
+        Point p = parent.getLocation();
+        Point size = parent.getSize();
+
+        if ((p.y + size.y) > (monY / 2)) {
+            Point use = new Point(p.x, p.y - shell.getSize().y);
+            shell.setLocation(use);
+        } else {
+            Point use = new Point(p.x, p.y + size.y);
+            shell.setLocation(use);
+        }
+    }
+
+    /**
+     * Check is the dialog is open or not.
+     * 
+     * @return True if shell is not null, not disposed and visible, false
+     *         otherwise.
+     */
+    public boolean isOpened() {
+        if (shell == null || shell.isDisposed() || shell.isVisible() == false) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * Return the tab folder that is contained in the shell, this is used if a
+     * new TabItem is to be added to the dialog.
+     * 
+     * @return The tab folder.
+     */
+    public TabFolder getTabFolder() {
+        return this.tabFolder;
+    }
+
+    /**
+     * Notify the TabControlDlg when a new tab has been added.
+     * 
+     * TODO: Replace with event handler?
+     * 
+     * @param log
+     *            The log that is the new tab.
+     */
+    public void addedTab(TextMsgLog log) {
+        if (logs.contains(log) == false) {
+            logs.add(this.getTabIndex(log.getIndex()), log);
+            populateClearOptionsCombo(log);
+        }
+    }
+
+    /**
+     * Removes tab associated with Log
+     * 
+     * @param log
+     */
+    public void removeTab(TextMsgLog log) {
+        logs.remove(log);
+        log.disposeDialog();
+
+        if (logs.size() == 0) {
+            dispose();
+        }
+    }
+
+    /**
+     * Removes the currently selected tab
+     */
+    public void removeTab() {
+        removeTab(logs.get(tabFolder.getSelectionIndex()));
+    }
+
+    /**
+     * Gets the tab index to use for this textMsgLog's index. Say the log is Q3,
+     * and Q1 and Q4 are up already, this function would return 1 because it is
+     * the index the tab should be inserted at
+     * 
+     * @param textMsgIdx
+     *            index of textMsgIdx (1 for Q1, 2 for Q2, etc...)
+     * @return index for tab
+     */
+    public int getTabIndex(int textMsgIdx) {
+        int i;
+        for (i = 0; i < logs.size() && logs.get(i).getIndex() < textMsgIdx; ++i) {
+        }
+        return i;
+    }
+
+    /**
+     * Update the details text box
+     * 
+     * @param details
+     *            details to display
+     */
+    public void updateDetails(String details) {
+        if (details != null) {
+            detailsText.setText(details);
+        } else {
+            detailsText.setText("");
+        }
+    }
+
+    /**
+     * Check if dialog is disposed
+     * 
+     * @return true if disposed, false if not
+     */
+    public boolean isDisposed() {
+        return shell.isDisposed();
+    }
+
+    /**
+     * Dispose of the dialog
+     */
+    public static void dispose() {
+        if (instance != null && instance.shell.isDisposed() == false) {
+            instance.shell.close();
+            instance = null;
+        }
+    }
+}

@@ -1,0 +1,163 @@
+C MODULE SRMPCO
+C-----------------------------------------------------------------------
+C
+C  ROUTINE READ CARRYOVER GROUP COMPUTATIONAL ORDER.
+C
+      SUBROUTINE SRMPCO (XNAME,IPTR,LARRAY,ARRAY,IVMPCO,CGID,UNUSED,
+     *   MFGIDS,FGIDS,NFGIDS,NMPFG,MDUP,DUP,NDUP,IPRERR,IPTRNX,ISTAT)
+C
+      DIMENSION ARRAY(LARRAY)
+      CHARACTER*8 XNAME,CGID,FGIDS(MFGIDS),DUP(MDUP)
+      DIMENSION NMPFG(MFGIDS)
+      DIMENSION UNUSED(2)
+C
+      INCLUDE 'uiox'
+      INCLUDE 'scommon/sudbgx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/shared_s/RCS/srmpco.f,v $
+     . $',                                                             '
+     .$Id: srmpco.f,v 1.2 2001/06/13 13:54:35 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,*) 'ENTER SRMPCO'
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG('MPCO')
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,50) XNAME,IPTR,LARRAY,MFGIDS,MDUP
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      ISTAT=0
+C
+C  READ PARAMETER ARRAY
+      CALL SUDOPN (1,'PPP ',IERR)
+      CALL RPPREC (XNAME,'MPCO',IPTR,LARRAY,ARRAY,NFILL,IPTRNX,IERR)
+      IF (IERR.GT.0) THEN
+         ISTAT=IERR
+         IF (IPRERR.GT.0) THEN
+            CALL SRPPST (XNAME,'MPCO',IPTR,LARRAY,NFILL,IPTRNX,IERR)
+            CALL SUERRS (LP,2,NUMERR)
+            IF (LDEBUG.GT.0) THEN
+               WRITE (IOSDBG,90) XNAME
+               CALL SULINE (IOSDBG,2)
+               ENDIF
+            ISTAT=1
+            ENDIF
+         GO TO 30
+         ENDIF
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,100) XNAME,IPTR,IPTRNX
+         CALL SULINE (IOSDBG,2)
+         ENDIF
+C
+C  SET PARAMETER ARRAY VERSION NUMBER
+      IVMPCO=ARRAY(1)
+C
+C  SET CARRYOVER GROUP IDENTIFIER
+      CALL UMEMOV (ARRAY(2),CGID,2)
+C
+C  CHECK NAMES
+      IF (XNAME.NE.CGID) THEN
+         WRITE (LP,60) XNAME,CGID
+         CALL SULINE (LP,2)
+         WRITE (LP,70) IPTR
+         CALL SUERRS (LP,2,NUMERR)
+         ISTAT=2
+         GO TO 30
+         ENDIF
+C
+C  POSITIONS 4 AND 5 ARE UNUSED
+      UNUSED(1)=ARRAY(4)
+      UNUSED(2)=ARRAY(5)
+C
+C  SET NUMBER OF FORECAST GROUPS IN CARRYOVER GROUP
+      NFGIDS=ARRAY(6)
+C
+C  SET NUMBER OF MAP AREAS IN MORE THAN ONE FORECAST GROUP
+      NDUP=ARRAY(7)
+C
+      NPOS=7
+C
+C  CHECK FOR SUFFIFIENT SPACE FOR FORECAST GROUP IDENTIFIERS
+      IF (NFGIDS.GT.MFGIDS) THEN
+         WRITE (LP,80) 'FORECAST GROUP',NFGIDS,CGID,MFGIDS
+         CALL SUERRS (LP,2,NUMERR)
+         ISTAT=3
+         GO TO 30
+         ENDIF
+C
+C  SET FORECAST GROUP IDENTIFIERS
+      DO 10 I=1,NFGIDS
+         NPOS=NPOS+1
+         CALL UMEMOV (ARRAY(NPOS),FGIDS(I)(1:4),1)
+         NPOS=NPOS+1
+         CALL UMEMOV (ARRAY(NPOS),FGIDS(I)(5:8),1)
+         NPOS=NPOS+1
+         NMPFG(I)=ARRAY(NPOS)
+10       CONTINUE
+C
+      IF (NDUP.GT.0) THEN
+C     CHECK FOR SUFFIFIENT SPACE FOR DUPLICATE MAP IDENTIFIERS
+         IF (NDUP.GT.MDUP) THEN
+            WRITE (LP,80) 'DUPLICATE FUTURE MAP', NDUP,CGID,MDUP
+            CALL SUERRS (LP,2,NUMERR)
+            ISTAT=2
+            GO TO 30
+            ENDIF
+C     SET IDENTIFIER OF MAP AREAS IN MORE THAN ONE FORECAST GROUP
+         DO 20 I=1,NDUP
+            NPOS=NPOS+1
+            CALL UMEMOV (ARRAY(NPOS),DUP(I)(1:4),1)
+            NPOS=NPOS+1
+            CALL UMEMOV (ARRAY(NPOS),DUP(I)(5:8),1)
+20          CONTINUE
+         ENDIF
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,*)
+     *      ' NPOS=',NPOS,
+     *      ' NFILL=',NFILL,
+     *      ' IPTRNX=',IPTRNX,
+     *      ' NFGIDS=',NFGIDS,
+     *      ' NDUP=',NDUP,
+     *      ' '
+         CALL SULINE (IOSDBG,1)
+         CALL SUPDMP ('MPCO','BOTH',0,NPOS,ARRAY,ARRAY)
+         ENDIF
+C
+30    IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,*) 'EXIT SRMPCO'
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+50    FORMAT (' XNAME=',A,3X,'IPTR=',I5,3X,'LARRAY=',I5,3X,
+     *   'MFGID=',I3,3X,'MDUP=',I3)
+60    FORMAT ('0*** ERROR - CARRYOVER GROUP NAME REQUESTED (',A,
+     *   ') IS NOT THE SAME AS THE NAME IN THE PARAMETER ARRAY (',A,
+     *   ').')
+70    FORMAT (15X,'MPCO PARAMETER RECORD POINTER NUMBER=',I5)
+80    FORMAT ('0*** ERROR - IN SRMPCO - ',I4,' ',A,' ',
+     *   'IDENTIFIERS IN CARRYOVER GROUP ',A,'. MAXIMUM NUMBER ',
+     *   'THAT CAN BE PROCESSED IS ',I4,'.')
+90    FORMAT ('0*** NOTE - CARRYOVER GROUP COMPUTATIONAL ORDER ',
+     *   'PARAMETERS NOT SUCCESSFULLY READ FOR ',A)
+100   FORMAT ('0*** NOTE - CARRYOVER GROUP COMPUTATIONAL ORDER ',
+     *   'PARAMETERS SUCCESSFULLY READ FOR ',A,'. IPTR=',I5,3X,
+     *   'IPTRNX=',I5)
+C
+      END

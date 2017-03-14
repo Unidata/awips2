@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Header: /cvsroot/ebxmlrr/omar/misc/samples/minDB/SubmitObjectsRequest_EventTypeScheme.xml,v 1.9 2007/05/25 17:18:53 farrukh_najmi Exp $-->
+<SubmitObjectsRequest id="urn:oasis:names:tc:ebxml-regrep:request:id" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0" xmlns:lcm="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0" xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:4.0" xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0" xmlns:rs="urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0  ../../xsd/lcm.xsd">
+    <rim:RegistryObjectList>
+        <rim:RegistryObject xsi:type="rim:ClassificationSchemeType" lid="urn:oasis:names:tc:ebxml-regrep:classificationScheme:EventType" id="urn:oasis:names:tc:ebxml-regrep:classificationScheme:EventType" isInternal="true" nodeType="urn:oasis:names:tc:ebxml-regrep:NodeType:UniqueCode" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationScheme">
+            <!-- Need to sync with latest specs ?? -->
+            <rim:Name>
+                <rim:LocalizedString xml:lang="en-US" value="EventType"/>
+            </rim:Name>
+            <rim:Description>
+                <rim:LocalizedString xml:lang="en-US" value="EventType.desc"/>
+            </rim:Description>
+            
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:EventType:Created" code="Created" id="urn:oasis:names:tc:ebxml-regrep:EventType:Created" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:EventType">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Created"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="Created.desc"/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:EventType:Deleted" code="Deleted" id="urn:oasis:names:tc:ebxml-regrep:EventType:Deleted" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:EventType">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Deleted"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="Deleted.desc"/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:EventType:Updated" code="Updated" id="urn:oasis:names:tc:ebxml-regrep:EventType:Updated" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:EventType">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Updated"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="Updated.desc"/>
+                </rim:Description>
+                
+                <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:EventType:Versioned" code="Versioned" id="urn:oasis:names:tc:ebxml-regrep:EventType:Versioned" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:EventType:Updated">
+                    <rim:Name>
+                        <rim:LocalizedString xml:lang="en-US" value="Versioned"/>
+                    </rim:Name>
+                    <rim:Description>
+                        <rim:LocalizedString xml:lang="en-US" value="Versioned.desc"/>
+                    </rim:Description>
+                </rim:ClassificationNode>
+            </rim:ClassificationNode>
+        </rim:RegistryObject>
+    </rim:RegistryObjectList>
+</SubmitObjectsRequest>

@@ -1,0 +1,4 @@
+      character*128 fcstpa,foutpa,tablpa,tbinpa
+      common /fpath/ fcstpa,lfcst,foutpa,lfout,tablpa,ltabl,
+     +               tbinpa,ltbin
+     

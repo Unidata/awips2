@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+//
+// Partial Thickness Precipitation Type Icons - Snow3
+// 
+
+AWIPS 1 format
+Snow3 |0|N |Thickness: Snow Likely| |ICON|Surface |   *Test,Surface|dZ,1000MB-700MB| 1.|-1.e37|2850.|Snow2|1.|2851.|1.e37|0.  
+
+abbreviation: |Snow3| 
+Notused1: |0| 
+Notused2: |N | 
+name: |Thickness: Snow Likely| 
+FIELD: || 
+FIELD: |ICON| 
+FIELD: |Surface| 
+FIELD: |dZ,1000MB-700MB| 
+FIELD: |1.| 
+FIELD: |-1.e37| 
+FIELD: |2850.| 
+FIELD: |Snow2| 
+FIELD: |1.| 
+FIELD: |2851.| 
+FIELD: |1.e37| 
+FIELD: |0.| 
+
+Snow thickness criteria: 
+1000-850 mb thickness 1299m or less
+850-700 mb thickness 1541m or less
+1000-700 mb thickness 2850m or less
+
+-->
+<DerivedParameter name="Thickness: Snow Likely" abbreviation="Snow3" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+     <Method levels="900MB" name="Test">
+        <Field level="1000MB-850MB" abbreviation="dZ"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1.0E37"/>
+        <ConstantField value="1299.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="1300.0"/>
+        <ConstantField value="1.0E37"/>
+        <ConstantField value="0.0"/>
+    </Method>
+     <Method levels="800MB" name="Test">
+        <Field level="850MB-700MB" abbreviation="dZ"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1.0E37"/>
+        <ConstantField value="1541.0"/>
+        <Field level="900MB" abbreviation="Snow3"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="1542.0"/>
+        <ConstantField value="1.0E37"/>
+        <ConstantField value="0.0"/>
+    </Method>
+    <Method levels="850MB" name="Test">
+        <Field level="1000MB-700MB" abbreviation="dZ"/>
+		<ConstantField value="1"/>
+        <ConstantField value="-1.e37"/>
+        <ConstantField value="2850"/>
+        <Field level="800MB" abbreviation="Snow3"/>
+ 		<ConstantField value="1"/>
+        <ConstantField value="2851"/>
+        <ConstantField value="1.e37"/>
+        <ConstantField value="0"/>
+    </Method>
+    <Method name="Mapping" levels="Surface">
+		<Field level="850MB" abbreviation="Snow3" />
+        <ConstantField value="1" />
+		<ConstantField value="89" />
+	</Method>
+</DerivedParameter>

@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<purgeRuleSet>
+	<key>reportType</key>
+	<!-- Synoptic fixed land -->
+	<rule>
+		<keyValue>1001</keyValue>
+		<versionsToKeep>50</versionsToKeep>
+		<delta>=00-01:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<keyValue>1001</keyValue>
+		<versionsToKeep>50</versionsToKeep>
+		<delta>=01-00:00:00</delta>
+		<round>+00-12:00:00</round>
+	</rule>
+	<!-- End synoptic fixed land -->
+	
+	<!-- Synoptic mobile land -->
+	<rule>
+		<keyValue>1002</keyValue>
+		<versionsToKeep>50</versionsToKeep>
+		<delta>=00-01:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<keyValue>1002</keyValue>
+		<versionsToKeep>50</versionsToKeep>
+		<delta>=01-00:00:00</delta>
+		<round>+00-12:00:00</round>
+	</rule>
+	<!-- End synoptic mobile land -->
+	<!-- Synoptic ship -->
+	<rule>
+		<keyValue>1003</keyValue>
+		<versionsToKeep>50</versionsToKeep>
+		<delta>=00-01:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<keyValue>1003</keyValue>
+		<versionsToKeep>50</versionsToKeep>
+		<delta>=00-03:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<keyValue>1003</keyValue>
+		<versionsToKeep>50</versionsToKeep>
+		<delta>=00-06:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<keyValue>1003</keyValue>
+		<versionsToKeep>50</versionsToKeep>
+		<delta>=01-00:00:00</delta>
+		<round>+00-12:00:00</round>
+	</rule>
+	<!-- End synoptic ship -->
+	<!-- Synoptic cman -->
+	<rule>
+		<keyValue>1004</keyValue>
+		<versionsToKeep>50</versionsToKeep>
+		<delta>=00-01:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<keyValue>1004</keyValue>
+		<versionsToKeep>50</versionsToKeep>
+		<delta>=00-03:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<keyValue>1004</keyValue>
+		<versionsToKeep>50</versionsToKeep>
+		<delta>=00-06:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<keyValue>1004</keyValue>
+		<versionsToKeep>50</versionsToKeep>
+		<delta>=01-00:00:00</delta>
+		<round>+00-12:00:00</round>
+	</rule>
+	<!-- End synoptic cman -->
+	<!-- Synoptic moored buoy -->
+	<rule>
+		<keyValue>1005</keyValue>
+		<versionsToKeep>50</versionsToKeep>
+		<delta>=00-01:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<keyValue>1005</keyValue>
+		<versionsToKeep>50</versionsToKeep>
+		<delta>=00-03:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<keyValue>1005</keyValue>
+		<versionsToKeep>50</versionsToKeep>
+		<delta>=00-06:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<keyValue>1005</keyValue>
+		<versionsToKeep>50</versionsToKeep>
+		<delta>=01-00:00:00</delta>
+		<round>+00-12:00:00</round>
+	</rule>
+	<!-- End synoptic moored buoy -->
+	<!-- Drifting Buoy -->
+	<rule>
+		<keyValue>1006</keyValue>
+		<versionsToKeep>50</versionsToKeep>
+		<delta>=00-01:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<keyValue>1006</keyValue>
+		<versionsToKeep>50</versionsToKeep>
+		<delta>=00-03:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<keyValue>1006</keyValue>
+		<versionsToKeep>50</versionsToKeep>
+		<delta>=00-06:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<keyValue>1006</keyValue>
+		<versionsToKeep>50</versionsToKeep>
+		<delta>=01-00:00:00</delta>
+		<round>+00-12:00:00</round>
+	</rule>
+	<!-- End drifting buoy -->
+	<!-- Synoptic marob -->
+	<rule>
+		<keyValue>1007</keyValue>
+		<versionsToKeep>50</versionsToKeep>
+		<delta>=00-01:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<keyValue>1007</keyValue>
+		<versionsToKeep>50</versionsToKeep>
+		<delta>=00-03:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<keyValue>1007</keyValue>
+		<versionsToKeep>50</versionsToKeep>
+		<delta>=00-06:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<keyValue>1007</keyValue>
+		<versionsToKeep>50</versionsToKeep>
+		<delta>=01-00:00:00</delta>
+		<round>+00-12:00:00</round>
+	</rule>
+	<!-- End synoptic marob -->
+</purgeRuleSet>

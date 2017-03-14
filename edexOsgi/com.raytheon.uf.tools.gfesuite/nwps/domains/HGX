@@ -1,0 +1,172 @@
+#------------------------------------------------------------------------ 
+# Domain File
+# Original Author(s): Roberto Padilla-Hernandez,Douglas Gaer
+# Alex Gibbs, Pablo Santos,Tony Freeman  
+# File Creation Date: 06/01/2012
+# Date Last Modified: 02/01/13
+#
+# Version control: 1.33
+#
+# Support Team:
+#
+# Contributors: 
+#
+# ----------------------------------------------------------------------- 
+# ---------------------- Description and Details ------------------------ 
+# ----------------------------------------------------------------------- 
+#
+# File used to setup a geographical domain for SWAN and WW3
+#
+# ----------------------------------------------------------- 
+#========================================================================
+#                                    HGX                                =
+#  GEOGRAPHICAL DOMAIN, GEOGRAPHICAL RESOLUTION AND OUTPUT TIME STEP    =
+#                                                                       =
+#  NOTE: RES   = spatial resolution in km                               =
+#        TSTEP = request output time step (not the model time step)     =
+#========================================================================
+#
+#
+export SITEID="HGX"
+export REGIONID="SR"
+export NELAT="30.50"
+export NELON="-93.37"
+export SWLAT="27.00"
+export SWLON="-97.40"
+export RES="1.80"
+export TSTEP="3"
+#
+#========================================================================
+#                  NESTED GRID CONFIGURATION                              =
+#                                                                         =
+# These nested grids are non-telescopic grids (i.e all of them are        =
+# nested in the outer grid, and get the boundary conditions only from it) =
+# Later versions of NWPS will either allow for telescopic nesting or      =
+# will be run on an unstructured grid characterized with a fine mesh      =
+# over the nearshore zones and a coarser mesh across the offshore areas.  =
+#                                                                         =
+#========================================================================
+#
+# TO DO: Update the domains below to reflect the area/s that you are 
+#        interested in (must reside inside of you outer domain defined
+#        above). Also, remember to remove or comment out the remaining
+#        example nests below that were configured for another area. Once
+#        your nests are configured, just toggle the NESTGRIDS to '1'
+#        (Default configuration is off or '0') and you will have control 
+#        from the GFE GUI to activate your nests during your runs.
+#
+# STATIONARY VS NONSTATIONARY MODE: 
+# 
+# STATN=STA for STATIONARY RUNS, STATN=NON for NON-STATIONARY RUNS.
+# The default value is NONstationary for CG1 (outer grid) and STAtionary 
+# for the nested grids. Change this only if you know what you are doing.
+# You can choose STA or NON for a particular nested grid. In general, 
+# if your domain that you define as a nest below is >= 100 km^2, then 
+# set STATN=NON. For the very small domains or nests (<= 100 km^2)
+# set STATN=STA.  
+# 
+# ACTIVATE NEST/S: default is off below
+#
+# NESTGRIDS="0" ... turns off nest options
+# NESTGRIDS="1" ... turns on nest options
+# 
+export NESTGRIDS="1"
+export NESTINCG1="YES"
+#
+export NELATN1="29.80"
+export NELONN1="-94.46"
+export SWLATN1="29.00"
+export SWLONN1="-95.18"
+export RESN1=".5"
+export TSTEPN1="3"
+export STATN1="STA"
+#
+#========================================================================
+#                    SPECTRA OUTPUT LOCATIONS     
+#                                                                       =
+# NOTE TO USER: the lat/lon points specified can be changed for any     =
+# arbitrary point of interest within your outer domain defined above.   =
+# One default buoy location has already been configured for you        =
+# below. Add more as needed.                                            =
+#
+# NOTE: These do not have to match NDBC locations.                      =
+#
+#========================================================================
+# Spectra points defined as space delimited list of:
+#   "name1:lat1:lon1 name2:lat2:lon2 name3:lat3:lon3 name4:lat4:lon4 ...."
+#
+export SPECPOINTS="KXIH:29.180:-94.521 42019:27.913:-95.353 42043:28.982:-94.919"
+#
+#========================================================================
+#                    WAVE TRACKING (and WAVE PARTITION) ON/OFF          =
+#   SET: SUBDOHGXN, GEOGRAPH RESOL and TOLERANCE WAVETRACK PARAMETERS   =
+#========================================================================
+# IF WAVE TRACKING IS REQUIRED THEN WVTRCK="ON", OTHER WISE SET IT AS "OFF"
+# IF WVTRCK IS "ON", ADDTIONAL INFORMATION IS REQUIRED, SEE BELOW
+#
+export WVTRCK="ON"
+#
+# IF WAVE TRACKING IS REQUIRED EXACTLY OVER THE COMPUTATIONAL GRID AND SAME SPATIAL 
+# RESOLUTION: SET WVTONCG="1"  
+# IF USER WANTS TO CHANGE ANYONE OF THE PARAMETERS THEN WVTONCG="0" AND USER MUST GIVE 
+# ALL INFORMATION FOR THE DOMAIN OR SUBDOMAIN AND GEOGRAPHICAL RESOLUTION.
+# BE CAREFULL, IF THERE IS ANY SPECTRAL OUTPUT LOCATIONS OUT OF THE NEW (REDUCED) DOMAIN
+# FOR WAVE TRACKING NWPS WILL ABORT. 
+# (This will be changed in a new version, the user can get 1d-spectra but not g-h plots).
+#
+export WVTONCG="0"
+export NELATWT="30.50"
+export NELONWT="-93.37"
+export SWLATWT="27.00"
+export SWLONWT="-97.40"
+export GEORESWT="4.0"
+#
+# PARAMETERS FOR TRACKING ALGORITHM for WVTONCG=0 or =1 THIS IS ALWAYS READ 
+# *CAUTION* CHANGE THEM ONLY IF YOU KNOW WHAT YOU ARE DOING
+# RECOMENDED VALUES WVTRKPA="10. 1. 0.25 0.1 10. 1."
+#               dirKnob, perKnob, hsKnob, wetPts, dirTimeKnob, tpTimeKnob
+export WVTRKPA="10. 1. 0.25 0.1 10. 1."
+#
+#========================================================================
+#                   CURRENTS DEFINITION (SEE SWAN MANUAL)               =
+#========================================================================
+#export CURRL1="INPGRID CUR ............................."
+#export CURRL2="READINP CUR ............................."
+#
+#========================================================================
+#                    BOUNDARY CONDITIONS (SEE SWAN MANUAL)              =
+#========================================================================
+# IF BOUNDARY CONDITIONS WILL BE USED then BOUNDCOND=1, Otherwise =0; 
+# Setting up BOUNDCOND here to zero will permanently disable BCs. 
+# If you leave it as 1 the user will still have the option to disable 
+# them from the interactive Run_NWPS GUI.
+#
+export BOUNCOND="1"
+export FTPPAT1="multi_1"
+export FTPPAT1B="multi_1"
+export FTPPAT2="HGX"
+export NFTPATTEMPTS="3"
+export WAVECPS="multi_1.HGX58.spec.swan"
+#
+# THE FOLLOWING LINES MUST BE COMMENTED. IF YOU ADD BOUNDARY COMMAND LINES FOR YOUR
+# DOMAIN, ADD THEM WITH THE "#" AS A FIRST CHARACTER, IF YOU DECIDE NOT TO USE BOUNARY
+# CONDITIONS (BOUNCOND="0") THEY WILL REMAIN AS A COMMENTED LINES. IF YOU DECIDE TO USE
+# BOUNDARY CONDITIONS (BOUNCOND="1") NWPS WILL INCLUDE THE INFORMATION IN THE ACTUAL 
+# INPUT FILES WITH NOT COMMENT CHARACTER
+#
+#$BOUNDARY COMMAND LINES
+#BOUN SEG XY 262.7 27.00 266.63 27.00 VAR FILE 0.00 'multi_1.HGX51.spec.swan'    1 &
+#        0.93 'multi_1.HGX52.spec.swan'    1 &
+#        1.43 'multi_1.HGX53.spec.swan'    1 &
+#        1.93 'multi_1.HGX54.spec.swan'    1 &
+#        2.43 'multi_1.HGX55.spec.swan'    1 &
+#        2.93 'multi_1.HGX56.spec.swan'    1 &
+#        3.43 'multi_1.HGX57.spec.swan'    1 &
+#        3.93 'multi_1.HGX58.spec.swan'    1
+#$
+#BOUN SEG XY 266.63 29.50 266.63 27.00 VAR FILE 0.00 'multi_1.HGX62.spec.swan'    1 &
+#        1.00 'multi_1.HGX61.spec.swan'    1 &
+#        1.50 'multi_1.HGX60.spec.swan'    1 &
+#        2.00 'multi_1.HGX59.spec.swan'    1 &
+#        2.50 'multi_1.HGX58.spec.swan.cp' 1
+#$END BOUNSEG

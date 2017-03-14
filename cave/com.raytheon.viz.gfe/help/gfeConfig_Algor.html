@@ -1,0 +1,404 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]">
+  <title>gfeConfig - Algorithm Configuration</title>
+</head>
+<body style="background-color: rgb(255, 255, 255);">
+<div class="Body">
+<div class="3Heading">
+<h2 style="text-align: center;">GFE/ifpIMAGE Configuration File<br>
+Algorithm Configuration<br>
+</h2>
+</div>
+<br>
+<table nosave="" border="1" cols="4" width="100%">
+  <caption>&nbsp; <br>
+  </caption><tbody>
+  </tbody><tbody>
+  </tbody><tbody>
+  </tbody> <tbody>
+    <tr>
+      <td>
+      <center><b>GFE Configuration Item</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to GFE</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to <a href="ifpIMAGE.html"><!--disable indexer-->ifpIMAGE</a></b></center>
+      </td>
+      <td>
+      <center><b>Notes</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#Significantweathertimeweightedaveragepercent">Significant
+Weather Time-Weighted Sample Threshold</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#DefaultPencilWidth">Default Pencil Width</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#PencilInfluenceSizes">Pencil Influence Sizes</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#InterpolationAlgorithm">Interpolation Algorithm</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td valign="top"><a href="#SmoothingAlgorithm">Smoothing Algorithm</a></td>
+      <td valign="top">YES</td>
+      <td valign="top">NO</td>
+      <td valign="top"><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#ContourSubSample">Contour Sub Sample</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<blockquote>
+</blockquote>
+<hr style="width: 100%; height: 2px;">
+<h4><br>
+</h4>
+<h4><a name="Significantweathertimeweightedaveragepercent"></a><font
+ size="+1">Significant
+weather time weighted average percent</font></h4>
+Smart tools can request a time-weighted average of grids.&nbsp; For
+weather,
+this requires a threshold.&nbsp; The weather key returned from the
+time-weighted
+average of grids, includes all weather sub keys that exist for more
+than
+the Significant WeatherTimeWeightAverage_percent of the grids.&nbsp; If
+none of the sub keys exceed the threshold, then the most dominent
+subkeys)
+will be used as the time-weighted average.
+<p>For example, let's say there are three weather grids, the first is
+an
+hour long, the second is two hours long, and the third is three hours
+long.&nbsp;
+There is Rain in the first grid, Snow in the second grid, and Thunder
+and
+Rain in the third grid.&nbsp; The total duration of the three grids is
+6 hours. The percentages calculated via this algorithm is shown in the
+following table:</p>
+<br>
+<table nosave="" border="1" width="100%">
+  <caption>&nbsp; <br>
+  </caption><tbody>
+  </tbody><tbody>
+  </tbody><tbody>
+  </tbody> <tbody>
+    <tr nosave="">
+      <td>
+      <center><b>Weather Type</b></center>
+      </td>
+      <td nosave="">
+      <center><b>First Grid</b></center>
+      </td>
+      <td>
+      <center><b>Second Grid</b></center>
+      </td>
+      <td>
+      <center><b>Third Grid</b></center>
+      </td>
+      <td>
+      <center><b>Total Duration</b></center>
+      </td>
+      <td>
+      <center><b>Percentage</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td>Rain</td>
+      <td>1 hour</td>
+      <td>0 hours</td>
+      <td>3 hours</td>
+      <td>4 hours</td>
+      <td>66.6%</td>
+    </tr>
+    <tr>
+      <td>Snow</td>
+      <td>0 hours</td>
+      <td>2 hours</td>
+      <td>0 hours</td>
+      <td>2 hours</td>
+      <td>33.3%</td>
+    </tr>
+    <tr>
+      <td>Thunder</td>
+      <td>0 hours</td>
+      <td>0 hours</td>
+      <td>3 hours</td>
+      <td>3 hours</td>
+      <td>50.0%</td>
+    </tr>
+  </tbody>
+</table>
+<blockquote>&nbsp; <br>
+</blockquote>
+Depending upon the threshold, the time-weighted results can be
+different,
+as shown in the following table:<br>
+<br>
+<table nosave="" border="1" width="100%">
+  <caption>&nbsp; <br>
+  </caption><tbody>
+  </tbody><tbody>
+  </tbody><tbody>
+  </tbody> <tbody>
+    <tr nosave="">
+      <td nosave="">
+      <center><b>Threshold</b></center>
+      </td>
+      <td>
+      <center><b>Result</b></center>
+      </td>
+      <td>
+      <center><b>Notes</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td>20%</td>
+      <td>Rain, Snow, Thunder</td>
+      <td>all of the weather types are above the threshold</td>
+    </tr>
+    <tr>
+      <td>40%</td>
+      <td>Rain, Thunder</td>
+      <td>Snow is only 33.3%, so it is not part of the time-weighted
+average</td>
+    </tr>
+    <tr>
+      <td>60%</td>
+      <td>Rain</td>
+      <td>Only rain is above the threshold.</td>
+    </tr>
+    <tr>
+      <td>80%</td>
+      <td>Rain</td>
+      <td>Since none of the entries are above the threshold, the result
+is the
+subkey that is most predominent.</td>
+    </tr>
+  </tbody>
+</table>
+&nbsp; <br>
+<b><tt>SignificantWeatherTimeWeightAverage_percent = 40</tt></b> <br>
+&nbsp;
+<h4><a name="DefaultPencilWidth"></a><font size="+1">Default Pencil
+Width</font></h4>
+The default pencil width is specified per weather element in grid
+cells.&nbsp;
+The pencil width can be changed interactively through the GFE
+GUI.&nbsp;
+If not specified, the default is set to 5 grid cells. For those weather
+elements that are not-surface based, the format is
+parmName_level_pencilWidth.
+<p><b><tt>T_pencilWidth = 5</tt></b> <br>
+&nbsp; </p>
+<h4><a name="PencilInfluenceSizes"></a><font size="+1">Pencil
+Influence Sizes</font></h4>
+The number and value of the Pencil Tool's Influence Sizes can be
+defined
+in the GFE config file as well.&nbsp; Just define a list of sizes in
+grid
+cells much like the Pencil Tool Width.
+<p><b><tt>PencilToolInfluence_list = [2, 4, 8, 12, 16]</tt></b> </p>
+<p>You are allowed to enter as many sizes as you want, but be
+warned.&nbsp;
+The resulting menu may be too long to be completely displayed on the
+screen. </p>
+<h4><a name="InterpolationAlgorithm"></a><font size="+1">Interpolation
+Algorithm</font></h4>
+The interpolation algorithm may be specified for each weather
+element.&nbsp;
+The format of the entry is parmName_interpolateAlgorithm.&nbsp; If not
+specified, then the format defaults to that shown in the following
+table:<br>
+<br>
+<table nosave="" border="1" width="100%">
+  <caption>&nbsp; <br>
+  </caption><tbody>
+  </tbody><tbody>
+  </tbody><tbody>
+  </tbody> <tbody>
+    <tr nosave="">
+      <td nosave="">
+      <center><b>Weather Element</b></center>
+      </td>
+      <td>
+      <center><b>Default Algorithm</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td>QPF</td>
+      <td>CUBIC_ADVECT</td>
+    </tr>
+    <tr>
+      <td>Sky</td>
+      <td>CUBIC_ADVECT</td>
+    </tr>
+    <tr>
+      <td>PoP</td>
+      <td>CUBIC_ADVECT</td>
+    </tr>
+    <tr>
+      <td>all others</td>
+      <td>CUBIC_NOADVECT</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+The available algorithms are shown in the following table:<br>
+<br>
+<table nosave="" border="1" width="100%">
+  <caption>&nbsp; <br>
+  </caption><tbody>
+  </tbody><tbody>
+  </tbody><tbody>
+  </tbody> <tbody>
+    <tr>
+      <td>
+      <center><b>Algorithm</b></center>
+      </td>
+      <td>
+      <center><b>Description</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td>CUBIC_ADVECT</td>
+      <td>Cubic spline is applied to the data points temporally.&nbsp;
+Software
+looks for areas that can be advected.&nbsp; The advection component of
+the algorithm works best for weather elements that contain areas of
+zero
+value.</td>
+    </tr>
+    <tr>
+      <td>CUBIC_NOADVECT</td>
+      <td>Cubic spline is applied to the data points temporally.&nbsp;
+Software
+gradually adjusts points from starting value to ending value without
+advection
+considerations.</td>
+    </tr>
+    <tr>
+      <td>LINEAR_ADVECT</td>
+      <td>Linear calculations are applied to adjacent base grids
+temporally.&nbsp;
+Software looks for areas that can be advected.&nbsp; The advection
+component
+of the algorithm works best for weather elements that contain areas of
+zero value.</td>
+    </tr>
+    <tr>
+      <td>LINEAR_NOADVECT</td>
+      <td>Linear calculations are applied to adjacent base grids
+temporally.&nbsp;
+Software gradually adjusts points from starting value to ending value
+without
+advection considerations.</td>
+    </tr>
+  </tbody>
+</table>
+&nbsp; <br>
+An example of setting Temperature to use the linear and advective
+capabilities
+of the interpolation, you would do the following:
+<p><b><tt>T_interpolateAlgorithm = "LINEAR_ADVECT"</tt></b> </p>
+<p>For those weather elements that are not surface based, the format
+is
+parmName_level_interpolateAlgorithm. <br>
+&nbsp; </p>
+<h4><a name="SmoothingAlgorithm"></a><font size="+1">Smoothing
+Algorithm</font></h4>
+The Smoothing Algorithm can use a number of possible smoothing
+filters.&nbsp;
+By default, the choices are 3x3, 5x5, 7x7, or 9x9.&nbsp; Generally,
+more
+smoothing will occur with larger smoothing filter sizes. When the GFE
+is
+first started, the 3x3 filter size is the default, but this can be
+changed
+to any one of the filter sizes in the list.&nbsp; To change the default
+add this line to your GFEConfig file.
+<p><b><tt>SmoothSize = 7</tt></b> </p>
+<p>In this example the smoothing filter size will default to 7x7,
+when
+the GFE is started. </p>
+<p>The list of possible filter sizes can be configured in the GFE as
+well.&nbsp;
+To define a new list, which appears in the main menu item
+GFE-&gt;Editing
+Preferences, use the following syntax in your GFEConfig file. </p>
+<p><b><tt>SmoothSizeList = [3, 5, 7, 9, 11]</tt></b> </p>
+<p>Note that all of the integer values are odd.&nbsp; Even values
+will
+give the same results.&nbsp; For example, a value of 2 will give the
+same
+results as 3, 4 the same as 5, and so on.&nbsp; We recommend that you
+define
+the list with odd values simply for consistency. <br>
+&nbsp; </p>
+<h4><a name="ContourSubSample"></a><font size="+1">Contour Sub
+Sample</font></h4>
+The Countour Analyzer algorithm is used to convert contours into a grid
+for the <a href="GFETrainingSpatialEditor.html#ContourTool">Contour
+Tool</a>.&nbsp;
+It can run over a subsampled grid to improve performance.&nbsp; This is
+usually ok since the contour tool is mostly used where there is not
+much
+detail due to topography. The value of ContourSubSample is used to
+divide
+the x and y dimensions of the original grid to get the dimensions of
+the
+subsampled grid. So, setting ContourSubSample to 4 would cause the
+Contour
+Analyzer to reduce a 400x400 grid to a 100x100 grid for contouring
+purposes.
+This can greatly speed up the algorithm.&nbsp; Setting ContourSubSample
+to 1 will cause no reduction. The default value is 4.&nbsp; If
+ContourSubSample
+is set to a value less than or equal to 0 then it will go back to
+4.&nbsp;
+If it is set to a value large enough to make the subsampled grid have
+an
+x or y dimension less than 5, then it will be reduced so that the
+minimum
+dimension for x or y will be 5.&nbsp; This configurable item is simply
+for performance.
+<p><b><tt>ContourSubSample = 4</tt></b> <br>
+</p>
+<hr style="width: 100%; height: 2px;">
+<div class="Body">
+<center><a href="GFESuite.html">Back To TOC</a></center>
+</div>
+</div>
+</body>
+</html>

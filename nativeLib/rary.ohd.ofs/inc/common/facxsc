@@ -1,0 +1,4 @@
+C                                           *--> FROM COMMON.FACXSC
+      COMMON /FACXSC/ CMANGN(50),CFK(50),ACAREA(50),ACTW(50),OCTW(50),
+     & NOCS,LXELOC
+C

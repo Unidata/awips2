@@ -1,0 +1,59 @@
+C                                                *--> FROM CMS($UDSATX)
+C     DESCRIPTION OF VARIABLES IN COMMON BLOCK UDSATX:
+C        VARIABLE   TYPE   I/O   DIM   CONTENTS
+C        --------   ----   ---   ---   --------
+C        IDEVTP     I*4    I     1     RETURN UNIT TYPE INDICATOR
+C                                        0=NO
+C                                        1=YES
+C        ISDSCB     I*4    O     1     DSCB OBTAINED INDICATOR
+C                                        0=NO
+C                                        1=YES
+C        IDSSIO     I*4    O     1     SYSTEM INPUT/OUTPUT INDICATOR
+C                                        0=DATASET IS ALLOCATED
+C                                        1='DD *' DATASET
+C                                        2='DD SYSOUT=*' DATASET
+C                                        3='DUMMY' DATASET
+C                                        4=TAPE IS ALLOCATED
+C        IDSCTL     I*4    O     1     CATALOGED INDICATOR
+C                                        0=NOT CATALOGED
+C                                        1=CATALOGED
+C        IDSRLS     I*4    O     1     RELEASE UNUSED SPACE INDICATOR
+C                                        0=RLSE NOT SPECIFIED
+C                                        1=RLSE SPECIFIED
+C        IDSCTG     I*4    O     1     CONTIGUOUS SPACE INDICATOR
+C                                        0=CONTIG NOT SPECIFIED
+C                                        1=CONTIG SPECIFIED
+C        DSDDN      A8     O     1     DD NAME
+C        DSDSN      A44    O     1     DATASET NAME
+C        DSMEMB     A8     O     1     MEMBER NAME
+C        DSUNIT     A4     O     1     UNIT TYPE
+C        DSDISP     A4     O     1     DISPOSITION
+C        DSRCFM     A4     O     1     RECORD FORMAT
+C        NDRECL     I*4    O     1     LOGICAL RECORD LENGTH
+C        NDBLK      I*4    O     1     BLOCK SIZE
+C        NDSCRT     I*4    O     1     DATE CREATED (YYDDD)
+C        NDTRK      I*4    O     1     TRACKS ALLOCATED
+C        NDTRKU     I*4    O     1     TRACKS USED
+C        NDTRKE     I*4    O     1     TRACKS EMPTY
+C        NDDIR      I*4    O     1     PDS DIRECTORY BLOCKS ALLOCATED
+C        NDDIRU     I*4    O     1     PDS DIRECTORY BLOCKS USED
+C        NDDIRE     I*4    O     1     PDS DIRECTORY BLOCKS EMPTY
+C        NDSTK1     I*4    O     1     LOCATION OF FIRST TRACK
+C        NDSEXT     I*4    O     1     NUMBER OF EXTENTS
+C        NDSSEC     I*4    O     1     SECONDAY ALLOCATION
+C        NDSTSQ     I*4    O     1     TAPE FILE SEQUENCE NUMBER
+C        DSALLC     A4     O     1     ALLOCATION TYPE (ABS,BLK,CYL,TRK)
+C        DSDORG     A2     O     1     DATASET ORGANIZATION
+C        DSVOL      A6     O     1     VOLUME SERIAL NUMBER
+C        DSCVOL     A6     O     1     CATALOG VOLUME SERIAL NUMBER
+C        DSLABL     A3     O     1     LABEL TYPE
+C        DSOPCD     A1     O     1     OPTIONAL SERVICES CODE
+C        DSINOT     A3     O     1     INPUT PROCESSING INDICATOR/OUTPUT
+C                                        'IN'=PROCESS FOR INPUT
+C                                        'OUT'=PROCESS FOR OUTPUT
+C        DSEROP     A3     O     1     ERROR OPTION
+C                                        'ACC'=ACCEPT BLOCK CAUSING
+C                                              ERROR
+C                                        'SKP'=SKIP BLOCK CAUSING ERROR
+C                                        'ABE'=CAUSE ABNORMAL END OF
+C                                              TASK

@@ -1,0 +1,2 @@
+ Weather phrasing is complex.  For a complete explanation of the strategy, see the Text Reference Guide section on Weather Phrasing.
+   

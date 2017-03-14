@@ -1,0 +1,2129 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta content="text/html; charset=iso-8859-1"
+ http-equiv="Content-Type">
+  <meta
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]"
+ name="GENERATOR">
+  <meta content="Mark Mathewson" name="Author">
+  <title>GFESuite VTEC</title>
+</head>
+<body style="background-color: rgb(255, 255, 255);">
+<h1 style="text-align: center;" class="3Heading">GFESuite VTEC<br>
+</h1>
+<div style="text-align: center;" class="3Heading">March 13, 2012 - <b>THIS VERSION IS NOT COMPLETE</b><br>
+</div>
+<div class="3Heading">
+<h2><a name="TableofContents"></a>Table of Contents</h2>
+<a href="#Overview">Overview</a>
+<br>
+<a href="#ProgramFlow">VTEC Program Flow</a><br>
+<a href="#EnablingVTEC">Enabling VTEC in GFE Text Products</a><br>
+<a href="#VTECDecoder">VTEC Decoder</a><br>
+<a href="#NotifyTextProd">AWIPS D2D Setup for GFESuite VTEC</a><br>
+<a href="#SynchronizationActiveTable">Synchronization of the Active
+Table from Backup Sites</a><br>
+<a href="#DebuggingTables">Debugging/Examining the Active, Proposed,
+and Analyzed Tables</a><br>
+<a href="#EditingActiveTable">Editing the Active Table</a><br>
+<a href="#special">Special GFE Startup for VTEC Testing/Practice</a><br>
+<a href="#LogFiles">Important Log Files</a><br>
+<a href="#VTECCodes">VTEC Codes and Upgrade/Downgrade Tables</a><br>
+<hr width="100%">
+<h2><a name="Overview"></a>Overview</h2>
+This document describes the configuration and program flow of VTEC
+through the GFE.<br>
+<br>
+<hr style="width: 100%; height: 2px;">
+<h2><a name="ProgramFlow"></a>VTEC Program Flow<br>
+</h2>
+The following diagram shows the VTEC program flow through the
+GFE. It consists of three major parts: VTEC Decoding, VTEC
+Merging, and Product Formatting.<br>
+<br>
+<h3>VTEC Decoding</h3>
+<span style="color: rgb(255, 0, 0);"><br>
+<span style="color: rgb(0, 0, 0);">Text bulletins containing VTEC codes
+are received over the AWIPS SBN. These are routed to the
+NotifyTextProd AWIPS D2D persistent process. The NotifyTextProd
+compares the incoming product against the routing table contained in
+the pattern file. The pattern file is used to determine the
+process to be run for that file. The pattern file used in
+the GFESuite/VTEC situation instructs the NotifyTextProd to start the
+VTECDecoder anytime a W* (all warnings) or FZ* (all routine marine
+products) arrives.<br>
+<br>
+The VTECDecoder reads the text product, decodes the UGC strings and the
+VTEC strings. It then merges its findings with the "Active"
+table. The "Active" table represents the currently active (or
+recently active) watches, warnings, and advisories. It tracks
+Event Tracking Numbers (etns) by geographical id (UGC code) and knows
+the current state of each VTEC through action codes (e.g., NEW, CAN,
+UPG, EXT) for each product.<br>
+<br>
+There is a special WOU product that is received as guidance from the
+Storm Prediction Center (SPC). These products, when
+decoded, will send an alert message to the GFE (using sendGfeMessage)
+informing the forecaster to run the PlotSPCWatches tool. This
+allows the latest SPC guidance to be placed into the Hazards grids,
+where it can further edited by the forecaster. Likewise, the Tropical
+Prediction Center (TPC) sends out TCV tropical event bulletins, which
+when decoded, sends an alert message to the GFE informing the
+forecaster to run the PlotTPCEvents tool. This allows the latest
+TPC guidance to be placed into the Hazards grid.<br>
+<br>
+The "Active" table is designed to be "locked" when writing.
+Only the VTECDecoder and MergeVTEC processes lock the table during
+their update cycle. Any client can read the table if the
+table is not locked for writing.<br>
+</span></span><br>
+<img alt="VTEC Flow" src="images/VTECFlow.png"
+ style="width: 960px; height: 720px;"><br>
+<br>
+<br>
+<h3>VTEC Merging - <b>NOT COMPLETE</b></h3>
+<br>
+It is important that the "Active" table be always
+up-to-date. In the outside chance that a warning product is
+missed on the SBN, EDEX asks surrounding sites for their
+"Active" table on a routine basis. This is sent out as a
+request via the WAN. The adjacent site, upon receiving the
+request, packages the Active table for transmission back to the
+requesting site. The requesting site receives the table and
+runs the MergeVTEC routine. The MergeVTEC routine will add/update
+any records that are newer in the received active table than the
+existing active table. If a warning was issued and the action
+code or etn was updated but the local site missed the text bulletin
+(perhaps during a reboot), the MergeVTEC will update the warning record
+in the local table. The configuration file VTECPartners is
+critical in this process since it defines the adjacent sites from which
+to get the active table, as well as the site filtering for the
+VTECDecoder.<br>
+<br>
+<!--<img alt="VTEC Merge" src="images/VTECMerge.png">--><br>
+<h3>Product Formatting</h3>
+When a GFE Text Product is run, it first analyzes the GFE Hazards
+weather element. The Hazards grid contains areas of VTEC
+phenomena and significance, such as WS.W for Winter Storm
+Warning. The Hazards grid contains the "Proposed" set of
+hazards. This is summed into a "Proposed" table. The
+"Active" table is retrieved through EDEX and the VTEC
+Comparison module analyzes the proposed and active table and derives
+the "Analyzed table". The "Analyzed" table contains all of
+the proper VTEC action strings and event tracking numbers based on the
+VTEC Comparison logic. For example, if there is a hazard in the
+active table but not in the proposed table, generally a "CAN" for
+cancel is generated. If there is a new hazard in the
+proposed table but not a matching one in the active table, then a "NEW"
+is issued. If the logic detects that the user has proposed a
+larger area or a longer time for an existing hazard, then the
+appropriate EXT, EXA, or EXB action codes are generated.<br>
+<br>
+After the Analyzed table is complete, the hazards are filtered by
+product, since not all products contain the same hazards.
+The GFE and GHG Text Generation modules create the output
+product. There is a fine line between the GFE and GHG text
+generation portion of GFESuite. They both use the GFE text
+formatter infrastructure. The GFE text formatters are for routine
+forecast products and the GHG text formatters are for the watch,
+warning, and advisory products.<br>
+<p>
+The Hazard weather element uses the auxiliary data field capability of
+Discrete data. The auxiliary data field is only used in two cases with
+Hazards. For convective watches (Tornado Watches and Severe
+Thunderstorm
+Watches), the Storm Prediction Center's (SPC) Event Tracking Number
+is carried into the auxiliary data field. This is used by the VTEC
+logic to determine which watch (or watches) is depicted in the grids.
+The second use for the auxiliary data field is for GHG-style warning
+products. It is used to define a segment number for multi-segmented
+products.
+</p>
+<p>The following diagram illustrates the VTEC logic that is used to
+take the proposed and active tables and generate the analyzed table.
+</p>
+<p><img alt="VTEC Compare" src="images/vtecCompare.png"><br>
+</p>
+The result of all of this logic is an Analyzed Table, which contains
+a listing of all hazards and their VTEC codes.&nbsp; The product
+formatters then take the information in the Analyzed Table and inserts
+VTEC codes and headlines into the various text products.<br>
+<hr style="width: 100%; height: 2px;">
+<h2><a name="EnablingVTEC"></a>Enabling VTEC in GFE Text Products<br>
+</h2>
+VTEC can be in one of five modes:<br>
+<ul>
+  <li>Disabled</li>
+  <li>Operational ("O")</li>
+  <li>Test ("T")</li>
+  <li>Experimental ("E")</li>
+  <li>Experimental VTEC in an Operational Product ("X")</li>
+</ul>
+The mode is controlled by a single file contained in the
+/awips2/cave/etc/gfe/userPython/textUtilities/regular
+directory called VTECMessageType.py (which can be overridden
+at
+the SITE level if necessary). The product
+category, e.g., WSW, should be placed in the file and the VTEC mode
+indicated by
+one of the acceptable letters: "O", "T", "E", "X". If a product
+category is not in this file, then VTEC is not enabled for that product.<br>
+<br>
+<span style="color: rgb(255, 0, 0);">IMPORTANT: The file in BASE should
+not be modified. Instead the following technique should be
+followed.<br>
+</span>
+<ol>
+  <li>Open the localization perspective and browse to the GFE-&gt;TextUtilities.</li>
+  <li>Open the BASE level VTECMessageType.py.</li>
+  <li>Comment in or out the appropriate lines in the file to
+enable/disable VTEC. Change the message type as appropriate
+to one of the allowable codes: O, T, E, or X.</li>
+  <li>Use the File-&gt;Save As option to save the file as SITE, and exit the 
+  Python editor. Exit the Localization perspective.</li>
+</ol>
+<p>The default provided VTECMessageType enables "O" operational VTEC
+for all
+products except for the MWS, where VTEC is still experimental "X".
+</p>
+<p>The VTECMessageType file looks like this:<br>
+<span style="font-family: monospace;">#
+----------------------------------------------------------------------------</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;"># This software is in the public
+domain, furnished "as is", without technical</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;"># support, and with no warranty,
+express or implied, as to its usefulness for</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;"># any purpose.</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">#</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;"># VTECMessageType.py</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">#</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;"># This module stores the VTEC
+message type for each product category</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">#</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;"># Author: lefebvre</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">#
+----------------------------------------------------------------------------</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">#Products not listed will be
+considered VTEC disabled.</span><br style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">VTECMessageTypeDict = {</span><br
+ style="font-family: monospace;">
+<span
+ style="font-family: monospace; color: rgb(51, 51, 255); font-weight: bold;">&nbsp;&nbsp;&nbsp;
+'CWF' : 'O',</span><br
+ style="font-family: monospace; color: rgb(51, 51, 255); font-weight: bold;">
+<span
+ style="font-family: monospace; color: rgb(51, 51, 255); font-weight: bold;">&nbsp;&nbsp;&nbsp;
+'NSH' : 'O',</span><br
+ style="font-family: monospace; color: rgb(51, 51, 255); font-weight: bold;">
+<span
+ style="font-family: monospace; color: rgb(51, 51, 255); font-weight: bold;">&nbsp;&nbsp;&nbsp;
+'WSW' : 'O',</span><br
+ style="font-family: monospace; color: rgb(51, 51, 255); font-weight: bold;">
+<span
+ style="font-family: monospace; color: rgb(51, 51, 255); font-weight: bold;">&nbsp;&nbsp;&nbsp;
+'WCN' : 'O',</span><br
+ style="font-family: monospace; color: rgb(51, 51, 255); font-weight: bold;">
+<span
+ style="font-family: monospace; color: rgb(51, 51, 255); font-weight: bold;">&nbsp;&nbsp;&nbsp;
+'NPW' : 'O',</span><br
+ style="font-family: monospace; color: rgb(51, 51, 255); font-weight: bold;">
+<span
+ style="font-family: monospace; color: rgb(51, 51, 255); font-weight: bold;">&nbsp;&nbsp;&nbsp;
+'FFA' : 'O',</span><br
+ style="font-family: monospace; color: rgb(51, 51, 255); font-weight: bold;">
+<span
+ style="font-family: monospace; color: rgb(51, 51, 255); font-weight: bold;">&nbsp;&nbsp;&nbsp;
+'RFW' : 'O',</span><br
+ style="font-family: monospace; color: rgb(51, 51, 255); font-weight: bold;">
+<span
+ style="font-family: monospace; color: rgb(51, 51, 255); font-weight: bold;">&nbsp;&nbsp;&nbsp;
+'CFW' : 'O',</span><br
+ style="font-family: monospace; color: rgb(51, 51, 255); font-weight: bold;">
+<span
+ style="font-family: monospace; color: rgb(51, 51, 255); font-weight: bold;">&nbsp;&nbsp;&nbsp;
+'MWS' : 'X',</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; }</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;"># This method fetches the message
+type for the specified product Category</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;"># If not found, return None.</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">def
+getVTECMessageType(productCategory):</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; if
+VTECMessageTypeDict.has_key(productCategory):</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return VTECMessageTypeDict[productCategory]</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; else:</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return None</span><br style="font-family: monospace;">
+<br>
+Commenting in/out the lines in the VTECMessageTypeDict (highlighted in
+blue above) will enable/disable VTEC.&nbsp; Changing the values will
+change the VTEC code/mode.<br>
+<br>
+<br>
+There is a close link between VTEC codes and Headlines. Even if VTEC is
+disabled for a product, the Hazards output is still
+based on VTEC codes and the VTEC comparison logic is still executed.<br>
+<br>
+An additional step involves setting up <a href="VTECPartners.html">VTECPartners/localVTECPartners</a>
+for proper exchange of VTEC active tables. Refer to <a
+ href="#SynchronizationActiveTable">Synchronization of the Active Table
+from Backup Sites</a> or more information.<br>
+<br>
+</p>
+<hr style="width: 100%; height: 2px;">
+<h2><a name="VTECDecoder"></a>VTEC Decoder<br>
+</h2>
+The VTEC Decoder is used by GFESuite to decode incoming text bulletins
+for UGC and VTEC codes.&nbsp; It is automatically started by the AWIPS
+D2D NotifyTextProd process based on the notify pattern table in the
+data/acquire directory.<br>
+<br>
+A configuration file, VTECPartners.py and localVTECPartners.py, is used
+to define the following entries for the VTEC Decoder:<br>
+<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">VTEC_SPC_SITE<br>
+      </td>
+      <td style="vertical-align: top;">This entry defines the
+four-letter id that identifies the Storm Prediction Center.&nbsp; It is
+set to KWNS in the configuration file.&nbsp; Convective watches are
+handled differently when they are from the SPC.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">VTEC_TPC_SITE<br>
+      </td>
+      <td style="vertical-align: top;">This entry defines the
+four-letter id that identifies the Tropical Prediction Center.&nbsp; It
+is set to KNHC in the configuraiton file.&nbsp; TPC provides tropical
+VTEC watches and warnings.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">VTEC_DECODER_SITES<br>
+      </td>
+      <td style="vertical-align: top;">This entry defines the set of
+WFO identifiers which are used for filtering on incoming text
+bulletins.&nbsp;&nbsp; If blank, then no filtering is performed and all
+bulletins from all sites will be decoded.&nbsp; There is no need to add
+the SPC, TPC, or your own WFO id to this list since they are
+automatically
+added in the software.&nbsp;&nbsp;&nbsp; Usually you only set up
+entries containing the sites for which you perform primary and
+secondary backups, and sites that surround your WFO.&nbsp; For example,
+if this is site BOU and you
+sometimes back up PUB and CYS, then you will specify PKUB and KCYS in
+the
+list, as well as KGJT, KGLD, and KCYS.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">VTEC_CAPTURE_TEXT_CATEGORIES<br>
+      </td>
+      <td style="vertical-align: top;">Defines the text categories
+(pils) that will have their segment text captured and saved as part of
+the active table.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+The VTEC Decoder writes to the "Active Table" via exclusive write
+locking.&nbsp; A backup copy of the "Active Table" is made after each
+modification. The VTECPartner's VTEC_BACKUP_TABLE_PURGE_TIME
+specifies the number of hours in which to keep backup copies.<br>
+<br>
+<hr style="width: 100%; height: 2px;">
+<h2><a name="NotifyTextProd"></a>AWIPS D2D Setup for GFESuite VTEC - NOT UPDATED<br>
+</h2>
+The AWIPS NotifyTextProd processes
+will look for
+/awips/GFESuite/primary/data/acquire/notifyPattern.txt and
+/awips/GFESuite/svcbu/data/acquire/notifyPattern.txt.&nbsp; That file
+contains routing information for incoming text bulletins based on a WMO
+pattern. Example contents of the "open" file is:<br>
+<br>
+<span style="font-family: monospace; font-weight: bold;">#This file is
+for NotifyTextProd to start the VTECDecoder whenever certain</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">#text
+bulletins arrive.</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">^W.*
+/awips/GFESuite/primary/data/vtec/spool
+/awips/GFESuite/primary/bin/run/VTECDecoder -f &lt;FILEID&gt; -d -w
+"&lt;WMOID&gt;"</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">^FZ.*
+/awips/GFESuite/primary/data/vtec/spool
+/awips/GFESuite/primary/bin/run/VTECDecoder -f &lt;FILEID&gt; -d -w
+"&lt;WMOID&gt;"</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">^NWUS64.*KWNS
+/awips/GFESuite/primary/data/vtec/spool
+/awips/GFESuite/primary/bin/run/VTECDecoder -f &lt;FILEID&gt; -d -w
+"&lt;WMOID&gt;"</span><br
+ style="font-family: monospace; font-weight: bold;">
+<br style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">^W.*
+/awips/GFESuite/svcbu/data/vtec/spool
+/awips/GFESuite/svcbu/bin/run/VTECDecoder -f &lt;FILEID&gt; -d -w
+"&lt;WMOID&gt;"</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">^FZ.*
+/awips/GFESuite/svcbu/data/vtec/spool
+/awips/GFESuite/svcbu/bin/run/VTECDecoder -f &lt;FILEID&gt; -d -w
+"&lt;WMOID&gt;"</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">^NWUS64.*KWNS
+/awips/GFESuite/svcbu/data/vtec/spool
+/awips/GFESuite/svcbu/bin/run/VTECDecoder -f &lt;FILEID&gt; -d -w
+"&lt;WMOID&gt;"</span><br
+ style="font-family: monospace; font-weight: bold;">
+<br style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;"></span>The
+above version is typical for AWIPS versions earlier than
+OB6.&nbsp;&nbsp; Starting with OB6, NotifyTextProd will be sent a
+custom template based on the configured site identifier.&nbsp;&nbsp; An
+example of this template is shown below:<br>
+<br>
+<span style="font-family: monospace; font-weight: bold;">#This file is
+for NotifyTextProd to start the VTECDecoder whenever certain</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">#text
+bulletins arrive.</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">#</span><br
+ style="font-family: monospace; font-weight: bold;">
+<br style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">#Warnings</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">^W.*KABQ
+/scratch/HEAD/GFESuite/release/data/vtec/spool
+/scratch/HEAD/GFESuite/release/bin/run/VTECDecoder -f &lt;FILEID&gt; -d
+-w "&lt;WMOID&gt;"</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">^W.*KAMA
+/scratch/HEAD/GFESuite/release/data/vtec/spool
+/scratch/HEAD/GFESuite/release/bin/run/VTECDecoder -f &lt;FILEID&gt; -d
+-w "&lt;WMOID&gt;"</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">^W.*KBOU
+/scratch/HEAD/GFESuite/release/data/vtec/spool
+/scratch/HEAD/GFESuite/release/bin/run/VTECDecoder -f &lt;FILEID&gt; -d
+-w "&lt;WMOID&gt;"</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">^W.*KCYS
+/scratch/HEAD/GFESuite/release/data/vtec/spool
+/scratch/HEAD/GFESuite/release/bin/run/VTECDecoder -f &lt;FILEID&gt; -d
+-w "&lt;WMOID&gt;"</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">^W.*KDDC
+/scratch/HEAD/GFESuite/release/data/vtec/spool
+/scratch/HEAD/GFESuite/release/bin/run/VTECDecoder -f &lt;FILEID&gt; -d
+-w "&lt;WMOID&gt;"</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">^W.*KGJT
+/scratch/HEAD/GFESuite/release/data/vtec/spool
+/scratch/HEAD/GFESuite/release/bin/run/VTECDecoder -f &lt;FILEID&gt; -d
+-w "&lt;WMOID&gt;"</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">^W.*KGLD
+/scratch/HEAD/GFESuite/release/data/vtec/spool
+/scratch/HEAD/GFESuite/release/bin/run/VTECDecoder -f &lt;FILEID&gt; -d
+-w "&lt;WMOID&gt;"</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">^W.*KLBF
+/scratch/HEAD/GFESuite/release/data/vtec/spool
+/scratch/HEAD/GFESuite/release/bin/run/VTECDecoder -f &lt;FILEID&gt; -d
+-w "&lt;WMOID&gt;"</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">^W.*KPUB
+/scratch/HEAD/GFESuite/release/data/vtec/spool
+/scratch/HEAD/GFESuite/release/bin/run/VTECDecoder -f &lt;FILEID&gt; -d
+-w "&lt;WMOID&gt;"</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">^W.*KRIW
+/scratch/HEAD/GFESuite/release/data/vtec/spool
+/scratch/HEAD/GFESuite/release/bin/run/VTECDecoder -f &lt;FILEID&gt; -d
+-w "&lt;WMOID&gt;"</span><br
+ style="font-family: monospace; font-weight: bold;">
+<br style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">#Marine</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">^FZ.*KABQ
+/scratch/HEAD/GFESuite/release/data/vtec/spool
+/scratch/HEAD/GFESuite/release/bin/run/VTECDecoder -f &lt;FILEID&gt; -d
+-w "&lt;WMOID&gt;"</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">^FZ.*KAMA
+/scratch/HEAD/GFESuite/release/data/vtec/spool
+/scratch/HEAD/GFESuite/release/bin/run/VTECDecoder -f &lt;FILEID&gt; -d
+-w "&lt;WMOID&gt;"</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">^FZ.*KBOU
+/scratch/HEAD/GFESuite/release/data/vtec/spool
+/scratch/HEAD/GFESuite/release/bin/run/VTECDecoder -f &lt;FILEID&gt; -d
+-w "&lt;WMOID&gt;"</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">^FZ.*KCYS
+/scratch/HEAD/GFESuite/release/data/vtec/spool
+/scratch/HEAD/GFESuite/release/bin/run/VTECDecoder -f &lt;FILEID&gt; -d
+-w "&lt;WMOID&gt;"</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">^FZ.*KDDC
+/scratch/HEAD/GFESuite/release/data/vtec/spool
+/scratch/HEAD/GFESuite/release/bin/run/VTECDecoder -f &lt;FILEID&gt; -d
+-w "&lt;WMOID&gt;"</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">^FZ.*KGJT
+/scratch/HEAD/GFESuite/release/data/vtec/spool
+/scratch/HEAD/GFESuite/release/bin/run/VTECDecoder -f &lt;FILEID&gt; -d
+-w "&lt;WMOID&gt;"</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">^FZ.*KGLD
+/scratch/HEAD/GFESuite/release/data/vtec/spool
+/scratch/HEAD/GFESuite/release/bin/run/VTECDecoder -f &lt;FILEID&gt; -d
+-w "&lt;WMOID&gt;"</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">^FZ.*KLBF
+/scratch/HEAD/GFESuite/release/data/vtec/spool
+/scratch/HEAD/GFESuite/release/bin/run/VTECDecoder -f &lt;FILEID&gt; -d
+-w "&lt;WMOID&gt;"</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">^FZ.*KPUB
+/scratch/HEAD/GFESuite/release/data/vtec/spool
+/scratch/HEAD/GFESuite/release/bin/run/VTECDecoder -f &lt;FILEID&gt; -d
+-w "&lt;WMOID&gt;"</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">^FZ.*KRIW
+/scratch/HEAD/GFESuite/release/data/vtec/spool
+/scratch/HEAD/GFESuite/release/bin/run/VTECDecoder -f &lt;FILEID&gt; -d
+-w "&lt;WMOID&gt;"</span><br
+ style="font-family: monospace; font-weight: bold;">
+<br style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">#WCL</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">^NWUS64.*KWNS
+/scratch/HEAD/GFESuite/release/data/vtec/spool
+/scratch/HEAD/GFESuite/release/bin/run/VTECDecoder -f &lt;FILEID&gt; -d
+-w "&lt;WMOID&gt;"</span><br
+ style="font-family: monospace; font-weight: bold;">
+<br style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">#WOU</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">^WOUS64.*KWNS
+/scratch/HEAD/GFESuite/release/data/vtec/spool
+/scratch/HEAD/GFESuite/release/bin/run/VTECDecoder -f &lt;FILEID&gt; -d
+-w "&lt;WMOID&gt;"</span><br
+ style="font-family: monospace; font-weight: bold;">
+<br style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">#TCV</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">^WTNT8.*KNHC
+/scratch/HEAD/GFESuite/release/data/vtec/spool
+/scratch/HEAD/GFESuite/release/bin/run/VTECDecoder -f &lt;FILEID&gt; -d
+-w "&lt;WMOID&gt;"</span><br>
+<br>
+<br>
+The extra filtering becomes possible with OB6, due to the dual
+NotifyTextProd processes running.<br>
+<br>
+There is no other setup required for AWIPS to being sending the text
+bulletins to GFESuite.&nbsp; However, once you first install IFPS, you
+may need to restart the ingest processes on AWIPS so it
+will read the routing file.&nbsp; Restarting data ingest is done as
+user "fxa" from the stopIngest.dx4 and startIngest.dx4 for dx4 based
+ifpServers.
+In later versions (OB6+) of AWIPS, there are special
+startNotifyTextProd scripts that are available.<br>
+<br>
+IMPORTANT CONFIGURATION:&nbsp; Once your site has installed OB6, you
+should add the following to your localConfig file to take advantage of
+the extra filtering, but only if you are running IFPS17.6.*.
+Versions post IFPS17.6 are automatically configured for the extra
+filtering.<br>
+<br>
+serverConfig.AUTO_CONFIGURE_NOTIFYTEXTPROD = 1<br>
+<br>
+Refer to the <a
+ href="serverConfig.html#MiscellaneousConfigurationItems">Misc.
+Configuration Items for serverConfig</a> and <a
+ href="localConfig.html#NotifyTextProd">Auto Configuration of
+NotifyTextProd in localConfig</a> for additional information.<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;">
+<h2><a name="SynchronizationActiveTable"></a>Synchronization of the
+Active Table from Backup Sites - NOT UPDATED<br>
+</h2>
+Synchronization of the Active Table from Backup Sites is used to ensure
+that your VTEC table is always up-to-date. It comes in
+especially handy when you enter service backup and you need the latest
+active table.&nbsp; Based on the clock, the ifpServer will make a
+request for adjacent site's active table.&nbsp; The remote site(s)
+ifpServer will respond with the active table.&nbsp; The merge vtec
+process compares records in the received active table against your own
+active table.&nbsp; Entries that are newer in the received table will
+be merged into your active table.&nbsp; <br>
+<br>
+<br>
+Merging characteristics are defined by the VTECPartners and
+localVTECPartners configuration files.&nbsp; The following entries
+control this process:<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">VTEC_TABLE_REQUEST_SITES<br>
+      </td>
+      <td style="vertical-align: top;">Defines the AWIPS 3-letter WFO
+identifiers that will be requested to send their active table to you.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">VTEC_MERGE_SITES<br>
+      </td>
+      <td style="vertical-align: top;">Defines the four-letter WFO ids
+that will be decoded and merged with your active table during merges.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">VTEC_REMOTE_TABLE_FETCH_TIME<br>
+      </td>
+      <td style="vertical-align: top;">Defines the interval that the
+requests will be made for the active table to the
+VTEC_TABLE_REQUEST_SITES.&nbsp; The recommended time is no less than 15
+minutes and defaults to 60 minutes.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">VTEC_RESPOND_TO_TABLE_REQUESTS<br>
+      </td>
+      <td style="vertical-align: top;">Set to either 1 or 0.&nbsp; If
+1, then the ifpServer will respond to requests for the active table to
+be sent to the requestor from remote sites.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+The
+VTEC_TABLE_REQUEST_SITES
+define the AWIPS 3-letter WFO identifiers that will be requested to
+send their active table to you and the VTEC_MERGE_SITES are the sites
+that will be decoded and merged into your active table.&nbsp; Normally
+this is set up to
+include your primary and secondary backup sites, and the sites that
+have you as primary and secondary backup.<br>
+<br>
+You will likely want to change the VTEC_TABLE_REQUEST_SITES to only
+include two or three sites. <br>
+<br>
+The VTEC_MERGE_SITES is usually correctly set up in the baseline and
+includes all sites within your defined grid domain.<br>
+<br>
+The procedure to configure the sharing of the VTEC active table is done
+through the <a href="VTECPartners.html">localVTECPartners</a>
+file.&nbsp; Refer to the <a href="VTECPartners.html">VTECPartners /
+localVTECPartners</a> documentation.<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;">
+<h2><a name="DebuggingTables"></a>Debugging/Examining the Active,
+Proposed, and Analyzed Tables - NOT UPDATED<br>
+</h2>
+The key to VTEC is the correct merging of the proposed and active
+table. For diagnostics, the logging preferences file may be
+edited to turn on the verbose and debug output for the VTECDecoder,
+VTEC Merging, and product formatting. The contents of the
+analyzed table will be output at each step of the VTEC
+comparison. This is quite helpful for debugging.<br>
+<br>
+For formatters, you will want to enable the debugging for
+HazardsTable.py.&nbsp; Here is the complete
+.../etc/BASE/logPref/runIFPText.logPref file, with the line to
+turn on debugging highlighted.<br>
+<br>
+<span style="font-family: monospace;">#Process&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Src&nbsp;&nbsp;&nbsp;&nbsp; Sink&nbsp;&nbsp;&nbsp; Category</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+File</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">#-----------------------------------------</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">all&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+all&nbsp;&nbsp;&nbsp;&nbsp; file&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+all = on</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">all&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+all&nbsp;&nbsp;&nbsp;&nbsp; file&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+debug = off</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">all&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+all&nbsp;&nbsp;&nbsp;&nbsp; file&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+verbose = off</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">all&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+all&nbsp;&nbsp;&nbsp;&nbsp;
+tty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; all = on</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">all&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+all&nbsp;&nbsp;&nbsp;&nbsp;
+tty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; debug = off</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">all&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+all&nbsp;&nbsp;&nbsp;&nbsp;
+tty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; verbose = off</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">all&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+all&nbsp;&nbsp;&nbsp;&nbsp; collective all = off<br>
+<br>
+all HazardsTable.py&nbsp;&nbsp;&nbsp;&nbsp;
+file&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; verbose = on<br>
+all HazardsTable.py&nbsp;&nbsp;&nbsp;&nbsp;
+tty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; verbose = on<br>
+<br>
+<span style="color: rgb(0, 0, 0);">#Uncomment following line for
+debugging purposes</span><br
+ style="color: rgb(255, 0, 0); font-weight: bold;">
+<span style="color: rgb(255, 0, 0); font-weight: bold;">#all
+HazardsTable.py all all = on</span><br style="font-weight: bold;">
+<br>
+</span><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span><br style="font-family: monospace;">
+<span style="font-family: monospace;"># Prefixes</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">all&nbsp;&nbsp; timeStamp =
+on&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # time stamps on</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">#all&nbsp;&nbsp; processName =
+off&nbsp;&nbsp;&nbsp;&nbsp; # process name off</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">#all&nbsp;&nbsp; processID =
+off&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # process id off</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">all&nbsp;&nbsp; fileName =
+on&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # filenames wanted</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">all&nbsp;&nbsp; lineNo =
+on&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # line
+numbers wanted</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span><br style="font-family: monospace;">
+<span style="font-family: monospace;"># TEMPORARY FOR DEVELOPMENT</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">#bug abort = on</span><br>
+<br>
+<br>
+For debugging the VTECDecoder, the logPref file is VTECDecoder.logPref
+and the added line is:<br>
+<br style="font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">all&nbsp;
+VTECDecoder.py all all = on</span><br>
+<br>
+For debugging the VTEC Merge routine, the logPref file is
+ingestAT.logPref and the added line is:<br>
+<br>
+<span style="font-family: monospace; font-weight: bold;">all
+MergeVTEC.py all all = on</span><br>
+<br>
+<br>
+<br>
+The debugging statements output records in the analyzed, active, and
+proposed tables in a form similiar to that below.&nbsp; This form shows
+most of the field entries in each record:<br>
+<br>
+<span style="font-family: monospace; font-weight: bold;">Vtec:
+/T.NEW.KLOX.HW.W.0001.040903T0900Z-040903T1900Z/</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">Hdln: HIGH
+WIND WARNING</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">Start: Fri
+Sep&nbsp; 3 09:00:00 2004 1094202000.0&nbsp; Action: NEW</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">End:&nbsp;&nbsp;
+Fri Sep&nbsp; 3 19:00:00 2004 1094238000.0</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">Phen:
+HW&nbsp;&nbsp; Sig: W&nbsp;&nbsp; Office: KLOX&nbsp;&nbsp; Etn: 0001
+Seg: 0&nbsp;&nbsp; Key: HW.W</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">Zone: CAZ051</span><br>
+<br>
+<br>
+The following describes the various fields in the analyzed, active, and
+proposed tables:<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">Vtec<br>
+      </td>
+      <td style="vertical-align: top;">Contains the actual VTEC string.
+The proposed table (from the Hazard grid) does not contain a Vtec
+string since it hasn't been calculated at this point.&nbsp; The active
+table contains the VTEC string from the text product, and the proposed
+table contains the output VTEC string.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Hdln<br>
+      </td>
+      <td style="vertical-align: top;">The Headline is the descriptive
+name for the VTEC phenomena and significance.&nbsp; ??? indicates that
+the headline description has not yet been assigned to the record.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Start<br>
+      </td>
+      <td style="vertical-align: top;">The starting time of the event
+is output in a readable form as well as the number of seconds since the
+epoch.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">End<br>
+      </td>
+      <td style="vertical-align: top;">The ending time of the event is
+output in a readable form as well as the number of seconds since the
+epoch.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">previousStart<br>
+      </td>
+      <td style="vertical-align: top;">The previous starting time of
+the event is given for events that have been shortened or extended.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">previousEnd<br>
+      </td>
+      <td style="vertical-align: top;">The previous ending time of the
+event is given for events that have been shortened or extended.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">downgradeFrom<br>
+      </td>
+      <td style="vertical-align: top;">Contains information about the
+event that this event was downgraded from.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">upgradeTo<br>
+      </td>
+      <td style="vertical-align: top;">Contains information about the
+event that this event was upgraded to.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">UFN<br>
+      </td>
+      <td style="vertical-align: top;">Until Further Notice flag,
+indicates that the ending time is not defined and the event is
+continued until a replacement record is decoded.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Purge<br>
+      </td>
+      <td style="vertical-align: top;">The purge time of the event
+is output in a readable form as well as the number of seconds since the
+epoch.&nbsp; The purge time is from the date-time group at the end
+of the UGC line.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Issue<br>
+      </td>
+      <td style="vertical-align: top;">The product issuance time of the
+event
+is output in a readable form as well as the number of seconds since the
+epoch.&nbsp; The issue time is from the date-time group on the 1st line
+of the product.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Action<br>
+      </td>
+      <td style="vertical-align: top;">The action code assigned to this
+record is shown.&nbsp;&nbsp; ??? indicates that the action code has not
+yet been determined.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Phen<br>
+      </td>
+      <td style="vertical-align: top;">The VTEC Phenomena is
+shown.&nbsp;&nbsp; Locally defined hazard keys will not have a
+phenomena.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Sig<br>
+      </td>
+      <td style="vertical-align: top;">The VTEC Significance is
+shown.&nbsp; Locally defined hazard keys will not have a significance.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Office<br>
+      </td>
+      <td style="vertical-align: top;">The Office identifier associated
+with this record is shown.&nbsp; It is the 4-letter site id.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Etn<br>
+      </td>
+      <td style="vertical-align: top;">The assigned event tracking
+number for the record is shown.&nbsp; The proposed table normally does
+not have an entry, except for convective watches.&nbsp;&nbsp; ???
+indicates that the event tracking number has not yet been determined.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Seg<br>
+      </td>
+      <td style="vertical-align: top;">The assigned segment
+number. This is normally zero for the analyzed and proposed
+tables. The segment number from the VTECDecoder indicates the
+ordering of the product. The proposed table normally does
+not have this entry, except that the forecaster may define a hazard
+with different segements to aid the hazard formatters in formatting the
+product.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Key<br>
+      </td>
+      <td style="vertical-align: top;">The key is the Discrete Key that
+was found in the grids. Keys with a colon and a number reflect a
+convective watch with ETN or a segment descriptor.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Zone<br>
+      </td>
+      <td style="vertical-align: top;">The zone is the geographical
+identifier or UGC. UGCs may be Zone or FIPS.&nbsp; They are edit
+area names for the proposed table and the decoded UGC identifiers for
+the active table.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Text<br>
+      </td>
+      <td style="vertical-align: top;">This field is not normally
+shown.&nbsp; Only the active table contains this field.&nbsp;&nbsp; It
+contains the hazard/forecast text that was found in the segment that
+corresponds with the VTEC record.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Overview Text<br>
+      </td>
+      <td style="vertical-align: top;">This field is not normally
+shown.&nbsp; Only the active table contains this field.&nbsp;&nbsp; It
+contains the overview text that was found between the MND header and
+the
+first segment.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Previous Text<br>
+      </td>
+      <td style="vertical-align: top;">This field is not normally
+shown.&nbsp; Only the analyzed table contains this field.&nbsp;&nbsp;
+It
+contains the hazard/forecast text that was found in the segment that
+corresponds with the VTEC record previously. For example, if the VTEC
+record is a "CON", then the text represents the information contained
+in the last issued product for that segment. If the record is an "EXA",
+then that segment wasn't issued previously, but the captured text is
+for the
+same event from the previous issuance.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Previous Overview Text<br>
+      </td>
+      <td style="vertical-align: top;">This field is not normally
+shown.&nbsp; Only the analyzed table contains this field.&nbsp;&nbsp;
+It contains the text that was found between the MND header and the
+first segment. </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Pil<br>
+      </td>
+      <td style="vertical-align: top;">This field contains the product
+category for the record.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+The <a href="dumpAT.html">dumpAT</a> program is available to dump out
+the contents of the VTEC active table.&nbsp;&nbsp; It only runs on the
+server machine where GFESuite has been installed, but does not require
+the ifpServer running.<br>
+<hr style="width: 100%; height: 2px;">
+<h2><a name="EditingActiveTable"></a>Editing the Active Table</h2>
+</div>
+<div class="3Heading">Editing of the Active Table is
+currently not
+supported in this version of GFESuite; however, the <a
+ href="GHGMonitor.html">GHG Monitor</a> can be used to view the events.<br>
+<hr style="width: 100%; height: 2px;">
+<h2><a name="special"></a>Special GFE Startup Modes for VTEC Test and
+Practice</h2>
+There are two special GFE startup modes for VTEC testing and
+practice:<br>
+<ul>
+  <li>TEST</li>
+  <li>PRACTICE</li>
+</ul>
+The PRACTICE mode uses an alternate active table to
+ensure isolation from operations. Please see the <a
+ href="GFEStartup.html#special">GFE Startup Guide</a>
+for more details on the behavior of these modes.<br>
+<br>
+<h3>Mixing Test and Operational Hazards</h3>
+It is possible to mix test and operational hazards with the
+GFE/GHG.&nbsp; When used properly, TEST hazards previously issued will
+not appear in the operational products.&nbsp;&nbsp; When improperly
+used, test hazards can be shown as operational hazards in a product.<br>
+<br>
+For example, if a test tornado watch (TO.A) is placed into the grids,
+and an operational ZFP is generated, the headlines in the ZFP will
+mention TORNADO WATCH.&nbsp; It is important to either remove the test
+hazards from the grids prior to generation of the operational products,
+or run the test products from the Fcst database while running the
+official products from the Official database.<br>
+<br>
+<hr style="width: 100%; height: 2px;">
+<h2><a name="LogFiles"></a>Important Log Files - NOT COMPLETE</h2>
+There are several log files that contain pertient information about the
+VTEC operation. These are the primary log files:<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">edex-ingest*<br>
+      </td>
+      <td style="vertical-align: top;">Logs from the VTEC Decoder,
+which shows the decoding of each received product and how the VTEC
+active table is being changed.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">cave* in the user caveData subdirectory<br>
+      </td>
+      <td style="vertical-align: top;">Formatter logs, which contain
+information about the processing of the Hazards grid and active table,
+as well as the final analyzed table for determining VTEC codes and
+headlines.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">edex-ingest-text*<br>
+      </td>
+      <td style="vertical-align: top;">Received active table logs,
+showing the records that were merged into your active table.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">edex-request-productSrvRequest* ??<br>
+      </td>
+      <td style="vertical-align: top;">Log showing requests from your
+site to other sites for active tables.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">??<br>
+      </td>
+      <td style="vertical-align: top;">Log showing the sending of the
+active table from your site to other sites.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+There is a secondary log file that are part of the Intersite
+Coordination part of the software that also contain some transaction
+information:<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">iscDataRec<br>
+      </td>
+      <td style="vertical-align: top;">Transmitted and Received ISC log
+files.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<h2><a name="VTECCodes"></a>VTEC Codes and Upgrade/Downgrade Table</h2>
+<a href="vcode">VTEC Codes</a><br>
+<a href="#upgrade">Upgrade Table</a><br>
+<a href="#downgrade">DowngradeTable</a><br>
+<br>
+<h3><a name="vcode"></a>VTEC Codes</h3>
+The following table lists the "known" VTEC Codes by GFESuite.&nbsp; Not
+all of these are produced in the GFE/GHG product generation.&nbsp; The
+other codes are used for the GHG Monitor to monitor non-GFE/GHG events:<br>
+<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top; font-weight: bold;">VTEC Coding<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Phenomena Code<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Significance
+Code<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Headline /
+Description<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> AF.Y </td>
+      <td style="text-align: center;"> AF </td>
+      <td style="text-align: center;"> Y </td>
+      <td> ASHFALL ADVISORY </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> AS.Y </td>
+      <td style="text-align: center;"> AS </td>
+      <td style="text-align: center;"> Y </td>
+      <td> AIR STAGNATION ADVISORY </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> BS.Y </td>
+      <td style="text-align: center;"> BS </td>
+      <td style="text-align: center;"> Y </td>
+      <td> BLOWING SNOW ADVISORY </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> BW.Y </td>
+      <td style="text-align: center;"> BW </td>
+      <td style="text-align: center;"> Y </td>
+      <td> BRISK WIND ADVISORY </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> BZ.A </td>
+      <td style="text-align: center;"> BZ </td>
+      <td style="text-align: center;"> A </td>
+      <td> BLIZZARD WATCH </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> BZ.W </td>
+      <td style="text-align: center;"> BZ </td>
+      <td style="text-align: center;"> W </td>
+      <td> BLIZZARD WARNING </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> CF.A </td>
+      <td style="text-align: center;"> CF </td>
+      <td style="text-align: center;"> A </td>
+      <td> COASTAL FLOOD WATCH </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> CF.S </td>
+      <td style="text-align: center;"> CF </td>
+      <td style="text-align: center;"> S </td>
+      <td> &lt;coastal flood statement -- no headline&gt;<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> CF.W </td>
+      <td style="text-align: center;"> CF </td>
+      <td style="text-align: center;"> W </td>
+      <td> COASTAL FLOOD WARNING </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> CF.Y </td>
+      <td style="text-align: center;"> CF </td>
+      <td style="text-align: center;"> Y </td>
+      <td> COASTAL FLOOD ADVISORY </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> DS.W </td>
+      <td style="text-align: center;"> DS </td>
+      <td style="text-align: center;"> W </td>
+      <td> DUST STORM WARNING </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> DU.Y </td>
+      <td style="text-align: center;"> DU </td>
+      <td style="text-align: center;"> Y </td>
+      <td> BLOWING DUST ADVISORY </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> EC.A </td>
+      <td style="text-align: center;"> EC </td>
+      <td style="text-align: center;"> A </td>
+      <td> EXTREME COLD WATCH </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> EC.W </td>
+      <td style="text-align: center;"> EC </td>
+      <td style="text-align: center;"> W </td>
+      <td> EXTREME COLD WARNING </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> EH.A </td>
+      <td style="text-align: center;"> EH </td>
+      <td style="text-align: center;"> A </td>
+      <td> EXCESSIVE HEAT WATCH </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> EH.W </td>
+      <td style="text-align: center;"> EH </td>
+      <td style="text-align: center;"> W </td>
+      <td> EXCESSIVE HEAT WARNING </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; text-align: center;">EW.W<br>
+      </td>
+      <td style="vertical-align: top; text-align: center;">EW<br>
+      </td>
+      <td style="vertical-align: top; text-align: center;">W<br>
+      </td>
+      <td style="vertical-align: top;">EXCESSIVE WIND WARNING<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> FA.A </td>
+      <td style="text-align: center;"> FA </td>
+      <td style="text-align: center;"> A </td>
+      <td> FLOOD WATCH </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> FA.W </td>
+      <td style="text-align: center;"> FA </td>
+      <td style="text-align: center;"> W </td>
+      <td> AREAL FLOOD WARNING </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> FA.Y </td>
+      <td style="text-align: center;"> FA </td>
+      <td style="text-align: center;"> Y </td>
+      <td> AREAL FLOOD ADVISORY </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> FF.A </td>
+      <td style="text-align: center;"> FF </td>
+      <td style="text-align: center;"> A </td>
+      <td> FLASH FLOOD WATCH </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> FF.W </td>
+      <td style="text-align: center;"> FF </td>
+      <td style="text-align: center;"> W </td>
+      <td> FLASH FLOOD WARNING </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> FG.Y </td>
+      <td style="text-align: center;"> FG </td>
+      <td style="text-align: center;"> Y </td>
+      <td> DENSE FOG ADVISORY </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> FL.A </td>
+      <td style="text-align: center;"> FL </td>
+      <td style="text-align: center;"> A </td>
+      <td> FLOOD WATCH </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> FL.W </td>
+      <td style="text-align: center;"> FL </td>
+      <td style="text-align: center;"> W </td>
+      <td> FLOOD WARNING </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> FL.Y </td>
+      <td style="text-align: center;"> FL </td>
+      <td style="text-align: center;"> Y </td>
+      <td> FLOOD ADVISORY </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> FR.Y </td>
+      <td style="text-align: center;"> FR </td>
+      <td style="text-align: center;"> Y </td>
+      <td> FROST ADVISORY </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> FW.A </td>
+      <td style="text-align: center;"> FW </td>
+      <td style="text-align: center;"> A </td>
+      <td> FIRE WEATHER WATCH </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> FW.W </td>
+      <td style="text-align: center;"> FW </td>
+      <td style="text-align: center;"> W </td>
+      <td> RED FLAG WARNING </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> FZ.A </td>
+      <td style="text-align: center;"> FZ </td>
+      <td style="text-align: center;"> A </td>
+      <td> FREEZE WATCH </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> FZ.W </td>
+      <td style="text-align: center;"> FZ </td>
+      <td style="text-align: center;"> W </td>
+      <td> FREEZE WARNING </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> GL.W </td>
+      <td style="text-align: center;"> GL </td>
+      <td style="text-align: center;"> W </td>
+      <td> GALE WARNING </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> HF.W </td>
+      <td style="text-align: center;"> HF </td>
+      <td style="text-align: center;"> W </td>
+      <td> HURRICANE FORCE WIND WARNING </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> HI.A </td>
+      <td style="text-align: center;"> HI </td>
+      <td style="text-align: center;"> A </td>
+      <td> INLAND HURRICANE WATCH </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> HI.W </td>
+      <td style="text-align: center;"> HI </td>
+      <td style="text-align: center;"> W </td>
+      <td> INLAND HURRICANE WARNING </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> HS.W </td>
+      <td style="text-align: center;"> HS </td>
+      <td style="text-align: center;"> W </td>
+      <td> HEAVY SNOW WARNING </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> HT.Y </td>
+      <td style="text-align: center;"> HT </td>
+      <td style="text-align: center;"> Y </td>
+      <td> HEAT ADVISORY </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> HU.A </td>
+      <td style="text-align: center;"> HU </td>
+      <td style="text-align: center;"> A </td>
+      <td> HURRICANE WATCH </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> HU.W </td>
+      <td style="text-align: center;"> HU </td>
+      <td style="text-align: center;"> W </td>
+      <td> HURRICANE WARNING </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> HW.A </td>
+      <td style="text-align: center;"> HW </td>
+      <td style="text-align: center;"> A </td>
+      <td> HIGH WIND WATCH </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> HW.W </td>
+      <td style="text-align: center;"> HW </td>
+      <td style="text-align: center;"> W </td>
+      <td> HIGH WIND WARNING </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; text-align: center;">HZ.A<br>
+      </td>
+      <td style="vertical-align: top; text-align: center;">HZ<br>
+      </td>
+      <td style="vertical-align: top; text-align: center;">A<br>
+      </td>
+      <td style="vertical-align: top;">HARD FREEZE WATCH<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; text-align: center;">HZ.W<br>
+      </td>
+      <td style="vertical-align: top; text-align: center;">HZ<br>
+      </td>
+      <td style="vertical-align: top; text-align: center;">W<br>
+      </td>
+      <td style="vertical-align: top;">HARD FREEZE WARNING<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> IP.W </td>
+      <td style="text-align: center;"> IP </td>
+      <td style="text-align: center;"> W </td>
+      <td> SLEET WARNING </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> IP.Y </td>
+      <td style="text-align: center;"> IP </td>
+      <td style="text-align: center;"> Y </td>
+      <td> SLEET ADVISORY </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> IS.W </td>
+      <td style="text-align: center;"> IS </td>
+      <td style="text-align: center;"> W </td>
+      <td> ICE STORM WARNING </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> LB.Y </td>
+      <td style="text-align: center;"> LB </td>
+      <td style="text-align: center;"> Y </td>
+      <td> LAKE EFFECT SNOW AND BLOWING SNOW ADVISORY </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> LE.A </td>
+      <td style="text-align: center;"> LE </td>
+      <td style="text-align: center;"> A </td>
+      <td> LAKE EFFECT SNOW WATCH </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> LE.W </td>
+      <td style="text-align: center;"> LE </td>
+      <td style="text-align: center;"> W </td>
+      <td> LAKE EFFECT SNOW WARNING </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> LE.Y </td>
+      <td style="text-align: center;"> LE </td>
+      <td style="text-align: center;"> Y </td>
+      <td> LAKE EFFECT SNOW ADVISORY </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> LO.Y </td>
+      <td style="text-align: center;"> LO </td>
+      <td style="text-align: center;"> Y </td>
+      <td> LOW WATER ADVISORY </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> LS.A </td>
+      <td style="text-align: center;"> LS </td>
+      <td style="text-align: center;"> A </td>
+      <td> LAKESHORE FLOOD WATCH </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> LS.S </td>
+      <td style="text-align: center;"> LS </td>
+      <td style="text-align: center;"> S </td>
+      <td> &lt;lakeshore flood statement - no headline&gt;<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> LS.W </td>
+      <td style="text-align: center;"> LS </td>
+      <td style="text-align: center;"> W </td>
+      <td> LAKESHORE FLOOD WARNING </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> LS.Y </td>
+      <td style="text-align: center;"> LS </td>
+      <td style="text-align: center;"> Y </td>
+      <td> LAKESHORE FLOOD ADVISORY </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> LW.Y </td>
+      <td style="text-align: center;"> LW </td>
+      <td style="text-align: center;"> Y </td>
+      <td> LAKE WIND ADVISORY </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> MA.S </td>
+      <td style="text-align: center;"> MA </td>
+      <td style="text-align: center;"> S </td>
+      <td> &lt;marine statement - no headline&gt;<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> MA.W </td>
+      <td style="text-align: center;"> MA </td>
+      <td style="text-align: center;"> W </td>
+      <td> SPECIAL MARINE WARNING </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> RB.Y </td>
+      <td style="text-align: center;"> RB </td>
+      <td style="text-align: center;"> Y </td>
+      <td> SMALL CRAFT ADVISORY FOR ROUGH BAR </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> SB.Y </td>
+      <td style="text-align: center;"> SB </td>
+      <td style="text-align: center;"> Y </td>
+      <td> SNOW AND BLOWING SNOW ADVISORY </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> SC.Y </td>
+      <td style="text-align: center;"> SC </td>
+      <td style="text-align: center;"> Y </td>
+      <td> SMALL CRAFT ADVISORY </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> SE.W </td>
+      <td style="text-align: center;"> SE </td>
+      <td style="text-align: center;"> W </td>
+      <td> HAZARDOUS SEAS WARNING </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> SI.Y </td>
+      <td style="text-align: center;"> SI </td>
+      <td style="text-align: center;"> Y </td>
+      <td> SMALL CRAFT ADVISORY FOR WINDS </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> SM.Y </td>
+      <td style="text-align: center;"> SM </td>
+      <td style="text-align: center;"> Y </td>
+      <td> DENSE SMOKE ADVISORY </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> SN.Y </td>
+      <td style="text-align: center;"> SN </td>
+      <td style="text-align: center;"> Y </td>
+      <td> SNOW ADVISORY </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> SR.W </td>
+      <td style="text-align: center;"> SR </td>
+      <td style="text-align: center;"> W </td>
+      <td> STORM WARNING </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> SU.W </td>
+      <td style="text-align: center;"> SU </td>
+      <td style="text-align: center;"> W </td>
+      <td> HIGH SURF WARNING </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> SU.Y </td>
+      <td style="text-align: center;"> SU </td>
+      <td style="text-align: center;"> Y </td>
+      <td> HIGH SURF ADVISORY </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> SV.A </td>
+      <td style="text-align: center;"> SV </td>
+      <td style="text-align: center;"> A </td>
+      <td> SEVERE THUNDERSTORM WATCH </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> SV.W </td>
+      <td style="text-align: center;"> SV </td>
+      <td style="text-align: center;"> W </td>
+      <td> SEVERE THUNDERSTORM WARNING </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> SW.Y </td>
+      <td style="text-align: center;"> SW </td>
+      <td style="text-align: center;"> Y </td>
+      <td> SMALL CRAFT ADVISORY FOR HAZARDOUS SEAS </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> TI.A </td>
+      <td style="text-align: center;"> TI </td>
+      <td style="text-align: center;"> A </td>
+      <td> INLAND TROPICAL STORM WATCH </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> TI.W </td>
+      <td style="text-align: center;"> TI </td>
+      <td style="text-align: center;"> W </td>
+      <td> INLAND TROPICAL STORM WARNING </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> TO.A </td>
+      <td style="text-align: center;"> TO </td>
+      <td style="text-align: center;"> A </td>
+      <td> TORNADO WATCH </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> TO.W </td>
+      <td style="text-align: center;"> TO </td>
+      <td style="text-align: center;"> W </td>
+      <td> TORNADO WARNING </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> TR.A </td>
+      <td style="text-align: center;"> TR </td>
+      <td style="text-align: center;"> A </td>
+      <td> TROPICAL STORM WATCH </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> TR.W </td>
+      <td style="text-align: center;"> TR </td>
+      <td style="text-align: center;"> W </td>
+      <td> TROPICAL STORM WARNING </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> TS.A </td>
+      <td style="text-align: center;"> TS </td>
+      <td style="text-align: center;"> A </td>
+      <td> TSUNAMI WATCH </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> TS.W </td>
+      <td style="text-align: center;"> TS </td>
+      <td style="text-align: center;"> W </td>
+      <td> TSUNAMI WARNING </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> TY.A </td>
+      <td style="text-align: center;"> TY </td>
+      <td style="text-align: center;"> A </td>
+      <td> TYPHOON WATCH </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> TY.W </td>
+      <td style="text-align: center;"> TY </td>
+      <td style="text-align: center;"> W </td>
+      <td> TYPHOON WARNING </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> UP.W </td>
+      <td style="text-align: center;"> UP </td>
+      <td style="text-align: center;"> W </td>
+      <td> HEAVY FREEZING SPRAY WARNING </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> UP.Y </td>
+      <td style="text-align: center;"> UP </td>
+      <td style="text-align: center;"> Y </td>
+      <td> FREEZING SPRAY ADVISORY </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> WC.A </td>
+      <td style="text-align: center;"> WC </td>
+      <td style="text-align: center;"> A </td>
+      <td> WIND CHILL WATCH </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> WC.W </td>
+      <td style="text-align: center;"> WC </td>
+      <td style="text-align: center;"> W </td>
+      <td> WIND CHILL WARNING </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> WC.Y </td>
+      <td style="text-align: center;"> WC </td>
+      <td style="text-align: center;"> Y </td>
+      <td> WIND CHILL ADVISORY </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> WI.Y </td>
+      <td style="text-align: center;"> WI </td>
+      <td style="text-align: center;"> Y </td>
+      <td> WIND ADVISORY </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> WS.A </td>
+      <td style="text-align: center;"> WS </td>
+      <td style="text-align: center;"> A </td>
+      <td> WINTER STORM WATCH </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> WS.W </td>
+      <td style="text-align: center;"> WS </td>
+      <td style="text-align: center;"> W </td>
+      <td> WINTER STORM WARNING </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> WW.Y </td>
+      <td style="text-align: center;"> WW </td>
+      <td style="text-align: center;"> Y </td>
+      <td> WINTER WEATHER ADVISORY </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> ZF.Y </td>
+      <td style="text-align: center;"> ZF </td>
+      <td style="text-align: center;"> Y </td>
+      <td> FREEZING FOG ADVISORY </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;"> ZR.Y </td>
+      <td style="text-align: center;"> ZR </td>
+      <td style="text-align: center;"> Y </td>
+      <td> FREEZING RAIN ADVISORY </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<h3><a name="upgrade"></a>Upgrade Table</h3>
+The following table lists the types of VTEC phenomena that can be
+upgraded and to what phonomena it upgrades to.&nbsp; An upgrade is
+indicated in VTEC by a pair of UPG/NEW action codes:<br>
+<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top; font-weight: bold;">Upgraded To:<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Upgraded From:<br>
+      </td>
+    </tr>
+    <tr>
+      <td> BS.Y (BLOWING SNOW ADVISORY)</td>
+      <td>BZ.A (BLIZZARD WATCH), LE.A (LAKE EFFECT SNOW WATCH), WS.A
+(WINTER
+STORM WATCH), </td>
+    </tr>
+    <tr>
+      <td> BZ.W (BLIZZARD WARNING)</td>
+      <td>BS.Y (BLOWING SNOW ADVISORY), BZ.A (BLIZZARD WATCH), IP.Y
+(SLEET
+ADVISORY), LB.Y (LAKE EFFECT SNOW AND BLOWING SNOW ADVISORY), LE.A
+(LAKE EFFECT SNOW WATCH), LE.Y (LAKE EFFECT SNOW ADVISORY), SB.Y (SNOW
+AND BLOWING SNOW ADVISORY), SN.Y (SNOW ADVISORY), WS.A (WINTER STORM
+WATCH), WW.Y (WINTER WEATHER ADVISORY), ZR.Y (FREEZING RAIN ADVISORY), </td>
+    </tr>
+    <tr>
+      <td> CF.W (COASTAL FLOOD WARNING)</td>
+      <td>CF.A (COASTAL FLOOD WATCH), CF.Y (COASTAL FLOOD ADVISORY), </td>
+    </tr>
+    <tr>
+      <td> CF.Y (COASTAL FLOOD ADVISORY)</td>
+      <td>CF.A (COASTAL FLOOD WATCH), </td>
+    </tr>
+    <tr>
+      <td> DS.W (DUST STORM WARNING)</td>
+      <td>DU.Y (BLOWING DUST ADVISORY), HW.A (HIGH WIND WATCH), LW.Y
+(LAKE WIND
+ADVISORY), WI.Y (WIND ADVISORY), </td>
+    </tr>
+    <tr>
+      <td> EC.W (EXTREME COLD WARNING)</td>
+      <td>EC.A (EXTREME COLD WATCH), </td>
+    </tr>
+    <tr>
+      <td> EH.W (EXCESSIVE HEAT WARNING)</td>
+      <td>EH.A (EXCESSIVE HEAT WATCH), HT.Y (HEAT ADVISORY), </td>
+    </tr>
+    <tr>
+      <td> FR.Y (FROST ADVISORY)</td>
+      <td>FZ.A (FREEZE WATCH), HZ.A (HARD FREEZE WATCH),<br>
+      </td>
+    </tr>
+    <tr>
+      <td> FW.W (RED FLAG WARNING)</td>
+      <td>FW.A (FIRE WEATHER WATCH), </td>
+    </tr>
+    <tr>
+      <td> FZ.W (FREEZE WARNING)</td>
+      <td>FR.Y (FROST ADVISORY), FZ.A (FREEZE WATCH), HZ.A (HARD FREEZE
+WATCH),<br>
+      </td>
+    </tr>
+    <tr>
+      <td> GL.W (GALE WARNING)</td>
+      <td>BW.Y (BRISK WIND ADVISORY), SC.Y (SMALL CRAFT ADVISORY), SI.Y
+(SMALL
+CRAFT ADVISORY FOR WINDS), SW.Y (SMALL CRAFT ADVISORY FOR HAZARDOUS
+SEAS), </td>
+    </tr>
+    <tr>
+      <td> HF.W (HURRICANE FORCE WIND WARNING)</td>
+      <td>BW.Y (BRISK WIND ADVISORY), GL.W (GALE WARNING), SC.Y (SMALL
+CRAFT
+ADVISORY), SE.W (HAZARDOUS SEAS WARNING), SI.Y (SMALL CRAFT ADVISORY
+FOR WINDS), SR.W (STORM WARNING), SW.Y (SMALL CRAFT ADVISORY FOR
+HAZARDOUS SEAS), </td>
+    </tr>
+    <tr>
+      <td> HI.W (INLAND HURRICANE WARNING)</td>
+      <td>HI.A (INLAND HURRICANE WATCH), TI.A (INLAND TROPICAL STORM
+WATCH), TI.W
+(INLAND TROPICAL STORM WARNING), </td>
+    </tr>
+    <tr>
+      <td> HS.W (HEAVY SNOW WARNING)</td>
+      <td>BS.Y (BLOWING SNOW ADVISORY), BZ.A (BLIZZARD WATCH), IP.Y
+(SLEET
+ADVISORY), LB.Y (LAKE EFFECT SNOW AND BLOWING SNOW ADVISORY), LE.A
+(LAKE EFFECT SNOW WATCH), LE.Y (LAKE EFFECT SNOW ADVISORY), SB.Y (SNOW
+AND BLOWING SNOW ADVISORY), SN.Y (SNOW ADVISORY), WS.A (WINTER STORM
+WATCH), WW.Y (WINTER WEATHER ADVISORY), ZR.Y (FREEZING RAIN ADVISORY), </td>
+    </tr>
+    <tr>
+      <td> HT.Y (HEAT ADVISORY)</td>
+      <td>EH.A (EXCESSIVE HEAT WATCH), </td>
+    </tr>
+    <tr>
+      <td> HU.A (HURRICANE WATCH)</td>
+      <td>TR.A (TROPICAL STORM WATCH), </td>
+    </tr>
+    <tr>
+      <td> HU.W (HURRICANE WARNING)</td>
+      <td>HU.A (HURRICANE WATCH), TR.A (TROPICAL STORM WATCH), TR.W
+(TROPICAL
+STORM WARNING), </td>
+    </tr>
+    <tr>
+      <td> HW.W (HIGH WIND WARNING)</td>
+      <td>DU.Y (BLOWING DUST ADVISORY), HW.A (HIGH WIND WATCH), LW.Y
+(LAKE WIND
+ADVISORY), WI.Y (WIND ADVISORY), </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">HZ.W (HARD FREEZE WARNING<br>
+      </td>
+      <td style="vertical-align: top;">FZ.A (FREEZE WATCH), FR.Y (FROST
+ADVISORY), HZ.A (HARD FREEZE WATCH),<br>
+      </td>
+    </tr>
+    <tr>
+      <td> IP.W (SLEET WARNING)</td>
+      <td>BS.Y (BLOWING SNOW ADVISORY), BZ.A (BLIZZARD WATCH), IP.Y
+(SLEET
+ADVISORY), LB.Y (LAKE EFFECT SNOW AND BLOWING SNOW ADVISORY), LE.A
+(LAKE EFFECT SNOW WATCH), LE.Y (LAKE EFFECT SNOW ADVISORY), SB.Y (SNOW
+AND BLOWING SNOW ADVISORY), SN.Y (SNOW ADVISORY), WS.A (WINTER STORM
+WATCH), WW.Y (WINTER WEATHER ADVISORY), ZR.Y (FREEZING RAIN ADVISORY), </td>
+    </tr>
+    <tr>
+      <td> IP.Y (SLEET ADVISORY)</td>
+      <td>BZ.A (BLIZZARD WATCH), LE.A (LAKE EFFECT SNOW WATCH), WS.A
+(WINTER
+STORM WATCH), </td>
+    </tr>
+    <tr>
+      <td> IS.W (ICE STORM WARNING)</td>
+      <td>BS.Y (BLOWING SNOW ADVISORY), BZ.A (BLIZZARD WATCH), IP.Y
+(SLEET
+ADVISORY), LB.Y (LAKE EFFECT SNOW AND BLOWING SNOW ADVISORY), LE.A
+(LAKE EFFECT SNOW WATCH), LE.Y (LAKE EFFECT SNOW ADVISORY), SB.Y (SNOW
+AND BLOWING SNOW ADVISORY), SN.Y (SNOW ADVISORY), WS.A (WINTER STORM
+WATCH), WW.Y (WINTER WEATHER ADVISORY), ZR.Y (FREEZING RAIN ADVISORY), </td>
+    </tr>
+    <tr>
+      <td> LB.Y (LAKE EFFECT SNOW AND BLOWING SNOW ADVISORY)</td>
+      <td>BZ.A (BLIZZARD WATCH), LE.A (LAKE EFFECT SNOW WATCH), WS.A
+(WINTER
+STORM WATCH), </td>
+    </tr>
+    <tr>
+      <td> LE.W (LAKE EFFECT SNOW WARNING)</td>
+      <td>BS.Y (BLOWING SNOW ADVISORY), BZ.A (BLIZZARD WATCH), IP.Y
+(SLEET
+ADVISORY), LB.Y (LAKE EFFECT SNOW AND BLOWING SNOW ADVISORY), LE.A
+(LAKE EFFECT SNOW WATCH), LE.Y (LAKE EFFECT SNOW ADVISORY), SB.Y (SNOW
+AND BLOWING SNOW ADVISORY), SN.Y (SNOW ADVISORY), WS.A (WINTER STORM
+WATCH), WW.Y (WINTER WEATHER ADVISORY), ZR.Y (FREEZING RAIN ADVISORY), </td>
+    </tr>
+    <tr>
+      <td> LE.Y (LAKE EFFECT SNOW ADVISORY)</td>
+      <td>BZ.A (BLIZZARD WATCH), LE.A (LAKE EFFECT SNOW WATCH), WS.A
+(WINTER
+STORM WATCH), </td>
+    </tr>
+    <tr>
+      <td> LS.W (LAKESHORE FLOOD WARNING)</td>
+      <td>LS.A (LAKESHORE FLOOD WATCH), LS.Y (LAKESHORE FLOOD
+ADVISORY), </td>
+    </tr>
+    <tr>
+      <td> LS.Y (LAKESHORE FLOOD ADVISORY)</td>
+      <td>LS.A (LAKESHORE FLOOD WATCH), </td>
+    </tr>
+    <tr>
+      <td> SB.Y (SNOW AND BLOWING SNOW ADVISORY)</td>
+      <td>BZ.A (BLIZZARD WATCH), LE.A (LAKE EFFECT SNOW WATCH), WS.A
+(WINTER
+STORM WATCH), </td>
+    </tr>
+    <tr>
+      <td> SE.W (HAZARDOUS SEAS WARNING)</td>
+      <td>BW.Y (BRISK WIND ADVISORY), SC.Y (SMALL CRAFT ADVISORY), SI.Y
+(SMALL
+CRAFT ADVISORY FOR WINDS), SW.Y (SMALL CRAFT ADVISORY FOR HAZARDOUS
+SEAS), </td>
+    </tr>
+    <tr>
+      <td> SN.Y (SNOW ADVISORY)</td>
+      <td>BZ.A (BLIZZARD WATCH), LE.A (LAKE EFFECT SNOW WATCH), WS.A
+(WINTER
+STORM WATCH), </td>
+    </tr>
+    <tr>
+      <td> SR.W (STORM WARNING)</td>
+      <td>BW.Y (BRISK WIND ADVISORY), GL.W (GALE WARNING), SC.Y (SMALL
+CRAFT
+ADVISORY), SE.W (HAZARDOUS SEAS WARNING), SI.Y (SMALL CRAFT ADVISORY
+FOR WINDS), SW.Y (SMALL CRAFT ADVISORY FOR HAZARDOUS SEAS), </td>
+    </tr>
+    <tr>
+      <td> SU.W (HIGH SURF WARNING)</td>
+      <td>SU.Y (HIGH SURF ADVISORY), </td>
+    </tr>
+    <tr>
+      <td> TI.W (INLAND TROPICAL STORM WARNING)</td>
+      <td>HI.A (INLAND HURRICANE WATCH), TI.A (INLAND TROPICAL STORM
+WATCH), </td>
+    </tr>
+    <tr>
+      <td> TR.W (TROPICAL STORM WARNING)</td>
+      <td>HU.A (HURRICANE WATCH), TR.A (TROPICAL STORM WATCH), TY.A
+(TYPHOON
+WATCH), </td>
+    </tr>
+    <tr>
+      <td> TY.A (TYPHOON WATCH)</td>
+      <td>TR.A (TROPICAL STORM WATCH), </td>
+    </tr>
+    <tr>
+      <td> TY.W (TYPHOON WARNING)</td>
+      <td>TR.A (TROPICAL STORM WATCH), TR.W (TROPICAL STORM WARNING),
+TY.A
+(TYPHOON WATCH), </td>
+    </tr>
+    <tr>
+      <td> UP.W (HEAVY FREEZING SPRAY WARNING)</td>
+      <td>UP.Y (FREEZING SPRAY ADVISORY), </td>
+    </tr>
+    <tr>
+      <td> WC.W (WIND CHILL WARNING)</td>
+      <td>WC.A (WIND CHILL WATCH), WC.Y (WIND CHILL ADVISORY), </td>
+    </tr>
+    <tr>
+      <td> WC.Y (WIND CHILL ADVISORY)</td>
+      <td>WC.A (WIND CHILL WATCH), </td>
+    </tr>
+    <tr>
+      <td> WI.Y (WIND ADVISORY)</td>
+      <td>HW.A (HIGH WIND WATCH), </td>
+    </tr>
+    <tr>
+      <td> WS.W (WINTER STORM WARNING)</td>
+      <td>BS.Y (BLOWING SNOW ADVISORY), BZ.A (BLIZZARD WATCH), IP.Y
+(SLEET
+ADVISORY), LB.Y (LAKE EFFECT SNOW AND BLOWING SNOW ADVISORY), LE.A
+(LAKE EFFECT SNOW WATCH), LE.Y (LAKE EFFECT SNOW ADVISORY), SB.Y (SNOW
+AND BLOWING SNOW ADVISORY), SN.Y (SNOW ADVISORY), WS.A (WINTER STORM
+WATCH), WW.Y (WINTER WEATHER ADVISORY), ZR.Y (FREEZING RAIN ADVISORY), </td>
+    </tr>
+    <tr>
+      <td> WW.Y (WINTER WEATHER ADVISORY)</td>
+      <td>BZ.A (BLIZZARD WATCH), LE.A (LAKE EFFECT SNOW WATCH), WS.A
+(WINTER
+STORM WATCH), </td>
+    </tr>
+    <tr>
+      <td> ZR.Y (FREEZING RAIN ADVISORY)</td>
+      <td>BZ.A (BLIZZARD WATCH), LE.A (LAKE EFFECT SNOW WATCH), WS.A
+(WINTER
+STORM WATCH), </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<br>
+<h3><a name="downgrade"></a>Downgrade Table</h3>
+The following table lists the types of VTEC phenomena that can be
+downgraded and to what phonomena it downgrades to.&nbsp; An downgrade
+is indicated
+in VTEC by a pair of CAN/NEW action codes:
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top; font-weight: bold;">Downgraded To:<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Downgraded
+From:<br>
+      </td>
+    </tr>
+    <tr>
+      <td> BS.Y (BLOWING SNOW ADVISORY)</td>
+      <td>BZ.W (BLIZZARD WARNING), HS.W (HEAVY SNOW WARNING), IP.W
+(SLEET
+WARNING), IS.W (ICE STORM WARNING), LE.W (LAKE EFFECT SNOW WARNING),
+WS.W (WINTER STORM WARNING), </td>
+    </tr>
+    <tr>
+      <td> BW.Y (BRISK WIND ADVISORY)</td>
+      <td>GL.W (GALE WARNING), HF.W (HURRICANE FORCE WIND WARNING),
+SR.W (STORM
+WARNING), </td>
+    </tr>
+    <tr>
+      <td> CF.Y (COASTAL FLOOD ADVISORY)</td>
+      <td>CF.W (COASTAL FLOOD WARNING), </td>
+    </tr>
+    <tr>
+      <td> DU.Y (BLOWING DUST ADVISORY)</td>
+      <td>DS.W (DUST STORM WARNING), HW.W (HIGH WIND WARNING), </td>
+    </tr>
+    <tr>
+      <td> FR.Y (FROST ADVISORY)</td>
+      <td>FZ.W (FREEZE WARNING), HZ.W (HARD FREEZE WARNING),<br>
+      </td>
+    </tr>
+    <tr>
+      <td> GL.W (GALE WARNING)</td>
+      <td>HF.W (HURRICANE FORCE WIND WARNING), SR.W (STORM WARNING), </td>
+    </tr>
+    <tr>
+      <td> HT.Y (HEAT ADVISORY)</td>
+      <td>EH.W (EXCESSIVE HEAT WARNING), </td>
+    </tr>
+    <tr>
+      <td> IP.Y (SLEET ADVISORY)</td>
+      <td>BZ.W (BLIZZARD WARNING), HS.W (HEAVY SNOW WARNING), IP.W
+(SLEET
+WARNING), IS.W (ICE STORM WARNING), LE.W (LAKE EFFECT SNOW WARNING),
+WS.W (WINTER STORM WARNING), </td>
+    </tr>
+    <tr>
+      <td> LB.Y (LAKE EFFECT SNOW AND BLOWING SNOW ADVISORY)</td>
+      <td>BZ.W (BLIZZARD WARNING), HS.W (HEAVY SNOW WARNING), IP.W
+(SLEET
+WARNING), IS.W (ICE STORM WARNING), LE.W (LAKE EFFECT SNOW WARNING),
+WS.W (WINTER STORM WARNING), </td>
+    </tr>
+    <tr>
+      <td> LE.Y (LAKE EFFECT SNOW ADVISORY)</td>
+      <td>BZ.W (BLIZZARD WARNING), HS.W (HEAVY SNOW WARNING), IP.W
+(SLEET
+WARNING), IS.W (ICE STORM WARNING), LE.W (LAKE EFFECT SNOW WARNING),
+WS.W (WINTER STORM WARNING), </td>
+    </tr>
+    <tr>
+      <td> LS.Y (LAKESHORE FLOOD ADVISORY)</td>
+      <td>LS.W (LAKESHORE FLOOD WARNING), </td>
+    </tr>
+    <tr>
+      <td> LW.Y (LAKE WIND ADVISORY)</td>
+      <td>DS.W (DUST STORM WARNING), HW.W (HIGH WIND WARNING), WI.Y
+(WIND
+ADVISORY), </td>
+    </tr>
+    <tr>
+      <td> SB.Y (SNOW AND BLOWING SNOW ADVISORY)</td>
+      <td>BZ.W (BLIZZARD WARNING), HS.W (HEAVY SNOW WARNING), IP.W
+(SLEET
+WARNING), IS.W (ICE STORM WARNING), LE.W (LAKE EFFECT SNOW WARNING),
+WS.W (WINTER STORM WARNING), </td>
+    </tr>
+    <tr>
+      <td> SC.Y (SMALL CRAFT ADVISORY)</td>
+      <td>GL.W (GALE WARNING), HF.W (HURRICANE FORCE WIND WARNING),
+SE.W
+(HAZARDOUS SEAS WARNING), SR.W (STORM WARNING), </td>
+    </tr>
+    <tr>
+      <td> SE.W (HAZARDOUS SEAS WARNING)</td>
+      <td>HF.W (HURRICANE FORCE WIND WARNING), SR.W (STORM WARNING), </td>
+    </tr>
+    <tr>
+      <td> SI.Y (SMALL CRAFT ADVISORY FOR WINDS)</td>
+      <td>GL.W (GALE WARNING), HF.W (HURRICANE FORCE WIND WARNING),
+SE.W
+(HAZARDOUS SEAS WARNING), SR.W (STORM WARNING), </td>
+    </tr>
+    <tr>
+      <td> SN.Y (SNOW ADVISORY)</td>
+      <td>BZ.W (BLIZZARD WARNING), HS.W (HEAVY SNOW WARNING), IP.W
+(SLEET
+WARNING), IS.W (ICE STORM WARNING), LE.W (LAKE EFFECT SNOW WARNING),
+WS.W (WINTER STORM WARNING), </td>
+    </tr>
+    <tr>
+      <td> SR.W (STORM WARNING)</td>
+      <td>HF.W (HURRICANE FORCE WIND WARNING), </td>
+    </tr>
+    <tr>
+      <td> SU.Y (HIGH SURF ADVISORY)</td>
+      <td>SU.W (HIGH SURF WARNING), </td>
+    </tr>
+    <tr>
+      <td> SW.Y (SMALL CRAFT ADVISORY FOR HAZARDOUS SEAS)</td>
+      <td>GL.W (GALE WARNING), HF.W (HURRICANE FORCE WIND WARNING),
+SE.W
+(HAZARDOUS SEAS WARNING), SR.W (STORM WARNING), </td>
+    </tr>
+    <tr>
+      <td> TI.W (INLAND TROPICAL STORM WARNING)</td>
+      <td>HI.W (INLAND HURRICANE WARNING), </td>
+    </tr>
+    <tr>
+      <td> UP.Y (FREEZING SPRAY ADVISORY)</td>
+      <td>UP.W (HEAVY FREEZING SPRAY WARNING), </td>
+    </tr>
+    <tr>
+      <td> WC.Y (WIND CHILL ADVISORY)</td>
+      <td>WC.W (WIND CHILL WARNING), </td>
+    </tr>
+    <tr>
+      <td> WI.Y (WIND ADVISORY)</td>
+      <td>DS.W (DUST STORM WARNING), HW.W (HIGH WIND WARNING), </td>
+    </tr>
+    <tr>
+      <td> WW.Y (WINTER WEATHER ADVISORY)</td>
+      <td>BZ.W (BLIZZARD WARNING), HS.W (HEAVY SNOW WARNING), IP.W
+(SLEET
+WARNING), IS.W (ICE STORM WARNING), LE.W (LAKE EFFECT SNOW WARNING),
+WS.W (WINTER STORM WARNING), </td>
+    </tr>
+    <tr>
+      <td> ZR.Y (FREEZING RAIN ADVISORY)</td>
+      <td>BZ.W (BLIZZARD WARNING), HS.W (HEAVY SNOW WARNING), IP.W
+(SLEET
+WARNING), IS.W (ICE STORM WARNING), LE.W (LAKE EFFECT SNOW WARNING),
+WS.W (WINTER STORM WARNING), </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+</div>
+<hr width="100%">
+<p><a href="#TableofContents">Back to Table Of Contents</a>
+<br>
+<br>
+<br>
+</p>
+</body>
+</html>

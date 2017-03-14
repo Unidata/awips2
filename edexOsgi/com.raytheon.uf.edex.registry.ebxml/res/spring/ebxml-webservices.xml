@@ -1,0 +1,201 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:cxf="http://cxf.apache.org/core"
+    xmlns:http-conf="http://cxf.apache.org/transports/http/configuration"
+    xmlns:security="http://cxf.apache.org/configuration/security"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+    http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd
+    http://cxf.apache.org/transports/http/configuration
+    http://cxf.apache.org/schemas/configuration/http-conf.xsd
+    http://cxf.apache.org/schemas/configuration/security.xsd">
+
+    <cxf:bus id="cxf">
+        <cxf:inInterceptors>
+            <ref bean="logInboundTraffic" />
+        </cxf:inInterceptors>
+        <cxf:outInterceptors>
+            <ref bean="addHeaders" />
+            <ref bean="logOutboundTraffic" />
+        </cxf:outInterceptors>
+    </cxf:bus>
+
+    <http-conf:conduit name="*.http-conduit">
+        <http-conf:authSupplier bean="securityConfiguration" />
+        <http-conf:tlsClientParameters>
+            <security:trustManagers ref="trustManager" />
+            <security:keyManagers ref="keyManager" />
+        </http-conf:tlsClientParameters>
+        <http-conf:client Connection="close"
+            ReceiveTimeout="${ebxml-http-receive-timeout}" ConnectionTimeout="${ebxml-http-connection-timeout}" />
+    </http-conf:conduit>
+
+    <bean id="authenticationInterceptor"
+        class="org.apache.cxf.interceptor.security.JAASLoginInterceptor">
+        <property name="contextName" value="RegistryRealm" />
+    </bean>
+
+    <bean id="logOutboundTraffic" class="com.raytheon.uf.edex.registry.ebxml.services.interceptors.RegistryLoggingOutInterceptor" />
+    <bean id="logInboundTraffic" class="com.raytheon.uf.edex.registry.ebxml.services.interceptors.RegistryLoggingInInterceptor" />
+    <bean id="addHeaders"
+        class="com.raytheon.uf.edex.registry.ebxml.services.interceptors.RegistryHeaderInterceptor" />
+
+    <bean id="FederationDbInit"
+        class="com.raytheon.uf.edex.registry.federation.FederationDbInit">
+        <property name="dao" ref="admin_registryObjectDao" />
+    </bean>
+
+    <bean id="registryPasswordCallback"
+        class="com.raytheon.uf.edex.registry.ebxml.acp.PasswordCallback">
+        <property name="credentialCache" ref="credentialCache" />
+    </bean>
+
+    <bean id="credentialCache"
+        class="com.raytheon.uf.edex.registry.ebxml.web.security.CredentialCache">
+        <property name="restServices" ref="registryRestClient" />
+        <property name="personDao" ref="personDao" />
+        <property name="txTemplate" ref="metadataTxTemplate" />
+        <property name="securityConfig" ref="securityConfiguration" />
+    </bean>
+
+    <bean id="registryRestClient"
+        class="com.raytheon.uf.edex.registry.ebxml.services.RegistryRESTServices" />
+
+    <bean id="registryWebServiceClient"
+        class="com.raytheon.uf.edex.registry.ebxml.services.soap.RegistrySOAPServices" />
+
+    <bean id="registryJaxbManager" class="com.raytheon.uf.common.registry.RegistryJaxbManager">
+        <constructor-arg ref="registryNamespaceMapper" />
+    </bean>
+
+    <bean id="registryNamespaceMapper" class="com.raytheon.uf.common.registry.RegistryNamespaceMapper" />
+
+    <bean id="objectReferenceResolver"
+        class="com.raytheon.uf.edex.registry.ebxml.services.lifecycle.ObjectReferenceResolver">
+        <property name="registryObjectDao" ref="registryObjectDao" />
+        <property name="dynamicRefDao" ref="dynamicObjectRefDao" />
+        <property name="queryManager" ref="queryServiceImpl" />
+        <property name="registryRestClient" ref="registryRestClient" />
+    </bean>
+
+    <bean id="registryXpathProcessor"
+        class="com.raytheon.uf.edex.registry.ebxml.util.xpath.RegistryXPathProcessor">
+        <constructor-arg ref="registryJaxbManager" />
+        <constructor-arg ref="registryNamespaceMapper" />
+    </bean>
+
+    <bean id="FederatedRegistryMonitor"
+        class="com.raytheon.uf.edex.registry.federation.FederatedRegistryMonitor">
+        <constructor-arg ref="registryObjectDao" />
+    </bean>
+
+    <!-- REST SERVICE BEANS -->
+    <bean id="registryAvailabilityService"
+        class="com.raytheon.uf.edex.registry.ebxml.services.rest.RegistryAvailableRestService" />
+
+    <bean id="registryDataAccessService"
+        class="com.raytheon.uf.edex.registry.ebxml.services.rest.RegistryDataAccessService">
+        <property name="registryObjectDao" ref="registryObjectDao" />
+        <property name="queryDefinitionDao" ref="queryDefinitionDao" />
+    </bean>
+
+    <bean id="RegistryFederationManager"
+        class="com.raytheon.uf.edex.registry.ebxml.services.rest.RegistryFederationManager">
+        <property name="replicationEventDao" ref="replicationEventDao" />
+        <property name="registryDao" ref="registryDao" />
+        <property name="replicationSiteEventDao" ref="replicationSiteEventDao" />
+        <property name="txTemplate" ref="metadataTxTemplate" />
+        <property name="soapService" ref="registryWebServiceClient" />
+        <property name="localLifecycleManager" ref="lcmServiceImpl" />
+        <property name="restClient" ref="registryRestClient" />
+        <property name="registryObjectDao" ref="registryObjectDao" />
+        <property name="federatedRegistryMonitor" ref="FederatedRegistryMonitor" />
+        <property name="federationDbInit" ref="FederationDbInit" />
+        <property name="registryUsers" ref="registryUsers" />
+        <property name="securityConfig" ref="securityConfiguration"/>
+        <property name="gatherThreadPool" ref="gatherThreadPool" />
+    </bean>
+    
+    <bean id="gatherThreadPool" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="${ebxml-federation-repl-threads}" />
+        <property name="maxPoolSize" value="${ebxml-federation-repl-threads}" />
+        <property name="queueCapacity" value="200" />
+        <property name="keepAliveSeconds" value="60000" />
+    </bean>
+
+    <bean id="defineRegistryQuery"
+        class="com.raytheon.uf.edex.registry.ebxml.services.rest.RegistryQueryDefinitionService">
+        <property name="registryObjectDao" ref="registryObjectDao" />
+    </bean>
+
+    <!-- END REST SERVICES -->
+
+    <!-- QUERY -->
+    <bean id="queryServiceImpl"
+        class="com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl">
+        <property name="federationDao" ref="federationDao" />
+        <property name="referenceResolver" ref="objectReferenceResolver" />
+        <property name="queryDefinitionDao" ref="queryDefinitionDao" />
+        <property name="classificationNodeDao" ref="classificationNodeDao" />
+        <property name="registryObjectDao" ref="registryObjectDao" />
+        <property name="sessionFactory" ref="metadataSessionFactory" />
+        <property name="registrySoapClient" ref="registryWebServiceClient" />
+    </bean>
+
+    <!-- NOTIFICATION LISTENER -->
+    <bean id="notificationServiceImpl"
+        class="com.raytheon.uf.edex.registry.ebxml.services.notification.NotificationListenerImpl">
+        <property name="lcm" ref="lcmServiceImpl" />
+        <property name="registryObjectDao" ref="registryObjectDao" />
+        <property name="registryDao" ref="registryDao" />
+        <property name="registrySoapClient" ref="registryWebServiceClient" />
+    </bean>
+
+
+    <!-- LIFE CYCLE MANAGER -->
+    <bean id="lcmServiceImpl"
+        class="com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerImpl">
+        <property name="queryManager" ref="queryServiceImpl" />
+        <property name="validator" ref="validatorServiceImpl" />
+        <property name="registryObjectDao" ref="registryObjectDao" />
+        <property name="cataloger" ref="catalogerServiceImpl" />
+        <property name="referenceResolver" ref="objectReferenceResolver" />
+        <property name="xpathProcessor" ref="registryXpathProcessor" />
+    </bean>
+
+    <!-- VALIDATOR -->
+    <bean id="validatorServiceImpl"
+        class="com.raytheon.uf.edex.registry.ebxml.services.validator.ValidatorImpl">
+        <property name="queryManager" ref="queryServiceImpl" />
+        <property name="registryObjectDao" ref="registryObjectDao" />
+        <property name="registryObjectTypeValidator" ref="registryObjectTypeValidator" />
+    </bean>
+
+    <!-- CATALOGER -->
+    <bean id="catalogerServiceImpl"
+        class="com.raytheon.uf.edex.registry.ebxml.services.cataloger.CatalogerImpl">
+        <property name="registryObjectDao" ref="registryObjectDao" />
+    </bean>
+
+    <!-- REST Service Beans -->
+    <bean id="registryObjectsRestService"
+        class="com.raytheon.uf.edex.registry.ebxml.services.rest.RegistryObjectsRestService">
+        <property name="registryObjectDao" ref="registryObjectDao" />
+    </bean>
+
+    <bean id="repositoryObjectsRestService"
+        class="com.raytheon.uf.edex.registry.ebxml.services.rest.RepositoryItemsRestService">
+        <property name="extrinsicObjectDao" ref="extrinsicObjectDao" />
+    </bean>
+
+    <bean id="queryProtocolRestService"
+        class="com.raytheon.uf.edex.registry.ebxml.services.rest.QueryProtocolRestService">
+        <property name="queryManager" ref="queryServiceImpl" />
+        <property name="queryDefinitionDao" ref="queryDefinitionDao" />
+    </bean>
+
+    <bean id="AuditableEventService"
+        class="com.raytheon.uf.edex.registry.ebxml.services.AuditableEventService">
+        <constructor-arg ref="AuditableEventTypeDao" />
+    </bean>
+
+</beans>

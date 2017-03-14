@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+   <!-- TOWRdocs Header
+        VIIRS Imagery Style Rules.
+   -->
+   <!-- TOWRdocs Description
+        This file updates the VIIRS imagery default colormap for the near constant contrast (NCC) product,
+        which generates "pseudo-albedo" values that vary throughout the lunar cycle. The baseline default
+        color table (ZA (Vis Default).cmap) has a linearly varying grayscale palette with black specified
+        at the top of the scale for highest albedo values where values are otherwise white. AWIPS 2 scales 
+        NCC from 0 to 1.6 by default. Many clouds are moderately bright while areas where there should be
+        bright city lights are black.  These "black" lights have values > 1.6 and are a result of the 
+        default color table.  This color table may also be produced starting from the default color 
+        table (ZA (Vis Default) by doing the following:
+        Using the color table editor, change the Colormap size to the maximum 2048 colors.  Stretch the values
+        between 0 and 1 by making the top arrow point to the minimum value (0.0), then set the red, green, and
+        blue bars to 0 (black).  Set the bottom arrow to a value of 1, and the red, green, and blue values to 
+        255 (white). Click "interpolate." Finally, set all the values between 1.0-1.6 white.
+
+        At full moon, the city lights have their lowest values and occupy the smallest horizontal area, while the
+        clouds are their brightest.  Stretching the NCC values from 0 to ~1.2 may work well.  As the moonlight
+        decreases, city lights gain larger values and expand horizontally, and the clouds become darker.  For 
+        these lower light conditions, stretching from 0 to ~0.7 may best enhance the clouds.  This color table
+        is a stretch between 0 and 1.0 and represents a good starting point for any portion of the lunar cycle. We
+        recommend starting with this, then adjusting the the top value in order to best enhance the feature of interest (usually clouds).
+        Note that several days surrounding a new moon will have little to no signal from clouds.
+        For more details, see the CIRA VIIRS NCC Quick Guide for Imagery Enhancements in AWIPS 2. See also the VIIRS JITT training
+        link at https://vlab.ncep.noaa.gov/group/goes-r-end-user-mission-readiness-project/jitt_viirs_dnbncc
+        Contributor: Dan Lindsey
+   -->
+   <!-- TOWRdocs Status
+        Modification of the AWIPS 2 baseline VIIRS imagery style rules to point to an updated colormap for NCC imagery.
+   -->
+   <!-- TOWRdocs POC
+        Lee Byerle
+   -->
+<styleRuleset>
+
+<!-- Default BT Satellite Rule -->
+    <styleRule>
+        <viirsDataMatches>
+            <parameter>BT</parameter>
+        </viirsDataMatches>
+        <imageStyle>
+            <displayUnits>C</displayUnits>
+            <range scale="LINEAR">
+                <minValue>-109</minValue>
+                <maxValue>55</maxValue>
+            </range>
+            <defaultColormap>NPP/VIIRS/IR Default</defaultColormap>
+            <colorbarLabeling>
+                <values>-100 -80 -60 -40 -20 0 20 40</values>
+            </colorbarLabeling>
+        </imageStyle>
+    </styleRule>
+
+<!-- Default Ref Satellite Rule for NCC -->
+    <styleRule>
+        <viirsDataMatches>
+            <parameter>Ref</parameter>
+        </viirsDataMatches>
+        <imageStyle>
+            <range scale="LINEAR">
+                <minValue>0</minValue>
+                <maxValue>1.6</maxValue>
+            </range>
+     <!-- <defaultColormap>NPP/VIIRS/ZA (Vis Default)</defaultColormap> -->
+            <defaultColormap>NPP/VIIRS/NCC_zero_to_one</defaultColormap>
+        </imageStyle>
+    </styleRule>
+
+<!-- Special Ref 1.378u Satellite Rule based on sample data -->
+    <styleRule>
+        <viirsDataMatches>
+            <parameter>Ref</parameter>
+            <wavelength>1.378</wavelength>
+        </viirsDataMatches>
+        <imageStyle>
+            <range scale="LINEAR">
+                <minValue>0</minValue>
+                <maxValue>0.6</maxValue>
+            </range>
+            <defaultColormap>NPP/VIIRS/CA (Low Light Vis)
+            </defaultColormap>
+        </imageStyle>
+    </styleRule>
+
+</styleRuleset>

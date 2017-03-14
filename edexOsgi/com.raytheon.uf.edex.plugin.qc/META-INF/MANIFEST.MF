@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Qc Plug-in
+Bundle-SymbolicName: com.raytheon.uf.edex.plugin.qc
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: com.raytheon.edex.common;bundle-version="1.11.17",
+ com.raytheon.uf.edex.pointdata;bundle-version="1.11.17",
+ com.raytheon.uf.common.dataplugin.qc;bundle-version="1.0.0",
+ com.raytheon.uf.common.python;bundle-version="1.11.17",
+ com.raytheon.uf.common.localization;bundle-version="1.11.17",
+ ucar.nc2;bundle-version="1.0.0"
+Export-Package: com.raytheon.uf.edex.plugin.qc.common
+Import-Package: com.raytheon.uf.common.message.response,
+ com.raytheon.uf.common.status

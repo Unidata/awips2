@@ -1,0 +1,132 @@
+<?xml version="1.0"?>
+<!DOCTYPE project [
+]>
+<!-- ============================================================ -->
+<!-- Ant build file to create the AWIPS II {project} installer.   -->
+<!-- note: -Dawips.src.dir=../../AWIPS                            -->
+<!-- ============================================================ -->
+<project name="ade-javadoc-installer" default="generateJavadoc" basedir=".">
+	<!-- ============================================================ -->
+	<!-- define properties specific to this project                   -->
+	<!-- note: these will "over-ride" properties in common.xml        -->
+	<!-- ============================================================ -->
+	
+	<property name="build.base.dir"       value="build"/>
+	<property name="build.img.dir"        value="${basedir}/img" />
+	
+	<property name="awips.build"          value="build.edex" />
+	<property name="awips.src.dir"        value=""/>
+	<property name="awips.build.dir"      location="${awips.src.dir}/${awips.build}"/>
+	<property name="install.default"      value="javadoc"/>
+	
+	<property name="packs.src.dir"        value="${install.default}/api" />
+
+	<!-- ============================================================ -->
+	<!-- define properties specific to this project                   -->
+	<!-- note: these may use properties in common.xml                 -->
+	<!-- ============================================================ -->
+	<property name="awips.dst.dir"        location="${build.base.dir}"/>
+	<property name="docs.dst.dir" location="${build.base.dir}/docs"/>
+	<property name="awips.api.dir"        value="${awips.dst.dir}/api"/>
+	<property name="awips.api.resources"  value="${awips.api.dir}/resources"/>
+	
+	<property name="javadoc.document.title" value="AWIPS II API Specification"/>
+	<property name="javadoc.document.header" value="AWIPS II API Specification" />
+	<property name="javadoc.window.title" value="AWIPS II API" />
+	<property name="javadoc.overview.document" value="Installer.rpm/awips2.ade/tar.baseline/javadoc/conf/overview.html" />
+	<property name="javadoc.java.url" value="http://java.sun.com/javase/6/docs/api" />
+	
+	<!-- ============================================================ -->
+	<!-- define paths needed for building javadoc                     -->
+	<!-- ============================================================ -->
+	<property name="conf.dir" location="${basedir}/conf"/>
+	<path id="base.class.path">
+		
+		<!-- include all jars -->
+		<fileset dir="${awips.src.dir}">
+			<include name="**/*.jar"/>
+		</fileset>
+	</path>
+	
+	<path id="javadoc.packages.path">
+		<dirset dir="${awips.src.dir}">
+			<include name="com.raytheon.*/src" />
+			<include name="gov.noaa.nws.*/src" />
+			<include name="com.raytheon.*/*test*" />
+			<exclude name="*.demo.*" />
+			<exclude name="*.feature*"/>
+			<exclude name="*.product.*"/>
+		</dirset>
+	</path>
+	
+	<target name="generateJavadoc" depends="init">
+		<antcall target="stage.javadoc" />
+	</target>
+
+	<!-- ============================================================ -->
+	<!-- creates directory structure needed for build                 -->
+	<!-- ============================================================ -->
+	<target name="init"
+		    description="performs initial setup of necessary build structure">
+		<mkdir dir="${awips.dst.dir}"/>
+		<mkdir dir="${awips.api.dir}"/>
+	</target>
+	
+	<!-- ============================================================ -->
+	<!-- builds and stages the JavaDoc for the components             -->
+	<!-- ============================================================ -->
+	<target name="stage.javadoc" description="builds and stages the JavaDoc">
+		<property file="${conf.dir}/javadoc.properties"/>
+		<echo message="Generating JavaDoc"/>
+		<echo message="awips.src.dir=${awips.src.dir}"/>
+		<javadoc overview="${awips.src.dir}/${javadoc.overview.document}"
+			     sourcepathref="javadoc.packages.path"
+			     classpathref="base.class.path"
+				 packagenames="com.raytheon.*,gov.*"
+			     failonerror="false"
+				 destdir="${awips.dst.dir}/api" 
+			     author="true" use="true"
+                 maxmemory="1024m"
+			     verbose="false"
+			     package="true" 
+			     windowtitle="${javadoc.window.title}"
+			     useexternalfile="yes">
+
+			<doctitle>${javadoc.document.title}</doctitle>
+			<header>${javadoc.document.header}</header>
+			<group title="AWIPS II Packages" packages="com.raytheon.*"/>
+			<group title="Contributed Packages" packages="gov.*"/>
+			<link offline="true" href="${javadoc.java.url}" 
+				  packagelistloc="${awips.build.dir}/opt/javadoc/jdk/1.5"/>
+		</javadoc>
+		<copy todir="${awips.api.resources}">
+			<fileset dir="${build.img.dir}" includes="ray*.jpg"/>
+		</copy>
+	</target>
+	<!-- ============================================================ -->
+	<!-- stages the documentation from the component projects         -->
+	<!-- ============================================================ -->
+	<target name="stage.docs" description="stages the documents from the various docs projects">
+		<echo message="Searching ${awips.src.dir} for documents"/>
+		<for param="file">
+			<path>
+				<dirset dir="${awips.src.dir}" followsymlinks="true">
+					<include name="**/docs.*"/>
+					<include name="**/docs/"/>
+					<exclude name="**/Installer.*/**"/>
+					<exclude name="**/build*/**"/>
+				</dirset>
+			</path>
+			<sequential>
+				<echo message="Copying files in @{file}"/>
+				<copy todir="${docs.dst.dir}" flatten="true">
+					<fileset dir="@{file}">
+						<include name="*"/>
+						<exclude name="**/*.html"/>
+						<exclude name="**/.*"/>
+					</fileset>
+				</copy>
+			</sequential>
+		</for>
+	</target>
+</project>

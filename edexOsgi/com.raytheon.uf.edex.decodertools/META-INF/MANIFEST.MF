@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Decodertools Plug-in
+Bundle-SymbolicName: com.raytheon.uf.edex.decodertools
+Bundle-Version: 1.16.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: com.raytheon.edex.common;bundle-version="1.11.1",
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.pointdata,
+ org.geotools;bundle-version="2.5.2",
+ com.raytheon.uf.common.site;bundle-version="1.12.1174",
+ com.raytheon.uf.common.status;bundle-version="1.12.1174",
+ org.slf4j;bundle-version="1.7.12"
+Export-Package: com.raytheon.uf.edex.decodertools.aircraft,
+ com.raytheon.uf.edex.decodertools.core,
+ com.raytheon.uf.edex.decodertools.core.filterimpl,
+ com.raytheon.uf.edex.decodertools.time
+Import-Package: com.raytheon.uf.common.wmo

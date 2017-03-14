@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<WxPlotConfig xmlns:ns2="group">
+    <HoursBack>24</HoursBack>
+    <HoursForward>24</HoursForward>
+    <VisBottom>0.125</VisBottom>
+    <VisTop>10.0</VisTop>
+    <CeilingBottom>100</CeilingBottom>
+    <CeilingTop>8000</CeilingTop>
+    <PlotViewer>
+        <LabelName>TAF</LabelName>
+        <ClassName>dcdTafs</ClassName>
+        <ColorName>blue</ColorName>
+        <Selected>true</Selected>
+    </PlotViewer>
+    <PlotViewer>
+        <LabelName>METARs</LabelName>
+        <ClassName>dcdMtrs</ClassName>
+        <ColorName>red</ColorName>
+        <Selected>true</Selected>
+    </PlotViewer>
+    <PlotViewer>
+        <LabelName>NAM-MOS</LabelName>
+        <ClassName>namMosData</ClassName>
+        <ColorName>green</ColorName>
+        <Selected>false</Selected>
+    </PlotViewer>
+    <PlotViewer>
+        <LabelName>GFS-MOS</LabelName>
+        <ClassName>gfsMosData</ClassName>
+        <ColorName>forest green</ColorName>
+        <Selected>false</Selected>
+    </PlotViewer>
+    <PlotViewer>
+        <LabelName>GFS-LAMP</LabelName>
+        <ClassName>gfsLampData</ClassName>
+        <ColorName>purple</ColorName>
+        <Selected>false</Selected>
+    </PlotViewer>
+    <PlotViewer>
+        <LabelName>NAM DMO</LabelName>
+        <ClassName>namWrfData</ClassName>
+        <ColorName>brown</ColorName>
+        <Selected>false</Selected>
+    </PlotViewer>
+</WxPlotConfig>

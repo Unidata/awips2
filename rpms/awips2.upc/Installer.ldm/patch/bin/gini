@@ -1,0 +1,37 @@
+#!/bin/bash -f
+#
+# usage: '/awips2/ldm/bin/gini daa' (lowercase)
+#		this will create and ingest an uncompressed GINI file in EDEX
+# author: Michael James <mjames@ucar.edu>
+#
+
+if [[ ! -e /home/gempak/GEMPAK7/Gemenviron.profile ]]; then
+  exit
+fi
+. /home/gempak/GEMPAK7/Gemenviron.profile
+RAD=/awips2/data_store/radar ; export RAD
+if [[ ! -e $OS_BIN/nex2gini ]]; then
+  exit
+fi
+nex2gini << EOF
+GRDAREA = 23;-120;47.2634;-63.5664
+PROJ    = lcc/40;-100;40
+KXKY    = 2368;1500
+CPYFIL  =
+GFUNC   = ${1}
+RADTIM  = current
+RADDUR  = 30
+RADFRQ  = 0
+STNFIL  = nexrad.tbl
+RADMODE =
+SATFIL  = nexrcomp_${1}_YYYYMMDD_HHNN
+COMPRESS= no
+r
+
+e
+EOF
+
+files=$(ls | grep ${1})
+mv $files /awips2/edex/data/manual/
+
+exit

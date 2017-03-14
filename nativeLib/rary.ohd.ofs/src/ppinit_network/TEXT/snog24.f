@@ -1,0 +1,198 @@
+C MODULE SNOG24
+C-----------------------------------------------------------------------
+C
+C  ROUTINE TO PERFORM NETWORK COMPUTATIONS FOR STATION GRID-POINT 
+C  ALPHABETICAL ORDER.
+C
+      SUBROUTINE SNOG24 (ISORT,LARRAY,ARRAY,IUEND,ISTAT)
+C
+      CHARACTER*4 DISP
+      CHARACTER*8 TYPERR
+      INTEGER*2 IPNTRS(1),I2PP24
+C
+      DIMENSION ARRAY(LARRAY)
+      DIMENSION STAID(2),DESCRP(5)
+      DIMENSION UNUSED(10)
+C
+      INCLUDE 'uio'
+      INCLUDE 'scommon/sudbgx'
+C
+      INCLUDE 'scommon/sntwkx'
+      INCLUDE 'scommon/sworkx'
+      INCLUDE 'scommon/swrk2x'
+C
+      EQUIVALENCE (IPNTRS(1),SWORK(1))
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppinit_network/RCS/snog24.f,v $
+     . $',                                                             '
+     .$Id: snog24.f,v 1.2 1998/07/06 12:18:23 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,40)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG('OG24')
+C
+      ISTAT=0
+      NUMERR=0
+C
+      WRITE (LP,50)
+      CALL SULINE (LP,1)
+      WRITE (LP,60)
+      CALL SULINE (LP,2)
+C
+C  CHECK IF SUFFICIENT CPU TIME AVAILABLE
+      ICKRGN=0
+      ICKCPU=1
+      MINCPU=10
+      IPRERR=1
+      IPUNIT=LP
+      TYPERR='ERROR'
+      INCLUDE 'clugtres'
+      IF (IERR.GT.0) THEN
+         CALL SUFATL
+         IUEND=1
+         GO TO 30
+         ENDIF
+C
+C  CHECK IF OG24 PARAMETERS ALREADY DEFINED
+      DISP='OLD'
+      IPRERR=0
+      CALL SROG24 (IPRERR,IVOG24,UNUSED,ISORT,MAXSNW,IPNTRS,
+     *     NUMSTA,LARRAY,ARRAY,IERR)
+      IF (IERR.GT.0) DISP='NEW'
+C
+C  GET SORTED LIST OF NAMES AND PREPROCESSOR PARAMETRIC DATA BASE
+C  POINTERS
+      CALL SNSORT (ISORT,LARRAY,ARRAY,IERR)
+      IF (IERR.GT.0) THEN
+         WRITE (LP,70)
+         CALL SUERRS (LP,2,NUMERR)
+         ISTAT=1
+         GO TO 30
+         ENDIF
+C
+C  SET RECORD NUMBER OF GENL PARAMETER ARRAY AND GRID-POINT ADDRESS
+      NUMSTA=0
+      MAXSTA=LSWORK
+      NUMADD=0
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,80) INWFIL
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      NUGTID=0
+      DO 10 I=1,INWFIL
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,90) I,NUMSTA,GPANW(I),
+     *        PP24NW(I),GENLNW(I)
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+         IF (GPANW(I).LE.0) GO TO 10
+            I2PP24=PP24NW(I)
+            IF (I2PP24.LT.0) I2PP24=-I2PP24
+            IF (I2PP24.EQ.0) THEN
+               NUGTID=NUGTID+1
+               I4VAL=GENLNW(I)
+               CALL SUGTID (NUGTID,'GENL',I4VAL,STAID,
+     *            DESCRP,STATE,IPPCHR,LSWRK2,SWRK2,IERR)
+               WRITE (LP,100) GPANW(I),I2PP24,STAID
+               CALL SUWRNS (LP,2,-1)
+               GO TO 10
+               ENDIF
+            NUMSTA=NUMSTA+1
+            IF (NUMSTA.GT.MAXSTA) THEN
+               NUMADD=NUMADD+1
+               IF (NUMADD.EQ.1) THEN
+                  WRITE (LP,110) MAXSTA
+                  CALL SUERRS (LP,2,NUMERR)
+                  GO TO 10
+                  ENDIF
+               ENDIF
+            IPNTRS(NUMSTA*2-1)=GENLNW(I)
+            IPNTRS(NUMSTA*2)=GPANW(I)
+10       CONTINUE
+C
+C  CHECK IF ANY STATIONS HAVE GRID-POINT
+      IF (NUMSTA.EQ.0) THEN
+         WRITE (LP,120)
+         CALL SULINE (LP,2)
+         GO TO 30
+         ENDIF
+C
+C  CHECK IF NOT ENOUGH ARRAY SPACE TO PROCESS ALL GRID-POINT STATIONS
+      IF (NUMADD.GT.0) THEN
+         WRITE (LP,130) NUMADD
+         CALL SULINE (LP,2)
+         GO TO 30
+         ENDIF
+C
+C  CHECK IF ERRORS ENCOUNTERED
+      IF (NUMERR.GT.0) THEN
+         WRITE (LP,140) 'OG24',NUMERR
+         CALL SULINE (LP,2)
+         GO TO 30
+         ENDIF
+C
+C  WRITE PARAMETERS
+      IVOG24=1
+      UNSD=-999.
+      CALL SWOG24 (IVOG24,UNSD,ISORT,IPNTRS,NUMSTA,
+     *   LARRAY,ARRAY,DISP,IERR)
+      IF (IERR.GT.0) GO TO 20
+C
+      IF (LDEBUG.EQ.0) GO TO 20
+C
+C  READ PARAMETERS
+      IPRERR=1
+      CALL SROG24 (IPRERR,IVOG24,UNUSED,ISORT,MAXSNW,IPNTRS,
+     *   NUMSTA,LARRAY,ARRAY,IERR)
+      IF (IERR.GT.0) GO TO 20
+C
+C  PRINT PARAMETERS
+      CALL SPOG24 (IVOG24,UNUSED,ISORT,IPNTRS,NUMSTA,
+     *   LARRAY,ARRAY,IERR)
+C
+20    WRITE (LP,150) NUMSTA
+      CALL SULINE (LP,2)
+C
+30    IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,160)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+40    FORMAT (' *** ENTER SNOG24')
+50    FORMAT (1H )
+60    FORMAT ('0*--> CREATE GRID-POINT STATION ALPHABETICAL ORDER')
+70    FORMAT ('0*** ERROR - IN SNOG24 - SORTED LIST OF STATIONS NOT ',
+     *   'SUCCESSFULLY OBTAINED.')
+80    FORMAT (' INWFIL=',I4)
+90    FORMAT (' I=',I4,3X,'NUMSTA=',I4,3X,'GPANW(I)=',I4,3X,
+     *   'PP24NW(I)=',I4,3X,'GENLNW(I)=',I4)
+100   FORMAT ('0*** WARNING - STATION HAS GPA DEFINED (',I4,') BUT ',
+     *   'PP24 POINTER (',I4,') IS ZERO FOR STATION IDENTIFIER ',
+     *   2A4,'.')
+110   FORMAT ('0*** ERROR - IN SNOG24 - MAXIMUM NUMBER OF STATIONS ',
+     *   'THAT CAN BE PROCESSED (',I5,') EXCEEDED.')
+120   FORMAT ('0*** NOTE - NO STATIONS WITH GRID-POINTS ARE DEFINED.')
+130   FORMAT ('0*** NOTE - ',I5,3X,' GRID-POINT STATIONS COULD NOT BE ',
+     *   'PROCESSED BECAUSE ARRAY TOO SMALL.')
+140   FORMAT ('0*** NOTE - ',A4,' PARAMETERS NOT WRITTEN BECAUSE ',I3,
+     *   ' ERRORS ENCOUNTERED.')
+150   FORMAT ('0*** NOTE - ',I4,' STATIONS PROCESSED ',
+     *   'FOR OG24 PARAMETERS.')
+160   FORMAT (' *** EXIT SNOG24')
+C
+      END

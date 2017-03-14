@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<WEGroup name="nwpsTrackingCG0">
+    <WEItem parmID="Period1_SFC:xxx_GRID__nwpsTrkngCG0_20150207_0600" relativeCycleNumber="0"/>
+    <WEItem parmID="Period2_SFC:xxx_GRID__nwpsTrkngCG0_20150207_0600" relativeCycleNumber="0"/>
+    <WEItem parmID="Period3_SFC:xxx_GRID__nwpsTrkngCG0_20150207_0600" relativeCycleNumber="0"/>
+    <WEItem parmID="Period4_SFC:xxx_GRID__nwpsTrkngCG0_20150207_0600" relativeCycleNumber="0"/>
+    <WEItem parmID="Period5_SFC:xxx_GRID__nwpsTrkngCG0_20150207_0600" relativeCycleNumber="0"/>
+    <WEItem parmID="Period6_SFC:xxx_GRID__nwpsTrkngCG0_20150207_0600" relativeCycleNumber="0"/>
+    <WEItem parmID="Period7_SFC:xxx_GRID__nwpsTrkngCG0_20150207_0600" relativeCycleNumber="0"/>
+    <WEItem parmID="Period8_SFC:xxx_GRID__nwpsTrkngCG0_20150207_0600" relativeCycleNumber="0"/>
+    <WEItem parmID="Period9_SFC:xxx_GRID__nwpsTrkngCG0_20150207_0600" relativeCycleNumber="0"/>
+    <WEItem parmID="Wave1_SFC:xxx_GRID__nwpsTrkngCG0_20150207_0600" relativeCycleNumber="0"/>
+    <WEItem parmID="Wave2_SFC:xxx_GRID__nwpsTrkngCG0_20150207_0600" relativeCycleNumber="0"/>
+    <WEItem parmID="Wave3_SFC:xxx_GRID__nwpsTrkngCG0_20150207_0600" relativeCycleNumber="0"/>
+    <WEItem parmID="Wave4_SFC:xxx_GRID__nwpsTrkngCG0_20150207_0600" relativeCycleNumber="0"/>
+    <WEItem parmID="Wave5_SFC:xxx_GRID__nwpsTrkngCG0_20150207_0600" relativeCycleNumber="0"/>
+    <WEItem parmID="Wave6_SFC:xxx_GRID__nwpsTrkngCG0_20150207_0600" relativeCycleNumber="0"/>
+    <WEItem parmID="Wave7_SFC:xxx_GRID__nwpsTrkngCG0_20150207_0600" relativeCycleNumber="0"/>
+    <WEItem parmID="Wave8_SFC:xxx_GRID__nwpsTrkngCG0_20150207_0600" relativeCycleNumber="0"/>
+    <WEItem parmID="Wave9_SFC:xxx_GRID__nwpsTrkngCG0_20150207_0600" relativeCycleNumber="0"/>
+</WEGroup>

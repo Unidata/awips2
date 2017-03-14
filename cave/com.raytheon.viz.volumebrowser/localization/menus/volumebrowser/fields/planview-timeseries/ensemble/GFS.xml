@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <contribute xsi:type="toolbarSubMenu" menuText="Height">
+		<contribute xsi:type="menuItem" menuText="Ens Members" key="GH" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Mean Hgt" key="GH_avg" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Std Dev" key="GH_std" indentText="false" />
+	</contribute>
+	<contribute xsi:type="toolbarSubMenu" menuText="Temperature">
+		<contribute xsi:type="menuItem" menuText="Ens Members" key="T" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Mean Temp" key="T_avg" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Std Dev" key="T_std" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob Temp Lstn 0C" key="T_001" indentText="false" />
+	</contribute>
+	<contribute xsi:type="toolbarSubMenu" menuText="RH">
+		<contribute xsi:type="menuItem" menuText="Ens Members" key="RH" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Mean RH" key="RH_avg" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Std Dev" key="RH_std" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob RH Grtn 70 percent" key="RH_001" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob RH Grtn 90 percent" key="RH_002" indentText="false" />
+	</contribute>
+	<contribute xsi:type="toolbarSubMenu" menuText="Wind">
+		<contribute xsi:type="menuItem" menuText="Ens Members" key="Wind" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Mean Isotachs" key="wSp_avg" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Mean Barbs" key="Wind_avg" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Std Dev" key="wSp_std" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob Wind Grtn 30kts" key="wSp_004" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob Wind Grtn 40kts" key="wSp_001" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob Wind Grtn 50kts" key="wSp_002" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob Wind Grtn 60kts" key="wSp_003" indentText="false" />
+	</contribute>
+	<contribute xsi:type="toolbarSubMenu" menuText="MSLP">
+		<contribute xsi:type="menuItem" menuText="MSLP Ens Members" key="msl-P" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Mean MSLP" key="msl-P_avg" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="MSLP Std Dev" key="msl-P_std" indentText="false" />
+	</contribute>
+	<contribute xsi:type="toolbarSubMenu" menuText="Precip">
+		<contribute xsi:type="menuItem" menuText="Ens Members" key="TP" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Mean Precip" key="TP_avg" indentText="false" />		
+		<contribute xsi:type="menuItem" menuText="Std Dev" key="TP_std" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="6hr Precip Mean"	key="TP6hr_avg"  indentText="false" />
+		<contribute xsi:type="menuItem" menuText="6hr Precip Std Dev" key="TP6hr_std" indentText="true" />
+		<contribute xsi:type="menuItem" menuText="24hr Precip Mean" key="TP24hr_avg"  indentText="false" />
+        <contribute xsi:type="menuItem" menuText="24hr Precip Std Dev" key="TP24hr_std"  indentText="true" />
+		<contribute xsi:type="menuItem" menuText="Run Total Precip Ens Members" key="TPrun" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Run Total Precip Mean" key="TPrun_avg" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Run Total Std Dev" key="TPrun_std" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 6hr grtn .05 in" key="POP_011" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 6hr grtn .1 in" key="POP_001" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 6hr grtn .3 in" key="POP_002" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 6hr grtn .6 in" key="POP_003" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 6hr grtn 1 in" key="POP_004" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 6hr grtn 2 in" key="POP_005" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 12hr grtn .05 in" key="POP_012" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 12hr grtn .1 in" key="POP_006" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 12hr grtn .3 in" key="POP_007" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 12hr grtn .6 in" key="POP_008" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 12hr grtn 1 in" key="POP_009" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 12hr grtn 2 in" key="POP_010" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 24hr grtn 1 in" key="POP_013" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 24hr grtn 2 in" key="POP_014" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 36hr grtn 2 in" key="POP_015" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 48hr grtn 2 in" key="POP_016" indentText="false" />
+	</contribute>
+	<contribute xsi:type="toolbarSubMenu" menuText="Tmax">
+		<contribute xsi:type="menuItem" menuText="MaxT Ens Members" key="MxT" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="MaxT Mean" key="MxT_avg" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Std Dev" key="MxT_std" indentText="false" />
+	</contribute>
+	<contribute xsi:type="toolbarSubMenu" menuText="Tmin">
+		<contribute xsi:type="menuItem" menuText="MinT Ens Members" key="MnT" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="MinT Mean" key="MnT_avg" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Std Dev" key="MnT_std" indentText="false" />
+	</contribute>
+</menuTemplate>

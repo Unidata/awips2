@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<contribute xsi:type="subMenu" menuText="Basic">
+			<!-- <contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyD-ECMW.xml"
+				    menuText="ECMWF-HiRes" id="ecmwfHiRes" useReferenceTime="true">
+				<substitute key="TP" value="TP"/>
+				<substitute key="frameCount" value="41"/>
+			</contribute> -->
+<!-- 			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyD-MandatoryLevels.xml"
+				    menuText="Canadian-NH" id="canNH" useReferenceTime="true">
+				<substitute key="modelName" value="Canadian-NH"/> 
+				<substitute key="TP" value="TP"/>
+				<substitute key="frameCount" value="25"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyD-MandatoryLevels.xml"
+				    menuText="Canadian-Reg" id="canReg" useReferenceTime="true">
+				<substitute key="modelName" value="Canadian-Reg"/> 
+				<substitute key="TP" value="TP"/>
+				<substitute key="frameCount" value="17"/>
+			</contribute> -->
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyD-MandatoryLevels.xml"
+				    menuText="ECMWF-HiRes" id="ecmwfHiRes" useReferenceTime="true">
+				<substitute key="modelName" value="ECMWF-HiRes"/> 
+				<substitute key="TP" value="TP"/>
+				<substitute key="frameCount" value="41"/>
+			</contribute>			
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyD.xml"
+				    menuText="GFS20" id="gfs20" useReferenceTime="true">
+				<substitute key="modelName" value="GFS20"/> 
+				<substitute key="TP" value="TP"/>
+				<substitute key="frameCount" value="55"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyD.xml"
+				    menuText="GFS" id="gfs1deg" useReferenceTime="true">
+				<substitute key="modelName" value="${GFSmodel}"/>
+				<substitute key="TP" value="TP"/>
+				<substitute key="frameCount" value="41"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyD.xml"
+				    menuText="NAM12" id="nam12" useReferenceTime="true">
+				<substitute key="modelName" value="${NAM12model}"/>
+				<substitute key="TP" value="TP3hr"/>
+				<substitute key="frameCount" value="29"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyD.xml"
+				    menuText="NAM40" id="nam40" useReferenceTime="true">
+				<substitute key="modelName" value="${NAM40model}"/>
+				<substitute key="TP" value="TP3hr"/>
+				<substitute key="frameCount" value="21"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyD.xml"
+				    menuText="NAM80" id="nam80" useReferenceTime="true">
+				<substitute key="modelName" value="ETA"/>
+				<substitute key="TP" value="TP6hr"/>
+				<substitute key="frameCount" value="15"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyD.xml"
+				    menuText="RAP13" id="rap13" useReferenceTime="true">
+				<substitute key="modelName" value="${RAP13model}"/>
+				<substitute key="TP" value="TP3hr"/>
+				<substitute key="frameCount" value="19"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyD.xml"
+				    menuText="RAP" id="rap" useReferenceTime="true">
+				<substitute key="modelName" value="${RAPmodel}"/>
+				<substitute key="TP" value="TP3hr"/>
+				<substitute key="frameCount" value="9"/>
+			</contribute>
+<!-- 			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyD-UKMET.xml" -->
+<!-- 			 <contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyD.xml"		   
+				    menuText="UKMET" id="ukmet" useReferenceTime="true">
+				<substitute key="TP" value="TP6hr"/>
+				<substitute key="frameCount" value="15"/>
+			</contribute> -->
+		</contribute>
+		<contribute xsi:type="subMenu" menuText="Big Fn Family">
+			<!-- <contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyI-ECMW.xml" menuText="ECMWF-HiRes" id="ecmwfHiRes" useReferenceTime="true">
+				<substitute key="TP" value="TP"/>
+				<substitute key="frameCount" value="41"/>
+			</contribute> -->
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyI.xml" menuText="GFS20" id="gfs20" useReferenceTime="true">
+				<substitute key="modelName" value="GFS20"/> 
+				<substitute key="TP" value="TP"/>
+				<substitute key="frameCount" value="55"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyI.xml" menuText="GFS" id="gfs1deg" useReferenceTime="true">
+				<substitute key="modelName" value="${GFSmodel}"/>
+				<substitute key="TP" value="TP"/>
+				<substitute key="frameCount" value="41"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyI.xml" menuText="NAM12" id="nam12" useReferenceTime="true">
+				<substitute key="modelName" value="${NAM12model}"/>
+				<substitute key="TP" value="TP3hr"/>
+				<substitute key="frameCount" value="29"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyI.xml" menuText="NAM40" id="nam40" useReferenceTime="true">
+				<substitute key="modelName" value="${NAM40model}"/>
+				<substitute key="TP" value="TP3hr"/>
+				<substitute key="frameCount" value="21"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyI.xml" menuText="NAM80" id="nam80" useReferenceTime="true">
+				<substitute key="modelName" value="ETA"/>
+				<substitute key="TP" value="TP6hr"/>
+				<substitute key="frameCount" value="15"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyI.xml" menuText="RAP13" id="rap13" useReferenceTime="true">
+				<substitute key="modelName" value="${RAP13model}"/>
+				<substitute key="TP" value="TP3hr"/>
+				<substitute key="frameCount" value="19"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyI.xml" menuText="RAP" id="rap" useReferenceTime="true">
+				<substitute key="modelName" value="${RAPmodel}"/>
+				<substitute key="TP" value="TP3hr"/>
+				<substitute key="frameCount" value="9"/>
+			</contribute>
+		<!-- 	<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyI-UKMET.xml" menuText="UKMET" id="ukmet" useReferenceTime="true">
+				<substitute key="TP" value="TP6hr"/>
+				<substitute key="frameCount" value="15"/>
+			</contribute> -->
+		</contribute>
+		
+		<contribute xsi:type="subMenu" menuText="Big3 Qn Family">
+			<!-- <contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyM-ECMW.xml"
+				    menuText="ECMWF-HiRes" id="ecmwfHiRes" useReferenceTime="true">
+				<substitute key="TP" value="TP"/>
+				<substitute key="frameCount" value="41"/>
+			</contribute> -->
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyM.xml"
+				    menuText="GFS20" id="gfs20" useReferenceTime="true">
+				<substitute key="modelName" value="GFS20"/> 
+				<substitute key="TP" value="TP"/>
+				<substitute key="frameCount" value="55"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyM.xml"
+				    menuText="GFS" id="gfs1deg" useReferenceTime="true">
+				<substitute key="modelName" value="${GFSmodel}"/>
+				<substitute key="TP" value="TP"/>
+				<substitute key="frameCount" value="41"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyM.xml"
+				    menuText="NAM12" id="nam12" useReferenceTime="true">
+				<substitute key="modelName" value="${NAM12model}"/>
+				<substitute key="TP" value="TP3hr"/>
+				<substitute key="frameCount" value="29"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyM.xml"
+				    menuText="NAM40" id="nam40" useReferenceTime="true">
+				<substitute key="modelName" value="${NAM40model}"/>
+				<substitute key="TP" value="TP3hr"/>
+				<substitute key="frameCount" value="21"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyM.xml"
+				    menuText="NAM80" id="nam80" useReferenceTime="true">
+				<substitute key="modelName" value="ETA"/>
+				<substitute key="TP" value="TP6hr"/>
+				<substitute key="frameCount" value="15"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyM.xml"
+				    menuText="RAP13" id="rap13" useReferenceTime="true">
+				<substitute key="modelName" value="${RAP13model}"/>
+				<substitute key="TP" value="TP3hr"/>
+				<substitute key="frameCount" value="19"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyM.xml"
+				    menuText="RAP" id="rap" useReferenceTime="true">
+				<substitute key="modelName" value="${RAPmodel}"/>
+				<substitute key="TP" value="TP3hr"/>
+				<substitute key="frameCount" value="9"/>
+			</contribute>
+			<!-- <contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyM-UKMET.xml"
+				    menuText="UKMET" id="ukmet" useReferenceTime="true">
+				<substitute key="TP" value="TP6hr"/>
+				<substitute key="frameCount" value="15"/>
+			</contribute> -->
+		</contribute>
+		
+		<contribute xsi:type="subMenu" menuText="PType Family">
+<!-- 			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyL-MandatoryLevels.xml"
+				    menuText="Canadian-NH" id="canNH" useReferenceTime="true">
+				<substitute key="modelName" value="Canadian-NH"/> 
+				<substitute key="TP" value="TP"/>
+				<substitute key="frameCount" value="25"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyL-MandatoryLevels.xml"
+				    menuText="Canadian-Reg" id="canReg" useReferenceTime="true">
+				<substitute key="modelName" value="Canadian-Reg"/> 
+				<substitute key="TP" value="TP"/>
+				<substitute key="frameCount" value="17"/>
+			</contribute> -->
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyL-MandatoryLevels.xml"
+				    menuText="ECMWF-HiRes" id="ecmwfHiRes" useReferenceTime="true">
+				<substitute key="modelName" value="ECMWF-HiRes"/> 
+				<substitute key="TP" value="TP"/>
+				<substitute key="frameCount" value="41"/>
+			</contribute>			
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyL.xml" menuText="GFS20" id="gfs20" useReferenceTime="true">
+				<substitute key="modelName" value="GFS20"/> 
+				<substitute key="TP" value="TP"/>
+				<substitute key="frameCount" value="55"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyL.xml" menuText="GFS" id="gfs1deg" useReferenceTime="true">
+				<substitute key="modelName" value="${GFSmodel}"/>
+				<substitute key="TP" value="TP"/>
+				<substitute key="frameCount" value="41"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyL.xml"
+				    menuText="LAPS" id="laps" useReferenceTime="true">
+				<substitute key="modelName" value="LAPS"/>
+				<substitute key="TP" value="TP"/>
+				<substitute key="frameCount" value="5"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyL.xml" menuText="NAM12" id="nam12" useReferenceTime="true">
+				<substitute key="modelName" value="${NAM12model}"/>
+				<substitute key="TP" value="TP3hr"/>
+				<substitute key="frameCount" value="29"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyL.xml" menuText="NAM40" id="nam40" useReferenceTime="true">
+				<substitute key="modelName" value="${NAM40model}"/>
+				<substitute key="TP" value="TP3hr"/>
+				<substitute key="frameCount" value="21"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyL.xml" menuText="NAM80" id="nam80" useReferenceTime="true">
+				<substitute key="modelName" value="ETA"/>
+				<substitute key="TP" value="TP6hr"/>
+				<substitute key="frameCount" value="15"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyL.xml" menuText="RAP13" id="rap13" useReferenceTime="true">
+				<substitute key="modelName" value="${RAP13model}"/>
+				<substitute key="TP" value="TP3hr"/>
+				<substitute key="frameCount" value="19"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyL.xml" menuText="RAP" id="rap" useReferenceTime="true">
+				<substitute key="modelName" value="${RAPmodel}"/>
+				<substitute key="TP" value="TP3hr"/>
+				<substitute key="frameCount" value="9"/>
+			</contribute>
+			<!-- <contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyL-UKMET.xml" menuText="UKMET" id="ukmet" useReferenceTime="true">
+				<substitute key="TP" value="TP6hr"/>
+				<substitute key="frameCount" value="15"/>
+			</contribute> -->
+		</contribute>
+
+		<contribute xsi:type="subMenu" menuText="PV-Trop Family">
+			<!-- <contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyE-ECMW.xml" menuText="ECMWF-HiRes" id="ecmwfHiRes" useReferenceTime="true">
+				<substitute key="TP" value="TP"/>
+				<substitute key="frameCount" value="41"/>
+			</contribute> -->
+<!-- 				<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyE.xml"
+				    menuText="Canadian-NH" id="canNH" useReferenceTime="true">
+				<substitute key="modelName" value="Canadian-NH"/> 
+				<substitute key="TP" value="TP"/>
+				<substitute key="frameCount" value="25"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyE.xml"
+				    menuText="Canadian-Reg" id="canReg" useReferenceTime="true">
+				<substitute key="modelName" value="Canadian-Reg"/> 
+				<substitute key="TP" value="TP"/>
+				<substitute key="frameCount" value="17"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyE.xml"
+				    menuText="ECMWF-HiRes" id="ecmwfHiRes" useReferenceTime="true">
+				<substitute key="modelName" value="ECMWF-HiRes"/> 
+				<substitute key="TP" value="TP"/>
+				<substitute key="frameCount" value="41"/>
+			</contribute> -->
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyE.xml" menuText="GFS20" id="gfs20" useReferenceTime="true">
+				<substitute key="modelName" value="GFS20"/> 
+				<substitute key="TP" value="TP"/>
+				<substitute key="frameCount" value="55"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyE.xml" menuText="GFS" id="gfs1deg" useReferenceTime="true">
+				<substitute key="modelName" value="${GFSmodel}"/>
+				<substitute key="TP" value="TP"/>
+				<substitute key="frameCount" value="41"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyE.xml" menuText="NAM12" id="nam12" useReferenceTime="true">
+				<substitute key="modelName" value="${NAM12model}"/>
+				<substitute key="TP" value="TP3hr"/>
+				<substitute key="frameCount" value="29"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyE.xml" menuText="NAM40" id="nam40" useReferenceTime="true">
+				<substitute key="modelName" value="${NAM40model}"/>
+				<substitute key="TP" value="TP3hr"/>
+				<substitute key="frameCount" value="21"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyE.xml" menuText="NAM80" id="nam80" useReferenceTime="true">
+				<substitute key="modelName" value="ETA"/>
+				<substitute key="TP" value="TP6hr"/>
+				<substitute key="frameCount" value="15"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyE.xml" menuText="RAP13" id="rap13" useReferenceTime="true">
+				<substitute key="modelName" value="${RAP13model}"/>
+				<substitute key="TP" value="TP3hr"/>
+				<substitute key="frameCount" value="19"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyE.xml" menuText="RAP" id="rap" useReferenceTime="true">
+				<substitute key="modelName" value="${RAPmodel}"/>
+				<substitute key="TP" value="TP3hr"/>
+				<substitute key="frameCount" value="9"/>
+			</contribute>
+			<!-- <contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyE-UKMET.xml" menuText="UKMET" id="ukmet" useReferenceTime="true">
+				<substitute key="TP" value="TP6hr"/>
+				<substitute key="frameCount" value="15"/>
+			</contribute> -->
+		</contribute>
+
+		
+
+		<contribute xsi:type="subMenu" menuText="Snow Growth Family">
+			<!-- <contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyJ-ECMW.xml" menuText="ECMWF-HiRes" id="ecmwfHiRes" useReferenceTime="true">
+				<substitute key="TP" value="TP"/>
+				<substitute key="frameCount" value="41"/>
+			</contribute> -->
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyJ.xml" menuText="GFS20" id="gfs20" useReferenceTime="true">
+				<substitute key="modelName" value="GFS20"/> 
+				<substitute key="TP" value="TP"/>
+				<substitute key="frameCount" value="55"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyJ.xml" menuText="GFS" id="gfs1deg" useReferenceTime="true">
+				<substitute key="modelName" value="${GFSmodel}"/>
+				<substitute key="TP" value="TP"/>
+				<substitute key="frameCount" value="41"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyJ.xml" menuText="NAM12" id="nam12" useReferenceTime="true">
+				<substitute key="modelName" value="${NAM12model}"/>
+				<substitute key="TP" value="TP3hr"/>
+				<substitute key="frameCount" value="29"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyJ.xml" menuText="NAM40" id="nam40" useReferenceTime="true">
+				<substitute key="modelName" value="${NAM40model}"/>
+				<substitute key="TP" value="TP3hr"/>
+				<substitute key="frameCount" value="21"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyJ.xml" menuText="NAM80" id="nam80" useReferenceTime="true">
+				<substitute key="modelName" value="ETA"/>
+				<substitute key="TP" value="TP6hr"/>
+				<substitute key="frameCount" value="15"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyJ.xml" menuText="RAP13" id="rap13" useReferenceTime="true">
+				<substitute key="modelName" value="${RAP13model}"/>
+				<substitute key="TP" value="TP3hr"/>
+				<substitute key="frameCount" value="19"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyJ.xml" menuText="RAP" id="rap" useReferenceTime="true">
+				<substitute key="modelName" value="${RAPmodel}"/>
+				<substitute key="TP" value="TP3hr"/>
+				<substitute key="frameCount" value="9"/>
+			</contribute>
+		<!-- 	<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyJ-UKMET.xml" menuText="UKMET" id="ukmet" useReferenceTime="true">
+				<substitute key="TP" value="TP6hr"/>
+				<substitute key="frameCount" value="15"/>
+			</contribute> -->
+		</contribute>		
+</menuTemplate>

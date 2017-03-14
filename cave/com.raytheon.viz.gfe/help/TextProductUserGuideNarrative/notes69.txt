@@ -1,0 +1,2 @@
+Now we will see how the system uses the narrative tree structure to handle Local Effects. First consider the case of an "embedded" local effect i.e. one in which there is only one time period.
+

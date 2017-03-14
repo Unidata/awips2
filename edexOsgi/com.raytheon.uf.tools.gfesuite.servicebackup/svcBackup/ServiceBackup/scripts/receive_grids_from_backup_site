@@ -1,0 +1,176 @@
+#!/bin/bash
+
+##
+# This software was developed and / or modified by Raytheon Company,
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# This software product contains export-restricted data whose
+# export/transfer/disclosure is restricted by U.S. law. Dissemination
+# to non-U.S. persons whether in the United States or abroad requires
+# an export license or other authorization.
+# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
+# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+# further licensing information.
+##
+##############################################################################
+# Receive grids from backup site
+# This script is run when importing your digital data back from the backup site.
+# The grids are placed in the Restore database.
+#
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    06/16/14        3276          randerso       Added -T to iscMosaic call
+#    02/12/15        4103          dgilling       Support multiple service backup sites.
+#    03/30/15        4103          dgilling       Support new location for svcbu.properties.
+#    04/30/15        4427          dgilling       Support subdomains of the
+#                                                 primary domains.
+#
+##############################################################################
+
+if [[ -z "${AWIPS_HOME}" ]]
+then
+    path_to_script=`readlink -f $0`
+    export AWIPS_HOME=$(dirname $(dirname $(dirname $(dirname  $path_to_script))))
+fi
+
+source ${AWIPS_HOME}/edex/bin/setup.env
+source ${AWIPS_HOME}/GFESuite/ServiceBackup/configuration/svcbu.env
+source ${AWIPS_HOME}/GFESuite/ServiceBackup/scripts/serviceBackupUtil.sh
+
+# Create the log file
+configureLogging "svcbu_receive_grids_from_bksite" ${AW_SITE_IDENTIFIER}
+
+# Retrieve the name of the site from the tar file.
+import_grd_file=${1}
+if [ -f ${import_grd_file} ]
+then
+    echo "Import Grids file is ${import_grd_file}"
+    
+    TEMP_DIR=`mktemp -d`
+    mv ${import_grd_file} ${TEMP_DIR}/Grd
+    cd ${TEMP_DIR}
+    
+    SITE_ID=$(getSiteIdFromTarFile "${TEMP_DIR}/Grd")
+    if [[ -n "${SITE_ID}" ]]
+    then
+		tar -xf Grd
+		gunzip -f ${SITE_ID}Grd.netcdf.gz
+		NETCDF_FILE="${TEMP_DIR}/${SITE_ID}Grd.netcdf"
+	else
+		mv -f Grd Grd.netcdf.gz
+	    chmod 777 Grd.netcdf.gz
+		
+		echo "Gunzipping ${TEMP_DIR}/Grd.netcdf.gz"
+		gunzip -f Grd.netcdf.gz
+	    if [ $? -ne 0 ]; 
+	    then
+			echo "ERROR: Could not gunzip ${TEMP_DIR}/Grd.netcdf.gz"
+			exit 1
+	    fi
+	    echo "Done Gunzipping!"
+	    
+	    echo "Finding site-id using ncdump method."
+		site=`ncdump -h "${TEMP_DIR}/Grd.netcdf" | grep siteID | head -1 | cut -d'"' -f2`
+	    if [[ -z "${site}" ]]
+	    then
+			echo "ERROR: Could not find out the site from ncdump method..."
+			exit 1
+	    fi
+	    SITE_ID=`echo $site | tr '[A-Z]' '[a-z]'`
+	    
+	    NETCDF_FILE="${TEMP_DIR}/${SITE_ID}Grd.netcdf"
+		mv -f "${TEMP_DIR}/Grd.netcdf" ${NETCDF_FILE}
+	fi
+	
+	SITE_ID_CAPS=`echo ${SITE_ID} | tr [a-z] [A-Z]`
+	echo "site is ${SITE_ID_CAPS}"
+else
+	echo "Unable to locate the gridded data of the site, ${import_grd_file}"
+    echo "You will need to request your backup site to send grids again."
+    exit 1
+fi
+
+IMPORTING_FROM_SUBDOMAIN=0
+SRC_SITEID="${SITE_ID_CAPS}"
+DEST_SITEID="${SITE_ID_CAPS}"
+while read -r line
+do
+    key=${line}
+    value=$(eval "echo \${$key}")
+    value=`echo ${value} | tr [a-z] [A-Z]`
+    
+    if [[ $value = *"${SITE_ID_CAPS}"* ]]
+    then
+        DEST_SITEID=`echo ${key:(-3)} | tr [a-z] [A-Z]`
+        IMPORTING_FROM_SUBDOMAIN=1
+        echo "Importing grids received from $SRC_SITEID as sub-domain of $DEST_SITEID." 
+        break
+    fi
+done < <(compgen -v | grep "^SUBDOMAINS_")
+
+# Check the status of the lock file to see if we are OK to proceed
+LOCK_FILE=$(getLockFile "importBkSiteGrids" ${DEST_SITEID})
+lock_status=$(isOperationInProgress "importBkSiteGrids" ${DEST_SITEID})
+if [[ "${lock_status}" = "true" ]]
+then
+	echo "Cannot process grids."
+	exit 1
+fi
+
+markTaskInProgress ${LOCK_FILE}
+
+# extract grids from package file
+OUTPUT_DIR=$(getTempDirectory "receive_grids_from_backup_site" ${DEST_SITEID})
+import_file="${OUTPUT_DIR}/${SRC_SITEID}Grd.netcdf"
+mv "${NETCDF_FILE}" ${import_file}
+
+# Check if import file was supplied correctly by msg_send.
+echo "import_file=${import_file}"
+if [ -f ${import_file} ]
+then
+    if [ $IMPORTING_FROM_SUBDOMAIN -eq 0 ]
+    then
+        MOSAIC_FLAGS="-n -T -x"
+    else
+        MOSAIC_FLAGS="-T"
+    fi
+    
+    #use iscMosaic to load grids into databases
+    echo "Running iscMosaic to unpack griddded data..."
+    ${GFESUITE_BIN}/iscMosaic -h $SVCBU_HOST -r $CDSPORT -d ${DEST_SITEID}_GRID__Restore_00000000_0000 -f ${import_file} ${MOSAIC_FLAGS} 
+    
+    if [ $? -ne 0 ]; 
+    then
+		echo "ERROR: iscMosaic failed to run correctly. Please re-run iscMosaic manually."
+		markTaskFailed ${LOCK_FILE}
+		exit 1
+    fi
+    echo "Finished running iscMosaic..."
+    
+    # Generate a GFE message saying new Grids have arrived in Restore database.
+    ${GFESUITE_BIN}/sendGfeMessage -h ${SVCBU_HOST} -p ${CDSPORT} -u -m "Restore database has been populated with new grids."
+else
+   echo "Unable to locate the gridded data of the site,${import_file} You will need to request your backup site to send grids again."
+   markTaskFailed ${LOCK_FILE}
+   exit 1
+fi
+
+#clean-up.
+rm -f ${import_file}
+rm -rf ${TEMP_DIR}
+markTaskSuccess ${LOCK_FILE}
+
+#ALL well, send a msg and get out of here
+echo "Importing Grids from backup site is completed. You may start your GFE now."
+echo "Grids received from backup site are stored in ${DEST_SITEID}_GRID__Restore_00000000_0000 database."
+exit 0
+

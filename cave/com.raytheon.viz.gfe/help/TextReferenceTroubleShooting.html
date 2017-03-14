@@ -1,0 +1,337 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.8 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]">
+  <title>Text Products Reference</title>
+<!--link REL="STYLESHEET" HREF="TextFormatter.html"-->
+</head>
+<body bgcolor="#ffffff">
+<center><h1><a name="TroubleShooting"></a>TroubleShooting</h1></center>
+
+&nbsp;&nbsp;&nbsp; <a href="#TroubleshootingStrategies">Trouble-shooting
+Strategies</a> <br>
+&nbsp;&nbsp;&nbsp; <a href="#ErrorMessages">Error Messages and
+Solutions</a> <br>
+&nbsp;&nbsp;&nbsp; <a href="#ProblemsSolutions">Problems and Solutions</a>
+<hr>
+<h2> <a name="TroubleshootingStrategies"></a>Trouble-shooting
+Strategies</h2>
+<b><font color="#000000">Strategy 1 -- "No Output":&nbsp; Nothing
+happens when you run your product.</font></b>
+<br>
+<ol>
+  <li> <font color="#000000">Make sure you are running your product
+locally.</font></li>
+  <li><font color="#000000">Check the Process Monitor for error
+messages.</font></li>
+  <li> <font color="#000000">Check the <a href="#ErrorMessages">Error
+Messages</a> section
+below for your error.</font></li>
+</ol>
+<p><br>
+<b>Strategy 2 -- "Baseline Problem": You are getting undesirable
+results with the baseline formatter (no threshold or variable overrides
+in the Overrides file).</b> </p>
+<ol>
+  <li>&nbsp;If the problem is with a narrative phrase, check the Text
+Rules Reference documentation to see if there are thresholds and
+variables that you might set to produce desired results.</li>
+  <li>If not, send a message to the&nbsp; listserver including a
+description of the problem and the desired results.</li>
+</ol>
+<b>Strategy 3 -- "Isolate Override": You are getting undesirable
+results and you have overridden some thresholds or variables in your
+Overrides file.</b>
+<ol>
+  <li>Run the baseline version of the product to see if you get the
+same results.</li>
+  <li>If so, see Strategy 2 above.</li>
+  <li>If not, comment out the overrides in your Overrides file and run
+it
+as the baseline.</li>
+  <li>Now begin adding in the overrides one-by-one until the problem
+re-occurs.</li>
+  <li>That will give you a hint as to where the offending code might be.</li>
+  <li>If it's not clear at that point, include all this information in
+a message to the Listserver.</li>
+</ol>
+<span style="font-weight: bold;">Strategy 4 -- "Infinite Loop or No
+Words":&nbsp; For a particular edit area, you get the message:&nbsp;</span>
+<br>
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+WARNING: TOO MANY PASSES ON TREE.</span> <br>
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; or</span>
+<br>
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+WARNING: EMPTY WORDS FROM TREE.
+<p></p>
+</span>These problems are often data-dependent making it difficult to
+reproduce especially at another site.&nbsp; Thus, you will have to
+perform some detective work "on the spot" in order to isolate the
+problem before seeking assistance from the support teams.&nbsp; In
+these
+situations, the narrative product is not completing as intended.&nbsp;
+The multiple-pass processing has the potential of an infinite loop if
+the logic is such that some method either does not return a "done"
+status (e.g. return self.setWords() or self.DONE()) or does not set the
+words for a phrase correctly.&nbsp; In either case, the strategy for
+locating the problem is the same.&nbsp; We want to locate the offending
+method, and turning on the "trace" flag will help us to see which
+method
+is being called repeatedly.&nbsp; However, before we turn on the
+volumnious trace messages, we want to isolate the problem as much as
+possible.&nbsp; We do this by isolating the edit area, time period, and
+phrase method that are causing the trouble.
+<ol>
+  <li> <span style="font-weight: bold;">Isolate the edit area for
+which
+there is a problem.</span> Run the product for that area ONLY by
+altering
+your Combinations file or the "defaultEditAreas" list.</li>
+  <li> <span style="font-weight: bold;">Isolate the time period for
+which there is a problem.&nbsp;</span>Override the issuance_list for
+the
+product and comment out all periods except the first for the issuance
+causing the problem. For example, if we are running the 10-503 ZFP and
+getting a problem with the Morning issuance, we would comment out all
+but Period_1 in the _10_503_issuance_list.&nbsp; (Be sure and copy the
+entire issuance_list method into your Overrides file).</li>
+  <div style="margin-left: 40px;">&nbsp; <br>
+  <span style="color: rgb(0, 102, 0);">def _10_503_issuance_list(self,
+argDict):</span> <br>
+  <span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+narrativeDefAM = [</span> <br>
+  <span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Period_1", "period1"),&nbsp;</span> <br>
+  <span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#("Period_2_3", 12), ("Period_2_3", 12),&nbsp;</span> <br>
+  <span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#("Period_4_5", 12), ("Period_4_5", 12),&nbsp;</span> <br>
+  <span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#("Period_6_14", 12), ("Period_6_14", 12), ("Period_6_14", 12),
+("Period_6_14", 12),&nbsp;</span> <br>
+  <span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#("Period_6_14", 12), ("Period_6_14", 12), ("Period_6_14", 12),
+("Period_6_14", 12),&nbsp;</span> <br>
+  <span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+]</span> <br>
+  <span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+narrativeDefPM = [</span> <br>
+  <span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Period_1", "period1"),</span> <br>
+  <span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Period_2_3", 12), ("Period_2_3", 12),&nbsp;</span> <br>
+  <span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Period_4_5", 12), ("Period_4_5", 12),&nbsp;</span> <br>
+  <span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Period_6_14", 12), ("Period_6_14", 12), ("Period_6_14", 12),
+("Period_6_14", 12),&nbsp;</span> <br>
+  <span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Period_6_14", 12), ("Period_6_14", 12), ("Period_6_14", 12),
+("Period_6_14", 12),&nbsp;</span> <br>
+  <span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Period_6_14", 12),</span> <br>
+  <span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+]</span> <br>
+  <span style="color: rgb(0, 102, 0);"></span><br>
+  <span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+.....etc...</span><span style="color: rgb(0, 102, 0);"></span></div>
+  <span style="color: rgb(0, 0, 0);">Run the product for this time
+period and see if you get the same error.&nbsp; If not, begin
+uncommenting the periods one at a time until you get the error.&nbsp;
+Of
+course, the earlier the time period, the easier it will be to read the
+trace.&nbsp; So for any components prior to the the one causing the
+trouble, override the Product Component definition and remove all the
+entries in the "analysisList" and "phraseList".&nbsp; For example, if
+the problem does not occur until the third period of the Morning
+issuance, remove&nbsp; the "analysisList" and "phraseList" entries for
+the "Period_1" component:
+  <p><span style="color: rgb(0, 102, 0);">def Period_1(self):</span> <br>
+  <span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+component =&nbsp; {&nbsp;</span> <br>
+  <span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"type": "component",</span> <br>
+  <span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"methodList": [</span> <br>
+  <span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.assemblePhrases,&nbsp;</span> <br>
+  <span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.wordWrap,&nbsp;</span> <br>
+  <span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+],</span> <br>
+  <span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"analysisList": [&nbsp;</span> <br>
+  <span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+],</span> <br>
+  <span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"phraseList":[&nbsp;</span> <br>
+  <span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+],</span> <br>
+  <span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</span>
+  </p>
+  <p></p>
+  </span><li> <span style="font-weight: bold;">Isolate the phrase
+method.</span>&nbsp; Determine which phrase is causing the problem by
+overriding the product component for the time period causing the
+trouble. Comment out all but the first phrase method and run the
+product.&nbsp; If the problem does not occur, begin uncommenting each
+phrase one-by-one running the product until you find which phrase is
+causing the problem.&nbsp; Then comment out all but that phrase method
+and run the product again to see that the problem occurs.&nbsp; In some
+rare cases, you may have to uncomment more that one phrase to get the
+problem to occur.)</li>
+  <li> <span style="font-weight: bold;">Check the offending phrase
+method code.&nbsp;</span>Find the phrase "word" method in the Text
+Rules
+library (or your Overrides file if you have overridden or added
+methods) and
+ensure that all of it's return statements return either a&nbsp;<span
+ style="color: rgb(0, 102, 0);">self.DONE()</span> call or a&nbsp;<span
+ style="color: rgb(0, 102, 0);">self.setWords()</span>
+call.&nbsp;&nbsp;
+If not, correct the code and run your product again.&nbsp; If that was
+not the problem, proceed to the next step.</li>
+  <li> <span style="font-weight: bold;">Turn on the trace messages.</span>&nbsp;
+Now you can turn on the trace messages in your Overrides file by
+setting
+the 'Definition["trace"]' flag to 1.&nbsp; Re-run the product and
+examine the end of the trace messages.&nbsp; You are looking for a
+method that is repeating without returning a status of DONE as reported
+in the message OR is continually returning 'None' for the value of
+'Words' in the trace message.&nbsp;&nbsp; If you find the offending
+method, you can begin to investigate why it is not completing.&nbsp; At
+this point, you can submit this information to the listserver post for
+more help.</li>
+  <li> <span style="font-weight: bold;">Check your overrides</span>.
+You may want to try&nbsp;<span style="font-weight: bold;">Strategy 3</span>
+(above) to see if the problem occurs with the baseline formatter.&nbsp;
+If not, you will want to isolate which of your overrides introduces the
+problem.</li>
+</ol>
+<h2> <a name="ErrorMessages"></a>Error Messages</h2>
+Below are&nbsp; some common error messages and solutions.
+<p>****************************** <br>
+<b>Error message</b>: </p>
+<p>Traceback (most recent call last): <br>
+&nbsp; File "&lt;string&gt;", line 1, in ? <br>
+&nbsp; File "/scratch/hansen/HEAD/GFESuite/headline/TextFormatter.py",
+line 949, in profMain <br>
+&nbsp;&nbsp;&nbsp; main2(arg) <br>
+&nbsp; File "/scratch/hansen/HEAD/GFESuite/headline/TextFormatter.py",
+line 890, in main2 <br>
+&nbsp;&nbsp;&nbsp; forecast = formatter.getForecast(forecastType,
+argDict) <br>
+&nbsp; File "/scratch/hansen/HEAD/GFESuite/headline/TextFormatter.py",
+line 154, in getForecast <br>
+&nbsp;&nbsp;&nbsp; raise Exception, LogStream.exc() <br>
+Exception: Traceback (most recent call last): <br>
+&nbsp;&nbsp; File
+"/scratch/hansen/HEAD/GFESuite/headline/TextFormatter.py", line 151, in
+getForecast <br>
+&nbsp;&nbsp;&nbsp; text = product.generateForecast(argDict) <br>
+&nbsp;&nbsp; File "FWF", line 593, in generateForecast <br>
+&nbsp;&nbsp; File "FWF", line 676, in _sampleData <br>
+&nbsp;&nbsp; File
+"/scratch/hansen/HEAD/GFESuite/headline/ForecastNarrative.py", line
+467,
+in getNarrativeData <br>
+&nbsp;&nbsp;&nbsp; error = self.__breakOutDefinition(argDict,
+narrativeDefinition, timeRange, areaList) <br>
+&nbsp;&nbsp; File
+"/scratch/hansen/HEAD/GFESuite/headline/ForecastNarrative.py", line
+628,
+in __breakOutDefinition <br>
+&nbsp;&nbsp;&nbsp; editAreas = self.__intersectEditAreas(leAreaLabel,
+argDict) <br>
+&nbsp;&nbsp; File
+"/scratch/hansen/HEAD/GFESuite/headline/ForecastNarrative.py", line
+733,
+in __intersectEditAreas <br>
+&nbsp;&nbsp;&nbsp; leArea = self.findEditArea(None, leAreaLabel) <br>
+&nbsp;&nbsp; File
+"/scratch/hansen/HEAD/GFESuite/headline/ForecastNarrative.py", line
+767,
+in findEditArea <br>
+&nbsp;&nbsp;&nbsp; editArea = self.getEditAreas(self.__argDict,
+[areaLabel])[0] <br>
+&nbsp;&nbsp; File "EditAreaUtils", line 82, in getEditAreas <br>
+&nbsp;&nbsp; File
+"/scratch/hansen/HEAD/GFESuite/libs/pyInter/AFPSSup.py", line 2283, in
+getReferenceData <br>
+&nbsp;&nbsp;&nbsp; def getReferenceData(*args): return
+apply(_AFPSSup.IFPClient_getReferenceData,args) <br>
+&nbsp;<font color="#000099">TypeError:
+IFPClient::getReferenceData()failed : Unable to find reference data
+[(BelowElev,P=0,A=0)]</font> </p>
+<p><b>Solution:</b> </p>
+<ul>
+  <li>The last line of the message tells us that we are missing an Edit
+Area,&nbsp; "BelowElev".</li>
+  <li>Read the documentation in the standard product file to see if
+there are any required edit areas that you are missing.&nbsp; This
+information will be inthe "EditAreas Needed" section.</li>
+</ul>
+****************************** <br>
+<b>Error message</b>:
+<p>Problem importing module: CWFPeriod-- <br>
+Traceback (innermost last): <br>
+&nbsp;File "imputil.py", line 106, in _import_hook <br>
+<font color="#000099">ImportError: No module named CWFPeriod</font> </p>
+<p><b>Solution:</b> </p>
+<blockquote><li> Find the offending Product Component (in this case
+CWFPeriod in the Overrides file)</li>
+  <li>Try commenting out sections within the product component (e.g.
+CWFPeriod) until you do not get the error.</li>
+  <li>Incrementally comment lines back in to find which line is the
+offender.</li>
+</blockquote>
+******************************<br>
+<br>
+<b>Error message</b>:
+<pre wrap="">Traceback (most recent call last):<br>  File "&lt;string&gt;", line 1, in ?<br>  File "TextFormatter.py", line 949, in profMain<br>  File "TextFormatter.py", line 890, in main2<br>  File "TextFormatter.py", line 154, in getForecast<br>Exception: Traceback (most recent call last):<br>   File "TextFormatter.py", line 151, in getForecast<br>   File "AreaFcst", line 759, in generateForecast<br>   File "AreaFcst", line 881, in _makeProduct<br>   File "ForecastNarrative.py", line 523, in generateForecast<br>   File "ForecastNarrative.py", line 563, in traverseTree<br>   File "ForecastNarrative.py", line 563, in traverseTree<br>   File "ForecastNarrative.py", line 544, in traverseTree<br>   File "PhraseBuilder", line 830, in consolidatePhrase<br>   File "PhraseBuilder", line 691, in checkForDifferences<br>   File "PhraseBuilder", line 739, in checkScalarDifference<br>   File "ConfigVariables", line 517, in <span
+ style="color: rgb(0, 0, 153); font-weight: bold;">scalar_difference_nlValue</span><br>   File "TextUtils", line 177, in access_dictionary<br> <span
+ style="color: rgb(0, 0, 153); font-weight: bold;">AttributeError: 'NoneType' object has no attribute 'has_key'</span></pre>
+<p style="font-weight: bold;"><font color="#000099"></font></p>
+<p><b>Solution:</b> </p>
+<ul>
+  <li>Notice the "scalar_difference_nlValue" reference in the
+Traceback.&nbsp; Look for a similar variable in your traceback.</li>
+  <li>Check your Overrides file for this dictionary e.g.
+"scalar_difference_nlValue_dict" and make sure it is returning the
+dictionary properly.&nbsp; For example:</li>
+</ul>
+&nbsp;&nbsp;&nbsp; def scalar_difference_nlValue_dict(self, tree,
+node): <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Scalar difference.&nbsp;
+If the difference between scalar values <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # for 2 sub-periods is
+greater than or equal to this value, <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # the different values will
+be noted in the phrase. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dict =
+TextRules.TextRules.scalar_difference_nlValue_dict(self, tree, node) <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dict["WindGust"] = 10 #
+knots or mph depending on product <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dict["Period"] = 5 # seconds
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dict["PoP"] = 10 #
+percentage <br>
+--&gt;&nbsp; return dict <br>
+<br>
+<br>
+<br>
+******************************<br>
+<h2><a name="ProblemsSolutions"></a>Problems/Solutions</h2>
+<span style="font-weight: bold;">Problem:</span> <br>
+"minimum_range" or "maximum_range" is not taking effect.
+<p><span style="font-weight: bold;">Solution:</span> <br>
+Check to to see if a "range_nlValue" is being set for this weather
+element either in the Overrides file, Standard file, or in
+ConfigVariables.&nbsp; The range_nlValue supercedes the other ranges
+and
+should be set to zero in order to apply minimum or maximum ranges. <br>
+&nbsp; </p>

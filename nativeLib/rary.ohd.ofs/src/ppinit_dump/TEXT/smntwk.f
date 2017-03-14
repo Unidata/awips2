@@ -1,0 +1,305 @@
+C MODULE SMNTWK
+C-----------------------------------------------------------------------
+C
+C  ROUTINE FOR PRINTING NETWORK PARAMETERS.
+C
+      SUBROUTINE SMNTWK (LARRAY,ARRAY,LEVEL,NFLD,ISTAT)
+C
+      CHARACTER*4 TYPE,RDISP
+      PARAMETER (MOPTN=12)
+      CHARACTER*4 OPTN(MOPTN)
+     *   /'ALL ','    ','    ','    ',
+     *    'OP24','OPVR','OT24','OE24',
+     *    'NTWK','ORRS','OG24','GP24'/
+      CHARACTER*20 CHAR/' '/,CHK/' '/
+      INTEGER*2 IWORK(1)
+C
+      DIMENSION ARRAY(LARRAY)
+      DIMENSION UNUSED(2)
+C
+      INCLUDE 'uio'
+      INCLUDE 'scommon/sudbgx'
+      INCLUDE 'scommon/sntwfx'
+      INCLUDE 'scommon/sworkx'
+C
+      EQUIVALENCE (SWORK(1),IWORK(1))
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppinit_dump/RCS/smntwk.f,v $
+     . $',                                                             '
+     .$Id: smntwk.f,v 1.2 1998/04/07 17:42:56 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,320)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG('DUMP')
+C
+      ISTAT=0
+C
+      LCHAR=LEN(CHAR)/4
+      LCHK=LEN(CHK)/4
+C      
+      IENDIN=0
+C
+      ISTRT=0
+      ILPFND=0
+      IRPFND=0
+      NUMERR=0
+      NUMOPT=0
+      IOPTN=0
+      LALL=8
+      IALL=1
+C
+      IF (NFLD.EQ.0) GO TO 120
+C
+C  PRINT HEADER LINE
+      WRITE (LP,330)
+      CALL SULINE (LP,2)
+      WRITE (LP,340)
+      CALL SULINE (LP,1)
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK FIELDS FOR DUMP NETWORK OPTIONS
+10    CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPE,NREP,INTEGR,REAL,LCHAR,CHAR,
+     *   LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,IERR)
+      IF (LDEBUG.GT.0) THEN
+         CALL UPRFLD (NFLD,ISTRT,LENGTH,ITYPE,NREP,INTEGR,REAL,
+     *      LCHAR,CHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,IERR)
+         ENDIF
+      IF (IERR.NE.1) GO TO 20
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,390) NFLD
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+         GO TO 10
+C
+C  CHECK FOR END OF INPUT
+20    IF (NFLD.EQ.-1) GO TO 100
+C
+C  CHECK FOR COMMAND
+      IF (LATSGN.EQ.1) GO TO 100
+C
+      IF (ILPFND.GT.0.AND.IRPFND.EQ.0) GO TO 30
+         GO TO 40
+30    WRITE (LP,350) NFLD
+      CALL SULINE (LP,2)
+      ILPFND=0
+      IRPFND=0
+40    IF (LLPAR.GT.0) ILPFND=1
+C
+C  CHECK FOR PARENTHESIS IN FIELD
+      IF (LLPAR.GT.0) CALL UFPACK (LCHK,CHK,ISTRT,1,LLPAR-1,IERR)
+      IF (LLPAR.EQ.0) CALL UFPACK (LCHK,CHK,ISTRT,1,LENGTH,IERR)
+C
+C  CHECK FOR OPTION
+      IOPTN=0
+      DO 60 I=1,MOPTN
+         CALL SUCOMP (1,CHK,OPTN(I),IMATCH)
+         IF (IMATCH.NE.1) GO TO 60
+         IF (I.NE.1) GO TO 50
+            IALL=1
+            IF (NFLD.EQ.1) CALL SUPCRD
+            GO TO 110
+50       IOPTN=I
+         IF (IOPTN.GE.5.AND.IOPTN.LE.12) IALL=0
+         GO TO 70
+60    CONTINUE
+C
+C  CHECK FOR GROUP
+      CALL SUIDCK ('DUMP',CHK,NFLD,0,IKEYWD,IERR)
+      IF (IERR.NE.0) THEN
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,*) 'CHAR=',CHAR
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+         GO TO 100
+         ENDIF
+C
+70    IF (NFLD.EQ.1) CALL SUPCRD
+      ILPFND=0
+      IRPFND=0
+C
+      IF (IOPTN.GT.0) GO TO 80
+         WRITE (LP,360) CHAR
+         CALL SUERRS (NUMERR,LP,2)
+         GO TO 10
+C
+80    GO TO (110,90,90,90,
+     *       110,110,110,110,
+     *       110,110,110,110),IOPTN
+90       WRITE (LP,370) OPTN(IOPTN)
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 10
+C
+C  CHECK IF ANY OPTIONS FOUND AND END OF COMMAND FOUND
+100   IF (NUMOPT.GT.0) GO TO 290
+         IENDIN=1
+         WRITE (LP,380)
+         CALL SULINE (LP,2)
+         IALL=1
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+110   IF (IALL.EQ.1) GO TO 120
+C
+      IF (CHK.NE.OPTN(9)) GO TO 140
+C
+C  PRINT NETWORK PARAMETERS
+120   RDISP='OLD'
+      CALL SUGTNF (LARRAY,ARRAY,RDISP,NUMERR,IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (LP,410) OPTN(9)
+         CALL SULINE (LP,2)
+         GO TO 140
+         ENDIF
+      CALL SPNTWK (IVNTWK,INWDTE,NNWFLG,INWFLG,UNUSED,IERR)
+C
+C  CHECK IF OTHER NETWORK PARAMETERS TO BE PROCESSED
+140   IF (NFLD.EQ.0) GO TO 300
+      IF (IALL.EQ.1) GO TO 150
+      IF (IOPTN.GE.5.AND.IOPTN.LE.LALL) GO TO 155
+      IF (IOPTN.EQ.9) GO TO 280
+      IF (IOPTN.GE.10.AND.IOPTN.LE.12) GO TO 190
+      IF (LEVEL.LT.2) GO TO 300
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+150   IOPTN=5
+C
+155   IPRERR=0
+      IF (IALL.EQ.0) TYPE=CHK
+C
+160   IF (IALL.EQ.1) TYPE=OPTN(IOPTN)
+C
+C  READ PARAMETER RECORD
+      CALL SRODLY (TYPE,IPRERR,IVODLY,UNUSED,ISORT,LSWORK,
+     *    IWORK(1),NUMSTA,LARRAY,ARRAY,IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (LP,410) TYPE
+         CALL SULINE (LP,2)
+         GO TO 180
+         ENDIF
+C
+C  PRINT PARAMETERS
+      CALL SPODLY (TYPE,IVODLY,UNUSED,ISORT,IWORK(1),NUMSTA,
+     *   LARRAY,ARRAY,IERR)
+C
+180   IF (IALL.EQ.0) GO TO 190
+         IOPTN=IOPTN+1
+         IF (IOPTN.LE.LALL) GO TO 160
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+190   IF (IALL.EQ.1) GO TO 200
+C
+      IF (CHK.NE.OPTN(10)) GO TO 220
+C
+C  READ RRS STATION ALPHABETICAL ORDER
+200   CALL SRORRS (IPRERR,IVORRS,UNUSED,ISORT,LSWORK,IWORK(1),
+     *   NUMSTA,LARRAY,ARRAY,IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (LP,410) OPTN(10)
+         CALL SULINE (LP,2)
+         GO TO 220
+         ENDIF
+C
+C  PRINT RRS STATION ALPHABETICAL ORDER
+      CALL SPORRS (IVORRS,UNUSED,ISORT,IWORK(1),NUMSTA,
+     *   LARRAY,ARRAY,IERR)
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+220   IF (IALL.EQ.1) GO TO 230
+C
+      IF (CHK.NE.OPTN(11)) GO TO 250
+C
+C  READ GRID-POINT STATION ALPHABETICAL ORDER
+230   CALL SROG24 (IPRERR,IVOG24,UNUSED,ISORT,LSWORK,IWORK(1),
+     *   NUMSTA,LARRAY,ARRAY,IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (LP,410) OPTN(11)
+         CALL SULINE (LP,2)
+         GO TO 250
+         ENDIF
+C
+C  PRINT GRID-POINT STATION ALPHABETICAL ORDER
+      CALL SPOG24 (IVOG24,UNUSED,ISORT,IWORK(1),NUMSTA,
+     *   LARRAY,ARRAY,IERR)
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+250   IF (IALL.EQ.1) GO TO 260
+C
+      IF (CHK.NE.OPTN(12)) GO TO 280
+C
+C  READ GRID-POINT STATION LOCATION PARAMETERS
+260   MGP24=LSWORK/3*2
+      MSGP24=LSWORK/3
+      IPTR=0
+      CALL SRGP24 (IVGP24,MGP24,IWORK(1),NGP24,
+     *   MSGP24,IWORK(MGP24+1),NSGP24,
+     *   UNUSED,LARRAY,ARRAY,IPRERR,IPTR,IPTRNX,IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (LP,410) OPTN(12)
+         CALL SULINE (LP,2)
+         GO TO 280
+         ENDIF
+C
+C  PRINT GRID-POINT STATION LOCATION PARAMETERS
+      CALL SPGP24 (IVGP24,NGP24,IWORK(1),NSGP24,IWORK(MGP24+1),
+     *   UNUSED,IERR)
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+280   NUMOPT=NUMOPT+1
+      IF (IENDIN.EQ.1) GO TO 290
+      GO TO 10
+C
+C  CHECK NUMBER OF OPTIONS PROCESSED
+290   IF (NUMOPT.EQ.0) THEN
+         WRITE (LP,420)
+         CALL SULINE (LP,2)
+         ENDIF
+C
+C  CHECK NUMBER OF ERRORS ENCOUNTERED
+300   IF (NUMERR.GT.0) THEN
+         WRITE (LP,430) NUMERR
+         CALL SULINE (LP,2)
+         ENDIF
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,440)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+320   FORMAT (' *** ENTER SMNTWK')
+330   FORMAT ('0*--> DUMP OF NETWORK PARAMETERS')
+340   FORMAT (' ')
+350   FORMAT ('0*** NOTE - RIGHT PARENTHESIS ASSUMED IN FIELD ',I2,'.')
+360   FORMAT ('0*** ERROR - INVALID DUMP NETWORK OPTION : ',A)
+370   FORMAT ('0*** ERROR - ERROR PROCESSING OPTION : ',A)
+380   FORMAT ('0*** NOTE - NO NETWORK PARAMETER TYPES FOUND. ',
+     *   '''ALL'' ASSUMED.')
+390   FORMAT (' BLANK STRING FOUND IN FIELD ',I2)
+410   FORMAT ('0*** NOTE - ',A4,' PARAMETERS NOT DEFINED.')
+420   FORMAT ('0*** NOTE - NO DUMP NETWORK OPTIONS SUCCESSFULLY ',
+     *   'PROCESSED.')
+430   FORMAT ('0*** NOTE - ',I3,' ERRORS ENCOUNTERED IN DUMP NETWORK ',
+     *   'COMMAND.')
+440   FORMAT (' *** EXIT SMNTWK')
+C
+      END

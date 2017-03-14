@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <!-- Hgt/Pres menu item -->
+    <contribute xsi:type="toolBarItem" toolItemName="Hgt/Pres">
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/fields/planview-timeseries/hgtPres.xml" />
+    </contribute>
+     <!-- Temp menu item -->
+    <contribute xsi:type="toolBarItem" toolItemName="Temp">
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/fields/planview-timeseries/temp.xml" />
+    </contribute>
+     <!-- Moist menu item -->
+    <contribute xsi:type="toolBarItem" toolItemName="Moist">
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/fields/planview-timeseries/moist.xml" />
+    </contribute>
+      <!-- Stability menu item -->
+    <contribute xsi:type="toolBarItem" toolItemName="Stability">
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/fields/planview-timeseries/stability.xml" />
+    </contribute>   
+<!--       Forcing menu item -->
+    <contribute xsi:type="toolBarItem" toolItemName="Forcing">
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/fields/planview-timeseries/forcing.xml" />
+    </contribute>   
+<!--     Wind menu item -->
+    <contribute xsi:type="toolBarItem" toolItemName="Wind">
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/fields/planview-timeseries/wind.xml" />
+    </contribute>
+<!--       Vort menu item -->
+    <contribute xsi:type="toolBarItem" toolItemName="Vort">
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/fields/planview-timeseries/vort.xml" />
+    </contribute> 
+<!--       Isent menu item -->
+    <contribute xsi:type="toolBarItem" toolItemName="Isent">
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/fields/planview-timeseries/isent.xml" />
+    </contribute>       
+
+<!--     Precip menu item -->
+    <contribute xsi:type="toolBarItem" toolItemName="Precip">
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/fields/planview-timeseries/precip.xml" />
+    </contribute>
+
+<!--     Winter menu item -->
+    <contribute xsi:type="toolBarItem" toolItemName="Winter">
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/fields/planview-timeseries/winter.xml" />
+    </contribute>
+
+<!--     Storms menu item -->
+    <contribute xsi:type="toolBarItem" toolItemName="T-Storms">
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/fields/planview-timeseries/tstorms.xml" />
+    </contribute>
+
+<!--     Radar menu item -->
+    <contribute xsi:type="toolBarItem" toolItemName="Radar">
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/fields/planview-timeseries/radar.xml" />
+    </contribute>
+
+<!--     Ensemble menu item -->
+    <contribute xsi:type="toolBarItem" toolItemName="Ensemble">
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/fields/planview-timeseries/ensemble.xml" />
+    </contribute>
+<!--       Misc menu item -->
+    <contribute xsi:type="toolBarItem" toolItemName="Misc">
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/fields/planview-timeseries/misc.xml" />
+    </contribute>
+</menuTemplate>
+

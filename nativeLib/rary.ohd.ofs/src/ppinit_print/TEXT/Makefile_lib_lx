@@ -1,0 +1,59 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-ppinit_print library file
+#
+#  cmt: File made on Wed Aug  6 12:52:02 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libppinit_print_t.a:  \
+     $(LIB)/libppinit_print_t.a(spbasn.o)  \
+     $(LIB)/libppinit_print_t.a(spdflt.o)  \
+     $(LIB)/libppinit_print_t.a(spfmap.o)  \
+     $(LIB)/libppinit_print_t.a(spgbox.o)  \
+     $(LIB)/libppinit_print_t.a(spgmdr.o)  \
+     $(LIB)/libppinit_print_t.a(spgp24.o)  \
+     $(LIB)/libppinit_print_t.a(spmape.o)  \
+     $(LIB)/libppinit_print_t.a(spmap.o)  \
+     $(LIB)/libppinit_print_t.a(spmapx.o)  \
+     $(LIB)/libppinit_print_t.a(spmaro.o)  \
+     $(LIB)/libppinit_print_t.a(spmat.o)  \
+     $(LIB)/libppinit_print_t.a(spntwk.o)  \
+     $(LIB)/libppinit_print_t.a(spodly.o)  \
+     $(LIB)/libppinit_print_t.a(spog24.o)  \
+     $(LIB)/libppinit_print_t.a(sporrs.o)  \
+     $(LIB)/libppinit_print_t.a(sppcpn.o)  \
+     $(LIB)/libppinit_print_t.a(sppe.o)  \
+     $(LIB)/libppinit_print_t.a(sprfro.o)  \
+     $(LIB)/libppinit_print_t.a(sprrs.o)  \
+     $(LIB)/libppinit_print_t.a(spstan.o)  \
+     $(LIB)/libppinit_print_t.a(spstbn.o)  \
+     $(LIB)/libppinit_print_t.a(sptemp.o)  \
+     $(LIB)/libppinit_print_t.a(sptshd.o)  \
+     $(LIB)/libppinit_print_t.a(spurrs.o)
+

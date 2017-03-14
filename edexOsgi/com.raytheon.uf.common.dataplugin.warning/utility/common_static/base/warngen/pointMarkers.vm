@@ -1,0 +1,86 @@
+#*
+pointMarkers.vm
+CODE FROM mileMarkers 2-6-2013 BY MIKE DANGELO, EVAN BOOKBINDER AND DAVE TOMALAK.
+UPDATED 3-25-2015 EVAN BOOKBINDER Mixed Case
+
+To get point locations output: Use this call to #pmarkers() from any vm template/file.  
+                    (The macro #pmarkers resides in VM_global_library.vm).
+
+#pmarkers($markers, $id, $preamble, $type, $column)
+
+Arguments passed to #pmarkers:
+$markers = a string, and must be the exact <pointSource variable> set in the XML for this road
+      example: ${stadiumName} corresponds to a <pointSource variable="stadiumName"> in XML 
+$id = the sequential-numeric IDs from the database used to determine if/where there are any logical 
+      breaks in the mile markers. This field is also set in the XML <pointSource variable="stadiumGid">
+      example: ${stadiumGid} corresponds to a <pointSource variable="stadiumGid"> in XML
+$preamble = a string "output text" which is a lead in to the list $type ("The following")
+$type = a string "output text" describing the place(s) in the database(s) - do not make plural (pmarkers macro will append an "S" to this field)
+      examples: "Stadium" or "Venue" (may be left blank "")
+$column = a boolean expression (true or false) 
+      - true makes output in one column, 
+      - false makes output a sentence ("Coors Field, Red Rocks Ampitheater and Lovers Hill.")   
+
+EXAMPLE OF OUTPUT FOR ONE DATABASE ONLY:
+
+#pmarkers(${universitiesName},${universitiesGid}, ""#commaOrEllipsis()"", true)
+ where your warning box covers 3 points in the databaseName "universitiesName"
+ yields:
+This includes...
+Penn State University, the University of Colorado, Michigan Tech University,
+University of Wisconsin and the college of William and Mary. 
+
+**************************************************************************
+YOU MAY CALL A LARGE NUMBER OF DATABASES (LISTS OF LOCATIONS) ALL AT ONCE.
+To use/call this (suggested) method, you need to fill in 3 arrays 
+of the <pointSource variable> info from your 
+corresponding XML file (usually pointMarkers.xml).  
+The 3 arrays are:
+
+$databaseName -- array of pointSource objects containing the location names. ($markers)
+  Substitute all your <pointSource variable> NAMES
+  example: #set($databaseName = [${stadiumNames},${universitiesNames},${eventsNames}])
+
+$databaseId -- array of plain numbers which are used to order the output. ($id)
+  Substitute all your <pointSource variable> GID's
+  example: #set($databaseId = [${stadiumId},${universitiesId},${eventsId}])
+
+$pointspecificName -- array of descriptions/plain English names for whatever the locations are. ($preamble) 
+  This can be as generic as 'Locations' or even blank ''.
+  example: #set($pointspecificName = ['Stadiums','Universities','Event Locations'])
+
+*#
+
+#set($hits = 0)
+#set($pointbigList = '')
+######### EXAMPLES
+## #set($databaseName = [${stadiumNames},${universitiesNames},${eventsNames}])
+## #set($databaseId = [${stadiumId},${universitiesId},${eventsId}])
+## #set($pointspecificName = ['Stadiums','Universities','Event Locations'])
+###########################################################################
+#set($itemCount = 0)
+#foreach($specName in ${pointspecificName})
+#set($itemCount = ${itemCount} + 1)
+#set($itemCount2 = 0)
+#foreach($dbName in ${databaseName})
+#set($itemCount2 = ${itemCount2} + 1)
+#set($itemCount3 = 0)
+#foreach($dbId in ${databaseId})
+#set($itemCount3 = ${itemCount3} + 1)
+#if($itemCount3 == ${itemCount2} && ${itemCount2} == ${itemCount})
+#set($checker = "#pmarkers(${dbName},${dbId},${specName},'Location',false)")
+#if($checker.length() > 0)
+#set($hits = ${hits} + 1)
+#set($pointbigList = "${pointbigList} ${checker}")
+#end
+#end
+#end
+#end
+#end
+#if($hits == 1)
+This includes${pointbigList} 
+#end
+#if($hits > 1)
+This includes...
+${pointbigList}
+#end

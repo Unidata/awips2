@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- # This software was developed and / or modified by Raytheon Company, 
+	# pursuant to Contract DG133W-05-CQ-1067 with the US Government. # # U.S. 
+	EXPORT CONTROLLED TECHNICAL DATA # This software product contains export-restricted 
+	data whose # export/transfer/disclosure is restricted by U.S. law. Dissemination 
+	# to non-U.S. persons whether in the United States or abroad requires # an 
+	export license or other authorization. # # Contractor Name: Raytheon Company 
+	# # See the AWIPS II Master Rights File ("Master Rights File.pdf") ## ##THIS 
+	FILE GENERATED AUTOMATICALLY BY config_common_menus IN THE AWIPS II AUTOMATION 
+	TOOL -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<contribute xsi:type="bundleItem" file="bundles/DefaultTDWRRadarMosaic.xml"
+			menuText="0.5 Reflectivity" id="Radar05Reflectivity">
+			<substitute key="product" value="180,181" />
+			<substitute key="elevation" value="0.1,0.2,0.3,0.4,0.5,0.6,0.8" />
+			<substitute key="name" value="TDWR 0.5 Reflectivity" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultTDWRRadarMosaic.xml"
+			menuText="0.5 Long Range Refl" id="longRang05Reflectivity">
+			<substitute key="product" value="186" />
+			<substitute key="elevation" value="0.1,0.2,0.3,0.4,0.5,0.6,0.8" />
+			<substitute key="name" value="TDWR 0.5 Long Range Refl" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+			menuText="Hybrid Scan Refl" id="RadarHybridScanRefl">
+			<substitute key="product" value="32" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="name" value="TDWR Hybrid Scan Refl" />
+ 		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+			menuText="Composite Refl" id="RadarCompositeRefl">
+			<substitute key="product" value="37" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="name" value="TDWR Composite Refl" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaicVILCompRefl.xml" 
+			menuText="VIL/Comp Ref" id="RadarVILCompRef" />
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+			menuText="Vert integrated Liquid" id="RadarVertIntegratedLiquid">
+			<substitute key="product" value="57" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="name" value="TDWR Vert integrated Liquid" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+			menuText="One Hour Precip" id="RadarOneHourPrecip">
+			<substitute key="product" value="78" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="name" value="One Hour Precip" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+			menuText="Storm Total Precip" id="RadarStormTotalPrecip">
+			<substitute key="product" value="80" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="name" value="TDWR Storm Total Precip" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+			menuText="Digital Storm Total Precip (DSP)" id="RadarDigitalStormTotalPrecip">
+			<substitute key="product" value="138" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="name" value="TDWR Digital Storm Total Precip (DSP)" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+			menuText="Echo Tops" id="RadarEchoTops">
+			<substitute key="product" value="41" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="name" value="TDWR Echo Tops" />
+		</contribute>
+</menuTemplate>

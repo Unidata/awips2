@@ -1,0 +1,27 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: GFE in D2D
+Bundle-SymbolicName: com.raytheon.uf.viz.d2d.gfe;singleton:=true
+Bundle-Version: 1.15.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Require-Bundle: org.eclipse.swt;bundle-version="3.8.1",
+ com.raytheon.uf.viz.core;bundle-version="1.14.2",
+ com.raytheon.uf.common.dataplugin.gfe;bundle-version="1.15.0",
+ com.raytheon.uf.viz.core.grid;bundle-version="1.15.0",
+ com.raytheon.uf.common.colormap,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.numeric;bundle-version="1.14.0",
+ com.raytheon.uf.common.geospatial;bundle-version="1.14.0",
+ com.raytheon.viz.core.graphing,
+ com.raytheon.uf.viz.xy.timeseries;bundle-version="1.13.0",
+ com.raytheon.uf.common.style,
+ com.raytheon.uf.viz.productbrowser,
+ com.raytheon.viz.volumebrowser;bundle-version="1.15.0",
+ javax.measure,
+ com.raytheon.uf.viz.core.maps;bundle-version="1.14.1"
+Export-Package: com.raytheon.uf.viz.d2d.gfe.browser,
+ com.raytheon.uf.viz.d2d.gfe.rsc,
+ com.raytheon.uf.viz.d2d.gfe.xy
+Bundle-ClassPath: com.raytheon.uf.viz.d2d.gfe.jar

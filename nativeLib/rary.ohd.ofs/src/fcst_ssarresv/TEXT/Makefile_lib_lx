@@ -1,0 +1,55 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-fcst_ssarresv library file
+#
+#  cmt: File made on Wed Aug  6 12:51:13 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libfcst_ssarresv_t.a:  \
+     $(LIB)/libfcst_ssarresv_t.a(bqil51.o)  \
+     $(LIB)/libfcst_ssarresv_t.a(detm51.o)  \
+     $(LIB)/libfcst_ssarresv_t.a(dmte51.o)  \
+     $(LIB)/libfcst_ssarresv_t.a(ex51.o)  \
+     $(LIB)/libfcst_ssarresv_t.a(extr51.o)  \
+     $(LIB)/libfcst_ssarresv_t.a(lkrt51.o)  \
+     $(LIB)/libfcst_ssarresv_t.a(lu3f51.o)  \
+     $(LIB)/libfcst_ssarresv_t.a(lu3l51.o)  \
+     $(LIB)/libfcst_ssarresv_t.a(qiql51.o)  \
+     $(LIB)/libfcst_ssarresv_t.a(tlu251.o)  \
+     $(LIB)/libfcst_ssarresv_t.a(tlu351.o)  \
+     $(LIB)/libfcst_ssarresv_t.a(trpr51.o)  \
+     $(LIB)/libfcst_ssarresv_t.a(tspt51.o)  \
+     $(LIB)/libfcst_ssarresv_t.a(xlin51.o)  \
+     $(LIB)/libfcst_ssarresv_t.a(xnit51.o)  \
+     $(LIB)/libfcst_ssarresv_t.a(xobp51.o)  \
+     $(LIB)/libfcst_ssarresv_t.a(xobs51.o)  \
+     $(LIB)/libfcst_ssarresv_t.a(xqt51.o)  \
+     $(LIB)/libfcst_ssarresv_t.a(xsmo51.o)  \
+     $(LIB)/libfcst_ssarresv_t.a(xwks51.o)
+

@@ -1,0 +1,269 @@
+#########################################
+## DAM BREAK FFW  TEMPLATE             ##
+## CREATED BY PHIL KURIMSKI - WFO DTX  ##
+## VERSION AWIPS II 1.0 -- APR 2 2011  ##
+#########################################
+##
+#if(${action} == "EXT")
+	#set($starttime = "000000T0000Z")
+	#set($extend = true)
+#else
+	#set($starttime = ${dateUtil.format(${start}, ${timeFormat.ymdthmz})})
+	#set($extend = false)
+#end
+#if(${list.contains($bullets, "sev1")})
+	#set($sev = "1")
+#elseif(${list.contains($bullets, "sev2")})
+	#set($sev = "2")
+#elseif(${list.contains($bullets, "sev3")})
+	#set($sev = "3")
+#else
+	#set($sev = "0")
+#end
+##
+#set($commonAddInfo = "FOLLOW EVACUATION INSTRUCTIONS PROVIDED BY YOUR LOCAL EMERGENCY OFFICIALS. DO NOT ATTEMPT TO DRIVE ACROSS FLOODED ROADWAYS.")
+#set($hycType = "")
+#if(${list.contains($bullets, "levee")})
+	#set($ic = "DM")
+	#set($hycType = "A LEVEE FAILURE")
+#elseif(${list.contains($bullets, "floodgate")})
+	#set($ic = "DR")
+	#set($hycType = "A FLOODGATE OPENING")
+#elseif(${list.contains($bullets, "glacier")})
+	#set($ic = "GO")
+	#set($hycType = "A GLACIAL LAKE DAM OUTBURST")
+#elseif(${list.contains($bullets, "icejam")})
+	#set($ic = "IJ")
+	#set($hycType = "AN ICE JAM BREAK")
+#elseif(${list.contains($bullets, "rain")})
+	#set($ic = "RS")
+	#set($hycType = "RAPID RAIN INDUCED SNOW MELT")
+#elseif(${list.contains($bullets, "volcano")})
+	#set($ic = "SM")
+	#set($hycType = "VOLCANO INDUCED SNOW MELT")
+#elseif(${list.contains($bullets, "dam")})
+	#set($ic = "DM")
+	#set($hycType = "A DAM BREAK")
+#elseif(${list.contains($bullets, "siteimminent")})
+	#set($ic = "DM")
+	#set($hycType = "A DAM BREAK")
+#elseif(${list.contains($bullets, "sitefailed")})
+	#set($ic = "DM")
+	#set($hycType = "A DAM BREAK")
+#else
+	#set($ic = "ER")
+#end
+##
+${WMOId} ${vtecOffice} 000000 ${BBBId}
+FFW${siteId}
+#if(${specialCorText})
+${specialCorText}
+#else
+${ugcline}
+/${productClass}.${action}.${vtecOffice}.FF.W.${etn}.${starttime}-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
+/00000.${sev}.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
+
+BULLETIN - EAS ACTIVATION REQUESTED
+#if(${productClass}=="T")
+TEST...FLASH FLOOD WARNING...TEST
+#else
+FLASH FLOOD WARNING
+#end
+NATIONAL WEATHER SERVICE ${officeShort}
+#backupText(${backupSite})
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+#headlineext(${officeLoc}, ${backupSite}, ${extend})
+
+## Put the hycType variable on the next line and included the word 'IN'
+## to come in line with the 10-922 directive
+* ##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+FLASH FLOOD WARNING FOR ...
+  ${hycType} IN...
+#foreach (${area} in ${areas}) 
+  ##
+#if(${area.partOfArea})
+#areaFormat(${area.partOfArea} true false) ##
+#end
+${area.name} ${area.areaNotation} IN #areaFormat(${area.partOfParentRegion} true false) ${area.parentRegion}...
+#if(${list.size($area.points)} > 0)
+#if(${list.size($area.points)} > 1)
+     THIS INCLUDES THE CITIES OF... #foreach (${city} in ${area.points})${city}... #end
+
+#else 
+     THIS INCLUDES THE CITY OF ${list.get(${area.points},0)}
+#end
+#end
+#end
+## Changed reportType to match hycType selected in GUI
+#set($reportType1 = "FLOODING CAUSED BY ${hycType}")
+
+* ##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone})
+
+#set ($report = "")
+#if(${list.contains($bullets, "county")})
+  #set ($report = "COUNTY DISPATCH REPORTED ${reportType1}") 
+#end
+#if(${list.contains($bullets, "lawEnforcement")})
+  #set ($report = "LOCAL LAW ENFORCEMENT REPORTED ${reportType1}") 
+#end
+#if(${list.contains($bullets, "corps")})
+  #set ($report = "CORPS OF ENGINEERS REPORTED ${reportType1}") 
+#end
+#if(${list.contains($bullets, "damop")})
+  #set ($report = "DAM OPERATORS REPORTED ${reportType1}") 
+#end
+#if(${list.contains($bullets, "bureau")})
+  #set ($report = "BUREAU OF RECLAMATION REPORTED ${reportType1}") 
+#end
+#if(${list.contains($bullets, "public")})
+  #set ($report = "THE PUBLIC REPORTED ${reportType1}") 
+#end
+
+#if(${list.contains($bullets, "branchedOakDam - scen1")})
+* THE NEAREST DOWNSTREAM TOWN IS RAYMOND...LOCATED ABOUT 4 MILES DOWNSTREAM FROM THE DAM. IF A COMPLETE FAILURE OF THE DAM OCCURS...THE WATER DEPTH AT RAYMOND COULD EXCEED 19 FEET IN 32 MINUTES. ${commonAddInfo}
+#elseif(${list.contains($bullets, "branchedOakDam - scen2")})
+* THE NEAREST DOWNSTREAM TOWN IS RAYMOND...LOCATED ABOUT 4 MILES DOWNSTREAM FROM THE DAM. IF A COMPLETE FAILURE OF THE DAM OCCURS...THE WATER DEPTH AT RAYMOND COULD EXCEED 26 FEET IN 56 MINUTES. ${commonAddInfo}
+#elseif(${list.contains($bullets, "pawneeDam - scen1")})
+* THE NEAREST DOWNSTREAM TOWN IS EMERALD...LOCATED ABOUT 2 MILES DOWNSTREAM FROM THE DAM. IF A COMPLETE FAILURE OF THE DAM OCCURS...THE WATER DEPTH AT EMERALD COULD EXCEED 18 FEET IN 16 MINUTES. ${commonAddInfo}
+#elseif(${list.contains($bullets, "pawneeDam - scen2")})
+* THE NEAREST DOWNSTREAM TOWN IS EMERALD...LOCATED ABOUT 2 MILES DOWNSTREAM FROM THE DAM. IF A COMPLETE FAILURE OF THE DAM OCCURS...THE WATER DEPTH AT EMERALD COULD EXCEED 23 FEET IN 31 MINUTES. ${commonAddInfo}
+#elseif(${list.contains($bullets, "pawneeDam - scen3")})
+* THE NEAREST DOWNSTREAM TOWN IS EMERALD...LOCATED ABOUT 2 MILES DOWNSTREAM FROM THE DAM. IF A SIGNIFICANT FAILURE OF THE DAM OCCURS...THE WATER DEPTH AT EMERALD COULD EXCEED 14 FEET IN 19 MINUTES. ${commonAddInfo}
+#elseif(${list.contains($bullets, "pawneeDam - scen4")})
+* THE NEAREST DOWNSTREAM TOWN IS EMERALD...LOCATED ABOUT 2 MILES DOWNSTREAM FROM THE DAM. IF A SIGNIFICANT FAILURE OF THE DAM OCCURS...THE WATER DEPTH AT EMERALD COULD EXCEED 17 FEET IN 32 MINUTES. ${commonAddInfo}
+#elseif(${list.contains($bullets, "branchedOakDam")})
+ #set($riverInfo = "OAK CREEK BELOW THE BRANCHED OAK DAM AND PARTS OF SALT CREEK")
+ #set($damInfo = "BRANCHED OAK DAM ON OAK CREEK")
+ #set($countyInfo = "NORTHERN LANCASTER COUNTY")
+ #set($stateInfo = "EASTERN NEBRASKA")
+ #set($cityInfo = "RAYMOND")
+ #set($addInfo = "THE NEAREST DOWNSTREAM TOWN IS ${cityInfo}...LOCATED ABOUT 4 MILES DOWNSTREAM FROM THE DAM. IF YOU ARE IN THE LOW LYING AREAS BELOW THE BRANCHED OAK DAM YOU SHOULD MOVE TO HIGHER GROUND IMMEDIATELY.")
+* ${addInfo}  ${commonAddInfo}
+#elseif(${list.contains($bullets, "pawneeDam")})
+ #set($riverInfo = "MIDDLE CREEK BELOW THE PAWNEE DAM")
+ #set($damInfo = "PAWNEE DAM ON MIDDLE CREEK")
+ #set($countyInfo = "CENTRAL LANCASTER COUNTY")
+ #set($stateInfo = "EASTERN NEBRASKA")
+ #set($cityInfo = "EMERALD")
+ #set($addInfo = "THE NEAREST DOWNSTREAM TOWN IS ${cityInfo}...LOCATED ABOUT 2 MILES DOWNSTREAM FROM THE DAM. IF YOU ARE IN THE LOW LYING AREAS BELOW PAWNEE DAM YOU SHOULD MOVE TO HIGHER GROUND IMMEDIATELY.")
+* ${addInfo} ${commonAddInfo}
+#end
+
+## Storm current location description
+#set($closest = ${list.get($closestPoints, 0)})
+#set($secondary = ${list.get($closestPoints, 1)})
+
+* ##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+AT ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})} ${report}.
+
+##########################################################################
+## Flash Flood Emergency per NWS 10-922 Directive goes with third bullet #
+##########################################################################
+#if(${list.contains($bullets, "ffwEmergency")})
+  THIS IS A FLASH FLOOD EMERGENCY FOR !**ENTER LOCATION**!.
+
+#end
+#set ($phenomena = "FLASH FLOOD") 
+#set ($warningType = "WARNING") 
+#if(${list.contains($bullets, "pathcast")})
+* ##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#fourthBullet(1, ${stormType} ${phenomena} ${warningType} ${pathCast} ${otherPoints} ${dateUtil} ${timeFormat} false)
+
+#elseif(${list.contains($bullets, "listofcities")})
+* ##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#fourthBullet(2, ${stormType} ${phenomena} ${warningType} ${pathCast} ${otherPoints} ${dateUtil} ${timeFormat} false)
+
+#else
+* ##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#fourthBullet(3, ${stormType} ${phenomena} ${warningType} ${pathCast} ${otherPoints} ${dateUtil} ${timeFormat} false)
+
+#end
+#if(${list.contains($bullets, "omahabasin")})
+THIS COVERS THE OMAHA DRAINAGE BASIN
+
+#end
+#####################
+## CALL TO ACTIONS ##
+#####################
+#######################################################################
+## Check to see if we've selected any calls to action. In our .cfg file
+## we ended each CTA bullet ID with "CTA" for this reason as a 'trip'
+#######################################################################
+#foreach ($bullet in $bullets)
+#if ($bullet.endsWith("CTA"))
+#set ($ctaSelected = "YES")
+#end
+#end
+##
+#if (${ctaSelected} == "YES")
+PRECAUTIONARY/PREPARADNESS ACTIONS...
+#end
+##
+
+#if(${list.contains($bullets, "floodMovingCTA")})
+FLOOD WATERS ARE MOVING DOWN !**name of channel**! FROM !**location**! TO !**location**!. THE FLOOD CREST IS EXPECTED TO REACH !**location(s)**! BY !**time(s)**!.
+
+#end
+#if(${list.contains($bullets, "taddCTA")})
+MOST FLOOD DEATHS OCCUR IN AUTOMOBILES. NEVER DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY. FLOOD WATERS ARE USUALLY DEEPER THAN THEY APPEAR. JUST ONE FOOT OF FLOWING WATER IS POWERFUL ENOUGH TO SWEEP VEHICLES OFF THE ROAD. WHEN ENCOUNTERING FLOODED ROADS MAKE THE SMART CHOICE...TURN AROUND...DONT DROWN.
+
+#end
+#if(${list.contains($bullets, "nighttimeCTA")})
+BE ESPECIALLY CAUTIOUS AT NIGHT WHEN IT IS HARDER TO RECOGNIZE THE DANGERS OF FLOODING. IF FLOODING IS OBSERVED ACT QUICKLY. MOVE UP TO HIGHER GROUND TO ESCAPE FLOOD WATERS. DO NOT STAY IN AREAS SUBJECT TO FLOODING WHEN WATER BEGINS RISING.
+
+#end
+#if(${list.contains($bullets, "vehicleCTA")})
+DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY. THE WATER DEPTH MAY BE TOO GREAT TO ALLOW YOUR CAR TO CROSS SAFELY. MOVE TO HIGHER GROUND.
+
+#end
+#if(${list.contains($bullets, "warningMeansCTA")})
+A FLASH FLOOD WARNING MEANS FLASH FLOODING IS OCCURRING OR IS IMMINENT. MOST FLOOD RELATED DEATHS OCCUR IN AUTOMOBILES. DO NOT ATTEMPT TO CROSS WATER COVERED BRIDGES...DIPS...OR LOW WATER CROSSINGS. NEVER TRY TO CROSS A FLOWING STREAM...EVEN A SMALL ONE...ON FOOT. TO ESCAPE RISING WATER MOVE UP TO HIGHER GROUND.
+
+#end
+#if(${list.contains($bullets, "powerFloodCTA")})
+DO NOT UNDERESTIMATE THE POWER OF FLOOD WATERS. ONLY A FEW INCHES OF RAPIDLY FLOWING WATER CAN QUICKLY CARRY AWAY YOUR VEHICLE.
+
+#end
+#if(${list.contains($bullets, "reportCTA")})
+TO REPORT FLOODING...HAVE THE NEAREST LAW ENFORCEMENT AGENCY RELAY YOUR REPORT TO THE NATIONAL WEATHER SERVICE FORECAST OFFICE.
+
+#end
+#if (${ctaSelected} == "YES")
+&&
+#end
+
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
+
+#end
+#printcoords(${areaPoly}, ${list})
+
+
+$$
+
+!**NAME/INITIALS**!
+#end

@@ -1,0 +1,21 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+    <bean id="acarsSoundingPluginName" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="acarssounding" />
+    </bean>
+
+    <bean id="acarsSoundingProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+        <property name="pluginName" ref="acarsSoundingPluginName" />
+        <property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.acarssounding" />
+        <property name="dao" value="com.raytheon.uf.edex.plugin.acarssounding.dao.ACARSSoundingDao" />
+        <property name="record" value="com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingRecord" />
+    </bean>
+    
+    <bean id="acarsSoundingRegistered" factory-bean="pluginRegistry" factory-method="register">
+        <constructor-arg ref="acarsSoundingPluginName"/>
+        <constructor-arg ref="acarsSoundingProperties"/>
+    </bean>
+    
+</beans>

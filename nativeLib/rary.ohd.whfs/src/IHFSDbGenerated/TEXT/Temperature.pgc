@@ -1,0 +1,922 @@
+/*
+    File: Temperature.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:31 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "Temperature.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct Temperature_t
+{
+    char		lid[9];
+    char		pe[3];
+    short		dur;
+    char		ts[3];
+    char		extremum[2];
+    dtime_t		obstime;
+    double		value;
+    char		shef_qual_code[2];
+    long		quality_code;
+    short		revision;
+    char		product_id[11];
+    dtime_t		producttime;
+    dtime_t		postingtime;
+
+    int		ind_value;
+    int		ind_shef_qual_code;
+    int		ind_quality_code;
+    int		ind_revision;
+    int		ind_product_id;
+    int		ind_producttime;
+    int		ind_postingtime;
+} Temperature_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+Temperature * GetTemperature(const char * where)
+{
+
+    Temperature * listPtr = NULL;
+    Temperature * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM Temperature ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Temperature_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetTemperature() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetTemperature() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetTemperature() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.lid, :dbs.pe, 
+    :dbs.dur, :dbs.ts, 
+    :dbs.extremum, :dbs.obstime, 
+    :dbs.value:dbs.ind_value, :dbs.shef_qual_code:dbs.ind_shef_qual_code, 
+    :dbs.quality_code:dbs.ind_quality_code, :dbs.revision:dbs.ind_revision, 
+    :dbs.product_id:dbs.ind_product_id, :dbs.producttime:dbs.ind_producttime, 
+    :dbs.postingtime:dbs.ind_postingtime    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetTemperature() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (Temperature *) malloc(sizeof(Temperature))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->pe, dbs.pe);
+
+            structPtr->dur = dbs.dur;
+
+            strcpy(structPtr->ts, dbs.ts);
+
+            strcpy(structPtr->extremum, dbs.extremum);
+
+            structPtr->obstime = dbs.obstime;
+
+            structPtr->value = dbs.value;
+            setNullIfIndicated(dbs.ind_value, DOUBLE, &structPtr->value);
+
+            strcpy(structPtr->shef_qual_code, dbs.shef_qual_code);
+            setNullIfIndicated(dbs.ind_shef_qual_code, CHAR, structPtr->shef_qual_code);
+
+            structPtr->quality_code = dbs.quality_code;
+            setNullIfIndicated(dbs.ind_quality_code, INT, &structPtr->quality_code);
+
+            structPtr->revision = dbs.revision;
+            setNullIfIndicated(dbs.ind_revision, SHORT, &structPtr->revision);
+
+            strcpy(structPtr->product_id, dbs.product_id);
+            setNullIfIndicated(dbs.ind_product_id, CHAR, structPtr->product_id);
+
+            structPtr->producttime = dbs.producttime;
+            setNullIfIndicated(dbs.ind_producttime, DATETIME, &structPtr->producttime);
+
+            structPtr->postingtime = dbs.postingtime;
+            setNullIfIndicated(dbs.ind_postingtime, DATETIME, &structPtr->postingtime);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.lid, :dbs.pe, 
+        :dbs.dur, :dbs.ts, 
+        :dbs.extremum, :dbs.obstime, 
+        :dbs.value:dbs.ind_value, :dbs.shef_qual_code:dbs.ind_shef_qual_code, 
+        :dbs.quality_code:dbs.ind_quality_code, :dbs.revision:dbs.ind_revision, 
+        :dbs.product_id:dbs.ind_product_id, :dbs.producttime:dbs.ind_producttime, 
+        :dbs.postingtime:dbs.ind_postingtime        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetTemperature() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+Temperature * SelectTemperature(const char * where)
+{
+
+    Temperature * listPtr = NULL;
+    Temperature * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM Temperature ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Temperature_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectTemperature() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectTemperature() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectTemperature() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.lid, :dbs.pe, 
+    :dbs.dur, :dbs.ts, 
+    :dbs.extremum, :dbs.obstime, 
+    :dbs.value:dbs.ind_value, :dbs.shef_qual_code:dbs.ind_shef_qual_code, 
+    :dbs.quality_code:dbs.ind_quality_code, :dbs.revision:dbs.ind_revision, 
+    :dbs.product_id:dbs.ind_product_id, :dbs.producttime:dbs.ind_producttime, 
+    :dbs.postingtime:dbs.ind_postingtime    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectTemperature() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (Temperature *) malloc(sizeof(Temperature))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->pe, dbs.pe);
+
+            structPtr->dur = dbs.dur;
+
+            strcpy(structPtr->ts, dbs.ts);
+
+            strcpy(structPtr->extremum, dbs.extremum);
+
+            structPtr->obstime = dbs.obstime;
+
+            structPtr->value = dbs.value;
+            setNullIfIndicated(dbs.ind_value, DOUBLE, &structPtr->value);
+
+            strcpy(structPtr->shef_qual_code, dbs.shef_qual_code);
+            setNullIfIndicated(dbs.ind_shef_qual_code, CHAR, structPtr->shef_qual_code);
+
+            structPtr->quality_code = dbs.quality_code;
+            setNullIfIndicated(dbs.ind_quality_code, INT, &structPtr->quality_code);
+
+            structPtr->revision = dbs.revision;
+            setNullIfIndicated(dbs.ind_revision, SHORT, &structPtr->revision);
+
+            strcpy(structPtr->product_id, dbs.product_id);
+            setNullIfIndicated(dbs.ind_product_id, CHAR, structPtr->product_id);
+
+            structPtr->producttime = dbs.producttime;
+            setNullIfIndicated(dbs.ind_producttime, DATETIME, &structPtr->producttime);
+
+            structPtr->postingtime = dbs.postingtime;
+            setNullIfIndicated(dbs.ind_postingtime, DATETIME, &structPtr->postingtime);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.lid, :dbs.pe, 
+        :dbs.dur, :dbs.ts, 
+        :dbs.extremum, :dbs.obstime, 
+        :dbs.value:dbs.ind_value, :dbs.shef_qual_code:dbs.ind_shef_qual_code, 
+        :dbs.quality_code:dbs.ind_quality_code, :dbs.revision:dbs.ind_revision, 
+        :dbs.product_id:dbs.ind_product_id, :dbs.producttime:dbs.ind_producttime, 
+        :dbs.postingtime:dbs.ind_postingtime        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectTemperature() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectTemperatureCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM Temperature ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountTemperature() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountTemperature() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountTemperature() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountTemperature() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutTemperature(const Temperature * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Temperature_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.pe, structPtr->pe);
+
+    dbs.dur = structPtr->dur;
+
+    strcpy(dbs.ts, structPtr->ts);
+
+    strcpy(dbs.extremum, structPtr->extremum);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.value = structPtr->value;
+    dbs.ind_value = getIndicator(DOUBLE, (void *)&structPtr->value);
+
+    strcpy(dbs.shef_qual_code, structPtr->shef_qual_code);
+    dbs.ind_shef_qual_code = getIndicator(CHAR, (void *)structPtr->shef_qual_code);
+
+    dbs.quality_code = structPtr->quality_code;
+    dbs.ind_quality_code = getIndicator(INT, (void *)&structPtr->quality_code);
+
+    dbs.revision = structPtr->revision;
+    dbs.ind_revision = getIndicator(SHORT, (void *)&structPtr->revision);
+
+    strcpy(dbs.product_id, structPtr->product_id);
+    dbs.ind_product_id = getIndicator(CHAR, (void *)structPtr->product_id);
+
+    dbs.producttime = structPtr->producttime;
+    dbs.ind_producttime = getIndicator(DATETIME, (void *)&structPtr->producttime);
+
+    dbs.postingtime = structPtr->postingtime;
+    dbs.ind_postingtime = getIndicator(DATETIME, (void *)&structPtr->postingtime);
+
+
+    EXEC SQL INSERT INTO Temperature (lid,pe,
+        dur,ts,extremum,
+        obstime,"value",shef_qual_code,
+        quality_code,revision,product_id,
+        producttime,postingtime        )
+        VALUES (
+         :dbs.lid, :dbs.pe, :dbs.dur,
+         :dbs.ts, :dbs.extremum, :dbs.obstime,
+         :dbs.value:dbs.ind_value, :dbs.shef_qual_code:dbs.ind_shef_qual_code, :dbs.quality_code:dbs.ind_quality_code,
+         :dbs.revision:dbs.ind_revision, :dbs.product_id:dbs.ind_product_id, :dbs.producttime:dbs.ind_producttime,
+         :dbs.postingtime:dbs.ind_postingtime);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutTemperature() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertTemperature(const Temperature * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Temperature_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.pe, structPtr->pe);
+
+    dbs.dur = structPtr->dur;
+
+    strcpy(dbs.ts, structPtr->ts);
+
+    strcpy(dbs.extremum, structPtr->extremum);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.value = structPtr->value;
+    dbs.ind_value = getIndicator(DOUBLE, (void *)&structPtr->value);
+
+    strcpy(dbs.shef_qual_code, structPtr->shef_qual_code);
+    dbs.ind_shef_qual_code = getIndicator(CHAR, (void *)structPtr->shef_qual_code);
+
+    dbs.quality_code = structPtr->quality_code;
+    dbs.ind_quality_code = getIndicator(INT, (void *)&structPtr->quality_code);
+
+    dbs.revision = structPtr->revision;
+    dbs.ind_revision = getIndicator(SHORT, (void *)&structPtr->revision);
+
+    strcpy(dbs.product_id, structPtr->product_id);
+    dbs.ind_product_id = getIndicator(CHAR, (void *)structPtr->product_id);
+
+    dbs.producttime = structPtr->producttime;
+    dbs.ind_producttime = getIndicator(DATETIME, (void *)&structPtr->producttime);
+
+    dbs.postingtime = structPtr->postingtime;
+    dbs.ind_postingtime = getIndicator(DATETIME, (void *)&structPtr->postingtime);
+
+
+    EXEC SQL INSERT INTO Temperature (lid,pe,
+        dur,ts,extremum,
+        obstime,"value",shef_qual_code,
+        quality_code,revision,product_id,
+        producttime,postingtime        )
+        VALUES (
+         :dbs.lid, :dbs.pe, :dbs.dur,
+         :dbs.ts, :dbs.extremum, :dbs.obstime,
+         :dbs.value:dbs.ind_value, :dbs.shef_qual_code:dbs.ind_shef_qual_code, :dbs.quality_code:dbs.ind_quality_code,
+         :dbs.revision:dbs.ind_revision, :dbs.product_id:dbs.ind_product_id, :dbs.producttime:dbs.ind_producttime,
+         :dbs.postingtime:dbs.ind_postingtime);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertTemperature() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateTemperature(const Temperature *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Temperature_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.pe, structPtr->pe);
+
+    dbs.dur = structPtr->dur;
+
+    strcpy(dbs.ts, structPtr->ts);
+
+    strcpy(dbs.extremum, structPtr->extremum);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.value = structPtr->value;
+    dbs.ind_value = getIndicator(DOUBLE, (void *)&structPtr->value);
+
+    strcpy(dbs.shef_qual_code, structPtr->shef_qual_code);
+    dbs.ind_shef_qual_code = getIndicator(CHAR, (void *)structPtr->shef_qual_code);
+
+    dbs.quality_code = structPtr->quality_code;
+    dbs.ind_quality_code = getIndicator(INT, (void *)&structPtr->quality_code);
+
+    dbs.revision = structPtr->revision;
+    dbs.ind_revision = getIndicator(SHORT, (void *)&structPtr->revision);
+
+    strcpy(dbs.product_id, structPtr->product_id);
+    dbs.ind_product_id = getIndicator(CHAR, (void *)structPtr->product_id);
+
+    dbs.producttime = structPtr->producttime;
+    dbs.ind_producttime = getIndicator(DATETIME, (void *)&structPtr->producttime);
+
+    dbs.postingtime = structPtr->postingtime;
+    dbs.ind_postingtime = getIndicator(DATETIME, (void *)&structPtr->postingtime);
+
+
+    sprintf(queryBuffer, " UPDATE Temperature SET " );
+    strcat(queryBuffer, "lid = ? , pe = ? , dur = ? , ts = ? , extremum = ? ,     ");
+    strcat(queryBuffer, "obstime = ? , \"value\" = ? , shef_qual_code = ? , quality_code = ? , revision = ? ,     ");
+    strcat(queryBuffer, "product_id = ? , producttime = ? , postingtime = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateTemperature() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.lid, :dbs.pe, :dbs.dur, :dbs.ts, :dbs.extremum,
+     :dbs.obstime, :dbs.value:dbs.ind_value, :dbs.shef_qual_code:dbs.ind_shef_qual_code, :dbs.quality_code:dbs.ind_quality_code, :dbs.revision:dbs.ind_revision,
+     :dbs.product_id:dbs.ind_product_id, :dbs.producttime:dbs.ind_producttime, :dbs.postingtime:dbs.ind_postingtime;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateTemperature() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteTemperature(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM Temperature ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteTemperature() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateTemperatureByRecord (const Temperature * newStructPtr, const Temperature * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetTemperaturePrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateTemperature(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateTemperature(const Temperature * structPtr)
+{
+    UpdateTemperatureByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertTemperature(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueTemperature(const Temperature * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (TemperatureExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertTemperature(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteTemperatureByRecord(const Temperature * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetTemperaturePrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteTemperature(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool TemperatureExists(const Temperature * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetTemperaturePrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectTemperatureCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetTemperaturePrimaryKeyWhereString (const Temperature * structPtr, char returnWhereString[] )
+{
+    char time_buffer0[40];
+    sprintf(returnWhereString, "WHERE lid = '%s'  AND pe = '%s'  AND dur = %d  AND ts = '%s'  AND extremum = '%s'  AND obstime = '%s' ",
+            structPtr->lid, structPtr->pe, structPtr->dur, structPtr->ts, structPtr->extremum, 
+            dtimet_to_ansi(structPtr->obstime, time_buffer0));
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeTemperature( Temperature * structPtr)
+{
+    Temperature* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( Temperature * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetTemperatureDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetTemperatureErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

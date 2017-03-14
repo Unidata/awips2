@@ -1,0 +1,54 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+    <bean id="insertStdTextProduct" class="com.raytheon.uf.edex.plugin.text.handler.InsertStdTextProductHandler"/>
+
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.dataplugin.text.request.InsertStdTextProductRequest"/>
+        <constructor-arg ref="insertStdTextProduct"/>
+    </bean>
+
+    <!-- Instantiate the handler class for StdTextProductRequestHandler -->
+    <bean id="stdTextProduct" class="com.raytheon.uf.edex.plugin.text.handler.StdTextProductRequestHandler"/>
+
+    <!-- Register the handler class with the StdTextProductServerHandlerRegister. -->
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.dataplugin.text.request.StdTextProductServerRequest"/>
+        <constructor-arg ref="stdTextProduct"/>
+    </bean>
+
+    <!-- Instantiate the handler class for TextProductInfoRequestHandler -->
+    <bean id="textProductInfo" class="com.raytheon.uf.edex.plugin.text.handler.TextProductInfoCreateHandler"/>
+
+    <!-- Register the handler class with the TextProductInfoHandlerRegister. -->
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.dataplugin.text.request.TextProductInfoCreateRequest"/>
+        <constructor-arg ref="textProductInfo"/>
+    </bean>
+
+    <bean id="writeProductHandler" class="com.raytheon.uf.edex.plugin.text.handler.WriteProductHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.dataplugin.text.request.WriteProductRequest"/>
+        <constructor-arg ref="writeProductHandler"/>
+    </bean>
+
+    <!-- JmsPooled* do not work... -->  
+    <bean id="jms-mhs" class="org.apache.camel.component.jms.JmsComponent">
+       <constructor-arg ref="jmsMhsConfig" />
+       <property name="taskExecutor" ref="mhsThreadPool" />
+    </bean>
+
+    <bean id="mhsThreadPool"
+        class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="1" />
+        <property name="maxPoolSize" value="1" />
+    </bean>
+    
+    <bean id="jmsMhsConfig" class="org.apache.camel.component.jms.JmsConfiguration">
+        <property name="recoveryInterval" value="1000"/>
+        <property name="connectionFactory" ref="amqConnectionFactory" />
+        <property name="destinationResolver" ref="qpidNoDurableResolver"/>
+    </bean>
+
+</beans>

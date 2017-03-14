@@ -1,0 +1,1 @@
+Here’s the “phraseList” showing the phrase methods in the order they are to appear in the component.

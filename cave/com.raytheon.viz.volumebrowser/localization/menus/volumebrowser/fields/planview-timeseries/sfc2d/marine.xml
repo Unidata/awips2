@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <contribute xsi:type="menuItem" menuText="Sig Wave Hgt"
+        key="HTSGW" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Wind Wave Hgt"
+        key="WVHGT" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Wind Wave Dir"
+        key="WVdir" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Wind Wave Pd"
+        key="WVPER" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Wind Wave Len"
+        key="WVLEN" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Wave Steepness"
+        key="WSTP" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Swell Hgt" key="SWELL"
+        indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Swell Dir" key="SWdir"
+        indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Swell Pd" key="SWPER"
+        indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Prim Wave Dir"
+        key="dirPW" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Prim Wave Pd"
+        key="PERPW" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="2nd Wave Dir"
+        key="dirSW" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="2nd Wave Pd"
+        key="PERSW" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Ice Cover" key="ICEC"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Ice growth rate"
+        key="ICEG" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Salinity" key="SALTY"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Practical Salinity" key="SALIN"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Sea Surface Height"
+        key="SSHG" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Water Temperature"
+        key="TEMPWTR" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Current Vectors"
+        key="OGRD" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Current Speed"
+        key="SPC" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Current Direction"
+        key="DIRC" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Sea Level Deviation"
+        key="DEVMSL" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Barometric Velocity Vectors"
+        key="BARO" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Barometric Velocity"
+        key="SPBARO" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Tidal Height"
+        key="ELEV" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="ET Storm Surge"
+        key="ETSRG" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Combined ET Surge and Tide Hgt"
+        key="ETCWL" indentText="false" />
+    <!-- ECMWF wave guidance parameters: -->
+    <contribute xsi:type="menuItem" menuText="U-component stokes drift"
+        key="USSD" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="V-component stokes drift"
+        key="VSSD" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Period of Maximum Individual Wave Height" 
+        key="PMAXWH" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Maximum Individual Wave Height" 
+        key="MAXWH" indentText="false" />
+         <contribute xsi:type="menuItem" menuText="Mean wave period second moment" 
+        key="MP2" indentText="false" /> 
+            <contribute xsi:type="menuItem" menuText="Mean wave period second moment for wind waves" 
+        key="P2WW" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="Mean wave period second moment for swell" 
+        key="P2PS" indentText="false" />
+</menuTemplate>

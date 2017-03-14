@@ -1,0 +1,71 @@
+<configuration debug="false" scan="true">
+   <include file="${edex.home}/conf/logback-edex-properties.xml"/>
+   <include file="${edex.home}/conf/logback-edex-appenders.xml" />
+
+   <!-- ProductSrvRequest log --> 
+   <appender name="ProductSrvRequestLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
+         <name>productSrvRequest</name>
+      </rollingPolicy>
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
+   </appender>    
+   
+   <appender name="ProductSrvRequestLogAsync" class="ch.qos.logback.classic.AsyncAppender">            
+      <appender-ref ref="ProductSrvRequestLog" />
+   </appender> 
+
+   <!-- TextDBSrvRequest log --> 
+   <appender name="TextDBSrvRequestLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
+         <name>textdbSrvRequest</name>
+      </rollingPolicy>
+
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
+   </appender>    
+   
+   <appender name="TextDBSrvRequestLogAsync" class="ch.qos.logback.classic.AsyncAppender">            
+      <appender-ref ref="TextDBSrvRequestLog" />
+   </appender> 
+
+   <!-- ThriftSrv (RemoteRequestRouteWrapper) request log --> 
+   <appender name="ThriftSrvRequestLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
+         <name>thriftSrv</name>
+      </rollingPolicy>
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
+   </appender>
+
+   <appender name="ThriftSrvRequestLogAsync" class="ch.qos.logback.classic.AsyncAppender">            
+      <appender-ref ref="ThriftSrvRequestLog" />
+   </appender> 
+   
+   <include file="${edex.home}/conf/logback-edex-loggers.xml" />
+
+   <logger name="ProductSrvRequestLogger" additivity="false">
+   		<level value="DEBUG"/>
+   		<appender-ref ref="ProductSrvRequestLogAsync"/>
+   </logger>    
+
+   <logger name="TextDBSrvRequestLogger" additivity="false">
+   		<level value="DEBUG"/>
+   		<appender-ref ref="TextDBSrvRequestLogAsync"/>
+   </logger>    
+
+   <logger name="ThriftSrvRequestLogger" additivity="false">
+      <level value="Info"/>
+      <appender-ref ref="ThriftSrvRequestLogAsync" />
+   </logger>
+
+   <logger name="org.hibernate">
+      <level value="ERROR"/>
+   </logger> 
+
+   <!-- activeTableChange log --> 
+   <include file="${edex.home}/conf/logback-activeTableChange.xml"/>
+
+   <!-- default logging --> 
+   <root> 
+      <level value="INFO"/> 
+      <appender-ref ref="asyncConsole"/> 
+    </root> 
+</configuration>

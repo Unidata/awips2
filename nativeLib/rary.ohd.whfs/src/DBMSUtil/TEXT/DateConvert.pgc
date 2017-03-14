@@ -1,0 +1,30 @@
+/*
+	File:		DateConvert.ec
+	Author:		Dale Shelton
+	Date:		09/30/1994
+	
+	Purpose:	Provides utility routines for converting
+			between the Informix date type and a
+			character representation of dates.
+
+	History:	Russell Erb	08/07/2001
+			changed $include to EXEC SQL include
+			initilized str to NULL
+*/
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include "DbmsUtils.h"
+EXEC SQL include sqltypes;
+
+
+char *	DateString(long	value)
+{
+	char	*str=NULL;
+	
+	if (rdatestr(value, str) != 0)
+		fprintf(stderr, "Date to String conversion failed.\n");
+	
+	return(str);
+}

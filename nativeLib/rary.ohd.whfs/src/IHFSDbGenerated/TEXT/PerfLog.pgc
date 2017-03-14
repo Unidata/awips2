@@ -1,0 +1,880 @@
+/*
+    File: PerfLog.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:26 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "PerfLog.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct PerfLog_t
+{
+    char		process[11];
+    dtime_t		start_time;
+    long		num_processed;
+    long		num_reads;
+    long		num_inserts;
+    long		num_updates;
+    long		num_deletes;
+    double		elapsed_time;
+    double		cpu_time;
+    double		io_time;
+
+    int		ind_num_processed;
+    int		ind_num_reads;
+    int		ind_num_inserts;
+    int		ind_num_updates;
+    int		ind_num_deletes;
+    int		ind_elapsed_time;
+    int		ind_cpu_time;
+    int		ind_io_time;
+} PerfLog_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+PerfLog * GetPerfLog(const char * where)
+{
+
+    PerfLog * listPtr = NULL;
+    PerfLog * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM PerfLog ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct PerfLog_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetPerfLog() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetPerfLog() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetPerfLog() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.process, :dbs.start_time, 
+    :dbs.num_processed:dbs.ind_num_processed, :dbs.num_reads:dbs.ind_num_reads, 
+    :dbs.num_inserts:dbs.ind_num_inserts, :dbs.num_updates:dbs.ind_num_updates, 
+    :dbs.num_deletes:dbs.ind_num_deletes, :dbs.elapsed_time:dbs.ind_elapsed_time, 
+    :dbs.cpu_time:dbs.ind_cpu_time, :dbs.io_time:dbs.ind_io_time    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetPerfLog() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (PerfLog *) malloc(sizeof(PerfLog))) != NULL)
+        {
+
+            strcpy(structPtr->process, dbs.process);
+
+            structPtr->start_time = dbs.start_time;
+
+            structPtr->num_processed = dbs.num_processed;
+            setNullIfIndicated(dbs.ind_num_processed, INT, &structPtr->num_processed);
+
+            structPtr->num_reads = dbs.num_reads;
+            setNullIfIndicated(dbs.ind_num_reads, INT, &structPtr->num_reads);
+
+            structPtr->num_inserts = dbs.num_inserts;
+            setNullIfIndicated(dbs.ind_num_inserts, INT, &structPtr->num_inserts);
+
+            structPtr->num_updates = dbs.num_updates;
+            setNullIfIndicated(dbs.ind_num_updates, INT, &structPtr->num_updates);
+
+            structPtr->num_deletes = dbs.num_deletes;
+            setNullIfIndicated(dbs.ind_num_deletes, INT, &structPtr->num_deletes);
+
+            structPtr->elapsed_time = dbs.elapsed_time;
+            setNullIfIndicated(dbs.ind_elapsed_time, DOUBLE, &structPtr->elapsed_time);
+
+            structPtr->cpu_time = dbs.cpu_time;
+            setNullIfIndicated(dbs.ind_cpu_time, DOUBLE, &structPtr->cpu_time);
+
+            structPtr->io_time = dbs.io_time;
+            setNullIfIndicated(dbs.ind_io_time, DOUBLE, &structPtr->io_time);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.process, :dbs.start_time, 
+        :dbs.num_processed:dbs.ind_num_processed, :dbs.num_reads:dbs.ind_num_reads, 
+        :dbs.num_inserts:dbs.ind_num_inserts, :dbs.num_updates:dbs.ind_num_updates, 
+        :dbs.num_deletes:dbs.ind_num_deletes, :dbs.elapsed_time:dbs.ind_elapsed_time, 
+        :dbs.cpu_time:dbs.ind_cpu_time, :dbs.io_time:dbs.ind_io_time        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetPerfLog() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+PerfLog * SelectPerfLog(const char * where)
+{
+
+    PerfLog * listPtr = NULL;
+    PerfLog * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM PerfLog ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct PerfLog_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectPerfLog() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectPerfLog() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectPerfLog() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.process, :dbs.start_time, 
+    :dbs.num_processed:dbs.ind_num_processed, :dbs.num_reads:dbs.ind_num_reads, 
+    :dbs.num_inserts:dbs.ind_num_inserts, :dbs.num_updates:dbs.ind_num_updates, 
+    :dbs.num_deletes:dbs.ind_num_deletes, :dbs.elapsed_time:dbs.ind_elapsed_time, 
+    :dbs.cpu_time:dbs.ind_cpu_time, :dbs.io_time:dbs.ind_io_time    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectPerfLog() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (PerfLog *) malloc(sizeof(PerfLog))) != NULL)
+        {
+
+            strcpy(structPtr->process, dbs.process);
+
+            structPtr->start_time = dbs.start_time;
+
+            structPtr->num_processed = dbs.num_processed;
+            setNullIfIndicated(dbs.ind_num_processed, INT, &structPtr->num_processed);
+
+            structPtr->num_reads = dbs.num_reads;
+            setNullIfIndicated(dbs.ind_num_reads, INT, &structPtr->num_reads);
+
+            structPtr->num_inserts = dbs.num_inserts;
+            setNullIfIndicated(dbs.ind_num_inserts, INT, &structPtr->num_inserts);
+
+            structPtr->num_updates = dbs.num_updates;
+            setNullIfIndicated(dbs.ind_num_updates, INT, &structPtr->num_updates);
+
+            structPtr->num_deletes = dbs.num_deletes;
+            setNullIfIndicated(dbs.ind_num_deletes, INT, &structPtr->num_deletes);
+
+            structPtr->elapsed_time = dbs.elapsed_time;
+            setNullIfIndicated(dbs.ind_elapsed_time, DOUBLE, &structPtr->elapsed_time);
+
+            structPtr->cpu_time = dbs.cpu_time;
+            setNullIfIndicated(dbs.ind_cpu_time, DOUBLE, &structPtr->cpu_time);
+
+            structPtr->io_time = dbs.io_time;
+            setNullIfIndicated(dbs.ind_io_time, DOUBLE, &structPtr->io_time);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.process, :dbs.start_time, 
+        :dbs.num_processed:dbs.ind_num_processed, :dbs.num_reads:dbs.ind_num_reads, 
+        :dbs.num_inserts:dbs.ind_num_inserts, :dbs.num_updates:dbs.ind_num_updates, 
+        :dbs.num_deletes:dbs.ind_num_deletes, :dbs.elapsed_time:dbs.ind_elapsed_time, 
+        :dbs.cpu_time:dbs.ind_cpu_time, :dbs.io_time:dbs.ind_io_time        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectPerfLog() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectPerfLogCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM PerfLog ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountPerfLog() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountPerfLog() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountPerfLog() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountPerfLog() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutPerfLog(const PerfLog * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct PerfLog_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.process, structPtr->process);
+
+    dbs.start_time = structPtr->start_time;
+
+    dbs.num_processed = structPtr->num_processed;
+    dbs.ind_num_processed = getIndicator(INT, (void *)&structPtr->num_processed);
+
+    dbs.num_reads = structPtr->num_reads;
+    dbs.ind_num_reads = getIndicator(INT, (void *)&structPtr->num_reads);
+
+    dbs.num_inserts = structPtr->num_inserts;
+    dbs.ind_num_inserts = getIndicator(INT, (void *)&structPtr->num_inserts);
+
+    dbs.num_updates = structPtr->num_updates;
+    dbs.ind_num_updates = getIndicator(INT, (void *)&structPtr->num_updates);
+
+    dbs.num_deletes = structPtr->num_deletes;
+    dbs.ind_num_deletes = getIndicator(INT, (void *)&structPtr->num_deletes);
+
+    dbs.elapsed_time = structPtr->elapsed_time;
+    dbs.ind_elapsed_time = getIndicator(DOUBLE, (void *)&structPtr->elapsed_time);
+
+    dbs.cpu_time = structPtr->cpu_time;
+    dbs.ind_cpu_time = getIndicator(DOUBLE, (void *)&structPtr->cpu_time);
+
+    dbs.io_time = structPtr->io_time;
+    dbs.ind_io_time = getIndicator(DOUBLE, (void *)&structPtr->io_time);
+
+
+    EXEC SQL INSERT INTO PerfLog (process,start_time,
+        num_processed,num_reads,num_inserts,
+        num_updates,num_deletes,elapsed_time,
+        cpu_time,io_time        )
+        VALUES (
+         :dbs.process, :dbs.start_time, :dbs.num_processed:dbs.ind_num_processed,
+         :dbs.num_reads:dbs.ind_num_reads, :dbs.num_inserts:dbs.ind_num_inserts, :dbs.num_updates:dbs.ind_num_updates,
+         :dbs.num_deletes:dbs.ind_num_deletes, :dbs.elapsed_time:dbs.ind_elapsed_time, :dbs.cpu_time:dbs.ind_cpu_time,
+         :dbs.io_time:dbs.ind_io_time);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutPerfLog() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertPerfLog(const PerfLog * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct PerfLog_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.process, structPtr->process);
+
+    dbs.start_time = structPtr->start_time;
+
+    dbs.num_processed = structPtr->num_processed;
+    dbs.ind_num_processed = getIndicator(INT, (void *)&structPtr->num_processed);
+
+    dbs.num_reads = structPtr->num_reads;
+    dbs.ind_num_reads = getIndicator(INT, (void *)&structPtr->num_reads);
+
+    dbs.num_inserts = structPtr->num_inserts;
+    dbs.ind_num_inserts = getIndicator(INT, (void *)&structPtr->num_inserts);
+
+    dbs.num_updates = structPtr->num_updates;
+    dbs.ind_num_updates = getIndicator(INT, (void *)&structPtr->num_updates);
+
+    dbs.num_deletes = structPtr->num_deletes;
+    dbs.ind_num_deletes = getIndicator(INT, (void *)&structPtr->num_deletes);
+
+    dbs.elapsed_time = structPtr->elapsed_time;
+    dbs.ind_elapsed_time = getIndicator(DOUBLE, (void *)&structPtr->elapsed_time);
+
+    dbs.cpu_time = structPtr->cpu_time;
+    dbs.ind_cpu_time = getIndicator(DOUBLE, (void *)&structPtr->cpu_time);
+
+    dbs.io_time = structPtr->io_time;
+    dbs.ind_io_time = getIndicator(DOUBLE, (void *)&structPtr->io_time);
+
+
+    EXEC SQL INSERT INTO PerfLog (process,start_time,
+        num_processed,num_reads,num_inserts,
+        num_updates,num_deletes,elapsed_time,
+        cpu_time,io_time        )
+        VALUES (
+         :dbs.process, :dbs.start_time, :dbs.num_processed:dbs.ind_num_processed,
+         :dbs.num_reads:dbs.ind_num_reads, :dbs.num_inserts:dbs.ind_num_inserts, :dbs.num_updates:dbs.ind_num_updates,
+         :dbs.num_deletes:dbs.ind_num_deletes, :dbs.elapsed_time:dbs.ind_elapsed_time, :dbs.cpu_time:dbs.ind_cpu_time,
+         :dbs.io_time:dbs.ind_io_time);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertPerfLog() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdatePerfLog(const PerfLog *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct PerfLog_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.process, structPtr->process);
+
+    dbs.start_time = structPtr->start_time;
+
+    dbs.num_processed = structPtr->num_processed;
+    dbs.ind_num_processed = getIndicator(INT, (void *)&structPtr->num_processed);
+
+    dbs.num_reads = structPtr->num_reads;
+    dbs.ind_num_reads = getIndicator(INT, (void *)&structPtr->num_reads);
+
+    dbs.num_inserts = structPtr->num_inserts;
+    dbs.ind_num_inserts = getIndicator(INT, (void *)&structPtr->num_inserts);
+
+    dbs.num_updates = structPtr->num_updates;
+    dbs.ind_num_updates = getIndicator(INT, (void *)&structPtr->num_updates);
+
+    dbs.num_deletes = structPtr->num_deletes;
+    dbs.ind_num_deletes = getIndicator(INT, (void *)&structPtr->num_deletes);
+
+    dbs.elapsed_time = structPtr->elapsed_time;
+    dbs.ind_elapsed_time = getIndicator(DOUBLE, (void *)&structPtr->elapsed_time);
+
+    dbs.cpu_time = structPtr->cpu_time;
+    dbs.ind_cpu_time = getIndicator(DOUBLE, (void *)&structPtr->cpu_time);
+
+    dbs.io_time = structPtr->io_time;
+    dbs.ind_io_time = getIndicator(DOUBLE, (void *)&structPtr->io_time);
+
+
+    sprintf(queryBuffer, " UPDATE PerfLog SET " );
+    strcat(queryBuffer, "process = ? , start_time = ? , num_processed = ? , num_reads = ? , num_inserts = ? ,     ");
+    strcat(queryBuffer, "num_updates = ? , num_deletes = ? , elapsed_time = ? , cpu_time = ? , io_time = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdatePerfLog() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.process, :dbs.start_time, :dbs.num_processed:dbs.ind_num_processed, :dbs.num_reads:dbs.ind_num_reads, :dbs.num_inserts:dbs.ind_num_inserts,
+     :dbs.num_updates:dbs.ind_num_updates, :dbs.num_deletes:dbs.ind_num_deletes, :dbs.elapsed_time:dbs.ind_elapsed_time, :dbs.cpu_time:dbs.ind_cpu_time, :dbs.io_time:dbs.ind_io_time;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdatePerfLog() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeletePerfLog(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM PerfLog ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeletePerfLog() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdatePerfLogByRecord (const PerfLog * newStructPtr, const PerfLog * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetPerfLogPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdatePerfLog(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdatePerfLog(const PerfLog * structPtr)
+{
+    UpdatePerfLogByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertPerfLog(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniquePerfLog(const PerfLog * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (PerfLogExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertPerfLog(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeletePerfLogByRecord(const PerfLog * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetPerfLogPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeletePerfLog(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool PerfLogExists(const PerfLog * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetPerfLogPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectPerfLogCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetPerfLogPrimaryKeyWhereString (const PerfLog * structPtr, char returnWhereString[] )
+{
+    char time_buffer0[40];
+    sprintf(returnWhereString, "WHERE process = '%s'  AND start_time = '%s' ",
+            structPtr->process, dtimet_to_ansi(structPtr->start_time, time_buffer0));
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreePerfLog( PerfLog * structPtr)
+{
+    PerfLog* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( PerfLog * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetPerfLogDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetPerfLogErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

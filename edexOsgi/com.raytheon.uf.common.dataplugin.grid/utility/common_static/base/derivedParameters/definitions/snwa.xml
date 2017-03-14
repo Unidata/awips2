@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	COMMENT:
+	//
+	// Allows the Ageo Norm Circulation in streamlines.
+	// 
+	
+	
+	AWIPS I format
+	SNWA   |5,2| |Ageo Sect Norm Wind   |Kts           |BARB,ARROW,OTHER|X   |        *Alias,3D|ageoW
+	
+	
+	varId: |SNWA| 
+	Cross Section (CS): |5,2| 
+	isAttachToSource: | | 
+	varName: |Ageo Sect Norm Wind   | 
+	units: |Kts| 
+	displayTypes: |BARB,ARROW,OTHER| 		//No longer used, planes are available and determined by levels attribute in the Method tag, 
+	planeList: |X| 							//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+	
+	functionName, source: |Alias,3D|
+	varId: |ageoW| 
+	
+	
+	AWIPS II NEW FILE - SNWA.xml
+
+        omit the "3D" levels on Alias method because it is currently not supported in AWIPS II.  10/12/2011.  David (Yi-Ping) Pan
+-->
+<DerivedParameter unit="kn" name="Ageo Sect Norm Wind" abbreviation="SNWA" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Alias">
+        <Field abbreviation="ageoW"/>
+    </Method>
+</DerivedParameter>

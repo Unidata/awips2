@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gridParamInfo xmlns:ns2="group">
+  <valtimeMINUSreftime>
+    <fcst>0</fcst>
+    <fcst>10800</fcst>
+    <fcst>21600</fcst>
+    <fcst>32400</fcst>
+    <fcst>43200</fcst>
+    <fcst>54000</fcst>
+    <fcst>64800</fcst>
+    <fcst>75600</fcst>
+    <fcst>86400</fcst>
+    <fcst>97200</fcst>
+    <fcst>108000</fcst>
+    <fcst>118800</fcst>
+    <fcst>129600</fcst>
+    <fcst>140400</fcst>
+    <fcst>151200</fcst>
+    <fcst>162000</fcst>
+    <fcst>172800</fcst>
+    <fcst>183600</fcst>
+    <fcst>194400</fcst>
+    <fcst>205200</fcst>
+    <fcst>216000</fcst>
+    <fcst>226800</fcst>
+    <fcst>237600</fcst>
+    <fcst>248400</fcst>
+    <fcst>259200</fcst>
+    <fcst>270000</fcst>
+    <fcst>280800</fcst>
+    <fcst>291600</fcst>
+    <fcst>302400</fcst>
+    <fcst>313200</fcst>
+    <fcst>324000</fcst>
+    <fcst>334800</fcst>
+    <fcst>345600</fcst>
+    <fcst>356400</fcst>
+    <fcst>367200</fcst>
+    <fcst>388800</fcst>
+    <fcst>410400</fcst>
+    <fcst>432000</fcst>
+    <fcst>453600</fcst>
+    <fcst>475200</fcst>
+    <fcst>496800</fcst>
+    <fcst>518400</fcst>
+    <fcst>540000</fcst>
+    <fcst>561600</fcst>
+    <fcst>583200</fcst>
+    <fcst>604800</fcst>
+    <fcst>626400</fcst>
+    <fcst>648000</fcst>
+  </valtimeMINUSreftime>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>swdir</short_name>
+    <long_name>Swell peak direction</long_name>
+    <units>degree_angle</units>
+    <udunits>degree_angle</udunits>
+    <uiname>swellWaveDir</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>360.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>OSEQD 1 2 3 4 5 6 7 8 9 10</levelsDesc>
+    <levels>
+      <level>OSEQD1</level>
+      <level>OSEQD2</level>
+      <level>OSEQD3</level>
+      <level>OSEQD4</level>
+      <level>OSEQD5</level>
+      <level>OSEQD6</level>
+      <level>OSEQD7</level>
+      <level>OSEQD8</level>
+      <level>OSEQD9</level>
+      <level>OSEQD10</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>swper</short_name>
+    <long_name>Swell wave peak period</long_name>
+    <units>s</units>
+    <udunits>seconds</udunits>
+    <uiname>swellWavePeriod</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>OSEQD 1 2 3 4 5 6 7 8 9 10</levelsDesc>
+    <levels>
+      <level>OSEQD1</level>
+      <level>OSEQD2</level>
+      <level>OSEQD3</level>
+      <level>OSEQD4</level>
+      <level>OSEQD5</level>
+      <level>OSEQD6</level>
+      <level>OSEQD7</level>
+      <level>OSEQD8</level>
+      <level>OSEQD9</level>
+      <level>OSEQD10</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>swell</short_name>
+    <long_name>Significant swell wave height</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>heightSwellWaves</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>50.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>OSEQD 1 2 3 4 5 6 7 8 9 10</levelsDesc>
+    <levels>
+      <level>OSEQD1</level>
+      <level>OSEQD2</level>
+      <level>OSEQD3</level>
+      <level>OSEQD4</level>
+      <level>OSEQD5</level>
+      <level>OSEQD6</level>
+      <level>OSEQD7</level>
+      <level>OSEQD8</level>
+      <level>OSEQD9</level>
+      <level>OSEQD10</level>
+    </levels>
+  </gridParameterInfo>
+</gridParamInfo>

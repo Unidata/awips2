@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project awips.dependency.evaluator with Jar-in-Jar Loader">
+	<property name="dest.dir" value="/tmp" />
+	<property name="eclipse.dir" value="/opt/eclipse" />
+	<property name="baseline.dir" value="/common/bkowal/git/Baseline-4759/AWIPS2_baseline/javaUtilities" />
+	
+	<path id="ECLIPSE.classpath">
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.osgi_3.10.101.v20150820-1432.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.pde.core_3.10.101.v20150722-0954.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.core.resources_3.10.1.v20150725-1910.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.debug.core_3.10.0.v20150303-1130.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.equinox.common_3.7.0.v20150402-1709.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.core.runtime_3.11.1.v20150903-1804.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.core.jobs_3.7.0.v20150330-2103.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.core.runtime.compatibility.registry_3.6.0.v20150318-1505/runtime_registry_compatibility.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.equinox.registry_3.6.0.v20150318-1503.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.equinox.preferences_3.5.300.v20150408-1437.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.core.contenttype_3.5.0.v20150421-2214.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.equinox.app_1.3.300.v20150423-1356.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.jdt.launching_3.8.0.v20150527-0946.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.jdt.core_3.11.1.v20150902-1521.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.jdt.compiler.apt_1.2.0.v20150514-0146.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.jdt.compiler.tool_1.1.0.v20150513-2007.jar" />
+	</path>
+	
+	<target name="compile">
+		<javac destdir="${baseline.dir}/awips.dependency.evaluator/bin" 
+			srcdir="${baseline.dir}/awips.dependency.evaluator/src" 
+			executable="/awips2/java/bin/javac" fork="true"
+			classpathref="ECLIPSE.classpath">
+			
+			<include name="**/*.java" />
+			
+		</javac>
+	</target>
+	
+	<target name="retrieve-jar-zip">
+		<mkdir dir="${baseline.dir}/awips.dependency.evaluator/lib" />
+		<unzip src="${eclipse.dir}/plugins/org.eclipse.jdt.ui_3.11.1.v20150827-1306.jar"
+			dest="${baseline.dir}/awips.dependency.evaluator/lib" 
+			overwrite="true">
+			
+        	<patternset>
+        		<include name="jar-in-jar-loader.zip" />
+        	</patternset>			
+			
+		</unzip>
+	</target>
+	
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <target name="create_run_jar" depends="compile, retrieve-jar-zip">
+        <jar destfile="${dest.dir}/AwipsDependencyEvaluator.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
+                <attribute name="Rsrc-Main-Class" value="awips.dependency.evaluator.Main"/>
+                <attribute name="Class-Path" value="."/>
+                <attribute name="Rsrc-Class-Path" value="./ org.eclipse.osgi_3.10.101.v20150820-1432.jar org.eclipse.pde.core_3.10.101.v20150722-0954.jar org.eclipse.core.resources_3.10.1.v20150725-1910.jar org.eclipse.debug.core_3.10.0.v20150303-1130.jar org.eclipse.equinox.common_3.7.0.v20150402-1709.jar org.eclipse.core.runtime_3.11.1.v20150903-1804.jar org.eclipse.core.jobs_3.7.0.v20150330-2103.jar runtime_registry_compatibility.jar org.eclipse.equinox.registry_3.6.0.v20150318-1503.jar org.eclipse.equinox.preferences_3.5.300.v20150408-1437.jar org.eclipse.core.contenttype_3.5.0.v20150421-2214.jar org.eclipse.equinox.app_1.3.300.v20150423-1356.jar org.eclipse.jdt.launching_3.8.0.v20150527-0946.jar org.eclipse.jdt.core_3.11.1.v20150902-1521.jar org.eclipse.jdt.compiler.apt_1.2.0.v20150514-0146.jar org.eclipse.jdt.compiler.tool_1.1.0.v20150513-2007.jar"/>
+            </manifest>
+            <zipfileset src="${baseline.dir}/awips.dependency.evaluator/lib/jar-in-jar-loader.zip"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.osgi_3.10.101.v20150820-1432.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.pde.core_3.10.101.v20150722-0954.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.core.resources_3.10.1.v20150725-1910.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.debug.core_3.10.0.v20150303-1130.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.equinox.common_3.7.0.v20150402-1709.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.core.runtime_3.11.1.v20150903-1804.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.core.jobs_3.7.0.v20150330-2103.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins/org.eclipse.core.runtime.compatibility.registry_3.6.0.v20150318-1505" includes="runtime_registry_compatibility.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.equinox.registry_3.6.0.v20150318-1503.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.equinox.preferences_3.5.300.v20150408-1437.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.core.contenttype_3.5.0.v20150421-2214.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.equinox.app_1.3.300.v20150423-1356.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.jdt.launching_3.8.0.v20150527-0946.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.jdt.core_3.11.1.v20150902-1521.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.jdt.compiler.apt_1.2.0.v20150514-0146.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.jdt.compiler.tool_1.1.0.v20150513-2007.jar"/>
+            <fileset dir="${baseline.dir}/awips.dependency.evaluator/bin"/>
+        </jar>
+    </target>
+</project>

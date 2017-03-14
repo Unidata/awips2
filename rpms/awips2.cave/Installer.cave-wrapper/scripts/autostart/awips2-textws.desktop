@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Version=1.0
+Name=No Name
+Name[en_US]=TextWS
+Exec=/bin/bash -i -c "if ! ping -c 1 xt`hostname | cut -c 3-3` > /dev/null 2>&1; then sleep 5; export DISPLAY=:0.1; /awips2/cave/textWS.sh; fi"

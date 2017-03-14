@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<purgeRuleSet>
+	<key>creatingEntity</key>
+	<key>physicalElement</key>
+	<defaultRule>
+		<versionsToKeep>24</versionsToKeep>
+	</defaultRule>
+	<rule>
+		<keyValue>HRPT</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>HRPT</keyValue>
+		<keyValue>Imager Channel 4-5 IR</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>HRPT</keyValue>
+		<keyValue>Imager 3.9 micron IR</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>HRPT</keyValue>
+		<keyValue>Imager 3 Channel Diff</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>HRPT</keyValue>
+		<keyValue>Imager Visible</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>MTSAT</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>MTSAT</keyValue>
+		<keyValue>Imager Visible</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>MTSAT</keyValue>
+		<keyValue>Imager Channel 4-5 IR</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>GVAR</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>GVAR</keyValue>
+		<keyValue>Imager 3.9 micron IR</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>GVAR</keyValue>
+		<keyValue>Imager Visible</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>GVAR</keyValue>
+		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>DMSP</keyValue>
+		<keyValue>Imager Visible</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>DMSP</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>FY1C</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>FY1C</keyValue>
+		<keyValue>Imager Channel 4-5 IR</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>FY1C</keyValue>
+		<keyValue>Imager 3 Channel Diff</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>FY1C</keyValue>
+		<keyValue>Imager Visible</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>FY3C</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>FY3C</keyValue>
+		<keyValue>Imager Channel 4-5 IR</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>FY3C</keyValue>
+		<keyValue>Imager 3 Channel Diff</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>FY3C</keyValue>
+		<keyValue>Imager Visible</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
+</purgeRuleSet>

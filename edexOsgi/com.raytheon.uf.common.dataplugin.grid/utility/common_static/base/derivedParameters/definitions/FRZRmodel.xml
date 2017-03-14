@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<DerivedParameter abbreviation="FRZRmodel" internal="true" name="Model Run Ice" unit="mm">
+  <Method name="ModelRun">
+    <Field abbreviation="FRZR1hr" />
+  </Method>
+  <Method name="ModelRun">
+    <Field abbreviation="FRZR3hr" />
+  </Method>
+  <Method name="ModelRun">
+    <Field abbreviation="FRZR6hr" />
+  </Method>
+  <Method name="ModelRun">
+    <Field abbreviation="FRZR12hr" />
+  </Method>
+  <Method name="ModelRun">
+    <Field abbreviation="FRZR24hr" />
+  </Method>
+</DerivedParameter>

@@ -1,0 +1,48 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-dhm_adapter library file
+#
+#  cmt: File made on Wed Aug  6 12:48:35 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU -DUSE_XM_MWMUTIL_H -DUSE_XGPM -Wall -Wno-unused-variable -Wno-comment
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_CC   = -I/usr/include/informix/esql/  \
+               -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .c .h .o .a
+
+.c.a:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libdhm_adapter_t.a:  \
+     $(LIB)/libdhm_adapter_t.a(create_runner_with_args_named.o)  \
+     $(LIB)/libdhm_adapter_t.a(dhm_build_objects.o)  \
+     $(LIB)/libdhm_adapter_t.a(dhm_op.o)  \
+     $(LIB)/libdhm_adapter_t.a(get_formatted_output_for_dhm.o)  \
+     $(LIB)/libdhm_adapter_t.a(initialize_runner_with_args.o)  \
+     $(LIB)/libdhm_adapter_t.a(run_dhm.o)  \
+     $(LIB)/libdhm_adapter_t.a(send_inflows_to_runner.o)
+

@@ -1,0 +1,4 @@
+The special keyword, "__Current__" will compare the current area (not intersected with any other area) to the given Local Effect area.  If you want the area to be compared as a whole i.e. not intersected with any other area, use the "intersectFlag=0" setting when you define the LocalEffectArea.
+
+These and other examples are found in the Text Product Reference Guide section on Local Effects.
+

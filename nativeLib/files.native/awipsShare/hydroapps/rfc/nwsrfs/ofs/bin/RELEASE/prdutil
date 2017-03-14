@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# returns a fully resolved path
+get_full_path() {
+    cd "$1"
+    echo $(pwd)
+}
+
+script_dir=$(get_full_path $(dirname $0))
+
+. $script_dir/include_hydro_env.sh
+
+
+runso rary.ohd.ofs prutmain_main_ $@

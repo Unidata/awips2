@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?><testsuite name="nosetests" tests="1" errors="0" failures="0" skip="0"><testcase classname="test" name="test_foo" time="0.000"><system-out><![CDATA[abc€
+]]></system-out></testcase></testsuite>

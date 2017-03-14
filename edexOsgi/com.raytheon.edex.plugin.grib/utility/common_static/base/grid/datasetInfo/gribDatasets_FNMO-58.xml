@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<datasetInfoSet>
+    <info>
+        <title>NOGAPS</title>
+        <datasetId>NOGAPS</datasetId>
+        <dt>1</dt>
+    </info>
+    <info>
+        <title>AK-NOGAPS</title>
+        <datasetId>AK-NOGAPS</datasetId>
+        <dt>1</dt>
+    </info>
+    <info>
+        <title>NAVGEM</title>
+        <datasetId>nogaps</datasetId>
+        <dt>6</dt>
+    </info>
+</datasetInfoSet>

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<nwsRoleData xmlns:ns2="group">
+  <application>Localization</application>
+
+   <permission id="com.raytheon.localization.site/common_static/purge">
+   </permission>
+
+   <permission id="com.raytheon.localization.site/common_static/colormaps">
+   </permission>
+
+   <permission id="com.raytheon.localization.site/cave_static/ffmp">
+   </permission>
+
+   <permission id="com.raytheon.localization.site/cave_static/awipsTools">
+   </permission>
+
+   <permission id="com.raytheon.localization.site/cave_static/fog">
+   </permission>
+
+   <permission id="com.raytheon.localization.site/common_static/fog">
+   </permission>
+
+   <permission id="com.raytheon.localization.site/cave_static/safeseas">
+   </permission>
+
+   <permission id="com.raytheon.localization.site/common_static/safeseas">
+   </permission>
+
+   <permission id="com.raytheon.localization.site/cave_static/snow">
+   </permission>
+
+   <permission id="com.raytheon.localization.site/common_static/snow">
+   </permission>
+
+   <permission id="com.raytheon.localization.site/cave_static/scan">
+   </permission>
+
+   <permission id="com.raytheon.localization.site/cave_static/aviation/config">
+   </permission>
+
+   <permission id="com.raytheon.localization.site/cave_static/aviation/tmp">
+   </permission>
+
+   <permission id="com.raytheon.localization.site/cave_static/monitorIcons">
+   </permission>
+
+   <permission id="com.raytheon.localization.site/cave_static/alertViz">
+   </permission>
+
+   <permission id="com.raytheon.localization.site/common_static/hydro">
+   </permission>
+
+   <permission id="com.raytheon.localization.site/common_static/gfe">
+   </permission>
+
+   <permission id="com.raytheon.localization.site/cave_static/gfe/comboData">
+   </permission>
+
+   <permission id="com.raytheon.localization.site/cave_static/gfe/combinations">
+   </permission>
+
+   <permission id="com.raytheon.localization.site/cave_static/gfe/tcvAdvisories">
+   </permission>
+
+   <permission id="com.raytheon.localization.site/cave_static/gfe">
+   </permission>
+
+   <permission id="com.raytheon.localization.site/common_static/isc">
+   </permission>
+
+   <permission id="com.raytheon.localization.user/common_static/gfe">
+   </permission>
+
+   <permission id="com.raytheon.localization.user/cave_static/gfe">
+   </permission>
+
+   <permission id="com.raytheon.localization.site/common_static/ffmp">
+   </permission>
+
+   <permission id="com.raytheon.localization.site/common_static/scan">
+   </permission>
+
+   <permission id="com.raytheon.localization.site/common_static/monitoring">
+   </permission>
+
+   <permission id="com.raytheon.localization.site/cave_static/scan/config/trendSets/CellTrendSets.xml">
+   </permission>
+
+   <permission id="com.raytheon.localization.site/cave_static/aviation/avnwatch">
+   </permission>
+   
+   <permission id="com.raytheon.localization.site/cave_static/spellchecker">
+   </permission>
+
+   <permission id="com.raytheon.localization.site/common_static/radar/rmr/rmrAvailableRequests.xml">
+   </permission>
+
+   <permission id="com.raytheon.localization.site/common_static/shef">
+   </permission>
+   
+   <permission id="com.raytheon.localization.site/common_static/roles">
+   </permission>
+
+   <permission id="com.raytheon.localization.site/common_static/datadelivery"/>
+
+   <permission id="com.raytheon.localization.site/common_static/archiver/purger"/>
+   <permission id="com.raytheon.localization.site/common_static/archiver/purger/retention"/>
+   <permission id="com.raytheon.localization.site/common_static/archiver/purger/case"/>
+   
+   <permission id="com.raytheon.localization.site/common_static/mixedCase"/>
+   
+   <permission id="com.raytheon.localization.site/common_static/HazardServices"/>
+
+   <permission id="com.raytheon.localization.site/common_static/warngen"/>
+
+   <!-- TODO Localization permissions should be able to be plugin contributed.
+        Improve code in the generically [poorly] named FileManager to support
+        that concept and then split them. -->
+   <permission id="com.raytheon.localization.site/common_static/damagepath"/>
+
+   <permission id="com.raytheon.localization.site/common_static/grib"/>
+
+   <permission id="com.raytheon.localization.site/cave_static/volumebrowser"/>
+
+   <user userId="ALL">
+      <userPermission>com.raytheon.localization.site/common_static/purge</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/colormaps</userPermission>
+      <userPermission>com.raytheon.localization.site/cave_static/ffmp</userPermission>
+      <userPermission>com.raytheon.localization.site/cave_static/awipsTools</userPermission>
+      <userPermission>com.raytheon.localization.site/cave_static/fog</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/fog</userPermission>
+      <userPermission>com.raytheon.localization.site/cave_static/safeseas</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/safeseas</userPermission>
+      <userPermission>com.raytheon.localization.site/cave_static/snow</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/snow</userPermission>
+      <userPermission>com.raytheon.localization.site/cave_static/scan</userPermission>
+      <userPermission>com.raytheon.localization.site/cave_static/aviation/config</userPermission>
+      <userPermission>com.raytheon.localization.site/cave_static/aviation/tmp</userPermission>
+      <userPermission>com.raytheon.localization.site/cave_static/monitorIcons</userPermission>
+      <userPermission>com.raytheon.localization.site/cave_static/alertViz</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/hydro</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/gfe</userPermission>
+      <userPermission>com.raytheon.localization.site/cave_static/gfe/comboData</userPermission>
+      <userPermission>com.raytheon.localization.site/cave_static/gfe/combinations</userPermission>
+      <userPermission>com.raytheon.localization.site/cave_static/gfe/tcvAdvisories</userPermission>
+      <userPermission>com.raytheon.localization.site/cave_static/gfe</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/isc</userPermission>
+      <userPermission>com.raytheon.localization.user/common_static/gfe</userPermission>
+      <userPermission>com.raytheon.localization.user/cave_static/gfe</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/ffmp</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/scan</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/monitoring</userPermission>
+      <userPermission>com.raytheon.localization.site/cave_static/scan/config/trendSets/CellTrendSets.xml</userPermission>
+      <userPermission>com.raytheon.localization.site/cave_static/aviation/avnwatch</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/radar/rmr/rmrAvailableRequests.xml</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/shef</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/roles</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/datadelivery</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/archiver/purger</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/archiver/purger/retention</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/archiver/purger/case</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/damagepath</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/HazardServices</userPermission>
+      <userPermission>com.raytheon.localization.site/cave_static/spellchecker</userPermission>
+   </user>
+</nwsRoleData>
+

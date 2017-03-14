@@ -1,0 +1,52 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+
+    <bean id="bufrsigwxDecoder" class="com.raytheon.uf.edex.plugin.bufrsigwx.SigWxDecoder">
+        <constructor-arg ref="bufrsigwxPluginName" />
+    </bean>
+
+    <bean id="bufrsigwxDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg ref="bufrsigwxPluginName" />
+		<constructor-arg value="jms-durable:queue:Ingest.bufrsigwx" />
+	</bean>
+
+    <camelContext id="bufrsigwx-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+        <!--
+        <endpoint id="bufrsigwxFileEndpoint" uri="file:${edex.home}/data/sbn/bufrsigwx?noop=true&amp;idempotent=false" />
+
+        <route id="bufrsigwxFileConsumerRoute">
+            <from ref="bufrsigwxFileEndpoint" />
+            <bean ref="fileToString" />
+            <setHeader headerName="pluginName">
+                <constant>bufrsigwx</constant>
+            </setHeader>
+            <to uri="jms-durable:queue:Ingest.bufrsigwx" />
+        </route>
+        -->
+
+        <!-- Begin bufrsigwx routes -->
+        <route id="bufrsigwxIngestRoute">
+            <from uri="jms-durable:queue:Ingest.bufrsigwx"/>
+            <setHeader headerName="pluginName">
+                <constant>bufrsigwx</constant>
+            </setHeader>
+            <doTry>
+                <pipeline>
+		            <bean ref="stringToFile" />
+                    <bean ref="bufrsigwxDecoder" method="decode" />
+                    <to uri="direct-vm:persistIndexAlert" />
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:bufrsigwx?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+</beans>

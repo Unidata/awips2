@@ -1,0 +1,31 @@
+<beans xmlns="http://www.springframework.org/schema/beans"	
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+	<bean id="mdlsndDataAccessFactory" class="com.raytheon.uf.common.pointdata.dataaccess.PointDataAccessFactory">
+        <property name="optionalIdentifiers" value="reportType" />
+    </bean>
+	
+	<bean factory-bean="dataAccessRegistry" factory-method="register">
+		<constructor-arg value="modelsounding"/>
+		<constructor-arg ref="mdlsndDataAccessFactory"/>
+	</bean>	
+	
+	<bean factory-bean="mdlsndDataAccessFactory" factory-method="register2D">
+		<constructor-arg value="numProfLvls"/>
+		<constructor-arg value="pressure"/>
+		<constructor-arg value="MB"/>
+		<constructor-arg>
+			<list>
+				<value>pressure</value>
+				<value>temperature</value>
+				<value>specHum</value>
+				<value>omega</value>
+				<value>uComp</value>
+				<value>vComp</value>
+				<value>cldCvr</value>
+			</list>
+		</constructor-arg>
+	</bean>
+	
+</beans>

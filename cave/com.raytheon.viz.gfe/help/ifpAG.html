@@ -1,0 +1,995 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-34smp i686) [Netscape]">
+  <title>ASCII Grid Format and ifpAG Program</title>
+</head>
+<body bgcolor="#ffffff">
+<h1 class="1Heading">
+ifpAG User's Guide</h1>
+<div class="1Heading">January 4, 2012<br>
+</div>
+<a name="TableofContents"></a>Table of Contents</h2>
+<h4 class="1Heading">
+<a href="#Overview">Overview</a></h4>
+<h4 class="1Heading">
+<a href="#TerminologyandConceptsofGFESuiteGriddedData">Terminology and
+Concepts of GFESuite Gridded Data</a></h4>
+<div class="1Heading"><a href="#ServerConfiguration">ServerConfiguration</a></div>
+<div class="1Heading"><a href="#DataTypes">Data Types</a></div>
+<div class="1Heading"><a href="#WeatherElementIdentifier">Weather
+Element
+Identifier</a></div>
+<div class="1Heading"><a href="#TimeRangeValidtimeofgrid">Time
+Range
+(Valid time of grid)</a></div>
+<div class="1Heading"><a href="#GeographicalLocationInformation">Geographical
+Location Information</a></div>
+<div class="1Heading"><a href="#TimeIndependentParm">Time Independent
+Parm</a></div>
+<div class="1Heading"><a href="#DataPrecision">Data Precision</a></div>
+<div class="1Heading"><a href="#ParameterUnits">Parameter Units</a></div>
+<div class="1Heading"><a href="#TimeConstraints">Time Constraints</a></div>
+<div class="1Heading"><a href="#DataFormat">Data Format</a></div>
+<h4 class="1Heading">
+<a href="#RunningtheifpAGProgram">Running the ifpAG Program</a></h4>
+<div class="1Heading"><a href="#Output">Output Mode</a></div>
+<div class="1Heading"><a href="#Input">Input Mode</a></div>
+<h4 class="1Heading">
+<a href="#SpecialUseofifpAGtoexchangegridsbetweendifferentversio">Special
+Use of ifpAG to exchange grids between different resolutions of GFESuite</a></h4>
+<h4 class="1Heading">
+<a href="#ExampleData">Example Data</a></h4>
+
+<div class="1Heading">
+<hr width="100%"></div>
+<h2 class="1Heading">
+<a name="Overview"></a>Overview</h2>
+<div class="1Heading">The ifpAG (ASCII grid) program is part of the
+GFESuite
+of product generation software.
+<br>
+</div>
+<div class="1Heading">The current EDEX (common data server)
+currently
+uses a Java interface to store and retrieve grids in the database. While
+this works well for the Graphical Forecast Editor and initialization
+processes,
+it makes it difficult for field sites to store and retrieve data into the
+database.</div>
+<div class="1Heading">&nbsp;
+<br>
+The ASCII grid format, along with its associated program, allows the
+user to store and retrieve grids that are specified in a special ASCII
+format. This format is chosen to make it easy for users who program in
+basic, Fortran, or C to read and write this format.</div>
+<div class="1Heading">&nbsp;
+<br>
+Another use of the ifpAG program is to <a
+ href="#SpecialUseofifpAGtoexchangegridsbetweendifferentversio">transfer
+grids between different resolutions of GFESuite</a>.&nbsp; The format
+of
+the output of ifpAG has been preserved between software builds.&nbsp;
+The
+program will automatically translate grid resolutions and domains when
+storing and retrieving data.&nbsp; For example, you can use the ifpAG
+program
+to take 5 kilometer resolution grids from GFESuite and populate another
+GFESuite running at 2.5 kilometer resolution.&nbsp; Of course, data
+resolution
+will be lost. Obviously there are some cases where
+grids
+cannot be transferred, such as the input and output domains don't
+overlap
+at all or the projection is different (e.g., Grid211).</div>
+<hr width="100%"></div>
+<h2 class="1Heading">
+<a name="TerminologyandConceptsofGFESuiteGriddedData"></a>Terminology
+and
+Concepts of GFESuite Gridded Data</h2>
+<div class="1Heading">In order for you to understand how to interpret
+the
+output, or format the input, to ifpAG, you need to understand these
+basic
+GFESuite concepts.</div>
+<h3 class="1Heading">
+<a name="ServerConfiguration"></a>Server Configuration</h3>
+<div class="1Heading">The GFE configuration file (<a
+ href="serverConfig.html">serverConfig</a>
+and <a href="localConfig.html">localConfig</a>) define all parameters,
+types of databases, and their attributes. The configuration file is
+tailored
+by the site. See the <a href="serverConfiguration.html">server
+configuration
+manual</a> for further information.</div>
+<h3 class="1Heading">
+<a name="DataTypes"></a>Data Types</h3>
+<div class="1Heading">GFE supports four different data types:
+SCALAR, VECTOR, WEATHER, and DISCRETE. SCALAR is used for parameters
+whose
+values can be represented by a single value. VECTOR is used for
+parameters
+who values are represented by a vector (magnitude and direction).
+WEATHER
+is a special format for describing the precipitation and obstructions
+to
+vision.&nbsp; DISCRETE is for categorical weather elements, such as
+headline
+grids.</div>
+<h3 class="1Heading">
+<a name="WeatherElementIdentifier"></a>Weather Element Identifier</h3>
+<div class="1Heading">A parameter identifier is used to uniquely
+identify
+an element in the database. A parameter identifier consists of two
+parts: parameter name, and database identifier. A complete
+identifier (in ASCII) may appear like the following in the ASCII grid
+file:</div><br>
+<div class="1Heading"><tt>Wind</tt></div>
+<div class="1Heading"><tt>BOU</tt></div>
+<div class="1Heading"><tt>&lt;notype&gt;</tt></div>
+<div class="1Heading"><tt>MRF</tt></div>
+<div class="1Heading"><tt>19980506_1200</tt></div>
+<div class="1Heading">&nbsp;
+<br>
+The first line indicates the parameter name, the second the site
+identifier,
+the third is the optional type of the database, the fourth is the model
+name, and the last line is the model run time in the form of <tt>yyyymmdd_hhmm</tt>.
+The example above indicates that the parameter is Wind. It is from (or
+derived from) 1the May 6, 1998 1200z eta model. The optional type is
+blank
+in the above case.</div>
+<div class="1Heading">
+<br>
+There may be some databases which always exist, i.e., are not model
+time based. Typically the forecast database is handled this way.
+An example identifier for the forecast database is shown below:</div><br>
+<div class="1Heading"><tt>T</tt></div>
+<div class="1Heading"><tt>BOU</tt></div>
+<div class="1Heading"><tt>&lt;notype&gt;</tt></div>
+<div class="1Heading"><tt>Fcst</tt></div>
+<div class="1Heading"><tt>00000000_0000</tt></div>
+<div class="1Heading">
+<br>
+The date-time group of all zeros indicate that the database is
+persistent
+and therefore does not have a model run time associated with it.
+A full list of parameters, site identifiers, and
+model names supported by GFE is available in the server
+configuration
+files. Refer to the <a href="serverConfiguration.html">server
+configuration
+manual </a>for details. This server configuration files may be
+tailored
+by each site.
+<p>Note that the parameter name may contain a level.&nbsp; Many of the
+parameters are surface-based, but for those that are not, the parameter
+definition is in the form of name_level, such as Wind_MB500 for the
+500MB Wind.</p>
+</div>
+<h3 class="1Heading">
+<a name="TimeRangeValidtimeofgrid"></a>Time Range (Valid time of grid)</h3>
+<div class="1Heading">Time is defined as a TimeRange which consists of
+a starting and ending time. A TimeRange contains all times from and
+including the starting time up to but not including the
+ending
+time. For example, a TimeRange of 1:00pm to 2:00pm contains all times
+from 1:00pm including 1:00pm up to but not including
+2:00pm.</div>
+<div class="1Heading">
+<br>
+All data stored in the database uses this time definition. The duration
+of data is calculated by taking subtracting the starting time
+from the ending time. Note that a duration of zero
+means a snapshot in time. Durations of zero are illegal for the
+database since a forecast field must have a valid time range.</div>
+<div class="1Heading">
+<br>
+The format of the time is in yyyymmdd_hhmm. For example,</div><br>
+<div class="1Heading"><tt>19980518_1300</tt></div><br>
+<div class="1Heading">indicates May 18, 1998 at 1300z.</div>
+<br>
+<h3 class="1Heading"><a name="GeographicalLocationInformation"></a>Geographical
+Location Information</h3>
+<div class="1Heading">Associated with each grid is geographical
+location
+which is used to position the grid on the earth's surface.The placement
+of the grid in the world coordinate system is based on
+three
+items:</div>
+<ul>
+  <li class="1Heading">&nbsp;&nbsp;&nbsp; projection identifier</li>
+  <li class="1Heading">&nbsp;&nbsp;&nbsp; grid domain</li>
+  <li class="1Heading">&nbsp;&nbsp;&nbsp; grid size</li>
+</ul>
+<div class="1Heading">All of these items are defined in the individual
+database configuration files. An example of these values are shown
+below
+for the Boulder WFO area:</div>
+<ul>
+  <li class="1Heading">&nbsp;&nbsp;&nbsp; projection identifier =
+Grid211 (AWIPS Conus)</li>
+  <li class="1Heading">&nbsp;&nbsp;&nbsp; grid domain - origin is
+(37.0, 27.0), extent is
+(9.0,
+9.0)</li>
+  <li class="1Heading">&nbsp;&nbsp;&nbsp; grid size - 73 x 73</li>
+</ul>
+<div class="1Heading">This is interpreted as a 73 x 73 point grid whose
+lowest-left grid point is at the world coordinate (37, 27) on the AWIPS
+world coordinate projection and whose uppermost-right
+grid
+point is at the world coordinate (37+9, 27+9) as shown in the diagram below:</div>
+<div class="1Heading"><img src="images/ifpAG-4.gif" nosave=""
+ height="332" width="484"></div>
+<h3 class="1Heading">
+<a name="TimeIndependentParm"></a>Time Independent Parm</h3>
+<div class="1Heading">The time independent parm flag (0 for false,
+non-zero
+for true) indicates that this parameter has no valid time associated
+with
+it, therefore only one grid, which is valid forever may be stored into
+the database. In almost all cases, 0 for not time independent parm will
+be set.</div>
+<h3 class="1Heading">
+<a name="DataPrecision"></a>Data Precision</h3>
+<div class="1Heading">The number of significant decimal points for the
+data. A value of 0 indicates that integer values are all that is
+important
+(even if there is more precision indicated by the data). A value of 1
+indicates
+that the precision is 10 -1 or 0.1.</div>
+<h3 class="1Heading">
+<a name="ParameterUnits"></a>Parameter Units</h3>
+<div class="1Heading">The parameter units field indicates the units
+used
+by the data.</div>
+<h3 class="1Heading">
+<a name="DescriptiveName"></a>Descriptive Name</h3>
+<div class="1Heading">The descriptive name field provides a more
+detailed
+description of the parameter.</div>
+<h3 class="1Heading">
+<a name="TimeConstraints"></a>Time Constraints</h3>
+<div class="1Heading">The time constraints consist of three elements:
+starting
+time, duration, and repeat interval. These values indicate the time
+limits
+that the parameter must obey. All grids for the parameter must be
+aligned
+on the specified time constraints. The starting time indicates the time
+of the first possible grid after 0000z. The duration indicates the
+length
+of the grid. The repeat interval defines how often the grid can repeat.
+All of the units are in seconds. For example, the illustration below shows the
+possible
+grid boundaries for a time constraint of starting time of 0, duration
+of
+6 hours, and repeat interval of 6 hours:</div>
+<div class="1Heading"><img src="images/ifpAG-5.gif" nosave=""
+ height="118" width="487"></div>
+<div class="1Heading">In the above example, grids can be a minimum of 6
+hours long, but could be 12 or 18 or even 24 hours in length just as
+long
+as the starting and ending time of the grid falls on one of the defined
+above. A time constraint can be defined to have gaps in
+the data. For example, a 24-hour summary of daytime maximum temperature
+may have a constraint of starting time 900z, duration of 18 hours, and
+a repeat interval of 24 hours:</div>
+<div class="1Heading"><img src="images/ifpAG-6.gif" nosave=""
+ height="118" width="487"></div>
+<div class="1Heading">Most parameters are defined in the database with
+a one hour constraint (start time = 0000z, repeat = 1 hour, duration =
+1h). Therefore the highest temporal resolution of the grids is one hour:</div>
+<p class="1Heading"><img src="images/ifpAG-7.gif" nosave="" height="118"
+ width="487">
+</p>
+<p class="1Heading">A special case exists which defines no constraints.
+This is the situation with a start time, repeat, and duration values
+all set to 0. The temporal resolution of the grids can be one second.
+<br>
+</p>
+<h3 class="1Heading"><a name="DataFormat"></a>Data Format</h3>
+<div class="1Heading">The format of the data depends upon whether the
+data
+is SCALAR, VECTOR, WEATHER, or DISCRETE.</div>
+<h4 class="1Heading">
+Scalar Data Format</h4>
+<div class="1Heading">There are nx*ny lines of data in the file, with
+each
+line representing one data gridpoint. The values are floating-point.</div>
+<h4 class="1Heading">
+Vector Data Format</h4>
+<div class="1Heading">There are nx*ny lines of data in the file, with
+each
+line representing one data gridpoint. There are two floating-point
+values
+on each line. The first is the magnitude and the second the direction.</div>
+<h4 class="1Heading">
+Weather Data Format</h4>
+<div class="1Heading">There are nx*ny lines of data in the file, with
+each
+line representing one data gridpoint. There is a string of characters
+on
+each line. The characters define the type of weather and/or
+obstructions
+to vision that are present for that gridpoint. The entire set of
+characters
+on a single line is called a weather key. A weather key is comprised of
+weather sub keys.</div>
+<div class="1Heading">
+<br>
+A weather subkey consists of four parts and one additional optional
+part:</div>
+<div class="1Heading">&nbsp;&nbsp;&nbsp; weather type (e.g., rain)</div>
+<div class="1Heading">&nbsp;&nbsp;&nbsp; coverage or probability (e.g.,
+scattered or slight chance)</div>
+<div class="1Heading">&nbsp;&nbsp;&nbsp; intensity (e.g., light)</div>
+<div class="1Heading">&nbsp;&nbsp;&nbsp; visibility (e.g., 25 m)</div>
+<div class="1Heading">&nbsp;&nbsp;&nbsp; attributes (e.g., "in
+mountains")</div>
+<div class="1Heading">
+<br>
+The general format of a single weather sub key is:
+<tt>coverage:type:intensity:visibility:attributes</tt></div>
+<div class="1Heading">&nbsp;
+<br>
+The coverage is a special coverage string of characters that denote
+the precipitation or obstruction to vision coverage. The type is the
+precipitation
+type or obstruction as a string of characters. The intensity field is a
+string of characters that denote an intensity. The visibility string
+denotes
+the character. The list of optional attributes are comma deliminated.</div>
+<div class="1Heading">
+<br>
+Multiple weather sub keys are separated by the caret (^) character
+like this:</div>
+<div class="1Heading"><tt>coverage1:type1:intensity1:visibility1:attribute1,attribute2^coverage2:type2:intensity2:visibility2:attribute3</tt></div>
+<div class="1Heading">&nbsp;
+<br>
+There is no (practical) limit to the number of types of weather.
+Multiple
+weather types at a single grid point require a weather key that
+contains
+multiple groupings. A typical weather key is shown below:</div>
+<p class="1Heading"><tt>ISO:T:+:1/4sm:HvyRain^ISO:A:&lt;NoInten&gt;:&lt;NoVis&gt;:SmA</tt>
+</p>
+<p class="1Heading">which is decoded as isolated intense thunder with
+1/4
+sm visibility, isolated small hail.
+</p>
+<p class="1Heading">No precipitation or obstructions is indicated by:
+</p>
+<p class="1Heading"><tt>&lt;NoCov&gt;:&lt;NoType&gt;:&lt;NoInten&gt;:&lt;NoVis&gt;:</tt>
+</p>
+<p class="1Heading">The <a href="serverConfiguration.html">server
+configuration
+files</a> define the allowable values of the weather key.&nbsp; Refer
+to
+the <a href="serverConfig.html#WeatherConfigurationSection">weather
+configuration
+section</a> of the serverConfig documentation for further details.
+<br>
+&nbsp;
+</p>
+<h4 class="1Heading">Discrete Data Format</h4>
+<div class="1Heading">There are nx*ny lines of data in the file, with
+each
+line representing one data gridpoint. There is a string of characters
+on
+each line. The characters define the discrete key(s) that are present
+for
+that gridpoint. The entire set of characters on a single line is called
+a discrete key. A discrete key may be&nbsp; comprised of discrete sub
+keys.&nbsp;
+Subkeys are separated by the '^' character.</div>
+<div class="1Heading">A typical discrete key is shown below:</div>
+<p class="1Heading"><tt>WintStmWRN^HiWndWRN</tt>
+</p>
+<p class="1Heading">which is decoded as Winter Storm Warning and High
+Wind
+Warning.
+</p>
+<p class="1Heading">No discrete key is typically denoted by:
+</p>
+<p class="1Heading"><tt>&lt;None&gt;</tt>
+</p>
+<p class="1Heading">The <a href="serverConfiguration.html">server
+configuration
+files</a> define the allowable values of the weather key.&nbsp; Refer
+to
+the <a href="serverConfig.html#WeatherElementConfigurationSection">weather
+element configuration section</a> of the serverConfig documentation for
+further details.
+<br>
+<br>
+</p>
+<h4 class="1Heading">Organizational Order of the Grid</h4>
+<div class="1Heading">Grids are organized from lower-left across and
+then
+by row, with the very last point being the upper right gridpoint as
+shown:</div>
+<div class="1Heading"><img src="images/ifpAG-8.gif" nosave=""
+ height="412" width="473"></div>
+<div class="1Heading">
+<hr width="100%"></div>
+<h3 class="1Heading">
+<a name="RunningtheifpAGProgram"></a>Running the ifpAG Program</h3>
+<div class="1Heading">The program is capable of both storing and
+retrieving
+grids from EDEX.
+<p><font color="#3366ff"><b>Note:</b> when running ifpAG in the normal
+environment,
+the -h and the -r switches are preset to the values defined by your
+installation,
+and thus the -h and -r switches are not needed. If you are
+connecting
+to a different EDEX than configured, then you will need the -h and
+-r switches.</font></p>
+</div>
+<h4 class="1Heading">
+<a name="Output"></a>Output Mode</h4>
+<div class="1Heading">The command line syntax is:</div>
+<div class="1Heading"><tt>ifpAG -o outputFile -h hostname -r
+rpcPortNumber
+-d databaseID [-p parmID] [-s startTime] [-e endTime] [-u username] [-c
+domainConfiguration]</tt></div>
+<div class="1Heading">A sample command line is:</div>
+<div class="1Heading"><tt>ifpAG -o testIt -h dx3-oax -r
+9581
+-d TEST_GRID__Fcst_00000000_0000 -p Temp -s 19980604_1200 -e
+19980605_0000</tt></div>
+<div class="1Heading">&nbsp;</div>
+<table border="1" width="100%" nosave="">
+  <tbody>
+    <tr>
+      <td><b>Option Syntax</b></td>
+      <td><b>Optional or Mandatory</b></td>
+      <td><b>Description</b></td>
+    </tr>
+    <tr>
+      <td>-o filename</td>
+      <td>Mandatory</td>
+      <td>Specifies the name of the output file. If "-" is used,
+output
+will go to standard out.</td>
+    </tr>
+    <tr>
+      <td>-h hostname</td>
+      <td>Mandatory (See Note)</td>
+      <td>Specifies the host, upon which EDEX is running</td>
+    </tr>
+    <tr>
+      <td>-r port</td>
+      <td>Mandatory (See Note)</td>
+      <td>Specifies the port, upon which EDEX is running</td>
+    </tr>
+    <tr>
+      <td>-d databaseid</td>
+      <td>Mandatory</td>
+      <td>Source, a.k.a. database identifier, from which to get the
+data.
+There may be several databaseIDs (several -d's) specified.&nbsp; The
+format of the database identifier is:
+site_GRID_optType_modelName_modelRunTime.
+An example is DEN_GRID__eta_19980604_1200.</td>
+    </tr>
+    <tr>
+      <td>-p weatherElementName</td>
+      <td>Optional</td>
+      <td>If no -p switches are present, then all weather elements in
+the specified
+databases will be processed.&nbsp; There may be several -p switches
+present
+if desired.&nbsp; The weather element name can include a level, if
+desired,
+such as T_3K. By default if the level is not specified, it is
+assumed
+to be SFC.</td>
+    </tr>
+    <tr>
+      <td>-u username</td>
+      <td>Optional</td>
+      <td>The user running the program.</td>
+    </tr>
+    <tr>
+      <td>-s startTime</td>
+      <td>Optional</td>
+      <td>
+      <div class="1Heading">Specifies the start time for the range of
+grids to
+extract. If no time is specified, then assume "from the beginning of
+time".
+Format is yyyyMMDD_HHMM or 19980604_1200.</div>
+      </td>
+    </tr>
+    <tr>
+      <td>-e endTime</td>
+      <td>Optional</td>
+      <td>
+      <div class="1Heading">Specifies the ending time for the range of
+grids
+to extract. If no time is specified, then assume "to the end of
+time".&nbsp;
+Format is yyyyMMDD_HHMM or 19980604_1200.</div>
+      </td>
+    </tr>
+    <tr>
+      <td>-c domainConfiguration</td>
+      <td>Optional</td>
+      <td>By default, the grids are output in the same projection,
+domain, and
+grid resolution as they are stored in GFE. You can
+override
+the domain configuration by specifying an encoded string in
+quotes.&nbsp;
+The format is "xgridSize ygridSize projectionId xorigin yorigin xextent
+yextent". An example is "35 35 Grid211 28.0 14.0 9.0 9.0".</td>
+    </tr>
+  </tbody>
+</table>
+<font color="#3366ff"><b>Note:</b> that when running ifpAG within the
+standard
+GFESuite environment, the -h and -r switches are automatically filled
+in for the configured EDEX and port. </font>
+<h4 class="1Heading"><a name="Input"></a>Input Mode</h4>
+<div class="1Heading">The command line syntax is:</div>
+<div class="1Heading"><tt>ifpAG -i inputFile -h hostname -r
+rpcPortNumber [-u username]</tt></div>
+<div class="1Heading">A sample command line is:</div>
+<div class="1Heading"><tt>ifpAG -i testIt -h dx3-oax -r 9581 -u jsmith</tt></div><br>
+<table border="1" width="100%" nosave="">
+  <tbody>
+    <tr>
+      <td><b>Option Syntax</b></td>
+      <td><b>Optional or Mandatory</b></td>
+      <td><b>Description</b></td>
+    </tr>
+    <tr>
+      <td>-i filename</td>
+      <td>Mandatory&nbsp;</td>
+      <td>Specifies the name of the input file. If "-" is used, input will
+come from standard in.</td>
+    </tr>
+    <tr>
+      <td>-h hostname</td>
+      <td>Mandatory (See Note)</td>
+      <td>Specifies the host, upon which EDEX is running</td>
+    </tr>
+    <tr>
+      <td>-r port</td>
+      <td>Mandatory (See Note)</td>
+      <td>Specifies the port, upon which EDEX is running</td>
+    </tr>
+    <tr>
+      <td>-u username</td>
+      <td>Optional</td>
+      <td>Specifies the user running the program</td>
+    </tr>
+  </tbody>
+</table>
+<font color="#3366ff"><b>Note:</b> that when running ifpAG within the
+standard
+GFESuite environment, the -h and -r switches are automatically filled
+in
+for the configured EDEX and port.</font>
+<div class="1Heading">
+<hr width="100%"></div>
+<h3 class="1Heading">
+<a name="SpecialUseofifpAGtoexchangegridsbetweendifferentversio"></a>Special
+Use of ifpAG to exchange grids between different resolutions of GFESuite</h3>
+<div class="1Heading">ifpAG can be used to communicate with different
+servers of GFESuite that are running different resolutions. To transfer 
+all data in the Fcst database from
+one server to the other server, you will use a command line similar to
+that below:</div>
+<p class="1Heading"><tt>ifpAG -o - -h dx3-oax -r 9581 -d
+BOU_GRID__Fcst_00000000_0000
+| ifpAG -i - -h dx3-oax -r 9581</tt>
+</p>
+<p class="1Heading"></p>
+<hr width="100%">
+<h3 class="1Heading"><a name="ExampleData"></a>Example Data</h3>
+<div class="1Heading">The following shows example data files and how it
+is interpreted. More than one GRID may be contained in a single file.</div>
+<h4 class="1Heading">
+Scalar</h4>
+<table border="1" width="100%" nosave="">
+  <tbody>
+    <tr>
+      <td>ASCIIGRID</td>
+      <td>Identifies the following structure as an ASCIIGRID</td>
+    </tr>
+    <tr>
+      <td>SCALAR</td>
+      <td>Data Type (SCALAR, VECTOR, WEATHER, DISCRETE)</td>
+    </tr>
+    <tr>
+      <td>T</td>
+      <td>Weather Element Name</td>
+    </tr>
+    <tr>
+      <td>DEN</td>
+      <td>Database site identifier</td>
+    </tr>
+    <tr>
+      <td>&lt;notype&gt;</td>
+      <td>Database optional type</td>
+    </tr>
+    <tr>
+      <td>Fcst</td>
+      <td>Database model name</td>
+    </tr>
+    <tr>
+      <td>00000000_0000</td>
+      <td>Database time (denotes no model time associated with it when
+all zeros,
+normally yyyymmdd_hhmm)</td>
+    </tr>
+    <tr>
+      <td>Grid211</td>
+      <td>Projection Identifier</td>
+    </tr>
+    <tr>
+      <td>73 73 25 13 9 9</td>
+      <td>Domain information. XGridSize, YGridSize, Minimum X world
+coordinate
+domain, Minimum Y world coordinate domain, X domain extent, y domain
+extent</td>
+    </tr>
+    <tr>
+      <td>F</td>
+      <td>Units</td>
+    </tr>
+    <tr>
+      <td>Surface Temp</td>
+      <td>Descriptive Name</td>
+    </tr>
+    <tr>
+      <td>-50 130 0 0</td>
+      <td>Minimum possible value, maximum possible value, data
+precision, time
+independent parameter</td>
+    </tr>
+    <tr>
+      <td>0 3600 3600</td>
+      <td>Time constraints (startTime, duration, repeat interval).</td>
+    </tr>
+    <tr>
+      <td>19980518_1200 19980518_1500</td>
+      <td>Valid time range for grid (start time, ending time) in format
+of yyyymmdd_hhmm</td>
+    </tr>
+    <tr>
+      <td>51</td>
+      <td>First grid point&nbsp; - Grid(0,0)</td>
+    </tr>
+    <tr>
+      <td>52</td>
+      <td>Next grid point - Grid(1,0)</td>
+    </tr>
+    <tr>
+      <td>54</td>
+      <td>Grid(2,0)</td>
+    </tr>
+    <tr>
+      <td>52</td>
+      <td>Grid(3,0)</td>
+    </tr>
+    <tr>
+      <td>...</td>
+      <td>continues for a total of nx*ny grid points</td>
+    </tr>
+    <tr>
+      <td>59</td>
+      <td>Grid (upper right corner)</td>
+    </tr>
+  </tbody>
+</table>
+<h4 class="1Heading">
+&nbsp;Vector</h4>
+&nbsp;
+<table border="1" width="100%" nosave="">
+  <tbody>
+    <tr>
+      <td>ASCIIGRID</td>
+      <td>Identifies the following structure as an ASCIIGRID</td>
+    </tr>
+    <tr>
+      <td>VECTOR</td>
+      <td>Data Type (SCALAR, VECTOR, WEATHER, DISCRETE)</td>
+    </tr>
+    <tr>
+      <td>Wind</td>
+      <td>Weather Element Name</td>
+    </tr>
+    <tr>
+      <td>DEN</td>
+      <td>Database site identifier</td>
+    </tr>
+    <tr>
+      <td>&lt;notype&gt;</td>
+      <td>Database optional type</td>
+    </tr>
+    <tr>
+      <td>Fcst</td>
+      <td>Database model name</td>
+    </tr>
+    <tr>
+      <td>00000000_0000</td>
+      <td>Database time (denotes no model time associated with it when
+all zeros,
+normally yyyymmdd_hhmm)</td>
+    </tr>
+    <tr>
+      <td>Grid211</td>
+      <td>Projection Identifier</td>
+    </tr>
+    <tr>
+      <td>73 73 25 13 9 9</td>
+      <td>Domain information. XGridSize, YGridSize, Minimum X world
+coordinate
+domain, Minimum Y world coordinate domain, X domain extent, y domain
+extent</td>
+    </tr>
+    <tr>
+      <td>Knots</td>
+      <td>Units</td>
+    </tr>
+    <tr>
+      <td>Surface Wind</td>
+      <td>Descriptive Name</td>
+    </tr>
+    <tr>
+      <td>0 125 0 0</td>
+      <td>Minimum possible value, maximum possible value, data
+precision, time
+independent parameter</td>
+    </tr>
+    <tr>
+      <td>0 3600 3600</td>
+      <td>Time constraints (startTime, duration, repeat interval).</td>
+    </tr>
+    <tr>
+      <td>19980518_1200 19980518_1500</td>
+      <td>Valid time range for grid (start time, ending time) in format
+of yyyymmdd_hhmm</td>
+    </tr>
+    <tr>
+      <td>5 90</td>
+      <td>First grid point&nbsp; - Grid(0,0) with magnitude first,
+followed by
+direction</td>
+    </tr>
+    <tr>
+      <td>6 92</td>
+      <td>Next grid point - Grid(1,0)</td>
+    </tr>
+    <tr>
+      <td>11 88</td>
+      <td>Grid(2,0)</td>
+    </tr>
+    <tr>
+      <td>9 85</td>
+      <td>Grid(3,0)</td>
+    </tr>
+    <tr>
+      <td>...</td>
+      <td>continues for a total of nx*ny grid points</td>
+    </tr>
+    <tr>
+      <td>15 270</td>
+      <td>Grid (upper right corner)</td>
+    </tr>
+  </tbody>
+</table>
+<h4 class="1Heading">
+Weather</h4>
+&nbsp;
+<table border="1" width="100%" nosave="">
+  <tbody>
+    <tr>
+      <td>ASCIIGRID</td>
+      <td>Identifies the following structure as an ASCIIGRID</td>
+    </tr>
+    <tr>
+      <td>WEATHER</td>
+      <td>Data Type (SCALAR, VECTOR, WEATHER, DISCRETE)</td>
+    </tr>
+    <tr>
+      <td>Wx</td>
+      <td>Weather Element Name</td>
+    </tr>
+    <tr>
+      <td>DEN</td>
+      <td>Database site identifier</td>
+    </tr>
+    <tr>
+      <td>&lt;notype&gt;</td>
+      <td>Database optional type</td>
+    </tr>
+    <tr>
+      <td>Fcst</td>
+      <td>Database model name</td>
+    </tr>
+    <tr>
+      <td>00000000_0000</td>
+      <td>Database time (denotes no model time associated with it when
+all zeros,
+normally yyyymmdd_hhmm)</td>
+    </tr>
+    <tr>
+      <td>Grid211</td>
+      <td>Projection Identifier</td>
+    </tr>
+    <tr>
+      <td>73 73 25 13 9 9</td>
+      <td>Domain information. XGridSize, YGridSize, Minimum X world
+coordinate
+domain, Minimum Y world coordinate domain, X domain extent, y domain
+extent</td>
+    </tr>
+    <tr>
+      <td>discrete</td>
+      <td>Units</td>
+    </tr>
+    <tr>
+      <td>Weather and Obstructions</td>
+      <td>Descriptive Name</td>
+    </tr>
+    <tr>
+      <td>0 1 0 0</td>
+      <td>Minimum possible value, maximum possible value, data
+precision, time
+independent parameter</td>
+    </tr>
+    <tr>
+      <td>0 3600 3600</td>
+      <td>Time constraints (startTime, duration, repeat interval).</td>
+    </tr>
+    <tr>
+      <td>19980518_1200 19980518_1500</td>
+      <td>Valid time range for grid (start time, ending time) in format
+of yyyymmdd_hhmm</td>
+    </tr>
+    <tr>
+      <td>&lt;NoCov&gt;:&lt;NoWx&gt;:&lt;NoInten&gt;:&lt;NoVis&gt;:</td>
+      <td>First grid point&nbsp; - Grid(0,0) - coded weather key</td>
+    </tr>
+    <tr>
+      <td>
+      <div class="1Heading">Ocnl:R:--:&lt;NoVis&gt;:</div>
+      </td>
+      <td>Next grid point - Grid(1,0)</td>
+    </tr>
+    <tr>
+      <td>
+      <div class="1Heading">Ocnl:R:--:&lt;NoVis&gt;:</div>
+      </td>
+      <td>Grid(2,0)</td>
+    </tr>
+    <tr>
+      <td>
+      <div class="1Heading">Iso:T:++1/4sm:HvyRain</div>
+      </td>
+      <td>Grid(3,0)</td>
+    </tr>
+    <tr>
+      <td>...</td>
+      <td>continues for a total of nx*ny grid points</td>
+    </tr>
+    <tr>
+      <td>&lt;NoCov&gt;:&lt;NoWx&gt;:&lt;NoInten&gt;:&lt;NoVis&gt;:</td>
+      <td>Grid (upper right corner)</td>
+    </tr>
+  </tbody>
+</table>
+<h4 class="1Heading">
+Discrete Data Format</h4>
+<div class="1Heading">&nbsp;
+<table border="1" width="100%" nosave="">
+  <tbody>
+    <tr>
+      <td>ASCIIGRID</td>
+      <td>Identifies the following structure as an ASCIIGRID</td>
+    </tr>
+    <tr>
+      <td>DISCRETE</td>
+      <td>Data Type (SCALAR, VECTOR, WEATHER, DISCRETE)</td>
+    </tr>
+    <tr>
+      <td>Highlights</td>
+      <td>Weather Element Name</td>
+    </tr>
+    <tr>
+      <td>DEN</td>
+      <td>Database site identifier</td>
+    </tr>
+    <tr>
+      <td>&lt;notype&gt;</td>
+      <td>Database optional type</td>
+    </tr>
+    <tr>
+      <td>Fcst</td>
+      <td>Database model name</td>
+    </tr>
+    <tr>
+      <td>00000000_0000</td>
+      <td>Database time (denotes no model time associated with it when
+all zeros,
+normally yyyymmdd_hhmm)</td>
+    </tr>
+    <tr>
+      <td>Grid211</td>
+      <td>Projection Identifier</td>
+    </tr>
+    <tr>
+      <td>73 73 25 13 9 9</td>
+      <td>Domain information. XGridSize, YGridSize, Minimum X world
+coordinate
+domain, Minimum Y world coordinate domain, X domain extent, y domain
+extent</td>
+    </tr>
+    <tr>
+      <td>highlights</td>
+      <td>Units</td>
+    </tr>
+    <tr>
+      <td>W/W/A Highlights</td>
+      <td>Descriptive Name</td>
+    </tr>
+    <tr>
+      <td>0 1 0 0</td>
+      <td>Minimum possible value, maximum possible value,&nbsp; data
+precision,
+time independent parameter</td>
+    </tr>
+    <tr>
+      <td>0 3600 3600</td>
+      <td>Time constraints (startTime, duration, repeat interval).</td>
+    </tr>
+    <tr>
+      <td>19980518_1200 19980518_1500</td>
+      <td>Valid time range for grid (start time, ending time) in format
+of yyyymmdd_hhmm</td>
+    </tr>
+    <tr>
+      <td>&lt;None&gt;</td>
+      <td>First grid point&nbsp; - Grid(0,0) - coded weather key</td>
+    </tr>
+    <tr>
+      <td>
+      <div class="1Heading">&lt;None&gt;</div>
+      </td>
+      <td>Next grid point - Grid(1,0)</td>
+    </tr>
+    <tr>
+      <td>
+      <div class="1Heading">WntrStmWRN</div>
+      </td>
+      <td>Grid(2,0)</td>
+    </tr>
+    <tr>
+      <td>
+      <div class="1Heading">WntrStmWRN^HiWndWRN</div>
+      </td>
+      <td>Grid(3,0)</td>
+    </tr>
+    <tr>
+      <td>...</td>
+      <td>continues for a total of nx*ny grid points</td>
+    </tr>
+    <tr>
+      <td>&lt;None&gt;</td>
+      <td>Grid (upper right corner)</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<br>
+</body>
+</html>

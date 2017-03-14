@@ -1,0 +1,304 @@
+<!--AWIPS 1 virtual field for:
+ModFamA| |N|Conv: NonSupercell Tor Family| |OTHER | | \
+*MultiLoad,Layer \
+|31.|Wind,Surface\
+|0.|loCape,Surface\
+|0.|gamma,0-2kmAgl\
+|0.|NST,Layer|\
+|21.|NST,Layer|\
+|0.|ESP,Layer|\
+|0.|BlkMag,0-6kmAgl\
+|50.|BlkShr,0-6kmAgl
+-->
+<bundle xmlns:ns2="group">
+    <displayList>
+        <displays xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="d2DMapRenderableDisplay" scale="CONUS" density="1.0" magnification="1.0" zoomLevel="1.0" mapCenter="-79.09835514095181 33.915979250804455 0.0">
+            <descriptor xsi:type="mapDescriptor">
+		<!--|31.|Wind,Surface\-->
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="BARB" loadWithoutData="false">
+                        <capabilities>
+                            <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+                        </capabilities>
+                        <resourceType>PLAN_VIEW</resourceType>
+                    </loadProperties>
+                    <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+                        <metadataMap>
+                            <mapping key="info.parameter.abbreviation">
+                                <constraint constraintValue="Wind" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.datasetId">
+                                <constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="grid" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.level.masterLevel.name">
+                                <constraint constraintValue="SFC" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="info.level.levelonevalue">
+                                <constraint constraintValue="0.0" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+		
+		<!--|0.|loCape,Surface\-->
+		<resource>
+			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+				<capabilities>
+					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+				</capabilities>
+				<resourceType>PLAN_VIEW</resourceType>
+			</loadProperties>
+			<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+				<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+			</properties>
+			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+				<metadataMap>
+					<mapping key="info.parameter.abbreviation">
+						<constraint constraintValue="loCape" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.datasetId">
+						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="pluginName">
+						<constraint constraintValue="grid" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.level.masterLevel.name">
+						<constraint constraintValue="SFC" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.level.levelonevalue">
+						<constraint constraintValue="0.0" constraintType="EQUALS"/>
+					</mapping>
+				</metadataMap>
+				<alertParser xsi:type="dataCubeAlertMessageParser"/>
+			</resourceData>
+        </resource>
+		
+		<!--|0.|gamma,0-2kmAgl\ Note:Not sure about the KmAgl representation-->
+		<resource>
+			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+				<capabilities>
+					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+				</capabilities>
+				<resourceType>PLAN_VIEW</resourceType>
+			</loadProperties>
+			<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+				<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+			</properties>
+			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+				<metadataMap>
+					<mapping key="info.parameter.abbreviation">
+						<constraint constraintValue="qDiv" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.datasetId">
+						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.level.leveltwovalue">
+						<!--Used LevelMappingFile.xml as guide-->
+						<constraint constraintValue="2000.0" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="pluginName">
+						<constraint constraintValue="grid" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.level.masterLevel.name">
+						<!--Assumption that FHAG is right level name for KmAgl-->
+						<constraint constraintValue="FHAG" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.level.levelonevalue">
+						<constraint constraintValue="0.0" constraintType="EQUALS"/>
+					</mapping>
+				</metadataMap>
+				<alertParser xsi:type="dataCubeAlertMessageParser"/>
+			</resourceData>
+		</resource>
+		
+		<!--|0.|NST,Layer|\-->
+		<resource>
+			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+				<capabilities>
+					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+				</capabilities>
+				<resourceType>PLAN_VIEW</resourceType>
+			</loadProperties>
+			<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+				<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+			</properties>
+			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+				<metadataMap>
+					<mapping key="info.parameter.abbreviation">
+						<constraint constraintValue="NST" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.datasetId">
+						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="pluginName">
+						<constraint constraintValue="grid" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.level.masterLevel.name">
+						<!--Not sure about use of EA for Layer levels-->
+						<constraint constraintValue="EA" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.level.levelonevalue">
+						<constraint constraintValue="0.0" constraintType="EQUALS"/>
+					</mapping>
+				</metadataMap>
+				<alertParser xsi:type="dataCubeAlertMessageParser"/>
+			</resourceData>
+                </resource>
+		
+		<!--|21.|NST,Layer|\ Note: NST(Non-Supercell Tornado) is missing as a derived parameter-->
+		<resource>
+			<loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
+				<capabilities>
+					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+				</capabilities>
+				<resourceType>PLAN_VIEW</resourceType>
+			</loadProperties>
+			<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
+				<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+			</properties>
+			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+				<metadataMap>
+					<mapping key="info.parameter.abbreviation">
+						<constraint constraintValue="NST" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.datasetId">
+						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="pluginName">
+						<constraint constraintValue="grid" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.level.masterLevel.name">
+						<constraint constraintValue="EA" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.level.levelonevalue">
+						<constraint constraintValue="0.0" constraintType="EQUALS"/>
+					</mapping>
+				</metadataMap>
+				<alertParser xsi:type="dataCubeAlertMessageParser"/>
+			</resourceData>
+                </resource>		
+		
+		<!--|0.|ESP,Layer|\ ESP (Enhanced Stretching Potential) -->
+		<resource>
+			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+				<capabilities>
+					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+				</capabilities>
+				<resourceType>PLAN_VIEW</resourceType>
+			</loadProperties>
+			<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+				<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+			</properties>
+			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+				<metadataMap>
+					<mapping key="info.parameter.abbreviation">
+						<constraint constraintValue="ESP" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.datasetId">
+						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="pluginName">
+						<constraint constraintValue="grid" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.level.masterLevel.name">
+						<constraint constraintValue="EA" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.level.levelonevalue">
+						<constraint constraintValue="0.0" constraintType="EQUALS"/>
+					</mapping>
+				</metadataMap>
+				<alertParser xsi:type="dataCubeAlertMessageParser"/>
+			</resourceData>
+                </resource>
+		
+		<!--|0.|BlkMag,0-6kmAgl\ Note:Not sure about the KmAgl representation
+		Used: awips/com.raytheon.viz.volumebrowser/localization/volumebrowser/LevelMappingFile.xml as a guideline
+		-->
+		<resource>
+			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+				<capabilities>
+					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+				</capabilities>
+				<resourceType>PLAN_VIEW</resourceType>
+			</loadProperties>
+			<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+				<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+			</properties>
+			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+				<metadataMap>
+					<mapping key="info.parameter.abbreviation">
+						<constraint constraintValue="BlkMag" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.datasetId">
+						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.level.leveltwovalue">
+						<constraint constraintValue="6000.0" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="pluginName">
+						<constraint constraintValue="grid" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.level.masterLevel.name">
+						<!--Assumption that FHAG is right level name for KmAgl-->
+						<constraint constraintValue="FHAG" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.level.levelonevalue">
+						<constraint constraintValue="0.0" constraintType="EQUALS"/>
+					</mapping>
+				</metadataMap>
+				<alertParser xsi:type="dataCubeAlertMessageParser"/>
+			</resourceData>
+		</resource>
+		
+		<!--|50.|BlkShr,0-6kmAgl Note:Not sure about the KmAgl representation
+					 Used: awips/com.raytheon.viz.volumebrowser/localization/volumebrowser/LevelMappingFile.xml as a guideline
+					 -->
+		<resource>
+			<loadProperties xsi:type="gridLoadProperties" displayType="ARROW" loadWithoutData="false">
+				<capabilities>
+					<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+				</capabilities>
+				<resourceType>PLAN_VIEW</resourceType>
+			</loadProperties>
+			<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+				<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+			</properties>
+			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+				<metadataMap>
+					<mapping key="info.parameter.abbreviation">
+						<constraint constraintValue="BlkShr" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.datasetId">
+						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.level.leveltwovalue">
+						<constraint constraintValue="6000.0" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="pluginName">
+						<constraint constraintValue="grid" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.level.masterLevel.name">
+						<!--Assumption that FHAG is right level name for KmAgl-->
+						<constraint constraintValue="FHAG" constraintType="EQUALS"/>
+					</mapping>
+					<mapping key="info.level.levelonevalue">
+						<constraint constraintValue="0.0" constraintType="EQUALS"/>
+					</mapping>
+				</metadataMap>
+				<alertParser xsi:type="dataCubeAlertMessageParser"/>
+			</resourceData>
+		</resource>		
+		
+		<timeMatcher xsi:type="d2DTimeMatcher" deltaFilter="0" forecastFilter="0"/>
+                <numberOfFrames>${frameCount}</numberOfFrames>
+            </descriptor>
+        </displays>
+    </displayList>
+</bundle>

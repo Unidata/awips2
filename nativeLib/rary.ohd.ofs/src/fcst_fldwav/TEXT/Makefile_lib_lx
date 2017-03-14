@@ -1,0 +1,142 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-fcst_fldwav library file
+#
+#  cmt: File made on Wed Aug  6 12:50:11 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU -DUSE_XM_MWMUTIL_H -DUSE_XGPM -Wall -Wno-unused-variable -Wno-comment
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+INSERTS_CC   = -I/usr/include/informix/esql/  \
+               -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .c .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+.c.a:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libfcst_fldwav_t.a:  \
+     $(LIB)/libfcst_fldwav_t.a(aver55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(avggat55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(brech55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(bridge55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(bwatr55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(chkcav55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(conv55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(cpymap55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(crestl55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(crtflo55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(culvrt55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(dam55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(dbdy55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(dwatr55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(dwavsm55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(engl55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(ex55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(exah55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(exbc55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(exin55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(expt55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(fil055.o)  \
+     $(LIB)/libfcst_fldwav_t.a(filt55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(ftmv55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(hcrit55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(hnorm55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(hseq55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(iddb55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(idprep55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(incm55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(initc55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(inity55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(intbi55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(inter55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(interp55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(jagc55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(jagd55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(levq155.o)  \
+     $(LIB)/libfcst_fldwav_t.a(levq55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(ljump55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(loopr55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(mathq55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(matrx55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(mix155.o)  \
+     $(LIB)/libfcst_fldwav_t.a(mix55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(mixi55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(mjin55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(mpset55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(mulgat55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(nonc55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(opnfil55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(opnmapf55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(output55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(plot55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(pond55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(pool55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(poot55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(precal55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(qljn55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(qlts55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(qmain55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(qturb55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(ressar55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(rtcdam55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(savc55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(secbr55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(size55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(solve55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(stat55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(strc55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(sumary55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(supflo55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(time55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(tochar55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(tstep55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(ubdy55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(undo55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(vers55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(waplot55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(wrtitl55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(wrtmap55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(yctrd55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(yend55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(yfiltr55.o)  \
+     $(LIB)/libfcst_fldwav_t.a(setcmp.o)
+

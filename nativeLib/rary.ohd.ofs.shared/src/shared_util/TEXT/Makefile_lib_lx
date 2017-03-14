@@ -1,0 +1,79 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-shared_util library file
+#
+#  cmt: File made on Wed Aug  6 12:56:05 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libshared_util_t.a:  \
+     $(LIB)/libshared_util_t.a(cdinpt.o)  \
+     $(LIB)/libshared_util_t.a(fcint.o)  \
+     $(LIB)/libshared_util_t.a(fcitzc.o)  \
+     $(LIB)/libshared_util_t.a(fconvt.o)  \
+     $(LIB)/libshared_util_t.a(fctzc.o)  \
+     $(LIB)/libshared_util_t.a(fcwtco.o)  \
+     $(LIB)/libshared_util_t.a(fdcode.o)  \
+     $(LIB)/libshared_util_t.a(fksmsg.o)  \
+     $(LIB)/libshared_util_t.a(fldcbs.o)  \
+     $(LIB)/libshared_util_t.a(fmdpk8.o)  \
+     $(LIB)/libshared_util_t.a(fopcde.o)  \
+     $(LIB)/libshared_util_t.a(fphpwn.o)  \
+     $(LIB)/libshared_util_t.a(fprbug.o)  \
+     $(LIB)/libshared_util_t.a(fprcpu.o)  \
+     $(LIB)/libshared_util_t.a(frctp.o)  \
+     $(LIB)/libshared_util_t.a(fsetbg.o)  \
+     $(LIB)/libshared_util_t.a(fsetnw.o)  \
+     $(LIB)/libshared_util_t.a(fstwhr.o)  \
+     $(LIB)/libshared_util_t.a(ftekck.o)  \
+     $(LIB)/libshared_util_t.a(ifmsng.o)  \
+     $(LIB)/libshared_util_t.a(instrt.o)  \
+     $(LIB)/libshared_util_t.a(ipbug.o)  \
+     $(LIB)/libshared_util_t.a(iunrcd.o)  \
+     $(LIB)/libshared_util_t.a(iusame.o)  \
+     $(LIB)/libshared_util_t.a(jlmdyh.o)  \
+     $(LIB)/libshared_util_t.a(julda.o)  \
+     $(LIB)/libshared_util_t.a(killfn.o)  \
+     $(LIB)/libshared_util_t.a(killpm.o)  \
+     $(LIB)/libshared_util_t.a(mdyh1.o)  \
+     $(LIB)/libshared_util_t.a(mdyh2.o)  \
+     $(LIB)/libshared_util_t.a(pddsif.o)  \
+     $(LIB)/libshared_util_t.a(pdmpdy.o)  \
+     $(LIB)/libshared_util_t.a(pdrsif.o)  \
+     $(LIB)/libshared_util_t.a(pdsptp.o)  \
+     $(LIB)/libshared_util_t.a(pdumpa.o)  \
+     $(LIB)/libshared_util_t.a(pstrdc.o)  \
+     $(LIB)/libshared_util_t.a(pstrdd.o)  \
+     $(LIB)/libshared_util_t.a(rcmnd2.o)  \
+     $(LIB)/libshared_util_t.a(rcomnd.o)  \
+     $(LIB)/libshared_util_t.a(rpcard.o)  \
+     $(LIB)/libshared_util_t.a(rwcard.o)  \
+     $(LIB)/libshared_util_t.a(stop.o)  \
+     $(LIB)/libshared_util_t.a(stopfn.o)  \
+     $(LIB)/libshared_util_t.a(wpcard.o)
+

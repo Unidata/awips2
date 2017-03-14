@@ -1,0 +1,187 @@
+<project default="main" basedir=".">
+	<!-- import -->
+	<import file="${basedir}/deploy-common/deploy-init.xml" />
+	<import file="${basedir}/deploy-common/deploy-setup.xml" />
+	<import file="${basedir}/deploy-common/plugin-methods.xml" />
+
+	<!-- public static final -->
+	<path id="ant.classpath">
+		<fileset dir="${basedir}/lib/ant">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+	
+
+	<target name="main" depends="init, setup">
+		<property name="esb.directory" value="${repo.dir}/build/deploy.edex.awips2/esb" />
+		<!-- deploy esb {optionally: data, web} -->
+		<ant antfile="${repo.dir}/build/deploy.edex.awips2/deploy/deploy-esb.xml" />
+		<!-- deploy esb configuration -->
+		<ant antfile="${repo.dir}/build/deploy.edex.awips2/deploy/deploy-esb-configuration.xml" />
+		<!-- optionally: deploy gfesuite -->
+		<if>
+			<equals arg1="${deploy.gfesuite}" arg2="true" />
+			<then>
+				<ant antfile="${basedir}/deploy-common/deploy-gfesuite.xml" />
+			</then>
+		</if>
+		<!-- deploy edex plugins -->
+		<!-- which feature do we want to deploy? -->
+		<if>
+			<isset property="wa.enabled" />
+			<then>
+				<!--
+					Find the feature associated with
+					Work Assignments.
+				-->
+				<var name="feature.to.find" value="${wa.edex.feature}" />
+			</then>
+			<else>
+				<!--
+					Find the standard AWIPS II
+					Baseline feature.
+				-->
+				<var name="feature.to.find" value="${edex.feature}" />
+			</else>
+		</if>
+
+		<var name="feature" value="" />
+		<!-- 
+			find the feature file: we may deploy multiple features
+			if multiple Work Assignment directories have been
+			specified. 
+		-->
+		<for list="${basedirectories}" param="directory" delimiter=";">
+			<sequential>
+				<if>
+					<available file="@{directory}/${feature.to.find}" />
+					<then>
+						<var name="feature" value="@{directory}/${feature.to.find}" />
+						<deploy.feature feature="${feature}" />
+					</then>
+				</if>
+			</sequential>
+		</for>
+
+
+		<!-- optionally: deploy site localization -->
+		<if>
+			<not>
+				<equals arg1="${localization.sites}" arg2="" />
+			</not>
+			<then>
+				<antcall target="deploy.localization" />
+			</then>
+		</if>
+
+		<!-- 
+			Search for WA-specific Non-Spring
+			Web Applications to deploy.
+		-->
+		<for list="${wa.specific.deploy}" param="wa" delimiter="${path.separator}">
+			<sequential>
+				<basename property="wa.name" file="@{wa}" />
+				<if>
+					<available file="${git.directory}/@{wa}/edex/deploy-${wa.name}/wa-deploy.xml" type="file" />
+					<then>
+						<ant antfile="${git.directory}/@{wa}/edex/deploy-${wa.name}/wa-deploy.xml" inheritall="true" inheritrefs="true" useNativeBasedir="true" />
+					</then>
+				</if>
+			</sequential>
+		</for>
+		<tstamp>
+			<format property="TIMESTAMP_COMPLETE" pattern="d-MMM-yyyy h:mm:ss a" locale="en,US" />
+		</tstamp>
+		<echo message="Deploy Complete: ${TIMESTAMP_COMPLETE}" />
+	</target>
+
+	<!-- public -->
+	<!-- Targets specific to the developer deployment. -->
+	<macrodef name="deploy.feature">
+		<attribute name="feature" />
+
+		<sequential>
+			<!-- prepare to run includegen -->
+			<var name="includes.directory" value="${basedir}/tmp/includes" />
+			<if>
+				<available file="${includes.directory}" type="dir" />
+				<then>
+					<delete verbose="true" includeemptydirs="true">
+						<fileset dir="${includes.directory}" includes="*/**" />
+					</delete>
+				</then>
+			</if>
+			<mkdir dir="${includes.directory}" />
+
+			<!-- run includegen -->
+			<echo message="Generating deployment list for feature: ${feature}" />
+			<!--
+				TODO: need to update the includegen ant task to recognize
+				plugin architecture restrictions. Plugins that should only
+				be deployed for a 64-bit system should not be deployed for
+				a 32-bit system, etc.
+			-->
+			<echo message="${feature}" />
+			<echo message="${includes.directory}/cots.includes" />
+			<echo message="${includes.directory}/core.includes" />
+
+			<includegen providerfilter="${includegen.filter}" basedirectories="${basedirectories}" optionaldirectories="${optionaldirectories}" featurefile="${feature}" cotsout="${includes.directory}/cots.includes" plugsout="${includes.directory}/plugins.includes" coreout="${includes.directory}/core.includes" />
+			
+			<var name="destination.directory" value="${edex.root.directory}/lib/plugins" />
+			<mkdir dir="${destination.directory}" />
+			<if>
+				<isset property="optionaldirectories" />
+				<then>
+					<var name="allDir" value="${basedirectories};${optionaldirectories}" />
+					<processPlugins includes.file="${includes.directory}/plugins.includes" plugin.type="plugins" plugin.directories="${allDir}" destination.directory="${destination.directory}" />
+					<processPlugins includes.file="${includes.directory}/core.includes" plugin.type="core" plugin.directories="${allDir}" destination.directory="${destination.directory}" />
+				</then>
+				<else>
+					<processPlugins includes.file="${includes.directory}/plugins.includes" plugin.type="plugins" plugin.directories="${basedirectories}" destination.directory="${destination.directory}" />
+					<processPlugins includes.file="${includes.directory}/core.includes" plugin.type="core" plugin.directories="${basedirectories}" destination.directory="${destination.directory}" />
+				</else>
+			</if>
+
+
+
+			<var name="destination.directory" value="${edex.root.directory}/lib/dependencies" />
+			<mkdir dir="${destination.directory}" />
+			<if>
+				<isset property="optionaldirectories" />
+				<then>
+					<var name="allDir" value="${basedirectories};${optionaldirectories}" />
+					<processPlugins includes.file="${includes.directory}/cots.includes" plugin.type="cots" plugin.directories="${allDir}" destination.directory="${destination.directory}" />
+				</then>
+				<else>
+					<processPlugins includes.file="${includes.directory}/cots.includes" plugin.type="cots" plugin.directories="${basedirectories}" destination.directory="${destination.directory}" />
+				</else>
+			</if>
+
+			<!-- cleanup the temporary directories -->
+			<if>
+				<available file="${basedir}/tmp" type="dir" />
+				<then>
+					<delete includeemptydirs="true">
+						<fileset dir="${basedir}" includes="tmp/**" />
+					</delete>
+				</then>
+			</if>
+		</sequential>
+	</macrodef>
+
+	<target name="deploy.localization">
+		<echo message="Deploying localization" />
+
+		<!-- determine which directory the localization
+		     project should be in. -->
+		<var name="localization.path" value="${awips.baseline.directory}/localization/localization" />
+		<!-- copy the localization files. -->
+		<copy todir="${edex.root.directory}/data/utility" overwrite="true">
+			<fileset dir="${localization.path}/utility" includes="*/**" />
+		</copy>
+	</target>
+
+	<!-- static -->
+	<taskdef name="includegen" classname="com.raytheon.uf.anttasks.includesgen.GenerateIncludesFromFeature" classpathref="ant.classpath" />
+	<taskdef resource="net/sf/antcontrib/antlib.xml" classpath="${basedir}/lib/ant/ant-contrib-1.0b3.jar" />
+</project>

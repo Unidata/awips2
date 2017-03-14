@@ -1,0 +1,133 @@
+#!/bin/ksh
+
+###############################################################################
+#   convert_dqc_station_list
+#
+#   This script converts a CBRFC-formatted station list into the format
+#   expected by MPE Editor.
+#
+#   This script takes three arguments:
+#
+#   <input_file>  :   The path and name of the station list file to be
+#                     converted. 
+#   <pph_flag>    :   Y or N.  Indicates whether or not to place the PPH
+#                     station list at the top of the file.  If this is a
+#                     subarea station list, then this should be N.  If this is
+#                     the master DailyQC station list then this should be Y.
+#   <area_id>   :   cbrfc, for an example.
+#
+#   The reformatted station list will be placed in the directory pointed to
+#   by the mpe_station_list_dir token.  This file will be named as
+#   <area_id>_station_list.
+#
+#   Modification History
+#   May 24, 2006     Bryon Lawrence   Original Coding.
+#
+###############################################################################
+
+#
+#  The user must supply the input file name, the Y or N flag indicating
+#  whether or not to include the PPH station list and the area_id.
+
+#
+if [[ $# -ne 3 ]]
+then
+   print "Usage: convert_dqc_station_list <input_file> <pph_flag> <area_id> "
+   print "\twhere input_file is the path and name of the input file"
+   print "\t      pph_flag = Y to load PPH station list"
+   print "\t                 N to not load PPH station list"
+   print "\t      area_id    cbrfc, as an example"
+   exit 1;
+fi
+
+input_file=$1
+pph_flag=$2
+area_id=$3
+
+#
+# Set up environment variables
+# Define FILENAME variable
+#
+
+RUN_FROM_DIR=`dirname $0`
+. $RUN_FROM_DIR/../../set_hydro_env
+export MPE_STATION_LIST_DIR=$(get_apps_defaults mpe_station_list_dir)
+export DB_NAME=$(get_apps_defaults db_name)
+
+FILENAME=$MPE_STATION_LIST_DIR/${area_id}_station_list
+
+print "Reading $input_file"
+print "Reformatted station list will be written to $FILENAME"
+
+rm -f $FILENAME
+
+if [[ $pph_flag = "Y" ]]
+then
+   print "Including PPH station list."
+else
+   print "Excluding PPH station list. "
+fi
+
+#Check if the PPH list needs to be appended.
+if [[ $pph_flag = "Y" ]]
+then
+   ############################################################################
+   #
+   #   Generate station list for 1 hr MPE
+   #
+   $POSTGRESQLBINDIR/psql -q -t -A -F '     ' $DB_NAME \
+            -f $RUN_FROM_DIR/hourly_precip_station_gen.sql \
+            > hourly_precip_station_list
+
+   #
+   #   Get count of records from above and write to station_list file
+   #
+   wc -l < hourly_precip_station_list > $FILENAME
+
+   #
+   #   Write precip station info to station_list file
+   #
+   cat hourly_precip_station_list >> $FILENAME
+
+fi
+
+#
+#  Get a count of the number of PPD records in the CBRFC station file.
+export num_ppd_records=`awk '{print $2}' $input_file | \
+                 awk 'BEGIN{count=0} /^PPD/ {count=count+1} END{print count}'`
+
+#
+#  Get a count of the number of TAI records in the CBRFC station file.
+export num_tai_records=`awk '{print $2}' $input_file | \
+                 awk 'BEGIN{count=0} /^TAI/ {count=count+1} END{print count}'`
+
+#
+#  Get a count of the number of HZI records in the CBRFC station file.
+export num_hzi_records=`awk '{print $2}' $input_file | \
+                 awk 'BEGIN{count=0} /^HZI/ {count=count+1} END{print count}'`
+
+print "$input_file contains $num_ppd_records PPD records"
+print "$input_file contains $num_tai_records TAI records"
+print "$input_file contains $num_hzi_records HZI records"
+
+#
+#  Insert a dummy record for the PPH stations.
+#  Or insert the the PPH block as created by the create station list
+#  script.
+echo $num_ppd_records >> $FILENAME
+awk '{if(FNR <= ENVIRON["num_ppd_records"]) print $0}' $input_file \
+      >> $FILENAME
+
+echo $num_tai_records >> $FILENAME
+awk '{if(FNR > ENVIRON["num_ppd_records"] && \
+         FNR <= ( ENVIRON["num_tai_records"] + ENVIRON["num_ppd_records"])) \
+         print $0}' $input_file >> $FILENAME
+
+echo $num_hzi_records >> $FILENAME
+awk '{if(FNR > (ENVIRON["num_tai_records"] + ENVIRON["num_ppd_records"])) \
+      print $0}' $input_file >> $FILENAME
+
+
+rm -f hourly_precip_station_list
+
+exit 0

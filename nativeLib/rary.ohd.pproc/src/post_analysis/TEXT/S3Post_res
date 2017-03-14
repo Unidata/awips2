@@ -1,0 +1,91 @@
+# ----------------- Resource File for Post Analysis --------------------
+#
+#
+
+*Summed hourly MPE field & Gage only field.geometry:           1100x700+10+0
+
+*background:                    navy
+*foreground:                    navy blue
+
+## main window setup ##
+
+*gage_only_heading.x:     765
+*gage_only_heading*topAttachment:    ATTACH_FORM
+*gage_only_heading.topOffset:     37
+
+*multi_sensor_heading.x:     160
+*multi_sensor_heading*topAttachment:      ATTACH_FORM
+*multi_sensor_heading.topOffset:   6
+
+*multi_sensor_frame.x:  20
+*multi_sensor_frame.y:  55
+
+*gageonly_frame.x:  565
+*gageonly_frame.y:  50
+
+*multi_sensor_canvas.width: 510
+*multi_sensor_canvas.height: 525
+
+*gageonly_canvas.width: 510
+*gageonly_canvas.height: 525
+
+####################################################
+
+#*merge_shell.geometry: 700x550+10+10
+*Merged_field.geometry: 700x700+10+0
+
+*merged_heading.x:    200
+*merged_heading.topOffset:  10
+
+*merged_frame.x:  20
+*merged_frame.y:  55
+
+*merged_canvas.width: 510
+*merged_canvas.height: 525
+
+#*dates_shell.geometry: 350x300+400+200
+*Choose date/hour.geometry: 350x300+400+200
+
+*working.x:    400
+*working.y:    300
+
+*no_gage_shell.geometry:        200x200+400+400
+*gage_ok.x:               85
+*gage_ok.y:               100
+
+*gage_edit_text.width: 90
+*text.recomputeSize: FALSE
+
+! single gage display
+
+*gage_popup.geometry:     672x450+310+190
+
+*gage_popup*topAttachment:      attach_position
+*gage_popup*bottomAttachment:   attach_position
+*gage_popup*leftAttachment:     attach_position
+*gage_popup*rightAttachment:    attach_position
+
+*gageid.topPosition:      5
+*gageid.bottomPosition:   20
+*gageid.leftPosition:     5
+*gageid.rightPosition:    25
+
+*gagevalue.topPosition:      25
+*gagevalue.bottomPosition:   40
+*gagevalue.leftPosition:     5
+*gagevalue.rightPosition:    25
+
+!*gagerc.topPosition:      1
+*gagerc.bottomPosition:   99
+*gagerc.leftPosition:     30
+*gagerc.rightPosition:    99
+
+*gage_quit.topPosition:      60
+*gage_quit.bottomPosition:   71
+*gage_quit.leftPosition:     5
+*gage_quit.rightPosition:    20
+
+*mosaic.marginHeight:      10
+*mosaic.marginWidth:       10
+
+*locator_shell.geometry: +20+20

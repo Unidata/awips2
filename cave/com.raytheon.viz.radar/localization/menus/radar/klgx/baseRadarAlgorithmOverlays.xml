@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+	<!--
+		This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+		pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+		U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+		This_software_product_contains_export-restricted_data_whose
+		export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+		to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+		an_export_license_or_other_authorization.
+
+		Contractor_Name:________Raytheon_Company
+		Contractor_Address:_____6825_Pine_Street,_Suite_340
+		________________________Mail_Stop_B8
+		________________________Omaha,_NE_68106
+		________________________402.291.0100
+
+		See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+		further_licensing_information.
+	-->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	
+		<contribute xsi:type="subMenu" menuText="Melting Layer"
+			id="${icao}AlgorithmOverlaysSubMenuMeltingLayer">
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
+				menuText="0.0 ML" id="${icao}00MeltingLayer">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="166" />
+				<substitute key="mode" value="" />
+				<substitute key="latest" value="false" />
+				<substitute key="elevation" value="0.0--0.0" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
+				menuText="0.5 ML" id="${icao}05MeltingLayer">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="166" />
+				<substitute key="mode" value="" />
+				<substitute key="latest" value="false" />
+				<substitute key="elevation" value="0.5--0.5" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
+				menuText="0.9 ML" id="${icao}09MeltingLayer">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="166" />
+				<substitute key="mode" value="" />
+				<substitute key="latest" value="false" />
+				<substitute key="elevation" value="0.9--0.9" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
+				menuText="1.5 ML" id="${icao}15MeltingLayer">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="166" />
+				<substitute key="mode" value="" />
+				<substitute key="latest" value="false" />
+				<substitute key="elevation" value="1.5--1.5" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
+				menuText="1.8 ML" id="${icao}18MeltingLayer">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="166" />
+				<substitute key="mode" value="" />
+				<substitute key="latest" value="false" />
+				<substitute key="elevation" value="1.8--1.8" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
+				menuText="2.4 ML" id="${icao}24MeltingLayer">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="166" />
+				<substitute key="mode" value="" />
+				<substitute key="latest" value="false" />
+				<substitute key="elevation" value="2.4--2.4" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
+				menuText="3.4 ML" id="${icao}34MeltingLayer">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="166" />
+				<substitute key="mode" value="" />
+				<substitute key="latest" value="false" />
+				<substitute key="elevation" value="3.4--3.4" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
+				menuText="4.3 ML" id="${icao}43MeltingLayer">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="166" />
+				<substitute key="mode" value="" />
+				<substitute key="latest" value="false" />
+				<substitute key="elevation" value="4.3--4.3" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
+				menuText="5.3 ML" id="${icao}53MeltingLayer">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="166" />
+				<substitute key="mode" value="" />
+				<substitute key="latest" value="false" />
+				<substitute key="elevation" value="5.3--5.3" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
+				menuText="6.0 ML" id="${icao}60MeltingLayer">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="166" />
+				<substitute key="mode" value="" />
+				<substitute key="latest" value="false" />
+				<substitute key="elevation" value="6.0--6.0" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
+				menuText="7.5 ML" id="${icao}75MeltingLayer">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="166" />
+				<substitute key="mode" value="" />
+				<substitute key="latest" value="false" />
+				<substitute key="elevation" value="7.5--7.5" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
+				menuText="8.7 ML" id="${icao}87MeltingLayer">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="166" />
+				<substitute key="mode" value="" />
+				<substitute key="latest" value="false" />
+				<substitute key="elevation" value="8.7--8.7" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
+				menuText="10.0 ML" id="${icao}100MeltingLayer">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="166" />
+				<substitute key="mode" value="" />
+				<substitute key="latest" value="false" />
+				<substitute key="elevation" value="10.0--10.0" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
+				menuText="12.0 ML" id="${icao}120MeltingLayer">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="166" />
+				<substitute key="mode" value="" />
+				<substitute key="latest" value="false" />
+				<substitute key="elevation" value="12.0--12.0" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
+				menuText="14.0 ML" id="${icao}140MeltingLayer">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="166" />
+				<substitute key="mode" value="" />
+				<substitute key="latest" value="false" />
+				<substitute key="elevation" value="14.0--14.0" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
+				menuText="16.7 ML" id="${icao}167MeltingLayer">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="166" />
+				<substitute key="mode" value="" />
+				<substitute key="latest" value="false" />
+				<substitute key="elevation" value="16.7--16.7" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
+				menuText="19.5 ML" id="${icao}195MeltingLayer">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="166" />
+				<substitute key="mode" value="" />
+				<substitute key="latest" value="false" />
+				<substitute key="elevation" value="19.5--19.5" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
+				menuText="Melting Layer (All)" id="${icao}MeltingLayerAll">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="166" />
+				<substitute key="mode" value="" />
+				<substitute key="latest" value="false" />
+				<substitute key="elevation" value="0.0--360.0" />
+			</contribute>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
+			menuText="Storm Track (STI)" id="${icao}StormTrack">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product" value="58" />
+			<substitute key="mode" value="" />
+			<substitute key="latest" value="false" />
+			<substitute key="elevation" value="0.0--360.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
+			menuText="Hail Index (HI)" id="${icao}HailIndex">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product" value="59" />
+			<substitute key="mode" value="" />
+			<substitute key="latest" value="false" />
+			<substitute key="elevation" value="0.0--360.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
+			menuText="Tornado Vortex Sig (TVS)" id="${icao}TornadoVortexSig">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product" value="61" />
+			<substitute key="mode" value="" />
+			<substitute key="latest" value="false" />
+			<substitute key="elevation" value="0.0--360.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
+			menuText="Latest TVS Rapid Update (TRU)" id="${icao}TVSRapidUpdate">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product" value="143" />
+			<substitute key="mode" value="" />
+			<substitute key="latest" value="true" />
+			<substitute key="elevation" value="0.0--360.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
+			menuText="All Tilts TRU" id="${icao}AllTilts">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product" value="143" />
+			<substitute key="mode" value="" />
+			<substitute key="latest" value="false" />
+			<substitute key="elevation" value="0.0--360.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
+			menuText="Mesocyclone (MD)" id="${icao}Mesocyclone">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product" value="141" />
+			<substitute key="mode" value="" />
+			<substitute key="latest" value="false" />
+			<substitute key="elevation" value="0.0--360.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
+			menuText="Digital Mesocyclone (DMD)" id="${icao}DigitalMesocyclone">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product" value="149" />
+			<substitute key="mode" value="" />
+			<substitute key="latest" value="true" />
+			<substitute key="elevation" value="0.0--360.0" />
+		</contribute>
+		<contribute xsi:type="command"
+			commandId="com.raytheon.viz.radar.ui.RadarDisplayControls" menuText="Radar Display Controls..."
+			id="${icao}GraphicsRadarDisplayControls" />
+		<contribute xsi:type="separator"
+			id="${icao}AlgorithmOverlaysTableSeparator" />
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
+			menuText="Comb Att Table (1km CZ)" id="${icao}CombAttTable1km">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product" value="37" />
+			<substitute key="mode" value="CZ-Pg" />
+			<substitute key="latest" value="false" />
+			<substitute key="elevation" value="0.0--360.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
+			menuText="Comb Att Table (4km CZ)" id="${icao}CombAttTable4km">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product" value="38" />
+			<substitute key="mode" value="CZ-Pg" />
+			<substitute key="latest" value="false" />
+			<substitute key="elevation" value="0.0--360.0" />
+		</contribute>
+</menuTemplate>

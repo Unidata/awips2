@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta content="text/html; charset=iso-8859-1"
+ http-equiv="Content-Type">
+  <meta
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-31smp i686) [Netscape]"
+ name="GENERATOR">
+  <title>gfeConfig - Background Processing</title>
+</head>
+<body bgcolor="#ffffff">
+<div class="Body">
+<div style="text-align: center;"></div>
+<h2 style="text-align: center;">GFE/ifpIMAGE Configuration File<br>
+Background Processing<br>
+</h2>
+These configurable items define the background processing
+characteristics of the GFE.<br>
+<div class="3Heading">&nbsp;
+<table nosave="" border="1" cols="4" width="100%">
+  <tbody>
+    <tr>
+      <td>
+      <center><b>GFE Configuration Item</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to GFE</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to ifpIMAGE</b></center>
+      </td>
+      <td>
+      <center><b>Notes</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#MaxLines">Process Monitor Max Lines<br>
+      </a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#MaxOldTasks">Process Monitor Max Old Tasks<br>
+      </a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#MaxTasks">Process Monitor Max Tasks<br>
+      </a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<blockquote> </blockquote>
+<hr style="width: 100%; height: 2px;">
+<h4><br>
+</h4>
+<h4><a name="MaxLines"></a><font size="+1">Process Monitor Max Lines<br>
+</font></h4>
+This item defines the number of lines that are held in the terminal
+window displayable from the <a
+ href="MainMenuDialogs.html#ProcessMonitorDialog">Process Monitor
+Dialog</a>, before scrolling off.&nbsp; If you aren't able to capture
+as much of the process output as desired, then you should increase this
+number.&nbsp; This affects the capacity of the terminal window only.<br>
+<p><b><tt>ProcessMonitorMaxLines = 2000</tt></b> <br>
+&nbsp; </p>
+<h4><a name="MaxOldTasks"></a><font size="+1">Process Monitor Max Old
+Tasks</font></h4>
+This item defines the number of "finished" tasks that will be kept
+around as available in the <a
+ href="MainMenuDialogs.html#ProcessMonitorDialog">Process Monitor Dialog</a>.&nbsp;
+As long as the finished task is available in the dialog, the output
+from the task is available. <br>
+<span style="font-family: monospace;"><span style="font-weight: bold;"></span></span><br>
+<span style="font-family: monospace;"><span style="font-weight: bold;">
+</span></span>
+<p><b><tt>ProcessMonitorMaxOldTasks = 10<br>
+</tt></b><b><tt>&nbsp; </tt></b> <br>
+&nbsp; </p>
+<h4><a name="MaxTasks"></a><font size="+1">Process Monitor Max Tasks<br>
+</font></h4>
+This item defines the maximum number of background processes that can
+be simultaneously executed, based on the automatic scheduling of
+background processes.&nbsp; A user can always start any process that is
+in the pending state by using the <a
+ href="MainMenuDialogs.html#ProcessMonitorDialog">Process Monitor Dialog</a>,
+even if starting a process would exceed this threshold.
+<p><b><tt>ProcessMonitorMaxTasks = 1<br>
+<br>
+</tt></b></p>
+<br>
+<b><tt> </tt></b><span style="font-family: monospace;"><span
+ style="font-weight: bold;"><br>
+</span></span>
+<hr style="width: 100%; height: 2px;"><span
+ style="font-family: monospace;"><span style="font-weight: bold;"><br>
+</span></span>
+<div class="Body">
+<center><a href="GFESuite.html">Back To TOC</a></center>
+</div>
+</div>
+</body>
+</html>

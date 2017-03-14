@@ -1,0 +1,9 @@
+C Common block:  itunit
+C------------------------------------------------------------------------------
+C this include file defines the input/output unit number for temperature
+C data which is written out 1 record at a time. 
+C------------------------------------------------------------------------------
+
+      integer ITUNIT
+
+      common / ITUNIT / ITUNIT 

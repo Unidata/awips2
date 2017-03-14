@@ -1,0 +1,14 @@
+.metadata/
+.gitignore
+ldm/Debug
+test-bin/
+testbin/
+testBin/
+bin-test/
+bin
+*.swp
+*.class
+*.pyo
+*.pyc
+*.o
+*.log

@@ -1,0 +1,16 @@
+<configuration debug="false" scan="true">
+   <!-- 
+      The requestHydro EDEX mode is currently only used by the ALR site.
+    -->
+   <include file="${edex.home}/conf/logback-edex-properties.xml"/>
+   <include file="${edex.home}/conf/logback-edex-appenders.xml" />
+   
+   <include file="${edex.home}/conf/logback-edex-loggers.xml" />
+   <include file="${edex.home}/conf/logback-edex-hibernate-logger.xml" />
+   
+   <!-- default logging --> 
+   <root> 
+      <level value="INFO"/>
+      <appender-ref ref="asyncConsole"/>
+    </root> 
+</configuration>

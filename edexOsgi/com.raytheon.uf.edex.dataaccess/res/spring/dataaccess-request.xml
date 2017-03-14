@@ -1,0 +1,85 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+
+    <bean id="availableLocationsHandler"
+        class="com.raytheon.uf.edex.dataaccess.handler.GetAvailableLocationNamesHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataaccess.request.GetAvailableLocationNamesRequest" />
+        <constructor-arg ref="availableLocationsHandler" />
+    </bean>
+
+    <bean id="availableTimesHandler"
+        class="com.raytheon.uf.edex.dataaccess.handler.GetAvailableTimesHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataaccess.request.GetAvailableTimesRequest" />
+        <constructor-arg ref="availableTimesHandler" />
+    </bean>
+
+    <bean id="availableParametersHandler"
+        class="com.raytheon.uf.edex.dataaccess.handler.GetAvailableParametersHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataaccess.request.GetAvailableParametersRequest" />
+        <constructor-arg ref="availableParametersHandler" />
+    </bean>
+
+    <bean id="availableLevelsHandler"
+        class="com.raytheon.uf.edex.dataaccess.handler.GetAvailableLevelsHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataaccess.request.GetAvailableLevelsRequest" />
+        <constructor-arg ref="availableLevelsHandler" />
+    </bean>
+
+    <bean id="requiredIdentifiersHandler"
+        class="com.raytheon.uf.edex.dataaccess.handler.GetRequiredIdentifiersHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataaccess.request.GetRequiredIdentifiersRequest" />
+        <constructor-arg ref="requiredIdentifiersHandler" />
+    </bean>
+
+    <bean id="optionalIdentifiersHandler"
+        class="com.raytheon.uf.edex.dataaccess.handler.GetOptionalIdentifiersHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataaccess.request.GetOptionalIdentifiersRequest" />
+        <constructor-arg ref="optionalIdentifiersHandler" />
+    </bean>
+
+    <bean id="identifierValuesHandler"
+        class="com.raytheon.uf.edex.dataaccess.handler.GetIdentifierValuesHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataaccess.request.GetIdentifierValuesRequest" />
+        <constructor-arg ref="identifierValuesHandler" />
+    </bean>
+
+    <bean id="supportedDatatypesHandler"
+        class="com.raytheon.uf.edex.dataaccess.handler.GetSupportedDatatypesHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataaccess.request.GetSupportedDatatypesRequest" />
+        <constructor-arg ref="supportedDatatypesHandler" />
+    </bean>
+
+    <bean id="getGeometryDataHandler"
+        class="com.raytheon.uf.edex.dataaccess.handler.GetGeometryDataHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataaccess.request.GetGeometryDataRequest" />
+        <constructor-arg ref="getGeometryDataHandler" />
+    </bean>
+
+    <bean id="getGridDataHandler"
+        class="com.raytheon.uf.edex.dataaccess.handler.GetGridDataHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataaccess.request.GetGridDataRequest" />
+        <constructor-arg ref="getGridDataHandler" />
+    </bean>
+</beans>

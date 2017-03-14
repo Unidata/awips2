@@ -1,0 +1,205 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-34smp i686) [Netscape]">
+  <title>ifpServerText User's Guide</title>
+</head>
+<body bgcolor="#ffffff">
+<h1 style="text-align: center;" class="1Heading">MakeD2DFile User's Guide<br>
+</h1>
+<div class="1Heading">August 23, 2005<br>
+<br>
+</div>
+<a name="TableofContents"></a>Table of Contents
+<h4 class="1Heading"><a href="#Overview">Overview</a></h4>
+<h4 class="1Heading"><a href="#Running_from_the_GFE">Running
+makeD2DFile From the GFE</a><br>
+</h4>
+<a style="font-weight: bold;" href="#Running_from_the_Command_Line">Running
+makeD2Dfile From the Command Line</a><br>
+<br>
+<div class="1Heading">
+<hr width="100%"></div>
+<h2 class="1Heading">
+<a name="Overview"></a>Overview</h2>
+<div class="1Heading">The makeD2DFile utility allows a local forecast
+office to create a netCDF file containing IFP forecast grids that can
+be read by an AWIPS (D2D) display system.&nbsp; The program reads the
+gridded forecast data from the Official database, formats the data into
+a format compatible with the AWIPS display system, and writes the file
+to a directory known to the D2D system. <br>
+<br>
+The makeD2DFile program is limited in several ways.&nbsp; Currently the
+program will store only a subset of the GFE weather elements.&nbsp; The
+set of weather elements that can be stored is limited to T
+(temperature), Td (dew point), RH (relative humidity), MinT (minimum
+temperature), MaxT (maximum temperature), QPF (quantitative
+precipitation forecast), and PoP (probability of precipitation).&nbsp;
+Note that at this point the program will not store vector data such as
+wind or discrete data such as Wx.<br>
+<br>
+While the time period over which the grids are stored can be controlled
+with the "s" and "e" switches, the programs is hard-coded to store
+grids every hour between the to indicated times.&nbsp; There is
+currently no provision to store grids at different time intervals (for
+example, hourly grids to 24 hours, then 3 hourly out to 48).<br>
+<br>
+All grids are converted to MKS units before they are stored in order to
+match the convention of other D2D gridded files.<br>
+<br>
+<br>
+<div class="1Heading">
+<hr width="100%"></div>
+<h2 class="1Heading">
+</h2>
+<h2><a name="Running_from_the_GFE"></a>Running makeD2DFile From the GFE</h2>
+To run the makeD2DFile program from the GFE, perform the following
+steps...<br>
+<br>
+<ol>
+  <li>&nbsp;&nbsp; From the GFE's Main Menu bar, Select <span
+ style="font-weight: bold;">Products-&gt;Scripts...</span></li>
+  <li><span style="font-weight: bold;">&nbsp;&nbsp; </span>When the
+Scrips dialog appears, select <span style="font-weight: bold;">MakeD2DFile</span>
+and click <span style="font-weight: bold;">Run and Dismiss</span>.</li>
+</ol>
+<br>
+The makeD2DFile program reads data from the ifpServer, formats the data
+so that it is compatible with D2D, and writes the file to a special D2D
+directory reserved for GFE.&nbsp; When the program finishes you can
+view the data in D2D via the Volume Browser.&nbsp; To view these grids
+you must first select the State(s) or WFO scale on the D2D scale
+selector.&nbsp; Then in the D2D Volume Browser, select GFE for the
+model, select the weather elements you wish to view, and Surface as the
+level (if it's not selected for you already).&nbsp; When you select
+"Load" the elements will be loaded in D2D just like any other
+model.&nbsp; Other data may be overlaid on top of the GFE grids whose
+time matches that of the grid.<br>
+<br>
+</div>
+<div class="1Heading">
+<hr width="100%"></div>
+<h2 class="1Heading">
+</h2>
+<h2><a name="Running_from_the_Command_Line"></a>Running the makeD2DFile
+Program From the Command Line</h2>
+<br>
+The makeD2DFile can be run from the command line as well.&nbsp; If you
+choose to run the program this way, keep in mind that the data will not
+display in D2D if you specify a different output directory than the
+default )see sample below for default directory.&nbsp; It is for this
+reason that we do not recommend that you use this option.<br>
+<br>
+<div class="1Heading">A sample command line to make a displayable D2D
+file is:
+<br>
+<br>
+makeD2DFile -h GFEHost -r 98000000 -o
+/data/fxa/Grid/SBN/netCDF/local/GFE/20050708_1200<span
+ style="font-family: monospace;"><br>
+<br>
+Each option is listed below along with a description.<br>
+<br>
+</span><tt></tt></div>
+<div class="1Heading">&nbsp;</div>
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td><b>Option Syntax</b></td>
+      <td><b>Optional or Mandatory</b></td>
+      <td><b>Description</b></td>
+    </tr>
+    <tr>
+      <td>-h hostname</td>
+      <td>Optional<br>
+      </td>
+      <td>Specifies the host, upon which the ifpServer is running.
+Defaults to "localhost"<br>
+      </td>
+    </tr>
+    <tr>
+      <td>-r port</td>
+      <td>Optional<br>
+      </td>
+      <td>Specifies the port, upon which the ifpServer is
+running.&nbsp; Defaults to the configured port number, usually 98000000<br>
+      </td>
+    </tr>
+    <tr>
+      <td>-o output directory and filename</td>
+      <td>Optional</td>
+      <td>Indicates the directory and filename of the D2D file. Note:
+if this is changed from the default (see sample above) th<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-d database id<br>
+      </td>
+      <td style="vertical-align: top;">Optional<br>
+      </td>
+      <td style="vertical-align: top;">Indicates the name of the
+database from which the data will be retreived and formatted. Defaults
+to Fcst database<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-p parmName<br>
+      </td>
+      <td style="vertical-align: top;">Optional<br>
+      </td>
+      <td style="vertical-align: top;">Indicates the name(s) of the
+paramters to be stored.&nbsp; No -p option will store all elligible
+weather elements<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-s startTime (yyyymmdd_hhmm)<br>
+      </td>
+      <td style="vertical-align: top;">Optional<br>
+      </td>
+      <td style="vertical-align: top;">Indicates the beginning time for
+the data to be stored.&nbsp; No -s option will store starting with the
+current time.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-e endTime (yyyymmdd_hhmm)<br>
+      </td>
+      <td style="vertical-align: top;">Optional<br>
+      </td>
+      <td style="vertical-align: top;">Indicates the ending time for
+the data to be stored.&nbsp; No -e option
+will store ending at 24 hours past the current time.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-m mask<br>
+      </td>
+      <td style="vertical-align: top;">Optional<br>
+      </td>
+      <td style="vertical-align: top;">Indicates the mask or edit area
+over which the data will be stored.&nbsp; If no mask is specified, the
+entire grid will be stored, otherwise the data will be clipped to the
+mask area.&nbsp; The mask is the name of a GFE edit area.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-g [no argument]<br>
+      </td>
+      <td style="vertical-align: top;">Optional<br>
+      </td>
+      <td style="vertical-align: top;">If present the program will also
+store the local GFE topography data set.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<font color="#3366ff"><br>
+</font>
+<div class="1Heading">
+<hr width="100%"></div>
+</body>
+</html>

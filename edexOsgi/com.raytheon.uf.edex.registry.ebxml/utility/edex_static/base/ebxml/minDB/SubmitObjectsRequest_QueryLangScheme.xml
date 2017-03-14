@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SubmitObjectsRequest id="urn:oasis:names:tc:ebxml-regrep:request:id" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0" xmlns:lcm="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0" xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:4.0" xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0" xmlns:rs="urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0  ../../xsd/lcm.xsd">
+    <rim:RegistryObjectList>
+        <rim:RegistryObject xsi:type="rim:ClassificationSchemeType" lid="urn:oasis:names:tc:ebxml-regrep:classificationScheme:QueryLanguage" id="urn:oasis:names:tc:ebxml-regrep:classificationScheme:QueryLanguage" isInternal="true" nodeType="urn:oasis:names:tc:ebxml-regrep:NodeType:UniqueCode" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationScheme">
+            <rim:Name>
+                <rim:LocalizedString xml:lang="en-US" value="QueryLanguage"/>
+            </rim:Name>
+            <rim:Description>
+                <rim:LocalizedString xml:lang="en-US" value="QueryLanguage.desc"/>
+            </rim:Description>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:QueryLanguage:HQL" code="HQL" id="urn:oasis:names:tc:ebxml-regrep:QueryLanguage:HQL" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:QueryLanguage">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="SQL-92"/>
+                </rim:Name>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:QueryLanguage:XPath" code="XPath" id="urn:oasis:names:tc:ebxml-regrep:QueryLanguage:XPath" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:QueryLanguage">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="XPath"/>
+                </rim:Name>
+            </rim:ClassificationNode>
+        </rim:RegistryObject>
+    </rim:RegistryObjectList>
+</SubmitObjectsRequest>

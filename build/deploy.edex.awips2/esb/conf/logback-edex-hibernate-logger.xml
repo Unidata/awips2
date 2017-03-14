@@ -1,0 +1,17 @@
+<included>
+   <!-- hibernate log -->
+   <appender name="HibernateLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
+         <name>hibernate</name>
+      </rollingPolicy>
+
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder">
+          <trace>false</trace>
+      </encoder>
+   </appender>
+
+   <logger name="org.hibernate" additivity="false">
+      <level value="ERROR"/>
+      <appender-ref ref="HibernateLog" />
+   </logger>
+</included>

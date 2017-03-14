@@ -1,0 +1,2 @@
+In supporting the Text Products, the emphasis is on having users understand the system and be self-sufficient in solving their own problems.  To this end, we are attempting to provide adequate documentation which includes trouble-shooting strategies.
+

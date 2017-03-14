@@ -1,0 +1,126 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.78 [en] (X11; U; Linux 2.4.9-13smp i686) [Netscape]">
+  <title>EDEX HDF5 Format</title>
+</head>
+<body text="#000000" bgcolor="#ffffff" link="#0000ee" vlink="#551a8b"
+ alink="#ff0000">
+<h1>
+EDEX D2D HDF5 File Format</h1>
+March 28, 2012
+<br>
+
+<br>
+This document describes the format of the HDF5 file that is:
+<ul>
+  <li>
+read by EDEX as a D2D database</li>
+</ul>
+If you are interested in the format of the netCDF files generated from
+the <a href="ifpnetCDF.html">ifpnetCDF product formatter<!-- Leave this comment in for formatting purposes--></a>, or<!-- Leave this comment in for formatting purposes-->
+read
+by the <a href="iscMosaic.html">iscMosaic program<!-- Leave this comment in for formatting purposes--></a> , then refer to<!-- Leave this comment in for formatting purposes-->
+the
+<a href="netCDFFormat.html">netCDF File Format Document<!-- Leave this comment in for formatting purposes--></a>.
+<p>
+When data arrives over the SBN, the EDEX JVM ingest thread reads the next available message in AMQP queue
+from the QPID message broker.  It compares against the distribution XML files loaded into memory on EDEX
+startup from /awips2/edex/data/utility/edex_static/base/distribution.  If no pattern matches, nothing is 
+done.  Otherwise a metadata record is generated in the appropriate table of the metadata database, and 
+an HDF5 file is written to /awips2/edex/data/hdf5/grib/MODEL_NAME on dx1. SmartInit is kicked off by
+EDEX and generates data in /awips2/edex/data/hdf5/gfe/SITE_ID. You can access the
+metadata database on dx1 as user awips.  You can view the contents of HDF5 files using either the 
+free HDFView utility, or h5dump (installed in /awips2/tools/bin).</p>
+<hr width="100%">
+<h2>About h5dump</h2>
+OPTIONS<br>
+<p><tt>-h, --help&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print a usage message and exit<br>
+-B, --userblock&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print the content of the user block<br>
+-H, --header&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print the header only; no data is displayed<br>
+-i, --object-ids&nbsp;&nbsp;&nbsp;&nbsp;Print the object ids<br>
+-V, --version&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print version number and exit<br>
+-a P, --attribute=P Print the specified attribute<br>
+-d P, --dataset=P&nbsp;&nbsp;&nbsp;Print the specified dataset<br>
+-g P, --group=P&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print the specified group and all members<br>
+-l P, --soft-link=P Print the value(s) of the specified soft link<br>
+-o F, --output=F&nbsp;&nbsp;&nbsp;&nbsp;Output raw data into file F<br>
+-t P, --datatype=P&nbsp;&nbsp;Print the specified named data type<br>
+-w N, --width=N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set the number of columns of output<br>
+-x, --xml&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Output in XML<br>
+-D U, --xml-dtd=U&nbsp;&nbsp;&nbsp;Use the DTD at U
+<p>Subsetting is available by using the following options with a dataset
+attribute. Subsetting is done by selecting a hyperslab from the data.
+Thus, the options mirror those for performing a hyperslab selection.
+The START and COUNT parameters are mandatory if you do subsetting.
+The STRIDE and BLOCK parameters are optional and will default to 1 in
+each dimension.</p>
+-s L, --start=L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Offset of start of subsetting selection<br>
+-S L, --stride=L&nbsp;&nbsp;&nbsp;&nbsp;Hyperslab stride<br>
+-c L, --count=L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Number of blocks to include in selection<br>
+-k L, --block=L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Size of block in hyperslab<br><br>
+P - is the full path from the root group to the object.<br>
+F - is a filename.<br>
+N - is an integer greater than 1.<br>
+L - is a list of integers the number of which are equal to the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;number of dimensions in the dataspace being queried<br>
+U - is a URI reference<br><br>
+Examples:<br>
+<br>
+&nbsp;&nbsp;1) Attribute foo of the group /bar_none in file quux.h5<br>
+<br><br>
+&nbsp;&nbsp;&nbsp;&nbsp;h5dump -a /bar_none/foo quux.h5<br>
+<br><br>
+&nbsp;&nbsp;2) Selecting a subset from dataset /foo in file quux.h5<br>
+<br><br>
+&nbsp;&nbsp;&nbsp;&nbsp;h5dump -d /foo -s "0,1" -S "1,1" -c "2,3" -k "2,2" quux.h5
+</tt>
+</p>
+<hr width="100%">
+<h2><a name="DiagnosingModelProblems"></a>Diagnosing Model Problems</h2>
+If you point the volume browser to a D2D directory and the model is not
+appearing, verify that:
+<ul>
+  <li>EDEX started up without any errors that would affect gfe, i.e., all 
+  configurations loaded normally.</li>
+  <li>Ingest processes started normally and are up and running.</li>
+  <li>PyPies are up and running on dx1.</li>
+  <li>
+the file name is in the standard format of yyyymmdd_hhmm, which is the
+model base time</li>
+  <li>
+that the file contains all of the required variables, dimensions, and
+attributes
+as outlined above</li>
+  <li>
+that there isn't more than ONE directory in the <a
+ href="localConfig.html#ModifyingthelistofD2DDirectoriesformodelaccess">D2DDIRS</a>
+configuration containing files that have an variable called "model"
+with
+the same name</li>
+</ul>
+If all else fails, you can turn on the debugging logging option in EDEX. 
+In this mode EDEX will log all problems it finds
+with model data files. To turn on this feature, perform the following steps:
+<ol>
+  <li>
+Edit the file /awips2/edex/conf/log4j-ingest.xml to set level value = "DEBUG"
+for the appender ThreadBasedLog. Refer
+to the <a href="logFiles.html">log files document</a> for details.</li>
+  <li>
+Stop and restart EDEX.</li>
+  <li>
+Look in the server log files. It will show the problems for all
+files
+it finds. If it doesn't identify your file or directory, re-check
+your <a
+ href="localConfig.html#ModifyingthelistofD2DDirectoriesformodelaccess">D2DDIRS</a>
+to be sure you have set it up correctly.</li>
+</ol>
+<p><br>
+</p>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<accumulationConfigs>
+    <accumulation>
+        <model>Canadian-Reg</model>
+        <create forecastPeriodHours="3" accumulationParam="TP3hr" minuendParam="TPrun" subtrahendParam="TPrun" />
+    </accumulation>
+
+    <accumulation>
+        <model>Canadian-NH</model>
+        <create forecastPeriodHours="6" accumulationParam="TP6hr" minuendParam="TPrun" subtrahendParam="TPrun" />
+    </accumulation>
+
+    <accumulation>
+        <model>ECMWF-HiRes</model>
+        <create forecastPeriodHours="6" accumulationParam="TP6hr" minuendParam="TP-ECMWF" subtrahendParam="TP-ECMWF" />
+    </accumulation>
+
+    <accumulation>
+        <model>GFS215|GFS217|GFS20-.*</model>
+        <create forecastPeriodHours="3" accumulationParam="TP3hr" minuendParam="TP6hr" subtrahendParam="TP3hr" />
+        <create forecastPeriodHours="3" accumulationParam="CP3hr" minuendParam="CP6hr" subtrahendParam="CP3hr" />
+    </accumulation>
+
+    <accumulation>
+        <model>ETA</model>
+        <create forecastPeriodHours="6" accumulationParam="TP6hr" minuendParam="TP12hr" subtrahendParam="TP6hr" />
+        <create forecastPeriodHours="6" accumulationParam="CP6hr" minuendParam="CP12hr" subtrahendParam="CP6hr" />
+    </accumulation>
+
+    <!-- NamNestPostProcessor equivalent. -->
+    <!-- 
+    <accumulation>
+        <model></model>
+        <create forecastPeriodHours="1" accumulationParam="TP1hr" minuendParam="TP3hr" subtrahendParam="TP2hr" />
+        <create forecastPeriodHours="1" accumulationParam="TP1hr" minuendParam="TP2hr" subtrahendParam="TP1hr" />
+    </accumulation>
+    -->
+</accumulationConfigs>

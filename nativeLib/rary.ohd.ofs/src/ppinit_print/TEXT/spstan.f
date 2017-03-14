@@ -1,0 +1,270 @@
+C MODULE SPSTAN
+C-----------------------------------------------------------------------
+C
+C  ROUTINE TO PRINT STATION GENERAL PARAMETERS.
+C
+      SUBROUTINE SPSTAN (IPRNT,UNITS,IVSTAN,UNUSED,
+     *   STAID,STATE,NBRSTA,DESCRP,STAELV,STALOC,STACOR,
+     *   ICSTAN,NGPS,GPS,IPARM,
+     *   IPPP24,IPPPVR,ITPPVR,IPCHAR,
+     *   IPTM24,IPTAVR,ITTAVR,IPTF24,TF24FE,
+     *   IPEA24,
+     *   NSRCCD,SRCCD,NSRCID,SRCID,NGOESN,GOESN,NCDASN,CDASN,
+     *   NUGPA,
+     *   ISTAT)
+C
+      CHARACTER*4 UNITS
+      CHARACTER*4 TUNITS,UCODE,DEGMIN
+C
+      DIMENSION UNUSED(1)
+      DIMENSION MINDEG(4)
+C      
+      INCLUDE 'scommon/dimstan'
+C
+      INCLUDE 'uio'
+      INCLUDE 'scommon/sudbgx'
+      INCLUDE 'scommon/suoptx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppinit_print/RCS/spstan.f,v $
+     . $',                                                             '
+     .$Id: spstan.f,v 1.2 1998/04/07 18:01:46 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,90)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG('STAN')
+C
+      ISTAT=0
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,*) 'UNITS=',UNITS
+         CALL SULINE (IOSDBG,1)
+         WRITE (IOSDBG,110) NGPS,(GPS(I),I=1,NGPS)
+         CALL SULINE (IOSDBG,1)
+         WRITE (IOSDBG,120) NSRCCD,(SRCCD(I),I=1,NSRCCD)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  DECODE UNITS
+      CALL SUDCDU (UNITS,TUNITS,DEGMIN,IERR)
+      IF (IERR.NE.0) THEN
+         TUNITS='ENGL'
+         WRITE (LP,130) UNITS,TUNITS
+         CALL SUERRS (LP,2,-1)
+         ENDIF
+C
+C  CHECK NUMBER OF LINES LEFT ON PAGE
+      IF (ISLEFT(10).GT.0) CALL SUPAGE
+C
+C  PRINT HEADING
+      IF (IPRNT.EQ.0) GO TO 10
+         WRITE (LP,140)
+         CALL SULINE (LP,1)
+10    IF (IPRNT.EQ.1) THEN
+         WRITE (LP,150) STAID
+         CALL SULINE (LP,2)
+         ENDIF
+      IF (IPRNT.EQ.2) THEN
+         WRITE (LP,160) DESCRP
+         CALL SULINE (LP,2)
+         ENDIF
+      WRITE (LP,180)
+      CALL SULINE (LP,2)
+C
+C  PRINT PARAMETER ARRAY VERSION NUMBER
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,190) IVSTAN
+         CALL SULINE (LP,2)
+         ENDIF
+C
+C  PRINT STATION NAME, NUMBER AND DESCRIPTION
+      IF (NBRSTA.EQ.0) THEN
+         WRITE (LP,200) STAID,DESCRP,STATE
+         CALL SULINE (LP,2)
+         ENDIF
+      IF (NBRSTA.GT.0) THEN
+         WRITE (LP,210) STAID,DESCRP,STATE,NBRSTA
+         CALL SULINE (LP,2)
+         ENDIF
+C
+C  PRINT STATE, ELEVATION, LATITUDE AND LONGITUDE
+      UCODE='FT  '
+      VALUE=STAELV
+      IF (TUNITS.EQ.'ENGL') THEN
+         UCODE='FT  '
+         CALL UDUCNV ('M   ','FT  ',1,1,STAELV,VALUE,IERR)
+         ENDIF
+      IF (DEGMIN.EQ.'NO') THEN
+         WRITE (LP,230) STALOC,VALUE,UCODE
+         CALL SULINE (LP,2)
+         ELSE
+            CALL SUDMDD ('DM  ',2,STALOC,MINDEG,IERR)
+            WRITE (LP,240) MINDEG,VALUE,UCODE
+            CALL SULINE (LP,2)
+         ENDIF
+C
+C  PRINT NWSRFS/HRAP COORDINATES
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,220) STACOR
+         CALL SULINE (LP,2)
+         ENDIF
+C
+C  PRINT COMPLETE INDICATOR
+      IF (ICSTAN.EQ.0) THEN
+         WRITE (LP,250)
+         CALL SULINE (LP,2)
+         ENDIF
+      IF (ICSTAN.EQ.1) THEN
+         WRITE (LP,260)
+         CALL SULINE (LP,2)
+         IF (ICSTAN.EQ.1) THEN
+            WRITE (LP,270)
+            WRITE (LP,270)
+            ENDIF
+         ENDIF
+      IF (ICSTAN.LT.0.OR.ICSTAN.GT.1) THEN
+         WRITE (LP,280) ICSTAN
+         CALL SULINE (LP,2)
+         ENDIF
+C
+C  PRINT NUMBER OF UNUSED POSITIONS
+      NUNUSD=2
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,290) NUNUSD
+         CALL SULINE (LP,2)
+         WRITE (IOSDBG,370) (IPARM(I),I=1,NGPS)
+         CALL SULINE (IOSDBG,1)
+         WRITE (IOSDBG,380) IPPP24,IPPPVR,ITPPVR,IPCHAR
+         CALL SULINE (IOSDBG,1)
+         WRITE (IOSDBG,390) IPTM24,IPTAVR,ITTAVR,IPTF24,TF24FE
+         CALL SULINE (IOSDBG,1)
+         WRITE (IOSDBG,400) IPEA24
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      IF (NGPS.EQ.0) THEN
+         WRITE (LP,300)
+         CALL SULINE (LP,2)
+         GO TO 30
+         ENDIF
+C
+C  PRINT NUMBER OF DATA GROUPS
+      IF (ISLEFT(NGPS+3).GT.0) CALL SUPAGE
+      WRITE (LP,310)
+      CALL SULINE (LP,3)
+      DO 20 I=1,NGPS
+         WRITE (LP,320) I,GPS(I)
+         CALL SULINE (LP,1)
+20       CONTINUE
+C
+30    IF (NSRCCD.EQ.0) GO TO 50
+C
+      IF (ISLEFT(NSRCCD+3).GT.0) CALL SUPAGE
+C
+C  PRINT DATA ENTRY SOURCE CODES
+      WRITE (LP,330)
+      CALL SULINE (LP,2)
+      DO 40 I=1,NSRCCD
+         WRITE (LP,340) I,SRCCD(I),(SRCID(J,I),J=1,NSRCID)
+         CALL SULINE (LP,1)
+40       CONTINUE
+C
+50    IF (IVSTAN.LT.2) GO TO 60
+      IF (NGOESN.EQ.0) GO TO 60
+C
+C  PRINT GOES DATA TYPES NOT TO BE TRANSFERRED
+      WRITE (LP,350) 'GOES',(GOESN(I),I=1,NGOESN)
+      CALL SULINE (LP,2)
+C
+60    IF (IVSTAN.LT.3) GO TO 70
+      IF (NCDASN.EQ.0) GO TO 70
+C
+C  PRINT CDAS DATA TYPES NOT TO BE TRANSFERRED
+      WRITE (LP,350) 'CDAS',(CDASN(I),I=1,NCDASN)
+      CALL SULINE (LP,2)
+C
+70    IF (IVSTAN.LT.4) GO TO 80
+      IF (NUGPA.EQ.-999) GO TO 80
+C
+C  PRINT GRID POINT ADDRESS
+      WRITE (LP,360) NUGPA
+      CALL SULINE (LP,2)
+C
+80    WRITE (LP,140)
+      CALL SULINE (LP,1)
+      WRITE (LP,170)
+      CALL SULINE (LP,1)
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,420) ISTAT
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+90    FORMAT (' *** ENTER SPSTAN')
+110   FORMAT (' NGPS=',I2,3X,'GPS=',10(A,1X))
+120   FORMAT (' NSRCCD=',I2,3X,'SRCCD=',10(A,1X))
+130   FORMAT ('0*** ERROR - IN SPSTAN - REQUESTED DATA UNITS CANNOT ',
+     *   'BE DECODED FROM VALUE PASSED : ',A,'. ',A,' UNITS ASSUMMED.')
+140   FORMAT (' ')
+150   FORMAT ('0',60('-'),' ID=',A,1X,59('-'))
+160   FORMAT ('0',53('-'),' DESC=',A,1X,52('-'))
+170   FORMAT (' ',132('-'))
+180   FORMAT (' ')
+190   FORMAT ('0PARAMETER ARRAY VERSION NUMBER = ',I2)
+200   FORMAT ('0*--> STAN PARAMETERS :  ',
+     *   'IDENTIFIER = ',A,5X,
+     *   'DESCRIPTION = ',A,5X,
+     *   'STATE = ',A2,5X,
+     *   'NUMBER = ** NONE **')
+210   FORMAT ('0*--> STAN PARAMETERS :  ',
+     *   'IDENTIFIER = ',A,5X,
+     *   'DESCRIPTION = ',A,5X,
+     *   'STATE = ',A2,5X,
+     *   'NUMBER = ',I5)
+220   FORMAT ('0NWSRFS/HRAP COORDINATES =  (',F6.1,',',F6.1,')')
+230   FORMAT ('0LATITUDE =  ',F6.2,5X,
+     *   'LONGITUDE = ',F7.2,5X,
+     *   'ELEVATION = ',F7.1,2X,A)
+240   FORMAT ('0LATITUDE =  ',I2,'-',I2,5X,
+     *   'LONGITUDE = ',I3,'-',I2,5X,
+     *   'ELEVATION = ',F7.1,2X,A)
+250   FORMAT ('0STATION DEFINITION STATUS = COMPLETE')
+260   FORMAT ('0STATION DEFINITION STATUS = INCOMPLETE')
+270   FORMAT ('+',T30,'INCOMPLETE')
+280   FORMAT ('0INVALID STATION DEFINITION STATUS INDICATOR : ',I2)
+290   FORMAT ('0NUMBER OF UNUSED POSITIONS = ',I2)
+300   FORMAT ('0DATA GROUP CODES : ',5X,'** NONE DEFINED **')
+310   FORMAT ('0DATA GROUP CODES : ',5X,'CODE' / T26,'----')
+320   FORMAT (T21,I2,3X,A)
+330   FORMAT ('0DATA ENTRY SOURCE CODES : ',
+     *   T33,'CODE',
+     *      T43,'ADDL INFORMATION' /
+     *   T33,4('-'),
+     *      T43,20('-'))
+340   FORMAT (T28,I2,3X,A,6X,20A)
+350   FORMAT ('0',A,' GROUPS OR RRS DATA TYPES NOT TO BE ',
+     *   'TRANSFERRED : ',10(A,1X))
+360   FORMAT ('0GRID POINT ADDRESS = ',I5)
+370   FORMAT (' IPARM(I)=',5(I5,3X))
+380   FORMAT (' PCPN POINTERS :  IPPP24=',I5,3X,'IPPPVR=',I5,3X,
+     *   'ITPPVR=',I5,3X,'IPCHAR=',I5)
+390   FORMAT (' TEMP POINTERS :  IPTM24=',I5,3X,'IPTAVR=',I5,3X,
+     *   'ITTAVR=',I5,3X,'IPTF24=',I5,3X,'TF24FE=',F6.1)
+400   FORMAT (' PE   POINTERS :  IPEA24=',I5)
+420   FORMAT (' *** EXIT SPSTAN - STATUS CODE=',I2)
+C
+      END

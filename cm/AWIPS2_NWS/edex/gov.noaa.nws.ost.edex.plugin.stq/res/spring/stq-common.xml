@@ -1,0 +1,20 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+    <bean id="stqPluginName" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="stq" />
+    </bean>
+    <bean id="stqProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+        <property name="pluginName" ref="stqPluginName" />
+        <property name="pluginFQN" value="gov.noaa.nws.ost.dataplugin.stq" />
+        <property name="dao"
+            value="gov.noaa.nws.ost.edex.plugin.stq.SpotRequestRecordDAO" />
+        <property name="record"
+            value="gov.noaa.nws.ost.dataplugin.stq.SpotRequestRecord" />
+    </bean>
+    <bean id="stqRegistered" factory-bean="pluginRegistry"
+        factory-method="register">
+        <constructor-arg ref="stqPluginName" />
+        <constructor-arg ref="stqProperties" />
+    </bean>
+</beans>

@@ -1,0 +1,27 @@
+
+<WEGroup name="FireWx">
+ <WEItem parmID="LAL_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="Wetflag_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="Ttrend_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="RHtrend_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="CWR_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="Haines_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="PoP_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="MixHgt_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="FreeWind_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="Wind20ft_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="Wind_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="TransWind_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="Stability_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="DSI_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="HrsOfSun_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="InvBurnOffTemp_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="VentRate_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="RH_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="MaxRH_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="MinRH_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="MaxT_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="MinT_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="Wx_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="Hazards_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+</WEGroup>

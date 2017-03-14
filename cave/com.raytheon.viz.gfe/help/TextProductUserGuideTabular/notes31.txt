@@ -1,0 +1,2 @@
+The first thing we must do is create the summary statistics for this edit area given the information in the HistoSampler.  The "getStatDict" helper method is a building block to help with this task.  It takes the HistoSampler information and the analysis list, which tells it the weather elements and corresponding analysis methods.  Then, for a particular time range and edit area,  it returns a statistics dictionary.  This is simply a Python dictionary with an entry for each weather element and its corresponding statistics.
+

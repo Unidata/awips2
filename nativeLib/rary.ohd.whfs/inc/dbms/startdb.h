@@ -1,0 +1,1 @@
+void startdb(long int *);

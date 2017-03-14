@@ -1,0 +1,4 @@
+C                                           *--> FROM SCOMMON.SWORKX
+C  PPINIT WORK ARRAY COMMON BLOCK
+      COMMON /SWORKX/ LSWORK,SWORK(225000)
+C

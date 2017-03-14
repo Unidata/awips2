@@ -1,0 +1,16 @@
+# ISC Routing Table config file
+# Entries: name, value
+#   name: purgeTime    value: how long to keep each entry in the table (seconds)
+#                             minimum value = 3600 or pingTime, whichever is greater
+#   name: pingTime     value: how often to reregister (seconds); minimum value = 3600
+#   name: useuntil     value: minimum time between getaddr calls (seconds)
+#   name: doclip       value: should ISC clipping take place: 0=no, 1=yes
+#   name: mount        value: where to mount the service, if different from /
+#   name: port         value: the service port (such as 8080)
+
+purgeTime 7200
+pingTime 3600
+useuntil 180
+doclip 1
+mount $INSTALL_PATH
+port 8081

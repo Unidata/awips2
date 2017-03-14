@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="com.raytheon.viz.feature.awips.developer"
+      label="AWIPS Developer Feature"
+      version="1.9.0.qualifier"
+      provider-name="Raytheon">
+
+   <description>
+      Contains the AWIPS feature set
+   </description>
+
+   <license url="http://awips.raytheon.com">
+      Raytheon AWIPS
+   </license>
+
+   <includes
+         id="com.raytheon.uf.common.base.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.base.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.cots.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.common.core.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.localization.perspective.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.core.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.core.maps.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.sounding.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.dataplugin.obs.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.dataplugins.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.d2d.core.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.viz.radar.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.radarapps.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.viz.text.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.viz.warngen.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.grid.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.viz.gfe.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.displays.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.viz.satellite.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.ncep.core.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.ncep.dataplugins.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.viz.hydro.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.d2d.xy.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.ncep.displays.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.ncep.nsharp.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.d2d.nsharp.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.archive.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.ncep.perspective.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.nwsauth.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.thinclient.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.useradmin.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.kml.export.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.npp.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.npp.sounding.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.d2d.skewt.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.viz.volumebrowser.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.acarssounding.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.viz.avnfps.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.dat.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.d2d.gfe.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.collaboration.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.gisdatastore.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.d2d.ui.awips.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.registry.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.aviation.advisory.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.datadelivery.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="edu.wisc.ssec.cimss.viz.convectprob.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.d2d.damagepath.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="gov.noaa.gsd.viz.hazards.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.ncep.npp.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.alertview.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.grib.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.bmh.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="gov.noaa.nws.ocp.uf.viz.gisdatastore.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.useradmin.feature"
+         version="0.0.0"/>
+
+   <requires>
+      <import feature="com.raytheon.uf.viz.application.feature" version="1.0.0.qualifier"/>
+   </requires>
+
+</feature>

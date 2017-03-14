@@ -1,0 +1,624 @@
+module 'Hb'
+version = 48;
+xdesigned = 1;
+applicationName = 'Hb';
+generateNameC = * 'grpinfo.c';
+generateNameExterns = * 'grpinfo.h';
+generateNameResDB = * 'grpinfo.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+motifFlavour = 2;
+generateMask = 39256293;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+javaVersion = 2;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'grpDS' : XmDialogShell {
+	arguments {
+	lastGenName = 'grpDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_grpDS (Widget parent)
+';
+	XmNheight = 700;
+	XmNallowShellResize = true;
+	XmNtitle = 'RiverPro Forecast Groups/Points';
+	XmNminWidth = 840;
+	XmNminHeight = 700;
+	XmNmaxWidth = 840;
+	XmNmaxHeight = 700;
+	};
+object 'grpFM' : XmForm {
+	arguments {
+	lastGenName = 'grpFM';
+	XmNheight = 700;
+	XmNautoUnmanage = false;
+	};
+object 'grpLbl' : XmLabel {
+	arguments {
+	lastGenName = 'grpLbl';
+	XmNlabelString = 'Group Id              Name                                                      Order        Recomm All';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'grpfgSLB' : XmScrolledList {
+	arguments {
+	lastGenName = 'grpfgSLB';
+	XmNwidth = 750;
+	};
+abstract object 'grpHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'grpHSB';
+	};
+};
+abstract object 'grpVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'grpVSB';
+	};
+};
+abstract object 'grpfgLB' : XmList {
+	arguments {
+	lastGenName = 'grpfgLB';
+	XmNvisibleItemCount = 7;
+	XmNautomaticSelection = XmAUTO_SELECT;
+	XmNlistSizePolicy = XmCONSTANT;
+	};
+};
+};
+object 'grpinfoFrm' : XmFrame {
+	arguments {
+	lastGenName = 'grpinfoFrm';
+	};
+object 'grpinfoFM' : XmForm {
+	arguments {
+	was_selected = true;
+	lastGenName = 'grpinfoFM';
+	};
+object 'grpidLbl' : XmLabel {
+	arguments {
+	lastGenName = 'grpidLbl';
+	XmNlabelString = 'Group Id:';
+	};
+};
+object 'grpidTxt' : XmText {
+	arguments {
+	lastGenName = 'grpidTxt';
+	XmNmaxLength = 8;
+	XmNcolumns = 13;
+	};
+};
+object 'grpnameLbl' : XmLabel {
+	arguments {
+	lastGenName = 'grpnameLbl';
+	XmNlabelString = 'Name:';
+	};
+};
+object 'grpnameTxt' : XmText {
+	arguments {
+	lastGenName = 'grpnameTxt';
+	XmNmaxLength = 32;
+	XmNcolumns = 50;
+	};
+};
+object 'grpnumLbl' : XmLabel {
+	arguments {
+	lastGenName = 'grpnumLbl';
+	XmNlabelString = 'Order:';
+	};
+};
+object 'grpnumTxt' : XmText {
+	arguments {
+	lastGenName = 'grpnumTxt';
+	XmNmaxLength = 3;
+	XmNcolumns = 8;
+	};
+};
+object 'grp_recallLB' : XmLabel {
+	arguments {
+	lastGenName = 'grp_recallLB';
+	XmNlabelString = 'Recomm All:';
+	};
+};
+object 'grp_recallTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'grp_recallTB';
+	XmNlabelString = ' ';
+	};
+};
+object 'grpapplyfgPB' : XmPushButton {
+	arguments {
+	lastGenName = 'grpapplyfgPB';
+	XmNwidth = 120;
+	XmNlabelString = 'Apply
+FcstGroup';
+	};
+};
+object 'grp2SP' : XmSeparator {
+	arguments {
+	lastGenName = 'grp2SP';
+	};
+};
+object 'grp2aLbl' : XmLabel {
+	arguments {
+	lastGenName = 'grp2aLbl';
+	XmNlabelString = 'Forecast Points within the Forecast Group';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'grp2bLbl' : XmLabel {
+	arguments {
+	lastGenName = 'grp2bLbl';
+	XmNlabelString = 'Point Id   Name                                  Order Type  Chg   Primary Second      BkHrs   FwdHrs   AdjEndHrs';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'grpfpSLB' : XmScrolledList {
+	arguments {
+	lastGenName = 'grpfpSLB';
+	};
+abstract object 'grp2HSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'grp2HSB';
+	};
+};
+abstract object 'grp2VSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'grp2VSB';
+	};
+};
+abstract object 'grpfpLB' : XmList {
+	arguments {
+	lastGenName = 'grpfpLB';
+	XmNvisibleItemCount = 8;
+	XmNautomaticSelection = XmAUTO_SELECT;
+	XmNlistSizePolicy = XmCONSTANT;
+	};
+};
+};
+object 'grpnum2Lbl' : XmLabel {
+	arguments {
+	lastGenName = 'grpnum2Lbl';
+	XmNlabelString = 'Order:';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'grpnum2Txt' : XmText {
+	arguments {
+	lastGenName = 'grpnum2Txt';
+	XmNmaxLength = 3;
+	XmNcolumns = 5;
+	};
+};
+object 'grpapplyfpPB' : XmPushButton {
+	arguments {
+	lastGenName = 'grpapplyfpPB';
+	XmNwidth = 120;
+	XmNlabelString = 'Apply
+FcstPoint';
+	};
+};
+object 'grp_rectypeLB' : XmLabel {
+	arguments {
+	lastGenName = 'grp_rectypeLB';
+	XmNlabelString = 'Impact/Crest 
+based on:';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'grp_chgwindowLB' : XmLabel {
+	arguments {
+	lastGenName = 'grp_chgwindowLB';
+	XmNlabelString = 'Stage/Flow
+Chg Window:';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'grp_chgwindowTX' : XmTextField {
+	arguments {
+	lastGenName = 'grp_chgwindowTX';
+	};
+};
+object 'grp_rectype_peTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'grp_rectype_peTB';
+	XmNlabelString = 'Primary PE';
+	};
+};
+object 'grp_rectype_npeTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'grp_rectype_npeTB';
+	XmNlabelString = 'Non-primary PE';
+	};
+};
+object 'pri_hsaLA' : XmLabel {
+	arguments {
+	lastGenName = 'pri_hsaLA';
+	XmNlabelString = 'Primary
+HSA Backup';
+	};
+};
+object 'pri_hsaSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'pri_hsaSL';
+	};
+abstract object 'pri_hsaHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'pri_hsaHSB';
+	};
+};
+abstract object 'pri_hsaVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'pri_hsaVSB';
+	};
+};
+abstract object 'pri_hsaLI' : XmList {
+	arguments {
+	lastGenName = 'pri_hsaLI';
+	};
+};
+};
+object 'sec_hsaLA' : XmLabel {
+	arguments {
+	lastGenName = 'sec_hsaLA';
+	XmNlabelString = 'Secondary
+HSA Backup';
+	};
+};
+object 'sec_hsaSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'sec_hsaSL';
+	};
+abstract object 'sec_hsaHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'sec_hsaHSB';
+	};
+};
+abstract object 'sec_hsaVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'sec_hsaVSB';
+	};
+};
+abstract object 'sec_hsaLI' : XmList {
+	arguments {
+	lastGenName = 'sec_hsaLI';
+	};
+};
+};
+object 'grp_backhrsLB' : XmLabel {
+	arguments {
+	lastGenName = 'grp_backhrsLB';
+	XmNlabelString = 'Observed
+BackHrs:';
+	};
+};
+object 'grp_ajtendhrsLB' : XmLabel {
+	arguments {
+	lastGenName = 'grp_ajtendhrsLB';
+	XmNlabelString = 'VTEC Adjust
+End Hrs:';
+	};
+};
+object 'grp_backhrsTX' : XmText {
+	arguments {
+	lastGenName = 'grp_backhrsTX';
+	};
+};
+object 'grp_ajtendhrsTX' : XmText {
+	arguments {
+	lastGenName = 'grp_ajtendhrsTX';
+	};
+};
+object 'grp_retrieveLB' : XmLabel {
+	arguments {
+	lastGenName = 'grp_retrieveLB';
+	XmNlabelString = 'Data Retrieval Info:';
+	};
+};
+object 'grp_fwdhrsLB' : XmLabel {
+	arguments {
+	XmNlabelString = 'Forecast
+FwdHrs:';
+	};
+};
+object 'grp_fwdhrsTX' : XmText {
+	arguments {
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -80;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -30;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -110;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -70;
+	XmNtopAttachment = 1 0 35;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -170;
+	XmNleftAttachment = 1 0 120;
+	XmNbottomAttachment = 2 0 -30;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -490;
+	XmNleftAttachment = 1 0 120;
+	XmNbottomAttachment = 2 0 -70;
+	XmNtopAttachment = 1 0 35;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -555;
+	XmNleftAttachment = 1 0 500;
+	XmNbottomAttachment = 2 0 -30;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -570;
+	XmNleftAttachment = 1 0 500;
+	XmNbottomAttachment = 2 0 -70;
+	XmNtopAttachment = 1 0 35;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -675;
+	XmNleftAttachment = 1 0 575;
+	XmNbottomAttachment = 2 0 -30;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -625;
+	XmNleftAttachment = 1 0 575;
+	XmNbottomAttachment = 2 0 -70;
+	XmNtopAttachment = 1 0 35;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 685;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 20;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -800;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 2 0 -86;
+	XmNtopAttachment = 1 0 76;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -515;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -115;
+	XmNtopAttachment = 1 0 90;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -810;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -145;
+	XmNtopAttachment = 1 0 120;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -810;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -285;
+	XmNtopAttachment = 1 0 150;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -56;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -318;
+	XmNtopAttachment = 1 0 290;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -54;
+	XmNleftAttachment = 1 0 4;
+	XmNbottomAttachment = 2 0 -358;
+	XmNtopAttachment = 1 0 322;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -714;
+	XmNleftAttachment = 1 0 600;
+	XmNbottomAttachment = 2 0 -444;
+	XmNtopAttachment = 1 0 402;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -180;
+	XmNleftAttachment = 1 0 62;
+	XmNbottomAttachment = 2 0 -320;
+	XmNtopAttachment = 1 0 288;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -298;
+	XmNleftAttachment = 1 0 186;
+	XmNbottomAttachment = 2 0 -324;
+	XmNtopAttachment = 1 0 288;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -270;
+	XmNleftAttachment = 1 0 200;
+	XmNbottomAttachment = 2 0 -360;
+	XmNtopAttachment = 1 0 326;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -190;
+	XmNleftAttachment = 1 0 62;
+	XmNbottomAttachment = 2 0 -357;
+	XmNtopAttachment = 1 0 328;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -195;
+	XmNleftAttachment = 1 0 60;
+	XmNbottomAttachment = 2 0 -389;
+	XmNtopAttachment = 1 0 360;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -406;
+	XmNleftAttachment = 1 0 304;
+	XmNbottomAttachment = 2 0 -326;
+	XmNtopAttachment = 1 0 288;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -406;
+	XmNleftAttachment = 1 0 304;
+	XmNbottomAttachment = 2 0 -430;
+	XmNtopAttachment = 1 0 328;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -510;
+	XmNleftAttachment = 1 0 410;
+	XmNbottomAttachment = 2 0 -326;
+	XmNtopAttachment = 1 0 288;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -510;
+	XmNleftAttachment = 1 0 410;
+	XmNbottomAttachment = 2 0 -432;
+	XmNtopAttachment = 1 0 328;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -612;
+	XmNleftAttachment = 1 0 516;
+	XmNbottomAttachment = 2 0 -352;
+	XmNtopAttachment = 1 0 315;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -813;
+	XmNleftAttachment = 1 0 696;
+	XmNbottomAttachment = 2 0 -351;
+	XmNtopAttachment = 1 0 315;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -606;
+	XmNleftAttachment = 1 0 516;
+	XmNbottomAttachment = 2 0 -390;
+	XmNtopAttachment = 1 0 354;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -795;
+	XmNleftAttachment = 1 0 702;
+	XmNbottomAttachment = 2 0 -390;
+	XmNtopAttachment = 1 0 354;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -664;
+	XmNleftAttachment = 1 0 516;
+	XmNbottomAttachment = 2 0 -312;
+	XmNtopAttachment = 1 0 288;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -696;
+	XmNleftAttachment = 1 0 612;
+	XmNbottomAttachment = 2 0 -351;
+	XmNtopAttachment = 1 0 315;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -699;
+	XmNleftAttachment = 1 0 612;
+	XmNbottomAttachment = 2 0 -390;
+	XmNtopAttachment = 1 0 354;
+    };
+    };
+};
+object 'grpinfoLbl' : XmLabel {
+	arguments {
+	lastGenName = 'grpinfoLbl';
+	XmNframeChildType = XmFRAME_TITLE_CHILD;
+	XmNlabelString = 'Selected Forecast Group';
+	};
+};
+};
+object 'grpSP' : XmSeparator {
+	arguments {
+	lastGenName = 'grpSP';
+	};
+};
+object 'grpclosePB' : XmPushButton {
+	arguments {
+	lastGenName = 'grpclosePB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Close';
+	};
+};
+object 'grpaddPB' : XmPushButton {
+	arguments {
+	lastGenName = 'grpaddPB';
+	XmNwidth = 120;
+	XmNheight = 35;
+	XmNlabelString = 'Add Group';
+	};
+};
+object 'grpdelPB' : XmPushButton {
+	arguments {
+	lastGenName = 'grpdelPB';
+	XmNwidth = 120;
+	XmNheight = 35;
+	XmNlabelString = 'Delete Group';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -705;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -25;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -830;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -155;
+	XmNtopAttachment = 1 0 30;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -830;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -634;
+	XmNtopAttachment = 1 0 162;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -835;
+	XmNleftAttachment = 1 0 6;
+	XmNbottomAttachment = 2 0 -653;
+	XmNtopAttachment = 1 0 636;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -96;
+	XmNleftAttachment = 1 0 12;
+	XmNbottomAttachment = 2 0 -693;
+	XmNtopAttachment = 1 0 658;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -492;
+	XmNleftAttachment = 1 0 368;
+	XmNbottomAttachment = 2 0 -693;
+	XmNtopAttachment = 1 0 658;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -825;
+	XmNleftAttachment = 1 0 712;
+	XmNbottomAttachment = 2 0 -693;
+	XmNtopAttachment = 1 0 658;
+    };
+    };
+};
+};
+end module;

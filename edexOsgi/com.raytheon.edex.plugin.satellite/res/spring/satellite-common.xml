@@ -1,0 +1,35 @@
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+  <bean id="satelliteProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties" depends-on="satellitePluginName">
+    <property name="pluginName" ref="satellitePluginName" />
+    <property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.satellite" />
+    <property name="dao" value="com.raytheon.edex.plugin.satellite.dao.SatelliteDao" />
+    <property name="record" value="com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord" />
+    <property name="compression" value="LZF" />
+  </bean>
+
+  <bean id="satelliteRegistered" factory-bean="pluginRegistry" factory-method="register">
+    <constructor-arg value="satellite" />
+    <constructor-arg ref="satelliteProperties" />
+  </bean>
+
+  <!-- Register the edex specific database tables -->
+  <bean id="satelliteEdexDbPluginProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
+    <property name="pluginFQN" value="com.raytheon.edex.plugin.satellite" />
+    <property name="database" value="metadata" />
+  </bean>
+  <bean id="satelliteEdexDbRegistered" factory-bean="dbPluginRegistry" factory-method="register" depends-on="satelliteRegistered">
+    <constructor-arg value="com.raytheon.edex.plugin.satellite" />
+    <constructor-arg ref="satelliteEdexDbPluginProperties" />
+  </bean>
+
+  <bean id="satelliteUnitsRegisterd" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <property name="targetClass">
+      <value>com.raytheon.uf.common.dataplugin.satellite.units.SatelliteUnits</value>
+    </property>
+    <property name="targetMethod">
+      <value>register</value>
+    </property>
+  </bean>
+</beans>

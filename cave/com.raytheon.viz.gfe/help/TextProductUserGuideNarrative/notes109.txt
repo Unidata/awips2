@@ -1,0 +1,2 @@
+This method separates the primary elements that are constant throughout the phrase from those that are not.  In the wind_withGusts_phrase, both Wind and WindGust are primary elements so phrase consolidation will catch both of these cases.
+

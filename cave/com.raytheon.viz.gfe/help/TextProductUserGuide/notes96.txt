@@ -1,0 +1,1 @@
+Here’s the “moderated_dict” which can be copied from the SampleAnalysis module and overridden in your Overrides file to change the default percentages for filtering the minimum and maximum data values.  

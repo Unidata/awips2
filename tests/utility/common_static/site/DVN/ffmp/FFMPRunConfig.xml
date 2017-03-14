@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<FFMPRunConfig xmlns:ns2="group">
+    <runner>
+        <!--  configure uri filter sources -->
+        <sourceIngestConfig uriSubLocation="3" name="DHR">
+            <dataKey>kdvn</dataKey>
+            <dataKey>tmsp</dataKey>
+            <dataKey>karx</dataKey>
+            <dataKey>kdmx</dataKey>
+        </sourceIngestConfig>
+        <sourceIngestConfig uriSubLocation="3" name="DPR">
+            <dataKey>kdvn</dataKey>
+            <dataKey>tmsp</dataKey>
+            <dataKey>karx</dataKey>
+            <dataKey>kdmx</dataKey>
+        </sourceIngestConfig>
+        <sourceIngestConfig uriSubLocation="3" name="FFG0124hr">
+            <dataKey>KMSR</dataKey>
+        </sourceIngestConfig>
+        <sourceIngestConfig uriSubLocation="3" name="FFG0324hr">
+            <dataKey>KMSR</dataKey>
+        </sourceIngestConfig>
+        <sourceIngestConfig uriSubLocation="3" name="FFG0624hr">
+            <dataKey>KMSR</dataKey>
+        </sourceIngestConfig>
+        <sourceIngestConfig uriSubLocation="3" name="QPFSCAN">
+            <dataKey>kdvn</dataKey>
+            <dataKey>tmsp</dataKey>
+            <dataKey>karx</dataKey>
+            <dataKey>kdmx</dataKey>
+        </sourceIngestConfig>
+        <!-- overrides of source config -->
+        <sourceOverride name="DHR">
+			<dataKey dataKey="kdvn">
+				<override param="expirationMinutes" value="20"/>
+			</dataKey>
+			<dataKey dataKey="kdmx">
+				<override param="expirationMinutes" value="25"/>
+			</dataKey>
+		</sourceOverride>
+        <!-- setup product definitions -->
+        <product key="kdvn" name="DHR"/>
+        <product key="kdvn" name="DPR"/>
+        <product key="kdmx" name="DHR"/>
+        <product key="kdmx" name="DPR"/>
+        <product key="karx" name="DHR"/>
+        <product key="karx" name="DPR"/>
+        <product key="tmsp" name="DHR"/>
+        <!-- domains to be run -->
+        <domain cwa="DVN" primary="true"/>
+        <domain cwa="DMX" primary="false"/>
+        <domain cwa="ARX" primary="false"/>
+        <domain cwa="LOT" primary="false"/>
+        <domain cwa="MPX" primary="false"/>
+    </runner>
+</FFMPRunConfig>

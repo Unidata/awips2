@@ -1,0 +1,200 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<!-- redbook -->
+	<bean id="redbookNdmMenuListener"
+		class="com.raytheon.uf.edex.ndm.dataplugin.subscriber.RedbookNdmMenuSubscriber" />
+
+	<bean id="redbookNdmMappingListener"
+		class="com.raytheon.uf.edex.ndm.dataplugin.subscriber.RedbookNdmMappingSubscriber" />
+
+	<bean factory-bean="ndmProc" factory-method="registerListener">
+		<constructor-arg value="redbookHazardMenus.txt" />
+		<constructor-arg ref="redbookNdmMenuListener" />
+	</bean>
+
+	<bean factory-bean="ndmProc" factory-method="registerListener">
+		<constructor-arg value="redbookHPCMenus.txt" />
+		<constructor-arg ref="redbookNdmMenuListener" />
+	</bean>
+
+	<bean factory-bean="ndmProc" factory-method="registerListener">
+		<constructor-arg value="redbookCPCMenus.txt" />
+		<constructor-arg ref="redbookNdmMenuListener" />
+	</bean>
+
+	<bean factory-bean="ndmProc" factory-method="registerListener">
+		<constructor-arg value="redbookMarineMenus.txt" />
+		<constructor-arg ref="redbookNdmMenuListener" />
+	</bean>
+
+	<bean factory-bean="ndmProc" factory-method="registerListener">
+		<constructor-arg value="redbookNCOMenus.txt" />
+		<constructor-arg ref="redbookNdmMenuListener" />
+	</bean>
+
+	<bean factory-bean="ndmProc" factory-method="registerListener">
+		<constructor-arg value="redbookUpperAirMenus.txt" />
+		<constructor-arg ref="redbookNdmMenuListener" />
+	</bean>
+
+	<bean factory-bean="ndmProc" factory-method="registerListener">
+		<constructor-arg value="redbookDataKeys.txt" />
+		<constructor-arg ref="redbookNdmMappingListener" />
+	</bean>
+
+	<bean factory-bean="ndmProc" factory-method="registerListener">
+		<constructor-arg value="redbookDepictKeys.txt" />
+		<constructor-arg ref="redbookNdmMappingListener" />
+	</bean>
+
+	<bean factory-bean="ndmProc" factory-method="registerListener">
+		<constructor-arg value="redbookProductButtons.txt" />
+		<constructor-arg ref="redbookNdmMappingListener" />
+	</bean>
+	
+	<!-- modelsounding -->
+    <bean id="modelBufrListener" class="com.raytheon.uf.edex.ndm.dataplugin.subscriber.ModelBufrSubscriber" />
+    
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="modelBufr.spi" />
+        <constructor-arg ref="modelBufrListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="modelBufrStationInfo.txt" />
+        <constructor-arg ref="modelBufrListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="modelBufrStationList.txt" />
+        <constructor-arg ref="modelBufrListener" />
+    </bean>
+    
+    <!-- bufrSounding -->
+    <bean id="poesBufrSoundingListener"
+        class="com.raytheon.uf.edex.ndm.dataplugin.subscriber.PoesBufrSoundingSubscriber" />
+    <bean id="goesBufrSoundingListener"
+        class="com.raytheon.uf.edex.ndm.dataplugin.subscriber.GoesBufrSoundingSubscriber" />
+
+       <!-- Convert txt to .spi -->
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="poesBufrStationInfo.txt" />
+        <constructor-arg ref="poesBufrSoundingListener" />
+    </bean>
+    
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="goesBufrStationInfo.txt" />
+        <constructor-arg ref="goesBufrSoundingListener" />
+    </bean>
+    
+       <!-- Copy .spi to .spi -->
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="poesBufr.spi" />
+        <constructor-arg ref="poesBufrSoundingListener" />
+    </bean>
+
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="goesBufr.spi" />
+        <constructor-arg ref="goesBufrSoundingListener" />
+    </bean>
+    
+    <!-- sfcobs -->
+    <bean id="buoyListener" class="com.raytheon.uf.edex.ndm.dataplugin.subscriber.BuoySubscriber" />
+
+    <bean id="marineInfoListener" class="com.raytheon.uf.edex.ndm.dataplugin.subscriber.MarineInfoSubscriber">
+        <constructor-arg value="${db.port}" />
+        <constructor-arg value="${edex.home}" />
+    </bean> 
+    
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="MarineInfo.txt" />
+        <constructor-arg ref="marineInfoListener" />
+    </bean>
+    
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="BUOY.spi" />
+        <constructor-arg ref="buoyListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="BUOY.goodness" />
+        <constructor-arg ref="buoyListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="BUOY.primary" />
+        <constructor-arg ref="buoyListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="maritimeStationInfo.txt" />
+        <constructor-arg ref="buoyListener" />
+    </bean>
+    
+    <!-- radar -->
+    <bean id="radarMenuCreator" class="com.raytheon.uf.edex.ndm.dataplugin.subscriber.RadarMenuUtil"/>
+    <bean id="import88dLocations" class="com.raytheon.uf.edex.ndm.dataplugin.subscriber.Import88DLocationsUtil"/>
+    
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="elevationLists.txt" />
+        <constructor-arg ref="radarMenuCreator" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="tdwrElevations.txt" />
+        <constructor-arg ref="radarMenuCreator" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="ssssElevationLists.txt" />
+        <constructor-arg ref="radarMenuCreator" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="fsl-w88d.shp" />
+        <constructor-arg ref="import88dLocations" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="fsl-w88d.shx" />
+        <constructor-arg ref="import88dLocations" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="fsl-w88d.dbf" />
+        <constructor-arg ref="import88dLocations" />
+    </bean>
+    
+    <!-- obs -->
+    <bean id="mtrListener" class="com.raytheon.uf.edex.ndm.dataplugin.subscriber.MTRSubscriber" />
+
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="MTR.spi" />
+        <constructor-arg ref="mtrListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="MTR.goodness" />
+        <constructor-arg ref="mtrListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="MTR.primary" />
+        <constructor-arg ref="mtrListener" />
+    </bean>
+    
+    <!-- bufrua -->
+    <bean id="raobListener" class="com.raytheon.uf.edex.ndm.dataplugin.subscriber.RAOBSubscriber" />
+    
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="raob.spi" />
+        <constructor-arg ref="raobListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="raob.goodness" />
+        <constructor-arg ref="raobListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="raob.primary" />
+        <constructor-arg ref="raobListener" />
+    </bean>
+    
+    <!-- text -->
+    <bean id="icaoListener" class="com.raytheon.uf.edex.ndm.dataplugin.subscriber.IcaoSubscriber" />
+    
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="icao_lookup_table.dat" />
+        <constructor-arg ref="icaoListener" />
+    </bean>
+</beans>

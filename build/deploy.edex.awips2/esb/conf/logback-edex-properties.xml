@@ -1,0 +1,8 @@
+<included>
+   <property scope="context" name="log.dir.home" value="${edex.home}"/>
+   <property scope="context" name="log.file.base" value ="edex"/>
+   <property scope="context" name="log.file.mode" value="${edex.run.mode}"/>
+   <!-- Only define when not wanting to use the UF Standard.
+   <property scope="context" name="log.message.pattern" value="%-5p %d [%t] %c{0}: %m%n"/>
+   -->
+</included>

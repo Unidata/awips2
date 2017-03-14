@@ -1,0 +1,184 @@
+C MEMBER COX52
+C-----------------------------------------------------------------------
+C
+C@PROCESS LVL(77)
+C
+      SUBROUTINE COX52 (POLD,COLD,PNEW,CNEW)
+
+C     THIS IS THE CARRYOVER TRANSFER ROUTINE FOR SSARR SUMMING POINT
+
+C     THIS ROUTINE ORIGINALLY WRITTEN BY 
+C        RAY FUKUNAGA - NWRFC   JULY 1995     
+
+C     POSITION     CONTENTS OF P ARRAY
+C      1           VERSION NUMBER OF OPERATION
+C      2-19        DESCRIPTION - TITLE
+C     20           # OF INPUT TIME SERIES TO SUM
+
+C     21-22        BEGIN INTERVAL OUTPUT TIME SERIES IDENTIFIER
+C     23           BEGIN INTERVAL OUTPUT TIME SERIES DATA TYPE CODE
+C     24           BEGIN INTERVAL OUTPUT TIME SERIES TIME INTEVAL
+C
+C     25-26        END INTERVAL OUTPUT TIME SERIES IDENTIFIER
+C     27           END INTERVAL OUTPUT TIME SERIES DATA TYPE CODE
+C     28           END INTERVAL OUTPUT TIME SERIES TIME INTERVAL
+
+C     FOR EACH INPUT TIME SERIES TO BE SUMMED
+C     29-30        INPUT TIME SERIES IDENTIFIER
+C     31           INPUT TIME SERIES DATA TYPE CODE
+C     32           INPUT TIME SERIES TIME INTERVAL
+C     33           CARRYOVER FLAG
+C                  = 'CARY', FROM CARRYOVER ARRAY
+C                  = 'FLAT', SET EQUAL TO SECOND ELEMENT
+C                  = '    ', SET EQUAL TO ZERO
+C                  = 'VALU', READ IN FROM INPUT
+
+C     THEREFORE THE NUMBER OF ELEMENTS REQUIRED IN THE P ARRAY IS
+C        28 +
+C         5 * NUMBER OF INPUT TIME SERIES TO BE SUMMED
+
+C     POSITION     CONTENTS OF C ARRAY
+C      1+      INITIAL BEGIN INCREMENT INFLOW FOR EACH INPUT TIME SERIES
+C              IF INPUT TIME SERIES IS AN END INCREMENT TIME SERIES,
+C                 VALUE SET TO ZERO
+C              ELSE, IF INPUT TS IS A BEGIN INCREMENT TIME SERIES,
+C                 VALUE IS SET DEPENDING ON THE CARRYOVER FLAG
+
+
+      DIMENSION POLD(*),COLD(*),PNEW(*),CNEW(*)
+      REAL         PREAL1,PREAL2
+      CHARACTER*4  PCHAR1,PCHAR2
+      EQUIVALENCE (PREAL1,PCHAR1),(PREAL2,PCHAR2)
+      LOGICAL XWARN,XDIF,XMSG,XCHG
+
+
+      COMMON/FDBUG/IODBUG,ITRACE,IDBALL,NDEBUG,IDEBUG(20)
+      COMMON/IONUM/IN,IPR,IPU
+      COMMON/FCONIT/IVALUE
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_cox/RCS/cox52.f,v $
+     . $',                                                             '
+     .$Id: cox52.f,v 1.1 1996/03/21 14:26:57 page Exp $
+     . $' /
+C    ===================================================================
+C
+
+      CALL FPRBUG ('COX52   ',1,52,IBUG)
+
+C     CARRYOVER VALUES ARE AFFECTED BY THE FOLLOWING P VALUE CHANGES
+C     1) P(20) - NUMBER OF INPUT TIME SERIES TO BE SUMMED
+C     2) P(5*I+24) TO P(5*I+27) - INPUT TIME SERIES INFORMATION
+C     3) P(5*I+28) - CARRYOVER FLAG FOR THE ITH INPUT TIME SERIES
+C        CARY -> CARY = OK  -> FLAT = OK  -> ZERO = OK  -> VALU = NO
+C        FLAT -> CARY = ZERO-> FLAT = OK  -> ZERO = OK  -> VALU = NO
+C        ZERO -> CARY = ZERO-> FLAT = OK  -> ZERO = OK  -> VALU = NO
+C        VALU -> CARY = VALU-> FLAT = OK  -> ZERO = OK  -> VALU = OK
+C        
+C             
+C     IF ANY OF THESE VALUES ARE CHANGED, OLD CARRYOVER CANNOT BE USED
+
+C     CARRYOVER TRANSFER RULES
+C     IF PNEW(20) NE POLD(20),
+C        SET CNEW(I),I=1,NINT(POLD(20)) TO ZERO   
+C     IF PNEW(5*I+24) TO PNEW(5*I+27) NE POLD(5*I+24) TO POLD(5*I+27)
+C        SET CNEW(I),I=1,NINT(POLD(20)) TO ZERO
+
+
+      XWARN = .FALSE.
+      XDIF = .FALSE.
+
+      IF (ITRACE.GE.1) WRITE(IODBUG,10)
+ 10   FORMAT('COX52:  ENTERED:')
+
+      WRITE(IPR,2001) 
+ 2001 FORMAT(//,10X,'*** SARSUMPT CARRYOVER TRANSFER ***')
+
+      IF (PNEW(20).NE.POLD(20)) THEN
+         XDIF = .TRUE.
+         WRITE(IPR,2002) POLD(20),PNEW(20)
+
+ 2002 FORMAT(/,10X,'NUMBER OF TIME SERIES TO SUM HAVE BEEN CHANGED ',
+     +             'FROM ',I4,' TO ',I4)
+      ENDIF
+
+      DO 100 I=1,NINT(POLD(20))
+         
+         IF (POLD(5*I+24).NE.PNEW(5*I+24)) XDIF = .TRUE.
+         IF (POLD(5*I+25).NE.PNEW(5*I+25)) XDIF = .TRUE.
+         IF (POLD(5*I+26).NE.PNEW(5*I+26)) XDIF = .TRUE.
+         IF (POLD(5*I+27).NE.PNEW(5*I+27)) XDIF = .TRUE.
+
+ 100  CONTINUE
+
+      IF (XDIF) WRITE(IPR,2003) 
+ 2003 FORMAT(/,10X,'INPUT TIME SERIES INFORMATION HAVE BEEN CHANGED')
+
+      DO 300 I=1,NINT(POLD(20))
+
+         IC = 5*I+28 
+         XMSG = .FALSE.
+         XCHG = .FALSE.
+
+         IF (POLD(IC).NE.PNEW(IC)) THEN 
+            WRITE(IPR,3001) I,POLD(IC),PNEW(IC)
+ 3001       FORMAT(/10X,'INPUT TIME SERIES NUMBER ',I4,' CARRYOVER ',
+     +             'FLAG HAS BEEN CHANGED FROM ',A,' TO ',A)
+            XCHG = .TRUE.
+         ENDIF
+
+         PREAL1 = POLD(IC)
+         PREAL2 = PNEW(IC)
+         IF (PCHAR1 .EQ. 'CARY') THEN
+            IF (PCHAR2 .EQ. 'VALU') THEN
+               XMSG = .TRUE.
+               XDIF = .TRUE.
+               WRITE(IPR,3002) 
+ 3002          FORMAT(10X,'CARRYOVER MAY NOT BE TRANSFERRED')
+            ENDIF
+         ELSEIF (PCHAR1 .EQ. 'FLAT') THEN
+            IF( PCHAR2 .EQ. 'CARY') THEN
+               XMSG = .TRUE.
+               WRITE(IPR,3003)
+ 3003          FORMAT(10X,'CARRYOVER OF ZERO WILL BE USED/TRANSFERRED')
+            ELSEIF (PCHAR2 .EQ. 'VALU') THEN
+               XMSG = .TRUE.
+               XDIF = .TRUE.
+               WRITE(IPR,3002)
+            ENDIF
+         ELSEIF (PCHAR1 .EQ. 'ZERO') THEN
+            IF (PCHAR2 .EQ. 'CARY') THEN
+               XMSG = .TRUE.
+               WRITE(IPR,3003)
+            ELSEIF (PCHAR2 .EQ. 'VALU') THEN
+               XMSG = .TRUE.
+               XDIF = .TRUE.
+               WRITE(IPR,3002)
+            ENDIF
+         ENDIF
+
+         IF (XCHG .AND. .NOT.XMSG) WRITE(IPR,3004) I
+ 3004    FORMAT(10X,'INPUT TIME SERIES NUMBER ',I4,' CARRYOVER',
+     +              ' TRANSFERRED INTACT')
+
+ 300  CONTINUE
+
+      IF (.NOT.XDIF) THEN
+         DO 200 I=1,NINT(POLD(20))
+ 200     CNEW(I) = COLD(I)
+         WRITE(IPR,2005)
+ 2005    FORMAT(10X,'ALL CARRYOVER VALUES HAVE BEEN TRANSFERRED INTACT')
+      ELSE
+         DO 400 I=1,NINT(PNEW(20))
+ 400     CNEW(I) = 0.
+         WRITE(IPR,2004)
+ 2004    FORMAT(10X,'ALL CARRYOVER VALUES HAVE BEEN RESET TO ZERO')
+      ENDIF
+
+      IF (ITRACE.GE.1) WRITE(IODBUG,90)
+ 90   FORMAT('COX52:  EXITED:')
+
+      RETURN
+      END

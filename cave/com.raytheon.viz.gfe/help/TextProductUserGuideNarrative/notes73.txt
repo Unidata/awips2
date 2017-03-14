@@ -1,0 +1,2 @@
+As before, we initially have the Local Effects list as an attribute and the ForecastNarrative Engine adds "checkLocalEffects" to the method list for the node. A Local Effect is generated if ANY of the sub-phrases meet the Local Effect criteria.
+

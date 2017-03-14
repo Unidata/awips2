@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<latLonGridCoverage>
+<name>9102</name>
+<description>nwpsCG1CAR</description>
+<la1>43.300000</la1>
+<lo1>290.800000</lo1>
+<firstGridPointCorner>LowerLeft</firstGridPointCorner>
+<nx>131</nx>
+<ny>109</ny>
+<dx>0.022308</dx>
+<dy>0.016204</dy>
+<spacingUnit>degree</spacingUnit>
+</latLonGridCoverage>

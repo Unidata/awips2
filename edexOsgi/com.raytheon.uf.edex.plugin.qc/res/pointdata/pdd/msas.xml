@@ -1,0 +1,169 @@
+<?xml version='1.0' encoding='UTF-8'?>
+  <!--
+    This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+    pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+    
+    U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+    This_software_product_contains_export-restricted_data_whose
+    export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+    to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+    an_export_license_or_other_authorization.
+    
+    Contractor_Name:________Raytheon_Company
+    Contractor_Address:_____6825_Pine_Street,_Suite_340
+    ________________________Mail_Stop_B8
+    ________________________Omaha,_NE_68106
+    ________________________402.291.0100
+    
+    See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+    further_licensing_information.
+  -->
+<pointDataDescription>
+  <parameter name="nStaticIds" numDims="0" type="INT" fillValue="0" />
+  <parameter name="staticIds" numDims="2" type="STRING" size="6" />
+  <parameter name="lastRecord" numDims="1" type="INT" fillValue="-1" />
+  <parameter name="invTime" numDims="1" type="INT" fillValue="0" />
+  <parameter name="prevRecord" numDims="1" type="INT" fillValue="-1" />
+  <parameter name="inventory" numDims="1" type="INT" fillValue="0" />
+  <parameter name="globalInventory" numDims="0" type="INT" fillValue="0" />
+  <parameter name="firstOverflow" numDims="0" type="INT" fillValue="-1" />
+  <parameter name="isOverflow" numDims="1" type="INT" fillValue="0" />
+  <parameter name="firstInBin" numDims="1" type="INT" fillValue="-1" />
+  <parameter name="lastInBin" numDims="1" type="INT" fillValue="-1" />
+  <parameter name="stationName" numDims="2" type="STRING" size="5" />
+  <parameter name="QCT" numDims="2" type="STRING" size="60" />
+  <parameter name="ICT" numDims="2" type="STRING" size="72" />
+  <parameter name="latitude" numDims="1" type="FLOAT" unit="degree_N" fillValue="3.4028235e+38" />
+  <parameter name="longitude" numDims="1" type="FLOAT" unit="degree_E" fillValue="3.4028235e+38" />
+  <parameter name="elevation" numDims="1" type="FLOAT" unit="m" fillValue="3.4028235e+38" />
+  <parameter name="subsrc" numDims="1" type="INT" fillValue="-2147483647" />
+  <parameter name="analsta" numDims="1" type="INT" fillValue="-2147483647" />
+  <parameter name="olapsta" numDims="1" type="INT" fillValue="-2147483647" />
+  <parameter name="timeObs" numDims="1" type="FLOAT" unit="seconds since 1-1-1970" fillValue="1.7976931348623157e+308" />
+  <parameter name="timeObsTrue" numDims="1" type="FLOAT" unit="seconds since 1-1-1970" fillValue="1.7976931348623157e+308" />
+  <parameter name="MAPSseaLevelPress" numDims="1" type="FLOAT" unit="Pa" fillValue="3.4028235e+38" />
+  <parameter name="MAPSseaLevelPressDD" numDims="1" type="STRING" />
+  <parameter name="MAPSseaLevelPressQCA" numDims="1" type="INT" />
+  <parameter name="MAPSseaLevelPressQCR" numDims="1" type="INT" />
+  <parameter name="MAPSseaLevelPressQCD" numDims="2" type="FLOAT" unit="Pa" fillValue="3.4028235e+38" />
+  <parameter name="MAPSseaLevelPressICA" numDims="1" type="INT" />
+  <parameter name="MAPSseaLevelPressICR" numDims="1" type="INT" />
+  <parameter name="MAPSseaLevelPressEpslon" numDims="1" type="FLOAT" unit="Pa" fillValue="3.4028235e+38" />
+  <parameter name="MAPSseaLevelPressErrthr" numDims="1" type="FLOAT" unit="Pa" fillValue="3.4028235e+38" />
+  <parameter name="MAPSseaLevelPressGuess" numDims="1" type="FLOAT" unit="Pa" fillValue="3.4028235e+38" />
+  <parameter name="MAPSseaLevelPressNobs" numDims="1" type="INT" fillValue="-2147483647" />
+  <parameter name="MAPSseaLevelPressAnalStaNam" numDims="3" type="STRING" size="5" />
+  <parameter name="MAPSseaLevelPressAnalStaSubsrc" numDims="2" type="INT" />
+  <parameter name="MAPSseaLevelPressAnalStaTime" numDims="2" type="FLOAT" />
+  <parameter name="dewpoint" numDims="1" type="FLOAT" unit="K" fillValue="3.4028235e+38" />
+  <parameter name="dewpointDD" numDims="1" type="STRING" />
+  <parameter name="dewpointQCA" numDims="1" type="INT" />
+  <parameter name="dewpointQCR" numDims="1" type="INT" />
+  <parameter name="dewpointQCD" numDims="2" type="FLOAT" unit="K" fillValue="3.4028235e+38" />
+  <parameter name="dewpointICA" numDims="1" type="INT" />
+  <parameter name="dewpointICR" numDims="1" type="INT" />
+  <parameter name="dewpointEpslon" numDims="1" type="FLOAT" unit="K" fillValue="3.4028235e+38" />
+  <parameter name="dewpointErrthr" numDims="1" type="FLOAT" unit="K" fillValue="3.4028235e+38" />
+  <parameter name="dewpointGuess" numDims="1" type="FLOAT" unit="K" fillValue="3.4028235e+38" />
+  <parameter name="dewpointNobs" numDims="1" type="INT" fillValue="-2147483647" />
+  <parameter name="dewpointAnalStaNam" numDims="3" type="STRING" size="5" />
+  <parameter name="dewpointAnalStaSubsrc" numDims="2" type="INT" />
+  <parameter name="dewpointAnalStaTime" numDims="2" type="FLOAT" />
+  <parameter name="potentialTemp" numDims="1" type="FLOAT" unit="K" fillValue="3.4028235e+38" />
+  <parameter name="potentialTempDD" numDims="1" type="STRING" />
+  <parameter name="potentialTempQCA" numDims="1" type="INT" />
+  <parameter name="potentialTempQCR" numDims="1" type="INT" />
+  <parameter name="potentialTempQCD" numDims="2" type="FLOAT" unit="K" fillValue="3.4028235e+38" />
+  <parameter name="potentialTempICA" numDims="1" type="INT" />
+  <parameter name="potentialTempICR" numDims="1" type="INT" />
+  <parameter name="potentialTempEpslon" numDims="1" type="FLOAT" unit="K" fillValue="3.4028235e+38" />
+  <parameter name="potentialTempErrthr" numDims="1" type="FLOAT" unit="K" fillValue="3.4028235e+38" />
+  <parameter name="potentialTempGuess" numDims="1" type="FLOAT" unit="K" fillValue="3.4028235e+38" />
+  <parameter name="potentialTempNobs" numDims="1" type="INT" fillValue="-2147483647" />
+  <parameter name="potentialTempAnalStaNam" numDims="3" type="STRING" size="5" />
+  <parameter name="potentialTempAnalStaSubsrc" numDims="2" type="INT" />
+  <parameter name="potentialTempAnalStaTime" numDims="2" type="FLOAT" />
+  <parameter name="potentialTempSfchqc" numDims="1" type="FLOAT" unit="K" fillValue="3.4028235e+38" />
+  <parameter name="uwSfchqc" numDims="1" type="FLOAT" unit="m/s" fillValue="3.4028235e+38" />
+  <parameter name="vwSfchqc" numDims="1" type="FLOAT" unit="m/s" fillValue="3.4028235e+38" />
+  <parameter name="dewpointDepression" numDims="1" type="FLOAT" unit="K" fillValue="3.4028235e+38" />
+  <parameter name="dewpointDepressionDD" numDims="1" type="STRING" />
+  <parameter name="dewpointDepressionQCA" numDims="1" type="INT" />
+  <parameter name="dewpointDepressionQCR" numDims="1" type="INT" />
+  <parameter name="dewpointDepressionQCD" numDims="2" type="FLOAT" unit="K" fillValue="3.4028235e+38" />
+  <parameter name="dewpointDepressionICA" numDims="1" type="INT" />
+  <parameter name="dewpointDepressionICR" numDims="1" type="INT" />
+  <parameter name="dewpointDepressionEpslon" numDims="1" type="FLOAT" unit="K" fillValue="3.4028235e+38" />
+  <parameter name="dewpointDepressionErrthr" numDims="1" type="FLOAT" unit="K" fillValue="3.4028235e+38" />
+  <parameter name="dewpointDepressionGuess" numDims="1" type="FLOAT" unit="K" fillValue="3.4028235e+38" />
+  <parameter name="dewpointDepressionNobs" numDims="1" type="INT" fillValue="-2147483647" />
+  <parameter name="dewpointDepressionAnalStaNam" numDims="3" type="STRING" size="5" />
+  <parameter name="dewpointDepressionAnalStaSubsrc" numDims="2" type="INT" />
+  <parameter name="dewpointDepressionAnalStaTime" numDims="2" type="FLOAT" />
+  <parameter name="uw" numDims="1" type="FLOAT" unit="m/s" fillValue="3.4028235e+38" />
+  <parameter name="uwDD" numDims="1" type="STRING" />
+  <parameter name="uwQCA" numDims="1" type="INT" />
+  <parameter name="uwQCR" numDims="1" type="INT" />
+  <parameter name="uwQCD" numDims="2" type="FLOAT" unit="m/s" fillValue="3.4028235e+38" />
+  <parameter name="uwICA" numDims="1" type="INT" />
+  <parameter name="uwICR" numDims="1" type="INT" />
+  <parameter name="uwEpslon" numDims="1" type="FLOAT" unit="m/s" fillValue="3.4028235e+38" />
+  <parameter name="uwErrthr" numDims="1" type="FLOAT" unit="m/s" fillValue="3.4028235e+38" />
+  <parameter name="uwGuess" numDims="1" type="FLOAT" unit="m/s" fillValue="3.4028235e+38" />
+  <parameter name="uwNobs" numDims="1" type="INT" fillValue="-2147483647" />
+  <parameter name="uwAnalStaNam" numDims="3" type="STRING" size="5" />
+  <parameter name="uwAnalStaSubsrc" numDims="2" type="INT" />
+  <parameter name="uwAnalStaTime" numDims="2" type="FLOAT" />
+  <parameter name="vw" numDims="1" type="FLOAT" unit="m/s" fillValue="3.4028235e+38" />
+  <parameter name="vwDD" numDims="1" type="STRING" />
+  <parameter name="vwQCA" numDims="1" type="INT" />
+  <parameter name="vwQCR" numDims="1" type="INT" />
+  <parameter name="vwQCD" numDims="2" type="FLOAT" unit="m/s" fillValue="3.4028235e+38" />
+  <parameter name="vwICA" numDims="1" type="INT" />
+  <parameter name="vwICR" numDims="1" type="INT" />
+  <parameter name="vwEpslon" numDims="1" type="FLOAT" unit="m/s" fillValue="3.4028235e+38" />
+  <parameter name="vwErrthr" numDims="1" type="FLOAT" unit="m/s" fillValue="3.4028235e+38" />
+  <parameter name="vwGuess" numDims="1" type="FLOAT" unit="m/s" fillValue="3.4028235e+38" />
+  <parameter name="vwNobs" numDims="1" type="INT" fillValue="-2147483647" />
+  <parameter name="vwAnalStaNam" numDims="3" type="STRING" size="5" />
+  <parameter name="vwAnalStaSubsrc" numDims="2" type="INT" />
+  <parameter name="vwAnalStaTime" numDims="2" type="FLOAT" />
+  <parameter name="pressChange3Hour" numDims="1" type="FLOAT" unit="Pa/s" fillValue="3.4028235e+38" />
+  <parameter name="pressChange3HourDD" numDims="1" type="STRING" />
+  <parameter name="pressChange3HourQCA" numDims="1" type="INT" />
+  <parameter name="pressChange3HourQCR" numDims="1" type="INT" />
+  <parameter name="pressChange3HourQCD" numDims="2" type="FLOAT" unit="Pa/s" fillValue="3.4028235e+38" />
+  <parameter name="pressChange3HourEpslon" numDims="1" type="FLOAT" unit="Pa/s" fillValue="3.4028235e+38" />
+  <parameter name="pressChange3HourErrthr" numDims="1" type="FLOAT" unit="Pa/s" fillValue="3.4028235e+38" />
+  <parameter name="pressChange3HourGuess" numDims="1" type="FLOAT" unit="Pa/s" fillValue="3.4028235e+38" />
+  <parameter name="pressChange3HourNobs" numDims="1" type="INT" fillValue="-2147483647" />
+  <parameter name="pressChange3HourAnalStaNam" numDims="3" type="STRING" size="5" />
+  <parameter name="pressChange3HourAnalStaSubsrc" numDims="2" type="INT" />
+  <parameter name="pressChange3HourAnalStaTime" numDims="2" type="FLOAT" />
+  <parameter name="seaLevelPress" numDims="1" type="FLOAT" unit="Pa" fillValue="3.4028235e+38" />
+  <parameter name="seaLevelPressDD" numDims="1" type="STRING" />
+  <parameter name="seaLevelPressQCA" numDims="1" type="INT" />
+  <parameter name="seaLevelPressQCR" numDims="1" type="INT" />
+  <parameter name="seaLevelPressQCD" numDims="2" type="FLOAT" unit="Pa" fillValue="3.4028235e+38" />
+  <parameter name="seaLevelPressICA" numDims="1" type="INT" />
+  <parameter name="seaLevelPressICR" numDims="1" type="INT" />
+  <parameter name="seaLevelPressEpslon" numDims="1" type="FLOAT" unit="Pa" fillValue="3.4028235e+38" />
+  <parameter name="seaLevelPressErrthr" numDims="1" type="FLOAT" unit="Pa" fillValue="3.4028235e+38" />
+  <parameter name="seaLevelPressGuess" numDims="1" type="FLOAT" unit="Pa" fillValue="3.4028235e+38" />
+  <parameter name="seaLevelPressNobs" numDims="1" type="INT" fillValue="-2147483647" />
+  <parameter name="seaLevelPressAnalStaNam" numDims="3" type="STRING" size="5" />
+  <parameter name="seaLevelPressAnalStaSubsrc" numDims="2" type="INT" />
+  <parameter name="seaLevelPressAnalStaTime" numDims="2" type="FLOAT" />
+  <parameter name="altimeter" numDims="1" type="FLOAT" unit="Pa" fillValue="3.4028235e+38" />
+  <parameter name="altimeterDD" numDims="1" type="STRING" />
+  <parameter name="altimeterQCA" numDims="1" type="INT" />
+  <parameter name="altimeterQCR" numDims="1" type="INT" />
+  <parameter name="altimeterQCD" numDims="2" type="FLOAT" unit="Pa" fillValue="3.4028235e+38" />
+  <parameter name="altimeterEpslon" numDims="1" type="FLOAT" unit="Pa" fillValue="3.4028235e+38" />
+  <parameter name="altimeterErrthr" numDims="1" type="FLOAT" unit="Pa" fillValue="3.4028235e+38" />
+  <parameter name="altimeterGuess" numDims="1" type="FLOAT" unit="Pa" fillValue="3.4028235e+38" />
+  <parameter name="altimeterNobs" numDims="1" type="INT" fillValue="-2147483647" />
+  <parameter name="altimeterAnalStaNam" numDims="3" type="STRING" size="5" />
+  <parameter name="altimeterAnalStaSubsrc" numDims="2" type="INT" />
+  <parameter name="altimeterAnalStaTime" numDims="2" type="FLOAT" />
+</pointDataDescription>

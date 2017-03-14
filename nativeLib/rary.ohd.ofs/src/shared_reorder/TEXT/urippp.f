@@ -1,0 +1,341 @@
+C MEMBER URIPPP
+C-----------------------------------------------------------------------
+C
+C                             LAST UPDATE: 05/12/95.13:01:07 BY $WC20SV
+C
+C @PROCESS LVL(77)
+C
+      SUBROUTINE URIPPP (IINIT)
+C
+C          ROUTINE:  URIPPP
+C
+C             VERSION:  1.0.0
+C
+C                DATE:  2-26-85
+C
+C              AUTHOR:  JANINE FRANZOI
+C                       DATA SCIENCES INC
+C
+C***********************************************************************
+C
+C          DESCRIPTION:
+C
+C  THIS ROUTINE WILL INITIALIZE THE NEW PREPROCESSOR PARAMETRIC DATA
+C  FILES BY EITHER:
+C    -  COPYING THE CONTROL RECORDS FROM THE OLD FILES AND ZEROING
+C       SPECIFIC CONTROL VARIABLES OR
+C     - ONLY ZEROING SPECIFIC CONTROL VARIABLES
+C
+C***********************************************************************
+C
+C          COMMON:
+C
+      INCLUDE 'uio'
+      INCLUDE 'udebug'
+      INCLUDE 'ucommon/uordrx'
+      INCLUDE 'pppcommon/ppxctl'
+      INCLUDE 'pppcommon/pppdta'
+      INCLUDE 'pppcommon/ppmctl'
+      INCLUDE 'pppcommon/ppdtdr'
+      INCLUDE 'pppcommon/ppunts'
+      INCLUDE 'urcommon/urxctl'
+      INCLUDE 'urcommon/urppmc'
+      INCLUDE 'urcommon/urppdt'
+      INCLUDE 'urcommon/urunts'
+      INCLUDE 'urcommon/urcdta'
+C
+C***********************************************************************
+C
+C          DIMENSION AND TYPE DECLARATIONS:
+C
+      CHARACTER*4 XTYPE
+      CHARACTER*4 XCHAR/'CHAR'/
+      CHARACTER*4 XMMMT/'MMMT'/
+C
+      DIMENSION IARRAY(16),IXARR(4),IPBUF(16)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/shared_reorder/RCS/urippp.f,v $
+     . $',                                                             '
+     .$Id: urippp.f,v 1.2 1996/07/12 17:31:48 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C***********************************************************************
+C
+C          DATA:
+C
+C***********************************************************************
+C
+C
+      IF (IPPTR.GT.0) THEN
+         WRITE (IOGDB,220)
+         CALL SULINE (IOGDB,1)
+         ENDIF
+C
+      IF (IINIT.EQ.1) THEN
+         WRITE (LP,230)
+         CALL SULINE (LP,2)
+         ENDIF
+      IF (IINIT.EQ.-1) THEN
+         WRITE (LP,240)
+         CALL SULINE (LP,2)
+         ENDIF
+C
+C  INITIALIZE INDEX FILE CONTROL RECORDS
+      IF (IINIT.EQ.-1) CALL UMEMOV (MXPXRC,MAXPXR,8)
+      IF (IPPDB.GT.0) THEN
+         WRITE (IOGDB,250) MAXPXR,MAXPTP,NUMPTP,NUMPFL,
+     *      IXPRC1,NAMRFC(1),NAMRFC(2)
+         CALL SULINE (IOGDB,1)
+         ENDIF
+C
+C  INITIALIZE DATA FILE DIRECTORY
+      DO 10 I=1,NUMPFL
+         IF (IINIT.EQ.-1) JPMCTL(1,I)=IPMCTL(1,I)
+         JPMCTL(2,I)=1
+         JPMCTL(3,I)=0
+10       CONTINUE
+C
+C  INITIALIZE DATA TYPE DIRECTORY
+      NTYPE=NUMPTP
+      IF (IINIT.EQ.-1) NTYPE=NMPTYP
+      IF (IPPDB.GT.0) THEN
+         WRITE (IOGDB,260) IINIT,NMPTYP,NUMPTP,NTYPE
+         CALL SULINE (IOGDB,1)
+         ENDIF
+      DO 40 I=1,NTYPE
+         IF (IINIT.EQ.1) GO TO 20
+            CALL UMEMOV (IPDTDR(1,I),JPDTDR(1,I),2)
+            JPDTDR(6,I)=IPDTDR(6,I)
+            CALL UMEMST (0,JPDTDR(3,I),3)
+            GO TO 30
+20       CALL UMEMOV (JPDTDR(1,I),XTYPE,1)
+         IF (IPPDB.GT.0) THEN
+            WRITE (IOGDB,270) XTYPE,XCHAR,XMMMT
+            CALL SULINE (IOGDB,1)
+            WRITE (IOGDB,280) I,JPDTDR(1,I),JPDTDR(3,I)
+            CALL SULINE (IOGDB,1)
+            ENDIF
+         IF (XTYPE.EQ.XCHAR.OR.XTYPE.EQ.XMMMT) GO TO 30
+         CALL UMEMST (0,JPDTDR(3,I),3)
+30       IF (IPPDB.GT.0) THEN
+            WRITE (IOGDB,280) I,JPDTDR(1,I),JPDTDR(3,I)
+            CALL SULINE (IOGDB,1)
+            ENDIF
+40       CONTINUE
+C
+C  INITIALIZE INDEX FILE RECORDS
+      IREC1=NUMPTP*2+3
+      CALL UMEMST (0,IXARR,4)
+      NUMREC=MAXPXR-IREC1+1
+      DO 50 IREC=IREC1,MAXPXR
+         CALL UWRITT (KURIDX,IREC,IXARR,ISTAT)
+         IF (ISTAT.NE.0) GO TO 190
+50       CONTINUE
+      CALL SULINE (LP,2)
+      WRITE (LP,300) NUMREC,KURIDX
+C
+C  CHECK IF SHOULD NOT INITIALIZE SPECIAL PARAMETER TYPE CONTROL
+C  RECORDS
+      NRCHAR=0
+      NRMMMT=0
+      IF (IINIT.EQ.-1) GO TO 60
+      IAMORD=1
+      IDXNEW=IPCKDT(XCHAR)
+      IF (IDXNEW.GT.0) NRCHAR=JPDTDR(3,IDXNEW)
+      IDXNEW=IPCKDT(XMMMT)
+      IF (IDXNEW.GT.0) NRMMMT=JPDTDR(3,IDXNEW)
+      IF (IPPDB.GT.0) THEN
+         WRITE (IOGDB,290) NRCHAR,NRMMMT
+         CALL SULINE (IOGDB,1)
+         ENDIF
+C
+C  INITIALIZE THE PARAMETER FILES
+60    CALL UMEMST (0,IPBUF,LRECPP)
+      DO 80 I=1,NUMPFL
+         IUNIT=KUPRMI(I)
+         LSTREC=JPMCTL(1,I)
+         NUMREC=LSTREC-2+1
+         DO 70 IREC=2,LSTREC
+            IF (NRCHAR.GT.0.AND.IREC.EQ.NRCHAR) GO TO 70
+            IF (NRMMMT.GT.0.AND.IREC.EQ.NRMMMT) GO TO 70
+            CALL UWRITT (IUNIT,IREC,IPBUF,ISTAT)
+            IF (ISTAT.NE.0) GO TO 190
+70          CONTINUE
+         CALL SULINE (LP,2)
+         WRITE (LP,300) NUMREC,IUNIT
+80       CONTINUE
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+      NSTYPE=0
+C
+90    NSTYPE=NSTYPE+1
+      IF (NSTYPE.GT.2) GO TO 180
+      IF (NSTYPE.EQ.1) XTYPE=XCHAR
+      IF (NSTYPE.EQ.2) XTYPE=XMMMT
+C
+      IF (IINIT.EQ.1) GO TO 110
+C
+C  CHECK IF PARAMETER TYPE DEFINED IN OLD FILES
+      IAMORD=0
+      IDXOLD=IPCKDT(XTYPE)
+      IF (IDXOLD.GT.0) GO TO 100
+         CALL SULINE (LP,2)
+         WRITE (LP,310) XTYPE,'OLD'
+         GO TO 170
+100   IDFOLD=IPDTDR(2,IDXOLD)
+C
+C  CHECK IF PARAMETER TYPE DEFINED IN NEW FILES
+110   IAMORD=1
+      IDXNEW=IPCKDT(XTYPE)
+      IF (IDXNEW.GT.0) GO TO 120
+         CALL SULINE (LP,2)
+         WRITE (LP,310) XTYPE,'NEW'
+         GO TO 170
+C
+120   IDFNEW=JPDTDR(2,IDXNEW)
+      IF (IPPDB.GT.0) THEN
+         WRITE (IOGDB,320) IDFOLD,IDFNEW
+         CALL SULINE (IOGDB,1)
+         ENDIF
+C
+C  CHECK IF ANY RECORDS DEFINED
+      IF (IINIT.EQ.1) GO TO 130
+         IREC=IPDTDR(3,IDXOLD)
+         IF (IREC.GT.0) GO TO 140
+            CALL SULINE (LP,2)
+            WRITE (LP,350) XTYPE,'OLD'
+            GO TO 170
+130   IREC=JPDTDR(3,IDXNEW)
+      IF (IREC.GT.0) GO TO 140
+         CALL SULINE (LP,2)
+         WRITE (LP,350) XTYPE,'NEW'
+         GO TO 170
+C
+140   IF (IINIT.EQ.-1) IUNIT=KPPRMU(IDFOLD)
+      IF (IINIT.EQ.1) IUNIT=KUPRMI(IDFNEW)
+C
+C  READ CONTROL PART OF PARAMETER RECORD
+      CALL UREADT (IUNIT,IREC,IARRAY,ISTAT)
+      IF (ISTAT.NE.0) GO TO 190
+      IF (IPPDB.GT.0) THEN
+         WRITE (IOGDB,330) IREC
+         CALL SULINE (IOGDB,1)
+         ENDIF
+C
+C  CHECK NUMBER OF STATIONS DEFINED
+      IF (IPPDB.GT.0) THEN
+         WRITE (IOGDB,340) XTYPE,IARRAY(7)
+         CALL SULINE (IOGDB,1)
+         ENDIF
+      IF (IARRAY(7).GT.0) GO TO 150
+         CALL SULINE (LP,2)
+         WRITE (LP,360) XTYPE
+C
+C  RESET NUMBER OF STATIONS DEFINED
+150   IARRAY(7)=0
+      IARRAY(9)=0
+C
+C  COMPUTE NUMBER OF RECORDS IN PARAMETER ARRAY
+      NRECS=IARRAY(3)*IARRAY(4)*IARRAY(6)
+      IF (IPPDB.GT.0) THEN
+         WRITE (IOGDB,370) XTYPE,NRECS
+         CALL SULINE (IOGDB,1)
+         ENDIF
+C
+C  WRITE RECORD TO NEW FILE
+      IREC=JPMCTL(2,IDFNEW)+1
+      CALL UWRITT (KUPRMI(IDFNEW),IREC,IARRAY,ISTAT)
+      IF (ISTAT.NE.0) GO TO 190
+      IF (IPPDB.GT.0) THEN
+         WRITE (IOGDB,380) XTYPE,IREC
+         CALL SULINE (IOGDB,1)
+         ENDIF
+C
+C  UPDATE CONTROLS
+      IF (IINIT.EQ.1) GO TO 160
+         JPDTDR(3,IDXNEW)=JPMCTL(2,IDFNEW)+1
+         JPDTDR(4,IDXNEW)=JPMCTL(2,IDFNEW)+1
+         JPDTDR(5,IDXNEW)=JPDTDR(5,IDXNEW)+1
+160   JPMCTL(2,IDFNEW)=JPMCTL(2,IDFNEW)+NRECS+1
+      JPMCTL(3,IDFNEW)=JPMCTL(3,IDFNEW)+1
+      IF (IPPDB.GT.0) THEN
+         WRITE (IOGDB,390) JPMCTL(2,IDFNEW)
+         CALL SULINE (IOGDB,1)
+         ENDIF
+C
+      CALL SULINE (LP,2)
+      WRITE (LP,400) XTYPE
+C
+170   GO TO 90
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  WRITE CONTROL RECORDS TO NEW FILES
+180   IAMORD=1
+      CALL WPPPCO (ISTAT)
+      IF (ISTAT.NE.0) GO TO 190
+      IF (IPPDB.GT.0) THEN
+         WRITE (IOGDB,410) MAXPXR,MAXPTP,NUMPTP,NUMPFL,
+     *      IXPRC1,NAMRFC(1),NAMRFC(2)
+         CALL SULINE (IOGDB,1)
+         ENDIF
+C
+      CALL SULINE (LP,2)
+      WRITE (LP,420)
+      GO TO 210
+C
+190   WRITE (LP,200) ISTAT
+      CALL SUERRS (LP,2,-1)
+200   FORMAT ('0*** ERROR - IN URIPPP - SYSTEM ERROR.')
+C
+C  SET ERROR FLAG
+      IWURFL=1
+C
+210   IF (IPPTR.GT.0) THEN
+         WRITE (IOGDB,430)
+         CALL SULINE (IOGDB,1)
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+220   FORMAT (' *** ENTER URIPPP')
+230   FORMAT ('0*** BEGIN TO INITIALIZE PREPROCESSOR PARAMETRIC ',
+     *   'DATA BASE NEW FILES.')
+240   FORMAT ('0*** BEGIN TO INITIALIZE PREPROCESSOR PARAMETRIC ',
+     *   'DATA BASE NEW FILES BY COPYING CONTROLS FROM OLD FILES.')
+250   FORMAT (' INDEX CONTROL=',5I4,2A4)
+260   FORMAT (' IINIT=',I2,3X,'NMPTYP=',I2,3X,'NUMPTP=',I2,3X,
+     *   'NTYPE=',I2)
+270   FORMAT (' XTYPE=',A,3X,'XCHAR=',A,3X,'XMMMT=',A)
+280   FORMAT (' I=',I2,3X,'JPDTDR(1,I)=',A4,3X,'JPDTDR(3,I)=',I6)
+290   FORMAT (' NRCHAR=',I3,3X,'NRMMMT=',I3)
+300   FORMAT ('0*** NOTE - ',I6,' RECORDS INITIALIZED FOR ',
+     *   'UNIT ',I2,'.')
+310   FORMAT ('0*** NOTE - SPECIAL PARAMETER TYPE ',A,' NOT DEFINED ',
+     *   'IN ',A,' PREPROCESSOR PARAMETRIC DATA BASE.')
+320   FORMAT (' IDFOLD=',I3,3X,'IDFNEW=',I3)
+330   FORMAT (' READ SPECIAL PARM CONTROL RECORD ',I4)
+340   FORMAT (' XTYPE=',A,3X,'IARRAY(7)=',I4)
+350   FORMAT ('0*** NOTE - SPECIAL PARAMETER TYPE ',A,
+     *   ' FOUND BUT MAXIMUM STATIONS IS ZERO IN ',A,' FILES.')
+360   FORMAT ('0*** NOTE - SPECIAL PARAMETER TYPE ',A,
+     *   ' FOUND BUT NO STATIONS ARE DEFINED.')
+370   FORMAT (' XTYPE=',A,3X,'NRECS=',I4)
+380   FORMAT (' XTYPE=',A,3X,'IREC=',I4)
+390   FORMAT (' JPMCTL(2,IDFNEW)=',I4)
+400   FORMAT ('0*** NOTE - ',A,' CONTROL RECORD AND ',
+     *  'DIRECTORY INFORMATION INITIALIZED.')
+410   FORMAT (' WROTE INDEX RECORD TO FILE ',5I5,2A4)
+420   FORMAT ('0*** NOTE - THE PREPROCESSOR PARAMETRIC NEW FILES ',
+     *   'HAVE BEEN SUCCESSFULLY INITIALIZED.')
+430   FORMAT (' *** EXIT URIPPP')
+C
+      END

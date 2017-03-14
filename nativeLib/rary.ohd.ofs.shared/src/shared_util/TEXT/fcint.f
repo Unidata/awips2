@@ -1,0 +1,716 @@
+C MODULE FCINT
+C-----------------------------------------------------------------------
+C
+      SUBROUTINE FCINT (USER,DCBDDN,DCBMBR,DSKUNT,IINIT,LDEBUG,ISTAT)
+C
+C  ROUTINE TO INITIALIZE FORECAST COMPONENT DATA FILES.
+C
+      CHARACTER*(*) USER,DCBDDN,DCBMBR,DSKUNT
+      CHARACTER*4 RECFM/' '/,DSORG/' '/
+      CHARACTER*6 VOL/' '/
+      CHARACTER*8 DDN/' '/
+      CHARACTER*128 DSN/' '/
+      CHARACTER*8 XWORD/' '/
+      CHARACTER*8 FTXX/'FTXXF001'/
+      CHARACTER*8 FILES(10)
+     *   /'FCCOGDEF','FCCARRY ','FCFGSTAT','FCFGLIST',
+     *    '        ','FCSEGPTR','FCSEGSTS','FCPARAM ',
+     *    'FCRATING','FCRCPTR '/
+      INTEGER NRECS(10)/10*0/
+      INTEGER NTRKS(10)/10*0/
+      REAL BLNK/4H    /
+C
+      DIMENSION WORK(300),IWORK(300),NDATE(5)
+      DIMENSION IUNIT(10),LUNIT(10)
+C
+      EQUIVALENCE (WORK(1),IWORK(1))
+      EQUIVALENCE (KFCGD,IUNIT(1))
+      EQUIVALENCE (LFCGD,LUNIT(1))
+C
+      INCLUDE 'uiox'
+      INCLUDE 'ufreei'
+      INCLUDE 'udsatx'
+      INCLUDE 'common/fcrfc'
+      INCLUDE 'common/fcunit'
+      INCLUDE 'urcommon/urunts'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/shared_util/RCS/fcint.f,v $
+     . $',                                                             '
+     .$Id: fcint.f,v 1.5 2002/02/11 20:44:59 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      ISTAT=0
+C
+      CALL ULINE (LP,2)
+      WRITE (LP,400)
+C
+      MXFILE=10
+C
+C  CHECK FOR VALID INITIALIZATION OPTION. VALID VALUES ARE:
+C    -1 = REINITIALIZE NEW FILES BASED ON OLD FILES
+C     0 = INITIALIZE FILES BASED ON CARD INPUT
+C     1 = INITIALIZE FILES
+      IF (IINIT.GE.0.OR.IINIT.LE.2) GO TO 10
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,420) IINIT
+         ISTAT=1
+         GO TO 390
+C
+C  GET DATE AND TIME
+10    CALL UDATEI (NMON,NDAY,NYEAR,NHRMIN,NSEC,JULDAT,IERR)
+      NDATE(1)=NMON
+      NDATE(2)=NDAY
+      NDATE(3)=NYEAR
+      NDATE(4)=NHRMIN
+      NDATE(5)=NSEC
+C
+C  CHECK IF CARD INPUT TO BE READ
+      IF (IINIT.EQ.0) GO TO 30
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+      IF (IINIT.EQ.1) THEN
+         CALL ULINE (LP,2)
+         WRITE (LP,430)
+         ENDIF
+      IF (IINIT.EQ.-1) THEN
+         CALL ULINE (LP,2)
+         WRITE (LP,440)
+         ENDIF
+C
+C  GET NUMBER OF RECORDS IN EACH FILE
+      LPRINT=0
+      IPRERR=1
+      DO 20 IXFILE=1,MXFILE
+         IF (IXFILE.EQ.5) GO TO 20
+C     GET NUMBER OF RECORDS IN OLD FILE
+         DDN=FTXX
+         CALL UFXDDN (DDN,IUNIT(IXFILE),IERR)
+         CALL UDSATR (DDN,DSN,VOL,RECFM,LRECL,LBLOCK,DSORG,NTRK,NTRKU,
+     *      IPRERR,IERR)
+         IF (IXFILE.EQ.1) NFGCTK=NTRK
+         IF (IXFILE.EQ.2) NCTRAK=NTRK
+         IF (IXFILE.EQ.3) NFGTRK=NTRK
+         IF (IXFILE.EQ.4) NFGLTK=NTRK
+         IF (IXFILE.EQ.6) NSPTRK=NTRK
+         IF (IXFILE.EQ.7) NSTSTK=NTRK
+         IF (IXFILE.EQ.8) NPTRAK=NTRK
+         IF (IXFILE.EQ.9) NRCTRK=NTRK
+         IF (IXFILE.EQ.10) NRCPTK=NTRK
+         IF (LPRINT.EQ.1) THEN
+            CALL ULINE (LP,1)
+            WRITE (LP,*) ' '
+            ENDIF
+         DSKUNT=DSUNIT
+         NPUNIT=0
+         CALL UDKBLK (' ',NPUNIT,DSKUNT,LBLOCK,LPRINT,NBLKS,IPCT,IERR)
+         NPRTRK=LBLOCK/LRECL*NBLKS
+         NREC=NTRK*NPRTRK
+         CALL ULINE (LP,1)
+         WRITE (LP,450) NTRK,NREC,'FILE',DSN(1:LENSTR(DSN))
+C     GET NUMBER OF RECORDS IN NEW FILE
+         DDN=FTXX
+         CALL UFXDDN (DDN,LUNIT(IXFILE),IERR)
+         CALL UDSATR (DDN,DSN,VOL,RECFM,LRECL,LBLOCK,DSORG,NTRK,NTRKU,
+     *      IPRERR,IERR)
+         DSKUNT=DSUNIT
+         CALL UDKBLK (' ',NPUNIT,DSKUNT,LBLOCK,LPRINT,NBLKS,IPCT,IERR)
+         NPRTRK=LBLOCK/LRECL*NBLKS
+         NRECS(IXFILE)=NTRK*NPRTRK
+         CALL ULINE (LP,1)
+         WRITE (LP,450) NTRK,NRECS(IXFILE),'FILE',DSN(1:LENSTR(DSN))
+20       CONTINUE
+C
+CCC      NFG=NRECS(3)
+CCC      NSEG=NRECS(7)
+CCC      NRC=NRECS(9)
+C
+      GO TO 110
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  PRINT CARD
+30    CALL ULINE (LP,1)
+      WRITE (LP,*) ' '
+      CALL WPCARD (IBUF)
+C
+C  CHECK USER NAME
+      IF (USER.EQ.' ') THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,470)
+         GO TO 390
+         ENDIF
+C
+C  READ CARD
+40    CALL RPCARD (IBUF,IERR)
+      CALL ULINE (LP,1)
+      WRITE (LP,*) ' '
+      CALL WPCARD (IBUF)
+      IF (IERR.NE.0) GO TO 390
+C
+C  FIND FIELDS ON CARD
+      ICDBEG=1
+      ICDEND=72
+      CALL UFREE (ICDBEG,ICDEND)
+C
+C  CHECK FOR BLANK CARD
+      IF (NFIELD.EQ.0) GO TO 40
+C
+      XWORD=' '
+      NFLD=1
+      NCHAR=IFSTOP(NFLD)-IFSTRT(NFLD)+1
+      CALL UPACK1 (IBUF(IFSTRT(NFLD)),XWORD,NCHAR)
+C
+C  CHECK FOR COMMENT
+      IF (XWORD.EQ.'$') GO TO 40
+C
+      IF (XWORD.EQ.'END') GO TO 390
+      NFLD=2
+      IF (XWORD.EQ.'NCARRY') GO TO 50
+      IF (XWORD.EQ.'NFG') GO TO 60
+      IF (XWORD.EQ.'NSEG') GO TO 70
+      IF (XWORD.EQ.'NRC') GO TO 80
+      IF (XWORD.EQ.'TRACKS') GO TO 90
+C
+C  INVALID COMMAND
+      CALL UEROR (LP,1,-1)
+      WRITE (LP,410) XWORD
+      GO TO 40
+C
+C  SET NUMBER OF CARRYOVER GROUPS
+50    CALL UNUMIC (IBUF,IFSTRT(NFLD),IFSTOP(NFLD),NCARRY)
+      MCARRY=10
+      IF (NCARRY.GT.MCARRY) THEN
+         CALL UEROR (LP,2,-1)
+         WRITE (LP,475) NCARRY,MCARRY
+         NCARRY=MCARRY
+         ENDIF
+      GO TO 40
+C
+C  SET NUMBER OF FORECAST GROUPS
+60    CALL UNUMIC (IBUF,IFSTRT(NFLD),IFSTOP(NFLD),NFG)
+      GO TO 40
+C
+C  SET NUMBER OF SEGMENTS
+70    CALL UNUMIC (IBUF,IFSTRT(NFLD),IFSTOP(NFLD),NSEG)
+      GO TO 40
+C
+C  SET NUMBER OF RATING CURVES
+80    CALL UNUMIC (IBUF,IFSTRT(NFLD),IFSTOP(NFLD),NRC)
+      GO TO 40
+C
+C  SET TRACK SIZES
+90    IF (NFIELD.LT.10) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,480)
+         GO TO 390
+         ENDIF
+      CALL UNUMIC (IBUF,IFSTRT(NFLD),IFSTOP(NFLD),NTRKS(1))
+      NFLD=NFLD+1
+      CALL UNUMIC (IBUF,IFSTRT(NFLD),IFSTOP(NFLD),NTRKS(2))
+      NFLD=NFLD+1
+      CALL UNUMIC (IBUF,IFSTRT(NFLD),IFSTOP(NFLD),NTRKS(3))
+      NFLD=NFLD+1
+      CALL UNUMIC (IBUF,IFSTRT(NFLD),IFSTOP(NFLD),NTRKS(4))
+      NFLD=NFLD+1
+      CALL UNUMIC (IBUF,IFSTRT(NFLD),IFSTOP(NFLD),NTRKS(6))
+      NFLD=NFLD+1
+      CALL UNUMIC (IBUF,IFSTRT(NFLD),IFSTOP(NFLD),NTRKS(7))
+      NFLD=NFLD+1
+      CALL UNUMIC (IBUF,IFSTRT(NFLD),IFSTOP(NFLD),NTRKS(8))
+      NFLD=NFLD+1
+      CALL UNUMIC (IBUF,IFSTRT(NFLD),IFSTOP(NFLD),NTRKS(9))
+      NFLD=NFLD+1
+      CALL UNUMIC (IBUF,IFSTRT(NFLD),IFSTOP(NFLD),NTRKS(10))
+C
+      NFGCTK=NTRKS(1)
+      NCTRAK=NTRKS(2)
+      NFGTRK=NTRKS(3)
+      NFGLTK=NTRKS(4)
+      NSPTRK=NTRKS(6)
+      NSTSTK=NTRKS(7)
+      NPTRAK=NTRKS(8)
+      NRCTRK=NTRKS(9)
+      NRCPTK=NTRKS(10)
+C
+      LPRINT=0
+      DO 100 IXFILE=1,MXFILE
+         IF (FILES(IXFILE).NE.' ') THEN
+C        GET DCB INFORMATION
+            CALL UFLDCB (DCBDDN,DCBMBR,FILES(IXFILE),LRECL,LBLOCK,IERR)
+C        CALCULATE NUMBER OF RECORDS PER TRACK
+            NPUNIT=0
+            CALL UDKBLK (' ',NPUNIT,DSKUNT,LBLOCK,LPRINT,NBLKS,IPCT,
+     *         IERR)
+            NPRTRK=LBLOCK/LRECL*NBLKS
+            NRECS(IXFILE)=NTRKS(IXFILE)*NPRTRK
+            CALL ULINE (LP,1)
+            WRITE (LP,450) NTRKS(IXFILE),NRECS(IXFILE),'FILE',
+     *         FILES(IXFILE)
+            ENDIF
+100      CONTINUE
+C
+      NSEGC=NRECS(7)
+CCC      NSEGC=0
+      NRCC=NRECS(9)
+CCC      NRCC=0
+C
+      CALL ULINE (LP,2)
+      WRITE (LP,490) NCARRY
+      IF (NSEGC.GT.0) THEN
+         CALL ULINE (LP,1)
+         WRITE (LP,500) NSEG,NSEGC
+         ELSE
+            WRITE (LP,500) NSEG
+            CALL ULINE (LP,1)
+            ENDIF
+      WRITE (LP,510) NSPTRK
+      CALL ULINE (LP,1)
+      WRITE (LP,520) NSTSTK
+      CALL ULINE (LP,1)
+      WRITE (LP,530)  NFG
+      CALL ULINE (LP,1)
+      WRITE (LP,540) NFGTRK
+      CALL ULINE (LP,1)
+      WRITE (LP,550) NFGLTK
+      CALL ULINE (LP,1)
+      WRITE (LP,560) NCTRAK
+      CALL ULINE (LP,1)
+      WRITE (LP,570) NPTRAK
+      IF (NRCC.GT.0) THEN
+         CALL ULINE (LP,1)
+         WRITE (LP,580) NRC,NRCC
+         ELSE
+            CALL ULINE (LP,1)
+            WRITE (LP,580) NRC
+         ENDIF
+      CALL ULINE (LP,1)
+      WRITE (LP,590) NRCTRK
+      CALL ULINE (LP,1)
+      WRITE (LP,600) NRCPTK
+C
+      IF (NSEG.GT.NRECS(6)) THEN
+         ISTAT=1
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,610) NSPTRK,NSEG
+         ENDIF
+C
+      IF (NSEG.GT.NRECS(7)) THEN
+         ISTAT=1
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,620) NSTSTK,NSEG
+         ENDIF
+C
+      IF (NFG.GT.NRECS(3)) THEN
+         ISTAT=1
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,630) NFGTRK,NFG
+         ENDIF
+C
+      IF (NRC.GT.NRECS(10)) THEN
+         ISTAT=1
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,640) NRCPTK,NRC
+         ENDIF
+C
+      IF (NRC.GT.NRECS(9)) THEN
+         ISTAT=1
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,650) NRCTRK,NRC
+         ENDIF
+C
+      IF (ISTAT.GT.0) GO TO 390
+C
+110   IF (LDEBUG.GT.0) THEN
+         CALL ULINE (LP,1)
+         WRITE (LP,*) 'IINIT=',IINIT
+         DO 120 IXFILE=1,MXFILE
+            CALL ULINE (LP,1)
+            WRITE (LP,*) 'IXFILE=',IXFILE,
+     *         'NTRKS(IXFILE)=',NTRKS(IXFILE),
+     *         'NRECS(IXFILE)=',NRECS(IXFILE)
+120         CONTINUE
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  FILE FCCOGDEF
+C
+      IF (IINIT.NE.0) THEN
+         IF (IINIT.EQ.1) NUNIT=LFCGD
+         IF (IINIT.EQ.-1) NUNIT=KFCGD
+         CALL UREADT (NUNIT,1,IWORK,IERR)
+         NCARRY=IWORK(1)
+         CALL SUBSTR (WORK(115),1,8,USER,1)
+         ENDIF
+C
+      NUNIT=KFCGD
+      IF (IINIT.EQ.1.OR.IINIT.EQ.-1) NUNIT=LFCGD
+C
+C  PRINT DATASET ATTRIBUTES
+      IPRERR=1
+      CALL UPRDSA ('NONE',NUNIT,'NONE',IPRERR,LP,IERR)
+      IF (IERR.EQ.0) THEN
+C     RECORD 1
+         IWORK(1)=NCARRY
+         IWORK(2)=100
+         NRSLOT=NRECS(2)/NCARRY
+         IWORK(3)=NRSLOT
+         WORK(4)=BLNK
+         IWORK(5)=0
+         DO 130 I=6,10
+            IWORK(I)=NDATE(I)
+130         CONTINUE
+         IWORK(11)=0
+         DO 140 I=12,61
+            WORK(I)=BLNK
+140         CONTINUE
+         DO 150 I=62,86
+            IWORK(I)=I+1
+150         CONTINUE
+         DO 160 I=87,114
+            IWORK(I)=0
+160         CONTINUE
+         CALL SUBSTR (USER,1,8,WORK(115),1)
+         CALL UWRITT (NUNIT,1,IWORK,IERR)
+C     REMAINING RECORDS
+         WORK(1)=BLNK
+         WORK(2)=BLNK
+         DO 170 I=3,114
+            IWORK(I)=0
+170         CONTINUE
+         NREC=NRECS(1)
+         DO 180 I=2,NREC
+            IF (IINIT.EQ.1) CALL UREADT (NUNIT,I,IWORK,IERR)
+            CALL UWRITT (NUNIT,I,IWORK,IERR)
+180         CONTINUE
+         CALL ULINE (LP,2)
+         WRITE (LP,670) NUNIT,NREC
+         ENDIF
+C
+C        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  FILE FCCARRY
+C
+      NUNIT=KFCRY
+      IF (IINIT.EQ.1.OR.IINIT.EQ.-1) NUNIT=LFCRY
+C
+C  PRINT DATASET ATTRIBUTES
+      IPRERR=1
+      CALL UPRDSA ('NONE',NUNIT,'NONE',IPRERR,LP,IERR)
+      IF (IERR.EQ.0) THEN
+         DO 190 I=1,100
+            WORK(I)=BLNK
+190         CONTINUE
+         NREC=NRECS(2)
+         DO 200 I=1,NREC
+            CALL UWRITT (NUNIT,I,IWORK,IERR)
+200         CONTINUE
+         CALL ULINE (LP,2)
+         WRITE (LP,670) NUNIT,NREC
+         ENDIF
+C
+C        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  FILE FCFGSTAT
+C
+      NUNIT=KFFGST
+      IF (IINIT.EQ.1.OR.IINIT.EQ.-1) NUNIT=LFFGST
+C
+C  PRINT DATASET ATTRIBUTES
+      IPRERR=1
+      CALL UPRDSA ('NONE',NUNIT,'NONE',IPRERR,LP,IERR)
+      IF (IERR.EQ.0) THEN
+         WORK(1)=BLNK
+         WORK(2)=BLNK
+         DO 210 I=3,20
+            IWORK(I)=0
+210         CONTINUE
+         WORK(6)=BLNK
+         WORK(7)=BLNK
+         NREC=NRECS(3)
+CCC         NREC=NFG
+         DO 220 I=1,NREC
+            IF (I.EQ.2) IWORK(20)=NREC
+            CALL UWRITT (NUNIT,I,IWORK,IERR)
+220         CONTINUE
+         CALL ULINE (LP,2)
+         WRITE (LP,670) NUNIT,NREC
+         ENDIF
+C
+C        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  FILE FCFGLIST
+C
+      NUNIT=KFFGL
+      IF (IINIT.EQ.1.OR.IINIT.EQ.-1) NUNIT=LFFGL
+C
+C  PRINT DATASET ATTRIBUTES
+      IPRERR=1
+      CALL UPRDSA ('NONE',NUNIT,'NONE',IPRERR,LP,IERR)
+      IF (IERR.EQ.0) THEN
+         WORK(1)=BLNK
+         WORK(2)=BLNK
+         NREC=NRECS(4)
+CCC         NREC=NSEG
+         DO 230 I=1,NREC
+            CALL UWRITT (NUNIT,I,WORK,IERR)
+230         CONTINUE
+         CALL ULINE (LP,2)
+         WRITE (LP,670) NUNIT,NREC
+         ENDIF
+C
+C        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  FILE FCSEGPTR
+C
+      NUNIT=KFSGPT
+      IF (IINIT.EQ.1.OR.IINIT.EQ.-1) NUNIT=LFSGPT
+C
+C  PRINT DATASET ATTRIBUTES
+      IPRERR=1
+      CALL UPRDSA ('NONE',NUNIT,'NONE',IPRERR,LP,IERR)
+      IF (IERR.EQ.0) THEN
+C     RECORD 1
+         IWORK(1)=0
+         IWORK(2)=0
+         IWORK(3)=NRECS(7)
+CCC         IWORK(3)=NSEG
+         CALL UWRITT (NUNIT,1,IWORK,IERR)
+C     RECORD 2
+         IWORK(4)=0
+         IWORK(5)=NRECS(8)
+         IWORK(6)=100
+         CALL UWRITT (NUNIT,2,IWORK(4),IERR)
+C     REMAINING RECORDS
+         WORK(1)=BLNK
+         WORK(2)=BLNK
+         IWORK(3)=0
+         NREC=NRECS(6)
+         DO 240 I=3,NREC
+            CALL UWRITT (NUNIT,I,IWORK,IERR)
+240         CONTINUE
+         CALL ULINE (LP,2)
+         WRITE (LP,670) NUNIT,NREC
+         ENDIF
+C
+C        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  FILE FCSEGSTS
+C
+      NUNIT=KFSGST
+      IF (IINIT.EQ.1.OR.IINIT.EQ.-1) NUNIT=LFSGST
+C
+C  PRINT DATASET ATTRIBUTES
+      IPRERR=1
+      CALL UPRDSA ('NONE',NUNIT,'NONE',IPRERR,LP,IERR)
+      IF (IERR.EQ.0) THEN
+         DO 250 I=1,16
+            WORK(I)=BLNK
+250         CONTINUE
+         IWORK(17)=0
+         IWORK(18)=0
+         DO 260 I=19,27
+            WORK(I)=BLNK
+260         CONTINUE
+         DO 270 I=27,32
+            IWORK(I)=NDATE(I)
+270         CONTINUE
+         IWORK(33)=24
+         WORK(34)=100.0
+         WORK(35)=100.0
+         DO 280 I=36,65
+            IWORK(I)=0
+280         CONTINUE
+         NREC=NRECS(7)
+CCC         NREC=NSEG
+         DO 290 I=1,NREC
+            CALL UWRITT (NUNIT,I,IWORK,IERR)
+290         CONTINUE
+         CALL ULINE (LP,2)
+         WRITE (LP,670) NUNIT,NREC
+         ENDIF
+C
+C        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  FILE FCPARAM
+C
+      NUNIT=KFPARM
+      IF (IINIT.EQ.1.OR.IINIT.EQ.-1) NUNIT=LFPARM
+C
+C  PRINT DATASET ATTRIBUTES
+      IPRERR=1
+      CALL UPRDSA ('NONE',NUNIT,'NONE',IPRERR,LP,IERR)
+      IF (IERR.EQ.0) THEN
+         DO 300 I=1,100
+            WORK(I)=BLNK
+300         CONTINUE
+         NREC=NRECS(8)
+         DO 310 I=1,NREC
+            CALL UWRITT (NUNIT,I,IWORK,IERR)
+310         CONTINUE
+         CALL ULINE (LP,2)
+         WRITE (LP,670) NUNIT,NREC
+         ENDIF
+C
+C        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  FILE FCRATING
+C
+      NUNIT=KFRTCV
+      IF (IINIT.EQ.1.OR.IINIT.EQ.-1) NUNIT=LFRTCV
+C
+      MRCF=0
+C
+C  PRINT DATASET ATTRIBUTES
+      IPRERR=1
+      CALL UPRDSA ('NONE',NUNIT,'NONE',IPRERR,LP,IERR)
+      IF (IERR.EQ.0) THEN
+         DO 320 I=1,12
+            WORK(I)=BLNK
+320         CONTINUE
+         DO 330 I=13,27
+            WORK(I)=0.0
+330         CONTINUE
+         DO 340 I=28,34
+            IWORK(I)=0
+340         CONTINUE
+         DO 350 I=35,300
+            WORK(I)=0.0
+350         CONTINUE
+         NREC=NRECS(9)
+CCC         NREC=NRC
+         DO 360 I=1,NREC
+            CALL UWRITT (NUNIT,I,WORK,IERR)
+360         CONTINUE
+         CALL ULINE (LP,2)
+         WRITE (LP,670) NUNIT,NREC
+         MRCF=NREC
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  FILE FCRCPTR
+C
+      NUNIT=KFRCPT
+      IF (IINIT.EQ.1.OR.IINIT.EQ.-1) NUNIT=LFRCPT
+C
+C  PRINT DATASET ATTRIBUTES
+      IPRERR=1
+      CALL UPRDSA ('NONE',NUNIT,'NONE',IPRERR,LP,IERR)
+      IF (IERR.EQ.0) THEN
+         IWORK(1)=0
+         IWORK(2)=0
+         IWORK(3)=MRCF
+         CALL UWRITT (NUNIT,1,IWORK,IERR)
+         WORK(1)=BLNK
+         WORK(2)=BLNK
+         IWORK(3)=0
+         NREC=NRECS(10)
+CCC         NREC=NRC
+         DO 370 I=2,NREC
+            CALL UWRITT (NUNIT,I,WORK,IERR)
+370         CONTINUE
+         CALL ULINE (LP,2)
+         WRITE (LP,670) NUNIT,NREC
+         ENDIF
+C
+C        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+      IF (IINIT.EQ.0) GO TO 380
+C
+      NSEGC=NRECS(7)
+CCC      NSEGC=NSEG
+      NRCC=NRECS(9)
+CCC      NRCC=NRC
+      CALL ULINE (LP,1)
+      WRITE (LP,*) ' '
+      CALL ULINE (LP,12)
+      WRITE (LP,680) NCARRY,NSEGC,NSPTRK,NSTSTK,NFGTRK,
+     *   NFGLTK,NCTRAK,NPTRAK,NRCC,NRCTRK,NRCPTK
+C
+380   IF (IINIT.EQ.0) THEN
+         CALL ULINE (LP,2)
+         WRITE (LP,690)
+         GOTO 40
+         ENDIF
+      IF (IINIT.EQ.1) THEN
+         CALL ULINE (LP,2)
+         WRITE (LP,700)
+         ENDIF
+C
+390   IF (LDEBUG.GT.0) THEN
+         CALL INSTRT
+         CALL UMEMOV (USER,RFCNAM,2)
+         IPART1=1
+         IPART2=0
+         CALL FSTAT1 (IPART1,IPART2)
+         ENDIF
+C         
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+400   FORMAT ('0*** NOTE - BEGIN FORECAST COMPONENT DATA BASE ',
+     *   'INITIALIZATION.')
+410   FORMAT ('+*** ERROR - INVALID OPTION: ',A)
+420   FORMAT ('+*** ERROR - IN FCINT - INVALID COPY OPTION : ',I3)
+430   FORMAT ('0*** NOTE - BEGIN TO INITIALIZE FORECAST COMPONENT ',
+     *   'NEW FILES.')
+440   FORMAT ('0*** NOTE - BEGIN TO INITIALIZE FORECAST COMPONENT ',
+     *   'NEW FILES BY COPYING CONTROLS FROM OLD FILES.')
+450   FORMAT (' THERE ARE ',I3,' TRACKS (',I6,' RECORDS) IN ',A,' ',
+     *   A)
+470   FORMAT ('+*** ERROR - USER NAME IS BLANK.')
+475   FORMAT ('+*** ERROR - NUMBER OF CARRYOVER GROUPS SPECIFIED (',
+     *   I3,') EXCEEDS MAXIMUM ALLOWED (',
+     *   I2,').')
+480   FORMAT ('+*** ERROR - TOO FEW FIELDS ON TRACKS CARD.')
+490   FORMAT ('0MAXIMUM NUMBER OF CARRYOVER SLOTS = ',I4)
+500   FORMAT (' MAXIMUM NUMBER OF SEGMENTS = ',I5,
+     *   : 5X,'ACTUAL MAXIMUM = ',I5)
+510   FORMAT (' NUMBER OF TRACKS FOR FILE FCSEGPTR = ',I4)
+520   FORMAT (' NUMBER OF TRACKS FOR FILE FCSEGSTS = ',I4)
+530   FORMAT (' MAXIMUM NUMBER OF FORECAST GROUPS = ',I4)
+540   FORMAT (' NUMBER OF TRACKS FOR FILE FCFGSTAT = ',I4)
+550   FORMAT (' NUMBER OF TRACKS FOR FILE FCFGLIST = ',I4)
+560   FORMAT (' NUMBER OF TRACKS FOR FILE FCCARRY  = ',I4)
+570   FORMAT (' NUMBER OF TRACKS FOR FILE FCPARAM  = ',I4)
+580   FORMAT (' MAXIMUM NUMBER OF RATING CURVES = ',I4,
+     *   : 5X,'ACTUAL MAXIMUM = ',I4)
+590   FORMAT (' NUMBER OF TRACKS FOR FILE FCRATING = ',I4)
+600   FORMAT (' NUMBER OF TRACKS FOR FILE FCRCPTR = ',I4)
+610   FORMAT ('+*** ERROR - FILE FCSEGPTR IS ',I4,' TRACKS.',
+     *   ' THIS IS TO SMALL FOR ',I4,' SEGMENTS.')
+620   FORMAT ('+*** ERROR - FILE FCSEGSTS IS ',I4,' TRACKS.',
+     *   ' THIS IS TO SMALL FOR ',I4,' SEGMENTS.')
+630   FORMAT ('+*** ERROR - FILE FCFGSTAT IS ',I4,' TRACKS.',
+     *   ' THIS IS TO SMALL FOR ',I4,' FORECAST GROUPS.')
+640   FORMAT ('+*** ERROR - FILE FCRCPTR IS ',I4,' TRACKS.',
+     *   ' THIS IS TO SMALL FOR ',I4,' RATING CURVES.')
+650   FORMAT ('+*** ERROR - FILE FCRATING IS ',I4,' TRACKS.',
+     *   ' THIS IS TO SMALL FOR ',I4,' RATING CURVES.')
+670   FORMAT ('0*** NOTE - UNIT ',I2.2,' SUCCESSFULLY INITIALIZED ',
+     *   'WITH ',I6,' RECORDS.')
+680   FORMAT ('0MAXIMUM NUMBER OF CARRYOVER SLOTS = ',I5 /
+     *   ' MAXIMUM NUMBER OF SEGMENTS = ',I5 /
+     *   ' NUMBER OF TRACKS FOR FILE FCSEGPTR = ',I5 /
+     *   ' NUMBER OF TRACKS FOR FILE FCSEGSTS = ',I5 /
+     *   ' NUMBER OF TRACKS FOR FILE FCFGSTAT = ',I5 /
+     *   ' NUMBER OF TRACKS FOR FILE FCFGLIST = ',I5 /
+     *   ' NUMBER OF TRACKS FOR FILE FCCARRY = ',I5 /
+     *   ' NUMBER OF TRACKS FOR FILE FCPARAM = ',I5 /
+     *   ' MAXIMUM NUMBER OF RATING CURVES = ',I5 /
+     *   ' NUMBER OF TRACKS FOR FILE FCRATING = ',I5 /
+     *   ' NUMBER OF TRACKS FOR FILE FCRCPTR = ',I5)
+690   FORMAT ('0*** NOTE - FORECAST COMPONENT FILES ',
+     *   'SUCCESSFULLY INITIALIZED.')
+700   FORMAT ('0*** NOTE - FORECAST COMPONENT NEW FILES ',
+     *   'SUCCESSFULLY INITIALIZED.')
+C
+      END

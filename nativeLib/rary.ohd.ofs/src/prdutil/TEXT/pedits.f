@@ -1,0 +1,504 @@
+C MODULE PEDITS
+C-----------------------------------------------------------------------
+C
+      SUBROUTINE PEDITS (IPRINT,LWKBUF,IWKBUF,ISTAT)
+C
+C  THIS ROUTINE EDITS TIME SERIES DATA.
+C
+C  ARGUMENT LIST:
+C
+C       NAME     TYPE   I/O   DIM  DESCRIPTION
+C       ------   ----   ---   ---  -----------
+C       IPRINT    I      I     1   PRINT INDICATOR
+C                                     0=NO PRINT
+C                                     1=PRINT BEFORE AND AFTER
+C
+C       ISTAT     I      O     1   STATUS INDICATOR
+C                                     0=NORMAL RETURN
+C                                     1=INPUT ERROR
+C                                    -1=END OF FILE ENCOUNTERED
+C                                     OTHER=WRITE ERROR
+C
+      INCLUDE 'uio'
+      INCLUDE 'udebug'
+      INCLUDE 'ufreei'
+      INCLUDE 'udatas'
+      INCLUDE 'hclcommon/hdflts'
+      INCLUDE 'prdcommon/pdftbl'
+      INCLUDE 'prdcommon/punits'
+C
+      DIMENSION IWKBUF(LWKBUF)
+      PARAMETER (LBUF=9000)
+      DIMENSION BUF(LBUF)
+      DIMENSION IDATE(7)
+      CHARACTER*4 TSFUT,RUNITS,TSTYPE,TSTYPE2
+      CHARACTER*8 ID
+      CHARACTER*12 XDATE
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/prdutil/RCS/pedits.f,v $
+     . $',                                                             '
+     .$Id: pedits.f,v 1.7 2003/03/14 18:56:57 dws Exp $
+     . $' /
+C    ===================================================================
+C
+      DATA LEND/4HEND /
+      DATA LAMPER/4H&   /
+      DATA LETZ/4HZ   /
+C
+C
+      IF (IPRTR.GT.0) WRITE (IOGDB,*) 'ENTER PEDITS'
+C
+      LWORK=LWKBUF/2
+C
+      ISTAT=0
+C
+      ICONVT=0
+      NODATA=0
+C
+C  READ A SECOND CARD
+10    CALL RCOMND (LEND,1,INDX)
+      CALL WPCARD (IBUF)
+      IF (INDX) 300,20,310
+C
+C  GET TIME SERIES ID
+20    ISEC=0
+      IF (NFIELD.LT.3.OR.NFIELD.GT.5) THEN
+         CALL UEROR (LP,0,-1)
+         WRITE (LP,370)
+         ISTAT=1
+         GO TO 260
+         ENDIF
+      NFLD=1
+      NUM=IFSTOP(NFLD)-IFSTRT(NFLD)+1
+      IF (NUM.GT.LEN(ID)) THEN
+         CALL UEROR (LP,0,-1)
+         WRITE (LP,340)
+         ISTAT=1
+         GO TO 260
+         ENDIF
+      ID=' '
+      CALL UPACK1 (IBUF(IFSTRT(NFLD)),ID,NUM)
+C
+C  GET THE DATA TYPE CODE
+      NFLD=NFLD+1
+      NUM=IFSTOP(NFLD)-IFSTRT(NFLD)+1
+      IF (NUM.GT.LEN(TSTYPE)) THEN
+         CALL UEROR (LP,0,-1)
+         WRITE (LP,350)
+         ISTAT=1
+         GO TO 260
+         ENDIF
+      CALL UPACK1 (IBUF(IFSTRT(NFLD)),TSTYPE,NUM)
+C
+C  CHECK IF FUT SPECIFIED
+      IFORM=2
+      TSTYPE2=TSTYPE
+      NFLD=NFLD+1
+      IF (IFTYPE(NFLD).EQ.3) THEN
+         NUM=IFSTOP(NFLD)-IFSTRT(NFLD)+1
+         IF (NUM.GT.LEN(TSFUT)) THEN
+            CALL UEROR (LP,0,-1)
+            WRITE (LP,380)
+            ISTAT=1
+            GO TO 260
+            ENDIF
+         CALL UPACK1 (IBUF(IFSTRT(NFLD)),TSFUT,NUM)
+         IF (TSFUT.NE.'FUT') THEN
+            CALL UEROR (LP,0,-1)
+            WRITE (LP,380)
+            ISTAT=1
+            GO TO 260
+            ENDIF
+         IFORM=4
+         NFLD=NFLD+1
+         IF (TSTYPE2.EQ.'MAP') TSTYPE2='FMAP'
+         ENDIF
+C
+C  GET THE TIME INTERVAL
+      IF (IFTYPE(NFLD).NE.1) THEN
+         CALL UEROR (LP,0,-1)
+         WRITE (LP,330) NFLD
+         ISTAT=1
+         GO TO 260
+         ENDIF
+      CALL UNUMIC (IBUF,IFSTRT(NFLD),IFSTOP(NFLD),ITSTEP)
+      NFLD=NFLD+1
+C
+C  CHECK IF UNITS SPECIFIED
+      RUNITS=' '
+      IF (NFLD.LE.NFIELD) THEN
+         NUM=IFSTOP(NFLD)-IFSTRT(NFLD)+1
+         IF (NUM.GT.LEN(RUNITS)) THEN
+            CALL UEROR (LP,0,-1)
+            WRITE (LP,360) NFLD
+            ISTAT=1
+            GO TO 260
+            ENDIF
+         CALL UPACK1 (IBUF(IFSTRT(NFLD)),RUNITS,NUM)
+         ENDIF
+C
+      IFIRST=0
+      IPOS=0
+C
+C  READ CARD
+110   CALL RCOMND (LEND,1,INDX)
+      IF (INDX) 300,120,310
+C
+120   CALL WPCARD (IBUF)
+      ILAST=0
+      NFLD=1
+      IF (IFIRST.EQ.1) GO TO 150
+      
+C  GET THE DATE
+      IFIRST=1
+      XDATE=' '
+      NUM=IFSTOP(NFLD)-IFSTRT(NFLD)+1
+      CALL UPACK1 (IBUF(IFSTRT(NFLD)),XDATE,NUM)
+      CALL HCKDAT (IFSTRT(NFLD),IFSTOP(NFLD),IDATE,IERR)
+      IF (IERR.EQ.0.AND.IDATE(2).NE.IASTR) THEN
+         ELSE
+            CALL UEROR (LP,0,-1)
+            WRITE (LP,390)
+            ISTAT=1
+            GO TO 280
+         ENDIF
+C
+C  CHECK THE DATE
+      IF (IDATE(6).EQ.IBLNK) THEN
+         IF (IDATE(5).EQ.-1) THEN
+            IDATE(5)=12
+            IDATE(6)=LETZ
+            CALL UJLNTC (IDATE(2),IDATE(3),IDATE(4),IDATE(5),IDATE(1),0)
+            GO TO 140
+            ENDIF
+C     GET DEFAULT HOUR AND TIME ZONE CODE VALUES
+         CALL HSETHR (IDATE)
+         ENDIF
+C
+140   IDATE(1)=IDATE(1)+NHOPDB
+C
+      NFLD=2
+      LTSFUT=0
+C
+C  CHECK IF MORE FIELDS
+150   IF (NFLD.LT.NFIELD) GO TO 160
+C
+C  CHECK FOR CONTINUATION CHARACTER
+      IF (IBUF(IFSTRT(NFLD)).EQ.LAMPER) GO TO 110
+      ILAST=1
+
+C  CHECK FOR START OF FUTURE DATA
+160   IF (IFTYPE(NFLD).EQ.3) THEN
+         NUM=IFSTOP(NFLD)-IFSTRT(NFLD)+1
+         IF (NUM.GT.LEN(TSFUT)) THEN
+            CALL UEROR (LP,0,-1)
+            WRITE (LP,380)
+            ISTAT=1
+            GO TO 260
+            ENDIF
+         CALL UPACK1 (IBUF(IFSTRT(NFLD)),TSFUT,NUM)
+         IF (TSFUT.NE.'FUT') THEN
+            CALL UEROR (LP,0,-1)
+            WRITE (LP,380)
+            ISTAT=1
+            GO TO 260
+            ENDIF
+         IF (IPOS.EQ.0) THEN
+C        ALL DATA IS FUTURE DATA
+            LTSFUT=-1
+            ELSE
+               LTSFUT=IPOS
+            ENDIF
+         GO TO 165
+         ENDIF
+C
+C  CHECK NUMBER OF DATA VALUES
+      IPOS=IPOS+1
+      IF (IPOS.GT.LBUF) THEN
+         CALL UEROR (LP,0,-1)      
+         WRITE (LP,400) LBUF
+         ISTAT=1
+         GO TO 260
+         ENDIF
+
+C
+C  GET DATA VALUE
+      ITYPE=2
+      CALL UFIXED (IBUF,BUF(IPOS),IFSTRT(NFLD),IFSTOP(NFLD),ITYPE,0,
+     *   IERR)
+      IF (IERR.NE.0) THEN
+         CALL UEROR (LP,0,-1)
+         WRITE (LP,410) NFLD
+         ISTAT=1
+         GO TO 260
+         ENDIF
+C
+165   IFCNT(NFLD)=IFCNT(NFLD)-1
+      IF (IFCNT(NFLD).NE.0) GO TO 160
+      NFLD=NFLD+1
+      IF (ILAST.EQ.0) GO TO 150
+      IF (ISEC.EQ.1) GO TO 220
+C
+C  READ TIME SERIES
+      CALL PGETTS (ID,TSTYPE2,LWORK,IWKBUF,IREC,IERR)
+      IF (IERR.NE.0) THEN
+         IF (IERR.EQ.1) THEN
+            CALL UEROR (LP,0,-1)
+            WRITE (LP,420) TSTYPE
+            ENDIF
+         IF (IERR.EQ.2) THEN
+            CALL UEROR (LP,0,-1)
+            WRITE (LP,430) ID
+            ENDIF
+         IF (IERR.EQ.3) THEN
+            CALL UEROR (LP,0,-1)
+            WRITE (LP,530)
+            ENDIF
+         ISTAT=1
+         GO TO 260
+         ENDIF
+
+C
+C  CHECK IF THE NUMBER OF EDITED TS VALUES EXCEEDS THE MAXIMUM NUMBER SPECIFIED
+      IF (IPOS.GT.IWKBUF(4)) THEN
+         CALL UEROR (LP,0,-1)
+         WRITE (LP,405) IWKBUF(4)
+         ISTAT=1
+         GO TO 260
+         ENDIF
+
+C
+C  GET UNIT NUMBER FOR DATA TYPE
+      CALL PFDTYP (TSTYPE,IX)
+      IUNIT=DATFIL(2,IX)
+C
+C  CHANGE TYPE IF FUT
+      IF (IFORM.NE.2) THEN
+         IX=DATFIL(7,IX)
+         IF (IX.EQ.0) THEN
+            CALL UEROR (LP,0,-1)
+            WRITE (LP,440) TSTYPE
+            ISTAT=1
+            GO TO 260
+            ENDIF
+         CALL PFDTYP (TSTYPE2,IX)
+         IUNIT=DATFIL(2,IX)
+         ENDIF
+C
+C  CHECK TO CHECK IF THERE IS ANY DATA IN THE TIME SERIES
+      IF (IWKBUF(14).EQ.0) THEN
+         NODATA=1
+         IWKBUF(14)=IDATE(1)
+         CALL UWARN (LP,0,-1)
+         WRITE (LP,450) XDATE(1:LENSTR(XDATE))
+         IF (TSTYPE2.EQ.'FMAP') THEN
+            IWKBUF(7)=IWKBUF(1)+1
+            ELSE
+               IWKBUF(6)=IWKBUF(1)+1
+            ENDIF
+         ENDIF
+      IF (NODATA.EQ.1) IWKBUF(5)=IWKBUF(5)+IPOS
+C
+      IF (RUNITS.EQ.' ') CALL UMEMOV (IWKBUF(11),RUNITS,1)
+C
+C  PRINT DATA BEFORE CHANGES
+      IF (IPRINT.EQ.1) THEN
+         CALL ULINE (LP,2)
+         WRITE (LP,'(1H0)')
+         CALL ULINE (LP,2)
+         WRITE (LP,460) 'BEFORE'
+C     GET DEFAULT NUMBER DECIMAL PLACES
+         CALL UDUNDC (RUNITS,NDCNOW,IERR)
+         IF (IERR.NE.0) NDCNOW=2
+C     PRINT TIME SERIES DATA
+         IFLAG=0
+         IKEY=1
+         CALL PTSRDG (IUNIT,IREC,NXTREC,RUNITS,IFREC,
+     *      IFLAG,IFORM,IKEY,
+     *      LWORK,IWKBUF(LWORK+1),NDCNOW,IERR)
+         IF (IERR.NE.0) GO TO 290
+         ENDIF
+C
+C  CHECK IF NEED UNITS CONVERSION
+      ICONVT=0
+      CALL UCMPAR (RUNITS,IWKBUF(11),1,ISTAT)
+      IF (ISTAT.EQ.1) THEN
+         ICONV=2
+         NVAL=1
+         CALL UDUCNV (RUNITS,IWKBUF(11),ICONV,NVAL,VAL1,VAL2,IERR)
+         IF (IERR.NE.0) GO TO 260
+         ICONVT=1
+         ENDIF
+C
+C  CHECK TIME INTERVAL
+220   IF (IWKBUF(2).NE.ITSTEP) THEN
+         CALL UEROR (LP,0,-1)
+         WRITE (LP,470) ITSTEP,IWKBUF(2)
+         ISTAT=1
+         GO TO 260
+         ENDIF
+C
+C  CHECK START DATE
+      IF (IPRDB.GT.0) THEN       
+         CALL ULINE (LP,2)
+         WRITE (IOGDB,*)
+     *      ' IDATE(1)=',IDATE(1),
+     *      ' IWKBUF(14)=',IWKBUF(14)
+         ENDIF
+      IF (IDATE(1).LT.IWKBUF(14)) THEN
+         CALL UEROR (LP,0,-1)
+         WRITE (LP,480)
+         ISTAT=1
+         GOTO 260
+         ENDIF
+C
+C  CHECK IF VALID TIME STEP
+      IDIF=IDATE(1)-IWKBUF(14)
+      IF (MOD(IDIF,ITSTEP).NE.0) THEN
+         CALL UEROR (LP,0,-1)
+         WRITE (LP,490)
+         ISTAT=1
+         GO TO 260
+         ENDIF
+C
+C  SET POSITION AND CHECK END DATE
+      NDIF=IDIF/ITSTEP
+      ISPOS=IWKBUF(6)+(NDIF*IWKBUF(3))
+      IENDT=IWKBUF(6)+(IWKBUF(5)*IWKBUF(3))-1
+      IF (ISPOS.GT.IENDT) THEN
+         CALL UEROR (LP,0,-1)
+         WRITE (LP,500)
+         ISTAT=1
+         GO TO 260
+         ENDIF
+      IF (LTSFUT.EQ.-1) IWKBUF(7)=ISPOS
+      IF (LTSFUT.GT.0) IWKBUF(7)=ISPOS+LTSFUT
+C
+C  CHECK IF HAVE TOO MANY VALUES
+      IEPOS=ISPOS+IPOS-1
+      IF (IEPOS.GT.IENDT) THEN
+         IPOSO=IPOS
+         IPOS=IENDT-ISPOS+1
+         CALL UWARN (LP,0,-1)
+         WRITE (LP,510) IPOSO,IPOS,IPOS
+         ENDIF
+C
+C  CHANGE DATA
+      CALL UMEMOV (BUF,IWKBUF(ISPOS),IPOS)
+      IF (ICONVT.EQ.1) THEN
+         CALL UDUCNN (1,ZAPR,IERR)
+         CALL UDUCNV (RUNITS,IWKBUF(11),1,IPOS,
+     *      IWKBUF(ISPOS),IWKBUF(ISPOS),IERR)
+         ENDIF
+      CALL WTSRCD (IREC,IUNIT,IWKBUF,IERR)
+      IF (IERR.NE.0) GO TO 290
+C
+C  READ NEXT CARD
+      IEND=0
+      CALL RCOMND (LEND,1,INDX)
+      IF (INDX) 300,240,230
+C
+C  END CARD FOUND
+230   CALL WPCARD (IBUF)
+      IEND=1
+      GO TO 250
+C
+240   IPOS=0
+      ISEC=1
+      IFIRST=0
+      NFLD=2
+      IF (IFTYPE(NFLD).EQ.2) GO TO 120
+      IF (IFTYPE(NFLD).NE.3) THEN
+         CALL WPCARD (IBUF)
+         CALL UEROR (LP,0,-1)
+         WRITE (LP,520)
+         ISTAT=1
+         GO TO 260
+         ENDIF
+C
+C  PRINT DATA AFTER CHANGES
+250   CALL ULINE (LP,2)
+      WRITE (LP,'(1H0)')
+      CALL ULINE (LP,2)
+      WRITE (LP,460) 'AFTER'
+      IFLAG=0
+      IKEY=1
+      CALL PTSRDG (IUNIT,IREC,NXTREC,RUNITS,IFREC,
+     *   IFLAG,IFORM,IKEY,
+     *   LWORK,IWKBUF(LWORK+1),NDCNOW,IERR)
+      IF (IERR.NE.0) GO TO 290
+      IF (IEND.EQ.1) THEN
+         CALL WPCARD (IBUF)
+         GO TO 320
+         ENDIF
+C           
+      CALL ULINE (LP,2)
+      WRITE (LP,'(1H0)')
+      CALL WPCARD (IBUF)
+      GO TO 20
+C
+260   CALL RCOMND (LEND,1,INDX)
+      IF (INDX) 300,270,320
+270   CALL WPCARD (IBUF)
+C
+280   IF (IBUF(IFSTRT(NFIELD)).EQ.LAMPER) GO TO 260
+      IF (IFTYPE(1).EQ.3.OR.IFTYPE(2).EQ.3) GO TO 20
+      GO TO 10
+C
+C  SYSTEM ERROR
+290   CALL UEROR (LP,0,-1)
+      WRITE (LP,530)
+      ISTAT=1
+      GO TO 260
+C
+C  END OF FILE
+300   CALL UEROR (LP,0,-1)
+      WRITE (LP,540)
+      ISTAT=-1
+      GO TO 320
+C
+C  END CARD IN WRONG PLACE
+310   CALL UEROR (LP,0,-1)
+      WRITE (LP,550)
+      GO TO 320
+C
+320   IF (IPRTR.GT.0) WRITE (IOGDB,*) 'EXIT PEDITS'
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+330   FORMAT ('0**ERROR** INVALID VALUE FOR TIME STEP IN FIELD ',I2,'.')
+340   FORMAT ('0**ERROR** INVALID NUMBER OF FIELDS ON CARD 1.')
+350   FORMAT ('0**ERROR** INVALID DATA TYPE CODE IN FIELD 2.')
+360   FORMAT ('0**ERROR** INVALID UNITS CODE IN FIELD ',I2,'.')
+370   FORMAT ('0**ERROR** CARD MUST HAVE 3 OR 5 FIELDS.')
+380   FORMAT ('0**ERROR** ''FUT'' SPECIFIED INCORECTLY.')
+390   FORMAT ('0**ERROR** INVALID DATE/TIME IN FIELD 1.')
+400   FORMAT ('0**ERROR** MAXIMUM NUMBER OF VALUES IS ',I4,'.')
+405   FORMAT ('0**ERROR** TOO MANY VALUES IN THE TSEDIT FILE.',
+     *        ' MAXIMUM NUMBER OF VALUES SPECIFIED IS ',I4,'.')
+410   FORMAT ('0**ERROR** INVALID VALUE IN FIELD ',I2,'.')
+420   FORMAT ('0**ERROR** ',A,' IS NOT A VALID DATA TYPE CODE.')
+430   FORMAT ('0**ERROR** TIME SERIES ',A,' NOT FOUND.')
+440   FORMAT ('0**ERROR** DATA TYPE ',A,' HAS NO FUTURE TYPE.')
+450   FORMAT ('0**WARNING** TIME SERIES HAS NO DATA. ',
+     *   'START DATE SET TO ',A,'.')
+460   FORMAT (' ****  TIME SERIES DATA ',A,' EDIT  ****')
+470   FORMAT ('0**ERROR** ',I2,' IS WRONG TIME INTERVAL.',
+     *   I2,' IS CORRECT.')
+480   FORMAT ('0**ERROR** DATE/TIME SPECIFIED IS BEFORE START OF DATA.')
+490   FORMAT ('0**ERROR** THE DATE/TIME SPECIFIED IS NOT A VALID HOUR.')
+500   FORMAT ('0**ERROR** DATE/TIME SPECIFIED IS AFTER END OF DATA.')
+510   FORMAT ('0**WARNING** NUMBER OF DATA VALUES SPECIFIED (',I4,
+     *   ') EXCEEDS NUMBER THAT CAN BE CHANGED (',I4,
+     *   '). ONLY ',I4,' WILL BE CHANGED.')
+520   FORMAT ('0**ERROR** EXPECTING NEW TIME SERIES OR NEW DATE/TIME.')
+530   FORMAT ('0**ERROR** IN PEDITS - SYSTEM OR DAIO ERROR.')
+540   FORMAT ('0**ERROR** END OF FILE READING INPUT CARDS.')
+550   FORMAT ('0**ERROR** INCORRECT PLACEMENT OF END CARD.')
+C
+      END

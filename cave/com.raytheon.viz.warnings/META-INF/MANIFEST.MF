@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Warnings Plug-in
+Bundle-SymbolicName: com.raytheon.viz.warnings;singleton:=true
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: Raytheon
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ com.raytheon.viz.core,
+ com.raytheon.viz.ui,
+ org.geotools,
+ com.raytheon.viz.texteditor;bundle-version="1.11.5",
+ com.raytheon.uf.common.serialization.comm;bundle-version="1.11.22",
+ com.raytheon.uf.viz.datacube
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.viz.warnings,
+ com.raytheon.viz.warnings.rsc
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: com.raytheon.uf.common.inventory.exception,
+ com.raytheon.uf.common.dataplugin.warning,
+ com.raytheon.uf.common.dataplugin.warning.util
+Bundle-ClassPath: com.raytheon.viz.warnings.jar

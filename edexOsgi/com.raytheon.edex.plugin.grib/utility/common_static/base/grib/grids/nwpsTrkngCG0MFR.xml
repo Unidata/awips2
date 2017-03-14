@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<latLonGridCoverage>
+<name>10202014</name>
+<description>nwpsTrkngCG0MFR</description>
+<la1>41.000000</la1>
+<lo1>232.700000</lo1>
+<firstGridPointCorner>LowerLeft</firstGridPointCorner>
+<nx>103</nx>
+<ny>128</ny>
+<dx>0.035784</dx>
+<dy>0.027165</dy>
+<spacingUnit>degree</spacingUnit>
+</latLonGridCoverage>

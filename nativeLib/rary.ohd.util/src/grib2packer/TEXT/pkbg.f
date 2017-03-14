@@ -1,0 +1,111 @@
+      SUBROUTINE PKBG(KFILDO,IPACK,ND5,LOC,IPOS,NVALUE,NBIT,L3264B,
+     1                IER,*)
+C
+C        DECEMBER 1994   GLAHN   TDL   MOS-2000
+C        MAY      1997   GLAHN   MODIFIED TO USE MVBITS RATHER THAN
+C                                SHIFTING AND ORING, AND ELIMINATED
+C                                USE OF MOD FUNCTION
+C 
+C        PURPOSE 
+C            PACKS NBIT BITS IN THE POSITIVE INTEGER NVALUE INTO ARRAY
+C            IPACK(ND5) STARTING IN WORD LOC, BIT IPOS.  THE WORD
+C            POINTER LOC AND BIT POSITION POINTER IPOS ARE UPDATED
+C            AS NECESSARY.  PACKING WILL NOT OCCUR IF IPACK( ) WOULD
+C            BE OVERFLOWED.  IN THAT CASE, RETURN IS WITH IER=1
+C            RATHER THAN FOR THE GOOD RETURN IER=0.  WHEN NBIT EQ 0
+C            AND NVALUE EQ 0, NO PACKING IS DONE.  THIS ROUTINE ACTS
+C            AS "INSERTION" RATHER THAN "ADDITION."  THAT IS, THE
+C            BITS, IF ANY, TO THE RIGHT OF THE PACKED VALUE
+C            ARE RETAINED.  THIS MEANS THAT THE IPACK( ) ARRAY SHOULD
+C            BE ZEROED OUT BEFORE USING.  ALSO, ANY INSERTION MUST BE
+C            BE INTO AN AREA THAT HAS ALL ZERO BITS.  THE INTEGER WORD
+C            LENGTH OF THE MACHINE BEING USED IS L32B4B.  THIS PACKING
+C            ROUTINE WILL WORK ON EITHER A 32- OR 64-BIT MACHINE.
+C            A MAXIMUM OF 32 BITS CAN BE PACKED ON A SINGLE CALL.
+C
+C        DATA SET USE 
+C           KFILDO - UNIT NUMBER FOR OUTPUT (PRINT) FILE. (OUTPUT) 
+C
+C        VARIABLES 
+C              KFILDO = UNIT NUMBER FOR OUTPUT (PRINT) FILE.  (INPUT)
+C            IPACK(J) = ARRAY TO PACK INTO (J=1,ND5).  (INPUT-OUTPUT)
+C                 ND5 = DIMENSION OF IPACK( ).  (INPUT)
+C                 LOC = WORD IN IPACK( ) TO START PACKING.  UPDATED
+C                       AS NECESSARY AFTER PACKING IS COMPLETED.
+C                       (INPUT-OUTPUT)
+C                IPOS = BIT POSITION (COUNTING LEFTMOST BIT IN WORD
+C                       AS 1) TO START PACKING.  MUST BE GE 1 AND
+C                       LE L3264B.  UPDATED AS NECESSARY
+C                       AFTER PACKING IS COMPLETED.  (INPUT-OUTPUT)
+C              NVALUE = THE RIGHTMOST NBIT BITS IN NVALUE WILL
+C                       BE PACKED.  (INPUT)
+C                NBIT = SEE NVALUE.  MUST BE GE 0 AND LE 32.  (INPUT)   
+C              L3264B = INTEGER WORD LENGTH OF MACHINE BEING USED.
+C                       (INPUT)
+C                 IER = STATUS RETURN:
+C                       0 = GOOD RETURN.
+C                       1 = PACKING WOULD OVERFLOW IPACK( ).
+C                       2 = IPOS NOT IN RANGE 1 TO L3264B.
+C                       3 = NBIT NOT IN RANGE 0 TO 32.
+C                       4 = NBIT EQ 0, BUT NVALUE NE 0.
+C                   * = ALTERNATE RETURN WHEN IER NE 0.
+C
+C        NON SYSTEM SUBROUTINES CALLED
+C            NONE
+C
+      DIMENSION IPACK(ND5)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/util/src/grib2packer/RCS/pkbg.f,v $
+     . $',                                                             '
+     .$Id: pkbg.f,v 1.1 2004/09/16 16:52:29 dsa Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C        CHECK CORRECTNESS OF INPUT AND SET STATUS RETURN.
+C
+      IER=0
+      IF(NBIT.EQ.0.AND.NVALUE.EQ.0)GO TO 150
+      IF(NBIT.NE.0)GO TO 111
+      IER=4
+C        WHEN NBIT=0, NVALUE MUST BE ALSO.
+ 111  IF(LOC.LT.1.OR.LOC.GT.ND5)IER=1
+C        PACKING WOULD OVERFLOW IPACK( ).
+      IF(IPOS.LE.0.OR.IPOS.GT.L3264B)IER=2
+      IF(NBIT.LT.0.OR.NBIT.GT.32)IER=3
+      IF(IER.NE.0)RETURN 1      
+C
+      NEWIPOS=IPOS+NBIT
+C
+C        WHEN NEWIPOS LE L3264+1, THEN ONLY ONE WORD IS PACKED INTO.
+C        ELSE TWO WORDS ARE INVOLVED.
+C
+      IF(NEWIPOS.LE.L3264B+1)THEN
+         CALL MVBITS(NVALUE,0,NBIT,IPACK(LOC),L3264B+1-NEWIPOS)
+C
+         IF(NEWIPOS.LE.L3264B)THEN
+            IPOS=NEWIPOS
+         ELSE
+            IPOS=1
+            LOC=LOC+1
+         ENDIF
+C
+      ELSE
+         NBIT1=L3264B+1-IPOS
+         NBIT2=NBIT-NBIT1
+         CALL MVBITS(NVALUE,NBIT2,NBIT1,IPACK(LOC),0)
+         LOC=LOC+1
+C
+         IF(LOC.LE.ND5)GO TO 130
+         IER=1
+         RETURN 1
+C
+ 130     CALL MVBITS(NVALUE,0,NBIT2,IPACK(LOC),L3264B-NBIT2)
+         IPOS=NBIT2+1
+      ENDIF
+C
+ 150  RETURN
+      END

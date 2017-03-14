@@ -1,0 +1,46 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="gfeProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+        <property name="pluginName" value="gfe"/>
+        <property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.gfe"/>
+        <property name="dao" value="com.raytheon.edex.plugin.gfe.db.dao.GFEDao"/>
+        <property name="record" value="com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord"/>
+        <property name="initializer" value="com.raytheon.edex.plugin.gfe.GfePluginInitializer"/>
+        <property name="compression" value="LZF"/>
+    </bean>
+
+    <bean id="gfeDbPluginProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
+        <property name="pluginFQN" value="com.raytheon.edex.plugin.gfe"/>
+        <property name="database" value="metadata"/>
+    </bean>
+
+    <bean id="gfeRegistered" factory-bean="pluginRegistry" factory-method="register" depends-on="gridRegistered, satelliteRegistered, textRegistered">
+        <constructor-arg value="gfe"/>
+        <constructor-arg ref="gfeProperties"/>
+    </bean>
+
+    <bean id="gfeDbRegistered" factory-bean="dbPluginRegistry" factory-method="register" depends-on="gfeRegistered">
+        <constructor-arg value="com.raytheon.edex.plugin.gfe"/>
+        <constructor-arg ref="gfeDbPluginProperties"/>
+    </bean>
+
+    <bean id="ifpServer" class="com.raytheon.edex.plugin.gfe.server.IFPServer.Wrapper"/>
+    
+    <camelContext id="gfe-common-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+
+        <route id="notifyIfpServer">
+            <from uri="jms-generic:topic:edex.alerts.gfe?threadName=notifyIfpServer-edex.alerts.gfe" />
+            <doTry>
+                <bean ref="serializationUtil" method="transformFromThrift"/>
+                <bean ref="ifpServer" method="processNotification"/>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:ifpServer?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+</beans>

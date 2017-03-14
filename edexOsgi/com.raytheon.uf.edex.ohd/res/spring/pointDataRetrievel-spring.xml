@@ -1,0 +1,37 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="pdcSrv" class="com.raytheon.uf.edex.ohd.whfs.WhfsSrv">
+		<constructor-arg>
+				<value>run_pdc_pp</value>
+		</constructor-arg>
+	</bean>
+
+	<camelContext id="pointDataWhfs-context"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+
+		<endpoint id="pointDataCron" uri="clusteredquartz://whfs/pointDataWhfsScheduled/?cron=${pointdataretrieval.cron}"/>
+
+		<!-- Run the whfsSrv(s) on Scheduled timer -->
+		<route id="pointDataScheduled">
+			<from uri="pointDataCron" />
+			<to uri="jms-generic:queue:pointDataScheduledWork" />
+		</route>
+		
+		<route id="pointDataScheduledWork">
+		    <from uri="jms-generic:queue:pointDataScheduledWork" />
+            <doTry>
+				<bean ref="pdcSrv" method="execute" />
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:pointData?level=ERROR"/>
+                </doCatch>
+            </doTry>
+		</route>
+
+	</camelContext>
+
+</beans>

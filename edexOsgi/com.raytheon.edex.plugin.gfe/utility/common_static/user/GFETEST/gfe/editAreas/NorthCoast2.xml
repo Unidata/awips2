@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<referenceData>
+    <polygons>MULTIPOLYGON (((-82.5527 29.0443, -82.5575 28.999, -82.5622 28.9536, -82.567 28.9082, -82.5718 28.8628, -82.6236 28.867, -82.6754 28.8711, -82.7273 28.8753, -82.7791 28.8794, -82.8309 28.8835, -82.8828 28.8875, -82.9346 28.8916, -82.93 28.937, -82.9253 28.9824, -82.9207 29.0278, -82.9161 29.0732, -82.9114 29.1185, -82.8595 29.1145, -82.8076 29.1104, -82.8029 29.1558, -82.7509 29.1517, -82.699 29.1475, -82.647 29.1434, -82.5951 29.1393, -82.5998 29.0939, -82.5479 29.0897, -82.5527 29.0443)))</polygons>
+</referenceData>

@@ -1,0 +1,754 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<styleRuleset>
+
+	<!-- Radar Rules -->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>19</parameter>
+			<parameter>20</parameter>
+			<parameter>21</parameter>
+			<parameter>137</parameter>
+			<parameter>50</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>dBZ</displayUnits>
+			<defaultColormap>Radar/OSF/16 Level Reflectivity</defaultColormap>
+		</imageStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>16</parameter>
+			<parameter>85</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>dBZ</displayUnits>
+			<defaultColormap>Radar/OSF/8 Level Reflectivity</defaultColormap>
+		</imageStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>86</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>kts</displayUnits>
+			<defaultColormap>Radar/OSF/8 Level Velocity</defaultColormap>
+		</imageStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>25</parameter>
+			<parameter>26</parameter>
+			<parameter>27</parameter>
+			<parameter>183</parameter>
+			<parameter>51</parameter>
+			<parameter>55</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>kts</displayUnits>
+			<defaultColormap>Radar/OSF/16 Level Velocity</defaultColormap>
+		</imageStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>34</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>*1</displayUnits>
+			<defaultColormap>Radar/Clutter Filter Control</defaultColormap>
+			<dataMapping>
+				<entry pixelValue="8" displayValue="0" label="FN" sample="FN" />
+				<entry pixelValue="24" displayValue="1" label="NC" sample="NC" />
+				<entry pixelValue="72" displayValue="4" label="CL" sample="CL" />
+				<entry pixelValue="120" displayValue="7" label="FF" sample="FF" />
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>65</parameter>
+			<parameter>66</parameter>
+			<parameter>67</parameter>
+			<parameter>90</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>dBZ</displayUnits>
+			<defaultColormap>Radar/Layer Max Refl</defaultColormap>
+		</imageStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>57</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>kg/m^2</displayUnits>
+			<defaultColormap>Radar/OSF/16 Level Reflectivity</defaultColormap>
+		</imageStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>155</parameter>
+                        <parameter>184</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>kts</displayUnits>
+			<defaultColormap>Radar/Spectrum Width</defaultColormap>
+			<dataMapping>
+				<entry pixelValue="1" sample="RF" label="" />
+				<entry pixelValue="2" displayValue="0" label=""/>
+				<entry pixelValue="16" displayValue="0.00001" label="0"/>
+				<entry pixelValue="32" displayValue="4" />
+				<entry pixelValue="48" displayValue="8" />
+				<entry pixelValue="64" displayValue="12" />
+				<entry pixelValue="80" displayValue="16" />
+				<entry pixelValue="96" displayValue="20" />
+				<entry pixelValue="112" displayValue="35" />
+				<entry pixelValue="127" displayValue="80" label='' />
+				<entry label="RF" pixelValue="136" />
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>28</parameter>
+            <parameter>29</parameter>
+            <parameter>30</parameter>
+            <parameter>185</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>kts</displayUnits>
+            <defaultColormap>Radar/Spectrum Width</defaultColormap>
+            <dataMapping>
+                <entry pixelValue="1" sample="RF" label="" />
+                <entry pixelValue="24" displayValue="0" />
+                <entry pixelValue="40" displayValue="4" />
+                <entry pixelValue="56" displayValue="8" />
+                <entry pixelValue="72" displayValue="12" />
+                <entry pixelValue="88" displayValue="16" />
+                <entry pixelValue="104" displayValue="20" />
+                <entry label="RF" pixelValue="136" />
+            </dataMapping>
+        </imageStyle>
+    </styleRule>
+    
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>35</parameter>
+			<parameter>36</parameter>
+			<parameter>37</parameter>
+			<parameter>38</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>dBZ</displayUnits>
+			<defaultColormap>Radar/Storm Clear Reflectivity</defaultColormap>
+			<dataMapping>
+				<entry displayValue='-32.5' pixelValue='16' label='' />
+				<entry displayValue='-20.0' pixelValue='33' />
+				<entry displayValue='-10.0' />
+				<entry displayValue='0.0' />
+				<entry displayValue='10.0' />
+				<entry displayValue='20.0' />
+				<entry displayValue='30.0' />
+				<entry displayValue='40.0' />
+				<entry displayValue='50.0' />
+				<entry displayValue='60.0' />
+				<entry displayValue='70.0' />
+				<entry displayValue='75' pixelValue='240' label='' />
+				<entry displayValue='94.5' pixelValue='255' label='' />
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+	
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>35</parameter>
+			<parameter>36</parameter>
+			<parameter>37</parameter>
+			<parameter>38</parameter>
+			<creatingEntity>Legacy</creatingEntity>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>dBZ</displayUnits>
+			<defaultColormap>Radar/OSF/16 Level Reflectivity</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	
+	<!-- Specifies alternate data units for using VIL with CZ -->
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>57</parameter>
+			<creatingEntity>CZ</creatingEntity>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>dBZ</displayUnits>
+			<dataMapping>
+				<entry pixelValue="1" displayValue="40" />
+				<entry pixelValue="16" displayValue="75" />
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>41</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>kft</displayUnits>
+			<defaultColormap>Radar/OSF/Echo Tops</defaultColormap>
+		</imageStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>56</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>kts</displayUnits>
+			<defaultColormap>Radar/OSF/SRM Radial Velocity</defaultColormap>
+		</imageStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>31</parameter>
+			<parameter>78</parameter>
+			<parameter>79</parameter>
+			<parameter>80</parameter>
+			<parameter>144</parameter>
+			<parameter>145</parameter>
+			<parameter>146</parameter>
+			<parameter>147</parameter>
+			<parameter>150</parameter>
+			<parameter>151</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>in</displayUnits>
+			<defaultColormap>Radar/OSF/1, 3 Hr Precip Accumulation</defaultColormap>
+		</imageStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>138</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>in</displayUnits>
+			<defaultColormap>Radar/8-bit STP</defaultColormap>
+			<dataMapping>
+				<entry displayValue='0' pixelValue='5' />
+				<entry displayValue='.1' pixelValue='16' />
+				<entry displayValue='.3' pixelValue='32' />
+				<entry displayValue='.6' pixelValue='48' />
+				<entry displayValue='1' pixelValue='64' />
+				<entry displayValue='1.5' pixelValue='80' />
+				<entry displayValue='2' pixelValue='96' />
+				<entry displayValue='2.5' pixelValue='112' />
+				<entry displayValue='3' pixelValue='128' />
+				<entry displayValue='4' pixelValue='144' />
+				<entry displayValue='5' pixelValue='160' />
+				<entry displayValue='6' pixelValue='176' />
+				<entry displayValue='8' pixelValue='192' />
+				<entry displayValue='10' pixelValue='208' />
+				<entry displayValue='12' pixelValue='224' />
+				<entry displayValue='15' pixelValue='240' />
+				<entry displayValue='31' pixelValue='255' label='' />
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>300</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>dBZ</displayUnits>
+			<defaultColormap>Radar/OSF/256 Level Reflectivity</defaultColormap>
+			<dataMapping>
+				<entry displayValue='-32.5' pixelValue='16' label="" />
+				<entry displayValue='-20.0' pixelValue='33' />
+				<entry displayValue='-10.0' />
+				<entry displayValue='  0.0' />
+				<entry displayValue=' 10.0' />
+				<entry displayValue=' 20.0' />
+				<entry displayValue=' 30.0' />
+				<entry displayValue=' 40.0' />
+				<entry displayValue=' 50.0' />
+				<entry displayValue=' 60.0' />
+				<entry displayValue=' 70.0' />
+				<entry displayValue=' 75.0' pixelValue='240' label="" />
+				<entry displayValue=' 94.5' pixelValue='255' label="" />
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>187</parameter>
+			<parameter>186</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>dBZ</displayUnits>
+			<defaultColormap>Radar/Storm Clear Reflectivity</defaultColormap>
+			<dataMapping>
+				<entry displayValue='-32.5' pixelValue='16' label="" />
+				<entry displayValue='-20.0' pixelValue='33' />
+				<entry displayValue='-10.0' />
+				<entry displayValue='  0.0' />
+				<entry displayValue=' 10.0' />
+				<entry displayValue=' 20.0' />
+				<entry displayValue=' 30.0' />
+				<entry displayValue=' 40.0' />
+				<entry displayValue=' 50.0' />
+				<entry displayValue=' 60.0' />
+				<entry displayValue=' 70.0' />
+				<entry displayValue=' 75.0' pixelValue='240' label="" />
+				<entry displayValue=' 94.5' pixelValue='255' label="" />
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>153</parameter>
+			<parameter>94</parameter>
+			<parameter>32</parameter>
+			<parameter>180</parameter>
+			<parameter>181</parameter>
+			<parameter>500</parameter>
+			<parameter>550</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>dBZ</displayUnits>
+			<defaultColormap>Radar/Storm Clear Reflectivity</defaultColormap>
+			<dataMapping>
+				<entry displayValue='-32.5' pixelValue='16' label="" />
+				<entry displayValue='-20.0' pixelValue='33' />
+				<entry displayValue='-10.0' />
+				<entry displayValue='  0.0' />
+				<entry displayValue=' 10.0' />
+				<entry displayValue=' 20.0' />
+				<entry displayValue=' 30.0' />
+				<entry displayValue=' 40.0' />
+				<entry displayValue=' 50.0' />
+				<entry displayValue=' 60.0' />
+				<entry displayValue=' 70.0' />
+				<entry displayValue=' 75.0' pixelValue='240' label="" />
+				<entry displayValue=' 94.5' pixelValue='255' label="" />
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>99</parameter>
+			<parameter>301</parameter>
+			<parameter>154</parameter>
+			<parameter>182</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>kts</displayUnits>
+			<defaultColormap>Radar/8 bit Vel</defaultColormap>
+			<dataMapping>
+				<entry pixelValue="1" sample="RF" label="RF" />
+				<entry displayValue='-247.0' pixelValue='2' label="" />
+				<entry displayValue='-100.0' pixelValue='26' />
+				<entry displayValue=' -80.0' />
+				<entry displayValue=' -60.0' />
+				<entry displayValue=' -45.0' />
+				<entry displayValue=' -20.0' />
+				<entry displayValue='   0.0' />
+				<entry displayValue='  20.0' />
+				<entry displayValue='  45.0' />
+				<entry displayValue='  60.0' />
+				<entry displayValue='  80.0' />
+				<entry displayValue=' 100.0' pixelValue='232' />
+				<entry displayValue=' 245.0' pixelValue='255' label="" />
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>135</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>kft</displayUnits>
+			<defaultColormap>Radar/Enhanced Echo Tops</defaultColormap>
+			<dataMapping>
+				<entry displayValue='0' label="" />
+				<entry displayValue='20' label="20" />
+				<entry displayValue='50' label="50" />
+				<entry displayValue='71' label="70" />
+				<entry displayValue='130' label="0" />
+				<entry displayValue='150' label="20" />
+				<entry displayValue='170' label="50" />
+				<entry displayValue='199' label="70" />
+				<entry displayValue='228' label="Topped" />
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>134</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>kg/m^2</displayUnits>
+			<samplePrefs>
+			    <!-- Number of decimal places to format the sample string to -->
+				<formatString>4</formatString>
+			</samplePrefs>
+			<defaultColormap>Radar/OSF/Digital VIL</defaultColormap>
+			<dataMapping>
+				<entry displayValue='0' pixelValue='0' label="" />
+				<entry displayValue='.1' pixelValue='10' label=".1" />
+				<entry displayValue='.5' pixelValue='55' label=".5" />
+				<entry displayValue='1' pixelValue='80' />
+				<entry displayValue='2' pixelValue='105' />
+				<entry displayValue='5' pixelValue='143' />
+				<entry displayValue='10' pixelValue='170' />
+				<entry displayValue='20' pixelValue='200' />
+				<entry displayValue='40' pixelValue='227' />
+				<entry displayValue='60' pixelValue='245' />
+				<entry displayValue='80' pixelValue='254' label="" />
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>48</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>kts</displayUnits>
+			<defaultColormap>Radar/OSF/VAD Wind Profile</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>84</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>dBZ</displayUnits>
+			<defaultColormap>Radar/OSF/Velocity Azimuth Display</defaultColormap>
+		</imageStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>159</parameter>
+			<parameter>158</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>dB</displayUnits>
+			<samplePrefs>
+			    <!-- Number of decimal places to format the sample string to -->
+				<formatString>2</formatString>
+			</samplePrefs>
+			<defaultColormap>Radar/DualPol/Differential Refl</defaultColormap>
+			<dataMapping>
+				<entry pixelValue="1" sample="RF" label="" />
+				<entry displayValue='-4' pixelValue='16' />
+				<entry displayValue='-2' pixelValue='32' />
+				<entry displayValue='-0.5' pixelValue='48' />
+				<entry displayValue='0.0' pixelValue='64' />
+				<entry displayValue='0.25' pixelValue='80' />
+				<entry displayValue='0.5' pixelValue='96' />
+				<entry displayValue='1.0' pixelValue='112' />
+				<entry displayValue='1.5' pixelValue='128' />
+				<entry displayValue='2.0' pixelValue='144' />
+				<entry displayValue='2.5' pixelValue='160' />
+				<entry displayValue='3.0' pixelValue='176' />
+				<entry displayValue='4.0' pixelValue='192' />
+				<entry displayValue='5.0' pixelValue='208' />
+				<entry displayValue='6.0' pixelValue='224' />
+				<entry displayValue='8.0' pixelValue='240' label='' />
+				<entry pixelValue='248' label='RF' />
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>160</parameter>
+			<parameter>161</parameter>
+			<parameter>167</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>*1</displayUnits>
+			<defaultColormap>Radar/DualPol/Correlation Coeff</defaultColormap>
+			<samplePrefs>
+			    <!-- Number of decimal places to format the sample string to -->
+				<formatString>4</formatString>
+			</samplePrefs>
+			<dataMapping>
+				<entry pixelValue="1" sample="RF" label="" />
+				<entry displayValue='0.20' pixelValue='16' />
+				<entry displayValue='0.45' pixelValue='32' />
+				<entry displayValue='0.65' pixelValue='48' />
+				<entry displayValue='0.75' pixelValue='64' />
+				<entry displayValue='0.80' pixelValue='80' />
+				<entry displayValue='0.85' pixelValue='96' />
+				<entry displayValue='0.90' pixelValue='112' />
+				<entry displayValue='0.93' pixelValue='128' />
+				<entry displayValue='0.95' pixelValue='144' />
+				<entry displayValue='0.96' pixelValue='160' />
+				<entry displayValue='0.97' pixelValue='176' />
+				<entry displayValue='0.98' pixelValue='192' />
+				<entry displayValue='0.99' pixelValue='208' />
+				<entry displayValue='1.0' pixelValue='224' />
+				<entry displayValue='1.05' pixelValue='240' label='' />
+				<entry pixelValue='248' label='RF' />
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>162</parameter>
+			<parameter>163</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>deg/km</displayUnits>
+			<samplePrefs>
+			    <!-- Number of decimal places to format the sample string to -->
+				<formatString>2</formatString>
+			</samplePrefs>
+			<defaultColormap>Radar/DualPol/Spec Differential Phase</defaultColormap>
+			<dataMapping>
+				<entry pixelValue="1" sample="RF" label="" />
+				<entry displayValue='-2' pixelValue='16' />
+				<entry displayValue='-1' pixelValue='32' />
+				<entry displayValue='-0.5' pixelValue='48' />
+				<entry displayValue='0.0' pixelValue='64' />
+				<entry displayValue='0.25' pixelValue='80' />
+				<entry displayValue='0.5' pixelValue='96' />
+				<entry displayValue='1.0' pixelValue='112' />
+				<entry displayValue='1.5' pixelValue='128' />
+				<entry displayValue='2.0' pixelValue='144' />
+				<entry displayValue='2.5' pixelValue='160' />
+				<entry displayValue='3.0' pixelValue='176' />
+				<entry displayValue='4.0' pixelValue='192' />
+				<entry displayValue='5.0' pixelValue='208' />
+				<entry displayValue='7.0' pixelValue='224' />
+				<entry displayValue='10.0' pixelValue='240' label='' />
+				<entry pixelValue='248' label='RF' />
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>168</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>deg</displayUnits>
+			<samplePrefs>
+			    <!-- Number of decimal places to format the sample string to -->
+				<formatString>2</formatString>
+			</samplePrefs>
+			<defaultColormap>Radar/DualPol/phiDP</defaultColormap>
+			<dataMapping>
+				<entry pixelValue="1" sample="RF" label="" />
+				<entry displayValue='30' pixelValue='16' />
+				<entry displayValue='60' pixelValue='32' />
+				<entry displayValue='90' />
+				<entry displayValue='120' />
+				<entry displayValue='150' />
+				<entry displayValue='180' />
+				<entry displayValue='210' />
+				<entry displayValue='240' />
+				<entry displayValue='270' />
+				<entry displayValue='300' />
+				<entry displayValue='330' />
+				<entry displayValue='360' pixelValue='240' />
+				<entry pixelValue='248' label='RF' />
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>164</parameter>
+			<parameter>165</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>*1</displayUnits>
+			<defaultColormap>Radar/DualPol/Hydrometeor Class</defaultColormap>
+			<dataMapping>
+				<entry displayValue='0' pixelValue='8' label='' />
+				<entry displayValue='1' pixelValue='24' label='BI' sample='Biological' />
+				<entry displayValue='2' pixelValue='40' label='GC' sample='Clutter' />
+				<entry displayValue='3' pixelValue='56' label='IC' sample='Ice Crystals' />
+				<entry displayValue='4' pixelValue='72' label='DS' sample='Dry Snow' />
+				<entry displayValue='5' pixelValue='88' label='WS' sample='Wet Snow' />
+				<entry displayValue='6' pixelValue='104' label='RA' sample='Rain' />
+				<entry displayValue='7' pixelValue='120' label='HR' sample='Heavy Rain' />
+				<entry displayValue='8' pixelValue='136' label='BD' sample='Big Drops' />
+				<entry displayValue='9' pixelValue='152' label='GR' sample='Graupel' />
+				<entry displayValue='10' pixelValue='168' label='HA' sample='Hail-Rain' />
+				<entry displayValue='11' pixelValue='184' label='LH' sample='Large Hail' />
+				<entry displayValue='12' pixelValue='200' label='GH' sample='Giant Hail' />
+				<entry displayValue='13' pixelValue='216' label='' sample='TBD' />
+				<entry displayValue='14' pixelValue='232' label='UK' sample='Unknown' />
+				<entry displayValue='16' pixelValue='248' label='RF' />
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>177</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>*1</displayUnits>
+			<defaultColormap>Radar/DualPol/Hybrid Hydrometeor Class</defaultColormap>
+			<dataMapping>
+				<entry displayValue='0' pixelValue='8' label='' />
+				<entry displayValue='1' pixelValue='24' label='BI' sample='Biological' />
+				<entry displayValue='2' pixelValue='40' label='GC' sample='Clutter' />
+				<entry displayValue='3' pixelValue='56' label='IC' sample='Ice Crystals' />
+				<entry displayValue='4' pixelValue='72' label='DS' sample='Dry Snow' />
+				<entry displayValue='5' pixelValue='88' label='WS' sample='Wet Snow' />
+				<entry displayValue='6' pixelValue='104' label='RA' sample='Rain' />
+				<entry displayValue='7' pixelValue='120' label='HR' sample='Heavy Rain' />
+				<entry displayValue='8' pixelValue='136' label='BD' sample='Big Drops' />
+				<entry displayValue='9' pixelValue='152' label='GR' sample='Graupel' />
+				<entry displayValue='10' pixelValue='168' label='HA' sample='Hail-Rain' />
+				<entry displayValue='11' pixelValue='184' label='' sample='TBD' />
+				<entry displayValue='12' pixelValue='200' label='' sample='TBD' />
+				<entry displayValue='13' pixelValue='216' label='' sample='TBD' />
+				<entry displayValue='14' pixelValue='232' label='UK' sample='Unknown' />
+				<entry displayValue='16' pixelValue='248' label='RF' />
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>169</parameter>
+			<parameter>171</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>in</displayUnits>
+			<defaultColormap>Radar/DualPol/Precip Accumulation</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>170</parameter>
+			<parameter>172</parameter>
+			<parameter>173</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>in</displayUnits>
+			<defaultColormap>Radar/DualPol/Precip Accumulation</defaultColormap>
+			<dataMapping>
+				<entry displayValue='0.0' pixelValue='6' />
+				<entry displayValue='0.1' pixelValue='16' />
+				<entry displayValue='0.3' pixelValue='32' />
+				<entry displayValue='0.6' pixelValue='48' />
+				<entry displayValue='1.0' pixelValue='64' />
+				<entry displayValue='1.5' pixelValue='80' />
+				<entry displayValue='2.0' pixelValue='96' />
+				<entry displayValue='2.5' pixelValue='112' />
+				<entry displayValue='3.0' pixelValue='128' />
+				<entry displayValue='4.0' pixelValue='144' />
+				<entry displayValue='5.0' pixelValue='160' />
+				<entry displayValue='6.0' pixelValue='176' />
+				<entry displayValue='8.0' pixelValue='192' />
+				<entry displayValue='10.0' pixelValue='208' />
+				<entry displayValue='12.0' pixelValue='224' />
+				<entry displayValue='15.0' pixelValue='240' />
+				<entry displayValue='31.0' pixelValue='255' label='' />
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>174</parameter>
+			<parameter>175</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<samplePrefs>
+			    <!-- Number of decimal places to format the sample string to -->
+				<formatString>2</formatString>
+			</samplePrefs>
+			<displayUnits>in</displayUnits>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<dataMapping>
+				<entry displayValue='-5.0' pixelValue='2' />
+				<entry displayValue='-2.5' pixelValue='16' />
+				<entry displayValue='-2.0' pixelValue='32' />
+				<entry displayValue='-1.5' pixelValue='48' />
+				<entry displayValue='-1.0' pixelValue='64' />
+				<entry displayValue='-0.6' pixelValue='80' />
+				<entry displayValue='-0.3' pixelValue='96' />
+				<entry displayValue='-0.1' pixelValue='112' />
+				<entry displayValue='0' pixelValue='128' />
+				<entry displayValue='0.1' pixelValue='144' />
+				<entry displayValue='0.3' pixelValue='160' />
+				<entry displayValue='0.6' pixelValue='176' />
+				<entry displayValue='1.0' pixelValue='192' />
+				<entry displayValue='1.5' pixelValue='208' />
+				<entry displayValue='2.0' pixelValue='224' />
+				<entry displayValue='2.5' pixelValue='240' />
+				<entry displayValue='5.0' pixelValue='253' />
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>176</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits label="in/hr">in/h</displayUnits>
+
+			<defaultColormap>Radar/DualPol/Precip Rate</defaultColormap>
+			<dataMapping>
+				<entry displayValue='0.001' pixelValue='1' label='' />
+				<entry displayValue='0.04' pixelValue='2' label='' />
+				<entry displayValue='1.0' />
+				<entry displayValue='2.0' />
+				<entry displayValue='3.0' />
+				<entry displayValue='4.0' />
+				<entry displayValue='5.0' />
+				<entry displayValue='6.0' />
+				<entry displayValue='7.0' />
+				<!-- display Value labels 8.0-65.536 are spaced logarithmically using 
+					 (log(displayValue)-log(8.0))/(log(65.536) - log(8.0))*(254-201) + 201 -->
+				<entry displayValue='8.0' pixelValue='201' />
+				<entry displayValue='12.0' pixelValue='211' />
+				<entry displayValue='20.0' pixelValue='224' />
+				<entry displayValue='30.0' pixelValue='234' />
+				<entry displayValue='65.536' pixelValue='254' label='' />
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+
+</styleRuleset>

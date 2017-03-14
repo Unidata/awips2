@@ -1,0 +1,1 @@
+Verify that the Site product runs successfully with your customized edit areas.  Then verify that it works correctly for the Baseline and Regional versions.  Since the Site Definition file is part of the Baseline and Regional versions, it is very important that whenever you make changes to the Site Definition file, you make sure that the Baseline and Regional versions still work.

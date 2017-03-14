@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bundle>
+    <displayList>
+        <displays xsi:type="d2DMapRenderableDisplay"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <descriptor xsi:type="mapDescriptor">
+                <resource>
+                    <loadProperties loadWithoutData="true">
+                        <capabilities>
+                            <capability xsi:type="outlineCapability"
+                                lineStyle="SOLID" outlineOn="true"
+                                outlineWidth="1" />
+                            <capability xsi:type="colorableCapability"
+                                colorAsString="#545454" />
+                        </capabilities>
+                    </loadProperties>
+                    <properties isSystemResource="false"
+                        isBlinking="false" isMapLayer="false" isHoverOn="false"
+                        isVisible="false" />
+                    <resourceData xsi:type="wwaResourceData"
+                        isUpdatingOnMetadataOnly="false" retrieveData="false"
+                        isRequeryNecessaryOnTimeMatch="true"
+                        name="Local &amp; Regional Flood Warnings"
+                        hideSampling="true">
+                        <metadataMap>
+                            <mapping key="act">
+                                <constraint constraintValue="NEW,CON,CAN,EXT,EXP"
+                                    constraintType="IN" />
+                            </mapping>
+                            <mapping key="pil">
+                                <constraint constraintValue="FFW,FLW,FFS,FLS"
+                                    constraintType="IN" />
+                            </mapping>
+                            <mapping key="phensig">
+                                <constraint constraintValue="FF.W,FA.W,FA.Y,FL.Y"
+                                    constraintType="IN" />
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="warning"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="officeid">
+                                <constraint constraintValue="${site},${sites}"
+                                    constraintType="IN" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties loadWithoutData="true">
+                        <capabilities>
+                            <capability xsi:type="outlineCapability"
+                                lineStyle="SOLID" outlineOn="true"
+                                outlineWidth="1" />
+                            <capability xsi:type="colorableCapability"
+                                colorAsString="#00ff7f" />
+                        </capabilities>
+                    </loadProperties>
+                    <properties isSystemResource="false"
+                        isBlinking="false" isMapLayer="false" isHoverOn="false"
+                        isVisible="true" />
+                    <resourceData xsi:type="wwaResourceData"
+                        isUpdatingOnMetadataOnly="false" retrieveData="false"
+                        isRequeryNecessaryOnTimeMatch="true"
+                        name="Local &amp; Regional Flash Flood Warnings">
+                        <metadataMap>
+                            <mapping key="act">
+                                <constraint constraintValue="NEW,CON,CAN,EXT,EXP"
+                                    constraintType="IN" />
+                            </mapping>
+                            <mapping key="pil">
+                                <constraint constraintValue="FFW,FFS"
+                                    constraintType="IN" />
+                            </mapping>
+                            <mapping key="phensig">
+                                <constraint constraintValue="FF.W"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="warning"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="officeid">
+                                <constraint constraintValue="${site},${sites}"
+                                    constraintType="IN" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties loadWithoutData="true">
+                        <capabilities>
+                            <capability xsi:type="outlineCapability"
+                                lineStyle="SOLID" outlineOn="true"
+                                outlineWidth="1" />
+                            <capability xsi:type="colorableCapability"
+                                colorAsString="#3cb371" />
+                        </capabilities>
+                    </loadProperties>
+                    <properties isSystemResource="false"
+                        isBlinking="false" isMapLayer="false" isHoverOn="false"
+                        isVisible="true" />
+                    <resourceData xsi:type="wwaResourceData"
+                        isUpdatingOnMetadataOnly="false" retrieveData="false"
+                        isRequeryNecessaryOnTimeMatch="true"
+                        name="Local &amp; Regional Flood Warnings">
+                        <metadataMap>
+                            <mapping key="act">
+                                <constraint constraintValue="NEW,CON,CAN,EXT,EXP"
+                                    constraintType="IN" />
+                            </mapping>
+                            <mapping key="pil">
+                                <constraint constraintValue="FLW,FLS"
+                                    constraintType="IN" />
+                            </mapping>
+                            <mapping key="phensig">
+                                <constraint constraintValue="FA.W"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="warning"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="officeid">
+                                <constraint constraintValue="${site},${sites}"
+                                    constraintType="IN" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties loadWithoutData="true">
+                        <capabilities>
+                            <capability xsi:type="outlineCapability"
+                                lineStyle="SOLID" outlineOn="true"
+                                outlineWidth="1" />
+                            <capability xsi:type="colorableCapability"
+                                colorAsString="#89f0b7" />
+                        </capabilities>
+                    </loadProperties>
+                    <properties isSystemResource="false"
+                        isBlinking="false" isMapLayer="false" isHoverOn="false"
+                        isVisible="true" />
+                    <resourceData xsi:type="wwaResourceData"
+                        isUpdatingOnMetadataOnly="false" retrieveData="false"
+                        isRequeryNecessaryOnTimeMatch="true"
+                        name="Local &amp; Regional River Flood Warnings">
+                        <metadataMap>
+                            <mapping key="act">
+                                <constraint constraintValue="NEW,CON,CAN,EXT,EXP"
+                                    constraintType="IN" />
+                            </mapping>
+                            <mapping key="pil">
+                                <constraint constraintValue="FLW,FLS"
+                                    constraintType="IN" />
+                            </mapping>
+                            <mapping key="phensig">
+                                <constraint constraintValue="FL.W"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="warning"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="officeid">
+                                <constraint constraintValue="${site},${sites}"
+                                    constraintType="IN" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties loadWithoutData="true">
+                        <capabilities>
+                            <capability xsi:type="outlineCapability"
+                                lineStyle="DASHED" outlineOn="true"
+                                outlineWidth="1" />
+                            <capability xsi:type="colorableCapability"
+                                colorAsString="#8fbc8f" />
+                        </capabilities>
+                    </loadProperties>
+                    <properties isSystemResource="false"
+                        isBlinking="false" isMapLayer="false" isHoverOn="false"
+                        isVisible="true" />
+                    <resourceData xsi:type="wwaResourceData"
+                        isUpdatingOnMetadataOnly="false" retrieveData="false"
+                        isRequeryNecessaryOnTimeMatch="true"
+                        name="Local &amp; Regional Flood Advisories">
+                        <metadataMap>
+                            <mapping key="act">
+                                <constraint constraintValue="NEW,CON,CAN,EXT,EXP"
+                                    constraintType="IN" />
+                            </mapping>
+                            <mapping key="pil">
+                                <constraint constraintValue="FLS"
+                                    constraintType="IN" />
+                            </mapping>
+                            <mapping key="phensig">
+                                <constraint constraintValue="FA.Y,FL.Y"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="warning"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="officeid">
+                                <constraint constraintValue="${site},${sites}"
+                                    constraintType="IN" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+            </descriptor>
+        </displays>
+    </displayList>
+</bundle>

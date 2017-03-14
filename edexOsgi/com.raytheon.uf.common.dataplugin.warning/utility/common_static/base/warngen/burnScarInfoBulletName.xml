@@ -1,0 +1,12 @@
+<!-- The following is an example on how to set up the bullets for a site
+     specific burnscar location for CAN/EXP sections where you only want
+     the name of the burn scar and not the scenarios -->
+<!-- Notice we use many of the same bullet names as the dam break template.
+     This is done in order to get WarnGen to read in the lat/lon box.
+     This process can be done for any pre-configured FFW box. -->
+<!-- 
+<damInfoBullets>
+<damInfoBullet bulletGroup="dam" bulletText="FourMile Burn Area" bulletName="FourMileBurnArea"  parseString="FOURMILE BURN AREA" showString="FOURMILE BURN AREA" coords="LAT...LON 4006 10542 4008 10537 4005 10535 4002 10540"/>
+</damInfoBullets>
+-->
+<!-- End of example. Begin your site specific information here. -->

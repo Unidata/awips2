@@ -1,0 +1,40 @@
+#include <stdio.h>  
+#include <string.h>  
+#include "mesg_hdr.h"
+
+void get_radarnum(char radid[4])
+
+/*
+
+   function to get radar number from the RadarLoc table
+
+   calling routine:  create_biastable_mesg
+
+*/
+
+{
+
+   EXEC SQL BEGIN DECLARE SECTION;
+      short int num_radar;
+      char rrad[4];
+   EXEC SQL END DECLARE SECTION;
+
+   /*------------------------------------*/
+   /*   get numeric radar id             */
+   /*------------------------------------*/
+
+   strcpy(rrad,radid);
+   EXEC SQL select radar_num
+            into :num_radar
+            from RadarLoc
+            where radid = :rrad;
+
+   if(sqlca.sqlcode != 0)
+   {
+      printf("POstgreSQL error %s attempting select from RadarLoc table\n",
+              sqlca.sqlstate);
+      MesgHdr.dest_id = 000;
+   }
+
+   MesgHdr.dest_id = num_radar;
+}

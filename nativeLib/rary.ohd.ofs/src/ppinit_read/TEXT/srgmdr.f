@@ -1,0 +1,123 @@
+C MEMBER SRGMDR
+C-----------------------------------------------------------------------
+C
+C DESC READ MDR BOX GRID POINT ADDRESS (GMDR) PARAMETERS
+C
+      SUBROUTINE SRGMDR (IVGMDR,MDRWCL,MDRNCL,MDRSRW,MDRNRW,NMDRGP,
+     *   UNUSED,LARRAY,ARRAY,IPRERR,IPTR,IPTRNX,ISTAT)
+C
+      REAL*8 BLNK8/8H        /
+      INTEGER*2 NMDRGP(42,1)
+C
+      DIMENSION ARRAY(LARRAY)
+      DIMENSION UNUSED(1)
+C
+      INCLUDE 'uio'
+      INCLUDE 'scommon/sudbgx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppinit_read/RCS/srgmdr.f,v $
+     . $',                                                             '
+     .$Id: srgmdr.f,v 1.1 1995/09/17 19:14:49 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+      IF (ISTRCE.GT.0) WRITE (IOSDBG,80)
+      IF (ISTRCE.GT.0) CALL SULINE (IOSDBG,1)
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG(4HGMDR)
+C
+      IF (LDEBUG.GT.0) WRITE (IOSDBG,90) LARRAY
+      IF (LDEBUG.GT.0) CALL SULINE (IOSDBG,1)
+C
+      ISTAT=0
+C
+C  READ PARAMETER RECORD
+      CALL SUDOPN (1,4HPPP ,IERR)
+      CALL RPPREC (BLNK8,4HGMDR,IPTR,LARRAY,ARRAY,NFILL,IPTRNX,
+     *   IERR)
+      IF (IERR.EQ.0) GO TO 10
+      ISTAT=IERR
+      IF (ISTAT.EQ.6) GO TO 60
+      IF (IPRERR.EQ.0) GO TO 60
+         CALL SRPPST (BLNK8,4HGMDR,IPTR,LARRAY,NFILL,IPTRNX,IERR)
+         WRITE (LP,120) IERR
+         CALL SUERRS (LP,2,-1)
+         GO TO 60
+C
+C  SET PARAMETER ARRAY VERSION NUMBER
+10    IVGMDR=ARRAY(1)
+C
+C  SET WESTERN MOST MDR COLUMN FOR WHICH GMDR PARAMETERS DEFINED
+      MDRWCL=ARRAY(2)
+C
+C  SET NUMBER OF MDR COLUMNS
+      MDRNCL=ARRAY(3)
+C
+C  SET SOUTHERN MOST MDR ROW
+      MDRSRW=ARRAY(4)
+C
+C  SET NUMBER OF MDR ROWS
+      MDRNRW=ARRAY(5)
+C
+C  POSITIONS 6 AND 7 UNUSED
+      UNUSED(1)=ARRAY(6)
+      UNUSED(2)=ARRAY(7)
+C
+      NPOS=8
+      DO 20 I=1,42
+            DO 20 J=1,89
+               NMDRGP(I,J)=0
+20             CONTINUE
+C
+C  SET GRID POINT ADDRESS OF GRID POINT NEAREST CENTROID OF MDR BOX
+      ICOL=MDRWCL
+      NCOL=MDRNCL
+      LCOL=ICOL+NCOL-1
+      IROW=MDRSRW
+      NROW=MDRNRW
+      LROW=IROW+NROW-1
+      IPOS=0
+      DO 50 IR=IROW,LROW
+         DO 50 IC=ICOL,LCOL
+            IPOS=IPOS+1
+            CALL SUI2I4 (ARRAY(NPOS),IPOS,IVAL,1,LDEBUG)
+            NMDRGP(IC-ICOL+1,IR)=IVAL
+50          CONTINUE
+      IF (MOD(IPOS,2).GT.0) NPOS=NPOS+1
+C
+60    IF (LDEBUG.EQ.0) GO TO 70
+         CALL SUGMDR (ICOL,NCOL,LCOL,IROW,NROW,LROW,NMDRGP,IOSDBG)
+         IF (ISTAT.EQ.0) WRITE (IOSDBG,140)
+         IF (ISTAT.EQ.0) CALL SULINE (IOSDBG,1)
+         IF (ISTAT.GT.0) WRITE (IOSDBG,150)
+         IF (ISTAT.GT.0) CALL SULINE (IOSDBG,1)
+C
+70    IF (ISTRCE.GT.0) WRITE (IOSDBG,160)
+      IF (ISTRCE.GT.0) CALL SULINE (IOSDBG,1)
+C
+      RETURN
+C
+C-----------------------------------------------------------------------
+C
+80    FORMAT (' *** ENTER SRGMDR')
+90    FORMAT (' LARRAY=',I5)
+100   FORMAT (' NPOS=',I2)
+110   FORMAT ('0*** ERROR - IN SRGMDR - NOT ENOUGH SPACE IN PARAMETER ',
+     *   'ARRAY: NUMBER OF WORDS IN PARAMETER ARRAY=',I4,3X,
+     *   'NUMBER OF WORDS NEEDED=',I4)
+120   FORMAT ('0*** ERROR - IN SRGMDR - UNSUCCESSFUL CALL TO RPPREC : ',
+     *   'STATUS CODE=',I2)
+130   FORMAT (' NPOS=',I4,3X,'NFILL=',I4,3X,'IPTRNX=',I3,3X,
+     *   'IVGMDR=',I2)
+140   FORMAT ('0*** NOTE - GMDR PARAMETERS SUCCESSFULLY READ.')
+150   FORMAT ('0*** NOTE - GMDR PARAMETERS NOT SUCCESSFULLY ',
+     *     'READ.')
+160   FORMAT (' *** EXIT SRGMDR')
+C
+      END

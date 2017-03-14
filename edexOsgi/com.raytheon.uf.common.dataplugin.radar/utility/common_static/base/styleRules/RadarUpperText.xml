@@ -1,0 +1,450 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_('Master_Rights_File.pdf')_for
+        further_licensing_information.
+    -->
+    <!--
+    	Every upperText consistsof two parts: the list of productCodes
+    	for which the contribution should be used, and the child elements
+    	which are generally each set to a line in the upper text.
+     -->
+<upperTextSet>
+
+	<!-- Reflectivities -->
+	<upperText productCodes='187 186 181 180 98 97 96 95 38 37 36 35 21 20 19 18 17 16'>
+		<vcp />
+		<resolution />
+		<productDependent format='MX: %ddBZ' index='3' />
+	</upperText>
+	<upperText productCodes='153 94'>
+		<vcp />
+		<resolution />
+		<productDependent format='MX: %ddBZ' index='3' />
+		<sails />
+	</upperText>
+	<upperText productCodes='32'>
+		<vcp />
+		<productDependent format='MX: %ddBZ' index='3' />
+	</upperText>
+	<upperText productCodes='500 550'>
+		<vcp />
+		<resolution />
+	</upperText>
+	
+	<!-- Unrelated items that just display VCP -->
+	<upperText productCodes='33 132 133'>
+		<vcp />
+	</upperText>
+	
+	<!-- Velocities -->
+	<upperText productCodes='183 182 27 26 25 24 23 22'>
+		<vcp />
+		<resolution />
+		<productDependent format='MN: %dkt' index='3' />
+		<productDependent format='MX: %dkt' index='4' />
+		<blank />
+		<srmSource />
+		<srmMovement />
+	</upperText>
+	<upperText productCodes='154 99'>
+		<vcp />
+		<resolution />
+		<productDependent format='MN: %dkt' index='3' />
+		<productDependent format='MX: %dkt' index='4' />
+		<blank />
+		<srmSource />
+		<srmMovement />
+		<sails />
+	</upperText>
+	
+	<!-- Base Spectrum Width -->
+	<upperText productCodes='185 30 29 28'>
+		<vcp />
+		<resolution />
+		<productDependent format='MX: %dkt' index='3' />
+	</upperText>
+	<upperText productCodes='155'>
+		<vcp />
+		<resolution />
+		<productDependent format='MX: %dkt' index='3' />
+		<sails />
+	</upperText>
+
+    <upperText productCodes='184'>
+        <vcp />
+        <resolution />
+        <productDependent format='MX: %dkt' index='3' />
+    </upperText>
+	
+	<!-- Storm Rel Vel Region -->
+   <upperText productCodes='55'>
+      <vcp />
+      <join>
+         <productDependent format='CNTR: %1.0f°' index='0' multiplier='0.1' />
+         <productDependent format=' %3.1fnm' index='1' multiplier='0.1'/>
+      </join>
+      <join>
+      	<productDependent format='USER: ' index='5' >
+			<flag value='-1' label='ALG: ' />
+		 </productDependent>
+         <productDependent format='%1.0f°' index='8' multiplier='0.1' />
+         <productDependent format=' %1.0fkt' index='7' multiplier='0.1'/>
+      </join>
+      <productDependent format='MN: %dkt' index='3' />
+      <productDependent format='MX: %dkt' index='4' />
+   </upperText>
+	
+   <!-- Storm Relative Velocity Map -->
+   <upperText productCodes='56'>
+      <vcp />
+      <join>
+      	<productDependent format='USER: ' index='5' >
+			<flag value='-1' label='ALG: ' />
+		 </productDependent>
+         <productDependent format='%1.0f°' index='8' multiplier='0.1' />
+         <productDependent format=' %1.0fkt' index='7' multiplier='0.1'/>
+      </join>
+      <productDependent format='MN: %dkt' index='3' />
+      <productDependent format='MX: %dkt' index='4' />
+   </upperText>
+   
+	<!-- Clutter Filter Control -->
+	<upperText productCodes='34'>
+		<vcp />
+		<layer format='ELSEG: %1.0f' />
+		<join>
+			<productDependentDate format="'BYPASS: 'M/d/yy HHmm-" dayIndex='4' minuteIndex='5' />
+			<productDependent format='STS' index='1' >
+				<flag value='1' label='CMD' />
+			</productDependent>
+		</join>
+		<join>
+			<productDependent format='REGIONS: ' index='0' >
+				<flag value='64' label='NOTCH: ' />
+			</productDependent>
+			<productDependentDate format="M/d/yy HHmm" dayIndex='6' minuteIndex='7' />
+		</join>	
+	</upperText>
+	
+	<!-- User Selectable precip -->
+	<upperText productCodes='31 150 151'>
+		<vcp />
+		<productDependentUSPMax />
+		<productDependentDate format="'BEG: 'dd.HHmm" dayIndex='4' minuteIndex='5' />
+		<productDependentDate format="'END: 'dd.HHmm" dayIndex='6' minuteIndex='7' />
+		<productDependent format='DUR: %dhr' index='1' />
+	</upperText>
+	
+	<!-- VWP -->
+	<upperText productCodes='48'>
+		<vcp />
+		<productDependent format='HT(MX): %d0ft ' index='5'>
+			<flag value='-9999' label='NO MXWND' />
+		</productDependent>
+		<join>
+			<productDependent format='MXWND: %d°' index='4'>
+				<flag value='-9999' label='' />
+			</productDependent>
+			<productDependent format=' %dkt ' index='3'>
+				<flag value='-9999' label='' />
+			</productDependent>
+		</join>
+	</upperText>
+	
+	<!-- VIL -->
+	<upperText productCodes='57'>
+		<vcp />
+		<productDependent format='MX: %d kg/m²' index='3' />
+	</upperText>
+	
+	<!-- DVL -->
+	<upperText productCodes='134'>
+		<vcp />
+		<productDependentDVLMax />
+	</upperText>
+	
+	<!-- VAD -->
+	<upperText productCodes='84'>
+		<vcp />
+		<productDependent format='ALT: %dkft' index='2' />
+		<productDependent format='ELEV: %3.1f°' index='5' multiplier='0.1'>
+			<flag value='-9999' label='ELEV:   ' />
+		</productDependent>
+		<productDependent format='RNG: %4.1fnm' index='6' multiplier='0.1' >
+			<flag value='-9999' label='RNG: Invalid' />
+		</productDependent>
+		<join>
+			<productDependent format='WND: %d°' index='4'>
+				<flag value='-9999' label='NO WND' />
+			</productDependent>
+			<productDependent format=' %dkt ' index='3'>
+				<flag value='-9999' label='' />
+			</productDependent>
+		</join>
+		<productDependent format='RMS: %dkt' index='7' />
+	</upperText>
+	
+	<!-- Cross Section -->
+	<upperText productCodes='50 51 52 85 86'>
+	    <join>
+			<vcp />
+			<productDependent format='   ENDPT1: %1.0f°' index='3' multiplier='0.1'/>
+			<productDependent format=' %3.1fnm ' index='4' multiplier='0.1'/>
+			<productDependent format='  ENDPT2: %1.0f°' index='5' multiplier='0.1'/>
+			<productDependent format=' %3.1fnm' index='6' multiplier='0.1'/>
+		</join>
+	</upperText>
+
+	<!-- Layer Composite Refl -->
+	<upperText productCodes='63 64 65 66 67 89 90'>
+		<vcp />
+		<productDependent format='BOT: %dkft' index='4'>
+			<flag value='0' label='BOT: SFC' />
+		</productDependent>
+		<productDependent format='TOP: %dkft' index='5' />
+		<productDependent format='MX: %ddBZ' index='3' />
+	</upperText>
+
+	<!-- Layer Composite Turb -->
+	<upperText productCodes='68 69 70 71 72'>
+		<vcp />
+		<productDependent format='BOT: %dkft' index='4'>
+			<flag value='0' label='BOT: SFC' />
+		</productDependent>
+		<productDependent format='TOP: %dkft' index='5' />
+		<productDependent format='MX: %3.1f CM2/3/S' index='3' multiplier='0.1' />
+	</upperText>
+	
+	<!-- Surface Rainfall 1-hr/3-hr -->
+	<upperText productCodes='78 79'>
+		<vcp />
+		<productDependent format='MX: %3.1fin' index='3' multiplier='0.1'/>
+		<join>
+		    <productDependent format='BIAS/#G-R: %4.2f' index='4' multiplier='0.01'/>
+		    <productDependent format='/%-4d' index='5' />
+		</join>
+		<productDependentDate format="'END: 'dd.HHmm" dayIndex='6' minuteIndex='7' />
+	</upperText>
+	
+	<!-- Surface Snow 1-hr/3-hr -->
+	<upperText productCodes='144'>
+		<vcp />
+		<productDependent format='MX: %3.2fin' index='3' multiplier='0.001'/>
+		<productDependentDate format="'END: 'dd.HHmm" dayIndex='6' minuteIndex='7' />
+	</upperText>
+	<upperText productCodes='145'>
+		<vcp />
+		<productDependent format='MX: %3.1fin' index='3' multiplier='0.01'/>
+		<productDependentDate format="'END: 'dd.HHmm" dayIndex='6' minuteIndex='7' />
+	</upperText>
+	
+	<!-- Surface Snow Total -->
+	<upperText productCodes='146'>
+		<vcp />
+		<productDependent format='MX: %4.2fin' index='3' multiplier='0.01'/>
+		<productDependentDate format="'BEG: 'dd.HHmm" dayIndex='4' minuteIndex='5' />
+		<productDependentDate format="'END: 'dd.HHmm" dayIndex='6' minuteIndex='7' />
+	</upperText>
+	<upperText productCodes='147'>
+		<vcp />
+		<productDependent format='MX: %3.1fin' index='3' multiplier='0.1'/>
+		<productDependentDate format="'BEG: 'dd.HHmm" dayIndex='4' minuteIndex='5' />
+		<productDependentDate format="'END: 'dd.HHmm" dayIndex='6' minuteIndex='7' />
+	</upperText>
+	
+	<!-- Surface Rainfall Total -->
+	<upperText productCodes='138'>
+		<vcp />
+		<productDependent format='MX: %4.2fin' index='3' multiplier='0.01'/>
+		<join>
+		    <productDependent format='BIAS/#G-R: %4.2f' index='2' multiplier='0.01'/>
+		    <productDependent format='/%-4d' index='6' />
+		</join>
+		<productDependentDate format="'BEG: 'dd.HHmm" dayIndex='0' minuteIndex='1' />
+		<productDependentDate format="'END: 'dd.HHmm" dayIndex='4' minuteIndex='5' />
+	</upperText>
+	<upperText productCodes='80'>
+		<vcp />
+		<productDependent format='MX: %3.1fin' index='3' multiplier='0.1'/>
+		<join>
+		    <productDependent format='BIAS/#G-R: %4.2f' index='8' multiplier='0.01'/>
+		    <productDependent format='/%-4d' index='9' />
+		</join>
+		<productDependentDate format="'BEG: 'dd.HHmm" dayIndex='4' minuteIndex='5' />
+		<productDependentDate format="'END: 'dd.HHmm" dayIndex='6' minuteIndex='7' />
+	</upperText>
+	
+	<!-- User defined layer refl -->
+	<upperText productCodes='137'>
+		<vcp />
+		<productDependent format='BTM: %d kft' index='0' />
+		<productDependent format='TOP: %d kft' index='1' />
+		<productDependent format='MX: %d dBZ' index='3' />
+	</upperText>
+
+	<!-- Echo Tops -->
+	<upperText productCodes='41 135'>
+		<vcp />
+		<productDependent format='MX: %dkft' index='3'>
+			<flag value='0' label='NO ECHOES DETECTED' />
+		</productDependent>
+		<productDependent format='THR: %ddBZ' index='5'>
+			<flag value='0' label='' />
+		</productDependent>
+	</upperText>
+
+	<!-- Diff Reflectivity -->
+	<upperText productCodes='158 159'>
+		<vcp />
+		<resolution />
+		<productDependent format='MN: %.1fdB' index='3' multiplier='0.1' />
+		<productDependent format='MX: %.1fdB' index='4' multiplier='0.1' />
+		<sails />
+	</upperText>
+
+	<!-- Corr Coeff -->
+	<upperText productCodes='160 161'>
+		<vcp />
+		<resolution />
+		<productDependent format='MN: %.3f' index='3' multiplier='0.004' />
+		<productDependent format='MX: %.3f' index='4' multiplier='0.004' />
+		<sails />
+	</upperText>
+	<upperText productCodes='167'>
+        <vcp />
+        <resolution />
+        <productDependent format='MN: %.3f' index='3' multiplier='0.004' />
+        <productDependent format='MX: %.3f' index='4' multiplier='0.004' />
+	</upperText>
+	
+	<!-- Spec Diff Phase -->
+	<upperText productCodes='162 163'>
+		<vcp />
+		<resolution />
+		<productDependent format='MN: %.2f Deg/km' index='3' multiplier='0.05' />
+		<productDependent format='MX: %.2f Deg/km' index='4' multiplier='0.05' />
+		<sails />
+	</upperText>
+	<upperText productCodes='168'>
+        <vcp />
+        <resolution />
+	</upperText>
+	
+	<!-- hydro class -->
+	<upperText productCodes='177'>
+		<vcp />
+		<resolution />
+		<productDependent format='Filter Size: %d' index='3'>
+			<flag value='0' label='' />
+		</productDependent>
+	</upperText>
+	<upperText productCodes='164 165'>
+		<vcp />
+		<resolution />
+		<productDependent format='Filter Size: %d' index='3'>
+			<flag value='0' label='' />
+		</productDependent>
+		<sails />
+	</upperText>
+	
+	<!-- Dual Pol Precip -->
+	<upperText productCodes='169'>
+		<vcp />
+		<productDependent format='MX: %3.1fin' index='3' multiplier='0.1'/>
+		<join>
+		    <productDependent format='BIAS/#G-R: %4.2f' index='6' multiplier='0.01'/>
+		    <productDependent format='/%-4d' index='7' />
+		</join>
+		<productDependentDate format="'END: 'dd.HHmm" dayIndex='4' minuteIndex='5' />
+		<nullPrecip line='0'/>
+		<nullPrecip line='1'/>
+		<nullPrecip line='2'/>
+	</upperText>
+	<upperText productCodes='170'>
+		<vcp />
+		<productDependent format='MX: %3.1fin' index='3' multiplier='0.1'/>
+		<productDependent format='BIAS: %4.2f' index='6' multiplier='0.01'/>
+		<productDependentDate format="'END: 'dd.HHmm" dayIndex='4' minuteIndex='5' />
+		<nullPrecip line='0'/>
+		<nullPrecip line='1'/>
+		<nullPrecip line='2'/>
+	</upperText>
+	<upperText productCodes='171'>
+		<vcp />
+		<resolution />
+		<productDependent format='MX: %3.1fin' index='3' multiplier='0.1'/>
+		<join>
+		    <productDependent format='BIAS/#G-R: %4.2f' index='6' multiplier='0.01'/>
+		    <productDependent format='/%-4d' index='7' />
+		</join>
+		<productDependentDate format="'BEG: 'dd.HHmm" dayIndex='0' minuteIndex='1' />
+		<productDependentDate format="'END: 'dd.HHmm" dayIndex='4' minuteIndex='5' />
+		<nullPrecip line='0'/>
+		<nullPrecip line='1'/>
+		<nullPrecip line='2'/>
+	</upperText>
+	<upperText productCodes='172'>
+		<vcp />
+		<resolution />
+		<productDependent format='MX: %3.1fin' index='3' multiplier='0.1'/>
+		<productDependent format='BIAS: %4.2f' index='6' multiplier='0.01'/>
+		<productDependentDate format="'BEG: 'dd.HHmm" dayIndex='0' minuteIndex='1' />
+		<productDependentDate format="'END: 'dd.HHmm" dayIndex='4' minuteIndex='5' />
+		<nullPrecip line='0'/>
+		<nullPrecip line='1'/>
+		<nullPrecip line='2'/>
+	</upperText>
+	<upperText productCodes='173'>
+		<vcp />
+		<productDependent format='MX: %3.1fin' index='3' multiplier='0.1'/>
+		<productDependent format='BIAS: %4.2f' index='6' multiplier='0.01'/>
+		<productDependentDate format="'END: 'dd.HHmm" dayIndex='4' minuteIndex='0' />
+		<productDependentDate format="'DUR: 'k' hr'" minuteIndex='1'/>
+		<nullPrecip line='0'/>
+		<nullPrecip line='1'/>
+		<nullPrecip line='2'/>
+	</upperText>
+	<upperText productCodes='174'>
+		<vcp />
+		<productDependent format='MN: %3.1fin' index='6' multiplier='0.1'/>
+		<productDependent format='MX: %3.1fin' index='3' multiplier='0.1'/>
+		<productDependentDate format="'END: 'dd.HHmm" dayIndex='4' minuteIndex='5' />
+	</upperText>
+	<upperText productCodes='175'>
+		<vcp />
+		<productDependent format='MN: %3.1fin' index='6' multiplier='0.1'/>
+		<productDependent format='MX: %3.1fin' index='3' multiplier='0.1'/>
+		<productDependentDate format="'BEG: 'dd.HHmm" dayIndex='0' minuteIndex='1' />
+		<productDependentDate format="'END: 'dd.HHmm" dayIndex='4' minuteIndex='5' />
+		<nullPrecip line='0'/>
+		<nullPrecip line='1'/>
+		<nullPrecip line='2'/>
+	</upperText>
+	<upperText productCodes='176'>
+		<vcp />
+		<productDependent format='MX: %.3fin/hr' index='3' multiplier='0.001'/>
+		<nullPrecip line='0'/>
+		<nullPrecip line='1'/>
+		<nullPrecip line='2'/>
+	</upperText>
+	<!-- GFM -->
+	<upperText productCodes='140'>
+		<gfmCount />
+	</upperText>
+
+</upperTextSet>

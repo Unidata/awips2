@@ -1,0 +1,82 @@
+C     MODULE MLDRRO
+C
+C     DESC - THIS SUBROUTINE LOADS THE AVAILABLE RAINFALL/RUNOFF
+C                             LAST UPDATE: 04/13/94.11:21:21 BY $WC21DT
+C
+C     DESC - OPERATIONS THAT CAN BE CHANGED WITH THE RRICHNG AND
+C     DESC - RRIMULT MODS
+C
+      SUBROUTINE MLDRRO(MXOPS,NUMOPS,NOPS,LOCS)
+C
+      COMMON/IONUM/IN,IPR,IPU
+      INCLUDE 'common/fpwarn'
+C
+      DIMENSION NOPS(MXOPS),LOCS(3,MXOPS)
+      DIMENSION NO(8),LO(3,8)
+      DIMENSION OLDOPN(2)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_mods/RCS/mldrro.f,v $
+     . $',                                                             '
+     .$Id: mldrro.f,v 1.2 1996/03/21 15:37:20 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C  CURRENTLY AVAILABLE OPERATIONS AS OF 9/15/92 ARE
+C    SAC-SMA    OPERATION  1
+C    API-CONT   OPERATION 24
+C    API-MKC    OPERATION 29
+C    API-CIN    OPERATION 33
+C    API-SLC    OPERATION 34
+C    API-HAR    OPERATION 35
+C    API-HAR2   OPERATION 41
+C    API-HFD    OPERATION 43
+C
+C  FOR EACH OPERATION THE ELEMENTS OF ARRAY LO ARE THE LOCATION IN
+C   THE P ARRAY OF
+C    1. THE INPUT (MAP OR RAIM) TIME SERIES ID
+C    2. THE INPUT (MAP OR RAIM) TIME SERIES DATA TYPE
+C    3. THE INPUT (MAP OR RAIM) TIME SERIES TIME INTERVAL
+C
+      DATA NO/1,24,29,33,34,35,41,43/
+      DATA LO/ 8,10, 2,
+     1         8,10, 7,
+     2        14,16,13,
+     3        14,16,13,
+     4        12,14,11,
+     5        26,28,20,
+     6        32,34,26,
+     7        37,39,24/
+C
+      CALL FSTWHR(8HMLDRRO  ,0,OLDOPN,IOLDOP)
+C
+      MAXO=8
+      NTRANS=MAXO
+      IF(MXOPS.GE.MAXO)GO TO 10
+C
+      IF(MODWRN.EQ.0)GO TO 5
+      WRITE(IPR,600)MAXO,MXOPS
+  600 FORMAT(1H0,10X,'** WARNING ** THERE ARE ',I2,' RAINFALL/',
+     1 'RUNOFF OPERATIONS WHOSE MOISTURE INPUT TIME SERIES CAN ',
+     2 'BE CHANGED'/11X,'WITH THE RRICHNG AND RRIMULT MODS.',
+     3 '  THERE IS ONLY ROOM FOR ',I2,' IN THE ARRAYS PASSED ',
+     4 'FROM ONE OF THOSE MODS SUBROUTINES.'/11X,
+     5 'PLEASE CALL THE OFFICE OF HYDROLOGY AT 427-7624.')
+      CALL WARN
+C
+    5 NTRANS=MXOPS
+C
+   10 DO 20 I=1,NTRANS
+      NOPS(I)=NO(I)
+      DO 20 J=1,3
+      LOCS(J,I)=LO(J,I)
+   20 CONTINUE
+C
+      NUMOPS=NTRANS
+C
+      CALL FSTWHR(OLDOPN,IOLDOP,OLDOPN,IOLDOP)
+      RETURN
+      END

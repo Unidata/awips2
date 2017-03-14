@@ -1,0 +1,4 @@
+C                                           *--> FROM DACOMMON.DAUSR1
+C  RFC CONTROL FILE, RECORD TYPE 1 COMMON BLOCK
+      COMMON/DAUSR1/ NRFC
+C

@@ -1,0 +1,849 @@
+/*
+    File: SacSmaState.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:30 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "SacSmaState.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct SacSmaState_t
+{
+    char		basin_id[9];
+    char		source[21];
+    dtime_t		validtime;
+    dtime_t		basistime;
+    dtime_t		postingtime;
+    double		uztwc;
+    double		uzfwc;
+    double		lztwc;
+    double		lzfsc;
+    double		lzfpc;
+    double		adimc;
+
+} SacSmaState_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+SacSmaState * GetSacSmaState(const char * where)
+{
+
+    SacSmaState * listPtr = NULL;
+    SacSmaState * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM SacSmaState ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct SacSmaState_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetSacSmaState() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetSacSmaState() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetSacSmaState() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.basin_id, :dbs.source, 
+    :dbs.validtime, :dbs.basistime, 
+    :dbs.postingtime, :dbs.uztwc, 
+    :dbs.uzfwc, :dbs.lztwc, 
+    :dbs.lzfsc, :dbs.lzfpc, 
+    :dbs.adimc    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetSacSmaState() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (SacSmaState *) malloc(sizeof(SacSmaState))) != NULL)
+        {
+
+            strcpy(structPtr->basin_id, dbs.basin_id);
+
+            strcpy(structPtr->source, dbs.source);
+
+            structPtr->validtime = dbs.validtime;
+
+            structPtr->basistime = dbs.basistime;
+
+            structPtr->postingtime = dbs.postingtime;
+
+            structPtr->uztwc = dbs.uztwc;
+
+            structPtr->uzfwc = dbs.uzfwc;
+
+            structPtr->lztwc = dbs.lztwc;
+
+            structPtr->lzfsc = dbs.lzfsc;
+
+            structPtr->lzfpc = dbs.lzfpc;
+
+            structPtr->adimc = dbs.adimc;
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.basin_id, :dbs.source, 
+        :dbs.validtime, :dbs.basistime, 
+        :dbs.postingtime, :dbs.uztwc, 
+        :dbs.uzfwc, :dbs.lztwc, 
+        :dbs.lzfsc, :dbs.lzfpc, 
+        :dbs.adimc        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetSacSmaState() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+SacSmaState * SelectSacSmaState(const char * where)
+{
+
+    SacSmaState * listPtr = NULL;
+    SacSmaState * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM SacSmaState ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct SacSmaState_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectSacSmaState() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectSacSmaState() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectSacSmaState() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.basin_id, :dbs.source, 
+    :dbs.validtime, :dbs.basistime, 
+    :dbs.postingtime, :dbs.uztwc, 
+    :dbs.uzfwc, :dbs.lztwc, 
+    :dbs.lzfsc, :dbs.lzfpc, 
+    :dbs.adimc    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectSacSmaState() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (SacSmaState *) malloc(sizeof(SacSmaState))) != NULL)
+        {
+
+            strcpy(structPtr->basin_id, dbs.basin_id);
+
+            strcpy(structPtr->source, dbs.source);
+
+            structPtr->validtime = dbs.validtime;
+
+            structPtr->basistime = dbs.basistime;
+
+            structPtr->postingtime = dbs.postingtime;
+
+            structPtr->uztwc = dbs.uztwc;
+
+            structPtr->uzfwc = dbs.uzfwc;
+
+            structPtr->lztwc = dbs.lztwc;
+
+            structPtr->lzfsc = dbs.lzfsc;
+
+            structPtr->lzfpc = dbs.lzfpc;
+
+            structPtr->adimc = dbs.adimc;
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.basin_id, :dbs.source, 
+        :dbs.validtime, :dbs.basistime, 
+        :dbs.postingtime, :dbs.uztwc, 
+        :dbs.uzfwc, :dbs.lztwc, 
+        :dbs.lzfsc, :dbs.lzfpc, 
+        :dbs.adimc        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectSacSmaState() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectSacSmaStateCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM SacSmaState ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountSacSmaState() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountSacSmaState() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountSacSmaState() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountSacSmaState() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutSacSmaState(const SacSmaState * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct SacSmaState_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.basin_id, structPtr->basin_id);
+
+    strcpy(dbs.source, structPtr->source);
+
+    dbs.validtime = structPtr->validtime;
+
+    dbs.basistime = structPtr->basistime;
+
+    dbs.postingtime = structPtr->postingtime;
+
+    dbs.uztwc = structPtr->uztwc;
+
+    dbs.uzfwc = structPtr->uzfwc;
+
+    dbs.lztwc = structPtr->lztwc;
+
+    dbs.lzfsc = structPtr->lzfsc;
+
+    dbs.lzfpc = structPtr->lzfpc;
+
+    dbs.adimc = structPtr->adimc;
+
+
+    EXEC SQL INSERT INTO SacSmaState (basin_id,source,
+        validtime,basistime,postingtime,
+        uztwc,uzfwc,lztwc,
+        lzfsc,lzfpc,adimc        )
+        VALUES (
+         :dbs.basin_id, :dbs.source, :dbs.validtime,
+         :dbs.basistime, :dbs.postingtime, :dbs.uztwc,
+         :dbs.uzfwc, :dbs.lztwc, :dbs.lzfsc,
+         :dbs.lzfpc, :dbs.adimc);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutSacSmaState() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertSacSmaState(const SacSmaState * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct SacSmaState_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.basin_id, structPtr->basin_id);
+
+    strcpy(dbs.source, structPtr->source);
+
+    dbs.validtime = structPtr->validtime;
+
+    dbs.basistime = structPtr->basistime;
+
+    dbs.postingtime = structPtr->postingtime;
+
+    dbs.uztwc = structPtr->uztwc;
+
+    dbs.uzfwc = structPtr->uzfwc;
+
+    dbs.lztwc = structPtr->lztwc;
+
+    dbs.lzfsc = structPtr->lzfsc;
+
+    dbs.lzfpc = structPtr->lzfpc;
+
+    dbs.adimc = structPtr->adimc;
+
+
+    EXEC SQL INSERT INTO SacSmaState (basin_id,source,
+        validtime,basistime,postingtime,
+        uztwc,uzfwc,lztwc,
+        lzfsc,lzfpc,adimc        )
+        VALUES (
+         :dbs.basin_id, :dbs.source, :dbs.validtime,
+         :dbs.basistime, :dbs.postingtime, :dbs.uztwc,
+         :dbs.uzfwc, :dbs.lztwc, :dbs.lzfsc,
+         :dbs.lzfpc, :dbs.adimc);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertSacSmaState() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateSacSmaState(const SacSmaState *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct SacSmaState_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.basin_id, structPtr->basin_id);
+
+    strcpy(dbs.source, structPtr->source);
+
+    dbs.validtime = structPtr->validtime;
+
+    dbs.basistime = structPtr->basistime;
+
+    dbs.postingtime = structPtr->postingtime;
+
+    dbs.uztwc = structPtr->uztwc;
+
+    dbs.uzfwc = structPtr->uzfwc;
+
+    dbs.lztwc = structPtr->lztwc;
+
+    dbs.lzfsc = structPtr->lzfsc;
+
+    dbs.lzfpc = structPtr->lzfpc;
+
+    dbs.adimc = structPtr->adimc;
+
+
+    sprintf(queryBuffer, " UPDATE SacSmaState SET " );
+    strcat(queryBuffer, "basin_id = ? , source = ? , validtime = ? , basistime = ? , postingtime = ? ,     ");
+    strcat(queryBuffer, "uztwc = ? , uzfwc = ? , lztwc = ? , lzfsc = ? , lzfpc = ? ,     ");
+    strcat(queryBuffer, "adimc = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateSacSmaState() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.basin_id, :dbs.source, :dbs.validtime, :dbs.basistime, :dbs.postingtime,
+     :dbs.uztwc, :dbs.uzfwc, :dbs.lztwc, :dbs.lzfsc, :dbs.lzfpc,
+     :dbs.adimc;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateSacSmaState() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteSacSmaState(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM SacSmaState ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteSacSmaState() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateSacSmaStateByRecord (const SacSmaState * newStructPtr, const SacSmaState * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetSacSmaStatePrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateSacSmaState(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateSacSmaState(const SacSmaState * structPtr)
+{
+    UpdateSacSmaStateByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertSacSmaState(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueSacSmaState(const SacSmaState * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (SacSmaStateExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertSacSmaState(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteSacSmaStateByRecord(const SacSmaState * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetSacSmaStatePrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteSacSmaState(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool SacSmaStateExists(const SacSmaState * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetSacSmaStatePrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectSacSmaStateCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetSacSmaStatePrimaryKeyWhereString (const SacSmaState * structPtr, char returnWhereString[] )
+{
+    char time_buffer0[40];
+    sprintf(returnWhereString, "WHERE basin_id = '%s'  AND source = '%s'  AND validtime = '%s' ",
+            structPtr->basin_id, structPtr->source, dtimet_to_ansi(structPtr->validtime, time_buffer0));
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeSacSmaState( SacSmaState * structPtr)
+{
+    SacSmaState* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( SacSmaState * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetSacSmaStateDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetSacSmaStateErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

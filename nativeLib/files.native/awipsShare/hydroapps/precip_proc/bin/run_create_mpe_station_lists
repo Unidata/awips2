@@ -1,0 +1,133 @@
+#!/bin/ksh 
+#
+#   Script to generate a list of stations and related information for 
+#   (1) 1 hr precip stations for hourly MPE
+#   (2) 6 hr/daily precip stations
+#   (3) 6 hr and max/min temperature stations
+#   (4) 6 hr freezing level grid points
+#
+
+#   Inputs:
+#   MPE_STATION_LIST_DIR - defined in set_hydro_env
+#                        - dir containing station info list
+#
+#   MPE_SITE_ID - defined in set_hydro_env
+#               - used to create filename containing station info
+#
+#   Output 
+#   The station information is written to a file named "station_info_list".  
+#   This file is located in the directory pointed to by the mpe_station_list_dir token.
+#
+#   Temporary Files
+#   This script writes results of queries to the following temporary files:
+#     temperature_station_list
+#     precip_station_list
+#   These files are deleted at the end of the script.
+####################################################################################
+#
+# Set up environment variables
+# Define FILENAME variable
+#
+
+RUN_FROM_DIR=`dirname $0`
+. $RUN_FROM_DIR/../../set_hydro_env
+export MPE_STATION_LIST_DIR=$(get_apps_defaults mpe_station_list_dir)
+export DB_NAME=$(get_apps_defaults db_name)
+export MPE_SITE_ID=$(get_apps_defaults mpe_site_id)
+
+FILENAME=$MPE_STATION_LIST_DIR/${MPE_SITE_ID}_station_list
+####################################################################################
+#
+#   Generate station list for 1 hr MPE
+#
+$POSTGRESQLBINDIR/psql -q -t -A -F '	 ' $DB_NAME -f $RUN_FROM_DIR/hourly_precip_station_gen.sql > $RUN_FROM_DIR/hourly_precip_station_list
+
+#
+#   Get count of records from above and write to station_list file
+#
+wc -l < $RUN_FROM_DIR/hourly_precip_station_list > $FILENAME          
+
+#
+#   Write precip station info to station_list file
+#
+cat $RUN_FROM_DIR/hourly_precip_station_list >> $FILENAME         
+
+####################################################################################
+#
+#   Generate station list for 6 hr and 24 hr precip stations
+#
+#   Generate station info for precip stations and write results to temporary file
+#
+$POSTGRESQLBINDIR/psql -q -t -A -F '	 ' $DB_NAME -f $RUN_FROM_DIR/precip_station_gen.sql > $RUN_FROM_DIR/precip_station_list
+
+#
+#   Get count of records from above and write to station_list file
+#
+wc -l < $RUN_FROM_DIR/precip_station_list >> $FILENAME          
+
+#
+#   Write precip station info to station_list file
+#
+cat $RUN_FROM_DIR/precip_station_list >> $FILENAME         
+
+####################################################################################
+#
+#   Generate station list for 6 hr and max/min temperature stations
+#
+#   Generate station info for temperature stations and write results to temporary file
+#
+$POSTGRESQLBINDIR/psql -q -t -A  -F '	' $DB_NAME -f $RUN_FROM_DIR/temperature_station_gen.sql > $RUN_FROM_DIR/temperature_station_list
+
+#
+#   Get count of records from above and write to station_list file
+#
+wc -l < $RUN_FROM_DIR/temperature_station_list >> $FILENAME 
+
+#
+#   Write temperature station info to station_list file
+#
+cat $RUN_FROM_DIR/temperature_station_list >> $FILENAME 
+
+#
+#   Delete temporary files
+#
+
+rm -f $RUN_FROM_DIR/temperature_station_list
+
+rm -f $RUN_FROM_DIR/precip_station_list
+
+rm -f $RUN_FROM_DIR/hourly_precip_station_list
+
+####################################################################################
+#
+#   Generate grid points for freezing level data                       
+#
+
+#
+#   Create the temporary file of freezing level stations
+#
+$RUN_FROM_DIR/run_create_freezing_station_list
+
+#
+#   Concatentate this temporary file to the end of the 
+#   station file list.
+#
+cat $MPE_STATION_LIST_DIR/${MPE_SITE_ID}_freezing_station_list >> $FILENAME
+
+#
+#   Create the ruc.pl script from the ruc.pl.template file.
+#   This file is responsible for retrieving freezing level
+#   data from the RUC80 model for grid points contained in the
+#   offices MPE forecast area. 
+#
+$RUN_FROM_DIR/run_freezing_station_setup
+
+#
+#   Remove the temporary freezing station list file.
+#
+rm -f $MPE_STATION_LIST_DIR/${MPE_SITE_ID}_freezing_station_list
+
+#
+#   Done
+#
+exit 0

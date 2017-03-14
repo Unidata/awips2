@@ -1,0 +1,1 @@
+The documentation section has each of the entries listed.  The “Customization Points” section is particularly useful as it describes the various flags and variables in the Definition section that allow you to customize the product.  The Additional Information section will include common overrides.

@@ -1,0 +1,68 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean class="com.raytheon.uf.common.logback.appender.ThreadBasedAppender" factory-method="registerThreadPattern">
+        <constructor-arg value="radar" />
+        <constructor-arg value="Ingest.Radar.*" />
+    </bean>
+
+	<bean id="radarDecompressor" class="com.raytheon.edex.plugin.radar.RadarDecompressor"/>
+	<bean id="radarDecoder" class="com.raytheon.edex.plugin.radar.RadarDecoder"/>
+
+	<bean id="radarDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="radar" />
+		<constructor-arg value="jms-durable:queue:Ingest.Radar" />
+        <constructor-arg value="true" /> <!-- require valid distribution file for startup -->
+	</bean>
+	
+	<camelContext id="radar-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+		
+        <endpoint id="radarJmsEndpoint" uri="jms-durable:queue:Ingest.Radar?concurrentConsumers=${radar-decode.sbn.threads}"/>
+
+		<!-- Begin Radar routes -->
+		<route id="radarIngestRoute">
+			<from ref="radarJmsEndpoint"/>
+ 			<setHeader headerName="dataType">
+ 				<constant>radar-sbn</constant>
+			</setHeader>
+			<to uri="direct:radarcommon" />
+		</route>
+		
+		<route id="radarCommonIngestRoute">
+			<from uri="direct:radarcommon" />
+			<setHeader headerName="pluginName">
+				<constant>radar</constant>
+			</setHeader>
+			<doTry>
+				<pipeline>
+					<bean ref="stringToFile" />
+					<bean ref="radarDecompressor" method="decompress" />
+					<bean ref="radarDecoder" method="decode" />
+					<to uri="direct-vm:persistIndexAlert" />
+				</pipeline>
+				<doCatch>
+				    <exception>com.raytheon.uf.common.dataplugin.exception.MalformedDataException</exception>
+				    <to uri="direct-vm:logFailureAsInfo" />
+				</doCatch>
+				<doCatch>				   
+					<exception>java.lang.Throwable</exception>
+					<to uri="direct-vm:logFailedData" />					
+				</doCatch>
+			</doTry>
+		</route>
+	</camelContext>
+	
+	<bean id="radarServerConnectionHandler"
+		class="com.raytheon.edex.rpgenvdata.RadarServerConnectionHandler" />
+	<bean factory-bean="handlerRegistry" factory-method="register">
+		<constructor-arg
+			value="com.raytheon.uf.common.dataplugin.radar.request.RadarServerConnectionRequest" />
+		<constructor-arg ref="radarServerConnectionHandler" />
+	</bean>
+
+</beans>

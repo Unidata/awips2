@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<bundle>
+	<displayList>
+		<displays xsi:type="d2DMapRenderableDisplay"
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			<descriptor xsi:type="mapDescriptor">
+				<resource>
+               		<loadProperties loadWithoutData="true">
+                   		<capabilities>
+                       		<capability xsi:type="imagingCapability" interpolationState="false" brightness="1.0" contrast="1.0" alpha="1.0"/>
+							<capability xsi:type="magnificationCapability" magnification="2.0"/>
+                            <capability xsi:type="densityCapability" density="2.5"/>
+							<capability xsi:type="colorableCapability" colorAsString="#99FF99" />
+                   		</capabilities>
+               		</loadProperties>
+					<properties isSystemResource="false" isBlinking="false"
+						isMapLayer="false" isHoverOn="false"
+						isVisible="true" />
+					<resourceData xsi:type="plotResourceData" plotSource="Hail Plot"
+						plotModelFile="svrWxDesign.svg" pixelSizeHint="45"
+						retrieveData="false" isUpdatingOnMetadataOnly="false"
+						isRequeryNecessaryOnTimeMatch="true">
+						<binOffset posOffset="1800" negOffset="1800" virtualOffset="0"/>
+						<metadataMap>
+							<mapping key="pluginName">
+								<constraint constraintValue="svrwx" constraintType="EQUALS" />
+							</mapping>
+							<mapping key="reportType">
+								<constraint constraintValue="A" constraintType="EQUALS" />
+							</mapping>
+						</metadataMap>
+                        <timeQueryMetadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="svrwx" constraintType="EQUALS" />
+                            </mapping>
+                        </timeQueryMetadataMap>
+					</resourceData>
+				</resource>
+				<resource>
+               		<loadProperties loadWithoutData="true">
+                   		<capabilities>
+                       		<capability xsi:type="imagingCapability" interpolationState="false" brightness="1.0" contrast="1.0" alpha="1.0"/>
+							<capability xsi:type="magnificationCapability" magnification="2.0"/>
+                            <capability xsi:type="densityCapability" density="2.5"/>
+							<capability xsi:type="colorableCapability" colorAsString="#FFFFFF" />
+                   		</capabilities>
+               		</loadProperties>
+					<properties isSystemResource="false" isBlinking="false"
+						isMapLayer="false" isHoverOn="false"
+						isVisible="true" />
+					<resourceData xsi:type="plotResourceData" plotSource="Svr Gust Plot"
+						plotModelFile="svrWxDesign.svg" pixelSizeHint="45"
+						retrieveData="false" isUpdatingOnMetadataOnly="false"
+						isRequeryNecessaryOnTimeMatch="true">
+						<binOffset posOffset="1800" negOffset="1800" virtualOffset="0"/>
+						<metadataMap>
+							<mapping key="pluginName">
+								<constraint constraintValue="svrwx" constraintType="EQUALS" />
+							</mapping>
+							<mapping key="reportType">
+								<constraint constraintValue="W" constraintType="EQUALS" />
+							</mapping>
+						</metadataMap>
+                        <timeQueryMetadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="svrwx" constraintType="EQUALS" />
+                            </mapping>
+                        </timeQueryMetadataMap>
+					</resourceData>
+				</resource>
+				<resource>
+               		<loadProperties loadWithoutData="true">
+                   		<capabilities>
+                       		<capability xsi:type="imagingCapability" interpolationState="false" brightness="1.0" contrast="1.0" alpha="1.0"/>
+							<capability xsi:type="magnificationCapability" magnification="2.0"/>
+                            <capability xsi:type="densityCapability" density="2.5"/>
+							<capability xsi:type="colorableCapability" colorAsString="#FF6666" />
+                   		</capabilities>
+               		</loadProperties>
+					<properties isSystemResource="false" isBlinking="false"
+						isMapLayer="false" isHoverOn="false"
+						isVisible="true" />
+					<resourceData xsi:type="plotResourceData" plotSource="Tornado Plot"
+						plotModelFile="svrWxDesign.svg" pixelSizeHint="45"
+						retrieveData="false" isUpdatingOnMetadataOnly="false"
+						isRequeryNecessaryOnTimeMatch="true">
+						<binOffset posOffset="1800" negOffset="1800" virtualOffset="0"/>
+						<metadataMap>
+							<mapping key="pluginName">
+								<constraint constraintValue="svrwx" constraintType="EQUALS" />
+							</mapping>
+							<mapping key="reportType">
+								<constraint constraintValue="T" constraintType="EQUALS" />
+							</mapping>
+						</metadataMap>
+                        <timeQueryMetadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="svrwx" constraintType="EQUALS" />
+                            </mapping>
+                        </timeQueryMetadataMap>
+					</resourceData>
+				</resource>
+			</descriptor>
+		</displays>
+	</displayList>
+</bundle>

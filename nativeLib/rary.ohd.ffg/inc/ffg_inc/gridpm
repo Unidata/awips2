@@ -1,0 +1,2 @@
+      common /gridpm/ irec,mval,iddur,ldur,kdur,krow,kol,nok,ro
+      

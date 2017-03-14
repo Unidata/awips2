@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<runConfiguration>
+  <config table="height" />
+  <config table="precip">
+    <constraints>
+      <pe>PC</pe>
+    </constraints>
+  </config>
+</runConfiguration>

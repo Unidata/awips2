@@ -1,0 +1,2 @@
+#!/bin/csh
+mpirun -np 2 /usr/local/bin/mpipython /usr/lib/python2.1/site-packages/Scientific/BSP/Console.py $*

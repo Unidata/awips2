@@ -1,0 +1,51 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="bufrhdwDecoder" class="com.raytheon.uf.edex.plugin.bufrhdw.HDWDecoder">
+        <constructor-arg ref="bufrhdwPluginName" />
+    </bean>
+
+	<bean id="bufrhdwDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg ref="bufrhdwPluginName" />
+		<constructor-arg value="jms-durable:queue:Ingest.bufrhdw"/>
+	</bean>
+
+	<camelContext id="bufrhdw-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+		<!--
+		<endpoint id="bufrhdwFileEndpoint" uri="file:${edex.home}/data/sbn/bufrhdw?noop=true&amp;idempotent=false" />
+
+		<route id="bufrhdwFileConsumerRoute">
+			<from ref="bufrhdwFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+                <constant>bufrhdw</constant>
+			</setHeader>
+			<to uri="jms-durable:queue:Ingest.bufrhdw" />
+		</route>
+		-->
+
+		<!-- Begin bufrhdw routes -->
+		<route id="bufrhdwIngestRoute">
+			<from uri="jms-durable:queue:Ingest.bufrhdw"/>
+			<setHeader headerName="pluginName">
+                <constant>bufrhdw</constant>
+			</setHeader>
+			<doTry>
+				<pipeline>
+					<bean ref="stringToFile" />
+					<bean ref="bufrhdwDecoder" method="decode" />
+                    <to uri="direct-vm:persistIndexAlert" />
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:bufrhdw?level=ERROR"/>
+				</doCatch>
+			</doTry>
+		</route>
+	</camelContext>
+</beans>

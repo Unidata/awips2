@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuContributionFile>
+	<substitute key="DGEXmodel" value="DGEX185" />
+	<substitute key="GFSmodel" value="GFS229" />
+	<substitute key="NAM12model" value="ETA218" />
+	<substitute key="NAM40model" value="mesoEta212" />
+	<substitute key="ARWmodel1" value="HiResW-ARW-East" />
+	<substitute key="ARWmodel2" value="HiResW-ARW-West" />
+	<substitute key="MMMmodel1" value="HiResW-NMM-East" />
+	<substitute key="MMMmodel2" value="HiResW-NMM-West" />
+	<substitute key="RAP13model" value="RUC130" />
+	<substitute key="RAPmodel" value="RUC236" />
+	<substitute key="SREFmodel" value="SREF212" />
+<!-- 	<substitute key="HRRRmodel" value="HRRR-CR" />
+	<substitute key="GEMNHmodel" value="Canadian-NH" />
+	<substitute key="GEMRegmodel" value="Canadian-Reg" />
+	<substitute key="ARXLAPSmodel" value="ARXLAPS" />
+	<substitute key="HRRRmodel" value="HRRR-CR" />
+	<substitute key="NAMNestmodel" value="CR-NAMNest" /> -->
+<!-- #
+# Configuration area for bundles that call radar mosaics. Replace the radar1-12 variables below
+# with radars that build your mosaic. 
+# -->
+<!-- 	<substitute key="radar1" value="karx" />
+    	<substitute key="radar2" value="kmpx"/>
+		<substitute key="radar3" value="kdlh"/>
+		<substitute key="radar4" value="kgrb"/>
+		<substitute key="radar5" value="kmkx"/>
+		<substitute key="radar6" value="kabr"/>
+		<substitute key="radar7" value="kfsd"/>
+		<substitute key="radar8" value="kdvn"/>
+		<substitute key="radar9" value="kdmx"/>
+		<substitute key="radar10" value="kabr"/>
+   	    <substitute key="radar11" value="koax"/>
+		<substitute key="radar12" value="kmvx"/> -->
+<!-- #
+# Configure the color map/table for the mosaic radar reflectivity
+# -->
+<!-- 	<substitute key="localReflectivityColorMap" value="Radar/Ref/ARX-Radar-Mosaic-clear"/> -->
+<!-- # end config section		 -->
+	
+	
+    <include installTo="menu:volume?after=VolumeBundles" 
+             fileName="menus/volume/baseFamilies.xml">
+    </include>
+
+   <include subMenu="4-PanelFamilies" installTo="menu:volume" 
+             fileName="menus/volume/baseFourPanelFamilies.xml">
+    </include>
+ <!--    <include subMenu="Aviation: Model Family" installTo="menu:volume" 
+             fileName="menus/volume/aviationFamily.xml">
+    </include> -->
+    
+<!--     Have placed the architecture for Comparisons, but they are not live, could not test them. db -->
+<!--     <include subMenu="Comparison Families" installTo="menu:volume" 
+             fileName="menus/volume/baseComparisonFamilies.xml">
+    </include>  -->
+    
+    <include subMenu="Convect Families" installTo="menu:volume" 
+             fileName="menus/volume/ConvectModelFamilies.xml">
+    </include>
+ 
+
+    <include subMenu="Surface Families" installTo="menu:volume" 
+             fileName="menus/volume/baseSurfaceFamilies.xml">
+    </include>
+     <include subMenu="Winter Families" installTo="menu:volume" 
+             fileName="menus/volume/WinterModelFamilies.xml">
+    </include>
+
+    <include subMenu="Standard Env Package" installTo="menu:volume" 
+             fileName="menus/volume/baseStdEnvPackage.xml">
+    </include>
+    
+
+</menuContributionFile>

@@ -1,0 +1,103 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the pproc-gribit_sub library file
+#
+#  cmt: File made on Wed Aug  6 13:00:42 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/pproc/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU -DUSE_XM_MWMUTIL_H -DUSE_XGPM -Wall -Wno-unused-variable -Wno-comment
+
+INSERTS      = -I/fs/hseb/ob83/ohd/whfs_lib/inc/general  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/dbms  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/gui  \
+               -I/fs/hseb/ob83/ohd/ffg/inc  \
+               -I/usr/local/netcdf/include  \
+               -I/fs/hseb/ob83/ohd/pproc_lib/inc  \
+               -I/fs/hseb/ob83/ohd/pproc/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc/messenger_inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+INSERTS_CC   = -I/usr/include/informix/esql/  \
+               -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .c .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+#	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+.c.a:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libgribit_sub_t.a:  \
+     $(LIB)/libgribit_sub_t.a(bdgparm.o)  \
+     $(LIB)/libgribit_sub_t.a(bdxmrg.o)  \
+     $(LIB)/libgribit_sub_t.a(engrib.o)  \
+     $(LIB)/libgribit_sub_t.a(gbparm.o)  \
+     $(LIB)/libgribit_sub_t.a(gbytes_char.o)  \
+     $(LIB)/libgribit_sub_t.a(gbytes.o)  \
+     $(LIB)/libgribit_sub_t.a(getbit.o)  \
+     $(LIB)/libgribit_sub_t.a(griddef.o)  \
+     $(LIB)/libgribit_sub_t.a(loadtbl.o)  \
+     $(LIB)/libgribit_sub_t.a(mova2i.o)  \
+     $(LIB)/libgribit_sub_t.a(pintbl.o)  \
+     $(LIB)/libgribit_sub_t.a(prgrib.o)  \
+     $(LIB)/libgribit_sub_t.a(putxmrg.o)  \
+     $(LIB)/libgribit_sub_t.a(sbyte.o)  \
+     $(LIB)/libgribit_sub_t.a(sbytes.o)  \
+     $(LIB)/libgribit_sub_t.a(subctr.o)  \
+     $(LIB)/libgribit_sub_t.a(tablid.o)  \
+     $(LIB)/libgribit_sub_t.a(ungrib2.o)  \
+     $(LIB)/libgribit_sub_t.a(ungrib.o)  \
+     $(LIB)/libgribit_sub_t.a(w3fb11.o)  \
+     $(LIB)/libgribit_sub_t.a(w3fb12.o)  \
+     $(LIB)/libgribit_sub_t.a(w3fi58.o)  \
+     $(LIB)/libgribit_sub_t.a(w3fi59.o)  \
+     $(LIB)/libgribit_sub_t.a(w3fi63.o)  \
+     $(LIB)/libgribit_sub_t.a(w3fi68.o)  \
+     $(LIB)/libgribit_sub_t.a(w3fi71.o)  \
+     $(LIB)/libgribit_sub_t.a(w3fi72.o)  \
+     $(LIB)/libgribit_sub_t.a(w3fi73.o)  \
+     $(LIB)/libgribit_sub_t.a(w3fi74.o)  \
+     $(LIB)/libgribit_sub_t.a(w3fi75.o)  \
+     $(LIB)/libgribit_sub_t.a(w3fi76.o)  \
+     $(LIB)/libgribit_sub_t.a(w3fi82.o)  \
+     $(LIB)/libgribit_sub_t.a(w3fi83.o)  \
+     $(LIB)/libgribit_sub_t.a(xm2grib.o)  \
+     $(LIB)/libgribit_sub_t.a(xmparm.o)  \
+     $(LIB)/libgribit_sub_t.a(gbfclos.o)  \
+     $(LIB)/libgribit_sub_t.a(gbfread.o)  \
+     $(LIB)/libgribit_sub_t.a(gbfropn.o)  \
+     $(LIB)/libgribit_sub_t.a(gbfwopn.o)  \
+     $(LIB)/libgribit_sub_t.a(gbfwrit.o)
+

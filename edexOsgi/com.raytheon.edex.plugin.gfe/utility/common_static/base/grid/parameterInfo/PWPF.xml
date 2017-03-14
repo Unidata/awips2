@@ -1,0 +1,1569 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gridParamInfo xmlns:ns2="group">
+  <valtimeMINUSreftime>
+    <fcst>43200</fcst>
+    <fcst>64800</fcst>
+    <fcst>86400</fcst>
+    <fcst>108000</fcst>
+    <fcst>129600</fcst>
+    <fcst>151200</fcst>
+    <fcst>172800</fcst>
+    <fcst>194400</fcst>
+    <fcst>216000</fcst>
+    <fcst>237600</fcst>
+    <fcst>259200</fcst>
+  </valtimeMINUSreftime>
+
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn1in12hr</short_name>
+    <long_name>12hr Prob of Snowfall &gt; 1 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>TOTSN1in12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn1in24hr</short_name>
+    <long_name>24hr Prob of Snowfall &gt; 1 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>TOTSN1in24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn2in12hr</short_name>
+    <long_name>12hr Prob of Snowfall &gt; 2 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>TOTSN2in12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn2in24hr</short_name>
+    <long_name>24hr Prob of Snowfall &gt; 2 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>TOTSN2in24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn2in48hr</short_name>
+    <long_name>48hr Prob of Snowfall &gt; 2 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>TOTSN2in48hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn2in72hr</short_name>
+    <long_name>72hr Prob of Snowfall &gt; 2 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>TOTSN2in72hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn4in12hr</short_name>
+    <long_name>12hr Prob of Snowfall &gt; 4 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>TOTSN4in12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn4in24hr</short_name>
+    <long_name>24hr Prob of Snowfall &gt; 4 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>TOTSN4in24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn4in48hr</short_name>
+    <long_name>48hr Prob of Snowfall &gt; 4 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>TOTSN4in48hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn4in72hr</short_name>
+    <long_name>72hr Prob of Snowfall &gt; 4 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>TOTSN4in72hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn6in12hr</short_name>
+    <long_name>12hr Prob of Snowfall &gt; 6 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>TOTSN6in12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn6in24hr</short_name>
+    <long_name>24hr Prob of Snowfall &gt; 6 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>TOTSN6in24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn8in12hr</short_name>
+    <long_name>12hr Prob of Snowfall &gt; 8 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>TOTSN8in12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn8in24hr</short_name>
+    <long_name>24hr Prob of Snowfall &gt; 8 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>TOTSN8in24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn8in48hr</short_name>
+    <long_name>48hr Prob of Snowfall &gt; 8 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>TOTSN8in48hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn8in72hr</short_name>
+    <long_name>72hr Prob of Snowfall &gt; 8 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>TOTSN8in72hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn12in12hr</short_name>
+    <long_name>12hr Prob of Snowfall &gt; 12 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>TOTSN12in12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn12in24hr</short_name>
+    <long_name>24hr Prob of Snowfall &gt; 12 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>TOTSN12in24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn12in48hr</short_name>
+    <long_name>48hr Prob of Snowfall &gt; 12 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>TOTSN12in48hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn12in72hr</short_name>
+    <long_name>72hr Prob of Snowfall &gt; 12 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>TOTSN12in72hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn18in12hr</short_name>
+    <long_name>12hr Prob of Snowfall &gt; 18 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>TOTSN18in12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn18in24hr</short_name>
+    <long_name>24hr Prob of Snowfall &gt; 18 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>TOTSN18in24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn18in48hr</short_name>
+    <long_name>48hr Prob of Snowfall &gt; 18 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>TOTSN18in48hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn18in72hr</short_name>
+    <long_name>72hr Prob of Snowfall &gt; 18 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>TOTSN18in72hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn24in48hr</short_name>
+    <long_name>48hr Prob of Snowfall &gt; 24 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>TOTSN24in48hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn24in72hr</short_name>
+    <long_name>72hr Prob of Snowfall &gt; 24 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>TOTSN24in72hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn30in48hr</short_name>
+    <long_name>48hr Prob of Snowfall &gt; 30 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>TOTSN30in48hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn30in72hr</short_name>
+    <long_name>72hr Prob of Snowfall &gt; 30 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>TOTSN30in72hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn5pct12hr</short_name>
+    <long_name>12hr Snowfall Accumulation Percentile(5)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>TOTSN5pct12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>2.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn5pct24hr</short_name>
+    <long_name>24hr Snowfall Accumulation Percentile(5)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>TOTSN5pct24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>2.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn5pct48hr</short_name>
+    <long_name>48hr Snowfall Accumulation Percentile(5)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>TOTSN5pct48hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>2.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn5pct72hr</short_name>
+    <long_name>72hr Snowfall Accumulation Percentile(5)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>TOTSN5pct72hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>2.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn10pct12hr</short_name>
+    <long_name>12hr Snowfall Accumulation Percentile(10)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>TOTSN10pct12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>2.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn10pct24hr</short_name>
+    <long_name>24hr Snowfall Accumulation Percentile(10)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>TOTSN10pct24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>2.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn10pct48hr</short_name>
+    <long_name>48hr Snowfall Accumulation Percentile(10)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>TOTSN10pct48hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>2.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn10pct72hr</short_name>
+    <long_name>72hr Snowfall Accumulation Percentile(10)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>TOTSN10pct72hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>2.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn25pct12hr</short_name>
+    <long_name>12hr Snowfall Accumulation Percentile(25)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>TOTSN25pct12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>2.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn25pct24hr</short_name>
+    <long_name>24hr Snowfall Accumulation Percentile(25)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>TOTSN25pct24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>2.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn25pct48hr</short_name>
+    <long_name>48hr Snowfall Accumulation Percentile(25)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>TOTSN25pct48hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>2.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn25pct72hr</short_name>
+    <long_name>72hr Snowfall Accumulation Percentile(25)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>TOTSN25pct72hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>2.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn50pct12hr</short_name>
+    <long_name>12hr Snowfall Accumulation Percentile(50)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>TOTSN50pct12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>2.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn50pct24hr</short_name>
+    <long_name>24hr Snowfall Accumulation Percentile(50)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>TOTSN50pct24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>2.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn50pct48hr</short_name>
+    <long_name>48hr Snowfall Accumulation Percentile(50)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>TOTSN50pct48hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>2.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn50pct72hr</short_name>
+    <long_name>72hr Snowfall Accumulation Percentile(50)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>TOTSN50pct72hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>2.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn75pct12hr</short_name>
+    <long_name>12hr Snowfall Accumulation Percentile(75)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>TOTSN75pct12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>2.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn75pct24hr</short_name>
+    <long_name>24hr Snowfall Accumulation Percentile(75)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>TOTSN75pct24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>2.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn75pct48hr</short_name>
+    <long_name>48hr Snowfall Accumulation Percentile(75)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>TOTSN75pct48hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>2.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn75pct72hr</short_name>
+    <long_name>72hr Snowfall Accumulation Percentile(75)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>TOTSN75pct72hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>2.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn90pct12hr</short_name>
+    <long_name>12hr Snowfall Accumulation Percentile(90)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>TOTSN90pct12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>2.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn90pct24hr</short_name>
+    <long_name>24hr Snowfall Accumulation Percentile(90)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>TOTSN90pct24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>2.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn90pct48hr</short_name>
+    <long_name>48hr Snowfall Accumulation Percentile(90)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>TOTSN90pct48hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>2.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn90pct72hr</short_name>
+    <long_name>72hr Snowfall Accumulation Percentile(90)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>TOTSN90pct72hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>2.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn95pct12hr</short_name>
+    <long_name>12hr Snowfall Accumulation Percentile(95)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>TOTSN95pct12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>2.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn95pct24hr</short_name>
+    <long_name>24hr Snowfall Accumulation Percentile(95)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>TOTSN95pct24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>2.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn95pct48hr</short_name>
+    <long_name>48hr Snowfall Accumulation Percentile(95)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>TOTSN95pct48hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>2.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>totsn95pct72hr</short_name>
+    <long_name>72hr Snowfall Accumulation Percentile(95)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>TOTSN95pct72hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>2.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr001in12hr</short_name>
+    <long_name>12hr Prob of Freezing Rain &gt; 0.01 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>FRZR0.01in12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr001in24hr</short_name>
+    <long_name>24hr Prob of Freezing Rain &gt; 0.01 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>FRZR0.01in24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr010in12hr</short_name>
+    <long_name>12hr Prob of Freezing Rain &gt; 0.1 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>FRZR0.1in12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr010in24hr</short_name>
+    <long_name>24hr Prob of Freezing Rain &gt; 0.1 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>FRZR0.1in24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr010in48hr</short_name>
+    <long_name>48hr Prob of Freezing Rain &gt; 0.1 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>FRZR0.1in48hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr010in72hr</short_name>
+    <long_name>72hr Prob of Snowfall &gt; 0.1 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>FRZR0.1in72hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr025in12hr</short_name>
+    <long_name>12hr Prob of Freezing Rain &gt; 0.25 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>FRZR0.25in12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr025in24hr</short_name>
+    <long_name>24hr Prob of Freezing Rain &gt; 0.25 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>FRZR0.25n24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr025in48hr</short_name>
+    <long_name>48hr Prob of Freezing Rain &gt; 0.25 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>FRZR0.25in48hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr025in72hr</short_name>
+    <long_name>72hr Prob of Snowfall &gt; 0.25 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>FRZR0.25in72hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr050in12hr</short_name>
+    <long_name>12hr Prob of Freezing Rain &gt; 0.5 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>FRZR0.5in12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr050in24hr</short_name>
+    <long_name>24hr Prob of Freezing Rain &gt; 0.5 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>FRZR0.5in24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr050in48hr</short_name>
+    <long_name>48hr Prob of Freezing Rain &gt; 0.5 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>FRZR0.5in48hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr050in72hr</short_name>
+    <long_name>72hr Prob of Snowfall &gt; 0.5 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>FRZR0.5in72hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr1in12hr</short_name>
+    <long_name>12hr Prob of Freezing Rain &gt; 1 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>FRZR1in12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr1in24hr</short_name>
+    <long_name>24hr Prob of Freezing Rain &gt; 1 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>FRZR1in24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr1in48hr</short_name>
+    <long_name>48hr Prob of Freezing Rain &gt; 1 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>FRZR1in48hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr1in72hr</short_name>
+    <long_name>72hr Prob of Snowfall &gt; 1 inch</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>FRZR1in72hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr5pct12hr</short_name>
+    <long_name>12hr Freezing Rain Accumulation Percentile(5)</long_name>
+    <units>mm</units>
+    <udunits>millimeters</udunits>
+    <uiname>FRZR5pct12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>254.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr5pct24hr</short_name>
+    <long_name>24hr Freezing Rain Accumulation Percentile(5)</long_name>
+    <units>mm</units>
+    <udunits>millimeters</udunits>
+    <uiname>FRZR5pct24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>254.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr5pct48hr</short_name>
+    <long_name>48hr Freezing Rain Accumulation Percentile(5)</long_name>
+    <units>mm</units>
+    <udunits>millimeters</udunits>
+    <uiname>FRZR5pct48hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>254.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr5pct72hr</short_name>
+    <long_name>72hr Freezing Rain Accumulation Percentile(5)</long_name>
+    <units>mm</units>
+    <udunits>millimeters</udunits>
+    <uiname>FRZR5pct72hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>254.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr10pct12hr</short_name>
+    <long_name>12hr Freezing Rain Accumulation Percentile(10)</long_name>
+    <units>mm</units>
+    <udunits>millimeters</udunits>
+    <uiname>FRZR10pct12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>254.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr10pct24hr</short_name>
+    <long_name>24hr Freezing Rain Accumulation Percentile(10)</long_name>
+    <units>mm</units>
+    <udunits>millimeters</udunits>
+    <uiname>FRZR10pct24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>254.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr10pct48hr</short_name>
+    <long_name>48hr Freezing Rain Accumulation Percentile(10)</long_name>
+    <units>mm</units>
+    <udunits>millimeters</udunits>
+    <uiname>FRZR10pct48hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>254.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr10pct72hr</short_name>
+    <long_name>72hr Freezing Rain Accumulation Percentile(10)</long_name>
+    <units>mm</units>
+    <udunits>millimeters</udunits>
+    <uiname>FRZR10pct72hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>254.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr25pct12hr</short_name>
+    <long_name>12hr Freezing Rain Accumulation Percentile(25)</long_name>
+    <units>mm</units>
+    <udunits>millimeters</udunits>
+    <uiname>FRZR25pct12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>254.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr25pct24hr</short_name>
+    <long_name>24hr Freezing Rain Accumulation Percentile(25)</long_name>
+    <units>mm</units>
+    <udunits>millimeters</udunits>
+    <uiname>FRZR25pct24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>254.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr25pct48hr</short_name>
+    <long_name>48hr Freezing Rain Accumulation Percentile(25)</long_name>
+    <units>mm</units>
+    <udunits>millimeters</udunits>
+    <uiname>FRZR25pct48hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>254.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr25pct72hr</short_name>
+    <long_name>72hr Freezing Rain Accumulation Percentile(25)</long_name>
+    <units>mm</units>
+    <udunits>millimeters</udunits>
+    <uiname>FRZR25pct72hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>254.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr50pct12hr</short_name>
+    <long_name>12hr Freezing Rain Accumulation Percentile(50)</long_name>
+    <units>mm</units>
+    <udunits>millimeters</udunits>
+    <uiname>FRZR50pct12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>254.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr50pct24hr</short_name>
+    <long_name>24hr Freezing Rain Accumulation Percentile(50)</long_name>
+    <units>mm</units>
+    <udunits>millimeters</udunits>
+    <uiname>FRZR50pct24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>254.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr50pct48hr</short_name>
+    <long_name>48hr Freezing Rain Accumulation Percentile(50)</long_name>
+    <units>mm</units>
+    <udunits>millimeters</udunits>
+    <uiname>FRZR50pct48hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>254.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr50pct72hr</short_name>
+    <long_name>72hr Freezing Rain Accumulation Percentile(50)</long_name>
+    <units>mm</units>
+    <udunits>millimeters</udunits>
+    <uiname>FRZR50pct72hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>254.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr75pct12hr</short_name>
+    <long_name>12hr Freezing Rain Accumulation Percentile(75)</long_name>
+    <units>mm</units>
+    <udunits>millimeters</udunits>
+    <uiname>FRZR75pct12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>254.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr75pct24hr</short_name>
+    <long_name>24hr Freezing Rain Accumulation Percentile(75)</long_name>
+    <units>mm</units>
+    <udunits>millimeters</udunits>
+    <uiname>FRZR75pct24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>254.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr75pct48hr</short_name>
+    <long_name>48hr Freezing Rain Accumulation Percentile(75)</long_name>
+    <units>mm</units>
+    <udunits>millimeters</udunits>
+    <uiname>FRZR75pct48hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>254.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr75pct72hr</short_name>
+    <long_name>72hr Freezing Rain Accumulation Percentile(75)</long_name>
+    <units>mm</units>
+    <udunits>millimeters</udunits>
+    <uiname>FRZR75pct72hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>254.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr90pct12hr</short_name>
+    <long_name>12hr Freezing Rain Accumulation Percentile(90)</long_name>
+    <units>mm</units>
+    <udunits>millimeters</udunits>
+    <uiname>FRZR90pct12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>254.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr90pct24hr</short_name>
+    <long_name>24hr Freezing Rain Accumulation Percentile(90)</long_name>
+    <units>mm</units>
+    <udunits>millimeters</udunits>
+    <uiname>FRZR90pct24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>254.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr90pct48hr</short_name>
+    <long_name>48hr Freezing Rain Accumulation Percentile(90)</long_name>
+    <units>mm</units>
+    <udunits>millimeters</udunits>
+    <uiname>FRZR90pct48hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>254.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr90pct72hr</short_name>
+    <long_name>72hr Freezing Rain Accumulation Percentile(90)</long_name>
+    <units>mm</units>
+    <udunits>millimeters</udunits>
+    <uiname>FRZR90pct72hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>254.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr95pct12hr</short_name>
+    <long_name>12hr Freezing Rain Accumulation Percentile(95)</long_name>
+    <units>mm</units>
+    <udunits>millimeters</udunits>
+    <uiname>FRZR95pct12hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>254.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr95pct24hr</short_name>
+    <long_name>24hr Freezing Rain Accumulation Percentile(95)</long_name>
+    <units>mm</units>
+    <udunits>millimeters</udunits>
+    <uiname>FRZR95pct24hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>254.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr95pct48hr</short_name>
+    <long_name>48hr Freezing Rain Accumulation Percentile(95)</long_name>
+    <units>mm</units>
+    <udunits>millimeters</udunits>
+    <uiname>FRZR95pct48hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>254.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>frzr95pct72hr</short_name>
+    <long_name>72hr Freezing Rain Accumulation Percentile(95)</long_name>
+    <units>mm</units>
+    <udunits>millimeters</udunits>
+    <uiname>FRZR95pct72hr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>254.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>staticTopo</short_name>
+    <long_name>Topography</long_name>
+    <units>meters</units>
+    <fillValue>-99999.0</fillValue>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>staticCoriolis</short_name>
+    <long_name>Coriolis parameter</long_name>
+    <units>/s</units>
+    <fillValue>-99999.0</fillValue>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>staticSpacing</short_name>
+    <long_name>Grid spacing</long_name>
+    <units>meters</units>
+    <fillValue>-99999.0</fillValue>
+  </gridParameterInfo>
+</gridParamInfo>

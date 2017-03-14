@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Textlightning Plug-in
+Bundle-SymbolicName: com.raytheon.edex.plugin.textlightning
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: com.raytheon.uf.edex.decodertools,
+ com.raytheon.uf.common.dataplugin
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: com.raytheon.edex.exception,
+ com.raytheon.edex.plugin,
+ com.raytheon.uf.common.dataplugin.binlightning,
+ com.raytheon.uf.common.dataplugin.binlightning.impl,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.edex.core

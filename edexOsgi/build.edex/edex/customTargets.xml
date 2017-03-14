@@ -1,0 +1,336 @@
+<project name="Build specific targets and properties" default="noDefault">
+
+        <!-- ===================================================================== -->
+        <!-- Run a given ${target} on all elements being built -->
+        <!-- Add on <ant> task for each top level element being built. -->
+        <!-- ===================================================================== -->
+        <property name="allElementsFile" value="${builder}/allElements.xml"/>
+        <import file="${allElementsFile}" />
+        <target name="allElements">
+                <antcall target="allElementsDelegator" />
+        </target>
+
+        <!-- ===================================================================== -->
+        <!-- ===================================================================== -->
+        <target name="getBaseComponents" depends="checkLocalBase" unless="skipBase">
+                <get src="${eclipseBaseURL}" dest="${buildDirectory}/../temp-base.zip" />
+                <unzip dest="${base}" overwrite="true" src="${buildDirectory}/../temp-base.zip" />
+        </target>
+
+        <target name="checkLocalBase">
+                <available file="${base}" property="skipBase" />
+        </target>
+
+        <!-- ===================================================================== -->
+        <!-- Check out map files from correct repository -->
+        <!-- Replace values for mapsCheckoutTag as desired. -->
+        <!-- ===================================================================== -->
+        <target name="getMapFiles" depends="checkLocalMaps" unless="skipMaps">
+
+        </target>
+
+        <target name="checkLocalMaps">
+
+        </target>
+
+        <target name="tagMapFiles" if="tagMaps">
+        </target>
+
+        <!-- ===================================================================== -->
+
+        <target name="clean" unless="noclean">
+                <antcall target="allElements">
+                        <param name="target" value="cleanElement" />
+                </antcall>
+        </target>
+
+        <target name="gatherLogs">
+                <mkdir dir="${buildDirectory}/${buildLabel}/compilelogs" />
+                <antcall target="allElements">
+                        <param name="target" value="gatherLogs" />
+                </antcall>
+                <unzip dest="${buildDirectory}/${buildLabel}/compilelogs" overwrite="true">
+                        <fileset dir="${buildDirectory}/features">
+                                <include name="**/*.log.zip" />
+                        </fileset>
+                </unzip>
+        </target>
+
+        <!-- ===================================================================== -->
+        <!-- Steps to do before setup -->
+        <!-- ===================================================================== -->
+        <target name="preSetup">
+        </target>
+
+        <!-- ===================================================================== -->
+        <!-- Steps to do after setup but before starting the build proper -->
+        <!-- ===================================================================== -->
+        <target name="postSetup">           
+        	<antcall target="getBaseComponents" />
+        </target>
+
+        <!-- ===================================================================== -->
+        <!-- Steps to do before fetching the build elements -->
+        <!-- ===================================================================== -->
+        <target name="preFetch">
+        </target>
+
+        <!-- ===================================================================== -->
+        <!-- Steps to do after fetching the build elements -->
+        <!-- ===================================================================== -->
+        <target name="postFetch">
+        </target>
+
+        <!-- ===================================================================== -->
+        <!-- Steps to do before generating the build scripts. -->
+        <!-- ===================================================================== -->
+        <target name="preGenerate">
+        </target>
+
+        <!-- ===================================================================== -->
+        <!-- Steps to do after generating the build scripts. -->
+        <!-- ===================================================================== -->
+        <target name="postGenerate">
+                <antcall target="clean" />
+        </target>
+
+        <!-- ===================================================================== -->
+        <!-- Steps to do before running the build.xmls for the elements being built. -->
+        <!-- ===================================================================== -->
+        <target name="preProcess">
+        </target>
+
+        <!-- ===================================================================== -->
+        <!-- Steps to do after running the build.xmls for the elements being built. -->
+        <!-- ===================================================================== -->
+        <target name="postProcess">
+        </target>
+
+        <!-- ===================================================================== -->
+        <!-- Steps to do before running assemble. -->
+        <!-- ===================================================================== -->
+        <target name="preAssemble">
+        </target>
+
+        <!-- ===================================================================== -->
+        <!-- Steps to do after  running assemble. -->
+        <!-- ===================================================================== -->
+        <target name="postAssemble">
+        </target>
+
+
+        <!-- ===================================================================== -->
+        <!-- Steps to do before running package. -->
+        <!-- ===================================================================== -->
+        <target name="prePackage">
+        </target>
+
+        <!-- ===================================================================== -->
+        <!-- Steps to do after  running package. -->
+        <!-- ===================================================================== -->
+        <target name="postPackage">
+        </target>
+
+        <!-- ===================================================================== -->
+        <!-- Steps to do after the build is done. -->
+        <!-- ===================================================================== -->
+        <target name="postBuild">
+        	<taskdef resource="net/sf/antcontrib/antlib.xml" 
+        		classpath="${builder}/../lib/ant/ant-contrib-1.0b3.jar" /> 	
+        	
+        	<property file="${builder}/common.properties" />
+        	<property name="build.output.directory"
+        		value="${buildDirectory}/tmp/edex" />
+        	
+        	<mkdir dir="${builder}/postBuild/${edex.root.directory}/data" />
+        	<copy todir="${builder}/postBuild/${edex.root.directory}/data">
+        		<fileset dir="${build.output.directory}/data">
+        			<include name="utility/**" />
+        		</fileset>
+        	</copy>
+        	
+        	<mkdir dir="${builder}/postBuild/${edex.root.directory}/conf" />
+        	<copy todir="${builder}/postBuild/${edex.root.directory}/conf">
+        		<fileset dir="${build.output.directory}/conf">
+        			<include name="resources/**" />
+        			<include name="modes/**" />
+        		</fileset>
+        	</copy>
+        	
+        	<if>
+        		<available file="${build.output.directory}/webapps" type="dir" />
+        		<then>
+        			<mkdir dir="${builder}/postBuild/${edex.root.directory}" />
+        			<copy todir="${builder}/postBuild/${edex.root.directory}"
+        			verbose="true">
+        				<fileset dir="${build.output.directory}">
+        					<include name="webapps/**" />
+        				</fileset>
+        			</copy>
+        		</then>
+        	</if>
+        	
+        	<!-- special rule for cots -->
+        	<if>
+        		<not>
+        			<equals arg1="${topLevelElementId}" 
+        			arg2="com.raytheon.uf.edex.cots.feature" />
+        		</not>
+        		<then>
+        			<mkdir dir="${builder}/postBuild/${edex.root.directory}/lib" />
+            		<copy todir="${builder}/postBuild/${edex.root.directory}/lib">
+            			<fileset dir="${build.output.directory}">
+                			<include name="plugins/**" />
+                		</fileset>
+					</copy>
+        			
+            	 	<shellscript shell="bash"
+            	 	dir="${builder}/postBuild/${edex.root.directory}/lib">
+            	 		cd plugins
+            	 		for directory in `find -type d -maxdepth 1`; 
+            	 		do
+            	 			if [ ${directory} != "." ]; then
+            	 				cd ${directory}
+            	 				/awips2/java/bin/jar cmf \
+            	 					META-INF/MANIFEST.MF \
+            	 					../${directory}.jar \
+            	 					*
+            	 				cd ..
+            	 				rm -rf ${directory}
+            	 			fi
+            	 		done
+            	 	</shellscript>
+        	
+        			<move todir="${builder}/postBuild/${edex.root.directory}/lib">
+        				<fileset dir="${builder}/postBuild/${edex.root.directory}/lib">
+        					<include name="**/*.jar" />
+        				</fileset>
+        				<mapper type="regexp" from="^(.+?)_(.+).jar" to="\1.jar" />
+        			</move>
+        		</then>
+        	</if>
+        	
+        	<!-- copy the dependency stash -->
+			<mkdir
+				dir="${builder}/postBuild/${edex.root.directory}/lib/dependencies" />
+        	<copy todir="${builder}/postBuild/${edex.root.directory}/lib/dependencies">
+        		<fileset dir="${builder}/dependencies-stash">
+            		<include name="*/**" />
+            	</fileset>
+			</copy>
+        	<delete includeemptydirs="true">
+        		<fileset dir="${builder}"
+        			includes="dependencies-stash/**" />
+        	</delete>
+        	
+			<!--
+				Remove all PDE-generated FOSS artifacts from the
+				plugins directory.
+			-->
+			<loadfile property="includefile.foss"
+				srcfile="${builder}/includes/cots.includes" />
+			<var name="index" value="1" />
+        	
+        	
+	
+			<for param="line" list="${includefile.foss}"
+			delimiter="${line.separator}">
+				<sequential>
+					<!-- skip the first line -->
+					<if>
+						<not>
+							<equals arg1="${index}" arg2="1" />
+						</not>
+						<then>
+							<!--
+								First, determine if the plugin has a source directory.
+							-->
+							<if>
+								<not>
+									<available file="${buildDirectory}/plugins/@{line}/src"
+										type="dir" />
+								</not>
+								<then>
+									<!--
+										Remove the empty FOSS jar from plugins.
+									-->
+									<delete file="${builder}/postBuild/${edex.root.directory}/lib/plugins/@{line}.jar" />
+								</then>
+							</if>
+						</then>
+					</if>
+					<math result="index"
+						operand1="${index}"
+						operation="+"
+						operand2="1"
+						datatype="int" />
+				</sequential>
+			</for>
+        	
+        	<!-- manipulate the topLevelElementId - the feature -->
+        	<propertyregex property="edex.component"
+        		override="true"
+        		input="${topLevelElementId}"
+        		regexp="\."
+        		replace="-" />
+            <propertyregex property="edex.component"
+            	override="true"
+            	input="${edex.component}"
+            	regexp="com-raytheon-uf-(.+)-feature"
+            	select="\1" />
+
+            <propertyregex property="edex.component"
+                override="true"
+                input="${edex.component}"
+                regexp="^(?:edu|gov)-.*(edex-.+)-feature"
+                select="\1" />
+        	
+        	<!-- Create the distribution directory. -->
+        	<mkdir dir="${builder}/dist" />
+        	<zip destfile="${builder}/dist/${edex.component}.zip"
+        		basedir="${builder}/postBuild"
+        		includes="*/**">
+        	</zip>
+        	
+        	<delete includeemptydirs="true">
+				<fileset dir="${build.output.directory}">
+	    			<include name="**/**"/>
+				</fileset>
+			</delete>
+        	
+            <delete includeemptydirs="true">
+    			<fileset dir="${builder}/postBuild">
+    	    		<include name="**/**"/>
+    			</fileset>
+    		</delete>
+
+        </target>
+
+        <!-- ===================================================================== -->
+
+        <!-- Steps to do to test the build results -->
+
+        <!-- ===================================================================== -->
+
+        <target name="test">
+        </target>
+
+
+
+        <target name="checkJUnitTestResults">
+        </target>
+
+        <!-- ===================================================================== -->
+        <!-- Steps to do to publish the build results -->
+        <!-- ===================================================================== -->
+        <target name="publish">
+        </target>
+
+        <!-- ===================================================================== -->
+        <!-- Default target                                                        -->
+        <!-- ===================================================================== -->
+        <target name="noDefault">
+                <echo message="You must specify a target when invoking this file" />
+        </target>
+
+</project>

@@ -1,0 +1,2 @@
+In order to allow temporal resolution AND avoid redundant phrases, we have certain strategies for consolidating the sub-phrases. 
+

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	 <contribute xsi:type="toolbarSubMenu" menuText="Sig Value Parameters">
+<!--      <contribute xsi:type="menuItem" menuText="LCL Height &lt; 3500ft" key="LCLh2" indentText="false" /> -->
+<!-- 	 <contribute xsi:type="menuItem" menuText="CAPE &gt; 1000" key="PBE2" indentText="false" /> -->
+<!-- 	 <contribute xsi:type="menuItem" menuText="CIN &lt; 120" key="NBE2" indentText="false" /> -->
+<!--      <contribute xsi:type="menuItem" menuText="Dewpoint &gt; 65F" key="DpT2" indentText="false" /> -->
+     <contribute xsi:type="menuItem" menuText="PW &gt; 1.4 in." key="PW2" indentText="false" />
+<!--  	 <contribute xsi:type="menuItem" menuText="Moisture Conv &gt; 20" key="MCon2" indentText="false" /> -->
+<!--  	 <contribute xsi:type="menuItem" menuText="Best LI &lt; -4" key="BLI2" indentText="false" /> -->
+<!-- 	 <contribute xsi:type="menuItem" menuText="Div Fn &lt; -10" key="DivFn2" indentText="false" /> -->
+    </contribute>
+     <contribute xsi:type="toolbarSubMenu" menuText="SPC">
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/fields/planview-timeseries/sfc2d/convective/SPC.xml" />
+    </contribute>
+      <contribute xsi:type="toolbarSubMenu" menuText="Storm Motion">
+		<contribute xsi:type="menuItem" menuText="Corfidi Vecs - Backward Propagating" key="Corf" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Corfidi Vector Mag - Backward" key="CorfM" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Corfidi Vecs - Forward Propagating" key="CorfF" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Corfidi Vector Mag - Forward" key="CorfFM" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Right Moving Supercell-Bunkers" key="RM5" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Elevated RM Supercell-Bunkers" key="RM6" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Left Moving Supercell-Bunkers" key="LM5" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Elevated LM Supercell-Bunkers" key="LM6" indentText="false" />
+	</contribute>
+	<contribute xsi:type="toolbarSubMenu" menuText="Storm Relative Flow">
+		<contribute xsi:type="menuItem" menuText="Storm-relative Flow  -RMover" key="SRMr" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Storm-relative Flow Mag -RMover" key="SRMrM" indentText="true" />
+		<contribute xsi:type="menuItem" menuText="Storm-relative Flow  -LMover" key="SRMl" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Storm-relative Flow Mag -LMover" key="SRMlM" indentText="true" />
+		<contribute xsi:type="menuItem" menuText="Storm-relative Flow -MeanWind" key="SRMm" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Storm-relative Flow Mag -MeanWind" key="SRMmM" indentText="true" />
+	</contribute>
+	<contribute xsi:type="toolbarSubMenu" menuText="Storm Scale">
+		<contribute xsi:type="menuItem" menuText="Reflectivity" key="RR" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Max Hourly Derived Reflectivity" key="MREFD" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Composite Reflectivity" key="CXR" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Max Hourly 1km AGL Reflectivity" key="MaxREF1hr" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Updraft Helicity - Instantaneous" key="UPHL" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Max Hourly Updraft Helicity" key="MaxUPHL1hr" indentText="false" />
+    	<contribute xsi:type="menuItem" menuText="Vertically Integrated Graupel - Instantaneous" key="GRPLMX" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Max Hourly Vertically Integrated Graupel" key="MaxGRPL1hr" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Max Hourly Wind Gust Speed" key="MaxWGS1hr" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Max Hourly Updraft Velocity" key="MaxUVV" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Max Hourly Downdraft Velocity" key="MaxDVV" indentText="false" />	
+	    <contribute xsi:type="menuItem" menuText="Max Hourly Lightning Threat" key="LTNG"  indentText="true" />
+        <contribute xsi:type="menuItem" menuText="Derived VIL" key="VILIQ"  indentText="true" />
+		<contribute xsi:type="menuItem" menuText="Derived Echo Top"	key="RETOP"  indentText="true" />	
+	</contribute>
+	
+	<contribute xsi:type="menuItem" menuText="50 dbz Hgt for 1 in. Svr Hail" key="50dbzZ" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="BRN" key="BRN" indentText="false" />
+   	<contribute xsi:type="menuItem" menuText="CAPE (Model Delivered)" key="PBE" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Computed CAPE" key="cCape" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Downdraft CAPE (DCAPE)" key="dCape" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Most Unstable CAPE" key="muCape" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Computed CAPE to 3kmAgl" key="loCape" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="CIN (Model Delivered)" key="NBE" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Computed CIN" key="cCin" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Dewpoint" key="DpT" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="EHI - 0-3km" key="EHI" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="EHI - 0-1km" key="EHI01" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Enhanced Stretching Potential" key="ESP" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Helicity" key="Heli" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Helicity (Model Delivered)" key="HeliD" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Helicity (&gt; 300J/Kg MLCape)" key="HeliC" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="LCL - Mixed Layer" key="MLLCL" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="MCS Maintenance Prob" key="MMP" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Moist Transport Vecs" key="MTV" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Moist Transport Mag" key="Mmag" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Non-Supercell Tornado Parameter" key="NST" indentText="false" />	
+	<contribute xsi:type="menuItem" menuText="Sig Severe Parameter" key="SSP" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Significant Tornado Parameter" key="STP" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="SPC Tornado Probability" key="PTOR" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Strong Tornado Parameter" key="StrTP" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Supercell Composite Parameter" key="SuCP" indentText="false" />
+<!-- 	<contribute xsi:type="menuItem" menuText="Super Tor Icons" key="TORi" indentText="false" />	 -->
+   	<contribute xsi:type="menuItem" menuText="Sweat Index" key="swtIdx" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Theta E" key="EPT" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Theta E Advection" key="EPTA" indentText="false" />	
+    <contribute xsi:type="menuItem" menuText="Thompson S-R Flow Tor Scells, icons" key="Thom6" indentText="false" />
+<!-- 	<contribute xsi:type="menuItem" menuText="Tor Icons" key="BRNEHIi" indentText="false" /> -->
+	<contribute xsi:type="menuItem" menuText="Warm Cloud Depth (Frzlvl-LCL)" key="WCD" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="VGP" key="VGP" indentText="false" />
+</menuTemplate>

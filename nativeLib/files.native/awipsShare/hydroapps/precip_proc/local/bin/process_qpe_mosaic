@@ -1,0 +1,189 @@
+#!/bin/ksh
+###############################################################################
+# process_qpe_mosaic
+#
+# This script grib encodes the RFC QPE mosaics and sends them to awips for
+# display in D2D.
+#
+# In order for the generate_areal_qpe (GAQ) program to run and produce a 
+# mosaicked RFC QPE product, the mpe_generate_areal_qpe token must be set
+# to "ON".
+#
+# In order for the RFC QPE product to be sent to D2D, the mpe_d2d_display_grib 
+# token must be set to "ON".
+#
+# The RFC and DURATION list variables (below) must be locally defined at
+# each office.
+#
+#   Modification History
+#   June 6, 2006       Bryon Lawrence     Script Written
+#   September 12, 2006 Bryon Lawrence     Setup to source readenv.sh
+#   November   7, 2006 Bryon Lawrence     Modified to set the
+#                                         grib_set_subcenter_0 token to 'on'.
+#   
+###############################################################################
+
+#  These must be defined for the office GAQ is running at.
+#  The RFC_LIST will contain all of the RFCs which cover all or part
+#  of the office's MPE forecast area. The DURATION_LIST will contain
+#  the durations to create RFC QPE products for.  The acceptable durations
+#  are 1,6,24.
+RFC_LIST=MARFC,OHRFC,LMRFC
+DURATION_LIST=1,6,24
+
+# Export the value of FXA_HOME here.  This allows read_env.sh to be
+# sourced before set_hydro_env.  This prevents set_hydro_env environment
+# and token settings from being overwritten by read_env.sh.
+export FXA_HOME=/awips/fxa
+ 
+# Set up the AWIPS environment.
+. $FXA_HOME/readenv.sh
+
+# Allow this script to be run from outside of ./precip_proc/bin
+RUN_FROM_DIR=`dirname $0`
+. $RUN_FROM_DIR/../../../set_hydro_env
+export grib_bin_dir=$(get_apps_defaults pproc_bin)
+export grib_out_dir=$(get_apps_defaults mpe_grib_dir)
+export D2D_INPUT_DIR=$(get_apps_defaults d2d_input_dir)
+export MPE_D2D_DISPLAY_GRIB=$(get_apps_defaults mpe_d2d_display_grib)
+export MPE_GENERATE_AREAL_QPE=$(get_apps_defaults mpe_generate_areal_qpe)
+export GAQ_LOG_DIR=$(get_apps_defaults gaq_log_dir)
+export GAQ_TEMP_XMRG_DIR=$(get_apps_defaults gaq_temp_xmrg_dir)
+export PPROC_BIN=$(get_apps_defaults pproc_bin)
+
+#
+# Open the process qpe mosaic log.
+#
+process_qpe_log=`date +$GAQ_LOG_DIR/process_qpe_mosaic_%m%d`
+
+#
+# Save only the latest information in the log file.
+echo "-----------------------------------------------" >> $process_qpe_log
+
+Dte=`date -u`
+echo "Starting process_qpe_mosaic at $Dte" >> $process_qpe_log
+
+echo "Token mpe_generate_areal_qpe is defined as $MPE_GENERATE_AREAL_QPE" >> \
+     $process_qpe_log
+echo "Token mpe_d2d_display_grib is defined as $MPE_D2D_DISPLAY_GRIB" >> \
+     $process_qpe_log
+
+#
+#  If the mpe_generate_areal_qpe token is not on, then do not generate
+#  QPE Mosaics.
+#
+if [[ $MPE_GENERATE_AREAL_QPE != "ON" && $MPE_GENERATE_AREAL_QPE != "on" ]]
+then
+   echo "Token mpe_generate_areal_qpe must be set to 'ON'." >> $process_qpe_log
+   echo "RFC QPE mosaics not created." >> $process_qpe_log
+   exit 1
+fi
+
+#
+# Call the StoreHydroGrids program to ungrib the QPE GRIB messages stored in 
+# the /data/fxa/Grid/SBN/HydroRaw directory and place the resulting netCDF
+# files into the /data/fxa/GRID/SBN/netCDF/HRAP/QPE and 
+# /data/fxa/Grid/SBN/HydroBad directories.
+#
+echo "Invoking $FXA_BIN_DIR/StoreHydroGrids" >> $process_qpe_log
+$FXA_BIN_DIR/StoreHydroGrids >> $process_qpe_log 2>&1
+
+#
+#  Call the gen_areal_qpe program
+#
+$PPROC_BIN/gen_areal_qpe.LX -r$RFC_LIST -h$DURATION_LIST >> \
+      $process_qpe_log 2>&1
+
+#
+# Retrieve a list of the files in the temporary QPE xmrg directory.
+#
+echo "Searching for QPE Mosaic files in $GAQ_TEMP_XMRG_DIR" >> \
+      $process_qpe_log
+
+file_list=`ls $GAQ_TEMP_XMRG_DIR/RFC*` >> $process_qpe_log 2>&1
+
+#
+#  Only send the RFC QPE mosaics to D2D if the mpe_d2d_displag_grib
+#  token is set to 'on'.
+#
+if [[ $MPE_D2D_DISPLAY_GRIB = "ON" || $MPE_D2D_DISPLAY_GRIB = "on" ]]
+then
+
+   if [[ -z "$file_list" ]]
+   then
+      echo "No QPE mosaic files found in $GAQ_TEMP_XMRG_DIR" >> \
+           $process_qpe_log
+      Dte=`date -u`
+      echo "Finished process_qpe_mosaic at $Dte" >> $process_qpe_log
+      exit 1;
+   fi
+
+#
+#  Set the directory to read the GRIB files from.
+#  Also set the directory to write the QPE files to.
+#
+
+   export grib_in_dir=$GAQ_TEMP_XMRG_DIR
+   export grib_out_dir=$GAQ_TEMP_XMRG_DIR
+#
+#  Force the subcenter code in the GRIB message to be 0.
+#  This will allow the QPE products contained within the GRIB
+#  messages to be displayed in the local D2D.
+#
+   export grib_set_subcenter_0=on
+
+   for i in $file_list
+   do
+#
+# Build the input and output paths for GRIBIT.
+#
+      export grib_in_file=`basename $i`
+      export grib_out_file=$grib_in_file.grib
+
+      echo "Grib in file: $grib_in_file" >> $process_qpe_log
+      echo "Grib out file: $grib_out_file" >> $process_qpe_log
+
+      Dte=`date -u`
+      echo "Invoking $grib_bin_dir/gribit.LX at $Dte" >> $process_qpe_log
+      $grib_bin_dir/gribit.LX >> $process_qpe_log 2>&1
+#
+# Move the grib file to the SBN/Raw directory
+# 
+      new_string=`date -u +%d%H%M%S`
+      new_file_name=${grib_out_file%.*}_$new_string.grib
+
+      echo "Move and rename grib file $grib_out_dir/$grib_out_file" >> \
+           $process_qpe_log
+      echo "to $D2D_INPUT_DIR/$new_file_name" >> $process_qpe_log
+      mv $grib_out_dir/$grib_out_file $D2D_INPUT_DIR/$new_file_name >> \
+         $process_qpe_log 2>&1
+
+      if [[ $? -ne 0 ]]
+      then
+         # The move failed.  Remove the grib file.
+         rm -f  $grib_out_dir/$grib_out_file >> $process_qpe_log 2>&1
+      fi
+
+#
+# Notify D2D about the grib file.
+#
+      echo "Invoking $FXA_BIN_DIR/notif_mpe.csh" >> $process_qpe_log
+      $FXA_BIN_DIR/notif_mpe.csh >> $process_qpe_log 2>&1
+   
+   done
+
+fi
+
+#
+#  Remove the files from the GAQ output XMRG directory.
+#
+rm -f $file_list >> $process_qpe_log 2>&1
+
+Dte=`date -u`
+echo "Finished process_qpe_mosaic at $Dte" >> $process_qpe_log
+
+exit 0
+
+#
+#  End of process_qpe_mosaic script
+#

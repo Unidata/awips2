@@ -1,0 +1,485 @@
+C MODULE SNPCPN
+C-----------------------------------------------------------------------
+C
+C  ROUTINE TO PERFORM NETWORK COMPUTATIONS FOR PCPN STATIONS.
+C
+      SUBROUTINE SNPCPN (IRTYPE,IALL,IOPTN,LARRAY,ARRAY,INWFLG,
+     *   IUEND,ISTAT)
+C
+      CHARACTER*4 WDISP,UNITS
+      CHARACTER*8 TYPERR,XCHKID,ESTID
+      CHARACTER*8 BLNK8/' '/
+      CHARACTER*20 ESTDSC
+C
+      REAL*4 RSTAID(2)      
+C
+      DIMENSION ARRAY(LARRAY)
+      DIMENSION INWFLG(*)
+      DIMENSION INWPTR(4,5)
+      DIMENSION UNUSED(5)
+C
+      INCLUDE 'uio'
+      INCLUDE 'scommon/dimsta'
+      INCLUDE 'scommon/dimpcpn'
+C
+      INCLUDE 'scommon/sudbgx'
+      INCLUDE 'scommon/sntwkx'
+      INCLUDE 'scommon/sworkx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppinit_network/RCS/snpcpn.f,v $
+     . $',                                                             '
+     .$Id: snpcpn.f,v 1.3 2000/03/14 12:54:05 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+C  SET TRACE LEVEL
+      CALL SBLTRC ('NTWK','NTWKPCPN','SNPCPN  ',LTRACE)
+C
+      IF (LTRACE.GT.0) THEN
+         WRITE (IOSDBG,310)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  SET DEBUG LEVEL
+      CALL SBLDBG ('NTWK','NTWKPCPN','SNPCPN  ',LDEBUG)
+C
+      ISTAT=0
+C
+      IPDENQ=0
+C
+      WRITE (LP,320)
+      CALL SULINE (LP,1)
+      IF (INWFLG(1).GT.0.AND.INWFLG(2).GT.0) THEN
+         WRITE (LP,330)
+         CALL SULINE (LP,2)
+         ENDIF
+      IF (INWFLG(1).GT.0.AND.INWFLG(2).EQ.0) THEN
+         WRITE (LP,340)
+         CALL SULINE (LP,2)
+         ENDIF
+      IF (INWFLG(1).EQ.0.AND.INWFLG(2).GT.0) THEN
+         WRITE (LP,350)
+         CALL SULINE (LP,2)
+         ENDIF
+      WRITE (LP,320)
+      CALL SULINE (LP,1)
+C
+      NSTA=0
+C
+      IPTR=0
+      IPRNT=1
+      UNITS='ENGL'
+      LEVEL=1
+      IF (LDEBUG.GT.0) LEVEL=2
+      IPREST=0
+      IF (LDEBUG.GT.0) IPREST=1
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK IF SUFFICIENT CPU TIME AVAILABLE
+10    ICKRGN=0
+      ICKCPU=1
+      MINCPU=10
+      IPRERR=1
+      IPUNIT=LP
+      TYPERR='ERROR'
+      INCLUDE 'clugtres'
+      IF (IERR.GT.0) THEN
+         CALL SUFATL
+         IUEND=1
+         GO TO 300
+         ENDIF
+C
+C  READ PCPN PARAMETER RECORD
+      CALL SUBSTR (BLNK8,1,8,STAID,1)
+      IPRERR=0
+      IPOS=0
+      IREAD=1
+      INCLUDE 'scommon/callsrpcpn'
+      IPTRN1=IPTRNX
+      IF (IERR.EQ.2.AND.NSTA.EQ.0) GO TO 290
+      IF (IERR.EQ.6) GO TO 290
+      IF (IERR.GT.0) THEN
+         CALL SRPPST (STAID,'PCPN',IPTR,LARRAY,0,IPTRNX,IERR)
+         WRITE (LP,400) IERR
+         CALL SUERRS (LP,2,-1)
+         GO TO 280
+         ENDIF
+C
+      IF (LDEBUG.GT.0) THEN
+C     PRINT PARAMETERS
+         INCLUDE 'scommon/callsppcpn'
+         ENDIF
+C
+C  CHECK IF SIGNIFICANCE WEIGHTS USED
+      IF (IPTWGT.EQ.0) GO TO 50
+C
+C  SET PPDB POINTER
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,360) STAID
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      NERR=0
+      DO 40 I=1,IPTWGT
+         DO 20 J=1,INWFIL
+            CALL SUBSTR (STIDNW(1,J),1,LEN(XCHKID),XCHKID,1)
+            IF (STASID(I).EQ.XCHKID) GO TO 30
+20          CONTINUE
+            WRITE (LP,410) STASID(I),STAID
+            CALL SUERRS (LP,2,-1)
+            NERR=NERR+1
+            GO TO 40
+30       IPDSPT(I)=PP24NW(J)
+40       CONTINUE
+      IF (NERR.EQ.0) GO TO 130
+      GO TO 270
+C
+C  FIND STATION IN NTWK COMMON BLOCK
+50    DO 60 IPOS=1,INWFIL
+         CALL UMEMOV (STAID,RSTAID,2)
+         IF (RSTAID(1).EQ.STIDNW(1,IPOS).AND.
+     *       RSTAID(2).EQ.STIDNW(2,IPOS)) GO TO 70
+60       CONTINUE
+      WRITE (LP,420) STAID
+      CALL SULINE (LP,2)
+      GO TO 270
+C
+70    IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,370) STAID,IPOS,PP24NW(IPOS)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  CHECK IF PP24 POINTER IS ZERO
+      IF (PP24NW(IPOS).NE.0) GO TO 80
+         WRITE (LP,380) STAID
+         CALL SUWRNS (LP,2,-1)
+         WRITE (LP,390)
+         CALL SULINE (LP,1)
+         GO TO 270
+C
+C  CONVERT STATION NWSRFS/HRAP COORDINATES TO INTEGER
+80    LOCX=STACOR(1)*10.+.5
+      LOCY=STACOR(2)*10.+.5
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+      ITYPE=4
+C
+      IF (INWFLG(1).EQ.0.AND.IALL.EQ.-1.AND.IOPTN.EQ.0) GO TO 130
+C
+C  FIND 5 CLOSEST 24-HR PCPN STATIONS PER QUADRANT
+      NQPP24=5
+      INPARM=2
+C
+C INITIALIZE WORK ARRAYS
+      DO 90 I=1,INWFIL
+         WORKNW(I)=0.0
+90       CONTINUE
+C
+      CALL SFQUAD (IRTYPE,LOCX,LOCY,STAID,NQPP24,INPARM,ITYPE,IMTN,
+     *   TEMPFE,ELEV,INWPTR,IERR)
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,430)
+         CALL SULINE (IOSDBG,2)
+         WRITE (IOSDBG,490)
+         CALL SULINE (IOSDBG,2)
+         DO 105 J=1,4
+            DO 100 I=1,NQPP24
+               K=INWPTR(J,I)
+               IF (K.EQ.0) GO TO 100
+                  WRITE (IOSDBG,500) (STIDNW(N,K),N=1,2),
+     *               (CORDNW(N,K),N=1,2),
+     *               PP24NW(K),PPVRNW(K),TA24NW(K),TAINNW(K),TF24NW(K),
+     *               ELEVNW(K),EA24NW(K),PCHRNW(K)
+                  CALL SULINE (IOSDBG,1)
+100         CONTINUE
+105      CONTINUE
+         ENDIF
+C
+C  INITIALIZE POINTERS AND WEIGHTS
+      DO 115 I=1,NQPP24
+         DO 110 J=1,4
+            IPD5PT(I,J)=0
+            STA5WT(I,J)=0.0
+110         CONTINUE
+115      CONTINUE
+C
+C  STORE POINTERS AND WEIGHTS
+      DO 125 I=1,NQPP24
+         DO 120 J=1,4
+            INWLOC=INWPTR(J,I)
+            IF (INWLOC.EQ.0) GO TO 120
+               IPD5PT(I,J)=PP24NW(INWLOC)
+               IF (IPD5PT(I,J).GT.99999) IPD5PT(I,J)=IPD5PT(I,J)-99999
+               STA5WT(I,J)=WORKNW(INWLOC)
+120         CONTINUE
+125      CONTINUE
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+130   IF (INWFLG(2).EQ.0.AND.IALL.EQ.-1.AND.IOPTN.EQ.0) GO TO 210
+C
+      IF (IPTIME.EQ.24) GO TO 210
+C
+C  FIND 3 CLOSEST <24-HR PCPN STATIONS PER QUADRANT
+      NQPPVR=3
+      INPARM=1
+C
+C  INITIALIZE WORK ARRAYS
+      DO 140 I=1,INWFIL
+         WORKNW(I)=0.0
+140      CONTINUE
+C
+      CALL SFQUAD (IRTYPE,LOCX,LOCY,STAID,NQPPVR,INPARM,ITYPE,IMTN,
+     *   TEMPFE,ELEV,INWPTR,IERR)
+C
+C  CHECK IF STATION HAS CHARACTERISTICS
+      IF (IPCHAR.EQ.0) GO TO 170
+C
+C  CHECK IF ANY ESTIMATOR STATIONS DO NOT HAVE CHARACTERISTICS
+      NUM=0
+      DO 160 J=1,4
+         DO 160 I=1,NQPPVR
+            K=INWPTR(J,I)
+            IF (K.EQ.0) GO TO 160
+            IF (PCHRNW(K).GT.0) GO TO 160
+            NUM=NUM+1
+            IF (NUM.GT.1) GO TO 150
+               WRITE (LP,440) STAID
+               CALL SUWRNS (LP,2,-1)
+150         IF (LDEBUG.GT.0) THEN
+               ITM=NUM
+               IPPDB=PPVRNW(K)
+               CALL SUGTID (ITM,'PPVR',IPPDB,ESTID,ESTDSC,'NONE',
+     *            IESTCH,LARRAY,SWORK(1),IERR)
+               WRITE (IOSDBG,450) ESTID
+               CALL SULINE (IOSDBG,1)
+               ENDIF
+160         CONTINUE
+C
+170   IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,480)
+         CALL SULINE (IOSDBG,2)
+         WRITE (IOSDBG,490)
+         CALL SULINE (IOSDBG,2)
+         DO 185 J=1,4
+            DO 180 I=1,NQPPVR
+               K=INWPTR(J,I)
+               IF (K.EQ.0) GO TO 180
+                  WRITE (IOSDBG,500) (STIDNW(N,K),N=1,2),
+     *               (CORDNW(N,K),N=1,2),
+     *               PP24NW(K),PPVRNW(K),TA24NW(K),TAINNW(K),TF24NW(K),
+     *               ELEVNW(K),EA24NW(K),PCHRNW(K)
+                  CALL SULINE (IOSDBG,1)
+180            CONTINUE
+185         CONTINUE
+         ENDIF
+C
+C  INITIALIZE POINTERS AND WEIGHTS
+      DO 195 I=1,NQPPVR
+         DO 190 J=1,4
+            IPD3PT(I,J)=0
+            STA3WT(I,J)=0.0
+190         CONTINUE
+195      CONTINUE
+C
+C  STORE POINTERS AND WEIGHTS
+      DO 205 I=1,NQPPVR
+         DO 200 J=1,4
+            INWLOC=INWPTR(J,I)
+            IF (INWLOC.EQ.0) GO TO 200
+               IPD3PT(I,J)=PPVRNW(INWLOC)
+               STA3WT(I,J)=WORKNW(INWLOC)
+200         CONTINUE
+205      CONTINUE
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  UPDATE PARAMETERS
+210   IPNTWK=2
+      IF (IPTIME.LT.24) IPNTWK=3
+      UNSD=-999.
+      WDISP='OLD'
+      NSPACE=0
+      IWRITE=1
+      INCLUDE 'scommon/callswpcpn'
+      IF (IERR.GT.0) GO TO 270
+C
+C  CHECK IF LOCATION OF STATION IN NTWK COMMON BLOCK FOUND
+      IF (IPOS.EQ.0) GO TO 220
+C
+C  UPDATE NETWORK INDICATOR IN NTWK COMMON BLOCK
+      ITNTWK=SFLGNW(IPOS)-SFLGNW(IPOS)/10*10
+      SFLGNW(IPOS)=IPNTWK*10+ITNTWK
+C
+220   IF (LDEBUG.GT.0) THEN
+C     READ PARAMETERS
+         INCLUDE 'scommon/callsrpcpn'
+         IF (IERR.GT.0) GO TO 270
+C     PRINT PARAMETERS
+         INCLUDE 'scommon/callsppcpn'
+         ENDIF
+C
+      IF (INWFLG(1).EQ.0.AND.IALL.EQ.-1.AND.IOPTN.EQ.0) GO TO 260
+C
+C  CHECK IF SIGNIFICANCE WEIGHTS USED
+      IF (IPTWGT.GT.0) GO TO 260
+C
+C  ENQ PREPROCESSOR DATA BASE
+      IF (IPDENQ.EQ.0) THEN
+         CALL PDENDQ ('ENQ',IERR)
+         IF (IERR.EQ.0) THEN
+            CALL SULINE (LP,1)
+            IPDENQ=1
+            ELSE
+               WRITE (LP,460)
+               CALL SUERRS (LP,2,-1)
+               ISTAT=1
+               GO TO 300
+            ENDIF
+         ENDIF
+C
+C  OPEN PREPROCESSOR DATA BASE
+      CALL SUDOPN (1,'PPD ',IERR)
+      IF (IERR.GT.0) GO TO 270
+C
+C  CHECK IF MORE THAN ONE STATION AT SAME LOCATION
+      IND=0
+      IPP24=PP24NW(IPOS)
+      IPP24=IABS(IPP24)
+      IF (IPP24.GT.99999) IPP24=IPP24-99999
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,470) IPOS,PP24NW(IPOS),IPP24
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      CALL WPDPCN (IPP24,IND,IERR)
+230   IF (IERR.GT.0) THEN
+         IF (IERR.EQ.1) THEN
+            WRITE (LP,510) IPP24,(STIDNW(N,IPOS),N=1,2)
+            CALL SUERRS (LP,2,-1)
+            ENDIF
+         IF (IERR.EQ.2) THEN
+            WRITE (LP,520) IPP24,STAID
+            CALL SUERRS (LP,2,-1)
+            ENDIF
+         IF (IERR.EQ.3) THEN
+            WRITE (LP,530) IPP24,STAID
+            CALL SUERRS (LP,2,-1)
+            ENDIF
+         IF (IERR.EQ.4) THEN
+            WRITE (LP,540) IND,STAID
+            CALL SUERRS (LP,2,-1)
+            ENDIF
+         IF (IERR.EQ.5) THEN
+            WRITE (LP,550) STAID
+            CALL SUERRS (LP,2,-1)
+            ENDIF
+         IF (IERR.LT.1.OR.IERR.GT.5) THEN
+            WRITE (LP,560) STAID,IERR
+            CALL SUERRS (LP,2,-1)
+            ENDIF
+         GO TO 270
+         ENDIF
+      CALL SUDWRT (1,'PPD ',IERR)
+C
+C  SET INDICATOR FOR FOR OTHER STATIONS AT SAME LOCATION
+      DO 250 I=1,NQPP24
+         DO 240 J=1,4
+            IF (IPD5PT(I,J).EQ.0) GO TO 240
+               IF (STA5WT(I,J).NE.10000.) GO TO 240
+                  IND=1
+                  CALL WPDPCN (IPP24,IND,IERR)
+                  IF (IERR.GT.0) GO TO 230
+                  GO TO 260
+240         CONTINUE
+250      CONTINUE
+C
+260   NSTA=NSTA+1
+C
+C  CHECK IF LAST PARAMETER ARRAY PROCESSED
+270   IF (IPTRN1.EQ.0) GO TO 290
+         IPTR=IPTRN1
+         GO TO 10
+C
+280   ISTAT=1
+C
+290   WRITE (LP,570) NSTA
+      CALL SULINE (LP,2)
+C
+C  DEQ PREPROCESSOR DATA BASE
+300   IF (IPDENQ.EQ.1) THEN
+         WRITE (LP,*) ' '
+         CALL SULINE (LP,1)
+         CALL PDENDQ ('DEQ',IERR)
+         IF (IERR.EQ.0) CALL SULINE (LP,1)
+         ENDIF
+C
+      IF (LTRACE.GT.0) THEN
+         WRITE (IOSDBG,580) ISTAT
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+310   FORMAT (' *** ENTER SNPCPN')
+320   FORMAT (' ')
+330   FORMAT ('0*--> FIND 5 CLOSEST 24-HR AND 3 CLOSEST <24-HR PCPN ',
+     *   'STATIONS PER QUADRANT AND CHECK SIGNIFICANCE IDENTIFIERS.')
+340   FORMAT ('0*--> FIND 5 CLOSEST 24-HR PCPN ',
+     *   'STATIONS PER QUADRANT AND CHECK SIGNIFICANCE IDENTIFIERS.')
+350   FORMAT ('0*--> FIND 3 CLOSEST <24-HR PCPN ',
+     *   'STATIONS PER QUADRANT AND CHECK SIGNIFICANCE IDENTIFIERS.')
+360   FORMAT (' STATION ',A,' HAS SIGNIFICANCE WEIGHTS DEFINED')
+370   FORMAT (' STAID=',A,3X,'IPOS=',I5,3X,'PP24NW(IPOS)=',I5)
+380   FORMAT ('0*** WARNING - PP24 POINTER FOR STATION ',A,' ',
+     *   'IS ZERO. PCPN PARAMETERS EXIST BUT STATION GENL ',
+     *   'PARAMETERS')
+390   FORMAT (T16,'DO NOT CONTAIN PCPN AS A DATA GROUP.')
+400   FORMAT ('0*** ERROR - IN SNPCPN - UNSUCCESSFUL CALL TO SRPCPN : ',
+     *   'STATUS CODE=',I2)
+410   FORMAT ('0*** ERROR - SIGNIFICANCE STATION ',A,' SPECIFIED ',
+     *   'FOR STATION ',A,' IS NOT DEFINED.')
+420   FORMAT ('0*** NOTE - STATION ',A,' NOT FOUND IN NETWORK ',
+     *   'COMMON BLOCK. STATION MAY BE INCOMPLETE.')
+430   FORMAT ('0CONTENTS OF NETWORK ARRAYS FOR 5 CLOSEST 24-HR PCPN ',
+     *   'STATIONS PER QUADRANT')
+440   FORMAT ('0*** WARNING - STATION ',A,' HAS CHARACTERISTICS ',
+     *   'BUT ONE OR MORE ESTIMATOR STATION DOES NOT.')
+450   FORMAT (T16,'ESTIMATOR STATION = ',A,
+     *   ' DOES NOT HAVE CHARACTERISTICS.')
+460   FORMAT ('0*** ERROR - IN SNPCPN - ENQUING PREPROCESSOR DATA ',
+     *   'BASE.')
+470   FORMAT (' IPOS=',I4,3X,'PP24NW(IPOS)=',I5,3X,'IPP24=',I4)
+480   FORMAT ('0CONTENTS OF NETWORK ARRAYS FOR 3 CLOSEST <24-HR PCPN ',
+     *   'STATIONS PER QUADRANT')
+490   FORMAT ('0',T5,'STIDNW  ',4X,'CORDNW',12X,
+     *   'PP24NW',3X,'PPVRNW',3X,
+     *   'TA24NW',3X,'TAINNW',3X,'TF24NW',3X,'ELEVNW',3X,
+     *   'EA24NW',3X,'PCHRNW')
+500   FORMAT (T5,2A4,10(3X,I6))
+510   FORMAT ('0*** ERROR - IN WPDPCN - PP24 POINTER (',I5,
+     *   ') FOR STATION ',A,' IS OUT OF RANGE OF MAXIMUM ',
+     *   'STATIONS.')
+520   FORMAT ('0*** ERROR - IN WPDPCN - PP24 POINTER (',I5,
+     *   ') FOR STATION ',A,' IS NOT A BEGINNING ARRAY LOCATION.')
+530   FORMAT ('0*** ERROR - IN WPDPCN - PP24 POINTER (',I5,
+     *   ') FOR STATION ',A,' SPECIFIES AN UNDEFINED STATION.')
+540   FORMAT ('0*** ERROR - IN WPDPCN - INDICATOR (',I5,') FOR ',
+     *   ' STATION ',A,' IS INVALID.')
+550   FORMAT ('0*** ERROR - IN WPDPCN - DAIO ERROR ACCESSING PPDB ',
+     *   'FOR STATION ',A,' (PP24 POINTER=',I4,').')
+560   FORMAT ('0*** ERROR - IN WPDPCN - STATUS CODE NOT RECOGNIZED ',
+     *   'FOR STATION ',A,' : ',I5)
+570   FORMAT ('0*** NOTE - ',I4,' STATIONS WITH PCPN PARAMETERS ',
+     *   'SUCCESSFULLY PROCESSED.')
+580   FORMAT (' *** EXIT SNPCPN : STATUS CODE=',I2)
+C
+      END

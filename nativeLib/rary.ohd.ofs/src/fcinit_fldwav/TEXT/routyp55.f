@@ -1,0 +1,142 @@
+      SUBROUTINE ROUTYP55(NBT,NP,NGAGE,NGS,KRCHT,LROUT,KRTYP,KRT1,
+     * KRTN,MIXF,KEXP,K1,K4,K5,K13)
+C
+C  KRCHT, KRCH  AND KRTYP
+C      =0, IMPLICIT DYNAMIC ROUTING
+C      =1, IMPLICIT (DIFFUSION)
+C      =2, MUSKINGUM-CUNGE ROUTING (LINEAR)?
+C      =3, MUSKINGUM-CUNGE ROUTING (NONLINEAR)?
+C      =4, LEVEL POOL ROUTING
+C      =5, EXPLICIT DYNAMIC ROUTING (UPWIND)
+C
+C  LROUT, KRT1, KRTN FOR DIFFERENT USE WHEN CALIBRATION IS ON
+
+      COMMON/M155/NU,JN,JJ,KIT,G,DT,TT,TIMF,F1
+      COMMON/FDBUG/IODBUG,ITRACE,IDBALL,NDEBUG,IDEBUG(20)
+      COMMON/IONUM/IN,IPR,IPU
+      DIMENSION NBT(K1),NGS(K4,K1),KRCHT(K13,K1),NGAGE(K1),MIXF(K1)
+      DIMENSION LROUT(K1),KRTYP(K5,K1),KRT1(K5,K1),KRTN(K5,K1)
+
+      CHARACTER*8 SNAME
+CC
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_fldwav/RCS/routyp55.f,v $
+     . $',                                                             '
+     .$Id: routyp55.f,v 1.2 2004/02/02 20:41:40 jgofus Exp $
+     . $' /
+C    ===================================================================
+C
+      DATA SNAME/'ROUTY55 '/
+
+      CALL FPRBUG(SNAME, 1, 55, IBUG)
+
+      KEXP=0
+      IF(NP.GE.0.AND.IBUG.EQ.1) WRITE(IODBUG,4095)
+ 4095 FORMAT(1X,'METHOD OF ROUTING FOR THIS RIVER SYSTEM:')
+      DO 200 J=1,JN
+      IF(NP.LE.-1) GO TO 100
+      NM=NBT(J)-1
+      LR=1
+      KRT1(1,J)=1
+      KRTN(1,J)=NBT(J)
+      KRTYP(1,J)=KRCHT(1,J)
+      IF(KRTYP(1,J).EQ.6) KRTYP(1,J)=0
+      KR1=KRCHT(1,J)
+      KR2=KRCHT(2,J)
+
+      MIX=MIXF(J)
+      IF(KR1.GE.10.AND.MIX.EQ.1) THEN
+        LROUT(J)=2
+        KRTYP(1,J)=4
+        KRTYP(2,J)=0
+        KRT1(1,J)=1
+        KRTN(1,J)=2
+        KRT1(2,J)=2
+        KRTN(2,J)=NBT(J)
+        GOTO 150
+      ENDIF
+      IF(KR1.GE.10.AND.KR2.EQ.0) KRTYP(1,J)=0
+      IF(KR1.GE.10.AND.KR2.EQ.1) KRTYP(1,J)=1
+      IF(KR1.GE.10.AND.KR2.EQ.6) KRTYP(1,J)=0
+      IF(KRTYP(1,J).GE.10.AND.NM.EQ.1) KRTYP(1,J)=4
+      IF(NM.EQ.1) GOTO 53
+      IF(KRCHT(2,J).GE.5.AND.KRCHT(1,J).GE.10) KRTYP(1,J)=4
+      DO 50 I=2,NM
+      KRT=KRCHT(I,J)
+      IF(KRT.EQ.6) KRT=0
+      IF(KRT.GE.10) GOTO 50
+      IF(KRT.EQ.KRTYP(LR,J)) GOTO 50
+        KRTN(LR,J)=I
+        LR=LR+1
+        KRT1(LR,J)=I
+        KRTYP(LR,J)=KRT
+   50 CONTINUE
+
+      KRTN(LR,J)=NBT(J)
+C    LPI/SUB ROUTING MIXED FOR MIXF(J)=5
+   53 IF(MIX.NE.5) GOTO 150
+      DO 60 K=1,LROUT(J)
+        KRT=KRTYP(K,J)
+        IF(KRT.NE.0) GOTO 60
+        LPI=0
+        DO 55 I=KRT1(K,J),KRTN(K,J)-1
+          IF(KRCHT(I,J).EQ.6) LPI=1
+   55   CONTINUE
+        IF(LPI.EQ.0) THEN
+          DO 57 I=KRT1(K,J),KRTN(K,J)-1
+            IF(KRCHT(I,J).EQ.0) KRCHT(I,J)=6
+   57     CONTINUE
+        ENDIF
+   60 CONTINUE
+      GO TO 150
+
+C--------  FOLLOWING IS FOR CALIBRATION USE (DYNAMIC ONLY)   -----------
+  100    IF(NGAGE(J).LE.1) THEN
+         LROUT(J)=1
+         KRT1(1,J)=1
+         KRTN(1,J)=NBT(J)
+         KRTYP(1,J)=0
+         ELSE
+      LROUT(J)=NGAGE(J)-1
+      DO 110 LL=1,LROUT(J)
+      KRTYP(LL,J)=0
+      KRT1(LL,J)=NGS(LL,J)
+      KRTN(LL,J)=NGS(LL+1,J)
+  110 CONTINUE
+      ENDIF
+C-----------------------------------------------------------------------
+  150 CONTINUE
+      IF(IBUG.EQ.0) GOTO 200
+      WRITE(IODBUG,4097) J
+      DO 160 L=1,LROUT(J)
+        KK=KRTYP(L,J)
+        IF(KK.EQ.0) WRITE(IODBUG,700) L,KRTYP(L,J),KRT1(L,J),KRTN(L,J)
+        IF(KK.EQ.1) WRITE(IODBUG,701) L,KRTYP(L,J),KRT1(L,J),KRTN(L,J)
+        IF(KK.EQ.2) WRITE(IODBUG,702) L,KRTYP(L,J),KRT1(L,J),KRTN(L,J)
+        IF(KK.EQ.3) WRITE(IODBUG,703) L,KRTYP(L,J),KRT1(L,J),KRTN(L,J)
+        IF(KK.EQ.4) WRITE(IODBUG,704) L,KRTYP(L,J),KRT1(L,J),KRTN(L,J)
+        IF(KK.EQ.5) WRITE(IODBUG,705) L,KRTYP(L,J),KRT1(L,J),KRTN(L,J)
+        IF(KK.EQ.5) KEXP=1
+  160 CONTINUE
+  200 CONTINUE
+
+
+ 700  FORMAT(4X,2HL=,I2,5X,'KRTYP=',I2,5X,'KRT1= ',I3,3X,'KRTN= ',I3,3X,
+     .24HIMPLICIT DYNAMIC ROUTING)
+ 701  FORMAT(4X,2HL=,I2,5X,'KRTYP=',I2,5X,'KRT1= ',I3,3X,'KRTN= ',I3,3X,
+     .26HIMPLICIT DIFFUSION ROUTING)
+ 702  FORMAT(4X,2HL=,I2,5X,'KRTYP=',I2,5X,'KRT1= ',I3,3X,'KRTN= ',I3,3X,
+     .30HMUSKINGUM-CUNGE ROUTING LINEAR)
+ 703  FORMAT(4X,2HL=,I2,5X,'KRTYP=',I2,5X,'KRT1= ',I3,3X,'KRTN= ',I3,3X,
+     .33HMUSKINGUM-CUNGE ROUTING NONLINEAR)
+ 704  FORMAT(4X,2HL=,I2,5X,'KRTYP=',I2,5X,'KRT1= ',I3,3X,'KRTN= ',I3,3X,
+     .18HLEVEL POOL ROUTING)
+ 705  FORMAT(4X,2HL=,I2,5X,'KRTYP=',I2,5X,'KRT1= ',I3,3X,'KRTN= ',I3,3X,
+     .24HEXPLICIT DYNAMIC ROUTING)
+
+ 4097 FORMAT(/5X,'RIVER NO.',I3)
+ 5000 FORMAT(1X,'** EXIT ROUTYP **')
+      RETURN
+      END

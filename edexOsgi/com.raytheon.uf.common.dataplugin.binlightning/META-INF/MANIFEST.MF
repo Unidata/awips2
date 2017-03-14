@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Binlightning Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.binlightning
+Bundle-Version: 1.15.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: com.raytheon.uf.common.dataplugin.binlightning,
+ com.raytheon.uf.common.dataplugin.binlightning.dataaccess,
+ com.raytheon.uf.common.dataplugin.binlightning.impl
+Require-Bundle: com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.datastorage,
+ com.raytheon.uf.common.dataaccess;bundle-version="1.0.0",
+ javax.measure;bundle-version="1.0.0"
+Import-Package: com.raytheon.uf.common.dataquery.requests,
+ com.raytheon.uf.common.dataquery.responses,
+ com.raytheon.uf.common.status

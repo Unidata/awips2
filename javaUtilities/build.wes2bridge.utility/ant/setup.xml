@@ -1,0 +1,50 @@
+<project basedir=".">
+	<taskdef resource="net/sf/antcontrib/antlib.xml" 
+		classpath="${basedir}/../build.wes2bridge.utility/lib/ant/ant-contrib-1.0b3.jar" />
+	
+	<!-- The directory that the jar file will be placed in when it is finished. -->
+	<property name="destination.directory" value="" />
+	<!-- The location of uframe-eclipse. -->
+	<property name="eclipse.directory" value="" />
+	<!-- The location of the awips2 baseline. -->
+	<property name="baseline.dir" value="" />
+	
+	<!-- Verify the destination directory has been provided. -->
+	<if>
+		<equals arg1="${destination.directory}" arg2="" />
+		<then>
+			<fail message="Error: a destination directory has not been specified." />
+		</then>
+	</if>
+	<!-- Verify the an eclipse directory has been provided. -->
+	<if>
+		<equals arg1="${eclipse.directory}" arg2="" />
+		<then>
+			<fail message="Error: an eclipse directory has not been specified." />
+		</then>
+	</if>
+	<!-- Verify the awips2 baseline directory has been provided. -->
+	<if>
+		<equals arg1="${baseline.dir}" arg2="" />
+		<then>
+			<fail message="Error: a awips2 baseline directory has not been specified." />
+		</then>
+	</if>
+	
+	<target name="extract_eclipse_jar_in_jar">
+		<mkdir dir="${baseline.dir}/${project.name}/lib" />
+		<unzip
+			dest="${baseline.dir}/${project.name}/lib" 
+			overwrite="true">
+			
+			<fileset dir="${eclipse.directory}/plugins">
+				<include name="org.eclipse.jdt.ui_*.jar" />
+			</fileset>
+			
+        	<patternset>
+        		<include name="jar-in-jar-loader.zip" />
+        	</patternset>			
+			
+		</unzip>
+	</target>
+</project>

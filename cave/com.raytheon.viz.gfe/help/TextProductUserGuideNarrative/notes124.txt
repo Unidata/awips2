@@ -1,0 +1,2 @@
+All the phraseMethods to this point can be executed immediately.  The "combineWords" method, however, must wait until all sub-phrase "words" have been set before it can successfully complete.  So it first makes this check.  If any sub-phrase is missing a "words" attribute, it returns immediately knowing it will be called again on the next pass through the tree.  We say that the Trigger Condition for this method is that all sub-phrases have the "words" attribute set.  
+

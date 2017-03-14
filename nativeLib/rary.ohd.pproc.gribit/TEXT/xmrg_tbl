@@ -1,0 +1,10 @@
+      character*8 xmproc
+      character*5 gribpm
+      character*6 xwmo,qpfwmo
+      integer xmodlid,xngrid,xtunit,xnturef,xntufc,xtrang,
+     +        xwidth,xbinf,xdec,xpkflg
+      common /xmrg_tbl/ mproc,xmproc(30),gribpm(30),
+     +                  xwmo(30),qpfwmo(12),xmodlid(30),xngrid(30),
+     +                  xtunit(30),xnturef(30),xntufc(30),
+     +                  xtrang(30),xwidth(30),xbinf(30),xdec(30),
+     +                  xpkflg(30)

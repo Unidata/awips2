@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-31smp i686) [Netscape]">
+  <meta name="Author" content="Mark Mathewson">
+  <title>localVTECPartners.py</title>
+</head>
+<body style="background-color: rgb(255, 255, 255);">
+<h1 class="3Heading">localVTECPartners.py</h1>
+<div class="3Heading">December 30, 2011<br>
+</div>
+<br>
+<h2><a name="TableofContents"></a>Organization</h2>
+<a href="#Overview">Overview</a>
+<br>
+<a href="#Format">Format</a><br>
+<a href="#ModificationTechnique">Modification Technique</a><br>
+<br>
+<hr width="100%">
+<h2 class="3Heading"><a name="Overview"></a>Overview</h2>
+The localVTECPartners.py file is the site-level override for the VTEC
+active table coordination.&nbsp; This file overrides one or multiple
+entries in the <a href="VTECPartners.html">VTECPartners.py</a> file.<br>
+<ul>
+</ul>
+<br>
+<hr style="width: 100%; height: 2px;">
+<h2><a name="Format"></a>Format <br>
+</h2>
+The localVTECPartners file starts with the two import statements:<br>
+<br>
+<span style="font-family: monospace; font-weight: bold;">import
+VTECPartners</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">from
+VTECPartners import *</span><br>
+<br>
+Modifications to individual entries are made by repeating the variable
+name and providing a new definition.&nbsp; For example, to
+change the VTEC_MERGE_SITES, the user would add a line similar to the
+following:<br>
+<br>
+<span style="font-family: monospace; font-weight: bold;">VTEC_MERGE_SITES
+= ['BOU', 'PUB', 'GJT']</span><br style="font-weight: bold;">
+<br>
+<br>
+<big><big><big><span style="font-weight: bold; color: rgb(255, 0, 0);"></span></big></big></big><br>
+<hr style="width: 100%; height: 2px;">
+<h2><a name="ModificationTechnique"></a>Modification Technique</h2>
+The modification technique requires the user to create a
+localVTECPartners.py file in the etc/SITE directory and then override
+just those elements required.&nbsp; The localVTECPartners.py file must
+have the two import statements in the file.&nbsp;
+For example, to override the coordination interval, called
+VTEC_REMOTE_TABLE_FETCH_TIME, to one hour, the localVTECPartners.py
+file would contain:<br>
+<br>
+<span style="font-family: monospace; font-weight: bold;">import
+VTECPartners</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">from
+VTECPartners import *</span><br
+ style="font-family: monospace; font-weight: bold;">
+<span style="font-family: monospace; font-weight: bold;">VTEC_REMOTE_TABLE_FETCH_TIME
+= 3600&nbsp; #in seconds</span><br style="font-family: monospace;">
+<br>
+<big><big><big><span style="font-weight: bold; color: rgb(255, 0, 0);"></span></big></big></big>
+<hr style="width: 100%; height: 2px;"><br>
+<div class="Body"><a href="#Overview">Back To Top</a>
+<br>
+<a href="GFESuite.html#TableOfContents">Back To TOC</a></div>
+</body>
+</html>

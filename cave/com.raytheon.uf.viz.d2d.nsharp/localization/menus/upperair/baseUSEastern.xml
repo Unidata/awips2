@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Albany, NY (KALY)" id="raobAlbany_NY"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="72518"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Phillips AAF, Aberdeen, MD (KAPG)" id="raobAberdeen_MD"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="74002"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Gaylord, MI (KAPX)" id="raobGaylord_MI"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="72634"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Birmingham, AL (KBMX)" id="raobBirmingham_AL"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="72230"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Buffalo, NY (KBUF)" id="raobBuffalo_NY"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="72528"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Caribou, ME (KCAR)" id="raobCaribou_ME"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="72712"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Chatham, MA (KCHH)" id="raobChatham_MA"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="74494"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Charleston, SC (KCHS)" id="raobCharleston_SC"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="72208"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Detroit, MI (KDTX)" id="raobDetroit_MI"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="72632"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Key West, FL (KKEY)" id="raobKeyWest_FL"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="72201"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Atlanta, GA (KFFC)" id="raobAtlanta_GA"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="72215"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Greensboro, NC (KGSO)" id="raobGreensboro_NC"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="72317"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Portland, ME (KGYX)" id="raobPortland_ME"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="74389"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Cincinnati, OH (KILN)" id="raobCincinnati_OH"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="72426"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Jackson, MS (KJAN)" id="raobJackson_MS"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="72235"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Jacksonville, FL (KJAX)" id="raobJacksonville_FL"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="72206"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Lake Charles, LA (KLCH)" id="raobLakeCharles_LA"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="72240"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="New Orleans, LA (KLIX)" id="raobNewOrleans_LA"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="72233"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Wash-Dulles, VA (KIAD)" id="raobWash-Dulles"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="72403"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Miami, FL (KMFL)" id="raobMiami_FL"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="72202"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Morehead City, NC (KMHX)" id="raobMoreheadCity_NC"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="72305"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Nashville, TN (KOHX)" id="raobNashville_TN"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="72327"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Upton, NY (KOKX)" id="raobUpton_NY"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="72501"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Pittsburgh, PA (KPBZ)" id="raobPittsburgh_PA"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="72520"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Roanoke, VA (KRNK)" id="raobRoanoke_VA"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="72318"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Shreveport, LA (KSHV)" id="raobShreveport_LA"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="72248"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Tallahassee, FL (KTAE)" id="raobTallahassee_FL"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="72214"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Tampa Bay, FL (KTBW)" id="raobTampaBay_FL"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="72210"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Valparaiso/Eglin, FL (KVPS)" id="raobValparaiso_FL"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="72221"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Wallops Island, VA (KWAL)" id="raobWallopsIsland_VA"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="72402"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Cape Canaveral, FL (KXMR)" id="raobCapeCanaveral_FL"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="74794"/>
+	    </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+                    menuText="Redstone Arsenal, AL (74001)" id="raobRedstoneArsenal_AL"
+                    editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+            <substitute key="stationId" value="74001"/>
+        </contribute>
+</menuTemplate>

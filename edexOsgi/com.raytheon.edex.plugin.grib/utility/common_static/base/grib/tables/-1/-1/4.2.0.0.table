@@ -1,0 +1,22 @@
+# Product Discipline 0: Meteorological products, Parameter Category 0: Temperature
+0:0:Temperature:K:TMP:T
+1:1:Virtual temperature:K:VTMP
+2:2:Potential temperature:K:POT:PoT
+3:3:Pseudo-adiabatic potential temperature or equivalent potential temperature:K:EPOT
+4:4:Maximum temperature:K:TMAX:MxT
+5:5:Minimum temperature:K:TMIN:MnT
+6:6:Dew point temperature:K:DPT:DpT
+7:7:Dew point depression or deficit:K:DEPR:DpD
+8:8:Lapse rate:K/m:LAPR
+9:9:Temperature anomaly:K:TMPA:Ta
+10:10:Latent heat net flux:W/m^2:LHTFL:LHF
+11:11:Sensible heat net flux:W/m^2:SHTFL:SHF
+12:12:Heat index:K:HTX:HIdx
+13:13:Wind chill factor:K:WCI
+14:14:Minimum dew point depression:K:DEPMN
+15:15:Virtual potential temperature:K:VPTMP:VPT
+16:16:Snow phase change heat flux:W/m^2:SNOHF
+17:17:Skin Temperature:K:SKTMP
+21:21:Apparent Temperature:K:APTMP
+#18-191 Reserved
+255:255:Missing

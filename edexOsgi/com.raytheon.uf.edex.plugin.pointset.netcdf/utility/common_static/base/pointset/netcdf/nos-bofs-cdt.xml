@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<pointSetProductDescriptions>
+
+  <default>
+    <matches>
+      <match pattern="^nos\.[cdt]bofs\.fields\.[nf].*">
+        <filename />
+      </match>
+    </matches>
+
+    <triangulation type="delauney" />
+
+    <level>
+      <masterLevel>
+        <value value="SCOORD" />
+      </masterLevel>
+      <levelOneValue>
+        <variable name="s_rho" />
+      </levelOneValue>
+    </level>
+  </default>
+
+  <!-- Temperature -->
+  <description>
+    <data>
+        <variable name="temp" />
+        <discreteMask name="mask_rho" value="0" keep="false">
+          <fillFloat>NaN</fillFloat>
+        </discreteMask>
+    </data>
+
+    <parameter>
+        <abbreviation>
+            <value value="WTMP" />
+        </abbreviation>
+        <units>
+            <value value="c" />
+        </units>
+    </parameter>
+  </description>
+
+  <!-- Salinity -->
+  <description>
+    <data>
+        <variable name="salt" />
+        <discreteMask name="mask_rho" value="0" keep="false">
+          <fillFloat>NaN</fillFloat>
+        </discreteMask>
+    </data>
+
+    <parameter>
+        <abbreviation>
+            <value value="SALIN" />
+        </abbreviation>
+        <units>
+            <value value="PSU" />
+        </units>
+    </parameter>
+  </description>
+
+  <!-- Current speed in u-direction -->
+  <description>
+    <data>
+        <variable name="u" />
+        <discreteMask name="mask_u" value="0" keep="false">
+          <fillFloat>NaN</fillFloat>
+        </discreteMask>
+    </data>
+
+    <parameter>
+        <abbreviation>
+            <value value="UOGRD" />
+        </abbreviation>
+        <units>
+            <value value="m/s" />
+        </units>
+    </parameter>
+  </description>
+
+  <!-- Current speed in v-direction -->
+  <description>
+    <data>
+        <variable name="v" />
+        <discreteMask name="mask_v" value="0" keep="false">
+          <fillFloat>NaN</fillFloat>
+        </discreteMask>
+    </data>
+
+    <parameter>
+        <abbreviation>
+            <value value="VOGRD" />
+        </abbreviation>
+        <units>
+            <value value="m/s" />
+        </units>
+    </parameter>
+  </description>
+
+  <!-- Free-Surface -->
+  <description>
+    <data>
+        <variable name="zeta" />
+        <discreteMask name="mask_rho" value="0" keep="false">
+          <fillFloat>NaN</fillFloat>
+        </discreteMask>
+    </data>
+
+    <parameter>
+        <abbreviation>
+            <value value="DSLM" />
+        </abbreviation>
+        <units>
+            <value value="m" />
+        </units>
+    </parameter>
+
+    <level>
+      <masterLevel>
+        <value value="SFC" />
+      </masterLevel>
+      <levelOneValue>
+        <value value="0.0" />
+      </levelOneValue>
+    </level>
+  </description>
+
+  <!-- FORECAST-specific fields  -->
+  <description>
+    <matches>
+      <match pattern="^nos\.[cdt]bofs\.fields\.f.*">
+        <filename />
+      </match>
+    </matches>
+
+    <dataTime>
+      <formattedRefTime dateFormat="yyyyMMdd HH'Z'">
+        <pattern inputPattern="^nos\.[cdt]bofs\.fields\.[nf]\d{3}\.(\d{8})\.t(\d{2}z).*" outputFormat="%S %S">
+          <filename />
+        </pattern>
+      </formattedRefTime>
+      <epochOffsetValidTime epoch="2009-01-01 00:00:00" units="SECONDS">
+        <variable name="ocean_time" />
+      </epochOffsetValidTime>
+    </dataTime>
+
+    <datasetId>
+      <pattern inputPattern="^([a-zA-Z]+).*" outputFormat="NOS-%S-FORECAST">
+        <attribute name="title" />
+      </pattern>
+    </datasetId>
+  </description>
+
+
+  <!-- NOWCAST-specific fields  -->
+  <description allowRecordOverwrite="true">
+    <matches>
+      <match pattern="^nos\.[cdt]bofs\.fields\.n.*">
+        <filename />
+      </match>
+    </matches>
+
+    <dataTime>
+      <epochOffsetRefTime epoch="2009-01-01 00:00:00" units="SECONDS">
+        <variable name="ocean_time" />
+      </epochOffsetRefTime>
+    </dataTime>
+
+    <datasetId>
+      <pattern inputPattern="^([a-zA-Z]+).*" outputFormat="NOS-%S-NOWCAST">
+        <attribute name="title" />
+      </pattern>
+    </datasetId>
+  </description>
+</pointSetProductDescriptions>

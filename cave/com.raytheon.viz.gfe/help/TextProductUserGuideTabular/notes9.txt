@@ -1,0 +1,2 @@
+Next, we specify the Edit Areas over which the product will run using the "defaultEditAreas" entry which is a list of (edit area name, label) tuples.  If we set "runTimeEditAreas" to "yes", a dialog will appear when the product is run and the user can choose from the set of "defaultEditAreas""  We also specify a label "areaType" for the Edit Area rows.  Next, we specify the time periods over which to run the product.  In this case, it runs over the "Today" selection time range as defined in the GFE.  
+

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+	<!--
+		This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+		pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+		U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+		This_software_product_contains_export-restricted_data_whose
+		export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+		to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+		an_export_license_or_other_authorization.
+
+		Contractor_Name:________Raytheon_Company
+		Contractor_Address:_____6825_Pine_Street,_Suite_340
+		________________________Mail_Stop_B8
+		________________________Omaha,_NE_68106
+		________________________402.291.0100
+
+		See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+		further_licensing_information.
+	-->
+<ghgConfig>
+<!-- 
+          "SHighlight": ("white", "blue"),
+          "MHighlight": ("white", "#00daf0"),
+          "Alert1":     ("blue", "yellow"),
+          "Alert2":     ("white", "red"),
+          "Expired":    ("white", "#a700ef"),
+          "Test":       ("white", "#404040"),
+          "Monitor":    ("black", "gray65"),
+ -->
+	<alertLvl1Colors foregroundRgbAsString="#0000ff"
+		backgroundRgbAsString="#ffff00" />
+	<alertLvl2Colors foregroundRgbAsString="#ffffff"
+		backgroundRgbAsString="#ff0000" />
+	<expiredAlertColors foregroundRgbAsString="#ffffff"
+	 	backgroundRgbAsString="#ab00c9" />
+	<mapSelectionsColors foregroundRgbAsString="#ffffff"
+		backgroundRgbAsString="#00DAF0" />
+	<regularEntriesColors foregroundRgbAsString="#000000"
+		backgroundRgbAsString="#b4b4b4" />
+	<monitorSelectionsColors foregroundRgbAsString="#ffffff"
+		backgroundRgbAsString="#0000ff" />
+	<testProductsColors foregroundRgbAsString="#ffffff"
+		backgroundRgbAsString="#808080" />
+	<currentAlerts>
+		<local>true</local>
+		<test>true</test>
+		<alert1>
+			<type>AlertLvl1</type>
+			<enabled>true</enabled>
+			<banner>true</banner>
+			<time>30</time>
+		</alert1>
+		<alert2>
+			<type>AlertLvl2</type>
+			<enabled>true</enabled>
+			<banner>true</banner>
+			<time>10</time>
+		</alert2>
+		<expired>
+			<type>ExpiredAlert</type>
+			<enabled>true</enabled>
+			<banner>true</banner>
+			<time>0</time>
+		</expired>
+		<actions>NEW</actions>
+		<actions>CON</actions>
+		<actions>EXT</actions>
+		<actions>EXA</actions>
+		<actions>EXB</actions>
+	</currentAlerts>
+	<currentFont>SMALL_FONT</currentFont>
+	<currentFilter>
+		<currentHazards>false</currentHazards>
+		<name>&lt;Default&gt;</name>
+		<combineGeoId>true</combineGeoId>
+		<combineSegments>true</combineSegments>
+		<combinePurgeTimes>true</combinePurgeTimes>
+		<combineActions>true</combineActions>
+		<includeAlerts>true</includeAlerts>
+		<includeMapSelections>true</includeMapSelections>
+		<includePastEvents>false</includePastEvents>
+		<includeOrgPilEvents>false</includeOrgPilEvents>
+		<actions>NEW</actions>
+		<actions>CON</actions>
+		<actions>EXA</actions>
+		<actions>EXB</actions>
+		<actions>EXT</actions>
+	</currentFilter>
+	<visibleColumns>ACTION</visibleColumns>
+	<visibleColumns>ETN</visibleColumns>
+	<visibleColumns>PHEN_SIG</visibleColumns>
+	<visibleColumns>START</visibleColumns>
+	<visibleColumns>END</visibleColumns>
+	<visibleColumns>PURGE</visibleColumns>
+	<visibleColumns>ISSUE_TIME</visibleColumns>
+	<visibleColumns>PIL</visibleColumns>
+	<visibleColumns>WFO</visibleColumns>
+<!-- <visibleColumns>GEO_ID</visibleColumns>-->
+	<sortColumn>PURGE</sortColumn>
+	<descending>false</descending>
+	<identifyTestEvents>true</identifyTestEvents>
+</ghgConfig>

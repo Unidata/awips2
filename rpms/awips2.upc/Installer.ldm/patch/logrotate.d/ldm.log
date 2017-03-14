@@ -1,0 +1,12 @@
+/awips2/ldm/logs/ldmd.log /awips2/ldm/logs/edexBridge.log {
+        missingok
+        compress
+        notifempty
+        daily
+        rotate 5
+        create 0660 root fxalpha
+        postrotate
+        /bin/kill -HUP `cat /var/run/syslogd.pid 2> /dev/null` 2> /dev/null || true
+        endscript
+
+}

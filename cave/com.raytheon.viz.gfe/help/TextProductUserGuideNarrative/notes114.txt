@@ -1,0 +1,2 @@
+"getVectorData" is given a tree, sub-phrase, elementName and access method.  It returns statistics for the sub-phrase according to the access method.  It also returns a text version of the direction value.
+

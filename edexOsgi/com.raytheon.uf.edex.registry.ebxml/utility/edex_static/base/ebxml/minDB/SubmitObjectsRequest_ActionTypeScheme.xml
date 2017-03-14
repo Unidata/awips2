@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Header: /cvsroot/ebxmlrr/omar/misc/samples/minDB/SubmitObjectsRequest_ActionTypeScheme.xml,v 1.9 2007/05/25 17:18:53 farrukh_najmi Exp $-->
+<SubmitObjectsRequest id="urn:oasis:names:tc:ebxml-regrep:request:id" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0" xmlns:lcm="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0" xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:4.0" xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0" xmlns:rs="urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0  ../../xsd/lcm.xsd">
+    <rim:RegistryObjectList>
+        <rim:RegistryObject xsi:type="rim:ClassificationSchemeType" lid="urn:oasis:names:tc:ebxml-regrep:classificationScheme:ActionType" id="urn:oasis:names:tc:ebxml-regrep:classificationScheme:ActionType" isInternal="true" nodeType="urn:oasis:names:tc:ebxml-regrep:NodeType:UniqueCode" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationScheme">
+            <rim:Name>
+                <rim:LocalizedString xml:lang="en-US" value="ActionType"/>
+            </rim:Name>
+            <rim:Description>
+                <rim:LocalizedString xml:lang="en-US" value="Defines canonical action that a regrep server MUST support within its access control and audit trail features."/>
+            </rim:Description>
+
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ActionType:acceptChangeProposal" code="acceptChangeProposal" id="urn:oasis:names:tc:ebxml-regrep:ActionType:acceptChangeProposal" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:ActionType">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Accept Change Proposal"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="Action representing the acceptance of a change proposal by a ChangeProposalReceiver. Signals ChangeProposalReviewers that they need to start detailed review of the change proposal."/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ActionType:addMemberToRegister" code="addMemberToRegister" id="urn:oasis:names:tc:ebxml-regrep:ActionType:addMemberToRegister" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:ActionType">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Add Member To Register"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="Action representing the adding of a new member to a Register."/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ActionType:approve" code="approve" id="urn:oasis:names:tc:ebxml-regrep:ActionType:approve" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:ActionType">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Approve"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="Action representing the approval of a RegistryObject."/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ActionType:create" code="create" id="urn:oasis:names:tc:ebxml-regrep:ActionType:create" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:ActionType">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Create"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="Action representing the creation of a RegistryObject."/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ActionType:delete" code="delete" id="urn:oasis:names:tc:ebxml-regrep:ActionType:delete" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:ActionType">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Delete"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="Action representing the deletion of a RegistryObject."/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ActionType:deprecate" code="deprecate" id="urn:oasis:names:tc:ebxml-regrep:ActionType:deprecate" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:ActionType">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Deprecate"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="Action representing the deprecation of a RegistryObject."/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ActionType:read" code="read" id="urn:oasis:names:tc:ebxml-regrep:ActionType:read" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:ActionType">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Read"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="Action representing the reading of a RegistryObject."/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ActionType:reference" code="reference" id="urn:oasis:names:tc:ebxml-regrep:ActionType:reference" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:ActionType">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Reference"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="Action representing the creation or update of a RegistryObject resulting in a new reference to a RegistryObject."/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ActionType:reject" code="reject" id="urn:oasis:names:tc:ebxml-regrep:ActionType:reject" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:ActionType">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Reject"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="Action representing the rejection of a change proposal by a ChangeProposalReceiver or a ChangeProposalReviewer."/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ActionType:reviewChangeProposal" code="reviewChangeProposal" id="urn:oasis:names:tc:ebxml-regrep:ActionType:reviewChangeProposal" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:ActionType">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Review Change Proposal"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="Action representing the begining of the detailed review of a change proposal by a ChangeProposalReviewer. Signals other ChangeProposalReviewers that some one is already doing detailed review of the change proposal so they need not do the same."/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ActionType:startAcceptanceReview" code="startAcceptanceReview" id="urn:oasis:names:tc:ebxml-regrep:ActionType:startAcceptanceReview" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:ActionType">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Start Acceptance Review"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="Action representing the start of the acceptance review by a ChangeProposalReceiver. Signals other ChangeProposalReceiver that some one is already doing acceptance review of the change proposal so they need not do the same."/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ActionType:startDetailedReview" code="startDetailedReview" id="urn:oasis:names:tc:ebxml-regrep:ActionType:startDetailedReview" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:ActionType">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Start Detailed Review"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="Action representing the start of the acceptance review by a ChangeProposalReceiver. Signals other ChangeProposalReceiver that some one is already doing acceptance review of the change proposal so they need not do the same."/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ActionType:submitChangeProposal" code="submitChangeProposal" id="urn:oasis:names:tc:ebxml-regrep:ActionType:submitChangeProposal" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:ActionType">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Submit Change Proposal"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="Action representing the submission a change proposal by a ChangeProposalSubmitter. Signals ChangeProposalReceivers that they have a change proposal to accept."/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ActionType:update" code="update" id="urn:oasis:names:tc:ebxml-regrep:ActionType:update" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:ActionType">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Update"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="Action representing the update of a RegistryObject."/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ActionType:version" code="version" id="urn:oasis:names:tc:ebxml-regrep:ActionType:version" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:ActionType">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Version"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="Action representing the creation of a new version of a RegistryObject."/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:ActionType:withdrawChangeProposal" code="withdrawChangeProposal" id="urn:oasis:names:tc:ebxml-regrep:ActionType:withdrawChangeProposal" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:ActionType">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Withdraw Change Proposal"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="Action representing the withdrawl a change proposal by a ChangeProposalSubmitter."/>
+                </rim:Description>
+            </rim:ClassificationNode>
+        </rim:RegistryObject>
+    </rim:RegistryObjectList>
+</SubmitObjectsRequest>

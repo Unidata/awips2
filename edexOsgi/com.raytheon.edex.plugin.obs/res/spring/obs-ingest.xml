@@ -1,0 +1,18 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+  
+    <bean id="obsDecoder" class="com.raytheon.edex.plugin.obs.ObsDecoder" />
+
+    <bean id="metarPointData" class="com.raytheon.edex.plugin.obs.metar.MetarPointDataTransform" />
+
+    <bean id="obsSeparator" class="com.raytheon.edex.plugin.obs.metar.MetarSeparator" />
+
+    <bean id="obsDistRegistry" factory-bean="distributionSrv" factory-method="register">
+        <constructor-arg value="obs" />
+        <constructor-arg value="jms-durable:queue:Ingest.obs" />
+        <constructor-arg value="true" /> <!-- require valid distribution file for startup -->
+    </bean>
+
+</beans>

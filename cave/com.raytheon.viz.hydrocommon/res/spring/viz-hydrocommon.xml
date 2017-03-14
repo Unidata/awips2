@@ -1,0 +1,18 @@
+<beans xmlns="http://www.springframework.org/schema/beans"  
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+
+  <!-- Normally cave.sh sets the EDEX_HOME environmental variable so this 
+    is not necessary, this is only a fallback so AppsDefaults can properly initialize 
+    the apps_dir property in viz if EDEX_HOME is not set. This is especially 
+    useful for developers. -->
+    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetClass" value="com.raytheon.uf.common.ohd.AppsDefaults" />
+        <property name="targetMethod" value="setDataDirClass" />
+        <property name="arguments">
+            <value type="java.lang.Class">com.raytheon.uf.viz.core.VizApp</value>
+        </property>
+    </bean>        
+    
+</beans>

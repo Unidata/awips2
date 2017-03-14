@@ -1,0 +1,150 @@
+<?xml version="1.0"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<!-- ================================================================================ -->
+<!-- Deploy script for the GFESuite Command Line Interface Tools.                     -->
+<!-- Usage:                                                                           -->
+<!--    ant -f deploy.xml -Dinstall.dir={path to install} [-Dinstaller=true]          -->
+<!--       [-Dclient.build=true]                                                      -->
+<!-- ================================================================================ -->
+
+<project default="deploy.all" basedir="." >
+	<property environment="user"/>
+	
+    <!-- Set the database host name for the copy filter -->
+	<property name="def.db.host" value="localhost" />
+	<condition property="db.host" value="$requestServerAddress" else="${def.db.host}">
+		<isset property="installer"/>
+	</condition>
+
+	<!-- set the Python home location for the copy filter -->
+	<property name="def.py.home" value="${user.HOME}/awips" />
+	<condition property="py.home" value="$pythonHome" else="${def.py.home}">
+		<isset property="installer"/>
+	</condition>
+	
+	<condition property="deploy.client" value="yes">
+		<istrue value="${client.build}"/>
+	</condition>
+	
+	<condition property="deploy.hti" value="yes">
+			<isfalse value="${client.build}"/>
+	</condition>
+	
+	<condition property="deploy.nwps" value="yes">
+			<isfalse value="${client.build}"/>
+	</condition>
+
+	<condition property="deploy.svcBackup" value="yes">
+		<and>
+			<isfalse value="${client.build}"/>
+			<istrue value="${installer}"/>
+		</and>
+	</condition>
+	
+	<property name="gfe.suite.home" value="${install.dir}" />
+	<property name="gfe.suite.bin" value="${install.dir}/bin" />
+	<property name="gfe.suite.hti" value="${install.dir}/hti" />
+	<property name="gfe.suite.nwps" value="${install.dir}/nwps" />
+
+	<!-- Create the copy filter -->	
+	<!-- filter set -->
+	<filterset id="installer.filter.set">
+		<filter token="EDEX_ADDR" value="${db.host}"/>
+		<filter token="PY_HOME" value="${py.home}" />
+	</filterset>
+	
+	<target name="deploy.all" description="Deploys GFESuite CLI tools to a specific directory">
+		<!-- copy the CLI tools to the deploy directory -->
+		<echo message="Updating ${gfe.suite.bin} with latest GFESuite tools" />
+		<echo message="deploy.client=${deploy.client}" />
+		<mkdir dir="${gfe.suite.bin}"/>
+		<antcall target="-deploy.cli.common"/>
+		<antcall target="-deploy.hti"/>
+		<antcall target="-deploy.nwps"/>
+		<antcall target="-deploy.svcBackup"/>
+		<!-- <antcall target="-deploy.cli.client"/> -->
+		<antcall target="-set.permissions"/>
+	</target>
+	
+	<target name="-deploy.cli.common" 
+		description="Deploys common GFESuite CLI tools to a specific directory">
+		<!-- copy the CLI tools to the deploy directory -->
+		<echo message="Copying in common tools" />
+		<copy todir="${gfe.suite.bin}" overwrite="true">
+			<fileset dir="${basedir}/cli"/>
+			<filterset refid="installer.filter.set"/>
+		</copy>
+		
+		<!-- GFESuite/* will now be common between server and client. -->
+    	<copy todir="${gfe.suite.bin}" overwrite="true">
+    		<fileset dir="${basedir}/../com.raytheon.viz.gfe/GFESuite" />
+    		<filterset refid="installer.filter.set"/>
+    	</copy>
+	</target>
+	
+	<target name="-deploy.hti" if="deploy.hti" 
+		description="Deploys HTI software to a specific directory">
+		<!-- copy the CLI tools to the deploy directory -->
+		<mkdir dir="${gfe.suite.hti}"/>
+		<echo message="Copying in HTI files" />
+		<copy todir="${gfe.suite.hti}" overwrite="true">
+			<fileset dir="${basedir}/hti"/>
+		</copy>
+	</target>
+		
+	<target name="-deploy.nwps" if="deploy.nwps"
+		description="Deploys NWPS software to a specific directory">
+		<!-- copy the CLI tools to the deploy directory -->
+		<mkdir dir="${gfe.suite.nwps}"/>
+		<echo message="Copying in NWPS files" />
+		<copy todir="${gfe.suite.nwps}" overwrite="true">
+			<fileset dir="${basedir}/nwps"/>
+			<filterset refid="installer.filter.set"/>
+		</copy>
+	</target>
+		
+	<target name="-deploy.svcBackup" if="deploy.svcBackup"
+		description="Deploys service backup scripts to a specific directory">
+		<echo message="Copying in service backup scripts" />
+		<copy todir="${gfe.suite.home}" overwrite="true">
+			<fileset dir="${basedir}/../com.raytheon.uf.tools.gfesuite.servicebackup/svcBackup"/>
+			<filterset refid="installer.filter.set"/>
+		</copy>
+		<!-- Create the exportgrids directory. -->
+		<mkdir dir="${gfe.suite.home}/exportgrids" />
+		<echo message="Setting permissions in ${gfe.suite.home}/ServiceBackup/scripts to 'ugo+rx'" />
+		<chmod dir="${gfe.suite.home}/ServiceBackup/scripts" perm="ugo+rx" 
+			includes="**/**" />
+	</target>
+	
+	<target name="-set.permissions" 
+		    description="sets the permissions on the scripts - local install only">
+		<echo message="Setting permissions in ${gfe.suite.bin} to 'ugo+rx'" />
+		<chmod perm="ugo+rx" >
+		        <fileset dir="${gfe.suite.bin}">
+	        		<include name="*"/>
+		        	<include name="*.py"/>
+		        	<include name="*.sh"/>
+	                <exclude name="read.me"/>
+		        </fileset>
+		</chmod>
+	</target>
+</project>

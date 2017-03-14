@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Header: $ -->
+<SubmitObjectsRequest id="urn:oasis:names:tc:ebxml-regrep:request:id" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0" xmlns:lcm="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0" xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:4.0" xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0" xmlns:rs="urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0  ../../xsd/lcm.xsd">
+    <rim:RegistryObjectList>
+        <rim:RegistryObject xsi:type="rim:ClassificationSchemeType" lid="urn:oasis:names:tc:ebxml-regrep:classificationScheme:CollectionType" id="urn:oasis:names:tc:ebxml-regrep:classificationScheme:CollectionType" isInternal="true" nodeType="urn:oasis:names:tc:ebxml-regrep:NodeType:UniqueCode">
+            <rim:Name>
+                <rim:LocalizedString value="CollectionType"/>
+            </rim:Name>
+            <rim:Description>
+                <rim:LocalizedString value="Taxonomy descrbing different types of Collections. An example of use is as domain for collectionType attribute in SlotType."/>
+            </rim:Description>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:CollectionType:List" code="List" id="urn:oasis:names:tc:ebxml-regrep:CollectionType:List">
+                <rim:Name>
+                    <rim:LocalizedString value="List"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString value="An ordered collection. Also known as sequence."/>
+                </rim:Description>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:CollectionType:Set" code="Set" id="urn:oasis:names:tc:ebxml-regrep:CollectionType:Set">
+                <rim:Name>
+                    <rim:LocalizedString value="Set"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString value="A collection that contains no duplicate elements."/>
+                </rim:Description>
+                
+                <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:CollectionType:Set:SortedSet" code="SortedSet" id="urn:oasis:names:tc:ebxml-regrep:CollectionType:Set:SortedSet">
+                    <rim:Name>
+                        <rim:LocalizedString value="SortedSet"/>
+                    </rim:Name>
+                    <rim:Description>
+                        <rim:LocalizedString value="A set that further guarantees that its iterator will traverse the set in ascending element order, sorted according to the natural ordering of its elements."/>
+                    </rim:Description>
+                </rim:ClassificationNode>                
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:CollectionType:Bag" code="Bag" id="urn:oasis:names:tc:ebxml-regrep:CollectionType:Bag">
+                <rim:Name>
+                    <rim:LocalizedString value="Bag"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString value="A collection that may contain duplicate elements."/>
+                </rim:Description>
+            </rim:ClassificationNode>
+        </rim:RegistryObject>
+    </rim:RegistryObjectList>
+</SubmitObjectsRequest>

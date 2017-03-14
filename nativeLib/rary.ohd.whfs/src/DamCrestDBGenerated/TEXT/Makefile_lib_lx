@@ -1,0 +1,51 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the whfs_lib-DamCrestDBGenerated library file
+#
+#  cmt: File made on Wed Aug  6 12:58:55 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/whfs_lib/lib
+
+ARFLAGS  = rv
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU -DUSE_XM_MWMUTIL_H -DUSE_XGPM -Wall -Wno-unused-variable -Wno-comment
+
+INSERTS      = -I/fs/hseb/ob83/ohd/whfs_lib/inc/general  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/dbms  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/gui  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/riverpro  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/pproc_lib/inc
+
+INSERTS_EC   = -I/usr/include/informix/esql/  \
+               -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I../TEXT
+
+IFX_DIR  = /usr/bin/
+
+.SUFFIXES:
+.SUFFIXES:   .pgc .h .o .a
+
+.pgc.a:
+	@echo "-------------------------------- $<"
+	@rm -f $*.c
+	@-$(IFX_DIR)/ecpg -t -c -C INFORMIX -r no_indicator $*.pgc \
+	 && $(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS_EC) $(INSERTS) -c $*.c \
+	     && ar $(ARFLAGS) $@ $*.o \
+	     || echo "e - $*"
+	@rm -f $*.[co]
+	@echo "--------------------------------"
+
+$(LIB)/libDamCrestDBGenerated_t.a:  \
+     $(LIB)/libDamCrestDBGenerated_t.a(DamFeatures.o)  \
+     $(LIB)/libDamCrestDBGenerated_t.a(DamMaster.o)  \
+     $(LIB)/libDamCrestDBGenerated_t.a(DamReservoir.o)  \
+     $(LIB)/libDamCrestDBGenerated_t.a(DownStream.o)  \
+     $(LIB)/libDamCrestDBGenerated_t.a(SDBIn.o)  \
+     $(LIB)/libDamCrestDBGenerated_t.a(SDBOut.o)  \
+     $(LIB)/libDamCrestDBGenerated_t.a(SectionPair.o)
+

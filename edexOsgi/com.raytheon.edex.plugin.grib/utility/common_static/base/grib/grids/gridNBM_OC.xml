@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mercatorGridCoverage>
+    <name>NBM_OC</name>
+    <description> National Blend Grid over Oceanic - (10 km)</description>
+    <la1>-30.4192</la1>
+    <lo1>129.9058</lo1>
+    <firstGridPointCorner>LowerLeft</firstGridPointCorner>
+    <nx>2517</nx>
+    <ny>1817</ny>
+    <dx>10.0</dx>
+    <dy>10.0</dy>
+    <la2>80.39090960754925</la2>
+    <lo2>370.73686840783006</lo2>
+    <latin>20</latin>
+    <spacingUnit>km</spacingUnit>
+    <minorAxis>6371200</minorAxis>
+    <majorAxis>6371200</majorAxis>
+</mercatorGridCoverage>

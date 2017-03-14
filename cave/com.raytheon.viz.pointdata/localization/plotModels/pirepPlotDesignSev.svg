@@ -1,0 +1,155 @@
+<?xml version="1.0"?>
+<svg width="80" height="80" 
+viewBox="0 0 80 80" 
+overflow="visible" 
+xmlns="http://www.w3.org/2000/svg" 
+xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
+   <defs>
+<script type="text/python" plotDelegate="plotDelegate">
+import time
+
+class PirepPlotDelegate(PlotDelegate):
+    def __init__(self):
+        PlotDelegate.__init__(self)
+
+    def getSampleText(self, rec):
+        # use obsText for pirep
+        if rec.isValidParameter("obsText"):
+            return rec.getString("obsText")
+        # rebuild text for airep
+        sampleString = "ARP "
+        sampleString += rec.getString("stationId")
+        sampleString += " "
+        lat = rec.getFloat("latitude")
+        if(lat &lt; 0):
+            sampleString += "%.3fS " % (-1*lat)
+        else:
+            sampleString += "%.3fN " % (lat)
+        lon = rec.getFloat("longitude")
+        if(lon &lt; 0):
+            sampleString += "%.3fW " % (-1*lon)
+        else:
+            sampleString += "%.3fE " % (lon)
+        timeObs = rec.getLong("timeObs")
+        sampleString += time.strftime("%H%M",time.localtime(timeObs/1000))
+        sampleString += " F%d" % (rec.getInt("flightLevel")/100)
+        temp = rec.getFloat("temperature")
+        if temp &lt; -273.15:
+          pass
+        elif temp &lt; 0:
+            sampleString += " M%d" % (int(-1*temp))
+        else:
+            sampleString += " P%d" % (int(temp))
+        windDir = int(rec.getFloat("windDir"))
+        windSpeed = int(rec.getFloat("windSpeed"))
+        if windDir > -1080 or windSpeed > 0:
+            sampleString += " %d/%dKT" % (windDir, windSpeed)
+        
+        try:
+            turbFreq = rec.getString("turbFreq")
+        except ValueError:
+            turbFreq = ""
+        try:
+            turbInten = rec.getString("turbInten")
+        except ValueError:
+            turbInten = ""
+        try:
+            turbType = rec.getString("turbType")
+        except ValueError:
+            turbType = ""
+        if turbFreq != "" or turbInten != "" or turbType != "":
+            sampleString += " TB"
+            if turbFreq != "":
+                sampleString += " "
+                sampleString += turbFreq
+            if turbInten != "":
+                sampleString += " "
+                sampleString += turbInten
+            if turbType != "":
+                sampleString += " "
+                sampleString += turbType
+                
+        try:
+            iceInten = rec.getString("iceInten")
+        except ValueError:
+            iceInten = ""
+        try:
+            iceType = rec.getString("iceType")
+        except ValueError:
+            icetype = ""
+        if iceInten != ""  or iceType != "":
+            sampleString += " IC"
+            if iceInten != "":
+                sampleString += " "
+                sampleString += iceInten
+            if iceType != "":
+                sampleString += " "
+                sampleString += iceType
+        return sampleString
+    
+    def isValid(self, rec):
+        # DCS10257
+        # only show non-severe Turb/Ice data, non-UUA (urgent)
+        if rec.isValidParameter("obsText"):
+            obsText = rec.getString("obsText")
+            if "UUA" in obsText:
+                # urgent message
+                return True
+        if rec.isValidParameter("turbInten"):
+            turbInten = rec.getString("turbInten")
+            if (turbInten == "SEV") or (turbInten == "EXTRM"):
+                # high severity turbulence
+                return True
+        if rec.isValidParameter("iceInten"):
+            iceInten = rec.getString("iceInten")
+            if (iceInten == "SEV") or (iceInten == "EXTRM"):
+                # high severity turbulence, high severity icing
+                return True
+        # low or no severity, non-urgent data
+        return False
+
+plotDelegate = PirepPlotDelegate()
+
+</script>
+<style type="text/css">
+<![CDATA[
+        @font-face { font-family: "WindSymbolFont";
+                src: url(WindSymbols.svg#WindSymbols); }
+        @font-face { font-family: "StandardFont";
+                src: url(Standard.svg#Standard); }
+        @font-face { font-family: "WxSymbolFont";
+                src: url(WxSymbols.svg#WxSymbols); }
+        @font-face { font-family: "SpecialSymbolFont";
+                src: url(SpecialSymbols.svg#SpecialSymbols); }
+        text.barb
+            {
+                fill: none;
+                font-size: 1em;
+                font-size: 1em;
+                font-family: WindSymbolFont;
+            }
+        text.text
+            {
+                fill: none;
+                font-size: 1em;
+                stroke-width: 1px;
+                font-family: StandardFont;
+                font-size: 1em;
+            }
+]]>
+</style>
+<symbol overflow="visible" id="plotData" class="info">
+  <text id="sampleParams1" plotMode="sample" plotParam="obsText,stationId,longitude,latitude,timeObs,flightLevel"> </text> 
+  <text id="sampleParams2" plotMode="sample" plotParam="temperature,windDir,windSpeed,turbInten,turbFreq,turbType,iceInten,iceType"> </text> 
+  <text id="validityParams" plotMode="null" class="text" plotParam="obsText,turbInten,iceInten" x="0" y="0" visibility="hidden">0</text>
+  <text id="fltLvlText" plotMode="text" plotParam="flightLevel" plotFormat="%3.0f" plotUnit="hft" style="text-anchor: start;" x="10px" y="-10px">75</text>
+  <text id="tempText" plotMode="text" plotParam="temperature" plotFormat="%3.0f" style="text-anchor: end;" x="-10px" y="-10px">75</text>
+  <g id="windVaneText" plotMode="barb" plotParam="windSpeed,windDir" plotUnit="kts" x="0" y="0" transform="rotate(0,0,0)">
+    <text id="windVaneText" class="arrow" x="0" y="0">0</text>
+    <text id="windArrowText" class="barb" x="0" y="0">arrow</text>
+  </g>
+</symbol>
+
+</defs>
+<use id="wind" x="40" y="40" width="80" height="80" visibility="visible" xlink:href="#plotData"/>
+</svg>

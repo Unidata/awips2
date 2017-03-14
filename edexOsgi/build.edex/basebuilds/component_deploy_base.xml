@@ -1,0 +1,131 @@
+<!DOCTYPE project [
+<!ENTITY substitute-targets             SYSTEM "../substitute.xml">
+]>
+
+<project name="base.plugin.deploy" default="noaction">
+
+	 <if>
+		<equals arg1="${installer}" arg2="true"/>
+	    <then>
+			<condition property="BIN.DIR"
+	           value="@dot"
+	           else="bin">
+				<available file="${basedir}/@dot"/>
+			</condition>
+	   	</then>
+	   	<else>	
+	   		<property name="BIN.DIR" value="bin"/>
+	 	</else>
+	</if>
+	
+	
+	<property name="SRC.DIR" value="src" />
+	<property name="RES.DIR" value="res" />
+	<property name="UTIL.DIR" value="utility" />
+	
+	<condition property="util.deploy.ready" >
+		<and>
+			<isset property="util.dest.dir" />
+			<available file="${basedir}/${UTIL.DIR}" />
+		</and>
+	</condition>
+
+	<target name="noaction">
+		<echo message="this is a base for other ant files, do not call directly" />
+	</target>
+
+	<target name="deploy" depends="util.deploy,resources.deploy">
+	    <echo message="Basedir: ${basedir}"/>
+	    <echo message="bin dir: ${BIN.DIR}"/>
+
+		<!-- The build files that inherite from this base are designed to be 
+		called from a master build file located in the build.edex directory. 
+		To override and use locally, set the 'dest.dir' property on the command 
+		line -->
+		<basename property="component.name" file="${basedir}"/>
+
+		<fail message="'dest.dir' property not set" unless="dest.dir" />
+
+		<echo message="Jarring ${component.name}" />
+		<echo message="Destination: ${dest.dir}" />
+		
+		<!--replace the version in the manifest file so it includes the timestamp instead of "qualifier" -->
+		<antcall target="update.manifest"/>
+		
+		<mkdir dir="${dest.dir}" />
+		<if>
+			<available file="${basedir}/${BIN.DIR}" type="dir" />
+			<then>
+				<jar destfile="${dest.dir}/${component.name}.jar" manifest="${basedir}/META-INF/MANIFEST.MF">
+					<fileset dir="${basedir}/${BIN.DIR}" includes="**/*.class" />
+					<fileset dir="${basedir}" includes="${RES.DIR}/**/*" />
+					<fileset dir="${basedir}" includes="META-INF/**/*" />
+					<fileset dir="${basedir}" includes="*.py" />
+				</jar>
+			</then>
+			<else>
+				<jar destfile="${dest.dir}/${component.name}.jar" manifest="${basedir}/META-INF/MANIFEST.MF">
+					<fileset dir="${basedir}" includes="${RES.DIR}/**/*" />
+					<fileset dir="${basedir}" includes="META-INF/**/*" />
+					<fileset dir="${basedir}" includes="*.py" />
+				</jar>
+			</else>
+		</if>
+		   	
+	</target>
+	
+	<target name="update.manifest" if="installer">
+	   <tstamp>
+	      <format property="build.time.stamp" pattern="yyyyMMddhhmm"/>
+	   </tstamp>
+
+	   <filterset id="bundle.version.fs" begintoken="Bundle-Version" endtoken="qualifier">
+	      <filter token=": 1.12.1150." value="Bundle-Version: 1.12.1152.${build.time.stamp}"/>
+	   </filterset>
+
+	   <!-- file names to use for the substitution -->
+	   <property name="src.manifest.file" value="${basedir}/META-INF/MANIFEST.MF"/>
+	   <property name="tmp.manifest.file" value="${basedir}/META-INF/MANIFEST.MF-TMP"/>
+
+	   <!-- move the file to make the substitution -->
+	   <move file="${src.manifest.file}" tofile="${tmp.manifest.file}" overwrite="true">
+	      <filterset refid="bundle.version.fs"/>
+	   </move>
+
+	   <!-- move it back -->
+	   <move file="${tmp.manifest.file}" tofile="${src.manifest.file}" overwrite="true"/>
+
+	   <!-- delete the temporaty file -->
+	   <delete file="${tmp.manifest.file}"/>
+	</target>
+	
+	<!-- inport a utility substitution configuration if one exists -->
+	<import file="${basedir}/component-substitute.xml" optional="true"/>
+	<target name="utility-substitute" if="enable-component-substitute">
+		<antcall target="component-substitute.utility-substitute"></antcall>
+	</target>
+	
+	<target name="util.deploy" if="util.deploy.ready" description="Deploys the component's Utility Service Configurations">
+		<echo message="deploying utility files to ${util.dest.dir}" />
+		<copy todir="${util.dest.dir}" overwrite="true" >
+			<fileset dir="${basedir}/${UTIL.DIR}"/>
+		</copy>
+		<antcall target="utility-substitute"></antcall>
+	</target>
+
+	<target name="resources.deploy" description="Deploy the component's resource files">
+	    <if>
+	        <available file="${basedir}/resources" type="dir" />
+	        <then>
+	            <echo message="deploying resource files to ${resources.dest.dir}" />
+	            <mkdir dir="${resources.dest.dir}" />
+	            <copy todir="${resources.dest.dir}" overwrite="true">
+	                <fileset dir="${basedir}/resources" />
+	            </copy>
+	        </then>
+	    </if>
+	</target>
+
+	&substitute-targets;
+	
+</project>

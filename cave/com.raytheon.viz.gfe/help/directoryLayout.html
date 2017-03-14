@@ -1,0 +1,449 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta content="text/html; charset=iso-8859-1"
+ http-equiv="Content-Type">
+  <meta
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]"
+ name="GENERATOR">
+  <meta content="Mark Mathewson" name="Author">
+  <title>GFESuite Directory Layout</title>
+</head>
+<body style="background-color: rgb(255, 255, 255);">
+<h1 class="3Heading">
+GFESuite Directory Layout</h1>
+<div class="3Heading">March 27, 2012<br>
+</div>
+<div class="3Heading">
+<h2><a name="TableofContents"></a>Table of Contents</h2>
+<a href="#Overview">Overview</a>
+<br>
+<a href="#EDEXTop-LevelRuntimeDirectory">EDEX Top-Level Runtime Directory</a>
+<br>
+<a href="#CAVETop-LevelRuntimeDirectory">CAVE Top-Level Runtime Directory</a>
+<br>
+<a href="#DatabaseDirectoryStructure">Database Directory Structure</a>
+<br>
+<a href="#GRIDDatabaseStructure">GRID Directory Structure</a>
+<br>
+<a href="#ModelData/ForecastDataFileStructure">Model Data / Forecast
+Data File Structure</a>
+<br>
+<a href="#TextInstall">Text Products Directory Structure</a><br>
+<a href="#HPUXDirectoryStructure">MHS Directory Structure</a>
+<hr width="100%">
+<h2><a name="Overview"></a>Overview</h2>
+This document describes the install and runtime directory structure for
+the AWIPS sites. In AWIPS2, directories are split up into EDEX side (server) and
+CAVE side (client). On both sides, the top-level directory is /awips2, however
+EDEX operations are mainly run on dx3/dx4, with data management (PyPies) on dx1. 
+CAVE operations and directory structure reside on lx/xt workstations. 
+This page describes *SOME* of the important directories accessed by GFE.
+The directory tree is described in the following parts:
+<ul>
+  <li> <a href="#EDEXTop-LevelRuntimeDirectory">EDEX top-level runtime directory</a>,
+  consisting of the descriptions of the executables and static data</li>
+  <li> <a href="#CAVETop-LevelRuntimeDirectory">CAVE top-level runtime directory</a>,
+  consisting of the descriptions of the executables and static data</li>
+  <li>the <a href="#DatabaseDirectoryStructure">"database" directory structure</a>,
+  as controlled by PyPies</li>
+  <li>the <a href="#GRIDDatabaseStructure">"GRID" directory structure</a>,
+  which contains all of the model, Forecast, and Official databases</li>
+  <li>the <a href="#ModelData/ForecastDataFileStructure">model, Forecast,
+  and Official database file structure</a></li>
+  <li>the <a href="#HPUXDirectoryStructure">data structure on AWIPS MHS</a>
+  to support intersite coordination of grids</li>
+</ul>
+<p><br>
+</p>
+<hr width="100%">
+<h2><a name="EDEXTop-LevelRuntimeDirectory"></a>EDEX Top - Level Runtime
+Directory</h2>
+The top-level runtime directory consists of several other directories.
+The top-level directories are:
+<br>
+<table nosave="" border="1" width="100%">
+  <caption><b>Top-Level EDEX Directories</b></caption> <tbody>
+    <tr>
+      <td><b>Directory Name</b></td>
+      <td><b>Purpose</b></td>
+    </tr>
+    <tr>
+      <td>edex</td>
+      <td>top-level data and executables</td>
+    </tr>
+    <tr>
+      <td>GFESuite</td>
+      <td>top-level utilities, data and Service Backup</td>
+    </tr>
+  </tbody>
+</table>
+<p>The following tables describe files and directory structures within
+each of the top-level directories:
+<br>
+<br>
+<table nosave="" border="1" width="100%">
+  <caption><b>EDEX Sub-Directories</b></caption> <tbody>
+    <tr>
+      <td><b>Filename or Directory Name</b></td>
+      <td><b>Purpose</b></td>
+    </tr>
+    <tr>
+      <td>edex/bin</td>
+      <td>top-level configuration and startup scripts</td>
+    </tr>
+        <tr>
+      <td>edex/conf</td>
+      <td>Top-level edex configuration for logs and services</td>
+    </tr>
+    <tr>
+      <td>edex/data</td>
+      <td>Top-level data, utilities and edex configuration files including localizations
+      and vcmodule for virtual ISC displays</td>
+    </tr>
+    <tr>
+      <td>edex/etc</td>
+      <td>runtime parameters for different edex runtime levels and services like ingest/request</td>
+    </tr>
+    <tr>
+      <td>edex/lib</td>
+      <td>location of libraries used by edex</td>
+    </tr>
+    <tr>
+      <td>edex/logs</td>
+      <td>edex logfiles</td>
+    </tr>
+    <tr>
+      <td>edex/webapps</td>
+      <td>scripts run by uengine</td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<br>
+<table nosave="" border="1" width="100%">
+  <caption><b>Relevant Top-Level CAVE Directories</b></caption> <tbody>
+    <tr>
+      <td><b>Filename or Directory Name</b></td>
+      <td><b>Purpose</b></td>
+    </tr>
+    <tr>
+      <td>alertviz</td>
+      <td>AlertViz executables and settings</td>
+    </tr>
+    <tr>
+      <td>cave</td>
+      <td>cave configurations and executables including cave.sh</td>
+    </tr>
+    <tr>
+      <td>GFESuite</td>
+      <td>command line interface executables for GFE
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+</p>
+<p><br>
+<table nosave="" border="1" width="100%">
+  <caption><b>Important CAVE Sub-Directories</b></caption> <tbody>
+    <tr>
+      <td><b>Filename or Directory Name</b></td>
+      <td><b>Purpose</b></td>
+    </tr>
+    <tr>
+      <td>cave/etc/gfe</td>
+      <td>GFE base level tools, procedures, utilities and configurations<br>
+      </td>
+    </tr>
+    <tr>
+      <td>cave/etc/ghg</td>
+      <td>GHG monitor executables and configurations</td>
+    </tr>
+    <tr>
+      <td>cave/configuration</td>
+      <td>Eclipse runtime settings</td>
+    </tr>
+    <tr>
+      <td>GFESuite/bin</td>
+      <td>location of command line interface executables</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+</p>
+<p>
+<table nosave="" border="1" width="100%">
+  <caption><b>Executable and Script Directories (/awips2/GFESuite/bin)</b></caption><tbody>
+    <tr>
+      <td><b>Filename or Directory Name</b></td>
+      <td><b>Purpose</b></td>
+    </tr>
+    <tr>
+      <td>bin/<a href="ConfigureTextProducts.html">configureTextProducts</a></td>
+      <td><a href="ConfigureTextProducts.html">Configure Text Products</a>
+utility for querying the afos2awips.txt table for PILs, deleting, and
+recreating product templates. </td>
+    </tr>
+    <tr>
+      <td>bin/<a href="dumpAT.html">dumpAT</a></td>
+      <td><a href="dumpAT.html">VTEC active table dump utility</a>
+for AWIPS map coordinates to lat/lon and vice versa</td>
+    </tr>
+    <tr>
+      <td>bin/<a href="getNotify.html">getNotify.py</a></td>
+      <td><a href="getNotify.html">notification debug utility</a> to
+show database notifications from EDEX</td>
+    </tr>
+    <tr>
+      <td>bin/gfeclient.sh</td>
+      <td>a wrapper script that allows to execute command line scripts in EDEX</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">bin/<a href="GHGMonitor.html">ghgMonitor</a><br>
+      </td>
+      <td style="vertical-align: top;">GHG Monitor Program<br>
+      </td>
+    </tr>
+    <tr>
+      <td>bin/ifpAG</td>
+      <td><a href="ifpAG.html">ifpAG</a> executable</td>
+    </tr>
+    <tr>
+      <td>bin/<a href="ifpBreakAllLocks.html">ifpBreakAllLocks</a></td>
+      <td>script to break all locks in the server</td>
+    </tr>
+    <tr>
+      <td>bin/ifpIMAGE</td>
+      <td>script to run the GFE as the <a href="ifpIMAGE.html">ifpIMAGE</a>
+program</td>
+    </tr>
+    <tr>
+      <td>bin/ifpInit</td>
+      <td>script to run the <a href="SmartInit.html">smart
+initialization</a>
+program</td>
+    </tr>
+    <tr>
+      <td>bin/ifpnetCDF</td>
+      <td>script to run the <a href="ifpnetCDF.html">ifpnetCDF</a>
+program.</td>
+    </tr>
+    <tr>
+      <td>bin/<a href="ifpServerText.html">ifpServerText</a></td>
+      <td>script to run the <a href="ifpServerText.html">ifpServerText</a>
+program</td>
+    </tr>
+    <tr>
+      <td>bin/iscMosaic</td>
+      <td>script to run the <a href="iscMosaic.html">iscMosaic</a>
+program</td>
+    </tr>
+    <tr>
+      <td>bin/<a href="moveGFEData.html">moveGFEData</a></td>
+      <td>utility program to <a href="moveGFEData.html">move gfe
+configuration
+data</a> from one user to another</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">bin/<a href="purgeAllGrids.html">purgeAllGrids</a><br>
+      </td>
+      <td style="vertical-align: top;">script to delete all grids from
+a specified database.<br>
+      </td>
+    </tr>
+    <tr>
+      <td>bin/runIFPText</td>
+      <td>script to run text generation (GFE in background mode)</td>
+    </tr>
+    <tr>
+      <td>bin/runProcedure</td>
+      <td>script to run a procedure (GFE in background mode)</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">bin/<a href="sendGfeMessage.html">sendGfeMessage</a><br>
+      </td>
+      <td style="vertical-align: top;">script to send messages to all
+clients connected to EDEX, message appears in AlertViz<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">bin/<a href="VTEC.html">VTECDecoder</a><br>
+      </td>
+      <td style="vertical-align: top;">script to run VTEC decoder<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">bin/src<br>
+      </td>
+      <td style="vertical-align: top;">contains sub-directories with executables called by
+      the scripts listed in this table
+      </td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<p>
+<table nosave="" border="1" width="100%">
+  <caption><b> <br>
+etc/gfe (configuration) Important Directories</b></caption> <tbody>
+    <tr>
+      <td><b>Filename or Directory Name</b></td>
+      <td><b>Purpose</b></td>
+    </tr>
+    <tr>
+      <td>combinations</td>
+      <td>default zone combo configuration</td>
+    </tr>
+    <tr>
+      <td>editAreaGroups</td>
+      <td>default edit area groups</td>
+    </tr>
+    <tr>
+      <td>editAreas</td>
+      <td>default edit areas</td>
+    </tr>
+    <tr>
+      <td>sampleSets</td>
+      <td>default sample sets</td>
+    </tr>
+    <tr>
+      <td>userPython</td>
+      <td>baseline smart tools, procedures, gfeConfig files, text products, text utilities,
+      and other utilities used by tools and procedures</td>
+    </tr>
+    <tr>
+      <td>weGroups</td>
+      <td>default weather element groups</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<table nosave="" border="1" width="100%">
+  <caption><b>etc/ghg Sub-Directory</b></caption> <tbody>
+    <tr>
+      <td><b>Filename or Directory Name</b></td>
+      <td><b>Purpose</b></td>
+    </tr>
+    <tr>
+      <td>config</td>
+      <td>contains default GHG monitor configuration file</td>
+    </tr>
+    <tr>
+      <td>userPython</td>
+      <td>contains the MakeHazard utility and TCMETNDecoder</td>
+    </tr>
+  </tbody>
+</table>
+</p>
+</div>
+<hr width="100%">
+<h2><a name="DatabaseDirectoryStructure"></a>Database Directory
+Structure</h2>
+<div class="3Heading">In AWIPS2 the database is on dx1 under /awips2/edex/data/hdf5.
+The sub-directories used by GFE are grib and gfe. The grib sub-directory 
+contains grib model data. The gfe/SITE_ID sub-directory contains GFE grid
+databases including Fcst, Official, ISC, Restore, and any model databases.
+Topography databases are also found here. 
+<hr width="100%">
+<h2><a name="GRIDDatabaseStructure"></a>GRID Database Structure</h2>
+The model, Forecast, and Official databases are stored in the
+/awips2/edex/data/hdf5/gfe/SITE_ID directory
+tree. The first level subdirectories are the model
+names, e.g., NAM and Fcst. Within each model directory will be a
+series of database files contained in a directory that represents
+the date and time of the data, i.e., 2012_03_27_0600/RNK_GRID__GFS40_20120327_0600.h5. 
+A database contains all of the grid and
+metadata needed to represent the weather elements. <a
+ href="#ModelData/ForecastDataFileStructure">Each
+database</a> actually consists one HDF5 file.
+<p>The name of each database represents the:
+</p>
+<ul>
+  <li>Site identifier (e.g., BOU)</li>
+  <li>Format of the database (always GRID)</li>
+  <li>Model Name (e.g., NAM12)</li>
+  <li>Optional Database Type (e.g., V)</li>
+  <li>Date/Time of Model Run (e.g., 20001214_0000)</li>
+</ul>
+<hr width="100%"><br>
+<h2><a name="ModelData/ForecastDataFileStructure"></a>Model Data /
+Forecast Data File Structure</h2>
+Each model (e.g., NAM), Forecast, and Official database is stored in
+HDF5 file format.
+The model name is in the following format: <i>site</i>_GRID_<i>ot</i>_<i>date</i>_<i>time</i>,
+where <i>site</i> is the WFO identifier, <i>ot</i> is the optional
+type,
+<i>date</i>
+and <i>time</i> are the date-time stamp for the model valid
+time.
+If the date/timestamp is all zeros (00000000_0000), then the model is
+"rolling"
+or not time-based. In this case the files are never purged from
+the
+system. Typically the Forecast and Official databases are set up
+to be permanent. Another word to describe this case is a
+singleton model. The *.h5 file contains the following
+information:
+</p>
+<ul>
+  <li>Grid data.</li>
+  <li>Grid Parm Info of each weather element,
+that fully describes how the data is represented in the system.</li>
+  <li>Grid Parm Storage Information for the database</li>
+</ul>
+</p>
+<hr style="width: 100%; height: 2px;">
+<h2><a name="TextInstall"></a>Text Products Directory Structure</h2>
+<p>The /awips2/edex/data/utility/edex_static/base/textproducts directories 
+are used for configuring the GFE formatters that are "templated". 
+When AWIPS is installed, the formatters are created from templates. 
+The templates, and the routines to expand them into products are contained 
+in the text installation directory structure.  See the Readme.txt file for
+detailed information.<br>
+</p>
+<hr width="100%">
+<h2><a name="HPUXDirectoryStructure"></a>MHS Directory Structure</h2>
+The MHS Directory Structure to support GFESuite is quite small, but
+necessary.&nbsp;
+The directory structure is used to support <a
+ href="IntersiteCoordination.html">Intersite
+Coordination of Grids</a>. The MHS host on AWIPS is "ds1" prior to OB7,
+and "dx1" OB7 and after.
+<p>There os one spooling directory for incoming messages
+to the AWIPS Message Handling System, and two scripts to support the
+intersite coordination grids.
+<br>
+<br>
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td><b>Filename or Location</b></td>
+      <td><b>Purpose</b></td>
+      <td><b>Part of Release</b></td>
+    </tr>
+    <tr>
+      <td>/awips2/GFESuite/products/ISC</td>
+      <td>ISC spooling directory for incoming data.</td>
+      <td>Installed as a part of AWIPS</td>
+    </tr>
+    <tr>
+      <td>/awips2/GFESuite/bin/iscDataRec</td>
+      <td>Script that requests processing from EDEX for grids
+received from the AWIPS WAN.</td>
+      <td>Installed as a part of AWIPS</td>
+    </tr>
+    <tr>
+      <td>/awips2/edex/data/utility/edex_static/base/gfe/isc/iscDataRec.py</td>
+      <td>Receive script called by the IscDataRecRequestHandler when
+intersite data has been received from other sites.</td>
+      <td>Installed as a part of AWIPS</td>
+    </tr>
+  </tbody>
+</table>
+</p>
+</div>
+<hr width="100%">
+<p><a href="#TableofContents">Back to Table Of Contents</a>
+</body>
+</html>

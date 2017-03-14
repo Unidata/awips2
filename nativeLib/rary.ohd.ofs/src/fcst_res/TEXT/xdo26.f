@@ -1,0 +1,275 @@
+C MEMBER XDO26
+C  (from old member FCXDO26)
+C
+C DESC EXECUTE THE 'DO' STATEMENT. CALL SETUP ROUTINE FOR S/U TO BE
+C DESC  EXECUTED.
+C----------------------------------------------------------------------
+      SUBROUTINE XDO26(SUNUM,PO,W,D,IDPT,LOCWS,LOCOWS)
+C---------------------------------------------------------------------
+C  SUBROUTINE TO CALL THE ROUTINES FOR PARMS, CARRYOVER AND TIME-SERIES
+C  SETUP FOR EACH SCHEME IN THE OPERATION DEFINITION. ACTUAL COMPUTA-
+C  TIONAL ROUTINES ARE CALLED FROM THESE CALLED ROUTINES.
+C---------------------------------------------------------------------
+C  WRITTEN BY - JOE OSTROWSKI - HRL - JULY 1983
+C---------------------------------------------------------------------
+C
+      INCLUDE 'common/resv26'
+      INCLUDE 'common/exg26'
+      INCLUDE 'common/srcg26'
+      INCLUDE 'common/flas26'
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/fprog'
+C
+      DIMENSION PO(1),W(1),D(1),IDPT(1),LOCWS(1),LOCOWS(1)
+      LOGICAL GFLORG,SCHORG
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_res/RCS/xdo26.f,v $
+     . $',                                                             '
+     .$Id: xdo26.f,v 1.5 2000/07/20 12:23:11 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      IF (IBUG.GE.1) WRITE(IODBUG,1698)
+ 1698 FORMAT('   *** ENTER XDO26 ***')
+C
+C  DETERMINE BASE, LEVEL OF DEFINITION AND SEQUENTIAL NO. OF THIS SCHEME
+C
+ccc      CALL XBLV26(SUNUM,IBASE,LEVEL)
+      ISUNUM=SUNUM
+      IBASE=ISUNUM/10
+      LEVEL=ISUNUM-IBASE*10
+C
+      IF (IBUG.GE.2) WRITE(IODBUG,1601) IBASE,LEVEL
+ 1601 FORMAT('   * BASE NO. AND LEVEL OF S/U IN EXECUTION IS : ',2I5,'.'
+     . )
+C
+C  SET QO2, QOM, ELEV2, AND S2 TO VALUES HELD IN TRACE ARRAY.
+C  (THESE WILL BE MISSING FOR SIMULATED RUN AND FORECAST PERIOD
+C   OF ADJUSTED RUN, AND THE ADJUSTED VALUES FOR THE OBSERVED
+C   PORTION OF AN ADJUSTED RUN.)
+C
+      LOCTR1 = LOCWS(2) + NS2 - 1
+      LOCTR2 = LOCTR1 + NDD*NTIM24
+      LOCTR3 = LOCTR2 + NDD*NTIM24
+      LOCTR4 = LOCTR3 + NDD*NTIM24
+C
+      QO2   = W(LOCTR1)
+      QOM   = W(LOCTR2)
+      ELEV2 = W(LOCTR3)
+      S2    = W(LOCTR4)
+C
+C  SEND TO PROPER SUBROUTINE CALL FOR THE SEQUENTIAL NO. OF THE S/U
+C  (NOS. 14 THRU 20 ARE UTILITIES THAT ARE NOT ACTIVATED BY 'DO'
+C   STATEMENTS. THEY SHOULD NOT BE FOUND IN THE RCL, THEY SHOULD HAVE
+C   BEEN SCREENED OUT AT PIN TIME.)
+C
+      IF(IBASE.LT.150) THEN
+         IGOTO=IBASE-100
+         GO TO (100,1020,1030,1040,1050,1060,1070,1080,1090,1100
+     .   ,1110,1120,1130,1140,1150,9000) IGOTO
+      ELSE
+         IGOTO=IBASE-150
+         GO TO (9999,9999,9999,9999,9999,9999,9999,1580,1590,1600
+     .   ,1610,1620), IGOTO
+      ENDIF
+C
+C--------------------------------
+C  PASS INFLOW
+C
+  100 CONTINUE
+      CALL XS0126(SUNUM,PO,W)
+      NSCHEX = NSCHEX + 1
+      GO TO 9000
+C
+C--------------------------------
+C  PRESCRIBED DISCHARGE
+C
+ 1020 CONTINUE
+      CALL XS0226(SUNUM,PO,W,D,LOCWS,IDPT)
+      NSCHEX = NSCHEX + 1
+      GO TO 9000
+C--------------------------------
+C  PRESCRIBED ELEVATION
+C
+ 1030 CONTINUE
+      CALL XS0326(SUNUM,PO,W,D,LOCWS,IDPT)
+      NSCHEX = NSCHEX + 1
+      GO TO 9000
+C--------------------------------
+C  RULE CURVE
+C
+ 1040 CONTINUE
+      CALL XS0426(SUNUM,PO,W,LOCOWS)
+      NSCHEX = NSCHEX + 1
+      GO TO 9000
+C--------------------------------
+C  FILL AND SPILL
+C
+ 1050 CONTINUE
+      CALL XS0526(SUNUM,PO,W,D,LOCWS,LOCOWS,IDPT)
+      NSCHEX = NSCHEX + 1
+      GO TO 9000
+C---------------------------------------
+C  SPILLWAY ROUTING
+C
+ 1060 CONTINUE
+      CALL XS0626(SUNUM,PO,W,D,LOCWS,LOCOWS,IDPT)
+      NSCHEX = NSCHEX + 1
+      GO TO 9000
+C---------------------------------------
+C  POOL VS. DISCHARGE
+C
+ 1070 CONTINUE
+      CALL XS0726(SUNUM,PO,W,LOCOWS)
+      NSCHEX = NSCHEX + 1
+      GO TO 9000
+C---------------------------------------
+C  DOWNSTREAM STAGE AND POOL VS. DISCHARGE
+C
+ 1080 CONTINUE
+      CALL XS0826(SUNUM,PO,W,D,LOCWS,LOCOWS,IDPT)
+      NSCHEX = NSCHEX + 1
+      GO TO 9000
+C---------------------------------------
+C  MINQ -- MINIMIZE DISCHARGE
+C
+ 1090 CONTINUE
+      MQXQT = .TRUE.
+      CALL XS0926(SUNUM,PO,W,LOCWS,LOCOWS,IDPT)
+      NSCHEX = NSCHEX + 1
+      GO TO 9000
+C---------------------------------------
+C  MINH -- MINIMIZE UPSTREAM STAGE
+C
+ 1100 CONTINUE
+      CALL XS1026(SUNUM,PO,W,D,LOCWS,LOCOWS,IDPT)
+      NSCHEX = NSCHEX + 1
+      GO TO 9000
+C---------------------------------------
+C  INDUCED SURCHARGE
+C
+ 1110 CONTINUE
+      SCHORG = SURCHG
+      CALL XS1126(SUNUM,PO,W,LOCWS,LOCOWS)
+      IF (SCHORG .OR. SURCHG) NSCHEX = NSCHEX + 1
+      GO TO 9000
+C---------------------------------------
+C  FLASH BOARDS
+C
+ 1120 CONTINUE
+      GFLORG = GOFLSH
+      CALL XS1226(SUNUM,PO,W,D,LOCWS,LOCOWS,IDPT)
+      IF (GOFLSH .OR. GFLORG) NSCHEX = NSCHEX + 1
+      GO TO 9000
+C---------------------------------------
+C  POWER GENERATION
+C
+ 1130 CONTINUE
+      CALL XS1326(SUNUM,PO,W,LOCWS,LOCOWS,IDPT)
+      NSCHEX = NSCHEX + 1
+      GO TO 9000
+C
+C--------------------------------
+C  PRESCRIBED RATE OF CHANGE OF DISCHARGE
+C
+ 1140 CONTINUE
+      CALL XS2626(SUNUM,PO,W,D,LOCWS,IDPT)
+      NSCHEX = NSCHEX + 1
+      GO TO 9000
+C
+C--------------------------------
+C  PRESCRIBED RATE OF CHANGE OF POOL ELEVATION
+C
+ 1150 CONTINUE
+      CALL XS2726(SUNUM,PO,W,D,LOCWS,IDPT)
+      NSCHEX = NSCHEX + 1
+      GO TO 9000
+C
+C*********************************************************************
+C
+C   Utilities
+C
+C---------------------------------------
+C  ENTER INDUCED SURCHARGE UTILITY
+C
+ 1580 CONTINUE
+      CALL XU2126(SUNUM,PO,W,LOCWS,LOCOWS)
+      GO TO 9000
+C---------------------------------------
+C  TAKE MINIMUM VALUE UTILITY
+C
+ 1590 CONTINUE
+      CALL XU2226(SUNUM,PO,W,LOCWS)
+      IF (NSCHEX .GT. 0) NSCHEX = NSCHEX + 1
+      GO TO 9000
+C---------------------------------------
+C  TAKE MAXIMUM VALUE UTILITY
+C
+ 1600 CONTINUE
+      CALL XU2326(SUNUM,PO,W,LOCWS)
+      IF (NSCHEX .GT. 0) NSCHEX = NSCHEX + 1
+      GO TO 9000
+C---------------------------------------
+C  ENTER FLASH BOARDS UTILITY
+C
+ 1610 CONTINUE
+      CALL XU2426(SUNUM,PO,W,D,LOCWS,LOCOWS,IDPT)
+      GO TO 9000
+C---------------------------------------
+C  WATER USE UTILITY
+C
+ 1620 CONTINUE
+C      CALL XU2526(SUNUM,PO,W,D,LOCWS,LOCOWS,IDPT)
+      GO TO 9000
+C
+C---------------------------------------
+C  STORE THE PROPER VALUES IN THE SCHEME HOLDING AREA OF THE WORK ARRAY.
+C
+ 9000 CONTINUE
+C
+C  DON'T UPDATE THE WORK ARRAY IF THE ENTERISC OR GOFLSH UTILITIES HAVE
+C  BEEN EXECUTED, OR THE SETMIN OR SETMAX UTILITIES HAVE BEEN EXECUTED
+C  BEFORE ANY SCHEMES HAVE BEEN EXECUTED.
+C
+      IF (NSCHEX.GT.0.AND.IBASE.LT.158) GO TO 9100
+      IF (NSCHEX.EQ.0.OR.IBASE.EQ.158.OR.IBASE.EQ.161) GO TO 9999
+C
+C-----------------------------------
+C  STORE THESE QUANTITIES (ALL AT END OF PERIOD EXCEPT WHERE
+C  OTHERWISE NOTED):
+C            1) S/U #
+C            2) MEAN DISCHARGE
+C            3) INST. DISCHARGE
+C            4) BEG. PERIOD ELEVATION
+C            5) END PERIOD ELEVATION
+C            6) END PERIOD ELEVATION
+C
+ 9100 CONTINUE
+      IOFF = LOCWS(3) + (NSCHEX-1)*6
+C
+      W(LOCWS(3)) = NSCHEX
+C
+      W(IOFF+1) = SUNUM
+      W(IOFF+2) = QOM
+      W(IOFF+3) = QO2
+      W(IOFF+4) = ELEV1
+      W(IOFF+5) = ELEV2
+      W(IOFF+6) = S2
+C
+      IF (IBUG.GE.2) WRITE(IODBUG,1690) SUNUM,NSCHEX,QOM,QO2,ELEV2,S2
+ 1690 FORMAT(10X,'SCHEME OUTPUTS FOR S/U NO. ',F5.0,' NO. OF SCHEMES ',
+     .       'EXECUTED = ',I2,/,10X,'   QOM       QO2      ELEV2       '
+     .       ,'S2',/,10X,4F10.2)
+C
+C-----------------------------
+C  RETURN TO CALLING ROUTINE
+C
+ 9999 CONTINUE
+      IF (IBUG.GE.1) WRITE(IODBUG,1699)
+ 1699 FORMAT('    *** EXIT XDO26 ***')
+      RETURN
+      END

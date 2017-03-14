@@ -1,0 +1,5 @@
+C                                           *--> FROM UCOMMON.UDATAS
+      COMMON/UDATAS/ IBLNK,ZAPR,IDSI,IDOLR,IZAP,IASTR,COMMA,IEQUAL,
+     $               IPOUND,IPRCNT
+      INTEGER COMMA
+C

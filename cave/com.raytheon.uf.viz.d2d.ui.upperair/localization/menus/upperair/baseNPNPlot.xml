@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="subMenu" menuText="NPN Plot">
+		<contribute xsi:type="bundleItem" file="bundles/NPNPlot.xml" 
+	                menuText="150hPa" id="npn150hPa">
+        	<substitute key="level" value="150MB"/>
+        	<substitute key="legend" value="150mb Profiler"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/NPNPlot.xml" 
+	                menuText="200hPa" id="npn200hPa">
+        	<substitute key="level" value="200MB"/>
+        	<substitute key="legend" value="200mb Profiler"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/NPNPlot.xml" 
+	                menuText="250hPa" id="npn250hPa">
+        	<substitute key="level" value="250MB"/>
+        	<substitute key="legend" value="250mb Profiler"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/NPNPlot.xml" 
+	                menuText="300hPa" id="npn300hPa">
+        	<substitute key="level" value="300MB"/>
+        	<substitute key="legend" value="300mb Profiler"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/NPNPlot.xml" 
+	                menuText="400hPa" id="npn400hPa">
+        	<substitute key="level" value="400MB"/>
+        	<substitute key="legend" value="400mb Profiler"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/NPNPlot.xml" 
+	                menuText="500hPa" id="npn500hPa">
+        	<substitute key="level" value="500MB"/>
+        	<substitute key="legend" value="500mb Profiler"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/NPNPlot.xml" 
+	                menuText="700hPa" id="npn700hPa">
+        	<substitute key="level" value="700MB"/>
+        	<substitute key="legend" value="700mb Profiler"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/NPNPlot.xml" 
+	                menuText="850hPa" id="npn850hPa">
+        	<substitute key="level" value="850MB"/>
+        	<substitute key="legend" value="850mb Profiler"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/NPNPlot.xml" 
+	                menuText="925hPa" id="npn925hPa">
+        	<substitute key="level" value="925MB"/>
+        	<substitute key="legend" value="925mb Profiler"/>
+	    </contribute>
+		<contribute xsi:type="separator" id="MySeparatorId"/>	
+
+		<contribute xsi:type="bundleItem" file="bundles/NPNPlot.xml" 
+	                menuText="1500m AGL" id="npn1500mAGL">
+        	<substitute key="level" value="1.5kmAgl"/>
+        	<substitute key="legend" value="1500m AGL Profiler"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/NPNPlot.xml" 
+	                menuText="1250m AGL" id="npn1250mAGL">
+        	<substitute key="level" value="1250mAgl"/>
+        	<substitute key="legend" value="1250m AGL Profiler"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/NPNPlot.xml" 
+	                menuText="1000m AGL" id="npn1000mAGL">
+        	<substitute key="level" value="1kmAgl"/>
+        	<substitute key="legend" value="1000m AGL Profiler"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/NPNPlot.xml" 
+	                menuText="750m AGL" id="npn750mAGL">
+        	<substitute key="level" value="750mAgl"/>
+        	<substitute key="legend" value="750m AGL Profiler"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/NPNPlot.xml" 
+	                menuText="500m AGL" id="npn500mAGL">
+        	<substitute key="level" value="0.5kmAgl"/>
+        	<substitute key="legend" value="500m AGL Profiler"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/NPNPlot.xml" 
+	                menuText="Surface" id="npnSurface">
+        	<substitute key="level" value="Surface"/>
+        	<substitute key="legend" value="Sfc Profiler"/>
+	    </contribute>
+	</contribute>
+	<contribute xsi:type="separator" id="npnPerspective"/>
+	<contribute xsi:type="separator" id="MySeparatorId1"/>
+</menuTemplate>

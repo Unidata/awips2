@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Vil Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.vil
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: javax.persistence;bundle-version="1.0.0",
+ com.raytheon.uf.common.serialization,
+ org.geotools;bundle-version="2.5.2",
+ com.raytheon.uf.common.monitor,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.datastorage
+Import-Package: com.raytheon.uf.common.dataplugin.radar,
+ org.apache.commons.logging
+Export-Package: com.raytheon.uf.common.dataplugin.vil
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+

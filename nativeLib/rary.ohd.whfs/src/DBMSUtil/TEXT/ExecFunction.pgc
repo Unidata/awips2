@@ -1,0 +1,74 @@
+/*------------------------------------------------------------*/
+/*   execFunction()                                           */
+/*                                                            */
+/*   generic function for executing a PostgreSQL function     */
+/*                                                            */
+/*   input:  char string containing function name followed by */
+/*           parameter list enclosed in parentheses           */
+/*                                                            */
+/*   function is executed using following syntax:             */
+/*                                                            */
+/*            SELECT function_name(...);                      */
+/*                                                            */
+/*   NOTE: if this function is executing a delete, insert or  */
+/*         update then calling program MUST contain           */
+/*         EXEC SQL COMMIT statement or else transaction will */
+/*         rolled back on disconnect                          */
+/*                                                            */
+/*   this function is similar to the execProcedure function   */
+/*   used by shefdecode to execute Informix Stored Procedures */
+/*------------------------------------------------------------*/
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+int execFunction(const char *funcName)
+{
+
+   EXEC SQL INCLUDE sqlca;
+
+   EXEC SQL BEGIN DECLARE SECTION;
+   	char sqlstmt[250];
+   EXEC SQL END DECLARE SECTION;	    
+      
+   long status;
+
+   /*
+	Ensure a valid statement has been passed.
+   */
+   if (! funcName || ! *funcName)
+   {
+       printf("Invalid function  name or arguments.\n");
+       return(-1);
+   }
+   
+
+   /*
+   	create the stmt 
+   */
+   sprintf(sqlstmt, " SELECT %s ", funcName);
+   
+   
+   /*
+   	Execute the sqlstmt
+   */
+   EXEC SQL EXECUTE IMMEDIATE :sqlstmt;   
+   status = sqlca.sqlcode;
+
+   if(status < 0) 
+   {
+      printf("execFunction call = %s\n",funcName);
+      printf("postgresql message = %s\n",sqlca.sqlerrm.sqlerrmc);
+   }
+   
+   
+   /*
+   	Is a Commit necessary here???
+   */
+   
+   return status; 	
+}
+

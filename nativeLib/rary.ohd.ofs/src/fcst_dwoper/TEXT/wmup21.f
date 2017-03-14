@@ -1,0 +1,204 @@
+C MEMBER WMUP21
+C  (from old member FCWMUP21)
+C DESC -- THIS SUBROUTINE COMPUTES THE DISCHARGES FOR STEADY FLOW
+C DESC -- CONDITIONS AND COMPARES THE DOWNSTREAM VALUE WITH THE
+C DESC -- INITIAL CONDITIONS.
+C                             LAST UPDATE: 03/01/94.13:08:08 BY $WC30JL
+C
+C @PROCESS LVL(77)
+C
+      SUBROUTINE WMUP21(NB,QDI,CCO,NJUN,NQL,LQ,QLI,QLNAM,NDIV,
+     1 LDIV,DVI,NWJ,JN,NWMUP)
+C
+C           THIS SUBROUTINE WAS WRITTEN BY:
+C           JANICE LEWIS      HRL   NOVEMBER,1982     VERSION NO. 1
+C
+      COMMON/FDBUG/IODBUG,ITRACE,IDBALL,NDEBUG,IDEBUG(20)
+      COMMON/IONUM/IN,IPR,IPU
+C
+      DIMENSION NB(*),QDI(*),SNAME(2),NJUN(*),NQL(*),LQ(*),QLI(*)
+      DIMENSION QLNAM(3,*),NDIV(*),LDIV(*),DVI(*),CCO(*),NWJ(*)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_dwoper/RCS/wmup21.f,v $
+     . $',                                                             '
+     .$Id: wmup21.f,v 1.2 1996/01/16 11:27:59 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      DATA SNAME/4HWMUP,4H21  /
+      DATA DUMM/4HDUMM/
+C
+C
+      CALL FPRBUG(SNAME,1,21,IBUG)
+C
+      L11=LCAT21(1,1,NB)-1
+      M11=LCAT21(1,1,NQL)-1
+      N11=LCAT21(1,1,NDIV)-1
+C
+      NWMUP=0
+C
+C        WERE INITIAL DISCHARGES READ IN?
+C
+      IF(QDI(2+L11).LT.0.01) GO TO 200
+C
+C        COPY QDI ARRAY INTO THE CCO ARRAY
+C
+      DO 50 J=1,JN
+      I=LCAT21(1,J,NB)-1
+      N=NB(J)
+      DO 25 K=1,N
+   25 CCO(K+I)=QDI(K+I)
+   50 CONTINUE
+C
+   60 IF(JN.EQ.1) GO TO 80
+      LQL=NQL(1)
+      LDV=NDIV(1)
+C
+C        ADD LATERAL FLOWS TO THE INITIAL DISCHARGES
+C
+      DO 70 K=2,JN
+      NN=NB(K)
+      NM=NN-1
+      NQ=NQL(K)
+      L1K=LCAT21(1,K,NB)-1
+      I1K=LCAT21(1,K,NQL)-1
+      M1K=LCAT21(1,K,NDIV)-1
+      DO 65 I=1,NM
+      QQL=0.
+      IF(NQ.EQ.0) GO TO 64
+C
+C        FIND THE LOCATION OF THE LATERAL FLOW
+C
+      DO 63 L=1,NQ
+      LL=LQ(L+I1K)
+      IF(I.NE.LL) GO TO 63
+      QQL=QLI(L+LQL)
+   63 CONTINUE
+C
+C        ADD LATERAL FLOW
+C
+   64 CCO(I+1+L1K)=CCO(I+L1K)+QQL
+   65 CONTINUE
+      LQL=LQL+NQL(K)
+C
+C         FIND THE LOCATION OF THE FLOW DIVERSION
+C
+      NDV=NDIV(J)
+      IF(NDV.EQ.0) GO TO 70
+      DO 68 I=1,NM
+      QQL=0.
+      DO 67 L=1,NDV
+      LL=LDIV(L+M1K)
+      IF(I.NE.LL) GO TO 67
+C
+C        COMPARE FLOW DIVERSION WITH LATERAL FLOW DIVERSION
+C
+      IF(NQ.EQ.0) GO TO 69
+      DO 66 IM=1,NQ
+      IMM=LQ(IM+I1K)
+      IF(IMM.EQ.LL) GO TO 68
+   66 CONTINUE
+   69 QQL=CCO(I+1+L1K)*DVI(L+LDV)/100.
+   67 CONTINUE
+C
+C        SUBTRACT DIVERTED FLOW
+C
+      CCO(I+1+L1K)=CCO(I+L1K)-QQL
+C
+   68 CONTINUE
+      LDV=LDV+NDIV(J)
+   70 CONTINUE
+C
+C        FIND TOTAL FLOW ALONG MAIN STEM RIVER
+C
+   80 NN=NB(1)
+      NM=NN-1
+      NQ=NQL(1)
+      NV=NDIV(1)
+      DO 90 I=1,NM
+      QQL=0.
+      QJN=0.
+      QLESS=0.
+      IF(NQ.EQ.0) GO TO 85
+C
+C        FIND LATERAL FLOW
+C
+      DO 82 L=1,NQ
+      IF(QLNAM(1,L).EQ.DUMM) GO TO 82
+      LL=LQ(L+M11)
+      IF(I.NE.LL)GO TO 82
+      QQL=QLI(L)
+   82 CONTINUE
+   85 IF(JN.EQ.1) GO TO 88
+      IF(I.GT.NJUN(JN))GO TO 88
+C
+C        FIND FLOW COMING IN FROM TRIBUTARIES
+C
+      DO 87 K=2,JN
+      NNN=NB(K)
+      KK=NJUN(K)
+      L1K=LCAT21(1,K,NB)-1
+      IF(I.EQ.KK) QJN=CCO(NNN+L1K)
+   87 CONTINUE
+C
+C        ADD ALL FLOWS TOGETHER
+C
+   88 CCO(I+1+L11)=CCO(I+L11)+QQL+QJN
+C
+C         SUBTRACT OUT DIVERTED FLOW
+C
+   89 IF(NV.EQ.0) GO TO 90
+      DO 91 L=1,NV
+      LV=LDIV(L+N11)
+      IF(I.NE.LV) GO TO 91
+      IF(NQ.EQ.0) GO TO 92
+      IF(LL.EQ.LV) GO TO 90
+   92 QLESS=CCO(I+1+L11)*DVI(L)/100.
+   91 CONTINUE
+C
+      CCO(I+1+L11)=CCO(I+L11)-QLESS
+   90 CONTINUE
+C
+C         SUBTRACT OUT FLOW IN FICTICIOUS TRIBUTARY FOR LEVEE
+C
+      IF(JN.EQ.0) GO TO 110
+      N=NB(1)
+      DO 100 J=2,JN
+      IF(NWJ(J).EQ.0) GO TO 100
+      NN=NB(J)
+      NJ=NJUN(J)
+      DO 93 K=1,N
+      IF(K.EQ.NJ) GO TO 94
+   93 CONTINUE
+      GO TO 110
+   94 K=K+1
+      LNJ=LCAT21(NN,J,NB)
+      DO 96 I=K,N
+      CCO(I+L11)=CCO(I+L11)-CCO(LNJ)
+   96 CONTINUE
+  100 CONTINUE
+C
+C         COMPARE FLOW AT DOWNSTREAM STATION (QDI) WITH THAT FOR STEADY
+C         FLOW CONDITIONS (CCO)
+C
+  110 NWMUP=1
+C
+      N=L11+NB(1)
+      QQDI=0.05*QDI(N)
+      IF(ABS(QDI(N)-CCO(N)).LE.QQDI) NWMUP=0
+C
+      DO 150 J=1,JN
+      I=LCAT21(1,J,NB)-1
+      N=NB(J)
+      DO 125 K=1,N
+  125 CCO(K+I)=0.
+  150 CONTINUE
+C
+  200 IF(ITRACE.EQ.1) WRITE(IODBUG,9000) SNAME
+ 9000 FORMAT(1H0,2H**,1X,2A4,8H EXITED.)
+      RETURN
+      END

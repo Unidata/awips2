@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="bundleItem" file="bundles/ffmp/ffmpImage.xml" 
+				menuText="FFMP ${site} ${displayName} Display" id="FFG ${displayName}">
+				<substitute key="sourceName" value="${source}" />
+				<substitute key="dataKey" value="${dataKey}" />
+				<substitute key="siteKey" value="${site}" />
+	</contribute>
+</menuTemplate>	

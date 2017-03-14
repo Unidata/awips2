@@ -1,0 +1,25 @@
+#!/bin/ksh
+# run_report_alarm
+#
+# script to review the current alert/alarm values and report them in
+# a product and send them to the text database
+#
+
+# Revised:Feb 14, 2014   
+######################################################################
+
+
+# This script has been made obsolete by a new java-based service that
+# runs within the EDEX ingest JVM named
+# com.raytheon.uf.edex.ohd.reportalarm.RunReportAlarmSrv.
+#
+# This new service can still be configured using a site-level override
+# to the standard Apps_defaults file.
+#
+# Configuration options for that file are defined within the base file.
+#
+# Logging for the run_report_alarm process has been moved to 
+# /awips2/edex/logs/edex-ingest-ohd-YYYYMMDD.log.
+#
+# For more information on this change please refer to A2 redmine 
+# DR #2783.

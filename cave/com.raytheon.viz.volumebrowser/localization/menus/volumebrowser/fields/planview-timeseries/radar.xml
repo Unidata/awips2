@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <contribute xsi:type="titleImgItem" titleText="Dual-Pol" displayImage="false" displayDashes="true"/>
+	<contribute xsi:type="menuItem" menuText="Diff Refl" key="ZDR" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Corr Coeff" key="COCO" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Spec Diff Phase" key="KDP" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Hydrometeor Class" key="HC" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Feature Strength" key="sRank" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Feature Diameter" key="diam" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Echo Tops" key="MRETag" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="FeatMot" key="FeatMot" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Gate2Gate Shr" key="g2gsh" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Radial Vel" key="RRV" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Reflectivity" key="RR" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Max Hourly Derived Reflectivity" key="MREFD" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Composite Reflectivity" key="CXR" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Max Hourly Composite Reflectivity" key="MREFC" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Reflectivity w/PType" key="RRtype" indentText="true" />
+	<contribute xsi:type="menuItem" menuText="Shear Mag" key="RadarProductCode87"  indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Spectrum Width" key="BASSW" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Storm Motion" key="StrmMot" indentText="false" />
+	<contribute xsi:type="menuItem" menuText="Tilt Angle" key="TiltAng" indentText="false" />
+</menuTemplate>

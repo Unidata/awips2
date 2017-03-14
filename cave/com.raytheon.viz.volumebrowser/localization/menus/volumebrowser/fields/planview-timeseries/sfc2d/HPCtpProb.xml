@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="toolbarSubMenu" menuText="6hr">
+		<contribute xsi:type="menuItem" menuText="6hr Prob Total Precip &gt; 0.01 inches" key="ProbTP0p01in6hr" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="6hr Prob Total Precip &gt; 0.10 inches" key="ProbTP0p10in6hr" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="6hr Prob Total Precip &gt; 0.25 inches" key="ProbTP0p25in6hr" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="6hr Prob Total Precip &gt; 0.50 inches" key="ProbTP0p50in6hr" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="6hr Prob Total Precip &gt; 0.75 inches" key="ProbTP0p75in6hr" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="6hr Prob Total Precip &gt; 1.00 inch" key="ProbTP1p00in6hr" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="6hr Prob Total Precip &gt; 1.50 inches" key="ProbTP1p50in6hr" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="6hr Prob Total Precip &gt; 2.00 inches" key="ProbTP2p00in6hr" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="6hr Prob Total Precip &gt; 2.50 inches" key="ProbTP2p50in6hr" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="6hr Prob Total Precip &gt; 3.00 inches" key="ProbTP3p00in6hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="6hr Prob Total Precip &gt; 4.00 inches" key="ProbTP4p00in6hr" indentText="false" />
+	</contribute>
+	
+    <contribute xsi:type="toolbarSubMenu" menuText="12hr">
+        <contribute xsi:type="menuItem" menuText="12hr Prob Total Precip &gt; 0.01 inches" key="ProbTP0p01in12hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="12hr Prob Total Precip &gt; 0.25 inches" key="ProbTP0p25in12hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="12hr Prob Total Precip &gt; 0.50 inches" key="ProbTP0p50in12hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="12hr Prob Total Precip &gt; 0.75 inches" key="ProbTP0p75in12hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="12hr Prob Total Precip &gt; 1.00 inch" key="ProbTP1p00in12hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="12hr Prob Total Precip &gt; 1.50 inches" key="ProbTP1p50in12hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="12hr Prob Total Precip &gt; 2.00 inches" key="ProbTP2p00in12hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="12hr Prob Total Precip &gt; 2.50 inches" key="ProbTP2p50in12hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="12hr Prob Total Precip &gt; 3.00 inches" key="ProbTP3p00in12hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="12hr Prob Total Precip &gt; 4.00 inches" key="ProbTP4p00in12hr" indentText="false" />
+    </contribute>
+    
+    <contribute xsi:type="toolbarSubMenu" menuText="24hr">
+        <contribute xsi:type="menuItem" menuText="24hr Prob Total Precip &gt; 0.25 inches" key="ProbTP0p25in24hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="24hr Prob Total Precip &gt; 0.50 inches" key="ProbTP0p50in24hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="24hr Prob Total Precip &gt; 1.00 inch" key="ProbTP1p00in24hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="24hr Prob Total Precip &gt; 1.50 inches" key="ProbTP1p50in24hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="24hr Prob Total Precip &gt; 2.00 inches" key="ProbTP2p00in24hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="24hr Prob Total Precip &gt; 2.50 inches" key="ProbTP2p50in24hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="24hr Prob Total Precip &gt; 3.00 inches" key="ProbTP3p00in24hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="24hr Prob Total Precip &gt; 4.00 inches" key="ProbTP4p00in24hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="24hr Prob Total Precip &gt; 5.00 inches" key="ProbTP5p00in24hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="24hr Prob Total Precip &gt; 6.00 inches" key="ProbTP6p00in24hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="24hr Prob Total Precip &gt; 8.00 inches" key="ProbTP8p00in24hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="24hr Prob Total Precip &gt; 16.00 inches" key="ProbTP16p00in24hr" indentText="false" />
+    </contribute>
+    
+    <contribute xsi:type="toolbarSubMenu" menuText="72hr">
+        <contribute xsi:type="menuItem" menuText="72hr Prob Total Precip &gt; 0.25 inches" key="ProbTP0p25in72hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="72hr Prob Total Precip &gt; 0.50 inches" key="ProbTP0p50in72hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="72hr Prob Total Precip &gt; 1.00 inch" key="ProbTP1p00in72hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="72hr Prob Total Precip &gt; 1.50 inches" key="ProbTP1p50in72hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="72hr Prob Total Precip &gt; 2.00 inches" key="ProbTP2p00in72hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="72hr Prob Total Precip &gt; 2.50 inches" key="ProbTP2p50in72hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="72hr Prob Total Precip &gt; 3.00 inches" key="ProbTP3p00in72hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="72hr Prob Total Precip &gt; 4.00 inches" key="ProbTP4p00in72hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="72hr Prob Total Precip &gt; 5.00 inches" key="ProbTP5p00in72hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="72hr Prob Total Precip &gt; 6.00 inches" key="ProbTP6p00in72hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="72hr Prob Total Precip &gt; 8.00 inches" key="ProbTP8p00in72hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="72hr Prob Total Precip &gt; 16.00 inches" key="ProbTP16p00in72hr" indentText="false" />
+    </contribute>
+
+</menuTemplate>

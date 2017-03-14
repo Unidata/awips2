@@ -1,0 +1,392 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+    <bean id="radarUnitsRegisterd"
+        class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetClass">
+            <value>com.raytheon.uf.common.dataplugin.radar.units.RadarUnits
+            </value>
+        </property>
+        <property name="targetMethod">
+            <value>register</value>
+        </property>
+    </bean>
+
+    <bean id="radarGridFactory"
+        class="com.raytheon.uf.common.dataplugin.radar.dataaccess.RadarGridFactory" />
+
+    <bean factory-bean="dataAccessRegistry" factory-method="register">
+        <constructor-arg value="radar" />
+        <constructor-arg ref="radarGridFactory" />
+    </bean>
+
+    <bean id="radarPacketFactory"
+        class="com.raytheon.uf.common.dataplugin.radar.level3.PacketFactory"
+        factory-method="getInstance" />
+
+    <bean factory-bean="radarPacketFactory" factory-method="registerPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.CellTrendDataPacket"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>21</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="radarPacketFactory" factory-method="registerPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.CellTrendVolumeScanPacket"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>22</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="radarPacketFactory" factory-method="registerPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.CorrelatedShearPacket"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>11</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="radarPacketFactory" factory-method="registerPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.ETVSPacket"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>26</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="radarPacketFactory" factory-method="registerPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.HailPositivePacket"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>13</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="radarPacketFactory" factory-method="registerPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.HailProbablePacket"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>14</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="radarPacketFactory" factory-method="registerPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.HdaHailPacket"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>19</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="radarPacketFactory" factory-method="registerPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.LinkedContourVectorPacket"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>0x0E03</value>
+                <value>0x0802</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="radarPacketFactory" factory-method="registerPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.LinkedVectorPacket"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>6</value>
+                <value>9</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="radarPacketFactory" factory-method="registerPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.MesocyclonePacket"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>3</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="radarPacketFactory" factory-method="registerPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.PrecipDataPacket"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>17</value>
+                <value>18</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="radarPacketFactory" factory-method="registerPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.RadialPacket"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>0xAF1F</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="radarPacketFactory" factory-method="registerPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.RadialPacket8bit"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>16</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="radarPacketFactory" factory-method="registerPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.RasterPacket"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>0xBA07</value>
+                <value>0xBA0F</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="radarPacketFactory" factory-method="registerPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.SCITDataPacket"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>23</value>
+                <value>24</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="radarPacketFactory" factory-method="registerPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.SpecialGraphicSymbolPacket"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>20</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="radarPacketFactory" factory-method="registerPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.STICirclePacket"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>25</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="radarPacketFactory" factory-method="registerPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.SuperObWindDataPacket"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>27</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="radarPacketFactory" factory-method="registerPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.StormIDPacket"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>15</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="radarPacketFactory" factory-method="registerPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.TextSymbolPacket"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>1</value>
+                <value>2</value>
+                <value>8</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="radarPacketFactory" factory-method="registerPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.TVSPacket"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>12</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="radarPacketFactory" factory-method="registerPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.UnlinkedContourVectorPacket"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>0x3501</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="radarPacketFactory" factory-method="registerPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.UnlinkedVectorPacket"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>7</value>
+                <value>10</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="radarPacketFactory" factory-method="registerPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.VectorArrowPacket"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>5</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="radarPacketFactory" factory-method="registerPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.WindBarbPacket"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>4</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="radarPacketFactory" factory-method="registerPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.GenericDataPacket"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>28</value>
+                <value>29</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="radarPacketFactory" factory-method="registerGenericPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.GenericDataPacket"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>176</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="radarPacketFactory" factory-method="registerGenericPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.DMDPacket"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>149</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="radarPacketFactory" factory-method="registerGenericPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.SCCPacket"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>202</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="radarPacketFactory" factory-method="registerGenericPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.GFMPacket"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>140</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean factory-bean="radarPacketFactory" factory-method="registerGenericPacketType">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.radar.level3.MBAPacket"
+            type="java.lang.Class" />
+        <constructor-arg>
+            <list>
+                <value>196</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean id="radarSpatialDataFactory"
+        class="com.raytheon.uf.common.dataaccess.impl.StationGeometryTimeAgnosticDatabaseFactory">
+        <constructor-arg value="awips" />
+        <constructor-arg value="metadata" />
+        <constructor-arg value="radar_spatial" />
+        <constructor-arg value="the_geom" />
+        <constructor-arg value="rda_id" />
+    </bean>
+
+    <bean factory-bean="dataAccessRegistry" factory-method="register"
+        depends-on="radarSpatialDataFactory">
+        <constructor-arg value="radar_spatial" />
+        <constructor-arg ref="radarSpatialDataFactory" />
+    </bean>
+</beans>

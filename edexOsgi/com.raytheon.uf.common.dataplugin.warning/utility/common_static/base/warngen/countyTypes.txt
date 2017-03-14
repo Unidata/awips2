@@ -1,0 +1,23 @@
+LA \ Parish
+Louisiana \ Parish
+LA+ \ Parishes
+Louisiana+ \ Parishes
+DC \
+District of Columbia \ 
+DC+ \ 
+District of Columbia+ \ 
+AK \
+Alaska \ 
+AK+ \ 
+Alaska+ \ 
+PR \ Municipality
+Puerto Rico \ Municipality
+PR+ \ Municipalities
+Puerto Rico+ \ Municipalities
+GU \
+Guam \
+GU+ \
+Guam+ \
+DEFAULT+ \ Counties
+DEFAULT \ County
+City \

@@ -1,0 +1,966 @@
+/*
+    File: PairedValue.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:26 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "PairedValue.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct PairedValue_t
+{
+    char		lid[9];
+    char		pe[3];
+    short		dur;
+    char		ts[3];
+    char		extremum[2];
+    float		probability;
+    dtime_t		validtime;
+    dtime_t		basistime;
+    long		ref_value;
+    double		value;
+    char		shef_qual_code[2];
+    long		quality_code;
+    short		revision;
+    char		product_id[11];
+    dtime_t		producttime;
+    dtime_t		postingtime;
+
+    int		ind_value;
+    int		ind_shef_qual_code;
+    int		ind_quality_code;
+    int		ind_revision;
+    int		ind_product_id;
+    int		ind_producttime;
+    int		ind_postingtime;
+} PairedValue_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+PairedValue * GetPairedValue(const char * where)
+{
+
+    PairedValue * listPtr = NULL;
+    PairedValue * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM PairedValue ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct PairedValue_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetPairedValue() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetPairedValue() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetPairedValue() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.lid, :dbs.pe, 
+    :dbs.dur, :dbs.ts, 
+    :dbs.extremum, :dbs.probability, 
+    :dbs.validtime, :dbs.basistime, 
+    :dbs.ref_value, :dbs.value:dbs.ind_value, 
+    :dbs.shef_qual_code:dbs.ind_shef_qual_code, :dbs.quality_code:dbs.ind_quality_code, 
+    :dbs.revision:dbs.ind_revision, :dbs.product_id:dbs.ind_product_id, 
+    :dbs.producttime:dbs.ind_producttime, :dbs.postingtime:dbs.ind_postingtime    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetPairedValue() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (PairedValue *) malloc(sizeof(PairedValue))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->pe, dbs.pe);
+
+            structPtr->dur = dbs.dur;
+
+            strcpy(structPtr->ts, dbs.ts);
+
+            strcpy(structPtr->extremum, dbs.extremum);
+
+            structPtr->probability = dbs.probability;
+
+            structPtr->validtime = dbs.validtime;
+
+            structPtr->basistime = dbs.basistime;
+
+            structPtr->ref_value = dbs.ref_value;
+
+            structPtr->value = dbs.value;
+            setNullIfIndicated(dbs.ind_value, DOUBLE, &structPtr->value);
+
+            strcpy(structPtr->shef_qual_code, dbs.shef_qual_code);
+            setNullIfIndicated(dbs.ind_shef_qual_code, CHAR, structPtr->shef_qual_code);
+
+            structPtr->quality_code = dbs.quality_code;
+            setNullIfIndicated(dbs.ind_quality_code, INT, &structPtr->quality_code);
+
+            structPtr->revision = dbs.revision;
+            setNullIfIndicated(dbs.ind_revision, SHORT, &structPtr->revision);
+
+            strcpy(structPtr->product_id, dbs.product_id);
+            setNullIfIndicated(dbs.ind_product_id, CHAR, structPtr->product_id);
+
+            structPtr->producttime = dbs.producttime;
+            setNullIfIndicated(dbs.ind_producttime, DATETIME, &structPtr->producttime);
+
+            structPtr->postingtime = dbs.postingtime;
+            setNullIfIndicated(dbs.ind_postingtime, DATETIME, &structPtr->postingtime);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.lid, :dbs.pe, 
+        :dbs.dur, :dbs.ts, 
+        :dbs.extremum, :dbs.probability, 
+        :dbs.validtime, :dbs.basistime, 
+        :dbs.ref_value, :dbs.value:dbs.ind_value, 
+        :dbs.shef_qual_code:dbs.ind_shef_qual_code, :dbs.quality_code:dbs.ind_quality_code, 
+        :dbs.revision:dbs.ind_revision, :dbs.product_id:dbs.ind_product_id, 
+        :dbs.producttime:dbs.ind_producttime, :dbs.postingtime:dbs.ind_postingtime        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetPairedValue() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+PairedValue * SelectPairedValue(const char * where)
+{
+
+    PairedValue * listPtr = NULL;
+    PairedValue * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM PairedValue ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct PairedValue_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectPairedValue() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectPairedValue() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectPairedValue() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.lid, :dbs.pe, 
+    :dbs.dur, :dbs.ts, 
+    :dbs.extremum, :dbs.probability, 
+    :dbs.validtime, :dbs.basistime, 
+    :dbs.ref_value, :dbs.value:dbs.ind_value, 
+    :dbs.shef_qual_code:dbs.ind_shef_qual_code, :dbs.quality_code:dbs.ind_quality_code, 
+    :dbs.revision:dbs.ind_revision, :dbs.product_id:dbs.ind_product_id, 
+    :dbs.producttime:dbs.ind_producttime, :dbs.postingtime:dbs.ind_postingtime    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectPairedValue() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (PairedValue *) malloc(sizeof(PairedValue))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->pe, dbs.pe);
+
+            structPtr->dur = dbs.dur;
+
+            strcpy(structPtr->ts, dbs.ts);
+
+            strcpy(structPtr->extremum, dbs.extremum);
+
+            structPtr->probability = dbs.probability;
+
+            structPtr->validtime = dbs.validtime;
+
+            structPtr->basistime = dbs.basistime;
+
+            structPtr->ref_value = dbs.ref_value;
+
+            structPtr->value = dbs.value;
+            setNullIfIndicated(dbs.ind_value, DOUBLE, &structPtr->value);
+
+            strcpy(structPtr->shef_qual_code, dbs.shef_qual_code);
+            setNullIfIndicated(dbs.ind_shef_qual_code, CHAR, structPtr->shef_qual_code);
+
+            structPtr->quality_code = dbs.quality_code;
+            setNullIfIndicated(dbs.ind_quality_code, INT, &structPtr->quality_code);
+
+            structPtr->revision = dbs.revision;
+            setNullIfIndicated(dbs.ind_revision, SHORT, &structPtr->revision);
+
+            strcpy(structPtr->product_id, dbs.product_id);
+            setNullIfIndicated(dbs.ind_product_id, CHAR, structPtr->product_id);
+
+            structPtr->producttime = dbs.producttime;
+            setNullIfIndicated(dbs.ind_producttime, DATETIME, &structPtr->producttime);
+
+            structPtr->postingtime = dbs.postingtime;
+            setNullIfIndicated(dbs.ind_postingtime, DATETIME, &structPtr->postingtime);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.lid, :dbs.pe, 
+        :dbs.dur, :dbs.ts, 
+        :dbs.extremum, :dbs.probability, 
+        :dbs.validtime, :dbs.basistime, 
+        :dbs.ref_value, :dbs.value:dbs.ind_value, 
+        :dbs.shef_qual_code:dbs.ind_shef_qual_code, :dbs.quality_code:dbs.ind_quality_code, 
+        :dbs.revision:dbs.ind_revision, :dbs.product_id:dbs.ind_product_id, 
+        :dbs.producttime:dbs.ind_producttime, :dbs.postingtime:dbs.ind_postingtime        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectPairedValue() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectPairedValueCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM PairedValue ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountPairedValue() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountPairedValue() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountPairedValue() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountPairedValue() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutPairedValue(const PairedValue * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct PairedValue_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.pe, structPtr->pe);
+
+    dbs.dur = structPtr->dur;
+
+    strcpy(dbs.ts, structPtr->ts);
+
+    strcpy(dbs.extremum, structPtr->extremum);
+
+    dbs.probability = structPtr->probability;
+
+    dbs.validtime = structPtr->validtime;
+
+    dbs.basistime = structPtr->basistime;
+
+    dbs.ref_value = structPtr->ref_value;
+
+    dbs.value = structPtr->value;
+    dbs.ind_value = getIndicator(DOUBLE, (void *)&structPtr->value);
+
+    strcpy(dbs.shef_qual_code, structPtr->shef_qual_code);
+    dbs.ind_shef_qual_code = getIndicator(CHAR, (void *)structPtr->shef_qual_code);
+
+    dbs.quality_code = structPtr->quality_code;
+    dbs.ind_quality_code = getIndicator(INT, (void *)&structPtr->quality_code);
+
+    dbs.revision = structPtr->revision;
+    dbs.ind_revision = getIndicator(SHORT, (void *)&structPtr->revision);
+
+    strcpy(dbs.product_id, structPtr->product_id);
+    dbs.ind_product_id = getIndicator(CHAR, (void *)structPtr->product_id);
+
+    dbs.producttime = structPtr->producttime;
+    dbs.ind_producttime = getIndicator(DATETIME, (void *)&structPtr->producttime);
+
+    dbs.postingtime = structPtr->postingtime;
+    dbs.ind_postingtime = getIndicator(DATETIME, (void *)&structPtr->postingtime);
+
+
+    EXEC SQL INSERT INTO PairedValue (lid,pe,
+        dur,ts,extremum,
+        probability,validtime,basistime,
+        ref_value,"value",shef_qual_code,
+        quality_code,revision,product_id,
+        producttime,postingtime        )
+        VALUES (
+         :dbs.lid, :dbs.pe, :dbs.dur,
+         :dbs.ts, :dbs.extremum, :dbs.probability,
+         :dbs.validtime, :dbs.basistime, :dbs.ref_value,
+         :dbs.value:dbs.ind_value, :dbs.shef_qual_code:dbs.ind_shef_qual_code, :dbs.quality_code:dbs.ind_quality_code,
+         :dbs.revision:dbs.ind_revision, :dbs.product_id:dbs.ind_product_id, :dbs.producttime:dbs.ind_producttime,
+         :dbs.postingtime:dbs.ind_postingtime);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutPairedValue() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertPairedValue(const PairedValue * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct PairedValue_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.pe, structPtr->pe);
+
+    dbs.dur = structPtr->dur;
+
+    strcpy(dbs.ts, structPtr->ts);
+
+    strcpy(dbs.extremum, structPtr->extremum);
+
+    dbs.probability = structPtr->probability;
+
+    dbs.validtime = structPtr->validtime;
+
+    dbs.basistime = structPtr->basistime;
+
+    dbs.ref_value = structPtr->ref_value;
+
+    dbs.value = structPtr->value;
+    dbs.ind_value = getIndicator(DOUBLE, (void *)&structPtr->value);
+
+    strcpy(dbs.shef_qual_code, structPtr->shef_qual_code);
+    dbs.ind_shef_qual_code = getIndicator(CHAR, (void *)structPtr->shef_qual_code);
+
+    dbs.quality_code = structPtr->quality_code;
+    dbs.ind_quality_code = getIndicator(INT, (void *)&structPtr->quality_code);
+
+    dbs.revision = structPtr->revision;
+    dbs.ind_revision = getIndicator(SHORT, (void *)&structPtr->revision);
+
+    strcpy(dbs.product_id, structPtr->product_id);
+    dbs.ind_product_id = getIndicator(CHAR, (void *)structPtr->product_id);
+
+    dbs.producttime = structPtr->producttime;
+    dbs.ind_producttime = getIndicator(DATETIME, (void *)&structPtr->producttime);
+
+    dbs.postingtime = structPtr->postingtime;
+    dbs.ind_postingtime = getIndicator(DATETIME, (void *)&structPtr->postingtime);
+
+
+    EXEC SQL INSERT INTO PairedValue (lid,pe,
+        dur,ts,extremum,
+        probability,validtime,basistime,
+        ref_value,"value",shef_qual_code,
+        quality_code,revision,product_id,
+        producttime,postingtime        )
+        VALUES (
+         :dbs.lid, :dbs.pe, :dbs.dur,
+         :dbs.ts, :dbs.extremum, :dbs.probability,
+         :dbs.validtime, :dbs.basistime, :dbs.ref_value,
+         :dbs.value:dbs.ind_value, :dbs.shef_qual_code:dbs.ind_shef_qual_code, :dbs.quality_code:dbs.ind_quality_code,
+         :dbs.revision:dbs.ind_revision, :dbs.product_id:dbs.ind_product_id, :dbs.producttime:dbs.ind_producttime,
+         :dbs.postingtime:dbs.ind_postingtime);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertPairedValue() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdatePairedValue(const PairedValue *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct PairedValue_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.pe, structPtr->pe);
+
+    dbs.dur = structPtr->dur;
+
+    strcpy(dbs.ts, structPtr->ts);
+
+    strcpy(dbs.extremum, structPtr->extremum);
+
+    dbs.probability = structPtr->probability;
+
+    dbs.validtime = structPtr->validtime;
+
+    dbs.basistime = structPtr->basistime;
+
+    dbs.ref_value = structPtr->ref_value;
+
+    dbs.value = structPtr->value;
+    dbs.ind_value = getIndicator(DOUBLE, (void *)&structPtr->value);
+
+    strcpy(dbs.shef_qual_code, structPtr->shef_qual_code);
+    dbs.ind_shef_qual_code = getIndicator(CHAR, (void *)structPtr->shef_qual_code);
+
+    dbs.quality_code = structPtr->quality_code;
+    dbs.ind_quality_code = getIndicator(INT, (void *)&structPtr->quality_code);
+
+    dbs.revision = structPtr->revision;
+    dbs.ind_revision = getIndicator(SHORT, (void *)&structPtr->revision);
+
+    strcpy(dbs.product_id, structPtr->product_id);
+    dbs.ind_product_id = getIndicator(CHAR, (void *)structPtr->product_id);
+
+    dbs.producttime = structPtr->producttime;
+    dbs.ind_producttime = getIndicator(DATETIME, (void *)&structPtr->producttime);
+
+    dbs.postingtime = structPtr->postingtime;
+    dbs.ind_postingtime = getIndicator(DATETIME, (void *)&structPtr->postingtime);
+
+
+    sprintf(queryBuffer, " UPDATE PairedValue SET " );
+    strcat(queryBuffer, "lid = ? , pe = ? , dur = ? , ts = ? , extremum = ? ,     ");
+    strcat(queryBuffer, "probability = ? , validtime = ? , basistime = ? , ref_value = ? , \"value\" = ? ,     ");
+    strcat(queryBuffer, "shef_qual_code = ? , quality_code = ? , revision = ? , product_id = ? , producttime = ? ,     ");
+    strcat(queryBuffer, "postingtime = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdatePairedValue() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.lid, :dbs.pe, :dbs.dur, :dbs.ts, :dbs.extremum,
+     :dbs.probability, :dbs.validtime, :dbs.basistime, :dbs.ref_value, :dbs.value:dbs.ind_value,
+     :dbs.shef_qual_code:dbs.ind_shef_qual_code, :dbs.quality_code:dbs.ind_quality_code, :dbs.revision:dbs.ind_revision, :dbs.product_id:dbs.ind_product_id, :dbs.producttime:dbs.ind_producttime,
+     :dbs.postingtime:dbs.ind_postingtime;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdatePairedValue() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeletePairedValue(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM PairedValue ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeletePairedValue() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdatePairedValueByRecord (const PairedValue * newStructPtr, const PairedValue * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetPairedValuePrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdatePairedValue(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdatePairedValue(const PairedValue * structPtr)
+{
+    UpdatePairedValueByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertPairedValue(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniquePairedValue(const PairedValue * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (PairedValueExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertPairedValue(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeletePairedValueByRecord(const PairedValue * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetPairedValuePrimaryKeyWhereString(structPtr, whereClause);
+    return (DeletePairedValue(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool PairedValueExists(const PairedValue * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetPairedValuePrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectPairedValueCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetPairedValuePrimaryKeyWhereString (const PairedValue * structPtr, char returnWhereString[] )
+{
+    char time_buffer0[40];
+    char time_buffer1[40];
+    sprintf(returnWhereString, "WHERE lid = '%s'  AND pe = '%s'  AND dur = %d  AND ts = '%s'  AND extremum = '%s'  AND probability = %f  AND validtime = '%s'  AND basistime = '%s'  AND ref_value = %ld ",
+            structPtr->lid, structPtr->pe, structPtr->dur, structPtr->ts, structPtr->extremum, 
+            structPtr->probability, dtimet_to_ansi(structPtr->validtime, time_buffer0), dtimet_to_ansi(structPtr->basistime, time_buffer1), structPtr->ref_value);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreePairedValue( PairedValue * structPtr)
+{
+    PairedValue* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( PairedValue * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetPairedValueDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetPairedValueErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

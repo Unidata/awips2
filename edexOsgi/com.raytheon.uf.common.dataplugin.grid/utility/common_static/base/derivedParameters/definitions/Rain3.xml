@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+//
+// Partial Thickness Precipitation Type Icons - Rain3
+// 
+
+AWIPS 1 format
+Rain3 |0|N |Thickness: Rain Likely| |ICON|Surface |   *Test,Surface|dZ,1000MB-700MB| 1.|-1.e37|2869.|0.|1.|2870.|1.e37|Rain2  
+
+
+abbreviation: |Rain3| 
+Notused1: |0| 
+Notused2: |N | 
+name: |Thickness: Rain Likely| 
+FIELD: || 
+FIELD: |ICON| 
+FIELD: |Surface| 
+FIELD: |dZ,1000MB-700MB| 
+FIELD: |1.| 
+FIELD: |-1.e37| 
+FIELD: |2869.| 
+FIELD: |0.| 
+FIELD: |1.| 
+FIELD: |2870.| 
+FIELD: |1.e37| 
+FIELD: |Rain2| 
+
+Rain thickness criteria: 
+1000-850 mb thickness 1291m or more 
+850-700 mb thickness 1552m or more
+1000-700 mb thickness 2870m or more
+
+-->
+<DerivedParameter name="Thickness: Rain Likely" abbreviation="Rain3" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="900MB" name="Test">
+        <Field level="1000MB-850MB" abbreviation="dZ"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1.0E37"/>
+        <ConstantField value="1290.0"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="1291.0"/>
+        <ConstantField value="1.0E37"/>
+        <ConstantField value="1.0"/>
+    </Method>
+     <Method levels="850MB" name="Test">
+        <Field level="850MB-700MB" abbreviation="dZ"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1e37"/>
+        <ConstantField value="1551.0"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="1552.0"/>
+        <ConstantField value="1e37"/>
+        <Field level="900MB" abbreviation="Rain3"/>
+    </Method>
+    <Method levels="800MB" name="Test">
+        <Field level="1000MB-700MB" abbreviation="dZ"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1e37"/>
+        <ConstantField value="2869.0"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="2870.0"/>
+        <ConstantField value="1e37"/>
+        <Field level="850MB" abbreviation="Rain3"/>
+    </Method>
+     <Method name="Mapping" levels="Surface">
+		<Field level="800MB" abbreviation="Rain3" />
+        <ConstantField value="1" />
+		<ConstantField value="79" />
+	</Method>
+    
+</DerivedParameter>

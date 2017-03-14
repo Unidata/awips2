@@ -1,0 +1,23 @@
+C..............................................
+C    COMMON BLOCK CNTL31
+C
+C    VARIABLE            DESCRIPTION
+C    --------            -----------
+C      iprop             flag indicating that the
+C                        state error co-variance matrix 
+C                        is to be propagated.
+C      ISCFLTR           Flag for updating with snow cover computed
+C                        by the Kalman Filter when water equiv is 
+C                        updated.
+C      kmo31             variable to hold month.
+C      kda31             variable to hold day.
+C      kyr31             variable to hold year.
+C      khr31             variable to hold hour.
+C..............................................
+C
+      integer iprop, iscfltr,
+     1        kmo31, kda31, kyr31, khr31
+C
+      common/cntl31/iprop, iscfltr,
+     1              kmo31, kda31, kyr31, khr31
+C

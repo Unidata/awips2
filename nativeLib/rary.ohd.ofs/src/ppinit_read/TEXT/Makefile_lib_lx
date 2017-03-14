@@ -1,0 +1,56 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-ppinit_read library file
+#
+#  cmt: File made on Wed Aug  6 12:52:06 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libppinit_read_t.a:  \
+     $(LIB)/libppinit_read_t.a(srdflt.o)  \
+     $(LIB)/libppinit_read_t.a(srgbox.o)  \
+     $(LIB)/libppinit_read_t.a(srgmdr.o)  \
+     $(LIB)/libppinit_read_t.a(srgp24.o)  \
+     $(LIB)/libppinit_read_t.a(srmape.o)  \
+     $(LIB)/libppinit_read_t.a(srmap.o)  \
+     $(LIB)/libppinit_read_t.a(srmaps.o)  \
+     $(LIB)/libppinit_read_t.a(srmaro.o)  \
+     $(LIB)/libppinit_read_t.a(srmat.o)  \
+     $(LIB)/libppinit_read_t.a(srntwk.o)  \
+     $(LIB)/libppinit_read_t.a(srodly.o)  \
+     $(LIB)/libppinit_read_t.a(srog24.o)  \
+     $(LIB)/libppinit_read_t.a(srorrs.o)  \
+     $(LIB)/libppinit_read_t.a(srpcpn.o)  \
+     $(LIB)/libppinit_read_t.a(srpe.o)  \
+     $(LIB)/libppinit_read_t.a(srrfro.o)  \
+     $(LIB)/libppinit_read_t.a(srrrs.o)  \
+     $(LIB)/libppinit_read_t.a(srstan.o)  \
+     $(LIB)/libppinit_read_t.a(srstbn.o)  \
+     $(LIB)/libppinit_read_t.a(srtemp.o)  \
+     $(LIB)/libppinit_read_t.a(srurrs.o)
+

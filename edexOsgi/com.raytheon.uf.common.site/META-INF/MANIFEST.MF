@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Site Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.site
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.serialization.comm
+Export-Package: com.raytheon.uf.common.site,
+ com.raytheon.uf.common.site.notify,
+ com.raytheon.uf.common.site.requests,
+ com.raytheon.uf.common.site.xml

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DerivedParameter unit="m/s" name="Std Wind Speed" abbreviation="stdWindSpeed">
+    <Method name="StdMOS">
+        <Field abbreviation="QPF6hr_bestCat"/>
+        <Field abbreviation="windSpeedInflated"/>
+    </Method>
+</DerivedParameter>

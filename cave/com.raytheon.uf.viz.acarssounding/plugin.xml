@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="com.raytheon.viz.volumebrowser.datacatalog">
+      <dataCatalog
+            catalogClass="com.raytheon.uf.viz.acarssounding.AcarsSoundingVbDataCatalog">
+      </dataCatalog>
+   </extension>
+   <extension
+         point="com.raytheon.viz.volumebrowser.productcreator">
+      <productCreator
+            creatorClass="com.raytheon.uf.viz.acarssounding.AcarsSoundingProductCreator"
+            plugins="acarssounding"
+            resourceType="sounding">
+      </productCreator>
+      <productCreator
+            creatorClass="com.raytheon.viz.volumebrowser.loader.VarHeightProductCreator"
+            plugins="acarssounding"
+            resourceType="var_height">
+      </productCreator>
+      <productCreator
+            creatorClass="com.raytheon.viz.volumebrowser.loader.TimeSeriesProductCreator"
+            plugins="acarssounding"
+            resourceType="time_series">
+      </productCreator>
+      <productCreator
+            creatorClass="com.raytheon.uf.viz.volumebrowser.dataplugin.point.PointTimeHeightProductCreator"
+            plugins="acarssounding"
+            resourceType="time_height">
+      </productCreator>
+      <productCreator
+            creatorClass="com.raytheon.uf.viz.volumebrowser.dataplugin.point.PointCrossSectionProductCreator"
+            plugins="acarssounding"
+            resourceType="cross_section">
+      </productCreator>
+   </extension>
+
+</plugin>

@@ -1,0 +1,48 @@
+# creates or applies a permissions script that can be used to set file
+# permissions in situations where they are lost (like svn)
+
+.SILENT:
+
+permissions_applied=permissions_applied~
+
+ifndef PERMISSIONS_SCRIPT
+PERMISSIONS_SCRIPT=file_permissions.sh
+endif
+
+ifndef PERMISSIONS_ROOT
+ifdef INSTALL_FROM
+PERMISSIONS_ROOT=$(INSTALL_FROM)
+else
+PERMISSIONS_ROOT=.
+endif
+endif
+
+_create_permissions_script:
+	# create permissions_script
+	echo "cd \$$(dirname \$$0)" > $(PERMISSIONS_SCRIPT)
+	find $(PERMISSIONS_ROOT) -name '*' -exec stat -c 'chmod %a %n' {} \; | \
+		grep -v ".svn" | grep -v "~$$" >> $(PERMISSIONS_SCRIPT)
+	sort $(PERMISSIONS_SCRIPT) -o $(PERMISSIONS_SCRIPT)
+	echo "exit 0" >> $(PERMISSIONS_SCRIPT)
+	touch $(PERMISSIONS_SCRIPT)
+	
+all: $(permissions_applied)
+	# initial permissions have been applied so just remake the permissions script
+	$(MAKE) _create_permissions_script
+
+$(permissions_applied): $(PERMISSIONS_SCRIPT)
+	# there is a permissions script but it has not yet been applied
+	# this project must have just been checked out from svn or a new project
+	# in both cases we simply just need to execute the script and set the tag
+	bash $(permissions_script)
+	touch $(permissions_applied) 
+	
+$(PERMISSIONS_SCRIPT):
+	# there is no permissions script so this must be a new project
+	# lets create a permissions script
+	$(MAKE) _create_permissions_script
+
+clean:
+	rm -f $(PERMISSIONS_SCRIPT) $(permissions_applied)
+	
+.PHONY: clean all _create_permissions_script 

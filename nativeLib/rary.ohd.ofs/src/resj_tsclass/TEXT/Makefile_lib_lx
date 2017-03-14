@@ -1,0 +1,39 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-resj_tsclass library file
+#
+#  cmt: File made on Wed Aug  6 12:55:34 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+CXX      = /usr/bin/g++ -Wno-deprecated
+CXXOPTIM =
+CXXFLAGS = $(CXXOPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_CXX  = -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/include/informix/esql/  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .cxx .h .o .a
+
+.cxx.a:
+	@echo "-------------------------------- $<"
+	@-$(CXX) $(CXXFLAGS) $(INSERTS_CXX) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libresj_tsclass_t.a:  \
+     $(LIB)/libresj_tsclass_t.a(TSClass.o)
+

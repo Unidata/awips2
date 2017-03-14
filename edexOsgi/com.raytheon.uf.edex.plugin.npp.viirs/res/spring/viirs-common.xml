@@ -1,0 +1,20 @@
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+	<bean id="viirsPluginName" class="java.lang.String">
+		<constructor-arg type="java.lang.String" value="viirs" />
+	</bean>
+	
+	<bean id="viirsProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+		<property name="pluginName" ref="viirsPluginName" />
+		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.npp.viirs" />
+		<property name="dao" value="com.raytheon.uf.edex.plugin.npp.viirs.dao.VIIRSDao" />
+		<property name="record" value="com.raytheon.uf.common.dataplugin.npp.viirs.VIIRSDataRecord" />
+		<property name="compression" value="LZF"/>
+	</bean>
+	
+	<bean id="viirsRegistered" factory-bean="pluginRegistry" factory-method="register">
+		<constructor-arg ref="viirsPluginName" />
+		<constructor-arg ref="viirsProperties" />
+	</bean>
+</beans>

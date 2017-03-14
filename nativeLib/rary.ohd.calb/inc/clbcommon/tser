@@ -1,0 +1,4 @@
+C                                           *--> FROM CLBCOMMON.TSER
+C  CALIBRATION SYSTEM TIME SERIES INFORMATION
+      COMMON /TSER/ NUS(50),NHEAD1(50),NA
+C

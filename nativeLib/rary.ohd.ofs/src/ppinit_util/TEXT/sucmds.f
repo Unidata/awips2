@@ -1,0 +1,1393 @@
+C$PRAGMA C (GET_APPS_DEFAULTS)
+C MODULE SUCMDS
+C-----------------------------------------------------------------------
+C
+C  ROUTINE TO CHECK FOR COMMANDS.
+C
+      SUBROUTINE SUCMDS (LPMFLD,PMFLD,LARRAY,ARRAY,ISTAT)
+C
+      CHARACTER*8 CHAR8,SEQNUM,XDUSER,DCDOPT,XCMD,USERN
+      CHARACTER*8 TYPERR,TYPMSG
+      CHARACTER*8 DDNAME/' '/
+      CHARACTER*8 FTXX/'FTXXF001'/
+      CHARACTER*8 CMDS(7)
+     *   /'@DEFINE ','@DELETE ','@NETWORK','@ORDER  ','@MDRGRID',
+     *    '@CHANGE ','@INCLUDE'/
+      CHARACTER*10 CLARG,CLCHK1,CLCHK2
+      CHARACTER*10 APPSVAR,APPSVAL
+      CHARACTER*20 STRNG/' '/,STRNG2/' '/
+      CHARACTER*44 DSNSTP
+      CHARACTER*44 DSNFT4,DSNFT5,DSNFT6,DSNFT7,DSNFT9
+      CHARACTER*100 PMFLD
+C
+      PARAMETER (LSIBUF=128)
+      INTEGER*2 ISIBUF(LSIBUF)
+C
+      DIMENSION ARRAY(LARRAY)
+C
+      INCLUDE 'uiox'
+      common /CMPPINIT/ PGMVRN,PGMVRD,PGMNAM,MPGMRG,PGMCMP,PGMSYS
+      INCLUDE 'upvrsx_types'
+      INCLUDE 'udebug'
+      INCLUDE 'ufreex'
+      INCLUDE 'uunits'
+      INCLUDE 'hclcommon/hdflts'
+      INCLUDE 'hclcommon/huprm2'
+      INCLUDE 'scommon/sucmdx'
+      INCLUDE 'scommon/sudbgx'
+      INCLUDE 'scommon/suddsx'
+      INCLUDE 'scommon/suerrx'
+      INCLUDE 'scommon/suoptx'
+      INCLUDE 'scommon/supagx'
+      INCLUDE 'scommon/surunx'
+      INCLUDE 'scommon/sutmrx'
+      INCLUDE 'scommon/sugnlx'
+      INCLUDE 'scommon/sntwkx'
+
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppinit_util/RCS/sucmds.f,v $
+     . $',                                                             '
+     .$Id: sucmds.f,v 1.11 2002/02/11 20:55:15 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+
+C     Setup the upvrsx common block
+      call set_upvrsx(PGMVRN,PGMVRD,PGMNAM,MPGMRG,PGMCMP,PGMSYS)
+
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,*) 'ENTER SUCMDS'
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISDBGL
+C
+      ISTAT=0
+C
+      LSTRNG=LEN(STRNG)/4
+      LSTRNG2=LEN(STRNG2)/4
+C
+      NFLD=0
+      ISTRT=0
+      INDCLG=0
+      NUMERR=0
+      NUMWRN=0
+      ILPFND=0
+      IRPFND=0
+      NDCODE=NRDCRD
+      NCSKIP=0
+      ICDQTO=ICDQTE
+      ICMERR=0
+      ILPCMD=0
+      INCLDE=0
+      IENDIN=0
+      IXEND=-1
+      NOPCND=0
+      IRDCRD=0
+      DCDOPT='YES'
+      ITMAUT=0
+      IFLAUT=0
+      IDCDPR=1
+      LPRMPT=IPRMPT
+      LPRBLN=IPRBLN
+      ISETUP=0
+      IDBWT=0
+      ICMD=0
+      IRREAD=0
+      ITTOT=0
+      IOAUTO=0
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+      IPRERR=0
+      IPRWRN=0
+      IF (LDEBUG.GT.0) THEN
+         IPRERR=1
+         IPRWRN=1
+         ENDIF
+C
+C  CHECK IF CONDCODE OPTION SPECIFIED IN PARM FIELD
+      INDCND=0
+      CALL UINDEX (PMFLD,LPMFLD,'CONDCODE',8,ICOL)
+      IF (ICOL.GT.0) INDCND=1
+C
+C  CHECK IF PROMPT OPTION SPECIFIED IN PARM FIELD
+      INDPRM=0
+      CALL UINDEX (PMFLD,LPMFLD,'PROMPT',6,ICOL)
+      IF (ICOL.GT.0) THEN
+         INDPRM=1
+         IPRMPT=1
+         ENDIF
+C
+C  CHECK IF TSO OPTION SPECIFIED IN PARM FIELD
+      IOPTSO=0
+      CALL UINDEX (PMFLD,LPMFLD,'TSO',3,ICOL)
+      IF (ICOL.GT.0) THEN
+         IOPTSO=1
+         IOPOVP=0
+         ENDIF
+C
+C  CHECK IF RGNWRN OPTION SPECIFIED IN PARM FIELD
+      IRGNER=1
+      CALL UINDEX (PMFLD,LPMFLD,'RGNWRN',6,ICOL)
+      IF (ICOL.GT.0) IRGNER=0
+C
+C  GET NAME OF DATASET FROM WHICH PROGRAM IS BEING EXECUTED
+      ISTLDS=0
+      NUNIT=0
+      IPRERR=-1
+      DDNAME='STEPLIB'
+      CALL SULINE (LP,2)
+      CALL UPRDSN (DDNAME,NUNIT,DSNSTP,IPRERR,LP,IERR)
+      IF (IERR.EQ.0) THEN
+         ISTLDS=1
+         ELSE
+            IF (IPRWRN.GT.0) THEN
+               WRITE (LP,950) DDNAME
+               CALL SUWRNS (LP,2,NUMWRN)
+               ENDIF
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  PRINT CONTENTS OF PARAMETER FIELD
+      IF (LPMFLD.GT.0) THEN
+         WRITE (LP,960) PMFLD(1:LPMFLD)
+         CALL SULINE (LP,2)
+         ENDIF
+C
+10    IPRERR=-1
+C
+C  GET NAME OF DATASET FROM WHICH INPUT WILL BE READ
+      IFT5DS=0
+      DDNAME=' '
+      CALL SULINE (LP,2)
+      CALL UPRDSA (DDNAME,ICD,DSNFT5,IPRERR,LP,IERR)
+      IF (IERR.EQ.0) THEN
+         IFT5DS=1
+         ELSE
+            IF (IPRWRN.GT.0) THEN
+               WRITE (IOSDBG,950) DDNAME
+               CALL SUWRNS (IOSDBG,2,NUMWRN)
+               ENDIF
+         ENDIF
+C
+C  GET NAME OF DATASET TO WHICH PRINT OUTPUT WILL BE WRITTEN
+      IFT6DS=0
+      DDNAME=' '
+      CALL SULINE (LP,2)
+      CALL UPRDSA (DDNAME,LP,DSNFT6,IPRERR,LP,IERR)
+      IF (IERR.EQ.0) THEN
+         IFT6DS=1
+         ELSE
+            IF (IPRWRN.GT.0) THEN
+               WRITE (IOSDBG,950) DDNAME
+               CALL SUWRNS (IOSDBG,2,NUMWRN)
+               ENDIF
+         ENDIF
+C
+C  GET NAME OF DATASET TO WHICH PUNCH OUTPUT WILL BE WRITTEN
+      IFT7DS=0
+      DDNAME=' '
+      CALL SULINE (LP,2)
+      CALL UPRDSA (DDNAME,ICDPUN,DSNFT7,IPRERR,LP,IERR)
+      IF (IERR.EQ.0) THEN
+         IFT7DS=1
+         ELSE
+            IF (IPRWRN.GT.0) THEN
+               WRITE (IOSDBG,950) DDNAME
+               CALL SUWRNS (IOSDBG,2,NUMWRN)
+               ENDIF
+         ENDIF
+C
+C  GET NAME OF DATASET TO WHICH ERROR PRINT OUTPUT WILL BE WRITTEN
+      IFT9DS=0
+      IF (LPE.NE.LP) THEN
+         DDNAME=' '
+         CALL SULINE (LP,2)
+         CALL UPRDSA (DDNAME,LPE,DSNFT9,IPRERR,LP,IERR)
+         IF (IERR.EQ.0) THEN
+            IFT9DS=1
+            ELSE
+               LPE=LP
+               WRITE (LP,940) DDNAME,LPE
+               CALL SUWRNS (LP,2,NUMWRN)
+            ENDIF
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+      INDFTL=0
+C
+C  CHECK IF USER PARAMETER FILE ALLOCATED
+      IDUPRM=1
+      CALL SUDALC (0,IDUPRM,0,0,0,0,0,0,0,0,NUMERR,IERR)
+      IF (IERR.GT.0) GO TO 20
+C
+C  GET NAME OF DATASET FOR FILE USERPARM
+      IFT4DS=0
+      DDNAME=' '
+      LPUNIT=0
+      CALL UPRDSN (DDNAME,KUPARM,DSNFT4,IPRERR,LPUNIT,IERR)
+      IF (IERR.EQ.0) THEN
+         IFT4DS=1
+         CALL UREPET ('?',XDUSER,8)
+         CALL UINDEX (DSNFT4,44,'RFS5',4,ICOL)
+         IF (ICOL.GT.0) THEN
+            CALL UREPET (' ',XDUSER,8)
+            CALL SUBSTR (DSNFT4,ICOL+5,8,CHAR8,1)
+            CALL UINDEX (CHAR8,8,'.',1,ICOL)
+            IF (ICOL.EQ.0) ICOL=9
+            CALL SUBSTR (CHAR8,1,ICOL-1,XDUSER,1)
+            ENDIF
+         ELSE
+            IF (IPRWRN.GT.0) THEN
+               WRITE (IOSDBG,950) DDNAME
+               CALL SUWRNS (IOSDBG,2,NUMWRN)
+               ENDIF
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+      INOSTOP=0
+C
+C  GET NUMBER OF UNIX COMMAND LINE ARGUMENTS
+      NCLARG=IARGC()
+      IF (NCLARG.GE.1) THEN
+C     PROCESS EACH COMMAND LINE ARGUMENT
+         DO 15 ICLARG=1,NCLARG
+            CALL GETARG (ICLARG,CLARG)
+            CLCHK1='NOSTOP'
+            NCHAR=0
+            NCONVT=0
+            CALL UCP2LC (CLCHK1,CLCHK2,IERR)
+            IF (CLARG.EQ.CLCHK1.OR.CLARG.EQ.CLCHK2) THEN
+               INOSTOP=1
+               WRITE (LP,*) '**NOTE** ',CLARG(1:LENSTR(CLARG)),
+     *            ' OPTION FOUND AT COMMAND LINE ARGUMENT NUMBER ',
+     *            ICLARG,'.'
+               GO TO 15
+               ENDIF
+15           CONTINUE
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK INDICATOR FOR STATUS OF LAST PPINIT RUN
+      CALL SUDOPN (1,'UPRM',IERR)
+      IF (IERR.GT.0) GO TO 20
+C
+C  CHECK PROGRAM STATUS INDICATOR
+      IF (IPPSTA.EQ.0) GO TO 20
+         APPSVAR='LOGNAME'
+         LAPPSVAR=LENSTR(APPSVAR)
+         CALL GET_APPS_DEFAULTS (APPSVAR,LAPPSVAR,APPSVAL,LAPPSVAL)
+         IF (APPSVAL(1:LAPPSVAL).EQ.'scv'.AND.INOSTOP.EQ.0) THEN
+            WRITE (LP,*) '**NOTE** INOSTOP OPTION SET FOR LOGNAME ',
+     *         APPSVAL(1:LAPPSVAL),'.'
+            INOSTOP=1
+            ENDIF
+         IF (INOSTOP.EQ.0) THEN
+            WRITE (LP,890)
+            CALL SULINE (LP,2)
+            WRITE (LP,840)
+            IF (IOPOVP.EQ.1) THEN
+               WRITE (LP,840)
+               WRITE (LP,840)
+               ENDIF
+            CALL SULINE (LP,1)
+            WRITE (LP,880)
+            CALL SULINE (LP,1)
+            ENDIF
+         WRITE (LP,850) PGMNAM
+         CALL SULINE (LP,2)
+         IF (IPPSTA.GE.1.AND.IPPSTA.LE.7) THEN
+            WRITE (LP,860) CMDS(IPPSTA)
+            CALL SULINE (LP,2)
+            INDFTL=IPPSTA
+            ELSE
+               WRITE (LP,870) IPPSTA
+               CALL SULINE (LP,2)
+            ENDIF
+         WRITE (LP,900)
+         CALL SULINE (LP,2)
+         WRITE (LP,910)
+         CALL SULINE (LP,2)
+         WRITE (LP,920) PGMNAM
+         CALL SULINE (LP,2)
+         WRITE (LP,930) PGMNAM
+         CALL SULINE (LP,2)
+         CALL SUFATL
+C     UPDATE PROGRAM STATUS INDICATOR
+         IPPSTA=0
+         CALL SUPPST (IPPSTA,IERR)
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  READ USER RUN DEFAULTS
+20    IDEFLT=0
+      IUCLOG=IOPCLG(2)
+      IPRERR=0
+      CALL SRDFLT (LARRAY,ARRAY,NDFLT,NPSMLN,IOPNWP,IOPOVP,IOPCLG(1),
+     *   IPRERR,IERR)
+      IF (IERR.EQ.0) THEN
+         IF (NDFLT.GT.0) THEN
+            CALL SPDFLT (NPSMLN,IOPNWP,IOPOVP,IOPCLG(1),IERR)
+            IDEFLT=1
+            IUCLOG=IOPCLG(2)
+            CALL SUCMD2 (FTXX,DDNAME,IUCLOG,IPRERR,IOPCLG(1),IERR)
+            ENDIF
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+      IFATL=0
+C
+C  CHECK IF SUFFICIENT REGION AVAILABLE
+      ICKRGN=1
+      MINRGN=MPGMRG
+      ICKCPU=0
+      MINCPU=0
+      IPRERR=-1
+      IPUNIT=LP
+      IF (IRGNER.EQ.0) TYPERR='WARNING'
+      IF (IRGNER.EQ.1) TYPERR='ERROR'
+      INCLUDE 'clugtres'
+      IF (IERR.GT.0) THEN
+         IF (IRGNER.GT.0) THEN
+            IF (IOPCLG(1).GT.0) THEN
+               WRITE (IUCLOG,880)
+               CALL SULINE (IUCLOG,1)
+               WRITE (IUCLOG,1080)
+               CALL SULINE (IUCLOG,1)
+               ENDIF
+            IFATL=1
+            ENDIF
+         ENDIF
+C
+C  CHECK IF SUFFICIENT CPU TIME AVAILABLE
+      ICKRGN=0
+      MINRGN=0
+      ICKCPU=1
+      MINCPU=10
+      IPRERR=1
+      IPUNIT=LP
+      TYPERR='ERROR'
+      INCLUDE 'clugtres'
+      IF (IERR.GT.0) THEN
+         IF (IOPCLG(1).GT.0) THEN
+            WRITE (IUCLOG,880)
+            CALL SULINE (IUCLOG,1)
+            WRITE (IUCLOG,1080)
+            CALL SULINE (IUCLOG,1)
+            ENDIF
+         IFATL=1
+         ENDIF
+C
+      IF (IFATL.EQ.1) THEN
+         WRITE (LP,890)
+         CALL SULINE (LP,2)
+         WRITE (LP,840)
+         IF (IOPOVP.EQ.1) THEN
+            WRITE (LP,840)
+            WRITE (LP,840)
+            ENDIF
+         CALL SULINE (LP,1)
+         WRITE (LP,880)
+         CALL SULINE (LP,1)
+         CALL SUFATL
+         GO TO 820
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  STOP EXECUTION IF CONDITION CODE EXCEEDED
+      ICCODE=4
+      IF (IOPCND.GT.0) ICCODE=IOPCND
+      ISCODE=0
+      IF (NTWARN.GT.0) ISCODE=4
+      IF (NTERR.GT.0) ISCODE=8
+      IF (KLCODE.GT.0) ISCODE=KLCODE
+      IF (ISCODE.GT.ICCODE) THEN
+         IF (INOSTOP.EQ.0) GO TO 820
+         ENDIF
+      IF (IOPCND.GE.0) THEN
+         WRITE (LP,1060) ISCODE,ICCODE
+         CALL SULINE (LP,2)
+         IF (IOPCLG(1).GT.0) THEN
+            WRITE (IUCLOG,880)
+            CALL SULINE (IUCLOG,1)
+            WRITE (IUCLOG,1070) ISCODE,ICCODE
+            CALL SULINE (IUCLOG,1)
+            ENDIF
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+      IDALL=1
+      IF (IDALL.EQ.0) GO TO 30
+C
+C  CHECK WHICH DATA BASES ARE ALLOCATED
+      IDSYS=1
+      IDUPRM=1
+      IDHCL=1
+      IDPPD=1
+      IDPPP=1
+      IDPRD=1
+      IDFC=1
+      IDSASM=1
+      IDGOES=1
+      IDFMM=1
+      INDMSG=-3
+      CALL SUDALC (IDSYS,IDUPRM,IDHCL,IDPPD,IDPPP,IDPRD,
+     *   IDFC,IDSASM,IDGOES,IDFMM,INDMSG,IERR)
+C
+      IF (MPGMRG.GT.0) THEN
+         WRITE (LP,1090) MPGMRG
+         CALL SULINE (LP,3)
+         ENDIF
+C
+C  OPEN ALL DATA BASES
+      NDB=-1
+      IF (IDSYS.GT.0) CALL SUDOPN (NDB,'SYS ',IERR)
+      IF (IDHCL.GT.0) CALL SUDOPN (NDB,'HCL ',IERR)
+      IF (IDPPD.GT.0) CALL SUDOPN (NDB,'PPD ',IERR)
+      IF (IDPPP.GT.0) CALL SUDOPN (NDB,'PPP ',IERR)
+      IF (IDPRD.GT.0) CALL SUDOPN (NDB,'PRD ',IERR)
+      IF (IDFC.GT.0) CALL SUDOPN (NDB,'FC  ',IERR)
+      IF (IDSASM.GT.0) CALL SUDOPN (NDB,'SASM',IERR)
+      IF (IDGOES.GT.0) CALL SUDOPN (NDB,'GOES',IERR)
+C
+      IPDDSIF=0
+      IF (IPDDSIF.EQ.1) THEN
+C     PRINT PREPROCESSOR DATA BASE STATION INFORMATION FILE RECORDS
+         IRESET=0
+         CALL PDDSIF (LSIBUF,ISIBUF,IRESET,LARRAY,ARRAY)
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK FIELD FOR COMMAND
+C
+30    IPRCMD=0
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,1100) NUMCMD,IOPCLG(1)
+         CALL SULINE (LP,1)
+         ENDIF
+C
+C  CHECK IF COMMAND LOG OPTION SPECIFIED
+      IF (IOPCLG(1).EQ.0) GO TO 50
+         IUCLOG=IOPCLG(2)
+         IF (INDCLG.EQ.1) GO TO 50
+         WRITE (IUCLOG,880)
+         CALL SULINE (IUCLOG,1)
+         IF (INDCLG.EQ.-1) GO TO 40
+            CALL SUCMD2 (FTXX,DDNAME,IUCLOG,IPRERR,IOPCLG(1),IERR)
+            IF (IOPCLG(1).EQ.0) GO TO 50
+            WRITE (IUCLOG,1110) PGMNAM,PGMVRN,PGMVRD
+            CALL SULINE (IUCLOG,1)
+            CALL UDATEI (NMO,NDA,NYR,NHRMIN,NSEC,JULDAT,IERR)
+            WRITE (IUCLOG,1120) NMO,NDA,NYR,NHRMIN
+            CALL SULINE (IUCLOG,1)
+            IF (ISTLDS.EQ.1) THEN
+               WRITE (IUCLOG,1130) PGMNAM,DSNSTP
+               CALL SULINE (IUCLOG,1)
+               ENDIF
+            IF (NAVRGN.GT.0) THEN
+               WRITE (IUCLOG,1140) PGMVRN,MPGMRG,NAVRGN
+               CALL SULINE (IUCLOG,1)
+               ELSE
+                  WRITE (IUCLOG,1140) PGMVRN,MPGMRG
+                  CALL SULINE (IUCLOG,1)
+               ENDIF
+            IF (LPMFLD.GT.0) THEN
+               WRITE (IUCLOG,1150) PMFLD(1:LPMFLD)
+               CALL SULINE (IUCLOG,1)
+               ENDIF
+            IF (IOPTSO.EQ.1) THEN
+               WRITE (IUCLOG,1160) 'TSO'
+               CALL SULINE (IUCLOG,1)
+               ENDIF
+            IF (IRGNER.EQ.0) THEN
+               WRITE (IUCLOG,1160) 'RGNWRN'
+               CALL SULINE (IUCLOG,1)
+               ENDIF
+            IF (INDPRM.GT.0) THEN
+               WRITE (IUCLOG,1160) 'PROMPT'
+               CALL SULINE (IUCLOG,1)
+               ENDIF
+            IF (INDCND.GT.0) THEN
+               WRITE (IUCLOG,1160) 'CONDCODE'
+               CALL SULINE (IUCLOG,1)
+               ENDIF
+40          IF (INDFTL.GT.0) THEN
+               WRITE (IUCLOG,1170) CMDS(INDFTL)
+               CALL SULINE (IUCLOG,1)
+               ENDIF
+            INDCLG=1
+            ICMCDE=0
+            WRITE (IUCLOG,970) PUSRID
+            CALL SULINE (IUCLOG,1)
+            WRITE (IUCLOG,980) XDUSER
+            CALL SULINE (IUCLOG,1)
+            IF (IFT5DS.EQ.1) THEN
+               WRITE (IUCLOG,990) DSNFT5
+               CALL SULINE (IUCLOG,1)
+               ENDIF
+            IF (IFT6DS.EQ.1) THEN
+               WRITE (IUCLOG,1000) DSNFT6
+               CALL SULINE (IUCLOG,1)
+               ENDIF
+            IF (IFT7DS.EQ.1) THEN
+               WRITE (IUCLOG,1010) DSNFT7
+               CALL SULINE (IUCLOG,1)
+               ENDIF
+            IF (IFT9DS.EQ.1) THEN
+               WRITE (IUCLOG,1020) DSNFT9
+               CALL SULINE (IUCLOG,1)
+               ENDIF
+            IF (IDEFLT.EQ.1) THEN
+               WRITE (IUCLOG,1030)
+               CALL SULINE (IUCLOG,1)
+               ENDIF
+C
+C  READ INPUT CARDS INTO TEMPORARY DATASET IF INPUT NOT FROM TERMINAL
+50    IF (IPRMPT.GT.0.OR.IRDCRD.GT.0) GO TO 60
+         CALL SURCDS (IERR)
+         IF (ICMCDE.GT.0) ICMCDE=0
+         IRDCRD=1
+C
+C  READ NEXT FIELD FROM INPUT CARD
+60    CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPE,NREPET,INTEGR,REAL,
+     *   LSTRNG,STRNG,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,IERR)
+      IF (LDEBUG.GT.0) THEN
+         CALL UPRFLD (NFLD,ISTRT,LENGTH,ITYPE,NREPET,INTEGR,REAL,
+     *      LSTRNG,STRNG,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,IERR)
+         ENDIF
+C
+C  CHECK FOR END OF INPUT
+      IF (NFLD.EQ.-1) GO TO 720
+      IF (IENDIN.EQ.0) GO TO 70
+         NFLD=-1
+         GO TO 720
+C
+C  CHECK FOR NULL FIELD
+70     IF (IERR.NE.1) GO TO 80
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,1040) NFLD
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+         GO TO 30
+C
+C  STORE CARD SEQUENCE NUMBER
+80    CALL SUSEQN (ICDBUF(73:73),NRDCRD,SEQNUM)
+C
+C  CHECK IF ERROR ON PREVIOUS COMMAND
+      IF (ICMERR.EQ.0) GO TO 100
+         IF (LATSGN.EQ.1) GO TO 90
+            CALL SUPCRD
+            GO TO 60
+90       ICMERR=0
+         NSCARD=NRDCRD-NCSKIP-1
+         IF (NSCARD.GT.0) THEN
+            WRITE (LP,1230) NSCARD
+            CALL SULINE (LP,2)
+            ENDIF
+C
+C  CHECK FOR PAIRED PARENTHESES
+100   IF (ILPFND.GT.0.AND.IRPFND.EQ.0) THEN
+         WRITE (LP,1210) NFLD
+         CALL SULINE (LP,2)
+         ILPFND=0
+         IRPFND=0
+         ENDIF
+      IF (LLPAR.GT.0) ILPFND=1
+C
+C  CHECK FOR PARENTHESES
+      IF (LLPAR.GT.0) CALL UFPACK (LSTRNG2,STRNG2,ISTRT,1,LLPAR-1,IERR)
+      IF (LLPAR.EQ.0) CALL UFPACK (LSTRNG2,STRNG2,ISTRT,1,LENGTH,IERR)
+C
+C  CHECK FOR VALID COMMAND
+      CALL SUIDCK ('CMDS',STRNG2,NFLD,IPRCMD,ICMD,IUIDCK)
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,1050) ICMD,IUIDCK
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      IF (DCDOPT.EQ.'YES') THEN
+         IF (STRNG2.EQ.'PRINT') GO TO 30
+         IF (STRNG2.EQ.'NOPRINT') GO TO 30
+         IF (IUIDCK.EQ.0) THEN
+            IF (NFLD.EQ.1) CALL SUPCRD
+            WRITE (LP,1220) STRNG
+            CALL SUERRS (LP,2,NUMERR)
+            IF (NUMERR.EQ.1) IPRCMD=1
+            CALL SUIDCK ('CMDS',STRNG,NFLD,IPRCMD,ICMD,IUIDCK)
+            ICMERR=1
+            NCSKIP=NRDCRD
+            GO TO 30
+            ENDIF
+         ENDIF
+C
+C  CHECK IF STOP COMMAND AND DECODE OPTION IS YES
+      IF (ICMD.EQ.10.AND.DCDOPT.EQ.'YES') GO TO 130
+C
+C  CHECK IF SETOPT COMMAND AND DECODE OPTION IS NO
+      IF (ICMD.EQ.7.AND.DCDOPT.EQ.'NO'.AND.ISETUP.EQ.-1) THEN
+         DCDOPT='YES'
+         GO TO 230
+         ENDIF
+C
+      IF (IOPCND.LT.0) GO TO 110
+C
+C  CHECK CONDITION CODE
+      ICODE=0
+      IF (NTWARN.GT.0) ICODE=4
+      IF (NTERR.GT.0) ICODE=8
+      IF (KLCODE.GT.0) ICODE=KLCODE
+      IF (ICODE.LE.IOPCND) GO TO 110
+         NOPCND=NOPCND+1
+         IF (NOPCND.GT.1) GO TO 110
+            WRITE (LP,1180) ICODE,IOPCND
+            CALL SUWRNS (LP,2,NUMWRN)
+            DCDOPT='NO'
+            IDCDPR=0
+C
+C  CHECK IF DECODE OPTION HAS BEEN SPECIFIED
+110   IF (DCDOPT.EQ.'YES') GO TO 130
+         IF (ICMD.EQ.12) GO TO 130
+         IF (STRNG2.EQ.'PRINT') IDCDPR=1
+         IF (STRNG2.EQ.'NOPRINT') IDCDPR=0
+         IF (IDCDPR.EQ.1) GO TO 120
+            IPRMPT=0
+            IPRBLN=0
+120      IF (IDCDPR.EQ.1) CALL SUPCRD
+         IF (LATSGN.EQ.1) NDCCMD=NDCCMD+1
+         NFLD=0
+         GO TO 30
+C
+130   NUMCMD=NUMCMD+1
+C
+C  CHECK IF NEW PAGE TO BE STARTED
+      IF (ICMD.EQ.7.OR.
+     *    (ICMD.GE.9.AND.ICMD.LE.16).OR.
+     *    (ICMD.GE.20.AND.ICMD.LE.26).OR.
+     *    ICMD.EQ.28) GO TO 140
+         IF (IOPNWP.EQ.1.AND.NUMCMD.GT.1.AND.INCLDE.EQ.0) CALL SUPAGE
+C
+C  STORE NUMBER OF COMMAND BEING EXECUTED AND PAGE NUMBER
+140   ILPCMD=IPCMD
+      ILPPAG=NPSPAG
+C
+      IF (LDEBUG.GT.0) THEN
+         IDBNUM=80
+         WRITE (IOSDBG,150) NPSMLN,NPSNLN,IDBNUM,IUCLOG
+150   FORMAT (' NPSMLN=',I2,3X,'NLSNLN=',I2,3X,'IDBNUM=',I3,3X,
+     *   'IUCLOG=',I2)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  WRITE TO COMMAND LOG
+      LOGTYP=-1
+      CALL SUWLOG ('CMND',PCMDS(ICMD),SEQNUM,ICMCDE,LOGTYP,IERR)
+C
+C  WRITE TO OPTION LOG
+      NPAGE=0
+      LOGTYP=1
+      CALL SUWLOG ('CMND',PCMDS(ICMD),SEQNUM,NPAGE,LOGTYP,IERR)
+C
+      IDBWT=1
+      GO TO (170,180,190,200,210,220,230,240,
+     *       250,390,430,440,610,520,560,570,
+     *       180,190,210,600,580,310,360,370,
+     *       620,630,640,650,380,660,160,160),ICMD
+160      WRITE (LP,1240) STRNG
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 30
+C
+C          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  DEBUG COMMAND
+C
+170   CALL SBDBUG (NFLD,ISTRT,IERR)
+C
+C  CHECK DEBUG LEVEL
+      LDEBUG=ISBUG('SYS ')
+      GO TO 720
+C
+C          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  DEFINE COMMAND
+C
+180   IPPSTA=1
+      CALL SUPPST (IPPSTA,IERR)
+      CALL SFDEFN (LARRAY,ARRAY,NFLD,IERR)
+      GO TO 710
+C
+C          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  DELETE COMMAND
+C
+190   IPPSTA=2
+      CALL SUPPST (IPPSTA,IERR)
+      CALL SLDELT (LARRAY,ARRAY,NFLD,IOAUTO,IERR)
+      GO TO 710
+C
+C          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  DUMP COMMAND
+C
+200   CALL SMDUMP (LARRAY,ARRAY,NFLD,IERR)
+      GO TO 710
+C
+C          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  NETWORK COMMAND
+C
+210   IPPSTA=3
+      CALL SUPPST (IPPSTA,IERR)
+      CALL SNNTWK (LARRAY,ARRAY,NFLD,IERR)
+      GO TO 710
+C
+C          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  ORDER COMMAND
+C
+220   IPPSTA=4
+      CALL SUPPST (IPPSTA,IERR)
+      IPRINT=1
+      CALL SORDER (LARRAY,ARRAY,NFLD,IPRINT,IERR)
+      IOAUTO=0
+      GO TO 710
+C
+C          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  SETOPT COMMAND
+C
+230   CALL SETOPT (LARRAY,ARRAY,NFLD,IDBWT,ISETUP,IERR)
+C
+C  CHECK IF PROBLEM ENCOUNTERED WITH NEW USER
+      IF (ISETUP.EQ.-1) THEN
+         DCDOPT='NO'
+         WRITE (LP,1270) DCDOPT
+         CALL SUWRNS (LP,2,NUMWRN)
+         GO TO 480
+         ENDIF
+C
+C  CHECK IF NEW USER TO BE SETUP
+      IF (ISETUP.EQ.1) INDCLG=-1
+      GO TO 710
+C
+C          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  STATUS COMMAND
+C
+240   CALL SSTATS (LARRAY,ARRAY,NFLD,IERR)
+      GO TO 710
+C
+C          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CPUTIME COMMAND
+C
+250   IF (NFLD.EQ.1) CALL SUPCRD
+      IF (LLPAR.GT.0) GO TO 260
+         IF (ITMAUT.EQ.1) GO TO 300
+            STRNG2='AUTO'
+            WRITE (LP,1260) PCMDS(ICMD),STRNG2(1:LENSTR(STRNG2))
+            CALL SULINE (LP,2)
+            GO TO 280
+260   IF (LRPAR.GT.0) IRPFND=1
+         IF (LRPAR.GT.0) GO TO 270
+            WRITE (LP,1210) NFLD
+            CALL SULINE (LP,2)
+            LRPAR=LENGTH+1
+270   CALL UFPACK (LSTRNG2,STRNG2,ISTRT,LLPAR+1,LRPAR-1,IERR)
+      IF (STRNG2.EQ.'YES'.OR.
+     *    STRNG2.EQ.'NO'.OR.
+     *    STRNG2.EQ.'AUTO'.OR.
+     *    STRNG2.EQ.'RESET') THEN
+         ELSE
+            WRITE (LP,1280) PCMDS(ICMD),STRNG2(1:LENSTR(STRNG2))
+            CALL SUERRS (LP,2,NUMERR)
+            GO TO 700
+         ENDIF
+280   IF (STRNG2.EQ.'RESET') GO TO 290
+         IF (STRNG2.EQ.'YES') THEN
+            CALL SUTIMR (LP,ITMELA,ITMTOT)
+            ITTOT=ITMTOT
+            ENDIF
+         IF (STRNG2.EQ.'AUTO') ITMAUT=1
+         GO TO 300
+290   ITMELA=0
+      ITMTOT=0
+300   IF (ITMAUT.EQ.1) CALL SUTIMR (LP,ITMELA,ITMTOT)
+      IF (ITMAUT.EQ.1) ITTOT=ITMTOT
+      GO TO 700
+C
+C          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  FILOPEN COMMAND
+C
+310   IF (NFLD.EQ.1) CALL SUPCRD
+      IF (LLPAR.GT.0) GO TO 320
+         IF (IFLAUT.EQ.1) GO TO 350
+            STRNG2='AUTO'
+            WRITE (LP,1260) PCMDS(ICMD),STRNG2(1:LENSTR(STRNG2))
+            CALL SULINE (LP,2)
+            GO TO 340
+320   IF (LRPAR.GT.0) IRPFND=1
+         IF (LRPAR.GT.0) GO TO 330
+            WRITE (LP,1210) NFLD
+            CALL SULINE (LP,2)
+            LRPAR=LENGTH+1
+330   CALL UFPACK (LSTRNG2,STRNG2,ISTRT,LLPAR+1,LRPAR-1,IERR)
+      IF (STRNG2.EQ.'YES'.OR.
+     *    STRNG2.EQ.'NO'.OR.
+     *    STRNG2.EQ.'AUTO') THEN
+         ELSE
+            WRITE (LP,1280) PCMDS(ICMD),STRNG2(1:LENSTR(STRNG2))
+            CALL SUERRS (LP,2,NUMERR)
+            GO TO 700
+         ENDIF
+340   IF (STRNG2.EQ.'YES') CALL SUFPRT (LP,IERR)
+      IF (STRNG2.EQ.'AUTO') IFLAUT=1
+350   IF (IFLAUT.EQ.1) CALL SUFPRT (LP,IERR)
+      GO TO 700
+C
+C          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  USRNAME COMMAND
+C
+360   IF (NFLD.EQ.1) CALL SUPCRD
+      IPRNT=1
+      IUSCLB=0
+      CALL SUSRNM (IPRNT,PMFLD,IUSCLB,IERR)
+      NFLD=0
+      GO TO 700
+C
+C          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  ABORT COMMAND
+C
+370   IF (NFLD.EQ.1) CALL SUPCRD
+      ISTAT=1
+      GO TO 820
+C
+C          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  END COMMAND
+380   IXEND=1
+      GO TO 400
+C
+C          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  STOP COMMAND
+C
+390   IXEND=0
+C
+400   IF (NFLD.EQ.1) CALL SUPCRD
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,1250)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      NFLD=-1
+C
+      NDCCRD=NRDCRD-NDCODE-1
+      IF (NDCCMD.GT.0) THEN
+         WRITE (LP,1310) NDCCMD,NDCCRD
+         CALL SULINE (LP,2)
+         ENDIF
+C
+C  CHECK IF RUNNING FROM TSO
+      IF (IOPTSO.EQ.1) GO TO 720
+C
+      IF (IXEND.EQ.1) GO TO 720
+C
+C  CHECK FOR CARD IMAGES AFTER @STOP COMMAND
+      IPRCRD=0
+410   CALL SURCRD (IENDIN,IERR)
+      IF (IENDIN.GT.0) GO TO 720
+      LCHAR8=LEN(CHAR8)
+      CALL UPACKN (LCHAR8,ICDBUF(1:1),2,CHAR8,IERR)
+      IF (CHAR8.NE.CMDS(7)) GO TO 420
+         CALL SUPCRD
+         GO TO 410
+420   NRDADD=NRDADD+1
+      GO TO 410
+C
+C          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  NEWPAGE COMMAND
+C
+430   IF (NFLD.EQ.1) CALL SUPCRD
+      IF (NPSNLN.GT.5) CALL SUPAGE
+      GO TO 700
+C
+C          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  DECODE COMMAND
+C
+440   IF (NFLD.EQ.1) CALL SUPCRD
+      IF (LLPAR.GT.0) GO TO 450
+         STRNG2='YES'
+         WRITE (LP,1260) PCMDS(ICMD),STRNG2(1:LENSTR(STRNG2))
+         CALL SULINE (LP,2)
+         GO TO 470
+450   IF (LRPAR.GT.0) IRPFND=1
+         IF (LRPAR.GT.0) GO TO 460
+            WRITE (LP,1210) NFLD
+            CALL SULINE (LP,2)
+            LRPAR=LENGTH+1
+460   CALL UFPACK (LSTRNG2,STRNG2,ISTRT,LLPAR+1,LRPAR-1,IERR)
+      IF (STRNG2.EQ.'YES'.OR.
+     *    STRNG2.EQ.'NO') THEN
+         ELSE
+            WRITE (LP,1280) PCMDS(ICMD),STRNG2(1:LENSTR(STRNG2))
+            CALL SUERRS (LP,2,NUMERR)
+            ICMCDE=8
+            GO TO 510
+         ENDIF
+470   DCDOPT=STRNG2
+480   IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,1290) 'DECODE',DCDOPT
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      IF (DCDOPT.EQ.'YES') GO TO 490
+         ICDQTO=ICDQTE
+         ICDQTE=0
+         GO TO 500
+490   ICDQTE=ICDQTO
+500   IPRMPT=LPRMPT
+      IPRBLN=LPRBLN
+      NDCCRD=NRDCRD-NDCODE-1
+      IF (NDCCMD.GT.0) THEN
+         WRITE (LP,1310) NDCCMD,NDCCRD
+         CALL SULINE (LP,2)
+         ENDIF
+      NDCODE=NRDCRD
+      NDCCMD=0
+      IF (ISETUP.EQ.-1) GO TO 710
+C
+510   LOGTYP=-2
+      CALL SUWLOG ('CMND',PCMDS(ICMD),SEQNUM,ICMCDE,LOGTYP,IERR)
+      GO TO 700
+C
+C          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  MODE COMMAND
+C
+520   IF (NFLD.EQ.1) CALL SUPCRD
+      IF (LLPAR.GT.0) GO TO 530
+         STRNG2='BATCH'
+         WRITE (LP,1260) PCMDS(ICMD),STRNG2(1:LENSTR(STRNG2))
+         CALL SULINE (LP,2)
+         GO TO 550
+530   IF (LRPAR.GT.0) IRPFND=1
+         IF (LRPAR.GT.0) GO TO 540
+            WRITE (LP,1210) NFLD
+            CALL SULINE (LP,2)
+            LRPAR=LENGTH+1
+540   CALL UFPACK (LSTRNG2,STRNG2,ISTRT,LLPAR+1,LRPAR-1,IERR)
+550   IMODE=0
+      IF (STRNG2.EQ.'BATCH') IMODE=1
+      IF (STRNG2.EQ.'TSO') IMODE=2
+      IF (IMODE.EQ.0) THEN
+         WRITE (LP,1280) PCMDS(ICMD),STRNG2(1:LENSTR(STRNG2))
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 700
+         ENDIF
+      IF (IMODE.EQ.1) IPRMPT=0
+      IF (IMODE.EQ.2) IPRMPT=1
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,1300) 'PROMPT',IPRMPT
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      GO TO 700
+C
+C          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  SETUNT COMMAND
+C
+560   CALL SETUNT (NFLD,IERR)
+      GO TO 710
+C
+C          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  SETNSP COMMAND
+C
+570   CALL SETNSP (NFLD,IERR)
+      GO TO 710
+C
+C          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  INCLUDE COMMAND
+C
+580   IF (NFLD.EQ.1) CALL SUPCRD
+      NFLD=0
+      IF (INCLDE.EQ.2) GO TO 590
+         INCLDE=INCLDE+1
+         GO TO 700
+590   INCLDE=0
+C
+      LOGTYP=-2
+      CALL SUWLOG ('CMND',PCMDS(ICMD),SEQNUM,ICMCDE,LOGTYP,IERR)
+      GO TO 700
+C
+C          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  LISTINP COMMAND - PRINT INPUT CARDS
+C
+600   IF (ISLEFT(10).GT.0) CALL SUPAGE
+      IF (NFLD.EQ.1) CALL SUPCRD
+      CALL SUPCDS
+      GO TO 700
+C
+C          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  LISTCMD COMMAND - PRINT AVAILABLE COMMANDS
+C
+610   IF (NFLD.EQ.1) CALL SUPCRD
+      CALL SUIDCK ('CMDS',STRNG2,NFLD,1,IKEYWD,IERR)
+      GO TO 700
+C
+C          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  RUN COMMAND
+C
+620   IF (NFLD.EQ.1) CALL SUPCRD
+      GO TO 700
+C
+C          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  MDRGRID COMMAND
+C
+630   IPPSTA=5
+      CALL SUPPST (IPPSTA,IERR)
+      CALL SFGMDR (LARRAY,ARRAY,IERR)
+      GO TO 700
+C
+C          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHANGE COMMAND
+C
+640   IPPSTA=6
+      CALL SUPPST (IPPSTA,IERR)
+      CALL SGCHNG (LARRAY,ARRAY,NFLD,IERR)
+      GO TO 710
+C
+C          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  FILINIT COMMAND - INITIALIZE DATA FILES
+C
+650   IF (NFLD.EQ.1) CALL SUPCRD
+      CALL SUINIT (NFLD,IERR)
+      GO TO 710
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  NEWUSER OPTION
+C
+660   IF (NFLD.EQ.1) CALL SUPCRD
+      CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPE,NREPET,INTEGR,REAL,
+     *   LSTRNG,STRNG,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,IERR)
+      IF (LDEBUG.GT.0) THEN
+         CALL UPRFLD (NFLD,ISTRT,LENGTH,ITYPE,NREPET,INTEGR,REAL,
+     *      LSTRNG,STRNG,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,IERR)
+         ENDIF
+      USERN=STRNG
+      WRITE (LP,670) USERN(1:LENGTH)
+670   FORMAT ('0*** NOTE - USER NAME SET TO ',A,'.')
+      CALL SULINE (LP,2)
+C
+C  SET INDICATORS WHETHER FILES HAVE BEEN OPENED OR WRITTEN TO
+      DO 680 I=1,10
+         IDBALC(I)=IDBSAV(I)
+         IDBOPN(I)=0
+         IDBWRT(I)=0
+680      CONTINUE
+C
+C  ALLOCATE NEW FILES
+      TYPMSG='WARNING'
+      CALL SUSRFL (USERN,TYPMSG,IERR)
+      IF (IERR.NE.0) THEN
+         ISETUP=-1
+         GO TO 700
+         ENDIF
+C
+C  RESET USER NAME
+      CALL SUBSTR (HNAMRF,1,8,PUSRID,1)
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,690) HNAMRF,PUSRID
+690   FORMAT (' HNAMRF=',2A4,3X,'PUSRID=',2A4)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      CALL SUPAGE
+      ISETUP=1
+      IUGFIL=0
+      INWFIL=0
+      GO TO 700
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  SET INDICATOR TO NOT REREAD CURRENT FIELD
+700   IRREAD=0
+      GO TO 720
+C
+C  SET INDICATOR TO REREAD CURRENT FIELD
+710   IRREAD=1
+      ISTRT=-1
+C
+C  CHECK IF TO WRITE TO COMMAND LOG
+720   IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,1190) IOPCLG,DCDOPT,NUMCMD,ILPCMD
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      IF (DCDOPT.EQ.'NO') GO TO 730
+      IF (NUMCMD.EQ.0) GO TO 730
+C
+C  WRITE TO COMMAND LOG
+      IF (ILPCMD.EQ.12) GO TO 730
+      IF (ICMERR.EQ.0) CALL UMEMOV (PCMDS(ICMD),XCMD,1)
+      IF (ICMERR.EQ.1) CALL UREPET ('?',XCMD,8)
+      LOGTYP=-2
+      CALL SUWLOG ('CMND',XCMD,SEQNUM,ICMCDE,LOGTYP,IERR)
+C
+730   IF (ILPCMD.EQ.0) GO TO 740
+C
+C  WRITE TO OPTION LOG
+      LOGTYP=0
+      CALL SUWLOG ('CMND',PCMDS(ILPCMD),SEQNUM,ILPPAG,LOGTYP,IERR)
+C
+740   IF (NFLD.NE.-1.AND.IRREAD.EQ.0) GO TO 30
+C
+C  PRINT CPU TIME USED
+      IF (ITMAUT.EQ.1) CALL SUTIMR (LP,ITMELA,ITMTOT)
+C
+      IF (ITMAUT.EQ.0) GO TO 760
+      IF (ITMUNT.EQ.0.OR.ITMUNT.EQ.LP) GO TO 760
+C
+C  PRINT CPU TIME USED BY COMMAND
+      IF (ILPCMD.GT.0.AND.ILPCMD.LE.NPCMDS) GO TO 750
+         WRITE (LP,1200) ILPCMD,NPCMDS
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 760
+750   IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,*) 'ILPCMD=',ILPCMD
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      ITMELA=-1*(ITMTOT-ITTOT)
+      CALL SUTIMR (ITMUNT,ITMELA,ITMTOT)
+C
+760   IF (ITMAUT.EQ.1) ITTOT=ITMTOT
+C
+C  PRINT FILES OPEN
+      IF (IFLAUT.EQ.1) CALL SUFPRT (LP,IERR)
+C
+      IF (IFLAUT.EQ.0) GO TO 780
+      IF (ITMUNT.EQ.0.OR.ITMUNT.EQ.LP) GO TO 780
+C
+C  PRINT FILES OPENED BY COMMAND
+      IF (ILPCMD.GT.0.AND.ILPCMD.LE.NPCMDS) GO TO 770
+         WRITE (LP,1200) ILPCMD,NPCMDS
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 780
+770   IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,*) 'ILPCMD=',ILPCMD
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      CALL SUFPRT (ITMUNT,IERR)
+C
+780   IRCMND=0
+
+C  CHECK IF END OF INPUT
+      IF (NFLD.EQ.-1) THEN
+C     CHECK IF NEED TO RUN NETWORK COMMAND
+         IF (INAUTO.EQ.1) THEN
+            IF (IOPNTW.EQ.0) THEN
+               WRITE (LP,1330) 'NETWORK'
+               CALL SUWRNS (LP,2,NUMWRN)
+               ELSE
+                  IPPSTA=3
+                  CALL SUPPST (IPPSTA,IERR)
+                  WRITE (LP,1340) 'NETWORK'
+                  CALL SULINE (LP,2)
+                  CALL SNNTWK (LARRAY,ARRAY,NFLD,IERR)
+                  IRCMND=1
+               ENDIF
+            ENDIF
+C     CHECK IF NEED TO RUN ORDER COMMAND
+         IF (IOAUTO.EQ.1) THEN
+            IF (IOPORD.EQ.0) THEN
+               WRITE (LP,1345) 'ORDER'
+               CALL SUWRNS (LP,2,NUMWRN)
+               ELSE
+                  IPPSTA=4
+                  CALL SUPPST (IPPSTA,IERR)
+                  WRITE (LP,1347) 'ORDER'
+                  CALL SULINE (LP,2)
+                  IPRINT=1
+                  CALL SORDER (LARRAY,ARRAY,NFLD,IPRINT,IERR)
+                  IRCMND=1
+               ENDIF
+            ENDIF
+         ENDIF
+C
+      IF (IRCMND.EQ.1) GO TO 790
+C
+C  CHECK IF COMMAND HAS WRITTEN TO FILES
+      IF ((ICMD.EQ.2.OR.
+     *     ICMD.EQ.3.OR.
+     *     ICMD.EQ.5.OR.
+     *     ICMD.EQ.6.OR.
+     *     ICMD.EQ.7.OR.
+     *     ICMD.EQ.17.OR.
+     *     ICMD.EQ.18.OR.
+     *     ICMD.EQ.19.OR.
+     *     ICMD.EQ.27.OR.
+     *     ICMD.EQ.28).AND.
+     *    IDBWT.EQ.1) GO TO 790
+C
+C  CLOSE ALL OPEN FILES
+      CALL SUFCLS
+      GO TO 800
+C
+C  UPDATE DATA BASE CONTROL RECORDS AND CLOSE ALL OPEN FILES
+790   CALL SUDCLS (IERR)
+C
+C  CHECK IF NEED TO UPDATE PROGRAM STATUS INDICATOR
+      IF (IPPSTA.GT.0) THEN
+         IPPSTA=0
+         CALL SUPPST (IPPSTA,IERR)
+         CALL SUFCLS
+         ENDIF
+C
+C  CHECK IF END OF INPUT
+800   IF (NFLD.EQ.-1) GO TO 810
+C
+C  CHECK IF NEWUSER SPECIFIED
+      IF (ISETUP.EQ.1) THEN
+         ISETUP=0
+         GO TO 10
+         ENDIF
+      GO TO 30
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  END OF RUN
+C
+C  CHECK IF 'END' OR 'STOP' COMMAND FOUND
+810   IF (IXEND.NE.-1) GO TO 820
+         WRITE (LP,1320)
+         CALL SULINE (LP,2)
+C
+820   IF (IPDDSIF.EQ.1) THEN
+C     PRINT PREPROCESSOR DATA BASE STATION INFORMATION FILE RECORDS
+         IRESET=0
+         CALL PDDSIF (LSIBUF,ISIBUF,IRESET,LARRAY,ARRAY)
+         ENDIF
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,*) 'EXIT SUCMDS : NFLD=',NFLD,' ISTAT=',ISTAT
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+840   FORMAT ('+',7('***  FATAL ERROR  '),'***')
+850   FORMAT ('0*** FATAL ERROR - LAST RUN OF ',A,' DID NOT ',
+     *   'COMPLETE SUCCESSFULLY.')
+860   FORMAT ('0',T20,'THE COMMAND BEING EXECUTED WAS ',A,'.')
+870   FORMAT ('0',T20,'COMMAND CANNOT BE DETERMINED. VALUE IF IPPSTA ',
+     *   'IS ',I3,'.')
+880   FORMAT (' ')
+890   FORMAT ('0')
+900   FORMAT ('0',T20,'PLEASE CHECK OUTPUT FOR THE JOB THAT ',
+     *   'TERMINATED ABNORMALLY.')
+910   FORMAT ('0',T20,'THE DATA FILES PROBABLY WILL HAVE TO BE ',
+     *   'RESTORED.')
+920   FORMAT ('0',T20,'NO COMMANDS WILL BE PROCESSED DURING THE ',
+     *   'CURRENT EXECUTION OF PROGRAM ',A,'.')
+930   FORMAT ('0',T20,'FUTURE EXECUTION OF PROGRAM ',A,' WILL NOT ',
+     *   'BE PREVENTED.')
+940   FORMAT ('0*** WARNING - DDNAME ',A,' IS NOT ALLOCATED. ',
+     *   'ERROR OUTPUT UNIT SET TO ',I2,'.')
+950   FORMAT ('0*** WARNING - DATASET NAME CANNOT ',
+     *   'OBTAINED FOR DDNAME ',A,'.')
+960   FORMAT ('0*** NOTE - PARM FIELD : ',A)
+970   FORMAT (' INTERNAL USER NAME: ',2A4)
+980   FORMAT (' EXTERNAL USER NAME: ',A)
+990   FORMAT (' CARD  INPUT  WILL BE READ FROM  DATASET: ',A)
+1000  FORMAT (' PRINT OUTPUT WILL BE WRITTEN TO DATASET: ',A)
+1010  FORMAT (' PUNCH OUTPUT WILL BE WRITTEN TO DATASET: ',A)
+1020  FORMAT (' ERROR PRINT OUTPUT WILL BE WRITTEN TO DATASET: ',A)
+1030  FORMAT (' NOTE: USER SPECIFIED DEFAULTS ARE BEING USED.')
+1040  FORMAT (' NULL FIELD FOUND IN FIELD ',I2)
+1050  FORMAT (' ICMD=',I2,3X,'IUIDCK=',I2)
+1060  FORMAT ('0*** NOTE - HIGHEST CONDITION CODE ENCOUNTERED (',I2,
+     *   ') IS NOT GREATER THAN USER SPECIFIED VALUE (',I2,
+     *   '). EXECUTION WILL CONTINUE.')
+1070  FORMAT (' NOTE: HIGHEST CONDITION CODE ENCOUNTERED (',I2,
+     *   ') IS NOT GREATER THAN USER SPECIFIED VALUE (',I2,
+     *   '). EXECUTION WILL CONTINUE.')
+1080  FORMAT (' FATAL ERROR: INSUFFICIENT CPU TIME OR REGION ',
+     *   'AVAILABLE.')
+1090  FORMAT ('0*** NOTE - BEGINNING TO OPEN ALL ALLOCATED DATA ',
+     *   'BASES.' /
+     *   T13,'IF JOB ABENDS WITH A SYSTEM ''106-C'' OR ''80A'' ERROR, ',
+     *   'A MINIMUM REGION SIZE OF ',I4,'K WAS NOT SPECIFIED ',
+     *   'ON THE JOB CARD.')
+1100  FORMAT (' NUMCMD=',I2,3X,'IOPCLG(1)=',I2)
+1110  FORMAT (' *** ',A,' (VERSION: ',A,' - ',A,') COMMAND LOG ***')
+1120  FORMAT(' CURRENT DATE AND TIME: ',I2.2,'/',I2.2,'/',I4.4,'.',I4.4)
+1130  FORMAT (' ',A,' IS BEING EXECUTED FROM DATASET: ',A)
+1140  FORMAT (' NOTE: VERSION ',A,' NEEDS A MINIMUM REGION SIZE OF ',
+     *   I4,'K. ', :
+     *   I4,'K IS AVAILABLE.')
+1150  FORMAT (' PARM FIELD: ',A)
+1160  FORMAT (' NOTE: ',A,' OPTION SPECIFIED IN PARM FIELD.')
+1170  FORMAT (' NOTE: FATAL ERROR OCCURED EXECUTING COMMAND ',A,
+     *   ' ON PREVIOUS RUN.')
+1180  FORMAT ('0*** WARNING - HIGHEST CONDITION CODE ENCOUNTERED (',
+     *   I2,') EXCEEDS USER SPECIFIED VALUE (',I2,
+     *   '). REMAINING COMMANDS WILL NOT BE DECODED.')
+1190  FORMAT (' IOPCLG(1...2)=',2(I2,1X),3X,'DCDOPT=',A,3X,
+     *   'NUMCMD=',I2,3X,'ILPCMD=',I2)
+1200  FORMAT ('0*** ERROR - IN SUCMDS - ',I3,' IS AN INVALID COMMAND ',
+     *   'NUMBER. NPCMDS=',I3)
+1210  FORMAT ('0*** NOTE - RIGHT PARENTHESES ASSUMED IN FIELD ',I2,'.')
+1220  FORMAT ('0*** ERROR - INVALID COMMAND : ',A)
+1230  FORMAT ('0*** NOTE - ',I4,' CARD IMAGES NOT PROCESSED BECAUSE ',
+     *   'INVALID COMMAND FOUND.')
+1240  FORMAT ('0*** ERROR - ERROR PROCESSING COMMAND : ',A)
+1250  FORMAT (' STOP COMMAND FOUND')
+1260  FORMAT ('0*** NOTE - NO LEFT PARENTHESIS FOUND. ',A,' ',
+     *   'COMMAND SET TO ',A,'.')
+1270  FORMAT ('0*** WARNING - NEW USER NOT SUCCESFULLY PROCESSED. ',
+     *   'DECODE OPTION SET TO ',A,'.')
+1280  FORMAT ('0*** ERROR - INVALID ',A,' OPTION : ',A)
+1290  FORMAT (' ',A,' OPTION SET TO ',A)
+1300  FORMAT (' ',A,' OPTION SET TO ',I2)
+1310  FORMAT ('0*** NOTE - ',I4,' COMMANDS AND ',I4,' CARD IMAGES ',
+     *   'NOT DECODED.')
+1320  FORMAT ('0*** NOTE - ''@END'' OR ''@STOP'' CARD NOT FOUND. ',
+     *   '''@STOP'' ASSUMED.')
+1330  FORMAT ('0*** WARNING - ONE OR MORE NTWK INDICATORS WERE SET ',
+     *   'BUT ',A,' COMMAND WILL NOT BE RUN ',
+     *   'BECAUSE RUNNTWK(NO) OPTION WAS SPECIFIED.')
+1340  FORMAT ('0*** NOTE - ',A,' COMMAND WILL BE RUN ',
+     *   'BECAUSE ONE OR MORE NTWK INDICATORS WERE SET.')
+1345  FORMAT ('0*** WARNING - ORDER RUN INDICATOR WAS SET ',
+     *   'BUT ',A,' COMMAND WILL NOT BE RUN ',
+     *   'BECAUSE RUNNORDR(NO) OPTION WAS SPECIFIED.')
+1347  FORMAT ('0*** NOTE - ',A,' COMMAND WILL BE RUN ',
+     *   'BECAUSE ORDER RUN INDICATOR WAS SET.')
+C
+      END

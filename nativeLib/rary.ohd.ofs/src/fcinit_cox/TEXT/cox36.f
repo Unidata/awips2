@@ -1,0 +1,154 @@
+C MEMBER COX36
+C  (from old member FCCOX36)
+C
+      SUBROUTINE COX36(PO,CO,PN,CN)
+C.......................................
+C     THIS IS THE CARRYOVER TRANSFER SUBROUTINE FOR THE XINANJIANG
+C        SOIL MOISTURE ACCOUNTING OPERATION.  NEW CARRYOVER (CN)
+C        VALUES ARE DETERMINE FROM OLD CARRYOVER (CO) AND
+C        OLD AND NEW PARAMETERS (PO AND PN RESPECTIVELY) WHENEVER
+C        POSSIBLE.  IF CARRYOVER CAN NOT BE CONVERTED DEFAULT
+C        VALUES INITIALLY CONTAINED IN CN ARE KEPT.  THE
+C        ORDER OF INFORMATION STORED IN PO AND PN IS THE
+C        SAME AS FOR ARRAY PL USED IN THE OTHER SUBROUTINES
+C        FOR THIS OPERATION.  INFORMATION ORDER FOR CO AND CN
+C        IS THE SAME AS FOR CL( ).
+C.......................................
+C     SUBROUTINE INITIALLY WRITTEN BY. . .
+C            ZHU QINGPING  -YRCC  CHINA   SEP. 1988 VERSION 1
+C.......................................
+      DIMENSION PO(1),CO(1),PN(1),CN(1),SNAME(2)
+      REAL K,IMP,KSS,KG
+C
+C     COMMON BLOCKS.
+      COMMON/FDBUG/IODBUG,ITRACE,IDBALL,NDEBUG,IDEBUG(20)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_cox/RCS/cox36.f,v $
+     . $',                                                             '
+     .$Id: cox36.f,v 1.1 1995/09/17 18:47:22 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C     DATA STATEMENTS
+      DATA SNAME/4HCOX3,4H6   /
+C.......................................
+C     CHECK TRACE LEVEL -- TRACE LEVEL FOR THIS SUBROUTINE=1.
+C     CHECK TO SEE IF DEBUG OUTPUT IS NEEDED FOR THIS OPERATION.
+      CALL FPRBUG (SNAME,1,36,IBUG)
+C
+C     GET LOCATION OF PARAMETER VALUES .
+      NUNITO=PO(3)
+      NCO=7*NUNITO
+      NUNIT=PN(3)
+      NCN=7*NUNIT
+      LPO=PO(17)
+      LPN=PN(17)
+      IPLPM=PN(19)
+      IF (IBUG.EQ.0) GO TO 110
+C     DEBUG OUTPUT - NEW AND OLD PARAMETERS AND CARRYOVER.
+      WRITE (IODBUG,902)
+  902 FORMAT (1H0,51HXIN-SMA DEBUG--NEW AND OLD PARAMETERS AND CARRYOVER
+     1)
+      WRITE (IODBUG,901) (PO(I),I=1,LPO)
+  901 FORMAT (1H0,15F8.3)
+      WRITE (IODBUG,901) (CO(I),I=1,NCO)
+      WRITE (IODBUG,901) (PN(I),I=1,LPN)
+      WRITE (IODBUG,901) (CN(I),I=1,NCN)
+C.......................................
+C     GET VALUES NEEDED FOR TRANSFER OF SOIL-MOISTURE VARIABLES.
+  110 WUMO=PO(IPLPM+2)
+      WLMO=PO(IPLPM+3)
+      WDMO=PO(IPLPM+4)
+      SMO=PO(IPLPM+5)
+      WUM=PN(IPLPM+2)
+      WLM=PN(IPLPM+3)
+      WDM=PN(IPLPM+4)
+      SM=PN(IPLPM+5)
+C.......................................
+      IF(NUNIT.LE.NUNITO) GO TO 115
+C     INITILIZED THE SUMS OF NEW STATE VARIABLES.
+      SWUC=0.0
+      SWLC=0.0
+      SWDC=0.0
+      SSC=0.0
+      SQIC=0.0
+      SQGC=0.0
+      SFRC=0.0
+C.......................................
+  115 IUNIT=MIN(NUNIT,NUNITO)
+      DO 120 I=1,IUNIT
+      J=7*(I-1)
+C     GET OLD CARRYOVER VALUES FOR UNITS WHICH THERE ARE OLD VALUES.
+      WUCO=CO(J+1)
+      WLCO=CO(J+2)
+      WDCO=CO(J+3)
+      SCO=CO(J+4)
+      QICO=CO(J+5)
+      QGCO=CO(J+6)
+      FRCO=CO(J+7)
+C.......................................
+C     MAKE CARRYOVER TRANSFERS OF SOIL-MOISTURE VARIABLES.
+      WUC=WUM*WUCO/WUMO
+      WLC=WLM*WLCO/WLMO
+      WDC=WDM*WDCO/WDMO
+      SC=SM*SCO/SMO
+      QIC=QICO
+      QGC=QGCO
+      FRC=FRCO
+C.......................................
+C     STORE CARRYOVER VALUES FOR MOILSTURE VARIABLES
+      CN(J+1)=WUC
+      CN(J+2)=WLC
+      CN(J+3)=WDC
+      CN(J+4)=SC
+      CN(J+5)=QIC
+      CN(J+6)=QGC
+      CN(J+7)=FRC
+      IF(IUNIT.EQ.NUNIT) GO TO 120
+      SWUC=SWUC+WUC
+      SWLC=SWLC+WLC
+      SWDC=SWDC+WDC
+      SSC=SSC+SC
+      SQIC=SQIC+QIC
+      SQGC=SQGC+QGC
+      SFRC=SFRC+FRC
+  120 CONTINUE
+      IF(IUNIT.EQ.NUNIT) GO TO 130
+C.......................................
+C     GET CARRYOVER VALUES FOR EXTENDED UNITS.
+      M=IUNIT+1
+      DO 140 I=M,NUNIT
+      J=7*(I-1)
+      CN(J+1)=SWUC/IUNIT
+      CN(J+2)=SWLC/IUNIT
+      CN(J+3)=SWDC/IUNIT
+      CN(J+4)=SSC/IUNIT
+      CN(J+5)=SQIC/IUNIT
+      CN(J+6)=SQGC/IUNIT
+      CN(J+7)=SFRC/IUNIT
+  140 CONTINUE
+  130 IF (IBUG.EQ.0) GO TO 199
+C.......................................
+C     DEBUG OUTPUT -- NEW CARRYOVERS.
+      WRITE (IODBUG,903)
+  903 FORMAT (1H0,18HADJUSTED CARRYOVER)
+      WRITE (IODBUG,901) (CN(I),I=1,NCN)
+C.......................................
+C     CARRYOVER TRANSFER RULES FOR SOIL-MOISTURE VARIABLES.
+C
+C     1. WUM ,WLM,WDM ,SC - THE RATIO (i.e. CONTENT/CAPACITY) ARE
+C        RETAINED .
+C
+C     2. QIC ,QGC ,FRC -- VALUES REMAIN THE SAME.
+C
+C     3. IF NUMBER OF UNITS IS ENLARGED,CARRYOVER VALUES FOR EXTENDED
+C      UNITS ARE AVERAGE ADJUSTED VALUES FOR THE OLD UNITS..
+C
+C     NONE OF THE DEFAULT VALUES ARE EVER KEPT.
+C.......................................
+  199 RETURN
+      END

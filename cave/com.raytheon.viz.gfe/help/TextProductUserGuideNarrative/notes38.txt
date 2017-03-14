@@ -1,0 +1,2 @@
+They are part of the tree and associated with particular nodes.  They get and set data attributes such as sub-phrase words and are themselves attributes of the nodes of the tree.  This affords us great power in being able to express dependencies and change the product outcome.
+

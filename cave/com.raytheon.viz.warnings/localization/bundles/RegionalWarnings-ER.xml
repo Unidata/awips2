@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<bundle>
+    <displayList>
+        <displays xsi:type="d2DMapRenderableDisplay"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <descriptor xsi:type="mapDescriptor">
+                <resource>
+                    <loadProperties loadWithoutData="true">
+                        <capabilities>
+                            <capability xsi:type="outlineCapability"
+                                lineStyle="SOLID" outlineOn="true"
+                                outlineWidth="1" />
+                            <capability xsi:type="colorableCapability"
+                                colorAsString="#545454" />
+                        </capabilities>
+                    </loadProperties>
+                    <properties isSystemResource="false"
+                        isBlinking="false" isMapLayer="false" isHoverOn="false"
+                        isVisible="false" />
+                    <resourceData xsi:type="wwaResourceData"
+                        isUpdatingOnMetadataOnly="false" retrieveData="false"
+                        isRequeryNecessaryOnTimeMatch="true"
+                        name="Eastern Region Convective Warnings"
+                        hideSampling="true">
+                        <metadataMap>
+                            <mapping key="act">
+                                <constraint constraintValue="NEW,CON,CAN,EXP"
+                                    constraintType="IN" />
+                            </mapping>
+                            <mapping key="pil">
+                                <constraint constraintValue="SVR,TOR,EWW,SVS,EWS"
+                                    constraintType="IN" />
+                            </mapping>
+                            <mapping key="phensig">
+                                <constraint constraintValue="TO.W,SV.W,EW.W"
+                                    constraintType="IN" />
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="warning"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="officeid">
+                                <constraint constraintValue="${ERsites}"
+                                    constraintType="IN" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties loadWithoutData="true">
+                        <capabilities>
+                            <capability xsi:type="outlineCapability"
+                                lineStyle="SOLID" outlineOn="true"
+                                outlineWidth="1" />
+                            <capability xsi:type="colorableCapability"
+                                colorAsString="#ffff00" />
+                        </capabilities>
+                    </loadProperties>
+                    <properties isSystemResource="false"
+                        isBlinking="false" isMapLayer="false" isHoverOn="false"
+                        isVisible="true" />
+                    <resourceData xsi:type="wwaResourceData"
+                        isUpdatingOnMetadataOnly="false" retrieveData="false"
+                        isRequeryNecessaryOnTimeMatch="true"
+                        name="Eastern Region SVR Warnings">
+                        <metadataMap>
+                            <mapping key="act">
+                                <constraint constraintValue="NEW,CON,CAN,EXP"
+                                    constraintType="IN" />
+                            </mapping>
+                            <mapping key="pil">
+                                <constraint constraintValue="SVR,SVS"
+                                    constraintType="IN" />
+                            </mapping>
+                            <mapping key="phensig">
+                                <constraint constraintValue="SV.W"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="warning"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="officeid">
+                                <constraint constraintValue="${ERsites}"
+                                    constraintType="IN" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties loadWithoutData="true">
+                        <capabilities>
+                            <capability xsi:type="outlineCapability"
+                                lineStyle="SOLID" outlineOn="true"
+                                outlineWidth="1" />
+                            <capability xsi:type="colorableCapability"
+                                colorAsString="#ff0000" />
+                        </capabilities>
+                    </loadProperties>
+                    <properties isSystemResource="false"
+                        isBlinking="false" isMapLayer="false" isHoverOn="false"
+                        isVisible="true" />
+                    <resourceData xsi:type="wwaResourceData"
+                        isUpdatingOnMetadataOnly="false" retrieveData="false"
+                        isRequeryNecessaryOnTimeMatch="true"
+                        name="Eastern Region TOR Warnings">
+                        <metadataMap>
+                            <mapping key="act">
+                                <constraint constraintValue="NEW,CON,CAN,EXP"
+                                    constraintType="IN" />
+                            </mapping>
+                            <mapping key="pil">
+                                <constraint constraintValue="TOR,SVS"
+                                    constraintType="IN" />
+                            </mapping>
+                            <mapping key="phensig">
+                                <constraint constraintValue="TO.W"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="warning"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="officeid">
+                                <constraint constraintValue="${ERsites}"
+                                    constraintType="IN" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties loadWithoutData="true">
+                        <capabilities>
+                            <capability xsi:type="outlineCapability"
+                                lineStyle="SOLID" outlineOn="true"
+                                outlineWidth="1" />
+                            <capability xsi:type="colorableCapability"
+                                colorAsString="#ee82ee" />
+                        </capabilities>
+                    </loadProperties>
+                    <properties isSystemResource="false"
+                        isBlinking="false" isMapLayer="false" isHoverOn="false"
+                        isVisible="true" />
+                    <resourceData xsi:type="wwaResourceData"
+                        isUpdatingOnMetadataOnly="false" retrieveData="false"
+                        isRequeryNecessaryOnTimeMatch="true"
+                        name="Eastern Region EWW Warnings">
+                        <metadataMap>
+                            <mapping key="act">
+                                <constraint constraintValue="NEW,CON,CAN,EXP"
+                                    constraintType="IN" />
+                            </mapping>
+                            <mapping key="pil">
+                                <constraint constraintValue="EWW,EWS,SVS"
+                                    constraintType="IN" />
+                            </mapping>
+                            <mapping key="phensig">
+                                <constraint constraintValue="EW.W"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="warning"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="officeid">
+                                <constraint constraintValue="${ERsites}"
+                                    constraintType="IN" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+            </descriptor>
+        </displays>
+    </displayList>
+</bundle>

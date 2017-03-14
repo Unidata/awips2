@@ -1,0 +1,257 @@
+C MODULE SRPCPN
+C-----------------------------------------------------------------------
+C
+C  ROUTINE TO READ STATION PCPN PARAMETERS.
+C
+      SUBROUTINE SRPCPN (IVPCPN,STAID,NUMBER,DESCRP,STATE,STALOC,
+     *   STACOR,IPROC,IPTIME,MDRBOX,PCPNCF,IPTWGT,IPNTWK,IPSWGT,IPCHAR,
+     *   IPD5PT,STA5WT,STASID,IPDSPT,STASWT,IPD3PT,STA3WT,UNUSED,
+     *   LARRAY,ARRAY,IPTR,IPRERR,IPTRNX,IREAD,ISTAT)
+C
+      DIMENSION ARRAY(LARRAY)
+      DIMENSION UNUSED(1)
+C      
+      INCLUDE 'scommon/dimsta'      
+      INCLUDE 'scommon/dimpcpn'
+C
+      INCLUDE 'uio'
+      INCLUDE 'scommon/sudbgx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppinit_read/RCS/srpcpn.f,v $
+     . $',                                                             '
+     .$Id: srpcpn.f,v 1.2 1998/04/07 18:07:01 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+      IF (ISTRCE.GT.1) THEN
+         WRITE (IOSDBG,230)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG('PCPN')
+      LPDUMP=ISBUG('PDMP')
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,*) 'LARRAY=',LARRAY
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      ISTAT=0
+C
+      IF (IREAD.EQ.0) GO TO 10
+C
+C  OPEN DATA BASE
+      CALL SUDOPN (1,'PPP ',IERR)
+      IF (IERR.NE.0) THEN
+         ISTAT=1
+         GO TO 220
+         ENDIF
+C
+C  READ PARAMETER RECORD
+      CALL RPPREC (STAID,'PCPN',IPTR,LARRAY,ARRAY,NFILL,IPTRNX,
+     *   IERR)
+      IF (IERR.NE.0) THEN
+         ISTAT=IERR
+         IF (ISTAT.NE.6) THEN
+            IF (IPRERR.GT.0) THEN
+               CALL SRPPST (STAID,'PCPN',IPTR,LARRAY,NFILL,IPTRNX,IERR)
+               ENDIF
+            ENDIF
+         GO TO 220
+         ENDIF
+C
+10    NPOS=0
+C
+C  SET PARAMETER ARRAY VERSION NUMBER
+      NPOS=NPOS+1
+      IVPCPN=ARRAY(NPOS)
+C
+C  SET STATION IDENTIFIER
+      NCHAR=4
+      NWORDS=LEN(STAID)/NCHAR
+      NCHK=2
+      IF (NWORDS.NE.NCHK) THEN
+         WRITE (LP,240) 'STAID',NWORDS,NCHK,STAID
+         CALL SUERRS (LP,2,-1)
+         ISTAT=1
+         GO TO 210
+         ENDIF
+      DO 20 I=1,NWORDS
+         NPOS=NPOS+1
+         N=(I-1)*NCHAR+1
+         CALL SUBSTR (ARRAY(NPOS),1,4,STAID(N:N),1)
+20       CONTINUE
+C
+C  SET USER SPECIFIED STATION NUMBER
+      NPOS=NPOS+1
+      NUMBER=ARRAY(NPOS)
+C
+C  SET DESCRIPTIVE INFORMATION
+      NCHAR=4
+      NWORDS=LEN(DESCRP)/NCHAR
+      NCHK=5
+      IF (NWORDS.NE.NCHK) THEN
+         WRITE (LP,240) 'DESCRP',NWORDS,NCHK,STAID
+         CALL SUERRS (LP,2,-1)
+         ISTAT=1
+         GO TO 210
+         ENDIF
+      DO 30 I=1,NWORDS
+         NPOS=NPOS+1
+         N=(I-1)*NCHAR+1
+         CALL SUBSTR (ARRAY(NPOS),1,NCHAR,DESCRP(N:N),1)
+30       CONTINUE
+C
+C  SET LOCATION  (LAT/LONG IN DECIMAL DEGREES)
+      DO 40 I=1,2
+         NPOS=NPOS+1
+         STALOC(I)=ARRAY(NPOS)
+40       CONTINUE
+C
+C  SET NWSRFS/HRAP COORDINATES
+      DO 50 I=1,2
+         NPOS=NPOS+1
+         STACOR(I)=ARRAY(NPOS)
+50       CONTINUE
+C
+C  SET PROCESSING CODE
+      NPOS=NPOS+1
+      IPROC=ARRAY(NPOS)
+C
+C  SET DATA TIME INTERVAL
+      NPOS=NPOS+1
+      IPTIME=ARRAY(NPOS)
+C
+C  SET MDR BOX ASSIGNED TO THIS STATION
+      NPOS=NPOS+1
+      MDRBOX=ARRAY(NPOS)
+C
+C  SET PRECIPITATION FACTORS
+      DO 60 I=1,2
+         NPOS=NPOS+1
+         PCPNCF(I)=ARRAY(NPOS)
+60       CONTINUE
+C
+C  SET TYPE OF 24 HOUR PRECIPITATION WEIGHTS
+      NPOS=NPOS+1
+      IPTWGT=ARRAY(NPOS)
+C
+C  SET NETWORK INDICATOR
+      NPOS=NPOS+1
+      IPNTWK=ARRAY(NPOS)
+C
+C  STORE INDICATOR WHETHER STATION IS TO BE USED FOR WEIGHTING
+      NPOS=NPOS+1
+      IPSWGT=ARRAY(NPOS)
+C
+C  SET STATE IDENTIFIER
+      NPOS=NPOS+1
+      STATE=ARRAY(NPOS)
+C
+C  SET ARRAY LOCATION OF CHARACTERISTICS FOR THIS STATION
+      NPOS=NPOS+1
+      IPCHAR=ARRAY(NPOS)
+C
+      IF (IPTWGT.GT.0) GO TO 110
+C
+C  SET ARRAY LOCATION OF POINTERS FOR 24 HOUR PCPN DATA FOR 5
+C  CLOSEST STATIONS IN EACH QUADRANT
+      DO 80 I=1,4
+         DO 70 J=1,5
+            NPOS=NPOS+1
+            IPD5PT(J,I)=ARRAY(NPOS)
+70          CONTINUE
+80       CONTINUE
+C
+C  SET STATION WEIGHTS OF 5 CLOSEST 24 HOUR PCPN STATION IN
+C  EACH QUADRANT
+      DO 100 I=1,4
+         DO 90 J=1,5
+            NPOS=NPOS+1
+            STA5WT(J,I)=ARRAY(NPOS)
+90          CONTINUE
+100      CONTINUE
+C
+      GO TO 160
+C
+C  SET IDENTIFIERS OF STATIONS WITH SIGNIFICANCE WEIGHTS
+110   NCHAR=4
+      NWORDS=LEN(STASID(1))/NCHAR
+      NCHK=2
+      IF (NWORDS.NE.NCHK) THEN
+         WRITE (LP,240) 'STASID',NWORDS,NCHK,STAID
+         CALL SUERRS (LP,2,-1)
+         ISTAT=1
+         GO TO 210
+         ENDIF
+      DO 130 I=1,MSTASID
+         DO 125 J=1,NWORDS
+            NPOS=NPOS+1
+            N=(J-1)*NCHAR+1
+            CALL SUBSTR (ARRAY(NPOS),1,NCHAR,STASID(I)(N:N),1)
+125         CONTINUE            
+130      CONTINUE
+C
+C  SET ARRAY LOCATIONS OF POINTERS FOR PCPN DATA FOR STATIONS
+      DO 140 I=1,MSTASID
+         NPOS=NPOS+1
+         IPDSPT(I)=ARRAY(NPOS)
+140      CONTINUE
+C
+C  SET WEIGHTS FOR STATIONS
+      DO 150 I=1,MSTASID
+         NPOS=NPOS+1
+         STASWT(I)=ARRAY(NPOS)
+150      CONTINUE
+C
+160   IF (IPTIME.EQ.24) GO TO 210
+C
+C  SET ARRAY LOCATION OF POINTERS FOR <24 HOUR PCPN DATA FOR 3
+C  CLOSEST STATIONS IN EACH QUADRANT
+      DO 180 I=1,4
+         DO 170 J=1,3
+            NPOS=NPOS+1
+            IPD3PT(J,I)=ARRAY(NPOS)
+170         CONTINUE
+180      CONTINUE
+C
+C  SET WEIGHTS FOR <24 HOUR STATIONS
+      DO 200 I=1,4
+         DO 190 J=1,3
+            NPOS=NPOS+1
+            STA3WT(J,I)=ARRAY(NPOS)
+190         CONTINUE
+200      CONTINUE
+C
+210   IF (LPDUMP.GT.0) THEN
+         WRITE (IOSDBG,*)
+     *      ' NPOS=',NPOS,
+     *      ' NFILL=',NFILL,
+     *      ' IPTRNX=',IPTRNX,
+     *      ' IVPCPN=',IVPCPN,
+     *      ' '
+         CALL SULINE (IOSDBG,1)
+         CALL SUPDMP ('PCPN',4HREAL,0,NPOS,ARRAY,ARRAY)
+         ENDIF
+C
+220   IF (ISTRCE.GT.1) THEN
+         WRITE (IOSDBG,260) ISTAT
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+230   FORMAT (' *** ENTER SRPCPN')
+240   FORMAT ('0*** ERROR - IN SRPCPN - NUMBER OF WORDS IN VARIABLE ',
+     *   A,'(',I2,') IS NOT ',I2,' FOR STATION ',A,'.')
+260   FORMAT (' *** EXIT SRPCPN : STATUS CODE=',I2)
+C
+      END

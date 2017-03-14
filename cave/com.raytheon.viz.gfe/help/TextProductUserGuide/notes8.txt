@@ -1,0 +1,1 @@
+When the product is complete, the product tab will turn blue and the editor window of the Formatter Launcher will appear.  You may further edit the product and optionally save it and/or transmit it. The Formatter Launcher has many other features which are documented in the online documentation. 

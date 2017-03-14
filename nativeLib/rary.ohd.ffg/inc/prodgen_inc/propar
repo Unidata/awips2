@@ -1,0 +1,6 @@
+      character*4 prodid,protyp,pform,pid,cct,tzone,wmo,senof,
+     +            dftyp,alidty
+      common /propar/ pvers,prodid(2),protyp,iusep,pform,pid(3),
+     +                cct,tzone,idt(12),wmo(2),senof,dftyp,jdur,
+     +                jdes,jstr,lwcol,lncol,lsrow,lnrow,
+     +                nolid,alidty(3,4000)

@@ -1,0 +1,594 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<rules>
+<!-- 
+	Every rule must have these attributes:
+		filenames: comma delimited list of files, at least one file must be specified
+		fromCondsDvlpg: expected GFA beginning
+		fromCondsEndg: expected GFA ending
+		genOlk:
+		condsContg:
+		otlkCondsDvlpg:
+		otlkCondsEndg:
+		base_top_weather:
+		orderInQueue: optional (0 by default), indicating which gfa to test. 
+-->
+	<rule
+		filenames="gfa01.xml,gfa01_1.xml" 
+		fromCondsDvlpg="" 
+		fromCondsEndg="" 
+		genOlk="NO"
+		condsContg="CONDS CONTG BYD +06Z ENDG +06-+09Z"
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="0,3,6"/>
+	<rule
+		filenames="gfa02.xml" 
+		fromCondsDvlpg="" 
+		fromCondsEndg="CONDS ENDG BY +06Z" 
+		genOlk="YES"
+		condsContg=""
+		otlkCondsDvlpg="CONDS DVLPG AFT +06Z"
+		otlkCondsEndg=""
+		base_top_weather="0,3,6"/>
+	<rule
+		filenames="gfa03.xml" 
+		fromCondsDvlpg="" 
+		fromCondsEndg="CONDS ENDG +03-+06Z" 
+		genOlk="NO"
+		condsContg=""
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="0,3"/>
+	<rule
+		filenames="gfa04.xml" 
+		fromCondsDvlpg="" 
+		fromCondsEndg="CONDS ENDG BY +03Z" 
+		genOlk="YES"
+		condsContg=""
+		otlkCondsDvlpg="CONDS DVLPG AFT +06Z"
+		otlkCondsEndg=""
+		base_top_weather="0,3"/>
+	<rule
+		filenames="gfa04.xml" 
+		fromCondsDvlpg="" 
+		fromCondsEndg="CONDS ENDG BY +03Z" 
+		genOlk="YES"
+		condsContg=""
+		otlkCondsDvlpg="CONDS DVLPG AFT +06Z"
+		otlkCondsEndg=""
+		base_top_weather="0,3"/>
+	<rule
+		filenames="gfa05.xml,gfa05_1.xml" 
+		fromCondsDvlpg="" 
+		fromCondsEndg="CONDS ENDG BY +03Z" 
+		genOlk="NO"
+		condsContg=""
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="0,3"/>
+	<rule
+		filenames="gfa06.xml" 
+		fromCondsDvlpg="" 
+		fromCondsEndg="CONDS ENDG +00-+03Z" 
+		genOlk="NO"
+		condsContg=""
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="0"/>
+	<rule
+		filenames="gfa07.xml" 
+		fromCondsDvlpg="" 
+		fromCondsEndg="CONDS ENDG +02-+03Z" 
+		genOlk="NO"
+		condsContg=""
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="0,2"/>
+	<rule
+		filenames="gfa08.xml" 
+		fromCondsDvlpg="" 
+		fromCondsEndg="CONDS ENDG BY +02Z" 
+		genOlk="NO"
+		condsContg=""
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="0,2"/>
+	<rule
+		filenames="gfa09.xml" 
+		fromCondsDvlpg="CONDS DVLPG AFT +00Z"
+		fromCondsEndg=""
+		genOlk="NO"
+		condsContg="CONDS CONTG BYD +06Z ENDG +06-+09Z"
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="0,3,6"/>
+	<rule
+		filenames="gfa10.xml" 
+		fromCondsDvlpg="CONDS DVLPG AFT +00Z"
+		fromCondsEndg="CONDS ENDG BY +06Z" 
+		genOlk="YES"
+		condsContg=""
+		otlkCondsDvlpg="CONDS DVLPG AFT +06Z"
+		otlkCondsEndg=""
+		base_top_weather="0,3,6"/>
+	<rule
+		filenames="gfa11.xml" 
+		fromCondsDvlpg="CONDS DVLPG AFT +00Z"
+		fromCondsEndg="CONDS ENDG +03-+06Z" 
+		genOlk="NO"
+		condsContg=""
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="0,3,6"/>
+	<rule
+		filenames="gfa12.xml" 
+		fromCondsDvlpg="CONDS DVLPG AFT +03Z"
+		fromCondsEndg="" 
+		genOlk="NO"
+		condsContg="CONDS CONTG BYD +06Z ENDG +06-+09Z"
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="3,6"/>
+	<rule
+		filenames="gfa13.xml" 
+		fromCondsDvlpg="CONDS DVLPG AFT +00Z"
+		fromCondsEndg="CONDS ENDG +02-+03Z" 
+		genOlk="NO"
+		condsContg=""
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="0,2"/>
+	<rule
+		filenames="gfa14.xml" 
+		fromCondsDvlpg="CONDS DVLPG +00-+03Z"
+		fromCondsEndg="" 
+		genOlk="NO"
+		condsContg="CONDS CONTG BYD +06Z ENDG +06-+09Z"
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="0,2"/>
+	<rule
+		filenames="gfa15.xml" 
+		fromCondsDvlpg="CONDS DVLPG +00-+03Z"
+		fromCondsEndg="CONDS ENDG BY +06Z" 
+		genOlk="YES"
+		condsContg=""
+		otlkCondsDvlpg="CONDS DVLPG AFT +06Z"
+		otlkCondsEndg=""
+		base_top_weather="3,6"/>
+	<rule
+		filenames="gfa16.xml" 
+		fromCondsDvlpg="CONDS DVLPG AFT +01Z"
+		fromCondsEndg="CONDS ENDG +03-+06Z" 
+		genOlk="NO"
+		condsContg=""
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="1,3"/>
+	<rule
+		filenames="gfa17.xml" 
+		fromCondsDvlpg="CONDS DVLPG +00-+03Z"
+		fromCondsEndg="CONDS ENDG +03-+06Z" 
+		genOlk="NO"
+		condsContg=""
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="3"/>
+	<rule
+		filenames="gfa18.xml" 
+		fromCondsDvlpg="CONDS DVLPG +00-+01Z"
+		fromCondsEndg="CONDS ENDG +03-+06Z" 
+		genOlk="NO"
+		condsContg=""
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="1,3"/>
+	<rule
+		filenames="gfa19.xml" 
+		fromCondsDvlpg="CONDS DVLPG +00-+03Z"
+		fromCondsEndg="CONDS ENDG +05-+06Z" 
+		genOlk="NO"
+		condsContg=""
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="3,5"/>
+	<rule
+		filenames="gfa20.xml" 
+		fromCondsDvlpg="CONDS DVLPG +00-+03Z"
+		fromCondsEndg="CONDS ENDG BY +05Z" 
+		genOlk="NO"
+		condsContg=""
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="3,5"/>
+	<rule
+		filenames="gfa21.xml" 
+		fromCondsDvlpg="CONDS DVLPG AFT +03Z"
+		fromCondsEndg="" 
+		genOlk="NO"
+		condsContg="CONDS CONTG BYD +06Z ENDG +06-+09Z"
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="3,6"/>
+	<rule
+		filenames="gfa22.xml" 
+		fromCondsDvlpg="CONDS DVLPG AFT +03Z"
+		fromCondsEndg="CONDS ENDG +05-+06Z" 
+		genOlk="NO"
+		condsContg=""
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="3,5"/>
+	<rule
+		filenames="gfa23.xml" 
+		fromCondsDvlpg="CONDS DVLPG +00-+01Z"
+		fromCondsEndg="CONDS ENDG BY +03Z" 
+		genOlk="NO"
+		condsContg=""
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="1,3"/>
+	<rule
+		filenames="gfa24.xml" 
+		fromCondsDvlpg="CONDS DVLPG AFT +04Z"
+		fromCondsEndg="" 
+		genOlk="NO"
+		condsContg="CONDS CONTG BYD +06Z ENDG +06-+09Z"
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="4,6"/>
+	<rule
+		filenames="gfa25.xml" 
+		fromCondsDvlpg="CONDS DVLPG +03-+04Z"
+		fromCondsEndg="" 
+		genOlk="NO"
+		condsContg="CONDS CONTG BYD +06Z ENDG +06-+09Z"
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="4,6"/>
+	<rule
+		filenames="gfa26.xml" 
+		fromCondsDvlpg="CONDS DVLPG +03-+06Z"
+		fromCondsEndg="" 
+		genOlk="NO"
+		condsContg="CONDS CONTG BYD +06Z ENDG +06-+09Z"
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="6"/>
+	<rule
+		filenames="gfa27.xml" 
+		fromCondsDvlpg="CONDS DVLPG +03-+04Z"
+		fromCondsEndg="CONDS ENDG BY +06Z" 
+		genOlk="YES"
+		condsContg=""
+		otlkCondsDvlpg="CONDS DVLPG AFT +06Z"
+		otlkCondsEndg=""
+		base_top_weather="4,6"/>
+	<rule
+		filenames="gfa28.xml" 
+		fromCondsDvlpg="CONDS DVLPG AFT +01Z"
+		fromCondsEndg="CONDS ENDG +02-+03Z" 
+		genOlk="NO"
+		condsContg=""
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="1,2"/>
+	<rule
+		filenames="gfa29.xml" 
+		fromCondsDvlpg="CONDS DVLPG AFT +02Z"
+		fromCondsEndg="CONDS ENDG +04-+06Z" 
+		genOlk="NO"
+		condsContg=""
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="2,3,4"/>
+	<rule
+		filenames="gfa30.xml" 
+		fromCondsDvlpg="CONDS DVLPG +00-+01Z"
+		fromCondsEndg="CONDS ENDG +01-+03Z" 
+		genOlk="NO"
+		condsContg=""
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="1"/>
+	<rule
+		filenames="gfa31.xml" 
+		fromCondsDvlpg="CONDS DVLPG +03-+04Z"
+		fromCondsEndg="CONDS ENDG +04-+06Z" 
+		genOlk="NO"
+		condsContg=""
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="4"/>
+	<rule
+		filenames="gfa32.xml" 
+		fromCondsDvlpg="CONDS DVLPG AFT +04Z"
+		fromCondsEndg="CONDS ENDG +05-+06Z" 
+		genOlk="NO"
+		condsContg=""
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="4,5"/>
+	<rule
+		filenames="gfa33.xml" 
+		fromCondsDvlpg="CONDS DVLPG +00-+01Z"
+		fromCondsEndg="CONDS ENDG +02-+03Z" 
+		genOlk="NO"
+		condsContg=""
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="1,2"/>
+	<rule
+		filenames="gfa34.xml" 
+		fromCondsDvlpg="CONDS DVLPG +00-+01Z"
+		fromCondsEndg="CONDS ENDG BY +02Z" 
+		genOlk="NO"
+		condsContg=""
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="1,2"/>
+	<rule
+		filenames="gfa35.xml" 
+		fromCondsDvlpg="CONDS DVLPG +00-+02Z"
+		fromCondsEndg="CONDS ENDG +02-+03Z" 
+		genOlk="NO"
+		condsContg=""
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="2"/>
+	<rule
+		filenames="gfa36.xml" 
+		fromCondsDvlpg="CONDS DVLPG +00-+02Z"
+		fromCondsEndg="CONDS ENDG +04-+06Z" 
+		genOlk="NO"
+		condsContg=""
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="2,3,4"/>
+	<rule
+		filenames="gfa37.xml" 
+		fromCondsDvlpg="CONDS DVLPG +00-+02Z"
+		fromCondsEndg="CONDS ENDG BY +04Z" 
+		genOlk="NO"
+		condsContg=""
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="2,3,4"/>
+	<rule
+		filenames="gfa38.xml" 
+		fromCondsDvlpg="CONDS DVLPG +03-+04Z"
+		fromCondsEndg="CONDS ENDG +05-+06Z" 
+		genOlk="NO"
+		condsContg=""
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="4,5"/>
+	<rule
+		filenames="gfa39.xml" 
+		fromCondsDvlpg="CONDS DVLPG +03-+04Z"
+		fromCondsEndg="CONDS ENDG BY +05Z" 
+		genOlk="NO"
+		condsContg=""
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="4,5"/>
+	<rule
+		filenames="gfa40.xml" 
+		fromCondsDvlpg="CONDS DVLPG +03-+05Z"
+		fromCondsEndg="CONDS ENDG +05-+06Z" 
+		genOlk="NO"
+		condsContg=""
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="5"/>
+	<rule
+		filenames="gfa41.xml" 
+		fromCondsDvlpg=""
+		fromCondsEndg="" 
+		genOlk="NO"
+		condsContg="CONDS CONTG BYD +06Z ENDG +06-+09Z"
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="0,3,6"/>
+	<rule
+		filenames="gfa42.xml" 
+		fromCondsDvlpg=""
+		fromCondsEndg="CONDS ENDG +03-+06Z" 
+		genOlk="NO"
+		condsContg=""
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="0,1,3"/>
+	<rule
+		filenames="gfa43.xml" 
+		fromCondsDvlpg=""
+		fromCondsEndg="" 
+		genOlk="NO"
+		condsContg="CONDS CONTG BYD +06Z ENDG +06-+09Z"
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="0,3,4,6"/>
+	<rule
+		filenames="gfa44.xml" 
+		fromCondsDvlpg=""
+		fromCondsEndg="" 
+		genOlk="NO"
+		condsContg="CONDS CONTG BYD +06Z ENDG +06-+09Z"
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="0,1,2,3,4,5,6"/>
+	<rule
+		filenames="gfa45.xml" 
+		fromCondsDvlpg=""
+		fromCondsEndg="CONDS ENDG BY +05Z" 
+		genOlk="YES"
+		condsContg=""
+		otlkCondsDvlpg="CONDS DVLPG AFT +06Z"
+		otlkCondsEndg=""
+		base_top_weather="0,1,3,4,5"/>
+	<rule
+		filenames="gfa46.xml" 
+		fromCondsDvlpg="CONDS DVLPG +03-+06Z"
+		fromCondsEndg="" 
+		genOlk="NO"
+		condsContg="CONDS CONTG BYD +06Z THRU +12Z"
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="6,9,12"/>
+	<rule
+		filenames="gfa47.xml" 
+		fromCondsDvlpg="CONDS DVLPG +03-+06Z"
+		fromCondsEndg="" 
+		genOlk="NO"
+		condsContg="CONDS CONTG BYD +06Z ENDG BY +12Z"
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="6,9,12"
+		orderInQueue="0"/>
+	<!-- test smear and outlook hear -->
+	<rule
+		filenames="gfa47_1.xml" 
+		fromCondsDvlpg="CONDS DVLPG +03-+06Z"
+		fromCondsEndg="" 
+		genOlk="YES"
+		condsContg=""
+		otlkCondsDvlpg=""
+		otlkCondsEndg="CONDS ENDG BY +12Z"
+		base_top_weather="6,9,12"
+		orderInQueue="1"/>
+	<rule
+		filenames="gfa48.xml" 
+		fromCondsDvlpg="CONDS DVLPG +03-+06Z"
+		fromCondsEndg="" 
+		genOlk="NO"
+		condsContg="CONDS CONTG BYD +06Z ENDG +09-+12Z"
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="6,9"
+		orderInQueue="0"/>
+	<rule
+		filenames="gfa48_1.xml" 
+		fromCondsDvlpg="CONDS DVLPG +03-+06Z"
+		fromCondsEndg="" 
+		genOlk="YES"
+		condsContg=""
+		otlkCondsDvlpg=""
+		otlkCondsEndg="CONDS ENDG +09-+12Z"
+		base_top_weather="6,9"
+		orderInQueue="1"/>
+	<rule
+		filenames="gfa49.xml" 
+		fromCondsDvlpg="CONDS DVLPG +03-+06Z"
+		fromCondsEndg="" 
+		genOlk="NO"
+		condsContg="CONDS CONTG BYD +06Z ENDG BY +09Z"
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="6,9"
+		orderInQueue="0"/>
+	<rule
+		filenames="gfa50.xml" 
+		fromCondsDvlpg="CONDS DVLPG +03-+06Z"
+		fromCondsEndg="" 
+		genOlk="NO"
+		condsContg="CONDS CONTG BYD +06Z ENDG BY +09Z"
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="6,9"
+		orderInQueue="0"/>
+	<rule
+		filenames="gfa52.xml" 
+		fromCondsDvlpg="CONDS DVLPG +03-+06Z"
+		fromCondsEndg="" 
+		genOlk="NO"
+		condsContg="CONDS CONTG BYD +06Z ENDG BY +09Z"
+		otlkCondsDvlpg=""
+		otlkCondsEndg=""
+		base_top_weather="6,9,12"
+		orderInQueue="0"/>
+	<rule
+		filenames="gfa52_1.xml" 
+		fromCondsDvlpg="CONDS DVLPG AFT +06Z"
+		fromCondsEndg="CONDS ENDG BY +06Z" 
+		genOlk="YES"
+		condsContg=""
+		otlkCondsDvlpg="CONDS DVLPG AFT +06Z"
+		otlkCondsEndg="CONDS CONTG THRU +12Z"
+		base_top_weather="6,9,12"
+		orderInQueue="1"/>
+	<rule
+		filenames="gfa53.xml" 
+		fromCondsDvlpg="CONDS DVLPG AFT +06Z"
+		fromCondsEndg="CONDS ENDG BY +06Z" 
+		genOlk="YES"
+		condsContg=""
+		otlkCondsDvlpg="CONDS DVLPG AFT +06Z"
+		otlkCondsEndg="CONDS ENDG BY +12Z"
+		base_top_weather="6,9,12"
+		orderInQueue="1"/>
+	<rule
+		filenames="gfa54.xml" 
+		fromCondsDvlpg="CONDS DVLPG AFT +06Z"
+		fromCondsEndg="CONDS ENDG BY +06Z" 
+		genOlk="YES"
+		condsContg=""
+		otlkCondsDvlpg="CONDS DVLPG AFT +06Z"
+		otlkCondsEndg="CONDS ENDG +09-+12Z"
+		base_top_weather="6,9"
+		orderInQueue="1"/>
+	<rule
+		filenames="gfa55.xml" 
+		fromCondsDvlpg="CONDS DVLPG AFT +09Z"
+		fromCondsEndg="CONDS ENDG BY +06Z" 
+		genOlk="YES"
+		condsContg=""
+		otlkCondsDvlpg="CONDS DVLPG AFT +09Z"
+		otlkCondsEndg="CONDS CONTG THRU +12Z"
+		base_top_weather="9,12"
+		orderInQueue="1"/>
+	<rule
+		filenames="gfa56.xml" 
+		fromCondsDvlpg=""
+		fromCondsEndg="" 
+		genOlk="YES"
+		condsContg=""
+		otlkCondsDvlpg="CONDS DVLPG +06-+09Z"
+		otlkCondsEndg="CONDS CONTG THRU +12Z"
+		base_top_weather="9,12"/>
+	<rule
+		filenames="gfa57.xml" 
+		fromCondsDvlpg=""
+		fromCondsEndg="" 
+		genOlk="YES"
+		condsContg=""
+		otlkCondsDvlpg="CONDS DVLPG +06-+09Z"
+		otlkCondsEndg="CONDS ENDG BY +12Z"
+		base_top_weather="9,12"/>
+	<rule
+		filenames="gfa58.xml" 
+		fromCondsDvlpg=""
+		fromCondsEndg="" 
+		genOlk="YES"
+		condsContg=""
+		otlkCondsDvlpg="CONDS DVLPG +06-+09Z"
+		otlkCondsEndg="CONDS ENDG +09-+12Z"
+		base_top_weather="9"/>
+	<rule
+		filenames="gfa59.xml" 
+		fromCondsDvlpg="CONDS DVLPG AFT +09Z"
+		fromCondsEndg="CONDS ENDG BY +09Z" 
+		genOlk="YES"
+		condsContg=""
+		otlkCondsDvlpg="CONDS DVLPG AFT +09Z"
+		otlkCondsEndg="CONDS CONTG THRU +12Z"
+		base_top_weather="9,12"/>
+	<rule
+		filenames="gfa60.xml" 
+		fromCondsDvlpg=""
+		fromCondsEndg="" 
+		genOlk="YES"
+		condsContg=""
+		otlkCondsDvlpg="CONDS DVLPG +09-+12Z"
+		otlkCondsEndg="CONDS CONTG THRU +12Z"
+		base_top_weather="12"/>
+</rules>

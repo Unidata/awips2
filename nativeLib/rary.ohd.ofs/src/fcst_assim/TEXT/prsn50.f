@@ -1,0 +1,93 @@
+C MEMBER PRSN50
+C  (from old member FCEX50)
+C
+C                             LAST UPDATE: 07/06/95.14:58:38 BY $WC21DT
+C
+C FROM MODULE FCSENS50
+C @PROCESS LVL(77)
+      SUBROUTINE PRSN50( P,MP,C,MC,T,MT,TS,MTS,D,MD,IHZERO,
+     1 QS, QO, NDAYS, WQ, NDQ_PER_PRD, NQ_PRDS, ISTART,
+     2 NBASINS, NPR_PRDS, IP_PR, IPR_IDT, NDP_PER_PRD,
+     3 WP_B, WP_B_PRD, QAVE )
+C
+C    THIS ROUTINE CALCULATES THE WEIGHTS OF PRECIPITATION
+C    FOR EACH BASIN FOR EACH TIME PERIOD IN QUESTION.
+C
+C    ROUTINE INITIALLY WRITTEN BY
+C    ERIC MARKSTROM, RIVERSIDE TECHNOLOGY, INC. DECEMBER 1994 VERSION 1
+C
+
+C    PASSED ARGUMENTS
+      DIMENSION P(MP), C(MP), TS(MTS), D(MD),
+     1 QS(*), QO(*), IP_PR(*), IPR_IDT(*), WP_B(*), WP_B_PRD(*)
+
+      INTEGER IHZERO, NDAYS, NDQ_PER_PRD, NQ_PRDS, ISTART,
+     1 NBASINS, NPR_PRDS, NDP_PER_PRD
+      INTEGER T(MT)
+      REAL WQ, QAVE
+      INCLUDE 'common/fdbug'
+
+C    LOCAL VARIABLES
+C    I        - COUNTER
+C    J        - COUNTER
+C    MULT     - THE MULTIPLICATION FACTOR TO USE IN THE
+C               SENSITIVITY ANALYSIS
+C    INV_MULT - THE INVERSE VALUE OF THE MULTIPLICATION FACTOR
+C    DFQ_MAX  - THE MAXIMUM OBJECTIVE VALUE OF THE FLOW TERM
+C    NEW_ERR  - THE CURRENT OBJECTIVE VALUE OF THE FLOW TERM
+C    ORIG_ERR - THE ORIGINAL OBJECTIVE VALUE OF THE FLOW TERM
+C               BEFORE ANY MODIFICATION TO PRECIP WAS MADE
+C    DFQ      - ABSOLUTE DIFFERENCE BETWEEN THE NEW_ERR AND
+C               ORIG_ERR TERM
+
+      INTEGER I, J
+      REAL MULT, INV_MULT, DFQ_MAX, NEW_ERR, ORIG_ERR, DFQ(31)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_assim/RCS/prsn50.f,v $
+     . $',                                                             '
+     .$Id: prsn50.f,v 1.1 1995/09/17 18:55:44 dws Exp $
+     . $' /
+C    ===================================================================
+C
+
+
+      MULT = 1.2
+      INV_MULT = 1 / MULT
+
+      CALL LDRV50( P,MP,C,MC,T,MT,TS,MTS,D,MD,IHZERO )
+
+      ORIG_ERR = FQCL50( QS, QO, NDAYS, WQ, NDQ_PER_PRD,
+     1 NQ_PRDS, ISTART, QAVE)
+      IF (IBUG.GE.1) THEN
+        WRITE(IODBUG,*)'ORIG ERR', ORIG_ERR
+      END IF
+C    FOR EACH BASIN MODIFY THE PRECIPITATION
+      DO I = 1, NBASINS
+          DFQ_MAX = 0.0001
+C    FOR EACH PERIOD MODIFY THE PRECIPITATION
+          DO J = 1, NPR_PRDS
+               CALL SMTS50( D, IP_PR(I), IPR_IDT(I), MULT,
+     1 J, NDP_PER_PRD, NPR_PRDS )
+               CALL LDRV50( P,MP,C,MC,T,MT,TS,MTS,D,MD,IHZERO )
+               NEW_ERR = FQCL50(  QS, QO, NDAYS, WQ, NDQ_PER_PRD,
+     1 NQ_PRDS, ISTART, QAVE)
+               IF (IBUG.GE.1) THEN
+                 WRITE(IODBUG,*)'NEW ERR',NEW_ERR
+               END IF
+               DFQ(J) = ABS( NEW_ERR - ORIG_ERR )
+               IF (DFQ(J) .GT. DFQ_MAX) DFQ_MAX = DFQ(J)
+               CALL SMTS50( D, IP_PR(I), IPR_IDT(I), INV_MULT,
+     1  J, NDP_PER_PRD, NPR_PRDS )
+          END DO
+          CALL LDRV50( P,MP,C,MC,T,MT,TS,MTS,D,MD,IHZERO )
+C    WEIGHTS FOR EACH PERIOD ARE CALCULATED
+          DO J = 1, NPR_PRDS
+               WP_B_PRD(J + (I-1) * NPR_PRDS) =
+     1 WP_B(I) * DFQ(J) / DFQ_MAX
+          END DO
+      END DO
+
+      END

@@ -1,0 +1,46 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the calb-calb_statqme library file
+#
+#  cmt: File made on Thu Oct 26 14:47:37 EDT 2006 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob81/ohd/calb/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob81/ohd/calb/inc  \
+               -I/fs/hseb/ob81/ohd/ofs/inc  \
+               -I/fs/hseb/ob81/ohd/util/inc  \
+               -I/fs/hseb/ob81/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libcalb_statqme_t.a:  \
+     $(LIB)/libcalb_statqme_t.a(ex16.o)  \
+     $(LIB)/libcalb_statqme_t.a(ina16.o)  \
+     $(LIB)/libcalb_statqme_t.a(inb16.o)  \
+     $(LIB)/libcalb_statqme_t.a(inc16.o)  \
+     $(LIB)/libcalb_statqme_t.a(ind16.o)  \
+     $(LIB)/libcalb_statqme_t.a(pin16.o)  \
+     $(LIB)/libcalb_statqme_t.a(prp16.o)  \
+     $(LIB)/libcalb_statqme_t.a(prti16.o)  \
+     $(LIB)/libcalb_statqme_t.a(prtr16.o)  \
+     $(LIB)/libcalb_statqme_t.a(stat16.o)  \
+     $(LIB)/libcalb_statqme_t.a(tab16.o)
+

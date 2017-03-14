@@ -1,0 +1,633 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <string.h>
+
+#include "DbmsAccess.h"
+#include "LoadUnique.h"
+#include "DbmsDefs.h"
+#include "db_purge.h"
+#include "get_admin_hsa.h"
+#include "lid_in_table.h"
+#include "get_location_hsa.h"
+#include "GeneralUtil.h"
+#include "LoadUnique.h"
+#include "time_convert.h"
+#include "dt.h"
+#include "pgtypes_interval.h"
+#include "pgtypes_timestamp.h"
+
+/* A macro to convert a time represented in ticks into a GMT time string
+ with the following format :
+ "<abbreviated month name> <day of month>, <year> - <hour>:<minute>:<second>"
+ e.g. " Feb 21, 1971 - 03:40:30"
+ "x" must be a "time_t" value, or a function that yields a "time_t" value.
+ "y" must be a character array that is large enough to contain the time
+ string constructed by strftime ( ). It is recommended that this array
+ be dimensioned to at least 30. */
+
+#define FORMAT_TIME( x , y )                                                 \
+{                                                                            \
+     int status ;                                                            \
+     struct tm * timePtr ;                                                   \
+     timePtr = gmtime ( & ( x ) ) ;                                          \
+                                                                             \
+     if ( timePtr == NULL )                                                  \
+     {                                                                       \
+        printf ( "The conversion from a \"time_t\" value to a struct tm\n"   \
+                 "failed in the call to gmtime in the FORMAT_TIME macro.\n"  \
+                 "The supplied value, %ld, is probably not a valid\n"        \
+                 "\"time_t\" value.\n" , ( long ) ( x ) ) ;                  \
+        exit ( 1 ) ;                                                         \
+     }                                                                       \
+                                                                             \
+     status = strftime ( ( y ) , 30  , " %b %d, %Y - %H:%M:%S" , timePtr ) ; \
+                                                                             \
+     if ( status == 0 )                                                      \
+     {                                                                       \
+        printf ( "The the call to \"strftime\" failed in the FORMAT_TIME\n"  \
+                 "macro. Check to make sure that the maximum size argument\n"\
+                    "has been set large enough.\n" ) ;                          \
+        exit ( 1 ) ;                                                         \
+     }                                                                       \
+}                                                                            \
+
+/*----------------------------------------------------------------------*/
+/*                       db_purge                                       */
+/*                                                                      */
+/*  num_rec = number of records found in PurgeDynData table             */
+/*          = number of tables from which records will be deleted       */
+/*  num_del = number of records deleted from each table                 */
+/*  tot_num_del = total number of records deleted from all tables       */
+/*                                                                      */
+/*  eltsec = total elapsed time in sec                                  */
+/*  eltmin = total elapsed time in minutes                              */
+/*                                                                      */
+/*----------------------------------------------------------------------*/
+
+int db_purge_main(int argc, const char ** argv) {
+	int backup_use, numday, num_del, tot_num_del, len, num_rec;
+	int remainder, ielt, irc, lid_col_exist;
+	char process_name[10], admin_hsa[4], cback[4], loc_hsa[HYD_SERV_LEN + 1],
+			dttm2[30], dbname[30], llid[8];
+	float eltsec, eltmin;
+	time_t ibegt, iendt, delete_date_host_t, delete_time_host_t,
+			delete_date_backup_t, delete_time_backup_t, curtime_t;
+	dtime_t current_time;
+
+	UniqueList * uniqueHead = NULL;
+	UniqueList * uniquePtr = NULL;
+
+	EXEC SQL BEGIN DECLARE SECTION;
+
+	char tabname[20], timecol[20], strhr[20], strday[13];
+	char where_clause[80], where_clause_host[60], where_clause_backup[60];
+      char delete_stmt[120], strdelt_host[32] , strdelt_backup[32];  
+	char * pDate = NULL;
+	int num_lid, numhr_host, numhr_backup;
+	timestamp dtcurrent, dtcur, delete_time_host, delete_time_backup;
+	timestamp dtcurdate, delete_date_host, delete_date_backup;
+	interval * int_day, * int_hour;
+
+	EXEC SQL END DECLARE SECTION;
+
+	/*-----------------------------------------------------------*/
+	/*   define process identifier for writing to Perflog table  */
+	/*-----------------------------------------------------------*/
+
+	strcpy(process_name, "db_purge");
+
+	/*-----------------------------------*/
+	/*   begin elapsed time timer        */
+	/*   define current time for PerfLog */
+	/*-----------------------------------*/
+
+	time(&ibegt);
+	PGTYPEStimestamp_current(&current_time);
+
+	/*-------------------------------------------*/
+	/*   output header, begin time               */
+	/*-------------------------------------------*/
+
+	FORMAT_TIME ( ibegt , dttm2 );
+	printf("IHFS Database Purge Changed for AWIPS II OB14.3.1  April 18, 2014\n");
+	printf("\nbegin time = %s GMT\n", dttm2);
+
+	/*-----------------------------------*/
+	/*   output database name            */
+	/*-----------------------------------*/
+
+	len = strlen("db_name");
+	get_apps_defaults("db_name", &len, dbname, &len);
+	printf("database name = %s\n", dbname);
+
+	/*--------------------------------------------*/
+	/*   open database                            */
+	/*--------------------------------------------*/
+
+	irc = OpenDbms(dbname);
+
+	if (irc != (int) Ok) {
+		printf("PostgreSQL error %d attempting to "
+			"open database\n", irc);
+		exit(1);
+	}
+
+	/*------------------------------------------------------------------------------*/
+	/*   read value of db_purge_backup_retention_use token                          */
+	/*   = ON  -- use num_hours_backup field to determine number of hours to retain */
+	/*   = OFF -- use num_hours_host    "     "     "        "    "   "    "   "    */
+	/*                                                                              */
+	/*   backup_use = 0 (default) -- use num_hours_host field                       */
+	/*              = 1           -- use num_hours_backup field                     */
+	/*------------------------------------------------------------------------------*/
+
+	backup_use = 0;
+
+	len = strlen("db_purge_backup_retention_use");
+	get_apps_defaults("db_purge_backup_retention_use", &len, cback, &len);
+
+	if (strcmp(cback, "ON") == 0 || strcmp(cback, "on") == 0) {
+		backup_use = 1;
+		printf("Using num_hours_backup field to determine retention for backup stations\n");
+
+		if (get_admin_hsa(admin_hsa) == 0)
+			printf("hsa (from Admin table) = %s\n", admin_hsa);
+		else {
+			backup_use = 0;
+			printf("Error attempting to read hsa field from Admin table -- ");
+			printf("All deletes will be based on num_hours_host values\n");
+		}
+	} else
+		printf("Using num_hours_host field to determine retention for all records\n");
+
+	/*------------------------------------------------------------------------------*/
+	/*   declare and open purgedyn_cursor for select of PurgeDynData records        */
+	/*   num_rec = number of records in PurgeDynData table                          */
+	/*   if num_rec = 0, then do not attempt to close delete cursor                 */
+	/*------------------------------------------------------------------------------*/
+
+	EXEC SQL declare purgedyn_cursor CURSOR WITH HOLD FOR
+	SELECT table_name,time_column_name,num_hours_host,num_hours_backup
+	FROM PurgeDynData
+	ORDER BY table_name;
+
+	if (sqlca.sqlcode != 0) {
+		printf("PostgreSQL error %s declaring "
+			"purgedyn_cursor\n", sqlca.sqlstate);
+		exit(1);
+	}
+
+	EXEC SQL open purgedyn_cursor;
+	if (sqlca.sqlcode != 0) {
+		printf("PostgreSQL error %s opening "
+			"purgedyn_cursor\n", sqlca.sqlstate);
+		exit(1);
+	}
+
+	/*-----------------------------------*/
+	/*   output column headers           */
+	/*-----------------------------------*/
+
+	if (backup_use == 0) {
+
+		printf("\n number\n");
+		printf(" deleted  table name          time column   time cutoff\n");
+		printf("---------------------------------------------------------------\n");
+
+	} else {
+		printf("\n number\n");
+	   printf(" deleted  table name          time column   time cutoff (host)   time cutoff (backup)\n");
+		printf("-------------------------------------------------------------------------------------\n");
+	}
+	fflush(NULL);
+
+	/*--------------------------------------------*/
+	/*   fetch PurgeDynData table records         */
+	/*--------------------------------------------*/
+
+	num_rec = 0;
+	num_del = 0;
+	tot_num_del = 0;
+
+	irc = 0;
+	for (;;) {
+
+		EXEC SQL fetch purgedyn_cursor into :tabname , :timecol , :numhr_host , :numhr_backup;
+		irc = sqlca.sqlcode;
+
+		if (irc == 100) {
+
+			break;
+
+		} else if (irc != 0) {
+			printf("PostgreSQL error %s from purgedyn_cursor fetch\n",
+					sqlca.sqlstate);
+			exit(1);
+		}
+
+		/*----------------------------------------------------------------------*/
+		/*   delete_time_host = (current time) - (num_hours_host)               */
+		/*   delete_time_backup = (current time) - (num_hours_backup)           */
+		/*----------------------------------------------------------------------*/
+
+		/* Do not consier VTECevent and VTECpractice tables here, later there is special
+		 function to purge records in these two tables */
+
+		if (strcmp(tabname, "vtecevent") != 0
+				&& strcmp(tabname, "vtecpractice") != 0) {
+			num_rec++;
+			lower_trim(timecol);
+
+			/* Check the name of the time column to determine if it has the
+			 substring "date" in it.  If it does, the time form is
+			 YYYY-MM-DD.  The retention hours (host and backup) must be
+			 converted to days. */
+			pDate = strstr(timecol, "date");
+
+			if (pDate == NULL) {
+				time(&curtime_t);
+				timet_to_yearsec_dt(curtime_t, &dtcur);
+				dtcurrent = dtcur;
+
+				sprintf(strhr, "%d:00:00", numhr_host);
+				int_hour = PGTYPESinterval_from_asc(strhr, NULL);
+				if (int_hour == NULL) {
+					printf("Error converting interval %s - errno = %d\n",
+							strhr, errno);
+					exit(0);
+				}
+
+				if (PGTYPEStimestamp_sub_interval(&dtcur, int_hour,
+						&delete_time_host)) {
+					printf("Error subtracting interval\n");
+					exit(0);
+				}
+
+				strcpy(strdelt_host, PGTYPEStimestamp_to_asc(delete_time_host));
+
+				irc
+						= yearsec_dt_to_timet(delete_time_host,
+								&delete_time_host_t);
+				if (irc != 0) {
+					printf(
+							"error %d  transforming delete_time_host variable\n",
+							irc);
+					exit(0);
+				}
+
+				if (backup_use == 1) {
+					sprintf(strhr, "%d:00:00", numhr_backup);
+					int_hour = PGTYPESinterval_from_asc(strhr, NULL);
+					if (int_hour == NULL) {
+						printf("Error converting interval %s - errno = %d\n",
+								strhr, errno);
+						exit(0);
+					}
+
+					if (PGTYPEStimestamp_sub_interval(&dtcurrent, int_hour,
+							&delete_time_backup)) {
+						printf("Error subtracting interval\n");
+						exit(0);
+					}
+
+					strcpy(strdelt_backup, PGTYPEStimestamp_to_asc(
+							delete_time_backup));
+
+					irc = yearsec_dt_to_timet(delete_time_backup,
+							&delete_time_backup_t);
+					if (irc != 0)
+						printf("error %d  transforming "
+							"delete_time_backup variable\n", irc);
+				}
+
+			} else {
+				/* Treat as a YYYY-MM-DD PostgreSQL formatted time string. */
+				time(&curtime_t);
+				timet_to_yearsec_dt(curtime_t, &dtcurdate);
+				dtcurrent = dtcurdate;
+
+				numday = numhr_host / HOURS_PER_DAY;
+				remainder = numhr_host % HOURS_PER_DAY;
+
+				if (remainder > 0)
+					++numday;
+
+				sprintf(strday, "%d 00:00:00", numday);
+				int_day = PGTYPESinterval_from_asc(strday, NULL);
+				if (int_day == NULL) {
+					printf("Error converting interval %s - errno = %d\n",
+							strday, errno);
+					exit(0);
+				}
+
+				if (PGTYPEStimestamp_sub_interval(&dtcurdate, int_day,
+						&delete_date_host)) {
+					printf("Error subtracting interval\n");
+					exit(0);
+				}
+
+				strcpy(strdelt_host, PGTYPEStimestamp_to_asc(delete_date_host));
+
+				irc
+						= yearday_dt_to_timet(delete_date_host,
+								&delete_date_host_t);
+				if (irc != 0) {
+					printf(
+							"error %d  transforming delete_date_host variable\n",
+							irc);
+				}
+
+				if (backup_use == 1) {
+					numday = numhr_backup / HOURS_PER_DAY;
+					remainder = numhr_backup % HOURS_PER_DAY;
+
+					if (remainder > 0)
+						++numday;
+
+					sprintf(strday, "%d 00:00:00", numday);
+					int_day = PGTYPESinterval_from_asc(strday, NULL);
+					if (int_day == NULL) {
+						printf("Error converting interval %s - errno = %d\n",
+								strday, errno);
+						exit(0);
+					}
+
+					if (PGTYPEStimestamp_sub_interval(&dtcurrent, int_day,
+							&delete_date_backup)) {
+						printf("Error subtracting interval\n");
+						exit(0);
+					}
+
+					strcpy(strdelt_backup, PGTYPEStimestamp_to_asc(
+							delete_date_backup));
+
+					irc = yearday_dt_to_timet(delete_date_backup,
+							&delete_date_backup_t);
+					if (irc != 0)
+						printf("error %d  transforming "
+							"delete_date_backup variable\n", irc);
+				}
+
+			}
+
+			/*----------------------------------------------------*/
+			/*   generate the WHERE clause for delete cursor      */
+			/*----------------------------------------------------*/
+
+
+			if (backup_use == 0) {
+				sprintf(where_clause_host, " %s < '%s' ", timecol, strdelt_host);
+			} else {
+				sprintf(where_clause_backup, " %s < '%s' ", timecol,
+						strdelt_backup);
+				sprintf(where_clause_host, " %s < '%s' ", timecol, strdelt_host);
+			}
+
+			/*-------------------------------------------------------------------*/
+			/*   delete files associated with records from the DPARadar table    */
+			/*   record contains the filename                                    */
+			/*-------------------------------------------------------------------*/
+
+			lower_trim(tabname);
+			delete_files(tabname, strdelt_host);
+
+       /*-------------------------------------------------------------------*/
+       /*   delete files associated with records from the DAARadar table    */
+       /*   record contains the filename                                    */
+       /*-------------------------------------------------------------------*/
+
+             lower_trim(tabname);
+             delete_daa_files(tabname, strdelt_host);
+
+			/*------------------------------------------------------------------------*/
+			/*   determine if table has lid column                                    */
+			/*   if table has lid column, then lid_col_exist = 1 else = 0             */
+			/*------------------------------------------------------------------------*/
+
+			lid_col_exist = lid_in_table(tabname);
+
+			/*----------------------------------------------------------------------------------*/
+			/*   if table does not have lid field OR (table has lid field AND backup_use = OFF) */
+			/*       then create, prepare and execute DELETE statement                          */
+			/*----------------------------------------------------------------------------------*/
+
+			if (lid_col_exist == 0 || (lid_col_exist == 1 && backup_use == 0)) {
+
+				sprintf(delete_stmt, "DELETE FROM %s WHERE %s; ", tabname,
+						where_clause_host);
+
+				EXEC SQL prepare p_delete from :delete_stmt;
+				if (sqlca.sqlcode != 0) {
+					printf("PostgreSQL error %s preparing "
+						"delete statement\n", sqlca.sqlstate);
+					continue;
+				}
+
+				/*--------------------------------------------------------*/
+				/*   delete records                                       */
+				/*   sqlca.sqlerrd[2] contains number of records deleted  */
+				/*--------------------------------------------------------*/
+
+				num_del = 0;
+				EXEC SQL EXECUTE p_delete;
+				if (sqlca.sqlcode < 0) {
+					printf("PostgreSQL error %s deleting records\n",
+							sqlca.sqlstate);
+					continue;
+				}
+
+				num_del = sqlca.sqlerrd[2];
+
+			} else {
+
+				/*------------------------------------------------------------*/
+				/*  backup_use = ON AND table has lid column                  */
+				/*------------------------------------------------------------*/
+
+				/*-------------------------------------------------------*/
+				/*  create list of distinct lid's appearing in table     */
+				/*   in alphbetical order                                */
+				/*-------------------------------------------------------*/
+
+				uniqueHead = LoadUnique("lid", tabname, "ORDER BY lid",
+						&num_lid);
+
+				/*---------------------------------------------------------------*/
+				/*  for each lid, check its hsa against admin.hsa                */
+				/*                                                               */
+				/*  function get_location_hsa gets the hsa value from the        */
+				/*   Location table for the given lid                            */
+				/*---------------------------------------------------------------*/
+
+				uniquePtr = NULL;
+
+				if (uniqueHead != NULL)
+					uniquePtr = (UniqueList *) ListFirst(&uniqueHead->list);
+
+				num_del = 0;
+
+				while (uniquePtr) {
+
+					strcpy(llid, uniquePtr->uchar);
+
+					get_location_hsa(llid, loc_hsa, &irc);
+					if (irc == 98) {
+						printf(
+								"error attempting to setup linked list to get location.hsa value\n");
+					}
+
+					/*----------------------------------------------------------*/
+					/*  if location.hsa for the lid = admin.hsa then use host   */
+					/*    retention value in WHERE clause of DELETE statement   */
+					/*  else use backup retention value                         */
+					/*----------------------------------------------------------*/
+
+					if (strcmp(loc_hsa, admin_hsa) == 0) {
+
+						sprintf(where_clause, "lid = '%s' AND %s ", llid,
+								where_clause_host);
+
+					} else {
+
+						sprintf(where_clause, "lid = '%s' AND %s ", llid,
+								where_clause_backup);
+
+					}
+
+					sprintf(delete_stmt, "DELETE FROM %s WHERE %s; ", tabname,
+							where_clause);
+
+					/*---------------------------------------*/
+					/*  prepare DELETE statement             */
+					/*---------------------------------------*/
+
+					EXEC SQL prepare p_delete from :delete_stmt;
+					if (sqlca.sqlcode != 0) {
+						printf("%s\n", delete_stmt);
+						printf("PostgreSQL error %s preparing "
+							"delete statement\n", sqlca.sqlstate);
+						break;
+					}
+
+					/*--------------------------------------------------------*/
+					/*   delete records based on lid and time column          */
+					/*   sqlca.sqlerrd[2] contains number of records deleted  */
+					/*     for each DELETE execution                           */
+					/*--------------------------------------------------------*/
+
+					EXEC SQL EXECUTE p_delete;
+					if (sqlca.sqlcode < 0) {
+						printf("%s\n", delete_stmt);
+						printf("PostgreSQL error %s deleting records\n",
+								sqlca.sqlstate);
+						break;
+					}
+
+					num_del = num_del + sqlca.sqlerrd[2];
+
+					uniquePtr = (UniqueList*) ListNext(&uniquePtr->node);
+				}
+
+				FreeUnique(uniqueHead);
+			}
+
+			/*---------------------------------------------------------------------------------------*/
+			/*   print out number of records deleted, table name, field name, time cutoffs           */
+			/*   if backup_use = ON and table does not have lid field, then print additional message */
+			/*---------------------------------------------------------------------------------------*/
+
+			if (backup_use == 0) {
+				printf(" %7d  %-18s  %-12s  %-s\n", num_del, tabname, timecol,
+						strdelt_host);
+			} else {
+				printf(" %7d  %-18s  %-12s  %-s  %-s\n", num_del, tabname,
+						timecol, strdelt_host, strdelt_backup);
+				if (lid_col_exist == 0) {
+					printf("          -- table does not have lid field");
+					printf(" - host cutoff value used\n");
+				}
+			}
+			fflush(NULL);
+			tot_num_del = tot_num_del + num_del;
+
+		} /* end of checking tablename */
+	} /*  end for loop on fetch of records from PurgeDynData  */
+
+	/*----------------------------------------------------------------*/
+	/*   print out number of tables, total number of records deleted  */
+	/*----------------------------------------------------------------*/
+
+	printf("---------------------------------------------------------------\n");
+	printf("%8d records deleted from %d tables\n", tot_num_del, num_rec);
+
+	/*-----------------------------------*/
+	/*   close purgedyn_cursor           */
+	/*-----------------------------------*/
+
+	EXEC SQL close purgedyn_cursor;
+	if (sqlca.sqlcode != 0) {
+		printf("PostgreSQL error %s closing "
+			"purgedyn_cursor\n", sqlca.sqlstate);
+	}
+
+	/*---------------------------------------------------------------*/
+	/* DELETE PRODUCTS FROM TextProduct AS SPECIFIED IN PurgeProduct */
+	/*---------------------------------------------------------------*/
+
+	ProcessPurgeProduct();
+	fflush(NULL);
+
+	/*---------------------------------------------------------------*/
+	/* Purge records in VTECEVENT table                              */
+	/*---------------------------------------------------------------*/
+
+	PurgeVTECevent(backup_use);
+	fflush(NULL);
+
+	/*---------------------------------------------------------------*/
+	/* Purge records in VTECPRACTICE table                              */
+	/*---------------------------------------------------------------*/
+
+	PurgeVTECpractice(backup_use);
+	fflush(NULL);
+
+	/*-----------------------------------*/
+	/*   output end time                 */
+	/*-----------------------------------*/
+
+	time(&iendt);
+	FORMAT_TIME ( iendt , dttm2 );
+	printf("\nend time = %s\n", dttm2);
+
+	/*--------------------------------------------------*/
+	/*   end elapsed time timer and print elapsed time  */
+	/*--------------------------------------------------*/
+
+	ielt = iendt - ibegt;
+	eltsec = ielt;
+	eltmin = eltsec / 60.;
+
+	printf("Elapsed Time = %d sec\n", ielt);
+	printf("             = %6.2f min\n", eltmin);
+
+	/*--------------------------------------------------*/
+	/*   write results to PerfLog table                 */
+	/*--------------------------------------------------*/
+
+	wr2perflog(process_name, &current_time, &tot_num_del, &eltsec);
+
+	/*------------------------------*/
+	/*   disconnect                 */
+	/*------------------------------*/
+
+	irc = CloseDbms(dbname);
+
+	if (irc != (int) Ok) {
+		printf("PostgreSQL error %d ) attempting to "
+			"close database\n", irc);
+		exit(1);
+	}
+
+	return 0;
+}

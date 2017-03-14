@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Security
+Bundle-SymbolicName: com.raytheon.uf.edex.security
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: org.eclipse.jetty;bundle-version="9.2.14",
+ com.raytheon.uf.edex.core;bundle-version="1.14.0",
+ com.raytheon.uf.common.util;bundle-version="1.14.0",
+ com.raytheon.uf.common.status;bundle-version="1.12.1174",
+ org.apache.commons.cxf;bundle-version="3.1.5",
+ com.raytheon.uf.common.security;bundle-version="1.14.0",
+ org.apache.ws.security;bundle-version="1.6.14",
+ org.springframework;bundle-version="3.2.13"
+Export-Package: com.raytheon.uf.edex.security

@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Servicebackup
+Bundle-SymbolicName: com.raytheon.uf.tools.gfesuite.servicebackup
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: RAYTHEON

@@ -1,0 +1,51 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+  <bean id="pointsetPathManager" class="com.raytheon.uf.common.localization.PathManagerFactory"
+    factory-method="getPathManager" />
+
+  <bean id="pointsetNetcdfDecoder"
+    class="com.raytheon.uf.edex.plugin.pointset.netcdf.PointSetNetcdfDecoder">
+    <constructor-arg ref="pointsetPathManager" />
+  </bean>
+
+  <bean id="pointsetDistRegistry" factory-bean="distributionSrv"
+    factory-method="register">
+    <constructor-arg value="pointset" />
+    <constructor-arg value="jms-durable:queue:Ingest.NetcdfPointSet" />
+  </bean>
+
+  <camelContext id="pointset-netcdf-camel" xmlns="http://camel.apache.org/schema/spring"
+    errorHandlerRef="errorHandler">
+
+    <route id="pointsetNetcdfIngestRoute">
+      <from uri="jms-durable:queue:Ingest.NetcdfPointSet" />
+      <doTry>
+        <pipeline>
+          <bean ref="stringToFile" />
+          <bean ref="getFileWithoutWmoHeader" />
+          <split streaming="true">
+              <method bean="pointsetNetcdfDecoder" method="split"/>
+              <doTry>
+                  <pipeline>
+                      <bean ref="pointsetNetcdfDecoder" method="decode" />
+                      <to uri="direct-vm:persistIndexAlert" />
+                  </pipeline>
+                  <doCatch>
+                      <exception>java.lang.Throwable</exception>
+                      <to uri="direct-vm:logFailedData" />
+                  </doCatch>
+              </doTry>
+          </split>
+        </pipeline>
+        <doCatch>
+          <exception>java.lang.Throwable</exception>
+          <to uri="direct-vm:logFailedData" />
+        </doCatch>
+      </doTry>
+    </route>
+  </camelContext>
+
+</beans>

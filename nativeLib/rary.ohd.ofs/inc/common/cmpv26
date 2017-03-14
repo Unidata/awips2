@@ -1,0 +1,4 @@
+C                                           *--> FROM COMMON.CMPV26
+      COMMON/CMPV26/MAXCMP,NUMCMP,ICTARY(50),CMNAME(3,50),CMPVAL(50),
+     .              ICMPTY(50)
+C

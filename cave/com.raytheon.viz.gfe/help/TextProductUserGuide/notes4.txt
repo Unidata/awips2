@@ -1,0 +1,1 @@
+In this section, we introduce the basic concepts of the GFE Text Product Infrastructure including how they are invoked from the GFE Formatter Launcher Dialog.

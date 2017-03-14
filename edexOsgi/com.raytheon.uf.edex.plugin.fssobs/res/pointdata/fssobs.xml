@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding='UTF-8'?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<pointDataDescription>
+  <dimension name="maxSkyCover" length="6"/>
+  <dimension name="maxWeather" length="8"/>
+  
+  <parameter name="presWeather" numDims="2" type="STRING" size="8" dimension="maxWeather"/>
+  <!-- parameter name="timeNominal" numDims="1" type="LONG" unit="seconds since 1-1-1970"/-->
+  <parameter name="timeObs" numDims="1" type="LONG" unit="seconds since 1-1-1970"/>
+  <parameter name="refHour" numDims="1" type="LONG" unit="seconds since 1-1-1970"/>
+  <parameter name="platformId" numDims="1" type="STRING" size="8"/>
+  <parameter name="rawMessage" numDims="1" type="STRING"  size="512"/>
+  <parameter name="temperature" numDims="1" type="FLOAT" unit="Celsius" />
+  <parameter name="dewpoint" numDims="1" type="FLOAT" unit="Celsius" />
+  <parameter name="relativeHumidity" numDims="1" type="FLOAT" unit="%"/>
+  <parameter name="dewpointDepr" numDims="1" type="FLOAT" unit="Celsius"></parameter>
+  <parameter name="hourlyPrecip" numDims="1" type="FLOAT" unit="in" />
+  <!-- parameter name="pressure" numDims="1" type="FLOAT" unit="Pa" /-->
+  <parameter name="seaLevelPress" numDims="1" type="FLOAT" unit="hPa" />
+  <parameter name="pressChange3Hour" numDims="1" type="FLOAT" unit="Pa" />
+  <parameter name="pressChangeChar" numDims="1" type="STRING" size="1"/>
+  <parameter name="visibility" numDims="1" type="FLOAT" unit="mi" />
+  <parameter name="horzVisibility" numDims="1" type="FLOAT" unit="m" />
+  <parameter name="ceiling" numDims="1" type="FLOAT" unit="ft/100" />
+  <parameter name="pressureAltimeter" numDims="1" type="FLOAT" unit="in" />
+  <parameter name="windDir" numDims="1" type="FLOAT" unit="degree" />
+  <parameter name="windSpeed" numDims="1" type="FLOAT" unit="kn" />
+  <parameter name="windGust" numDims="1" type="FLOAT" unit="kn" />
+  <parameter name="maxWindSpeed" numDims="1" type="FLOAT" unit="kn" />
+  <parameter name="snowDepth" numDims="1" type="FLOAT" unit="in" />
+  <parameter name="snincrHourly" numDims="1" type="FLOAT" unit="in"/>
+  <parameter name="snincrTotal" numDims="1" type="FLOAT" unit="in"/>
+  <parameter name="frostbiteTime" numDims="1" type="FLOAT" unit="min"/>
+  <parameter name="seaSurfaceTemp" numDims="1" type="FLOAT" unit="K" />
+  <parameter name="waveHeight" numDims="1" type="FLOAT" unit="ft" />
+  <parameter name="wavePeriod" numDims="1" type="FLOAT" unit="sec" />
+  <parameter name="waveSteepness" numDims="1" type="FLOAT" />
+  <parameter name="highResWaveHeight" numDims="1" type="FLOAT" unit="m" />
+  <parameter name="primarySwellWaveDir" numDims="1" type="FLOAT" unit="degree" />
+  <parameter name="primarySwellWavePeriod" numDims="1" type="FLOAT" unit="sec" />
+  <parameter name="primarySwellWaveHeight" numDims="1" type="FLOAT" unit="ft" />
+  <parameter name="secondarySwellWaveDir" numDims="1" type="FLOAT" unit="degree" />
+  <parameter name="secondarySwellWavePeriod" numDims="1" type="FLOAT" unit="sec" />
+  <parameter name="secondarySwellWaveHeight" numDims="1" type="FLOAT" unit="ft" />
+  <parameter name="skyCover" numDims="2" type="STRING" size="8" dimension="maxSkyCover"/>
+  <parameter name="totCloudAmount" numDims="1" type="INT" />
+  <parameter name="stnName" numDims="1" type="STRING" size="64"/>
+  <parameter name="reportType" numDims="1" type="STRING" size="64"/>
+  <parameter name="stationary" numDims="1" type="STRING" size="64"/>
+</pointDataDescription>

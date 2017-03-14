@@ -1,0 +1,406 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.8 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]">
+  <title>Text Products Reference</title>
+<!--link REL="STYLESHEET" HREF="TextFormatter.html"-->
+</head>
+<body bgcolor="#ffffff">
+<center>
+<h1><a name="FAQs"></a>FAQ's</h1>
+<center>
+<p>&nbsp;&nbsp;&nbsp; <a href="#USING_A_DIFFERENT_EDIT_AREA_FOR_SOME">Using
+a Different Area for Some Phrases</a><br>
+&nbsp;&nbsp;&nbsp; <a href="#RANGE_ADJUSTMENT_QUESTIONSANSWERS">Range
+Adjustment Questions/Answers</a><br>
+<a href="#LAT_LON">Using Lat/Lon Edit Areas in a Product</a><br>
+</p>
+<hr>
+<h2 style="text-align: left;"><a
+ name="USING_A_DIFFERENT_EDIT_AREA_FOR_SOME"></a>USING A
+DIFFERENT EDIT AREA FOR SOME PHRASES</h2>
+<div style="text-align: left;"><span style="font-weight: bold;">Question:</span>
+For the ZFP, I want
+to
+use a smaller edit area in each zone for temperature to capture the
+populated areas, but use the entire edit area for all other elements. I
+heard it can be done with "intersectAreas" but all references that I've
+found in the Text Formatter Reference Guide tie intersectAreas with
+local effects. I want to make it clear, I don't want local effects. I
+just want the text to say, "HIGHS IN THE MID 50S" and not "HIGHS IN THE
+MID 40S EXCEPT MID 50S IN THE POPULATED AREAS"<br>
+<br>
+<span style="font-weight: bold;">Answer:</span><span
+ style="font-family: monospace;"></span><br>
+<span style="font-family: monospace;"></span>There are several ways to
+accomplish this -- you can use
+"intersectAreas" or&nbsp; "additionalAreas".&nbsp; Perhaps the simplest
+is using "intersectAreas".<br>
+<br>
+1) Define an edit area, say PopulatedAreas, that is the union of all
+your populated smaller areas.<br>
+2) Make this an "intersectArea" for MaxT and MinT in the product
+component definition.<br>
+3) Override the "highs_setUp" and "lows_setUp" methods from
+ScalarPhrases with the following additional code:<br>
+<pre wrap="">I would like to set up a varDict to allow the user to enter in a given latitude and longitude and have a given product run off that lat/lon pair as the default edit area. </pre>
+<br>
+&nbsp;&nbsp;&nbsp; def highs_setUp(self, tree, node):<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # This code re-sets the
+node's areaLabel to that for the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # intersection of the
+current area and the smaller populated areas<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # After this is set, the
+phrase will work with the smaller area<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; areaLabel =
+node.getAreaLabel()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; intersectName =
+self.getIntersectName(areaLabel, "PopulatedAreas")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; node.set("areaLabel",
+intersectName)<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; elementInfoList =
+[self.ElementInfo("MaxT", "List")]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.subPhraseSetUp(tree,
+node, elementInfoList, self.scalarConnector)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return self.DONE()<br>
+</div>
+<h2 style="text-align: left;"><a
+ name="RANGE_ADJUSTMENT_QUESTIONSANSWERS"></a>RANGE ADJUSTMENT
+QUESTIONS/ANSWERS<br>
+</h2>
+<div style="text-align: left;">The following is a condensation of a
+listserver discussion involving Range
+Adjustment:<br>
+<br>
+<span style="font-weight: bold;">Kyle</span>: In our grids for today,
+we have no wind speeds greater than 13 knots, but our formatters went
+with 15 to 25 mph during the afternoon. Same wording problem for the
+evening with the same wind speeds. Is there something in the set-up
+that I have incorrect?&nbsp; The Overrides file is attached.<br>
+<br>
+<span style="font-weight: bold;">Tracy</span>: The range for your winds
+is set to have a minimum of 10. I suspect this is why you are getting
+the 15-25 mph range.
+<br>
+<br>
+&nbsp;&nbsp;&nbsp; def minimum_range_nlValue_dict(self, tree, node):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # This threshold is the
+"smallest" min/max difference allowed between values reported.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # For example, if threshold
+is set to 5 for "MaxT", and the min value is 45
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # and the max value is 46,
+the range will be adjusted to at least a 5 degree
+<br>
+<pre wrap="">I would like to set up a varDict to allow the user to enter in a given latitude and longitude and have a given product run off that lat/lon pair as the default edit area. </pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # range e.g. 43-48.&nbsp;
+These are the values that are then submitted for phrasing
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # such as:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp; HIGHS IN THE
+MID 40S
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dict =
+TextRules.TextRules.minimum_range_nlValue_dict(self, tree, node)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dict["MaxT"] = 1 #defualt 5
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dict["MinT"] = 1 #default 5
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dict["Wind"] = {
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(0,5):0,
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(5,15):5,
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(15,40):10,
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"default":15,
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return dict
+<br>
+<span style="font-family: monospace;"></span><br>
+<span style="font-family: monospace;"></span><span
+ style="font-weight: bold;">Kyle</span>:&nbsp;&nbsp; I
+changed it to 5 and it mostly worked. Instead of 15 to 25 it gave me 15
+to 20. The only problem is we do not have a single grid over 15
+mph...so it is kind of ignoring the fact that we have some winds less
+than 15 mph...and no winds above 15 mph. <span
+ style="font-family: monospace;"></span><br>
+<span style="font-family: monospace;"></span>Does it just take the
+highest wind at any one time, and use that
+as the lower end of the range? That's what it seems like it is doing,
+at least today.<span style="font-family: monospace;"></span><br>
+<span style="font-family: monospace;"></span>This may be easier said
+than done, but would it be better to
+basically go +- 5 mph from the average wind? That way, if you average
+wind is 15 mph, you would be given 10-20. Maybe like this...<span
+ style="font-family: monospace;"></span><br>
+<span style="font-family: monospace;"></span><br>
+<span style="font-family: monospace;"></span>0 to 3 mph - light or
+variable or calm<span style="font-family: monospace;"></span><br>
+<span style="font-family: monospace;"></span>4 to 7 mph could be around
+5 <span style="font-family: monospace;"></span><br>
+<span style="font-family: monospace;"></span>8 to 12 = 5 to 15 or 10 to
+15<span style="font-family: monospace;"></span><br>
+<span style="font-family: monospace;"></span>13 to 17 = 10 to 20<span
+ style="font-family: monospace;"></span><br>
+<span style="font-family: monospace;"></span>18 to 23 = 15 to 25<span
+ style="font-family: monospace;"></span><br>
+<span style="font-family: monospace;"></span>24 to 27 = 20 to 30<span
+ style="font-family: monospace;"></span><br>
+<span style="font-family: monospace;"></span>28 to 33 = 25 to 35<span
+ style="font-family: monospace;"></span><br>
+<span style="font-family: monospace;"></span>34 to 37 = 30 to 40<span
+ style="font-family: monospace;"></span><br>
+<span style="font-family: monospace;"></span>38+ could have a range of
+15, like 35 to 50.<br>
+<span style="font-weight: bold;"><span style="font-family: monospace;"></span></span><br>
+<span style="font-weight: bold;"><span style="font-family: monospace;">D</span>ave:</span>
+Ahhhhhhh, we are now seeing the "Catch 22" when
+forcing ranges(wind, temperature, etc). When we try to stick with the
+standard(oldtime) NWS "ranges", you will end up with text forecasts
+that don't match what is in the grids.<br>
+<span style="font-weight: bold;"><span style="font-family: monospace;"></span></span><br>
+<span style="font-weight: bold;"><span style="font-family: monospace;"></span>Jay</span>:
+In your local file, try changing the Wind entry in
+the<span style="font-family: monospace;"></span>
+maximum_range_bias_nlValue_dict from "Min" to "Max". I think you'll<span
+ style="font-family: monospace;"> </span>want to do the same thing for
+the minimum_range_bias_nlValue_dict, as<span
+ style="font-family: monospace;"> </span>well. I think this will solve
+your problem and give you wind text of<span
+ style="font-family: monospace;"> </span>10 to 15 mph instead of 15 to
+20 mph.<br>
+<span style="font-weight: bold;"><span style="font-family: monospace;"></span></span><br>
+<span style="font-weight: bold;"><span style="font-family: monospace;"></span>Dave</span>:
+Once again, it is about rounding and ranges in the
+BASE level infrastructure. If you truly want accuracy, then there first
+should be no rounding and return literal values(i.e. 13 mph, 11 mph,
+etc). So, if you have 13kts, then you<span
+ style="font-family: monospace;"> </span>will get 15 mph. Add a 5 mph
+range, and you will get 15 to 20 mph.<span
+ style="font-family: monospace;"> </span>The infrastructure is nearly
+wide open, so you can change what you like.<span
+ style="font-weight: bold;"><span style="font-family: monospace;"></span></span><br>
+<span style="font-weight: bold;"><span style="font-family: monospace;"></span></span><br>
+<span style="font-weight: bold;"><span style="font-family: monospace;"></span>Kyle</span>:
+Thanks Jay,<span style="font-family: monospace;"> </span>Was
+wondering, by doing this what, what would happen if my average wind was
+17 mph? Would it round to 15 mph, then go 10 to 15 mph?<span
+ style="font-family: monospace;"> </span>I'm mainly curious about the
+logic of how these winds are calculated for each time block to see if
+there is a problem.<br>
+<span style="font-weight: bold;"></span><br>
+<span style="font-weight: bold;">Wade</span>: Here in PDT, we have
+primarily eliminated this problem by
+using the overrides below. As Dave mentioned, this is mainly a problem
+due to rounding. It's not only the round of the internal grid values,
+but it's also the rounding of ranges too, especially if you use
+Average. For example, let's say I have defined wind values between 5
+and 15 mph as having a 5 mph range as a minimum and maximum range.
+Let's say all my values within a zone are 10 mph. Since 5 mph can't be
+divided evenly, the resulting range ends up being 10-15 mph (i.e., 10
+minus 2.5 rounds to 10, and 10 plus 2.5 rounds to 15). This is probably
+why you are getting maximum values that don't exist in your grids. An
+excellent way to avoid this particular rounding problem is to use only
+even values in the maximum and minumum range value dictionaries.<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; def
+maximum_range_nlValue_dict(self, tree, node):<br>
+</div>
+<div style="margin-left: 40px; text-align: left;">
+<div style="margin-left: 40px;"> # Maximum range to be reported within
+a phrase<br>
+<pre wrap="">I would like to set up a varDict to allow the user to enter in a given latitude and longitude and have a given product run off that lat/lon pair as the default edit area. </pre>
+# e.g. 5 to 10 mph<br>
+# Units depend on the product<br>
+dict = TextRules.TextRules.maximum_range_nlValue_dict(self, tree, node)<br>
+dict["MaxT"] = 15<br>
+dict["MinT"] = 15<br>
+dict["WindChill"] = 15<br>
+dict["HeatIndex"] = 15<br>
+dict["Wind"] = {<br>
+(0, 5) : 0,<br>
+(5, 100) : 10,<br>
+'default': 10,<br>
+}<br>
+return dict <br>
+</div>
+<br>
+def minimum_range_nlValue_dict(self, tree, node):<br>
+<div style="margin-left: 40px;"> # This threshold is the "smallest"
+min/max difference allowed between values reported.<br>
+# For example, if threshold is set to 5 for "MaxT", and the min value
+is 45<br>
+# and the max value is 46, the range will be adjusted to at least a 5
+degree<br>
+# range e.g. 43-48. These are the values that are then submitted for
+phrasing<br>
+# such as:<br>
+# HIGHS IN THE MID 40S <br>
+dict = TextRules.TextRules.minimum_range_nlValue_dict(self, tree, node)<br>
+dict["MaxT"] = 5<br>
+dict["MinT"] = 5<br>
+dict["WindChill"] = 10<br>
+dict["HeatIndex"] = 10<br>
+dict["Wind"] = {<br>
+(0, 5) : 0,<br>
+(5,100) : 10,<br>
+'default': 10,<br>
+}<br>
+return dict <br>
+</div>
+<br>
+def maximum_range_bias_nlValue_dict(self, tree, node):<br>
+<div style="margin-left: 40px;"> # "Min", "Average", "Max"<br>
+# Should the maximum_range be taken from the "min" "average" or "max"<br>
+# value of the current range?<br>
+return {<br>
+# changed Max to Average<br>
+"MaxT": "Min",<br>
+"MinT": "Min",<br>
+"Wind": "Average",<br>
+"otherwise": "Average",<br>
+}<br>
+</div>
+<br>
+def minimum_range_bias_nlValue_dict(self, tree, node):<br>
+<div style="margin-left: 40px;"> # "Min", "Average", "Max"<br>
+# Should the minimum_range be taken from the "min" "average" or "max"<br>
+# value of the current range?<br>
+return {<br>
+# changed Max to Average<br>
+"MaxT": "Min",<br>
+"MinT": "Min",<br>
+"Wind": "Average",<br>
+"otherwise": "Average",<br>
+}<br>
+<br>
+<br>
+</div>
+</div>
+<div style="text-align: left;"><span style="font-weight: bold;">Jay</span>:&nbsp;
+Every time I deal
+with this, my head spins. There's a lot going on behind the scenes with
+the rounding and the ranges.<br>
+<br>
+It's been my experience that the vast majority of unexpected words
+comes when values are rounded to some value other than the unit value,
+e.g., 5 mph instead of 1 mph. The other key points are that rounding
+and ranges are applied essentially any time the data are needed. This
+means there's a lot of rounding and range application happening in the
+background.<br>
+<br>
+There is a hierarchy of methods for determining ranges. Each range type
+as two configuration methods: an nlValue_dict and a bias_nlValue_dict.
+In the order they are applied, these are: range_nlValue_dict and
+range_bias_nlValue_dict minimum_range_nlValue_dict and
+minimum_range_bias_nlValue_dict maximum_range_nlValue_dict and
+maximum_range_bias_nlValue_dict<br>
+<br>
+The range logic is used to force single value phrasing with the word
+"around". For example, if you set "Wind" to 5 in the
+range_nlValue_dict, then any wind range in the grids of less than 5 mph
+will generate a phrase like "AROUND 10 MPH". The bias value determines
+what part of the range is used for the value. If the range logic
+"fires", then neither the minimum_range nor the maximum_range logic
+"fires".<br>
+<br>
+If the range logic does not "fire", then both the minimum_range and
+maximum range logic, in that order, runs. The minimum range ensures the
+range is a least the value in the nlValue_dict while the maximum range
+ensures the range is no more than the value in the nlValue_dict. The
+bias_nlValue_dict entries set which part of the existing range is used
+to create the new range. It's worth re-emphasizing that the minumum
+range and maximum range logic only applies if the range logic does not
+"fire". The only way to always guarantee a minimum range and a maximum
+range is to set the range_nlValue_dict entry to a value that will never
+trigger the range logic.<br>
+<br>
+Let's use the winds you listed below and walk through the logic. The
+minimum wind is 12 and the maximum wind is 15. Before the range logic
+is applied, the values are rounded. So, this gives a range of 10 to 15
+mph. I think the range_nlValue_dict entry for "Wind" defaults to 0.
+Since our range is not less than 0 mph, the range logic does not "fire".<br>
+<br>
+The minimum range logic runs. Since the minimum range for "Wind" is 5
+mph, nothing further happens because the existing range is not less<br>
+than 5 mph.<br>
+<br>
+The maximum range logic runs. Since the maximum range is 10 mph,
+nothing further happens because the existing range is not more that 10
+mph.<br>
+<br>
+For the sake of argument, let's say you have a wind range from the
+grids of 12 to 28 mph. Rounding is applied and the range becomes 10 to
+30 mph. This is more than the range_nlValue_dict threshold, so the
+range logic does not "fire", allowing the minimum and maximum range
+logic to run. The range is also more the the mimimum_range_nlValue_dict
+threshold, so the minimum range logic does not "fire". At this point, I
+have to admit I don't know which entry in the
+maximum_range_nlValue_dict applies in this case, which is why I made
+the range 20. Let's say it's 15 mph. Anyway, the existing range exceeds
+the maximum range. Now, here's where the bias comes into play. If the
+bias were "Min", the new range would be 10 to 25 mph. The minimum of
+the existing range becomes the minimum of the new range and the desired
+spread is added to get the new max. If the bias were "Max", the new
+range would be 15 to 30 mph. The max of the existing range becomes the
+max of the new range and the desired spread is subtracted to get the
+new min. Note: the desired range value was rounded before being used to
+create the new range. Since it was already a multiple of 5, nothing
+unexpected happened. If the bias were "Average", the new range becomes
+15 to 30 mph. Very interesting. The average of the existing range
+becomes the center point of the new range. Then half the desired range
+value is subtracted from/added to that average to get the new min and
+max (12.5 and 27.5). Finally, the new min and max are rounded. In this
+case, the rounding gave us values we might not have expected.<br>
+<br>
+Your question of what would happen if the average of the wind range was
+17 mph has no meaning unless the corresponding bias is "Average".<br>
+<br>
+My guess for what happened to you originally is as follows. The minimum
+and maximum values passed to the formatter were in the range 12.5 mph
+&lt;= Wind &lt; 17.5 mph. Keep in mind that what the GFE displays for a
+value may not be exactly what the value is in the database. Plus, as
+data come into the formatters from the grids, they are both converted
+and rounded. I think your formatter got a wind range tuple of (15, 15).
+With the range_bias value 0, the range logic doesn't fire because 0 is
+not less than 0. Then we get to the minimum range logic. You originally
+had the value as 10 mph and the bias as minimum. The existing mimimum
+was 15, add 10 to get 25, and you end up with text of 15 to 25 mph,
+even though that's not in the grids. However, the formatter did exactly
+what it was told to do, even if it wasn't what you expected/wanted.<br>
+<br>
+If you want to look at the range code yourself, look at the
+applyRangeValues and applyBias methods in TextUtils.<br>
+<br>
+<h1><a name="LAT_LON"></a>Using Lat/Lon Edit Areas in a Product</h1>
+<span style="font-family: monospace;"></span><span
+ style="font-weight: bold;">Question</span>: I would like to set up a
+varDict to allow the user to enter in a given latitude and longitude
+and have a given product run off that lat/lon pair as the default edit
+area. <br>
+<br>
+<span style="font-weight: bold;">Answer:<br>
+</span>
+<pre wrap="">1. Set up the VariableList so the suer can enter lat/lon values.  For<br>example:<br><br>VariableList = [<br>    (("forecast point latitude", "lat"), 20.0, "alphaNumeric"),<br>    (("forecast point longitude", "lon"), -160.0, "alphaNumeric"),<br>  ]<br><br>2. You can set the Definition["defaultEditAreas"] = [] since it will not<br>be used at all.<br><br>3. In your formatter "generateForecast" method, replace this:<br><br>        self._areaList = self.getAreaList(argDict)<br><br>with something this:<br><br>       self._areaList = self._getLatLonAreaList(argDict)<br><br>4. Finally, include the following method:<br><br>     def _getLatLonAreaList(self, argDict):<br><br>        area = self.createLatLonArea(float(self._lat), float(self._lon), 10)<br><br>        # OPTIONAL SET UP IF YOU WANT THIS AREA SAMPLED FOR HAZARDS<br>        # Save to server<br>        self.saveEditAreas([area])<br>        # Create Hazards Table for this area<br>        hazards = HazardsTable.HazardsTable(<br>                  argDict["ifpClient"], [[area.id().name()]], "FWS",<br>                  self.filterMethod, argDict["databaseID"],<br>                  self._fullStationID)<br>        argDict["hazards"] = hazards<br>        # Remove from server<br>        self.deleteEditAreas([area])<br><br>        return [(area, "areaName")]<br></pre>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; <br>
+</center>
+</center>
+</body>
+</html>

@@ -1,0 +1,2 @@
+C                                           *--> FROM GCOMMON.GVERSN
+      COMMON /GVERSN/ VERNUM, NVMON, NVDATE, NVYR

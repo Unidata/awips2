@@ -1,0 +1,77 @@
+#!/bin/ksh
+
+###############################################################################
+#   convert_dqc_climo_list
+#
+#   This script converts a CBRFC-formatted climatology list into the format
+#   required by MPE Editor.
+#
+#   This script takes three arguments:
+#
+#   <input_file>  :   The path and name of the station list file to be
+#                     converted. 
+#   <area_id>   :   cbrfc, for an example.
+#
+#   
+#   Modification History
+#   June 5, 2006     Ram Varma   Original Coding.
+#
+###############################################################################
+
+#
+#  The user must supply the input file name and the area_id.
+
+#
+if [[ $# -ne 2 ]]
+then
+   print "Usage: convert_dqc_climo_list <input_file> <area_id> "
+   print "\twhere input_file is the path and name of the input file"
+   print "\t      area_id    cbrfc, as an example"
+   exit 1;
+fi
+
+input_file=$1
+area_id=$2
+
+#
+# Set up environment variables
+# Define FILENAME variable
+
+RUN_FROM_DIR=`dirname $0`
+. $RUN_FROM_DIR/../../set_hydro_env
+export MPE_CLIMO_DIR=$(get_apps_defaults mpe_climo_dir)
+
+FILENAME=$MPE_CLIMO_DIR/${area_id}_station_climo_list
+
+print "Reading $input_file"
+print "Reformatted climo station list will be written to $FILENAME"
+
+rm -f $FILENAME
+
+#
+#  Get a count of the number of PPM records in the climo file.
+export num_ppm_records=`awk '{print $2}' $input_file | \
+                 awk 'BEGIN{count=0} /^PPM/ {count=count+1} END{print count}'`
+
+#
+#  Get a count of the number of TAI records in the climo file.
+export num_tai_records=`awk '{print $2}' $input_file | \
+                 awk 'BEGIN{count=0} /^TAI/ {count=count+1} END{print count}'`
+
+print "$input_file contains $num_ppm_records PPM records"
+print "$input_file contains $num_tai_records TAI records"
+
+echo $num_ppm_records >> $FILENAME
+awk '{if(FNR <= ENVIRON["num_ppm_records"]) print $0}' $input_file \
+      >> $FILENAME
+
+#
+#  There are two tai climo records for each station.
+((num_temp_records=$num_tai_records/2))
+
+echo $num_temp_records >> $FILENAME
+awk '{if(FNR > ENVIRON["num_ppm_records"] && \
+         FNR <= ( ENVIRON["num_tai_records"] + ENVIRON["num_ppm_records"])) \
+         print $0}' $input_file >> $FILENAME
+
+exit 0

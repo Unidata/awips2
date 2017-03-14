@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- This_software_was_developed_and_/_or_modified_by_Raytheon_Company, pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government. 
+	U.S._EXPORT_CONTROLLED_TECHNICAL_DATA This_software_product_contains_export-restricted_data_whose 
+	export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires 
+	an_export_license_or_other_authorization. Contractor_Name:________Raytheon_Company 
+	Contractor_Address:_____6825_Pine_Street,_Suite_340 ________________________Mail_Stop_B8 
+	________________________Omaha,_NE_68106 ________________________402.291.0100 
+	See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for further_licensing_information. -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="bundleItem" file="bundles/nexradAvailability.xml"
+			menuText="NEXRAD Display" id="NEXRADDisplay">
+	</contribute>
+	<contribute xsi:type="subMenu" menuText="NEXRAD Stations"
+		id="RadarMenuDialAllRadarsSubMenu">
+		<contribute xsi:type="subinclude" fileName="menus/radar/allRadars.xml" />
+	</contribute>
+	<contribute xsi:type="subMenu" menuText="TDWR Stations"
+		id="RadarMenuTwdrRadarsSubMenu">
+		<contribute xsi:type="subinclude" fileName="menus/radar/tdwrRadars.xml" />
+	</contribute>
+	<contribute xsi:type="titleItem" titleText="------ FNEXRAD Composites ------"
+		id="RadarMosaic" />
+	<!--  Unidata Composite -->
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
+                menuText="DHR - Digital Hybrid Reflectivity" id="DHR">
+        <substitute key="element" value="DHR"/>
+        <substitute key="colormap" value="Radar/DHR"/>
+		<substitute key="interpolate" value="true"/>
+    </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
+                menuText="DVL - Digital VIL" id="DVL">
+        <substitute key="element" value="DVL"/>
+        <substitute key="colormap" value="Radar/OSF/Digital VIL"/>
+		<substitute key="interpolate" value="true"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
+                menuText="EET - Enhanced Echo Tops" id="EET">
+        <substitute key="element" value="EET"/>
+        <substitute key="colormap" value="Radar/Enhanced Echo Tops"/>
+		<substitute key="interpolate" value="false"/>
+    </contribute>	
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
+                menuText="HHC - Hybrid Hydrometeor Classification" id="HHC">
+        <substitute key="element" value="HHC"/>
+        <substitute key="colormap" value="Radar/HHC NEXRCOMP"/>
+		<substitute key="interpolate" value="false"/>
+    </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
+		menuText="DAA - One-Hour Precipitation" id="DAA">
+        <substitute key="element" value="DAA"/>
+        <substitute key="colormap" value="Radar/8-bit STP"/>
+		<substitute key="interpolate" value="true"/>
+    </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
+		menuText="DTA - Storm-Total Precipitation" id="DTA">
+        <substitute key="element" value="DTA"/>
+        <substitute key="colormap" value="Radar/8-bit STP"/>
+		<substitute key="interpolate" value="true"/>
+    </contribute>
+	<contribute xsi:type="titleItem" titleText="------ NEXRAD Mosaic ------"
+		id="RadarMosaic" />
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+		menuText="N0Q - Base Reflectivity" id="Radar05Reflectivity">
+		<substitute key="product" value="94" />
+		<substitute key="elevation" value="0.5" />
+		<substitute key="name" value="N0Q - Base Reflectivity" />
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+        menuText="N0X - Differential Refl" id="Radar05ZDR">
+        <substitute key="product" value="159,158" />
+        <substitute key="elevation" value="0.5" />
+        <substitute key="name" value="N0X - Diff Reflectivity" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+        menuText="N0K - Specific Diff Phase" id="Radar05KDP">
+        <substitute key="product" value="163,162" />
+        <substitute key="elevation" value="0.5" />
+        <substitute key="name" value="N0K - Specific Diff Phase" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+        menuText="N0C - Correlation Coefficient" id="Radar05CC">
+        <substitute key="product" value="161,160" />
+        <substitute key="elevation" value="0.5" />
+        <substitute key="name" value="N0C - Correlation Coefficient" />
+    </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+		menuText="DHR - Digital Hybrid Reflectivity" id="RadarHybridScanRefl">
+		<substitute key="product" value="32,33" />
+		<substitute key="elevation" value="0.0" />
+		<substitute key="name" value="DHR - Digital Hybrid Reflectivity" />
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+		menuText="DVL - Vert Integrated Liquid" id="RadarVertIntegratedLiquid">
+		<substitute key="product" value="134" />
+		<substitute key="elevation" value="0.0" />
+		<substitute key="name" value="DVL - Vert Integrated Liquid" />
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+		menuText="DSP - Storm Total Precip" id="RadarStormTotalPrecip">
+		<substitute key="product" value="138" />
+		<substitute key="elevation" value="0.0" />
+		<substitute key="name" value="DSP - Storm Total Precip" />
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+		menuText="OHA - One Hour Precip" id="RadarOneHourPrecip">
+		<substitute key="product" value="169" />
+		<substitute key="elevation" value="0.0" />
+		<substitute key="name" value="OHA - One Hour Precip" />
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+		menuText="N3P - Three Hour Precip" id="RadarThreeHourPrecip">
+		<substitute key="product" value="79" />
+		<substitute key="elevation" value="0.0" />
+		<substitute key="name" value="N3P - Three Hour Precip" />
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+		menuText="EET - Enhanced Echo Tops" id="RadarEchoTops">
+		<substitute key="product" value="135" />
+		<substitute key="elevation" value="0.0" />
+		<substitute key="name" value="EET - Enhanced Echo Tops" />
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+		menuText="HHC - Hybrid Hydro Class" id="RadarHybridHydroClass">
+		<substitute key="product" value="177" />
+		<substitute key="elevation" value="0.0" />
+		<substitute key="name" value="HHC - Hybrid Hydro Class" />
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+		menuText="DTA - Dual Pol Storm Total" id="RadarDualPolStormTotal">
+		<substitute key="product" value="172" />
+		<substitute key="elevation" value="0.0" />
+		<substitute key="name" value="DTA - Dual Pol Storm Total" />
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+		menuText="DAA - Dual Pol 1hr Accum" id="RadarDualPol1hrAccum">
+		<substitute key="product" value="170" />
+		<substitute key="elevation" value="0.0" />
+		<substitute key="name" value="DAA - Dual Pol 1hr Accum" />
+	</contribute>
+	<contribute xsi:type="separator" id="belowRadarMosaics" />
+	<contribute xsi:type="subinclude" fileName="menus/radar/baseRadarApplications.xml" />
+</menuTemplate> 

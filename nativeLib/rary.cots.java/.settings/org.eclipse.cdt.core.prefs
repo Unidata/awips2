@@ -1,0 +1,13 @@
+eclipse.preferences.version=1
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1295629495=
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1295629495/BUILD_DIR/delimiter=;
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1295629495/BUILD_DIR/operation=append
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1295629495/BUILD_DIR/value=../build.native/i386-pc-linux-gnu
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1295629495/INSTALL_FROM/delimiter=;
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1295629495/INSTALL_FROM/operation=replace
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1295629495/INSTALL_FROM/value=jdk1.6.0_12
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1295629495/INSTALL_TO/delimiter=;
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1295629495/INSTALL_TO/operation=replace
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1295629495/INSTALL_TO/value=../build.native/i386-pc-linux-gnu/usr/java
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1295629495/append=true
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1295629495/appendContributed=true

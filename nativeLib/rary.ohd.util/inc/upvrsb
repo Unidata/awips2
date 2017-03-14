@@ -1,0 +1,19 @@
+C MODULE UPVRSB
+C-----------------------------------------------------------------------
+C
+C  INITIALIZE COMMON BLOCK UPVRSX
+C
+      BLOCK DATA UPVRSB
+C
+      INCLUDE 'upvrsx'
+C
+C
+      DATA PGMCMP/'????'/
+      DATA PGMSYS/'????'/
+      DATA PGMNAM/'????????'/
+      DATA PGMVRN/'??????????'/
+      DATA PGMVRD/'????????'/
+      DATA MPGMRG/0/
+C
+C
+      END
