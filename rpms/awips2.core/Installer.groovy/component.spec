@@ -1,11 +1,11 @@
-%define _groovy_version 2.1.3
+%define _groovy_version 2.4.9
 #
 # AWIPS II Groovy Spec File
 #
 Name: awips2-groovy
 Summary: AWIPS II Groovy Distribution
 Version: %{_groovy_version}
-Release: %{_component_version}.%{_component_release}
+Release: 1
 Group: AWIPSII
 BuildRoot: %{_build_root}
 BuildArch: noarch
@@ -48,7 +48,7 @@ fi
 RPMS_DIRECTORY="%{_baseline_workspace}/rpms"
 INSTALLER_GROOVY="${RPMS_DIRECTORY}/awips2.core/Installer.groovy"
 
-_groovy_dist="${INSTALLER_GROOVY}/src/groovy-binary-%{_groovy_version}.zip"
+_groovy_dist="${INSTALLER_GROOVY}/src/apache-groovy-binary-%{_groovy_version}.zip"
 
 unzip ${_groovy_dist} -d %{_build_root}/awips2
 if [ $? -ne 0 ]; then
@@ -77,12 +77,18 @@ rm -rf ${RPM_BUILD_ROOT}
 /awips2/groovy/lib/*
 %dir /awips2/groovy/bin
 
-%doc /awips2/groovy/ANTLR-LICENSE.txt
-%doc /awips2/groovy/ASM-LICENSE.txt
-%doc /awips2/groovy/CLI-LICENSE.txt
-%doc /awips2/groovy/JSR223-LICENSE.txt
-%doc /awips2/groovy/LICENSE.txt
-%doc /awips2/groovy/NOTICE.txt
+/awips2/groovy/grooid/groovy-2.4.9-grooid.jar
+/awips2/groovy/grooid/groovy-test-2.4.9-grooid.jar
+%doc /awips2/groovy/LICENSE
+%doc /awips2/groovy/NOTICE
+%doc /awips2/groovy/licenses/antlr2-license.txt
+%doc /awips2/groovy/licenses/asm-license.txt
+%doc /awips2/groovy/licenses/hamcrest-license.txt
+%doc /awips2/groovy/licenses/jline2-license.txt
+%doc /awips2/groovy/licenses/jsr166y-license.txt
+%doc /awips2/groovy/licenses/jsr223-license.txt
+%doc /awips2/groovy/licenses/junit-license.txt
+%doc /awips2/groovy/licenses/xstream-license.txt
 
 %defattr(755,awips,fxalpha,755)
 /awips2/groovy/bin/*

@@ -51,9 +51,6 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-cp %{_baseline_workspace}/installers/Linux/.global \
-   ${RPM_BUILD_ROOT}/awips2/database
-
 PATH_TO_DDL="build.edex/opt/db/ddl"
 PATH_TO_REPLICATION="build.edex/opt/db/replication"
 
@@ -299,20 +296,6 @@ su ${AWIPS_DEFAULT_USER} -c \
 update_createEbxml
 execute_psql_sql_script ${SQL_SHARE_DIR}/createEbxml.sql metadata
 
-# install replication role if this is a central registry server
-source /awips2/database/.global 2>/dev/null
-if [ -e /data/fxa/INSTALL/awips2/scripts/.global ]; then
-    source /data/fxa/INSTALL/awips2/scripts/.global
-fi
-case $SITE_IDENTIFIER in
-    ${centralCaseArray} ) 
-        execute_psql_sql_script ${SQL_SHARE_DIR}/createReplicationRole.sql 
-        ;;
-    *)  ;;
-esac
-
-rm -f /awips2/database/.global
-
 execute_psql_sql_script  ${SQL_SHARE_DIR}/alter_database_roles_and_permissions.sh
 
 control_pg_ctl "stop"
@@ -330,7 +313,6 @@ rm -rf ${RPM_BUILD_ROOT}
 %defattr(644,awips,fxalpha,755)
 %dir /awips2
 %dir /awips2/database
-/awips2/database/.global
 %dir /awips2/database/sqlScripts
 %dir /awips2/database/replication
 %dir /awips2/database/sqlScripts/share
