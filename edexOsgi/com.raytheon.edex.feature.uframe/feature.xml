@@ -115,9 +115,13 @@
    <includes
          id="com.raytheon.uf.edex.remote.script.feature"
          version="0.0.0"/>
-         
+
    <includes
          id="com.raytheon.uf.edex.config.auto.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.goesr.feature"
          version="0.0.0"/>
 
 </feature>

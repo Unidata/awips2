@@ -194,10 +194,6 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.viz.datadelivery.feature"
-         version="0.0.0"/>
-
-   <includes
          id="edu.wisc.ssec.cimss.viz.convectprob.feature"
          version="0.0.0"/>
 

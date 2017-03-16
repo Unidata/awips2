@@ -14,12 +14,12 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-data @user.home/caveData -user @user.home/caveData -clean -consoleLog -component thinclient -alertviz</programArgs>
+      <programArgs>-data @user.home/caveData -user @user.home/caveData -clean -consoleLog -component thinclient -alertviz
+      </programArgs>
       <vmArgs>-Xmx4536M
 -XX:+UseG1GC
 -Dosgi.instance.area.readOnly=true
 -Dorg.eclipse.update.reconcile=false
--XX:MaxPermSize=256m
 -Dorg.eclipse.ui/KEY_CONFIGURATION_ID=com.raytheon.viz.ui.cave.scheme
 -Dqpid.dest_syntax=BURL
 -Dlogback.configurationFile=logback-viz-core-developer.xml
