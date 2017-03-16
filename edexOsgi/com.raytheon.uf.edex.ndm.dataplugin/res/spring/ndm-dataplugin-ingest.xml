@@ -55,22 +55,6 @@
 		<constructor-arg ref="redbookNdmMappingListener" />
 	</bean>
 	
-	<!-- modelsounding -->
-    <bean id="modelBufrListener" class="com.raytheon.uf.edex.ndm.dataplugin.subscriber.ModelBufrSubscriber" />
-    
-    <bean factory-bean="ndmProc" factory-method="registerListener">
-        <constructor-arg value="modelBufr.spi" />
-        <constructor-arg ref="modelBufrListener" />
-    </bean>
-    <bean factory-bean="ndmProc" factory-method="registerListener">
-        <constructor-arg value="modelBufrStationInfo.txt" />
-        <constructor-arg ref="modelBufrListener" />
-    </bean>
-    <bean factory-bean="ndmProc" factory-method="registerListener">
-        <constructor-arg value="modelBufrStationList.txt" />
-        <constructor-arg ref="modelBufrListener" />
-    </bean>
-    
     <!-- bufrSounding -->
     <bean id="poesBufrSoundingListener"
         class="com.raytheon.uf.edex.ndm.dataplugin.subscriber.PoesBufrSoundingSubscriber" />
