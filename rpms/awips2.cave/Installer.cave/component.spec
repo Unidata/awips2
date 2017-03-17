@@ -185,33 +185,33 @@ popd > /dev/null 2>&1
 
 # determine if an installation of awips2-common-base is already present
 # (edex has been installed before CAVE on an ADAM machine)
-if [ -f /awips2/.cave/installCAVECommon.sh ]; then
-   # copy common-base files to cave
-   cp -r /awips2/.cave/.repository /awips2/cave/
-   cp /awips2/.cave/installCAVECommon.sh /awips2/cave
-   
-   # install the common-base feature
-   /bin/bash /awips2/cave/installCAVECommon.sh
-   rm -f /awips2/cave/installCAVECommon.sh  
-   
-   # cleanup
-   rm -rf /awips2/.cave
-fi
+#if [ -f /awips2/.cave/installCAVECommon.sh ]; then
+#   # copy common-base files to cave
+#   cp -r /awips2/.cave/.repository /awips2/cave/
+#   cp /awips2/.cave/installCAVECommon.sh /awips2/cave
+#   
+#   # install the common-base feature
+#   /bin/bash /awips2/cave/installCAVECommon.sh
+#   rm -f /awips2/cave/installCAVECommon.sh  
+#   
+#   # cleanup
+#   rm -rf /awips2/.cave
+#fi
 
-function updateCaveVersion() {
-   # Note: the system properties echoed to the versions script are based on
-   # about.mappings in the com.raytheon.viz.product.awips plugin.
-   AWIPS_VERSION_TXT=/awips2/cave/awipsVersion.txt
-
-   echo "-DvizVersion=%{_component_version}-%{_component_release}" > ${AWIPS_VERSION_TXT}
-   echo "-DbuildDate=%{_component_build_date}" >> ${AWIPS_VERSION_TXT}
-   echo "-DbuildTime=%{_component_build_time}" >> ${AWIPS_VERSION_TXT}
-   echo "-DbuildSystem=%{_component_build_system}" >> ${AWIPS_VERSION_TXT}
-}
-
-if [ -d /awips2/cave ]; then
-   updateCaveVersion
-fi
+#function updateCaveVersion() {
+#   # Note: the system properties echoed to the versions script are based on
+#   # about.mappings in the com.raytheon.viz.product.awips plugin.
+#   AWIPS_VERSION_TXT=/awips2/cave/awipsVersion.txt
+#
+#   echo "-DvizVersion=%{_component_version}-%{_component_release}" > ${AWIPS_VERSION_TXT}
+#   echo "-DbuildDate=%{_component_build_date}" >> ${AWIPS_VERSION_TXT}
+#   echo "-DbuildTime=%{_component_build_time}" >> ${AWIPS_VERSION_TXT}
+#   echo "-DbuildSystem=%{_component_build_system}" >> ${AWIPS_VERSION_TXT}
+#}
+#
+#if [ -d /awips2/cave ]; then
+#   updateCaveVersion
+#fi
 
 chown -R awips:fxalpha /awips2/cave
 
@@ -226,9 +226,6 @@ rm -rf ${RPM_BUILD_ROOT}
 %defattr(644,awips,fxalpha,755)
 %dir /awips2
 %dir /awips2/cave
-%docdir /awips2/cave/about_files
-%dir /awips2/cave/about_files
-/awips2/cave/about_files/*
 %doc /awips2/cave/about.html
 /awips2/cave/artifacts.xml 
 /awips2/cave/cave.ini
@@ -244,7 +241,5 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/cave/readme
 /awips2/cave/readme/*
 /awips2/cave/.eclipseproduct
- 
 %defattr(755,awips,fxalpha,755)
 /awips2/cave/cave
-/awips2/cave/*.so

@@ -113,7 +113,6 @@ if [ "${1}" = "-rh6" ]; then
    #buildRPM "awips2-ldm"
    #buildRPM "awips2-pypies"
    #buildRPM "awips2-tools"
-   #buildLocalizationRPMs
    #buildRPM "awips2-notification"
    #buildRPM "awips2-hydroapps-shared"
 
@@ -151,23 +150,25 @@ if [ "${1}" = "-rh6" ]; then
    #buildRPM "awips2-qpid-java"
    #buildRPM "awips2-qpid-java-broker"
    #buildRPM "awips2-database-standalone-configuration"
-
    #buildRPM "awips2-database"
+   buildRPM "awips2-postgresql"
+   exit 0
    buildRPM "awips2-maps-database"
    buildRPM "awips2-ncep-database"
-   buildRPM "awips2-adapt-native"
-   buildRPM "awips2-aviation-shared"
-   buildRPM "awips2-cli"
-   buildRPM "awips2-edex-environment"
-   buildRPM "awips2-edex-shapefiles"
+   buildLocalizationRPMs
+   #buildRPM "awips2-adapt-native"
+   #buildRPM "awips2-aviation-shared"
+   #buildRPM "awips2-cli"
+   #buildRPM "awips2-edex-environment"
+   #buildRPM "awips2-edex-shapefiles"
    buildRPM "awips2-data.gfe"
-   buildRPM "awips2-gfesuite-client"
-   buildRPM "awips2-gfesuite-server"
-   buildRPM "awips2-groovy"
-   buildRPM "awips2-localapps-environment"
+   #buildRPM "awips2-gfesuite-client"
+   #buildRPM "awips2-gfesuite-server"
+   #buildRPM "awips2-groovy"
+   #buildRPM "awips2-localapps-environment"
    buildRPM "awips2-data.hdf5-topo"
-   buildRPM "awips2"
-   buildRPM "awips2-yajsw"
+   #buildRPM "awips2"
+   #buildRPM "awips2-yajsw"
    exit 0
 fi
 

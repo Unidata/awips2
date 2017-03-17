@@ -1,4 +1,4 @@
-%define _ldm_version 6.13.3
+%define _ldm_version 6.13.6
 %define _ldm_src_tar ldm-%{_ldm_version}.tar.gz
 # ldm-%{_ldm_version}.tar.gz is tarred up ldm-%{_ldm_version}/src dir after
 # ISG makes retrans changes

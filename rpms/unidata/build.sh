@@ -1,6 +1,6 @@
 #!/bin/bash -v
 set -xe
-#rm -rf /awips2/jenkins/buildspace/workspace/AWIPS2-UPC_build/baseline/
+rm -rf /awips2/jenkins/buildspace/workspace/AWIPS2-UPC_build/baseline/
 export JENKINS_WORKSPACE=/awips2/repo/awips2-builds
 
 # determine where we are ...
@@ -31,6 +31,17 @@ logdir=${dir}/../logs
 
 # prepare the build environment (since we are manually executed)
 source ${dir}/buildEnvironment.sh
+
+echo "BUILD_DIR = $BUILD_DIR"
+echo "BUILD_WORKSPACE = $BUILD_WORKSPACE"
+echo "BASELINE = $BASELINE"
+echo "AWIPSII_VERSION = $AWIPSII_VERSION"
+echo "AWIPSII_RELEASE = $AWIPSII_RELEASE"
+echo "AWIPSII_TOP_DIR = $AWIPSII_TOP_DIR"
+echo "WORKSPACE = $WORKSPACE"
+echo "UFRAME_ECLIPSE = $UFRAME_ECLIPSE"
+echo "AWIPSII_STATIC_FILES = $AWIPSII_STATIC_FILES"
+echo "AWIPSII_BUILD_ROOT = $AWIPSII_BUILD_ROOT"
 
 # prepare the rpm build directory structure
 mkdir -p ${AWIPSII_TOP_DIR}/BUILD
