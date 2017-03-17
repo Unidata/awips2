@@ -22,7 +22,7 @@ Packager: %{_build_site}
 AutoReq: no
 Requires: awips2, awips2-qpid-lib
 Requires: awips2-python
-Requires: pax, gcc, libxml2-devel
+Requires: pax, gcc, libxml2-devel, boost-devel
 Requires: libtool, libpng-devel
 Provides: awips2-ldm
 BuildRequires: awips2-qpid-lib, awips2-python
