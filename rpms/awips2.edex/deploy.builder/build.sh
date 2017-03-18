@@ -113,12 +113,8 @@ DIST="${WORKSPACE}/build.edex/edex/dist"
 for edex_zip in `cd ${DIST}; ls -1;`;
 do
    edex_component=`python -c "zipFile='${edex_zip}'; componentName=zipFile.replace('.zip',''); print componentName;"`
-
-   # Check if component is in the ignore file, do not build an RPM if so. 
-   if ! grep -Fxq "${edex_component}" ${WORKSPACE}/build.edex/component.ignore.txt; then
-      export COMPONENT_NAME="${edex_component}"
-      buildRPM "Installer.edex-component"
-      unset COMPONENT_NAME
-   fi
+   export COMPONENT_NAME="${edex_component}"
+   buildRPM "Installer.edex-component"
+   unset COMPONENT_NAME
 done
 
