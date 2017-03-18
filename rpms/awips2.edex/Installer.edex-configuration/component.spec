@@ -163,7 +163,8 @@ rm -rf ${RPM_BUILD_ROOT}
 %defattr(644,awips,fxalpha,755)
 %dir /awips2
 %dir /awips2/edex
-%dir /awips2/edex/bin/*
+%dir /awips2/edex/bin
+/awips2/edex/bin/*
 %dir /awips2/edex/conf
 /awips2/edex/conf/*
 %dir /awips2/edex/data
