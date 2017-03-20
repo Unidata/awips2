@@ -8,4 +8,8 @@ repomanage -k1 --old . | xargs rm -f
 createrepo -g ./comps.xml .
 unset LD_LIBRARY_PATH
 . /etc/profile.d/awips2.sh
-rsync --archive --delete $RPMDIR tomcat@www:/web/content/repos/yum/awips2-dev/
+rsync --archive --delete $RPMDIR /awips2/repo/release
+#cp -R $RPMDIR/x86_64/* /awips2/repo/release/x86_64/
+#cp -R $RPMDIR/noarch/* /awips2/repo/release/noarch/
+#cp -R $RPMDIR/repodata/* /awips2/repo/release/repodata/
+#cp -R $RPMDIR/comps.xml /awips2/repo/release/
