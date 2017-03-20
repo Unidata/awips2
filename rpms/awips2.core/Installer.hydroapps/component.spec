@@ -49,7 +49,7 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-FILES_STATIC="%{_static_files}/hydroapps"
+FILES_STATIC="/home/awips/awips2-builds/nativeLib/files.native/awipsShare/hydroapps"
 /bin/cp -rf ${FILES_STATIC}/* \
    %{_build_root}/awips2/edex/data/share/hydroapps/lib/native/linux32/
 if [ $? -ne 0 ]; then
