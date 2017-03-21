@@ -160,26 +160,29 @@ edex_log() { # display todays log, default to ingest
    fi
    # Radar
    if [ "${args[1]}" == 'radar' ]; then
+      YMD=`date -u '+%Y%m%d'`
       LOG_FILE=${LOG_PATH}/edex-ingest-radar-${YMD}.log
       tail_log
       exit;
    fi
    # Satellite
    if [ "${args[1]}" == 'satellite' ]; then
+      YMD=`date -u '+%Y%m%d'`
       LOG_FILE=${LOG_PATH}/edex-ingest-satellite-${YMD}.log
       tail_log
       exit;
    fi
    # Text
    if [ "${args[1]}" == 'text' ]; then
+      YMD=`date -u '+%Y%m%d'`
       LOG_FILE=${LOG_PATH}/edex-ingest-text-${YMD}.log
       tail_log
       exit;
    fi
    # OHD
    if [ "${args[1]}" == 'ohd' ]; then
+      YMD=`date -u '+%Y%m%d'`
       LOG_FILE=${LOG_PATH}/edex-ingest-ohd-${YMD}.log
-
       tail_log
       exit;
    fi
