@@ -16,6 +16,7 @@ Packager: %{_build_site}
 
 AutoReq: no
 Provides: %{_component_name}
+Requires: awips2-edex-shapefiles
 Obsoletes: awips2-localization-OAX < 16.1.4
 
 %description
@@ -132,15 +133,7 @@ fi
 %pre
 
 %post
-# only import the shapefiles and/or hydro databases, if we are on 
-# the same machine as the db.
 # verify the following exists:
-#   1) /awips2/data/maps
-#   2) /awips2/postgresql/bin/postmaster
-#   3) /awips2/postgresql/bin/pg_ctl
-#   4) /awips2/psql/bin/psql
-#   5) /awips2/database/sqlScripts/share/sql/maps/importShapeFile.sh
-#   6) /awips2/postgresql/bin/pg_restore
 if [ ! -d /awips2/data/maps ] ||
    [ ! -f /awips2/postgresql/bin/postmaster ] ||
    [ ! -f /awips2/postgresql/bin/pg_ctl ] ||
@@ -222,199 +215,32 @@ function restartPostgreSQL()
    echo "PostgreSQL restart complete ..." >> ${log_file}
 }
 
+# import StormSurgeWW and NHAdomain for GFE
 function importShapefiles()
 {   
-   local site_directory="${edex_utility}/edex_static/site/OAX"
-   
-   # determine if we include shapefiles
-   local ffmp_shp_directory="${site_directory}/shapefiles/FFMP"
-   local wg_shp_directory="${site_directory}/shapefiles/warngen"
-   
-   # if we do not, halt
-   if [ ! -d ${ffmp_shp_directory} ]; then
-      echo "${ffmp_shp_directory} does not exist, returning ..." >> ${log_file}   
-      return 0
-   fi
-   
-   # shapefiles exist
+   local static_shp_directory="${edex_utility}/edex_static/base/shapefiles"
+   local a2_shp_script="/awips2/database/sqlScripts/share/sql/maps/importShapeFile.sh"
    
    prepare
    
-   # verify the both the basins and streams shapefile are present.
-   if [ ! -f ${ffmp_shp_directory}/FFMP_aggr_basins.shp ] ||
-      [ ! -f ${ffmp_shp_directory}/FFMP_ref_sl.shp ]; then
-      # if they are not, exit
-      echo "ffmp_shp_directory files do not exist, returning ..." >> ${log_file}   
-      return 0
-   fi
-  
-   # verify the warngen location shapefile exists
-   if [ ! -f ${wg_shp_directory}/wg23fe15.shp ]; then
-      # if it does not, exit
-      echo "warngenloc files do not exist, returning ..." >> ${log_file}   
-      return 0
-   fi
-   
-   # verify that the files the streams and basins shapefile depend on
-   # are present.
-   if [ ! -f ${ffmp_shp_directory}/FFMP_aggr_basins.dbf ] ||
-      [ ! -f ${ffmp_shp_directory}/FFMP_aggr_basins.shx ] ||
-      [ ! -f ${ffmp_shp_directory}/FFMP_ref_sl.dbf ] ||
-      [ ! -f ${ffmp_shp_directory}/FFMP_ref_sl.shx ]; then
-      # if they are not, exit
-      echo "ffmp basin files do not exist, returning ..." >> ${log_file}   
-      return 0
-   fi
-   
-   local a2_shp_script="/awips2/database/sqlScripts/share/sql/maps/importShapeFile.sh"
-   
-   echo "Importing the FFMP and WarnGen Shapefiles ... Please Wait."
-   /bin/date >> ${log_file}
-   echo "Preparing to import the FFMP shapefiles ..." >> ${log_file}   
-   
-   echo "" >> ${log_file}
-   # import the shapefiles; log the output
-   
-   # import the ffmp basins
    /bin/bash ${a2_shp_script} \
-      ${ffmp_shp_directory}/FFMP_aggr_basins.shp \
-      mapdata ffmp_basins 0.064,0.016,0.004,0.001 \
-      awips 5432 /awips2 >> ${log_file} 2>&1
+      ${static_shp_directory}/NHAdomain/NHAdomain.shp mapdata nhadomain >> ${log_file} 2>&1 
    if [ $? -ne 0 ]; then
-      echo "FATAL: failed to import the FFMP basins." >> ${log_file}
+      echo "FATAL: failed to import NHAdomain." >> ${log_file}
+      return 0
+   fi
+   /bin/bash ${a2_shp_script} \
+      ${static_shp_directory}/StormSurgeWW/StormSurgeWW.shp mapdata stormsurgeww >> ${log_file} 2>&1 
+   if [ $? -ne 0 ]; then
+      echo "FATAL: failed to import StormSurgeWW." >> ${log_file}
       return 0
    fi
    
-   # import the ffmp streams
-   /bin/bash ${a2_shp_script} \
-      ${ffmp_shp_directory}/FFMP_ref_sl.shp \
-      mapdata ffmp_streams 0.064,0.016,0.004,0.001 \
-      awips 5432 /awips2 >> ${log_file} 2>&1
-   if [ $? -ne 0 ]; then
-      echo "FATAL: failed to import the FFMP streams." >> ${log_file}
-      return 0
-   fi
-   
-    # import the warngen boundaries for OAX
-   /bin/bash ${a2_shp_script} \
-      ${wg_shp_directory}/wg23fe15.shp mapdata warngenloc >> ${log_file} 2>&1 
-   if [ $? -ne 0 ]; then
-      echo "FATAL: failed to import the WarnGen locations." >> ${log_file}
-      return 0
-   fi
-
-   # indicate success
-   echo "INFO: The FFMP and WarnGen shapefiles were successfully imported." >> ${log_file}
+   echo "INFO: NHAdomain and StormSurgeWW shapefiles were successfully imported." >> ${log_file}
    return 0
 }
 
-function removeHydroDbDirectory()
-{
-   # remove the hydro db directory since it is not officially part
-   # of the localization.
-
-   local hydro_db_directory="${edex_utility}/common_static/site/OAX/hydro/db"
-   
-   if [ -d ${hydro_db_directory} ]; then
-      rm -rf ${hydro_db_directory}
-      if [ $? -ne 0 ]; then
-         echo "WARNING: Failed to remove hydro db directory from localization."
-         echo "         Please remove directory manually: ${hydro_db_directory}."
-      fi
-   fi
-   
-   return 0
-}
-
-function restoreHydroDb()
-{
-   local hydro_db_directory="${edex_utility}/common_static/site/OAX/hydro/db"
-   
-   if [ ! -d ${hydro_db_directory} ]; then
-      return 0
-   fi
-   
-   # hydro databases exist
-   prepare   
-   
-   # verify that the hydro database definition is present
-   if [ ! -f ${hydro_db_directory}/hydroDatabases.sh ]; then
-      return 0
-   fi
-   
-   # discover the hydro databases
-   source ${hydro_db_directory}/hydroDatabases.sh
-   
-   # ensure that the expected information has been provided
-   if [ "${DAMCAT_DATABASE}" = "" ] ||
-      [ "${DAMCAT_SQL_DUMP}" = "" ] ||
-      [ "${IHFS_DATABASE}" = "" ] ||
-      [ "${IHFS_SQL_DUMP}" = "" ]; then
-      echo "Sufficient information has not been provided for the Hydro Restoration!" \
-         >> ${log_file}
-      return 0
-   fi
-   
-   # ensure that the specified databases are available for import
-   if [ ! -f ${hydro_db_directory}/${DAMCAT_DATABASE} ] ||
-      [ ! -f ${hydro_db_directory}/${IHFS_DATABASE} ]; then
-      echo "The expected Hydro Database Exports are not present!" >> ${log_file}
-      return 0
-   fi
-   
-   # update pg_hba.conf
-   
-   local default_damcat="dc_ob7oax"
-   local default_ihfs="hd_ob92oax"
-   local pg_hba_conf="/awips2/data/pg_hba.conf"
-   
-   # update the entry for the damcat database
-   perl -p -i -e "s/${default_damcat}/${DAMCAT_DATABASE}/g" ${pg_hba_conf}
-   if [ $? -ne 0 ]; then
-      echo "Failed to update damcat database in ${pg_hba_conf}!" >> ${log_file}
-      return 0
-   fi
-   
-   # update the entry for the ihfs database
-   perl -p -i -e "s/${default_ihfs}/${IHFS_DATABASE}/g" ${pg_hba_conf}
-   if [ $? -ne 0 ]; then
-      echo "Failed to update ihfs database in ${pg_hba_conf}!" >> ${log_file}
-      return 0
-   fi
-   
-   # prepare PostgreSQL
-   restartPostgreSQL
-   
-   echo "Restoring the Hydro Databases ... Please Wait."
-   /bin/date >> ${log_file}
-   echo "Preparing to restore the Hydro databases ..." >> ${log_file}
-   
-   local a2_pg_restore="/awips2/postgresql/bin/pg_restore"
-   
-   # perform the restoration
-   echo "Restoring Database ${DAMCAT_DATABASE} ..." >> ${log_file}
-   ${a2_pg_restore} -U awips -C -d postgres ${hydro_db_directory}/${DAMCAT_DATABASE} \
-      >> ${log_file} 2>&1
-   # do not check the return code because any errors encountered during
-   # the restoration may cause the return code to indicate a failure even
-   # though the database was successfully restored.
-   
-   echo "" >> ${log_file} 
-   
-   echo "Restoring Database ${IHFS_DATABASE} ..." >> ${log_file}
-   ${a2_pg_restore} -U awips -C -d postgres ${hydro_db_directory}/${IHFS_DATABASE} \
-      >> ${log_file} 2>&1
-   # do not check the return code because any errors encountered during
-   # the restoration may cause the return code to indicate a failure even
-   # though the database was successfully restored.
-   
-   # indicate success
-   echo "INFO: The Hydro databases were successfully restored." >> ${log_file}
-}
-
-#importShapefiles
-restoreHydroDb
-removeHydroDbDirectory
+importShapefiles
 
 a2_pg_ctl="/awips2/postgresql/bin/pg_ctl"
 # if we started PostgreSQL, shutdown PostgreSQL

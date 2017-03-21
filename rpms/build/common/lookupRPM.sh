@@ -33,7 +33,7 @@ function lookupRPM()
 
    # lookup the rpm.
    if [ "${1}" = "awips2-edex-shapefiles" ]; then
-      export RPM_SPECIFICATION="${awips2_edex_dir=}/Installer.edex-shapefiles"
+      export RPM_SPECIFICATION="${awips2_edex_dir}/Installer.edex-shapefiles"
       return 0
    fi
    # foss rpms -> python rpms.
@@ -321,10 +321,6 @@ function lookupRPM()
    fi
    if [ "${1}" = "awips2-edex-environment" ]; then
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.edex-environment/edex"
-      return 0
-   fi
-   if [ "${1}" = "awips2-edex-shapefiles" ]; then
-      export RPM_SPECIFICATION="${awips2_edex_dir}/Installer.edex-shapefiles"
       return 0
    fi
 
