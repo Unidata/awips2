@@ -1,6 +1,8 @@
 #!/bin/bash -v
 set -xe
-rm -rf /awips2/jenkins/buildspace/workspace/AWIPS2-UPC_build/baseline/
+if  [ ${2} = "buildCAVE"]; then
+  rm -rf /awips2/jenkins/buildspace/workspace/AWIPS2-UPC_build/baseline/
+fi
 export JENKINS_WORKSPACE=/awips2/repo/awips2-builds
 
 # determine where we are ...
