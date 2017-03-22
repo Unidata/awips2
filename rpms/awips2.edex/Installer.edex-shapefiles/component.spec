@@ -58,28 +58,9 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-#create a list of all files packaged for /awips2/edex/data/utility
-UTILITY=/awips2/edex/data/utility
-if [ -d %{_build_root}/$UTILITY ]; then
-   cd %{_build_root}/$UTILITY
-   find . -type f > %{_build_root}/awips2/edex/util_filelist.%{name}.txt
-fi
-
 %pre
 
 %post
-
-
-#change date stamp of utility files
-UTILITY=/awips2/edex/data/utility
-UTIL_FILENAME=/awips2/edex/util_filelist.%{name}.txt
-if [ -d $UTILITY ] && [ -f $UTIL_FILENAME ]; then
- while read fileName
- do
-  touch "$UTILITY/$fileName"
- done < $UTIL_FILENAME
- rm -f $UTIL_FILENAME
-fi
 
 %preun
 

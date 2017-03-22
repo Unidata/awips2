@@ -138,4 +138,4 @@ if [ -d /awips2/ant ]; then
    # Ant Is Not In The Path; Add It To The Path.
    export PATH="${ANT_INSTALL}/bin:${PATH}"
 fi
-export LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib64
