@@ -1,8 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<subGridDef>
-  <modelNames>ARI</modelNames>
-  <referenceGrid>ARI</referenceGrid>
-  <shiftWest>false</shiftWest>
-  <nx>1000</nx>
-  <ny>1000</ny>
-</subGridDef>
