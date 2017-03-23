@@ -55,8 +55,8 @@ from math import *
 #  Add or delete models according to whether or not they are available at your office.
 #
 
-#sourceList = ["NAM12", "GFS40", "RUC40"]
-sourceList = ["NAM12", "GFS40", "RUC13", "wrfnmm", "wrfarw", "WSETA"]
+#sourceList = ["NAM12", "GFS20", "RAP40"]
+sourceList = ["NAM12", "GFS20", "RAP13", "wrfnmm", "wrfarw", "WSETA"]
 toolName = 'Extrapolate'
 
 #
@@ -127,7 +127,7 @@ class Procedure (SmartScript.SmartScript):
             self.fragmentCmd(["variableElement"], timeRange)
             h=starth
 
-            modelList = ["NAM12", "GFS40", "RUC13", "wrfnmm", "wrfarw", "WSETA", "Fcst"]   #####################################################
+            modelList = ["NAM12", "GFS20", "RAP13", "wrfnmm", "wrfarw", "WSETA", "Fcst"]   #####################################################
 
             if varDict["Source:"] not in modelList and varDict["Source:"] != "Observed (enter below)":
                 modelList.append((varDict["Source:"]))

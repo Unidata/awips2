@@ -24,9 +24,9 @@ from Init import *
 ## output.
 ##
 ##--------------------------------------------------------------------------
-class GFS40Forecaster(Forecaster):
+class GFS20Forecaster(Forecaster):
     def __init__(self):
-        Forecaster.__init__(self, "GFS40", "GFS40")
+        Forecaster.__init__(self, "GFS20", "GFS20")
 
 ####--------------------------------------------------------------------------
 #### These levels will be used to create vertical soundings.  These are
@@ -1085,4 +1085,4 @@ class GFS40Forecaster(Forecaster):
 
 
 def main():
-    GFS40Forecaster().run()
+    GFS20Forecaster().run()

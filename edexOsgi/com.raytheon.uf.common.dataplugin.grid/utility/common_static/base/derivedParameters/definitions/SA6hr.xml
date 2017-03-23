@@ -22,7 +22,7 @@
   <Method model="HPCWWD" name="Alias">
     <Field abbreviation="TOTSN6hr" />
   </Method>
-  <Method dtime="true" name="LinTrans" models="GFS215 GFS217 GFS20-PAC GFS20-PRICO">
+  <Method dtime="true" name="LinTrans" models="GFS20 AK-GFS22 GFS20-PAC PR-GFS">
     <Field abbreviation="TP6hr" timeShift="0" />
     <Field abbreviation="snoRatOv2" timeShift="0" />
     <Field abbreviation="TP6hr" timeShift="0" />

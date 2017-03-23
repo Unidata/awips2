@@ -10,7 +10,7 @@
 #    gd = GempakGridDiagnostic.GempakGridDiagnostic()
 #    gd.setGlevel('750')
 #    gd.setGdattim('2009-07-01_13:00:00.0_(5)')
-#    gd.setGdfile('ruc130')
+#    gd.setGdfile('RAP13')
 #    gd.setGvect('wnd')  or gd.setGfunc('urel')
 #    gd.setGvcord('PRES')
 #    gd.setGarea('ks')

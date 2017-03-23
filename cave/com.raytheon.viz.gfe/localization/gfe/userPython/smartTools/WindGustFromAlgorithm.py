@@ -54,7 +54,7 @@ VariableList = [
          ("Momentum algorithm:", "RUC", "radio", ["RUC", "Power"]),
          ("Use BL Winds:", "No", "radio", ["Yes", "No"]),
          ("Model:", "NAM12", "radio",
-                    ["GFS80", "NAM12", "gfsLR", "RUC80"])
+                    ["GFS80", "NAM12", "gfsLR", "RAP40"])
 ]
 
 
@@ -372,7 +372,7 @@ class Tool (SmartScript.SmartScript):
             self._modelCube = ["MB1000", "MB850", "MB700", "MB500", "MB300"]
             self._blCube = []
 
-        elif self._model.find( 'RUC80') != -1:
+        elif self._model.find( 'RAP40') != -1:
             self._modelCube = ["MB1000", "MB950", "MB900", "MB850", "MB800",
                                "MB750", "MB700", "MB650", "MB600", "MB550",
                                "MB500", "MB450", "MB400", "MB350", "MB300"]

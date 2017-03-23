@@ -29,7 +29,7 @@
                                         <constraint constraintType="EQUALS" constraintValue="10000.0"/>
                                     </mapping>
                                     <mapping key="info.level.masterLevel.name">
-                                        <constraint constraintType="EQUALS" constraintValue="ETA"/>
+                                        <constraint constraintType="EQUALS" constraintValue="NAM12"/>
                                     </mapping>
                                     <mapping key="info.parameter.abbreviation">
                                         <constraint constraintType="EQUALS" constraintValue="Heli"/>
@@ -68,7 +68,7 @@
                                         <constraint constraintType="EQUALS" constraintValue="10000.0"/>
                                     </mapping>
                                     <mapping key="info.level.masterLevel.name">
-                                        <constraint constraintType="EQUALS" constraintValue="ETA"/>
+                                        <constraint constraintType="EQUALS" constraintValue="NAM12"/>
                                     </mapping>
                                     <mapping key="info.parameter.abbreviation">
                                         <constraint constraintType="EQUALS" constraintValue="Heli"/>

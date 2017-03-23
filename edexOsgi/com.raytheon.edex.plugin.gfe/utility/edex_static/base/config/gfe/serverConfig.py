@@ -52,7 +52,7 @@
 #    01/19/2015          #4014     dgilling       Added ETSS.
 #    02/11/2015          #4053     rferrel        Added GLWN and moved GLERL to display only for Great Lakes sites..
 #    01/19/2015          #4014     dgilling       Added ETSS.
-#    02/24/2015          #16692    byin           Added RTMA. Removed gfsLR and GWW233
+#    02/24/2015          #16692    byin           Added RTMA. Removed gfsLR and WaveWatch
 #    03/19/2015          #4300     randerso       Remove GUMa as it is obsolete (per Shannon White)
 #    03/30/2015          #17288    bhunder        Added Guam-RTMA to D2D models
 #    03/30/2015          #17206    yteng          Changed some parameters that are not rate parameters
@@ -1379,7 +1379,7 @@ SnowAmt50Prcntl = ('SnowAmt50Prcntl', SCALAR, 'in', 'avg case', 50.0, 0.0, 1, NO
 SnowAmt90Prcntl = ('SnowAmt90Prcntl', SCALAR, 'in', 'max case', 50.0, 0.0, 1, NO)
 SnowDepth = ('SnowDepth', SCALAR, 'in', 'Snow Depth', 50.0, 0.0, 0, NO)
 SnowRatioCLIMO = ('SnowRatioCLIMO', SCALAR, '%', 'Snow Ratio Climatology SON-DJF-MAM', 40.0, 0.0, 1, YES)
-SnowRatioGFS = ('SnowRatioGFS', SCALAR, '%', 'Snow Ratio from GFS40', 40.0, 0.0, 1, YES)
+SnowRatioGFS = ('SnowRatioGFS', SCALAR, '%', 'Snow Ratio from GFS20', 40.0, 0.0, 1, YES)
 SnowRatioHPCMEAN = ('SnowRatioHPCMEAN', SCALAR, '%', 'Snow Ratio from HPC MEAN', 40.0, 0.0, 1, YES)
 SnowRatioNAM = ('SnowRatioNAM', SCALAR, '%', 'Snow Ratio from NAM40', 40.0, 0.0, 1, YES)
 T10 = ('T10', SCALAR, 'F', '10th Percentile for T', 140.0, -100.0, 0, NO)
@@ -2168,13 +2168,13 @@ NAM12       = ('NAM12',        GRID,   '', NO,  NO,  2, 0)
 NAM40       = ('NAM40',        GRID,   '', NO,  NO,  2, 0)
 NAM80       = ('NAM80',        GRID,   '', NO,  NO,  2, 0)
 NAM95       = ('NAM95',        GRID,   '', NO,  NO,  2, 0)
-GFS40       = ('GFS40',        GRID,   '', NO,  NO,  2, 0)
+GFS20       = ('GFS20',        GRID,   '', NO,  NO,  2, 0)
 GFS80       = ('GFS80',        GRID,   '', NO,  NO,  2, 0)
 GFS190      = ('GFS190',       GRID,   '', NO,  NO,  2, 0)
 GFS75       = ('GFS75',        GRID,   '', NO,  NO,  2, 0)
 gfsLR       = ('gfsLR',        GRID,   '', NO,  NO,  2, 0)
-RUC13       = ('RUC13',        GRID,   '', NO,  NO,  2, 0)
-RUC80       = ('RUC80',        GRID,   '', NO,  NO,  2, 0)
+RAP13       = ('RAP13',        GRID,   '', NO,  NO,  2, 0)
+RAP40       = ('RAP40',        GRID,   '', NO,  NO,  2, 0)
 HPCGrid     = ('HPCGRID',      GRID,   '', NO,  NO,  2, 0)
 AKwave10    = ('AKwave10',     GRID,   '', NO,  NO,  2, 0)
 AKwave4     = ('AKwave4',      GRID,   '', NO,  NO,  2, 0)
@@ -2239,17 +2239,17 @@ D2DDBVERSIONS = {
 #---------------------------------------------------------------------------
 # Alaska OCONUS
 if SID in groups['ALASKA_SITES']:
-    D2DMODELS = [('mesoEta216', 'NAM40'),
-                 ('mesoEta217', 'NAM20'),
+    D2DMODELS = [('AK-NAM45', 'NAM40'),
+                 ('AK-NAM22', 'NAM20'),
                  ('AVN203', 'GFS190'),
                  ('MRF203', 'gfsLR'),
-                 ('ETA207', 'NAM95'),
-                 'GWW233',
-                 ('ETA242', 'NAM12'),
+                 ('AK-NAM95', 'NAM95'),
+                 'WaveWatch',
+                 ('AK-NAM11', 'NAM12'),
                  'ECMWF-LowRes','ECMWF',
                  'UKMET-NorthernHemisphere', 'UKMET',
                  'ENSEMBLE',
-                 ('DGEX186', 'DGEX'),
+                 ('AK-DGEX', 'DGEX'),
                  ('OPCWave181', 'OPCTAFBNW'),
                  ('AKWAVE239', 'AKWAVE'),
                  'AKwave10',
@@ -2283,7 +2283,7 @@ if SID in groups['ALASKA_SITES']:
                  'AKHwave10',
                  'AKHwave4',
                  'GLOBHwave',
-                 ('GFS217', 'GFS20'),
+                 ('AK-GFS22', 'GFS20'),
                  ('ETSS-AK', 'ETSS'),
                  'PGBlended',
                  'PGBlended-Night',
@@ -2295,7 +2295,7 @@ if SID in groups['ALASKA_SITES']:
 elif SID == "HFO":
     D2DMODELS = [('MRF204', 'gfsLR'),
                  ('AVN225', 'GFS75'),
-                 'GWW233',
+                 'WaveWatch',
                  'GlobalWave',
                  'EPwave10',
                  'EPwave4',
@@ -2329,12 +2329,12 @@ elif SID == "HFO":
 # San Juan OCONUS
 elif SID == "SJU":
     D2DMODELS = [('AVN211', 'GFS80'),
-                 ('GFS212', 'GFS40'),
+                 'GFS20',
                  ('ETA', 'NAM80'),
                  ('MRF205', 'gfsLR'),
                  ('OPCWave180', 'OPCTAFBE'),
                  'HurWind226',
-                 'GWW233',
+                 'WaveWatch',
                  'GlobalWave',
                  'WNAwave10',
                  'WNAwave4',
@@ -2363,7 +2363,7 @@ elif SID == "SJU":
                  ('nwpsTrkngCG0JAX', 'nwpsTrkngCG0JAX'),
 # JCM 16.4.1 added above
                  'GLOBHwave',
-                 ('GFS20-PRICO', 'GFS20'),
+                 ('PR-GFS', 'GFS20'),
                  'PGBlended',
                  'PGBlended-Night',
                  ('NCOM-AMSEAS', 'NCOMAMSEAS'),
@@ -2393,19 +2393,19 @@ elif SID == "GUM":
 
 #CONUS sites
 elif SID in groups['CONUS_EAST_SITES']:
-    D2DMODELS = [('GFS212', 'GFS40'),
+    D2DMODELS = ['GFS20',
                  ('AVN211', 'GFS80'),
                  ('ETA', 'NAM80'),
                  'HRRR',
                  'HWRF',
                  ('MRF', 'gfsLR'),
-                 ('RUC130', 'RUC13'),
-                 ('RUC', 'RUC80'),
-                 ('mesoEta212', 'NAM40'),
-                 ('mesoEta215', 'NAM20'),
+                 ('RAP13', 'RAP13'),
+                 ('RUC', 'RAP40'),
+                 ('NAM40', 'NAM40'),
+                 ('NAM20', 'NAM20'),
                  'MSAS',
                  'LAPS',
-                 'GWW233',
+                 'WaveWatch',
                  ('HPCqpf', 'HPCQPF'),
                  ('HPCqpfNDFD', 'HPCERP'),
                  ('RFCqpf', 'RFCQPF'),
@@ -2421,8 +2421,8 @@ elif SID in groups['CONUS_EAST_SITES']:
                  'WNAwave10',
                  'WNAwave4',
                  'HurWind226',
-                 ('DGEX185', 'DGEX'),
-                 ('ETA218', 'NAM12'),
+                 ('DGEX', 'DGEX'),
+                 ('NAM12', 'NAM12'),
                  'HPCGuide',
                  ('OPCWave180', 'OPCTAFBE'),
                  ('OPCWave181', 'OPCTAFBNW'),
@@ -2497,7 +2497,6 @@ elif SID in groups['CONUS_EAST_SITES']:
                  'GLOBHwave',
            #########DR17144
                  'URMA25',
-                 ('GFS215', 'GFS20'),
                  'ETSS',
                  'GFSLAMPGrid',
                  ('FFG-ALR', 'FFGALR'),
@@ -2522,17 +2521,17 @@ elif SID in groups['CONUS_EAST_SITES']:
 
 else:   #######DCS3501 WEST_CONUS
 
-    D2DMODELS = [('GFS212', 'GFS40'),
+    D2DMODELS = ['GFS20',
                  ('AVN211', 'GFS80'),
                  ('ETA', 'NAM80'),
                  ('MRF', 'gfsLR'),
-                 ('RUC130', 'RUC13'),
-                 ('RUC', 'RUC80'),
-                 ('mesoEta212', 'NAM40'),
-                 ('mesoEta215', 'NAM20'),
+                 ('RAP13', 'RAP13'),
+                 ('RUC', 'RAP40'),
+                 ('NAM40', 'NAM40'),
+                 ('NAM20', 'NAM20'),
                  'MSAS',
                  'LAPS',
-                 'GWW233',
+                 'WaveWatch',
                  ('HPCqpf', 'HPCQPF'),
                  ('HPCqpfNDFD', 'HPCERP'),
                  ('RFCqpf', 'RFCQPF'),
@@ -2551,8 +2550,8 @@ else:   #######DCS3501 WEST_CONUS
                  'AKwave4',
                  'AKWAVE',
                  'HurWind226',
-                 ('DGEX185', 'DGEX'),
-                 ('ETA218', 'NAM12'),
+                 ('DGEX', 'DGEX'),
+                 ('NAM12', 'NAM12'),
                  'HPCGuide',
                  ('OPCWave180', 'OPCTAFBE'),
                  ('OPCWave181', 'OPCTAFBNW'),
@@ -2596,7 +2595,6 @@ else:   #######DCS3501 WEST_CONUS
                  ('estofsEP', 'ESTOFS'),
               ############DR17144
                  'URMA25',
-                 ('GFS215', 'GFS20'),
                  'ETSS',
                  'GFSLAMPGrid',
                  ('FFG-ALR', 'FFGALR'),
@@ -2816,12 +2814,12 @@ elif SID == "SJU":
     INITMODULES = {
 #        "NAM40" : ["NAM40", "NAM20"],
 #        "NAM80" : ["NAM80"],
-        "RUC13" : ["RUC13"],
-        "RUC80" : ["RUC80"],
+        "RAP13" : ["RAP13"],
+        "RAP40" : ["RAP40"],
 #        "gfsLR" : ["gfsLR"],
         "NAM12" : ["NAM12"],
         "GFS80" : ["GFS80"],
-        "GFS40" : ["GFS40"],
+        "GFS20" : ["GFS20"],
 #####DCS3501
         "HIRESWarw" : ["HIRESWarw"],
         "HIRESWnmm" : ["HIRESWnmm"],
@@ -2874,10 +2872,10 @@ elif SID == "GUM":
 else:
     #initialization  module to model mappings
     INITMODULES = {
-        "RUC13" : ["RUC13"],
-        "RUC80" : ["RUC80"],
+        "RAP13" : ["RAP13"],
+        "RAP40" : ["RAP40"],
         "NAM12" : ["NAM12"],
-        "GFS40" : ["GFS40"],
+        "GFS20" : ["GFS20"],
         "GFS80" : ["GFS80"],
         "LAPS" : ["LAPS"],
         "HPCQPF" : ['HPCQPF'],
@@ -2975,8 +2973,8 @@ else:
 
 #initialization skip certain model runs
 INITSKIPS = {
-    "RUC13" : [1,2,4,5,7,8,10,11,13,14,16,17,19,20,22,23],
-    "RUC80" : [1,2,4,5,7,8,10,11,13,14,16,17,19,20,22,23]
+    "RAP13" : [1,2,4,5,7,8,10,11,13,14,16,17,19,20,22,23],
+    "RAP40" : [1,2,4,5,7,8,10,11,13,14,16,17,19,20,22,23]
     }
 
 #---------------------------------------------------------------------------
@@ -2990,7 +2988,7 @@ INITSKIPS = {
 # grid with timestep duration, starting the previous model timestep and
 # going up to but not including the snapshot time.
 D2DAccumulativeElements= {
-    "GFS40": ["tp", "cp", "crain", "csnow", "cfrzr", "cicep"],
+    "GFS20": ["tp", "cp", "crain", "csnow", "cfrzr", "cicep"],
     "GFS80": ["tp", "cp"],
     "GFS75": ["tp", "cp"],
     "GFS190": ["tp", "cp"],
@@ -3002,8 +3000,8 @@ D2DAccumulativeElements= {
     "NAM20": ["tp", "cp"],
     "NAM12": ["tp", "cp", "crain", "csnow", "cfrzr", "cicep"],
     "gfsLR": ["tp", "cp"],
-    "RUC13": ["tp", "cp"],
-    "RUC80": ["tp", "cp"],
+    "RAP13": ["tp", "cp"],
+    "RAP40": ["tp", "cp"],
     "MSAS": ["tp", "cp"],
     "LAPS": ["pc"],
     "DGEX": ["tp"],
@@ -3301,7 +3299,7 @@ TPCProbPARMS = [([prob34, prob50, prob64], TC1),
 
 # Cobb snow tool
 parmsNAM12 = [([SnowRatio], TC1)]
-parmsGFS40 = [([SnowRatio], TC1)]
+parmsGFS20 = [([SnowRatio], TC1)]
 
 ENPwave_parms = [([WindWaveHeight, WaveHeight, SurfHeight, Wind], TC6),
             ([Swell, Swell2, Period, Period2], TC6)]
@@ -3321,9 +3319,9 @@ DATABASES = [
              (Fcst, OFFICIALDBS),
              (NAM80, STD6_MODEL),
              (NAM95, STD6_MODEL),
-             (RUC13, STD1_MODEL),
-             (RUC80, STD1_MODEL),
-             (GFS40, STD6_MODEL),
+             (RAP13, STD1_MODEL),
+             (RAP40, STD1_MODEL),
+             (GFS20, STD6_MODEL),
              (GFS80, STD6_MODEL),
              (GFS75, STD6_MODEL),
              (GFS190, STD6_MODEL),

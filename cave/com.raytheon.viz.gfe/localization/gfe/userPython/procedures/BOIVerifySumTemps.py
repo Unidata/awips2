@@ -55,7 +55,7 @@ BADTHRESHOLD=10
 #  exist in the BOIVerify system, it just skips it - so this list
 #  has the most possible models I could think of...
 #
-MODLIST=["Official","MOSGuideBC","MOSGuide","GFS40","GFS40BC",
+MODLIST=["Official","MOSGuideBC","MOSGuide","GFS20","GFS20BC",
          "ADJMAV","ADJMAVBC","NAM12","NAM12BC","DGEX","DGEXBC",
          "ADJMEX","ADJMEXBC","ADJMET","ADJMETBC","SREF","SREFBC",
          "ADJFWC","ADJFWCBC","ADJDGX","ADJDGXBC",]

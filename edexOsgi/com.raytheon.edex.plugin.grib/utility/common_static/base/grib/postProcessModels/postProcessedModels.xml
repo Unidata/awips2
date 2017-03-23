@@ -58,7 +58,7 @@
     </postProcessedModel>
 
     <!-- Post processor definition for the ETA (NAM80) model -->
-    <postProcessedModel id="ETA">
+    <postProcessedModel id="NAM80">
         <modelName>NAM80</modelName>
         <processorName>PrecipAccumPostProcessor</processorName>
     </postProcessedModel>

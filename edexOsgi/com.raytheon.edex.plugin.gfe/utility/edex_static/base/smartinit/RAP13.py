@@ -20,13 +20,13 @@
 from Init import *
 
 ##--------------------------------------------------------------------------
-## Module that calculates surface weather elements from RUC13 model
+## Module that calculates surface weather elements from RAP13 model
 ## output.
 ##
 ##--------------------------------------------------------------------------
-class RUC13Forecaster(Forecaster):
+class RAP13Forecaster(Forecaster):
     def __init__(self):
-        Forecaster.__init__(self, "RUC13")
+        Forecaster.__init__(self, "RAP13")
 
 ##--------------------------------------------------------------------------
 ## These levels will be used to create vertical soundings.  These are
@@ -494,7 +494,7 @@ class RUC13Forecaster(Forecaster):
         convecMask = greater(cp_SFC / (tp_SFC + .001), 0.5)
         wx[logical_and(not_equal(wx, 0), convecMask)] += 6
 
-        # This section commented out since bli is no longer available for RUC.
+        # This section commented out since bli is no longer available for RAP.
         # Thunder
         #for i in xrange(len(key)):
             #tcov = string.split(key[i], ":")[0]
@@ -547,4 +547,4 @@ class RUC13Forecaster(Forecaster):
         return lal
 
 def main():
-    RUC13Forecaster().run()
+    RAP13Forecaster().run()

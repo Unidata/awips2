@@ -22,6 +22,8 @@
     <vbSource key="CMC" category="Volume" />
     <vbSource key="DGEX" category="Volume" />
     <vbSource key="GFS" category="Volume" />
+    <vbSource key="GFS0p5" category="Volume" />
+    <vbSource key="GFS1p0" category="Volume" />
     <vbSource key="GFS20" category="Volume" />
     <vbSource key="GFS40" category="Volume" />
     <vbSource key="GFS90" category="Volume" />
@@ -34,7 +36,7 @@
     <vbSource key="NAM12" category="Volume" />
     <vbSource key="NAM20" category="Volume" />
     <vbSource key="NAM40" category="Volume" />
-    <vbSource key="NAM90" category="Volume" />
+    <vbSource key="NAM80" category="Volume" />
     <vbSource key="NamDNG" category="Volume" />
     <vbSource key="NamDNG5" category="Volume" />
     <vbSource key="NAVGEM" category="Volume" />

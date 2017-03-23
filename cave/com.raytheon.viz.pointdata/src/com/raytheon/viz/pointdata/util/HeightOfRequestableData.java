@@ -191,7 +191,7 @@ public class HeightOfRequestableData extends AbstractRequestableData {
         constraints.put(GridConstants.PARAMETER_ABBREVIATION,
                 new RequestConstraint("GH"));
         constraints.put(GridConstants.DATASET_ID, new RequestConstraint(
-                "GFS212"));
+                "GFS20"));
         constraints.put(GridConstants.MASTER_LEVEL_NAME, new RequestConstraint(
                 level.getMasterLevel().getName()));
         constraints.put(GridConstants.LEVEL_ONE, new RequestConstraint(level

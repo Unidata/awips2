@@ -87,7 +87,7 @@
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<keyValue>PR-GFS20</keyValue>
+		<keyValue>PR-GFS</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>

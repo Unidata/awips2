@@ -2,7 +2,7 @@
 <!--
   Mar 20, 2013    #1774    randerso    Added forecast hours out to 18
   Jun 19, 2013    #2044    randerso    Updated to match model
-  Feb 24 20153    DCS14537 byin        Added HPBL for RUC13
+  Feb 24 20153    DCS14537 byin        Added HPBL for RAP13
   Jun 13, 2016    #17308   bhunderm    Corrected LI units
  -->
 <gridParamInfo xmlns:ns2="group">

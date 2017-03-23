@@ -19,7 +19,7 @@
         further_licensing_information.
     -->
 <subNcgrid>
-   <modelName>mesoEta215</modelName>
+   <modelName>NAM20</modelName>
    <startX>130</startX>
    <startY>79</startY>
    <nX>109</nX>

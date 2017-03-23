@@ -98,7 +98,7 @@ VERCONFIG["QPF"]    =(0,0,0,(0.05,0.10,0.25,0.50,1.00),0.05,1.0,"BV_Change2","QP
 #
 #  SAVE_MODELS = Names of GFE databases to archive in BOIVerifySave
 #
-SAVE_MODELS=["GFS40","GFS40BC","ADJMAV","ADJMAVBC","ADJMEX","ADJMEXBC",
+SAVE_MODELS=["GFS20","GFS20BC","ADJMAV","ADJMAVBC","ADJMEX","ADJMEXBC",
             "ADJMEH","ADJMEN","ADJMEL",
             "MOSGuide","MOSGuideBC",
             "NAM12","NAM12BC","ADJMET","ADJMETBC",

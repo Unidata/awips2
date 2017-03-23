@@ -19,16 +19,16 @@
         further_licensing_information.
     -->
 <menuContributionFile>
-	<substitute key="DGEXmodel" value="DGEX185" />
+	<substitute key="DGEXmodel" value="DGEX" />
 	<substitute key="GFSmodel" value="GFS229" />
-	<substitute key="NAM12model" value="ETA218" />
-	<substitute key="NAM40model" value="mesoEta212" />
+	<substitute key="NAM12model" value="NAM12" />
+	<substitute key="NAM40model" value="NAM40" />
 	<substitute key="ARWmodel1" value="HiResW-ARW-East" />
 	<substitute key="ARWmodel2" value="HiResW-ARW-West" />
 	<substitute key="MMMmodel1" value="HiResW-NMM-East" />
 	<substitute key="MMMmodel2" value="HiResW-NMM-West" />
-	<substitute key="RAP13model" value="RUC130" />
-	<substitute key="RAPmodel" value="RUC236" />
+	<substitute key="RAP13model" value="RAP13" />
+	<substitute key="RAPmodel" value="RAP40" />
 	<substitute key="SREFmodel" value="SREF212" />
 <!-- 	<substitute key="HRRRmodel" value="HRRR-CR" />
 	<substitute key="GEMNHmodel" value="Canadian-NH" />

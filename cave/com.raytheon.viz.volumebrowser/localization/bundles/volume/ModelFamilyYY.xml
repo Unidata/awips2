@@ -1,6 +1,6 @@
 <!-- ModFamYY | | N|Conv: Supercell Tor Family| | OTHER| | \
-      *MultiLoad,GFS212,Laps,ECMWF-HiRes,\
-         RUC236,RUC130,mesoEta212,ETA,ARXLAPS,Layer\
+      *MultiLoad,GFS20,Laps,ECMWF-HiRes,\
+         RAP40,RAP13,NAM40,NAM12,ARXLAPS,Layer\
       |1.|msl-P,Surface\
       |31.|Wind,Surface\
       |0.|DpT,Surface\

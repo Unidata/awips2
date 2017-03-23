@@ -636,7 +636,7 @@ HistoryOriginColor_Other = "gray75"
 # listed here, then the HistoryOriginText_Populated and
 # HistoryOriginColor_Populated is used.
 HistoryModelColor_gfsLR = '#30df10'
-HistoryModelColor_RUC80 = '#00ffff'
+HistoryModelColor_RAP40 = '#00ffff'
 HistoryModelColor_MAVMOS = '#e6c8a1'
 HistoryModelColor_GFSMOS = '#e6d8a1'
 HistoryModelColor_METMOS = '#e6b8a1'
@@ -668,7 +668,7 @@ HistoryModelColor_NamDNG5 = '#808000'
 HistoryModelText_GFS80 = 'GFS'
 HistoryModelText_GFS40 = 'GFS'
 HistoryModelText_GFS190 = 'GFS'
-HistoryModelText_RUC80 = 'RUC'
+HistoryModelText_RAP40 = 'RUC'
 HistoryModelText_GFSMOS = 'GFSMOS'
 HistoryModelText_MEXMOS = 'MEXMOS'
 HistoryModelText_MAVMOS = 'MAVMOS'

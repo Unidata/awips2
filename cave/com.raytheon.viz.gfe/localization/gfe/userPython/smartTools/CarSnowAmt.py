@@ -45,7 +45,7 @@ import SmartScript
 # For OB7
 VariableList = [
          ("D2D Model" , "NAM12", "radio",
-                       ["NAM12", "GFS40"]),
+                       ["NAM12", "GFS20"]),
          ("Model Version" , "Latest", "radio",
                        ["Latest", "Previous"]),
          ("Thickness", "850-700", "radio",
@@ -118,7 +118,7 @@ class Tool (SmartScript.SmartScript):
             modelStr = self.getD2Dmodel(model)
             print "d2d is ",modelStr
         
-        # define the levels for NAM40 and GFS40
+        # define the levels for NAM40 and GFS20
         levels = ["MB900","MB875","MB850",
                      "MB825","MB800","MB775","MB750","MB725","MB700",
                      "MB675","MB650","MB625","MB600","MB575","MB550",

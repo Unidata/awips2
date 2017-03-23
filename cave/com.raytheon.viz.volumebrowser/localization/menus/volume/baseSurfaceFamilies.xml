@@ -39,7 +39,7 @@
 	</contribute> -->
 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
 			menuText="GFS20" id="gfs20surface" useReferenceTime="true">
-			<substitute key="modelName" value="GFS215"/>
+			<substitute key="modelName" value="GFS20"/>
 			<substitute key="frameCount" value="55"/>
 			<substitute key="TP" value="TP"/>
 		</contribute>

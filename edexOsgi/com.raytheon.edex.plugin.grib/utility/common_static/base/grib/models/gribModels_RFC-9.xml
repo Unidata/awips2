@@ -728,6 +728,16 @@
 		<subcenter>156</subcenter>
 		<grid>240156</grid>
 		<process>
+			<id>155</id>
+		</process>
+	</model>
+
+	<model>
+		<name>QPE-Manual-KRF</name>
+		<center>9</center>
+		<subcenter>156</subcenter>
+		<grid>240156</grid>
+		<process>
 			<id>158</id>
 		</process>
 	</model>
@@ -810,7 +820,7 @@
 		<name>QPE-MSR</name>
 		<center>9</center>
 		<subcenter>157</subcenter>
-		<grid>250157</grid>
+		<grid>240157</grid>
 		<process>
 			<id>152</id>
 		</process>

@@ -82,7 +82,7 @@
         <dt>3</dt>
     </info>
     <info>
-        <title>PR-GFS20</title>
+        <title>PR-GFS</title>
         <datasetId>GFS-PRICO-20KM</datasetId>
         <dt>3</dt>
     </info>
@@ -295,7 +295,7 @@
     </info>
     <info>
 		<title>NAM over the contiguous US 16X Resolution(5Km) Lambert Conformal</title>
-		<datasetId>NAM227</datasetId>
+		<datasetId>NAM5</datasetId>
 		<dt>3</dt>
 	</info>
     <info>

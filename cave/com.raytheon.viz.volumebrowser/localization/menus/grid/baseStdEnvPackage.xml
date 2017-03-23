@@ -23,12 +23,8 @@
 		id="StdEnvPackageLine" />
 	<contribute xsi:type="subMenu" menuText="Std Env Data Package">
 		<contribute xsi:type="bundleItem" file="bundles/grid/DefaultStdEnv.xml"
-			menuText="GFS" id="gfsstdenv" useReferenceTime="true">
-			<substitute key="modelName" value="GFS"/>
-		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/grid/DefaultStdEnv.xml"
-			menuText="GFS 40km" id="gfs40stdenv" useReferenceTime="true">
-			<substitute key="modelName" value="GFS40"/>
+			menuText="GFS 20km" id="gfs20stdenv" useReferenceTime="true">
+			<substitute key="modelName" value="GFS20"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/grid/DefaultStdEnv.xml"
 			menuText="DGEX" id="dgexstdenv" useReferenceTime="true">

@@ -46,7 +46,7 @@ ToolList = [("Populate_SkyTool", "Sky"),
           ]
 VariableList = [("Populate SkyProcedure Version 1.0","","label"),
     ("Note:" , "Before running, highlight desired time range in the Grid Manager.", "alphaNumeric"),           
-    ("Model:", "NAM12", "radio", ["GFS40", "NAM12"]),
+    ("Model:", "NAM12", "radio", ["GFS20", "NAM12"]),
     ("Model Run:", "Current", "radio", ["Current", "Previous"]),
     ("Layer depth:", "50mb", "radio", ["50mb", "25mb"]),
     ("Use RH w.r.t. ICE @ T < -25C?", "No", "radio", ["Yes", "No"]), 
@@ -106,7 +106,7 @@ class Procedure (SmartScript.SmartScript):
                     self.createFromScratchCmd(['Sky'], Sky_timeRange, 1, 1)
                     self.callSmartTool("Populate_SkyTool",'Sky', timeRange=Sky_timeRange, varDict=varDict)
         else:
-            # Use "GFS40"...
+            # Use "GFS20"...
             self.deleteCmd(['Sky'], timeRange)
             for i in xrange(starttime,endtime):
                 curmod = i % 6

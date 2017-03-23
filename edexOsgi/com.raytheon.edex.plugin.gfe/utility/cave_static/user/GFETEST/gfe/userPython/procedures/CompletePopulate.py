@@ -55,7 +55,7 @@ class Procedure (SmartScript.SmartScript):
         tr = self.createTimeRange(0, 60, "Database", dbID)
         self.copyCmd(elements, dbID, tr)
         #Copy 
-        dbID = self.findDatabase("RUC80")
+        dbID = self.findDatabase("RAP40")
         tr = self.createTimeRange(0, 12, "Database", dbID)
         self.copyCmd(elements, dbID, tr)
 

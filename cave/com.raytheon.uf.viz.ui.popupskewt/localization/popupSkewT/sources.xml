@@ -19,13 +19,13 @@
         </constraints>
 	</source>
 	
-	<source type="grid" displayString="GFS40" validTimeInterval="540">
+	<source type="grid" displayString="GFS20" validTimeInterval="540">
 		<constraints>
 			<mapping key="pluginName">
 				<constraint constraintValue="grid"/>
 			</mapping>
 			<mapping key="info.datasetId">
-                <constraint constraintValue="GFS40"/>
+                <constraint constraintValue="GFS20"/>
             </mapping>
         </constraints>
 	</source>

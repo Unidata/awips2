@@ -9,8 +9,8 @@
 <Product-Selection-MenuItems>
 	<Source-Grid>DGEX</Source-Grid>
 	<Source-Grid>ENPwave</Source-Grid>
-	<Source-Grid>GFS40</Source-Grid>
-	<Source-Grid>GFS90</Source-Grid>
+	<Source-Grid>GFS</Source-Grid>
+	<Source-Grid>GFS20</Source-Grid>
 	<Source-Grid>GFSensemble</Source-Grid>
 	<Source-Grid>GFSGuide</Source-Grid>
 	<Source-Grid>GriddedMOS</Source-Grid>

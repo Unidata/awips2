@@ -37,7 +37,7 @@
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultStdEnv.xml"
 		menuText="GFS20" id="gfs20stdenv" useReferenceTime="true">
-		<substitute key="modelName" value="GFS215"/>
+		<substitute key="modelName" value="GFS20"/>
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultStdEnv.xml"
 		menuText="RAP13" id="rap13stdenv" useReferenceTime="true">

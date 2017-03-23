@@ -19,7 +19,7 @@
         further_licensing_information.
     -->
 <DerivedParameter abbreviation="ThP" name="Thunderstorm probability" unit="%">
-<Method name="Supplement" models="ETA218">
+<Method name="Supplement" models="NAM12">
 <Field abbreviation="ThP3hr"/>
 </Method>
 </DerivedParameter>

@@ -69,7 +69,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyD.xml"
 				    menuText="NAM80" id="nam80" useReferenceTime="true">
-				<substitute key="modelName" value="ETA"/>
+				<substitute key="modelName" value="NAM12"/>
 				<substitute key="TP" value="TP6hr"/>
 				<substitute key="frameCount" value="15"/>
 			</contribute>
@@ -118,7 +118,7 @@
 				<substitute key="frameCount" value="21"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyI.xml" menuText="NAM80" id="nam80" useReferenceTime="true">
-				<substitute key="modelName" value="ETA"/>
+				<substitute key="modelName" value="NAM12"/>
 				<substitute key="TP" value="TP6hr"/>
 				<substitute key="frameCount" value="15"/>
 			</contribute>
@@ -170,7 +170,7 @@
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyM.xml"
 				    menuText="NAM80" id="nam80" useReferenceTime="true">
-				<substitute key="modelName" value="ETA"/>
+				<substitute key="modelName" value="NAM12"/>
 				<substitute key="TP" value="TP6hr"/>
 				<substitute key="frameCount" value="15"/>
 			</contribute>
@@ -239,7 +239,7 @@
 				<substitute key="frameCount" value="21"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyL.xml" menuText="NAM80" id="nam80" useReferenceTime="true">
-				<substitute key="modelName" value="ETA"/>
+				<substitute key="modelName" value="NAM12"/>
 				<substitute key="TP" value="TP6hr"/>
 				<substitute key="frameCount" value="15"/>
 			</contribute>
@@ -303,7 +303,7 @@
 				<substitute key="frameCount" value="21"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyE.xml" menuText="NAM80" id="nam80" useReferenceTime="true">
-				<substitute key="modelName" value="ETA"/>
+				<substitute key="modelName" value="NAM12"/>
 				<substitute key="TP" value="TP6hr"/>
 				<substitute key="frameCount" value="15"/>
 			</contribute>
@@ -351,7 +351,7 @@
 				<substitute key="frameCount" value="21"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyJ.xml" menuText="NAM80" id="nam80" useReferenceTime="true">
-				<substitute key="modelName" value="ETA"/>
+				<substitute key="modelName" value="NAM12"/>
 				<substitute key="TP" value="TP6hr"/>
 				<substitute key="frameCount" value="15"/>
 			</contribute>

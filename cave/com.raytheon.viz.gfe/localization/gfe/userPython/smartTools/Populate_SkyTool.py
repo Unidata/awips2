@@ -38,7 +38,7 @@ from numpy import *
 ### Solicite variables from the forecaster:
 VariableList = [
     ("Populate SkyTool Version 1.0","","label"),
-    ("Model:", "NAM12", "radio", ["GFS40", "NAM12"]),
+    ("Model:", "NAM12", "radio", ["GFS20", "NAM12"]),
     ("Model Run:", "Current", "radio", ["Current", "Previous"]),
     ("Layer depth:", "50mb", "radio", ["50mb", "25mb"]),
     ("Use RH w.r.t. ICE @ T < -25C?", "No", "radio", ["Yes", "No"]), 

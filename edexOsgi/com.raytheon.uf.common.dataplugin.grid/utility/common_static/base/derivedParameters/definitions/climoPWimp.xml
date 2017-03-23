@@ -3,14 +3,14 @@
 	// NARR Climo grids
 	
 	AWIPS I format
-	climoPWimp |0| |Import NARR PW     |mm         |CONTOUR,IMAGE,OTHER|Layer |       *Import,Layer,GFS212|PW,Layer,NARR|       
-																					  *Import,Layer,GFS213|PW,Layer,NARR|       
-																					  *Import,Layer,RUC|PW,Layer,NARR|       
-																					  *Import,Layer,RUC130|PW,Layer,NARR|       
-																					  *Import,Layer,RUC236|PW,Layer,NARR|       
-																					  *Import,Layer,ETA212|PW,Layer,NARR|       
-																					  *Import,Layer,ETA218|PW,Layer,NARR|       
-																					  *Import,Layer,ETA|PW,Layer,NARR
+	climoPWimp |0| |Import NARR PW     |mm         |CONTOUR,IMAGE,OTHER|Layer |       *Import,Layer,GFS20|PW,Layer,NARR|       
+																					  *Import,Layer,GFS95|PW,Layer,NARR|       
+																					  *Import,Layer,RAP20|PW,Layer,NARR|       
+																					  *Import,Layer,RAP13|PW,Layer,NARR|       
+																					  *Import,Layer,RAP40|PW,Layer,NARR|       
+																					  *Import,Layer,NAM40|PW,Layer,NARR|       
+																					  *Import,Layer,NAM12|PW,Layer,NARR|       
+																					  *Import,Layer,NAM80|PW,Layer,NARR
 
 	varId: |climoPWimp| 
 	Cross Section (CS): |0| 
@@ -22,56 +22,56 @@
 											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
 											//method levels
 	
-	functionName, planeList, source: |Import,Layer,GFS212|		
+	functionName, planeList, source: |Import,Layer,GFS20|		
 	varId, plane, source: |PW,Layer,NARR|
 	 
-	functionName, planeList, source: |Import,Layer,GFS213| 
+	functionName, planeList, source: |Import,Layer,GFS95| 
 	varId, plane, source: |PW,Layer,NARR| 
 	
-	functionName, planeList, source: |Import,Layer,RUC|
+	functionName, planeList, source: |Import,Layer,RAP20|
 	varId, plane, source: |PW,Layer,NARR| 
 	
-	functionName, planeList, source: |Import,Layer,RUC130|
+	functionName, planeList, source: |Import,Layer,RAP13|
 	varId, plane, source: |PW,Layer,NARR| 
 	
-	functionName, planeList, source: |Import,Layer,RUC236|
+	functionName, planeList, source: |Import,Layer,RAP40|
 	varId, plane, source: |PW,Layer,NARR| 
 	
-	functionName, planeList, source: |Import,Layer,ETA212|
+	functionName, planeList, source: |Import,Layer,NAM40|
 	varId, plane, source: |PW,Layer,NARR| 
 	
-	functionName, planeList, source: |Import,Layer,ETA218|
+	functionName, planeList, source: |Import,Layer,NAM12|
 	varId, plane, source: |PW,Layer,NARR| 
 	
-	functionName, planeList, source: |Import,Layer,ETA|
+	functionName, planeList, source: |Import,Layer,NAM80|
 	varId, plane, source: |PW,Layer,NARR| 
 
 	
 	AWIPS II NEW FILE - climoPWimp.xml
 -->
 <DerivedParameter unit="in" name="Import NARR PW" abbreviation="climoPWimp" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
-    <Method models="GFS212" levels="Layer" name="Import">
+    <Method models="GFS20" levels="Layer" name="Import">
         <Field model="NARR" level="Layer" abbreviation="PW"/>
     </Method>
-    <Method models="GFS213" levels="Layer" name="Import">
+    <Method models="GFS95" levels="Layer" name="Import">
         <Field model="NARR" level="Layer" abbreviation="PW"/>
     </Method>
-    <Method models="RUC" levels="Layer" name="Import">
+    <Method models="RAP20" levels="Layer" name="Import">
         <Field model="NARR" level="Layer" abbreviation="PW"/>
     </Method>
-    <Method models="RUC130" levels="Layer" name="Import">
+    <Method models="RAP13" levels="Layer" name="Import">
         <Field model="NARR" level="Layer" abbreviation="PW"/>
     </Method>
-    <Method models="RUC236" levels="Layer" name="Import">
+    <Method models="RAP40" levels="Layer" name="Import">
         <Field model="NARR" level="Layer" abbreviation="PW"/>
     </Method>
-    <Method models="ETA212" levels="Layer" name="Import">
+    <Method models="NAM40" levels="Layer" name="Import">
         <Field model="NARR" level="Layer" abbreviation="PW"/>
     </Method>
-    <Method models="ETA218" levels="Layer" name="Import">
+    <Method models="NAM12" levels="Layer" name="Import">
         <Field model="NARR" level="Layer" abbreviation="PW"/>
     </Method>
-    <Method models="ETA" levels="Layer" name="Import">
+    <Method models="NAM80" levels="Layer" name="Import">
         <Field model="NARR" level="Layer" abbreviation="PW"/>
     </Method>
 </DerivedParameter>

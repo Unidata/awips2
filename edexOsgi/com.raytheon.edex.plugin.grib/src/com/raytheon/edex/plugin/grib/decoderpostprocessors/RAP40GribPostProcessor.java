@@ -24,31 +24,31 @@ import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 
 /**
- * Grib post processor implementation to eliminate 2-3hr duration grids from the
- * RUC130 model
- *
+ * Grib post processor implementation to eliminate invalid 7HR and 8HR forecast
+ * grids from the RAP40 model
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * 9/9/10       #4419        bphillip    Initial Creation
- * Oct 07, 2015  3756        nabowle     Extends DecoderPostProcessor.
- *
+ * 
+ * Date         Ticket#     Engineer          Description
+ * ------------ ----------  -----------       --------------------------
+ * 1/24/2012    DR 14263    M. Porricelli     Initial Creation
+ * Oct 07, 2015     3756    nabowle           Extends DecoderPostProcessor.
  * </pre>
- *
- * @author bphillip
+ * 
+ * @author porricel
  * @version 1
  */
-public class RUC130GribPostProcessor extends DecoderPostProcessor {
+public class RAP40GribPostProcessor extends DecoderPostProcessor {
 
     @Override
     public GridRecord[] process(GridRecord record) throws GribException {
 
-        // Toss out all 2-3hr duration grids
-        if (record.getParameter().getAbbreviation().endsWith("hr")
-                && !record.getParameter().getAbbreviation().endsWith("1hr")) {
+        // Toss out all 7HR and 8HR forecast grids
+        if (record.getDataTime().getFcstTime() == 25200
+                || record.getDataTime().getFcstTime() == 28800) {
+
             return new GridRecord[] {};
         }
         return new GridRecord[] { record };
