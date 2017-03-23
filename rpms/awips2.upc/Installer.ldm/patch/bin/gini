@@ -32,6 +32,6 @@ e
 EOF
 
 files=$(ls | grep ${1})
-mv $files /awips2/data_store/manual/
+mv $files /awips2/edex/data/manual/
 
 exit

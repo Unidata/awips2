@@ -369,7 +369,7 @@ edex_purge_reset() {
         su - awips -c 'psql metadata -c "update purgejobs set failedcount = 0;"' >& /dev/null
 }
 edex_cleanup() {
-   rm -rf /awips2/data_store/manual/*
+   rm -rf /awips2/edex/data/manual/*
    rm -rf /awips2/qpid/edexMessageStore/edex/
 }
 edex_users(){
