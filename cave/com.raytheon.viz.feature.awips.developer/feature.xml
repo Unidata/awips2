@@ -229,6 +229,22 @@
          id="com.raytheon.uf.viz.useradmin.feature"
          version="0.0.0"/>
 
+   <includesV
+         id="gov.noaa.gsd.viz.ensemble.feature"
+         version="0.0.0"/>
+
+   <includesV
+         id="gov.noaa.nws.obs.viz.geodata.feature"
+         version="0.0.0"/>
+
+   <includesV
+         id="gov.noaa.nws.ocp.uf.viz.gisdatastore.feature"
+         version="0.0.0"/>
+
+   <includesV
+         id="gov.noaa.nws.mdl.viz.awipsref.feature"
+         version="0.0.0"/>
+
    <requires>
       <import feature="com.raytheon.uf.viz.application.feature" version="1.0.0.qualifier"/>
    </requires>

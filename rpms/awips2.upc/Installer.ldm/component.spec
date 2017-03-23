@@ -4,12 +4,12 @@
 # ISG makes retrans changes
 #
 # AWIPS LDM Spec File
-#
+# 16.4.1.1-6.13.6.el6
 %define __prelink_undo_cmd %{nil}
 Name: awips2-ldm
 Summary: AWIPS LDM Distribution
-Version: %{_component_version}.%{_component_release}
-Release: %{_ldm_version}
+Version: %{_component_version}
+Release: %{_ldm_version}.%{_component_release}%{?dist}
 Group: AWIPSII
 BuildRoot: /tmp
 BuildArch: noarch

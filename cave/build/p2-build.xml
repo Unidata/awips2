@@ -304,6 +304,18 @@
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.satellite.goesr.feature" />
 		</antcall>
+		<antcall target="p2.build.repo">
+			<param name="feature" value="gov.noaa.gsd.viz.ensemble.feature" />
+		</antcall>
+		<antcall target="p2.build.repo">
+			<param name="feature" value="gov.noaa.nws.mdl.viz.awipsref.feature" />
+		</antcall>
+		<antcall target="p2.build.repo">
+			<param name="feature" value="gov.noaa.nws.obs.viz.geodata.feature" />
+		</antcall>
+		<antcall target="p2.build.repo">
+			<param name="feature" value="gov.noaa.nws.ocp.uf.viz.gisdatastore.feature" />
+		</antcall>
 		<antcall target="cleanup.features" />
 	</target>
 

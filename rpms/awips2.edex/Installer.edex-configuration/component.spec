@@ -4,7 +4,7 @@
 Name: awips2-edex-configuration
 Summary: AWIPS II Edex
 Version: %{_component_version}
-Release: %{_component_release}
+Release: %{_component_release}%{?dist}
 Group: AWIPSII
 BuildRoot: %{_build_root}
 #BuildArch: noarch
