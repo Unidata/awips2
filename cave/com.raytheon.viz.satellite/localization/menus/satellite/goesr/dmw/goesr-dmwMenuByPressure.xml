@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+   <!-- TOWRdocs Header
+        GOES-R DMW sub-menu items file (sorted by pressure values).
+    -->
+    <!-- TOWRdocs Description
+        This file adds a DMW bundle item  to the GOES-R menu in AWIPS II CAVE. 
+
+            - "menuText" references the text that will appear in the menu.
+            - "file" references the corresponding bundle (in the localization hierarchy)
+                    to load when selecting the menu item.
+            - "substitute" entities create key-value pairs. Referencing each key inside 
+                    subsequent files (i.e. "file" and any nested files underneath) will instead 
+                    replace that entry with the corresponding value (e.g. "&#36;{keyname}" = "value").
+    -->
+    <!-- TOWRdocs Status
+        File is a modification to the existing base menu file /menus/satellite/goesr/dmwByChannel.xml
+        New File not currently found in the baseline.
+    -->
+    <!-- TOWRdocs POC
+        Matt Comerford
+    -->
+
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <!-- 100mb -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
+           menuText="100mb (0-150mb)" id="goesr-DMW-Pressure-100mb">
+        <substitute key="legend" value="100mb ${legend1}"/>
+        <substitute key="pressureConstraint" value="BETWEEN" />
+        <substitute key="pressure" value="0--150" />
+    </contribute>
+
+    <!-- 200 mb -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
+           menuText="200mb (150-250mb)" id="goesr-DMW-Pressure-200mb">
+        <substitute key="legend" value="200 mb ${legend1}"/>
+        <substitute key="pressureConstraint" value="BETWEEN" />
+        <substitute key="pressure" value="150--250" />
+    </contribute>  
+
+    <!-- 300 mb -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
+           menuText="300mb (250-350mb)" id="goesr-DMW-Pressure-300mb">
+        <substitute key="legend" value="300 mb ${legend1}"/>
+        <substitute key="pressureConstraint" value="BETWEEN" />
+        <substitute key="pressure" value="250--350" />
+    </contribute>
+
+    <!-- 400 mb -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
+           menuText="400mb (350-450mb)" id="goesr-DMW-Pressure-400mb">
+        <substitute key="legend" value="400mb ${legend1}"/>
+        <substitute key="pressureConstraint" value="BETWEEN" />
+        <substitute key="pressure" value="350--450" />
+    </contribute>
+
+    <!-- 500 mb -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
+           menuText="500mb (450-550mb)" id="goesr-DMW-Pressure-500mb">
+        <substitute key="legend" value="500 mb ${legend1}"/>
+        <substitute key="pressureConstraint" value="BETWEEN" />
+        <substitute key="pressure" value="450--550" />
+    </contribute>
+
+    <!-- 600 mb -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
+           menuText="600mb (550-650mb)" id="goesr-DMW-Pressure-600mb">
+        <substitute key="legend" value="600 mb ${legend1}"/>
+        <substitute key="pressureConstraint" value="BETWEEN" />
+        <substitute key="pressure" value="550--650" />
+    </contribute>
+
+    <!-- 700 mb -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
+           menuText="700mb (650-750mb)" id="goesr-DMW-Pressure-700mb">
+        <substitute key="legend" value="700mb ${legend1}"/>
+        <substitute key="pressureConstraint" value="BETWEEN" />
+        <substitute key="pressure" value="650--750" />
+    </contribute>
+
+    <!-- 800 mb -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
+           menuText="800mb (750-850mb)" id="goesr-DMW-Pressure-800mb">
+        <substitute key="legend" value="800mb ${legend1}"/>
+        <substitute key="pressureConstraint" value="BETWEEN" />
+        <substitute key="pressure" value="750--850" />
+    </contribute>
+
+    <!-- 900 mb -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
+           menuText="900mb (850-950mb)" id="goesr-DMW-Pressure-900mb">
+        <substitute key="legend" value="900mb ${legend1}"/>
+        <substitute key="pressureConstraint" value="BETWEEN" />
+        <substitute key="pressure" value="850--950" />
+    </contribute>
+
+    <!-- 1000 mb -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
+           menuText="1000mb (>950mb)" id="goesr-DMW-Pressure-1000mb">
+        <substitute key="legend" value="1000mb ${legend1}"/>
+        <substitute key="pressureConstraint" value="GREATER_THAN" />
+        <substitute key="pressure" value="950" />
+    </contribute>
+    
+</menuTemplate>
