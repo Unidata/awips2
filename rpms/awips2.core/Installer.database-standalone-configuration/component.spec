@@ -53,6 +53,9 @@ if [ -f /awips2/data/postgresql.conf ]; then
    rm -f /awips2/data/postgresql.conf
 fi
 
+%postun
+rm -rf /awips2/data
+
 %clean
 rm -rf ${RPM_BUILD_ROOT}
 
