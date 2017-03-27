@@ -842,39 +842,6 @@
 	</model>
 
     <model>
-        <name>RTMA5</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grids>
-            <id>197</id>
-            <id>197-RTMA</id>
-        </grids>
-        <process>
-            <id>109</id>
-        </process>
-    </model>
-
-    <model>
-        <name>RTMA</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>184</grid>
-        <process>
-            <id>109</id>
-        </process>
-    </model>
-
-    <model>
-        <name>AK-RTMA</name>
-        <center>7</center>
-        <subcenter>0</subcenter>
-        <grid>198</grid>
-        <process>
-            <id>109</id>
-        </process>
-    </model>
-
-    <model>
         <name>NamDNG5</name>
         <center>7</center>
         <subcenter>0</subcenter>
@@ -1275,7 +1242,7 @@
     </model>
 
     <model>
-        <name>nam</name>
+        <name>NAM90</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>104</grid>
@@ -1769,9 +1736,9 @@
     </model>
 
     <model>
-        <name>RTMA</name>
+        <name>RTMA5</name>
         <center>7</center>
-        <subcenter>4</subcenter>
+        <subcenter>0</subcenter>
         <grids>
             <id>197</id>
             <id>197-RTMA</id>
@@ -1782,7 +1749,27 @@
     </model>
 
     <model>
-        <name>RTMA25</name>
+        <name>RTMA5</name>
+        <center>7</center>
+        <subcenter>4</subcenter>
+        <grid>197</grid>
+        <process>
+            <id>109</id>
+        </process>
+    </model>
+
+    <model>
+        <name>RTMA</name>
+        <center>7</center>
+        <subcenter>0</subcenter>
+        <grid>184</grid>
+        <process>
+            <id>109</id>
+        </process>
+    </model>
+
+    <model>
+        <name>RTMA</name>
         <center>7</center>
         <subcenter>4</subcenter>
         <grid>184</grid>
@@ -1796,11 +1783,30 @@
         <center>7</center>
         <subcenter>4</subcenter>
         <grids>
-            <id>198</id>
             <id>196</id>
             <id>195</id>
             <id>199</id>
         </grids>
+        <process>
+            <id>109</id>
+        </process>
+    </model>
+
+    <model>
+        <name>AK-RTMA</name>
+        <center>7</center>
+        <subcenter>0</subcenter>
+        <grid>198</grid>
+        <process>
+            <id>109</id>
+        </process>
+    </model>
+
+    <model>
+        <name>${REGION}-RTMA3</name>
+        <center>7</center>
+        <subcenter>4</subcenter>
+        <grid>1023</grid>
         <process>
             <id>109</id>
         </process>
@@ -2294,16 +2300,6 @@
     </model>
 
     <model>
-        <name>${REGION}-RTMA3</name>
-        <center>7</center>
-        <subcenter>4</subcenter>
-        <grid>1023</grid>
-        <process>
-            <id>109</id>
-        </process>
-    </model>
-
-    <model>
         <name>GFSLAMP</name>
         <center>7</center>
         <subcenter>0</subcenter>
@@ -2317,7 +2313,10 @@
         <name>GFSLAMP5</name>
         <center>7</center>
         <subcenter>14</subcenter>
-        <grid>197</grid>
+        <grids>
+            <id>197</id>
+            <id>197-RTMA</id>
+        </grids>
         <process>
             <id>108</id>
         </process>
