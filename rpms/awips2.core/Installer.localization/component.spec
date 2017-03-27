@@ -155,98 +155,57 @@ chmod 666 ${log_file}
 edex_utility="/awips2/edex/data/utility"
 I_STARTED_POSTGRESQL="NO"
 POSTGRESQL_RUNNING="NO"
-
-function prepare()
-{
-   if [ "${POSTGRESQL_RUNNING}" = "YES" ]; then
-      return 0
-   fi
-   
-   local a2_postmaster="/awips2/postgresql/bin/postmaster"
-   local a2_pg_ctl="/awips2/postgresql/bin/pg_ctl"
-   
-   # retrieve the owner of the database
-   DB_OWNER=`ls -l /awips2/ | grep -w 'data' | awk '{print $3}'`
-   
-   # determine if PostgreSQL is running
-   I_STARTED_POSTGRESQL="NO"
-   echo "Determining if PostgreSQL is running ..." >> ${log_file}
-   su ${DB_OWNER} -c \
-      "${a2_pg_ctl} status -D /awips2/data >> ${log_file} 2>&1"
-   RC=$?
-   echo "" >> ${log_file}
-   
-   # start PostgreSQL if it is not running as the user that owns data
-   if [ ${RC} -eq 0 ]; then
-      echo "INFO: PostgreSQL is running." >> ${log_file}
-   else
-      echo "Starting PostgreSQL as User: ${DB_OWNER} ..." >> ${log_file}
-      su ${DB_OWNER} -c \
-         "${a2_postmaster} -D /awips2/data >> ${log_file} 2>&1 &"
-      if [ $? -ne 0 ]; then
-         echo "FATAL: Failed to start PostgreSQL." >> ${log_file}
-         return 0
-      fi
-   
-      # give PostgreSQL time to start.
-      /bin/sleep 10
-      I_STARTED_POSTGRESQL="YES"
-   fi
-   POSTGRESQL_RUNNING="YES"
-   
-   return 0  
-}
-
-function restartPostgreSQL()
-{
-   if [ "${POSTGRESQL_RUNNING}" = "NO" ]; then
-      return 0
-   fi
-   
-   local a2_pg_ctl="/awips2/postgresql/bin/pg_ctl"
-   
-   # retrieve the owner of the database
-   DB_OWNER=`ls -l /awips2/ | grep -w 'data' | awk '{print $3}'`
-   
-   echo "Restarting PostgreSQL ..." >> ${log_file}
-   su ${DB_OWNER} -c \
-      "${a2_pg_ctl} restart -D /awips2/data" >> ${log_file}
-   sleep 20
-   echo "PostgreSQL restart complete ..." >> ${log_file}
-}
-
-# import StormSurgeWW and NHAdomain for GFE
-function importShapefiles()
-{   
-   local static_shp_directory="${edex_utility}/edex_static/base/shapefiles"
-   local a2_shp_script="/awips2/database/sqlScripts/share/sql/maps/importShapeFile.sh"
-   
-   prepare
-   
-   /bin/bash ${a2_shp_script} \
-      ${static_shp_directory}/NHAdomain/NHAdomain.shp mapdata nhadomain >> ${log_file} 2>&1 
-   if [ $? -ne 0 ]; then
-      echo "FATAL: failed to import NHAdomain." >> ${log_file}
-      return 0
-   fi
-   /bin/bash ${a2_shp_script} \
-      ${static_shp_directory}/StormSurgeWW/StormSurgeWW.shp mapdata stormsurgeww >> ${log_file} 2>&1 
-   if [ $? -ne 0 ]; then
-      echo "FATAL: failed to import StormSurgeWW." >> ${log_file}
-      return 0
-   fi
-   
-   echo "INFO: NHAdomain and StormSurgeWW shapefiles were successfully imported." >> ${log_file}
-   return 0
-}
-
-importShapefiles
-
+a2_postmaster="/awips2/postgresql/bin/postmaster"
 a2_pg_ctl="/awips2/postgresql/bin/pg_ctl"
-# if we started PostgreSQL, shutdown PostgreSQL
+DB_OWNER=`ls -l /awips2/ | grep -w 'data' | awk '{print $3}'`
+
+echo "Determining if PostgreSQL is running ..." >> ${log_file}
+su ${DB_OWNER} -c \
+   "${a2_pg_ctl} status -D /awips2/data >> ${log_file} 2>&1"
+RC=$?
+echo "" >> ${log_file}
+
+# start PostgreSQL if it is not running as the user that owns data
+if [ ${RC} -eq 0 ]; then
+   echo "INFO: PostgreSQL is running." >> ${log_file}
+else
+   echo "Starting PostgreSQL as User: ${DB_OWNER} ..." >> ${log_file}
+   su ${DB_OWNER} -c \
+      "${a2_postmaster} -D /awips2/data >> ${log_file} 2>&1 &"
+   if [ $? -ne 0 ]; then
+      echo "FATAL: Failed to start PostgreSQL." >> ${log_file}
+      return 0
+   fi
+   # give PostgreSQL time to start.
+   /bin/sleep 10
+   I_STARTED_POSTGRESQL="YES"
+fi
+POSTGRESQL_RUNNING="YES"
+
+static_shp_directory="${edex_utility}/edex_static/base/shapefiles"
+a2_shp_script="/awips2/database/sqlScripts/share/sql/maps/importShapeFile.sh"
+  
+/bin/bash ${a2_shp_script} \
+   ${static_shp_directory}/NHAdomain/NHAdomain.shp mapdata nhadomain >> ${log_file} 2>&1 
+if [ $? -ne 0 ]; then
+   echo "FATAL: failed to import NHAdomain." >> ${log_file}
+   return 0
+fi
+/bin/bash ${a2_shp_script} \
+   ${static_shp_directory}/StormSurgeWW/StormSurgeWW.shp mapdata stormsurgeww >> ${log_file} 2>&1 
+if [ $? -ne 0 ]; then
+   echo "FATAL: failed to import StormSurgeWW." >> ${log_file}
+   return 0
+fi
+   
+echo "INFO: NHAdomain and StormSurgeWW shapefiles were successfully imported." >> ${log_file}
+
+PSQL="/awips2/psql/bin/psql"
+echo "Updating metadata.radar_spatial from common_static/base/radar/radarSpatial.sql"
+${PSQL} -U awips -d metadata -q -f /awips2/edex/data/utility/common_static/base/radar/radarSpatial.sql >> ${log_file} 2>&1
+
 if [ "${I_STARTED_POSTGRESQL}" = "YES" ]; then
    echo "" >> ${log_file}
-
    su ${DB_OWNER} -c \
       "${a2_pg_ctl} stop -D /awips2/data" >> ${log_file}
    if [ $? -ne 0 ]; then
