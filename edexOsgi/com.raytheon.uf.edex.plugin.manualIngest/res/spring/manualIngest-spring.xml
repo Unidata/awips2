@@ -8,7 +8,7 @@
 		xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler">
 		<endpoint id="manualFileEndpoint"
-            uri="file:${data.archive.root}/manual?delete=true&amp;delay=5000&amp;maxMessagesPerPoll=1000&amp;exclusiveReadLockStrategy=#fileChangedStrategy&amp;recursive=true" />
+            uri="file:${data.archive.root}/ingest?delete=true&amp;delay=5000&amp;maxMessagesPerPoll=1000&amp;exclusiveReadLockStrategy=#fileChangedStrategy&amp;recursive=true" />
 
 		<route id="manualFileScan">
 		    <from ref="manualFileEndpoint" />

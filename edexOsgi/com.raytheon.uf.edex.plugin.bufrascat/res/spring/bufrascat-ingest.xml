@@ -7,12 +7,6 @@
         <constructor-arg ref="bufrascatPluginName" />
     </bean>
 
-   <!-- Filter out all southern hemisphere data -->
-   <bean id="ascatSHFilter" class="com.raytheon.uf.edex.decodertools.core.filterimpl.PluginDataObjectFilter">
-        <constructor-arg type="java.lang.String" value="ascat_filters.xml" />
-        <constructor-arg type="java.lang.String" value="BASE" />
-   </bean>
-
     <bean id="bufrascatDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="bufrascat" />
@@ -45,7 +39,6 @@
                 <pipeline>
 		            <bean ref="stringToFile" />
                     <bean ref="bufrascatDecoder" method="decode" />
-                    <bean ref="ascatSHFilter" method="filter" />
                     <to uri="direct-vm:persistIndexAlert" />
                 </pipeline>
                 <doCatch>

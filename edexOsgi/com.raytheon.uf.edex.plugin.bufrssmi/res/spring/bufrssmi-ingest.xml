@@ -7,12 +7,6 @@
         <constructor-arg ref="bufrssmiPluginName" />
     </bean>
 
-   <!-- Filter out all southern hemisphere data -->
-   <bean id="ssmiSHFilter" class="com.raytheon.uf.edex.decodertools.core.filterimpl.PluginDataObjectFilter">
-        <constructor-arg type="java.lang.String" value="pointssmi_filters.xml" />
-        <constructor-arg type="java.lang.String" value="BASE" />
-   </bean>
-
     <bean id="bufrssmiDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="bufrssmiPluginName" />
@@ -45,7 +39,6 @@
                 <pipeline>
 		            <bean ref="stringToFile" />
                     <bean ref="bufrssmiDecoder" method="decode" />
-                    <bean ref="ssmiSHFilter" method="filter" />
                     <to uri="direct-vm:persistIndexAlert" />
                 </pipeline>
                 <doCatch>
