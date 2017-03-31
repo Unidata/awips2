@@ -66,8 +66,6 @@ public class WWAGeometryCompleter {
                     try {
                         record.setGeometry(UGCToGeometryUtil.ugcsToGeometry(
                                 ugcZones, record.getPhen()));
-                        statusHandler.info(record.getDataURI()
-                                + ": Added geometry in post-processing");
                     } catch (Exception e) {
                         statusHandler.handle(
                                 Priority.ERROR,
