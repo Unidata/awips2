@@ -94,10 +94,6 @@
 		overwrite="${esb.overwrite}">
 			<fileset dir="${esb.directory}" includes="data/**" />
 		</copy>
-		
-		<!-- update directory permissions. -->
-		<chmod dir="${edex.root.directory}/data" perm="775" 
-			includes="**/*" type="both" />
 	</target>
 	
 	<taskdef resource="net/sf/antcontrib/antlib.xml" 

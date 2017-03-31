@@ -78,9 +78,6 @@ export SHORT_HOSTNAME=`hostname -s`
 # set Python & Java into the path
 export PATH=$awips_home/bin:${JAVA_INSTALL}/bin:${PYTHON_INSTALL}/bin:$PATH
 
-# set Service Backup scripts into the path
-export PATH=$PATH:$awips_home/GFESuite/bin:$awips_home/GFESuite/ServiceBackup/scripts
-
 # set AWIPS 1 stuff into path
 export PATH=$PATH:$PROJECT/bin
 

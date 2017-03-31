@@ -52,13 +52,6 @@
 			<isfalse value="${client.build}"/>
 	</condition>
 
-	<condition property="deploy.svcBackup" value="yes">
-		<and>
-			<isfalse value="${client.build}"/>
-			<istrue value="${installer}"/>
-		</and>
-	</condition>
-	
 	<property name="gfe.suite.home" value="${install.dir}" />
 	<property name="gfe.suite.bin" value="${install.dir}/bin" />
 	<property name="gfe.suite.hti" value="${install.dir}/hti" />
@@ -79,7 +72,6 @@
 		<antcall target="-deploy.cli.common"/>
 		<antcall target="-deploy.hti"/>
 		<antcall target="-deploy.nwps"/>
-		<antcall target="-deploy.svcBackup"/>
 		<!-- <antcall target="-deploy.cli.client"/> -->
 		<antcall target="-set.permissions"/>
 	</target>
@@ -121,20 +113,6 @@
 		</copy>
 	</target>
 		
-	<target name="-deploy.svcBackup" if="deploy.svcBackup"
-		description="Deploys service backup scripts to a specific directory">
-		<echo message="Copying in service backup scripts" />
-		<copy todir="${gfe.suite.home}" overwrite="true">
-			<fileset dir="${basedir}/../com.raytheon.uf.tools.gfesuite.servicebackup/svcBackup"/>
-			<filterset refid="installer.filter.set"/>
-		</copy>
-		<!-- Create the exportgrids directory. -->
-		<mkdir dir="${gfe.suite.home}/exportgrids" />
-		<echo message="Setting permissions in ${gfe.suite.home}/ServiceBackup/scripts to 'ugo+rx'" />
-		<chmod dir="${gfe.suite.home}/ServiceBackup/scripts" perm="ugo+rx" 
-			includes="**/**" />
-	</target>
-	
 	<target name="-set.permissions" 
 		    description="sets the permissions on the scripts - local install only">
 		<echo message="Setting permissions in ${gfe.suite.bin} to 'ugo+rx'" />

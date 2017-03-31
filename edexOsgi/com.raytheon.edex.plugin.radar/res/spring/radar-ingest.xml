@@ -56,13 +56,5 @@
 			</doTry>
 		</route>
 	</camelContext>
-	
-	<bean id="radarServerConnectionHandler"
-		class="com.raytheon.edex.rpgenvdata.RadarServerConnectionHandler" />
-	<bean factory-bean="handlerRegistry" factory-method="register">
-		<constructor-arg
-			value="com.raytheon.uf.common.dataplugin.radar.request.RadarServerConnectionRequest" />
-		<constructor-arg ref="radarServerConnectionHandler" />
-	</bean>
 
 </beans>

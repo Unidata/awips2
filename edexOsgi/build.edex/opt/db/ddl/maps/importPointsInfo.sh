@@ -73,7 +73,7 @@ ${PSQLBINDIR}psql -d maps -U ${PGUSER} -q -p ${PGPORT} -c "
       USING gist
       (the_geom);
 "
-sed -e "s/'/''/g;s/\([-\.[:digit:]]*\)[[:blank:]]\{1,\}\([-\.[:digit:]]*\)[[:blank:]]\{1,\}\([[:digit:]]*\)[[:blank:]]\{1,\}\([[:upper:]]*\)[[:blank:]]\{1,\}\([^|]*\)|\([[:digit:]]*\).*/INSERT INTO \"${SCHEMA}\".\"${TABLE}\"(st,name,prog_disc,warngenlev,the_geom) VALUES('\4','\5',\3,\6,GeomFromText('POINT(\2 \1)',4326));/" $FILEPATH | \
+sed -e "s/'/''/g;s/\([-\.[:digit:]]*\)[[:blank:]]\{1,\}\([-\.[:digit:]]*\)[[:blank:]]\{1,\}\([[:digit:]]*\)[[:blank:]]\{1,\}\([[:upper:]]*\)[[:blank:]]\{1,\}\([^|]*\)|\([[:digit:]]*\).*/INSERT INTO \"${SCHEMA}\".\"${TABLE}\"(st,name,prog_disc,warngenlev,the_geom) VALUES('\4','\5',\3,\6,ST_GeomFromText('POINT(\2 \1)',4326));/" $FILEPATH | \
     ${PSQLBINDIR}psql -d maps -U ${PGUSER} -q -p ${PGPORT}
     
 if [ -d ${PGBINDIR} ]; then

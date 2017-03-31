@@ -173,19 +173,19 @@ WhfsSrv                                        : OFF
 WhfsSrv.purge_files                            : OFF
 WhfsSrv.run_db_purge                           : OFF
 WhfsSrv.run_floodseq                           : OFF
-PprocSrv                                       : ON
-PprocSrv.purge_mpe_files                       : ON
-PprocSrv.purge_hpe_file                        : ON
-MpeFieldGenSrv.run_mpe_fieldgen                : ON
-WhfsSrv.run_pdc_pp                             : ON
+PprocSrv                                       : OFF 
+PprocSrv.purge_mpe_files                       : OFF
+PprocSrv.purge_hpe_file                        : OFF
+MpeFieldGenSrv.run_mpe_fieldgen                : OFF
+WhfsSrv.run_pdc_pp                             : OFF
 WhfsSrv.run_alarm_whfs                         : OFF
 WhfsSrv.run_alarm_whfs.run_roc_checker         : OFF
 WhfsSrv.run_alarm_whfs.run_report_alarm        : OFF
 WhfsSrv.run_alarm_whfs.run_report_alarm.textdb : OFF
-ArealQpeGenSrv                                 : ON
-DqcPreProcSrv                                  : ON
-DqcPreProcSrv.run_dqc_preprocessor             : ON
-MpeRUCFreezingLevel                            : ON
+ArealQpeGenSrv                                 : OFF
+DqcPreProcSrv                                  : OFF
+DqcPreProcSrv.run_dqc_preprocessor             : OFF
+MpeRUCFreezingLevel                            : OFF
 MpeLightningSrv                                : OFF
 #====================================================================================
 
@@ -299,12 +299,12 @@ shef_perflog       : OFF  # ON/OFF - create a separate performance log file to
                           #          monitoring performance
 shef_data_log      : OFF  # ON/OFF - include messages in the log file detailing
                                      the SHEF records
-dupmess            : ON   # ON/OFF - include messages in the log file about
+dupmess            : OFF  # ON/OFF - include messages in the log file about
                           #          duplicate data
-elgmess            : ON   # ON/OFF - include messages in the log file about
+elgmess            : OFF  # ON/OFF - include messages in the log file about
                           #          data types not found in IngestFilter or
                           #          data types turned off in IngestFilter
-locmess            : ON   # ON/OFF - include messages in the log file about
+locmess            : OFF  # ON/OFF - include messages in the log file about
                           #          stations and areas not found in Location
                           #          or GeoArea
 
@@ -387,7 +387,7 @@ hb_gagrad_log_dir      : $(whfs_log_dir)/create_gagradloc # gage-radar locator l
 qcalarm_log_dir        : $(whfs_log_dir)/qcalarm        # batch QC logs
 
 db_purge_log_dir       : $(whfs_log_dir)/db_purge # db_purge token
-db_purge_backup_retention_use   :  ON             # db_purge token for using backup retention value
+db_purge_backup_retention_use   :  OFF             # db_purge token for using backup retention value
 
 purge_files_log_dir    : $(whfs_log_dir)/misc     # purge_files token
 
@@ -404,9 +404,9 @@ gage_pp_host       : localhost                # controlling UNIX system
 gage_pp_data       : $(pproc_local_data)/gpp_input  # input data files location 
 gage_pp_log        : $(pproc_log)/gage_pp     # daily log files location
 gage_pp_sleep	   : 10	  # sleep duration in seconds in between queries
-gage_pp_enable         : ON      # gpp enabled; shef uses to determine post
-shef_post_precip       : ON     # post to Precip/CurPrecip tables
-build_hourly_enable    : ON      # Enable the build_hourly application
+gage_pp_enable         : OFF      # gpp enabled; shef uses to determine post
+shef_post_precip       : OFF     # post to Precip/CurPrecip tables
+build_hourly_enable    : OFF      # Enable the build_hourly application
 
 # ----------------------------------------------------------------
 # The following tokens are most likely to be customized by the user
@@ -464,7 +464,7 @@ event_expire_withinhr  : 3   # in RiverPro
 #=====Tokens To Generate Areal FFG from Mosaicked FFG Grids for Use By SSHP=====
 #     (NOTE: gaff_rfc_list MUST be customized at EVERY Field Office)
 
-gaff_execution         : ON   # ON/OFF token for the gen_areal_ffg process
+gaff_execution         : OFF   # ON/OFF token for the gen_areal_ffg process
                               # the gen_areal_ffg process is run from the
                               # process_dpa_files script at WFOs
 
@@ -974,7 +974,7 @@ mpe_disclosure_limit       :   60
 mpe_map_projection         :   FLAT
 
 ### Misc tokens 
-mpe_load_hourlypc          :   ON
+mpe_load_hourlypc          :   OFF
 mpe_gageqc_gif_dir         :   $(whfs_image_dir)
 mpe_gif_location           :   34.0,-97.0,34.0,-94.0,33.0,-94.0
 mpe_overlay_dir            :   $(whfs_geodata_dir)
@@ -984,7 +984,7 @@ mpe_type_source            :   RG:GOES,RR:ALERT,RM:SNOTEL,RP:LARC,RZ:COOP
 ### New tokens for DQC/CHPS
 mpe_level2_type_value	:	2    # Allow user to customize the type value. The default is “2”
 mpe_td_details_set		:	OFF   # Allow generating a time distribution details file.
-mpe_process_PC 			:	ON		# Skip call to the load_PC_hourly routine if "OFF"
+mpe_process_PC 			:	OFF		# Skip call to the load_PC_hourly routine if "OFF"
 mpe_map_one_zone		:	OFF	# Allow MAP generation for one zone only
 fewsgrib_dir			:	$(mpe_gageqc_dir)/fewsgrib  # default nc2grib grib file output dir
 nc2g_app_dir			:	$(mpe_app_dir)/nc2grib      # directory for gfe2grib.txt file
@@ -1035,7 +1035,7 @@ mpe_netcdf_id      :
 mpe_grib_id        :
 
 ###   mpe gage QC tokens
-mpe_gage_qc               :  ON 
+mpe_gage_qc               :  OFF
 mpe_sccqc_threshold       :  2.0
 mpe_scc_boxes_failed  :  4
 mpe_msc_precip_limit  :  1.0
@@ -1089,11 +1089,11 @@ lightning_log_dir     :   $(pproc_log)/lightning_proc
 
 ### tokens for D2D display
 
-mpe_d2d_display_grib     :  ON  # ON/OFF token to determine if further
+mpe_d2d_display_grib     :  OFF  # ON/OFF token to determine if further
                                 #  processing of grib file for D2D display
                                 #  is required
 
-d2d_input_dir            :  $(EDEX_HOME)/data/manual/mpe  # dir containing grib files
+d2d_input_dir            :  /awips2/data_store/ingest/mpe # dir containing grib files
                                                           # to be processed for D2D display
 
 mpe_send_grib            :  OFF  # ON/OFF token to determine if grib file is
@@ -1228,11 +1228,11 @@ hpe_purge_logage     :  720
 hpe_purge_fileage    :  180
 hpe_purge_xmrgage    :  75
 
-dhrmosaic_d2d_display_grib  : ON
-ermosaic_d2d_display_grib   : ON
-ebmosaic_d2d_display_grib   : ON
-bdhrmosaic_d2d_display_grib : ON
-hpe_run_nowcast         : ON
+dhrmosaic_d2d_display_grib  : OFF
+ermosaic_d2d_display_grib   : OFF
+ebmosaic_d2d_display_grib   : OFF
+bdhrmosaic_d2d_display_grib : OFF
+hpe_run_nowcast         : OFF
 hpe_nowcast_generate_list      :  PRTM, BPTRM
 hpe_nowcast_dir         : $(hpe_output_dir)/nowcast
 hpe_rate_save_grib      : save
@@ -1241,7 +1241,7 @@ hpe_tp1h_save_grib      : save
 hpe_btp1h_save_grib     : save
 hpe_4km_tp1h_save_grib  : nosave
 hpe_4km_btp1h_save_grib : nosave
-nowcast_d2d_display_grib : ON
+nowcast_d2d_display_grib : OFF
 hpe_smooth_method       : 1  # 0=no smoothing 1=FFP method (default) 2=BZ94 method
 hpn_use_meanvelocity    : OFF
 hpn_meanvelocity_direction : 45 # direction precip is moving towards
@@ -1664,18 +1664,18 @@ adb_shef_pro_err_dir   : $(adb_logs_dir)/decoder/processed/err   # pathname for 
                                                                  # product logs directory
 adb_shef_pro_keeperror : ALWAYS         # keep files (=ALWAYS) or only
                                         # when errors occur (=IF_ERROR)
-adb_shef_raw_checktab  : ON             # ON checks location and ingestfilter tables
+adb_shef_raw_checktab  : OFF            # ON checks location and ingestfilter tables
 adb_shef_pro_checktab  : OFF            # ON checks location and ingestfilter tables
 adb_shef_duplicate_raw : USE_REVCODE    # Token for allowing duplicate records to be 
                                         # posted for raw decoder.
 adb_shef_duplicate_pro : USE_REVCODE    # Same thing but for processed decoder.
-adb_shef_raw_dupmess   : ON             # duplication messages from adb raw decoder.
-adb_shef_raw_locmess   : ON             # invalid location messages from adb raw decoder.
-adb_shef_raw_elgmess   : ON             # invalid ingestfilter messages from adb raw 
+adb_shef_raw_dupmess   : OFF            # duplication messages from adb raw decoder.
+adb_shef_raw_locmess   : OFF            # invalid location messages from adb raw decoder.
+adb_shef_raw_elgmess   : OFF            # invalid ingestfilter messages from adb raw 
                                         # decoder.
 adb_shef_raw_storall   : OFF            # OFF - default-  will only write to pecrsep table
 					# ON will write to both pecrsep and peirsep tables
-adb_shef_pro_dupmess   : ON             # duplication messages from adb processed decoder.
+adb_shef_pro_dupmess   : OFF            # duplication messages from adb processed decoder.
 adb_shef_pro_locmess   : OFF            # invalid location messages from adb pro decoder.
 adb_shef_pro_elgmess   : OFF            # invalid ingestfilter messages from adb pro 
                                         # decoder.
@@ -1816,7 +1816,7 @@ sshp_incoming_dir         : $(local_data_sshp_dir)/incoming
 sshp_outgoing_dir         : $(local_data_sshp_dir)/outgoing
 sshp_log_dir              : $(whfs_log_dir)/sshp
 sshp_java_process_host    : localhost
-sshp_invoke_map_preprocess: ON
+sshp_invoke_map_preprocess: OFF
 sshp_map_qpe_to_use	  : MIXED    # choices are: MIXED, LOCAL_BEST_ONLY, RFC_ONLY
 sshp_fcst_ts         	  : FZ       # SSHP type-source code for generated forecasts
 sshp_initial_forecast_length: 24     # length of forecast in hours
@@ -1898,7 +1898,7 @@ daa_archive_window  :   7             # number of minutes around top of hour
 
 daa_wind            :  5
 daa_decode_window   :  5
-daa_filter_decode   :  ON  # whether time window filtering is on or off
+daa_filter_decode   :  OFF # whether time window filtering is on or off
 
 daa_min_coverage_dur  :  60
 

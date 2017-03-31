@@ -89,19 +89,6 @@
 	
 		<memory-setting>
 			<command-line-args>
-				<first-arg>-component</first-arg>
-				<second-arg>servicebackup</second-arg>
-			</command-line-args>
-		
-			<ini-substitutions>
-				<max-memory>
-					<value>256M</value>
-				</max-memory>
-			</ini-substitutions>
-		</memory-setting>
-
-		<memory-setting>
-			<command-line-args>
 				<first-arg>-perspective</first-arg>
 				<second-arg>NCP</second-arg>
 			</command-line-args>
