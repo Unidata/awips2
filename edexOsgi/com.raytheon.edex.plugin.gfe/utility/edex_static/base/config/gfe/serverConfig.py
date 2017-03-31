@@ -2197,7 +2197,7 @@ TPCTCM      = ('TPCtcm',       GRID,   '', NO,   NO,  2, 0)
 MSAS        = ('MSAS',         GRID,   '', YES,  NO,  1, 36)
 GLERL       = ('GLERL',        GRID,   '', NO,   NO,  2, 0)
 AKWAVE      = ('AKWAVE',       GRID,   '', NO,   NO,  2, 0)
-WNAWAVE     = ('WNAWAVE',      GRID,   '', NO,   NO,  2, 0)
+WNAWAVE     = ('WaveWatch-Atlantic',      GRID,   '', NO,   NO,  2, 0)
 DGEX        = ('DGEX',         GRID,   '', NO,   NO,  2, 0)
 OPCTAFBE    = ('OPCTAFBE',     GRID,   '', NO,   NO,  2, 0)
 OPCTAFBNW   = ('OPCTAFBNW',    GRID,   '', NO,   NO,  2, 0)
@@ -2208,7 +2208,7 @@ URMA25      = ('URMA25',       GRID,   '', YES,  NO,  1, 36) ####DR17144
 NamDNG      = ('NamDNG',       GRID,   '', NO,   NO,  2, 0)   
 TPCProb     = ('TPCProb',      GRID,   '', NO,   NO, 30, 0)
 SREF        = ('SREF',         GRID,   '', NO,   NO,  3, 0)
-ENPwave     = ('ENPwave',      GRID,   '', NO,   NO,  2, 0)
+ENPwave     = ('WaveWatch-Pacific',      GRID,   '', NO,   NO,  2, 0)
 ETSS        = ('ETSS',         GRID,   '', NO,   NO,  2, 0)
 GFSLAMPGrid = ('GFSLAMPGrid',  GRID,   '', NO,   NO,  3, 0)
 NationalBlend = ('NationalBlend',  GRID,   '', NO,   NO,  2, 0)
@@ -2251,7 +2251,7 @@ if SID in groups['ALASKA_SITES']:
                  'ENSEMBLE',
                  ('AK-DGEX', 'DGEX'),
                  ('OPCWave181', 'OPCTAFBNW'),
-                 ('AKWAVE239', 'AKWAVE'),
+                 ('WaveWatch-Alaska', 'AKWAVE'),
                  'AKwave10',
                  'AKwave4',
                  'GlobalWave',
@@ -2410,7 +2410,7 @@ elif SID in groups['CONUS_EAST_SITES']:
                  ('HPCqpfNDFD', 'HPCERP'),
                  ('RFCqpf', 'RFCQPF'),
 #DR3511                 'HPCdelta',
-                 'WNAWAVE238',
+                 'WaveWatch-Atlantic',
                  'TPCSurgeProb',
                  'GlobalWave',
                  'EPwave10',
@@ -2485,7 +2485,7 @@ elif SID in groups['CONUS_EAST_SITES']:
                  ('HiResW-NMM-East', 'HIRESWnmm'),
                  ('SPCGuide', 'SPC'),
                  ('ECMWF-HiRes','ECMWFHiRes'),
-                 ('ENPWAVE253', 'ENPwave'),
+                 ('WaveWatch-Pacific', 'ENPwave'),
                  ('estofsUS', 'ESTOFS'),
                  'NAHwave15',
                  'NAHwave10',
@@ -2538,7 +2538,7 @@ else:   #######DCS3501 WEST_CONUS
                  'HRRR',
                  'HWRF',
 #DR3511                 'HPCdelta',
-                 'WNAWAVE238',
+                 'WaveWatch-Atlantic',
                  'TPCSurgeProb',
                  'GlobalWave',
                  'EPwave10',
@@ -2583,7 +2583,7 @@ else:   #######DCS3501 WEST_CONUS
                  ('HiResW-NMM-West', 'HIRESWnmm'),
                  ('SPCGuide', 'SPC'),
                  ('ECMWF-HiRes','ECMWFHiRes'),
-                 ('ENPWAVE253', 'ENPwave'),
+                 ('WaveWatch-Pacific', 'ENPwave'),
                  'NAHwave15',
                  'NAHwave10',
                  'NAHwave4',

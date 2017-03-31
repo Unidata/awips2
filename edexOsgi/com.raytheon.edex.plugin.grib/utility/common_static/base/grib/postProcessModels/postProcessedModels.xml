@@ -4,7 +4,7 @@
     <!-- Post Processor definitions for models containing grids needing to be 
         stitched together -->
     <postProcessedModel id="Ensemble">
-        <modelName>UKMET[0-9]{2}|ECMF[0-9]|ENSEMBLE[0-9]{2}
+        <modelName>ECMF[0-9]|ENSEMBLE[0-9]{2}
         </modelName>
         <processorName>EnsembleGridAssembler</processorName>
     </postProcessedModel>

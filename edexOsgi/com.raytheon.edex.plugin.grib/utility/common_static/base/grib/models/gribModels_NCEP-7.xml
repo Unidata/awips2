@@ -688,7 +688,7 @@
     </model>
 
     <model>
-        <name>AKWAVE239</name>
+        <name>WaveWatch-Alaska</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>239</grid>
@@ -698,7 +698,7 @@
     </model>
 
     <model>
-        <name>${REGION}WAVE${COVERAGE}</name>
+        <name>WaveWatch-Atlantic</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>238</grid>
@@ -708,7 +708,7 @@
     </model>
 
     <model>
-        <name>WNAWAVE238-2</name>
+        <name>WaveWatch-Atlantic</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>238</grid>
@@ -738,7 +738,7 @@
     </model>
 
     <model>
-        <name>ENPWAVE253</name>
+        <name>WaveWatch-Pacific</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>253</grid>
@@ -748,7 +748,7 @@
     </model>
 
     <model>
-        <name>ENPWAVE253-2</name>
+        <name>WaveWatch-Pacific-2</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>253</grid>
@@ -1937,7 +1937,7 @@
     </model>
 
     <model>
-        <name>estofsUS</name>
+        <name>ESTOFS</name>
         <center>7</center>
         <subcenter>4</subcenter>
         <grid>184</grid>
@@ -1957,7 +1957,7 @@
     </model>
 
     <model>
-        <name>estofs${REGION}</name>
+        <name>ESTOFS-${REGION}</name>
         <center>7</center>
         <subcenter>4</subcenter>
         <grid>339227001</grid>
@@ -1968,7 +1968,7 @@
     </model>
 
     <model>
-        <name>estofs${REGION}</name>
+        <name>ESTOFS-${REGION}</name>
         <center>7</center>
         <subcenter>4</subcenter>
         <grids>
@@ -2364,7 +2364,7 @@
     </model>
 
     <model>
-        <name>PROB3HR</name>
+        <name>PROB3HR5</name>
         <center>7</center>
         <subcenter>14</subcenter>
         <grid>236</grid>
@@ -2374,7 +2374,7 @@
     </model>
 
     <model>
-        <name>PROB3HR25</name>
+        <name>PROB3HR</name>
         <center>7</center>
         <subcenter>14</subcenter>
         <grid>184</grid>
