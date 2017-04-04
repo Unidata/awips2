@@ -1379,7 +1379,7 @@ SnowAmt50Prcntl = ('SnowAmt50Prcntl', SCALAR, 'in', 'avg case', 50.0, 0.0, 1, NO
 SnowAmt90Prcntl = ('SnowAmt90Prcntl', SCALAR, 'in', 'max case', 50.0, 0.0, 1, NO)
 SnowDepth = ('SnowDepth', SCALAR, 'in', 'Snow Depth', 50.0, 0.0, 0, NO)
 SnowRatioCLIMO = ('SnowRatioCLIMO', SCALAR, '%', 'Snow Ratio Climatology SON-DJF-MAM', 40.0, 0.0, 1, YES)
-SnowRatioGFS = ('SnowRatioGFS', SCALAR, '%', 'Snow Ratio from GFS20', 40.0, 0.0, 1, YES)
+SnowRatioGFS = ('SnowRatioGFS', SCALAR, '%', 'Snow Ratio from GFS', 40.0, 0.0, 1, YES)
 SnowRatioHPCMEAN = ('SnowRatioHPCMEAN', SCALAR, '%', 'Snow Ratio from HPC MEAN', 40.0, 0.0, 1, YES)
 SnowRatioNAM = ('SnowRatioNAM', SCALAR, '%', 'Snow Ratio from NAM40', 40.0, 0.0, 1, YES)
 T10 = ('T10', SCALAR, 'F', '10th Percentile for T', 140.0, -100.0, 0, NO)
@@ -2168,7 +2168,6 @@ NAM12       = ('NAM12',        GRID,   '', NO,  NO,  2, 0)
 NAM40       = ('NAM40',        GRID,   '', NO,  NO,  2, 0)
 NAM80       = ('NAM80',        GRID,   '', NO,  NO,  2, 0)
 NAM95       = ('NAM95',        GRID,   '', NO,  NO,  2, 0)
-GFS20       = ('GFS20',        GRID,   '', NO,  NO,  2, 0)
 GFS80       = ('GFS80',        GRID,   '', NO,  NO,  2, 0)
 GFS190      = ('GFS190',       GRID,   '', NO,  NO,  2, 0)
 GFS75       = ('GFS75',        GRID,   '', NO,  NO,  2, 0)
@@ -2183,7 +2182,6 @@ GlobalWave  = ('GlobalWave',   GRID,   '', NO,  NO,  2, 0)
 GLWM        = ('GLWM',         GRID,   '', NO,  NO,  2, 0)##########DCS3499
 HIRESWarw   = ('HIRESWarw',    GRID,   '', NO,  NO,  2, 0)##########DCS3501
 HIRESWnmm   = ('HIRESWnmm',    GRID,   '', NO,  NO,  2, 0)
-HRRR        = ('HRRR',         GRID,   '', NO,  NO,  3, 0)
 #### SPC         = ('SPC',          GRID,   '', NO,  NO,  2, 0)###DR20634
 WCwave10    = ('WCwave10',     GRID,   '', NO,  NO,  2, 0)
 WCwave4     = ('WCwave4',      GRID,   '', NO,  NO,  2, 0)
@@ -2283,7 +2281,6 @@ if SID in groups['ALASKA_SITES']:
                  'AKHwave10',
                  'AKHwave4',
                  'GLOBHwave',
-                 ('AK-GFS22', 'GFS20'),
                  ('ETSS-AK', 'ETSS'),
                  'PGBlended',
                  'PGBlended-Night',
@@ -2319,7 +2316,6 @@ elif SID == "HFO":
                  ('nwpsTrkngCG0HFO', 'nwpsTrkngCG0HFO'),
                  ('nwpsTrkngCG0GUM', 'nwpsTrkngCG0GUM'),
 # JCM 16.4.1 added above
-                 ('GFS20-PAC', 'GFS20'),
                  'PGBlended',
                  'PGBlended-Night',
                  ('NCOM-HAWAII', 'NCOM'),
@@ -2329,7 +2325,6 @@ elif SID == "HFO":
 # San Juan OCONUS
 elif SID == "SJU":
     D2DMODELS = [('AVN211', 'GFS80'),
-                 'GFS20',
                  ('ETA', 'NAM80'),
                  ('MRF205', 'gfsLR'),
                  ('OPCWave180', 'OPCTAFBE'),
@@ -2363,7 +2358,6 @@ elif SID == "SJU":
                  ('nwpsTrkngCG0JAX', 'nwpsTrkngCG0JAX'),
 # JCM 16.4.1 added above
                  'GLOBHwave',
-                 ('PR-GFS', 'GFS20'),
                  'PGBlended',
                  'PGBlended-Night',
                  ('NCOM-AMSEAS', 'NCOMAMSEAS'),
@@ -2384,7 +2378,6 @@ elif SID == "GUM":
                  ('nwpsTrkngCG0GUM', 'nwpsTrkngCG0GUM'),
                  ('nwpsTrkngCG0HFO', 'nwpsTrkngCG0HFO'),
 # JCM 16.4.1 added above
-                 ('GFS20-PAC', 'GFS20'),
                  # DCS #17288
                  ('Guam-RTMA', 'RTMA'),
                  'PGBlended',
@@ -2393,10 +2386,9 @@ elif SID == "GUM":
 
 #CONUS sites
 elif SID in groups['CONUS_EAST_SITES']:
-    D2DMODELS = ['GFS20',
+    D2DMODELS = [
                  ('AVN211', 'GFS80'),
                  ('ETA', 'NAM80'),
-                 'HRRR',
                  'HWRF',
                  ('MRF', 'gfsLR'),
                  ('RAP13', 'RAP13'),
@@ -2521,7 +2513,7 @@ elif SID in groups['CONUS_EAST_SITES']:
 
 else:   #######DCS3501 WEST_CONUS
 
-    D2DMODELS = ['GFS20',
+    D2DMODELS = [
                  ('AVN211', 'GFS80'),
                  ('ETA', 'NAM80'),
                  ('MRF', 'gfsLR'),
@@ -2535,7 +2527,6 @@ else:   #######DCS3501 WEST_CONUS
                  ('HPCqpf', 'HPCQPF'),
                  ('HPCqpfNDFD', 'HPCERP'),
                  ('RFCqpf', 'RFCQPF'),
-                 'HRRR',
                  'HWRF',
 #DR3511                 'HPCdelta',
                  'WaveWatch-Atlantic',
@@ -2819,7 +2810,6 @@ elif SID == "SJU":
 #        "gfsLR" : ["gfsLR"],
         "NAM12" : ["NAM12"],
         "GFS80" : ["GFS80"],
-        "GFS20" : ["GFS20"],
 #####DCS3501
         "HIRESWarw" : ["HIRESWarw"],
         "HIRESWnmm" : ["HIRESWnmm"],
@@ -2875,7 +2865,6 @@ else:
         "RAP13" : ["RAP13"],
         "RAP40" : ["RAP40"],
         "NAM12" : ["NAM12"],
-        "GFS20" : ["GFS20"],
         "GFS80" : ["GFS80"],
         "LAPS" : ["LAPS"],
         "HPCQPF" : ['HPCQPF'],
@@ -2890,7 +2879,6 @@ else:
         "URMA25" : ['URMA25'],
         "NamDNG" : ["NamDNG"],
         "SREF" : ["SREF"],
-        "HRRR" : ['HRRR'],
         "HRWF" : ['HRWF'],
 #########DCS3501
         "GLWM" : ["GLWM"],
@@ -2988,11 +2976,9 @@ INITSKIPS = {
 # grid with timestep duration, starting the previous model timestep and
 # going up to but not including the snapshot time.
 D2DAccumulativeElements= {
-    "GFS20": ["tp", "cp", "crain", "csnow", "cfrzr", "cicep"],
     "GFS80": ["tp", "cp"],
     "GFS75": ["tp", "cp"],
     "GFS190": ["tp", "cp"],
-    "HRRR": ["tp", "crain", "csnow", "cfrzr", "cicep"],
     "HWRF":  ["tp", "cp"],
     "NAM95": ["tp", "cp"],
     "NAM80": ["tp", "cp"],
@@ -3129,7 +3115,6 @@ ESTOFSPARMS = [([StormSurge, AstroTide], TC1)]
 
 ETSSPARMS = [([StormSurge], TC1)]
 
-HRRRPARMS = [([Temp, Td, RH, Wind, WindGust, Sky, QPF], TC1)]
 
 # 3 hourly
 STD3_MODEL = [([Temp, Td, RH, Wind, Wind20ft, Sky, FzLevel, SnowLevel], TC3),
@@ -3299,7 +3284,6 @@ TPCProbPARMS = [([prob34, prob50, prob64], TC1),
 
 # Cobb snow tool
 parmsNAM12 = [([SnowRatio], TC1)]
-parmsGFS20 = [([SnowRatio], TC1)]
 
 ENPwave_parms = [([WindWaveHeight, WaveHeight, SurfHeight, Wind], TC6),
             ([Swell, Swell2, Period, Period2], TC6)]
@@ -3321,7 +3305,6 @@ DATABASES = [
              (NAM95, STD6_MODEL),
              (RAP13, STD1_MODEL),
              (RAP40, STD1_MODEL),
-             (GFS20, STD6_MODEL),
              (GFS80, STD6_MODEL),
              (GFS75, STD6_MODEL),
              (GFS190, STD6_MODEL),
@@ -3413,7 +3396,6 @@ DATABASES = [
              (GLWM, GLWMPARMS),
              (HIRESWarw, STD3_MODEL),
              (HIRESWnmm, STD3_MODEL),
-             (HRRR, HRRRPARMS),
 #DR20634             (SPC, SPCPARMS),
              (WCwave10, WAVEPARMS3),
              (WCwave4, WAVEPARMS3),

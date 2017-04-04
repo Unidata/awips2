@@ -86,9 +86,9 @@ timeStamp = strftime("%Y%m%d", gmtime())
 logFile = '/awips2/edex/logs/configureTextProducts-'+timeStamp+'.log'
 
 LOG = logging.getLogger("configureTextProducts")
-LOG.setLevel(logging.DEBUG)
+LOG.setLevel(logging.ERROR)
 handler = logging.FileHandler(logFile)
-handler.setLevel(logging.DEBUG)
+handler.setLevel(logging.ERROR)
 formatter = logging.Formatter("%(levelname)-5s %(asctime)s [%(process)d:%(thread)d] %(filename)s: %(message)s")
 handler.setFormatter(formatter)
 for h in LOG.handlers:
