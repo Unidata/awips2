@@ -112,6 +112,11 @@ do
    grep -rl 'XXX' $EDEX_DIR | xargs sed -i 's/XXX/'$site'/g'
 done
 
+# COMMON
+COMMON_DIR=$UTIL/common_static
+mkdir -p $COMMON_DIR
+cp -R $BUILD_DIR/utility/common_static/* $COMMON_DIR/
+
 %install
 if [ ! -d %{_baseline_workspace}/%{_localization_directory} ]; then
    echo "ERROR: The specified localization directory does not exist - %{_localization_directory}."
