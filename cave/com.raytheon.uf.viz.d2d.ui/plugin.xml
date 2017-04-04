@@ -63,7 +63,7 @@
 <extension
          point="org.eclipse.ui.menus">
       <menuContribution
-            locationURI="menu:org.eclipse.ui.main.menu?after=CAVE">
+            locationURI="menu:org.eclipse.ui.main.menu">
           <menu id="d2dFile" label="File" mnemonic="F">
              <visibleWhen>
                 <reference
