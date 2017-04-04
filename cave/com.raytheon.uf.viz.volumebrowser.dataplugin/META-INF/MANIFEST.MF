@@ -28,5 +28,6 @@ Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.15.1",
  com.raytheon.uf.viz.datacube;bundle-version="1.14.0",
  com.raytheon.uf.viz.core.grid;bundle-version="1.15.0",
  com.raytheon.viz.core;bundle-version="1.15.0",
- com.raytheon.uf.common.dataplugin.grid.derivparam;bundle-version="1.16.0"
+ com.raytheon.uf.common.dataplugin.grid.derivparam;bundle-version="1.16.0",
+ com.raytheon.uf.viz.d2d.ui;bundle-version="1.14.0"
 Export-Package: com.raytheon.uf.viz.volumebrowser.dataplugin.point

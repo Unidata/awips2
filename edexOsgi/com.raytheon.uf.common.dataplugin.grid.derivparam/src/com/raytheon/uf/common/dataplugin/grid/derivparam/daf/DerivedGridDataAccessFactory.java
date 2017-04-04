@@ -43,6 +43,7 @@ import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataaccess.IDataRequest;
+import com.raytheon.uf.common.dataaccess.INotificationFilter;
 import com.raytheon.uf.common.dataaccess.exception.DataRetrievalException;
 import com.raytheon.uf.common.dataaccess.exception.EnvelopeProjectionException;
 import com.raytheon.uf.common.dataaccess.exception.InvalidIdentifiersException;
@@ -715,5 +716,11 @@ public class DerivedGridDataAccessFactory extends AbstractDataFactory {
         }
 
     }
+
+	@Override
+	public INotificationFilter getNotificationFilter(IDataRequest request) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

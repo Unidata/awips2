@@ -65,6 +65,7 @@ import com.raytheon.uf.edex.database.cluster.handler.SharedLockHandler.LockType;
  * Apr 01, 2014 2862       rferrel     Initial creation
  * Apr 24, 2014 2726       rjpeter     Added shutdown cancel
  * May 28, 2014 3137       rferrel     Checks to prevent NullPointerException.
+ * Mar 22, 2016 5462       jschmid     Improved error message 'Purging will be skipped'
  * Jun 23, 2016            mjames@ucar Missing archive directory should be a warning.
  * </pre>
  * 
@@ -121,7 +122,7 @@ public class ArchivePurgeManager {
 
         if (!archiveRootDir.isDirectory()) {
             statusHandler.warn(archiveRootDir.getAbsolutePath()
-                    + " not a directory.");
+                    + " not a directory. Purging will be skipped.");
             return purgeCount;
         }
 

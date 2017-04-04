@@ -35,7 +35,6 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.GenericResourceData;
-import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.capabilities.BlendableCapability;
@@ -52,16 +51,16 @@ import com.raytheon.viz.ui.input.preferences.MousePreferenceManager;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Dec 22, 2010            mschenke     Initial creation
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Dec 22, 2010  7712     mschenke  Initial creation
+ * Aug 08, 2016  2676     bsteffen  Change return type of
+ *                                  getSamplingInputHandler().
  * 
  * </pre>
  * 
  * @author mschenke
- * @version 1.0
  */
-
 public class D2DSamplingResource extends SamplingResource implements
         ID2DSamplingResource {
 
@@ -158,7 +157,7 @@ public class D2DSamplingResource extends SamplingResource implements
     }
 
     @Override
-    protected IInputHandler getSamplingInputHandler() {
+    protected D2DMouseAdapter getSamplingInputHandler() {
         return new D2DMouseAdapter();
     }
 
