@@ -5,14 +5,6 @@
    <include file="${edex.home}/conf/logback-edex-loggers.xml" />
    <include file="${edex.home}/conf/logback-edex-hibernate-logger.xml" />
 
-   <!-- shef log --> 
-   <appender name="shef" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
-         <name>shef</name>
-      </rollingPolicy>
-      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
-   </appender> 
-
    <!-- activeTableChange log --> 
    <include file="${edex.home}/conf/logback-activeTableChange.xml"/>
 
@@ -28,14 +20,6 @@
    <appender name="RouteFailedLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
       <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
          <name>unrecognized-files</name>
-      </rollingPolicy>
-      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
-   </appender> 
-
-   <!-- ShefPerformanceLog log --> 
-   <appender name="ShefPerfLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
-         <name>shef-performance</name>
       </rollingPolicy>
       <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
    </appender> 
@@ -83,16 +67,10 @@
    <appender name="ThreadBasedLog" class="com.raytheon.uf.common.logback.appender.ThreadBasedAppender">
       <defaultAppenderName>asyncConsole</defaultAppenderName>
       <appender-ref ref="asyncConsole"/>
-      <appender-ref ref="shef"/>
       <appender-ref ref="purge"/>
       <appender-ref ref="MpeLog"/>
    </appender>
 
-   <logger name="com.raytheon.edex.plugin.shef" additivity="false">
-      <level value="INFO"/>
-      <appender-ref ref="shef" />
-   </logger>
- 
    <logger name="com.raytheon.uf.edex.purgesrv" additivity="false">
       <level value="INFO"/>
       <appender-ref ref="purge"/>
@@ -111,11 +89,6 @@
    <logger name="RouteFailedLog" additivity="false">
       <level value="WARN"/>
       <appender-ref ref="RouteFailedLog"/>
-   </logger>
-
-   <logger name="ShefPerfLog" additivity="false">
-      <level value="INFO"/>
-      <appender-ref ref="ShefPerfLog"/>
    </logger>
 
    <logger name="GenArealFFG" additivity="false">
