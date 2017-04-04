@@ -55,16 +55,53 @@
 		</antcall>
 		<antcall target="build">
 			<param name="feature"
+				value="com.raytheon.uf.edex.registry.request.feature" />
+		</antcall>
+		<antcall target="build">
+			<param name="feature"
+				value="edu.wisc.ssec.cimss.edex.convectprob.feature" />
+		</antcall>
+		<!--
+		<antcall target="build">
+			<param name="feature"
+				value="gov.noaa.nws.crh.edex.grib.decoderpostprocessor.feature" />
+		</antcall>
+		-->
+		<antcall target="build">
+			<param name="feature"
+				value="gov.noaa.nws.obs.edex.geodb.feature" />
+		</antcall>
+		<antcall target="build">
+			<param name="feature"
+				value="gov.noaa.nws.sr.oun.edex.mping.feature" />
+		</antcall>
+		<!--
+		<antcall target="build">
+			<param name="feature"
+				value="com.raytheon.uf.edex.datadelivery.feature" />
+		</antcall>
+		<antcall target="build">
+			<param name="feature"
+				value="com.raytheon.uf.edex.ogc.feature" />
+		</antcall>
+		
+		<antcall target="build">
+			<param name="feature"
+				value="com.raytheon.uf.edex.hazards.feature" />
+		</antcall>
+		-->
+		<antcall target="build">
+			<param name="feature"
 				value="com.raytheon.uf.edex.bufr.feature" />
 		</antcall>
 		<antcall target="build">
 			<param name="feature"
 				value="com.raytheon.uf.edex.grid.feature" />
 		</antcall>
-        <antcall target="build">
-            <param name="feature"
-                value="com.raytheon.uf.edex.archive.feature" />
-        </antcall>
+        	<antcall target="build">
+        		<param name="feature"
+        			value="com.raytheon.uf.edex.archive.feature" />
+        	</antcall>
 		<antcall target="build">
 			<param name="feature"
 				value="com.raytheon.uf.edex.text.feature" />
@@ -97,30 +134,37 @@
 			<param name="feature"
 				value="com.raytheon.uf.edex.ost.feature" />
 		</antcall>
-        <antcall target="build">
-            <param name="feature"
-                value="com.raytheon.uf.edex.npp.feature" />
-        </antcall>
-        <antcall target="build">
-            <param name="feature" 
-                value="com.raytheon.uf.edex.registry.request.feature" />
-        </antcall>
-        <antcall target="build">
-            <param name="feature"
-                value="com.raytheon.uf.edex.registry.client.feature" />
-        </antcall>
-        <antcall target="build">
-            <param name="feature"
-                value="com.raytheon.uf.edex.registry.feature" />
-        </antcall>
-        <antcall target="build">
-            <param name="feature"
-                value="com.raytheon.uf.edex.remote.script.feature" />
-        </antcall>
-        <antcall target="build">
-            <param name="feature"
-                value="com.raytheon.uf.edex.goesr.feature" />
-        </antcall>
+	        <antcall target="build">
+	            <param name="feature"
+	                value="com.raytheon.uf.edex.npp.feature" />
+	        </antcall>
+	        <antcall target="build">
+	            <param name="feature" 
+	                value="com.raytheon.uf.edex.registry.request.feature" />
+	        </antcall>
+	        <antcall target="build">
+	            <param name="feature"
+	                value="com.raytheon.uf.edex.registry.client.feature" />
+	        </antcall>
+	        <antcall target="build">
+	            <param name="feature"
+	                value="com.raytheon.uf.edex.registry.feature" />
+	        </antcall>
+	        <antcall target="build">
+	            <param name="feature"
+	                value="com.raytheon.uf.edex.remote.script.feature" />
+	        </antcall>
+	        <antcall target="build">
+	            <param name="feature"
+	                value="com.raytheon.uf.edex.goesr.feature" />
+	        </antcall>
+		<!-- optionali, but should confirm they build and install -->
+		<!--
+		<antcall target="build">
+			<param name="feature"
+				value="com.raytheon.uf.edex.ohd.feature" />
+		</antcall>
+		-->
 
 	</target>
 

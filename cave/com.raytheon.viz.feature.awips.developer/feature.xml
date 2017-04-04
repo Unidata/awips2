@@ -90,6 +90,10 @@
          version="0.0.0"/>
 
    <includes
+         id="com.raytheon.uf.viz.satellite.goesr.feature"
+         version="0.0.0"/>
+   
+   <includes
          id="com.raytheon.uf.viz.ncep.core.feature"
          version="0.0.0"/>
 
@@ -200,11 +204,11 @@
    <includes
          id="com.raytheon.uf.viz.d2d.damagepath.feature"
          version="0.0.0"/>
-
+<!--
    <includes
          id="gov.noaa.gsd.viz.hazards.feature"
          version="0.0.0"/>
-
+-->
    <includes
          id="com.raytheon.uf.viz.ncep.npp.feature"
          version="0.0.0"/>
@@ -222,27 +226,27 @@
          version="0.0.0"/>
 
    <includes
+         id="com.raytheon.uf.viz.useradmin.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="gov.noaa.gsd.viz.ensemble.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="gov.noaa.nws.obs.viz.geodata.feature"
+         version="0.0.0"/>
+
+   <includes
          id="gov.noaa.nws.ocp.uf.viz.gisdatastore.feature"
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.viz.useradmin.feature"
-         version="0.0.0"/>
-
-   <includesV
-         id="gov.noaa.gsd.viz.ensemble.feature"
-         version="0.0.0"/>
-
-   <includesV
-         id="gov.noaa.nws.obs.viz.geodata.feature"
-         version="0.0.0"/>
-
-   <includesV
-         id="gov.noaa.nws.ocp.uf.viz.gisdatastore.feature"
-         version="0.0.0"/>
-
-   <includesV
          id="gov.noaa.nws.mdl.viz.awipsref.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="gov.noaa.nws.mdl.viz.boundaryTool.common.feature"
          version="0.0.0"/>
 
    <requires>

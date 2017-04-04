@@ -120,4 +120,44 @@
          id="com.raytheon.uf.edex.ncep.nco.feature"
          version="0.0.0"/>
 
+   <includes
+         id="com.raytheon.uf.edex.ohd.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.ost.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="edu.wisc.ssec.cimss.edex.convectprob.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="gov.noaa.nws.crh.edex.grib.decoderpostprocessor.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="gov.noaa.nws.obs.edex.geodb.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="gov.noaa.nws.sr.oun.edex.mping.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.datadelivery.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.registry.request.feature"
+         version="0.0.0"/>
+   
+   <includes
+         id="com.raytheon.uf.edex.ogc.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.hazards.feature"
+         version="0.0.0"/>
+
 </feature>

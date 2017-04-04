@@ -10,10 +10,7 @@ com.raytheon.uf.viz.application.feature
 com.raytheon.uf.viz.base.feature
 com.raytheon.uf.viz.nwsauth.feature
 com.raytheon.uf.viz.archive.feature
-com.raytheon.uf.viz.gisdatastore.feature
 com.raytheon.uf.viz.useradmin.feature
-edu.wisc.ssec.cimss.viz.convectprob.feature
-gov.noaa.nws.mdl.viz.boundaryTool.common.feature
 com.raytheon.viz.dataaccess.feature
 com.raytheon.uf.viz.localization.perspective.feature
 com.raytheon.uf.viz.core.feature
@@ -35,7 +32,6 @@ com.raytheon.uf.viz.npp.feature
 com.raytheon.viz.text.feature
 com.raytheon.viz.warngen.feature
 com.raytheon.viz.gfe.feature
-com.raytheon.uf.viz.dat.feature
 com.raytheon.uf.viz.d2d.ui.awips.feature
 com.raytheon.uf.viz.d2d.gfe.feature
 com.raytheon.uf.viz.ncep.dataplugins.feature
@@ -51,4 +47,11 @@ com.raytheon.uf.viz.ncep.npp.feature
 com.raytheon.uf.viz.ncep.perspective.feature
 com.raytheon.uf.viz.d2d.skewt.feature
 com.raytheon.uf.viz.grib.feature
+edu.wisc.ssec.cimss.viz.convectprob.feature
+gov.noaa.nws.mdl.viz.boundaryTool.common.feature
 com.raytheon.uf.viz.satellite.goesr.feature
+gov.noaa.gsd.viz.ensemble.feature
+gov.noaa.nws.mdl.viz.awipsref.feature
+gov.noaa.nws.obs.viz.geodata.feature
+gov.noaa.nws.ocp.uf.viz.gisdatastore.feature
+com.raytheon.uf.viz.gisdatastore.feature
