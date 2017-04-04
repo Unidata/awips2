@@ -85,7 +85,7 @@ DB_OWNER=`ls -ld ${AWIPS2_DATA_DIRECTORY} | grep -w 'data' | awk '{print $3}'`
 # Our log file
 SQL_LOG="${DATABASE_INSTALL}/sqlScripts/share/sql/ncep/ncep_sql_install.log"
 SQL_SHARE_DIR="${DATABASE_INSTALL}/sqlScripts/share/sql/ncep"
-LEGACY_SQL="/awips2/postgresql/share/contrib/postgis-2.2/legacy.sql"
+LEGACY_SQL="/awips2/postgresql/share/contrib/postgis-2.0/legacy.sql"
 
 # Determine if PostgreSQL is running.
 I_STARTED_POSTGRESQL="NO"
