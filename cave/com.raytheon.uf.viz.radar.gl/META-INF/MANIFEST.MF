@@ -7,6 +7,7 @@ Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.viz.radar;bundle-version="1.14",
  com.raytheon.viz.core.gl;bundle-version="1.14",
  com.raytheon.uf.viz.core;bundle-version="1.14",
- com.raytheon.uf.common.geospatial;bundle-version="1.14"
+ com.raytheon.uf.common.geospatial;bundle-version="1.14",
+ com.jogamp.jogl;bundle-version="2.3.2"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy

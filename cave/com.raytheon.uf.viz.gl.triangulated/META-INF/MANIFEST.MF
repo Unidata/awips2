@@ -9,6 +9,7 @@ Require-Bundle: com.raytheon.uf.viz.drawables.triangulated;bundle-version="1.15.
  com.raytheon.uf.viz.core;bundle-version="1.15.1",
  com.raytheon.uf.common.colormap;bundle-version="1.15.0",
  com.raytheon.viz.core.gl;bundle-version="1.15.1",
- javax.measure;bundle-version="1.0.0"
+ javax.measure;bundle-version="1.0.0",
+ com.jogamp.jogl;bundle-version="2.3.2"
 Import-Package: com.vividsolutions.jts.algorithm,
  com.vividsolutions.jts.geom
