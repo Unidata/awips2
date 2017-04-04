@@ -90,12 +90,13 @@ import com.vividsolutions.jts.geom.Polygon;
  * Oct 16, 2014  3454     bphillip    Upgrading to Hibernate 4
  * Nov 05, 2014  3788     bsteffen    Make gid a sequence instead of a hash.
  * May 19, 2015           mjames      Added McIDAS GVAR native projection support.
+ * Apr 03, 2017           mjames      Un-deprecate projection and fix for goesr ingest.
  * 
  * </pre>
  */
 @Entity
 @Table(name = "satellite_spatial", uniqueConstraints = { @UniqueConstraint(columnNames = {
-		"minX", "minY", "dx", "dy", "nx", "ny", "upperLeftElement",
+		"minX", "minY", "dx", "dy", "nx", "ny", "projection", "upperLeftElement",
 		"upperLeftLine", "elementRes", "lineRes", "crsWKT" }) })
 @SequenceGenerator(name = "SATELLITE_SPATIAL_GENERATOR", sequenceName = "satspatial_seq", allocationSize = 1)
 @XmlAccessorType(XmlAccessType.NONE)
@@ -118,14 +119,10 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
     /**
      * The projection of the map coverage 1=Mercator, 3=Lambert Conformal
      * 5=Polar Stereographic
-     * 
-     * @deprecated This field is only useful for GINI satellite format decoding
-     *             and should not be in the coverage object
      */
     @Column
     @XmlAttribute
     @DynamicSerializeElement
-    @Deprecated
     private Integer projection;
 
     /** Minimum x coordinate in crs space */
@@ -345,21 +342,16 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
         this.location = latLonGeometry;
     }
 
-
 	/**
      * @return
      */
-    @Deprecated
     public Integer getProjection() {
         return projection;
     }
 
     /**
-     * @deprecated This field is only useful for GINI satellite format decoding
-     *             and should not be in the coverage object
      * @param projection
      */
-    @Deprecated
     public void setProjection(Integer projection) {
         this.projection = projection;
     }
@@ -503,12 +495,18 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
     public CoordinateReferenceSystem getCrs() {
         if (crsObject == null && crsWKT != null) {
             try {
-            	if (this.projection == PROJ_GVAR) {
-                       crsObject = constructCRSfromWKT(crsWKT);
-               } else {
-	                crsObject = CRSCache.getInstance()
-	                        .getCoordinateReferenceSystem(crsWKT);
-               }
+            	if (this.projection != null) {
+            		if (this.projection == PROJ_GVAR) {
+                        crsObject = constructCRSfromWKT(crsWKT);
+	                 } else {
+	 	                   crsObject = CRSCache.getInstance()
+	 	                           .getCoordinateReferenceSystem(crsWKT);
+	                 }
+            	} else {
+	                 crsObject = CRSCache.getInstance()
+ 	                        .getCoordinateReferenceSystem(crsWKT);
+                }
+            	
             } catch (FactoryException e) {
                 crsObject = null;
             }
@@ -521,26 +519,35 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
     	/* 
         * Native projections
         */
-        if (projection == PROJ_GVAR) { 
-           GridEnvelope gridRange = new GeneralGridEnvelope(new int[] {
-                0, 0 }, new int[] { getNx(),getNy() }, false);
-           GeneralEnvelope crsRange = new GeneralEnvelope(2);
-           crsRange.setCoordinateReferenceSystem( getCrs() );
-           
-           int minX = getUpperLeftElement();
-           int maxX = getUpperLeftElement() + ( getNx() * getElementRes() );
-           int minY = getUpperLeftLine() + ( getNy() * getLineRes() );
-           minY = -minY;
-           int maxY = -1 * getUpperLeftLine();
-           crsRange.setRange(0, minX, maxX);
-           crsRange.setRange(1, minY, maxY);
-           return new GridGeometry2D(gridRange, crsRange);
-        } else {
+	if (this.projection != null) {
+
+        	if (projection == PROJ_GVAR) { 
+        	   GridEnvelope gridRange = new GeneralGridEnvelope(new int[] {
+        	        0, 0 }, new int[] { getNx(),getNy() }, false);
+        	   GeneralEnvelope crsRange = new GeneralEnvelope(2);
+        	   crsRange.setCoordinateReferenceSystem( getCrs() );
+        	   
+        	   int minX = getUpperLeftElement();
+        	   int maxX = getUpperLeftElement() + ( getNx() * getElementRes() );
+        	   int minY = getUpperLeftLine() + ( getNy() * getLineRes() );
+        	   minY = -minY;
+        	   int maxY = -1 * getUpperLeftLine();
+        	   crsRange.setRange(0, minX, maxX);
+        	   crsRange.setRange(1, minY, maxY);
+        	   return new GridGeometry2D(gridRange, crsRange);
+        	} else {
+		        GridEnvelope gridRange = new GridEnvelope2D(0, 0, getNx(), getNy());
+		        Envelope crsRange = new Envelope2D(getCrs(), new Rectangle2D.Double(
+		                minX, minY, getNx() * getDx(), getNy() * getDy()));
+		        return new GridGeometry2D(gridRange, crsRange);
+        	}
+	} else {
 	        GridEnvelope gridRange = new GridEnvelope2D(0, 0, getNx(), getNy());
 	        Envelope crsRange = new Envelope2D(getCrs(), new Rectangle2D.Double(
 	                minX, minY, getNx() * getDx(), getNy() * getDy()));
 	        return new GridGeometry2D(gridRange, crsRange);
-        }
+
+	}
     }
     
     public static ProjectedCRS constructCRSfromWKT(String crsWKT) {
