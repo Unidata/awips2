@@ -158,7 +158,7 @@ public class DamInfoTranslator {
                             + centroid.getX()
                             + "','"
                             + centroid.getY()
-                            + "', GeomFromText('"
+                            + "', ST_GeomFromText('"
                             + mp.toText() + "',4326));");
         }
     }

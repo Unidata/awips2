@@ -173,7 +173,7 @@ public class MarineInfoSubscriber implements INationalDatasetSubscriber {
                         }
                         // "INSERT INTO" + DBSCHEMA + "." + DBTABLE
                         // "(st, name, prog_disc, warngenlev,the_geom) "
-                        // "VALUES('3','4',2,5,GeomFromText('POINT(1, 0)', 4326));"
+                        // "VALUES('3','4',2,5,ST_GeomFromText('POINT(1, 0)', 4326));"
                         query.setLength(0);
                         query.append("INSERT INTO \"");
                         query.append(DBSCHEMA);
@@ -181,7 +181,7 @@ public class MarineInfoSubscriber implements INationalDatasetSubscriber {
                         query.append(DBTABLE);
                         query.append("\"(st, name, prog_disc, warngenlev, the_geom) VALUES(");
                         query.append(":st, :name, :prog_disc, :warngenlev, ");
-                        query.append("GeomFromText('POINT(:geom1, :geom2)', 4326))");
+                        query.append("ST_GeomFromText('POINT(:geom1, :geom2)', 4326))");
                         paramMap.put("st", splitOne[3]);
                         paramMap.put("name", splitTwo[0]);
                         paramMap.put("prog_disc", splitOne[2]);
