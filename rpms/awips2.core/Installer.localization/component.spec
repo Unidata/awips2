@@ -205,10 +205,9 @@ fi
    
 echo "INFO: NHAdomain and StormSurgeWW shapefiles were successfully imported." >> ${log_file}
 
-PSQL="/awips2/psql/bin/psql"
-echo "Updating metadata.radar_spatial from common_static/base/radar/radarSpatial.sql"
-${PSQL} -U awips -d metadata -q -f /awips2/edex/data/utility/common_static/base/radar/radarSpatial.sql >> ${log_file} 2>&1
-
+#PSQL="/awips2/psql/bin/psql"
+#echo "Updating metadata.radar_spatial from common_static/base/radar/radarSpatial.sql"
+#${PSQL} -U awips -d metadata -q -f /awips2/edex/data/utility/common_static/base/radar/radarSpatial.sql >> ${log_file} 2>&1
 if [ "${I_STARTED_POSTGRESQL}" = "YES" ]; then
    echo "" >> ${log_file}
    su ${DB_OWNER} -c \
