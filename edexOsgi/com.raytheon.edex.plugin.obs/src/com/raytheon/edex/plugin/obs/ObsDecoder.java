@@ -28,8 +28,6 @@ import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.edex.plugin.obs.metar.MetarDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.status.IPerformanceStatusHandler;
-import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.wmo.WMOHeader;
@@ -57,6 +55,7 @@ import com.raytheon.uf.common.wmo.WMOHeader;
  * Oct 23, 2013 2361        njensen     Removed dead mesowest code
  * May 14, 2014 2536        bclement    moved WMO Header to common
  * Dec 15, 2015 5166        kbisanz     Update logging to use SLF4J
+ * Apr 04, 2017             mjames      Remove performance logging
  * </pre>
  * 
  * @author bphillip
@@ -65,9 +64,6 @@ import com.raytheon.uf.common.wmo.WMOHeader;
 public class ObsDecoder extends AbstractDecoder {
     /** The logger */
     private final Logger logger = LoggerFactory.getLogger(getClass());
-
-    private final IPerformanceStatusHandler perfLog = PerformanceStatus
-            .getHandler("Obs:");
 
     private String traceId = null;
 
@@ -98,7 +94,6 @@ public class ObsDecoder extends AbstractDecoder {
                     }
                 }
                 timer.stop();
-                perfLog.logDuration("Time to Decode", timer.getElapsedTime());
             }
         } catch (Exception e) {
             logger.error(traceId + "- Error in ObsDecoder", e);

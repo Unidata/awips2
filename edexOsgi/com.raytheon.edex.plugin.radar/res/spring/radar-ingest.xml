@@ -32,7 +32,7 @@
 			</setHeader>
 			<to uri="direct:radarcommon" />
 		</route>
-		
+
 		<route id="radarCommonIngestRoute">
 			<from uri="direct:radarcommon" />
 			<setHeader headerName="pluginName">
@@ -56,5 +56,5 @@
 			</doTry>
 		</route>
 	</camelContext>
-
+	
 </beans>

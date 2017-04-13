@@ -282,7 +282,7 @@ execute_initial_sql_script ${SQL_SHARE_DIR}/initial_setup_server.sql
 
 /awips2/psql/bin/psql -U awips -d metadata -c "CREATE EXTENSION postgis;"
 /awips2/psql/bin/psql -U awips -d metadata -c "CREATE EXTENSION postgis_topology;"
-execute_psql_sql_script /awips2/postgresql/share/contrib/postgis-2.2/legacy.sql metadata
+execute_psql_sql_script /awips2/postgresql/share/contrib/postgis-2.0/legacy.sql metadata
 execute_psql_sql_script ${SQL_SHARE_DIR}/permissions.sql metadata
 execute_psql_sql_script ${SQL_SHARE_DIR}/fxatext.sql metadata
 

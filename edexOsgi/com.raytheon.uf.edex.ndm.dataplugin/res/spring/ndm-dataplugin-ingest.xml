@@ -115,6 +115,7 @@
     
     <!-- radar -->
     <bean id="radarMenuCreator" class="com.raytheon.uf.edex.ndm.dataplugin.subscriber.RadarMenuUtil"/>
+    <bean id="import88dLocations" class="com.raytheon.uf.edex.ndm.dataplugin.subscriber.Import88DLocationsUtil"/>
     
     <bean factory-bean="ndmProc" factory-method="registerListener">
         <constructor-arg value="elevationLists.txt" />
@@ -127,6 +128,18 @@
     <bean factory-bean="ndmProc" factory-method="registerListener">
         <constructor-arg value="ssssElevationLists.txt" />
         <constructor-arg ref="radarMenuCreator" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="fsl-w88d.shp" />
+        <constructor-arg ref="import88dLocations" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="fsl-w88d.shx" />
+        <constructor-arg ref="import88dLocations" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="fsl-w88d.dbf" />
+        <constructor-arg ref="import88dLocations" />
     </bean>
     
     <!-- obs -->

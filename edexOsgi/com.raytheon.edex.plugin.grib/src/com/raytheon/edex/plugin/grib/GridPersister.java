@@ -52,6 +52,7 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 10, 2015 4868       rjpeter     Initial creation
+ * Aug 03, 2016 ----       mjames      Log less
  * 
  * </pre>
  * 
@@ -459,14 +460,6 @@ public class GridPersister implements IContextStateProcessor {
                             gridsLeftToProcess = !gridsByFile.isEmpty();
                         }
 
-                        statusHandler.info(String.format(logMsg, numRecords,
-                                SizeUtil.prettyByteSize(persistSet
-                                        .getSizeInBytes()), TimeUtil
-                                        .prettyDuration(timeToStore), file,
-                                localGridsInProcess, SizeUtil
-                                        .prettyByteSize(localBytesInProcess),
-                                localGridsPending, SizeUtil
-                                        .prettyByteSize(localBytesPending)));
                     }
                 }
             }

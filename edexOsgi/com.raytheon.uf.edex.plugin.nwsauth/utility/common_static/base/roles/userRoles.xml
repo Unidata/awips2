@@ -2,6 +2,9 @@
 <nwsRoleData xmlns:ns2="group">
   <application>Localization</application>
 
+   <permission id="com.raytheon.localization.workstation/cave_static" />
+   <permission id="com.raytheon.localization.workstation/common_static" />
+
    <permission id="com.raytheon.localization.site/common_static/purge">
    </permission>
 
@@ -162,6 +165,7 @@
       <userPermission>com.raytheon.localization.site/common_static/damagepath</userPermission>
       <userPermission>com.raytheon.localization.site/common_static/HazardServices</userPermission>
       <userPermission>com.raytheon.localization.site/cave_static/spellchecker</userPermission>
+      <userPermission>com.raytheon.localization.workstation/cave_static</userPermission>
+      <userPermission>com.raytheon.localization.workstation/common_static</userPermission>
    </user>
 </nwsRoleData>
-

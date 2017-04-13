@@ -201,8 +201,6 @@ public final class AfosBrowserModel extends AbstractBrowserModel {
                 RadarsInUseUtil.getSite(curSite, RadarsInUseUtil.ASR_CONSTANT));
         radarIDList.addAll(RadarsInUseUtil.getSite(curSite,
                 RadarsInUseUtil.MOSAIC_CONSTANT));
-        radarIDList.addAll(RadarsInUseUtil.getSite(curSite,
-                RadarsInUseUtil.LOCAL_CONSTANT));
         List<String> radarIDListTrunc = new ArrayList<>();
         List<String> radarList = RadarTextProductUtil.getRadarTableEntries();
         List<String> radarTypeList = new ArrayList<>();

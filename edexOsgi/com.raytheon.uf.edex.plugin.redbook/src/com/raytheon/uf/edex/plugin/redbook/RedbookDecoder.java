@@ -28,9 +28,7 @@ import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.redbook.RedbookRecord;
-import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -64,6 +62,7 @@ import com.raytheon.uf.edex.plugin.redbook.decoder.RedbookParser;
  * May 14, 2014 2536       bclement    moved WMO Header to common
  * Oct 24, 2014 3720       mapeters    Identify existing records using unique 
  *                                     constraints instead of dataURI.
+ * Feb 11, 2017            mjames      Remove performance logging
  * </pre>
  * 
  * @author jkorman
@@ -104,9 +103,6 @@ public class RedbookDecoder extends AbstractDecoder {
 
     private static final IUFStatusHandler logger = UFStatus
             .getHandler(RedbookDecoder.class);
-
-    private final IPerformanceStatusHandler perfLog = PerformanceStatus
-            .getHandler("Redbook:");
 
     private String traceId = null;
 
@@ -168,7 +164,6 @@ public class RedbookDecoder extends AbstractDecoder {
                     }
                 }
                 timer.stop();
-                perfLog.logDuration("Time to Decode", timer.getElapsedTime());
             } else {
                 logger.error(traceId + "- No valid WMO header found in data.");
             }

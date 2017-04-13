@@ -249,13 +249,6 @@
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.edex.aviation"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="com.raytheon.uf.common.dataplugin.madis"
          download-size="0"
          install-size="0"
