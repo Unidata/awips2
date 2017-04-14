@@ -5,6 +5,7 @@ site_author: mjames@ucar.edu
 theme: unidata
 repo_url: https://github.com/Unidata/awips2
 site_favicon: img/favicon.ico
+remote_name: unidata
 
 # Options
 extra:
@@ -16,7 +17,7 @@ extra:
     tabs: false
   social:
     - type: globe
-      link: http://www.unidata.ucar.edu
+      link: http://www.unidata.ucar.edu/software/awips2
     - type: github-alt
       link: https://github.com/Unidata/awips2
     - type: twitter
