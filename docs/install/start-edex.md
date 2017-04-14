@@ -1,8 +1,5 @@
----
-layout: default
-title: EDEX Start and Stop
----
 
+## EDEX Service Manager
 
 There are five EDEX service installed into `/etc/init.d/`, four of which run on boot:
 
@@ -17,7 +14,7 @@ The fifth, `edex_ldm`, does **not run at boot** to prevent filling up disk space
 
 All of these services are started and stopped by a single program `edex`,
 
-# edex start
+### edex start
 
     edex start
     
@@ -30,7 +27,7 @@ All of these services are started and stopped by a single program `edex`,
     Starting AWIPS LDM:The product-queue is OK.
     ...
 
-# edex stop
+### edex stop
 
     edex stop
 
@@ -43,7 +40,7 @@ All of these services are started and stopped by a single program `edex`,
     Stopping AWIPS LDM:Stopping the LDM server...
     ...
     
-# edex setup
+### edex setup
 
     edex setup
     
@@ -58,7 +55,7 @@ This command configures and/or confirms that the EDEX hostname and IP address de
 
 > If your EDEX server is running but you see the message "Connectivity Error: Unable to validate localization preferences" in CAVE, it may mean that the domain name defined in `/awips2/edex/bin/setup.env` can not be resolved from *outside* the server.  Some machines have different **internally-resolved** and **externally-resolved** domain names (cloud-based especially). The name defined in `setup.env` must be **externally-resolvable**.
 
-# edex log
+### edex log
 
     edex log
     
@@ -79,7 +76,7 @@ More edex logs...
     edex log satellite
     edex log text
 
-# edex users
+### edex users
 
 To see a list of clients connecting to your EDEX server, use the `edex users [YYYYMMDD]` command, where `YYYYMMDD` is the optional date string.
 
@@ -91,13 +88,13 @@ To see a list of clients connecting to your EDEX server, use the `edex users [YY
     awips@0.0.0.0
     awips@sdsmt.edu
 
-# edex purge
+### edex purge
 
 To view any stuck purge jobs in PortgreSQL (a rare but serious problem if your disk fills up).  The solution to this is to run `edex purge reset`.
 
 ---
 
-# EDEX Memory Configuration
+## EDEX Memory Configuration
 
 The directory `/awips2/edex/etc/` contains files which define the amount of memory used for each of the three EDEX JVMs (ingest, ingestGrib, request):
 
@@ -116,7 +113,7 @@ After editing these files, you must restart edex (`service edex_camel restart`).
 
 ---
 
-# EDEX Plugin Configuration
+## EDEX Plugin Configuration
 
 The directory `/awips2/edex/conf/modes` contains XML files with rules defining which plugins are included or excluded with each JVM (ingest, ingestGrid, request):
 
