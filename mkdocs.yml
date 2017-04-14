@@ -4,7 +4,7 @@ site_description: Documentation for all things AWIPS.
 site_author: mjames@ucar.edu
 theme: unidata
 repo_url: https://github.com/Unidata/awips2
-site_favicon: img/favicon.ico
+site_favicon: images/favicon.ico
 remote_name: unidata
 
 # Options
