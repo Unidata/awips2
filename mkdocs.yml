@@ -1,0 +1,79 @@
+site_name: Unidata AWIPS User Manual
+site_url: http://unidata.github.io/awips2
+site_description: Documentation for all things AWIPS.
+site_author: mjames@ucar.edu
+theme: unidata
+repo_url: https://github.com/Unidata/awips2
+site_favicon: img/favicon.ico
+
+# Options
+extra:
+  palette:
+    primary: 'blue grey'
+    accent: 'light blue'
+  corner_logo: 'images/cave.png'
+  feature:
+    tabs: false
+  social:
+    - type: globe
+      link: http://www.unidata.ucar.edu
+    - type: github-alt
+      link: https://github.com/Unidata/awips2
+    - type: twitter
+      link: https://twitter.com/Unidata
+    - type: facebook
+      link: https://facebook.com/Unidata
+
+pages:
+- Home: index.md
+- Install CAVE: install/install-cave.md
+- Install EDEX: install/install-edex.md
+- CAVE User Manual:
+    - D2D Perspective: cave/d2d-perspective.md
+    - Maps, Views, Projections: cave/maps-views-projections.md
+#    - Bundles and Procedures: cave/bundles-and-procedures.md
+    - Localization Perspective: cave/localization-perspective.md
+    - NCP Perspective: cave/ncp-perspective.md
+    - NSHARP: cave/nsharp.md
+    - WarnGen: cave/warngen.md
+    - GIS and Shapefiles: cave/d2d-gis-shapefiles.md
+    - Volume Browser: cave/d2d-gridded-models.md
+#    - Derived Parameters: cave/d2d-gridded-models.md
+#    - GEMPAK Grid Display: cave/d2d-gridded-models.md
+    - Display Tools: cave/d2d-tools.md
+    - Radar Tools: cave/d2d-radar-tools.md
+    - Editing Menus: cave/d2d-edit-menus.md
+    - Change Localization: cave/cave-localization.md
+    - Keyboard Shortcuts: cave/cave-keyboard-shortcuts.md
+- EDEX User Manual:
+    - EDEX Start and Stop: install/start-edex.md
+    - LDM Feeds: edex/ldm.md
+    - Ingest a New Grid: edex/new-grid.md
+    - Data Distribution Files: devguide/data-distribution-files.md
+    - Purging and Retention: edex/data-purge.md
+    - Monitor Users: edex/edex-users.md
+    - Data Plugins: edex/data-plugins.md
+- Supported Data Types:
+    - Gridded Model Display: cave/d2d-grids.md
+    - Surface Obs: cave/d2d-pointdata-surface-obs.md
+    - Satellite Imagery: cave/d2d-satellite.md
+    - NEXRAD Radar: cave/d2d-radar.md
+    - Upper Air: cave/d2d-uair.md
+    - NCEP/Hydro: cave/d2d-hydro.md
+    - Map Overlays: cave/d2d-map-resources.md
+- Appendix:
+    - AWIPS Grid Parameters: appendix/appendix-grid-parameters.md
+    - Acronyms and Abbreviations: appendix/appendix-acronyms.md
+    - COTS and FOSS: appendix/appendix-cots.md
+    - WSR-88D Product Table: appendix/appendix-wsr88d.md
+
+extra_css:
+    - css/extra.css
+
+markdown_extensions:
+    - fontawesome_markdown:
+    - toc:
+        permalink: 
+    - admonition:
+
+copyright: Copyright &copy; 2017 Unidata Program Center.
