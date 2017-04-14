@@ -1,0 +1,1357 @@
+
+<!DOCTYPE html>
+<html class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for all things AWIPS.">
+      
+      
+        <link rel="canonical" href="http://unidata.github.io/awips2/appendix/appendix-cots/">
+      
+      
+        <meta name="author" content="mjames@ucar.edu">
+      
+      
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+      
+      <meta name="generator" content="mkdocs-0.16.3, mkdocs-unidata-1.5.4">
+    
+    
+      
+        <title>COTS and FOSS</title>
+      
+    
+    
+      <script src="../../assets/javascripts/modernizr-56ade86843.js"></script>
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/application-b1a1975878.css">
+      
+        <link rel="stylesheet" href="../../assets/stylesheets/application-f78e5cb881.palette.css">
+      
+    
+    
+      
+        
+        
+        
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    
+    
+      <link rel="stylesheet" href="../../css/extra.css">
+    
+    
+  </head>
+  
+  
+  
+  
+    <body data-md-color-primary="blue-grey" data-md-color-accent="light-blue">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="drawer">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="search">
+    <label class="md-overlay" data-md-component="overlay" for="drawer"></label>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    
+      <div class="background-logo" style="background-image: url(../../images/cave.png);"></div>
+    
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <a href="http://unidata.github.io/awips2" title="Unidata AWIPS User Manual" class="md-icon md-icon--home md-header-nav__button">
+          </a>
+        
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <span class="md-flex__ellipsis md-header-nav__title">
+          
+            
+              
+                <span class="md-header-nav__parent">
+                  Appendix
+                </span>
+              
+            
+            
+              COTS and FOSS
+            
+          
+        </span>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
+          
+<div class="md-search" data-md-component="search">
+  <div class="md-search__overlay"></div>
+  <div class="md-search__inner">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" required placeholder="Search" accesskey="s" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query">
+      <label class="md-icon md-search__icon" for="search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset">close</button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta" data-md-lang-result-none="No matching documents" data-md-lang-result-one="1 matching document" data-md-lang-result-other="# matching documents">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <div class="md-header-nav__source">
+          
+            
+
+
+  
+
+
+  <a href="https://github.com/Unidata/awips2" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+          
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+      
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="drawer">
+    
+      <i class="md-icon md-icon--home md-nav__button"></i>
+    
+    Unidata AWIPS User Manual
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+
+  <a href="https://github.com/Unidata/awips2" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../.." title="Home" class="md-nav__link">
+      Home
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../install/install-cave/" title="Install CAVE" class="md-nav__link">
+      Install CAVE
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../install/install-edex/" title="Install EDEX" class="md-nav__link">
+      Install EDEX
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
+    
+    <label class="md-nav__link" for="nav-4">
+      CAVE User Manual
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        CAVE User Manual
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-perspective/" title="D2D Perspective" class="md-nav__link">
+      D2D Perspective
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/maps-views-projections/" title="Maps, Views, Projections" class="md-nav__link">
+      Maps, Views, Projections
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/localization-perspective/" title="Localization Perspective" class="md-nav__link">
+      Localization Perspective
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/ncp-perspective/" title="NCP Perspective" class="md-nav__link">
+      NCP Perspective
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/nsharp/" title="NSHARP" class="md-nav__link">
+      NSHARP
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/warngen/" title="WarnGen" class="md-nav__link">
+      WarnGen
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-gis-shapefiles/" title="GIS and Shapefiles" class="md-nav__link">
+      GIS and Shapefiles
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-gridded-models/" title="Volume Browser" class="md-nav__link">
+      Volume Browser
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-tools/" title="Display Tools" class="md-nav__link">
+      Display Tools
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-radar-tools/" title="Radar Tools" class="md-nav__link">
+      Radar Tools
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-edit-menus/" title="Editing Menus" class="md-nav__link">
+      Editing Menus
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/cave-localization/" title="Change Localization" class="md-nav__link">
+      Change Localization
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/cave-keyboard-shortcuts/" title="Keyboard Shortcuts" class="md-nav__link">
+      Keyboard Shortcuts
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      EDEX User Manual
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
+        EDEX User Manual
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../install/start-edex/" title="EDEX Start and Stop" class="md-nav__link">
+      EDEX Start and Stop
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../edex/ldm/" title="LDM Feeds" class="md-nav__link">
+      LDM Feeds
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../edex/new-grid/" title="Ingest a New Grid" class="md-nav__link">
+      Ingest a New Grid
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../devguide/data-distribution-files/" title="Data Distribution Files" class="md-nav__link">
+      Data Distribution Files
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../edex/data-purge/" title="Purging and Retention" class="md-nav__link">
+      Purging and Retention
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../edex/edex-users/" title="Monitor Users" class="md-nav__link">
+      Monitor Users
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../edex/data-plugins/" title="Data Plugins" class="md-nav__link">
+      Data Plugins
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6">
+    
+    <label class="md-nav__link" for="nav-6">
+      Supported Data Types
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-6">
+        Supported Data Types
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-grids/" title="Gridded Model Display" class="md-nav__link">
+      Gridded Model Display
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-pointdata-surface-obs/" title="Surface Obs" class="md-nav__link">
+      Surface Obs
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-satellite/" title="Satellite Imagery" class="md-nav__link">
+      Satellite Imagery
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-radar/" title="NEXRAD Radar" class="md-nav__link">
+      NEXRAD Radar
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-uair/" title="Upper Air" class="md-nav__link">
+      Upper Air
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-hydro/" title="NCEP/Hydro" class="md-nav__link">
+      NCEP/Hydro
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-map-resources/" title="Map Overlays" class="md-nav__link">
+      Map Overlays
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7" checked>
+    
+    <label class="md-nav__link" for="nav-7">
+      Appendix
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-7">
+        Appendix
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../appendix-grid-parameters/" title="AWIPS Grid Parameters" class="md-nav__link">
+      AWIPS Grid Parameters
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../appendix-acronyms/" title="Acronyms and Abbreviations" class="md-nav__link">
+      Acronyms and Abbreviations
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+    
+    <a href="./" title="COTS and FOSS" class="md-nav__link md-nav__link--active">
+      COTS and FOSS
+    </a>
+    
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../appendix-wsr88d/" title="WSR-88D Product Table" class="md-nav__link">
+      WSR-88D Product Table
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/Unidata/awips2/edit/master/docs/appendix/appendix-cots.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
+                
+                
+                  <h1>COTS and FOSS</h1>
+                
+                <p>COTS and FOSS used in AWIPS</p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th align="center">Version</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ActiveMQ</td>
+<td align="center">5.3.0</td>
+<td>JMS (still used by AlertViz and internally in parts of Camel)</td>
+</tr>
+<tr>
+<td>Apache Batik</td>
+<td align="center">1.6</td>
+<td>Batik is a Java-based toolkit for applications or applets that want to use images in the Scalable Vector Graphics (SVG) format for various purposes, such as display, generation or manipulation.</td>
+</tr>
+<tr>
+<td>Apache MINA</td>
+<td align="center">1.1.7</td>
+<td>Network application framework</td>
+</tr>
+<tr>
+<td>Apache WSS4J</td>
+<td align="center">1.6.5</td>
+<td>Web Services Security</td>
+</tr>
+<tr>
+<td>Ant</td>
+<td align="center">1.7.1</td>
+<td>Java Build Tool</td>
+</tr>
+<tr>
+<td>Ant-Contrib</td>
+<td align="center">1.0b3</td>
+<td>Additional useful tasks and types for Ant</td>
+</tr>
+<tr>
+<td>Antlr</td>
+<td align="center">2.7.6</td>
+<td>Parser generator</td>
+</tr>
+<tr>
+<td>Atomikos TransactionEssentials</td>
+<td align="center">3.6.2</td>
+<td>Transaction management system</td>
+</tr>
+<tr>
+<td>Bitstream Vera Fonts</td>
+<td align="center">1.10</td>
+<td>Font library from Gnome</td>
+</tr>
+<tr>
+<td>bzip2</td>
+<td align="center">none</td>
+<td>Stream compression algorithm</td>
+</tr>
+<tr>
+<td>C3p0</td>
+<td align="center">0.9.1</td>
+<td>c3p0 is an easy-to-use library for making traditional JDBC drivers "enterprise-ready" by augmenting them with functionality defined by the jdbc3 spec and the optional extensions to jdbc2.</td>
+</tr>
+<tr>
+<td>Camel</td>
+<td align="center">2.4</td>
+<td>Enterprise Service Bus</td>
+</tr>
+<tr>
+<td>cglib</td>
+<td align="center">2.2</td>
+<td>Byte Code Generation Library is high level API to generate and transform JAVA byte code.</td>
+</tr>
+<tr>
+<td>CherryPy</td>
+<td align="center">3.1.2</td>
+<td>Object-oriented HTTP framework</td>
+</tr>
+<tr>
+<td>commons-beanutils</td>
+<td align="center">1.8.3</td>
+<td>Apache Common Libraries</td>
+</tr>
+<tr>
+<td>commons-codec</td>
+<td align="center">1.4.1</td>
+<td>Apache Common Libraries</td>
+</tr>
+<tr>
+<td>commons-collection</td>
+<td align="center">3.2</td>
+<td>Apache Common Libraries</td>
+</tr>
+<tr>
+<td>commons-configuration</td>
+<td align="center">1.6</td>
+<td>Apache Common Libraries</td>
+</tr>
+<tr>
+<td>Commons-cli</td>
+<td align="center">1.2</td>
+<td>Apache Common Libraries</td>
+</tr>
+<tr>
+<td>commons-digester</td>
+<td align="center">1.8.1</td>
+<td>Apache Common Libraries</td>
+</tr>
+<tr>
+<td>commons-cxf</td>
+<td align="center">2.5</td>
+<td>Apache Common Libraries</td>
+</tr>
+<tr>
+<td>commons-httpclient</td>
+<td align="center">3.1</td>
+<td>Apache Common Libraries</td>
+</tr>
+<tr>
+<td>commons-lang</td>
+<td align="center">2.3</td>
+<td>Apache Common Libraries</td>
+</tr>
+<tr>
+<td>commons-logging</td>
+<td align="center">1.1.1</td>
+<td>Apache Common Libraries</td>
+</tr>
+<tr>
+<td>commons-management</td>
+<td align="center">1.0</td>
+<td>Apache Common Libraries</td>
+</tr>
+<tr>
+<td>commons-pool</td>
+<td align="center">1.3</td>
+<td>Apache Common Libraries</td>
+</tr>
+<tr>
+<td>commons-validator</td>
+<td align="center">1.2</td>
+<td>Apache Common Libraries</td>
+</tr>
+<tr>
+<td>dom4j</td>
+<td align="center">1.6.1</td>
+<td>An open source library for working with XML, XPath, and XSLT on the Java platform using the Java Collections Framework</td>
+</tr>
+<tr>
+<td>dwr (direct web remoting) Getahead</td>
+<td align="center">1.1.3</td>
+<td>Java open source library</td>
+</tr>
+<tr>
+<td>Eclipse</td>
+<td align="center">3.6.1</td>
+<td>Java IDE</td>
+</tr>
+<tr>
+<td>Eclipse CDT</td>
+<td align="center">5.0.2</td>
+<td>C/C++ IDE for Eclipse</td>
+</tr>
+<tr>
+<td>ehcache</td>
+<td align="center">1.3.0</td>
+<td>Caching Support</td>
+</tr>
+<tr>
+<td>GEOS</td>
+<td align="center">3.0.2</td>
+<td>Geometry Engine, Required for PostGIS</td>
+</tr>
+<tr>
+<td>GeoTools Java API</td>
+<td align="center">2.6.4</td>
+<td>Java API for Manipulation of Geospatial Data</td>
+</tr>
+<tr>
+<td>Geronimo-jms</td>
+<td align="center">1.1 spec 1.1.1</td>
+<td>Server runtime framework</td>
+</tr>
+<tr>
+<td>GRIBJava</td>
+<td align="center">8.0</td>
+<td>Grib Java Decoder</td>
+</tr>
+<tr>
+<td>h5py</td>
+<td align="center">1.3.0</td>
+<td>HDF5 for Python</td>
+</tr>
+<tr>
+<td>hdf5</td>
+<td align="center">1.8.4-patch1</td>
+<td>Core HDF5 APIs</td>
+</tr>
+<tr>
+<td>hdf5</td>
+<td align="center">2.5</td>
+<td>Core HDF5 APIs</td>
+</tr>
+<tr>
+<td>Hibernate</td>
+<td align="center">3.5.0</td>
+<td>Data Access Layer</td>
+</tr>
+<tr>
+<td>IzPack</td>
+<td align="center">4.2.0</td>
+<td>Installer creator for EDEX</td>
+</tr>
+<tr>
+<td>JAI</td>
+<td align="center">1.1.3</td>
+<td>Java API for Image Manipulation</td>
+</tr>
+<tr>
+<td>JAI – Image I/O</td>
+<td align="center">1.1</td>
+<td>Plug-ins for JAI</td>
+</tr>
+<tr>
+<td>Jasper</td>
+<td align="center">1.900.1</td>
+<td>JPEG-2000 codec</td>
+</tr>
+<tr>
+<td>Java</td>
+<td align="center">1.6u46</td>
+<td>Kit for both 32-bit and 64-bit</td>
+</tr>
+<tr>
+<td>javax.mail</td>
+<td align="center">1.4.3</td>
+<td>mail modeling classes</td>
+</tr>
+<tr>
+<td>javax.measure</td>
+<td align="center">1.0-beta-2</td>
+<td>Strong types for measurements</td>
+</tr>
+<tr>
+<td>javax.persistence</td>
+<td align="center">1.0.0</td>
+<td>persistence classes and interfaces</td>
+</tr>
+<tr>
+<td>javax.vecmath</td>
+<td align="center">1.3.1</td>
+<td>Coordinates and vectors</td>
+</tr>
+<tr>
+<td>Jep</td>
+<td align="center">2.3+</td>
+<td>Java Python interface</td>
+</tr>
+<tr>
+<td>jetty</td>
+<td align="center">7.2.2</td>
+<td>Jetty provides an HTTP server, HTTP client, and javax.servlet container</td>
+</tr>
+<tr>
+<td>jGrapht</td>
+<td align="center">0.6.0</td>
+<td>JGraphT is a free Java graph library that provides mathematical graphtheory objects and algorithms</td>
+</tr>
+<tr>
+<td>JMock</td>
+<td align="center">2.0.0</td>
+<td>Java Mock Object Framework</td>
+</tr>
+<tr>
+<td>jna (java native access)</td>
+<td align="center">3.09</td>
+<td>JNA provides Java programs easy access to native shared libraries (DLLs on Windows) without writing anything but Java code—no JNI or native code is required. This functionality is comparable to Windows' Platform/Invoke and Python's ctypes. Access is dynamic at runtime without code generation.</td>
+</tr>
+<tr>
+<td>jogl</td>
+<td align="center">1.1.1-rc8</td>
+<td>Provides hardware-supported 3D graphics</td>
+</tr>
+<tr>
+<td>Jscience</td>
+<td align="center">4.3.1</td>
+<td>Library for Scientific Calculations and Visualizations</td>
+</tr>
+<tr>
+<td>JTS Topology Suite</td>
+<td align="center">1.10</td>
+<td>Java API for 2D spatial data</td>
+</tr>
+<tr>
+<td>JUnit</td>
+<td align="center">4.10</td>
+<td>Java Unit Test Framework</td>
+</tr>
+<tr>
+<td>lapack</td>
+<td align="center">3.0.0</td>
+<td>Linear Algebra Package for python</td>
+</tr>
+<tr>
+<td>ldm</td>
+<td align="center">6.11.2, 6.11.6</td>
+<td>Local Data Manager</td>
+</tr>
+<tr>
+<td>Log4J</td>
+<td align="center">1.2.16</td>
+<td>Logging Component used by Commons Logging</td>
+</tr>
+<tr>
+<td>libgfortran</td>
+<td align="center">4.1.2</td>
+<td>Fortran Library</td>
+</tr>
+<tr>
+<td>matplotlib</td>
+<td align="center">0.99.1.1-r7813</td>
+<td>Python 2D Plotting Library</td>
+</tr>
+<tr>
+<td>Mozilla Rhino</td>
+<td align="center">1.6R7</td>
+<td>Implementation of JavaScript embedded in Java</td>
+</tr>
+<tr>
+<td>NCEP Grib2 Libraries</td>
+<td align="center"></td>
+<td>Libraries for decoding &amp; encoding data in GRIB2 format</td>
+</tr>
+<tr>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;cnvgrib</td>
+<td align="center">1.1.8 and 11.9</td>
+<td>Fortran GRIB1 &lt;--&gt; GRIB2 conversion utility</td>
+</tr>
+<tr>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;g2clib</td>
+<td align="center">1.1.8</td>
+<td>"C" grib2 encoder/decoder</td>
+</tr>
+<tr>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;g2lib</td>
+<td align="center">1.1.8 and 1.1.9</td>
+<td>Fortran grib2 encoder/decoder and search/indexing routines</td>
+</tr>
+<tr>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;w3lib</td>
+<td align="center">1.6 and 1.7.1</td>
+<td>Fortran grib1 encoder/decoder and utilities</td>
+</tr>
+<tr>
+<td>nose</td>
+<td align="center">0.11.1</td>
+<td>Python unittest extension</td>
+</tr>
+<tr>
+<td>NumPy</td>
+<td align="center">1.3.0</td>
+<td>Numerical Python Scientific package for Python</td>
+</tr>
+<tr>
+<td>objectweb asm</td>
+<td align="center">2.1</td>
+<td>ASM is an all-purpose Java bytecode manipulation and analysis framework. It can be used to modify existing classes or dynamically generate classes, directly in binary form</td>
+</tr>
+<tr>
+<td>Openfire</td>
+<td align="center">3.7.1</td>
+<td>Collaboration Server – Not used but eventually will replace Wildfire. Only 3.7 approved.</td>
+</tr>
+<tr>
+<td>pil</td>
+<td align="center">1.1.6</td>
+<td>Python Imaging Library</td>
+</tr>
+<tr>
+<td>PostGIS</td>
+<td align="center">1.3.5</td>
+<td>Geographic Object Support for PostgreSQL</td>
+</tr>
+<tr>
+<td>PostgreSQL</td>
+<td align="center">9.2.3, 9.2.4</td>
+<td>Database</td>
+</tr>
+<tr>
+<td>Proj</td>
+<td align="center">4.6.1</td>
+<td>Cartographic Projections library</td>
+</tr>
+<tr>
+<td>pupynere</td>
+<td align="center">1.0.13</td>
+<td>Python module for reading and writing NetCDF files</td>
+</tr>
+<tr>
+<td>pydev</td>
+<td align="center">1.5</td>
+<td>Python Development Environment</td>
+</tr>
+<tr>
+<td>PyTables</td>
+<td align="center">2.1.2</td>
+<td>Python package for managing hierarchical datasets</td>
+</tr>
+<tr>
+<td>Python</td>
+<td align="center">2.7.1</td>
+<td>Dynamic programming language</td>
+</tr>
+<tr>
+<td>Python megawidgets</td>
+<td align="center">1.3.2</td>
+<td>Toolkit for building high-level compound widgets in Python using the Tkinter module</td>
+</tr>
+<tr>
+<td>Qpid</td>
+<td align="center">0.18</td>
+<td>Open Source AMQP (Advanced Message Queuing Protocol) Messaging</td>
+</tr>
+<tr>
+<td>SciPy</td>
+<td align="center">0.7.0</td>
+<td>Python Library of Scientific Tools</td>
+</tr>
+<tr>
+<td>ScientificPython</td>
+<td align="center">2.8</td>
+<td>Python library for common tasks in scientific computing</td>
+</tr>
+<tr>
+<td>slf4j</td>
+<td align="center">1.6.1</td>
+<td>The Simple Logging Facade for Java or (SLF4J) serves as a simple facade or abstraction for various logging frameworks</td>
+</tr>
+<tr>
+<td>smack</td>
+<td align="center">2.2.1</td>
+<td>Smack is an Open Source XMPP (Jabber) client library for instant messaging and presence.</td>
+</tr>
+<tr>
+<td>stomp.py</td>
+<td align="center">revision 18</td>
+<td>Python client library for accessing messaging servers</td>
+</tr>
+<tr>
+<td>Spring Framework OSGI</td>
+<td align="center">1.2.0</td>
+<td>dynamic modules</td>
+</tr>
+<tr>
+<td>Spring Framework</td>
+<td align="center">2.5.6</td>
+<td>Layered Java/J2EE application platform</td>
+</tr>
+<tr>
+<td>stomp.py</td>
+<td align="center">revision 18</td>
+<td>Python client libarary for accessing messaging servers</td>
+</tr>
+<tr>
+<td>Subclipse</td>
+<td align="center">1.4.8</td>
+<td>Eclipse plugin for Subversion support</td>
+</tr>
+<tr>
+<td>SWT Add-ons</td>
+<td align="center">0.1.1</td>
+<td>Add-ons for Eclipse SWT widgets</td>
+</tr>
+<tr>
+<td>Symphony OGNL</td>
+<td align="center">2.7.3</td>
+<td>Object-Graph Navigation Language; an expression language for getting/setting properties of Java objects.</td>
+</tr>
+<tr>
+<td>Thrift</td>
+<td align="center">20080411p1-3</td>
+<td>Binary Serialization Framework</td>
+</tr>
+<tr>
+<td>Tomcat Native</td>
+<td align="center">1.1.17</td>
+<td>Library for native memory control</td>
+</tr>
+<tr>
+<td>TPG</td>
+<td align="center">3.1.2</td>
+<td>Parser generator for Python</td>
+</tr>
+<tr>
+<td>utilconcurrent</td>
+<td align="center">1.3.2</td>
+<td>Utility classes</td>
+</tr>
+<tr>
+<td>Velocity</td>
+<td align="center">1.5.0</td>
+<td>Templating Engine</td>
+</tr>
+<tr>
+<td>werkzeug</td>
+<td align="center">0.6.2</td>
+<td>Python WSGI utility library</td>
+</tr>
+<tr>
+<td>Wildfire</td>
+<td align="center">3.1.1</td>
+<td>Collaboration Server</td>
+</tr>
+<tr>
+<td>xmltask</td>
+<td align="center">1.15.1</td>
+<td>Facility for automatically editing XML files as part of an Ant build</td>
+</tr>
+</tbody>
+</table>
+                
+                  
+                
+              
+              
+                
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../appendix-acronyms/" title="Acronyms and Abbreviations" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Acronyms and Abbreviations
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../appendix-wsr88d/" title="WSR-88D Product Table" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                WSR-88D Product Table
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Copyright &copy; 2017 Unidata Program Center.
+          </div>
+        
+        powered by
+        <a href="http://www.mkdocs.org" title="MkDocs">MkDocs</a>
+        and
+        <a href="http://squidfunk.github.io/mkdocs-material/" title="Material for MkDocs">
+          Material for MkDocs</a>
+      </div>
+      
+        
+  <div class="md-footer-social">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
+      <a href="http://www.unidata.ucar.edu" class="md-footer-social__link fa fa-globe"></a>
+    
+      <a href="https://github.com/Unidata/awips2" class="md-footer-social__link fa fa-github-alt"></a>
+    
+      <a href="https://twitter.com/Unidata" class="md-footer-social__link fa fa-twitter"></a>
+    
+      <a href="https://facebook.com/Unidata" class="md-footer-social__link fa fa-facebook"></a>
+    
+  </div>
+
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../assets/javascripts/application-0b7df094bf.js"></script>
+      <script>app.initialize({url:{base:"../.."}})</script>
+      
+    
+    
+      
+    
+  </body>
+</html>

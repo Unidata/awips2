@@ -1,0 +1,1256 @@
+
+<!DOCTYPE html>
+<html class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for all things AWIPS.">
+      
+      
+        <link rel="canonical" href="http://unidata.github.io/awips2/edex/data-plugins/">
+      
+      
+        <meta name="author" content="mjames@ucar.edu">
+      
+      
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+      
+      <meta name="generator" content="mkdocs-0.16.3, mkdocs-unidata-1.5.4">
+    
+    
+      
+        <title>Unidata AWIPS</title>
+      
+    
+    
+      <script src="../../assets/javascripts/modernizr-56ade86843.js"></script>
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/application-b1a1975878.css">
+      
+        <link rel="stylesheet" href="../../assets/stylesheets/application-f78e5cb881.palette.css">
+      
+    
+    
+      
+        
+        
+        
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    
+    
+      <link rel="stylesheet" href="../../css/extra.css">
+    
+    
+  </head>
+  
+  
+  
+  
+    <body data-md-color-primary="blue-grey" data-md-color-accent="light-blue">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="drawer">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="search">
+    <label class="md-overlay" data-md-component="overlay" for="drawer"></label>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    
+      <div class="background-logo" style="background-image: url(../../images/cave.png);"></div>
+    
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <a href="http://unidata.github.io/awips2" title="Unidata AWIPS User Manual" class="md-icon md-icon--home md-header-nav__button">
+          </a>
+        
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <span class="md-flex__ellipsis md-header-nav__title">
+          
+            
+              
+                <span class="md-header-nav__parent">
+                  EDEX User Manual
+                </span>
+              
+            
+            
+              Data Plugins
+            
+          
+        </span>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
+          
+<div class="md-search" data-md-component="search">
+  <div class="md-search__overlay"></div>
+  <div class="md-search__inner">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" required placeholder="Search" accesskey="s" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query">
+      <label class="md-icon md-search__icon" for="search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset">close</button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta" data-md-lang-result-none="No matching documents" data-md-lang-result-one="1 matching document" data-md-lang-result-other="# matching documents">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <div class="md-header-nav__source">
+          
+            
+
+
+  
+
+
+  <a href="https://github.com/Unidata/awips2" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+          
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+      
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="drawer">
+    
+      <i class="md-icon md-icon--home md-nav__button"></i>
+    
+    Unidata AWIPS User Manual
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+
+  <a href="https://github.com/Unidata/awips2" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../.." title="Home" class="md-nav__link">
+      Home
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../install/install-cave/" title="Install CAVE" class="md-nav__link">
+      Install CAVE
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../install/install-edex/" title="Install EDEX" class="md-nav__link">
+      Install EDEX
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
+    
+    <label class="md-nav__link" for="nav-4">
+      CAVE User Manual
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        CAVE User Manual
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-perspective/" title="D2D Perspective" class="md-nav__link">
+      D2D Perspective
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/maps-views-projections/" title="Maps, Views, Projections" class="md-nav__link">
+      Maps, Views, Projections
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/localization-perspective/" title="Localization Perspective" class="md-nav__link">
+      Localization Perspective
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/ncp-perspective/" title="NCP Perspective" class="md-nav__link">
+      NCP Perspective
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/nsharp/" title="NSHARP" class="md-nav__link">
+      NSHARP
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/warngen/" title="WarnGen" class="md-nav__link">
+      WarnGen
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-gis-shapefiles/" title="GIS and Shapefiles" class="md-nav__link">
+      GIS and Shapefiles
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-gridded-models/" title="Volume Browser" class="md-nav__link">
+      Volume Browser
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-tools/" title="Display Tools" class="md-nav__link">
+      Display Tools
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-radar-tools/" title="Radar Tools" class="md-nav__link">
+      Radar Tools
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-edit-menus/" title="Editing Menus" class="md-nav__link">
+      Editing Menus
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/cave-localization/" title="Change Localization" class="md-nav__link">
+      Change Localization
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/cave-keyboard-shortcuts/" title="Keyboard Shortcuts" class="md-nav__link">
+      Keyboard Shortcuts
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5" checked>
+    
+    <label class="md-nav__link" for="nav-5">
+      EDEX User Manual
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
+        EDEX User Manual
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../install/start-edex/" title="EDEX Start and Stop" class="md-nav__link">
+      EDEX Start and Stop
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../ldm/" title="LDM Feeds" class="md-nav__link">
+      LDM Feeds
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../new-grid/" title="Ingest a New Grid" class="md-nav__link">
+      Ingest a New Grid
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../devguide/data-distribution-files/" title="Data Distribution Files" class="md-nav__link">
+      Data Distribution Files
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../data-purge/" title="Purging and Retention" class="md-nav__link">
+      Purging and Retention
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../edex-users/" title="Monitor Users" class="md-nav__link">
+      Monitor Users
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+      
+    
+    
+    <a href="./" title="Data Plugins" class="md-nav__link md-nav__link--active">
+      Data Plugins
+    </a>
+    
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6">
+    
+    <label class="md-nav__link" for="nav-6">
+      Supported Data Types
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-6">
+        Supported Data Types
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-grids/" title="Gridded Model Display" class="md-nav__link">
+      Gridded Model Display
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-pointdata-surface-obs/" title="Surface Obs" class="md-nav__link">
+      Surface Obs
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-satellite/" title="Satellite Imagery" class="md-nav__link">
+      Satellite Imagery
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-radar/" title="NEXRAD Radar" class="md-nav__link">
+      NEXRAD Radar
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-uair/" title="Upper Air" class="md-nav__link">
+      Upper Air
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-hydro/" title="NCEP/Hydro" class="md-nav__link">
+      NCEP/Hydro
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-map-resources/" title="Map Overlays" class="md-nav__link">
+      Map Overlays
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7">
+    
+    <label class="md-nav__link" for="nav-7">
+      Appendix
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-7">
+        Appendix
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../appendix/appendix-grid-parameters/" title="AWIPS Grid Parameters" class="md-nav__link">
+      AWIPS Grid Parameters
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../appendix/appendix-acronyms/" title="Acronyms and Abbreviations" class="md-nav__link">
+      Acronyms and Abbreviations
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../appendix/appendix-cots/" title="COTS and FOSS" class="md-nav__link">
+      COTS and FOSS
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../appendix/appendix-wsr88d/" title="WSR-88D Product Table" class="md-nav__link">
+      WSR-88D Product Table
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/Unidata/awips2/edit/master/docs/edex/data-plugins.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
+                
+                
+                <style>
+td:first-child { font-weight: bold }
+</style>
+
+<h1 id="edex-data-decoder-plugins">EDEX Data Decoder Plugins<a class="headerlink" href="#edex-data-decoder-plugins" title="Permanent link"></a></h1>
+<table>
+<thead>
+<tr>
+<th align="left">NAME</th>
+<th align="left">DESCRIPTION</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">acars</td>
+<td align="left">Aircraft Communications Addressing and Reporting System observations</td>
+</tr>
+<tr>
+<td align="left">acarssounding</td>
+<td align="left">Vertical profiles derived from ACARS data</td>
+</tr>
+<tr>
+<td align="left">airep</td>
+<td align="left">Automated Aircraft Reports</td>
+</tr>
+<tr>
+<td align="left">airmet</td>
+<td align="left">“Airmen’s Meteorological Information”: aviation weather advisories for potentially hazardous, but non-severe weather</td>
+</tr>
+<tr>
+<td align="left">arealffgGenerator</td>
+<td align="left">Creates a mosaic of gridded ffg fields generated by RFCs for a WFO's area</td>
+</tr>
+<tr>
+<td align="left">arealQpeGen</td>
+<td align="left">Creates a mosaic of gridded QPE for a WFO's area</td>
+</tr>
+<tr>
+<td align="left">atcf</td>
+<td align="left">Automated Tropical Cyclone Forecast</td>
+</tr>
+<tr>
+<td align="left">aww</td>
+<td align="left">Airport Weather Warning</td>
+</tr>
+<tr>
+<td align="left">binlightning</td>
+<td align="left">Lightning data from the National Lightning Detection Network</td>
+</tr>
+<tr>
+<td align="left">bufrascat</td>
+<td align="left">Advanced Scatterometer wind data</td>
+</tr>
+<tr>
+<td align="left">bufrhdw</td>
+<td align="left">GOES High Density Winds</td>
+</tr>
+<tr>
+<td align="left">bufrmos</td>
+<td align="left">Model Output Statistics</td>
+</tr>
+<tr>
+<td align="left">bufrmthdw</td>
+<td align="left">MTSAT (Japanese Multi-Functional Transport Satellite) High Density Winds</td>
+</tr>
+<tr>
+<td align="left">bufrncwf</td>
+<td align="left">National Convective Weather Forecast for Aviation</td>
+</tr>
+<tr>
+<td align="left">bufrobs</td>
+<td align="left">BUFR formatted surface and sea obs</td>
+</tr>
+<tr>
+<td align="left">bufrquikscat</td>
+<td align="left">NASA QuikSCAT (Quick Scatterometer) satellite carrying the SeaWinds scatterometer (OOS 2009)</td>
+</tr>
+<tr>
+<td align="left">bufrsigwx</td>
+<td align="left">Aviation Significant Weather</td>
+</tr>
+<tr>
+<td align="left">bufrssmi</td>
+<td align="left">Special Sensor Microwave/Imager data from DMSP (Defesne Meteorological Satellite Program) satellites</td>
+</tr>
+<tr>
+<td align="left">bufrua</td>
+<td align="left">Upper air radiosonde data</td>
+</tr>
+<tr>
+<td align="left">ccfp</td>
+<td align="left">Aviation Collaborative Convective Forecast Product</td>
+</tr>
+<tr>
+<td align="left">climate-hmdb</td>
+<td align="left">Climate text products</td>
+</tr>
+<tr>
+<td align="left">convectprob</td>
+<td align="left">NOAA/CIMSS Prob Severe Model</td>
+</tr>
+<tr>
+<td align="left">convsigmet</td>
+<td align="left">Aviation Significant Meteorological Information for convective weather</td>
+</tr>
+<tr>
+<td align="left">crimss</td>
+<td align="left">NPP/NPOESS CrIMSS (Cross Track Infrared and Microwave Sounding Suite) soundings</td>
+</tr>
+<tr>
+<td align="left">cwa</td>
+<td align="left">Aviation Center Weather Advisory, issued by CWSUs (Center Weather Service Units)</td>
+</tr>
+<tr>
+<td align="left">cwat</td>
+<td align="left">County Warning Area Threat produced by SCAN. CWAT was formerly called SCAN Convective Threat Index (SCTI). Raw data inputs include radar, cloud-to-ground lightning from the NLDN, and a few RUC130 fields. Radar data [with WSR-88D product mnemonics and numbers] needed for CWAT are 1 km Composite Reflectivity [CZ, 37]; 4 km Vertically Integrated Liquid [VIL, 57]; Storm Track [STI, 58]; Mesocyclone Detections [MD, 141]; and Tornadic Vortex Signatures [TVS, 61]. RUC130 fields include 700 mb Wind, Freezing Level, 1000-500 mb Thickness and 500 mb Wind as specified in the SCANRunSiteConfig.xml file.)</td>
+</tr>
+<tr>
+<td align="left">dmw</td>
+<td align="left">GOES-R Derived Motion Winds</td>
+</tr>
+<tr>
+<td align="left">ffg</td>
+<td align="left">Flash flood guidance metadata (countybased ffg from RFCs)</td>
+</tr>
+<tr>
+<td align="left">ffmp</td>
+<td align="left">Flash Flood Monitoring and Prediction data. Raw data inputs: radar, gridded flash flood guidance from River Forecast Centers, highresolution precipitation estimates [HPE] and nowcasts [HPN], QPF from SCAN and gage data from the IHFS [Integrated Hydrologic Forecast System] database. Radar data [with WSR-88D product mnemonics and numbers] needed for FFMP are Digital Hybrid Reflectivity [DHR, 32] and Digital Precipitation Rate [DPR, 176]. The raw GRIB files containing RFC Flash Flood Guidance are identified in the tables in Part 2 of this document as NWS_151 or FFG-XXX, where XXX is an RFC identifier such as TUA, KRF, or ALR.</td>
+</tr>
+<tr>
+<td align="left">fog</td>
+<td align="left">Fog Monitor. Raw data inputs: METAR, Mesonet, maritime, buoys, MAROBs, and satellite [visible, 3.9 µm, and 10.7 µm])</td>
+</tr>
+<tr>
+<td align="left">freezingLevel</td>
+<td align="left">MPE Rapid Refresh Freezing Level scheduled process (MpeRUCFreezingLevel)</td>
+</tr>
+<tr>
+<td align="left">fssobs</td>
+<td align="left">Observations for the Fog monitor, SNOW, and SAFESEAS. Raw data inputs: METAR, Mesonet, maritime, buoys, MAROBs.</td>
+</tr>
+<tr>
+<td align="left">gaff</td>
+<td align="left">Generate Areal Flash Flood Guidance</td>
+</tr>
+<tr>
+<td align="left">geomag</td>
+<td align="left">NCEP SWPC Geomagnetic Data</td>
+</tr>
+<tr>
+<td align="left">gfe</td>
+<td align="left">Graphical Forecast Editor grids</td>
+</tr>
+<tr>
+<td align="left">ghcd</td>
+<td align="left">NCEP Generic High Cadence Data</td>
+</tr>
+<tr>
+<td align="left">goesr</td>
+<td align="left">Plugins to decode and display GOES-R products</td>
+</tr>
+<tr>
+<td align="left">goessounding</td>
+<td align="left">GOES Satellite Soundings</td>
+</tr>
+<tr>
+<td align="left">gpd</td>
+<td align="left">NCEP Generic Point Data</td>
+</tr>
+<tr>
+<td align="left">grid</td>
+<td align="left">Binary gridded data grib1/grib2</td>
+</tr>
+<tr>
+<td align="left">idft</td>
+<td align="left">Ice Drift Forecasts</td>
+</tr>
+<tr>
+<td align="left">intlsigmet</td>
+<td align="left">International Significant Meteorological Information for Aviation</td>
+</tr>
+<tr>
+<td align="left">ldad</td>
+<td align="left">Local Data Acquisition and Dissemination</td>
+</tr>
+<tr>
+<td align="left">ldadhydro</td>
+<td align="left">Local Data Acquisition and Dissemination Hydro data files</td>
+</tr>
+<tr>
+<td align="left">ldadmanual</td>
+<td align="left">Local Data Acquisition and Dissemination Manual Ingest</td>
+</tr>
+<tr>
+<td align="left">ldadmesonet</td>
+<td align="left">Local Data Acquisition and Dissemination Mesonet data files</td>
+</tr>
+<tr>
+<td align="left">ldadprofiler</td>
+<td align="left">Local Data Acquisition and Dissemination Profiler data files</td>
+</tr>
+<tr>
+<td align="left">lma</td>
+<td align="left">Lightning Mapping Array</td>
+</tr>
+<tr>
+<td align="left">loctables</td>
+<td align="left">Location Tables Ingest</td>
+</tr>
+<tr>
+<td align="left">lsr</td>
+<td align="left">Local Storm Reports</td>
+</tr>
+<tr>
+<td align="left">madis</td>
+<td align="left">Meteorological Assimilation Data Ingest System</td>
+</tr>
+<tr>
+<td align="left">manualIngest</td>
+<td align="left">Manual data ingest plugin</td>
+</tr>
+<tr>
+<td align="left">mcidas</td>
+<td align="left">NCEP decoder for McIDAS AREA files</td>
+</tr>
+<tr>
+<td align="left">metartohmdb</td>
+<td align="left">Adds metar records to the Verification and Climate database</td>
+</tr>
+<tr>
+<td align="left">modelsounding</td>
+<td align="left">Individual grid point soundings from the GFS and NAM models</td>
+</tr>
+<tr>
+<td align="left">modis</td>
+<td align="left">NASA Moderate-resolution Imaging Spectroradiometer</td>
+</tr>
+<tr>
+<td align="left">mosaic</td>
+<td align="left">NCEP Radar mosaic data files</td>
+</tr>
+<tr>
+<td align="left">mping</td>
+<td align="left">mPING Crowdsourced weather reports (http://mping.nssl.noaa.gov/)</td>
+</tr>
+<tr>
+<td align="left">ncpafm</td>
+<td align="left">NCEP Point/Area Forecast Matrices data</td>
+</tr>
+<tr>
+<td align="left">ncscat</td>
+<td align="left">NCEP ASCAT/Quikscat records</td>
+</tr>
+<tr>
+<td align="left">nctaf</td>
+<td align="left">NCEP Terminal Aerodrome Forecasts</td>
+</tr>
+<tr>
+<td align="left">nctext</td>
+<td align="left">NCEP Text decoders</td>
+</tr>
+<tr>
+<td align="left">ncuair</td>
+<td align="left">NCEP Upper Air decoder</td>
+</tr>
+<tr>
+<td align="left">ndm</td>
+<td align="left">National Dataset Maintenance ingester</td>
+</tr>
+<tr>
+<td align="left">nonconvsigmet</td>
+<td align="left">Aviation Significant Meteorological Information for non-convective weather</td>
+</tr>
+<tr>
+<td align="left">ntrans</td>
+<td align="left">NCCEP Ntrans Metafiles</td>
+</tr>
+<tr>
+<td align="left">nucaps</td>
+<td align="left">Soundings from NOAA Unique CrIS/ATMS Processing System from NPP (National Polar-Orbiting Partnership) Satellites</td>
+</tr>
+<tr>
+<td align="left">obs</td>
+<td align="left">Surface observations from METARs</td>
+</tr>
+<tr>
+<td align="left">pgen</td>
+<td align="left">NCEP NAWIPS PGEN decoder</td>
+</tr>
+<tr>
+<td align="left">pirep</td>
+<td align="left">Pilot Reports</td>
+</tr>
+<tr>
+<td align="left">poessounding</td>
+<td align="left">Polar Operational Environmental Satellite soundings</td>
+</tr>
+<tr>
+<td align="left">preciprate</td>
+<td align="left">Precipitation Rate from SCAN. Raw data input: radar data [with WSR-88D product mnemonic and number] needed for preciprate are Digital Hybrid Reflectivity [DHR, 32])</td>
+</tr>
+<tr>
+<td align="left">profiler</td>
+<td align="left">Wind Profiler data</td>
+</tr>
+<tr>
+<td align="left">q2FileProcessor</td>
+<td align="left">Q2 Verification System gzipped files</td>
+</tr>
+<tr>
+<td align="left">qc</td>
+<td align="left">QC mesonet data</td>
+</tr>
+<tr>
+<td align="left">qpf</td>
+<td align="left">Quantitative Precipitation Forecast from SCAN  (raw data inputs: radar and some RUC130 fields. Radar data [with WSR-88D product mnemonics and numbers] needed for SCAN’s QPF are 0.5 degree Base Reflectivity [Z, 19], 4 km Vertically Integrated Liquid [VIL, 57], and Storm Track [STI, 58]. The RUC130 field needed is 700 mb Wind, as defined in the SCANRunSiteConfig.xml file.)</td>
+</tr>
+<tr>
+<td align="left">radar</td>
+<td align="left">WSR-88D and TDWR data</td>
+</tr>
+<tr>
+<td align="left">redbook</td>
+<td align="left">“Redbook” graphics</td>
+</tr>
+<tr>
+<td align="left">regionalsat</td>
+<td align="left">Decoder implementation for netcdf3 files generated by the Alaska Region and GOES-R Proving Ground</td>
+</tr>
+<tr>
+<td align="left">satellite-gini</td>
+<td align="left">GINI-formatted satellite imagery (GOES, POES, VIIRS, FNEXRAD)</td>
+</tr>
+<tr>
+<td align="left">satellite-mcidas</td>
+<td align="left">McIDAS area files (Raytheon/D2D-developed)</td>
+</tr>
+<tr>
+<td align="left">satpre</td>
+<td align="left">Satellite-estimated Pecipiration (hydroApps)</td>
+</tr>
+<tr>
+<td align="left">scan</td>
+<td align="left">SCAN (System for Convection Analysis and Nowcasting) (Inputs for the SCAN Table include radar, cloud-toground lightning from the NLDN, fields from RUC130, and CWAT. Specific radar products [with WSR-88D product mnemonics and numbers] are: 1 km Composite Reflectivity [CZ, 37]; 0.5 degree Base Reflectivity [Z, 19]; 4 km Vertically Integrated Liquid [VIL, 57]; Storm Track [STI, 58]; Mesocyclone Detections [MD, 141]; and Tornadic Vortex Signature [TVS, 61]. The SCAN Digital Mesocyclone Detection Table uses the WSR-88D DMD product [number 149]. RUC130 fields used for SCAN include CAPE, 0-3 km Storm Relative Helicity, 700 mb Wind, Freezing Level, 1000-500 mb Thickness, and 500 mb Wind.)</td>
+</tr>
+<tr>
+<td align="left">sfcobs</td>
+<td align="left">Surface observations other than METAR format including buoys</td>
+</tr>
+<tr>
+<td align="left">sgwh</td>
+<td align="left">NCEP BUFR Significant Wave Height data - SGWH (Jason-1), SGWHA (Altika), SGWHC (CryoSat), SGWHE (Envisat), SGWHG (GFO), or SGWH2 (Jason-2)</td>
+</tr>
+<tr>
+<td align="left">shef</td>
+<td align="left">Standard Hydrometeorological Exchange Format data.</td>
+</tr>
+<tr>
+<td align="left">solarimage</td>
+<td align="left">NCEP SWPC Solar imagery</td>
+</tr>
+<tr>
+<td align="left">ssha</td>
+<td align="left">NCEP Sea Surface Height Anomaly BUFR data</td>
+</tr>
+<tr>
+<td align="left">stormtrack</td>
+<td align="left">NCEP StormTrack Plug-In (Automatic Tropical Cyclone Forecast &amp; Ensemble cyclones)</td>
+</tr>
+<tr>
+<td align="left">svrwx</td>
+<td align="left">SPC Local Storm Report Summaries</td>
+</tr>
+<tr>
+<td align="left">taf</td>
+<td align="left">Terminal Aerodrome Forecasts</td>
+</tr>
+<tr>
+<td align="left">tcg</td>
+<td align="left">Tropical Cyclone Guidance</td>
+</tr>
+<tr>
+<td align="left">tcm</td>
+<td align="left">Tropical Cyclone Forecast/Advisory</td>
+</tr>
+<tr>
+<td align="left">tcs</td>
+<td align="left">Tropical Cyclone Forecast/Advisory</td>
+</tr>
+<tr>
+<td align="left">text</td>
+<td align="left">Various Text Products</td>
+</tr>
+<tr>
+<td align="left">textlightning</td>
+<td align="left">Text lightning data</td>
+</tr>
+<tr>
+<td align="left">vaa</td>
+<td align="left">Volcanic ash advisories</td>
+</tr>
+<tr>
+<td align="left">viirs</td>
+<td align="left">Visible Infrared Imaging Radiometer Suite data</td>
+</tr>
+<tr>
+<td align="left">vil</td>
+<td align="left">Cell-based Vertically Integrated Liquid from SCAN (System for Convection Analysis and Nowcasting)</td>
+</tr>
+<tr>
+<td align="left">warning</td>
+<td align="left">Watches, Warnings, and Advisories</td>
+</tr>
+<tr>
+<td align="left">wcp</td>
+<td align="left">SPC Convective Watches</td>
+</tr>
+</tbody>
+</table>
+                
+                  
+                
+              
+              
+                
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../edex-users/" title="Monitor Users" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Monitor Users
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../../cave/d2d-grids/" title="Gridded Model Display" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Gridded Model Display
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Copyright &copy; 2017 Unidata Program Center.
+          </div>
+        
+        powered by
+        <a href="http://www.mkdocs.org" title="MkDocs">MkDocs</a>
+        and
+        <a href="http://squidfunk.github.io/mkdocs-material/" title="Material for MkDocs">
+          Material for MkDocs</a>
+      </div>
+      
+        
+  <div class="md-footer-social">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
+      <a href="http://www.unidata.ucar.edu" class="md-footer-social__link fa fa-globe"></a>
+    
+      <a href="https://github.com/Unidata/awips2" class="md-footer-social__link fa fa-github-alt"></a>
+    
+      <a href="https://twitter.com/Unidata" class="md-footer-social__link fa fa-twitter"></a>
+    
+      <a href="https://facebook.com/Unidata" class="md-footer-social__link fa fa-facebook"></a>
+    
+  </div>
+
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../assets/javascripts/application-0b7df094bf.js"></script>
+      <script>app.initialize({url:{base:"../.."}})</script>
+      
+    
+    
+      
+    
+  </body>
+</html>
