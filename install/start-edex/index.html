@@ -21,7 +21,7 @@
     
     
       
-        <title>EDEX Start and Stop</title>
+        <title>EDEX Start and Stop - Unidata AWIPS User Manual</title>
       
     
     
@@ -442,12 +442,97 @@
     
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
     
-      
     
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        EDEX Start and Stop
+      </label>
     
     <a href="./" title="EDEX Start and Stop" class="md-nav__link md-nav__link--active">
       EDEX Start and Stop
     </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#edex-service-manager" title="EDEX Service Manager" class="md-nav__link">
+    EDEX Service Manager
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#edex-start" title="edex start" class="md-nav__link">
+    edex start
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edex-stop" title="edex stop" class="md-nav__link">
+    edex stop
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edex-setup" title="edex setup" class="md-nav__link">
+    edex setup
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edex-log" title="edex log" class="md-nav__link">
+    edex log
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edex-users" title="edex users" class="md-nav__link">
+    edex users
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edex-purge" title="edex purge" class="md-nav__link">
+    edex purge
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#edex-memory-configuration" title="EDEX Memory Configuration" class="md-nav__link">
+    EDEX Memory Configuration
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#edex-plugin-configuration" title="EDEX Plugin Configuration" class="md-nav__link">
+    EDEX Plugin Configuration
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
     
   </li>
 
@@ -723,8 +808,82 @@
 <nav class="md-nav md-nav--secondary">
   
   
-    
   
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#edex-service-manager" title="EDEX Service Manager" class="md-nav__link">
+    EDEX Service Manager
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#edex-start" title="edex start" class="md-nav__link">
+    edex start
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edex-stop" title="edex stop" class="md-nav__link">
+    edex stop
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edex-setup" title="edex setup" class="md-nav__link">
+    edex setup
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edex-log" title="edex log" class="md-nav__link">
+    edex log
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edex-users" title="edex users" class="md-nav__link">
+    edex users
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edex-purge" title="edex purge" class="md-nav__link">
+    edex purge
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#edex-memory-configuration" title="EDEX Memory Configuration" class="md-nav__link">
+    EDEX Memory Configuration
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#edex-plugin-configuration" title="EDEX Plugin Configuration" class="md-nav__link">
+    EDEX Plugin Configuration
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
   
 </nav>
                   </div>
@@ -739,7 +898,10 @@
                   <a href="https://github.com/Unidata/awips2/edit/master/docs/install/start-edex.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
-                <p>There are five EDEX service installed into <code>/etc/init.d/</code>, four of which run on boot:</p>
+                  <h1>EDEX Start and Stop</h1>
+                
+                <h2 id="edex-service-manager">EDEX Service Manager<a class="headerlink" href="#edex-service-manager" title="Permanent link"></a></h2>
+<p>There are five EDEX service installed into <code>/etc/init.d/</code>, four of which run on boot:</p>
 <pre><code>service postgres start
 service httpd-pypies start
 service qpidd start
@@ -749,7 +911,7 @@ service edex_camel start
 <pre><code>service edex_ldm start
 </code></pre>
 <p>All of these services are started and stopped by a single program <code>edex</code>,</p>
-<h1 id="edex-start">edex start<a class="headerlink" href="#edex-start" title="Permanent link"></a></h1>
+<h3 id="edex-start">edex start<a class="headerlink" href="#edex-start" title="Permanent link"></a></h3>
 <pre><code>edex start
 
 Starting EDEX PostgreSQL:                                  [  OK  ]
@@ -761,7 +923,7 @@ Starting EDEX Camel (ingestGrib):
 Starting AWIPS LDM:The product-queue is OK.
 ...
 </code></pre>
-<h1 id="edex-stop">edex stop<a class="headerlink" href="#edex-stop" title="Permanent link"></a></h1>
+<h3 id="edex-stop">edex stop<a class="headerlink" href="#edex-stop" title="Permanent link"></a></h3>
 <pre><code>edex stop
 
 Stopping EDEX Camel (request): 
@@ -773,7 +935,7 @@ Stopping EDEX PostgreSQL:                                  [  OK  ]
 Stopping AWIPS LDM:Stopping the LDM server...
 ...
 </code></pre>
-<h1 id="edex-setup">edex setup<a class="headerlink" href="#edex-setup" title="Permanent link"></a></h1>
+<h3 id="edex-setup">edex setup<a class="headerlink" href="#edex-setup" title="Permanent link"></a></h3>
 <pre><code>edex setup
 
 [edex] EDEX IP and Hostname Setup
@@ -787,7 +949,7 @@ Stopping AWIPS LDM:Stopping the LDM server...
 <blockquote>
 <p>If your EDEX server is running but you see the message "Connectivity Error: Unable to validate localization preferences" in CAVE, it may mean that the domain name defined in <code>/awips2/edex/bin/setup.env</code> can not be resolved from <em>outside</em> the server.  Some machines have different <strong>internally-resolved</strong> and <strong>externally-resolved</strong> domain names (cloud-based especially). The name defined in <code>setup.env</code> must be <strong>externally-resolvable</strong>.</p>
 </blockquote>
-<h1 id="edex-log">edex log<a class="headerlink" href="#edex-log" title="Permanent link"></a></h1>
+<h3 id="edex-log">edex log<a class="headerlink" href="#edex-log" title="Permanent link"></a></h3>
 <pre><code>edex log
 
 [edex] EDEX Log Viewer
@@ -806,7 +968,7 @@ edex log radar
 edex log satellite
 edex log text
 </code></pre>
-<h1 id="edex-users">edex users<a class="headerlink" href="#edex-users" title="Permanent link"></a></h1>
+<h3 id="edex-users">edex users<a class="headerlink" href="#edex-users" title="Permanent link"></a></h3>
 <p>To see a list of clients connecting to your EDEX server, use the <code>edex users [YYYYMMDD]</code> command, where <code>YYYYMMDD</code> is the optional date string.</p>
 <pre><code>edex users
 
@@ -816,10 +978,10 @@ user@192.168.1.67
 awips@0.0.0.0
 awips@sdsmt.edu
 </code></pre>
-<h1 id="edex-purge">edex purge<a class="headerlink" href="#edex-purge" title="Permanent link"></a></h1>
+<h3 id="edex-purge">edex purge<a class="headerlink" href="#edex-purge" title="Permanent link"></a></h3>
 <p>To view any stuck purge jobs in PortgreSQL (a rare but serious problem if your disk fills up).  The solution to this is to run <code>edex purge reset</code>.</p>
 <hr />
-<h1 id="edex-memory-configuration">EDEX Memory Configuration<a class="headerlink" href="#edex-memory-configuration" title="Permanent link"></a></h1>
+<h2 id="edex-memory-configuration">EDEX Memory Configuration<a class="headerlink" href="#edex-memory-configuration" title="Permanent link"></a></h2>
 <p>The directory <code>/awips2/edex/etc/</code> contains files which define the amount of memory used for each of the three EDEX JVMs (ingest, ingestGrib, request):</p>
 <pre><code>ls -al /awips2/edex/etc/
 -rw-r--r-- 1 awips fxalpha 1501 Dec  7 00:37 default.sh
@@ -833,7 +995,7 @@ export MAX_MEM=4096 # in Meg
 </code></pre>
 <p>After editing these files, you must restart edex (<code>service edex_camel restart</code>).</p>
 <hr />
-<h1 id="edex-plugin-configuration">EDEX Plugin Configuration<a class="headerlink" href="#edex-plugin-configuration" title="Permanent link"></a></h1>
+<h2 id="edex-plugin-configuration">EDEX Plugin Configuration<a class="headerlink" href="#edex-plugin-configuration" title="Permanent link"></a></h2>
 <p>The directory <code>/awips2/edex/conf/modes</code> contains XML files with rules defining which plugins are included or excluded with each JVM (ingest, ingestGrid, request):</p>
 <pre><code>ls -la /awips2/edex/conf/modes
 -rw-r--r-- 1 awips fxalpha 1982 Dec  6 21:26 grid-modes.xml
