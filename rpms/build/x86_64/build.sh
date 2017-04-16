@@ -110,7 +110,6 @@ fi
 
 if [ "${1}" = "-python" ]; then
    #noarch
-   buildRPM "awips2-python-cherrypy"
    buildRPM "awips2-python-nose"
    buildRPM "awips2-python-pupynere"
    buildRPM "awips2-python-qpid"
@@ -119,17 +118,13 @@ if [ "${1}" = "-python" ]; then
    #x86_64
    buildRPM "awips2-python"
    buildRPM "awips2-python-awips"
-   buildRPM "awips2-python-cartopy"
-   buildRPM "awips2-python-cycler"
    buildRPM "awips2-python-cython"
    buildRPM "awips2-python-dateutil"
    buildRPM "awips2-python-gfe"
    buildRPM "awips2-python-h5py"
    buildRPM "awips2-python-jep"
    buildRPM "awips2-python-matplotlib"
-   buildRPM "awips2-python-metpy"
    buildRPM "awips2-python-numpy"
-   buildRPM "awips2-python-pint"
    buildRPM "awips2-python-pmw"
    buildRPM "awips2-python-pyparsing"
    buildRPM "awips2-python-pytz"
@@ -162,7 +157,6 @@ if [ "${1}" = "-rh6" ]; then
    buildRPM "awips2-java"
    buildRPM "awips2-pypies"
    buildRPM "awips2-python"
-   buildRPM "awips2-python-cherrypy"
    buildRPM "awips2-python-nose"
    buildRPM "awips2-python-qpid"
    buildRPM "awips2-python-werkzeug"

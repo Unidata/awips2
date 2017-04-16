@@ -45,10 +45,6 @@ function lookupRPM()
       export RPM_SPECIFICATION="${installer_dir}/python/"
       return 0
    fi
-   if [ "${1}" = "awips2-python-cherrypy" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.cherrypy"
-      return 0
-   fi
    if [ "${1}" = "awips2-python-h5py" ]; then
       export RPM_SPECIFICATION="${installer_dir}/h5py/"
       return 0
@@ -113,28 +109,12 @@ function lookupRPM()
       export RPM_SPECIFICATION="${python_site__dir}/Installer.pyparsing"
       return 0
    fi
-   if [ "${1}" = "awips2-python-metpy" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.metpy"
-      return 0
-   fi
-   if [ "${1}" = "awips2-python-cartopy" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.cartopy"
-      return 0
-   fi
-   if [ "${1}" = "awips2-python-pint" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.pint"
-      return 0
-   fi
    if [ "${1}" = "awips2-python-six" ]; then
       export RPM_SPECIFICATION="${python_site__dir}/Installer.six"
       return 0
    fi
    if [ "${1}" = "awips2-python-cython" ]; then
       export RPM_SPECIFICATION="${python_site__dir}/Installer.cython"
-      return 0
-   fi
-   if [ "${1}" = "awips2-python-cycler" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.cycler"
       return 0
    fi
    if [ "${1}" = "awips2-python-dateutil" ]; then
