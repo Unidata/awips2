@@ -32,15 +32,15 @@ pages:
 - CAVE User Manual:
     - D2D Perspective: cave/d2d-perspective.md
     - Maps, Views, Projections: cave/maps-views-projections.md
-#    - Bundles and Procedures: cave/bundles-and-procedures.md
+    - TODO Bundles and Procedures: cave/bundles-and-procedures.md
     - Localization Perspective: cave/localization-perspective.md
     - NCP Perspective: cave/ncp-perspective.md
     - NSHARP: cave/nsharp.md
     - WarnGen: cave/warngen.md
     - GIS and Shapefiles: cave/d2d-gis-shapefiles.md
     - Volume Browser: cave/d2d-gridded-models.md
-#    - Derived Parameters: cave/d2d-gridded-models.md
-#    - GEMPAK Grid Display: cave/d2d-gridded-models.md
+    - TODO Derived Parameters: cave/d2d-gridded-models.md
+    - TODO GEMPAK Grid Display: cave/d2d-gridded-models.md
     - Display Tools: cave/d2d-tools.md
     - Radar Tools: cave/d2d-radar-tools.md
     - Editing Menus: cave/d2d-edit-menus.md

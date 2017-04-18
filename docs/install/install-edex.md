@@ -1,4 +1,4 @@
-# <i class="fa fa-linux"></i> EDEX for Linux 
+# <i class="fa fa-linux"></i> EDEX for CentOS/Red Hat
 
 [installEDEX.sh <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/software/awips2/installEDEX.sh) 
 
@@ -246,7 +246,7 @@ To start *all services except the LDM* (good for troubleshooting):
 
 ---
 
-## Directories to know
+## Directories To Know
 
 * `/awips2` - Contains all of the installed AWIPS software. 
 * `/awips2/edex/logs` - EDEX logs.
@@ -258,4 +258,4 @@ To start *all services except the LDM* (good for troubleshooting):
 * `/awips2/ldm/etc` - Location of **ldmd.conf** and **pqact.conf**
 * `/awips2/ldm/logs` - LDM logs.
 * `/awips2/data_store` - Raw data store.
-* `/awips2/data_store/ingest` - Manual data ingest endpoint.
+* `/awips2/data_store/ingest` - Manual data ingest endpoint (as of 16.4.1, previously /awips2/edex/data/manual)

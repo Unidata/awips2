@@ -55,6 +55,13 @@
             </iterate>
          </with>
       </definition>
+      
+      <definition id="com.raytheon.uf.viz.d2d.ui.inD2DPerspective">
+            <with variable="activeWorkbenchWindow.activePerspective">
+                <equals value="com.raytheon.uf.viz.d2d.ui.perspectives.D2D5Pane">
+                </equals>
+            </with>
+      </definition>
  </extension>
 
 <extension point="com.raytheon.uf.viz.d2d.core.timeMatchingConfigurationFactory">
@@ -70,21 +77,10 @@
                       definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
                 </reference>
              </visibleWhen>
-             <command
-                   commandId="org.eclipse.ui.window.newEditor"
-                   label="New Map"
-                   style="push">
-             </command>
-             <command
-                   commandId="com.raytheon.viz.ui.maps.createProjection"
-                   label="New Projection"
-                   style="push">
-             </command>
-			 <command
-                   commandId="com.raytheon.viz.ui.newPage"
-                   label="New Window"
-                   style="push">
-             </command>
+             <separator
+                   name="top"
+                   visible="false">
+             </separator>
              <menu
                    label="Procedures">
             <command
@@ -108,65 +104,33 @@
                   style="push">
             </command>
              </menu>
-             <menu
-                   id="import"
-                   label="Import">
-             </menu>
-             <separator
-                   name="saveSeparator"
-                   visible="true">
-             </separator>
-			 <command
-                   commandId="com.raytheon.viz.ui.loadSerialized"
-                   label="Open Bundle"
+             <command
+                   commandId="com.raytheon.viz.ui.showHistoryList"
+                   label="History List..."
                    style="push">
              </command>
              <command
-				   commandId="com.raytheon.viz.ui.saveProcedure"
-				   label="Save Bundle"
-				   style="push">
+                   commandId="com.raytheon.uf.viz.d2d.ui.actions.showPrintDialog"
+                   label="Print..."
+                   style="push">
              </command>
-             <command
-				   commandId="com.raytheon.viz.ui.saveBundle"
-				   label="Save Bundle Locally"
-				   style="push">
-             </command>
-             <separator
-                   name="exportSeparator"
-                   visible="true">
-             </separator>
              <command
                    commandId="com.raytheon.uf.viz.image.export.save"
-                   label="Save Image"
+                   label="Capture Window..."
                    style="push">
-             </command>
-             <command
-                   commandId="com.raytheon.uf.viz.kml.export.exportKML"
-                   label="Save KML"
-                   style="push">
-             </command>
-             <command
-                   commandId="com.raytheon.uf.viz.image.export.print"
-                   label="Print Screen"
-                   style="push">
-                <parameter
-                      name="frameSelection"
-                      value="current">
-                </parameter>
              </command>
           </menu>
           <menu
                 id="view"
-                label="View"
-                sibling_order="&lt;menu&#x0A;                   label=&quot;label&quot;&gt;&#x0A;             &lt;/menu&gt;">
-             <visibleWhen>	
+                label="View">
+             <visibleWhen>
                 <reference
                       definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
                 </reference>
              </visibleWhen>
              <command
                    commandId="com.raytheon.viz.ui.clear"
-                   label="Clear Data">
+                   label="Clear">
              </command>
              <separator
                    name="beforeLoopControlGroup"
@@ -235,7 +199,7 @@
              </separator>
              <command
                    commandId="com.raytheon.uf.viz.d2d.ui.actions.changeD2DLayout"
-                   label="1 Pane Layout">
+                   label="Default Pane Layout">
                 <parameter
                       name="sideViews"
                       value="4">
@@ -243,10 +207,10 @@
              </command>
              <command
                    commandId="com.raytheon.uf.viz.d2d.ui.actions.changeD2DLayout"
-                   label="5 Pane Layout">
+                   label="Three Pane Layout">
                 <parameter
                       name="sideViews"
-                      value="0">
+                      value="2">
                 </parameter>
              </command>
              <separator
@@ -349,8 +313,8 @@
              <separator name="tools.Z" visible="false" />
           </menu>
           <menu
-                id="models"
-                label="Models"
+                id="volume"
+                label="Volume"
                 mnemonic="V">
              <visibleWhen>
                 <reference
@@ -361,6 +325,7 @@
           </menu>
           <separator name="d2d.obsMenu" visible="false"/>
           <separator name="d2d.ncepHydroMenu" visible="false"/>
+          <separator name="d2d.localMenu" visible="false"/>
           <separator name="d2d.upperAirMenu" visible="false"/>
           <menu
                id="satellite"
@@ -372,13 +337,13 @@
                 </reference>
              </visibleWhen>
                <separator name="MENUSTART" visible="false"/>
-               <separator name="GROUP1" visible="true"/>
-               <separator name="GROUP2" visible="true"/>
-               <separator name="GROUP3" visible="true"/>
-               <separator name="GROUP4" visible="true"/>
-               <separator name="GROUP5" visible="true"/>
-               <separator name="GROUP6" visible="true"/>
-               <separator name="GROUP7" visible="true"/>
+               <separator name="GROUP1" visible="false"/>
+               <separator name="GROUP2" visible="false"/>
+               <separator name="GROUP3" visible="false"/>
+               <separator name="GROUP4" visible="false"/>
+               <separator name="GROUP5" visible="false"/>
+               <separator name="GROUP6" visible="false"/>
+               <separator name="GROUP7" visible="false"/>
                <separator name="MENUEND" visible="false"/>
          </menu>
          <menu
@@ -392,6 +357,10 @@
              </visibleWhen>
             <separator name="RADAR_MENU_START" visible="false"/>
          </menu>
+         <menu id="scan" mnemonic="C" label="SCAN">
+            <visibleWhen>
+                <reference definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet"></reference></visibleWhen>
+            <separator name="SCAN_MENU_START" visible="false"></separator></menu>
 
          <menu
                id="D2Dmaps"
@@ -408,9 +377,9 @@
              </dynamic>
          </menu>
        </menuContribution>
-		<menuContribution
-			locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
-             <toolbar
+         <menuContribution
+               locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+<toolbar
                   id="mapControls">
                <command
                      commandId="com.raytheon.viz.ui.scalebutton"
@@ -770,7 +739,8 @@
          </menuContribution>
          <menuContribution
                locationURI="menu:com.raytheon.viz.ui.actions.frames">
-            <command commandId="com.raytheon.viz.ui.actions.setframes">
+            <command
+                  commandId="com.raytheon.viz.ui.actions.setframes">
                <parameter
                      name="frameCount"
                      value="1">
@@ -783,7 +753,8 @@
                      value="2">
                </parameter>
             </command>
-            <command commandId="com.raytheon.viz.ui.actions.setframes">
+            <command
+                  commandId="com.raytheon.viz.ui.actions.setframes">
                <parameter
                      name="frameCount"
                      value="3">
@@ -796,10 +767,39 @@
                      value="4">
                </parameter>
             </command>
-            <command commandId="com.raytheon.viz.ui.actions.setframes">
+            <command
+                  commandId="com.raytheon.viz.ui.actions.setframes">
                <parameter
                      name="frameCount"
                      value="5">
+               </parameter>
+            </command>
+            <command
+                  commandId="com.raytheon.viz.ui.actions.setframes">
+               <parameter
+                     name="frameCount"
+                     value="6">
+               </parameter>
+            </command>
+            <command
+                  commandId="com.raytheon.viz.ui.actions.setframes">
+               <parameter
+                     name="frameCount"
+                     value="7">
+               </parameter>
+            </command>
+            <command
+                  commandId="com.raytheon.viz.ui.actions.setframes">
+               <parameter
+                     name="frameCount"
+                     value="8">
+               </parameter>
+            </command>
+            <command
+                  commandId="com.raytheon.viz.ui.actions.setframes">
+               <parameter
+                     name="frameCount"
+                     value="9">
                </parameter>
             </command>
             <command
@@ -813,94 +813,402 @@
                   commandId="com.raytheon.viz.ui.actions.setframes">
                <parameter
                      name="frameCount"
-                     value="15">
-               </parameter>
-            </command>
-            <command commandId="com.raytheon.viz.ui.actions.setframes">
-               <parameter
-                     name="frameCount"
-                     value="20">
+                     value="11">
                </parameter>
             </command>
             <command
                   commandId="com.raytheon.viz.ui.actions.setframes">
                <parameter
                      name="frameCount"
-                     value="25">
+                     value="12">
                </parameter>
             </command>
-            <command commandId="com.raytheon.viz.ui.actions.setframes">
-               <parameter
-                     name="frameCount"
-                     value="30">
-               </parameter>
-            </command>
-               <command commandId="com.raytheon.viz.ui.actions.setframes">
+            <separator
+                  name="separator"
+                  visible="true">
+            </separator>
+            <menu
+                  label="13 ~ 19">
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="13">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="14">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="15">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="16">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="17">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="18">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="19">
+                  </parameter>
+               </command>
+            </menu>
+            <menu
+                  label="20 ~ 29">
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="20">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="21">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="22">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="23">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="24">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="25">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="26">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="27">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="28">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="29">
+                  </parameter>
+               </command>
+            </menu>
+            <menu
+                  label="30 ~ 39">
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="30">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="31">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="32">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="33">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="34">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="35">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="36">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="37">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="38">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="39">
+                  </parameter>
+               </command>
+            </menu>
+            <menu
+                  label="40 ~ 49">
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
                   <parameter
                         name="frameCount"
                         value="40">
                   </parameter>
                </command>
-               <command commandId="com.raytheon.viz.ui.actions.setframes">
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="41">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="42">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="43">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="44">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="45">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="46">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="47">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="48">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="49">
+                  </parameter>
+               </command>
+            </menu>
+            <menu
+                  label="50 ~ 59">
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
                   <parameter
                         name="frameCount"
                         value="50">
                   </parameter>
                </command>
-               <command commandId="com.raytheon.viz.ui.actions.setframes">
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
                   <parameter
                         name="frameCount"
-                        value="100">
+                        value="51">
                   </parameter>
                </command>
-               <command commandId="com.raytheon.viz.ui.actions.setframes">
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
                   <parameter
                         name="frameCount"
-                        value="150">
+                        value="52">
                   </parameter>
                </command>
-               <command commandId="com.raytheon.viz.ui.actions.setframes">
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
                   <parameter
                         name="frameCount"
-                        value="200">
+                        value="53">
                   </parameter>
                </command>
-               <command commandId="com.raytheon.viz.ui.actions.setframes">
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
                   <parameter
                         name="frameCount"
-                        value="250">
+                        value="54">
                   </parameter>
                </command>
-               <command commandId="com.raytheon.viz.ui.actions.setframes">
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
                   <parameter
                         name="frameCount"
-                        value="300">
+                        value="55">
                   </parameter>
                </command>
-			   <command commandId="com.raytheon.viz.ui.actions.setframes">
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
                   <parameter
                         name="frameCount"
-                        value="350">
+                        value="56">
                   </parameter>
                </command>
-               <command commandId="com.raytheon.viz.ui.actions.setframes">
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
                   <parameter
                         name="frameCount"
-                        value="400">
+                        value="57">
                   </parameter>
                </command>
-			   <command commandId="com.raytheon.viz.ui.actions.setframes">
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
                   <parameter
                         name="frameCount"
-                        value="450">
+                        value="58">
                   </parameter>
                </command>
-			   <command commandId="com.raytheon.viz.ui.actions.setframes">
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
                   <parameter
                         name="frameCount"
-                        value="500">
+                        value="59">
                   </parameter>
                </command>
+            </menu>
+            <menu
+                  label="60 ~ 64">
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="60">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="61">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="62">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="63">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.ui.actions.setframes">
+                  <parameter
+                        name="frameCount"
+                        value="64">
+                  </parameter>
+               </command>
+            </menu>
          </menuContribution>
          <menuContribution
                locationURI="menu:com.raytheon.viz.ui.actions.magnification">
@@ -916,61 +1224,17 @@
           			id="com.raytheon.uf.viz.d2d.ui.densityPopulator">
 				</dynamic>
          </menuContribution>
-         <!--
-         <menuContribution
-               allPopups="false"
-               locationURI="menu:SetBrowserViewType">
-	         <command
-	               commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef"
-	               label="Cross Sections">
-	            <parameter
-	                  name="viewType"
-	                  value="CROSSSECTION">
-	            </parameter>
-	         </command>
-	         <command
-	               commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef"
-	               label="Time Series">
-	            <parameter
-	                  name="viewType"
-	                  value="TIMESERIES">
-	            </parameter>
-	         </command>
-	         <command
-	               commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef"
-	               label="Time Height">
-	            <parameter
-	                  name="viewType"
-	                  value="TIMEHEIGHT">
-	            </parameter>
-	         </command>
-	         <command
-	               commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef"
-	               label="Var vs. Height">
-	            <parameter
-	                  name="viewType"
-	                  value="VARVSHGT">
-	            </parameter>
-	         </command>
-	         <command
-	               commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef"
-	               label="Model Soundings">
-	            <parameter
-	                  name="viewType"
-	                  value="SOUNDING">
-	            </parameter>
-	         </command>
-         </menuContribution>
-         -->
        </extension>
          
          
- <extension
-       id="com.raytheon.uf.viz.d2d.ui.map.actions"
-       point="org.eclipse.ui.handlers">
+ <extension point="org.eclipse.ui.handlers">         
          <handler
                class="com.raytheon.uf.viz.d2d.ui.actions.ChangeLegendModeHandler"
-               commandId="com.raytheon.uf.viz.d2d.ui.actions.changeLegendMode">
+               commandId="com.raytheon.uf.viz.core.rsc.key.numpadEnter">
+               <activeWhen>
+                    <reference definitionId="com.raytheon.uf.viz.d2d.ui.inD2DPerspective">
+                    </reference>
+               </activeWhen>
          </handler>
          <handler
                class="com.raytheon.uf.viz.d2d.ui.map.actions.ClearAction"
@@ -993,6 +1257,10 @@
        					<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
     				</with>
                </activeWhen>
+         </handler>
+         <handler
+               class="com.raytheon.uf.viz.d2d.ui.actions.LocateCursorAction"
+               commandId="com.raytheon.uf.viz.d2d.ui.actions.locateCursorAction">
          </handler>
          <handler
                class="com.raytheon.uf.viz.d2d.ui.actions.LoadModeHandler"
@@ -1034,14 +1302,10 @@
                class="com.raytheon.uf.viz.d2d.ui.map.actions.ToggleResourceHandler"
                commandId="com.raytheon.viz.ui.actions.toggleResource">
             <activeWhen>
-               <reference	
+               <reference
                      definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
                </reference>
             </activeWhen>
-         </handler>
-		 <handler
-               class="com.raytheon.uf.viz.d2d.ui.map.actions.TwoPanelLayoutHandler"
-               commandId="com.raytheon.uf.viz.d2d.ui.map.actions.twoPanelLayout">
          </handler>
          <handler
                class="com.raytheon.uf.viz.d2d.ui.map.actions.FourPanelLayoutHandler"
@@ -1056,9 +1320,9 @@
                commandId="com.raytheon.uf.viz.d2d.ui.actions.imageCombination">
          </handler>
          <handler
-         		class="com.raytheon.uf.viz.d2d.ui.actions.ShowHistoryList"
-         		commandId="com.raytheon.viz.ui.showHistoryList">
-         </handler>
+	         class="com.raytheon.uf.viz.d2d.ui.actions.ShowHistoryList"
+	         commandId="com.raytheon.viz.ui.showHistoryList">
+   		 </handler>
 	     <handler
 	           class="com.raytheon.uf.viz.d2d.ui.actions.AddAWIPSProcedure"
 	           commandId="com.raytheon.viz.ui.newAWIPSProcedure">
@@ -1136,194 +1400,50 @@
       </perspective>
    </extension>
    <extension
-         id="com.raytheon.viz.ui.bindings"
+         id="com.raytheon.viz.d2d.ui.bindings"
          point="org.eclipse.ui.bindings">
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
-            commandId="com.raytheon.viz.ui.saveBundle"
+            commandId="com.raytheon.viz.ui.showHistoryList"
             schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="M1+SHIFT+S">
-      </key>
-	  <key
-      		contextId="com.raytheon.uf.viz.d2d.ui"
-            commandId="com.raytheon.viz.ui.saveProcedure"
-            schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="M1+S">
+            sequence="M1+H">
       </key>
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
-            commandId="com.raytheon.uf.viz.d2d.ui.actions.changeLegendMode"
+            commandId="com.raytheon.uf.viz.d2d.ui.actions.showPrintDialog"
             schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="NUMPAD_ENTER">
+            sequence="M1+P">
       </key>
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
-            commandId="com.raytheon.viz.ui.loadSerialized"
+            commandId="com.raytheon.viz.ui.newAWIPSProcedure"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="M1+N">
+      </key>
+      <key
+      		contextId="com.raytheon.uf.viz.d2d.ui"
+            commandId="com.raytheon.viz.ui.openAWIPSProcedure"
             schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="M1+O">
       </key>
       <key
-            commandId="org.eclipse.ui.window.newEditor"
-            contextId="com.raytheon.uf.viz.d2d.ui"
+      		contextId="com.raytheon.uf.viz.d2d.ui"
+            commandId="com.raytheon.viz.ui.deleteAWIPSProcedure"
             schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="M1+N">
+            sequence="M1+D">
+      </key>
+      <key
+      		contextId="com.raytheon.uf.viz.d2d.ui"
+            commandId="com.raytheon.viz.ui.copyOutAWIPSProcedure"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="M1+B">
       </key>
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
             commandId="com.raytheon.viz.ui.clear"
             schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="M1+C">
-      </key>
-      <key
-            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
-            contextId="com.raytheon.viz.ui.loopContext"
-            schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="ARROW_LEFT">
-            <parameter
-                  id="mode"
-                  value="TIME_ONLY">
-            </parameter>
-            <parameter
-                  id="operation"
-                  value="PREVIOUS">
-            </parameter>
-      </key>
-      <key
-            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
-            contextId="com.raytheon.viz.ui.loopContext"
-            schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="ARROW_RIGHT">
-            <parameter
-                  id="mode"
-                  value="TIME_ONLY">
-            </parameter>
-            <parameter
-                  id="operation"
-                  value="NEXT">
-            </parameter>
-      </key>
-      <key
-            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
-            contextId="com.raytheon.viz.ui.loopContext"
-            schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="M1+ARROW_LEFT">
-            <parameter
-                  id="mode"
-                  value="TIME_AND_SPACE">
-            </parameter>
-            <parameter
-                  id="operation"
-                  value="FIRST">
-            </parameter>
-      </key>
-      <key
-            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
-            contextId="com.raytheon.viz.ui.loopContext"
-            schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="M1+ARROW_RIGHT">
-            <parameter
-                  id="mode"
-                  value="TIME_AND_SPACE">
-            </parameter>
-            <parameter
-                  id="operation"
-                  value="LAST">
-            </parameter>
-      </key>
-      <key
-            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
-            contextId="com.raytheon.viz.ui.loopContext"
-            schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="ARROW_DOWN">
-         <parameter
-               id="mode"
-               value="SPACE_ONLY">
-         </parameter>
-         <parameter
-               id="operation"
-               value="PREVIOUS">
-         </parameter>
-      </key>
-      <key
-            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
-            contextId="com.raytheon.viz.ui.loopContext"
-            schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="ARROW_UP">
-         <parameter
-               id="mode"
-               value="SPACE_ONLY">
-         </parameter>
-         <parameter
-               id="operation"
-               value="NEXT">
-         </parameter>
-      </key>
-            <key
-            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
-            contextId="com.raytheon.viz.ui.loopContext"
-            schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="M1+ARROW_DOWN">
-            <parameter
-                  id="mode"
-                  value="SPACE_ONLY">
-            </parameter>
-            <parameter
-                  id="operation"
-                  value="FIRST">
-            </parameter>
-      </key>
-      <key
-            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
-            contextId="com.raytheon.viz.ui.loopContext"
-            schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="M1+ARROW_UP">
-            <parameter
-                  id="mode"
-                  value="SPACE_ONLY">
-            </parameter>
-            <parameter
-                  id="operation"
-                  value="LAST">
-            </parameter>
-      </key>
-      <key
-            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
-            contextId="com.raytheon.viz.ui.loopContext"
-            schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="SHIFT+ARROW_LEFT">
-            <parameter
-                  id="mode"
-                  value="TIME_AND_SPACE">
-            </parameter>
-            <parameter
-                  id="operation"
-                  value="PREVIOUS">
-            </parameter>
-      </key>
-      <key
-            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
-            contextId="com.raytheon.viz.ui.loopContext"
-            schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="SHIFT+ARROW_RIGHT">
-            <parameter
-                  id="mode"
-                  value="TIME_AND_SPACE">
-            </parameter>
-            <parameter
-                  id="operation"
-                  value="NEXT">
-            </parameter>
-      </key>
-      <key
-            commandId="com.raytheon.viz.ui.tools.looping.fasterLoop"
-            contextId="com.raytheon.viz.ui.loopContext"
-            schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="PAGE_UP"/>
-      <key
-            commandId="com.raytheon.viz.ui.tools.looping.slowerLoop"
-            contextId="com.raytheon.viz.ui.loopContext"
-            schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="PAGE_DOWN"/>
+      </key>      
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
             commandId="com.raytheon.uf.viz.d2d.ui.actions.timeOptionsAction"
@@ -1421,12 +1541,18 @@
             <parameter id="direction" value="1"></parameter>
             <parameter id="startIndex" value="2"></parameter>
             <parameter id="hideIndex" value="0"></parameter>
-      </key>
+      </key>      
       <key
             contextId="com.raytheon.uf.viz.d2d.ui"
             commandId="com.raytheon.uf.viz.d2d.ui.actions.imageCombination"
             schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="INSERT">
+      </key>
+      <key
+      		contextId="com.raytheon.uf.viz.d2d.ui"
+            commandId="com.raytheon.uf.viz.d2d.ui.actions.locateCursorAction"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="F12">
       </key>
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
@@ -1472,12 +1598,6 @@
          </commandParameter>
       </command>
       <command
-            id="com.raytheon.uf.viz.d2d.ui.actions.changeLegendMode"
-            categoryId="com.raytheon.uf.viz.d2d.ui"
-            description="Change the mode of the legend"
-            name="Change D2D legend mode">
-      </command>
-      <command
             id="com.raytheon.uf.viz.d2d.ui.actions.changeD2DLayout"
             name="Change D2D Layout">
          <commandParameter
@@ -1513,22 +1633,30 @@
             categoryId="com.raytheon.uf.viz.d2d.ui"
             description="Open time options dialog"
             name="Time Options">
+          <state id="org.eclipse.ui.commands.toggleState">
+              <class class="org.eclipse.ui.handlers.RegistryToggleState">
+                  <parameter
+                      name="persisted"
+                      value="false">
+                  </parameter>
+                  <parameter
+                      name="default"
+                      value="false">
+                  </parameter>
+              </class>
+          </state>
       </command>
       <command
-            id="com.raytheon.viz.ui.actions.notImplemented"
-            name="Data Scale">
+            id="com.raytheon.uf.viz.d2d.ui.actions.locateCursorAction"
+            categoryId="com.raytheon.uf.viz.d2d.ui"
+            description="Locates the cursor on the screen"
+            name="Locate Cursor">
       </command>
       <command
             id="com.raytheon.uf.viz.d2d.ui.actions.displayPropertiesAction"
             categoryId="com.raytheon.uf.viz.d2d.ui"
             description="Opens the display properties dialog"
             name="Display Properties">
-      </command>
-	  <command
-            id="com.raytheon.uf.viz.d2d.ui.map.actions.twoPanelLayout"
-            categoryId="com.raytheon.uf.viz.d2d.ui"
-            description="Switches editor to a two panel layout"
-            name="Two Panel Layout">
       </command>
       <command
             id="com.raytheon.uf.viz.d2d.ui.map.actions.fourPanelLayout"
@@ -1562,28 +1690,28 @@
             name="Image Combination">
       </command>
       <command
-      		id="com.raytheon.viz.ui.showHistoryList"
-      		categoryId="com.raytheon.uf.viz.d2d.ui"
-      		description="Show the d2d history list"
-      		name="Show History List">
+            id="com.raytheon.viz.ui.showHistoryList"
+            categoryId="com.raytheon.uf.viz.d2d.ui"
+            description="Show the d2d history list"
+            name="Show History List">
+      </command>
+      <command
+            id="com.raytheon.viz.ui.newAWIPSProcedure"
+            categoryId="com.raytheon.uf.viz.d2d.ui"
+            description="Create a new procedure"
+            name="New AWIPS Procedure">
       </command>
       <command
             id="com.raytheon.viz.ui.openAWIPSProcedure"
             categoryId="com.raytheon.uf.viz.d2d.ui"
-            description="Open an existing bundle"
-            name="Open Bundle">
-      </command>
-      <command
-            id="com.raytheon.viz.ui.saveAWIPSProcedure"
-            categoryId="com.raytheon.uf.viz.d2d.ui"
-            description="Save current display to bundle"
-            name="Save Bundle">
+            description="Open an existing procedure"
+            name="Open AWIPS Procedure">
       </command>
       <command
             id="com.raytheon.viz.ui.deleteAWIPSProcedure"
             categoryId="com.raytheon.uf.viz.d2d.ui"
-            description="Delete a bundle"
-            name="Delete Bundle">
+            description="Delete a procedure"
+            name="Delete AWIPS Procedure">
       </command>
       <command
             id="com.raytheon.viz.ui.copyOutAWIPSProcedure"
@@ -1621,12 +1749,6 @@
             categoryId="com.raytheon.uf.viz.d2d.ui"
       	    description="Toggles a blended resource"
             name="Toggle Layer"/>
-     <!--
-     <command
-           id="SetBrowserViewType"
-           name="Set Volume Browser View Type">
-     </command>
-     -->
    </extension>
    <extension
          point="com.raytheon.viz.ui.perspectiveManager">
@@ -1691,6 +1813,7 @@
 	          <contextId
 	                id="com.raytheon.uf.viz.d2d.ui">
 	          </contextId>
+              <contextId id="com.raytheon.viz.ui.loop.space"/>
 	      </classContext>
 	</extension>
 	<extension
@@ -1713,10 +1836,23 @@
        <path
           application="D2D"
           localizationType="CAVE_STATIC"
+          name="Procedures"
+          value="procedures" 
+          recursive="true">
+       </path>
+       <path
+          application="D2D"
+          localizationType="CAVE_STATIC"
           name="Map Scales"
           value="bundles/scales" 
           recursive="true">
        </path>
+       <path
+          application="D2D"
+          localizationType="COMMON_STATIC"
+          name="Purge Rules"
+          value="purge">
+    	</path>
     	<path
           application="D2D"
           localizationType="CAVE_STATIC"
