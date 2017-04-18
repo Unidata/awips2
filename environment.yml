@@ -1,0 +1,23 @@
+ name: awips-osx
+ channels:
+   - conda-forge
+ dependencies:
+   - python=2.7
+   - cartopy
+   - jupyter
+   - matplotlib
+   - metpy
+   - nose
+   - numpy
+   - python-dateutil
+   - pint
+   - pip
+   - pyparsing
+   - pytz
+   - scipy
+   - six
+   - shapely
+   - pip:
+     - pupynere
+     - python-awips
+     - jep
