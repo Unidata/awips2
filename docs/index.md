@@ -21,7 +21,7 @@
 
 AWIPS takes a unified approach to data ingest, and most data types follow a path through the system starting with an [LDM](#ldm) client requesting data from the [Unidata IDD](http://www.unidata.ucar.edu/projects/#idd). These data files are then decoded and stored as HDF5 and Postgres metadata by [EDEX](install/install-edex.html). 
 
-Unidata supports two visualization frameworks for rendering data: [CAVE](install/install-cave.html), and the Python Data Access Framework ([python-awips](http://python-awips.readthedocs.io)).
+Unidata develops and supports the visualization client for rendering data: [CAVE](install/install-cave.html), and the Python Data Access Framework ([python-awips](http://python-awips.readthedocs.io)) for remotely accessing AWIPS data as numpy arrays and Shapely geometries.
 
 ---
 
