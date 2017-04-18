@@ -117,6 +117,10 @@ function lookupRPM()
       export RPM_SPECIFICATION="${python_site__dir}/Installer.cython"
       return 0
    fi
+   if [ "${1}" = "awips2-python-cycler" ]; then
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.cycler"
+      return 0
+   fi
    if [ "${1}" = "awips2-python-dateutil" ]; then
       export RPM_SPECIFICATION="${python_site__dir}/Installer.dateutil"
       return 0

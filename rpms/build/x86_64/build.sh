@@ -119,6 +119,7 @@ if [ "${1}" = "-python" ]; then
    buildRPM "awips2-python"
    buildRPM "awips2-python-awips"
    buildRPM "awips2-python-cython"
+   buildRPM "awips2-python-cycler"
    buildRPM "awips2-python-dateutil"
    buildRPM "awips2-python-gfe"
    buildRPM "awips2-python-h5py"
