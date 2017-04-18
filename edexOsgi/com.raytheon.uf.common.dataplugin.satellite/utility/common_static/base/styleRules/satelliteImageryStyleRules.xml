@@ -456,11 +456,41 @@
 	</paramLevelMatches>
 	<imageStyle>
 		<displayUnits>in</displayUnits>
-		<samplePrefs>
-		    <!-- Number of decimal places to format the sample string to -->
-			<formatString>4</formatString>
+                <samplePrefs>
+                  <minValue>0</minValue>
+                  <maxValue>12</maxValue>
 		</samplePrefs>
 		<defaultColormap>Radar/8-bit STP</defaultColormap>
+        <dataMapping>
+                <entry displayValue='0' pixelValue='0'/>
+                <entry displayValue='.1' pixelValue='20'/>
+                <entry displayValue='.25' pixelValue='50'/>
+                <entry displayValue='.5' pixelValue='100'/>
+                <entry displayValue='1' pixelValue='111'/>
+                <entry displayValue='1.5' pixelValue='122'/>
+                <entry displayValue='2' pixelValue='133'/>
+                <entry displayValue='2.5' pixelValue='144'/>
+                <entry displayValue='3' pixelValue='155'/>
+                <entry displayValue='3.5' pixelValue='166'/>
+                <entry displayValue='4' pixelValue='177'/>
+                <entry displayValue='4.5' pixelValue='188'/>
+                <entry displayValue='5' pixelValue='200' />
+                <entry displayValue='10' pixelValue='239' />
+                <entry displayValue='12' pixelValue='255' />
+        </dataMapping>
+	</imageStyle>
+</styleRule>
+<styleRule>
+	<paramLevelMatches>
+		<parameter>OHA</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<displayUnits>in</displayUnits>
+                <samplePrefs>
+                  <minValue>0</minValue>
+                  <maxValue>12</maxValue>
+		</samplePrefs>
+		<defaultColormap>Radar/OSF/Storm Total Precip</defaultColormap>
         <dataMapping>
                 <entry displayValue='0' pixelValue='0'/>
                 <entry displayValue='.1' pixelValue='20'/>
@@ -487,9 +517,9 @@
 	</paramLevelMatches>
 	<imageStyle>
 		<displayUnits>in</displayUnits>
-		<samplePrefs>
-		    <!-- Number of decimal places to format the sample string to -->
-			<formatString>4</formatString>
+                <samplePrefs>
+                  <minValue>0</minValue>
+                  <maxValue>24</maxValue>
 		</samplePrefs>
 		<defaultColormap>Radar/8-bit STP</defaultColormap>
         <dataMapping>
