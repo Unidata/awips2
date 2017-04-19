@@ -132,6 +132,10 @@
 		</antcall>
 		<antcall target="build">
 			<param name="feature"
+				value="com.raytheon.uf.edex.binlightning.feature" />
+		</antcall>
+		<antcall target="build">
+			<param name="feature"
 				value="com.raytheon.uf.edex.ost.feature" />
 		</antcall>
 	        <antcall target="build">
