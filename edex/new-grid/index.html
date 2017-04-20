@@ -282,6 +282,18 @@
 
 
   <li class="md-nav__item">
+    <a href="../../cave/bundles-and-procedures/" title="TODO Bundles and Procedures" class="md-nav__link">
+      TODO Bundles and Procedures
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../../cave/localization-perspective/" title="Localization Perspective" class="md-nav__link">
       Localization Perspective
     </a>
@@ -344,6 +356,30 @@
   <li class="md-nav__item">
     <a href="../../cave/d2d-gridded-models/" title="Volume Browser" class="md-nav__link">
       Volume Browser
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-gridded-models/" title="TODO Derived Parameters" class="md-nav__link">
+      TODO Derived Parameters
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-gridded-models/" title="TODO GEMPAK Grid Display" class="md-nav__link">
+      TODO GEMPAK Grid Display
     </a>
   </li>
 
@@ -497,8 +533,20 @@
 
 
   <li class="md-nav__item">
-    <a href="../data-purge/" title="Purging and Retention" class="md-nav__link">
-      Purging and Retention
+    <a href="../data-purge/" title="Purging and Data Retention" class="md-nav__link">
+      Purging and Data Retention
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../gempak-nex2gini/" title="GEMPAK and NEX2GINI" class="md-nav__link">
+      GEMPAK and NEX2GINI
     </a>
   </li>
 
@@ -752,15 +800,17 @@
 <ol>
 <li>
 <p>Download an example grib1 file and rename to a <code>*.grib</code> extension, then copy to the manual ingest point <code>/awips2/data_store/ingest/</code> </p>
-<pre><code>wget http://www.unidata.ucar.edu/staff/mjames/14102318_nmm_d01.GrbF00600 -O wrf.grib
+<div class="codehilite"><pre><span></span>wget http://www.unidata.ucar.edu/staff/mjames/14102318_nmm_d01.GrbF00600 -O wrf.grib
 
 cp wrf.grib /awips2/data_store/ingest/
-</code></pre>
+</pre></div>
+
+
 <p>Remember that the data distribution file (<code>/awips2/edex/data/utility/edex_static/base/distribution/grib.xml</code>) will match filename which have the <code>*.grib</code> extension.</p>
 </li>
 <li>
 <p>Confirm that the grib file decodes in the grib log file:</p>
-<pre><code>edex log grib
+<div class="codehilite"><pre><span></span>edex log grib
 
 INFO [Ingest.GribDecode] /awips2/data_store/manual/grib/20141026/14/wrf.grib processed in: 0.1200 (sec) Latency: 21.8080 (sec)
 INFO [Ingest.GribDecode] /awips2/data_store/manual/grib/20141026/14/wrf.grib processed in: 0.1180 (sec) Latency: 21.8140 (sec)
@@ -768,27 +818,33 @@ INFO [Ingest.GribDecode] /awips2/data_store/manual/grib/20141026/14/wrf.grib pro
 INFO [Ingest.GribDecode] /awips2/data_store/manual/grib/20141026/14/wrf.grib processed in: 0.2240 (sec) Latency: 21.9140 (sec)
 
 ...
-</code></pre>
+</pre></div>
+
+
 </li>
 <li>
 <p>Check that the hdf5 data directory exists for our unnamed grid</p>
-<pre><code>ls -latr /awips2/edex/data/hdf5/grid/GribModel:7:0:89
-</code></pre>
+<div class="codehilite"><pre><span></span>ls -latr /awips2/edex/data/hdf5/grid/GribModel:7:0:89
+</pre></div>
+
+
 <p>Though the grib file has been decoded, it has been given a generic name with its center, subcenter, and process IDs (7, 0, 89, respectively). </p>
 </li>
 </ol>
 <h1 id="determine-grid-projection">Determine Grid Projection<a class="headerlink" href="#determine-grid-projection" title="Permanent link"></a></h1>
 <p>When the grid was ingested a record was added to the <code>grid_coverage</code> table with its navigation information:</p>
-<pre><code>psql metadata
+<div class="codehilite"><pre><span></span><span class="nt">psql</span> <span class="nt">metadata</span>
 
-metadata=# select nx,ny,dx,dy,majoraxis,minoraxis,la1,lo1,lov,latin1,latin2 from gridcoverage where id=(select distinct(location_id) from grid_info where datasetid='GribModel:7:0:89');
- nx  | ny  |        dx        |        dy        | majoraxis | minoraxis |       la1        |        lo1        |        lov        |      latin1      |      latin2      
------+-----+------------------+------------------+-----------+-----------+------------------+-------------------+-------------------+------------------+------------------
- 201 | 155 | 4.29699993133545 | 4.29699993133545 |   6378160 |   6356775 | 42.2830009460449 | -72.3610000610352 | -67.0770034790039 | 45.3680000305176 | 45.3680000305176
-(1 row)
-</code></pre>
+<span class="nt">metadata</span><span class="o">=</span><span class="err">#</span> <span class="nt">select</span> <span class="nt">nx</span><span class="o">,</span><span class="nt">ny</span><span class="o">,</span><span class="nt">dx</span><span class="o">,</span><span class="nt">dy</span><span class="o">,</span><span class="nt">majoraxis</span><span class="o">,</span><span class="nt">minoraxis</span><span class="o">,</span><span class="nt">la1</span><span class="o">,</span><span class="nt">lo1</span><span class="o">,</span><span class="nt">lov</span><span class="o">,</span><span class="nt">latin1</span><span class="o">,</span><span class="nt">latin2</span> <span class="nt">from</span> <span class="nt">gridcoverage</span> <span class="nt">where</span> <span class="nt">id</span><span class="o">=(</span><span class="nt">select</span> <span class="nt">distinct</span><span class="o">(</span><span class="nt">location_id</span><span class="o">)</span> <span class="nt">from</span> <span class="nt">grid_info</span> <span class="nt">where</span> <span class="nt">datasetid</span><span class="o">=</span><span class="s1">&#39;GribModel:7:0:89&#39;</span><span class="o">);</span>
+ <span class="nt">nx</span>  <span class="o">|</span> <span class="nt">ny</span>  <span class="o">|</span>        <span class="nt">dx</span>        <span class="o">|</span>        <span class="nt">dy</span>        <span class="o">|</span> <span class="nt">majoraxis</span> <span class="o">|</span> <span class="nt">minoraxis</span> <span class="o">|</span>       <span class="nt">la1</span>        <span class="o">|</span>        <span class="nt">lo1</span>        <span class="o">|</span>        <span class="nt">lov</span>        <span class="o">|</span>      <span class="nt">latin1</span>      <span class="o">|</span>      <span class="nt">latin2</span>      
+<span class="nt">-----</span><span class="o">+</span><span class="nt">-----</span><span class="o">+</span><span class="nt">------------------</span><span class="o">+</span><span class="nt">------------------</span><span class="o">+</span><span class="nt">-----------</span><span class="o">+</span><span class="nt">-----------</span><span class="o">+</span><span class="nt">------------------</span><span class="o">+</span><span class="nt">-------------------</span><span class="o">+</span><span class="nt">-------------------</span><span class="o">+</span><span class="nt">------------------</span><span class="o">+</span><span class="nt">------------------</span>
+ <span class="nt">201</span> <span class="o">|</span> <span class="nt">155</span> <span class="o">|</span> <span class="nt">4</span><span class="p">.</span><span class="nc">29699993133545</span> <span class="o">|</span> <span class="nt">4</span><span class="p">.</span><span class="nc">29699993133545</span> <span class="o">|</span>   <span class="nt">6378160</span> <span class="o">|</span>   <span class="nt">6356775</span> <span class="o">|</span> <span class="nt">42</span><span class="p">.</span><span class="nc">2830009460449</span> <span class="o">|</span> <span class="nt">-72</span><span class="p">.</span><span class="nc">3610000610352</span> <span class="o">|</span> <span class="nt">-67</span><span class="p">.</span><span class="nc">0770034790039</span> <span class="o">|</span> <span class="nt">45</span><span class="p">.</span><span class="nc">3680000305176</span> <span class="o">|</span> <span class="nt">45</span><span class="p">.</span><span class="nc">3680000305176</span>
+<span class="o">(</span><span class="nt">1</span> <span class="nt">row</span><span class="o">)</span>
+</pre></div>
+
+
 <p>Compare with the projection info returned by wgrib on the original file:</p>
-<pre><code>wgrib -V wrf.grib
+<div class="codehilite"><pre><span></span>wgrib -V wrf.grib
 
 rec 799:27785754:date 2014102318 ALBDO kpds5=84 kpds6=1 kpds7=0 levels=(0,0) grid=255 sfc 6hr fcst: bitmap: 736 undef
   ALBDO=Albedo [%]
@@ -798,145 +854,167 @@ rec 799:27785754:date 2014102318 ALBDO kpds5=84 kpds6=1 kpds7=0 levels=(0,0) gri
       Latin1 45.368000 Latin2 45.368000 LatSP 0.000000 LonSP 0.000000
       North Pole (201 x 155) Dx 4.297000 Dy 4.297000 scan 64 mode 8
   min/max data 5 21.9  num bits 8  BDS_Ref 50  DecScale 1 BinScale 0
-</code></pre>
+</pre></div>
+
+
 <p>Notice that our grib1 file is a <strong>Lambert Conformal</strong> projection.  We will need these values for the next step. Note that <strong>there is a tolerance of +/- 0.1 degrees</strong> to keep in mind when defining your coverage area.</p>
 <h1 id="create-grid-projection-file">Create Grid Projection File<a class="headerlink" href="#create-grid-projection-file" title="Permanent link"></a></h1>
 <p>Grid projection files are stored in <code>/awips2/edex/data/utility/edex_static/base/grib/grids/</code> and there are four grid coverage types available:</p>
 <ol>
 <li>
 <p><strong>lambertConformalGridCoverage</strong> example</p>
-<pre><code>&lt;lambertConformalGridCoverage&gt;
-    &lt;name&gt;305&lt;/name&gt;
-    &lt;description&gt;Regional - CONUS (Lambert Conformal)&lt;/description&gt;
-    &lt;la1&gt;16.322&lt;/la1&gt;
-    &lt;lo1&gt;-125.955&lt;/lo1&gt;
-    &lt;firstGridPointCorner&gt;LowerLeft&lt;/firstGridPointCorner&gt;
-    &lt;nx&gt;151&lt;/nx&gt;
-    &lt;ny&gt;113&lt;/ny&gt;
-    &lt;dx&gt;40.63525&lt;/dx&gt;
-    &lt;dy&gt;40.63525&lt;/dy&gt;
-    &lt;spacingUnit&gt;km&lt;/spacingUnit&gt;
-    &lt;minorAxis&gt;6356775.0&lt;/minorAxis&gt;
-    &lt;majorAxis&gt;6378160.0&lt;/majorAxis&gt;
-    &lt;lov&gt;-95.0&lt;/lov&gt;
-    &lt;latin1&gt;25.0&lt;/latin1&gt;
-    &lt;latin2&gt;25.0&lt;/latin2&gt;
-&lt;/lambertConformalGridCoverage&gt;
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="nt">&lt;lambertConformalGridCoverage&gt;</span>
+    <span class="nt">&lt;name&gt;</span>305<span class="nt">&lt;/name&gt;</span>
+    <span class="nt">&lt;description&gt;</span>Regional - CONUS (Lambert Conformal)<span class="nt">&lt;/description&gt;</span>
+    <span class="nt">&lt;la1&gt;</span>16.322<span class="nt">&lt;/la1&gt;</span>
+    <span class="nt">&lt;lo1&gt;</span>-125.955<span class="nt">&lt;/lo1&gt;</span>
+    <span class="nt">&lt;firstGridPointCorner&gt;</span>LowerLeft<span class="nt">&lt;/firstGridPointCorner&gt;</span>
+    <span class="nt">&lt;nx&gt;</span>151<span class="nt">&lt;/nx&gt;</span>
+    <span class="nt">&lt;ny&gt;</span>113<span class="nt">&lt;/ny&gt;</span>
+    <span class="nt">&lt;dx&gt;</span>40.63525<span class="nt">&lt;/dx&gt;</span>
+    <span class="nt">&lt;dy&gt;</span>40.63525<span class="nt">&lt;/dy&gt;</span>
+    <span class="nt">&lt;spacingUnit&gt;</span>km<span class="nt">&lt;/spacingUnit&gt;</span>
+    <span class="nt">&lt;minorAxis&gt;</span>6356775.0<span class="nt">&lt;/minorAxis&gt;</span>
+    <span class="nt">&lt;majorAxis&gt;</span>6378160.0<span class="nt">&lt;/majorAxis&gt;</span>
+    <span class="nt">&lt;lov&gt;</span>-95.0<span class="nt">&lt;/lov&gt;</span>
+    <span class="nt">&lt;latin1&gt;</span>25.0<span class="nt">&lt;/latin1&gt;</span>
+    <span class="nt">&lt;latin2&gt;</span>25.0<span class="nt">&lt;/latin2&gt;</span>
+<span class="nt">&lt;/lambertConformalGridCoverage&gt;</span>
+</pre></div>
+
+
 </li>
 <li>
 <p><strong>polarStereoGridCoverage</strong> example</p>
-<pre><code>&lt;polarStereoGridCoverage&gt;
-    &lt;name&gt;405&lt;/name&gt;
-    &lt;description&gt;Sea Ice south 690X710 13km grid&lt;/description&gt;
-    &lt;la1&gt;-36.866&lt;/la1&gt;
-    &lt;lo1&gt;139.806&lt;/lo1&gt;
-    &lt;firstGridPointCorner&gt;LowerLeft&lt;/firstGridPointCorner&gt;
-    &lt;nx&gt;690&lt;/nx&gt;
-    &lt;ny&gt;710&lt;/ny&gt;
-    &lt;dx&gt;12.7&lt;/dx&gt;
-    &lt;dy&gt;12.7&lt;/dy&gt;
-    &lt;spacingUnit&gt;km&lt;/spacingUnit&gt;
-    &lt;minorAxis&gt;6371229.0&lt;/minorAxis&gt;
-    &lt;majorAxis&gt;6371229.0&lt;/majorAxis&gt;
-    &lt;lov&gt;100.0&lt;/lov&gt;
-&lt;/polarStereoGridCoverage&gt;
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="nt">&lt;polarStereoGridCoverage&gt;</span>
+    <span class="nt">&lt;name&gt;</span>405<span class="nt">&lt;/name&gt;</span>
+    <span class="nt">&lt;description&gt;</span>Sea Ice south 690X710 13km grid<span class="nt">&lt;/description&gt;</span>
+    <span class="nt">&lt;la1&gt;</span>-36.866<span class="nt">&lt;/la1&gt;</span>
+    <span class="nt">&lt;lo1&gt;</span>139.806<span class="nt">&lt;/lo1&gt;</span>
+    <span class="nt">&lt;firstGridPointCorner&gt;</span>LowerLeft<span class="nt">&lt;/firstGridPointCorner&gt;</span>
+    <span class="nt">&lt;nx&gt;</span>690<span class="nt">&lt;/nx&gt;</span>
+    <span class="nt">&lt;ny&gt;</span>710<span class="nt">&lt;/ny&gt;</span>
+    <span class="nt">&lt;dx&gt;</span>12.7<span class="nt">&lt;/dx&gt;</span>
+    <span class="nt">&lt;dy&gt;</span>12.7<span class="nt">&lt;/dy&gt;</span>
+    <span class="nt">&lt;spacingUnit&gt;</span>km<span class="nt">&lt;/spacingUnit&gt;</span>
+    <span class="nt">&lt;minorAxis&gt;</span>6371229.0<span class="nt">&lt;/minorAxis&gt;</span>
+    <span class="nt">&lt;majorAxis&gt;</span>6371229.0<span class="nt">&lt;/majorAxis&gt;</span>
+    <span class="nt">&lt;lov&gt;</span>100.0<span class="nt">&lt;/lov&gt;</span>
+<span class="nt">&lt;/polarStereoGridCoverage&gt;</span>
+</pre></div>
+
+
 </li>
 <li>
 <p><strong>latLonGridCoverage</strong> example</p>
-<pre><code>&lt;latLonGridCoverage&gt;
-    &lt;name&gt;864162002&lt;/name&gt;
-    &lt;description&gt;UKMet HiRes combined - Southern Hemisphere
-        Longitude range 71.25E - 70.416E &lt;/description&gt;
-    &lt;la1&gt;-89.721&lt;/la1&gt;
-    &lt;lo1&gt;71.25&lt;/lo1&gt;
-    &lt;firstGridPointCorner&gt;LowerLeft&lt;/firstGridPointCorner&gt;
-    &lt;nx&gt;864&lt;/nx&gt;
-    &lt;ny&gt;162&lt;/ny&gt;
-    &lt;dx&gt;0.833&lt;/dx&gt;
-    &lt;dy&gt;0.556&lt;/dy&gt;
-    &lt;spacingUnit&gt;degree&lt;/spacingUnit&gt;
-    &lt;la2&gt;-0.278&lt;/la2&gt;
-    &lt;lo2&gt;70.416&lt;/lo2&gt;
-&lt;/latLonGridCoverage&gt;
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="nt">&lt;latLonGridCoverage&gt;</span>
+    <span class="nt">&lt;name&gt;</span>864162002<span class="nt">&lt;/name&gt;</span>
+    <span class="nt">&lt;description&gt;</span>UKMet HiRes combined - Southern Hemisphere
+        Longitude range 71.25E - 70.416E <span class="nt">&lt;/description&gt;</span>
+    <span class="nt">&lt;la1&gt;</span>-89.721<span class="nt">&lt;/la1&gt;</span>
+    <span class="nt">&lt;lo1&gt;</span>71.25<span class="nt">&lt;/lo1&gt;</span>
+    <span class="nt">&lt;firstGridPointCorner&gt;</span>LowerLeft<span class="nt">&lt;/firstGridPointCorner&gt;</span>
+    <span class="nt">&lt;nx&gt;</span>864<span class="nt">&lt;/nx&gt;</span>
+    <span class="nt">&lt;ny&gt;</span>162<span class="nt">&lt;/ny&gt;</span>
+    <span class="nt">&lt;dx&gt;</span>0.833<span class="nt">&lt;/dx&gt;</span>
+    <span class="nt">&lt;dy&gt;</span>0.556<span class="nt">&lt;/dy&gt;</span>
+    <span class="nt">&lt;spacingUnit&gt;</span>degree<span class="nt">&lt;/spacingUnit&gt;</span>
+    <span class="nt">&lt;la2&gt;</span>-0.278<span class="nt">&lt;/la2&gt;</span>
+    <span class="nt">&lt;lo2&gt;</span>70.416<span class="nt">&lt;/lo2&gt;</span>
+<span class="nt">&lt;/latLonGridCoverage&gt;</span>
+</pre></div>
+
+
 </li>
 <li>
 <p><strong>mercatorGridCoverage</strong> example</p>
-<pre><code>&lt;mercatorGridCoverage&gt;
-    &lt;name&gt;NBM_PR&lt;/name&gt;
-    &lt;description&gt; National Blend Grid over Puerto Rico - (1.25 km)&lt;/description&gt;
-    &lt;la1&gt;16.9775&lt;/la1&gt;
-    &lt;lo1&gt;-68.0278&lt;/lo1&gt;
-    &lt;firstGridPointCorner&gt;LowerLeft&lt;/firstGridPointCorner&gt;
-    &lt;nx&gt;339&lt;/nx&gt;
-    &lt;ny&gt;225&lt;/ny&gt;
-    &lt;dx&gt;1.25&lt;/dx&gt;
-    &lt;dy&gt;1.25&lt;/dy&gt;
-    &lt;la2&gt;19.3750032477232&lt;/la2&gt;
-    &lt;lo2&gt;-63.984399999999994&lt;/lo2&gt;
-    &lt;latin&gt;20&lt;/latin&gt;
-    &lt;spacingUnit&gt;km&lt;/spacingUnit&gt;
-    &lt;minorAxis&gt;6371200&lt;/minorAxis&gt;
-    &lt;majorAxis&gt;6371200&lt;/majorAxis&gt;
-&lt;/mercatorGridCoverage&gt;
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="nt">&lt;mercatorGridCoverage&gt;</span>
+    <span class="nt">&lt;name&gt;</span>NBM_PR<span class="nt">&lt;/name&gt;</span>
+    <span class="nt">&lt;description&gt;</span> National Blend Grid over Puerto Rico - (1.25 km)<span class="nt">&lt;/description&gt;</span>
+    <span class="nt">&lt;la1&gt;</span>16.9775<span class="nt">&lt;/la1&gt;</span>
+    <span class="nt">&lt;lo1&gt;</span>-68.0278<span class="nt">&lt;/lo1&gt;</span>
+    <span class="nt">&lt;firstGridPointCorner&gt;</span>LowerLeft<span class="nt">&lt;/firstGridPointCorner&gt;</span>
+    <span class="nt">&lt;nx&gt;</span>339<span class="nt">&lt;/nx&gt;</span>
+    <span class="nt">&lt;ny&gt;</span>225<span class="nt">&lt;/ny&gt;</span>
+    <span class="nt">&lt;dx&gt;</span>1.25<span class="nt">&lt;/dx&gt;</span>
+    <span class="nt">&lt;dy&gt;</span>1.25<span class="nt">&lt;/dy&gt;</span>
+    <span class="nt">&lt;la2&gt;</span>19.3750032477232<span class="nt">&lt;/la2&gt;</span>
+    <span class="nt">&lt;lo2&gt;</span>-63.984399999999994<span class="nt">&lt;/lo2&gt;</span>
+    <span class="nt">&lt;latin&gt;</span>20<span class="nt">&lt;/latin&gt;</span>
+    <span class="nt">&lt;spacingUnit&gt;</span>km<span class="nt">&lt;/spacingUnit&gt;</span>
+    <span class="nt">&lt;minorAxis&gt;</span>6371200<span class="nt">&lt;/minorAxis&gt;</span>
+    <span class="nt">&lt;majorAxis&gt;</span>6371200<span class="nt">&lt;/majorAxis&gt;</span>
+<span class="nt">&lt;/mercatorGridCoverage&gt;</span>
+</pre></div>
+
+
 </li>
 </ol>
 <p>Copy an existing file file with the same grid projection type (in this case <strong>lambertConformalGridCoverage</strong>) to a new file <code>wrf.xml</code></p>
-<pre><code>cd /awips2/edex/data/utility/edex_static/base/grib/grids/
+<div class="codehilite"><pre><span></span>cd /awips2/edex/data/utility/edex_static/base/grib/grids/
 cp RUCIcing.xml wrf.xml
-</code></pre>
-<p>And edit the new <code>wrf.xml</code> to define the projection values (example provided):</p>
-<pre><code>vi wrf.xml
+</pre></div>
 
-&lt;lambertConformalGridCoverage&gt;
-    &lt;name&gt;201155&lt;/name&gt;
-    &lt;description&gt;Regional - CONUS (Lambert Conformal)&lt;/description&gt;
-    &lt;la1&gt;42.2830009460449&lt;/la1&gt;
-    &lt;lo1&gt;-72.3610000610352&lt;/lo1&gt;
-    &lt;firstGridPointCorner&gt;LowerLeft&lt;/firstGridPointCorner&gt;
-    &lt;nx&gt;201&lt;/nx&gt;
-    &lt;ny&gt;155&lt;/ny&gt;
-    &lt;dx&gt;4.29699993133545&lt;/dx&gt;
-    &lt;dy&gt;4.29699993133545&lt;/dy&gt;
-    &lt;spacingUnit&gt;km&lt;/spacingUnit&gt;
-    &lt;minorAxis&gt;6356775.0&lt;/minorAxis&gt;
-    &lt;majorAxis&gt;6378160.0&lt;/majorAxis&gt;
-    &lt;lov&gt;-67.0770034790039&lt;/lov&gt;
-    &lt;latin1&gt;45.3680000305176&lt;/latin1&gt;
-    &lt;latin2&gt;45.3680000305176&lt;/latin2&gt;
-&lt;/lambertConformalGridCoverage&gt;
-</code></pre>
+
+<p>And edit the new <code>wrf.xml</code> to define the projection values (example provided):</p>
+<div class="codehilite"><pre><span></span>vi wrf.xml
+
+<span class="nt">&lt;lambertConformalGridCoverage&gt;</span>
+    <span class="nt">&lt;name&gt;</span>201155<span class="nt">&lt;/name&gt;</span>
+    <span class="nt">&lt;description&gt;</span>Regional - CONUS (Lambert Conformal)<span class="nt">&lt;/description&gt;</span>
+    <span class="nt">&lt;la1&gt;</span>42.2830009460449<span class="nt">&lt;/la1&gt;</span>
+    <span class="nt">&lt;lo1&gt;</span>-72.3610000610352<span class="nt">&lt;/lo1&gt;</span>
+    <span class="nt">&lt;firstGridPointCorner&gt;</span>LowerLeft<span class="nt">&lt;/firstGridPointCorner&gt;</span>
+    <span class="nt">&lt;nx&gt;</span>201<span class="nt">&lt;/nx&gt;</span>
+    <span class="nt">&lt;ny&gt;</span>155<span class="nt">&lt;/ny&gt;</span>
+    <span class="nt">&lt;dx&gt;</span>4.29699993133545<span class="nt">&lt;/dx&gt;</span>
+    <span class="nt">&lt;dy&gt;</span>4.29699993133545<span class="nt">&lt;/dy&gt;</span>
+    <span class="nt">&lt;spacingUnit&gt;</span>km<span class="nt">&lt;/spacingUnit&gt;</span>
+    <span class="nt">&lt;minorAxis&gt;</span>6356775.0<span class="nt">&lt;/minorAxis&gt;</span>
+    <span class="nt">&lt;majorAxis&gt;</span>6378160.0<span class="nt">&lt;/majorAxis&gt;</span>
+    <span class="nt">&lt;lov&gt;</span>-67.0770034790039<span class="nt">&lt;/lov&gt;</span>
+    <span class="nt">&lt;latin1&gt;</span>45.3680000305176<span class="nt">&lt;/latin1&gt;</span>
+    <span class="nt">&lt;latin2&gt;</span>45.3680000305176<span class="nt">&lt;/latin2&gt;</span>
+<span class="nt">&lt;/lambertConformalGridCoverage&gt;</span>
+</pre></div>
+
+
 <blockquote>
 <p>Notice <code>&lt;name&gt;201155&lt;/name&gt;</code> defined from the number of grid points (201 x 155). This value will be matched against an entry in our models file (below) to set the name of the model (e.g. WRF).</p>
 </blockquote>
 <h1 id="create-model-definition">Create Model Definition<a class="headerlink" href="#create-model-definition" title="Permanent link"></a></h1>
 <p>Model definition XML files are found in <strong>/awips2/edex/data/utility/edex_static/base/grid/models/</strong>. Since our grib1 file has a center ID of 7 (NCEP) we will edit the <strong>gribModels_NCEP-7.xml</strong> file.</p>
-<pre><code>cd /awips2/edex/data/utility/edex_static/base/grib/models/
+<div class="codehilite"><pre><span></span>cd /awips2/edex/data/utility/edex_static/base/grib/models/
 
 vi gribModels_NCEP-7.xml
-</code></pre>
+</pre></div>
+
+
 <p>in <code>&lt;gribModelSet&gt;</code> add an entry</p>
-<pre><code>    &lt;model&gt;
-        &lt;name&gt;WRF&lt;/name&gt;
-        &lt;center&gt;7&lt;/center&gt;
-        &lt;subcenter&gt;0&lt;/subcenter&gt;
-        &lt;grid&gt;201155&lt;/grid&gt;
-        &lt;process&gt;
-            &lt;id&gt;89&lt;/id&gt;
-        &lt;/process&gt;
-    &lt;/model&gt;
-</code></pre>
+<div class="codehilite"><pre><span></span>    <span class="nt">&lt;model&gt;</span>
+        <span class="nt">&lt;name&gt;</span>WRF<span class="nt">&lt;/name&gt;</span>
+        <span class="nt">&lt;center&gt;</span>7<span class="nt">&lt;/center&gt;</span>
+        <span class="nt">&lt;subcenter&gt;</span>0<span class="nt">&lt;/subcenter&gt;</span>
+        <span class="nt">&lt;grid&gt;</span>201155<span class="nt">&lt;/grid&gt;</span>
+        <span class="nt">&lt;process&gt;</span>
+            <span class="nt">&lt;id&gt;</span>89<span class="nt">&lt;/id&gt;</span>
+        <span class="nt">&lt;/process&gt;</span>
+    <span class="nt">&lt;/model&gt;</span>
+</pre></div>
+
+
 <p>save the file and restart EDEX for the changes to take effect.</p>
-<pre><code>sudo service edex_camel restart
-</code></pre>
+<div class="codehilite"><pre><span></span>sudo service edex_camel restart
+</pre></div>
+
+
 <p>Now copy the <code>wrf.grib</code> file <em>again</em> to <strong>/awips2/data_store/ingest/</strong>.  If everything is correct we will not see any persistence errors since the grid is now named <strong>WRF</strong> and not <strong>GribModel:7:0:89</strong>.</p>
-<pre><code>cp wrd.grib /awips2/data_store/ingest/
+<div class="codehilite"><pre><span></span>cp wrd.grib /awips2/data_store/ingest/
 
 edex log grib
-</code></pre>
+</pre></div>
+
+
 <p>After you have confirmed that the grid was ingested with the given name, you can <a href="../../cave/d2d-edit-menus.html">edit the D2D product menus to display the new grid</a>.</p>
 <h1 id="troubleshooting-grib-ingest">Troubleshooting Grib Ingest<a class="headerlink" href="#troubleshooting-grib-ingest" title="Permanent link"></a></h1>
 <p>If you ingest a piece of data and the parameter appears as unknown in the metadata database, ensure that the correct parameter tables are in place for the center/subcenter.</p>

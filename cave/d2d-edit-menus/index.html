@@ -284,6 +284,18 @@
 
 
   <li class="md-nav__item">
+    <a href="../bundles-and-procedures/" title="TODO Bundles and Procedures" class="md-nav__link">
+      TODO Bundles and Procedures
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../localization-perspective/" title="Localization Perspective" class="md-nav__link">
       Localization Perspective
     </a>
@@ -346,6 +358,30 @@
   <li class="md-nav__item">
     <a href="../d2d-gridded-models/" title="Volume Browser" class="md-nav__link">
       Volume Browser
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../d2d-gridded-models/" title="TODO Derived Parameters" class="md-nav__link">
+      TODO Derived Parameters
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../d2d-gridded-models/" title="TODO GEMPAK Grid Display" class="md-nav__link">
+      TODO GEMPAK Grid Display
     </a>
   </li>
 
@@ -497,8 +533,20 @@
 
 
   <li class="md-nav__item">
-    <a href="../../edex/data-purge/" title="Purging and Retention" class="md-nav__link">
-      Purging and Retention
+    <a href="../../edex/data-purge/" title="Purging and Data Retention" class="md-nav__link">
+      Purging and Data Retention
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../edex/gempak-nex2gini/" title="GEMPAK and NEX2GINI" class="md-nav__link">
+      GEMPAK and NEX2GINI
     </a>
   </li>
 
@@ -753,23 +801,25 @@
 </li>
 <li>
 <p>Open the file and add or edit the model names: </p>
-<pre><code>&lt;menuContributionFile&gt;
-    &lt;include installTo="menu:models" 
-             fileName="menus/volume/allFamilies.xml"&gt;
-             &lt;substitute key="modelName" value="CMC" /&gt;
-             &lt;substitute key="menuName" value="CMC" /&gt;
-             &lt;substitute key="frameCount" value="41" /&gt;
-             &lt;substitute key="TP" value="TP"/&gt;
-    &lt;/include&gt;
-    &lt;include installTo="menu:models" 
-             fileName="menus/volume/allFamilies.xml"&gt;
-             &lt;substitute key="modelName" value="DGEX" /&gt;
-             &lt;substitute key="menuName" value="DGEX" /&gt;
-             &lt;substitute key="frameCount" value="41" /&gt;
-             &lt;substitute key="TP" value="TP"/&gt;
-    &lt;/include&gt;
+<div class="codehilite"><pre><span></span><span class="nt">&lt;menuContributionFile&gt;</span>
+    <span class="nt">&lt;include</span> <span class="na">installTo=</span><span class="s">&quot;menu:models&quot;</span> 
+             <span class="na">fileName=</span><span class="s">&quot;menus/volume/allFamilies.xml&quot;</span><span class="nt">&gt;</span>
+             <span class="nt">&lt;substitute</span> <span class="na">key=</span><span class="s">&quot;modelName&quot;</span> <span class="na">value=</span><span class="s">&quot;CMC&quot;</span> <span class="nt">/&gt;</span>
+             <span class="nt">&lt;substitute</span> <span class="na">key=</span><span class="s">&quot;menuName&quot;</span> <span class="na">value=</span><span class="s">&quot;CMC&quot;</span> <span class="nt">/&gt;</span>
+             <span class="nt">&lt;substitute</span> <span class="na">key=</span><span class="s">&quot;frameCount&quot;</span> <span class="na">value=</span><span class="s">&quot;41&quot;</span> <span class="nt">/&gt;</span>
+             <span class="nt">&lt;substitute</span> <span class="na">key=</span><span class="s">&quot;TP&quot;</span> <span class="na">value=</span><span class="s">&quot;TP&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/include&gt;</span>
+    <span class="nt">&lt;include</span> <span class="na">installTo=</span><span class="s">&quot;menu:models&quot;</span> 
+             <span class="na">fileName=</span><span class="s">&quot;menus/volume/allFamilies.xml&quot;</span><span class="nt">&gt;</span>
+             <span class="nt">&lt;substitute</span> <span class="na">key=</span><span class="s">&quot;modelName&quot;</span> <span class="na">value=</span><span class="s">&quot;DGEX&quot;</span> <span class="nt">/&gt;</span>
+             <span class="nt">&lt;substitute</span> <span class="na">key=</span><span class="s">&quot;menuName&quot;</span> <span class="na">value=</span><span class="s">&quot;DGEX&quot;</span> <span class="nt">/&gt;</span>
+             <span class="nt">&lt;substitute</span> <span class="na">key=</span><span class="s">&quot;frameCount&quot;</span> <span class="na">value=</span><span class="s">&quot;41&quot;</span> <span class="nt">/&gt;</span>
+             <span class="nt">&lt;substitute</span> <span class="na">key=</span><span class="s">&quot;TP&quot;</span> <span class="na">value=</span><span class="s">&quot;TP&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/include&gt;</span>
     ...
-</code></pre>
+</pre></div>
+
+
 </li>
 </ol>
 <p>Notice that you specify both the <code>modelName</code> (what it's named inside EDEX, such as NAM12), and <code>menuName</code>, if you prefer a more detailed menu entry, such as "NAM 12km". When you are finished, save the file and restart CAVE for the changes to take effect.</p>
@@ -786,16 +836,20 @@
 <li>right-click refresh the <strong>mrms</strong> entry</li>
 <li>
 <p>double click <strong>USER</strong> to open the editor and change</p>
-<pre><code>&lt;menuContributionFile&gt;
-    &lt;include installTo="menu:mrms?after=MRMS_MENU_START"
-    fileName="menus/mrms/mrms.xml"&gt;
-    &lt;/include&gt;
-&lt;/menuContributionFile&gt;
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="nt">&lt;menuContributionFile&gt;</span>
+    <span class="nt">&lt;include</span> <span class="na">installTo=</span><span class="s">&quot;menu:mrms?after=MRMS_MENU_START&quot;</span>
+    <span class="na">fileName=</span><span class="s">&quot;menus/mrms/mrms.xml&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;/include&gt;</span>
+<span class="nt">&lt;/menuContributionFile&gt;</span>
+</pre></div>
+
+
 <p>to </p>
-<pre><code>&lt;menuContributionFile&gt;
-&lt;/menuContributionFile&gt;
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="nt">&lt;menuContributionFile&gt;</span>
+<span class="nt">&lt;/menuContributionFile&gt;</span>
+</pre></div>
+
+
 </li>
 </ol>
 <p>With this you can restart CAVE and will not see the MRMS menu anymore.  Repeat this example for other product menus, such as <strong>local</strong>, <strong>hydro</strong>, <strong>scan</strong>, etc., to further customize D2D data menus for any level of localization.</p>

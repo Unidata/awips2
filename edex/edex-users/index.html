@@ -282,6 +282,18 @@
 
 
   <li class="md-nav__item">
+    <a href="../../cave/bundles-and-procedures/" title="TODO Bundles and Procedures" class="md-nav__link">
+      TODO Bundles and Procedures
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../../cave/localization-perspective/" title="Localization Perspective" class="md-nav__link">
       Localization Perspective
     </a>
@@ -344,6 +356,30 @@
   <li class="md-nav__item">
     <a href="../../cave/d2d-gridded-models/" title="Volume Browser" class="md-nav__link">
       Volume Browser
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-gridded-models/" title="TODO Derived Parameters" class="md-nav__link">
+      TODO Derived Parameters
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-gridded-models/" title="TODO GEMPAK Grid Display" class="md-nav__link">
+      TODO GEMPAK Grid Display
     </a>
   </li>
 
@@ -488,8 +524,20 @@
 
 
   <li class="md-nav__item">
-    <a href="../data-purge/" title="Purging and Retention" class="md-nav__link">
-      Purging and Retention
+    <a href="../data-purge/" title="Purging and Data Retention" class="md-nav__link">
+      Purging and Data Retention
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../gempak-nex2gini/" title="GEMPAK and NEX2GINI" class="md-nav__link">
+      GEMPAK and NEX2GINI
     </a>
   </li>
 
@@ -743,28 +791,35 @@
                 
                 
                 <p>To see a list of clients connecting to your EDEX server, use the <code>edex users [YYYYMMDD]</code> command, where <code>YYYYMMDD</code> is the optional date string.</p>
-<pre><code>edex users
+<div class="codehilite"><pre><span></span><span class="n">edex</span> <span class="n">users</span>
 
- -- EDEX Users 20160826 --
-user@101.253.20.225
-user@192.168.1.67
-awips@0.0.0.0
-awips@sdsmt.edu
-...
-</code></pre>
+ <span class="o">--</span> <span class="n">EDEX</span> <span class="n">Users</span> <span class="mi">20160826</span> <span class="o">--</span>
+<span class="n">user</span><span class="mf">@101.253.20.225</span>
+<span class="n">user</span><span class="mf">@192.168.1.67</span>
+<span class="n">awips</span><span class="mf">@0.0.0.0</span>
+<span class="n">awips</span><span class="p">@</span><span class="n">sdsmt</span><span class="p">.</span><span class="n">edu</span>
+<span class="p">...</span>
+</pre></div>
+
+
 <h1 id="logging-daily-edex-users">Logging Daily EDEX Users<a class="headerlink" href="#logging-daily-edex-users" title="Permanent link"></a></h1>
 <p>Create a short script to run once daily at 20 minutes after 00 UTC, appending each day's <code>edex users</code> list to a logfile <code>/home/awips/edex-users.log</code>.</p>
 <ol>
 <li>
 <p><code>vi ~/edexUsers.sh</code></p>
-<pre><code>#!/bin/bash
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="ch">#!/bin/bash</span>
 /awips2/tools/bin/edex users &gt;&gt; /home/awips/edex-users.log
-</code></pre>
+</pre></div>
+</td></tr></table>
+
 </li>
 <li>
 <p><code>crontab -e</code></p>
-<pre><code>0 20 * * * /home/awips/edexUsers.sh 1&gt;&gt; /dev/null 2&gt;&amp;1
-</code></pre>
+<div class="codehilite"><pre><span></span>0 20 * * * /home/awips/edexUsers.sh 1&gt;&gt; /dev/null 2&gt;&amp;1
+</pre></div>
+
+
 </li>
 </ol>
                 
@@ -785,7 +840,7 @@ awips@sdsmt.edu
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href="../data-purge/" title="Purging and Retention" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../gempak-nex2gini/" title="GEMPAK and NEX2GINI" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -794,7 +849,7 @@ awips@sdsmt.edu
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Purging and Retention
+                GEMPAK and NEX2GINI
               </span>
             </div>
           </a>

@@ -282,6 +282,18 @@
 
 
   <li class="md-nav__item">
+    <a href="../../cave/bundles-and-procedures/" title="TODO Bundles and Procedures" class="md-nav__link">
+      TODO Bundles and Procedures
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../../cave/localization-perspective/" title="Localization Perspective" class="md-nav__link">
       Localization Perspective
     </a>
@@ -344,6 +356,30 @@
   <li class="md-nav__item">
     <a href="../../cave/d2d-gridded-models/" title="Volume Browser" class="md-nav__link">
       Volume Browser
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-gridded-models/" title="TODO Derived Parameters" class="md-nav__link">
+      TODO Derived Parameters
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-gridded-models/" title="TODO GEMPAK Grid Display" class="md-nav__link">
+      TODO GEMPAK Grid Display
     </a>
   </li>
 
@@ -497,8 +533,20 @@
 
 
   <li class="md-nav__item">
-    <a href="../../edex/data-purge/" title="Purging and Retention" class="md-nav__link">
-      Purging and Retention
+    <a href="../../edex/data-purge/" title="Purging and Data Retention" class="md-nav__link">
+      Purging and Data Retention
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../edex/gempak-nex2gini/" title="GEMPAK and NEX2GINI" class="md-nav__link">
+      GEMPAK and NEX2GINI
     </a>
   </li>
 
@@ -753,7 +801,7 @@
 </ul>
 <p>Distribution filters are stored in the <strong>edex_static</strong> branch of the Localization Store, and a list of available files can be found in the base-level directory.  </p>
 <p>For each plug-in, the distribution file is named <code>&lt;data-type&gt;.xml</code>; for example, the distribution file for satellite data is <code>satellite.xml</code>. The distribution files follow the AWIPS base/site localization pattern: </p>
-<pre><code>[root@edex]# cd /awips2/edex/data/utility/edex_static/base/distribution
+<div class="codehilite"><pre><span></span>[root@edex]# cd /awips2/edex/data/utility/edex_static/base/distribution
 [root@edex distribution]# ls
 acars.xml         ffg.xml            poessounding.xml
 airep.xml         goessounding.xml   profiler.xml
@@ -778,7 +826,9 @@ convsigmet.xml    nonconvsigmet.xml  warning.xml
 cwa.xml           obs.xml            wcp.xml
 dhr.xml           pafm.xml
 dpa.xml           pirep.xml
-</code></pre>
+</pre></div>
+
+
 <ul>
 <li>
 <p>base files are located in <strong>/awips2/edex/data/utility/edex_static/base/distribution </strong></p>
@@ -797,21 +847,25 @@ dpa.xml           pirep.xml
 </li>
 </ol>
 <p>The basic structure of the distribution file is:</p>
-<pre><code>&lt;requestPatterns xmlns:ns2="group"&gt;
-    &lt;regex&gt;pattern&lt;/regex&gt;
-    &lt;regex&gt;pattern&lt;/regex&gt;
-&lt;/requestPatterns&gt;
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="nt">&lt;requestPatterns</span> <span class="na">xmlns:ns2=</span><span class="s">&quot;group&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;regex&gt;</span>pattern<span class="nt">&lt;/regex&gt;</span>
+    <span class="nt">&lt;regex&gt;</span>pattern<span class="nt">&lt;/regex&gt;</span>
+<span class="nt">&lt;/requestPatterns&gt;</span>
+</pre></div>
+
+
 <p>In each <strong><regex></regex> </strong>tag, <strong><em>pattern</em></strong> is replaced with a regular expression that will match either the filename or the WMO header of the raw data. Only data that matches a pattern in the distribution file will be processed.</p>
 <p>The contents of the base version of the radar distribution file:</p>
-<pre><code>[root@edex]# cd /awips2/edex/data/utility/edex_static/base/distribution/
+<div class="codehilite"><pre><span></span>[root@edex]# cd /awips2/edex/data/utility/edex_static/base/distribution/
 [root@edex]# tail -4 radar.xml
 
-&lt;requestPatterns xmlns:ns2="group"&gt;
-    &lt;regex&gt;^SDUS[234578]. .*&lt;/regex&gt;
-    &lt;regex&gt;^RadarServer.*&lt;/regex&gt;
-&lt;/requestPatterns&gt;
-</code></pre>
+<span class="nt">&lt;requestPatterns</span> <span class="na">xmlns:ns2=</span><span class="s">&quot;group&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;regex&gt;</span>^SDUS[234578]. .*<span class="nt">&lt;/regex&gt;</span>
+    <span class="nt">&lt;regex&gt;</span>^RadarServer.*<span class="nt">&lt;/regex&gt;</span>
+<span class="nt">&lt;/requestPatterns&gt;</span>
+</pre></div>
+
+
 <p>Looking at the base radar.xml distribution file in the previous example, there are two regular expressions.  The first regular expression matches the standard WMO ID of radar products.   Via the edexBridge the LDM will place a message in the external.dropbox QPID queue, indicating a radar product has arrived.  EDEX will then take the message containing the radar WMO ID and compare it against the regular expressions in radar.xml.  If a match is found, EDEX places a message in the QPID queue Ingest.radar.  The radar decoder will then consume the message and process the radar data accordingly. </p>
 <h1 id="adding-a-regex-to-the-satellite-data-distribution-file">Adding a REGEX to the Satellite Data Distribution File<a class="headerlink" href="#adding-a-regex-to-the-satellite-data-distribution-file" title="Permanent link"></a></h1>
 <p>As a quick example, suppose we have a local data source for satellite imagery that does not have a WMO header; also suppose that the data source writes to files whose names start with <strong>LOCAL.sat</strong>.</p>
@@ -822,12 +876,14 @@ dpa.xml           pirep.xml
 </li>
 <li>
 <p>Edit the site version of <strong>satellite.xml</strong>, adding a new <code>&lt;regex&gt;&lt;/regex&gt;</code> tag immediately below the existing regular expression (<code>&lt;regex&gt;&lt;/regex&gt;</code>) tag. The contents of the tag will be <strong>LOCAL.sat</strong>. The final result will be:</p>
-<pre><code>&lt;requestPatterns xmlns:ns2="group"&gt;
-    &lt;regex&gt;TI[CGT]... ....&lt;/regex&gt;
-    &lt;regex&gt;.*NEXRCOMP.*&lt;/regex&gt;
-    &lt;regex&gt;^LOCAL.sat.*&lt;/regex&gt;
-&lt;/requestPatterns&gt;
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="nt">&lt;requestPatterns</span> <span class="na">xmlns:ns2=</span><span class="s">&quot;group&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;regex&gt;</span>TI[CGT]... ....<span class="nt">&lt;/regex&gt;</span>
+    <span class="nt">&lt;regex&gt;</span>.*NEXRCOMP.*<span class="nt">&lt;/regex&gt;</span>
+    <span class="nt">&lt;regex&gt;</span>^LOCAL.sat.*<span class="nt">&lt;/regex&gt;</span>
+<span class="nt">&lt;/requestPatterns&gt;</span>
+</pre></div>
+
+
 </li>
 <li>
 <p>Save the file and exit the editor. EDEX will automatically pick up the new distribution pattern.</p>
@@ -840,41 +896,47 @@ dpa.xml           pirep.xml
 <h1 id="edex-data-distribution-file-examples">EDEX Data Distribution File Examples<a class="headerlink" href="#edex-data-distribution-file-examples" title="Permanent link"></a></h1>
 <h2 id="surface-obs">Surface Obs<a class="headerlink" href="#surface-obs" title="Permanent link"></a></h2>
 <p><strong>/awips2/edex/data/utility/edex_static/base/distribution/obs.xml</strong> Processes any file header that starts with <strong>SA</strong> or <strong>SP</strong>, which should match any WMO header that contains METAR data (e.g.<strong>SAUS</strong>, <strong>SPUS</strong>, <strong>SACN</strong>, <strong>SAMX</strong>).</p>
-<pre><code>&lt;requestPatterns xmlns:ns2="group"&gt;
-  &lt;regex&gt;^S[AP].*&lt;/regex&gt;
-&lt;/requestPatterns&gt;
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="nt">&lt;requestPatterns</span> <span class="na">xmlns:ns2=</span><span class="s">&quot;group&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;regex&gt;</span>^S[AP].*<span class="nt">&lt;/regex&gt;</span>
+<span class="nt">&lt;/requestPatterns&gt;</span>
+</pre></div>
+
+
 <h2 id="text-data">Text Data<a class="headerlink" href="#text-data" title="Permanent link"></a></h2>
 <p><strong>/awips2/edex/data/utility/edex_static/base/distribution/text.xml</strong> Processes lots of WM patterns. The second pattern ^S[A-CEG-Z].* matches any header that starts with <strong>S</strong> except for <strong>SD</strong>or <strong>SF</strong>, so it also matches the <strong>SA</strong> and <strong>SP</strong> files that the <strong>obs.xml</strong> plugin matches. This means that METARs are processed by both plugins simultaneously.</p>
-<pre><code>&lt;requestPatterns&gt;
-  &lt;regex&gt;^[ACFNRUW][A-Z].*&lt;/regex&gt;
-  &lt;regex&gt;^S[ACEG-Z].*&lt;/regex&gt;
-  &lt;regex&gt;^T[BCX].*&lt;/regex&gt;
-  &lt;regex&gt;^SF[A-OQ-TVZ].*&lt;/regex&gt;
-  &lt;regex&gt;^SDUS1.*&lt;/regex&gt;
-  &lt;regex&gt;^SDUS4[1-6].*&lt;/regex&gt;
-  &lt;regex&gt;^SDUS9[^7].*&lt;/regex&gt;
-  &lt;regex&gt;^SFU[^S].*&lt;/regex&gt;
-  &lt;regex&gt;^SFUS4[^1].*&lt;/regex&gt; 
-  &lt;regex&gt;^SFP[^A].*&lt;/regex&gt;
-  &lt;regex&gt;^SFPA[^4].*&lt;/regex&gt; 
-  &lt;regex&gt;^SFPA4[^1].*&lt;/regex&gt;
-  &lt;regex&gt;^BMBB91.*&lt;/regex&gt; 
-  &lt;regex&gt;^N.*&lt;/regex&gt;
-  &lt;regex&gt;^F[EHIJKLMQVWX].*&lt;/regex&gt; 
-&lt;/requestPatterns&gt;
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="nt">&lt;requestPatterns&gt;</span>
+  <span class="nt">&lt;regex&gt;</span>^[ACFNRUW][A-Z].*<span class="nt">&lt;/regex&gt;</span>
+  <span class="nt">&lt;regex&gt;</span>^S[ACEG-Z].*<span class="nt">&lt;/regex&gt;</span>
+  <span class="nt">&lt;regex&gt;</span>^T[BCX].*<span class="nt">&lt;/regex&gt;</span>
+  <span class="nt">&lt;regex&gt;</span>^SF[A-OQ-TVZ].*<span class="nt">&lt;/regex&gt;</span>
+  <span class="nt">&lt;regex&gt;</span>^SDUS1.*<span class="nt">&lt;/regex&gt;</span>
+  <span class="nt">&lt;regex&gt;</span>^SDUS4[1-6].*<span class="nt">&lt;/regex&gt;</span>
+  <span class="nt">&lt;regex&gt;</span>^SDUS9[^7].*<span class="nt">&lt;/regex&gt;</span>
+  <span class="nt">&lt;regex&gt;</span>^SFU[^S].*<span class="nt">&lt;/regex&gt;</span>
+  <span class="nt">&lt;regex&gt;</span>^SFUS4[^1].*<span class="nt">&lt;/regex&gt;</span> 
+  <span class="nt">&lt;regex&gt;</span>^SFP[^A].*<span class="nt">&lt;/regex&gt;</span>
+  <span class="nt">&lt;regex&gt;</span>^SFPA[^4].*<span class="nt">&lt;/regex&gt;</span> 
+  <span class="nt">&lt;regex&gt;</span>^SFPA4[^1].*<span class="nt">&lt;/regex&gt;</span>
+  <span class="nt">&lt;regex&gt;</span>^BMBB91.*<span class="nt">&lt;/regex&gt;</span> 
+  <span class="nt">&lt;regex&gt;</span>^N.*<span class="nt">&lt;/regex&gt;</span>
+  <span class="nt">&lt;regex&gt;</span>^F[EHIJKLMQVWX].*<span class="nt">&lt;/regex&gt;</span> 
+<span class="nt">&lt;/requestPatterns&gt;</span>
+</pre></div>
+
+
 <h2 id="grib-data">Grib Data<a class="headerlink" href="#grib-data" title="Permanent link"></a></h2>
 <p><strong>/awips2/edex/data/utility/edex_static/base/distribution/grib.xml</strong> The grib/grid decoder distribution file matches all numerical grids distributed over the IDD NGRID feed by matching WMO header, and from CONDUIT by matching the <em>.grib</em> file extension.</p>
-<pre><code>&lt;requestPatterns&gt;
-    &lt;!-- Super Set of all possible WMO grib patterns --&gt;
-    &lt;regex&gt;^[EHLMOYZ][A-Z]{3}\d{2}&lt;/regex&gt;
-    &lt;!-- This to match Unidata CONDUIT products w/o standard headers --&gt;
-    &lt;regex&gt;.*grib.*&lt;/regex&gt;
-    &lt;regex&gt;^US058.*&lt;/regex&gt;
-    &lt;regex&gt;^CMC_reg.*&lt;/regex&gt;
-&lt;/requestPatterns&gt;
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="nt">&lt;requestPatterns&gt;</span>
+    <span class="c">&lt;!-- Super Set of all possible WMO grib patterns --&gt;</span>
+    <span class="nt">&lt;regex&gt;</span>^[EHLMOYZ][A-Z]{3}\d{2}<span class="nt">&lt;/regex&gt;</span>
+    <span class="c">&lt;!-- This to match Unidata CONDUIT products w/o standard headers --&gt;</span>
+    <span class="nt">&lt;regex&gt;</span>.*grib.*<span class="nt">&lt;/regex&gt;</span>
+    <span class="nt">&lt;regex&gt;</span>^US058.*<span class="nt">&lt;/regex&gt;</span>
+    <span class="nt">&lt;regex&gt;</span>^CMC_reg.*<span class="nt">&lt;/regex&gt;</span>
+<span class="nt">&lt;/requestPatterns&gt;</span>
+</pre></div>
+
+
 <p>Important notes about regular expressions:</p>
 <ul>
 <li>
@@ -917,13 +979,13 @@ dpa.xml           pirep.xml
           </a>
         
         
-          <a href="../../edex/data-purge/" title="Purging and Retention" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../../edex/data-purge/" title="Purging and Data Retention" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Purging and Retention
+                Purging and Data Retention
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">

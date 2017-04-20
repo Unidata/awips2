@@ -93,7 +93,7 @@
                   
  
                   
-                      Purging and Retention
+                      Purging and Data Retention
                   
 
               
@@ -282,6 +282,18 @@
 
 
   <li class="md-nav__item">
+    <a href="../../cave/bundles-and-procedures/" title="TODO Bundles and Procedures" class="md-nav__link">
+      TODO Bundles and Procedures
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../../cave/localization-perspective/" title="Localization Perspective" class="md-nav__link">
       Localization Perspective
     </a>
@@ -344,6 +356,30 @@
   <li class="md-nav__item">
     <a href="../../cave/d2d-gridded-models/" title="Volume Browser" class="md-nav__link">
       Volume Browser
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-gridded-models/" title="TODO Derived Parameters" class="md-nav__link">
+      TODO Derived Parameters
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-gridded-models/" title="TODO GEMPAK Grid Display" class="md-nav__link">
+      TODO GEMPAK Grid Display
     </a>
   </li>
 
@@ -497,11 +533,11 @@
     
     
       <label class="md-nav__link md-nav__link--active" for="toc">
-        Purging and Retention
+        Purging and Data Retention
       </label>
     
-    <a href="./" title="Purging and Retention" class="md-nav__link md-nav__link--active">
-      Purging and Retention
+    <a href="./" title="Purging and Data Retention" class="md-nav__link md-nav__link--active">
+      Purging and Data Retention
     </a>
     
       
@@ -527,6 +563,18 @@
   
 </nav>
     
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../gempak-nex2gini/" title="GEMPAK and NEX2GINI" class="md-nav__link">
+      GEMPAK and NEX2GINI
+    </a>
   </li>
 
         
@@ -790,59 +838,67 @@
 <p>Purging rules are defined in XML files in the Localization Store, accessible from the CAVE localization perspective. On EDEX, most are located in <code>/awips2/edex/data/utility/common_static/base/purge</code>, and follow the <strong>base/site</strong> localization pattern (e.g. site purge files are in <code>site/XXX/purge</code> rather than <code>base/purge</code>, where XXX is the site identifier.</p>
 <h1 id="time-base-purge">Time-base purge<a class="headerlink" href="#time-base-purge" title="Permanent link"></a></h1>
 <p>If a plugin has no XML file, the default rule of 1 day (24 hours) is used, from <code>/awips2/edex/data/utility/common_static/base/purge/defaultPurgeRules.xml</code> </p>
-<pre><code>&lt;purgeRuleSet&gt;
-    &lt;defaultRule&gt;
-        &lt;period&gt;01-00:00:00&lt;/period&gt;
-    &lt;/defaultRule&gt;
-&lt;/purgeRuleSet&gt;
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="nt">&lt;purgeRuleSet&gt;</span>
+    <span class="nt">&lt;defaultRule&gt;</span>
+        <span class="nt">&lt;period&gt;</span>01-00:00:00<span class="nt">&lt;/period&gt;</span>
+    <span class="nt">&lt;/defaultRule&gt;</span>
+<span class="nt">&lt;/purgeRuleSet&gt;</span>
+</pre></div>
+
+
 <p>Time-based purging uses the <em>reference time</em> of the data, and dtermination of the reference time is decoder based. </p>
 <blockquote>
 <h3 id="30-day-nexrad3-archive">30-day NEXRAD3 archive<a class="headerlink" href="#30-day-nexrad3-archive" title="Permanent link"></a></h3>
 <p>Modify <code>/awips2/edex/data/utility/common_static/base/purge/radarPurgeRules.xml</code> to increase the data retention period from 7 to 31 days:</p>
-<pre><code>&lt;purgeRuleSet&gt;
-        &lt;defaultRule&gt;
-                &lt;period&gt;31-00:00:00&lt;/period&gt;
-        &lt;/defaultRule&gt;
-&lt;/purgeRuleSet&gt;
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="nt">&lt;purgeRuleSet&gt;</span>
+        <span class="nt">&lt;defaultRule&gt;</span>
+                <span class="nt">&lt;period&gt;</span>31-00:00:00<span class="nt">&lt;/period&gt;</span>
+        <span class="nt">&lt;/defaultRule&gt;</span>
+<span class="nt">&lt;/purgeRuleSet&gt;</span>
+</pre></div>
+
+
 <p><strong>Note</strong>: you do NOT have to restart EDEX when you change a purge rule!</p>
 </blockquote>
 <h1 id="frame-based-purge">Frame-based purge<a class="headerlink" href="#frame-based-purge" title="Permanent link"></a></h1>
 <p>Some plugins use frame-base purging, retaining and certain number of prpduct "versions". </p>
 <p><code>/awips2/edex/data/utility/common_static/base/purge/satellitePurgeRules.xml</code></p>
-<pre><code>&lt;purgeRuleSet&gt;
-    &lt;key&gt;sectorID&lt;/key&gt;
-    &lt;key&gt;physicalElement&lt;/key&gt;
-    &lt;defaultRule&gt;
-            &lt;versionsToKeep&gt;196&lt;/versionsToKeep&gt;
-    &lt;/defaultRule&gt;
-    &lt;rule&gt;
-            &lt;keyValue&gt;NEXRCOMP&lt;/keyValue&gt;
-            &lt;versionsToKeep&gt;288&lt;/versionsToKeep&gt;
-    &lt;/rule&gt;
-    &lt;rule&gt;
-            &lt;keyValue&gt;Alaska National&lt;/keyValue&gt;
-            &lt;versionsToKeep&gt;48&lt;/versionsToKeep&gt;
-    &lt;/rule&gt;
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="nt">&lt;purgeRuleSet&gt;</span>
+    <span class="nt">&lt;key&gt;</span>sectorID<span class="nt">&lt;/key&gt;</span>
+    <span class="nt">&lt;key&gt;</span>physicalElement<span class="nt">&lt;/key&gt;</span>
+    <span class="nt">&lt;defaultRule&gt;</span>
+            <span class="nt">&lt;versionsToKeep&gt;</span>196<span class="nt">&lt;/versionsToKeep&gt;</span>
+    <span class="nt">&lt;/defaultRule&gt;</span>
+    <span class="nt">&lt;rule&gt;</span>
+            <span class="nt">&lt;keyValue&gt;</span>NEXRCOMP<span class="nt">&lt;/keyValue&gt;</span>
+            <span class="nt">&lt;versionsToKeep&gt;</span>288<span class="nt">&lt;/versionsToKeep&gt;</span>
+    <span class="nt">&lt;/rule&gt;</span>
+    <span class="nt">&lt;rule&gt;</span>
+            <span class="nt">&lt;keyValue&gt;</span>Alaska National<span class="nt">&lt;/keyValue&gt;</span>
+            <span class="nt">&lt;versionsToKeep&gt;</span>48<span class="nt">&lt;/versionsToKeep&gt;</span>
+    <span class="nt">&lt;/rule&gt;</span>
+</pre></div>
+
+
 <blockquote>
 <p>In the above example, notice a <em>default rule</em> (196) as well as specific sectors with their own rules. </p>
 </blockquote>
 <h1 id="logging">Logging<a class="headerlink" href="#logging" title="Permanent link"></a></h1>
 <p>Data purge events are logged to the file <code>edex-ingest-purge-&lt;yyyymmdd&gt;.log</code>, where <code>&lt;yyyymmdd&gt;</code> is the date stamp. </p>
-<pre><code>tail -f edex-ingest-purge-20120327.log
+<div class="codehilite"><pre><span></span><span class="s s-Atom">tail</span> <span class="o">-</span><span class="s s-Atom">f</span> <span class="s s-Atom">edex</span><span class="o">-</span><span class="s s-Atom">ingest</span><span class="o">-</span><span class="s s-Atom">purge</span><span class="o">-</span><span class="mf">20120327.</span><span class="s s-Atom">log</span>
 
---------START LOG PURGE---------
-INFO  2012-03-27 00:30:00,027 [DefaultQuartzScheduler_Worker-3] PurgeLogger: EDEX - PURGE LOGS::Skipped file with invalid fileName: afos-trigger.log
-INFO  2012-03-27 00:30:00,193 [DefaultQuartzScheduler_Worker-3] PurgeLogger: EDEX - PURGE LOGS::Removed 1 old files
-INFO  2012-03-27 00:31:23,155 [DefaultQuartzScheduler_Worker-3] PurgeLogger: EDEX - PURGE LOGS::Archived 14 files
-INFO  2012-03-27 00:31:23,155 [DefaultQuartzScheduler_Worker-3] PurgeLogger: EDEX - PURGE LOGS::Skipped processing 1 files
-INFO  2012-03-27 00:31:23,155 [DefaultQuartzScheduler_Worker-3] PurgeLogger: EDEX - PURGE LOGS::---------END LOG PURGE-----------
-</code></pre>
+<span class="s s-Atom">--------</span><span class="nv">START</span> <span class="nv">LOG</span> <span class="nv">PURGE</span><span class="s s-Atom">---------</span>
+<span class="nv">INFO</span>  <span class="mi">2012</span><span class="o">-</span><span class="mi">03</span><span class="o">-</span><span class="mi">27</span> <span class="mi">00</span><span class="s s-Atom">:</span><span class="mi">30</span><span class="s s-Atom">:</span><span class="mi">00</span><span class="p">,</span><span class="mi">027</span> <span class="p">[</span><span class="nv">DefaultQuartzScheduler_Worker</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="nv">PurgeLogger</span><span class="s s-Atom">:</span> <span class="nv">EDEX</span> <span class="o">-</span> <span class="nv">PURGE</span> <span class="nv">LOGS</span><span class="s s-Atom">::</span><span class="nv">Skipped</span> <span class="s s-Atom">file</span> <span class="s s-Atom">with</span> <span class="s s-Atom">invalid</span> <span class="s s-Atom">fileName:</span> <span class="s s-Atom">afos</span><span class="o">-</span><span class="s s-Atom">trigger</span><span class="p">.</span><span class="s s-Atom">log</span>
+<span class="nv">INFO</span>  <span class="mi">2012</span><span class="o">-</span><span class="mi">03</span><span class="o">-</span><span class="mi">27</span> <span class="mi">00</span><span class="s s-Atom">:</span><span class="mi">30</span><span class="s s-Atom">:</span><span class="mi">00</span><span class="p">,</span><span class="mi">193</span> <span class="p">[</span><span class="nv">DefaultQuartzScheduler_Worker</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="nv">PurgeLogger</span><span class="s s-Atom">:</span> <span class="nv">EDEX</span> <span class="o">-</span> <span class="nv">PURGE</span> <span class="nv">LOGS</span><span class="s s-Atom">::</span><span class="nv">Removed</span> <span class="mi">1</span> <span class="s s-Atom">old</span> <span class="s s-Atom">files</span>
+<span class="nv">INFO</span>  <span class="mi">2012</span><span class="o">-</span><span class="mi">03</span><span class="o">-</span><span class="mi">27</span> <span class="mi">00</span><span class="s s-Atom">:</span><span class="mi">31</span><span class="s s-Atom">:</span><span class="mi">23</span><span class="p">,</span><span class="mi">155</span> <span class="p">[</span><span class="nv">DefaultQuartzScheduler_Worker</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="nv">PurgeLogger</span><span class="s s-Atom">:</span> <span class="nv">EDEX</span> <span class="o">-</span> <span class="nv">PURGE</span> <span class="nv">LOGS</span><span class="s s-Atom">::</span><span class="nv">Archived</span> <span class="mi">14</span> <span class="s s-Atom">files</span>
+<span class="nv">INFO</span>  <span class="mi">2012</span><span class="o">-</span><span class="mi">03</span><span class="o">-</span><span class="mi">27</span> <span class="mi">00</span><span class="s s-Atom">:</span><span class="mi">31</span><span class="s s-Atom">:</span><span class="mi">23</span><span class="p">,</span><span class="mi">155</span> <span class="p">[</span><span class="nv">DefaultQuartzScheduler_Worker</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="nv">PurgeLogger</span><span class="s s-Atom">:</span> <span class="nv">EDEX</span> <span class="o">-</span> <span class="nv">PURGE</span> <span class="nv">LOGS</span><span class="s s-Atom">::</span><span class="nv">Skipped</span> <span class="s s-Atom">processing</span> <span class="mi">1</span> <span class="s s-Atom">files</span>
+<span class="nv">INFO</span>  <span class="mi">2012</span><span class="o">-</span><span class="mi">03</span><span class="o">-</span><span class="mi">27</span> <span class="mi">00</span><span class="s s-Atom">:</span><span class="mi">31</span><span class="s s-Atom">:</span><span class="mi">23</span><span class="p">,</span><span class="mi">155</span> <span class="p">[</span><span class="nv">DefaultQuartzScheduler_Worker</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="nv">PurgeLogger</span><span class="s s-Atom">:</span> <span class="nv">EDEX</span> <span class="o">-</span> <span class="nv">PURGE</span> <span class="nv">LOGS</span><span class="s s-Atom">::---------</span><span class="nv">END</span> <span class="nv">LOG</span> <span class="nv">PURGE</span><span class="s s-Atom">-----------</span>
+</pre></div>
+
+
 <h1 id="all-purge-rules">All Purge Rules<a class="headerlink" href="#all-purge-rules" title="Permanent link"></a></h1>
 <p>To see all purge rule directories (base, site, region, configured):</p>
-<pre><code>find /awips2/edex/data/utility -name purge
+<div class="codehilite"><pre><span></span>find /awips2/edex/data/utility -name purge
 
 /awips2/edex/data/utility/edex_static/region/CR/purge
 /awips2/edex/data/utility/edex_static/base/purge
@@ -853,9 +909,11 @@ INFO  2012-03-27 00:31:23,155 [DefaultQuartzScheduler_Worker-3] PurgeLogger: EDE
 /awips2/edex/data/utility/common_static/configured/OAX/purge
 /awips2/edex/data/utility/common_static/site/AFC/purge
 /awips2/edex/data/utility/common_static/site/OAX/purge
-</code></pre>
+</pre></div>
+
+
 <p>To see a list of the data plug-ins that have purge rules:</p>
-<pre><code>find /awips2/edex/data/utility -name "*PurgeRules.xml"
+<div class="codehilite"><pre><span></span>find /awips2/edex/data/utility -name &quot;*PurgeRules.xml&quot;
 
 /awips2/edex/data/utility/edex_static/base/purge/airmetPurgeRules.xml
 /awips2/edex/data/utility/edex_static/base/purge/convsigmetPurgeRules.xml
@@ -935,7 +993,7 @@ INFO  2012-03-27 00:31:23,155 [DefaultQuartzScheduler_Worker-3] PurgeLogger: EDE
 /awips2/edex/data/utility/common_static/base/purge/nctafPurgeRules.xml
 /awips2/edex/data/utility/common_static/base/purge/solarimagePurgeRules.xml
 /awips2/edex/data/utility/common_static/site/AFC/purge/regionalsatPurgeRules.xml
-</code></pre>
+</pre></div>
                 
                   
                 
@@ -969,13 +1027,13 @@ INFO  2012-03-27 00:31:23,155 [DefaultQuartzScheduler_Worker-3] PurgeLogger: EDE
           </a>
         
         
-          <a href="../edex-users/" title="Monitor Users" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../gempak-nex2gini/" title="GEMPAK and NEX2GINI" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Monitor Users
+                GEMPAK and NEX2GINI
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">

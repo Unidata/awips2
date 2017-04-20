@@ -238,15 +238,15 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#linux" title=" Linux" class="md-nav__link">
-     Linux
+  <a href="#macos" title=" macOS" class="md-nav__link">
+     macOS
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#macos" title=" macOS" class="md-nav__link">
-     macOS
+  <a href="#linux" title=" Linux" class="md-nav__link">
+     Linux
   </a>
   
 </li>
@@ -342,6 +342,18 @@
 
 
   <li class="md-nav__item">
+    <a href="../../cave/bundles-and-procedures/" title="TODO Bundles and Procedures" class="md-nav__link">
+      TODO Bundles and Procedures
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../../cave/localization-perspective/" title="Localization Perspective" class="md-nav__link">
       Localization Perspective
     </a>
@@ -404,6 +416,30 @@
   <li class="md-nav__item">
     <a href="../../cave/d2d-gridded-models/" title="Volume Browser" class="md-nav__link">
       Volume Browser
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-gridded-models/" title="TODO Derived Parameters" class="md-nav__link">
+      TODO Derived Parameters
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-gridded-models/" title="TODO GEMPAK Grid Display" class="md-nav__link">
+      TODO GEMPAK Grid Display
     </a>
   </li>
 
@@ -546,8 +582,20 @@
 
 
   <li class="md-nav__item">
-    <a href="../../edex/data-purge/" title="Purging and Retention" class="md-nav__link">
-      Purging and Retention
+    <a href="../../edex/data-purge/" title="Purging and Data Retention" class="md-nav__link">
+      Purging and Data Retention
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../edex/gempak-nex2gini/" title="GEMPAK and NEX2GINI" class="md-nav__link">
+      GEMPAK and NEX2GINI
     </a>
   </li>
 
@@ -782,15 +830,15 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#linux" title=" Linux" class="md-nav__link">
-     Linux
+  <a href="#macos" title=" macOS" class="md-nav__link">
+     macOS
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#macos" title=" macOS" class="md-nav__link">
-     macOS
+  <a href="#linux" title=" Linux" class="md-nav__link">
+     Linux
   </a>
   
 </li>
@@ -845,12 +893,12 @@
 </thead>
 <tbody>
 <tr>
-<td>Linux x86_64</td>
-<td align="right"><a href="http://www.unidata.ucar.edu/software/awips2/installCAVE.sh">installCAVE.sh <i class="fa fa-download"></i></a></td>
-</tr>
-<tr>
 <td>macOS</td>
 <td align="right"><a href="http://www.unidata.ucar.edu/downloads/awips2/awips2-cave-16.2.2.dmg">awips2-cave-16.2.2.dmg <i class="fa fa-download"></i></a></td>
+</tr>
+<tr>
+<td>Linux x86_64</td>
+<td align="right"><a href="http://www.unidata.ucar.edu/software/awips2/installCAVE.sh">installCAVE.sh <i class="fa fa-download"></i></a></td>
 </tr>
 <tr>
 <td>32-bit Windows</td>
@@ -863,19 +911,37 @@
 </tbody>
 </table>
 <hr />
+<h2 id="macos"><i class="fa fa-apple"></i> macOS<a class="headerlink" href="#macos" title="Permanent link"></a></h2>
+<ul>
+<li><a href="http://www.unidata.ucar.edu/downloads/awips2/awips2-cave-16.2.2.dmg">awips2-cave-16.2.2.dmg <i class="fa fa-download"></i></a></li>
+</ul>
+<p>Download the DMG, open and drag the CAVE folder to Applications as with any other macOS application. The CAVE application will write local configuration files to <strong>~/Library/CAVE</strong></p>
+<div class="admonition tip">
+<p class="admonition-title">macOS 10.12 (Sierra) requires you remove the application from <em>quarantine</em> before running:</p>
+<p><code>xattr -d com.apple.quarantine /Applications/CAVE/cave.app</code></p>
+</div>
+<p>To get around quarantine you can also run CAVE from the command line <code>/Applications/CAVE/cave.app/Contents/MacOS/cave</code></p>
+<div class="admonition warning">
+<p>Client-side Python scripting (including Derived Parameters for grid parameters) does not work on macOS</p>
+</div>
+<hr />
 <h2 id="linux"><i class="fa fa-linux"></i> Linux<a class="headerlink" href="#linux" title="Permanent link"></a></h2>
 <ul>
 <li><a href="http://www.unidata.ucar.edu/software/awips2/installCAVE.sh">installCAVE.sh <i class="fa fa-download"></i></a></li>
 </ul>
 <p>For CentOS/Red Hat 6 and 7. Installs to <strong>/awips2/cave</strong> and writes files to <strong>~/caveData</strong>.</p>
 <p>Install as root:</p>
-<pre><code>chmod 755 ./installCAVE.sh
+<div class="codehilite"><pre><span></span>chmod 755 ./installCAVE.sh
 ./installCAVE.sh
-</code></pre>
+</pre></div>
+
+
 <p>All package dependencies should be resolved by yum. </p>
 <p><strong>Run CAVE from the command line</strong></p>
-<pre><code>cave
-</code></pre>
+<div class="codehilite"><pre><span></span>cave
+</pre></div>
+
+
 <p>or find CAVE in the GNOME menu <strong>Applications</strong> &gt; <strong>Internet</strong> &gt; <strong>AWIPS CAVE</strong></p>
 <div class="admonition note">
 <p class="admonition-title">System Requirements</p>
@@ -888,17 +954,6 @@
 </ul>
 </div>
 <hr />
-<h2 id="macos"><i class="fa fa-apple"></i> macOS<a class="headerlink" href="#macos" title="Permanent link"></a></h2>
-<ul>
-<li><a href="http://www.unidata.ucar.edu/downloads/awips2/awips2-cave-16.2.2.dmg">awips2-cave-16.2.2.dmg <i class="fa fa-download"></i></a></li>
-</ul>
-<p>Writes config files to <strong>~/Library/CAVE</strong></p>
-<div class="admonition warning">
-<p class="admonition-title">macOS 10.12 (Sierra) not fully supported, requires cave be run from the command line.</p>
-<p>New to 10.12 is Gatekeeper Path Randomization, which prevents applications delivered outside of the Mac App Store from running by normal means (taskbar icon or finder). </p>
-<p>Until the next release, CAVE on Sierra should be run from the terminal with the command <code>/Applications/CAVE/cave.app/Contents/MacOS/cave</code></p>
-</div>
-<hr />
 <h2 id="windows"><i class="fa fa-windows"></i> Windows<a class="headerlink" href="#windows" title="Permanent link"></a></h2>
 <ul>
 <li><a href="http://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi">awips-cave.msi <i class="fa fa-download"></i></a></li>
@@ -906,7 +961,6 @@
 </ul>
 <p>Writes files to <strong>caveData</strong> in the user's home directory.</p>
 <div class="admonition warning">
-<p class="admonition-title">Beta status</p>
 <p>Client-side Python scripts (including Derived Parameters) do not work on Windows</p>
 </div>
 <hr />
