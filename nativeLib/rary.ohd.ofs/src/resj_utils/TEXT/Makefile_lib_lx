@@ -1,0 +1,112 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-resj_utils library file
+#
+#  cmt: File made on Wed Aug  6 12:55:36 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU -DUSE_XM_MWMUTIL_H -DUSE_XGPM -Wall -Wno-unused-variable -Wno-comment
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_CC   = -I/usr/include/informix/esql/  \
+               -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .c .h .o .a
+
+.c.a:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libresj_utils_t.a:  \
+     $(LIB)/libresj_utils_t.a(AddFormattedStringToStringList.o)  \
+     $(LIB)/libresj_utils_t.a(AddListToStringList.o)  \
+     $(LIB)/libresj_utils_t.a(AddToStringList.o)  \
+     $(LIB)/libresj_utils_t.a(ArrayToStringList.o)  \
+     $(LIB)/libresj_utils_t.a(Basename.o)  \
+     $(LIB)/libresj_utils_t.a(BreakStringList.o)  \
+     $(LIB)/libresj_utils_t.a(Dirname.o)  \
+     $(LIB)/libresj_utils_t.a(ESPstrcasecmp.o)  \
+     $(LIB)/libresj_utils_t.a(ESPstrncasecmp.o)  \
+     $(LIB)/libresj_utils_t.a(FreeStringList.o)  \
+     $(LIB)/libresj_utils_t.a(GetConversion.o)  \
+     $(LIB)/libresj_utils_t.a(GetConversionSame.o)  \
+     $(LIB)/libresj_utils_t.a(GetDataTypeInfo.o)  \
+     $(LIB)/libresj_utils_t.a(GetDef.o)  \
+     $(LIB)/libresj_utils_t.a(GetDirList.o)  \
+     $(LIB)/libresj_utils_t.a(GetFileParts.o)  \
+     $(LIB)/libresj_utils_t.a(GetFilesFromPathList.o)  \
+     $(LIB)/libresj_utils_t.a(GetFilesUsingRegExp.o)  \
+     $(LIB)/libresj_utils_t.a(GetHostname.o)  \
+     $(LIB)/libresj_utils_t.a(GetMeanFromInst.o)  \
+     $(LIB)/libresj_utils_t.a(GetProgramData.o)  \
+     $(LIB)/libresj_utils_t.a(GetStdDev.o)  \
+     $(LIB)/libresj_utils_t.a(GetSubStringList.o)  \
+     $(LIB)/libresj_utils_t.a(GetSystemTimeString.o)  \
+     $(LIB)/libresj_utils_t.a(GetUnitsFormat.o)  \
+     $(LIB)/libresj_utils_t.a(GetUnitsType.o)  \
+     $(LIB)/libresj_utils_t.a(GetUser.o)  \
+     $(LIB)/libresj_utils_t.a(GetVar.o)  \
+     $(LIB)/libresj_utils_t.a(GetWorkingDir.o)  \
+     $(LIB)/libresj_utils_t.a(Globals.o)  \
+     $(LIB)/libresj_utils_t.a(InitFILEs.o)  \
+     $(LIB)/libresj_utils_t.a(Interp.o)  \
+     $(LIB)/libresj_utils_t.a(IsInteger.o)  \
+     $(LIB)/libresj_utils_t.a(LatLonToHRAP.o)  \
+     $(LIB)/libresj_utils_t.a(LinearRegression.o)  \
+     $(LIB)/libresj_utils_t.a(MonthAbbreviation.o)  \
+     $(LIB)/libresj_utils_t.a(MonthFromAbbreviation.o)  \
+     $(LIB)/libresj_utils_t.a(NumDaysInYear.o)  \
+     $(LIB)/libresj_utils_t.a(PrintCreatorHeader.o)  \
+     $(LIB)/libresj_utils_t.a(PrintDebug.o)  \
+     $(LIB)/libresj_utils_t.a(PrintError.o)  \
+     $(LIB)/libresj_utils_t.a(PrintStatus.o)  \
+     $(LIB)/libresj_utils_t.a(PrintWarning.o)  \
+     $(LIB)/libresj_utils_t.a(RemoveNewline.o)  \
+     $(LIB)/libresj_utils_t.a(ReplaceChar.o)  \
+     $(LIB)/libresj_utils_t.a(ReverseArrayF.o)  \
+     $(LIB)/libresj_utils_t.a(ReverseArrayI.o)  \
+     $(LIB)/libresj_utils_t.a(SetDebugFILE.o)  \
+     $(LIB)/libresj_utils_t.a(SetDebugLevel.o)  \
+     $(LIB)/libresj_utils_t.a(SetErrorFILE.o)  \
+     $(LIB)/libresj_utils_t.a(SetOutputFILEs.o)  \
+     $(LIB)/libresj_utils_t.a(SetOutputFunctions.o)  \
+     $(LIB)/libresj_utils_t.a(SetProgramCommandFile.o)  \
+     $(LIB)/libresj_utils_t.a(SetProgramData.o)  \
+     $(LIB)/libresj_utils_t.a(SetStatusFILE.o)  \
+     $(LIB)/libresj_utils_t.a(SetStatusLevel.o)  \
+     $(LIB)/libresj_utils_t.a(SetWarningFILE.o)  \
+     $(LIB)/libresj_utils_t.a(SetWarningLevel.o)  \
+     $(LIB)/libresj_utils_t.a(SortF.o)  \
+     $(LIB)/libresj_utils_t.a(SortFQuick.o)  \
+     $(LIB)/libresj_utils_t.a(SortStringList.o)  \
+     $(LIB)/libresj_utils_t.a(SpawnProcess.o)  \
+     $(LIB)/libresj_utils_t.a(Stat.o)  \
+     $(LIB)/libresj_utils_t.a(StringListLength.o)  \
+     $(LIB)/libresj_utils_t.a(StringMatchesRegExp.o)  \
+     $(LIB)/libresj_utils_t.a(StringReadToDelim.o)  \
+     $(LIB)/libresj_utils_t.a(TableInterp.o)  \
+     $(LIB)/libresj_utils_t.a(time-date.o)  \
+     $(LIB)/libresj_utils_t.a(ToUpper.o)  \
+     $(LIB)/libresj_utils_t.a(UnpadString.o)  \
+     $(LIB)/libresj_utils_t.a(UnsortF.o)
+

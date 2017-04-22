@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<DerivedParameter abbreviation="SDENGFS" internal="false" isVector="false" name="GFS Snow Density" unit="kg/m³">
+  <Method levels="Surface" name="Alias">
+    <Field abbreviation="SDEN" />
+  </Method>
+</DerivedParameter>

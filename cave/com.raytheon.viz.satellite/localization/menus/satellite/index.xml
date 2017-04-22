@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<menuContributionFile>	
+	<include installTo="menu:satellite?before=GROUP1" 
+             fileName="menus/satellite/baseUniwiscComposite.xml">
+    </include>
+	<include installTo="menu:satellite?after=GROUP1"
+		fileName="menus/satellite/baseSatellite.xml">
+	</include>
+	<include installTo="menu:satellite?after=GROUP2"
+		fileName="menus/satellite/regionalSatellite.xml">
+	</include>
+    <include installTo="menu:satellite?before=GROUP3" 
+             fileName="menus/satellite/baseSounderImagery.xml">
+    </include>
+    <include installTo="menu:satellite?before=GROUP4" 
+             fileName="menus/satellite/baseDerivedProductPlots.xml"/>    
+</menuContributionFile>

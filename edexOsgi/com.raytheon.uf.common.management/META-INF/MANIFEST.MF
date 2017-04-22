@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Management
+Bundle-SymbolicName: com.raytheon.uf.common.management
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Import-Package: com.raytheon.uf.common.serialization.comm
+Require-Bundle: com.raytheon.uf.common.serialization
+Export-Package: com.raytheon.uf.common.management.request,
+ com.raytheon.uf.common.management.request.diagnostic,
+ com.raytheon.uf.common.management.response.diagnostic,
+ com.raytheon.uf.common.management.stats

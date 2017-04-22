@@ -1,0 +1,51 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="bufrssmiDecoder" class="com.raytheon.uf.edex.plugin.bufrssmi.SSMIDecoder">
+        <constructor-arg ref="bufrssmiPluginName" />
+    </bean>
+
+    <bean id="bufrssmiDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg ref="bufrssmiPluginName" />
+		<constructor-arg value="jms-durable:queue:Ingest.bufrssmi"/>
+	</bean>
+
+    <camelContext id="bufrssmi-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+        <!--
+        <endpoint id="bufrssmiFileEndpoint" uri="file:${edex.home}/data/sbn/bufrssmi?noop=true&amp;idempotent=false" />
+
+        <route id="bufrssmiFileConsumerRoute">
+            <from ref="bufrssmiFileEndpoint" />
+            <bean ref="fileToString" />
+            <setHeader headerName="pluginName">
+                <constant>bufrssmi</constant>
+            </setHeader>
+            <to uri="jms-durable:queue:Ingest.bufrssmi" />
+        </route>
+        -->
+
+        <!-- Begin bufrssmi routes -->
+        <route id="bufrssmiIngestRoute">
+            <from uri="jms-durable:queue:Ingest.bufrssmi" />
+            <setHeader headerName="pluginName">
+                <constant>bufrssmi</constant>
+            </setHeader>
+            <doTry>
+                <pipeline>
+		            <bean ref="stringToFile" />
+                    <bean ref="bufrssmiDecoder" method="decode" />
+                    <to uri="direct-vm:persistIndexAlert" />
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:bufrssmi?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+</beans>

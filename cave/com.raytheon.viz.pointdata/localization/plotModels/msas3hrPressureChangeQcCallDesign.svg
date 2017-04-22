@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<svg width="80" height="80" 
+viewBox="0 0 80 80" 
+overflow="visible" 
+contentScriptType="text/python"
+xmlns="http://www.w3.org/2000/svg" 
+xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
+   <defs>
+<script type="text/python" plotDelegate="plotDelegate">
+from qcplot import QCReport
+
+class Msas3hrPressChangeQcPlotDelegate(PlotDelegate):
+    def __init__(self):
+        PlotDelegate.__init__(self)
+        self.report = QCReport(['pressChange3Hour'],
+            ['QC'],
+            None, None)
+        
+    def getSampleText(self, rec):
+        self.report.setPointDataView(rec)
+        sid = rec.getString("stationName")
+        self.report.setTitle(sid)
+        return self.report.title
+            
+plotDelegate = Msas3hrPressChangeQcPlotDelegate()
+
+</script>
+<style type="text/css">
+<![CDATA[
+        @font-face { font-family: "StandardFont";
+                src: url(Standard.svg#Standard); }
+        text.text
+            {
+                fill: none;
+                font-size: 1em;
+                stroke-width: 1px;
+                font-family: StandardFont;
+                font-size: 1em;
+            }
+]]>
+</style>
+
+<symbol overflow="visible" id="plotData" class="info">
+  <text id="extraParams" plotMode="null" class="text" plotParam="stationName,pressChange3Hour,pressChange3HourQCA,pressChange3HourQCR,pressChange3HourDD" x="0" y="0" visibility="hidden">0</text>
+  <text id="pressChange3Hour" plotMode="text" plotParam="pressChange3Hour" plotUnit="(mb*0.1)/s)" plotFormat="%5.0f" plotTrim="2" style="text-anchor: end;" x="0" y="0">75</text> 
+</symbol>
+</defs>
+<use id="wind" x="40" y="40" width="80" height="80" visibility="visible" xlink:href="#plotData"/>
+</svg>

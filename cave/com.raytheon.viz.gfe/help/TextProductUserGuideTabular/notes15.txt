@@ -1,0 +1,2 @@
+Smart Text products access the variables from the VariableList using a "varDict" similar to that in SmartTools.  The "varDict" can be accessed as an entry in the "argDict" dictionary which contains useful information about the product.  The "_getVariables" method also sets up the variables from the Definition section of the product.  We can call these "Magic" variables because all you have to do is add an entry to the Definition section and it will automatically be available to you as a variable within the product. 
+

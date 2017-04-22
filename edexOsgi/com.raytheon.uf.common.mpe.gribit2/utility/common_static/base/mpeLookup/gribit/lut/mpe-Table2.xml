@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<table2>
+  <!-- TABLE 2 - PARAMETERS & UNITS FOR CENTER 7 US NWS NCEP. Ported from: 
+    /rary.ohd.pproc.gribit/TEXT/bdgparm.f. -->
+  <parameter>
+    <num>011</num>
+    <id>TMP</id>
+    <name>Temperature [K]</name>
+  </parameter>
+  <parameter>
+    <num>015</num>
+    <id>TMAX</id>
+    <name>Maximum temperature [K]</name>
+  </parameter>
+  <parameter>
+    <num>016</num>
+    <id>TMIN</id>
+    <name>Minimum temperature [K]</name>
+  </parameter>
+  <parameter>
+    <num>061</num>
+    <id>APCP</id>
+    <name>Total precipitation [kg/m2]</name>
+  </parameter>
+  <parameter>
+    <num>065</num>
+    <id>WEASD</id>
+    <name>Water equiv. of snow depth [kg/m2]</name>
+  </parameter>
+  <parameter>
+    <num>066</num>
+    <id>SNOD</id>
+    <name>Snow depth [m]</name>
+  </parameter>
+</table2>

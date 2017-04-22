@@ -1,0 +1,25 @@
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="vtecFilter" class="com.raytheon.edex.plugin.warning.util.WarningHasVTECFilter"/>
+
+    <bean id="activeTableSrv" class="com.raytheon.uf.edex.activetable.ActiveTableSrv"/>
+    <bean id="activeTable" class="com.raytheon.uf.edex.activetable.ActiveTable"/>
+    <bean id="activeTableDatabaseProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
+        <property name="pluginFQN" value="com.raytheon.uf.common.activetable"/>
+        <property name="database" value="metadata"/>
+    </bean>
+    <bean factory-bean="dbPluginRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.activetable"/>
+        <constructor-arg ref="activeTableDatabaseProperties"/>
+    </bean>
+
+    <camelContext id="activetable-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+        <route id="vtecNotify">
+            <from uri="vm:edex.vtecAlert"/>
+            <bean ref="serializationUtil" method="transformToThrift"/>
+            <to uri="jms-generic:topic:edex.alerts.vtec?timeToLive=60000"/>
+        </route>
+    </camelContext>
+</beans>

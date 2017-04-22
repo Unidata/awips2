@@ -1,0 +1,55 @@
+/*
+Name:		ExecuteImmediate.ec
+
+Inputs:		char* cpSql -		SQL statement.
+
+Outputs:	long - Informix result code
+
+Description:	Issues arbitrary EXECUTE IMMEDIATE statement.  This 
+		generally duplicates ExecSQL, except there is no 
+		output to stderr if an error occurs.  This function
+		was written to address the need of being able to issue
+		SQL commands when an error was a distict possibility,
+		and generally not a fatal error.  For example, you
+		can issue "BEGIN WORK" to see if transaction logging
+		is enabled.
+
+Author:		Phil Perucci
+
+Creation date:	6/17/97
+
+Modifications:
+
+Algorithm:	Trivial - see code.
+
+*/
+
+/*
+	Header files:
+*/
+#include <stdio.h>
+
+/*
+	Function:  executeImmediate()
+*/
+long executeImmediate(char* cpSql)
+{
+	/*
+		Local storage
+	*/
+   	EXEC SQL BEGIN DECLARE SECTION;
+		char* SQL;
+	EXEC SQL END DECLARE SECTION;
+
+
+    	/*
+    		Execute SQL in one handy step.
+    		The "EXECUTE IMMEDIATE" performs "PREPARE",
+    		"EXECUTE" and "FREE" in one statement.
+    		Can't do this for "SELECT" statements...
+    	*/
+	SQL = cpSql;
+    	EXEC SQL EXECUTE IMMEDIATE :SQL;
+    	
+    	return(SQLCODE);		/* Return result code */
+}

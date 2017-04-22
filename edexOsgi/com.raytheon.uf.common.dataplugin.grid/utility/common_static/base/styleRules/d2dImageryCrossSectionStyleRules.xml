@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization..
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<styleRuleset>
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>Into</parameter>
+			<parameter>Along</parameter>
+			<parameter>IntoA</parameter>
+			<parameter>AlongA</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>kts</displayUnits>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+		</imageStyle>
+	</styleRule>
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>wSp</parameter>
+			<parameter>wSp_avg</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>kts</displayUnits>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>200</maxValue>
+			</range>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<colorbarLabeling>
+				<increment>20</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>RRV</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>kts</displayUnits>
+			<range scale="LINEAR">
+				<minValue>-128</minValue>
+				<maxValue>125</maxValue>
+			</range>
+			<defaultColormap>Radar/GSD/8 bit Vel</defaultColormap>
+			<colorbarLabeling>
+				<increment>20</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>RR</parameter>
+			<parameter>CXR</parameter>
+			<parameter>LLR</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>dBZ</displayUnits>
+			<range scale="LINEAR">
+				<minValue>0</minValue>
+				<maxValue>80</maxValue>
+			</range>
+			<defaultColormap>Radar/Storm Total Precip</defaultColormap>
+			<colorbarLabeling>
+				<increment>5</increment>
+			</colorbarLabeling>
+		</imageStyle>
+	</styleRule>
+</styleRuleset>

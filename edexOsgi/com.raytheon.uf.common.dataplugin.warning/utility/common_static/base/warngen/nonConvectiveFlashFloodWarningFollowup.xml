@@ -1,0 +1,408 @@
+<!-- Dam Break Follow-up Statement (FFS) configuration -->
+<!-- Customized by Phil Kurimski WFO DTX 07-14-2011 
+         Modified  Evan Bookbinder       09-16-2011 OB11.0.8-8
+         Modified  Phil Kurimski         09-23-2011  OB 11.0.8-8 
+         Modified  Phil Kurimski         01-26-2012  OB 12.1.1-1 
+         Modified  Qinglu Lin            04-04-2012 DR 14691. Added <feAreaField> tag.
+         Modified  Phil Kurimski         04-27-2012  
+                   Evan Bookbinder       09-11-2012 Added settings for locations shapefile
+                   									Added areaSource object
+         Modified Phil Kurimski          02-05-2013 Reordered GUI selections to make more sense
+         Modified Phil Kurimski          09-19-2013 added geospatialConfig.xml
+         Modified Mike Rega              01-18-2014 added Alaska GP changes for 14.2.1
+         Modified Phil Kurimski          06-24-2014 fixed Ice Jam Parse String error 14.2.2-9
+         Modified Evan Bookbinder        10-24-2014 commented out AK additions from baseline and
+                                                    corrected their bulletGroup="" settings  
+                                                    Added floodSeverity bullets
+         Modified Mike Rega				10-27-2014 fixed EMER floodSeverity=3 error
+         Mike Dangelo                   10-21-2015 added SM-only option        
+-->
+
+<warngenConfig>
+
+<!-- INCLUDE ALL GEOSPTATIAL INFORMATION FOR THIS PRODUCT
+ANY pointSource/areaSource/pathcastConfig OVERRIDES TO THAT FILE CAN BE
+PLACED IN FULL BELOW THE INCLUDE LINE BELOW. -->
+<include file="geospatialConfig_COUNTY.xml"/>
+
+<!-- Include Various geospatial XML files to create their objects. These are *NOT*
+turned on unless the corresponding .vm file is turned on in a given template's .vm file
+-->  
+<include file="mileMarkers.xml"/>
+<!-- To enable, make sure mileMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
+<include file="pointMarkers.xml"/>
+<!-- To enable, make sure pointMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
+
+ <!-- Config distance/speed units -->
+ <unitDistance>mi</unitDistance>
+ <unitSpeed>mph</unitSpeed>
+
+ <!-- Maps to load on template selection. Refer to 'Maps' menu in CAVE. 
+ 	The various menu items are also the different maps
+ 	that can be loaded with each template. -->
+ <maps>
+    <map>County Names</map>
+    <map>County Warning Areas</map>
+    <map>Major Rivers</map> 
+ </maps>
+
+ <!-- Followups: VTEC actions of allowable followups when this template is selected 
+	Each followup will become available when the appropriate time range permits.
+ -->
+ <followups>
+  <followup>COR</followup>
+  <followup>CON</followup>
+  <followup>CAN</followup>
+  <followup>EXP</followup>
+ </followups>
+ 
+ <!-- Product ID: nnn id of the product -->
+ <productId>FFS</productId>
+
+ <!-- Phensigs: The list of phenomena and significance combinations that this template applies to -->
+ <phensigs>
+   <phensig>FF.W</phensig>
+ </phensigs>
+
+ <!-- Enables/disables user from selecting the Restart button the GUI -->
+ <enableRestart>false</enableRestart>
+
+<!-- Enables/disables the 'Dam Break Threat Area' button -->
+<enableDamBreakThreat>true</enableDamBreakThreat>
+
+ <!-- Enable/disables the system to lock text based on various patterns -->
+ <autoLockText>true</autoLockText>
+
+ <!-- durations: the list of possible durations of the warning -->
+  <!-- THIS REALLY SERVES NO PURPOSE BUT WILL CRASH WARNGEN IF REMVOED -->
+ <defaultDuration>30</defaultDuration>
+ <durations>
+  <duration>30</duration>
+ </durations>
+ 
+<!-- Customized several sections in bullet section including:
+        Added Flash Flood Emergency Headline
+ 	Changed the CTA Bullet names for easier parsing in the vm file 
+        Added the Primary Cause to CAN and EXP sections for correct headlines -->
+<lockedGroupsOnFollowup>dam,ic,ffwEMER</lockedGroupsOnFollowup>
+<bulletActionGroups>
+<bulletActionGroup>
+ <bullets>
+  <bullet bulletText="*********** SELECT A FOLLOWUP **********" bulletType="title"/>
+ </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="CAN" phen="FF" sig="W">
+ <bullets>
+  <bullet bulletText="*********** CAN SELECTED **********" bulletType="title"/>
+  <bullet bulletText="******** END OF WARNING STATEMENTS *******" bulletType="title"/>
+  <bullet bulletName="warnend1" bulletText="Generic Statement" bulletGroup="wEnd"/>
+  <bullet bulletName="warnend2" bulletText="River Flooding" bulletGroup="wEnd"/>
+  <bullet bulletText="******** FLOOD SEVERITY (choose 1) *******" bulletType="title"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******** FLOOD SEVERITY (choose 1) *******" bulletType="title"/>  
+  <bullet bulletName="sevUnk" bulletText="Unknown" bulletGroup="floodSeverity" floodSeverity="U"  showString=".U." parseString=".U."/>
+  <bullet bulletName="sev1" bulletText="Minor flood" bulletGroup="floodSeverity" floodSeverity="1"  showString=".1." parseString=".1."/>
+  <bullet bulletName="sev2" bulletText="Moderate flood" bulletGroup="floodSeverity" floodSeverity="2" showString=".2." parseString=".2."/>
+  <bullet bulletName="sev3" bulletText="Major flood" bulletGroup="floodSeverity" floodSeverity="3" showString=".3." parseString=".3."/>     
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******** PRIMARY CAUSE *******" bulletType="title"/>
+  <bullet bulletName="dam" bulletText="Dam failure - generic" bulletGroup="damic" parseString="A DAM FAILURE" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
+  <bullet bulletName="levee" bulletText="Levee failure" bulletGroup="ic" parseString="A LEVEE FAILURE" showString="LEVEE FAILURE"/>
+  <bullet bulletName="floodgate" bulletText="Floodgate opening" bulletGroup="ic" parseString="A DAM FLOODGATE RELEASE" showString="A DAM FLOODGATE RELEASE"/>
+  <bullet bulletName="glacier" bulletText="Glacial-dammed lake outburst" bulletGroup="ic" parseString=".GO." showString=".GO."/>
+  <bullet bulletName="icejam" bulletText="Ice jam" bulletGroup="ic" parseString=".IJ." showString=".IJ."/>
+  <bullet bulletName="rain" bulletText="Rapid rain induced snowmelt" bulletGroup="ic" parseString=".RS." showString=".RS."/>
+  <bullet bulletName="onlyMelt" bulletText="Rapid snowmelt only" bulletGroup="ic" parseString=".SM." showString=".SM."/>
+<!-- Uncomment for Alaska 
+  <bullet bulletName="volcano" bulletText="Volcano induced snowmelt" bulletGroup="ic" parseString="VOLCANIC INDUCED SNOWMELT" showString=".SM."/>
+  <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="VOLCANIC INDUCED DEBRIS FLOW" showString=".SM."/>
+Alaska end -->
+  <bullet bulletName="siteimminent" bulletText="Dam break - site specific (pick below) - imminent failure" bulletGroup="damic" parseString="THE IMMINENT FAILURE OF" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
+  <bullet bulletName="sitefailed" bulletText="Dam break - site specific (pick below) - failure has occurred" bulletGroup="damic" parseString="THE FAILURE OF" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
+  <bullet bulletText="" bulletType="title"/>
+  <!-- The following are examples on how to include site specific dams in your template
+       You can choose to do this by editing the template and listing each dam in the
+       template or listing the dams in a separate file and using the include command -->
+  <!-- The bullet names may need to be edited once AWIPS 2 is fixed to include damInfoBullets coding. -->
+  <!-- Note that Dam Names NEED to be in the CAN section to produce correct headline wording in the vm file -->
+  <bullet bulletText="****** DAM NAME ******" bulletType="title" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
+ </bullets>
+ <!-- The following are examples on how to include site specific dams in your template
+       You can choose to do this by editing the template and listing each dam in the
+       template or listing the dams in a separate file and using the include command -->
+ <!-- include file="damInfoBullet.xml"/>  -->
+ <!-- <damInfoBullets>
+<damInfoBullet bulletGroup="dam" bulletText="Big Rock Dam (Fairfield County)" bulletName="BigRockDam"  parseString="BIG ROCK" showString="BIG ROCK DAM" coords="LAT...LON 4109 7338 4116 7311 4116 7320"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BigRockhighfast"  parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - high normal" bulletName="BigRockhighnormal"  parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - medium fast" bulletName="BigRockmediumfast"  parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - medium normal" bulletName="BigRockmediumnormal"  parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+<damInfoBullet bulletGroup="ruleofthumb" bulletText="rule of thumb" bulletName="BigRockruleofthumb"  parseString="FLOOD WAVE ESTIMATE" showString="BIG ROCK DAM"/>
+<damInfoBullet bulletGroup="dam" bulletText="Branched Oak Dam (Westchester County)" bulletName="BranchedOakDam"  parseString="BRANCHED OAK" showString="BRANCHED OAK DAM" coords="LAT...LON 4106 7373 4097 7366 4090 7376 4102 7382"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BranchedOakhighfast"  parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - high normal" bulletName="BranchedOakhighnormal"  parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - medium fast" bulletName="BranchedOakmediumfast"  parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - medium normal" bulletName="BranchedOakmediumnormal"  parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+<damInfoBullet bulletGroup="ruleofthumb" bulletText="rule of thumb" bulletName="BranchedOakruleofthumb"  parseString="FLOOD WAVE ESTIMATE" showString="BRANCHED OAK DAM"/>
+</damInfoBullets> -->
+</bulletActionGroup>
+<bulletActionGroup action="EXP" phen="FF" sig="W">
+ <bullets>
+  <bullet bulletText="*********** EXP SELECTED **********" bulletType="title"/>
+  <bullet bulletText="******** END OF WARNING STATEMENTS *******" bulletType="title"/>
+  <bullet bulletName="warnend1" bulletText="Generic Statement" bulletGroup="wEnd"/>
+  <bullet bulletName="warnend2" bulletText="River Flooding" bulletGroup="wEnd"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******** FLOOD SEVERITY (choose 1) *******" bulletType="title"/>
+  <bullet bulletName="sevUnk" bulletText="Unknown" bulletGroup="floodSeverity" floodSeverity="U"  showString=".U." parseString=".U."/>
+  <bullet bulletName="sev1" bulletText="Minor flood" bulletGroup="floodSeverity" floodSeverity="1"  showString=".1." parseString=".1."/>
+  <bullet bulletName="sev2" bulletText="Moderate flood" bulletGroup="floodSeverity" floodSeverity="2" showString=".2." parseString=".2."/>
+  <bullet bulletName="sev3" bulletText="Major flood" bulletGroup="floodSeverity" floodSeverity="3" showString=".3." parseString=".3."/>  
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******** PRIMARY CAUSE (choose 1) *******" bulletType="title"/>
+  <bullet bulletName="dam" bulletText="Dam failure - generic" bulletGroup="damic" parseString="A DAM FAILURE" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
+  <bullet bulletName="levee" bulletText="Levee failure" bulletGroup="ic" parseString="A LEVEE FAILURE" showString="LEVEE FAILURE"/>
+  <bullet bulletName="floodgate" bulletText="Floodgate opening" bulletGroup="ic" parseString="A DAM FLOODGATE RELEASE" showString="A DAM FLOODGATE RELEASE"/>
+  <bullet bulletName="glacier" bulletText="Glacial-dammed lake outburst" bulletGroup="ic" parseString=".GO." showString=".GO."/>
+  <bullet bulletName="icejam" bulletText="Ice jam" bulletGroup="ic" parseString=".IJ." showString=".IJ."/>
+  <bullet bulletName="rain" bulletText="Rapid rain induced snowmelt" bulletGroup="ic" parseString=".RS." showString=".RS."/>
+  <bullet bulletName="onlyMelt" bulletText="Rapid snowmelt only" bulletGroup="ic" parseString=".SM." showString=".SM."/>
+<!-- Uncomment for Alaska  but note that allowing for more than one "SM" bullet may cause follow-up inconsistencies.
+  <bullet bulletName="volcano" bulletText="Volcano induced snowmelt" bulletGroup="ic" parseString="VOLCANIC INDUCED SNOWMELT" showString=".SM."/>
+  <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="VOLCANIC INDUCED DEBRIS FLOW" showString=".SM."/>
+Alaska end -->
+  <bullet bulletName="siteimminent" bulletText="Dam break - site specific (pick below) - imminent failure" bulletGroup="damic" parseString="THE IMMINENT FAILURE OF" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
+  <bullet bulletName="sitefailed" bulletText="Dam break - site specific (pick below) - failure has occurred" bulletGroup="damic" parseString="THE FAILURE OF" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
+  <bullet bulletText="" bulletType="title"/>
+  <!-- The following are examples on how to include site specific dams in your template
+       You can choose to do this by editing the template and listing each dam in the
+       template or listing the dams in a separate file and using the include command -->
+  <!-- The bullet names may need to be edited once AWIPS 2 is fixed to include damInfoBullets coding. -->
+  <!-- Note that Dam Names NEED to be in the EXP section to produce correct headline wording in the vm file -->
+  <bullet bulletText="****** DAM and DAM BREAK SCENARIOS ******" bulletType="title" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
+ </bullets>
+ <!-- The following are examples on how to include site specific dams in your template
+       You can choose to do this by editing the template and listing each dam in the
+       template or listing the dams in a separate file and using the include command -->
+ <!-- include file="damInfoBullet.xml"/>  -->
+ <!-- <damInfoBullets>
+<damInfoBullet bulletGroup="dam" bulletText="Big Rock Dam (Fairfield County)" bulletName="BigRockDam"  parseString="BIG ROCK" showString="BIG ROCK DAM" coords="LAT...LON 4109 7338 4116 7311 4116 7320"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BigRockhighfast"  parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - high normal" bulletName="BigRockhighnormal"  parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - medium fast" bulletName="BigRockmediumfast"  parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - medium normal" bulletName="BigRockmediumnormal"  parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+<damInfoBullet bulletGroup="ruleofthumb" bulletText="rule of thumb" bulletName="BigRockruleofthumb"  parseString="FLOOD WAVE ESTIMATE" showString="BIG ROCK DAM"/>
+<damInfoBullet bulletGroup="dam" bulletText="Branched Oak Dam (Westchester County)" bulletName="BranchedOakDam"  parseString="BRANCHED OAK" showString="BRANCHED OAK DAM" coords="LAT...LON 4106 7373 4097 7366 4090 7376 4102 7382"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BranchedOakhighfast"  parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - high normal" bulletName="BranchedOakhighnormal"  parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - medium fast" bulletName="BranchedOakmediumfast"  parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - medium normal" bulletName="BranchedOakmediumnormal"  parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+<damInfoBullet bulletGroup="ruleofthumb" bulletText="rule of thumb" bulletName="BranchedOakruleofthumb"  parseString="FLOOD WAVE ESTIMATE" showString="BRANCHED OAK DAM"/>
+</damInfoBullets> -->
+</bulletActionGroup>
+<bulletActionGroup action="CON" phen="FF" sig="W">
+ <bullets>
+  <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" parseString="FLASH FLOOD EMERGENCY"/>
+  <bullet bulletText="******** FLOOD SEVERITY (choose 1) *******" bulletType="title"/>
+  <bullet bulletName="sevUnk" bulletText="Unknown" bulletGroup="floodSeverity" floodSeverity="U"  parseString=".U."/>
+  <bullet bulletName="sev1" bulletText="Minor flood" bulletGroup="floodSeverity" floodSeverity="1"  parseString=".1."/>
+  <bullet bulletName="sev2" bulletText="Moderate flood" bulletGroup="floodSeverity" floodSeverity="2" parseString=".2."/>
+  <bullet bulletName="sev3" bulletText="Major flood" bulletGroup="floodSeverity" floodSeverity="3" parseString=".3."/>  
+  <bullet bulletText="******** PRIMARY CAUSE (choose 1) *******" bulletType="title"/>
+  <bullet bulletName="dam" bulletText="Dam failure - generic" bulletGroup="damic" parseString="A DAM FAILURE" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
+  <bullet bulletName="levee" bulletText="Levee failure" bulletGroup="ic" parseString="A LEVEE FAILURE" showString="LEVEE FAILURE"/>
+  <bullet bulletName="floodgate" bulletText="Floodgate opening" bulletGroup="ic" parseString="FLOODGATE RELEASE" showString="FLOODGATE RELEASE"/>
+  <bullet bulletName="glacier" bulletText="Glacial-dammed lake outburst" bulletGroup="ic" parseString=".GO." showString=".GO."/>
+  <bullet bulletName="icejam" bulletText="Ice jam" bulletGroup="ic" parseString=".IJ." showString=".IJ."/>
+  <bullet bulletName="rain" bulletText="Rapid rain induced snowmelt" bulletGroup="ic" parseString=".RS." showString=".RS."/>
+  <bullet bulletName="onlyMelt" bulletText="Rapid snowmelt only" bulletGroup="ic" parseString=".SM." showString=".SM."/>
+<!-- Uncomment for Alaska  but note that allowing for more than one "SM" bullet may cause follow-up inconsistencies.
+  <bullet bulletName="volcano" bulletText="Volcano induced snowmelt" bulletGroup="ic" parseString="VOLCANIC INDUCED SNOWMELT" showString=".SM."/>
+  <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="VOLCANIC INDUCED DEBRIS FLOW" showString=".SM."/>
+Alaska end -->
+  <bullet bulletName="siteimminent" bulletText="Dam break - site specific (pick below) - imminent failure" bulletGroup="damic" parseString="THE IMMINENT FAILURE OF" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
+  <bullet bulletName="sitefailed" bulletText="Dam break - site specific (pick below) - failure has occurred" bulletGroup="damic" parseString="THE FAILURE OF" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="****** REPORTED BY (choose 1) ******" bulletType="title"/>
+  <bullet bulletName="county" bulletText="County dispatch" bulletGroup="reportedBy" parseString="COUNTY DISPATCH REPORTED"/>
+  <bullet bulletName="lawEnforcement" bulletText="Law enforcement" bulletGroup="reportedBy" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
+  <bullet bulletName="corps" bulletText="Corps of Engineers" bulletGroup="reportedBy" parseString="CORPS OF ENGINEERS REPORTED"/>
+  <bullet bulletName="damop" bulletText="Dam operator" bulletGroup="reportedBy" parseString="DAM OPERATORS REPORTED"/>
+  <bullet bulletName="bureau" bulletText="Bureau of Reclamation" bulletGroup="reportedBy" parseString="BUREAU OF RECLAMATION REPORTED"/>
+  <bullet bulletName="public" bulletText="The public" bulletGroup="reportedBy" parseString="THE PUBLIC REPORTED"/>
+  <bullet bulletName="onlyGauge" bulletText="Gauge reports" bulletGroup="reportedBy" parseString="GAUGE REPORTS "/>
+<!-- Uncomment for Alaska
+  <bullet bulletName="CAP" bulletText="Civil Air Patrol" bulletGroup="reportedBy" parseString="CIVIL AIR PATROL "/>
+  <bullet bulletName="alaskaVoc" bulletText="Alaska Volcano Observatory" bulletGroup="reportedBy" parseString="ALASKA VOLCANO OBSERVATORY "/>
+  <bullet bulletName="cascadeVoc" bulletText="Cascades Volcano Observatory" bulletGroup="reportedBy" parseString="CASCADES VOLCANO OBSERVATORY "/>
+Alaska end -->
+  <bullet bulletText="************ (OPTIONAL) LOCATIONS IMPACTED  **************" bulletType="title"/>
+<!-- <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/> -->
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="****** ADDITIONAL INFO ******" bulletType="title"/>
+  <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES"/>
+  <bullet bulletName="floodMoving" bulletText="Flooding is occurring in a particular stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
+  <bullet bulletText="****** CALLS TO ACTION (choose 1 or more) ******" bulletType="title"/>
+  <bullet bulletName="ffwEmergencyCTA" bulletText="FLASH FLOOD EMERGENCY" parseString=" DO NOT ATTEMPT TO TRAVEL UNLESS YOU ARE FLEEING AN AREA SUBJECT TO FLOODING OR ARE UNDER AN EVACUATION ORDER"/>
+  <bullet bulletName="TADD_CTA" bulletText="Turn around, don't drown" parseString="&quot;TURN AROUND&quot;,&quot;DON'T DROWN&quot;"/>
+  <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly" parseString="ACT QUICKLY TO PROTECT YOUR LIFE"/>
+  <bullet bulletName="childSafetyCTA" bulletText="Child Safety" parseString="KEEP CHILDREN AWAY"/>
+  <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding" parseString="AT NIGHT WHEN IT IS HARDER TO RECOGNIZE"/>
+  <bullet bulletName="urbanCTA" bulletText="Urban areas" parseString="&quot;URBAN AREAS&quot;,&quot;HIGHWAYS&quot;,&quot;UNDERPASSES&quot;"/>
+  <bullet bulletName="ruralCTA" bulletText="Rural areas" parseString="&quot;COUNTRY ROADS&quot;,&quot;FARMLAND&quot;,&quot;LOW LYING SPOTS&quot;"/>
+  <bullet bulletName="stayAwayCTA" bulletText="Stay away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
+  <bullet bulletName="lowSpotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
+  <bullet bulletName="arroyosCTA" bulletText="Arroyos" parseString="ARROYOS"/>
+  <bullet bulletName="burnAreasCTA" bulletText="Burn Areas" parseString="RECENTLY BURNED AREAS"/>
+  <bullet bulletName="camperSafetyCTA" bulletText="Camper/Hiker Safety" parseString="CAMPERS AND HIKERS"/>
+  <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to law enforcement" parseString="REPORT FLOODING TO YOUR LOCAL LAW ENFORCEMENT"/>
+  <bullet bulletName="ffwMeansCTA" bulletText="Flash Flood Warning means" parseString="A FLASH FLOOD WARNING MEANS"/>
+<!-- Uncomment for Alaska
+  <bullet bulletName="volcanicFloodCTA" bulletText="Volanic Snowmelt..." parseString="VOLCANIC SNOWMELT"/>
+  <bullet bulletName="volcanicLaharCTA" bulletText="Volanic Lahar..." parseString="VOLCANIC LAHARS"/>
+  <bullet bulletName="glacierOutburstCTA" bulletText="Glacier Outburst..." parseString="STAY AWAY FROM"/>
+Alaska end -->
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="************************************************************" bulletType="title"/>
+  <bullet bulletText="* The next sections apply only if one of the dam break *" bulletType="title"/>
+  <bullet bulletText="* causes was selected. Choose one dam, and optionally *" bulletType="title"/>
+  <bullet bulletText="* one associated scenario and the rule of thumb. *" bulletType="title"/>
+  <!-- The following are examples on how to include site specific dams in your template
+       You can choose to do this by editing the template and listing each dam in the
+       template or listing the dams in a separate file and using the include command -->
+  <!-- The bullet names may need to be edited once AWIPS 2 is fixed to include damInfoBullets coding. -->
+  <bullet bulletText="****** DAM and DAM BREAK SCENARIOS (choose 1) ******" bulletType="title" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
+ </bullets>
+ <!-- The following are examples on how to include site specific dams in your template
+       You can choose to do this by editing the template and listing each dam in the
+       template or listing the dams in a separate file and using the include command -->
+ <!-- include file="damInfoBullet.xml"/>  -->
+<!-- <damInfoBullets>
+<damInfoBullet bulletGroup="dam" bulletText="Big Rock Dam (Fairfield County)" bulletName="BigRockDam"  parseString="BIG ROCK" showString="BIG ROCK DAM" coords="LAT...LON 4109 7338 4116 7311 4116 7320"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BigRockhighfast"  parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - high normal" bulletName="BigRockhighnormal"  parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - medium fast" bulletName="BigRockmediumfast"  parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - medium normal" bulletName="BigRockmediumnormal"  parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+<damInfoBullet bulletGroup="ruleofthumb" bulletText="rule of thumb" bulletName="BigRockruleofthumb"  parseString="FLOOD WAVE ESTIMATE" showString="BIG ROCK DAM"/>
+<damInfoBullet bulletGroup="dam" bulletText="Branched Oak Dam (Westchester County)" bulletName="BranchedOakDam"  parseString="BRANCHED OAK" showString="BRANCHED OAK DAM" coords="LAT...LON 4106 7373 4097 7366 4090 7376 4102 7382"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BranchedOakhighfast"  parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - high normal" bulletName="BranchedOakhighnormal"  parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - medium fast" bulletName="BranchedOakmediumfast"  parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - medium normal" bulletName="BranchedOakmediumnormal"  parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+<damInfoBullet bulletGroup="ruleofthumb" bulletText="rule of thumb" bulletName="BranchedOakruleofthumb"  parseString="FLOOD WAVE ESTIMATE" showString="BRANCHED OAK DAM"/>
+</damInfoBullets> -->
+</bulletActionGroup>
+<bulletActionGroup action="COR" phen="FF" sig="W">
+  <bullets>
+  <bullet bulletText="***CORRECTED PRODUCT. CLICK CREATE TEXT***" bulletType="title"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" bulletGroup="ffwEMER" parseString="FLASH FLOOD EMERGENCY"/>
+  <bullet bulletText="******** FLOOD SEVERITY (choose 1) *******" bulletType="title"/>
+  <bullet bulletName="sevUnk" bulletText="Unknown" bulletGroup="floodSeverity" floodSeverity="U"  parseString=".U."/>
+  <bullet bulletName="sev1" bulletText="Minor flood" bulletGroup="floodSeverity" floodSeverity="1"  parseString=".1."/>
+  <bullet bulletName="sev2" bulletText="Moderate flood" bulletGroup="floodSeverity" floodSeverity="2" parseString=".2."/>
+  <bullet bulletName="sev3" bulletText="Major flood" bulletGroup="floodSeverity" floodSeverity="3" parseString=".3."/>    
+  <bullet bulletText="******** PRIMARY CAUSE (choose 1) *******" bulletType="title"/>
+  <bullet bulletName="dam" bulletText="Dam failure - generic" bulletGroup="damic" parseString="A DAM FAILURE" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
+  <bullet bulletName="levee" bulletText="Levee failure" bulletGroup="ic" parseString="A LEVEE FAILURE" showString="LEVEE FAILURE"/>
+  <bullet bulletName="floodgate" bulletText="Floodgate opening" bulletGroup="ic" parseString="FLOODGATE RELEASE" showString="FLOODGATE RELEASE"/>
+  <bullet bulletName="glacier" bulletText="Glacial-dammed lake outburst" bulletGroup="ic" parseString=".GO." showString=".GO."/>
+  <bullet bulletName="icejam" bulletText="Ice jam" bulletGroup="ic" parseString=".IJ." showString=".IJ."/>
+  <bullet bulletName="rain" bulletText="Rapid rain induced snowmelt" bulletGroup="ic" parseString=".RS." showString=".RS."/>
+  <bullet bulletName="onlyMelt" bulletText="Rapid snowmelt only" bulletGroup="ic" parseString=".SM." showString=".SM."/>
+<!-- Uncomment for Alaska  but note that allowing for more than one "SM" bullet may cause follow-up inconsistencies.
+  <bullet bulletName="volcano" bulletText="Volcano induced snowmelt" bulletGroup="ic" parseString="VOLCANIC INDUCED SNOWMELT" showString=".SM."/>
+  <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="VOLCANIC INDUCED DEBRIS FLOW" showString=".SM."/>
+Alaska end -->
+  <bullet bulletName="siteimminent" bulletText="Dam break - site specific (pick below) - imminent failure" bulletGroup="damic" parseString="THE IMMINENT FAILURE OF" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
+  <bullet bulletName="sitefailed" bulletText="Dam break - site specific (pick below) - failure has occurred" bulletGroup="damic" parseString="THE FAILURE OF" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="****** REPORTED BY (choose 1) ******" bulletType="title"/>
+  <bullet bulletName="county" bulletText="County dispatch" bulletGroup="reportedBy" parseString="COUNTY DISPATCH REPORTED"/>
+  <bullet bulletName="lawEnforcement" bulletText="Law enforcement" bulletGroup="reportedBy" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
+  <bullet bulletName="corps" bulletText="Corps of Engineers" bulletGroup="reportedBy" parseString="CORPS OF ENGINEERS REPORTED"/>
+  <bullet bulletName="damop" bulletText="Dam operator" bulletGroup="reportedBy" parseString="DAM OPERATORS REPORTED"/>
+  <bullet bulletName="bureau" bulletText="Bureau of Reclamation" bulletGroup="reportedBy" parseString="BUREAU OF RECLAMATION REPORTED"/>
+  <bullet bulletName="public" bulletText="The public" bulletGroup="reportedBy" parseString="THE PUBLIC REPORTED"/>
+  <bullet bulletName="onlyGauge" bulletText="Gauge reports" bulletGroup="reportedBy" parseString="GAUGE REPORTS "/>
+<!-- Uncomment for Alaska  
+  <bullet bulletName="CAP" bulletText="Civil Air Patrol" bulletGroup="reportedBy" parseString="CIVIL AIR PATROL "/>
+  <bullet bulletName="alaskaVoc" bulletText="Alaska Volcano Observatory" bulletGroup="reportedBy" parseString="ALASKA VOLCANO OBSERVATORY "/>
+  <bullet bulletName="cascadeVoc" bulletText="Cascades Volcano Observatory" bulletGroup="reportedBy" parseString="CASCADES VOLCANO OBSERVATORY "/>
+Alaska end -->
+  <bullet bulletText="************ (OPTIONAL) LOCATIONS IMPACTED  **************" bulletType="title"/>
+<!-- <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/> -->
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="****** ADDITIONAL INFO ******" bulletType="title"/>
+  <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES"/>
+  <bullet bulletName="floodMoving" bulletText="Flooding is occurring in a particular stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
+  <bullet bulletText="****** CALLS TO ACTION (choose 1 or more) ******" bulletType="title"/>
+  <bullet bulletName="ffwEmergencyCTA" bulletText="FLASH FLOOD EMERGENCY" parseString=" DO NOT ATTEMPT TO TRAVEL UNLESS YOU ARE FLEEING AN AREA SUBJECT TO FLOODING OR ARE UNDER AN EVACUATION ORDER"/>
+  <bullet bulletName="TADD_CTA" bulletText="Turn around, don't drown" parseString="&quot;TURN AROUND&quot;,&quot;DON'T DROWN&quot;"/>
+  <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly" parseString="ACT QUICKLY TO PROTECT YOUR LIFE"/>
+  <bullet bulletName="childSafetyCTA" bulletText="Child Safety" parseString="KEEP CHILDREN AWAY"/>
+  <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding" parseString="AT NIGHT WHEN IT IS HARDER TO RECOGNIZE"/>
+  <bullet bulletName="urbanCTA" bulletText="Urban areas" parseString="&quot;URBAN AREAS&quot;,&quot;HIGHWAYS&quot;,&quot;UNDERPASSES&quot;"/>
+  <bullet bulletName="ruralCTA" bulletText="Rural areas" parseString="&quot;COUNTRY ROADS&quot;,&quot;FARMLAND&quot;,&quot;LOW LYING SPOTS&quot;"/>
+  <bullet bulletName="stayAwayCTA" bulletText="Stay away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
+  <bullet bulletName="lowSpotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
+  <bullet bulletName="arroyosCTA" bulletText="Arroyos" parseString="ARROYOS"/>
+  <bullet bulletName="burnAreasCTA" bulletText="Burn Areas" parseString="RECENTLY BURNED AREAS"/>
+  <bullet bulletName="camperSafetyCTA" bulletText="Camper/Hiker Safety" parseString="CAMPERS AND HIKERS"/>
+  <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to law enforcement" parseString="REPORT FLOODING TO YOUR LOCAL LAW ENFORCEMENT"/>
+  <bullet bulletName="ffwMeansCTA" bulletText="Flash Flood Warning means" parseString="A FLASH FLOOD WARNING MEANS"/>
+<!-- Uncomment for Alaska  
+  <bullet bulletName="volcanicFloodCTA" bulletText="Volanic Snowmelt..." parseString="VOLCANIC SNOWMELT"/>
+  <bullet bulletName="volcanicLaharCTA" bulletText="Volanic Lahar..." parseString="VOLCANIC LAHARS"/>
+  <bullet bulletName="glacierOutburstCTA" bulletText="Glacier Outburst..." parseString="STAY AWAY FROM"/>
+Alaska end -->
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="************************************************************" bulletType="title"/>
+  <bullet bulletText="* The next sections apply only if one of the dam break *" bulletType="title"/>
+  <bullet bulletText="* causes was selected. Choose one dam, and optionally *" bulletType="title"/>
+  <bullet bulletText="* one associated scenario and the rule of thumb. *" bulletType="title"/>
+  <!-- The following are examples on how to include site specific dams in your template
+       You can choose to do this by editing the template and listing each dam in the
+       template or listing the dams in a separate file and using the include command -->
+  <!-- The bullet names may need to be edited once AWIPS 2 is fixed to include damInfoBullets coding. -->
+  <bullet bulletText="****** DAM and DAM BREAK SCENARIOS (choose 1) ******" bulletType="title" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
+ </bullets>
+ <!-- The following are examples on how to include site specific dams in your template
+       You can choose to do this by editing the template and listing each dam in the
+       template or listing the dams in a separate file and using the include command -->
+ <!-- include file="damInfoBullet.xml"/>  -->
+ <!-- <damInfoBullets>
+<damInfoBullet bulletGroup="dam" bulletText="Big Rock Dam (Fairfield County)" bulletName="BigRockDam"  parseString="BIG ROCK" showString="BIG ROCK DAM" coords="LAT...LON 4109 7338 4116 7311 4116 7320"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BigRockhighfast"  parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - high normal" bulletName="BigRockhighnormal"  parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - medium fast" bulletName="BigRockmediumfast"  parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - medium normal" bulletName="BigRockmediumnormal"  parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+<damInfoBullet bulletGroup="ruleofthumb" bulletText="rule of thumb" bulletName="BigRockruleofthumb"  parseString="FLOOD WAVE ESTIMATE" showString="BIG ROCK DAM"/>
+<damInfoBullet bulletGroup="dam" bulletText="Branched Oak Dam (Westchester County)" bulletName="BranchedOakDam"  parseString="BRANCHED OAK" showString="BRANCHED OAK DAM" coords="LAT...LON 4106 7373 4097 7366 4090 7376 4102 7382"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BranchedOakhighfast"  parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - high normal" bulletName="BranchedOakhighnormal"  parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - medium fast" bulletName="BranchedOakmediumfast"  parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - medium normal" bulletName="BranchedOakmediumnormal"  parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+<damInfoBullet bulletGroup="ruleofthumb" bulletText="rule of thumb" bulletName="BranchedOakruleofthumb"  parseString="FLOOD WAVE ESTIMATE" showString="BRANCHED OAK DAM"/>
+</damInfoBullets> -->
+</bulletActionGroup>
+</bulletActionGroups>
+
+<trackEnabled>false</trackEnabled>
+
+ <pointSource variable="riverdrainages">
+ 	<pointSource>ffmp_basins</pointSource>
+    <geometryDecimationTolerance>0.064</geometryDecimationTolerance>
+ 	<pointField>streamname</pointField>
+ 	<filter>
+ 		<mapping key="cwa">
+ 			<constraint constraintValue="$warngenCWAFilter" constraintType="EQUALS" />
+ 		</mapping>
+ 	</filter>
+ 	<withinPolygon>true</withinPolygon>
+ </pointSource>
+</warngenConfig>

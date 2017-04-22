@@ -1,0 +1,296 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.8 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]">
+  <title>Text Products Reference</title>
+<!--link REL="STYLESHEET" HREF="TextFormatter.html"-->
+</head>
+<body bgcolor="#ffffff">
+<center>
+<h1><a name="commandline"></a>Command line arguments to the
+TextFormatter</h1>
+</center>
+<hr>
+The usual way to execute the Text Formatter is via the Formatter
+Launcher Dialog in the GFE which automatically generates a command line
+from the
+Text Product definiton. However, the program can be run
+stand-alone with the following command and arguments. To see the
+set-up of these arguments for a given text product, examine the Process
+Monitor window.<br>
+<br>
+<span style="font-family: monospace; font-weight: bold;">runIFPText -d
+database -t forecastType [-c configFile] [-o outputFile] [-u
+username] [-l language] [-A appendFile] [-V {varDict}] [-O serverFile] [-S gfeGenOutputFile] 
+[-site siteID] [-z drtOffset] [-a vtecActiveTableName] [-T] [-E] [-v vtecMode] [-r
+editAreaName] [-w timeRangeName] [-s startTime -e endTime] [-i period]</span><br>
+<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top; font-weight: bold;">Switch<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Optional<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Example<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Purpose<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-d database<br>
+      </td>
+      <td style="vertical-align: top;">No<br>
+      </td>
+      <td style="vertical-align: top;">-d
+BOU_GRID__Official_00000000_0000<br>
+      </td>
+      <td style="vertical-align: top;">Defines the source database for
+the gridded information.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-t forecastType<br>
+      </td>
+      <td style="vertical-align: top;">No<br>
+      </td>
+      <td style="vertical-align: top;">-t ZFP<br>
+      </td>
+      <td style="vertical-align: top;">Defines the Forecast Type.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-c configFile<br>
+      </td>
+      <td style="vertical-align: top;">Yes<br>
+      </td>
+      <td style="vertical-align: top;">-c localGfeConfig<br>
+      </td>
+      <td style="vertical-align: top;">Defines the GFE config file. Default is gfeConfig.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-o outputFile<br>
+      </td>
+      <td style="vertical-align: top;">Yes<br>
+      </td>
+      <td style="vertical-align: top;">-o /tmp/123.txt<br>
+      </td>
+      <td style="vertical-align: top;">Output file for text product.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-S gfeSpecialOutputFile<br>
+      </td>
+      <td style="vertical-align: top;">Yes<br>
+      </td>
+      <td style="vertical-align: top;">-S /tmp/10234783.txt<br>
+      </td>
+      <td style="vertical-align: top;">This is a special filename that is
+used for background processing text formatters to store the output forecast text. The 
+GFE puts on this switch for formatters that are run locally by the GFE 
+so the forecast text may be gathered at the end of the formatter execution.
+Formatters run by EDEX put on this switch for the same purpose. The
+connection allows for proper behavior in the GFE's Formatter Launcher and
+Process Monitor.
+<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-site siteID<br>
+      </td>
+      <td style="vertical-align: top;">Yes<br>
+      </td>
+      <td style="vertical-align: top;">-site bou<br>
+      </td>
+      <td style="vertical-align: top;">Defines the site id to use.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-u userName<br>
+      </td>
+      <td style="vertical-align: top;">Yes<br>
+      </td>
+      <td style="vertical-align: top;">-u mark<br>
+      </td>
+      <td style="vertical-align: top;">Specifies the user name under
+which to run the formatter.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-l language<br>
+      </td>
+      <td style="vertical-align: top;">Yes<br>
+      </td>
+      <td style="vertical-align: top;">-l spanish<br>
+      </td>
+      <td style="vertical-align: top;">Used for formatters that support
+foreign languages. The options are "spanish" and "french".
+Default is "english".<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-A appendFile<br>
+      </td>
+      <td style="vertical-align: top;">Yes<br>
+      </td>
+      <td style="vertical-align: top;">-A /tmp/123.txt<br>
+      </td>
+      <td style="vertical-align: top;">Append filename. Output
+text is appending to specified file.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-V varDict<br>
+      </td>
+      <td style="vertical-align: top;">Yes<br>
+      </td>
+      <td style="vertical-align: top;">-V '{("Product Issuance",
+'productIssuance"):"Morning"}'<br>
+      </td>
+      <td style="vertical-align: top;">VariableList values from user
+interface dialog.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-O serverFile<br>
+      </td>
+      <td style="vertical-align: top;">Yes<br>
+      </td>
+      <td style="vertical-align: top;">-O test123<br>
+      </td>
+      <td style="vertical-align: top;">Output file in the server's
+product drafts directory.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-z drtOffset<br>
+      </td>
+      <td style="vertical-align: top;">Yes<br>
+      </td>
+      <td style="vertical-align: top;">-z 20041020_1211<br>
+      </td>
+      <td style="vertical-align: top;">Specifies the Displaced
+Real-Time Time<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-T<br>
+      </td>
+      <td style="vertical-align: top;">Yes<br>
+      </td>
+      <td style="vertical-align: top;">-T<br>
+      </td>
+      <td style="vertical-align: top;">Places the formatter into "TEST"
+mode. If vtecMode is specified, it is set to "T". "TEST" mode adds
+...TEST... to headlines and MND headers.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-E<br>
+      </td>
+      <td style="vertical-align: top;">Yes<br>
+      </td>
+      <td style="vertical-align: top;">-E<br>
+      </td>
+      <td style="vertical-align: top;">Places the formatter into
+"EXPERIMENTAL" mode. If vtecMode is specified, it is set to
+"E". "EXPERIMENTAL" mode adds "EXPERIMENTAL..." to the MND header.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-v vtecMode<br>
+      </td>
+      <td style="vertical-align: top;">Yes<br>
+      </td>
+      <td style="vertical-align: top;">-v "O"<br>
+      </td>
+      <td style="vertical-align: top;">Specifies the VTEC code ('X',
+'O', 'T', 'E') for the product. If not specified, then VTEC is disabled
+for the product. <br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-a activeTableName<br>
+      </td>
+      <td style="vertical-align: top;">Yes<br>
+      </td>
+      <td style="vertical-align: top;">-a PRACTICE<br>
+      </td>
+      <td style="vertical-align: top;">Defines the active table to use
+for VTEC comparisons. If not specified, uses the operational "active"
+table. <br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-r<br>
+      </td>
+      <td style="vertical-align: top;">Yes<br>
+      </td>
+      <td style="vertical-align: top;">-r CO_Adams<br>
+      </td>
+      <td style="vertical-align: top;">Used for Simple Table products
+to specify Edit Area over which to run table<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-w<br>
+      </td>
+      <td style="vertical-align: top;">Yes<br>
+      </td>
+      <td style="vertical-align: top;">-w Today<br>
+      </td>
+      <td style="vertical-align: top;">Used for Simple Table products
+to specify named Time Range over which to run table</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-s<br>
+      </td>
+      <td style="vertical-align: top;">Yes <br>
+      </td>
+      <td style="vertical-align: top;">-s 20041213_1200</td>
+      <td style="vertical-align: top;">Used for Simple Table products
+to specify the start time over which to run table (Must also include
+and end time)<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-e<br>
+      </td>
+      <td style="vertical-align: top;">Yes<br>
+      </td>
+      <td style="vertical-align: top;">-e 20041216_1200</td>
+      <td style="vertical-align: top;">Used for Simple Table products
+to specify the end time over which to run table (Must also include and
+start time)</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-i<br>
+      </td>
+      <td style="vertical-align: top;">Yes<br>
+      </td>
+      <td style="vertical-align: top;">-i 3<br>
+      </td>
+      <td style="vertical-align: top;">Used for Simple Table products
+with variable period (for rows or columns)</td>
+    </tr>
+  </tbody>
+</table>
+The -E and -T switches are mutually exclusive.<br>
+<h2>-V Switch - run-time VariableList</h2>
+This option to provide a run-time VariableList instead
+of displaying the user dialog.
+<p>The dictionary must be in the form of a Python dictionary
+string. For example:<br>
+</p>
+<p>&nbsp;
+-V&nbsp; '{("Product Issuance", "productIssuance"):"Morning",
+("Issuance Type", "issuanceType"):"Routine"}' <br>
+<br>
+</p>
+</body>
+</html>

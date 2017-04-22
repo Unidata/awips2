@@ -1,0 +1,2 @@
+There is much more information and examples regarding Local Effects  in the Local Effects section of the TextProduct Reference Guide.
+There you can see that any part of the Local Effect definition may be determined “on-the-fly”, perhaps based on the current edit area.  This is possible by specifying any portion of the Local Effect definition as a method which will have the familiar “tree, node” arguments. You can also set up more than 2 Local Effect edit areas and more than one Local Effect per phrase. 

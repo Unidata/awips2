@@ -1,0 +1,56 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-ppdutil_dmpsh library file
+#
+#  cmt: File made on Wed Aug  6 12:51:34 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libppdutil_dmpsh_t.a:  \
+     $(LIB)/libppdutil_dmpsh_t.a(pvcntl.o)  \
+     $(LIB)/libppdutil_dmpsh_t.a(pve1s.o)  \
+     $(LIB)/libppdutil_dmpsh_t.a(pve1sf.o)  \
+     $(LIB)/libppdutil_dmpsh_t.a(pvea24.o)  \
+     $(LIB)/libppdutil_dmpsh_t.a(pverrs.o)  \
+     $(LIB)/libppdutil_dmpsh_t.a(pvgdc.o)  \
+     $(LIB)/libppdutil_dmpsh_t.a(pvgns.o)  \
+     $(LIB)/libppdutil_dmpsh_t.a(pvgsl.o)  \
+     $(LIB)/libppdutil_dmpsh_t.a(pvgtl.o)  \
+     $(LIB)/libppdutil_dmpsh_t.a(pvlnt.o)  \
+     $(LIB)/libppdutil_dmpsh_t.a(pvpp0x.o)  \
+     $(LIB)/libppdutil_dmpsh_t.a(pvpp24.o)  \
+     $(LIB)/libppdutil_dmpsh_t.a(pvrrs.o)  \
+     $(LIB)/libppdutil_dmpsh_t.a(pvsubb.o)  \
+     $(LIB)/libppdutil_dmpsh_t.a(pvsube.o)  \
+     $(LIB)/libppdutil_dmpsh_t.a(pvta0x.o)  \
+     $(LIB)/libppdutil_dmpsh_t.a(pvtf24.o)  \
+     $(LIB)/libppdutil_dmpsh_t.a(pvtm24.o)  \
+     $(LIB)/libppdutil_dmpsh_t.a(pvvns.o)  \
+     $(LIB)/libppdutil_dmpsh_t.a(pvvnt.o)  \
+     $(LIB)/libppdutil_dmpsh_t.a(u4bcp.o)
+

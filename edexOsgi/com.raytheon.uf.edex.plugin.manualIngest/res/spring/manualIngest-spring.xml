@@ -1,0 +1,24 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+	<bean id="fileChangedStrategy" class="com.raytheon.uf.edex.esb.camel.FileChangedExclusiveReadLockStrategy"/>
+
+	<camelContext id="clusteredManualProc"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+		<endpoint id="manualFileEndpoint"
+            uri="file:${data.archive.root}/ingest?delete=true&amp;delay=5000&amp;maxMessagesPerPoll=1000&amp;exclusiveReadLockStrategy=#fileChangedStrategy&amp;recursive=true" />
+
+		<route id="manualFileScan">
+		    <from ref="manualFileEndpoint" />
+		    <bean ref="manualProc" method="copyFileToArchive"/>
+		    <bean ref="manualProc" />
+		    <to uri="jms-durable:queue:external.dropbox"/>
+		</route>
+    </camelContext>
+
+	<bean factory-bean="contextManager" factory-method="registerClusteredContext">
+		<constructor-arg ref="clusteredManualProc" />
+  	</bean>
+</beans>

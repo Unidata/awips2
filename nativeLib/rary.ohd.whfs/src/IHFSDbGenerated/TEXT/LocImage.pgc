@@ -1,0 +1,820 @@
+/*
+    File: LocImage.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:25 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "LocImage.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct LocImage_t
+{
+    char		lid[9];
+    char		imageid[11];
+    char		title[31];
+    char		descr[81];
+    char		format[11];
+    char		url_internal[121];
+    char		url_external[121];
+
+    int		ind_title;
+    int		ind_descr;
+    int		ind_format;
+    int		ind_url_internal;
+    int		ind_url_external;
+} LocImage_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+LocImage * GetLocImage(const char * where)
+{
+
+    LocImage * listPtr = NULL;
+    LocImage * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM LocImage ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct LocImage_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetLocImage() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetLocImage() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetLocImage() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.lid, :dbs.imageid, 
+    :dbs.title:dbs.ind_title, :dbs.descr:dbs.ind_descr, 
+    :dbs.format:dbs.ind_format, :dbs.url_internal:dbs.ind_url_internal, 
+    :dbs.url_external:dbs.ind_url_external    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetLocImage() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (LocImage *) malloc(sizeof(LocImage))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->imageid, dbs.imageid);
+
+            strcpy(structPtr->title, dbs.title);
+            setNullIfIndicated(dbs.ind_title, CHAR, structPtr->title);
+
+            strcpy(structPtr->descr, dbs.descr);
+            setNullIfIndicated(dbs.ind_descr, CHAR, structPtr->descr);
+
+            strcpy(structPtr->format, dbs.format);
+            setNullIfIndicated(dbs.ind_format, CHAR, structPtr->format);
+
+            strcpy(structPtr->url_internal, dbs.url_internal);
+            setNullIfIndicated(dbs.ind_url_internal, CHAR, structPtr->url_internal);
+
+            strcpy(structPtr->url_external, dbs.url_external);
+            setNullIfIndicated(dbs.ind_url_external, CHAR, structPtr->url_external);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.lid, :dbs.imageid, 
+        :dbs.title:dbs.ind_title, :dbs.descr:dbs.ind_descr, 
+        :dbs.format:dbs.ind_format, :dbs.url_internal:dbs.ind_url_internal, 
+        :dbs.url_external:dbs.ind_url_external        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetLocImage() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+LocImage * SelectLocImage(const char * where)
+{
+
+    LocImage * listPtr = NULL;
+    LocImage * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM LocImage ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct LocImage_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectLocImage() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectLocImage() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectLocImage() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.lid, :dbs.imageid, 
+    :dbs.title:dbs.ind_title, :dbs.descr:dbs.ind_descr, 
+    :dbs.format:dbs.ind_format, :dbs.url_internal:dbs.ind_url_internal, 
+    :dbs.url_external:dbs.ind_url_external    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectLocImage() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (LocImage *) malloc(sizeof(LocImage))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->imageid, dbs.imageid);
+
+            strcpy(structPtr->title, dbs.title);
+            setNullIfIndicated(dbs.ind_title, CHAR, structPtr->title);
+
+            strcpy(structPtr->descr, dbs.descr);
+            setNullIfIndicated(dbs.ind_descr, CHAR, structPtr->descr);
+
+            strcpy(structPtr->format, dbs.format);
+            setNullIfIndicated(dbs.ind_format, CHAR, structPtr->format);
+
+            strcpy(structPtr->url_internal, dbs.url_internal);
+            setNullIfIndicated(dbs.ind_url_internal, CHAR, structPtr->url_internal);
+
+            strcpy(structPtr->url_external, dbs.url_external);
+            setNullIfIndicated(dbs.ind_url_external, CHAR, structPtr->url_external);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.lid, :dbs.imageid, 
+        :dbs.title:dbs.ind_title, :dbs.descr:dbs.ind_descr, 
+        :dbs.format:dbs.ind_format, :dbs.url_internal:dbs.ind_url_internal, 
+        :dbs.url_external:dbs.ind_url_external        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectLocImage() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectLocImageCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM LocImage ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountLocImage() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountLocImage() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountLocImage() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountLocImage() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutLocImage(const LocImage * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct LocImage_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.imageid, structPtr->imageid);
+
+    strcpy(dbs.title, structPtr->title);
+    dbs.ind_title = getIndicator(CHAR, (void *)structPtr->title);
+
+    strcpy(dbs.descr, structPtr->descr);
+    dbs.ind_descr = getIndicator(CHAR, (void *)structPtr->descr);
+
+    strcpy(dbs.format, structPtr->format);
+    dbs.ind_format = getIndicator(CHAR, (void *)structPtr->format);
+
+    strcpy(dbs.url_internal, structPtr->url_internal);
+    dbs.ind_url_internal = getIndicator(CHAR, (void *)structPtr->url_internal);
+
+    strcpy(dbs.url_external, structPtr->url_external);
+    dbs.ind_url_external = getIndicator(CHAR, (void *)structPtr->url_external);
+
+
+    EXEC SQL INSERT INTO LocImage (lid,imageid,
+        title,descr,format,
+        url_internal,url_external        )
+        VALUES (
+         :dbs.lid, :dbs.imageid, :dbs.title:dbs.ind_title,
+         :dbs.descr:dbs.ind_descr, :dbs.format:dbs.ind_format, :dbs.url_internal:dbs.ind_url_internal,
+         :dbs.url_external:dbs.ind_url_external);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutLocImage() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertLocImage(const LocImage * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct LocImage_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.imageid, structPtr->imageid);
+
+    strcpy(dbs.title, structPtr->title);
+    dbs.ind_title = getIndicator(CHAR, (void *)structPtr->title);
+
+    strcpy(dbs.descr, structPtr->descr);
+    dbs.ind_descr = getIndicator(CHAR, (void *)structPtr->descr);
+
+    strcpy(dbs.format, structPtr->format);
+    dbs.ind_format = getIndicator(CHAR, (void *)structPtr->format);
+
+    strcpy(dbs.url_internal, structPtr->url_internal);
+    dbs.ind_url_internal = getIndicator(CHAR, (void *)structPtr->url_internal);
+
+    strcpy(dbs.url_external, structPtr->url_external);
+    dbs.ind_url_external = getIndicator(CHAR, (void *)structPtr->url_external);
+
+
+    EXEC SQL INSERT INTO LocImage (lid,imageid,
+        title,descr,format,
+        url_internal,url_external        )
+        VALUES (
+         :dbs.lid, :dbs.imageid, :dbs.title:dbs.ind_title,
+         :dbs.descr:dbs.ind_descr, :dbs.format:dbs.ind_format, :dbs.url_internal:dbs.ind_url_internal,
+         :dbs.url_external:dbs.ind_url_external);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertLocImage() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateLocImage(const LocImage *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct LocImage_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.imageid, structPtr->imageid);
+
+    strcpy(dbs.title, structPtr->title);
+    dbs.ind_title = getIndicator(CHAR, (void *)structPtr->title);
+
+    strcpy(dbs.descr, structPtr->descr);
+    dbs.ind_descr = getIndicator(CHAR, (void *)structPtr->descr);
+
+    strcpy(dbs.format, structPtr->format);
+    dbs.ind_format = getIndicator(CHAR, (void *)structPtr->format);
+
+    strcpy(dbs.url_internal, structPtr->url_internal);
+    dbs.ind_url_internal = getIndicator(CHAR, (void *)structPtr->url_internal);
+
+    strcpy(dbs.url_external, structPtr->url_external);
+    dbs.ind_url_external = getIndicator(CHAR, (void *)structPtr->url_external);
+
+
+    sprintf(queryBuffer, " UPDATE LocImage SET " );
+    strcat(queryBuffer, "lid = ? , imageid = ? , title = ? , descr = ? , format = ? ,     ");
+    strcat(queryBuffer, "url_internal = ? , url_external = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateLocImage() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.lid, :dbs.imageid, :dbs.title:dbs.ind_title, :dbs.descr:dbs.ind_descr, :dbs.format:dbs.ind_format,
+     :dbs.url_internal:dbs.ind_url_internal, :dbs.url_external:dbs.ind_url_external;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateLocImage() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteLocImage(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM LocImage ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteLocImage() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateLocImageByRecord (const LocImage * newStructPtr, const LocImage * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetLocImagePrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateLocImage(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateLocImage(const LocImage * structPtr)
+{
+    UpdateLocImageByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertLocImage(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueLocImage(const LocImage * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (LocImageExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertLocImage(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteLocImageByRecord(const LocImage * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetLocImagePrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteLocImage(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool LocImageExists(const LocImage * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetLocImagePrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectLocImageCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetLocImagePrimaryKeyWhereString (const LocImage * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE lid = '%s'  AND imageid = '%s' ",
+            structPtr->lid, structPtr->imageid);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeLocImage( LocImage * structPtr)
+{
+    LocImage* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( LocImage * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetLocImageDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetLocImageErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

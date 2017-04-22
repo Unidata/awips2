@@ -1,0 +1,31 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+   <bean id="preciprateGenerator" class="com.raytheon.uf.edex.plugin.preciprate.PrecipRateGenerator"/>
+       
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="preciprate-camel" />
+        <constructor-arg ref="preciprateGenerator" />
+    </bean>     
+       
+    <bean factory-bean="cpgSrvDispatcher" factory-method="register">
+		<constructor-arg ref="preciprateGenerator"/>
+	</bean>
+	
+	<camelContext id="preciprate-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+        <route id="PrecipRateGenerate">
+        	<from uri="jms-durable:queue:preciprateGenerate"/>
+            <doTry>
+	          	<bean ref="serializationUtil" method="transformFromThrift" />
+	        	<bean ref="preciprateGenerator" method="generate" />
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:precipRate?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+</beans>

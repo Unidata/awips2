@@ -1,0 +1,112 @@
+C MEMBER SUCDEG
+C-----------------------------------------------------------------------
+C
+C DESC ROUTINE TO CONVERT INPUT FIELD TO DEGREES AND MINUTES OR
+C DESC DECIMAL DEGREES.
+C
+      SUBROUTINE SUCDEG (NFLD,ISTRT,LENGTH,ITYPE,REAL,CHAR,LCHAR,
+     *   DEG,XMIN,DEGMIN,SUNITS,NUMFLD,NUMERR,ISTAT)
+C
+      REAL DM/4HDM  /
+      REAL BLNK/4H    /
+C
+      DIMENSION CHAR(1)
+C
+      INCLUDE 'uio'
+      INCLUDE 'scommon/sudbgx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppinit_util/RCS/sucdeg.f,v $
+     . $',                                                             '
+     .$Id: sucdeg.f,v 1.1 1995/09/17 19:15:16 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+      IF (ISTRCE.GT.0) WRITE (IOSDBG,100)
+      IF (ISTRCE.GT.0) CALL SULINE (IOSDBG,1)
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG(4HUTIL)
+C
+      IF (LDEBUG.GT.0) WRITE (IOSDBG,110) NFLD,ISTRT,LENGTH,ITYPE,REAL,
+     *    LCHAR,CHAR
+      IF (LDEBUG.GT.0) CALL SULINE (IOSDBG,1)
+C
+      ISTAT=0
+      DEG=-999.
+      XMIN=-999.
+      DEGMIN=-999.
+C
+C  CHECK IF FIELD IS INTEGER NUMBER
+10    IF (ITYPE.NE.0) GO TO 30
+C
+C  CHECK IF INTEGER FIELD IS MORE THAN 3 CHARACTERS
+      IF (LENGTH.GT.3) GO TO 20
+C
+C  FIELD CONTAINS VALUE IN WHOLE DEGREES
+      CALL UFRLFX (DEGMIN,ISTRT,1,LENGTH,0,IERR)
+      IF (IERR.EQ.0) GO TO 90
+         WRITE (LP,120) NUMFLD,NFLD,(CHAR(I),I=1,LCHAR)
+         CALL SUERRS (LP,2,NUMERR)
+         ISTAT=1
+         GO TO 90
+C
+C  FIELD CONTAINS VALUE IN DDMM
+20    CALL UFRLFX (DEG,ISTRT,1,LENGTH-2,0,IERR)
+      CALL UFRLFX (XMIN,ISTRT,LENGTH-1,LENGTH,0,IERR2)
+      GO TO 70
+C
+C  CHECK IF FIELD IS REAL NUMBER
+30    IF (ITYPE.NE.1) GO TO 40
+         DEGMIN=REAL
+         GO TO 90
+C
+C  FIELD HAS NON-NUMERIC CHARACTERS - CHECK IF INPUT AS DD-MM
+40    CALL UINDEX (CHAR,LCHAR*4,1H-,1,ICOL)
+      IF (ICOL.GT.0) GO TO 60
+50       WRITE (LP,140) NUMFLD,NFLD
+         CALL SUERRS (LP,2,NUMERR)
+         ISTAT=1
+         GO TO 90
+60    CALL UFRLFX (DEG,ISTRT,1,ICOL-1,0,IERR)
+      CALL UFRLFX (XMIN,ISTRT,ICOL+1,LENGTH,0,IERR2)
+70    IF (IERR.GT.0.OR.IERR2.GT.0) GO TO 50
+         IF (XMIN.GE.0.0.AND.XMIN.LE.59.) GO TO 80
+            WRITE (LP,130) XMIN,NUMFLD,NFLD
+            CALL SUERRS (LP,2,NUMERR)
+            ISTAT=1
+            GO TO 90
+80       DEGMIN=DEG+XMIN/60.
+         IPOS=1
+         IF (SUNITS.NE.BLNK) IPOS=3
+         CALL SUBSTR (DM,1,2,SUNITS,IPOS)
+C
+90    IF (LDEBUG.GT.0) WRITE (IOSDBG,150) DEGMIN,DEG,XMIN,SUNITS
+      IF (LDEBUG.GT.0) CALL SULINE (IOSDBG,1)
+C
+      IF (ISTRCE.GT.0) WRITE (IOSDBG,160)
+      IF (ISTRCE.GT.0) CALL SULINE (IOSDBG,1)
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+100   FORMAT (' *** ENTER SUCDEG')
+110   FORMAT (' NFLD=',I2,3X,'ISTRT=',I2,3X,'LENGTH=',I2,3X,
+     *   'ITYPE=',I2,3X,'REAL=',F9.2,3X,'LCHAR=',I2,3X,'CHAR=',10A4)
+120   FORMAT ('0*** ERROR - DECODEING LATITUDE OR LONGITUDE VALUE ',
+     *   'FROM INPUT FIELD ',I2,' (CARD FIELD ',I2,') : ',5A4)
+130   FORMAT ('0*** ERROR - INVALID VALUE FOR MINUTES (',F6.2,
+     *   ') FOUND IN INPUT FIELD ',I2,' (CARD FIELD ',I2,'). VALID ',
+     *   'VALUES ARE 0 THRU 59.')
+140   FORMAT ('0*** ERROR - NON-CHARACTER DATA EXPECTED IN INPUT ',
+     *   'FIELD ',I2,' (CARD FIELD ',I2,').')
+150   FORMAT (' DEGMIN=',F7.2,3X,'DEG=',F7.2,3X,'XMIN=',F7.2,3X,
+     *   3X,'SUNITS=',A4)
+160   FORMAT (' *** EXIT SUCDEG')
+C
+      END

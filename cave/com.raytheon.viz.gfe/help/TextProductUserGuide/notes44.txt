@@ -1,0 +1,9 @@
+Next, we have the “generateProducts” method which conducts the general flow of product execution. It consists of the following methods and steps:
+ _getVariables: Get the variables entered by the user from the VariableList definition and set up any product specific variables.
+ _getAreaList: Get the list of edit areas over which the product will run.
+ _determineTimeRanges: Calculate the time ranges over which we’ll need to sample the data.
+ _sampleData: Sample the data
+ _preProcessProduct: Create the product header.
+ Now we loop through each edit area producing a header (_preProcessArea), the product text (_makeProduct), and a footer (_postProcessArea).
+ _postProcessProduct: Create product footer.
+ Return the resulting text string.

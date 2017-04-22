@@ -1,0 +1,2 @@
+Finally, we specify information for the weather element(s).  We must give the weather element name, a label, an analysis method, a reporting method, the weather element data type, an optional rounding value, and an optional conversion method.  Since the Simple Table does not inherit from the Text Product libaries, we include methods in quotes to signal the ForecastNarrative module to use the library methods.  If you supply your own method, put it at the beginning of the Simple Table file and name it without the quotes.  
+

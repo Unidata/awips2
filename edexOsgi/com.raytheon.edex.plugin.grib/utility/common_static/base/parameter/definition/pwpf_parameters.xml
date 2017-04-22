@@ -1,0 +1,575 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+    This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+    pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+    U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+    This_software_product_contains_export-restricted_data_whose
+    export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+    to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+    an_export_license_or_other_authorization.
+
+    Contractor_Name:________Raytheon_Company
+    Contractor_Address:_____6825_Pine_Street,_Suite_340
+    ________________________Mail_Stop_B8
+    ________________________Omaha,_NE_68106
+    ________________________402.291.0100
+
+    See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+    further_licensing_information.
+-->
+<parameterList>
+    <parameter>
+        <name>12hr Prob of Freezing Rain > 0.01in</name>
+        <abbreviation>FRZR0.01in12hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>24hr Prob of Freezing Rain > 0.01in</name>
+        <abbreviation>FRZR0.01in24hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+
+
+    <parameter>
+        <name>12hr Prob of Freezing Rain > 0.1in</name>
+        <abbreviation>FRZR0.1in12hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>24hr Prob of Freezing Rain > 0.1in</name>
+        <abbreviation>FRZR0.1in24hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>48hr Prob of Freezing Rain > 0.1in</name>
+        <abbreviation>FRZR0.1in48hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>72hr Prob of Freezing Rain > 0.1in</name>
+        <abbreviation>FRZR0.1in72hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+
+
+    <parameter>
+        <name>12hr Prob of Freezing Rain > 0.25in</name>
+        <abbreviation>FRZR0.25in12hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>24hr Prob of Freezing Rain > 0.25in</name>
+        <abbreviation>FRZR0.25in24hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>48hr Prob of Freezing Rain > 0.25in</name>
+        <abbreviation>FRZR0.25in48hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>72hr Prob of Freezing Rain > 0.25in</name>
+        <abbreviation>FRZR0.25in72hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+
+
+    <parameter>
+        <name>12hr Prob of Freezing Rain > 0.5in</name>
+        <abbreviation>FRZR0.5in12hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>24hr Prob of Freezing Rain > 0.5in</name>
+        <abbreviation>FRZR0.5in24hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>48hr Prob of Freezing Rain > 0.5in</name>
+        <abbreviation>FRZR0.5in48hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>72hr Prob of Freezing Rain > 0.5in</name>
+        <abbreviation>FRZR0.5in72hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+
+
+    <parameter>
+        <name>12hr Prob of Freezing Rain > 1in</name>
+        <abbreviation>FRZR1in12hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>24hr Prob of Freezing Rain > 1in</name>
+        <abbreviation>FRZR1in24hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>48hr Prob of Freezing Rain > 1in</name>
+        <abbreviation>FRZR1in48hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>72hr Prob of Freezing Rain > 1in</name>
+        <abbreviation>FRZR1in72hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+
+
+    <parameter>
+        <name>12hr Prob of Total snowfall > 1in</name>
+        <abbreviation>TOTSN1in12hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>24hr Prob of Total snowfall > 1in</name>
+        <abbreviation>TOTSN1in24hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+
+
+    <parameter>
+        <name>12hr Prob of Total snowfall > 2in</name>
+        <abbreviation>TOTSN2in12hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>24hr Prob of Total snowfall > 2in</name>
+        <abbreviation>TOTSN2in24hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>48hr Prob of Total snowfall > 2in</name>
+        <abbreviation>TOTSN2in48hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>72hr Prob of Total snowfall > 2in</name>
+        <abbreviation>TOTSN2in72hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+
+
+    <parameter>
+        <name>12hr Prob of Total snowfall > 4in</name>
+        <abbreviation>TOTSN4in12hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>24hr Prob of Total snowfall > 4in</name>
+        <abbreviation>TOTSN4in24hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>48hr Prob of Total snowfall > 4in</name>
+        <abbreviation>TOTSN4in48hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>72hr Prob of Total snowfall > 4in</name>
+        <abbreviation>TOTSN4in72hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+
+
+    <parameter>
+        <name>12hr Prob of Total snowfall > 6in</name>
+        <abbreviation>TOTSN6in12hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>24hr Prob of Total snowfall > 6in</name>
+        <abbreviation>TOTSN6in24hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+
+
+    <parameter>
+        <name>12hr Prob of Total snowfall > 8in</name>
+        <abbreviation>TOTSN8in12hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>24hr Prob of Total snowfall > 8in</name>
+        <abbreviation>TOTSN8in24hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>48hr Prob of Total snowfall > 8in</name>
+        <abbreviation>TOTSN8in48hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>72hr Prob of Total snowfall > 8in</name>
+        <abbreviation>TOTSN8in72hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+
+
+    <parameter>
+        <name>12hr Prob of Total snowfall > 12in</name>
+        <abbreviation>TOTSN12in12hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>24hr Prob of Total snowfall > 12in</name>
+        <abbreviation>TOTSN12in24hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>48hr Prob of Total snowfall > 12in</name>
+        <abbreviation>TOTSN12in48hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>72hr Prob of Total snowfall > 12in</name>
+        <abbreviation>TOTSN12in72hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+
+
+    <parameter>
+        <name>12hr Prob of Total snowfall > 18in</name>
+        <abbreviation>TOTSN18in12hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>24hr Prob of Total snowfall > 18in</name>
+        <abbreviation>TOTSN18in24hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>48hr Prob of Total snowfall > 18in</name>
+        <abbreviation>TOTSN18in48hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>72hr Prob of Total snowfall > 18in</name>
+        <abbreviation>TOTSN18in72hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+
+
+    <parameter>
+        <name>48hr Prob of Total snowfall > 24in</name>
+        <abbreviation>TOTSN24in48hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>72hr Prob of Total snowfall > 24in</name>
+        <abbreviation>TOTSN24in72hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+
+
+    <parameter>
+        <name>48hr Prob of Total snowfall > 30in</name>
+        <abbreviation>TOTSN30in48hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+    <parameter>
+        <name>72hr Prob of Total snowfall > 30in</name>
+        <abbreviation>TOTSN30in72hr</abbreviation>
+        <unit>%</unit>
+    </parameter>
+
+
+
+    <parameter>
+        <name>12hr 5th percentile Freezing Rain</name>
+        <abbreviation>FRZR5pct12hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>24hr 5th percentile Freezing Rain</name>
+        <abbreviation>FRZR5pct24hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>48hr 5th percentile Freezing Rain</name>
+        <abbreviation>FRZR5pct48hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>72hr 5th percentile Freezing Rain</name>
+        <abbreviation>FRZR5pct72hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+
+    <parameter>
+        <name>12hr 10th percentile Freezing Rain</name>
+        <abbreviation>FRZR10pct12hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>24hr 10th percentile Freezing Rain</name>
+        <abbreviation>FRZR10pct24hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>48hr 10th percentile Freezing Rain</name>
+        <abbreviation>FRZR10pct48hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>72hr 10th percentile Freezing Rain</name>
+        <abbreviation>FRZR10pct72hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+
+    <parameter>
+        <name>12hr 25th percentile Freezing Rain</name>
+        <abbreviation>FRZR25pct12hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>24hr 25th percentile Freezing Rain</name>
+        <abbreviation>FRZR25pct24hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>48hr 25th percentile Freezing Rain</name>
+        <abbreviation>FRZR25pct48hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>72hr 25th percentile Freezing Rain</name>
+        <abbreviation>FRZR25pct72hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+
+    <parameter>
+        <name>12hr 50th percentile Freezing Rain</name>
+        <abbreviation>FRZR50pct12hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>24hr 50th percentile Freezing Rain</name>
+        <abbreviation>FRZR50pct24hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>48hr 50th percentile Freezing Rain</name>
+        <abbreviation>FRZR50pct48hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>72hr 50th percentile Freezing Rain</name>
+        <abbreviation>FRZR50pct72hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+
+    <parameter>
+        <name>12hr 75th percentile Freezing Rain</name>
+        <abbreviation>FRZR75pct12hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>24hr 75th percentile Freezing Rain</name>
+        <abbreviation>FRZR75pct24hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>48hr 75th percentile Freezing Rain</name>
+        <abbreviation>FRZR75pct48hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>72hr 75th percentile Freezing Rain</name>
+        <abbreviation>FRZR75pct72hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+
+    <parameter>
+        <name>12hr 90th percentile Freezing Rain</name>
+        <abbreviation>FRZR90pct12hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>24hr 90th percentile Freezing Rain</name>
+        <abbreviation>FRZR90pct24hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>48hr 90th percentile Freezing Rain</name>
+        <abbreviation>FRZR90pct48hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>72hr 90th percentile Freezing Rain</name>
+        <abbreviation>FRZR90pct72hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+
+    <parameter>
+        <name>12hr 95th percentile Freezing Rain</name>
+        <abbreviation>FRZR95pct12hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>24hr 95th percentile Freezing Rain</name>
+        <abbreviation>FRZR95pct24hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>48hr 95th percentile Freezing Rain</name>
+        <abbreviation>FRZR95pct48hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+    <parameter>
+        <name>72hr 95th percentile Freezing Rain</name>
+        <abbreviation>FRZR95pct72hr</abbreviation>
+        <unit>mm</unit>
+    </parameter>
+
+
+    <parameter>
+        <name>12hr 5th percentile Total snowfall</name>
+        <abbreviation>TOTSN5pct12hr</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>24hr 5th percentile Total snowfall</name>
+        <abbreviation>TOTSN5pct24hr</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>48hr 5th percentile Total snowfall</name>
+        <abbreviation>TOTSN5pct48hr</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>72hr 5th percentile Total snowfall</name>
+        <abbreviation>TOTSN5pct72hr</abbreviation>
+        <unit>m</unit>
+    </parameter>
+
+    <parameter>
+        <name>12hr 10th percentile Total snowfall</name>
+        <abbreviation>TOTSN10pct12hr</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>24hr 10th percentile Total snowfall</name>
+        <abbreviation>TOTSN10pct24hr</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>48hr 10th percentile Total snowfall</name>
+        <abbreviation>TOTSN10pct48hr</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>72hr 10th percentile Total snowfall</name>
+        <abbreviation>TOTSN10pct72hr</abbreviation>
+        <unit>m</unit>
+    </parameter>
+
+    <parameter>
+        <name>12hr 25th percentile Total snowfall</name>
+        <abbreviation>TOTSN25pct12hr</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>24hr 25th percentile Total snowfall</name>
+        <abbreviation>TOTSN25pct24hr</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>48hr 25th percentile Total snowfall</name>
+        <abbreviation>TOTSN25pct48hr</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>72hr 25th percentile Total snowfall</name>
+        <abbreviation>TOTSN25pct72hr</abbreviation>
+        <unit>m</unit>
+    </parameter>
+
+    <parameter>
+        <name>12hr 50th percentile Total snowfall</name>
+        <abbreviation>TOTSN50pct12hr</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>24hr 50th percentile Total snowfall</name>
+        <abbreviation>TOTSN50pct24hr</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>48hr 50th percentile Total snowfall</name>
+        <abbreviation>TOTSN50pct48hr</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>72hr 50th percentile Total snowfall</name>
+        <abbreviation>TOTSN50pct72hr</abbreviation>
+        <unit>m</unit>
+    </parameter>
+
+    <parameter>
+        <name>12hr 75th percentile Total snowfall</name>
+        <abbreviation>TOTSN75pct12hr</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>24hr 75th percentile Total snowfall</name>
+        <abbreviation>TOTSN75pct24hr</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>48hr 75th percentile Total snowfall</name>
+        <abbreviation>TOTSN75pct48hr</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>72hr 75th percentile Total snowfall</name>
+        <abbreviation>TOTSN75pct72hr</abbreviation>
+        <unit>m</unit>
+    </parameter>
+
+    <parameter>
+        <name>12hr 90th percentile Total snowfall</name>
+        <abbreviation>TOTSN90pct12hr</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>24hr 90th percentile Total snowfall</name>
+        <abbreviation>TOTSN90pct24hr</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>48hr 90th percentile Total snowfall</name>
+        <abbreviation>TOTSN90pct48hr</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>72hr 90th percentile Total snowfall</name>
+        <abbreviation>TOTSN90pct72hr</abbreviation>
+        <unit>m</unit>
+    </parameter>
+
+    <parameter>
+        <name>12hr 95th percentile Total snowfall</name>
+        <abbreviation>TOTSN95pct12hr</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>24hr 95th percentile Total snowfall</name>
+        <abbreviation>TOTSN95pct24hr</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>48hr 95th percentile Total snowfall</name>
+        <abbreviation>TOTSN95pct48hr</abbreviation>
+        <unit>m</unit>
+    </parameter>
+    <parameter>
+        <name>72hr 95th percentile Total snowfall</name>
+        <abbreviation>TOTSN95pct72hr</abbreviation>
+        <unit>m</unit>
+    </parameter>
+</parameterList>

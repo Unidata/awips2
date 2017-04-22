@@ -1,0 +1,199 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+    <bean class="com.raytheon.uf.common.logback.appender.ThreadBasedAppender" factory-method="registerThreadPattern">
+        <constructor-arg value="text" />
+        <constructor-arg value="Ingest.Text.*" />
+    </bean>
+
+    <bean id="textDecoder" class="com.raytheon.uf.edex.plugin.text.TextDecoder">
+        <property name="pluginName" value="text" />
+        <property name="decoderMode" value="STD" />
+    </bean>
+
+    <bean id="textDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg value="text" />
+        <constructor-arg value="jms-durable:queue:Ingest.Text"/>
+    </bean>
+
+    <bean id="textHandleoupDistRegistry" factory-bean="handleoupDistributionSrv"
+        factory-method="register">
+        <constructor-arg value="text" />
+        <constructor-arg value="jms-durable:queue:Ingest.Text"/>
+    </bean>
+
+    <!-- verify text product info for site, spawns in separate thread to not delay start up -->
+    <bean id="textVersionPurge" class="com.raytheon.uf.edex.plugin.text.TextVersionPurge" depends-on="textRegistered"/>
+
+    <bean id="fxaBloatMonitor" class="com.raytheon.uf.edex.database.health.DatabaseBloatMonitor">
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.database.health.PostgresBloatDao">
+                <constructor-arg value="fxa"/>
+            </bean>
+        </constructor-arg>
+        <constructor-arg ref="warningThresholds"/>
+        <constructor-arg ref="criticalThresholds"/>
+    </bean>
+
+    <bean factory-bean="dbMonitorRegistry" factory-method="registerMonitor">
+        <constructor-arg value="fxaBloatMonitor" />
+        <constructor-arg ref="fxaBloatMonitor" />
+    </bean>
+
+    <camelContext id="text-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+        <!--
+        <endpoint id="textFileEndpoint" uri="file:${edex.home}/data/sbn/text?noop=true&amp;idempotent=false" />
+
+        <route id="textFileConsumerRoute">
+            <from ref="textFileEndpoint" />
+            <bean ref="fileToString" />
+            <setHeader headerName="pluginName">
+                <constant>text</constant>
+            </setHeader>
+            <to uri="jms-durable:queue:Ingest.Text" />
+        </route>
+        -->
+                
+        <!-- Refer to edex.xml for name/location of properties file -->
+        <endpoint id="runnerCron" uri="quartz://runner/runnerScheduled/?cron=${subscription.cron}"/>
+
+        <!--
+          Text routes.
+          If an internal route (see ContextManager.INTERNAL_ENDPOINT_TYPES) is being sent data from another internal
+          route in the same context it needs to come after the route that sends it data for proper startup/shutdown order.
+        -->
+        <route id="textUndecodedIngestRoute">
+            <from uri="jms-durable:queue:Ingest.Text?concurrentConsumers=2" />
+            <setHeader headerName="pluginName">
+                <constant>text</constant>
+            </setHeader>
+            <doTry>
+                <pipeline>
+                    <bean ref="stringToFile" />
+                    <bean ref="textDecoder" method="decodeFile" />
+                    <bean ref="processUtil" method="log"/>
+                    <multicast>
+                        <to uri="direct:textPurgeAccumulate" />
+                        <to uri="direct:textSerializeRoute" />
+                        <to uri="direct-vm:stageNotification"/>
+                    </multicast>
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:text?level=INFO"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+        <route id="textDirectDecodedIngestRoute">
+            <from uri="direct-vm:textDirectDecodedIngestRoute" />
+            <setHeader headerName="pluginName">
+                <constant>text</constant>
+            </setHeader>
+            <doTry>
+                <pipeline>
+                    <bean ref="textDecoder" method="writeTextProduct" />
+                    <bean ref="processUtil" method="log"/>
+                    <multicast>
+                        <to uri="direct:textPurgeAccumulate" />
+                        <to uri="direct:textSerializeRoute" />
+                        <to uri="direct-vm:stageNotification"/>
+                    </multicast>
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:text?level=INFO"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+        <route id="textDirectUndecodedIngestRoute">
+            <from uri="direct-vm:textDirectUndecodedIngestRoute" />
+            <setHeader headerName="pluginName">
+                <constant>text</constant>
+            </setHeader>
+            <doTry>
+                <pipeline>
+                    <bean ref="textDecoder" method="decode" />
+                    <bean ref="processUtil" method="log"/>
+                    <multicast>
+                        <to uri="direct:textPurgeAccumulate" />
+                        <to uri="direct:textSerializeRoute" />
+                        <to uri="direct-vm:stageNotification"/>
+                    </multicast>
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:text?level=INFO"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+        <route id="textSerializationRoute">
+            <from uri="direct:textSerializeRoute" />
+            <split streaming="true" >
+                <method bean="textDecoder" method="separator" />
+                <bean ref="textDecoder" method="transformToSimpleString" />
+                <bean ref="serializationUtil" method="transformToThrift"/>
+                <to uri="jms-generic:topic:edex.alarms.msg?timeToLive=60000" />
+            </split>
+        </route>
+
+        <route id="textPurgeAccumulateRoute">
+            <from uri="direct:textPurgeAccumulate" />
+            <bean ref="textVersionPurge" method="accumulateAfosIdToPurge" />
+        </route>
+
+        <route id="textToStageNotificationRoute">
+            <from uri="jms-durable:queue:textToStageNotification" />
+            <bean ref="textDecoder" method="transformStringToTextRecord" />
+            <to uri="direct-vm:stageNotification"/>
+        </route>
+
+        <route id="textPurgeSendRoute">
+            <from uri="timer://textPurgeSend?period=60s" />
+            <doTry>
+                <bean ref="textVersionPurge" method="getAfosIdsToPurge"/>
+                <to uri="jms-generic:queue:textPurgeRequest" />
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:purge?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+
+    <camelContext id="clustered-text-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+        <!-- TextPurge route -->
+        <route id="textPurgeRequestRoute">
+            <from uri="jms-generic:queue:textPurgeRequest" />
+            <doTry>
+                <bean ref="textVersionPurge" method="addAfosIdsToPurge"/>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:purge?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+        <route id="textPurgeRoute">
+            <from uri="timer://textPurge?period=60s" />
+            <doTry>
+                <bean ref="textVersionPurge" method="purgeAfosIds"/>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:purge?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+
+    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
+        <constructor-arg ref="clustered-text-camel" />
+    </bean>
+</beans>

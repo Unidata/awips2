@@ -1,0 +1,310 @@
+C MODULE PWPP24
+C-----------------------------------------------------------------------
+C
+      SUBROUTINE PWPP24 (IUNTPR,IUNTTY,STAID,PPDBTP,JULDB,JULDE,IUNFLG,
+     *   IMF,KZK,KZ,DATA,LDATA,NXLIN,ISKPLN,IOLDST,GARRY,LGARRY,ICOND)
+C
+C   IN: IUNTPR ....... UNIT NUMBER FOR OUTPUT - INT
+C   IN: IUNTTY ....... UNIT NUMBER FOR INTERACTIVE (TRMNL) OUTPUT - INT
+C   IN: STAID  ....... STATION ID AS 8 PACKED CHARS (2A4) - INT
+C   IN: PPDBTP ....... DATA TYPE AS 4 PACKED CHARS (A4) - INT
+C   IN: JULDB ........ BEGINNING ORDINAL DAY NUM (JAN 1 1900 IS 1) - INT
+C   IN: JULDE ........ ENDING ORDINAL DAY NUMBER (JAN 1 1900 IS 1) - INT
+C   IN: IUNFLG ....... UNITS FLAG, 0=ENGLISH, 1=METRIC - INT
+C   IN: IMF .......... INCLUDE-MISSING-DATA FLAG - INT
+C   IN: KZK .......... IF 1 OUTPUT HR OFFSET, IF 0 NO OFFSET - INT
+C   IN: KZ ........... TIME ZONE CODE FOR OUTPUT - INT
+C  OTH: DATA(LDATA) .. DUMMY ARRAY - INT*2
+C   IN: LDATA ........ DIMENSION OF DUMMY ARRAYS - INT
+C   IN: NXLIN ........ NEXT LINE TO BE OUTPUT (SET TO 0 1ST PASS) - INT
+C   IN: ISKPLN ....... IF 1, CHECK FOR NEW STATE TO SKIP LINE - INT
+C  I/O: IOLDST ........ IF ISKPLN=1, USE THIS TO HOLD LAST STATE - INT
+C  OTH: GARRY(LGARRY)  DUMMY ARRAY FOR CALLING RPPREC - INT
+C   IN: LGARRY ....... DIMENSION OF ARRAY GARRY - INT
+C  I/O: ICOND ........ CONDITION FLAG, IF NOT 0 SKIP RTN, 1=ERR - INT
+C
+      INCLUDE 'uio'
+      INCLUDE 'udebug'
+      INCLUDE 'hclcommon/hdflts'
+      INCLUDE 'pdbcommon/pdbdta'
+C
+      CHARACTER*4 PPDBTP,PARMTP
+      CHARACTER*8 STAID
+      CHARACTER*8 LETBM/'     - '/
+      CHARACTER*132 HDR1,HDR2,HDR3,HDR4,LINE
+      INTEGER     LGARRY
+      REAL        GARRY(LGARRY)
+      INTEGER*2 DATA(LDATA),MSNG(1)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppdutil_dmp24/RCS/pwpp24.f,v $
+     . $',                                                             '
+     .$Id: pwpp24.f,v 1.6 2005/08/01 15:56:13 hank Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      IF (IPDTR.GT.0) WRITE (IOGDB,*) 'ENTER PWPP24'
+C
+      IF (PPDBTP.NE.'PP24') GO TO 120
+C
+C  GET DATA FROM PREPROCESSOR DATA BASE
+      ISTATP=0
+      NTPREQ=1
+      LDTYPE=1
+      CALL RPD1S (STAID,ISTATP,NTPREQ,PPDBTP,JULDB,JULDE,LDTYPE,DTYPE,
+     *   NTPFND,LDATA,DATA,LDFILL,IDELT,NVPDT,MSNG,ISTAT)
+      IF (ISTAT .NE.0) THEN
+         KEYE=1
+         CALL PVE1S (KEYE,STAID,PPDBTP,ISTAT)
+         ENDIF
+      IF (ISTAT .NE.0) GO TO 120
+      IF (LDFILL.LT.1) GO TO 120
+C
+C  SET NUMBER OF DATA VALUES
+      NUMDTA=NVPDT*24/IDELT*(JULDE-JULDB+1)
+C
+      LINE=' '
+      CALL UMOVEX (STAID,1,LINE,1,LEN(STAID))
+
+C
+C  GET STATION DESCRIPTION AND STATE
+      IPTR=0
+      PARMTP='GENL'
+      CALL RPPREC (STAID,PARMTP,IPTR,LGARRY,GARRY,NFILL,IPTRNX,ISTAT)
+      IF (ISTAT.NE.0) THEN
+         WRITE (LP,10) ISTAT,STAID
+10    FORMAT ('0**ERROR** STATUS CODE ',I2,' ENCOUNTERED CALLING ',
+     *   'ROUTINE RPPREC FOR STATION ',A,'.')
+         ELSE
+            IBEG=LEN(STAID)+2+1
+            NCHAR=20
+            CALL UMOVEX (GARRY,17,LINE,IBEG,NCHAR)
+            IBEG=IBEG+NCHAR+2+1
+            NCHAR=2
+            CALL UMOVEX (GARRY,61,LINE,IBEG,NCHAR)
+         ENDIF
+C
+C  SET BEGINNING COLUMN NUMBER OF DATES AND DATA
+      IBEGDT=42
+C
+C  SET FIELD WIDTH FOR DATA VALUES
+      NDATA=5
+      NSPACE=5
+      NWIDTH=NSPACE+NDATA
+C
+C  CREATE HEADING LINES IF THIS IS FIRST LINE
+      IF (NXLIN.NE.0) GO TO 50
+C
+C  COMPUTE THE HOUR AND DAY
+      CALL MDYH2 (JULDB,0,IMO,IDAY,IYR,IH,IXX,IDSAV,KZ)
+      IYR=MOD(IYR,100)
+C
+      HDR1='PP24 DATA FOR MM/DD/YY-HHTZCD THRU MM/DD/YY-HHTZCD'
+      HDR2='STATION'
+      HDR3='ID        DESCRIPTION            STATE'
+      HDR4='--------  ---------------------  -----'
+C
+C  SET DATES IN HDR3
+      IMM=IMO
+      IDD=IDAY
+      IYY=IYR
+      IF (IYY.LT.2000) IYY=IYY+2000
+      IBEG=IBEGDT
+      DO 30 I=1,NUMDTA
+         CALL UFI2AZ (HDR3,IBEG+2,2,1,IMM)
+         CALL UMOVEX ('/   ',1,HDR3,IBEG+4,1)
+         CALL UFI2AZ (HDR3,IBEG+5,2,1,IDD)
+         CALL UMOVEX ('-----',1,HDR4,IBEG+2,5)
+         IF (I.LT.NUMDTA) CALL DDVCCD (IYY,IMM,IDD,IYY,IMM,IDD,1)
+         IBEG=IBEG+NWIDTH
+30       CONTINUE
+C
+C  SET 'PERIOD SUM' IN HDR2 AND HDR3
+      IBEG=IBEG+2
+      CALL UMOVEX ('PERIOD',1,HDR2,IBEG,6)
+      CALL UMOVEX ('SUM   ',1,HDR3,IBEG,6)
+      CALL UMOVEX ('------',1,HDR4,IBEG,6)
+C
+C  SET DATES IN HDR1
+      IF (IYY.GE.2000) IYY=IYY-2000
+      IBEG=15
+      NCHAR=2
+      CALL UFI2AZ (HDR1,IBEG,NCHAR,1,IMO)
+      IBEG=IBEG+NCHAR+1
+      CALL UFI2AZ (HDR1,IBEG,NCHAR,1,IDAY)
+      IBEG=IBEG+NCHAR+1
+      CALL UFI2AZ (HDR1,IBEG,NCHAR,1,IYR)
+      IBEG=IBEG+NCHAR+1
+      CALL UFI2AZ (HDR1,IBEG,NCHAR,1,IH)
+      IBEG=IBEG+NCHAR
+      NCHAR=4
+      CALL UMOVEX (KZ,1,HDR1,IBEG,NCHAR)
+      IBEG=IBEG+NCHAR+1
+      IBEG=IBEG+5
+      NCHAR=2
+      CALL UFI2AZ (HDR1,IBEG,NCHAR,1,IMM)
+      IBEG=IBEG+NCHAR+1
+      CALL UFI2AZ (HDR1,IBEG,NCHAR,1,IDD)
+      IBEG=IBEG+NCHAR+1
+      CALL UFI2AZ (HDR1,IBEG,NCHAR,1,IYY)
+      IBEG=IBEG+NCHAR+1
+      CALL UFI2AZ (HDR1,IBEG,NCHAR,1,IH)
+      IBEG=IBEG+NCHAR
+      NCHAR=4
+      CALL UMOVEX (KZ,1,HDR1,IBEG,NCHAR)
+C
+C  SET LINE AND PAGE COUNT
+      NXLIN=1
+      NXPAG=1
+C
+50    NXCOL=IBEGDT+1
+      NCOUT=0
+      NCOUE=0
+      RDSUM=0.0
+      IDDX=JULDB
+      IPRERR=1
+C
+      DO 80 L=1,NUMDTA
+C     CONVERT DATA TO REAL AND GET HOUR
+         CALL PDGTPP (DATA(L),RD,IHUR,IPP)
+C     CONVERT UNITS IF NEEDED
+         IF (IUNFLG.EQ.1) THEN
+            RDATA=RD
+            PPMSNG=-9999.0
+            IF (L.EQ.1) THEN
+               CALL UDUCNN (1,PPMSNG,ISTAT)
+               CALL UDUCNV ('IN  ','MM   ',1,1,RDATA,RDATA,ISTAT)
+               ENDIF
+            RD=RDATA
+            ENDIF
+         NCHAR=6
+C     CHECK IF MISSING
+
+         IF (IPP.EQ.MISSPP) THEN
+            CALL UMOVEX (LETBM,1,LINE,NXCOL,6)
+            ELSE
+               NDEC=2
+               CALL UFF2A (RD,LINE,NXCOL,NCHAR,NDEC,IPRERR,LP,IERR)
+               RDSUM=RDSUM+RD
+               NCOUT=NCOUT+1
+            ENDIF
+         IF (IHUR.EQ.24) THEN
+C        ESTIMATED DATA
+            CALL UMOVEX ('E',1,LINE,NXCOL+NCHAR,1)
+            NCOUE=NCOUE+1
+            ENDIF
+         IF (KZK .NE.1     ) GO TO 70
+         IF (IPP .EQ.MISSPP) GO TO 70
+         IF (IHUR.LE.0     ) GO TO 70
+         IF (IHUR.GE.24    ) GO TO 70
+C        PUT IN HOUR OFFSET
+            CALL MDYH2 (IDDX,IHUR,IMO,IDAY,IYR,IH,IXX,IDSAV,KZ)
+            IDDX=IDDX+1
+            IF (IH.GE.24) IH=IH-24
+            IH1=IH/10
+            IH2=IH-10*IH1
+            CALL UMOVEX ('H',1,LINE,NXCOL+NCHAR,1)
+            IPRERR=1
+            CALL UFI2A (IH1,LINE,NXCOL+NCHAR+1,1,IPRERR,LP,IERR)
+            CALL UFI2A (IH2,LINE,NXCOL+8,1,IPRERR,LP,IERR)
+C     INCREMENT COLUMN COUNT
+70       NXCOL=NXCOL+NWIDTH
+80       CONTINUE
+C
+      IMFM=IMF/8
+      IMFX=IMF-IMFM*8
+      IMFP=IMFX/4
+      IMFX=IMFX-IMFP*4
+      IMFE=IMFX/2
+      IMFF=IMFX-IMFE*2
+C
+      IF (NCOUT.EQ.0     .AND.IMFM.EQ.0) GO TO 120
+CFAN  HSD bug r24-5:
+CFAN  When dumping out PP24 data by state, a lot of data for most sites,
+CFAN  such as IA, IL, IN gets reset to missing.
+CFAN  It was found that when NCOUT > 0, should GO TO 90
+CFAN  IF (NCOUT.EQ.0                   ) GO TO 90
+      IF (NCOUT.GT.0                   ) GO TO 90
+      IF (NCOUE.GT.0     .AND.IMFE.EQ.0) GO TO 120
+      IF (NCOUT.LT.NUMDTA.AND.IMFP.EQ.0) GO TO 120
+      IF (NCOUT.EQ.NUMDTA.AND.IMFF.EQ.0) GO TO 120
+C
+90    RDSUM=RDSUM+0.005
+      IF (NCOUT.GT.0) THEN
+         NCHAR=7
+         NDEC=2
+         CALL UFF2A (RDSUM,LINE,NXCOL,NCHAR,NDEC,IPRERR,LP,IERR)
+         IF (NCOUT.LT.NUMDTA) CALL UMOVEX ('P',1,LINE,NXCOL+NCHAR,1)
+         ELSE
+            CALL UMOVEX (LETBM,1,LINE,NXCOL+3,6)
+         ENDIF
+C
+C  CHECK IF NEW STATE
+      INEWST=0
+      IF (ISKPLN.EQ.1) THEN
+         CALL UMOVEX (GARRY,61,INEWST,3,2)
+         IF (IOLDST.EQ.INEWST) THEN
+            INEWST=0
+         ELSE
+            IOLDST=INEWST
+         ENDIF
+      ENDIF
+C
+      NLINEL=1
+      CALL ULINEL (IUNTPR,NLINEL,IRETRN)
+      IF (NXLIN.LE.1.OR.INEWST.NE.0.OR.IRETRN.GT.0) THEN
+         
+         IF (NXLIN.LE.1) THEN
+            CALL ULINE (IUNTPR,2)
+            WRITE (IUNTPR,'(1H0,A)') HDR1(1:LENSTR(HDR1))
+            CALL ULINE (IUNTPR,2)
+            WRITE (IUNTPR,105)
+105           FORMAT ('0',
+     *            5X,' - = MISSING VALUE OR SUM',
+     *            5X,' E = ESTIMATED VALUE',
+     *            5X,' P = PARTIAL SUM')
+            NXLIN=NXLIN+4
+
+CHDH        ADDED FOR BUG r23-50.  INCLUDE HEADER LINES AT FIRST SET
+CHDH        OUTPUT.  This is inside an if on iskpln because iskpln is
+CHDH        the flag used above to determine if inewst is going to be
+CHDH        grabbed using the umovex command.
+            IF (ISKPLN.EQ.1) THEN
+               CALL ULINE (IUNTPR,2)
+               WRITE (IUNTPR,'(1H0,A)') HDR2(1:LENSTR(HDR2))
+               CALL ULINE (IUNTPR,1)
+               WRITE (IUNTPR,'(1H ,A)') HDR3(1:LENSTR(HDR3))
+               CALL ULINE (IUNTPR,1)
+               WRITE (IUNTPR,'(1H ,A)') HDR4(1:LENSTR(HDR4))
+               NXLIN=NXLIN+3
+               ENDIF
+            ENDIF
+            
+         IF (INEWST.EQ.0) THEN
+            CALL ULINE (IUNTPR,2)
+            WRITE (IUNTPR,'(1H0,A)') HDR2(1:LENSTR(HDR2))
+            CALL ULINE (IUNTPR,1)
+            WRITE (IUNTPR,'(1H ,A)') HDR3(1:LENSTR(HDR3))
+            CALL ULINE (IUNTPR,1)
+            WRITE (IUNTPR,'(1H ,A)') HDR4(1:LENSTR(HDR4))
+            NXLIN=NXLIN+4
+            
+         ELSE
+            CALL ULINE (IUNTPR,1)
+            WRITE (IUNTPR,*)
+         ENDIF
+      ENDIF
+C
+C  OUTPUT DATA LINE
+      CALL ULINE (IUNTPR,1)
+      WRITE (IUNTPR,'(1H ,A)') LINE(1:LENSTR(LINE))
+      NXLIN=NXLIN+1
+C
+120   IF (IPDTR.GT.0) WRITE (IOGDB,*) 'EXIT PWPP24'
+C
+      RETURN
+C
+      END

@@ -1,0 +1,136 @@
+#!/bin/ksh
+#
+# process_rpf_backup_msg
+# 
+# version:  July 6, 2006
+#
+# This script handles the receipt of externally generated messages
+# containing product issuance data used to support service backup operations.
+# It is invoked via the message handling service (MHS) mechanisms and
+# is called when the rpf_sendbackup operation, which is invoked from
+# RiverPro, is executed.  This occurs in two cases:
+# 1) When RiverPro issues a product, a messages are sent to the offices
+#    providing backup.  For each forecast point included in the product, 
+#    its info is sent to its primary and secondary backup sites. The info
+#    consists of entries for the VTECevent, FpPrevProd, and TextProduct tables.
+#    There is also entry made to PurgeProduct table to ensure no unlimited
+#    number of products for a product id in the TextProduct table.
+# 2) When a site providing backup services no longer needs to provide
+#    the services since the office is backed up has returned to its 
+#    operational status.  This is referred to as a restoration of service.
+#    In this case, the messages are sent to the offices formerly 
+#    receiving backup services.
+#
+# The script calls the load_rpf_backup_msg to do the real work,
+# since it must use postgres which is not available on the DS 
+# machine upon which the MHS operates and calls this script.
+#
+# Usage: 
+#   process_rpf_backup_msg  filename  subject_string  msgtype
+#
+# The arguments are provided via the mhs receive process and are
+# translated from the mhs args %ENCLOSE(1) %SUBJECT %MSGTYPE args.
+#
+# MHS places the incoming file in the directory:
+#	/data/x400/mhs/msg/hydro
+#
+
+# set up SOME environment variables for WHFS applications
+
+RUN_FROM_DIR=`dirname $0`
+. $RUN_FROM_DIR/../../set_hydro_env
+export SSHP_JAVA_PROCESS_HOST=$(get_apps_defaults sshp_java_process_host)
+export RPF_LOG_DIR=$(get_apps_defaults rpf_log_dir)
+export WHFS_PRODUCT_DIR=$(get_apps_defaults whfs_product_dir)
+export WHFS_BIN_DIR=$(get_apps_defaults whfs_bin_dir)
+export SSHP_JAVA_PROCESS_HOST=$(get_apps_defaults sshp_java_process_host)
+export RPF_LOG_DIR=$(get_apps_defaults rpf_log_dir)
+export WHFS_PRODUCT_DIR=$(get_apps_defaults whfs_product_dir)
+export WHFS_BIN_DIR=$(get_apps_defaults whfs_bin_dir)
+
+
+#
+#  assign the args to local variables
+#
+
+FILENAME=$1
+SUBJECT=$2
+MSGTYPE=$3
+
+#
+# parse out info from the command line
+#
+
+parseSubject()
+{
+   PRODUCTID=$1
+   PACKEDTIME=$2
+   WFO_SOURCE=$3
+   return
+}
+
+#
+# get the product id from the subject, which is needed when loading the data
+#
+
+parseSubject $SUBJECT
+
+#
+# define the log file names.
+# write to a temp log file, then concatenate to the
+# daily log file later.
+#
+
+DATESTR=`date -u +%Y%m%d`
+LOGFILE=$RPF_LOG_DIR/process_backup_$PACKEDTIME.log.from$WFO_SOURCE
+
+LOGFILE_DAILY=$RPF_LOG_DIR/process_backup.log.$DATESTR
+
+#
+# the first write to the log file, specific to the sender, overwrites 
+# any existing info.  at the end of the script, the session log file is then
+# concatenated to the daily log file.
+#
+Dte=`date -u`
+
+echo "-----------------------------" > $LOGFILE
+echo Starting process_rpf_backup_msg at $Dte >> $LOGFILE
+echo File:    $FILENAME >> $LOGFILE
+echo Subject: $SUBJECT  >> $LOGFILE
+echo Msgtype: $MSGTYPE  >> $LOGFILE
+echo ProductId, PackedTime: $PRODUCTID $PACKEDTIME >> $LOGFILE
+echo WFOsource: $WFO_SOURCE >> $LOGFILE
+
+#
+# use ssh to execute the postgres-dependent script on a 
+# separate system which can access postgres.
+# only the dynamic info is passed to the script.
+# the logfile name must be consistent between the scripts.
+#
+
+echo Copying file to product directory >> $LOGFILE
+LOADFILENAME=$WHFS_PRODUCT_DIR/$PRODUCTID.$PACKEDTIME.raw$WFO_SOURCE
+/bin/cp $FILENAME $LOADFILENAME
+
+Dte=`date -u`
+echo ssh execution of load_rpf_backup_msg on $SSHP_JAVA_PROCESS_HOST at $Dte >> $LOGFILE
+
+ssh -oBatchMode=yes $SSHP_JAVA_PROCESS_HOST $WHFS_BIN_DIR/load_rpf_backup_msg $LOADFILENAME $PRODUCTID $PACKEDTIME $WFO_SOURCE
+
+# 
+# copy the product specific log info to the daily log file
+#
+
+Dte=`date -u`
+echo ssh call completed at $Dte >> $LOGFILE
+
+/bin/cat $LOGFILE >> $LOGFILE_DAILY
+
+if [ -s $LOGFILE ] 
+then
+  rm -f $LOGFILE
+fi
+
+return 0
+
+#

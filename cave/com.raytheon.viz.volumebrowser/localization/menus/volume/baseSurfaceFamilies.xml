@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
+			menuText="ECMWF-HiRes" id="ecmwf" useReferenceTime="true">
+			<substitute key="modelName" value="ECMWF-HiRes"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="41"/>
+		</contribute>
+<!-- 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
+		menuText="GEM-NHem" id="canadian-nh" useReferenceTime="true">
+		<substitute key="modelName" value="${GEMNHmodel}"/> 
+		<substitute key="TP" value="TP"/>
+		<substitute key="frameCount" value="41"/>
+	</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
+		menuText="GEM-Regional" id="canadian-reg" useReferenceTime="true">
+		<substitute key="modelName" value="${GEMRegmodel}"/> 
+		<substitute key="TP" value="TP"/>
+		<substitute key="frameCount" value="17"/>
+	</contribute> -->
+		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
+			menuText="GFS20" id="gfs20surface" useReferenceTime="true">
+			<substitute key="modelName" value="GFS20"/>
+			<substitute key="frameCount" value="55"/>
+			<substitute key="TP" value="TP"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
+			menuText="${ARWmodel1}" id="arwEastsurface" useReferenceTime="true" suppressErrors="${ARWsuppress1;false}">
+			<substitute key="modelName" value="${ARWmodel1}"/>
+			<substitute key="frameCount" value="49"/>
+			<substitute key="TP" value="TP"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
+			menuText="${MMMmodel1}" id="mmmEastsurface" useReferenceTime="true" suppressErrors="${MMMsuppress1;false}">
+			<substitute key="modelName" value="${MMMmodel1}"/>
+			<substitute key="frameCount" value="49"/>
+			<substitute key="TP" value="TP"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
+			menuText="HRRR" id="HRRR" useReferenceTime="true">
+			<substitute key="modelName" value="HRRR"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="16"/>
+		</contribute>
+<!-- 		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
+			menuText="${HRRRmodel}" id="${HRRRmodel}" useReferenceTime="true">
+			<substitute key="modelName" value="${HRRRmodel}"/>
+			<substitute key="TP" value="TP"/>
+			<substitute key="frameCount" value="15"/>
+		</contribute> -->
+		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
+				    menuText="LAPS" id="laps" useReferenceTime="true">
+				<substitute key="modelName" value="LAPS"/>
+				<substitute key="TP" value="TP"/>
+				<substitute key="frameCount" value="5"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
+			menuText="NAM12" id="nam12surface" useReferenceTime="true">
+			<substitute key="modelName" value="${NAM12model}"/>
+			<substitute key="TP" value="TP3hr"/>
+			<substitute key="frameCount" value="29"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
+			menuText="NAM40" id="nam40surface" useReferenceTime="true">
+			<substitute key="modelName" value="${NAM40model}"/>
+			<substitute key="TP" value="TP3hr"/>
+			<substitute key="frameCount" value="21"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
+			menuText="NAMNest 4km" id="CRNAMNest" useReferenceTime="true">
+			<substitute key="modelName" value="${NAMNestmodel}"/>
+			<substitute key="TP" value="TP3hr"/>
+			<substitute key="frameCount" value="45"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
+			menuText="RAP13" id="rap13surface" useReferenceTime="true">
+			<substitute key="modelName" value="${RAP13model}"/>
+			<substitute key="TP" value="TP3hr"/>
+			<substitute key="frameCount" value="18"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/volume/DefaultSurface.xml"
+			menuText="RAP" id="rapsurface" useReferenceTime="true">
+			<substitute key="modelName" value="${RAPmodel}"/>
+			<substitute key="TP" value="TP3hr"/>
+			<substitute key="frameCount" value="9"/>
+		</contribute>
+</menuTemplate>

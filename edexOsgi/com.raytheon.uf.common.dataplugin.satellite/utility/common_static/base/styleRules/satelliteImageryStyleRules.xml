@@ -1,0 +1,553 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<styleRuleset>
+
+<!-- GOES Satellite Rules -->
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Imager 3.9 micron IR</parameter>
+     <parameter>Sounder 11.03 micron imagery</parameter>
+     <parameter>Sounder 3.98 micron imagery</parameter>
+     <parameter>Sounder 4.45 micron imagery</parameter>
+     <parameter>Sounder 14.06 micron imagery</parameter>
+     <parameter>Polar IR</parameter>
+     <parameter>Polar 3.7u</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits>C</displayUnits>
+     <range scale="LINEAR">
+        <minValue>55</minValue>
+        <maxValue>-109</maxValue>
+     </range>
+     <defaultColormap>Sat/IR/CIRA (IR Default)</defaultColormap>
+      <colorbarLabeling> 
+ 	     <values>40 20 0 -20 -40 -60 -80</values> 
+ 	  </colorbarLabeling>      
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Imager 11 micron IR</parameter>
+     <parameter>Imager 12 micron IR</parameter>
+     <parameter>Imager 13 micron (IR)</parameter>
+     <parameter>Imager 13 micron IR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>255</maxValue>
+     </range>
+     <defaultColormap>Sat/IR/CIRA (IR Default)</defaultColormap>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Imager 6.7-6.5 micron IR (WV)</parameter>
+     <parameter>Sounder 6.51 micron imagery</parameter>
+     <parameter>Sounder 7.02 micron imagery</parameter>
+     <parameter>Sounder 7.43 micron imagery</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+    <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>255</maxValue>
+     </range>
+     <defaultColormap>Sat/WV/RAMSDIS WV</defaultColormap>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>satDivWVIR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+    <displayUnits>C</displayUnits>
+    <range scale="LINEAR">
+    	<minValue>255</minValue>
+        <maxValue>-109</maxValue>
+     </range>
+     <samplePrefs>
+       <minValue>-109</minValue>
+       <maxValue>-35</maxValue>
+     </samplePrefs>
+	 <defaultColormap>Sat/IR/IR WV</defaultColormap>
+     <colorbarLabeling> 
+ 	    <values>-40 -60 -80</values> 
+ 	 </colorbarLabeling> 
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Imager Visible</parameter>
+     <parameter>Sounder Visible imagery</parameter>
+     <parameter>Polar Vis</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>255</maxValue>
+     </range>
+      <defaultColormap>Sat/VIS/ZA (Vis Default)</defaultColormap>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>satDif11u3_9uIR</parameter>
+     <parameter>poesDif11u3_7uIR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+  	<displayUnits>bit</displayUnits>
+     <range scale="LINEAR">
+        <minValue>-79</minValue>
+        <maxValue>177</maxValue>
+     </range>
+      <defaultColormap>Sat/VIS/CA (Low Light Vis)</defaultColormap>
+      <colorbarLabeling> 
+ 	     <values>-50 0 50 100 150</values> 
+ 	  </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>satDif11u12uIR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+  	 <displayUnits>bit</displayUnits>
+     <range scale="LINEAR">
+        <minValue>-20</minValue>
+        <maxValue>25</maxValue>
+     </range>
+      <defaultColormap>Grid/sat gridded data</defaultColormap>
+      <colorbarLabeling> 
+ 	     <values>-20 0 20</values> 
+ 	  </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>satDif11u13uIR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+  	 <displayUnits>bit</displayUnits>
+     <range scale="LINEAR">
+        <minValue>-25</minValue>
+        <maxValue>25</maxValue>
+     </range>
+      <defaultColormap>Grid/gridded data</defaultColormap>
+      <colorbarLabeling> 
+ 	     <values>-20 0 20</values> 
+ 	  </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Sounder Based Total Column Ozone</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <range scale="LINEAR">
+       <minValue>100</minValue>
+       <maxValue>500</maxValue>
+     </range>
+     <defaultColormap>Sat/Ozone/Ozone</defaultColormap>
+     <colorbarLabeling> 
+ 	     <values>100 150 200 250 300 350 400 450 500</values> 
+ 	  </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>CAPE</parameter>
+  </paramLevelMatches>
+    <imageStyle>
+     <displayUnits>J/kg</displayUnits>
+     <dataMapping>
+     <entry pixelValue="1" displayValue="1" label="0" />
+     <entry pixelValue="6" displayValue="5" label="1000" />
+     <entry pixelValue="12" displayValue="12" label="2000" />
+     <entry pixelValue="18" displayValue="18" label="3000" />
+     <entry pixelValue="24" displayValue="24" label="4000" />
+     <entry pixelValue="30" displayValue="30" label="5000" />
+     <entry pixelValue="36" displayValue="36" label="6000" />
+     <entry pixelValue="45" displayValue="45" label="Clouds" />
+     </dataMapping>
+	 <defaultColormap>Grid/gridded data</defaultColormap>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Sounder Based Derived Lifted Index (LI)</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+  	 <displayUnits>C</displayUnits>
+     <range scale="LINEAR">
+       <minValue>25</minValue>
+       <maxValue>-25.8</maxValue>
+     </range>
+     <defaultColormap>Sat/Lifted Index/Lifted Index Default</defaultColormap>
+     <colorbarLabeling> 
+ 	     <values>20 15 10 5 0 -5 -10 -15</values> 
+ 	  </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Sounder Based Derived Precipitable Water (PW)</parameter>
+     <creatingEntity>Composite</creatingEntity>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits>in</displayUnits>
+     <range scale="LINEAR">
+       <minValue>0</minValue>
+       <maxValue>3.36</maxValue>
+     </range>
+     <samplePrefs>
+       <minValue>-0.01</minValue>
+       <maxValue>2.64</maxValue>
+     </samplePrefs>
+     <defaultColormap>Sat/Precip Water/Precip Water Default</defaultColormap>
+     <colorbarLabeling>
+        <values>0.4 0.8 1.2 1.6 2.0 2.6</values>
+     </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Gridded Cloud Amount</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+  	 <displayUnits>%</displayUnits>
+     <defaultColormap>Sat/Cloud Amount Default</defaultColormap>
+     <range scale="LINEAR">
+        <minValue>-1</minValue>
+        <maxValue>100</maxValue>
+     </range>
+     <colorbarLabeling>
+        <values>0 50</values>
+     </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Gridded Cloud Top Pressure or Height</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <defaultColormap>Sat/Cloud Top Height</defaultColormap>
+     <displayUnits>ft</displayUnits>
+     <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>442.3</maxValue>
+     </range>
+     <colorbarLabeling>
+        <values>50 150 250 350</values>
+     </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Sounder Based Derived Surface Skin Temp (SFC Skin)</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits>C</displayUnits>
+     <range scale="LINEAR">
+       <minValue>63</minValue>
+       <maxValue>-64</maxValue>
+     </range>
+     <samplePrefs>
+       <minValue>-37</minValue>
+       <maxValue>62.5</maxValue>
+     </samplePrefs>
+     <defaultColormap>Sat/Skin Temp/Skin Temp Default</defaultColormap>
+     <colorbarLabeling>
+        <values>50 40 30 20 10 0 -10 -20 -37</values>
+     </colorbarLabeling>
+  </imageStyle>
+</styleRule>	
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Rain fall rate</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+  	  <displayUnits>mm/h</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>63.5</maxValue>
+     </range>
+     <defaultColormap>Sat/Rain Rate</defaultColormap>
+     <colorbarLabeling>
+        <values>0 6 20 40 60</values>
+     </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Sounder Based Derived Precipitable Water (PW)</parameter>
+     <creatingEntity>DMSP</creatingEntity>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits>mm</displayUnits>
+     <range scale="LINEAR">
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </range>
+     <defaultColormap>Sat/Precip Water/Precip Water - Polar</defaultColormap>
+     <colorbarLabeling>
+        <values>0 20 40 70</values>
+     </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Sounder Based Derived Precipitable Water (PW)</parameter>
+     <creatingEntity>POES-NPOESS</creatingEntity>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits>mm</displayUnits>
+     <range scale="LINEAR">
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </range>
+     <defaultColormap>Sat/Precip Water/Precip Water - Polar</defaultColormap>
+     <colorbarLabeling>
+        <values>0 20 40 70</values>
+     </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Sounder Based Derived Precipitable Water (PW)</parameter>
+     <creatingEntity>Miscellaneous</creatingEntity>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits>in</displayUnits>
+     <range scale="LINEAR">
+       <minValue>-7</minValue>
+       <maxValue>3</maxValue>
+     </range>
+     <defaultColormap>Sat/Precip Water/Blended Total Precip Water</defaultColormap>
+     <colorbarLabeling>
+        <values>0 1 2 3</values>
+     </colorbarLabeling>
+     <!-- dataMapping>
+		<entry pixelValue="0" label="NO DATA" />
+     </dataMapping -->
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Percent of Normal TPW</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+  	 <displayUnits>%</displayUnits>
+     <range scale="LINEAR">
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </range>
+     <defaultColormap>Sat/Precip Water/Percent of Normal TPW</defaultColormap>
+     <colorbarLabeling>
+        <values>50 100 150 200</values>
+     </colorbarLabeling>
+	 <dataMapping>
+		<entry pixelValue="0" label="NO DATA" />
+		<entry pixelValue="250" operator=">" label=">250%" />
+		<entry pixelValue="201" operator=">" label=">201%" />
+     </dataMapping>
+  </imageStyle>
+</styleRule>
+<!-- Unidata FNEXRAD Rules -->
+<styleRule>
+	<paramLevelMatches>
+		<parameter>N0R</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<displayUnits>dBZ</displayUnits>
+		<defaultColormap>Radar/OSF/16 Level Reflectivity</defaultColormap>
+		<dataMapping>
+			<entry displayValue='0' pixelValue='30' label="" />
+			<entry displayValue='5' />
+			<entry displayValue='10' />
+			<entry displayValue='15' />
+			<entry displayValue='20' />
+			<entry displayValue='25' />
+			<entry displayValue='30' />
+			<entry displayValue='35' />
+			<entry displayValue='40' />
+			<entry displayValue='45' />
+			<entry displayValue='50' />
+			<entry displayValue='55' />
+			<entry displayValue='60' />
+			<entry displayValue='65' />
+			<entry displayValue='70' />
+			<entry displayValue='80' pixelValue='110' label="" />
+		</dataMapping>
+	</imageStyle>
+</styleRule>
+<styleRule>
+	<paramLevelMatches>
+		<parameter>DHR</parameter>
+		<parameter>N0Q</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<displayUnits>dBZ</displayUnits>
+		<defaultColormap>Radar/Hi-Res Ref (SGF)</defaultColormap>
+		<dataMapping>
+			<entry displayValue='-32.5' pixelValue='16' label="" />
+			<entry displayValue='-20.0' pixelValue='33' />
+			<entry displayValue='-10.0' />
+			<entry displayValue='  0.0' />
+			<entry displayValue=' 10.0' />
+			<entry displayValue=' 20.0' />
+			<entry displayValue=' 30.0' />
+			<entry displayValue=' 40.0' />
+			<entry displayValue=' 50.0' />
+			<entry displayValue=' 60.0' />
+			<entry displayValue=' 70.0' />
+			<entry displayValue=' 75.0' pixelValue='240' label="" />
+			<entry displayValue=' 94.5' pixelValue='255' label="" />
+		</dataMapping>
+	</imageStyle>
+</styleRule>
+<styleRule>
+	<paramLevelMatches>
+		<parameter>DVL</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<displayUnits>kg/m^2</displayUnits>
+		<samplePrefs>
+		    <!-- Number of decimal places to format the sample string to -->
+			<formatString>4</formatString>
+		</samplePrefs>
+		<defaultColormap>Radar/OSF/Digital VIL</defaultColormap>
+		<dataMapping>
+			<entry displayValue='0' pixelValue='0' label="" />
+			<entry displayValue='.1' pixelValue='10' label=".1" />
+			<entry displayValue='.5' pixelValue='55' label=".5" />
+			<entry displayValue='1' pixelValue='80' />
+			<entry displayValue='2' pixelValue='105' />
+			<entry displayValue='5' pixelValue='143' />
+			<entry displayValue='10' pixelValue='170' />
+			<entry displayValue='20' pixelValue='200' />
+			<entry displayValue='40' pixelValue='227' />
+			<entry displayValue='60' pixelValue='245' />
+			<entry displayValue='80' pixelValue='254' label="" />
+		</dataMapping>
+	</imageStyle>
+</styleRule>
+<styleRule>
+	<paramLevelMatches>
+		<parameter>N1P</parameter>
+		<parameter>DAA</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<displayUnits>in</displayUnits>
+		<samplePrefs>
+		    <!-- Number of decimal places to format the sample string to -->
+			<formatString>4</formatString>
+		</samplePrefs>
+		<defaultColormap>Radar/8-bit STP</defaultColormap>
+        <dataMapping>
+                <entry displayValue='0' pixelValue='0'/>
+                <entry displayValue='.1' pixelValue='20'/>
+                <entry displayValue='.25' pixelValue='50'/>
+                <entry displayValue='.5' pixelValue='100'/>
+                <entry displayValue='1' pixelValue='111'/>
+                <entry displayValue='1.5' pixelValue='122'/>
+                <entry displayValue='2' pixelValue='133'/>
+                <entry displayValue='2.5' pixelValue='144'/>
+                <entry displayValue='3' pixelValue='155'/>
+                <entry displayValue='3.5' pixelValue='166'/>
+                <entry displayValue='4' pixelValue='177'/>
+                <entry displayValue='4.5' pixelValue='188'/>
+                <entry displayValue='5' pixelValue='200' />
+                <entry displayValue='10' pixelValue='239' />
+                <entry displayValue='12' pixelValue='255' />
+        </dataMapping>
+	</imageStyle>
+</styleRule>
+<styleRule>
+	<paramLevelMatches>
+		<parameter>NTP</parameter>
+		<parameter>DTA</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<displayUnits>in</displayUnits>
+		<samplePrefs>
+		    <!-- Number of decimal places to format the sample string to -->
+			<formatString>4</formatString>
+		</samplePrefs>
+		<defaultColormap>Radar/8-bit STP</defaultColormap>
+        <dataMapping>
+                <entry displayValue='0' pixelValue='0'/>
+                <entry displayValue='1' pixelValue='33'/>
+                <entry displayValue='2' pixelValue='67'/>
+                <entry displayValue='3' pixelValue='100'/>
+                <entry displayValue='5' pixelValue='129'/>
+	            <entry displayValue='8' pixelValue='171'/>
+                <entry displayValue='10' pixelValue='200' />
+                <entry displayValue='20' pixelValue='239' />
+                <entry displayValue='24' pixelValue='255' label='' />
+        </dataMapping>
+	</imageStyle>
+</styleRule>
+<styleRule>
+	<paramLevelMatches>
+		<parameter>EET</parameter>
+	</paramLevelMatches>
+	<imageStyle>
+		<displayUnits>kft</displayUnits>
+		<defaultColormap>Radar/Enhanced Echo Tops</defaultColormap>
+		<dataMapping>
+			<entry displayValue='0' pixelValue='0' label="" />
+			<entry displayValue='20' pixelValue='20' label="20" />
+			<entry displayValue='50' pixelValue='50' label="50" />
+			<entry displayValue='71' pixelValue='71' label="70" />
+			<entry displayValue='130' pixelValue='130' label="0" />
+			<entry displayValue='150' pixelValue='150' label="20" />
+			<entry displayValue='170' pixelValue='170' label="50" />
+			<entry displayValue='199' pixelValue='199' label="70" />
+			<entry displayValue='255' pixelValue='255' label="Topped" />
+		</dataMapping>
+	</imageStyle>
+</styleRule>
+<styleRule>
+        <paramLevelMatches>
+                <parameter>HHC</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+                <displayUnits>*1</displayUnits>
+                <defaultColormap>Radar/HHC NEXRCOMP</defaultColormap>
+                <dataMapping>
+                        <entry displayValue='0' pixelValue='0' label='' />
+                        <entry displayValue='10' pixelValue='10' label='BI' sample='Biological' />
+                        <entry displayValue='20' pixelValue='20' label='GC' sample='Clutter' />
+                        <entry displayValue='30' pixelValue='30' label='IC' sample='Ice Crystals' />
+                        <entry displayValue='40' pixelValue='40' label='DS' sample='Dry Snow' />
+                        <entry displayValue='50' pixelValue='50' label='WS' sample='Wet Snow' />
+                        <entry displayValue='60' pixelValue='60' label='RA' sample='Rain' />
+                        <entry displayValue='70' pixelValue='70' label='HR' sample='Heavy Rain' />
+                        <entry displayValue='80' pixelValue='80' label='BD' sample='Big Drops' />
+                        <entry displayValue='90' pixelValue='90' label='GR' sample='Graupel' />
+                        <entry displayValue='95' pixelValue='100' label='HA' sample='Hail-Rain' />
+                        <entry displayValue='140' pixelValue='140' label='UK' sample='Unknown' />
+                        <entry displayValue='150' pixelValue='150' label='RF' />
+                </dataMapping>
+        </imageStyle>
+</styleRule>
+
+</styleRuleset>

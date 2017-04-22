@@ -1,0 +1,234 @@
+module 'Hb'
+applicationName = 'Hb';
+generateNameC = 'agencyoffice.c';
+generateNameExterns = 'agencyoffice.h';
+generateNameResDB = 'agencyoffice.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+generateMask = 4390920;
+useMask = 1;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+value
+object 'agcyoffDS' : XmDialogShell {
+	arguments {
+	XmNallowShellResize = true;
+	XmNtitle = 'Cooperating Agencies/Offices';
+	XmNminWidth = 850;
+	XmNminHeight = 420;
+	XmNmaxWidth = 850;
+	XmNmaxHeight = 420;
+	};
+object 'agcyoffFM' : XmForm {
+	arguments {
+	XmNautoUnmanage = false;
+	};
+object 'agcyoffaLbl' : XmLabel {
+	arguments {
+	XmNlabelString = 'Available';
+	};
+};
+object 'agcyoffaSL' : XmScrolledList {
+	arguments {
+	};
+object 'agcyoffaHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	};
+};
+object 'agcyoffaVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	};
+};
+object 'agcyoffaL' : XmList {
+	arguments {
+	XmNvisibleItemCount = 9;
+	XmNselectionPolicy = 2;
+	XmNlistSizePolicy = 1;
+	XmNscrollBarDisplayPolicy = 1;
+	};
+};
+};
+object 'agcyoff_addPB' : XmPushButton {
+	arguments {
+	XmNwidth = 95;
+	XmNheight = 35;
+	XmNlabelString = 'Add -->';
+	};
+};
+object 'agcyoff_delPB' : XmPushButton {
+	arguments {
+	XmNwidth = 70;
+	XmNheight = 35;
+	XmNlabelString = 'Delete';
+	};
+};
+object 'agcyoffsLbl' : XmLabel {
+	arguments {
+	XmNlabelString = 'Selected';
+	};
+};
+object 'agcyoffsSL' : XmScrolledList {
+	arguments {
+	};
+object 'agcyoffsHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	};
+};
+object 'agcyoffsVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	};
+};
+object 'agcyoffsL' : XmList {
+	arguments {
+	XmNvisibleItemCount = 9;
+	XmNselectionPolicy = 2;
+	XmNlistSizePolicy = 1;
+	XmNscrollBarDisplayPolicy = 1;
+	};
+};
+};
+object 'agcyoff_agencyTxt' : XmText {
+	arguments {
+	XmNmaxLength = 8;
+	XmNcolumns = 8;
+	};
+};
+object 'agcyoff_officeTxt' : XmText {
+	arguments {
+	XmNmaxLength = 20;
+	XmNcolumns = 20;
+	};
+};
+object 'agcyoffSP' : XmSeparator {
+	arguments {
+	};
+};
+object 'agcyoff_closePB' : XmPushButton {
+	arguments {
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Close';
+	};
+};
+object 'agcyoff_agencyLA' : XmLabel {
+	arguments {
+	XmNlabelString = 'Agency';
+	};
+};
+object 'agcyoff_officeLA' : XmLabel {
+	arguments {
+	XmNlabelString = 'Office';
+	};
+};
+object 'ao_AvailListLA' : XmLabel {
+	arguments {
+	XmNlabelString = 'Agency       Office';
+	};
+};
+object 'ao_SelectedListLA' : XmLabel {
+	arguments {
+	XmNlabelString = 'Agency       Office';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 15;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -365;
+	XmNleftAttachment = 1 0 15;
+	XmNbottomAttachment = 2 0 -241;
+	XmNtopAttachment = 1 0 55;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 375;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 120;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 620;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 260;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 480;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -834;
+	XmNleftAttachment = 1 0 479;
+	XmNbottomAttachment = 2 0 -241;
+	XmNtopAttachment = 1 0 55;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 15;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 295;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 130;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 295;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 0;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 352;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -465;
+	XmNleftAttachment = 1 0 380;
+	XmNbottomAttachment = 2 0 -410;
+	XmNtopAttachment = 1 0 375;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 15;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 265;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 131;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 266;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 15;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 30;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 480;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 30;
+    };
+    };
+};
+};
+end module;

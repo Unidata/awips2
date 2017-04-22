@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" 
+	name="Create Runnable Jar for Project com.raytheon.wes2bridge.datalink with Jar-in-Jar Loader"
+	basedir=".">
+
+	<import file="${basedir}/../build.wes2bridge.utility/ant/setup.xml" />
+	
+	<property name="project.name" value="com.raytheon.wes2bridge.datalink" />
+	
+	<target name="compile">
+		<mkdir dir="${baseline.dir}/${project.name}/bin" />
+		<javac destdir="${baseline.dir}/${project.name}/bin" 
+			srcdir="${baseline.dir}/${project.name}/src" 
+			executable="/awips2/java/bin/javac" fork="true" 
+			includeantruntime="false">
+			
+			<include name="**/*.java" />
+			
+		</javac>
+	</target>
+	
+    <target name="create_run_jar" depends="compile">
+    	<antcall target="extract_eclipse_jar_in_jar" />
+    	
+        <jar destfile="${destination.directory}/DataLinkUtility.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
+                <attribute name="Rsrc-Main-Class" value="com.raytheon.wes2bridge.datalink.DataLinkUtility"/>
+                <attribute name="Class-Path" value="."/>
+                <attribute name="Rsrc-Class-Path" value="./"/>
+            </manifest>
+        	<zipfileset src="${baseline.dir}/${project.name}/lib/jar-in-jar-loader.zip"/>
+            <fileset dir="${baseline.dir}/${project.name}/bin"/>
+        </jar>
+    </target>
+</project>

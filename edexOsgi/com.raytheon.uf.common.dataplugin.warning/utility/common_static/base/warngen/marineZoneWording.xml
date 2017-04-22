@@ -1,0 +1,26 @@
+<!--
+   This file defines grouping and replacement text for marine zones in the watch
+   wording of the template.
+
+   For each entry, the "match" attribute defines a regular expression that is
+   used to match marine zone UGCs.  The "replace" attribute defines the text to
+   pass to the template.  If the replacement text is empty, the marine zone
+   will not be used.  If the "replace" attribute is not present, the marine
+   zone's original name is used.
+
+   Marine zone UGCs are matched against entries in their given order; the first
+   match is used.  The order of the entries also determines the order of the
+   values passed to the template.
+
+   10/28/15 Mike Rega - mixed case changes
+ -->
+<zoneWordingConfig>
+    <entry match="^LEZ.*" replace="the adjacent waters of Lake Erie" />
+    <entry match="^LHZ.*" replace="the adjacent waters of Lake Huron" />
+    <entry match="^LMZ.*" replace="the adjacent waters of Lake Michigan" />
+    <entry match="^LOZ.*" replace="the adjacent waters of Lake Ontario" />
+    <entry match="^LSZ.*" replace="the adjacent waters of Lake Superior" />
+    <entry match="^LCZ.*" replace="the adjacent waters of Lake Saint Claire" />
+    <entry match="^SLZ.*" replace="" /> <!-- Saint Lawrence River -->
+    <entry match="^.*" replace="the adjacent coastal waters" />
+</zoneWordingConfig>

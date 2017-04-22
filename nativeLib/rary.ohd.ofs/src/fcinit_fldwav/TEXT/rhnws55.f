@@ -1,0 +1,660 @@
+      SUBROUTINE RHNWS55(PO,IUSEP,LEFTP,KU,KD,NGAGE,NGS,GZ,STTNAM,
+     . STQNAM,NQL,LQ1,QLNAM,NB,NSTR,NST,KTYP,GZO,STONAM,STM,GZ1,GZN,
+     . ST1NAM,STNNAM,XNOSNM,RIVNAM,TIDNAM,STENAM,SLFI,PLNAM,SIGNAM,
+     * NUMLAD,LAD,KRCHT,NBT,XFACT,NRC,NODESC,IERR,
+     . K1,K2,K3,K4,K10,K13,K14,K16,K23,K25)
+
+C  THIS SUBROUTINE READS IN THE TIME SERIES INFORMATION THE THE NWSRFS
+C  OPERATIONAL PROGRAM.
+
+      CHARACTER*80 DESC
+      CHARACTER*20 SSNAME
+      CHARACTER*8  SNAME
+      CHARACTER*4  STTNAM(5,K25),RIVNAM(2),TIDNAM(3),STENAM(3,K25)
+      CHARACTER*4  STQNAM(*),QLNAM(*),ST1NAM(*),XNOSNM(3)
+      CHARACTER*4  STNNAM(*),STONAM(*),PLNAM(*),SIGNAM(*)
+      CHARACTER*4  STYPE,TSNAME(2),UNTS(2),UNITS
+      REAL         TSNMXX(2)
+      EQUIVALENCE (TSNAME(1),TSNMXX(1))
+
+      COMMON/M155/NU,JN,JJ,KIT,G,DT,TT,TIMF,F1
+      COMMON/M655/KTIME,DTHYD,J1
+      COMMON/M3255/IOBS,KTERM,KPL,JNK,TEH
+      COMMON/XNGZ55/NGZ,NGZN
+      COMMON/NPC55/NP,NPST,NPEND
+      COMMON/NYQDC55/NYQD
+      COMMON/TKEP55/DTHII,MDT,NDT,DTHS,TFH1
+      COMMON/MXVAL55/MXNB,MXNGAG,MXNCM1,MXNCML,MXNQL,MXINBD,MXRCH,
+     .               MXMGAT,MXNXLV,MXROUT,MXNBT,MXNSTR,MXSLC
+      COMMON/IDOS55/IDOS,IFCST
+      COMMON/NETWK55/NET
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/ofs55'
+
+
+      DIMENSION PO(*),LAD(K16,K1),NBT(K1)
+      DIMENSION NB(K1),KU(K1),KD(K1),NGAGE(K1),NQL(K1),LQ1(K10,K1)
+      DIMENSION NGS(K4,K1),GZ(K4,K1),SLFI(K2,K1),STM(K1),GZ1(K1)
+      DIMENSION NSTR(K1),NST(K14,K1),KTYP(K14,K1),GZO(K14,K1)
+      DIMENSION DMNS(4),TSTYP(1),NUMLAD(K1),KRCHT(K13,K1)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_fldwav/RCS/rhnws55.f,v $
+     . $',                                                             '
+     .$Id: rhnws55.f,v 1.6 2000/12/19 14:55:25 jgofus Exp $
+     . $' /
+C    ===================================================================
+C
+
+      DATA DMNS/4HL   ,4HL3/T,4HDLES,4HL/T /
+      DATA  UNTS / 'M   ','INT ' /
+      DATA  SNAME / 'RHNWS55 ' /
+
+      CALL FPRBUG(SNAME,1,55,IBUG)
+
+      IDHF=PO(15)+0.01
+C.......................................................................
+C 132    LQ1    --  NO. OF SECTION IMMEDIATELY UPSTREAM OF LATERAL FLOW
+C 350    STTNAM --  STATION NAME FOR LATERAL INFLOW DATA (NWSRFS ONLY)
+C 351    DTYPE  --  DATA TYPE FOR LATERAL FLOW (NWSRFS ONLY)
+C.......................................................................
+
+      IERR=0
+      NTQL=PO(313)
+      IF(NTQL.EQ.0) GO TO 201
+
+CC      KUSE=IUSEP
+CC      IUSEP=IUSEP+NTQL*3
+
+CC      CALL CHECKP(IUSEP,LEFTP,NERR)
+CC      IF(NERR.NE.0) THEN
+CC        IUSEP=0
+CC        GO TO 5000
+CC      ENDIF
+
+CC      PO(350)=KUSE+1.01
+CC      PO(351)=KUSE+3.01
+
+      IMSG=0
+      KUSE=0
+      DO 200 J=1,JN
+      IF(NQL(J)) 200,200,110
+  110 NQLJ=NQL(J)
+      IF(IBUG.EQ.1) WRITE(IODBUG,112) J
+  112 FORMAT(/,1X,38HLOCAL (LATERAL) FLOW INFO FOR RIVER J=,1X,I2)
+      DO 180 L=1,NQLJ
+      IF(L.EQ.1.AND.IBUG.EQ.1) WRITE(IODBUG,115)
+  114 FORMAT(/,1X,11H L-FLOW (I),4X,8HLQ1(I,J))
+  115 FORMAT(/,1X,11H L-FLOW (I),4X,8HLQ1(I,J),5X,2HID,8X,4HTYPE)
+      READ(IN,'(A)',END=1000) DESC
+      READ(IN,116) LQ1(L,J),TSNAME,STYPE
+  116 FORMAT(I10,2X,2A4,1X,A4)
+      IF(IBUG.EQ.1) WRITE(IODBUG,'(3X,I4,9X,I4,7X,2A4,4X,A4)')
+     .            L,LQ1(L,J),TSNAME,STYPE
+
+C  CHECK TO SEE IF TIME SERIES EXISTS
+      DIMS=DMNS(2)
+      CALL CHEKTS(TSNAME,STYPE,IDHF,1,DIMS,0,1,KERR)
+      IF(KERR.EQ.0) THEN
+        QLNAM(KUSE+1)=TSNAME(1)
+        QLNAM(KUSE+2)=TSNAME(2)
+        QLNAM(KUSE+3)=STYPE
+        KUSE=KUSE+3
+      ENDIF
+      IF(LQ1(L,J).LE.0) IMSG=IMSG+1
+cc      IUSEP=IUSEP+3
+  180 CONTINUE
+  200 CONTINUE
+
+      IF(IMSG.GT.0) THEN
+        IF(IBUG.EQ.1) WRITE(IODBUG,104)
+  104   FORMAT(/' **ERROR** ROUTED LATERAL FLOW OPTION IS NOT AVAILABLE'
+     .,         ' IN THE CURRENT MODEL ... PROGRAM TERMINATED.'/)
+        CALL ERROR
+      ENDIF
+
+C.......................................................................
+C 352 STTNAM --  NAME OF GAGING OR PLOTTING STATION
+C 353 STYPE  --  T.S. DATA TYPE
+C 211 NGS    --  SEQUENCE NO. OF GAGING OR PLOTTING STATION
+C 212 GZ     --  GAGE ZERO CORRECTION
+C 354 STTNAM --  NAME OF GAGE/PLOTTING STATION FOR FLOW
+C 355 STYPE  --  T.S. DATA TYPE
+C.......................................................................
+cc  201 IF(IOBS.LE.0.OR.KPL.EQ.0) GO TO 360
+  201 IF(KPL.EQ.0) GO TO 360
+      NTGAG=PO(323)
+
+      KUSE=1
+      LUSE=0
+      DO 350 J=1,JN
+      NGAG=NGAGE(J)
+      IF(NGAG.LE.0) GO TO 350
+      IF(IBUG.EQ.1) WRITE(IODBUG,204) J
+  204 FORMAT(/,32H PLOTTING T.S. INFO FOR RIVER J=,1X,I2/1X,
+     . 11HSTATION (I),4X,8HNGS(I,J),4X,7HGZ(I,J),6X,2HID,8X,4HTYPE)
+
+      DO 340 I=1,NGAG
+  208 READ(IN,'(A)',END=1000) DESC
+      IF(IOBS.LE.0.OR.KPL.EQ.2) THEN
+        READ(IN,116) NGS(I,J),TSNAME,STYPE
+        IF(IBUG.EQ.1) WRITE(IODBUG,'(3X,I4,9X,I4,3X,2A4,1X,A4)')
+     .       I,NGS(I,J),TSNAME,STYPE
+        IF(KPL.EQ.2) THEN
+          DIMS=DMNS(2)
+        ELSE
+          DIMS=DMNS(1)
+        ENDIF
+      ELSE
+        READ(IN,209) NGS(I,J),GZ(I,J),TSNAME,STYPE
+  209   FORMAT(I10,F10.2,2X,2A4,1X,A4)
+        IF(IBUG.EQ.1)
+     .    WRITE(IODBUG,'(7X,I4,9X,I4,3X,F8.2,6X,2A4,4X,A4)')
+     .         I,NGS(I,J),GZ(I,J),TSNAME,STYPE
+        DIMS=DMNS(1)
+      ENDIF
+
+      CALL CHEKTS(TSNAME,STYPE,IDHF,1,DIMS,1,1,KERR)
+      IF(KERR.EQ.1) GO TO 210
+
+      CALL FDCODE(STYPE,UNITS,DIMS,MSG,NVL,TSCL,NELSE,KERR)
+      IF(KERR.EQ.1) GO TO 210
+      IF(IOBS.EQ.0) GO TO 210
+      IF(KPL.NE.2) THEN
+        IF(UNITS.NE.UNTS(1)) THEN
+          WRITE(IPR,1010) UNITS
+ 1010     FORMAT(//10X,'**ERROR** STAGE DATA CAN ONLY HAVE UNITS OF',
+     .     ' "M   ".  ',A4,' NOT ACCEPTED.')
+          CALL ERROR
+        ENDIF
+      ELSE
+        IF(UNITS.NE.UNTS(2)) THEN
+          WRITE(IPR,1020) UNITS
+ 1020     FORMAT(//10X,'**ERROR** DISCHARGE DATA CAN ONLY HAVE UNITS OF'
+     .     ,' "CMS ".  ',A4,' NOT ACCEPTED.')
+          CALL ERROR
+        ENDIF
+      ENDIF
+
+      IF(KPL.EQ.2.OR.MSG.EQ.0) GO TO 210
+
+      WRITE(IPR,1030) J,TSNAME,STYPE
+ 1030 FORMAT(//10X,'**WARNING** ON RIVER NO.',I3,' STATION ',2A4,
+     . ' WITH DATA TYPE ',A4,' MAY HAVE MISSING DATA'/23X,
+     . 'MISSING DATA POINTS WILL NOT BE PLOTTED OR INCUDED IN STATISTICS
+     ..')
+      CALL WARN
+
+  210 STTNAM(1,KUSE)=TSNAME(1)
+      STTNAM(2,KUSE)=TSNAME(2)
+      STTNAM(3,KUSE)=STYPE
+      KUSE=KUSE+1
+
+      IF(KPL.NE.3) GO TO 340
+      READ(IN,211) TSNAME,STYPE
+  211 FORMAT(2A4,1X,A4)
+      IF(IBUG.EQ.1) WRITE(IODBUG,'(7X,2A4,1X,A4,3X,I4)')
+     .     I,TSNAME,STYPE
+      DIMS=DMNS(2)
+
+      CALL CHEKTS(TSNAME,STYPE,IDHF,1,DIMS,1,1,KERR)
+      IF(KERR.EQ.1) GO TO 220
+      CALL FDCODE(STYPE,UNITS,DIMS,MSG,NVL,TSCL,NELSE,KERR)
+      IF(KERR.EQ.1) GO TO 220
+      IF(UNITS.NE.UNTS(2)) THEN
+        WRITE(IPR,1020) UNITS
+        CALL ERROR
+      ENDIF
+
+  220 STQNAM(LUSE+1)=TSNAME(1)
+      STQNAM(LUSE+2)=TSNAME(2)
+      STQNAM(LUSE+3)=STYPE
+      LUSE=LUSE+3
+  340 CONTINUE
+  350 CONTINUE
+
+C  OUTPUT T.S. FOR NWSRFS
+C.......................................................................
+C 356    STTNAM --  NAME OF OUTPUT TIME SERIES
+C 357    STYPE  --  TYPE OF OUTPUT TIME SERIES
+C 358    NST    --  SEQUENCE NO. OF OUTPUT TIME SERIES
+C 359    KTYP   --  TYPE OF OUTPUT TIME SERIES SWITCH
+C 360    GZO    --  GAGE CORRECTION TO CONVERT OUTPUT T.S. FROM MSL TO STAGE
+C.......................................................................
+  360 NTOUT=PO(331)
+      IDHFO=PO(23)+0.01
+
+      IF(NTOUT.EQ.0) GOTO 370
+CC      KUSE=IUSEP
+CC      IUSEP=IUSEP+NTOUT*3
+
+CC      CALL CHECKP(IUSEP,LEFTP,NERR)
+CC      IF(NERR.NE.0) THEN
+CC        IUSEP=0
+CC        GO TO 5000
+CC      ENDIF
+
+CC      PO(356)=KUSE+1.01
+CC      PO(357)=KUSE+3.01
+
+      KTSOUT=0
+      KUSE=0
+      DO 362 J=1,JN
+      NNSTR=NSTR(J)
+      IF(NNSTR.EQ.0) GOTO 362
+      IF(IBUG.EQ.1) WRITE(IODBUG,230) J
+  230 FORMAT(/,30H OUTPUT T.S. INFO FOR RIVER J=,1X,I2)
+      DO 361 I=1,NNSTR
+      READ(IN,'(A)',END=1000) DESC
+      KTSOUT=KTSOUT+1
+      IF(I.EQ.1.AND.IBUG.EQ.1) WRITE(IODBUG,231)
+  231 FORMAT(/1X,11HSTATION (I),4X,8HNST(I,J),5X,2HID,10X,4HTYPE,
+     .          4X,8HGZO(I,J))
+      READ(IN,232) NST(I,J),TSNAME,STYPE,GZO(I,J)
+ 232  FORMAT(I10,2X,2A4,1X,A4,F10.0)
+      IF(IBUG.EQ.1) WRITE(IODBUG,'(3X,I4,9X,I4,7X,2A4,4X,A4,6X,F8.2)')
+     .            I,NST(I,J),TSNAME,STYPE,GZO(I,J)
+      DIMS=BLANK
+      CALL CHEKTS(TSNAME,STYPE,IDHFO,0,DIMS,1,1,KERR)
+      IF(KERR.EQ.0) THEN
+        STONAM(KUSE+1)=TSNAME(1)
+        STONAM(KUSE+2)=TSNAME(2)
+        STONAM(KUSE+3)=STYPE
+        IF(DIMS.EQ.DMNS(1)) THEN
+          KTYP(I,J)=1
+        ELSEIF(DIMS.EQ.DMNS(2)) THEN
+          KTYP(I,J)=2
+        ELSEIF(DIMS.EQ.DMNS(4)) THEN
+          KTYP(I,J)=3
+        ELSE
+          WRITE(IPR,235) DMNS,DIMS
+  235     FORMAT(//10X,'**ERROR** THE ALLOWABLE DIMENSIONS FOR OUTPUT ',
+     .       'TIME SERIES ARE ',A4,'OR ',A4,'.  ',A4,' IS NOT ALLOWED.')
+          CALL ERROR
+        ENDIF
+      ENDIF
+      KUSE=KUSE+3
+  361 CONTINUE
+  362 CONTINUE
+  370 CONTINUE
+
+C.......................................................................
+C     TPG    --  TIME FROM INITIAL STEADY FLOW TO PEAK IN MATH.HYDR
+C     RHO    --  RATIO OF PEAK TO INITIAL FLOW IN MATH.HYDROGRAPH
+C     GAMA   --  RATIO OF TG TO TPG; TG IS TIME FROM INITIAL FLOW
+C                CENTROID OF MATH. HYDROGRAPH
+C     YQI    --  INITIAL DISCH. OR WATER ELEV. IN MATH. HYDROGRAPH
+C.......................................................................
+      IF(NU.NE.0) GO TO 381
+
+      LOTPG=IUSEP+1
+      LORHO=LOTPG+JN
+      LOGAMA=LORHO+JN
+      LOYQI=LOGAMA+JN
+      IUSEP=LOYQI+JN-1
+
+      CALL CHECKP(IUSEP,LEFTP,NERR)
+      IF(NERR.NE.0) THEN
+        IUSEP=0
+        GO TO 5000
+      ENDIF
+
+      PO(217)=LOTPG+0.01
+      PO(218)=LORHO+0.01
+      PO(219)=LOGAMA+0.01
+      PO(220)=LOYQI+0.01
+
+      IF(IBUG.EQ.1) WRITE(IODBUG,375)
+  375 FORMAT (/5X,'J       TPG       RHO      GAMA       YQI')
+      DO 380 J=1,JN
+        READ(IN,'(A)',END=1000) DESC
+        READ(IN,*) PO(LOTPG+J-1),PO(LORHO+J-1),PO(LOGAMA+J-1),
+     .       PO(LOYQI+J-1)
+        IF(IBUG.EQ.1) WRITE(IODBUG,2043)
+     .   J,PO(LOTPG+J-1),PO(LORHO+J-1),PO(LOGAMA+J-1),PO(LOYQI+J-1)
+ 2043   FORMAT(7X,I3,8F10.2)
+  380 CONTINUE
+      GO TO 450
+
+C.......................................................................
+C 361     TSNAME --  STATION NAME AT U/S BOUNDARY
+C         STYPE  --  TYPE OF DATA AT U/S BOUNDARY
+C 363     STM    -- MINIMUM DISCHARGE OR STAGE ALLOWED AT U/S BOUNDARY
+C 221     GZ1    --  GAGE CORRECTION TO CONVERT U/S STAGES TO MSL
+C.......................................................................
+
+CC      KUSE=IUSEP
+CC      IUSEP=IUSEP+JN*3
+
+CC      CALL CHECKP(IUSEP,LEFTP,NERR)
+CC      IF(NERR.NE.0) THEN
+CC        IUSEP=0
+CC        GO TO 5000
+CC      ENDIF
+CC      PO(361)=KUSE+1.01
+CC      PO(362)=KUSE+3.01
+
+  381 KUSE=0
+      IF(IBUG.EQ.1) WRITE(IODBUG,382)
+ 382  FORMAT(/  10X,'USTREAM BOUNDARY INFORMATION'//10X,
+     .   'RIVER NO     MIN Q/H   GAGE ZERO     ID      TYPE')
+      DO 390 J=1,JN-NET
+        READ(IN,'(A)',END=1000) DESC
+        DIMS=BLANK
+        IF(KU(J).EQ.2) THEN
+          READ(IN,383) STM(J),TSNAME,STYPE
+  383     FORMAT(F10.0,2X,2A4,1X,A4)
+          IF(IBUG.EQ.1) WRITE(IODBUG,384) J,STM(J),TSNAME,STYPE
+  384     FORMAT(10X,I5,3X,F12.2,14X,2A4,3X,A4)
+          DIMS=DMNS(2)
+        ELSE
+          READ(IN,385) STM(J),GZ1(J),TSNAME,STYPE
+ 385      FORMAT(2F10.0,2X,2A4,1X,A4)
+          IF(IBUG.EQ.1) WRITE(IODBUG,386) J,STM(J),GZ1(J),TSNAME,STYPE
+ 386      FORMAT(10X,I5,6X,F12.2,2X,F10.2,2A4,2X,A4)
+          DIMS=DMNS(1)
+        ENDIF
+C  check to see if t.s. exists
+        CALL CHEKTS(TSNAME,STYPE,IDHF,1,DIMS,0,1,KERR)
+        IF(KERR.EQ.1) GO TO 387
+C  check to see if t.s. has the correct units
+        IF(KU(J).NE.1) GO TO 387
+        CALL FDCODE(STYPE,UNITS,DIMS,MSG,NVL,TSCL,NELSE,KERR)
+        IF(KERR.EQ.1) GO TO 387
+        IF(UNITS.NE.UNTS(1)) THEN
+          WRITE(IPR,1010) UNITS
+          CALL ERROR
+        ENDIF
+ 387    ST1NAM(KUSE+1)=TSNAME(1)
+        ST1NAM(KUSE+2)=TSNAME(2)
+        ST1NAM(KUSE+3)=STYPE
+        KUSE=KUSE+3
+  390 CONTINUE
+
+C.......................................................................
+C 362     TSNAME --  STATION NAME AT D/S BOUNDARY
+C         STYPE  --  DATA TYPE AT D/S BOUNDARY
+C 222     GZN    --  GAGE CORRECTION TO CONVERT D/S BOUNDARY TO MSL
+C.......................................................................
+  450 IF(KD(1).EQ.4.OR.KD(1).EQ.7) GO TO 410
+      READ(IN,'(A)',END=1000) DESC
+      IF(IBUG.EQ.1) WRITE(IODBUG,392)
+  392 FORMAT(/10X,'DOWSTREAM BOUNDARY INFORMATION')
+
+      MSG=0
+      IF(KD(1).EQ.0) MSG=1
+      IF(KD(1).LE.1) THEN
+        DIMS=DMNS(1)
+        READ(IN,383) GZN,TSNAME,STYPE
+        IF(IBUG.EQ.1) WRITE(IODBUG,394) GZN,TSNAME,STYPE
+  394   FORMAT(/10X,'    GAGE ZERO   ID        TYPE'/
+     .          13X,F10.2,3X,2A4,2X,A4)
+CC        PO(222)=GZN
+        GOTO 400
+      ELSEIF(KD(1).EQ.2) THEN
+        DIMS=DMNS(2)
+        READ(IN,403) TSNAME,STYPE
+        IF(IBUG.EQ.1) WRITE(IODBUG,396) TSNAME,STYPE
+  396   FORMAT(/10X,'   ID      TYPE'/10X,2A4,3X,A4)
+        GOTO 400
+C.......................................................................
+C 366     TSNAME --  RATING CURVE IDENTIFIER AT D/S BOUNDARY
+C.......................................................................
+      ELSEIF(KD(1).EQ.3) THEN
+cc        LCRC=IUSEP+1
+cc        IUSEP=LCRC+2-1
+cc        CALL CHECKP(IUSEP,LEFTP,NERR)
+cc        IF(NERR.NE.0) THEN
+cc          IUSEP=0
+cc          GO TO 5000
+cc        ENDIF
+cc        PO(366)=LCRC+0.01
+
+        READ(IN,'(2A4)') TSNAME
+        IF(IBUG.EQ.1) WRITE(IODBUG,398) TSNAME
+  398   FORMAT(/10X,'RATING CURVE ID:',2A4 )
+        CALL CHEKRC(TSNAME,KERR)
+        IF(KERR.EQ.1) GO TO 410
+        PO(LCRC)  =TSNMXX(1)
+        PO(LCRC+1)=TSNMXX(2)
+      ELSEIF(KD(1).EQ.5) THEN
+        N=NB(1)
+        READ(IN,*) SLFI(N,1)
+        IF(IBUG.EQ.1) WRITE(IODBUG,*) SLFI(N,1)
+      ENDIF
+      GO TO 410
+C  check to see if t.s. exists
+  400 CALL CHEKTS(TSNAME,STYPE,IDHF,1,DIMS,MSG,1,KERR)
+      IF(KERR.EQ.1) GO TO 402
+C  check to see if t.s. has the correct units
+      IF(KD(1).GT.1) GO TO 402
+      CALL FDCODE(STYPE,UNITS,DIMS,MSG,NVL,TSCL,NELSE,KERR)
+      IF(KERR.EQ.1) GO TO 402
+      IF(UNITS.NE.UNTS(1)) THEN
+        WRITE(IPR,1010) UNITS
+        CALL ERROR
+      ENDIF
+  402 STNNAM(1)=TSNAME(1)
+      STNNAM(2)=TSNAME(2)
+      STNNAM(3)=STYPE
+
+      IF(KD(1).NE.0) GO TO 410
+C.......................................................................
+C 348     TSNAME --  STATION NAME OF NOS TIDE DATA
+C         STYPE  --  DATA TYPE OF NOS TIDE DATA
+C 349     RIVNAM --  NAME OF RIVER USING TIDE DATA
+C.......................................................................
+      READ(IN,'(A)',END=1000) DESC
+      READ(IN,403) TSNAME,STYPE,RIVNAM
+  403 FORMAT(2X,2A4,2X,A4,2X,2A4)
+      IF(IBUG.EQ.1) WRITE(IODBUG,404) TSNAME,STYPE,RIVNAM
+  404 FORMAT(/10X,'        ID      TYPE  TIDE RIVER   (NOS TIDE)'/
+     .        12X,2A4,6X,A4,2X,2A4)
+      MSG=1
+      DIMS=DMNS(1)
+C  check to see if t.s. exists
+      CALL CHEKTS(TSNAME,STYPE,IDHF,1,DIMS,0,1,KERR)
+      IF(KERR.EQ.1) GO TO 406
+C  check to see if t.s. has the correct units
+      CALL FDCODE(STYPE,UNITS,DIMS,MSG,NVL,TSCL,NELSE,KERR)
+      IF(KERR.EQ.1) GO TO 406
+      IF(UNITS.NE.UNTS(1)) THEN
+        WRITE(IPR,1010) UNITS
+        CALL ERROR
+      ENDIF
+  406 XNOSNM(1)=TSNAME(1)
+      XNOSNM(2)=TSNAME(2)
+      XNOSNM(3)=STYPE
+
+C.......................................................................
+C 351     TSNAME --  STATION NAME OF ADJUSTED TIDE DATA
+C         STYPE  --  DATA TYPE OF ADJUSTED TIDE DATA
+C.......................................................................
+      READ(IN,'(A)',END=1000) DESC
+      READ(IN,403) TSNAME,STYPE
+      IF(IBUG.EQ.1) WRITE(IODBUG,407) TSNAME,STYPE
+  407 FORMAT(/10X,'        ID      TYPE   (BLENDED TIDE)'/
+     .        12X,2A4,6X,A4)
+      CALL CHEKTS(TSNAME,STYPE,IDHF,0,DIMS,0,1,KERR)
+      IF(KERR.EQ.1) GO TO 409
+      IF(DIMS.EQ.DMNS(1)) GO TO 409
+      WRITE(IPR,408) DMNS(1),DIMS
+  408 FORMAT(1H0,10X,'**ERROR** THE ALLOWABLE DIMENSIONS FOR ADJUSTED ',
+     1  'TIDE TIME SERIES ARE ',A4,5H'.  ',A4,17H' IS NOT ALLOWED.)
+      CALL ERROR
+  409 TIDNAM(1)=TSNAME(1)
+      TIDNAM(2)=TSNAME(2)
+      TIDNAM(3)=STYPE
+
+C.......................................................................
+C 353     TSNAME --  STATION NAME OF ADJUSTED STAGE DATA
+C         STYPE  --  DATA TYPE OF ADJUSTED STAGE DATA
+C.......................................................................
+  410 IF(NTGAG.EQ.0.OR.IOBS.LT.2) GO TO 460
+      KUSE=1
+      DO 458 J=1,JN
+        NGAG=NGAGE(J)
+        IF(J.EQ.1.AND.NGAG.EQ.NBT(J)) NGAG=NGAG-1
+        DO 456 I=1,NGAG
+          READ(IN,'(A)',END=1000) DESC
+          READ(IN,403) TSNAME,STYPE
+          IF(I.EQ.1.AND.IBUG.EQ.1) WRITE(IODBUG,452) 
+  452     FORMAT(/1X,11HSTATION (I),4X,8HNGS(I,J),5X,2HID,10X,
+     .               'TYPE   (ADJUSTED STAGE)')
+          IF(IBUG.EQ.1) WRITE(IODBUG,453) I,NGS(I,J),TSNAME,STYPE
+  453     FORMAT(3X,I4,9X,I4,7X,2A4,4X,A4)
+          CALL CHEKTS(TSNAME,STYPE,IDHF,0,DIMS,0,1,KERR)
+          IF(KERR.EQ.1) GO TO 455
+          IF(DIMS.EQ.DMNS(1)) GO TO 455
+          WRITE(IPR,454) DMNS(1),DIMS
+  454     FORMAT(1H0,10X,'**ERROR** THE ALLOWABLE DIMENSIONS FOR ',
+     1      'ADJUSTED STAGE TIME SERIES ARE ',A4,5H'.  ',A4,
+     2      17H' IS NOT ALLOWED.)
+          CALL ERROR
+  455     STENAM(1,KUSE)=TSNAME(1)
+          STENAM(2,KUSE)=TSNAME(2)
+          STENAM(3,KUSE)=STYPE
+          KUSE=KUSE+1
+  456   CONTINUE
+        IF(NGAG.EQ.NGAGE(J).AND.J.EQ.1) KUSE=KUSE+1
+  458 CONTINUE
+
+C.......................................................................
+C   READ IN LOCK AND DAM TIME SERIES INFO
+C.......................................................................
+ 460  NLOCK=PO(321)
+      KUSE=IUSEP+1
+      LUSE=KUSE+NLOCK*3
+      IUSEP=IUSEP+NLOCK*6
+cc      IF(NLOCK.EQ.0) GO TO 9000
+      KUSE=0
+      LUSE=0
+      LCKO=0
+
+      IF(KD(1).EQ.3) THEN
+        L1=L1+1
+        LRC=LCRC+2
+      ELSE
+        L1=1
+        LRC=LCRC
+      ENDIF
+
+      DO 440 J=1,JN
+        IF(NUMLAD(J).EQ.0) GO TO 440
+        NUML=NUMLAD(J)
+        IF(NLOCK.EQ.0) GO TO 432
+        DIMS=DMNS(1)
+C.......................................................................
+C 367     TSNAME --  STATION NAME FOR POOL ELEVATIONS
+C 368     STYPE  --  DATA TYPE FOR POOL ELEVATIONS
+C.......................................................................
+        LCK=LCKO
+        DO 420 I=1,NUML
+          LL=LAD(I,J)
+          IF(KRCHT(LL,J).NE.28) GO TO 420
+          IF(IBUG.EQ.1.AND.LCK.EQ.LCKO) WRITE(IODBUG,412) J
+  412     FORMAT(/10X,'TIME SERIES FOR POOL ELEVATIONS ON RIVER NO.',I3/
+     .      15X,'ID',6X,'TYPE')
+          LCK=LCK+1
+          READ(IN,'(A)',END=1000) DESC
+          READ(IN,'(2A4,1X,A4)') TSNAME,STYPE
+          IF(IBUG.EQ.1) WRITE(IODBUG,116) LCK,TSNAME,STYPE
+C  check to see if t.s. exists
+          CALL CHEKTS(TSNAME,STYPE,IDHF,1,DIMS,1,1,KERR)
+          IF(KERR.EQ.1) GO TO 416
+C  check to see if t.s. has the correct units
+          CALL FDCODE(STYPE,UNITS,DIMS,MSG,NVL,TSCL,NELSE,KERR)
+          IF(KERR.EQ.1) GO TO 416
+          IF(UNITS.NE.UNTS(1)) THEN
+            WRITE(IPR,1025) UNITS
+            CALL ERROR
+          ENDIF
+          IF(MSG.EQ.1) THEN
+            WRITE(IPR,1022) J,TSNAME,STYPE
+            CALL WARN
+          ENDIF
+  416     PLNAM(KUSE+1)=TSNAME(1)
+          PLNAM(KUSE+2)=TSNAME(2)
+          PLNAM(KUSE+3)=STYPE
+          KUSE=KUSE+3
+  420   CONTINUE
+
+C.......................................................................
+C 369     TSNAME --  STATION NAME FOR GATE CONTROL SWITCHES
+C 370     STYPE  --  DATA TYPE FOR GATE CONTROL SWITCHES
+C.......................................................................
+       DIMS=DMNS(3)
+        LCK=LCKO
+        DO 430 I=1,NUML
+          LL=LAD(I,J)
+          IF(KRCHT(LL,J).NE.28) GO TO 430
+          IF(IBUG.EQ.1.AND.LCK.EQ.LCKO) WRITE(IODBUG,422) J
+  422   FORMAT(/10X,'TIME SERIES FOR GATE CONTROL SWITCHES ON RIVER NO.'
+     .      ,I3/15X,'ID',6X,'TYPE')
+           LCK=LCK+1
+          READ(IN,'(A)',END=1000) DESC
+          READ(IN,'(2A4,1X,A4)') TSNAME,STYPE
+          IF(IBUG.EQ.1) WRITE(IODBUG,116) LCK,TSNAME,STYPE
+C  check to see if t.s. exists
+          CALL CHEKTS(TSNAME,STYPE,IDHF,1,DIMS,1,1,KERR)
+          IF(KERR.EQ.1) GO TO 426
+C  check to see if t.s. has the correct units
+          CALL FDCODE(STYPE,UNITS,DIMS,MSG,NVL,TSCL,NELSE,KERR)
+          IF(KERR.EQ.1) GO TO 426
+          IF(UNITS.NE.UNTS(2)) THEN
+            WRITE(IPR,1024) UNITS
+            CALL ERROR
+          ENDIF
+  426     SIGNAM(LUSE+1)=TSNAME(1)
+          SIGNAM(LUSE+2)=TSNAME(2)
+          SIGNAM(LUSE+3)=STYPE
+          LUSE=LUSE+3
+  430   CONTINUE
+        LCKO=LCK
+
+
+C.......................................................................
+C 366     TSNAME --  RATING CURVE IDENTIFIER AT DAMS
+C.......................................................................
+
+  432 IF((NRC.EQ.0).OR.(NRC.EQ.1.AND.KD(1).EQ.3)) GO TO 440
+
+      DO 435 I=1,NUML
+        LL=LAD(I,J)
+        IF(KRCHT(LL,J).NE.11) GO TO 435
+        READ(IN,'(A)',END=1000) DESC
+        READ(IN,'(2A4)') TSNAME
+        IF(IBUG.EQ.1) WRITE(IODBUG,445) J,I,TSNAME
+  445   FORMAT(/10X,'RATING CURVE ID ON RIVER NO.',I3,' AT DAM NO',I3,
+     .   ': ',2A4 )
+        CALL CHEKRC(TSNAME,KERR)
+        IF(KERR.EQ.1) GO TO 435
+        PO(LRC)  =TSNMXX(1)
+        PO(LRC+1)=TSNMXX(2)
+        LRC=LRC+2
+  435 CONTINUE
+  440 CONTINUE
+
+
+      GO TO 9000
+ 5000 IERR=1
+      GO TO 9000
+ 1000 WRITE(IPR,1015)
+ 1015 FORMAT(/5X,'**ERROR** END OF FILE ENCOUNTERED WHILE READING INPUT
+     *FOR TIME SERIES INFO.'/)
+      CALL ERROR
+      IERR=1
+ 1025 FORMAT(//10X,'**ERROR** GATE CONTROL DATA CAN ONLY HAVE UNITS OF "
+     .M   ".  "',A4,'" NOT ACCEPTED.')
+ 1022 FORMAT(//10X,'**WARNING** ON RIVER NO.',I4,'STATION ',2A4,
+     .  ' WITH DATA TYPE ',A4,' MAY HAVE MISSING DATA.',/,23X,
+     .  'MISSING DATA POINTS WILL BE GIVEN VALUES OF ZERO.')
+ 1024 FORMAT(//10X,'**ERROR** GATE CONTROL SWITCHES CAN ONLY HAVE UNITS
+     .OF "INT ".  "',A4,'" NOT ACCEPTED.')
+ 9000 RETURN
+      END
+
+

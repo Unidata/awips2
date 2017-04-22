@@ -1,0 +1,856 @@
+/*
+    File: FcstPtWatSup.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:21 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "FcstPtWatSup.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct FcstPtWatSup_t
+{
+    char		lid[9];
+    char		watsup_method[51];
+    char		watsup_coord_agency[65];
+    char		frequpd_normal[31];
+    char		period_req[31];
+    char		watsup_crit[31];
+    char		watsup_resp_agency[65];
+    char		customer_desc[81];
+    date		impl_date;
+    date		web_date;
+
+    int		ind_watsup_resp_agency;
+    int		ind_customer_desc;
+    int		ind_impl_date;
+    int		ind_web_date;
+} FcstPtWatSup_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+FcstPtWatSup * GetFcstPtWatSup(const char * where)
+{
+
+    FcstPtWatSup * listPtr = NULL;
+    FcstPtWatSup * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM FcstPtWatSup ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct FcstPtWatSup_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetFcstPtWatSup() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetFcstPtWatSup() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetFcstPtWatSup() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.lid, :dbs.watsup_method, 
+    :dbs.watsup_coord_agency, :dbs.frequpd_normal, 
+    :dbs.period_req, :dbs.watsup_crit, 
+    :dbs.watsup_resp_agency:dbs.ind_watsup_resp_agency, :dbs.customer_desc:dbs.ind_customer_desc, 
+    :dbs.impl_date:dbs.ind_impl_date, :dbs.web_date:dbs.ind_web_date    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetFcstPtWatSup() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (FcstPtWatSup *) malloc(sizeof(FcstPtWatSup))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->watsup_method, dbs.watsup_method);
+
+            strcpy(structPtr->watsup_coord_agency, dbs.watsup_coord_agency);
+
+            strcpy(structPtr->frequpd_normal, dbs.frequpd_normal);
+
+            strcpy(structPtr->period_req, dbs.period_req);
+
+            strcpy(structPtr->watsup_crit, dbs.watsup_crit);
+
+            strcpy(structPtr->watsup_resp_agency, dbs.watsup_resp_agency);
+            setNullIfIndicated(dbs.ind_watsup_resp_agency, CHAR, structPtr->watsup_resp_agency);
+
+            strcpy(structPtr->customer_desc, dbs.customer_desc);
+            setNullIfIndicated(dbs.ind_customer_desc, CHAR, structPtr->customer_desc);
+
+            structPtr->impl_date = pg_date_to_date_t(dbs.impl_date);
+            setNullIfIndicated(dbs.ind_impl_date, INT, &structPtr->impl_date);
+
+            structPtr->web_date = pg_date_to_date_t(dbs.web_date);
+            setNullIfIndicated(dbs.ind_web_date, INT, &structPtr->web_date);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.lid, :dbs.watsup_method, 
+        :dbs.watsup_coord_agency, :dbs.frequpd_normal, 
+        :dbs.period_req, :dbs.watsup_crit, 
+        :dbs.watsup_resp_agency:dbs.ind_watsup_resp_agency, :dbs.customer_desc:dbs.ind_customer_desc, 
+        :dbs.impl_date:dbs.ind_impl_date, :dbs.web_date:dbs.ind_web_date        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetFcstPtWatSup() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+FcstPtWatSup * SelectFcstPtWatSup(const char * where)
+{
+
+    FcstPtWatSup * listPtr = NULL;
+    FcstPtWatSup * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM FcstPtWatSup ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct FcstPtWatSup_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectFcstPtWatSup() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectFcstPtWatSup() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectFcstPtWatSup() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.lid, :dbs.watsup_method, 
+    :dbs.watsup_coord_agency, :dbs.frequpd_normal, 
+    :dbs.period_req, :dbs.watsup_crit, 
+    :dbs.watsup_resp_agency:dbs.ind_watsup_resp_agency, :dbs.customer_desc:dbs.ind_customer_desc, 
+    :dbs.impl_date:dbs.ind_impl_date, :dbs.web_date:dbs.ind_web_date    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectFcstPtWatSup() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (FcstPtWatSup *) malloc(sizeof(FcstPtWatSup))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->watsup_method, dbs.watsup_method);
+
+            strcpy(structPtr->watsup_coord_agency, dbs.watsup_coord_agency);
+
+            strcpy(structPtr->frequpd_normal, dbs.frequpd_normal);
+
+            strcpy(structPtr->period_req, dbs.period_req);
+
+            strcpy(structPtr->watsup_crit, dbs.watsup_crit);
+
+            strcpy(structPtr->watsup_resp_agency, dbs.watsup_resp_agency);
+            setNullIfIndicated(dbs.ind_watsup_resp_agency, CHAR, structPtr->watsup_resp_agency);
+
+            strcpy(structPtr->customer_desc, dbs.customer_desc);
+            setNullIfIndicated(dbs.ind_customer_desc, CHAR, structPtr->customer_desc);
+
+            structPtr->impl_date = pg_date_to_date_t(dbs.impl_date);
+            setNullIfIndicated(dbs.ind_impl_date, INT, &structPtr->impl_date);
+
+            structPtr->web_date = pg_date_to_date_t(dbs.web_date);
+            setNullIfIndicated(dbs.ind_web_date, INT, &structPtr->web_date);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.lid, :dbs.watsup_method, 
+        :dbs.watsup_coord_agency, :dbs.frequpd_normal, 
+        :dbs.period_req, :dbs.watsup_crit, 
+        :dbs.watsup_resp_agency:dbs.ind_watsup_resp_agency, :dbs.customer_desc:dbs.ind_customer_desc, 
+        :dbs.impl_date:dbs.ind_impl_date, :dbs.web_date:dbs.ind_web_date        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectFcstPtWatSup() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectFcstPtWatSupCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM FcstPtWatSup ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountFcstPtWatSup() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountFcstPtWatSup() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountFcstPtWatSup() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountFcstPtWatSup() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutFcstPtWatSup(const FcstPtWatSup * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct FcstPtWatSup_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.watsup_method, structPtr->watsup_method);
+
+    strcpy(dbs.watsup_coord_agency, structPtr->watsup_coord_agency);
+
+    strcpy(dbs.frequpd_normal, structPtr->frequpd_normal);
+
+    strcpy(dbs.period_req, structPtr->period_req);
+
+    strcpy(dbs.watsup_crit, structPtr->watsup_crit);
+
+    strcpy(dbs.watsup_resp_agency, structPtr->watsup_resp_agency);
+    dbs.ind_watsup_resp_agency = getIndicator(CHAR, (void *)structPtr->watsup_resp_agency);
+
+    strcpy(dbs.customer_desc, structPtr->customer_desc);
+    dbs.ind_customer_desc = getIndicator(CHAR, (void *)structPtr->customer_desc);
+
+    dbs.impl_date = date_t_to_pg_date(structPtr->impl_date);
+    dbs.ind_impl_date = getIndicator(INT, (void *)&structPtr->impl_date);
+
+    dbs.web_date = date_t_to_pg_date(structPtr->web_date);
+    dbs.ind_web_date = getIndicator(INT, (void *)&structPtr->web_date);
+
+
+    EXEC SQL INSERT INTO FcstPtWatSup (lid,watsup_method,
+        watsup_coord_agency,frequpd_normal,period_req,
+        watsup_crit,watsup_resp_agency,customer_desc,
+        impl_date,web_date        )
+        VALUES (
+         :dbs.lid, :dbs.watsup_method, :dbs.watsup_coord_agency,
+         :dbs.frequpd_normal, :dbs.period_req, :dbs.watsup_crit,
+         :dbs.watsup_resp_agency:dbs.ind_watsup_resp_agency, :dbs.customer_desc:dbs.ind_customer_desc, :dbs.impl_date:dbs.ind_impl_date,
+         :dbs.web_date:dbs.ind_web_date);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutFcstPtWatSup() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertFcstPtWatSup(const FcstPtWatSup * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct FcstPtWatSup_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.watsup_method, structPtr->watsup_method);
+
+    strcpy(dbs.watsup_coord_agency, structPtr->watsup_coord_agency);
+
+    strcpy(dbs.frequpd_normal, structPtr->frequpd_normal);
+
+    strcpy(dbs.period_req, structPtr->period_req);
+
+    strcpy(dbs.watsup_crit, structPtr->watsup_crit);
+
+    strcpy(dbs.watsup_resp_agency, structPtr->watsup_resp_agency);
+    dbs.ind_watsup_resp_agency = getIndicator(CHAR, (void *)structPtr->watsup_resp_agency);
+
+    strcpy(dbs.customer_desc, structPtr->customer_desc);
+    dbs.ind_customer_desc = getIndicator(CHAR, (void *)structPtr->customer_desc);
+
+    dbs.impl_date = date_t_to_pg_date(structPtr->impl_date);
+    dbs.ind_impl_date = getIndicator(INT, (void *)&structPtr->impl_date);
+
+    dbs.web_date = date_t_to_pg_date(structPtr->web_date);
+    dbs.ind_web_date = getIndicator(INT, (void *)&structPtr->web_date);
+
+
+    EXEC SQL INSERT INTO FcstPtWatSup (lid,watsup_method,
+        watsup_coord_agency,frequpd_normal,period_req,
+        watsup_crit,watsup_resp_agency,customer_desc,
+        impl_date,web_date        )
+        VALUES (
+         :dbs.lid, :dbs.watsup_method, :dbs.watsup_coord_agency,
+         :dbs.frequpd_normal, :dbs.period_req, :dbs.watsup_crit,
+         :dbs.watsup_resp_agency:dbs.ind_watsup_resp_agency, :dbs.customer_desc:dbs.ind_customer_desc, :dbs.impl_date:dbs.ind_impl_date,
+         :dbs.web_date:dbs.ind_web_date);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertFcstPtWatSup() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateFcstPtWatSup(const FcstPtWatSup *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct FcstPtWatSup_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.watsup_method, structPtr->watsup_method);
+
+    strcpy(dbs.watsup_coord_agency, structPtr->watsup_coord_agency);
+
+    strcpy(dbs.frequpd_normal, structPtr->frequpd_normal);
+
+    strcpy(dbs.period_req, structPtr->period_req);
+
+    strcpy(dbs.watsup_crit, structPtr->watsup_crit);
+
+    strcpy(dbs.watsup_resp_agency, structPtr->watsup_resp_agency);
+    dbs.ind_watsup_resp_agency = getIndicator(CHAR, (void *)structPtr->watsup_resp_agency);
+
+    strcpy(dbs.customer_desc, structPtr->customer_desc);
+    dbs.ind_customer_desc = getIndicator(CHAR, (void *)structPtr->customer_desc);
+
+    dbs.impl_date = date_t_to_pg_date(structPtr->impl_date);
+    dbs.ind_impl_date = getIndicator(INT, (void *)&structPtr->impl_date);
+
+    dbs.web_date = date_t_to_pg_date(structPtr->web_date);
+    dbs.ind_web_date = getIndicator(INT, (void *)&structPtr->web_date);
+
+
+    sprintf(queryBuffer, " UPDATE FcstPtWatSup SET " );
+    strcat(queryBuffer, "lid = ? , watsup_method = ? , watsup_coord_agency = ? , frequpd_normal = ? , period_req = ? ,     ");
+    strcat(queryBuffer, "watsup_crit = ? , watsup_resp_agency = ? , customer_desc = ? , impl_date = ? , web_date = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateFcstPtWatSup() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.lid, :dbs.watsup_method, :dbs.watsup_coord_agency, :dbs.frequpd_normal, :dbs.period_req,
+     :dbs.watsup_crit, :dbs.watsup_resp_agency:dbs.ind_watsup_resp_agency, :dbs.customer_desc:dbs.ind_customer_desc, :dbs.impl_date:dbs.ind_impl_date, :dbs.web_date:dbs.ind_web_date;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateFcstPtWatSup() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteFcstPtWatSup(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM FcstPtWatSup ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteFcstPtWatSup() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateFcstPtWatSupByRecord (const FcstPtWatSup * newStructPtr, const FcstPtWatSup * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetFcstPtWatSupPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateFcstPtWatSup(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateFcstPtWatSup(const FcstPtWatSup * structPtr)
+{
+    UpdateFcstPtWatSupByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertFcstPtWatSup(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueFcstPtWatSup(const FcstPtWatSup * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (FcstPtWatSupExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertFcstPtWatSup(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteFcstPtWatSupByRecord(const FcstPtWatSup * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetFcstPtWatSupPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteFcstPtWatSup(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool FcstPtWatSupExists(const FcstPtWatSup * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetFcstPtWatSupPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectFcstPtWatSupCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetFcstPtWatSupPrimaryKeyWhereString (const FcstPtWatSup * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE lid = '%s'  AND watsup_method = '%s'  AND watsup_coord_agency = '%s'  AND frequpd_normal = '%s'  AND period_req = '%s'  AND watsup_crit = '%s' ",
+            structPtr->lid, structPtr->watsup_method, structPtr->watsup_coord_agency, structPtr->frequpd_normal, structPtr->period_req, 
+            structPtr->watsup_crit);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeFcstPtWatSup( FcstPtWatSup * structPtr)
+{
+    FcstPtWatSup* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( FcstPtWatSup * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetFcstPtWatSupDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetFcstPtWatSupErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

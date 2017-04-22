@@ -1,0 +1,1 @@
+At the beginning of each Standard file is a documentation section followed by an example of the resulting output.  For the core products, the example output has been omitted since the NWS directives supply complete descriptions and examples of the required product formats.

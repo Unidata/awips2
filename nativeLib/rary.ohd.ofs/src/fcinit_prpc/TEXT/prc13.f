@@ -1,0 +1,67 @@
+C MEMBER PRC13
+C  (from old member FCPRC13)
+C
+      SUBROUTINE PRC13(P,C)
+C
+C     THIS SUBROUTINE PRINTS THE CARRYOVER VALUES
+C     FOR TATUM ROUTING                 G
+C
+C     THIS SUBROUTINE INITIALLY WRITTEN BY
+C           DAVID REED--HRL     DEC 1979
+C
+C
+      DIMENSION P(1),C(1)
+C
+C     COMMON BLOCKS
+C
+      COMMON/FDBUG/IODBUG,ITRACE,IDBALL,NDEBUG,IDEBUG(20)
+      COMMON/FCONIT/IVALUE
+      COMMON/IONUM/IN,IPR,IPU
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_prpc/RCS/prc13.f,v $
+     . $',                                                             '
+     .$Id: prc13.f,v 1.1 1995/09/17 18:49:36 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C     CHECK TRACE LEVEL-- FOR THIS SUBROUTINE=1
+C
+      IF(ITRACE.GE.1)WRITE(IODBUG,900)
+  900 FORMAT(1H0,15H**PRC13 ENTERED)
+C
+C     NO DEBUG OUTPUT FOR THIS SUBROUTINE
+C
+      ICVAL=P(15)
+      NL=P(16)
+C     CHECK FOR CARRYOVER VALUES
+      DO 105 I=1,NL
+      NCL = P(16+I)
+      IF (NCL.EQ.1) GO TO 105
+      GO TO 110
+  105 CONTINUE
+      WRITE(IPR,904) (P(I),I=2,6)
+  904 FORMAT(1H0,10X,29HNO TATUM CARRYOVER VALUES FOR,1X,5A4)
+      GO TO 104
+C     CARRYOVER EXISTS
+  110 IF((ICVAL.EQ.0).AND.(IVALUE.EQ.1))GO TO 101
+      WRITE(IPR,901)(P(I),I=2,6)
+  901 FORMAT(1H0,10X,29HTATUM COEFFICIENT ROUTING FOR,5A4,//,11X,
+     15HLAYER,10X,20HPREVIOUS FLOWS (CMS))
+      IPTR=0
+      DO 102 I=1,NL
+      NCL=P(16+I)
+      NCLM=NCL-1
+      IF(NCL.EQ.1)GO TO 102
+      WRITE(IPR,902)I,(C(IPTR+J),J=1,NCLM)
+  902 FORMAT(1H0,12X,I2,11X,10F7.2/(26X,10F7.2))
+  102 IPTR=IPTR+NCLM
+      GO TO 104
+  101 WRITE(IPR,903)
+  903 FORMAT(1H0,10X,52HINITIAL CARRYOVER VALUES WERE SET TO ZERO BY DEF
+     1AULT)
+  104 RETURN
+      END

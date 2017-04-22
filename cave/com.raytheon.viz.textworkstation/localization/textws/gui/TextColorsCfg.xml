@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+    	The file is used to set text colors on TextWorkstation. These colors
+    	include text background and foreground, highlight text background
+    	and foreground.
+    	The colors setting can use string of color, or number of rgb color.
+    	The color enter format examples:
+    	 	color="255, 0, 0"   
+    	 	color="RED"  
+    
+        Modify:
+    	
+    	06/14/2013	Xiaochuan		DR 15733 	Initial creation
+    	07/25/2013  Greg Hull       DR 15733    Deleted. moved to TextEditorCfg.xml
+    -->    
+<!--<textColorsCfg 
+   <TextColorElement paramName="textBG" color="255, 255, 255"/> 	    
+   <TextColorElement paramName="textFG" color="BLACK"/>
+   <TextColorElement paramName="highlightBG" color="85, 152, 215"/>
+   <TextColorElement paramName="highlightFG" color="PINK"/>
+</textColorsCfg> -->

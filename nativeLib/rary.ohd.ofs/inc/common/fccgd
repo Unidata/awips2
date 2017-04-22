@@ -1,0 +1,4 @@
+C                                           *--> FROM COMMON.FCCGD
+      COMMON/FCCGD/NSLOTS,NWR,NRSLOT,RFC,NWPS,ICRDAT(5),NCG,
+     .  CGIDS(2,25),ICOREC(25),BUFRZZ(28)
+C

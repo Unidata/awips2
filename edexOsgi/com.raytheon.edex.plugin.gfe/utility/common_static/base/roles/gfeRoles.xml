@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<nwsRoleData xmlns:ns2="group">
+   <!-- AWIPS 2 User Admin Roles/Permissions file -->
+   <application>GFE</application>
+   <permission id="exportConfig">
+      <description>
+         This permission allows the user to export GFE configuration files to the Central Server
+       </description>
+   </permission>
+   <permission id="serviceBackup">
+      <description>
+         This permission allows the user to run the GFE Service Backup GUI
+       </description>
+   </permission>
+   <role roleId="focalPoint">
+      <roleDescription>
+         This role is a grouping of permissions for GFE Focal Points
+      </roleDescription>
+      <rolePermission>exportConfig</rolePermission>
+   </role>
+   <role roleId="gfeUser">
+      <roleDescription>
+         This role is a grouping of permissions for GFE users
+      </roleDescription>
+      <rolePermission>serviceBackup</rolePermission>
+   </role>
+
+   <user userId="ALL">
+      <userRole>gfeUser</userRole>
+   </user>
+</nwsRoleData>

@@ -1,0 +1,1238 @@
+/*
+    File: Location.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:24 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "Location.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct Location_t
+{
+    char		lid[9];
+    char		county[21];
+    char		coe[4];
+    char		cpm[4];
+    char		detail[11];
+    double		elev;
+    char		hdatum[10];
+    char		hsa[4];
+    char		hu[9];
+    double		lat;
+    double		lon;
+    char		lremark[256];
+    date		lrevise;
+    char		name[51];
+    char		network[4];
+    char		rb[31];
+    char		rfc[6];
+    date		sbd;
+    char		sn[11];
+    char		state[3];
+    char		waro[4];
+    char		wfo[4];
+    char		wsfo[4];
+    char		type[5];
+    char		des[31];
+    char		det[31];
+    long		post;
+    char		stntype[5];
+    char		tzone[9];
+
+    int		ind_coe;
+    int		ind_cpm;
+    int		ind_detail;
+    int		ind_elev;
+    int		ind_hdatum;
+    int		ind_hu;
+    int		ind_lat;
+    int		ind_lon;
+    int		ind_lremark;
+    int		ind_lrevise;
+    int		ind_name;
+    int		ind_rb;
+    int		ind_sbd;
+    int		ind_sn;
+    int		ind_waro;
+    int		ind_wsfo;
+    int		ind_type;
+    int		ind_des;
+    int		ind_det;
+    int		ind_post;
+    int		ind_stntype;
+} Location_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+Location * GetLocation(const char * where)
+{
+
+    Location * listPtr = NULL;
+    Location * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM Location ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Location_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetLocation() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetLocation() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetLocation() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.lid, :dbs.county, 
+    :dbs.coe:dbs.ind_coe, :dbs.cpm:dbs.ind_cpm, 
+    :dbs.detail:dbs.ind_detail, :dbs.elev:dbs.ind_elev, 
+    :dbs.hdatum:dbs.ind_hdatum, :dbs.hsa, 
+    :dbs.hu:dbs.ind_hu, :dbs.lat:dbs.ind_lat, 
+    :dbs.lon:dbs.ind_lon, :dbs.lremark:dbs.ind_lremark, 
+    :dbs.lrevise:dbs.ind_lrevise, :dbs.name:dbs.ind_name, 
+    :dbs.network, :dbs.rb:dbs.ind_rb, 
+    :dbs.rfc, :dbs.sbd:dbs.ind_sbd, 
+    :dbs.sn:dbs.ind_sn, :dbs.state, 
+    :dbs.waro:dbs.ind_waro, :dbs.wfo, 
+    :dbs.wsfo:dbs.ind_wsfo, :dbs.type:dbs.ind_type, 
+    :dbs.des:dbs.ind_des, :dbs.det:dbs.ind_det, 
+    :dbs.post:dbs.ind_post, :dbs.stntype:dbs.ind_stntype, 
+    :dbs.tzone    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetLocation() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (Location *) malloc(sizeof(Location))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->county, dbs.county);
+
+            strcpy(structPtr->coe, dbs.coe);
+            setNullIfIndicated(dbs.ind_coe, CHAR, structPtr->coe);
+
+            strcpy(structPtr->cpm, dbs.cpm);
+            setNullIfIndicated(dbs.ind_cpm, CHAR, structPtr->cpm);
+
+            strcpy(structPtr->detail, dbs.detail);
+            setNullIfIndicated(dbs.ind_detail, CHAR, structPtr->detail);
+
+            structPtr->elev = dbs.elev;
+            setNullIfIndicated(dbs.ind_elev, DOUBLE, &structPtr->elev);
+
+            strcpy(structPtr->hdatum, dbs.hdatum);
+            setNullIfIndicated(dbs.ind_hdatum, CHAR, structPtr->hdatum);
+
+            strcpy(structPtr->hsa, dbs.hsa);
+
+            strcpy(structPtr->hu, dbs.hu);
+            setNullIfIndicated(dbs.ind_hu, CHAR, structPtr->hu);
+
+            structPtr->lat = dbs.lat;
+            setNullIfIndicated(dbs.ind_lat, DOUBLE, &structPtr->lat);
+
+            structPtr->lon = dbs.lon;
+            setNullIfIndicated(dbs.ind_lon, DOUBLE, &structPtr->lon);
+
+            strcpy(structPtr->lremark, dbs.lremark);
+            setNullIfIndicated(dbs.ind_lremark, CHAR, structPtr->lremark);
+
+            structPtr->lrevise = pg_date_to_date_t(dbs.lrevise);
+            setNullIfIndicated(dbs.ind_lrevise, INT, &structPtr->lrevise);
+
+            strcpy(structPtr->name, dbs.name);
+            setNullIfIndicated(dbs.ind_name, CHAR, structPtr->name);
+
+            strcpy(structPtr->network, dbs.network);
+
+            strcpy(structPtr->rb, dbs.rb);
+            setNullIfIndicated(dbs.ind_rb, CHAR, structPtr->rb);
+
+            strcpy(structPtr->rfc, dbs.rfc);
+
+            structPtr->sbd = pg_date_to_date_t(dbs.sbd);
+            setNullIfIndicated(dbs.ind_sbd, INT, &structPtr->sbd);
+
+            strcpy(structPtr->sn, dbs.sn);
+            setNullIfIndicated(dbs.ind_sn, CHAR, structPtr->sn);
+
+            strcpy(structPtr->state, dbs.state);
+
+            strcpy(structPtr->waro, dbs.waro);
+            setNullIfIndicated(dbs.ind_waro, CHAR, structPtr->waro);
+
+            strcpy(structPtr->wfo, dbs.wfo);
+
+            strcpy(structPtr->wsfo, dbs.wsfo);
+            setNullIfIndicated(dbs.ind_wsfo, CHAR, structPtr->wsfo);
+
+            strcpy(structPtr->type, dbs.type);
+            setNullIfIndicated(dbs.ind_type, CHAR, structPtr->type);
+
+            strcpy(structPtr->des, dbs.des);
+            setNullIfIndicated(dbs.ind_des, CHAR, structPtr->des);
+
+            strcpy(structPtr->det, dbs.det);
+            setNullIfIndicated(dbs.ind_det, CHAR, structPtr->det);
+
+            structPtr->post = dbs.post;
+            setNullIfIndicated(dbs.ind_post, INT, &structPtr->post);
+
+            strcpy(structPtr->stntype, dbs.stntype);
+            setNullIfIndicated(dbs.ind_stntype, CHAR, structPtr->stntype);
+
+            strcpy(structPtr->tzone, dbs.tzone);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.lid, :dbs.county, 
+        :dbs.coe:dbs.ind_coe, :dbs.cpm:dbs.ind_cpm, 
+        :dbs.detail:dbs.ind_detail, :dbs.elev:dbs.ind_elev, 
+        :dbs.hdatum:dbs.ind_hdatum, :dbs.hsa, 
+        :dbs.hu:dbs.ind_hu, :dbs.lat:dbs.ind_lat, 
+        :dbs.lon:dbs.ind_lon, :dbs.lremark:dbs.ind_lremark, 
+        :dbs.lrevise:dbs.ind_lrevise, :dbs.name:dbs.ind_name, 
+        :dbs.network, :dbs.rb:dbs.ind_rb, 
+        :dbs.rfc, :dbs.sbd:dbs.ind_sbd, 
+        :dbs.sn:dbs.ind_sn, :dbs.state, 
+        :dbs.waro:dbs.ind_waro, :dbs.wfo, 
+        :dbs.wsfo:dbs.ind_wsfo, :dbs.type:dbs.ind_type, 
+        :dbs.des:dbs.ind_des, :dbs.det:dbs.ind_det, 
+        :dbs.post:dbs.ind_post, :dbs.stntype:dbs.ind_stntype, 
+        :dbs.tzone        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetLocation() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+Location * SelectLocation(const char * where)
+{
+
+    Location * listPtr = NULL;
+    Location * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM Location ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Location_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectLocation() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectLocation() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectLocation() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.lid, :dbs.county, 
+    :dbs.coe:dbs.ind_coe, :dbs.cpm:dbs.ind_cpm, 
+    :dbs.detail:dbs.ind_detail, :dbs.elev:dbs.ind_elev, 
+    :dbs.hdatum:dbs.ind_hdatum, :dbs.hsa, 
+    :dbs.hu:dbs.ind_hu, :dbs.lat:dbs.ind_lat, 
+    :dbs.lon:dbs.ind_lon, :dbs.lremark:dbs.ind_lremark, 
+    :dbs.lrevise:dbs.ind_lrevise, :dbs.name:dbs.ind_name, 
+    :dbs.network, :dbs.rb:dbs.ind_rb, 
+    :dbs.rfc, :dbs.sbd:dbs.ind_sbd, 
+    :dbs.sn:dbs.ind_sn, :dbs.state, 
+    :dbs.waro:dbs.ind_waro, :dbs.wfo, 
+    :dbs.wsfo:dbs.ind_wsfo, :dbs.type:dbs.ind_type, 
+    :dbs.des:dbs.ind_des, :dbs.det:dbs.ind_det, 
+    :dbs.post:dbs.ind_post, :dbs.stntype:dbs.ind_stntype, 
+    :dbs.tzone    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectLocation() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (Location *) malloc(sizeof(Location))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->county, dbs.county);
+
+            strcpy(structPtr->coe, dbs.coe);
+            setNullIfIndicated(dbs.ind_coe, CHAR, structPtr->coe);
+
+            strcpy(structPtr->cpm, dbs.cpm);
+            setNullIfIndicated(dbs.ind_cpm, CHAR, structPtr->cpm);
+
+            strcpy(structPtr->detail, dbs.detail);
+            setNullIfIndicated(dbs.ind_detail, CHAR, structPtr->detail);
+
+            structPtr->elev = dbs.elev;
+            setNullIfIndicated(dbs.ind_elev, DOUBLE, &structPtr->elev);
+
+            strcpy(structPtr->hdatum, dbs.hdatum);
+            setNullIfIndicated(dbs.ind_hdatum, CHAR, structPtr->hdatum);
+
+            strcpy(structPtr->hsa, dbs.hsa);
+
+            strcpy(structPtr->hu, dbs.hu);
+            setNullIfIndicated(dbs.ind_hu, CHAR, structPtr->hu);
+
+            structPtr->lat = dbs.lat;
+            setNullIfIndicated(dbs.ind_lat, DOUBLE, &structPtr->lat);
+
+            structPtr->lon = dbs.lon;
+            setNullIfIndicated(dbs.ind_lon, DOUBLE, &structPtr->lon);
+
+            strcpy(structPtr->lremark, dbs.lremark);
+            setNullIfIndicated(dbs.ind_lremark, CHAR, structPtr->lremark);
+
+            structPtr->lrevise = pg_date_to_date_t(dbs.lrevise);
+            setNullIfIndicated(dbs.ind_lrevise, INT, &structPtr->lrevise);
+
+            strcpy(structPtr->name, dbs.name);
+            setNullIfIndicated(dbs.ind_name, CHAR, structPtr->name);
+
+            strcpy(structPtr->network, dbs.network);
+
+            strcpy(structPtr->rb, dbs.rb);
+            setNullIfIndicated(dbs.ind_rb, CHAR, structPtr->rb);
+
+            strcpy(structPtr->rfc, dbs.rfc);
+
+            structPtr->sbd = pg_date_to_date_t(dbs.sbd);
+            setNullIfIndicated(dbs.ind_sbd, INT, &structPtr->sbd);
+
+            strcpy(structPtr->sn, dbs.sn);
+            setNullIfIndicated(dbs.ind_sn, CHAR, structPtr->sn);
+
+            strcpy(structPtr->state, dbs.state);
+
+            strcpy(structPtr->waro, dbs.waro);
+            setNullIfIndicated(dbs.ind_waro, CHAR, structPtr->waro);
+
+            strcpy(structPtr->wfo, dbs.wfo);
+
+            strcpy(structPtr->wsfo, dbs.wsfo);
+            setNullIfIndicated(dbs.ind_wsfo, CHAR, structPtr->wsfo);
+
+            strcpy(structPtr->type, dbs.type);
+            setNullIfIndicated(dbs.ind_type, CHAR, structPtr->type);
+
+            strcpy(structPtr->des, dbs.des);
+            setNullIfIndicated(dbs.ind_des, CHAR, structPtr->des);
+
+            strcpy(structPtr->det, dbs.det);
+            setNullIfIndicated(dbs.ind_det, CHAR, structPtr->det);
+
+            structPtr->post = dbs.post;
+            setNullIfIndicated(dbs.ind_post, INT, &structPtr->post);
+
+            strcpy(structPtr->stntype, dbs.stntype);
+            setNullIfIndicated(dbs.ind_stntype, CHAR, structPtr->stntype);
+
+            strcpy(structPtr->tzone, dbs.tzone);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.lid, :dbs.county, 
+        :dbs.coe:dbs.ind_coe, :dbs.cpm:dbs.ind_cpm, 
+        :dbs.detail:dbs.ind_detail, :dbs.elev:dbs.ind_elev, 
+        :dbs.hdatum:dbs.ind_hdatum, :dbs.hsa, 
+        :dbs.hu:dbs.ind_hu, :dbs.lat:dbs.ind_lat, 
+        :dbs.lon:dbs.ind_lon, :dbs.lremark:dbs.ind_lremark, 
+        :dbs.lrevise:dbs.ind_lrevise, :dbs.name:dbs.ind_name, 
+        :dbs.network, :dbs.rb:dbs.ind_rb, 
+        :dbs.rfc, :dbs.sbd:dbs.ind_sbd, 
+        :dbs.sn:dbs.ind_sn, :dbs.state, 
+        :dbs.waro:dbs.ind_waro, :dbs.wfo, 
+        :dbs.wsfo:dbs.ind_wsfo, :dbs.type:dbs.ind_type, 
+        :dbs.des:dbs.ind_des, :dbs.det:dbs.ind_det, 
+        :dbs.post:dbs.ind_post, :dbs.stntype:dbs.ind_stntype, 
+        :dbs.tzone        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectLocation() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectLocationCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM Location ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountLocation() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountLocation() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountLocation() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountLocation() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutLocation(const Location * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Location_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.county, structPtr->county);
+
+    strcpy(dbs.coe, structPtr->coe);
+    dbs.ind_coe = getIndicator(CHAR, (void *)structPtr->coe);
+
+    strcpy(dbs.cpm, structPtr->cpm);
+    dbs.ind_cpm = getIndicator(CHAR, (void *)structPtr->cpm);
+
+    strcpy(dbs.detail, structPtr->detail);
+    dbs.ind_detail = getIndicator(CHAR, (void *)structPtr->detail);
+
+    dbs.elev = structPtr->elev;
+    dbs.ind_elev = getIndicator(DOUBLE, (void *)&structPtr->elev);
+
+    strcpy(dbs.hdatum, structPtr->hdatum);
+    dbs.ind_hdatum = getIndicator(CHAR, (void *)structPtr->hdatum);
+
+    strcpy(dbs.hsa, structPtr->hsa);
+
+    strcpy(dbs.hu, structPtr->hu);
+    dbs.ind_hu = getIndicator(CHAR, (void *)structPtr->hu);
+
+    dbs.lat = structPtr->lat;
+    dbs.ind_lat = getIndicator(DOUBLE, (void *)&structPtr->lat);
+
+    dbs.lon = structPtr->lon;
+    dbs.ind_lon = getIndicator(DOUBLE, (void *)&structPtr->lon);
+
+    strcpy(dbs.lremark, structPtr->lremark);
+    dbs.ind_lremark = getIndicator(CHAR, (void *)structPtr->lremark);
+
+    dbs.lrevise = date_t_to_pg_date(structPtr->lrevise);
+    dbs.ind_lrevise = getIndicator(INT, (void *)&structPtr->lrevise);
+
+    strcpy(dbs.name, structPtr->name);
+    dbs.ind_name = getIndicator(CHAR, (void *)structPtr->name);
+
+    strcpy(dbs.network, structPtr->network);
+
+    strcpy(dbs.rb, structPtr->rb);
+    dbs.ind_rb = getIndicator(CHAR, (void *)structPtr->rb);
+
+    strcpy(dbs.rfc, structPtr->rfc);
+
+    dbs.sbd = date_t_to_pg_date(structPtr->sbd);
+    dbs.ind_sbd = getIndicator(INT, (void *)&structPtr->sbd);
+
+    strcpy(dbs.sn, structPtr->sn);
+    dbs.ind_sn = getIndicator(CHAR, (void *)structPtr->sn);
+
+    strcpy(dbs.state, structPtr->state);
+
+    strcpy(dbs.waro, structPtr->waro);
+    dbs.ind_waro = getIndicator(CHAR, (void *)structPtr->waro);
+
+    strcpy(dbs.wfo, structPtr->wfo);
+
+    strcpy(dbs.wsfo, structPtr->wsfo);
+    dbs.ind_wsfo = getIndicator(CHAR, (void *)structPtr->wsfo);
+
+    strcpy(dbs.type, structPtr->type);
+    dbs.ind_type = getIndicator(CHAR, (void *)structPtr->type);
+
+    strcpy(dbs.des, structPtr->des);
+    dbs.ind_des = getIndicator(CHAR, (void *)structPtr->des);
+
+    strcpy(dbs.det, structPtr->det);
+    dbs.ind_det = getIndicator(CHAR, (void *)structPtr->det);
+
+    dbs.post = structPtr->post;
+    dbs.ind_post = getIndicator(INT, (void *)&structPtr->post);
+
+    strcpy(dbs.stntype, structPtr->stntype);
+    dbs.ind_stntype = getIndicator(CHAR, (void *)structPtr->stntype);
+
+    strcpy(dbs.tzone, structPtr->tzone);
+
+
+    EXEC SQL INSERT INTO Location (lid,county,
+        coe,cpm,detail,
+        elev,hdatum,hsa,
+        hu,lat,lon,
+        lremark,lrevise,name,
+        network,rb,rfc,
+        sbd,sn,state,
+        waro,wfo,wsfo,
+        type,des,det,
+        post,stntype,tzone        )
+        VALUES (
+         :dbs.lid, :dbs.county, :dbs.coe:dbs.ind_coe,
+         :dbs.cpm:dbs.ind_cpm, :dbs.detail:dbs.ind_detail, :dbs.elev:dbs.ind_elev,
+         :dbs.hdatum:dbs.ind_hdatum, :dbs.hsa, :dbs.hu:dbs.ind_hu,
+         :dbs.lat:dbs.ind_lat, :dbs.lon:dbs.ind_lon, :dbs.lremark:dbs.ind_lremark,
+         :dbs.lrevise:dbs.ind_lrevise, :dbs.name:dbs.ind_name, :dbs.network,
+         :dbs.rb:dbs.ind_rb, :dbs.rfc, :dbs.sbd:dbs.ind_sbd,
+         :dbs.sn:dbs.ind_sn, :dbs.state, :dbs.waro:dbs.ind_waro,
+         :dbs.wfo, :dbs.wsfo:dbs.ind_wsfo, :dbs.type:dbs.ind_type,
+         :dbs.des:dbs.ind_des, :dbs.det:dbs.ind_det, :dbs.post:dbs.ind_post,
+         :dbs.stntype:dbs.ind_stntype, :dbs.tzone);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutLocation() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertLocation(const Location * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Location_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.county, structPtr->county);
+
+    strcpy(dbs.coe, structPtr->coe);
+    dbs.ind_coe = getIndicator(CHAR, (void *)structPtr->coe);
+
+    strcpy(dbs.cpm, structPtr->cpm);
+    dbs.ind_cpm = getIndicator(CHAR, (void *)structPtr->cpm);
+
+    strcpy(dbs.detail, structPtr->detail);
+    dbs.ind_detail = getIndicator(CHAR, (void *)structPtr->detail);
+
+    dbs.elev = structPtr->elev;
+    dbs.ind_elev = getIndicator(DOUBLE, (void *)&structPtr->elev);
+
+    strcpy(dbs.hdatum, structPtr->hdatum);
+    dbs.ind_hdatum = getIndicator(CHAR, (void *)structPtr->hdatum);
+
+    strcpy(dbs.hsa, structPtr->hsa);
+
+    strcpy(dbs.hu, structPtr->hu);
+    dbs.ind_hu = getIndicator(CHAR, (void *)structPtr->hu);
+
+    dbs.lat = structPtr->lat;
+    dbs.ind_lat = getIndicator(DOUBLE, (void *)&structPtr->lat);
+
+    dbs.lon = structPtr->lon;
+    dbs.ind_lon = getIndicator(DOUBLE, (void *)&structPtr->lon);
+
+    strcpy(dbs.lremark, structPtr->lremark);
+    dbs.ind_lremark = getIndicator(CHAR, (void *)structPtr->lremark);
+
+    dbs.lrevise = date_t_to_pg_date(structPtr->lrevise);
+    dbs.ind_lrevise = getIndicator(INT, (void *)&structPtr->lrevise);
+
+    strcpy(dbs.name, structPtr->name);
+    dbs.ind_name = getIndicator(CHAR, (void *)structPtr->name);
+
+    strcpy(dbs.network, structPtr->network);
+
+    strcpy(dbs.rb, structPtr->rb);
+    dbs.ind_rb = getIndicator(CHAR, (void *)structPtr->rb);
+
+    strcpy(dbs.rfc, structPtr->rfc);
+
+    dbs.sbd = date_t_to_pg_date(structPtr->sbd);
+    dbs.ind_sbd = getIndicator(INT, (void *)&structPtr->sbd);
+
+    strcpy(dbs.sn, structPtr->sn);
+    dbs.ind_sn = getIndicator(CHAR, (void *)structPtr->sn);
+
+    strcpy(dbs.state, structPtr->state);
+
+    strcpy(dbs.waro, structPtr->waro);
+    dbs.ind_waro = getIndicator(CHAR, (void *)structPtr->waro);
+
+    strcpy(dbs.wfo, structPtr->wfo);
+
+    strcpy(dbs.wsfo, structPtr->wsfo);
+    dbs.ind_wsfo = getIndicator(CHAR, (void *)structPtr->wsfo);
+
+    strcpy(dbs.type, structPtr->type);
+    dbs.ind_type = getIndicator(CHAR, (void *)structPtr->type);
+
+    strcpy(dbs.des, structPtr->des);
+    dbs.ind_des = getIndicator(CHAR, (void *)structPtr->des);
+
+    strcpy(dbs.det, structPtr->det);
+    dbs.ind_det = getIndicator(CHAR, (void *)structPtr->det);
+
+    dbs.post = structPtr->post;
+    dbs.ind_post = getIndicator(INT, (void *)&structPtr->post);
+
+    strcpy(dbs.stntype, structPtr->stntype);
+    dbs.ind_stntype = getIndicator(CHAR, (void *)structPtr->stntype);
+
+    strcpy(dbs.tzone, structPtr->tzone);
+
+
+    EXEC SQL INSERT INTO Location (lid,county,
+        coe,cpm,detail,
+        elev,hdatum,hsa,
+        hu,lat,lon,
+        lremark,lrevise,name,
+        network,rb,rfc,
+        sbd,sn,state,
+        waro,wfo,wsfo,
+        type,des,det,
+        post,stntype,tzone        )
+        VALUES (
+         :dbs.lid, :dbs.county, :dbs.coe:dbs.ind_coe,
+         :dbs.cpm:dbs.ind_cpm, :dbs.detail:dbs.ind_detail, :dbs.elev:dbs.ind_elev,
+         :dbs.hdatum:dbs.ind_hdatum, :dbs.hsa, :dbs.hu:dbs.ind_hu,
+         :dbs.lat:dbs.ind_lat, :dbs.lon:dbs.ind_lon, :dbs.lremark:dbs.ind_lremark,
+         :dbs.lrevise:dbs.ind_lrevise, :dbs.name:dbs.ind_name, :dbs.network,
+         :dbs.rb:dbs.ind_rb, :dbs.rfc, :dbs.sbd:dbs.ind_sbd,
+         :dbs.sn:dbs.ind_sn, :dbs.state, :dbs.waro:dbs.ind_waro,
+         :dbs.wfo, :dbs.wsfo:dbs.ind_wsfo, :dbs.type:dbs.ind_type,
+         :dbs.des:dbs.ind_des, :dbs.det:dbs.ind_det, :dbs.post:dbs.ind_post,
+         :dbs.stntype:dbs.ind_stntype, :dbs.tzone);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertLocation() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateLocation(const Location *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Location_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.county, structPtr->county);
+
+    strcpy(dbs.coe, structPtr->coe);
+    dbs.ind_coe = getIndicator(CHAR, (void *)structPtr->coe);
+
+    strcpy(dbs.cpm, structPtr->cpm);
+    dbs.ind_cpm = getIndicator(CHAR, (void *)structPtr->cpm);
+
+    strcpy(dbs.detail, structPtr->detail);
+    dbs.ind_detail = getIndicator(CHAR, (void *)structPtr->detail);
+
+    dbs.elev = structPtr->elev;
+    dbs.ind_elev = getIndicator(DOUBLE, (void *)&structPtr->elev);
+
+    strcpy(dbs.hdatum, structPtr->hdatum);
+    dbs.ind_hdatum = getIndicator(CHAR, (void *)structPtr->hdatum);
+
+    strcpy(dbs.hsa, structPtr->hsa);
+
+    strcpy(dbs.hu, structPtr->hu);
+    dbs.ind_hu = getIndicator(CHAR, (void *)structPtr->hu);
+
+    dbs.lat = structPtr->lat;
+    dbs.ind_lat = getIndicator(DOUBLE, (void *)&structPtr->lat);
+
+    dbs.lon = structPtr->lon;
+    dbs.ind_lon = getIndicator(DOUBLE, (void *)&structPtr->lon);
+
+    strcpy(dbs.lremark, structPtr->lremark);
+    dbs.ind_lremark = getIndicator(CHAR, (void *)structPtr->lremark);
+
+    dbs.lrevise = date_t_to_pg_date(structPtr->lrevise);
+    dbs.ind_lrevise = getIndicator(INT, (void *)&structPtr->lrevise);
+
+    strcpy(dbs.name, structPtr->name);
+    dbs.ind_name = getIndicator(CHAR, (void *)structPtr->name);
+
+    strcpy(dbs.network, structPtr->network);
+
+    strcpy(dbs.rb, structPtr->rb);
+    dbs.ind_rb = getIndicator(CHAR, (void *)structPtr->rb);
+
+    strcpy(dbs.rfc, structPtr->rfc);
+
+    dbs.sbd = date_t_to_pg_date(structPtr->sbd);
+    dbs.ind_sbd = getIndicator(INT, (void *)&structPtr->sbd);
+
+    strcpy(dbs.sn, structPtr->sn);
+    dbs.ind_sn = getIndicator(CHAR, (void *)structPtr->sn);
+
+    strcpy(dbs.state, structPtr->state);
+
+    strcpy(dbs.waro, structPtr->waro);
+    dbs.ind_waro = getIndicator(CHAR, (void *)structPtr->waro);
+
+    strcpy(dbs.wfo, structPtr->wfo);
+
+    strcpy(dbs.wsfo, structPtr->wsfo);
+    dbs.ind_wsfo = getIndicator(CHAR, (void *)structPtr->wsfo);
+
+    strcpy(dbs.type, structPtr->type);
+    dbs.ind_type = getIndicator(CHAR, (void *)structPtr->type);
+
+    strcpy(dbs.des, structPtr->des);
+    dbs.ind_des = getIndicator(CHAR, (void *)structPtr->des);
+
+    strcpy(dbs.det, structPtr->det);
+    dbs.ind_det = getIndicator(CHAR, (void *)structPtr->det);
+
+    dbs.post = structPtr->post;
+    dbs.ind_post = getIndicator(INT, (void *)&structPtr->post);
+
+    strcpy(dbs.stntype, structPtr->stntype);
+    dbs.ind_stntype = getIndicator(CHAR, (void *)structPtr->stntype);
+
+    strcpy(dbs.tzone, structPtr->tzone);
+
+
+    sprintf(queryBuffer, " UPDATE Location SET " );
+    strcat(queryBuffer, "lid = ? , county = ? , coe = ? , cpm = ? , detail = ? ,     ");
+    strcat(queryBuffer, "elev = ? , hdatum = ? , hsa = ? , hu = ? , lat = ? ,     ");
+    strcat(queryBuffer, "lon = ? , lremark = ? , lrevise = ? , name = ? , network = ? ,     ");
+    strcat(queryBuffer, "rb = ? , rfc = ? , sbd = ? , sn = ? , state = ? ,     ");
+    strcat(queryBuffer, "waro = ? , wfo = ? , wsfo = ? , type = ? , des = ? ,     ");
+    strcat(queryBuffer, "det = ? , post = ? , stntype = ? , tzone = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateLocation() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.lid, :dbs.county, :dbs.coe:dbs.ind_coe, :dbs.cpm:dbs.ind_cpm, :dbs.detail:dbs.ind_detail,
+     :dbs.elev:dbs.ind_elev, :dbs.hdatum:dbs.ind_hdatum, :dbs.hsa, :dbs.hu:dbs.ind_hu, :dbs.lat:dbs.ind_lat,
+     :dbs.lon:dbs.ind_lon, :dbs.lremark:dbs.ind_lremark, :dbs.lrevise:dbs.ind_lrevise, :dbs.name:dbs.ind_name, :dbs.network,
+     :dbs.rb:dbs.ind_rb, :dbs.rfc, :dbs.sbd:dbs.ind_sbd, :dbs.sn:dbs.ind_sn, :dbs.state,
+     :dbs.waro:dbs.ind_waro, :dbs.wfo, :dbs.wsfo:dbs.ind_wsfo, :dbs.type:dbs.ind_type, :dbs.des:dbs.ind_des,
+     :dbs.det:dbs.ind_det, :dbs.post:dbs.ind_post, :dbs.stntype:dbs.ind_stntype, :dbs.tzone;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateLocation() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteLocation(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM Location ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteLocation() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateLocationByRecord (const Location * newStructPtr, const Location * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetLocationPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateLocation(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateLocation(const Location * structPtr)
+{
+    UpdateLocationByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertLocation(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueLocation(const Location * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (LocationExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertLocation(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteLocationByRecord(const Location * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetLocationPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteLocation(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool LocationExists(const Location * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetLocationPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectLocationCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetLocationPrimaryKeyWhereString (const Location * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE lid = '%s' ",
+            structPtr->lid);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeLocation( Location * structPtr)
+{
+    Location* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( Location * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetLocationDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetLocationErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

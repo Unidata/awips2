@@ -1,0 +1,22 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+	<bean id="tafProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+		<property name="pluginName" value="taf" />
+		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.taf" />
+		<property name="dao" value="com.raytheon.uf.edex.plugin.taf.dao.TafDao" />
+		<property name="record" value="com.raytheon.uf.common.dataplugin.taf.TafRecord" />
+		<property name="dependencyFQNs">
+		    <list>
+		       <value>com.raytheon.uf.common.pointdata</value>
+		    </list>
+		</property>
+	</bean>
+	
+	<bean factory-bean="pluginRegistry" factory-method="register" depends-on="pointDataRegistered">
+		<constructor-arg value="taf"/>
+		<constructor-arg ref="tafProperties"/>
+	</bean>
+			
+</beans>

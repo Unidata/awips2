@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="CAVE" id="com.raytheon.viz.product.awips.CAVE" application="com.raytheon.uf.viz.application.application" useFeatures="true" includeLaunchers="true">
+
+   <aboutInfo>
+      <image path="/com.raytheon.viz.product.awips/icons/ipr.gif"/>
+      <text>
+         %caveAboutText
+      </text>
+   </aboutInfo>
+
+   <configIni use="default" path="/com.raytheon.viz.product.awips/config.ini">
+   </configIni>
+
+   <launcherArgs>
+      <programArgs>-data @user.home/caveData -user @user.home/caveData -clean -consoleLog -component thinclient -alertviz
+      </programArgs>
+      <vmArgs>-Xmx4536M
+-XX:+UseG1GC
+-Dosgi.instance.area.readOnly=true
+-Dorg.eclipse.update.reconcile=false
+-Dorg.eclipse.ui/KEY_CONFIGURATION_ID=com.raytheon.viz.ui.cave.scheme
+-Dqpid.dest_syntax=BURL
+-Dlogback.configurationFile=logback-viz-core-developer.xml
+-Dlogback.statusListenerClass=com.raytheon.uf.common.logback.UFLogbackInternalStatusListener
+-Dthrift.stream.maxsize=200
+-Dviz.memory.warn.threshold=99
+-Dorg.eclipse.swt.internal.gtk.cairoGraphics=false
+-Dhttps.certificate.check=false
+-Djava.library.path=/awips2/python/lib/python2.7/site-packages/jep
+-XX:MaxDirectMemorySize=1G
+-XX:+UnlockExperimentalVMOptions
+-XX:G1HeapRegionSize=4M
+-XX:InitiatingHeapOccupancyPercent=25
+-XX:G1MixedGCCountTarget=16
+-XX:G1MixedGCLiveThresholdPercent=25
+-XX:G1OldCSetRegionThresholdPercent=25
+-XX:G1HeapWastePercent=5
+-DvizVersion=DEVELOPMENT
+      </vmArgs>
+      <vmArgsWin>-Dfile.encoding=UTF-8
+      </vmArgsWin>
+   </launcherArgs>
+
+   <windowImages i16="/com.raytheon.viz.product.awips/icons/cave_16x16.png" i32="/com.raytheon.viz.product.awips/icons/cave_32x32.png" i48="/com.raytheon.viz.product.awips/icons/cave_48x48.png" i64="/com.raytheon.viz.product.awips/icons/cave_64x64.png" i128="/com.raytheon.viz.product.awips/icons/cave_128x128.png"/>
+
+   <splash
+      location="com.raytheon.viz.ui.personalities.awips"
+      startupProgressRect="3,234,413,13"
+      startupMessageRect="7,252,445,20"
+      startupForegroundColor="000000" />
+   <launcher name="cave">
+      <solaris/>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+      <windows include="true">jdk1.7.0</windows>
+   </vm>
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="com.raytheon.viz.feature.awips" version="1.9.0.qualifier"/>
+      <feature id="com.raytheon.viz.feature.awips.developer" version="1.9.0.qualifier"/>
+   </features>
+
+   <configurations>
+      <plugin id="com.raytheon.uf.viz.spring.dm" autoStart="true" startLevel="4" />
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
+      <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
+   </configurations>
+
+</product>

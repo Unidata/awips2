@@ -1,0 +1,4 @@
+c  Taken from old "ublock.f"                                            RTi  SAM
+C  RRS DATA TYPES AND ATTRIBUTES
+      COMMON /UDRTYP/ MTYPE,NTYPE,IRTYPE(30),CHKMIN(30),CHKMAX(30),
+     *   NVALPO(30),IRSUNT(30),IUMISS(30)

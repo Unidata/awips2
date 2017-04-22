@@ -1,0 +1,1070 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>GFESuite Documentation - Smart Tools</title>
+</head>
+<body>
+<h1 align="center">Creating And Modifying Tools</h1>
+<p><a href="#B3">Edit Action Button-3 Pop-Up Menu</a> <br>
+<a href="#CreatingNew">Creating A New Tool</a> <br>
+<a href="#Args">Description of Tool Arguments</a> <br>
+<a href="#VarList">Description of VariableList</a> <br>
+<a href="#Add">Additional Smart Tool Methods</a> <br>
+<a href="#Exist">Creating a Smart Tool from an
+Existing
+File</a> <br>
+<a href="#SSLib">Smart Script Class Library</a> <br>
+</p>
+<hr width="100%">
+<h2 class="1Heading"><a name="CreatingST"></a>Creating and Modifying
+Tools</h2>
+<div class="Body">Now we will look behind the scenes to see how Smart
+Tools
+work, how they can be modified and created. The following diagram
+depicts
+the Smart Tool architecture within the GFESuite software. It shows
+Smart
+Tools as meteorological algorithms which modify the Forecast database.
+These algorithms are written in a simple, intuitive language called
+Python
+and have access to Numerical Models, Observations, and Topography data.
+The Smart Script Library is a set of convenient library functions
+available
+to simplify the job of tools. Through it, Smart Tools access data,
+create
+soundings, and perform unit conversion. The GFESuite software locates
+the
+tool, sets up information to be passed to it, and calls it to obtain
+revised
+grid values.</div>
+<br>
+<div class="Body"><img src="images/SmartTools-7.jpg"></div>
+<p><br>
+In the following sections, we will see how to create and modify
+tools and procedures through the Edit Action Dialog. We will
+demonstrate
+the use of the Smart
+Tool Framework and Smart Script Library through a set of exercises
+and tutorials. The following sections assume that you have
+knowledge of Python and its Numpy extension which are
+covered
+in the <a href="Python.html">GFESuite Python Tutorial and Programming
+Guidelines</a>.
+</p>
+<hr width="100%">
+<h3 class="2Heading"><a name="B3"></a>Edit Action Button 3 Pop-up Menu</h3>
+<div class="Body">In AWIPS1, the Edit Actions dialog was used to access
+new tool creation functionality. Pressing MB3 over each of the Smart Tools 
+listed in the Edit Actions Dialog opens a pop-up menu. 
+This menu is described in the <a href="EditableListbox.html">Editable
+Listbox description.</a>  However, in AWIPS2, new tools are created via the 
+Localization Perspective.  This perspective will open when you select
+GFE -&gt; Define Smart Tools from the Menu bar.</div>
+<hr width="100%">
+<h3 class="2Heading"><a name="CreatingNew"></a>Creating a New Tool</h3>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#Ex1">Exercise
+Tool-1 -- Creating a New Tool</a> <br>
+</p>
+<div class="Body">The following exercises will show you how to create
+and
+modify tools. We will build a tool to produce SnowAmt grid values. We
+will
+proceed in steps, building more functionality into the Tool at each
+step.</div>
+<hr width="100%">
+<h3 class="3Heading"><a name="Ex1"></a>Exercise Tool-1 -- Creating a
+new tool</h3>
+<div class="Body">Create a Smart Tool to yield a SnowAmt equal to the
+current
+QPF value multiplied by 10.</div>
+<div class="Step-First">
+<ol>
+  <li>Select New... on the MB3 popup over the Smart Tools folder. The
+New Tool
+Dialog appears into which you will enter:</li>
+</ol>
+<ul>
+  <li class="Bullet-List">Name of the Tool: The Name of the Tool cannot
+have spaces or special
+characters
+except an underline. Enter the name: SnowAmt_LearningTool.</li>
+  <li class="Bullet-List">The Weather Element it modifies. Select
+SnowAmt.</li>
+  <li class="Bullet-List">Tool Type is set to "numeric."</li>
+</ul>
+<div class="Step">
+<ol start="2">
+  <li>Press OK and a Python Editor will appear with a template Python
+module
+for your Tool.</li>
+</ol>
+<ul>
+  <li class="Bullet-List">There are lines to specify that this is a
+"numeric" type tool and to
+import
+the numpy library.</li>
+  <li class="Bullet-List">Another line specifies the
+WeatherElementEdited. This may be changed if
+you ever wish to modify the element edited by the tool.</li>
+  <li class="Bullet-List">Notice that the Python module has a class
+named "Tool" and several
+methods.
+The "execute" method is mandatory and the one with which we will be
+concerned.
+The "execute" method may have weather element arguments plus various
+special
+arguments which will be supplied by the system when it is called.</li>
+  <li class="Bullet-List">You will notice a funny argument, "self".
+This refers to this Tool
+class
+instance. You don't need to understand much about this now. All you
+need
+to do is make sure you leave it as the first argument to your "execute"
+method.</li>
+  <li class="Bullet-List">If desired, a VariableList can define
+run-time variables that will be
+solicited
+from the user when the Tool is executed. These variables will be passed
+to the method.</li>
+  <li class="Bullet-List">We'll explore the various arguments and
+VariableList later, but for
+this
+tool, you need only one argument (in addition to "self"): QPF.</li>
+</ul>
+<div class="Step">
+<ol start="3">
+  <li>Remove the sample arguments from the "execute" definition, leave
+the
+"self"
+argument, and enter the argument, QPF in the parentheses. When
+the
+tool executes, this argument will contain a Numeric Array representing
+the Fcst QPF grid.</li>
+  <li class="Step">Type in a description of your tool below the
+"execute" definition. This
+description will appear when you click MB3 --&gt; Info over your new
+tool.</li>
+  <li class="Step">Insert a line to multiply the QPF values by 10:</li>
+  <div class="Step">&nbsp;&nbsp;&nbsp; SnowAmt = QPF * 10</div>
+  <div class="Step">This line produces a Numeric Array named "SnowAmt"
+which
+has values 10 times the corresponding QPF values.</div>
+  <li class="Step">Save the Python module. Select File--&gt;Save.</li>
+  <li class="Step">Execute the new tool to see that it works. If you
+encounter errors when
+executing your tool, a dialog will appear to help you locate the
+problem.
+After successfully executing the tool, the QPF grid appears. Examine
+the
+data by sampling the QPF values and the SnowAmt values. If your
+results
+seem confusing, check to see that the QPF and SnowAmt grids are aligned
+in the Grid Manager. If not, you will be getting time averaged
+QPF
+values over multiple grids.</li>
+  <li class="Step">Close the Python Editor. Select File--&gt;Close.</li>
+</ol>
+<div class="Step"><a href="SmartToolsExerciseAnswers.html#AnswerNum1">Click here for Answer to
+Exercise Tool-1.</a></div>
+<hr width="100%">
+<h3 class="3Heading"><a name="Args"></a>Description of Tool Arguments</h3>
+<div class="Body">Here is a complete description of the various
+arguments
+that you can receive into your Smart Tool methods. To receive a
+particular
+argument, simply list it between the parentheses in the method
+definition.
+For example:</div>
+<div class="Body">&nbsp;&nbsp;&nbsp; def execute(self, QPF, Topo,
+SnowAmt_DeltaValue,
+FzLevel, varDict):</div>
+<ul>
+  <li class="Bulleted">&lt;weName&gt; -- the value for a given weather
+element. If you want to base
+the new value for an element on its current one, you must include it in
+the argument list. You may also include other weather elements. A
+Numeric Array representing the grid values for the weather element is
+returned. Weather element values are as follows:</li>
+  <br>
+  <ul>
+    <li>Scalar value: floating point values,</li>
+    <li>Vector value: two-tuple of magnitude and direction numeric
+arrays, for
+example:</li>
+    <br>
+&nbsp;&nbsp; mag = Wind[0] <br>
+&nbsp;&nbsp; dir = Wind[1] <li>Weather value: A Wx argument
+represents a 2-tuple:</li>
+    <ul>
+      <li>wxValues : numerical grid of byte values</li>
+      <li>keys : list of "ugly strings" where the index of the ugly
+string
+corresponds
+to the byte value in the wxValues grid.</li>
+    </ul>
+  </ul>
+  <ul>
+See the section <a href="Python.html#WorkingwithWeatherData">Working
+with Weather Data in the GFESuite Python Tutorial</a> for more
+information.
+  </ul>
+  <p><br>
+Weather elements do not need to be loaded in the GFE to be accessible
+to Smart Tools. The weather element is assumed to come from the Fcst
+database
+unless you specify a more complete name of the form: </p>
+  <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+elementName_level_siteID_type_model_modeltime </p>
+  <p>The "type" is an empty string for GFE Fcst data and is "D2D" for
+D2D
+data. </p>
+  <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+MaxT_SFC_BOU__NAM12_Mar2912&nbsp;
+:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+gets MaxT from the March 29 12Z NAM12 run created by GFE
+initialization. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+MaxT_SFC_BOU_D2D_NAM12_Mar2912&nbsp;
+:&nbsp; gets MaxT from the March 29 12Z original NAM12 run from D2D.</p>
+  <p>If you omit the "modeltime", the most recent model run will be
+selected.
+For example: </p>
+  <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MaxT_SFC_BOU__NAM12&nbsp;
+:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+gets MaxT from the most recent NAM run created by GFE initialization.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MaxT_SFC_BOU_D2D_NAM12
+:&nbsp;&nbsp;
+gets MaxT from the most recent original NAM12 run from D2D.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rh_MB300_BOU_D2D_GFS40
+:&nbsp;&nbsp;&nbsp;
+gets rh from the most recent original GFS40 run from D2D.</p>
+  <p>For a list of D2D elements and descriptions<a
+ href="d2dWENames.html">
+click here.</a> </p>
+  <p>If you request a weather element value other than the one you are
+editing,
+it is possible that the system will encounter multiple corresponding
+grids.
+For example, if you are editing a 6-hour QPF grid, there may be
+multiple
+Wind grids that fall within the QPF time range. In this case, the
+system
+will automatically return the time-weighted average value of the
+multiple
+grids. This means that the values in a 3-hour Wind grid will be
+weighted
+3 times more heavily than those in a 1-hour grid when calculating the
+average
+value. Only the portion of the grid that overlaps the edited grid will
+be counted in the time weighting. Time-weighted average for a
+Weather-type
+element is defined as the combination of all weather values
+encountered. </p>
+  <p><b>Smart Script Class Library</b>:&nbsp;&nbsp; For more advanced
+methods
+of accessing grids in your Smart Tool, see the section below on the <a
+ href="#SSLib">Smart
+Script Class Library</a>. In this library you will find more
+sophisticated
+processing. For example, if you are not satisfied with a
+time-weighted
+average of grids over a time range, you can get a sum, max/min or even
+the actual grid values themselves. Or, if you do not know ahead
+of
+time which model you will want to access, you can create a call at
+execution
+time to get the grids you want.</p>
+</ul>
+<ul>
+  <li class="Bulleted">Topo -- this will give you the topography
+information in the form of a
+numeric array of elevation values.</li>
+  <li class="Bulleted">variableElement-- the numeric array for the
+editable weather element in
+the GFE.</li>
+  <li class="Bulleted">WEname -- the name of the element being edited.
+This is handy if your
+tool
+works on "variableElement". WEname will be the element edited for this
+run of the tool e.g. T, Wind, Td, etc.</li>
+  <li class="Bulleted">&lt;weName&gt;_PickUpValue -- the PickUp Value
+for the given element
+where
+&lt;weName&gt; could be "variableElement", e.g. MaxT_PickUpValue,
+variableElement_PickUpValue</li>
+  <li class="Bulleted">&lt;weName&gt;_DeltaValue -- the Delta Value for
+the given element</li>
+  <li class="Bulleted">&lt;weName&gt;_FuzzValue -- the Fuzz Value for
+the given element</li>
+  <li class="Bulleted">GridTimeRange -- The time range for the current
+grid being modified.
+Example:</li>
+  <br>
+  <div class="Bulleted">def execute(self, GridTimeRange):</div>
+&nbsp;&nbsp;&nbsp; gridStartTime = GridTimeRange.startTime() <br>
+&nbsp;&nbsp;&nbsp; hour = gridStartTime.hour() <br>
+&nbsp;&nbsp;&nbsp; if hour == 18: <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Now you know the grid
+is valid at 18Z
+  <p>&nbsp; There are many methods for working with time ranges. Here's
+the
+basic methods: </p>
+  <ul>
+    <li>&nbsp;&nbsp;&nbsp; GridTimeRange.startTime()</li>
+    <li>&nbsp;&nbsp;&nbsp; GridTimeRange.endTime()</li>
+    <li>&nbsp;&nbsp;&nbsp; GridTimeRange.duration() # In seconds</li>
+  </ul>
+  <p>
+The start and end times are TimeRange objects.
+  </p>
+  <p>
+Here's an example of creating your own time range relative to the
+given GridTimeRange: </p>
+  <p>def execute(self, GridTimeRange): <br>
+&nbsp;&nbsp; import TimeRange <br>
+&nbsp;&nbsp; start = GridTimeRange.startTime() <br>
+&nbsp;&nbsp; end = GridTimeRange.endTime() <br>
+&nbsp;&nbsp; timeRange2 = TimeRange.TimeRange(start - 24 *3600, end - 24
+*3600) </p>
+  <p>&nbsp;&nbsp; T0 = self.getGrids("Fcst", "T","SFC", timeRange2,
+noDataError=0) <br>
+&nbsp;&nbsp; if T0 is None: <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.noData()<br>
+</p>
+<div class="Body">NOTE: Values supplied to the tool are initial values
+only i.e. the values of the variables at the beginning of Smart Tool
+execution.
+Changes made by the Smart Tool will not be reflected in the values of
+the
+variables passed to the tool.</div>
+<hr width="100%">
+<h3 class="3Heading"><a name="Ex2"></a>Exercise Tool-2 -- Modifying a
+Tool</h3>
+<div class="Body">Modify your SnowAmt_LearningTool to base its new
+value
+on temperature values. Use the following table:</div>
+<table border="1">
+  <caption>
+  <h3 class="TableTitle"></h3>
+  </caption> <tbody>
+    <tr>
+      <th>
+      <div class="CellHeading">T</div>
+      </th>
+      <th>
+      <div class="CellHeading">Multiply QPF by</div>
+      </th>
+    </tr>
+    <tr>
+      <td>
+      <div class="CellBody">&lt; 20</div>
+      </td>
+      <td>
+      <div class="CellBody">18</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      <div class="CellBody">between 20 and 25</div>
+      </td>
+      <td>
+      <div class="CellBody">14</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      <div class="CellBody">over 25</div>
+      </td>
+      <td>
+      <div class="CellBody">10</div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="Step-First">
+<ol>
+  <li>Select Open... on the MB3 popup over the SnowAmt_LearningTool at USER level (drill-down).
+This
+opens
+the Python Editor in which you can make changes.</li>
+  <li>You will need the corresponding T grid, so add this as an
+argument to
+your
+method. Modify the Python code with where statments to implement the
+Temperature-based
+table.</li>
+  <li>Save the file. You can try your Tool without closing the editor
+or
+restarting
+the GFE. The changes are effective as soon as you Save. Verify that the
+tool worked by Sampling the SnowAmt and QPF grid values.</li>
+</ol>
+</div>
+<div class="3Heading"><a href="SmartToolsExerciseAnswers.html#AnswerNum2">Click here for Answer
+to Exercise Tool-2.</a></div>
+<hr width="100%">
+<h3 class="3Heading"><a name="VarList"></a>Description of VariableList</h3>
+<p><a href="#Ex3">Exercise
+Tool-3 -- Using VariableLists</a> <br>
+<a href="#VarList1">Creating
+VariableLists "On-the-fly"</a> <br>
+</p>
+<div class="Body">The VariableList defines values to be supplied to a
+Tool
+by the user. It consists of a list of tuples defining each variable and
+resides in the Python file for the Tool. (Make sure it appears before
+or
+after the Tool Class, not within it!) These variables will be solicited
+from the user prior to executing the Tool.</div>
+<div class="Body">For example, suppose we want to let the user set
+threshold
+values prior to executing our tool named MyTool. Then in the Python
+module
+for MyTool, we list:</div>
+<div class="Code">
+<br>
+VariableList = [</div>
+<div class="Code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Threshold Value1", 10, "numeric"),</div>
+<div class="Code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Threshold Value2", 20, "numeric")</div>
+<div class="Code">&nbsp;&nbsp;&nbsp; ]</div>
+<div class="Body">The values, 10 and 20, will be used as the default
+values.
+The method call within MyTool must then include the argument,
+"varDict",
+and can access the values as follows:</div>
+<div class="Code">&nbsp;&nbsp;&nbsp; def execute(self, QPF, Wind,
+QPF_DeltaValue,
+x, y, varDict):</div>
+<div class="Code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+Get
+the values for the variables:</div>
+<div class="Code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; threshold1
+= varDict["Threshold Value1"]</div>
+<div class="Code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; threshold2
+= varDict["Threshold Value2"]</div>
+<div class="Body">The Variable tuple in the VariableList is in the
+format:</div>
+<ul>
+  <div class="Indented">("Variable Name", default value, variable type,
+optional
+list)</div>
+</ul>
+<div class="Body">Variables can be of many types:</div>
+<ul>
+  <li class="Bulleted">"numeric" -- will ensure the user enters a number</li>
+  <li class="Bulleted">"alphaNumeric" -- will accept any characters and
+will automatically
+convert
+the string to a number if possible</li>
+  <li class="Bulleted">"radio" -- a set of Radio buttons i.e. one and
+only one choice must be
+made by the user among a list of values. In this case, a list of values
+must be supplied.</li>
+  <li class="Bulleted">"check" -- a set of Check buttons i.e. the user
+may select zero of more
+values from a list. In this case a list of values must be supplied and
+the default value is a list of values to be checked "On" initially. The
+returned value for such a variable in varDict is a list of values that
+were checked "On" when the user selected "OK."</li>
+  <li class="Bulleted">"scale" -- a slider-bar type Scale. In this
+case, a list containing the
+minimum and maximum values must be supplied along with the default
+value.
+You can also specify a resolution if you wish. The default is 1.</li>
+  <li class="Bulleted">"model" -- gives a list of GFE Surface model
+runs e.g. NAM12, GFS40, RAP40</li>
+  <li class="Bulleted">"D2D_model" -- give a list of D2D model runs
+e.g. NAM12, GFS40, RAP40</li>
+  <li class="Bulleted">"label" -- simply displays text given in the
+"Variable Name" slot.</li>
+  <li class="Bulleted">"scrollbar" -- adds a scrollbar to the
+VariableList dialog. This is
+intended
+for dialogs that have become too large for the screen.&nbsp; A desired
+height for the dialog must be given.&nbsp; For example:</li>
+  <div class="Bulleted">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("", 500, "scrollbar")</div>
+  <div class="Bulleted">will add a scrollbar to the dialog and set the
+dialog
+height to 500 pixels. Only one scrollbar entry is processed per
+VariableList
+dialog.</div>
+</ul>
+<div class="Step-First">
+<hr width="100%">
+<h3 class="3Heading"><a name="Ex3"></a>Exercise Tool-3 -- Using
+VariableLists</h3>
+<div class="Body">Modify your SnowAmt_LearningTool to adjust the QPF
+only
+in areas above a user-given elevation. To perform this exercise, we
+will
+need to define a variable for the user to input at execution time.
+Remember
+to include "varDict" in your argument list to get the value for the
+user's
+variable. You will also need to access the variable, Topo.
+<p><a href="SmartToolsExerciseAnswers.html#AnswerNum3">Click here for Answer to Exercise Tool-3.</a></p>
+</div>
+<hr width="100%">
+<h3 class="3Heading"><a name="VarList1"></a>Creating VariableLists
+"On-the-fly"</h3>
+It is possible to create VariableLists and display dialogs from a Smart
+Tool or Procedure in the event that the VariableList entries are
+dependent
+on run-time values. To do so, you must import the "ProcessVariableList"
+class and use it to display your dialog. The following example
+illustrates
+how this might be done:
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ToolType = "numeric"
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; WeatherElementEdited = "variableElement"
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ScreenList = ["SCALAR"]
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from numpy import *
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; import ProcessVariableList
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; import SmartScript
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; class Tool (SmartScript.SmartScript):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; def
+__init__(self,
+dbss):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SmartScript.SmartScript.__init__(self, dbss)
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; def
+preProcessTool(self):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# This is necessary so that we show the
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# dialog once per tool, not once per grid.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self._dialogShown = 0
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; def
+execute(self,
+variableElement_GridInfo):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if self._dialogShown == 0:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+minval=variableElement_GridInfo.minLimit()
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+maxval=variableElement_GridInfo.maxLimit()
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+variableList=[ ("Modify value to:",0,"scale",[minval,maxval])]
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+varDict = {}
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+processVarList = ProcessVariableList.ProcessVariableList(
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"Title", variableList, varDict,&nbsp; parent = self.eaMgr().root())
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+status = processVarList.status()
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if status != "Ok":
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.cancel()
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self._modifyValue = varDict["Modify value to:"]
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self._dialogShown = 1
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+variableElement = self._empty +&nbsp; self._modifyValue
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return variableElement
+</p>
+<hr width="100%">
+<div class="Body">
+<h3 class="2Heading"><a name="Add"></a>Additional Smart Tool Methods</h3>
+<p><a href="#Reserved">Reserved
+Methods</a> <br>
+<a href="#Own">Creating
+Your Own Methods</a> <br>
+<a href="#NamingConventions">Naming
+Conventions</a> <br>
+</p>
+Your Smart Tool class can contain methods in addition to the mandatory
+"execute" method.
+<hr width="100%">
+<h4 class="2Heading"><a name="Reserved"></a>Reserved Methods</h4>
+Some methods have reserved names and meanings. To understand the
+framework,
+recall that a Smart Tool may operate over a time range which may
+include
+multiple grids. The mandatory "execute" method is called for each grid
+to be modified. Sometimes, you may wish to set up information before or
+after grid-by-grid processing occurs. If so, you may use the following
+methods:
+<ul>
+  <li>preProcessTool:&nbsp;&nbsp; Called once at beginning of the Tool,
+before
+any grids are processed.</li>
+  <li>postProcessTool:&nbsp;&nbsp; Called once at end of the Tool,
+after all
+grids are processed.</li>
+</ul>
+Additional methods, "preProcessGrid" and "postProcessGrid" are reserved
+for Point-based Tools. Of course,
+reserved methods will be called only if you supply them in your tool.
+They
+are included as comments in the Smart Tool template that appears when
+you
+create a new tool and are documented there. The possible arguments to
+these
+methods will vary according to the logic of when they are called.
+<hr width="100%">
+<h4 class="2Heading"><a name="Own"></a>Creating Your Own Methods</h4>
+You may write your own methods and call them from within others. The
+only
+tricky part is in using the funny "self" variable. Here's an example:
+<br><br>
+<div class="Code">import SmartScript</div>
+<div class="Code">class Tool (SmartScript.SmartScript):</div>
+<div class="Code">&nbsp;&nbsp; def __init__(self, dbss):</div>
+<div class="Code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SmartScript.SmartScript.__init__(self,
+dbss)</div>
+<div class="Code">&nbsp;</div>
+<div class="Code">&nbsp;&nbsp;&nbsp; def execute(self, QPF, T):</div>
+<div class="Code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Tool to
+calculate
+SnowAmt"</div>
+<div class="Code">&nbsp;</div>
+<div class="Code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+Determine
+new value</div>
+<div class="Code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SnowRatio
+= self._getSnowRatio(T)</div>
+<div class="Code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SnowAmt =
+QPF * SnowRatio</div>
+<div class="Code">&nbsp;</div>
+<div class="Code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return
+the
+new value</div>
+<div class="Code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return
+SnowAmt</div>
+<div class="Code">&nbsp;</div>
+<div class="Code">&nbsp;&nbsp;&nbsp; def _getSnowRatio(self, T):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SnowRatio = where(
+less(T, 20), 18,
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+where( less(T, 21), 14, 10)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return SnowRatio</div>
+<div class="Code">Notice that we did two things:
+<ul>
+  <li>Included "self" as the first argument in the definition of our
+new
+method,
+_getSnowRatio.</li>
+  <li>Used the prefix "self" when calling the method WITHOUT putting
+"self"
+in
+the argument list.</li>
+</ul>
+<hr width="100%">
+<h4><a name="NamingConventions"></a>Naming Conventions</h4>
+To help distinguish the source of methods and variables, Smart Tools
+(and
+Procedures) follow these naming conventions:
+<blockquote><li>User-defined Smart Tool and Procedure methods and
+variables, which need
+to span multiple methods, are preceeded by an underscore: e.g
+self._modifyValue,
+def _myMethod.</li>
+  <li>SmartScript library methods do not have a preceeding underscore:
+e.g.
+self.getGrids.</li>
+  <li>The Reserved methods, e.g. execute, preProcessTool, do not have a
+preceeding
+underscore.</li>
+  <li>Utility methods (<a href="#Util">see Utility section</a>), are
+preceeded
+by an underscore.</li>
+</blockquote>
+These conventions are important to follow not only for clarity, but to
+insure that you do not inadvertently override an existing library
+method
+by giving your method or variable a duplicate name.
+<hr width="100%">
+<h3 class="2Heading"><a name="Exist"></a>Creating a Smart Tool from an
+Existing File</h3>
+<div class="Body">Suppose you have an existing smart tool
+file.
+You might receive a file from a repository, from a colleague, or find
+one
+in the examples directories of your release. How can you add it to your
+Edit Action Dialog?</div>
+<div class="Step-First">
+<ol>
+  <li>From the Localization Perspective Smart Tool folder, Select MB3
+--&gt;
+New...</li>
+  <li>Enter the name of the Tool and the weather element it modifies.</li>
+  <li>Select OK and a template for the Tool should appear.</li>
+  <li>Open another window with the file that contains the existing tool
+via
+Select
+File--&gt;Open and choose the file.</li>
+  <li>Copy and Paste the existing smart tool into the new smart tool
+window
+and
+Save it. Select File--&gt;Save.</li>
+  <li>Close the Python windows. Select File--&gt;Close.</li>
+</ol>
+<hr width="100%">
+<h2 class="1Heading"><a name="SSLib"></a>Smart Script Class Library</h2>
+<a href="#SS-Ex1">Exercise
+SmartScript-1 -- Accessing Grids Directly</a> <br>
+<a href="#SS-Ex2">Exercise
+SmartScript-2 -- Accessing Variable Grids Directly</a> <br>
+<a href="#SS-Ex3">Exercise
+SmartScript-3 -- Making and Accessing Soundings</a> <br>
+<a href="#SS-Ex4">Exercise
+SmartScript-4 -- Making and Accessing Soundings</a> <br>
+<a href="#SS-Ex5">Exercise
+SmartScript-5 -- Making and Accessing Soundings</a> <br>
+<a href="#SS-Ex6">Exercise
+SmartScript-6 -- Creating Elements On-the-fly</a> <br>
+<a href="#SS-Ex7">Exercise
+SmartScript-7 -- Working with Weather and Discrete</a> <br>
+<a href="#SS-Ex8">Exercise
+SmartScript-8 -- Working with Weather and Discrete</a> <br>
+<a href="#SS-Ex9">Exercise
+SmartScript-9 -- Translating between Smart Initialization and Smart
+Tools</a>
+<hr are="" automatically="" to="" smart="" tools="" and=""
+ procedures.&nbsp="" for="" a="" list="" of="" methods="" available=""
+ in="" smartscript="" class="" see="" the="" width="100%"><a
+ href="SmartScriptClass.html">Smart Script Class
+Library
+documentation.</a>
+<p>Notice that all the Smart Tools we've created begin with the
+following
+lines:
+</p>
+<ol>
+  <div class="Code">import SmartScript</div>
+  <div class="Code">&nbsp;</div>
+  <div class="Code">class Tool (SmartScript.SmartScript):</div>
+  <div class="Code">&nbsp;&nbsp; def __init__(self, dbss):</div>
+  <div class="Code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SmartScript.SmartScript.__init__(self,
+dbss)</div>
+</ol>
+These lines define a class, Tool, that "inherits" from an existing
+SmartScript
+class. This means that all the methods in the SmartScript class are
+available
+to your tool. As an example, there is a method in the SmartScript class
+named "<a href="SmartScriptClass.html#convertFtoK">convertFtoK</a>"
+which
+converts Fahrenheit degrees to Kelvin. You would call it from within
+one
+of your tool methods as follows:
+<blockquote>def execute(self, T): <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; degreesK =
+self.convertFtoK(T)</blockquote>
+Notice that we used the prefix, "self." to tell the system that this
+method
+belongs to my class (which inherited it from the SmartScript class).
+Procedures
+begin in a similar way with a class, Procedure, instead of Tool, and
+the
+same methods are available to them.
+<p>The SmartScript class contains methods for:
+</p>
+<blockquote><li>
+accessing grids directly (This means that it is not necessary to list
+all
+the grids you need in the Smart Tool argument list.),</li>
+  <li>creating a sounding and accessing values from it based on
+elevation,</li>
+  <li>error handling,</li>
+  <li>unit conversion,</li>
+  <li>"procedure" commands e.g. copy, interpolate, createFromScratch,
+accessing
+named time ranges and named edit areas, and calling Smart Tools.</li>
+</blockquote>
+<hr width="100%">
+<h2><a name="SS-Ex1"></a>Exercise SmartScript-1 -- Accessing Grids
+Directly</h2>
+In this exercise, we will access grids directly from the Smart Tool
+instead
+of from the argument list.
+<ol>
+  <div class="Body"> <li>Study the "<a
+ href="SmartScriptClass.html#getGrids">getGrids</a>"
+command
+in the Smart Script Library.</li>
+  <li>Return to the Smart Tools Window and create a new smart tool
+which
+edits
+QPF.&nbsp; Access both the current QPF value and the&nbsp; most
+recent&nbsp;
+D2D NAM12 tp (total precipitation) value directly using the "getGrids"
+method.
+If the current QPF value is zero, assign the tp value to it. Otherwise,
+return it as is.</li>
+  <li>Run and test your tool to make sure it works.</li>
+  </div>
+</ol>
+<a href="SmartToolsExerciseAnswers.html#AnswerSS1">Click here for Answer to Exercise SmartScript-1.</a>
+<hr width="100%">
+<h2><a name="SS-Ex2"></a>Exercise SmartScript-2 -- Accessing Variable
+Grids
+Directly</h2>
+Often, you will want to choose the model you want to work with at
+run-time.&nbsp;
+You can use a variable list to get the model and then access the grids
+directly.
+<div class="Code">
+<div class="Code">
+<div class="Body">
+<ol>
+  <li>Modify your tool from Exercise SmartScript-1 to have a variable
+D2D
+model
+from which to get the "tp" value.</li>
+  <li>Run and test your tool to make sure it works.</li>
+</ol>
+</div>
+</div>
+</div>
+<a href="SmartToolsExerciseAnswers.html#AnswerSS2">Click here for Answer to Exercise SmartScript-2.</a>
+<hr width="100%">
+<h2><a name="SS-Ex3"></a>Exercise SmartScript-3 -- Making and Accessing
+Soundings</h2>
+The SmartScript library allows you to make a sounding of numpy
+grids. The method, "makeNumericSounding" returns two numerical "cubes"
+-- one cube for the gh height values for a given set of levels and one
+cube for the weather parameter values. In this exercise, we will create
+a sounding from model data and use Topo information to determine
+the surface temperature. You will use the "makeNumericSounding"
+method
+to get gh and t numerical cubes. You will then have to "walk up" the
+cubes
+assigning values directly from the t weather parameter at ground
+height.
+For a more information, see <a
+ href="Python.html#LookingUpAColumnofaCube">GFESuite
+Python Tutorial -- Looking Up the Columns of a Cube.</a>
+<ol>
+  <li>In the SmartScript class, find the method, "<a
+ href="SmartScriptClass.html#makeNumericSounding">makeNumericSounding</a>".
+Read the documentation to learn how to call this method.</li>
+  <li>Find the Unit Conversion methods section and examine the methods
+available.</li>
+  <li>Create a new smart tool which edits T. Allow the user
+to
+set
+the D2D model using a VariableList. Assign values from the
+sounding
+made from the D2D model grids using the Topo information. You
+will
+have to convert Topo from feet to meters and temperature from K to F.</li>
+  <li>Run and test your tool to make sure it works.</li>
+</ol>
+<a href="SmartToolsExerciseAnswers.html#AnswerSS3">Click here for Answer to Exercise SmartScript-3.</a></div>
+</div>
+<hr width="100%">
+<h3 class="3Heading"><a name="SS-Ex4"></a>Exercise SmartScript-4 --
+Making and Accessing
+Soundings</h3>
+<div class="Body">To help you understand the concept of Numerical
+logical
+statements, rewrite the tool from Exercise SmartScript-3 and simplify
+the
+"where" statement by using some logical statements. For more
+information,
+see the discussion of Simple and Compound statements in 
+<a href="Python.html#StyleSuggestions">
+GFESuite Python Tutorial and Programming Guidelines -- Style
+Suggestions.</a>
+<p><a href="SmartToolsExerciseAnswers.html#AnswerSS4">Click here for Answer to Exercise SmartScript-4.</a></p>
+</div>
+<hr width="100%">
+<div class="Body">
+<h3 class="3Heading"><a name="SS-Ex5"></a>Exercise SmartScript-5 --
+Creating Elements "On-the-Fly"</h3>
+It is now possible to create "temporary" weather elements from a Smart
+Tool and add grids to them. These elements appear in the GridManager
+but
+cannot be saved. So if you unload them or shut down the GFE, they are
+gone.
+They can be accessed by subsequent Smart Tools.
+<br>
+<div class="Body">Suppose we want to create a temporary RH element from
+T an Td. Look at the documentation for the SmartScript method, "<a
+ href="SmartScriptClass.html#createGrid">createGrid.</a>"
+The first time this is called during a GFE session a new model and
+element
+can be created. Subsequent calls will simply add grids to the element.
+<p>Now, try your hand at writing a tool to create a new "TempRH"
+element.
+Select your own model name and use the equations in the RH_Tool (found
+in the Edit Action Dialog). When you create your tool, select "None"
+for
+the element edited. Use the "ScreenList" that appears in the tool
+template
+to specify how it will be displayed within the Edit Action Dialog.
+Instead
+of returning the resulting grid, your tool will call the "createGrid"
+command.
+</p>
+<p>Now you should be able to access this element in other tools with
+the
+"getGrids" command using your model name, element name, and "SFC" for
+the
+level. For example:
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; RH = self.getGrids("TempModel","TempRH",
+"SFC",GridTimeRange)
+</p>
+<p><a href="SmartToolsExerciseAnswers.html#AnswerSS5">Click here for Answer to Exercise SmartScript-5.</a>
+</p>
+<hr width="100%">
+<h3 class="3Heading"><a name="SS-Ex6"></a>Exercise SmartScript-6 --
+Working with Weather/Discrete</h3>
+<div class="3Heading">Weather and Discrete are similar to each other.
+They
+both are represented as a 2-tuple:</div>
+<ul>
+  <li>wxValues : numerical grid of byte values</li>
+  <li>keys : list of "ugly strings" where the index of the ugly string
+corresponds
+to the byte value in the wxValues grid for the WEATHER type of grid,
+and
+a list of "strings" where the index of the string corresponds to the
+byte
+value in the wxValues grid for the DISCRETE type of grid.</li>
+</ul>
+For a complete description, see <a
+ href="Python.html#WorkingwithWeatherData">Working
+with Weather Data in the GFESuite Python Tutorial</a> and <a
+ href="Python.html#WorkingwithDiscreteData">Working
+with Discrete Data in the GFESuite Python Tutorial</a>. Two
+particularily useful functions are getIndex() and wxMask() for Weather
+data, and getIndex() and discreteMask() for Discrete data.
+<p>Use the SmartScript method "getIndex" to assign weather values
+based on PoP according to the following criteria:
+</p>
+<blockquote><li>
+where PoP &lt; 15,&nbsp; assign
+"&lt;NoCov&gt;:&lt;NoWx&gt;:&lt;NoInten&gt;:&lt;NoVis&gt;:"</li>
+  <li>where PoP &gt;=15 and PoP &lt; 35, assign "Chc:R:-:&lt;NoVis&gt;:"</li>
+  <li>where PoP &gt;=35 and PoP &lt; 55, assign
+"Sct:RW:m:&lt;NoVis&gt;:"</li>
+  <li>where PoP &gt;= 55, assign "Wide:R:+:&lt;NoVis&gt;:"</li>
+</blockquote>
+<a href="SmartToolsExerciseAnswers.html#AnswerSS6">Click here for Answer to Exercise SmartScript-6.</a>
+<p>Here is an example of a Discrete smart tool that converts all
+gridpoints
+that have a value of &lt;None&gt;&nbsp;to "BL.W":
+</p>
+<p><tt>def execute(self, Hazards):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Sample tool to put
+in Blizzard Warnings (VTEC code BL.W)"</tt>
+</p>
+<p><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Determine new value</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; grid, key = Hazards</tt><br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; indexBlizzard =
+self.getIndex("BL.W",
+key)</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; indexNone =
+self.getIndex("&lt;None&gt;",
+key)</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mask = equal(grid,
+indexNone)</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; grid = where(mask,
+indexBlizzard,
+grid)</tt>
+<br>
+<tt>&nbsp;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return the new
+value</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return grid, key</tt>
+</p>
+<hr width="100%">
+<div class="Body">
+<h3 class="3Heading"><a name="SS-Ex7"></a>Exercise SmartScript-7 --
+Working with Weather/Discrete</h3>
+<div class="3Heading">Weather and Discrete are similar to each
+other.&nbsp;
+They both are represented as a 2-tuple of (grid, keys).
+<p>Use the SmartScript method, "wxMask()" to assign PoP values based on
+Wx coverage according to the following criteria:</p>
+</div>
+<blockquote> <li class="3Heading">where coverage is "&lt;NoCov&gt;",
+assign 0</li>
+  <li class="3Heading">where coverage is "Chc", assign 25</li>
+  <li class="3Heading">where coverage is "Sct", assign 55</li>
+  <li class="3Heading">where coverage is "Wide", assign 80</li>
+</blockquote>
+<div class="Body"><a href="SmartToolsExerciseAnswers.html#AnswerSS7">Click here for Answer to
+Exercise
+SmartScript-7.</a></div>
+</div>
+</div>
+</div>
+<hr width="100%">
+<h3 class="3Heading"><a name="SS-Ex8"></a>Exercise SmartScript-8 --
+Translating Between
+Smart
+Initialization and Smart Tools</h3>
+Overview of the correlation between Smart Initialization and Smart Tools.
+For the most part, the code is similar. However, the Smart Tools have
+access the sounding cubes through the "getNumericSounding" method. Smart Tools are
+also enhanced to extrapolate and interpolate, but the Smart
+Initialization code works as well. In general, when going between
+Smart
+Initialization and Smart Tools, follow these tips:
+<ul>
+  <li>In a Smart Tool, use "getNumericSounding" to get the sounding
+value
+cubes.</li>
+  <li>In a Smart Tool, use "interpolateValues" instead of the Smart
+Initialization
+method, "linear". Notice the order of arguments is different.</li>
+  <li>In a Smart Tool, the Topo argument is in feet while the Smart
+Initialization
+topo argument has been converted to meters.</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

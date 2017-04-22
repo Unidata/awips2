@@ -1,0 +1,350 @@
+C MODULE HDRPR
+C-----------------------------------------------------------------------
+C
+C  ROUTINE TO DEFINE AND REDEFINE LOCAL AND GLOBAL HCL PROCEDURES.
+C
+      SUBROUTINE HDRPR (IREPFL,IGL,ISTAT)
+C
+C  ARGUMENT LIST:
+C    NAME     TYPE   I/O   DIM   DESCRIPTION
+C    ------   ----   ---   ---   ------------
+C    IREPFL     I     I     1    DEFINITION TYPE INDICATOR:
+C                                  0=DEFINITION
+C                                  1=REDEFINITION
+C    IGL        I     I     1    GLOBAL LOCAL INDICATOR
+C    ISTAT      I     O     1    STATUS INDICATOR:
+C                                  0=OK DEFINED
+C                                  OTHER=NOT DEFINED
+C
+C
+      CHARACTER*8 RTNNAM,RTNOLD
+C
+      INTEGER LEFT(2),RIGHT(2)
+      PARAMETER (LIPROC=2000,LIDFLT=2000)
+      DIMENSION IPROC(LIPROC),IDFLT(LIDFLT)
+      PARAMETER (LTARR=42)
+      DIMENSION ITARR(LTARR)
+      PARAMETER (LIDREC=50)
+      DIMENSION IDREC(LIDREC)
+      DIMENSION NAME(2),IEND(2),LENDPR(2),IACTN(4),IWHAT(2)
+C
+      INCLUDE 'uiox'
+      INCLUDE 'udebug'
+      INCLUDE 'ufreei'
+      INCLUDE 'udatas'
+      INCLUDE 'hclcommon/hcomnd'
+      INCLUDE 'hclcommon/hcntrl'
+      INCLUDE 'hclcommon/hwords'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/db_hclrw/RCS/hdrpr.f,v $
+     . $',                                                             '
+     .$Id: hdrpr.f,v 1.3 2001/06/13 13:37:15 dws Exp $
+     . $' /
+C    ===================================================================
+C
+      DATA LAT/4H@   /
+      DATA IQUOTE/4H'   /,LEND/4HEND /
+      DATA LENDPR/4HENDP,4HROC /
+      DATA IACTN/4HDEFI,4HNED ,4HREPL,4HACED/
+C
+C   
+      RTNNAM='HDRPR'
+C
+      IF (IHCLTR.GT.1) WRITE (IOGDB,*) 'ENTER ',RTNNAM
+C
+      IOPNUM=-1
+      CALL FSTWHR (RTNNAM,IOPNUM,RTNOLD,IOLDOP)
+C
+      IPOS=(IREPFL*2)+1
+      CALL UMEMOV (IACTN(IPOS),IWHAT,2)
+C
+      IERR=0
+      I=10
+      II=11
+      K=8
+      J=1
+      CALL UMEMST (0,IPROC,LIPROC)
+      CALL UMEMST (0,IDFLT,LIDFLT)
+C
+C  READ FIRST CARD
+      NNCARD=1
+      CALL HCARDR (NNCARD,ISTAT)
+      IF (ISTAT.NE.0) GO TO 400
+C
+C  GET NAME AND PASSWORD
+      IFLD=3
+      IF (IFLD.LE.NFIELD) GO TO 30
+10       WRITE (LP,20)
+20    FORMAT ('0**ERROR** PROCEDURE NAME REQUIRED ON FIRST CARD.')
+         CALL ERROR
+         IERR=1
+         GO TO 50
+C
+30    CALL HNMPSW (IFLD,NAME,IPASS,ISTAT)
+      IF (ISTAT.NE.0) GO TO 10
+C
+C  CHECK IF ANY LOCALS NAMED THE SAME
+      IF (IREPFL.EQ.0.AND.IGL.LT.0) CALL HSRLDR (NAME,IGL,2,IREC,ISTAT)
+      IF (ISTAT.NE.0) IERR=1
+C
+C  SET IGL FOR REPLACE
+      IF (IREPFL.EQ.0) GO TO 40
+         IGL=1
+         CALL HFNDDF (NAME,IREC,IGL,IXREC)
+40    CALL HCKPSW (IGL,IPASS,IERR)
+      GO TO 60
+C
+C  READ NEXT CARD
+50    NNCARD=NNCARD+1
+      IF (NNCARD.EQ.NCARD) GO TO 190
+      CALL HCARDR (NNCARD,ISTAT)
+      IF (ISTAT.NE.0) GO TO 400
+      L=IFSTRT(1)
+      IF (IBUF(L).EQ.LAT) GO TO 150
+      IFLD=1
+C
+C   CHECK PARAMETER FOR SYNTAX
+60    IF (IFLD.GT.NFIELD) GO TO 50
+      CALL HFEQLS (IFLD,LEFT,RIGHT,ISRT)
+      IF (LEFT(1).NE.IBLNK) GO TO 80
+         WRITE (LP,70) IFLD
+70    FORMAT ('0**ERROR** PARAMETER=VALUE EXPECTED IN FIELD ',I2,'.')
+         CALL ERROR
+         IERR=1
+         IFLD=IFLD+1
+         GO TO 60
+C
+C  PROCESS THE PARAMETER
+80    MM=IPROC(9)
+      IF (MM.EQ.0) GO TO 110
+C     CHECK IF NAME IS UNIQUE
+         MMM=0
+         DO 100 M=1,MM
+             CALL UNAMCP (LEFT,IPROC(10+MMM),ISTA)
+             MMM=MMM+2
+             IF (ISTA.NE.0) GO TO 100
+                WRITE (LP,90) LEFT
+90     FORMAT ('0**ERROR** PARAMETER ',2A4,' ALREADY DEFINED','.')
+                CALL ERROR
+                IERR=1
+100          CONTINUE
+110   IPROC(9)=IPROC(9)+1
+      IF (I+2.GT.LIPROC) THEN
+C     PROC ARRAY FULL
+         CALL ULINE (LP,2)
+         WRITE (LP,370)
+370   FORMAT ('0**ERROR** PROCEDURE ARRAY IS FULL.')
+         CALL ERROR
+         IERR=1
+         GO TO 420
+         ENDIF
+      CALL UMEMOV (LEFT,IPROC(I),2)
+      I=I+2
+      II=I+1
+C      
+C  NOW THE DEFAULT
+      IDFLT(7)=IDFLT(7)+1
+      IDFLT(K)=IDFLT(7)
+      IF (K+12.GT.LIDFLT) THEN
+C     DEFAULT ARRAY FULL
+         CALL ULINE (LP,2)
+         WRITE (LP,390)
+390   FORMAT ('0**ERROR** DEFAULT ARRAY IS FULL.')
+         CALL ERROR
+         IERR=1
+         GO TO 420
+         ENDIF
+      L=IFSTOP(IFLD)-ISRT+1
+      IF (L.LE.LTARR) GO TO 130
+         MAX=LTARR-2
+         WRITE (LP,120) MAX
+120   FORMAT ('0**ERROR** ',I2,' IS THE MAXIMUM NUMBER OF CHARACTERS ',
+     *   'IN A PARAMETER STRING.')
+         CALL ERROR
+         IERR=1
+         IFLD=IFLD+1
+         GO TO 60
+130   CALL UMEMST (IBLNK,ITARR,LTARR)
+      ISTOP=IFSTOP(IFLD)
+      IF (IBUF(ISTOP).EQ.IQUOTE) L=L-1
+      CALL UMEMOV (IBUF(ISRT),ITARR,L)
+      CALL HPTSTR (ITARR,L,IDFLT(K+2),ISTAT)
+      IF (ISTAT.EQ.0) GO TO 140
+         IERR=1
+         IFLD=IFLD+1
+         GO TO 60
+140   IDFLT(K+1)=12
+      K=K+14
+      IFLD=IFLD+1
+      GO TO 60
+150   II=I+1
+C
+C  PROCESS REST OF CARDS
+160   IPROC(I)=IPROC(I)+1
+      IF (II+21.GT.LIPROC) THEN
+C     PROC ARRAY FULL
+         CALL ULINE (LP,2)
+         WRITE (LP,370)
+         CALL ERROR
+         IERR=1
+         GO TO 420
+         ENDIF
+      CALL HFEXCP (IGL,IDREC(J),0,ISTAT)
+      IF (ISTAT.NE.0) IERR=1
+      IF (IGL.LT.0) GO TO 180
+      IF (IDREC(J).NE.0) J=J+1
+      IF (J.LE.LIDREC) GO TO 180
+         WRITE (LP,170)
+170   FORMAT ('0**ERROR** LOCAL DEFINITION REFERENCE ARRAY IS FULL.')
+         CALL ERROR
+         IERR=1
+         GO TO 420
+180   LENGTH=IFSTOP(NFIELD)
+      CALL HPTSTR (IBUF,LENGTH,IPROC(II+1),ISTAT)
+      IF (ISTAT.NE.0) IERR=1
+      IPROC(II)=LENGTH
+      II=II+LENGTH+1
+C      
+C  READ NEXT CARD
+      NNCARD=NNCARD+1
+      IF (NNCARD.NE.NCARD) THEN
+         CALL HCARDR (NNCARD,ISTAT)
+         IF (ISTAT.NE.0) GO TO 400
+         GO TO 160
+         ENDIF
+C
+C  SET UP RECORDS
+190   J=J-1
+      CALL HCARDR (NNCARD,ISTAT)
+      KK=IFSTRT(1)
+      KKK=IFSTOP(1)-KK+1
+      IF (KKK.GT.8) GO TO 200
+      IEND(2)=IBLNK
+      CALL UPACK1 (IBUF(KK),IEND,KKK)
+      IF (IEND(1).EQ.LEND.AND.IEND(2).EQ.IBLNK) GO TO 220
+      CALL UNAMCP (IEND,LENDPR,ISTAT)
+      IF (ISTAT.EQ.0) GO TO 220
+200      WRITE (LP,210)
+210   FORMAT ('0**ERROR** NO END CARD IN PROCEDURE DEFINITION.')
+         CALL ERROR
+         IERR=1
+220   IF (IERR.NE.0) GO TO 420
+C
+C  SET UP ARRAYS
+      IPROC(3)=IGL
+      CALL UMEMOV (NAME,IPROC(4),2)
+      IPROC(6)=IPASS
+      IDFLT(2)=1
+      IDFLT(3)=5*IGL
+      CALL UMEMOV (NAME,IDFLT(4),2)
+      IDFLT(6)=IGL
+      II=II-1
+      K=K-1
+C
+C  WRITE RECORDS FOR REPLACE
+      IF (IREPFL.EQ.0) GO TO 240
+      CALL HREPRD (IPROC,II,IDFLT,K,ISTAT)
+      IF (ISTAT.EQ.0) GO TO 230
+      IERR=1
+      GO TO 420
+C
+C  WRITE LDR FOR LOCALS
+230   IF (IGL.LT.0) GO TO 330
+      CALL HDWLDR (NAME,IGL,IDREC,J,ISTAT)
+      IF (ISTAT.EQ.0) GO TO 330
+      IERR=1
+      GO TO 420
+C
+C  IF NO PARMS, NO DEFAULT
+240   IF (IPROC(9).EQ.0) GO TO 310
+C      
+C  DO LOCAL
+      IF (IGL.LT.0) GO TO 250
+      IPROC(7)=HCNTL(7,1)+1
+      GO TO 260
+C
+C  DO GLOBAL
+250   IPROC(8)=HCNTL(7,2)+1
+C
+C   WRITE THE DEFAULT RECORD
+260   CALL HPTRCD (IDFLT(3),K,IDFLT,ISTAT)
+      IF (ISTAT.EQ.0) GO TO 280
+         WRITE (LP,270)
+270   FORMAT ('0**ERROR** DEFAULT RECORD NOT ENTERED')
+         CALL ERROR
+         IERR=1
+         GO TO 420
+C
+C  RESERVE ROOM FOR LOCAL DEFAULT FOR GLOBAL PROC
+280   IF (IGL.GT.0) GO TO 310
+      IF (HCNTL(13,2)+IDFLT(1).LE.HCNTL(12,2)) GO TO 300
+         WRITE (LP,290)
+290   FORMAT ('0**ERROR** LOCAL DEFAULT FILE IS FULL.')
+         CALL ERROR
+         IERR=1
+         GO TO 420
+300   IPROC(7)=HCNTL(13,2)+1
+      HCNTL(13,2)=HCNTL(13,2)+IDFLT(1)
+C
+C  WRITE THE PROC
+310   CALL HPTRCD (IPROC(3),II,IPROC,ISTAT)
+      IF (ISTAT.EQ.0) GO TO 320
+         IERR=1
+         GO TO 420
+C
+C  WRITE THE LDR RECORD
+320   IF (IGL.LT.0) GO TO 330
+      CALL HPUTLD (IGL,NAME,J,IDREC,ISTAT)
+      IF (ISTAT.EQ.0) GO TO 330
+         IERR=1
+         GO TO 420
+C
+C  PRINT DEFINITION
+330   N=IPROC(1)*16
+      IF (N.EQ.0) N=16
+      IF (IHCLDB.GT.1) WRITE (LP,340) (IPROC(I),I=1,N)
+340   FORMAT (1X,3I4,3A4,3I6 / (1X,20I5))
+      N=IDFLT(1)*16
+      IF (N.EQ.0) N=16
+      IF (IHCLDB.GT.1) THEN
+         CALL ULINE (LP,2)
+         WRITE (LP,350) (IDFLT(I),I=1,N)
+350   FORMAT (1X,3I4,2A4,2I5 / (1X,20I5))
+         ENDIF
+      CALL HPPRCG (IPROC)
+      GO TO 420
+C
+C  SYSTEM ERROR
+400   CALL ULINE (LP,2)
+      WRITE (LP,410)
+410   FORMAT ('0**ERROR** SYSTEM ERROR.')
+      CALL ERROR
+      IERR=1
+C
+420   IF (IERR.NE.0) THEN
+         CALL ULINE (LP,2)
+         WRITE (LP,450) NAME,IWHAT
+450   FORMAT ('0*NOTE** PROCEDURE ',2A4,' NOT ',2A4,'.')
+         GO TO 460
+         ENDIF
+C
+      IF (IGL.GT.0) THEN
+         CALL ULINE (LP,2)
+         WRITE (LP,430) LLOCAL,NAME,IWHAT
+         ENDIF
+      IF (IGL.LT.0) THEN
+         CALL ULINE (LP,2)
+         WRITE (LP,430) LGLOBL,NAME,IWHAT
+         ENDIF
+430   FORMAT ('0**NOTE** ',A4,A3,'PROCEDURE ',2A4,' ',2A4,'.')
+C
+460   CALL FSTWHR (RTNOLD,IOLDOP,RTNOLD,IOLDOP)
+C
+      IF (IHCLTR.GT.1) WRITE (IOGDB,*) 'EXIT ',RTNNAM
+C
+      RETURN
+C
+      END

@@ -1,0 +1,174 @@
+#!/bin/bash
+
+# edex-environment environment
+dir="/awips2/edex-environment/macro"
+export EDEX_ENV_DIR="/usr/local/edex-environment"
+export UTILITIES="${dir}/utilities"
+
+# access functions
+pushd . > /dev/null 2>&1
+cd ${dir}/functions
+for func in `ls -1`; do
+   source ${dir}/functions/${func}
+done
+popd > /dev/null 2>&1
+
+function usage()
+{
+   echo "Usage: edex-environment -create \${CONFIG_FILE} [--start]"
+   echo "       edex-environment -start { \${CONFIG_FILE} | -name \${NAME} }"
+   echo "       edex-environment -stop { \${CONFIG_FILE} | -name \${NAME} }"
+   echo "       edex-environment -remove { \${CONFIG_FILE} | -name \${NAME} }"
+   echo "       edex-environment --list"
+}
+
+function parseCreate()
+{
+   # The second argument should be a configuration file.
+   if [ "${2}" = "" ]; then
+      usage
+      exit 0
+   fi
+   config_file="${2}"
+   createEnvironment "${config_file}"
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+
+   # The third argument may be "--start"
+   if [ "${3}" = "--start" ]; then
+      startEnvironment "${config_file}" ""
+      if [ $? -ne 0 ]; then
+         exit 1
+      fi
+   fi
+
+   exit 0
+}
+
+function parseStart()
+{
+   local config_file=""
+   local env_name=""
+
+   # The second argument could be "-name"; if not, it is a config file.
+   # If the second argument is "-name", the third argument is the 'name'.
+   if [ "${2}" = "-name" ]; then
+      if [ "${3}" = "" ]; then
+         usage
+         exit 0
+      fi
+      env_name="${3}"
+   else
+      if [ "${2}" = "" ]; then
+         usage
+         exit 0
+      fi
+      config_file="${2}"
+   fi
+
+   startEnvironment "${config_file}" "${env_name}"
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+
+   exit 0
+}
+
+function parseStop()
+{
+   local config_file=""
+   local env_name=""
+
+   # The second argument could be "-name"; if not, it is a config file.
+   # If the second argument is "-name", the third argument is the 'name'.
+   if [ "${2}" = "-name" ]; then
+      if [ "${3}" = "" ]; then
+         usage
+         exit 0
+      fi
+      env_name="${3}"
+   else
+      if [ "${2}" = "" ]; then
+         usage
+         exit 0
+      fi
+
+      config_file="${2}"
+   fi
+
+   stopEnvironment "${config_file}" "${env_name}"   
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+
+   exit 0
+
+}
+
+function parseRemove()
+{
+   local config_file=""
+   local env_name=""
+
+   # The second argument could be "-name"; if not, it is a config file.
+   # If the second argument is "-name", the third argument is the 'name'.
+   if [ "${2}" = "-name" ]; then
+      if [ "${3}" = "" ]; then
+         usage
+         exit 0
+      fi
+      env_name="${3}"
+   else
+      if [ "${2}" = "" ]; then
+         usage
+         exit 0
+      fi
+
+      config_file="${2}"
+   fi
+
+   removeEnvironment "${config_file}" "${env_name}" 
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+
+   exit 0
+}
+
+if [ $# -eq 0 ]; then
+   usage
+   exit 0
+fi
+
+# The first argument should be one of: {-create, -start, -stop, -remove, --list}
+if [ "${1}" = "-create" ]; then
+   parseCreate $*
+fi
+if [ "${1}" = "-start" ]; then
+   parseStart $*
+fi
+if [ "${1}" = "-stop" ]; then
+   parseStop $*
+fi
+if [ "${1}" = "-remove" ]; then
+   parseRemove $*
+fi
+if [ "${1}" = "--list" ]; then
+   listEnvironments
+   exit 0
+fi
+
+# default case:
+usage
+
+exit 0
+
+
+
+
+
+
+
+
+

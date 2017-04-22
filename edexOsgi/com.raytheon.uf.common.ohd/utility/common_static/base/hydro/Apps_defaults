@@ -1,0 +1,1962 @@
+#
+# Official National .Apps_defaults file for AWIPS Release OB8.3  
+# Also see .Apps_defaults_site for override settings
+# Revision History:
+# 11/06/2001 - adjusted many directory locations of precip_proc tokens.
+#              notable changes: st3_mkimage, rfcwide_input_dir
+#              added pproc_local, pproc_local_data, pproc_log
+#              grouped tokens together for 3 subsystems - shefdecode, whfs, 
+#              precip_proc.
+#              placed precip_proc section after ofs since there are some 
+#              dependencies
+#              changed value of whfs_editor
+#              added hydro_publicbin token
+#              added pproc_util_log_dir
+# 07/01/2002 - added ens_input, ens_output, ens_files
+# 07/22/2002 - add global gaff execution token 
+# 11/04/2002 - added disagg tokens
+# 08/29/2003 - added sqlcmd_bin_dir
+# 08/20/2003 - added ligtning_input_dir, lightning_log_dir
+# 10/03/2003 - added tokens gage_qc, sccqc_threshold, mpe_scc_boxes_failed, 
+#              mpe_msc_precip_limit
+# 10/10/2003 - changed token names to mpe_gage_qc, mpe_sccqc_threshold
+#            - changed mpe_gage_qc token value to ON
+# 02/04/2004 - Added new tokens for ens_pre netCDF enhancement --kwz
+# 2/4/2004 -   added mpe_locbias_1hr_rerun token
+# 02/11/2004 - Added hv_map_projection.
+# 02/19/2004 - Removed stage2 and stage3 related tokens.
+# 03/10/2004 - Added mpe_mlmosaic_calc and rfcwide_mlmosaic_dir tokens.
+# 03/16/2004 - Added rfcwide_lsatpre_dir, rfcwide_satstate_var_dir,
+#                mpe_lsatpre_calc.
+# 03/19/2004 - Added mpe_del_gage_zeros.
+# 03/22/2004 - added sshp tokens
+# 03/24/2004 - Added rpf_min_dur_filled
+# 03/31/2004 - Added SSHP tokens
+# 04/26/2004 - added sshp_invoke_map_preprocess and 
+#              sshp_java_process_host tokens for the 
+#              mpe_fieldgen scripts
+# 05/06/2004 - Added more RFC archive database (adb) tokens
+# 06/28/2004 - Added preadj_outts_dir
+# 07/31/2004 - Added gage_pp_userid, gage_pp_host, gage_pp_data, gage_pp_log
+#              and gage_pp_sleep.
+# 08/10/2004 - ssh- Added gage_pp_userid, gage_pp_host, gage_pp_data, 
+#                gage_pp_log, gage_pp_sleep, gage_pp_enable, shef_post_precip
+# 08/12/2004 - Added timeseries_begintime, timeseries_endtime, timeseries_mode
+#                timeseries_showcat, timeseries_linewidth, dam_icon_color
+# 10/14/2004 - Added the mpe_generate_list token. BAL
+# 10/14/2004 - Removed the tokens: mpe_mlmosaic_calc, mpe_lsatpre_calc
+# 11/05/2004 - Corrected spelling of timeseries_endime. RAE
+# 11/23/2004 - Added the mpe_show_missing_gage token.
+# 01/07/2005 - Added the sum_pc_reports token.  This controls how PC-based
+#              precipitation totals are derived.
+# 01/10/2005 - Added the sum_pc_reports token.
+# 01/28/2005  - Added AWIPS MODIFICATION BLOCK.  When gmake is run in the
+#               development tree location of .Apps_defaults, a copy of it
+#               will be placed in /awips/hydroapps with the lines modified
+#               in the AWIPS modification block to work in the /awips/hydroapps
+#               tree. 
+# 01/28/2005  - Modified the definitions of adb_shef_pro_err_dir and
+#               adb_shef_pro_logs_dir.
+#               Added the pghost, and pguser, pgport tokens for PostGres.
+# 04/21/2005 - Changed shefdecode_host and gage_pp_host to dx.
+# 04/28/2005 - Added hv_min_dur_filled token. Added ppp_ppd_local_7am_window
+#              token.
+# 5/5/2005   - Added SSHP tokens  sshp_initial_forecast_length, sshp_max_forecast_length,       
+#	       sshp_sac_update_expiration_hours, sshp_sac_update_hours_forward.
+#	       Moved sshp_fcst_ts to be next to the rest of the SSHP tokens.	
+# 5/11/2005  - Changed pguser token value to pguser.
+# 6/9/2005   - Changed value of grib_rls (location of gribit executable)
+#            - Added new tokens mpe_d2d_display_grib, d2d_input_dir, mpe_send_grib
+# 6/15/2005  - Changed value for d2d_input_dir token
+# 9/13/2005  - Replaced the edit_poly token with the rfcwide_drawpre_dir
+#              token.  This directory will contain the precip edit polygons
+#              drawn in Hydroview/MPE and applied in MPE Fieldgen.
+# 9/22/2005  - Added the rfcwide_gageloc_dir and rfcwide_beamheight_dir tokens.
+# 9/27/2005  - Added the hdb_db_name token. Contains the name of the database
+#              used by the historical data browser.
+#10/6/2005   - Modified the value of the rfcwide_utiltriangles_dir token to 
+#              be under local/data/app/mpe instead of local/data/mpe.
+#10/6/2005   - Added the mpe_base_radar_mosaic token.
+#02/7/2006   - Added the mpe_split_screen token.
+#02/8/2006   - Added tokens for the PDC Preprocessor
+#02/9/2006   - Added mpe_polygon_action_order and mpe_polygon_field_order
+#              tokens.
+#03/2/2006   - Added new tokens for DailyQC.  Added renamed MPE tokens.
+#04/19/2006  - Added new tokens for controling the orientation/appearance
+#              of the historical data browser and the locations of the help
+#              and configuration directory.
+#05/30/2006  - Modified the token values for datview_plot_font and anav_data.
+#              Added the following tokens for archive database programs: 
+#              adb_shef_pro_tmp_dir, adb_shef_raw_tmp_dir, 
+#              adb_shef_raw_add_adjust, rax_pghost, adb_name
+#05/30/2006  - Added the mpe_send_qpe_to_sbn token.
+#06/06/2006  - Added the grib_set_subcenter_0 token.
+#07/07/2006  - Added the ifp_griddb_dir token.
+#09/05/2006  - Added the dhm_d2d_data_dir and dhm_d2d_notify_dir tokens.
+#10/02/2006  - Added the sshp_map_qpe_to_use token.
+#11/02/2006  - Added the mpe_qpe_grib_sbn_dir token.
+#11/17/2006  - Added the mpe_qpe_sbn_dir token.
+#05/08/2007  - Added tokens for the rfc bias transfer project.
+#05/09/2007  - Added 3 tokens for SRG field directories
+#05/14/2007  - Added token for rdhm input directory
+#O5/23/2007  - Added sshp_show_simulated_timeseries,  changed sshp_background_fcst_length to 
+#              sshp_background_forecast_length 
+#05/23/2007  - Add tokens for RiverPro: rpf_endtime_shifthrs,
+#                show_vtecqc_window, event_expire_withinhr
+#06/18/2007  - Added the send_local_bias_when_rfc_bias_missing token.
+#              Biasmesgen reads this token to determine whether or not
+#              to send the locally generated MPE bias to the RPG if
+#              the RFC bias is not available.
+#06/28/2007  - Added DailyQC preprocessor token dqc_preprocessor_basetime	       
+#07/17/2007  - Added rgb_file_path token. Used by new Color Manager in Hydroview
+#              and MPE Editor.
+#10/24/2007  - Added dhm_rain_plus_melt_data_dir token 
+#11/08/2007  - Added tokens for IHFS->RAX Synchronization: adb_sync_logs_dir,
+#              adb_sync_mode, adb_sync_tablenames, adb_sync_ihfs_ingest, adb_sync_rivercrit
+#1/16/2008   - added new tokens for disagg processing
+#              mpe_disagg_execute, mpe_disagg_method, mpe_disagg_6hreq_0,mpe_disagg_6hrgt_0
+#3/22/2008   - Added variable substitution for database port.
+#
+#3/5/2008    - Modified the value of the mpe_mmosaic_dir token.  There was a typo in the
+#              product name. It was mrmosaic.  It is now mmosaic.
+#05/19/2008  - Added sshp_hpn_minutes_before and sshp_hpn_minutes_after tokens.
+#              These tokens define the time window for the SSHP HPN Prerocessor.
+#07/07/08    - Added sshp_show_unadjusted_states    // for sshp
+#
+#10/01/09    - Added 5 tokens for arcnav application.                          //only for arcnav for raxum application
+#10/03/12    - Added token section for script execution
+#02/12/2014  - Added token for default display to replace field in rwprefs table
+#02/18/14    - Added section for run_report_alarm service configuration.
+#04/10/14  - Added token for DuaPol radar productts processed in MPE, HPE/HPN
+#05/05/2014  - #3026 added hpe_grib_input_dir token
+
+# ==============================================================================
+# To see syntax rules for this file, see the bottom of this file
+#
+# Also see .Apps_defaults_site for overriding settings
+#
+ 
+#$=============================================================================
+#$ This section contains the tokens whose values are different between the
+#$ development and the delivery tree.  The value give is the development
+#$ value.  The commented value is the delivery value.  The uncommented value
+#$ is in the development tree.  All of these tokens must be enclosed
+#$ by the AWIPS_MODIFICATION_BLOCK_BEGIN and AWIPS_MODIFICATION_BLOCK_END
+#$ tags.  Token names and commented lines should at column 1.
+
+#AWIPS_MODIFICATION_BLOCK_BEGIN
+fxa_local_site     : BOU     
+mpe_site_id        : bou     
+hv_center_lat      : 40.0    # HydroView center latitude 
+hv_center_lon      : -105.0  # HydroView center longitude 
+hv_map_width       : 860     # HydroView map width (nautical miles) 
+whfs_primary_radar : FTG     # WHFS primary radar id, for Stage II 
+whfs_tz            : MST6MDT # WHFS time zone code 
+
+apps_dir           : /awips2/edex/data/share/hydroapps   # Hydrologic applications directory
+
+data_archive_root  : /awips2/data_store  # root directory of the data archive
+
+mcp3_icp_iface     :  $(HOME)/mcp3_ntrfc
+#mcp3_icp_iface    :  /tmp/$(LOGNAME)/mcp3_ntrfc
+
+verify_dir         : $(apps_dir)/rfc/verify   #base verify directory
+#verify_dir        : /rfc_arc/verify          #base verify directory
+
+vsys_dir           : $(apps_dir)/rfc/verify   #base verify directory 
+#vsys_dir          : $(verify_dir)            #base verify directory 
+
+#AWIPS_MODIFICATION_BLOCK_END
+
+#===================== Apps/Script Execution Tokens =================================
+WhfsSrv                                        : OFF
+WhfsSrv.purge_files                            : OFF
+WhfsSrv.run_db_purge                           : OFF
+WhfsSrv.run_floodseq                           : OFF
+PprocSrv                                       : OFF 
+PprocSrv.purge_mpe_files                       : OFF
+PprocSrv.purge_hpe_file                        : OFF
+MpeFieldGenSrv.run_mpe_fieldgen                : OFF
+WhfsSrv.run_pdc_pp                             : OFF
+WhfsSrv.run_alarm_whfs                         : OFF
+WhfsSrv.run_alarm_whfs.run_roc_checker         : OFF
+WhfsSrv.run_alarm_whfs.run_report_alarm        : OFF
+WhfsSrv.run_alarm_whfs.run_report_alarm.textdb : OFF
+ArealQpeGenSrv                                 : OFF
+DqcPreProcSrv                                  : OFF
+DqcPreProcSrv.run_dqc_preprocessor             : OFF
+MpeRUCFreezingLevel                            : OFF
+MpeLightningSrv                                : OFF
+#====================================================================================
+
+#===================== run_report_alarm Configuration ===============================
+# These settings modify behavior of the EDEX RunReportAlarmSrv service, which 
+# replaced the original run_report_alarm script ported from A1 hydro.
+#
+## Mandatory Arguments:
+##   alarm_product_id  :  The product id that will be used to write the alarm
+##                        report product into the textdb. 
+##
+## Optional Arguments:
+##   alarm_file_suffix :  A Java date/time format string that will be used as
+##                        the alarm report's file extension when the product is
+##                        written to disk. Product file path is 
+##                        ${whfs_product_dir}/PRODUCT_ID.FILE_SUFFIX.
+##
+##   alarm_report_mode :  Report mode. Valid values are one of the following:
+##                        ALL, FRESH, RECENT, UNREPORTED, NEAREST, NEAR_NOW, 
+##                        LATEST_MAXFCST, or NEW_OR_INCREASED.
+##
+##   alarm_filter      :  Additional filtering options for the product.
+##                        Valid values can one or many of the following:
+##                        'O', 'F', 'T', 'M', 'R', 'L', 'U', 'D'.
+##
+##   alarm_pe_filter   :  Physical element filter.
+##
+##   alarm_minutes     :  For certain report modes, creates a window going back
+##                        or forward the specified number of minutes.
+##                        Valid values are 1 - 999999.
+##
+##   alarm_verbose     :  Whether or not to create a "verbose mode" report.
+##                        Valid values are TRUE or FALSE.
+##
+
+alarm_product_id       : CCCACRXXX
+alarm_file_suffix      : MMdd.HHmm
+alarm_report_mode      : NEAREST
+
+# ==============================================================================
+
+#  Executable directory tokens.
+sys_java_dir       : /awips2/java               # Location of Java COTS software
+hydro_publicbin    : $(apps_dir)/public/bin 
+sqlcmd_bin_dir     : /usr/local/sqlcmd/bin      # location of sqlcmd executable on both HP and
+                                                #   Linux beginning in OB3
+
+#################################################################################
+#  Default Display Maps - comma separated list of maps with no spaces
+#      Map names can be found in the localization perspective under 
+#      CAVE->Bundles->Maps.  Use the filename without the extension.
+#      statesCounties.xml -> statesCounties
+#
+# display_maps - default display maps for Hydro Perspective
+# mpe_display_maps - default display maps for MPE Perspective
+display_maps       : statesCounties
+mpe_display_maps   : statesCounties
+#################################################################################
+
+#  database selection tokens
+server_name        : ONLINE      # Informix database server name
+db_name            : hd_ob92oax    # IHFS database name
+damcat_db_name     : dc_ob7oax     # Dam Catalog database name
+hdb_db_name        : ob81_histdata # Historical database. 
+pghost             : localhost     # The machine PostGres is running on
+pguser             : awips      # The user allowed to access PostGres
+pgport             : 5432        # The PostGres Server port
+adb_name           : adb_ob7xxx  # RFC archive database name
+rax_pghost         : localhost     # The machine PostGres is running on for the adb
+
+# vacuum log dir token.
+vacuum_log_dir     : $(whfs_log_dir)/vacuum
+
+#  damcat tokens
+damcat_hostoffice_type    :  wfo      # source of run-from office
+damcat_office_datasource  :  ohd      # which data source is used
+max_storage_value         : 0.00      # max storage volume filter
+damcat_data               : /tmp/damcatData
+
+# Damcrest tokens
+damcrest.db_enabled	: true		# set to true when the user has damcat database
+damcrest.hasListAllDams	: true	 	# when set to true, all dams will be displayed initially
+
+# Path to the editor used by Damcrest
+damcrest.editor 	: /usr/bin/gvim
+
+# Path to the damcrest data directory where input and output files
+# of the  model are stored
+damcrest_data_dir       : $(whfs_local_data_dir)/damcrest
+
+# Path to the directory where .vimrc resource file resides.
+# This resource file is needed when editor in Damcrest application
+# is set to gvim.
+damcrest_res_dir        : $(whfs_config_dir)/damcrest
+
+#===================== SHEFDECODE Application Tokens ================================
+
+shefdecode_userid  : oper                     # controlling UNIX user
+shefdecode_host    : localhost                # controlling UNIX system.
+shefdecode_dir     : $(apps_dir)/shefdecode   # main directory location
+shefdecode_bin     : $(shefdecode_dir)/bin    # executable programs location
+shefdecode_input   : $(shefdecode_dir)/input  # SHEF parameter file location
+shef_data_dir      : /awips2/edex/data/shef   # input products location
+
+shefdecode_log     : $(shefdecode_dir)/logs/decoder  # daily log files location
+shef_error_dir     : $(shefdecode_dir)/logs/product  # product log files location
+shef_keeperror     : ALWAYS                          # keep product log files (=ALWAYS) or
+                                                     # only when errors occur (=IF_ERROR)
+shef_perflog       : OFF  # ON/OFF - create a separate performance log file to
+                          #          save internal decoder timing messages for
+                          #          monitoring performance
+shef_data_log      : OFF  # ON/OFF - include messages in the log file detailing
+                                     the SHEF records
+dupmess            : OFF  # ON/OFF - include messages in the log file about
+                          #          duplicate data
+elgmess            : OFF  # ON/OFF - include messages in the log file about
+                          #          data types not found in IngestFilter or
+                          #          data types turned off in IngestFilter
+locmess            : OFF  # ON/OFF - include messages in the log file about
+                          #          stations and areas not found in Location
+                          #          or GeoArea
+
+shef_sleep         : 10   # sleep duration in seconds in between queries
+shef_winpast       : 10   # number of days in past to post data
+shef_winfuture     : 30   # number of minutes in future to post obs data
+shef_duplicate     : IF_DIFFERENT   # flag for handling duplicate date          
+                          # ALWAYS_OVERWRITE-always overwrite when value repeats
+                          # USE_REVCODE-if revcode set overwrite duplicate value
+                          # IF_DIFFERENT-overwrite if new value is different
+                          # IF_DIFFERENT_OR_REVCODE-overwrite if new value is 
+                          #           different or revcode is set
+shef_load_ingest   : OFF  # ON/OFF - automatically load the IngestFilter table or not
+                          #          with (station id-PEDTSE) combinations as they
+                          #          arrive in the input data flow
+shef_storetext     : OFF  # ON/OFF - post/don't post raw encoded SHEF text messages
+                          #          to the TextProduct table
+shef_post_unk      : NONE # NONE - do not post to the UnkStn nor UnkStnValue tables
+                          # IDS_ONLY - post only location identifiers for unknown
+                          #            stations to the UnkStn table
+                          # IDS_AND_DATA - post all data from unknown stations to
+                          #                the UnkStnValue table
+shef_post_baddata  : REJECT   # PE/REJECT - post data that have failed the gross range
+                              #             check to the physical element data tables (=PE) OR
+                              #             to the RejectedData table (=REJECT)
+shef_procobs       : OFF  # ON/OFF - post Processed data values (i.e., TS=P*) to
+                          #          the observation data tables (=ON) or to
+                          #          the ProcValue table (=OFF)
+shef_post_latest   : OFF  # ON/OFF - post/don't post data to the LatestObsValue table
+                          # VALID_ONLY - post data to the LatestObsValue table
+                          #              ONLY if the gross range check is passed
+shef_post_link     : OFF  # ON/OFF - post/don't post data to the ProductLink table
+shef_load_maxfcst  : OFF  # ON/OFF - after each product that resulted in forecast
+                          #          height or discharge data being posted, load
+                          #          the maximum forecast data into the RiverStatus table
+shef_alertalarm    : OFF  # ON/OFF - causes shefdecoder to screen data against
+                          #          alert and alarm thresholds
+# -- Intermediate output from ShefParser prior to post
+shef_out : OFF
+                          
+
+#===================== WHFS Applications Tokens ================================
+
+whfs_base_dir          : /awips2/edex/data/share/hydroapps/whfs    # top of the WHFS tree
+whfs_local_dir         : $(whfs_base_dir)/local       # top of WHFS local tree
+whfs_local_data_dir    : $(whfs_local_dir)/data       # top of WHFS local data tree
+whfs_local_grid_dir    : $(whfs_local_data_dir)/grid  # top of WHFS grids tree
+whfs_log_dir           : $(whfs_local_data_dir)/log   # top of WHFS logs tree
+
+whfs_local_bin_dir     : $(whfs_local_dir)/bin           # local WHFS executables
+
+whfs_geodata_dir       : $(whfs_local_data_dir)/geo      # WHFS map backgrounds
+whfs_image_dir         : $(whfs_local_data_dir)/image    # user-saved image files
+whfs_import_dir        : $(whfs_local_data_dir)/import   # files to import into WHFS
+whfs_product_dir       : $(whfs_local_data_dir)/product  # WHFS generated external products
+whfs_report_dir        : $(whfs_local_data_dir)/report   # user-saved text reports
+whfs_lines_per_page    : 60
+
+whfs_config_dir        : $(whfs_local_data_dir)/app     # WHFS app configuration files
+rpf_template_dir       : $(RPF_TEMPLATE_DIR)    # RiverPro templates
+metar_config_dir       : $(whfs_config_dir)/metar2shef  # METAR translator config
+metar2shef_options     : " -a -b -p1 -y2k -salias -p6 -p24 -round -w -strip "
+ts_config_dir          : $(whfs_config_dir)/timeseries  # Time Series config
+hv_config_dir          : $(whfs_config_dir)/hydroview   # Hydroview pixmaps etc.
+hv_help_dir            : $(hv_config_dir)/help/         # Hydroview Help direc.
+rivermon_config_dir    : $(whfs_config_dir)/rivermon/   # RiverMonitor Conf dir.
+
+whfs_misc_grid_dir     : $(whfs_local_grid_dir)/misc    # misc WHFS grids
+
+rgb_file_path          : /usr/share/X11/rgb.txt     # Location of X/Motif color file.
+
+rpf_log_dir            : $(RPF_LOG_DIR)			        # RiverPro logs
+rivermon_log_dir       : $(whfs_log_dir)/rivermon       # RiverMonitor logs
+obsfcstmonitor_log_dir : $(whfs_log_dir)/obsfcst_monitor # ObsFcstMonitor logs
+whfs_util_log_dir      : $(whfs_log_dir)/misc           # WHFS misc logs
+precip_accum_log_dir   : $(whfs_log_dir)/precip_accum   # precip_accum logs
+floodseq_log_dir       : $(whfs_log_dir)/floodseq       # flood sequencer logs
+metar_log_dir          : $(whfs_log_dir)/metar2shef     # METAR translator logs
+hb_gagrad_log_dir      : $(whfs_log_dir)/create_gagradloc # gage-radar locator logs
+qcalarm_log_dir        : $(whfs_log_dir)/qcalarm        # batch QC logs
+
+db_purge_log_dir       : $(whfs_log_dir)/db_purge # db_purge token
+db_purge_backup_retention_use   :  OFF             # db_purge token for using backup retention value
+
+purge_files_log_dir    : $(whfs_log_dir)/misc     # purge_files token
+
+whfs_bin_dir           : $(whfs_base_dir)/bin # WHFS executables
+sws_parent_dir         : $(whfs_bin_dir)      # SWS parent dir
+sws_home_dir           : $(whfs_bin_dir)/pa   # SWS dir
+
+# -----------------------------------------------------------------
+# The Gage Precip Processor tokens
+# -----------------------------------------------------------------
+
+gage_pp_userid     : oper                     # controlling UNIX user
+gage_pp_host       : localhost                # controlling UNIX system
+gage_pp_data       : $(pproc_local_data)/gpp_input  # input data files location 
+gage_pp_log        : $(pproc_log)/gage_pp     # daily log files location
+gage_pp_sleep	   : 10	  # sleep duration in seconds in between queries
+gage_pp_enable         : OFF      # gpp enabled; shef uses to determine post
+shef_post_precip       : OFF     # post to Precip/CurPrecip tables
+build_hourly_enable    : OFF      # Enable the build_hourly application
+
+# ----------------------------------------------------------------
+# The following tokens are most likely to be customized by the user
+#  (the first 4 MUST be customized at each site in the .Apps_defaults_site file)
+# ----------------------------------------------------------------
+hv_height_in_pixels    : 900     # Hydroview map height in pixels
+hv_width_in_pixels     : 1200    # Hydroview map width in pixels
+hv_pointdata_display   : ON      # Hydroview point data display flag (ON, OFF)
+hv_hours_in_window     : 4       # Change window hours
+hv_zoom_out_limit      : 20      # Limits how far the map can be zoomed out
+hv_disclosure_limit    : 60                             # Prog disclosure limit
+hv_zoom_threshold      : 150                  # nautical miles; Hydroview
+                                              #    detail level for cities/towns 
+hv_map_projection      : FLAT    # Sets default map projection used in
+                                 # hydroview/MPE.  Options are FLAT, POLAR
+                                 # or HRAP.
+hv_refresh_minutes     : 15      # HydroView auto refresh time (minutes)
+hv_riverbasis          : maxobsfcst # initial river basis for river characteristics
+hv_min_dur_filled      : 0.0     # Minimum percentage of accum interval covered
+                                 # by precip data.
+ppp_ppd_local_7am_window : 3     # Number of +/- hours around 7 AM local to
+                                 # to use PPP and PPD reports for 24 hour
+                                 # precip summaries.
+                                    # values either obs, fcst, maxobsfcst
+shefencode_prodid      : CCCCNNNXXX  # product identifier for outgoing SHEF
+                                     # encoded messages from Hydro Time Series
+whfs_editor            : whfs_editor   # WHFS text editor
+rpf_linewidth          : 80      # width of line in RiverPro generated products
+rpf_min_dur_filled     : 0.25    # min percent time of requested precip dur in RiverPro
+office_prefix          : K       # fourth char prepended to 3-char office id
+vtec_record_stageoffset : 2.0    # ft offset from record value for H-VTEC field
+vtec_record_flowoffset  : 5000.0 # cfs offset from record value for H-VTEC field
+pproc_s2_gridgen_hrs   : 5       # WHFS Stage II lookback (hours)
+whfs_min_dur_filled    : 0.83    # WHFS min fractional time duration needed for radar accumulations
+whfs_min_area_covered  : 0.80    # WHFS min fractional area needed to compute MAPs
+whfs_printcommand_HP   : lp      # command used to print WHFS apps reports on HP
+whfs_printcommand_LX   : lp      # command used to print WHFS apps reports
+                                 # on LX
+whfs_e19_print_command : "lp -o cpi=19 -o lpi=7"     # command used to print e19 text reports
+
+dam_icon_color         : BROWN   # Color used for dam icon in Hydroview
+timeseries_begintime   : 5       # number of days back relative to current time
+timeseries_endtime     : 3       # number of days ahead relative to current time
+timeseries_showcat     : 2       # scale by data and show categories
+timeseries_linewidth   : 1       # width of line drawn on graph
+timeseries_mode        : STATION # set to GROUP or STATION mode
+timeseries_dist_shef   : OFF     # ON/OFF token for the shef send script distribute check box
+                                 # Defaults to off if not set
+rpf_stage_window       : 0.5     # set stage window for determining the trend
+                             # variables in RiverPro
+show_vtecqc_window     : IF_ERROR #or ALWAYS, used in RiverPro
+rpf_endtime_shifthrs   : 6   # in RiverPro
+event_expire_withinhr  : 3   # in RiverPro
+
+#=====Tokens To Generate Areal FFG from Mosaicked FFG Grids for Use By SSHP=====
+#     (NOTE: gaff_rfc_list MUST be customized at EVERY Field Office)
+
+gaff_execution         : OFF   # ON/OFF token for the gen_areal_ffg process
+                              # the gen_areal_ffg process is run from the
+                              # process_dpa_files script at WFOs
+
+gaff_rfc_list          : MBRFC,NCRFC,NWRFC,CNRFC,CBRFC,WGRFC,ABRFC,LMRFC,SERFC,OHRFC,MARFC,NERFC  # list of RFCs to be mosaicked
+gaff_input_dir         : $(EDEX_HOME)/data/processing
+                             # directory containing gridded FFG
+                             #    generated by RFCs
+gaff_look_back_limit   : 60  # number of hours to look back for valid gridded
+                             #    FFG data for input
+gaff_mosaic_dir        : $(whfs_misc_grid_dir)  # directory containing output
+                                                #    mosaicked gridded FFG in
+                                                #    netCDF format
+gaff_durations         : 1,3,6  # FFG durations in hours
+                                # list is comma separated, no embedded
+                                #    spaces are allowed
+
+
+# ================= "ds_" system tokens (see more in site file) ===============
+
+ofs_dir       : $(apps_dir)/rfc/nwsrfs/ofs
+util_dir      : $(apps_dir)/rfc/nwsrfs/util
+calb_dir      : $(apps_dir)/rfc/nwsrfs/calb
+ifp_dir       : $(apps_dir)/rfc/nwsrfs/ifp
+icp_dir       : $(apps_dir)/rfc/nwsrfs/icp
+ens_dir       : $(apps_dir)/rfc/nwsrfs/ens
+fld_dir       : $(apps_dir)/rfc/fld
+
+
+hdb_dir       : $(apps_dir)/rfc/hdb
+
+#  = = = = = = = = = = = = = = = = = = = = = = end "ds_" system requirements = =
+
+ofs_rls       :   $(ofs_dir)/bin/RELEASE
+util_rls      :   $(util_dir)/bin/RELEASE
+calb_rls      :   $(calb_dir)/bin/RELEASE
+ffg_rls       :   $(ffg_dir)/bin/RELEASE
+ifp_rls       :   $(ifp_dir)/bin/RELEASE
+icp_rls       :   $(icp_dir)/bin/RELEASE
+ens_rls       :   $(ens_dir)/bin/RELEASE
+hdb_rls       :   $(hdb_dir)/bin/RELEASE
+fld_rls       :   $(fld_dir)/bin/RELEASE  
+xsets_rls     :   $(xsets_dir)/bin/RELEASE
+xnav_rls      :   $(xnav_dir)/bin/RELEASE
+xdat_rls      :   $(xdat_dir)/bin/RELEASE
+    
+ofs_arc       :   $(ofs_dir)/bin/ARCHIVE
+util_arc      :   $(util_dir)/bin/ARCHIVE
+calb_arc      :   $(calb_dir)/bin/ARCHIVE
+ffg_arc       :   $(ffg_dir)/bin/ARCHIVE
+ifp_arc       :   $(ifp_dir)/bin/ARCHIVE
+icp_arc       :   $(icp_dir)/bin/ARCHIVE
+ens_arc       :   $(ens_dir)/bin/ARCHIVE
+hdb_arc       :   $(hdb_dir)/bin/ARCHIVE
+fld_arc       :   $(fld_dir)/bin/ARCHIVE
+xsets_arc     :   $(xsets_dir)/bin/ARCHIVE
+xnav_arc      :   $(xnav_dir)/bin/ARCHIVE
+xdat_arc      :   $(xdat_dir)/bin/ARCHIVE
+#  = = = = = = = = = = = = = = = = = = = = = = end of other "ds_" tokens = = = =
+
+# LDAD shefencode tokens
+ldad_data_dir        :  /awips/ldad/data          # the LDAD internal data dir
+shefenc_pe_table     : $(ldad_data_dir)/ShefEncoder_PE.tbl 
+shefenc_units_table  : $(ldad_data_dir)/ShefEncoder_Units.tbl
+
+# NWSRFS tokens
+
+rfs_dir         : $(apps_dir)/rfc/nwsrfs   # Top-level rfs mt.
+rfs_sys_dir     : $(rfs_dir)/sys_files     # RFS system files
+rfs_doc         : $(rfs_dir)/doc           # NWSRFS documentation
+
+# OFS tokens
+locks_dir              : $(rfs_dir)/locks                    
+ofs_lock_max_wait      : 60   # no. of mins to wait to get an ofs lock
+ofs_lock_wait_interval : 5    # no. of secs 'tween retries to get an ofs lock
+ofs_locks_max_pass     : 4    # no. of attempts to make to get a set of locks.
+
+ofs_level       : oper
+ofs_reor_lvl    : oper_new
+ofs_inpt_grp    : oper
+
+home_files_workstation   :   ds
+                                          
+ofs_log_output   : off                     # whether to output file r/w info
+ofs_error_output : on                      # whether to output file error info
+fortran_stderr   : 7                       # FORTRAN standard error unit
+
+ofs_bin         : $(ofs_dir)/bin                        # OFS executables dir
+ofs_files       : $(ofs_dir)/files                      # OFS file group
+ofs_fs5files    : $(ofs_files)/$(ofs_level)/fs5files    # OFS files dir
+ofs_reorder_dir : $(ofs_files)/$(ofs_reor_lvl)/fs5files # OFS reordered files
+ofs_output      : $(ofs_dir)/output                     # OFS output dir
+ofs_input       : $(ofs_dir)/input/$(ofs_inpt_grp)      # OFS input dir
+ofs_input_dflt  : $(ofs_dir)/input/$(ofs_inpt_grp)      # OFS input dir
+ofs_shefdata_dir: $(ofs_files)/$(ofs_level)/shefdata    # OFS SHEF data dir
+ofs_shefout_dir : $(ofs_files)/$(ofs_level)/shefdata    # OFS shefout file dir
+ofs_mods_dir    : $(ofs_files)/$(ofs_level)/mods        # OFS MODS files dir
+ofs_griddb_dir  : $(ofs_files)/$(ofs_level)/griddb      # OFS gridded fields
+ofs_scripts     : $(ofs_dir)/scripts                    # OFS scripts dir
+ofs_server      : apwk01g2                              # OFS "slave" server
+my_output       : $(ofs_output)/$(LOGNAME)              # users ofs output files
+
+ndfd2rfs_input  : $(ofs_files)/$(ofs_level)/ndfd
+ndfd2rfs_output : $(my_output)
+ndfd2rfs_log_level : 0
+
+fldview_dir     : $(apps_dir)/rfc/fldview/floodmapdata
+
+# calb tokens
+calb_bin          :   $(calb_dir)/bin
+calb_lib          :   $(calb_dir)/lib
+
+calb_data_grp     : oper
+calb_inpt_grp     : oper
+calb_input        : $(calb_dir)/input/$(calb_inpt_grp)
+calb_output       : $(calb_dir)/output
+calb_sta_ts_dir   : $(calb_dir)/data/sta_ts/$(calb_data_grp)
+calb_area_ts_dir  : $(calb_dir)/data/area_ts/$(calb_data_grp)
+peakflow_data_dir : $(calb_dir)/data/area_ts/$(calb_data_grp)
+
+calb_gzio_read    : off      # whether or not to read gzipped DATACARD files
+calb_gzio_write   : off      # whether or not to write gzipped DATACARD files
+
+nwsrfs_calbfile_default   : CARD             # default calibration file type
+nwsrfs_platform           : AIX              # operating system
+
+# ICP tokens
+icp_bin            :  $(icp_dir)/bin
+icp_pw             :  hILLEL
+icp_scripts        :  $(icp_dir)/scripts
+
+mcp_decks          :  $(calb_input)/mcp3
+mcp_dir            :  $(calb_rls)
+
+# IFP tokens
+ifp_help_dir       :   $(ifp_dir)/help_files      # IFP help files
+ifp_bin_dir        :   $(ifp_dir)/bin/RELEASE     # IFP bin files - ref in code
+ifp_nwsrfs_bin_dir :   $(ifp_dir)/bin/RELEASE     # ifp_nwsrfs bin - ref in code
+ifp_sys_dir        :   $(ifp_dir)/system          # IFP system files       
+ifp_scripts_dir    :   $(ifp_dir)/scripts         # IFP script files
+ifp_options_dir    :   $(ifp_dir)/options         # IFP options files
+ifp_colors_dir     :   $(ifp_options_dir)/colors  # IFP color files
+ifp_fs5files       :   $(HOME)/ofs_ifp/fs5files   # user copy of fs5files
+ifp_rfc            :   host                    # name of RFC to run
+ifp_num_columns    :   3                          # number of columns to display
+ifp_gif_files      : $(ofs_files)/$(ofs_level)/gif_files  # gif files directory
+ifp_sacco_dir      : $(ofs_files)/$(ofs_level)/sacsnow_clim
+ifp_dhm_data_dir   : /data/dhm/$(LOGNAME)
+ifp_griddb_dir     : $(ifp_dhm_data_dir)/precip
+
+# Ensemble (ens) tokens
+
+espts_dir          :   $(ens_dir)/files/$(ofs_level)/espts  #espts files esp
+espadp_dir         :   $(ens_dir)                          
+preadj_dir         :   $(ens_dir)/files/$(ofs_level)/cpc_fcsts
+ens_input          :   $(ens_dir)/input/$(ofs_level)
+ens_output         :   $(ens_dir)/output
+ens_files          :   $(ens_dir)/files/$(ofs_level)
+ens_scripts        :   $(ens_dir)/scripts
+
+# ens_pre tokens
+##FXA_HOME           :   /px1data #taken out by kwz.2/11/04
+enspre_griddb      :   $(FXA_DATA)/Grid/SBN/netCDF/CONUS211/CPCoutlook
+ens_log_dir        :   $(ens_output)/$(ofs_level)
+ens_msglog_level   :   5
+preadj_outts_dir    :   $(calb_area_ts_dir)/pre
+
+# FLDGRF tokens (added 6 April 2000)
+
+fldgrf_iface       :   $(HOME)/fldgrf
+
+# ofsde tokens
+
+ofsde_log_dir    : $(ofs_output)/ofsde_logs   # ofsde log dir
+                                              # (formerly ofsde_output_dir)
+ofsde_ndate      : 7          # number of days to search for forecast temps
+ofsde_rrstime_check  :  OFF   # flag to check obs times of RRS data
+                              # against window around 12Z (OFF/ON)
+
+# intervals for max/min temperatures (used by ofsde)
+# these represent number of hours around 12z
+
+intlrmn          :  8
+inturmn          :  2
+intlrzn          :  2
+inturzn          :  2
+intlrzx          :  8
+inturzx          :  2
+siipp_calc_624_PP   :  OFF                 # flag for calculating 6hr and 24hr
+                                           #   PP data from PC data
+                                           # if running RFCWide, should be set to OFF
+
+# defaults for geographic data
+
+geo_data       : $(apps_dir)/geo_data
+geo_util       : $(geo_data)/util
+
+geo_ifp_bin    : $(geo_data)/$(ifp_rfc)/binary
+geo_ifp_ascii  : $(geo_data)/$(ifp_rfc)/ascii
+
+#===================== PRECIP_PROC Application Tokens ========================
+
+# precip_proc directory
+
+pproc_dir        : $(apps_dir)/precip_proc   # precip proc top 
+                                             # level dir
+pproc_bin        : $(pproc_dir)/bin          # dir with precip proc exes
+pproc_local      : $(pproc_dir)/local        # dir with local items, esp. data
+pproc_local_data : $(pproc_local)/data       # dir with local data
+pproc_local_bin  : $(pproc_local)/bin        # dir with local bin
+pproc_log        : $(pproc_local_data)/log   # dir with local logs
+
+pproc_util_log_dir : $(pproc_log)/misc       # miscellaneous logs
+
+# DecodeDPA tokens (formerly DecodeHDP tokens that looked like hdp_*)
+
+dpa_log_dir      : $(pproc_log)/decodedpa             # DPA Decoder logs
+dpa_prod_dir     : /data/fxa/ispan/hdp                # DPA input directory
+dpa_gather       : $(pproc_local_data)/dpa_gather     # DPA gather directory
+dpa_error_dir    : $(pproc_local_data)/stage1_error   # DPA error files
+dpa_arch_dir     : $(pproc_local_data)/stage1_archive # DPA archives
+dpa_wind         : 10                        
+
+
+dpa_filter_decode   :  OFF            # flag for non-top-of-hour
+                                      #   filtering of decoded products
+                                      # ON  - filter products for decode
+                                      # OFF - do not filter (ie decode all products)
+
+dpa_decode_window   :  10             # number of minutes around top
+                                      #  of hour for filtering products for
+                                      #  decoding
+
+dpa_archive         :  OFF            # ON/OFF flag for archiving products
+                                      # OFF - do not archive products
+                                      # ON  - archive products and filter based
+                                      #       on value of dpa_archive_window
+
+dpa_archive_window  :  10             # number of minutes around top
+				      #  of hour for filtering products for archiving
+
+dpa_dirname1        :  $(data_archive_root)/radar # first part of directory name
+                                                 #  containing DPA products for
+                                                 #  associated or dial in radars
+dpa_dirname2        :  DPA/layer0/res4/level256  # second part of directory name
+                                                 #  containing DPA products for
+                                                 #  associated or dial in radars
+dpa_grid_dir       : $(pproc_local_data)/stage1_decoded # decoded DPA radar grids
+						 
+# siipp tokens
+
+intpc            : 10                            # interval (minutes) around top  of hour for using PC data
+intlppp          : 2
+intuppp          : 2
+intppq           : 2
+siipp_log_dir          : $(pproc_log)/siipp         # Stage II preprocessor logs
+							# (formerly siipp_output_dir)
+
+# tokens for stageiii
+st3_help         :  $(pproc_local_data)/app/stage3/help  # online help text
+
+st3_rfc          : host
+awips_rfc_id     : TUA           #  3 char AWIPS RFC identifier
+		                 #  must be all upper case 
+
+# tokens for stageiii output
+st3_mapx_id     : xmrg                     # identifier for Stage 3 output
+st3_date_form   : mdY                      # date format
+                                           #  current allowable = Ymd or mdY
+                                           #  similar to formatting codes for
+                                           #  strftime function
+
+st3_output      : $(ofs_griddb_dir)    # dir for xmrg files for MAPX
+                                       # ofs_griddb_dir defined outside of pproc
+st3_out_dir     : $(pproc_local_data)/stage3
+post_output     : $(st3_out_dir)/post_analysis
+
+#  defaults for netCDF output
+
+st3_netcdf_loc    : arkansas_red_basin_river_forecast_center_tulsa_ok
+                                       # underscores needed between words
+st3_netcdf_swlat  : 33.603
+st3_netcdf_swlon  : 106.456
+st3_netcdf_selat  : 32.433
+st3_netcdf_selon  : 92.322
+st3_netcdf_nelat  : 38.027
+st3_netcdf_nelon  : 90.678
+st3_netcdf_nwlat  : 39.420
+st3_netcdf_nwlon  : 106.652
+
+#defaults for auto stageiii
+st3_auto_graphic_scale  :  2.4                         # used by gif file generation
+
+#===================== disagg Tokens (old disagg process)========================
+
+disagg_msglog_level     : 30                    # message level 
+                                                # possible values are 1,10,20,30,...80
+                                                # lower values signify less info in log
+
+disagg_dur              : 24                    # maximum duration of precip gage data to
+                                                #  be disaggregated
+                                                # possible values = 2,3,...,24
+
+disagg_look_back        : 0                     # time (hours) to look back from current hour
+                                                #  for precip gage data to be disaggregated
+
+disagg_radius           : 3                     # number of HRAP bins within which the QPE
+                                                #  will be averaged for disagg
+                                                # for example, if disagg_radius = 3, then
+                                                #  the 9 nearest neighbor QPE bin values
+                                                #  will be averaged
+disagg_set_date		: 0			# identifier for  current date (yyyymmdd).
+						#  Default value is 0 - set to 
+						#  today date
+                                                                                                
+disagg_set_hour		: 0			# identifier for  current hour (hh).
+						# Default value is 0
+                                                # Possible values = 0,1,2,3,...,23
+
+disagg_log_dir          : $(pproc_log)/disagg   # directory containing disagg logs
+
+#  ===============  Multi-Sensor Precipitation Estimator (MPE)  ================
+
+rfcw_rfcname       : host
+rfcwide_logs_dir   : $(pproc_log)/mpe_fieldgen
+hmap_mpe_timelapse : 1000  # time between images, in milliseconds, for the MPE
+                           # time lapse display
+
+### tokens for input ###
+
+rfcwide_input_dir   :  $(pproc_local_data)/app/mpe
+
+rfcwide_satpre_dir : $(mpe_fieldgen_product_dir)/satpre
+
+# the help_dir token needs a trailing slash because it is required byt
+# the RFC software the processes the help info...
+
+rfcwide_help_dir      :  $(rfcwide_input_dir)/help/
+rfcwide_misbin_dir    :  $(rfcwide_input_dir)/misbin
+rfcwide_prism_dir     :  $(rfcwide_input_dir)/prism
+rfcwide_gageloc_dir   :  $(rfcwide_input_dir)/gage_locations
+rfcwide_beamheight_dir : $(rfcwide_input_dir)/beam_height 
+rfcwide_utiltriangles_dir : $(rfcwide_input_dir)/utiltriangles
+
+### tokens for output ###
+### NOTE:  xmrg files are stored in dir defined by rfcwide_xmrg_dir token below                   
+
+rfcwide_output_dir :  $(pproc_local_data)/mpe # fka ofs_griddb_dir defined outside of pproc
+
+rfcwide_gagetriangles_dir : $(rfcwide_output_dir)/gagetriangles
+rfcwide_drawpre_dir       : $(rfcwide_output_dir)/draw_precip
+
+rfcwide_avg_rmosaic_dir :   $(rfcwide_output_dir)/avgrmosaic
+rfcwide_max_rmosaic_dir :   $(rfcwide_output_dir)/maxrmosaic
+rfcwide_rmosaic_dir  :      $(rfcwide_output_dir)/rmosaic
+rfcwide_bmosaic_dir  :      $(rfcwide_output_dir)/bmosaic
+rfcwide_mmosaic_dir  :      $(rfcwide_output_dir)/mmosaic
+rfcwide_mlmosaic_dir :      $(rfcwide_output_dir)/mlmosaic
+rfcwide_lmosaic_dir  :      $(rfcwide_output_dir)/lmosaic
+rfcwide_lsatpre_dir  :      $(rfcwide_output_dir)/lsatpre
+rfcwide_gageonly_dir :    $(rfcwide_output_dir)/gageonly
+
+rfcwide_height_dir     :  $(rfcwide_output_dir)/height
+rfcwide_index_dir      :  $(rfcwide_output_dir)/index
+rfcwide_locbias_dir    :  $(rfcwide_output_dir)/locbias
+rfcwide_locspan_dir    :  $(rfcwide_output_dir)/locspan
+rfcwide_p3lmosaic_dir  : $(rfcwide_output_dir)/p3lmosaic
+
+rfcwide_xmrg_dir       :  $(rfcwide_output_dir)/qpe
+rfcwide_statevar_dir   :  $(rfcwide_output_dir)/state_var
+rfcwide_sat_statevar_dir   :  $(rfcwide_output_dir)/sat_state_var
+mpe_q2_statevar_dir		:	$(rfcwide_output_dir)/q2_state_var
+
+# ==================== MPE Tokens ===============================
+
+#daily qc options token defaults to 'off' where daily qc options are grayed out; values are 'on' and 'off'
+mpe_dqc_options        :  off
+mpe_map_background_color : GRAY20  # The default color of the MPE map background
+mpe_temperature_window :  60   # The window in minutes the dqc preprocessor
+                               # searches around a synoptic time
+                               # (00z,06z,12z,18z) for temperature data.
+mpe_maxminT_hour_window		:   2                               
+mpe_dqc_max_precip_neighbors : 30
+mpe_dqc_max_temp_neighbors   : 20
+mpe_dqc_precip_deviation :     3.0
+mpe_dqc_temperature_deviation : 10.0
+mpe_dqc_min_good_stations :  5
+mpe_copy_level2_dqc_to_ihfs_shef : OFF
+mpe_copy_level2_dqc_to_archive_shef : OFF
+mpe_dqc_num_days : 10
+mpe_dqc_warningpopup : on
+mpe_dqc_6hr_24hr_set_bad	:	OFF           # Define logic if user sets a 6hr value to Bad in the
+                                              #  Edit Precip Stations window.
+                                              # OFF – if user sets 6hr value to Bad; 24hr value unaffected
+                                              # ON   - if user sets 6hr value to Bad; 24hr value set to Bad
+			          						  # Added at request of MBRFC to help with QC of SNOTEL.
+
+mpe_dqc_grid_max_dist   :  70  # Max distance (units of grid bins) between a grid bin and a 
+                               # station to use the station to estimate the value at the grid bin.
+
+mpe_dqc_output_qc_file  : OFF  # ON/OFF  default = OFF
+
+mpe_dqc_execute_internal_script : OFF  # ON/OFF
+
+mpe_dqc_24hr_precip_grid_meth : USE_24HR  # We use the token values of ACCUM_6HR and USE_24HR
+mpe_td_new_algorithm   : OFF  # flag set for new algorithm in calculating Time Distributed estimate, the default
+                              # is false
+mpe_dqc_gridtype	:	SCALAR
+mpe_dqc_projectiontype	:	POLAR_STEREOGRAPHIC
+mpe_dqc_lonorigin		:	-105.
+
+#daily qc preprocessor tokens
+dqc_preprocessor_basetime : 12Z  #The value can be 12Z, 18Z, 00Z, or 06Z
+
+### MPE base directory tokens.
+mpe_dir                :  $(pproc_local_data)/mpe
+mpe_gageqc_dir         :  $(mpe_dir)/dailyQC
+mpe_scratch_dir        :  $(mpe_gageqc_dir)/scratch
+mpe_app_dir            :  $(pproc_local_data)/app/mpe
+mpe_fieldgen_product_dir   :   $(mpe_dir)
+
+### MPE station list tokens
+mpe_station_list_dir   :  $(mpe_app_dir)/station_lists
+mpe_area_names         :  $(mpe_site_id)
+
+### MPE static data files
+mpe_prism_dir          :  $(mpe_app_dir)/prism
+mpe_misbin_dir         :  $(mpe_app_dir)/misbin
+mpe_utiltriangles_dir  :  $(mpe_app_dir)/utiltriangles
+mpe_beamheight_dir     :  $(mpe_app_dir)/beam_height
+mpe_climo_dir          :  $(mpe_app_dir)/climo
+mpe_help_dir           :  $(mpe_app_dir)/help
+mpe_gridmask_dir       :  $(mpe_app_dir)/grid_masks
+mpe_basin_file         :  $(whfs_geodata_dir)/basins.dat
+
+### MPE precipitation gage qc directories
+mpe_precip_data_dir    :  $(mpe_gageqc_dir)/precip
+mpe_bad_precip_dir     :  $(mpe_precip_data_dir)/bad
+mpe_dev_precip_dir     :  $(mpe_precip_data_dir)/dev
+mpe_map_dir            :  $(mpe_precip_data_dir)/MAP
+mpe_grid_precip_dir    :  $(mpe_precip_data_dir)/grid
+mpe_point_precip_dir   :  $(mpe_precip_data_dir)/point
+
+### MPE temperature gage qc directories
+mpe_temperature_data_dir   :   $(mpe_gageqc_dir)/temperature
+mpe_bad_temperature_dir    :   $(mpe_temperature_data_dir)/bad
+mpe_dev_temperature_dir    :   $(mpe_temperature_data_dir)/dev
+mpe_mat_dir                :   $(mpe_temperature_data_dir)/MAT
+mpe_grid_temperature_dir   :   $(mpe_temperature_data_dir)/grid
+mpe_point_temperature_dir  :   $(mpe_temperature_data_dir)/point
+
+### MPE freezing level gage qc directories
+mpe_freezing_data_dir      :   $(mpe_gageqc_dir)/freezing_level
+mpe_maz_dir                :   $(mpe_freezing_data_dir)/MAZ
+mpe_grid_freezing_dir      :   $(mpe_freezing_data_dir)/grid
+mpe_point_freezing_dir     :   $(mpe_freezing_data_dir)/point
+ruc_model_data_dir         :   /data/fxa/Grid/SBN/netCDF/CONUS211/RUC
+
+### MPE 1 hour mosaics and fields and supporting reference fields.
+mpe_avgrmosaic_dir         :   $(mpe_fieldgen_product_dir)/avgrmosaic
+mpe_maxrmosaic_dir         :   $(mpe_fieldgen_product_dir)/maxrmosaic
+mpe_bmosaic_dir            :   $(mpe_fieldgen_product_dir)/bmosaic
+mpe_d2d_files_dir          :   $(mpe_fieldgen_product_dir)/d2d_files
+mpe_polygon_dir            :   $(mpe_fieldgen_product_dir)/edit_polygon
+mpe_gageonly_dir           :   $(mpe_fieldgen_product_dir)/gageonly
+mpe_gagetriangles_dir      :   $(mpe_fieldgen_product_dir)/gagetriangles
+mpe_height_dir             :   $(mpe_fieldgen_product_dir)/height
+mpe_index_dir              :   $(mpe_fieldgen_product_dir)/index
+mpe_lmosaic_dir            :   $(mpe_fieldgen_product_dir)/lmosaic
+mpe_locbias_dir            :   $(mpe_fieldgen_product_dir)/locbias
+mpe_locspan_dir            :   $(mpe_fieldgen_product_dir)/locspan
+mpe_lsatpre_dir            :   $(mpe_fieldgen_product_dir)/lsatpre
+mpe_mlmosaic_dir           :   $(mpe_fieldgen_product_dir)/mlmosaic
+mpe_mmosaic_dir            :   $(mpe_fieldgen_product_dir)/mmosaic
+mpe_qmosaic_dir            :   $(mpe_fieldgen_product_dir)/qmosaic
+mpe_lqmosaic_dir           :   $(mpe_fieldgen_product_dir)/lqmosaic
+mpe_mlqmosaic_dir          :   $(mpe_fieldgen_product_dir)/mlqmosaic
+mpe_p3lmosaic_dir          :   $(mpe_fieldgen_product_dir)/p3lmosaic
+mpe_qpe_dir                :   $(mpe_fieldgen_product_dir)/qpe
+mpe_qpe_sbn_dir            :   $(mpe_fieldgen_product_dir)/qpe_sbn
+mpe_qpe_gif_dir            :   $(mpe_fieldgen_product_dir)/qpe_gif
+mpe_qpe_grib_dir           :   $(mpe_fieldgen_product_dir)/qpe_grib
+mpe_qpe_grib_sbn_dir       :   $(mpe_fieldgen_product_dir)/qpe_grib_sbn
+mpe_qpe_jpeg_dir           :   $(mpe_fieldgen_product_dir)/qpe_jpeg
+mpe_qpe_netcdf_dir         :   $(mpe_fieldgen_product_dir)/qpe_netcdf
+mpe_rmosaic_dir            :   $(mpe_fieldgen_product_dir)/rmosaic
+mpe_sat_state_var          :   $(mpe_fieldgen_product_dir)/sat_state_var
+mpe_state_var              :   $(mpe_fieldgen_product_dir)/state_var
+mpe_srmosaic_dir           :   $(mpe_fieldgen_product_dir)/srmosaic      
+mpe_sgmosaic_dir           :   $(mpe_fieldgen_product_dir)/sgmosaic      
+mpe_srgmosaic_dir          :   $(mpe_fieldgen_product_dir)/srgmosaic     
+mpe_satpre_dir             :   $(mpe_fieldgen_product_dir)/satpre
+mpe_rfcmmosaic_dir         :   $(mpe_fieldgen_product_dir)/rfcmmosaic
+mpe_rfcbmosaic_dir         :   $(mpe_fieldgen_product_dir)/rfcbmosaic
+mpe_localfield1_dir		   :   $(mpe_fieldgen_product_dir)/localfield1
+mpe_localfield2_dir		   :   $(mpe_fieldgen_product_dir)/localfield2
+mpe_localfield3_dir		   :   $(mpe_fieldgen_product_dir)/localfield3
+
+### Tokens related to the MPE Editor map display.
+mpe_config_dir             :   $(whfs_config_dir)
+mpe_center_lat             :   40.0
+mpe_center_lon             :   -105.0
+mpe_height_in_pixels       :   900
+mpe_width_in_pixels        :   1200
+mpe_map_width              :   1320
+mpe_zoom_out_limit         :   20
+mpe_disclosure_limit       :   60
+mpe_map_projection         :   FLAT
+
+### Misc tokens 
+mpe_load_hourlypc          :   OFF
+mpe_gageqc_gif_dir         :   $(whfs_image_dir)
+mpe_gif_location           :   34.0,-97.0,34.0,-94.0,33.0,-94.0
+mpe_overlay_dir            :   $(whfs_geodata_dir)
+mpe_editor_logs_dir        :   $(pproc_log)/mpe_editor
+mpe_type_source            :   RG:GOES,RR:ALERT,RM:SNOTEL,RP:LARC,RZ:COOP
+
+### New tokens for DQC/CHPS
+mpe_level2_type_value	:	2    # Allow user to customize the type value. The default is “2”
+mpe_td_details_set		:	OFF   # Allow generating a time distribution details file.
+mpe_process_PC 			:	OFF		# Skip call to the load_PC_hourly routine if "OFF"
+mpe_map_one_zone		:	OFF	# Allow MAP generation for one zone only
+fewsgrib_dir			:	$(mpe_gageqc_dir)/fewsgrib  # default nc2grib grib file output dir
+nc2g_app_dir			:	$(mpe_app_dir)/nc2grib      # directory for gfe2grib.txt file
+netcdf_dir				:	$(mpe_gageqc_dir)/netcdf_files   #default output directory for netcdf files
+mpe_dqc_save_netcdf     :   OFF  # Save Daily QC as netCDF
+mpe_dqc_save_grib       :   OFF  # Save Daily QC as grib
+
+### Tokens which control the products generated by MPE Fieldgen.
+mpe_locbias_1hr_rerun  :  OFF     #  ON/OF .Apps_defaultsF flag to 
+                                  #  determine if local bias should be
+                                  #  recalculated as part of the mpe_fieldgen
+                                  #  rerun from hmap_mpe
+                                  #  ON -- recalc loc bias on rerun
+                                  #  OFF -- do not recalc loc bias on rerun
+mpe_del_gage_zeros     :  OFF     #  ON/OFF flog to determine if a zero gage
+                                  #  value should be removed from consideration
+                                  #  if the radar shows > 0.0 
+                                  #  ON -- check for and remove zero gage values
+                                  #  OFF -- do not check for or remove zero
+                                  #         gage values
+
+mpe_selected_grid_gagediff : MMOSAIC
+
+mpe_qpe_fieldtype      :  MMOSAIC # field type to be saved as qpe
+mpe_generate_list      :  BMOSAIC,GAGEONLY,LMOSAIC,LSATPRE,MLMOSAIC,MMOSAIC,RMOSAIC,SATPRE,SRMOSAIC,SGMOSAIC,QMOSAIC,LQMOSAIC,MLQMOSAIC,RDMOSAIC,BDMOSAIC,LDMOSAIC,MDMOSAIC,MLDMOSAIC,AVGRDMOSAIC,MAXRDMOSAIC,SRDMOSAIC,SRDGMOSAIC
+mpe_base_radar_mosaic  :  RMOSAIC # The base radar mosaic used for the fields
+                                  # that mpe_fieldgen generates
+mpe_show_missing_gage  :  None    # MPE missing gage display.
+                                  # (None,All,Reported)
+mpe_bad_gages_dir      :  $(rfcwide_output_dir)/bad_gages
+
+###   directory locations of various format MPE output grid files
+mpe_gif_dir        :  $(rfcwide_output_dir)/qpe_gif
+mpe_jpeg_dir       :  $(rfcwide_output_dir)/qpe_jpeg
+mpe_netcdf_dir     :  $(rfcwide_output_dir)/qpe_netcdf
+mpe_grib_dir       :  $(rfcwide_output_dir)/qpe_grib
+
+###   which format MPE output grid files to save
+mpe_save_gif       :  nosave
+mpe_save_jpeg      :  nosave
+mpe_save_netcdf    :  nosave
+mpe_save_grib      :  save
+
+###   prefixes for various format MPE output grid files, blank by default
+mpe_gif_id         :
+mpe_jpeg_id        :
+mpe_netcdf_id      :
+mpe_grib_id        :
+
+###   mpe gage QC tokens
+mpe_gage_qc               :  OFF
+mpe_sccqc_threshold       :  2.0
+mpe_scc_boxes_failed  :  4
+mpe_msc_precip_limit  :  1.0
+mpe_split_screen : OFF
+
+###   mpe polygon tokens
+mpe_polygon_action_order   :   None
+mpe_polygon_field_order    :   None
+
+###   tokens which control the transmission of RFC bias data.
+mpe_transmit_bias          :  OFF
+transmit_bias_on_save      :  NO
+transmit_bias_on_rerun     :  NO
+rfc_bias_input_dir         : $(mpe_dir)/bias_message_input
+rfc_bias_output_dir        : $(mpe_dir)/bias_message_output
+process_bias_log_dir       : $(pproc_log)/process_bias_message
+send_local_bias_when_rfc_bias_missing  : NO
+
+###   rfc qpe to wfo tokens
+mpe_send_qpe_to_sbn        :   OFF
+mpe_generate_areal_qpe     :   OFF
+# List of RFCs to process for Gen Areal Qpe
+gaq_rfc_list			   :   MBRFC,NCRFC
+gaq_dur_list			   :   1,6,24
+gaq_app_dir                :   $(pproc_local_data)/app/gen_areal_qpe
+gaq_input_dir              :   /data/fxa/Grid/SBN/netCDF/HRAP/QPE
+gaq_log_dir                :   $(pproc_log)/gen_areal_qpe
+gaq_rfc_mask_dir           :   $(gaq_app_dir)
+gaq_temp_xmrg_dir          :   $(rfcwide_output_dir)/rfcqpe_temp
+gaq_xmrg_1hr_dir           :   $(rfcwide_output_dir)/rfcqpe01
+gaq_xmrg_6hr_dir           :   $(rfcwide_output_dir)/rfcqpe06
+gaq_xmrg_24hr_dir          :   $(rfcwide_output_dir)/rfcqpe24
+gaq_grib_dir			   :   $(rfcwide_output_dir)/rfcqpe_grib
+
+### token which controls how PC precipitation totals are derived.
+sum_pc_reports : NO
+
+geo_st3_bin    : $(geo_data)/$(st3_rfc)/binary  #geo_data defined outside of pproc
+geo_st3_ascii  : $(geo_data)/$(st3_rfc)/ascii
+adjust_PC_startingtime  :  4          #allow PC starting time tolerance
+
+### tokens for sending MPE mean field bias data to the ORPG
+
+bias_message_dir  :  $(apps_dir)/data/fxa/radar/envData
+
+### tokens for Lightning Data processing
+
+lightning_input_dir   :   /data/fxa/point/binLightning/netcdf
+
+lightning_log_dir     :   $(pproc_log)/lightning_proc
+
+### tokens for D2D display
+
+mpe_d2d_display_grib     :  OFF  # ON/OFF token to determine if further
+                                #  processing of grib file for D2D display
+                                #  is required
+
+d2d_input_dir            :  /awips2/data_store/ingest/mpe # dir containing grib files
+                                                          # to be processed for D2D display
+
+mpe_send_grib            :  OFF  # ON/OFF token to determine if grib file is
+                                 #  to be sent to other sites such as NPVU
+
+#   disagg processing tokens
+
+mpe_disagg_execute   :  OFF
+mpe_disagg_method    :  POINT 
+mpe_disagg_6hreq_0   :  1
+mpe_disagg_6hrgt_0   :  1
+
+#====== High-resolution Precipitation Estimator (HPE) tokens====================
+
+# DecodeDHR tokens (formerly DecodeHDP tokens that looked like hdp_*)
+
+dhr_log_dir      : $(pproc_log)/decodedhr             # DHR Decoder logs
+
+dhr_prod_dir     : $(pproc_local_data)/dhr_gather     # DHR input directory
+
+dhr_dirname1     :  $(data_archive_root)/radar           # first part of directory name
+#                                              #  containing DHR products for
+#                                              #  associated or dial in radars
+
+dhr_dirname2     :  DHR/layer0/res1/level256  # second part of directory name
+                                              #  containing DHR products for
+                                              #  associated or dial in radar
+                                              
+dhr_grid_dir     : $(pproc_local_data)/dhr_decoded # decoded DHR radar grids
+
+dhr_error_dir    : $(pproc_local_data)/dhr_error   # DHR error files
+dhr_arch_dir     : $(pproc_local_data)/dhr_archive # DHR archives
+
+# DecodeDSP tokens (formerly DecodeHDP tokens that looked like hdp_*)
+
+dsp_log_dir      : $(pproc_log)/decodedsp             # DSP Decoder logs
+
+dsp_prod_dir     : $(pproc_local_data)/dsp_gather     # DSP input directory
+
+dsp_dirname1     :  $(data_archive_root)/radar           # first part of directory name
+#                                              #  containing DSP products for
+#                                              #  associated or dial in radars
+
+dsp_dirname2     :   STP/layer0/res2/level256  # second part of directory name
+                                               #  containing DSP products for
+                                               #  associated or dial in radars
+                                               # NOTE that DSP is level256 vs level16 for
+                                               # STP and this is where it is stored
+                                               # in AWIPS
+dsp_grid_dir     : $(pproc_local_data)/dsp_decoded # decoded DSP radar grids
+dsp_error_dir    : $(pproc_local_data)/dsp_error   # DSP error files
+dsp_arch_dir     : $(pproc_local_data)/dsp_archive # DSP archives
+
+
+hpe_grib_input_dir     :  /awips2/edex/data/local/hpegrib
+hpe_generate_list      :  DHRMOSAIC,BDHRMOSAIC,ERMOSAIC,LSATPRE,EBMOSAIC
+hpe_qpe_fieldtype      :  ERMOSAIC  # field type to be saved as qpe
+
+hpe_satpre_dir			: $(mpe_fieldgen_product_dir)/satpre
+hpe_input_dir          :  $(pproc_local_data)/app/hpe
+hpe_output_dir         :  $(pproc_local_data)/hpe
+hpe_sat_statevar_dir   :  $(rfcwide_output_dir)/state_var
+
+hpe_log_dir            :  $(pproc_local_data)/log/hpe
+
+hpe_hrap_grid_factor   : 4 # 1 for HRAP grid
+                           # 4 for quarter HRAP grid
+
+hpe_dhrmosaic_dir      :  $(hpe_output_dir)/dhrmosaic
+hpe_bdhrmosaic_dir     :  $(hpe_output_dir)/bdhrmosaic
+hpe_ermosaic_dir       :  $(hpe_output_dir)/ermosaic
+hpe_ebmosaic_dir       :  $(hpe_output_dir)/ebmosaic
+hpe_avg_ermosaic_dir   :  $(hpe_output_dir)/avgrmosaic
+hpe_max_ermosaic_dir   :  $(hpe_output_dir)/maxrmosaic
+hpe_lsatpre_dir		   :  $(hpe_output_dir)/lsatpre
+
+hpe_dspheight_dir      :  $(hpe_output_dir)/height
+hpe_dspindex_dir       :  $(hpe_output_dir)/index
+hpe_height_dir         :  $(hpe_output_dir)/height
+hpe_index_dir          :  $(hpe_output_dir)/index
+
+hpe_dhrmosaic_grib_dir  :  $(hpe_dhrmosaic_dir)/grib
+dhrmosaic_netcdf_dir    :  $(hpe_dhrmosaic_dir)/netcdf
+dhrmosaic_gif_dir       :  $(hpe_dhrmosaic_dir)/gif
+hpe_bdhrmosaic_grib_dir :  $(hpe_bdhrmosaic_dir)/grib
+bdhrmosaic_netcdf_dir   :  $(hpe_bdhrmosaic_dir)/netcdf
+bdhrmosaic_gif_dir      :  $(hpe_bdhrmosaic_dir)/gif
+hpe_ermosaic_grib_dir   :  $(hpe_ermosaic_dir)/grib
+ermosaic_netcdf_dir     :  $(hpe_ermosaic_dir)/netcdf
+ermosaic_gif_dir        :  $(hpe_ermosaic_dir)/gif
+hpe_ebmosaic_grib_dir   :  $(hpe_ebmosaic_dir)/grib
+ebmosaic_netcdf_dir     :  $(hpe_ebmosaic_dir)/netcdf
+ebmosaic_gif_dir        :  $(hpe_ebmosaic_dir)/gif
+
+dhrmosaic_save_grib     :  save
+dhrmosaic_save_gif      :  nosave
+dhrmosaic_save_netcdf   :  nosave
+bdhrmosaic_save_grib    :  save
+bdhrmosaic_save_gif     :  nosave
+bdhrmosaic_save_netcdf  :  nosave
+ermosaic_save_grib      :  save
+ermosaic_save_gif       :  nosave
+ermosaic_save_netcdf    :  nosave
+ebmosaic_save_grib      :  save
+ebmosaic_save_gif       :  nosave
+ebmosaic_save_netcdf    :  nosave
+
+hpe_gif_dir            :  $(hpe_output_dir)/hpe_gif
+hpe_jpeg_dir           :  $(hpe_output_dir)/hpe_jpeg
+hpe_netcdf_dir         :  $(hpe_output_dir)/hpe_netcdf
+hpe_grib_dir           :  $(hpe_output_dir)/hpe_grib
+hpe_xmrg_dir           :  $(hpe_output_dir)/hpe_xmrg
+hpe_save_gif           :  nosave
+hpe_save_jpeg          :  nosave
+hpe_save_netcdf        :  nosave
+hpe_save_grib          :  nosave
+
+dhr_window              : 15
+dsp_window              : 15
+dsp_duration            : 60
+
+hpe_base_radar_mosaic  : ERMOSAIC
+hpe_qpe_fieldtype      : ERMOSAIC
+hpe_load_misbin        : OFF
+hpe_debug_log          : OFF
+hpe_use_locbias        : OFF
+hpe_runfreq          :  5
+hpe_timelag          :  5
+hpe_bias_source      :  RFC
+hpe_rfc_bias_lag     :  2
+hpe_purge_logage     :  720
+hpe_purge_fileage    :  180
+hpe_purge_xmrgage    :  75
+
+dhrmosaic_d2d_display_grib  : OFF
+ermosaic_d2d_display_grib   : OFF
+ebmosaic_d2d_display_grib   : OFF
+bdhrmosaic_d2d_display_grib : OFF
+hpe_run_nowcast         : OFF
+hpe_nowcast_generate_list      :  PRTM, BPTRM
+hpe_nowcast_dir         : $(hpe_output_dir)/nowcast
+hpe_rate_save_grib      : save
+hpe_brate_save_grib     : save
+hpe_tp1h_save_grib      : save
+hpe_btp1h_save_grib     : save
+hpe_4km_tp1h_save_grib  : nosave
+hpe_4km_btp1h_save_grib : nosave
+nowcast_d2d_display_grib : OFF
+hpe_smooth_method       : 1  # 0=no smoothing 1=FFP method (default) 2=BZ94 method
+hpn_use_meanvelocity    : OFF
+hpn_meanvelocity_direction : 45 # direction precip is moving towards
+hpn_meanvelocity_speed     : 20 # miles per hour
+
+
+hpe_send_grib            :  OFF  # ON/OFF token to determine if grib file is
+                                   #  to be sent to other sites such as NPVU
+
+#========END HPE tokens======================================================
+
+#  =================  Flash Flood Guidance System  =============================
+
+ffg_level       : oper
+
+ffg_dir         : $(apps_dir)/rfc/nwsrfs/ffg  # Top-level ffg
+ffg_bin         : $(ffg_dir)/bin              # FFG execute dir
+ffg_files       : $(ffg_dir)/files            # FFG file group
+ffg_gsfiles     : $(ffg_files)/$(ffg_level)   # FFG files dir
+ffg_out_dir     : $(ffg_dir)/output           # FFG output dir
+ffg_grib_out    : $(ffg_out_dir)/grib         # GRIB output
+ffg_scripts     : $(ffg_dir)/scripts          # FFG scripts
+ffg_gff_level   : grff                        # regular grid ffg dir
+ffg_gro_level   : grro                        # regular grid ro dir
+ .Apps_defaults
+ffg_usr_dir     : $(ffg_gsfiles)/user         # FFG user dir
+ffg_area_dir    : $(ffg_gsfiles)/affg         # FFG area dir
+ffg_cary_dir    : $(ffg_gsfiles)/cary         # FFG carryover dir
+ffg_define_dir  : $(ffg_gsfiles)/define       # FFG definition dir
+ffg_gridff_dir  : $(ffg_gsfiles)/$(ffg_gff_level)  # FFG grid ff dir
+ffg_gridro_dir  : $(ffg_gsfiles)/$(ffg_gro_level)  # FFG grid ro dir
+ffg_hwatr_dir   : $(ffg_gsfiles)/hffg         # FFG headwater dir
+
+ffg_gridpm_dir  : $(ffg_gsfiles)/gdpm         # grid runoff adjust parameters
+ffg_group_dir   : $(ffg_gsfiles)/grpp         # FFG groups of products
+ffg_prod_dir    : $(ffg_gsfiles)/prod         # FFG products dir
+ffg_text_dir    : $(ffg_gsfiles)/text         # FFG text dir
+ffg_wsup_dir    : $(ffg_gsfiles)/wsup         # Water supply dir
+
+#    ffg program control
+ffg_error_output  : on       # whether to output error messages
+ffg_log_output    : off      # whether to output log messages
+
+#  =====================  GRIB packer/encoder  =================================
+
+grib_dir           : $(apps_dir)/rfc/grib     # Top level grib
+grib_rls           : $(pproc_bin)             # location of gribit executable
+grib_arc           : $(grib_dir)/bin/ARCHIVE  # grib archive
+grib_in_dir        : $(rfcwide_xmrg_dir)      # depends on data to be encoded
+grib_out_dir       : $(grib_dir)/output       # GRIB encoded files
+grib_error_output  : on                       # turn on/off GRIB error output
+grib_set_subcenter_0  :  off                  # set subcenter to 0 
+                                              # on - set subcenter to 0
+                                              # off - do not set subcenter to 0
+
+# end of ffg apps
+
+#================== XSETS Apps_defaults Tokens -  08/03/2001 ===================
+
+#  [] = default value
+#.................................
+#   Date Control
+#.................................
+xsets_date_used         : SYSTEM        # computer system clock
+                                        # OFSFILES = forecast time series
+                                        # mm/dd/ccyy = explicit date, 12Z
+
+#.................................
+#   Directories and files to use
+#.................................
+xsets_dir               : $(apps_dir)/rfc/xsets
+xsets_level             : oper
+xsets_files             : $(xsets_dir)/files
+xsets_xsfiles           : $(xsets_files)/$(xsets_level)
+xsets_param_dir         : $(xsets_xsfiles)/param 
+xsets_config_file       : xsetsconfig
+xsets_output_dir        : $(xsets_xsfiles)/output 
+
+#.................................
+#    Commands
+#.................................
+xsets_editor            : "nedit"
+xsets_hydrographs_cmd   : "$(xsets_dir)/bin/RELEASE/new_hydroplot"
+xsets_print_cmd         : "lp"
+xsets_xmit_cmd          : "cat "
+
+#.................................
+#    Parameters for creation of hydrographs
+#.................................
+xsets_hydro_button      : NO       # Create Make Hydro button, [NO] 
+                                     (currently unused)
+xsets_make_hydro        : NO       # Create .gif hydrographs, [NO]
+
+#.................................
+#    NEW_HYDROPLOTS parameters
+#.................................
+xsets_html_daily_dir    : /pub/FcstGraphs    # Location of gif images on 
+                                               web server
+xsets_html_flood_dir    : /pub/FloodGraphs   # Location of gif images on 
+                                               web server
+xsets_hydrographs_html  : 1                  # 1 = create basic html 
+                                               0 = no html created
+xsets_hydrographs_output: "$(xsets_output_dir)/gifs"
+xsets_hydrographs_param : $(xsets_xsfiles)/hydrographs/param
+
+#.................................
+#    File Print Options and Settings
+#.................................
+xsets_add_remarks     : NO        # Add remark after each site, [NO]
+xsets_brackets        : NO        # Put brackets around latest stage,
+                                  # forecasts and dates, [NO]
+xsets_cmt_line        : NO        # YES = separate line,
+                                  # NO = append to description, river
+xsets_expanded_dates  : YES       # Insert MMDD before values, [NO]
+xsets_fgroup_preamble : "FORECAST GROUP IS"  #Preamble for the fgroup (string)
+xsets_H_precision     : 1         # 0, [1], or 2 decimal precision of stages
+xsets_output_style    : E         # E = Expanded, each day has line,
+                                  # C = Compact 
+xsets_print_crests    : YES       # Print crest comment, [NO]
+xsets_print_disclaimer : YES      # Print disclaimer, [NO]
+xsets_print_fs        : YES       # YES = encode flood stage in SHEF,
+                                  # [NO]  = display as comment
+xsets_print_fs_cross  : COMMENT   # Time level passes flood stage
+                                  #   [NO] = don't include,
+                                  #   SHEF = encode in SHEF,
+                                  #   COMMENT = display as comment
+xsets_print_ls        : COMMENT   # Latest stage
+                                  #   [NO] = don't include,
+                                  #   SHEF = encode in SHEF,
+                                  #   COMMENT = display as comment
+xsets_print_MAP       : NO        # Print MAP values, [NO]
+xsets_print_qpf       : COMMENT   # Print QPF values
+                                  #  [NO] = don't include,
+                                  #  SHEF = encode in SHEF,
+                                  #  COMMENT = display as comment
+xsets_print_ws        : YES       # Display warning/caution stage, [NO]
+xsets_product_hdr     : PIT       # Indentifier in Product Header, non-AWIPS
+xsets_Q_precision     : 1         # 0, [1], 2 decimal precision of flows
+xsets_signature       : $(LOGNAME)  #User signature (string)
+xsets_wmo_id          : TTAA00 KTUR DDHHMM  # the wmo id
+xsets_ws_label        : "WARNING" # Label for WARNING/[CAUTION] stage (string)
+xsets_zczc            : YES       # Include ZCZC & NNNN, [NO], non-AWIPS
+
+#.................................
+#    Run Options
+#.................................
+xsets_age_check       : 6       # Number of hours old of forecast before 
+                                # error generated, [6]
+xsets_edit_lock       : NO      # Lock main display when editing SETS file, [NO]???
+xsets_gen_summary     : NO      # Include summary of flood locations, [NO], Currently Unused 
+xsets_msg_obs_warn    : YES     # Print warning when observed values are
+                                # missing, [NO]
+xsets_numhrs_curob    : 12      # number of hours back from current time to use
+                                # informix obs as "current obs"                                
+xsets_num_MAP_values  : 4       # Number [4] of MAP values to include in product
+xsets_num_qpf_values  : 4       # Number [4] of qpf values to include in product                         
+xsets_numdays_hydro   : 3       # Run Parameters for FCSTPROG
+xsets_ofs_select      : OFS     # OFS or IFP for time series files
+xsets_stdout          : NO      # Send wprint messages to stdout, [NO]
+xsets_time            : Z       # Time Zone code used in product
+                                  # ([Z], E, C, M, P, A, H OR N)
+# ================== end of xsets tokens =======================================
+
+#================== XNAV Apps_defaults Tokens -  03/29/2000 ====================
+# defaults for program XNAV
+
+xnav_user               : oper
+
+#.................................
+#   Date/time related tokens 
+#.................................
+db_days                 : 10
+xnav_daily_days         : 30
+xnav_ffg_periods        : 3
+xnav_sixhr_periods      : 40
+xnav_hyd_days_fut       : 5
+xnav_hyd_days_prev      : 5
+xnav_precip_hours       : 240
+xnav_settoday           : 
+
+#.................................
+#   Directories and files to use
+#.................................
+xnav_dir                : $(apps_dir)/rfc/xnav
+xnav_data               : $(xnav_dir)/data
+xnav_params             : $(xnav_dir)/parameters
+xnav_P1xmrg_dir         : $(rfs_dir)/ofs/files/$(xnav_user)/griddb
+xnav_S1xmrg_dir         : $(rfs_dir)/ofs/files/$(xnav_user)/griddb
+xnav_bin_dir            : $(xnav_dir)/bin
+xnav_data_dir           : $(xnav_data)
+xnav_ffg_dir            : $(ffg_dir)/output/$(xnav_user)
+xnav_geo_data           : $(geo_data)/$(ifp_rfc)/binary
+xnav_gif_dir            : $(HOME)/gifs/xnav
+xnav_grid_ffg_dir       : $(ffg_dir)/files/$(xnav_user)/grff
+xnav_localdata_dir      : $(xnav_data)/localdata
+xnav_misc_dir           : $(xnav_data)/misc_data
+xnav_qpfbin_dir         : $(xnav_data)/wfoqpf
+xnav_rfcfmap_dir        : $(xnav_data)/rfcqpf
+xnav_rules_dir          : $(xnav_params)/rules
+xnav_shefdata_dir       : $(xnav_data)/shefdata
+xnav_wfoqpf_dir         : $(apps_dir)/rfc/data/products
+xnav_xmrg_dir           : $(rfs_dir)/ofs/files/$(xnav_user)/griddb
+nmap_xmrg_dir           : $(xnav_rfcfmap_dir)/nmap
+
+#.................................
+#   Fonts and colors
+#.................................
+xnav_action_color       : yellow
+xnav_flood_color        : red
+xnav_ok_color           : green
+xnav_ts1_color          : yellow
+xnav_ts2_color          : magenta
+xnav_label_font         : "-*-new century schoolbook-*-*-*-*-14-*-*-*-*-*-*-*"
+xnav_legend_font        : "-*-new century schoolbook-*-*-*-*-14-*-*-*-*-*-*-*"
+xnav_list_font          : "-*-new century schoolbook-*-*-*-*-14-*-*-*-*-*-*-*"
+xnav_menu_font          : "-*-new century schoolbook-*-*-*-*-14-*-*-*-*-*-*-*"
+xnav_pb_font            : "-*-new century schoolbook-*-*-*-*-14-*-*-*-*-*-*-*"
+xnav_text_font          : -*-charter-bold-*-*-*-17-*-*-*-*-*-*-*
+xnav_toggle_font        : "-*-new century schoolbook-*-*-*-*-14-*-*-*-*-*-*-*"
+xnav_town_font          : "-*-new century schoolbook-bold-*-*-*-14-*-*-*-*-*-*-*"
+
+idma_label_font         : "-*-new century schoolbook-bold-*-*-*-12-*-*-*-*-*-*-*"
+idma_data_font          : "-*-new century schoolbook-bold-*-*-*-18-*-*-*-*-*-*-*"
+
+#.................................
+#   Window size controls
+#.................................
+xnav_hrap_x             : 59
+xnav_hrap_xor           : 311
+xnav_hrap_y             : 83
+xnav_hrap_yor           : 410
+xnav_hydro_height       : 400
+xnav_hydro_width        : 750
+xnav_scale              : 8.0
+xnav_scale_colors       : 3.0
+xnav_x_offset           : 100
+xnav_y_offset           : 100
+
+#.................................
+#   Display options
+#.................................
+xnav_basins             : yes
+xnav_counties           : no
+xnav_cwas               : no
+xnav_fgroups            : no
+xnav_flights            : no
+xnav_grid               : no
+xnav_hydro_segments     : no
+xnav_radars             : no
+xnav_rfc                : yes
+xnav_rivers             : yes
+xnav_states             : yes
+xnav_towns              : yes
+
+#.................................
+#   Other control options
+#.................................
+load_db_on_boot         : no
+load_ofs_on_boot        : no
+check_flood_on_boot     : no
+use_new_xmrg            : yes
+xnav_afosid             : ? #PITRR1RHA
+xnav_editor             : nedit
+xnav_exception_file     : exception_file
+xnav_grid_ffg_pattern   : xhr
+xnav_locrangecheck      : no
+xnav_office_hdr         : ? #KRHA
+xnav_only_use_ofs_data  : no
+xnav_pe                 : "HG HP HT PP PT QR QT SD SF SW TA TD TS XC"
+xnav_precip_filter      : .01
+xnav_route_code         : ? #ES
+xnav_seg_type           : 2
+xnav_send_shef          : no
+xnav_show_p1_files      : yes
+xnav_suppress_msg       : yes
+xnav_xmit_cmd           : "cat "
+
+# ====== MAKE24HRXMRG Tokens ======
+
+make24hrxmrg_settoday    :        # Run date in mm/dd/yyyy.  Empty means uses number
+                                  # of days back argument to program.
+make24hrxmrg_debug_level : 0      # Set debug output level.  1 or 2 yields more output.
+make24hrxmrg_endtime     :        # Hour to end the 24 hour total.  Default: 12Z if not 
+                                  # given.
+make24hrxmrg_tz          : Z      # Time zone; E, C, M, P, Y, H, L, or Z (defautlt).
+
+# ================== end of xnav tokens ========================================
+
+#================== XDAT Apps_defaults Tokens -  03/29/2000 ====================
+# defaults for program XDAT
+
+xdat_user               : oper
+
+#................................
+#   Date/time related tokens
+#................................
+xdat_flood_hours        : 6
+xdat_settoday           : 
+
+#..................................
+#   Directories and files to use
+#..................................
+xdat_dir                : $(apps_dir)/rfc/xdat
+xdat_data               : $(xdat_dir)/data
+xdat_params             : $(xdat_dir)/parameters
+xdat_groups_dir         : $(xdat_params)/groups
+xdat_localdata_dir      : $(xdat_data)/localdata
+xdat_shefdata_dir       : $(xdat_data)/shefdata
+
+#..................................
+#    Fonts and colors to use
+#..................................
+xdat_label_font         : ncenb14
+xdat_list_font          : helvb14
+xdat_text_font          : user14x19
+xdat_pb_font            : ncenb14
+
+#.................................
+#   Window size controls
+#.................................
+xdat_scale              : 1.0
+
+#..................................
+#   Display Options
+#..................................
+xdat_clear_id           : yes
+
+#..................................
+#   Other Control Options
+#..................................
+xdat_afosid             : ?ofstest?
+xdat_office_hdr         : ???
+xdat_post_unk           : $(shef_post_unk)
+xdat_route_code         : ???
+xdat_send_shef          : no
+xdat_xmit_cmd           : "cat "
+# ================== end of xdat tokens ========================================
+
+#====================== Shape Data File Directory ==============================
+shape_data_dir          :  $(apps_dir)/ffmpShapeData # Directory holding shape
+                                                     # files acting as data files
+
+
+#================== send_rfc Apps_defaults Tokens -  3/08/2001 =================
+send_rfc_dir            : $(apps_dir)/rfc/send_rfc
+send_rfc_input_dir      : $(send_rfc_dir)/data/send
+send_rfc_id             : WWW
+send_hardcopy_nnn       : PRI-WRK-EDI-SNO-ADM-RVF
+send_rfc_hardcopy       : $(send_rfc_dir)/data/sbnprods
+send_rfc_hpc            : 0  
+send_rfc_host           : ds-www
+send_rfc_alternate      : 0
+# ================== end of send_rfc tokens ====================================
+
+#================== verify Apps_defaults Tokens -  08/03/2001 ==================
+# defaults for program verify
+vsys_output             : $(vsys_dir)/output       #location of output files
+vsys_input              : $(vsys_dir)/input        #location of input files
+vsys_files              : $(vsys_dir)/files        #location of verify files
+vsys_scripts            : $(vsys_dir)/scripts      #location of verify scripts
+vsys_output_log         : test.log                 #name of log file
+vsys_ihfsdb             : $(db_name)               #ihfs_db name
+vsys_vdb                : vdb1_1rfc                #verification db name for RFC="rfc"
+verify_rls              : $(vsys_dir)/bin/RELEASE  #The release directory.
+vsys_rls                : $(verify_rls)            #Not really needed, but consistent.
+
+# ================== end of verify tokens ======================================
+
+# ================== RFC Archive Database tokens ===============================
+
+archive_shefdata_dir    : /data/fxa/ispan/hydro_adbs           # directory for archive data
+archive_enable          : OFF                                  # ON/OFF - Enable or Disable
+                                                               # archive data feed (OFF by default)
+metar_output_dir        : $(whfs_local_data_dir)/metar_output  # metar2shef temp output directory 
+                                                               # used if archive_enable is ON
+							       
+#================== Directory tokens for RFC Archive Database ==================
+adb_dir        : /rfc_arc                     # Base RFC Archive Directory
+adb_raw_que    : /rfc_arc_data/q/raw/         # pathname for raw q input directory
+adb_pro_que    : /rfc_arc_data/q/processed/   # pathname for processed q input directory
+adb_bin_dir    : $(adb_dir)/bin               # pathname for the bin directory
+adb_cfg_dir    : $(adb_dir)/cfg               # pathname for the config directory
+adb_lib_dir    : $(adb_dir)/lib               # pathname for the lib directory
+adb_logs_dir   : $(adb_dir)/logs              # pathname for the logs directory
+adb_scripts_dir: $(adb_dir)/scripts           # pathname for the scripts directory
+
+#================== Shefdecode tokens for RFC Archive Database =================
+
+adb_shef_winpast       : 9999           # number of days in past to post data for RAW
+adb_shef_winfuture     : 9999           # number of mins in future to post obs data 
+                                        # for RAW.
+adb_shef_winpast_pro   : 9999           # number of days in past to post data
+adb_shef_winfuture_pro : 9999           # number of minutes in future to post obs data
+shefdecode_rax_userid  : oper                     	   # controlling UNIX user
+adb_shefdecode_input   : $(adb_cfg_dir)/decoders  	   # adb SHEF parameter file
+                                                  	   # location
+adb_shef_raw_perflog   : OFF		    # ON/OFF - create a separate performance
+					                    # log file to save internal decoder timing
+					                    # messages for monitoring performance
+adb_shef_raw_logs_dir  : $(adb_logs_dir)/decoder/raw/logs  # pathname for the
+                                                           # daily logs directory
+adb_shef_raw_err_dir   : $(adb_logs_dir)/decoder/raw/err   # pathname for the
+                                                           #product logs directory
+adb_shef_raw_keeperror : ALWAYS         # keep files (=ALWAYS) or only
+                                        # when errors occur (=IF_ERROR)
+adb_shef_raw_post_unk  : IDS_AND_DATA   # NONE - do not post to the UnkStnValue tables
+                         		        # values IDS_ONLY or IDS_AND_DATA
+                          		        # will post everything
+                          		        # to the UnkStnValue table
+adb_shef_pro_post_unk  : NONE           # NONE - do not post to the UnkStnValue tables
+                         		        # values IDS_ONLY or IDS_AND_DATA
+                          		        # will post everything
+                          		        # to the UnkStnValue table
+adb_shef_pro_perflog   : OFF		    # ON/OFF - create a separate performance
+					                    # log file to save internal decoder timing
+					                    # messages for monitoring performance
+adb_shef_pro_logs_dir  : $(adb_logs_dir)/decoder/processed/logs  # pathname for the
+                                                                 # daily logs directory
+adb_shef_pro_err_dir   : $(adb_logs_dir)/decoder/processed/err   # pathname for the
+                                                                 # product logs directory
+adb_shef_pro_keeperror : ALWAYS         # keep files (=ALWAYS) or only
+                                        # when errors occur (=IF_ERROR)
+adb_shef_raw_checktab  : OFF            # ON checks location and ingestfilter tables
+adb_shef_pro_checktab  : OFF            # ON checks location and ingestfilter tables
+adb_shef_duplicate_raw : USE_REVCODE    # Token for allowing duplicate records to be 
+                                        # posted for raw decoder.
+adb_shef_duplicate_pro : USE_REVCODE    # Same thing but for processed decoder.
+adb_shef_raw_dupmess   : OFF            # duplication messages from adb raw decoder.
+adb_shef_raw_locmess   : OFF            # invalid location messages from adb raw decoder.
+adb_shef_raw_elgmess   : OFF            # invalid ingestfilter messages from adb raw 
+                                        # decoder.
+adb_shef_raw_storall   : OFF            # OFF - default-  will only write to pecrsep table
+					# ON will write to both pecrsep and peirsep tables
+adb_shef_pro_dupmess   : OFF            # duplication messages from adb processed decoder.
+adb_shef_pro_locmess   : OFF            # invalid location messages from adb pro decoder.
+adb_shef_pro_elgmess   : OFF            # invalid ingestfilter messages from adb pro 
+                                        # decoder.
+adb_shef_pro_tmp_dir   : $(adb_pro_que)
+adb_shef_raw_tmp_dir   : $(adb_raw_que)
+adb_shef_raw_add_adjust : OFF
+
+#========== IHFS->RAX synchronization tokens for RFC Archive Database ==========
+adb_sync_logs_dir   : $(adb_logs_dir)/dbsync # directory for synchronization log files
+adb_sync_mode       : ANALYSIS               # ANALYSIS or UPDATE
+adb_sync_tablenames : ALL                    # List of table names to synchronize
+adb_sync_ihfs_ingest: USE                    # USE or IGNORE
+adb_sync_rivercrit  : ACTION                 # ACTION, FIS or BOTH
+
+
+#================== DatView program tokens for RFC Archive Database ============
+datview_db_name		: $(adb_name)
+datview_startdate	: '1975-01-01 00:00:00'
+datview_label_font	: -schumacher-clean-bold-r-normal-*-14-*-75-75-c-80-*-* 
+datview_list_font	: -schumacher-clean-bold-r-normal-*-14-*-75-75-c-80-*-*
+datview_text_font	: -schumacher-clean-bold-r-normal-*-14-*-75-75-c-80-*-* 
+datview_text2_font	:-adobe-courier-bold-r-normal-*-*-140-*-*-m-*-iso8859-1
+datview_bg_color	: black
+datview_fg_color	: white
+datview_ob_color1	: green
+datview_ob_color2	: blue
+datview_ob_color3	: yellow
+datview_ob_color4	: red
+datview_ob_color5	: DarkOrange
+datview_ob_color6	: SlateGray1
+datview_plot_font	: -adobe-courier-bold-r-normal-*-*-80-*-*-m-*-iso8859-1
+datview_plot_width	: 750
+datview_plot_height	: 420
+datview_data_dir	: /home/oper
+datview_raw_shef_dir	: $(adb_raw_que)
+datview_pro_shef_dir	: $(adb_pro_que)
+datview_office_header   : KTUA         # to be set by each RFC
+datview_pil		: OKCRR1TUR    # to be set by each RFC
+
+
+#=============== ARCH_NAV Apps_defaults Tokens -  05/5/2005 ==================
+# defaults for program ARCNAV
+
+anav_user               : oper
+
+#.................................
+#   Date/time related tokens
+#.................................
+anav_daily_days         : 30
+anav_sixhr_periods      : 40
+anav_precip_hours       : 24
+
+
+#.................................
+#   Directories and files to use
+#.................................
+
+anav_dir                : /awips/hydroapps/lx/rfc/xnav
+anav_data               : /data
+anav_flatfiles          : $(anav_data)/flatfiles
+anav_params             : $(anav_dir)/parameters
+anav_data_dir           : $(anav_data)
+anav_geo_data           : /awips/hydroapps/lx/geo_data/$(ifp_rfc)/binary
+anav_gif_dir            : /rfc_arc/data/arcnav/gifs
+anav_localdata_dir      : $(anav_data)/localdata
+anav_xmrg_dir           : $(anav_flatfiles)
+
+#.................................
+#   Fonts and colors
+#.................................
+anav_label_font         : courb14gr
+anav_legend_font        : courb14gr
+anav_list_font          : courb14gr
+anav_menu_font          : 9x15
+anav_pb_font            : courb12gr
+anav_text_font          : helvb18gr
+anav_toggle_font        : courb14gr
+anav_town_font          : courb12gr
+
+#.................................
+#   Window size controls
+#.................................
+anav_hrap_x             : 200
+anav_hrap_xor           : 850
+anav_hrap_y             : 200
+anav_hrap_yor           : 470
+anav_hydro_height       : 400
+anav_hydro_width        : 750
+anav_scale              : 3.5
+anav_scale_colors       : 3.0
+anav_x_offset           : 300
+anav_y_offset           : 300
+
+#.................................
+#   Display options
+#.................................
+anav_basins             : yes
+anav_counties           : no
+anav_cwas               : no
+anav_fgroups            : no
+anav_flights            : no
+anav_grid               : no
+anav_hydro_segments     : no
+anav_radars             : no
+anav_rfc                : no
+anav_rivers             : no 
+anav_states             : yes
+anav_towns              : yes
+
+#.................................
+#   Other control options
+#.................................
+anav_editor             : nedit
+anav_suppress_msg       : yes
+
+#......................................
+#   tokens added for arcnav application
+#   for future use
+#......................................
+anav_ok_color           : green
+anav_action_color       : yellow
+anav_flood_color        : red
+anav_ts1_color          : yellow
+anav_ts2_color          : magenta
+
+# ================= end of arcnav tokens ======================================
+							   							      
+# ================== end of RFC Archive Database tokens ========================
+
+# ================== SSHP Directory Structure and application tokens ===============================
+
+local_data_sshp_dir       : $(whfs_local_data_dir)/sshp_transfer
+sshp_control_dir          : $(whfs_local_data_dir)/app/sshp
+sshp_ofs_extract_text_dir : $(local_data_sshp_dir)/ofs_extract_text
+sshp_ofs_extract_xml_dir  : $(local_data_sshp_dir)/ofs_extract_xml
+sshp_ingest_xml_dir       : $(local_data_sshp_dir)/ingest_xml
+sshp_incoming_dir         : $(local_data_sshp_dir)/incoming
+sshp_outgoing_dir         : $(local_data_sshp_dir)/outgoing
+sshp_log_dir              : $(whfs_log_dir)/sshp
+sshp_java_process_host    : localhost
+sshp_invoke_map_preprocess: OFF
+sshp_map_qpe_to_use	  : MIXED    # choices are: MIXED, LOCAL_BEST_ONLY, RFC_ONLY
+sshp_fcst_ts         	  : FZ       # SSHP type-source code for generated forecasts
+sshp_initial_forecast_length: 24     # length of forecast in hours
+sshp_max_forecast_length: 120        # max length of forecast in hours that user can make generated in GUI
+sshp_sac_update_expiration_hours: 25 # number of hours after which to update locally the SAC states
+sshp_sac_update_hours_forward: -2    # number of hours forward of last top of hour to save sac states -
+				     # negative -2 means 2 hours BEFORE last top of hour
+sshp_adjustment_pairing_minutes : 70
+sshp_adjustment_interpolation_hours : 3  
+sshp_show_simulated_timeseries : true  
+
+sshp_data_dir            : $(whfs_local_data_dir)/sshp  # base sshp dynamic data dir
+sshp_precip_dir          : $(sshp_data_dir)/precip    # default location for saved precip files
+sshp_background_forecast_output_dir : $(sshp_data_dir)/forecast
+sshp_background_forecast_length : 48    # length of a background forecast
+
+sshp_hpn_minutes_before  : 5        # don't use grid files prior to X minutes before Hour
+sshp_hpn_minutes_after   : 5        # don't use grid files after X minutes past the Hour
+
+sshp_show_unadjusted_states: false   # initial setting of option in GUI for displaying the unadjusted SAC-SMA states 
+# ==================== Radar Climatology Tokens ==============================
+radclim_data_dir    :  $(pproc_local_data)/app/radclim
+
+# ==================== PDC Preprocessor Tokens ===============================
+pdc_clean_cache_minutes :  60
+pdc_temperature_hours   :  168
+pdc_height_hours        :  168
+pdc_snow_hours          :  168
+pdc_wind_hours          :  168
+pdc_weather_hours       :  168
+pdc_precip_hours        :  168
+pdc_lower_window        :  5
+pdc_upper_window        :  5
+
+pdc_pp_dir              : $(whfs_local_data_dir)/pdc_pp
+pdc_pp_log_dir          : $(whfs_log_dir)/pdc_pp
+
+# ====================== Historical Data Browser Tokens =======================
+
+hdb_help_dir   :   $(hdb_dir)/help_files     #  Historical data browser help
+                                             #  files
+hdb_script_directory :   $(hdb_dir)/scripts        #  Historical data browser 
+                                             #  scripts dir
+hdb_config_dir :   $(hdb_dir)/app-defaults   #  Historical data browser
+                                             #  configuration file directory
+
+hdb_height_in_pixels : 900        # Historical data browser map height in
+                                  # pixels
+hdb_width_in_pixels  : 1200       # Historical data browser map width in
+                                  # pixels
+hdb_center_lat       : 35         # The initial center latitude of the HDB
+hdb_center_lon       : -88.9      # The initial center longitude of the HDB
+hdb_map_width        : 2999.862   # The width in nautical miles of the area
+                                  # displayed in the HDB
+hdb_disclosure_limit : 60         # The disclosure limit for displaying finer
+                                  # detail in the city overlay. 
+hdb_map_projection   : FLAT       # The initial map projection used by HDB.
+                                  # Possible values: FLAT, POLAR, HRAP
+# ====================== DHM Token =======================
+dhm_data_dir               : $(ofs_files)/$(ofs_level)/dhmdata	 # DHM data dir
+dhm_d2d_data_dir           : /data/fxa/Grid/LOCAL/netCDF/DHM  # d2d data dir
+dhm_d2d_notify_bin_dir     : /awips2/fxa/bin              # d2d notify bin dir
+rdhm_input_dir             :  $(geo_data)
+dhm_rain_plus_melt_data_dir:  $(geo_data)
+
+# ===========================DualPol Radar processing Token ========================
+# New Tokens for DPR/DSA product processing
+hpe_dualpol_on : yes
+dpr_grid_dir  :  $(pproc_local_data)/dpr_decoded
+dsa_grid_dir  :  $(pproc_local_data)/dsa_decoded
+
+# New tokens for DAA product processing
+daa_grid_dir    : $(pproc_local_data)/daa_decoded
+
+daa_archive         :  OFF            # ON/OFF flag for archiving daa products
+daa_arch_dir        : $(pproc_local_data)/daa_archive
+daa_archive_window  :   7             # number of minutes around top of hour
+                                      #  for filtering products for archiving
+
+daa_wind            :  5
+daa_decode_window   :  5
+daa_filter_decode   :  OFF # whether time window filtering is on or off
+
+daa_min_coverage_dur  :  60
+
+mpe_rdmosaic_dir    : $(mpe_fieldgen_product_dir)/rdmosaic
+mpe_bdmosaic_dir    : $(mpe_fieldgen_product_dir)/bdmosaic
+mpe_ldmosaic_dir    : $(mpe_fieldgen_product_dir)/ldmosaic
+
+mpe_mdmosaic_dir    : $(mpe_fieldgen_product_dir)/mdmosaic
+mpe_mldmosaic_dir    : $(mpe_fieldgen_product_dir)/mldmosaic
+
+mpe_avgrdmosaic_dir    : $(mpe_fieldgen_product_dir)/avgrdmosaic
+mpe_maxrdmosaic_dir    : $(mpe_fieldgen_product_dir)/maxrdmosaic
+
+mpe_srdmosaic_dir     : $(mpe_fieldgen_product_dir)/srdmosaic
+mpe_srdgmosaic_dir    : $(mpe_fieldgen_product_dir)/srdgmosaic
+
+mpe_statevardp_dir    : $(mpe_fieldgen_product_dir)/state_var_dp
+
+mpe_locbiasdp_dir    :  $(rfcwide_output_dir)/locbiasdp
+mpe_locspandp_dir    :  $(rfcwide_output_dir)/locspandp
+
+# Post Analysis tokens
+
+mpe_post_analysis    : OFF
+
+mpe_post_output      : $(mpe_fieldgen_product_dir)/post_analysis
+
+# Modify mpe_generate_list token for DAA processing
+# add ,RDMOSAIC,BDMOSAIC,LDMOSAIC,MDMOSAIC,MLDMOSAIC,AVGRDMOSAIC,MAXRDMOSAIC,SRDMOSAIC,SRDGMOSAIC to existing mpe_generate_list token
+
+# ================== end of SSHP Directory Structure tokens ========================
+# nrldb tokens
+nrldb_log     :  $(whfs_log_dir)/nrldb
+nrldb_data    :  $(whfs_local_data_dir)/nrldb
+nrldb_config  :  $(whfs_config_dir)/nrldb
+nrldb_tmp     :  /awips/hydroapps/whfs/local/data/output
+
+# The syntax needed in the file is:
+#
+#  token : resource
+#
+#  where: token is defined as a string delimited by white space or
+#           the delimiter,
+#         the delimiter between token and resource is the :,
+#         no white space needs to surround the delimiter,
+#         comments are indicated by a #,
+#         neither token nor resource can begin with a # or :,
+#         a # or a : can be embedded within resource,
+#         resource can contain white space if it is bounded by
+#           the ' or " characters,
+#         blank lines are allowed.
+#         referbacks are indicated by $(...). The '...' is resolved
+#          the same way any other token is, and is substituted for
+#          the $(...) string to compose the final resource value.
+#          Multiple referbacks are allowed in a resource, but
+#          embedded referbacks are not allowed  (i.e. no
+#          $($(...)) allowed).
+#  Note that this file is read only if the token can not be resolved
+#    as an environment variable.
+#
+# ==============================================================================

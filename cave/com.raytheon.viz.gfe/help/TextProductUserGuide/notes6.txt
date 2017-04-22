@@ -1,0 +1,1 @@
+In order to work with the GFESuite Text Products and Infrastructure, you should have completed GFESuite Training including some experience with Smart Tools and/or Smart Init. You should also be familiar with basic Python concepts and basic object-oriented principles.  For this information, see the GFESuite Python Tutorial and Programming Guidelines

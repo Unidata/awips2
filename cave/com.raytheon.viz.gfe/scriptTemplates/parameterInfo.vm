@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gridParamInfo xmlns:ns2="group">
+  <valtimeMINUSreftime>
+  <!--
+  - The valtimeMINUSreftime section lists all forecast periods for the model
+  - in seconds from the model reference time.
+  - This example shows every 3 hours from 0 to 24 hours
+  -->
+    <fcst>0</fcst>
+    <fcst>10800</fcst>
+    <fcst>21600</fcst>
+    <fcst>32400</fcst>
+    <fcst>43200</fcst>
+    <fcst>54000</fcst>
+    <fcst>64800</fcst>
+    <fcst>75600</fcst>
+    <fcst>86400</fcst>
+  </valtimeMINUSreftime>
+  
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+  <!--
+  - The gridParameterInfo section should be repeated for each parameter in the 
+  - model. The individual tags are described below:
+  - <short_name>    The parameter name as defined in gfeParamName.xml
+  - <long_name>     A descriptive name for the parameter 
+  - <units>         The javax.measure.units defined unit symbol
+  - <udunits>       A user friendly units description (unused in A2)
+  - <uiname>        Name to be displayed in the UI (unused in A2)
+  - <valid_range>   A pair of tags indicating the minimum and 
+  - <valid_range>   maximum normal values in the data (other than "No Data")
+  - <fillValue>     The value used in the model to indicate "No Data"
+  - <n3D>           unused in A2
+  - <levelsDesc>    An abbreviated description of the levels (unused in A2)
+  - <levels>        Contains a list of level tags
+  -   <level>           A level key defined in gfeLevelMappingFile.xml
+  -->
+    <short_name>t</short_name>
+    <long_name>Temperature</long_name>
+    <units>K</units>
+    <udunits>degree_Kelvin</udunits>
+    <uiname>T</uiname>
+    <valid_range>180.0</valid_range>
+    <valid_range>330.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>29</n3D>
+    <levelsDesc>MB 1000-500 by 50, 2 FHAG</levelsDesc>
+    <levels>
+      <level>MB1000</level>
+      <level>MB950</level>
+      <level>MB900</level>
+      <level>MB850</level>
+      <level>MB800</level>
+      <level>MB750</level>
+      <level>MB700</level>
+      <level>MB650</level>
+      <level>MB600</level>
+      <level>MB550</level>
+      <level>MB500</level>
+      <level>FHAG2</level>
+    </levels>
+  </gridParameterInfo>
+</gridParamInfo>
+  

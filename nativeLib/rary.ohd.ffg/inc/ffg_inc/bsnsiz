@@ -1,0 +1,3 @@
+      common /bsnsiz/ ibsize,nbarea,bavg,bsize(1000),bbsid(2,1000),
+     1                ncarea,cavg,csize(1000),cbsid(2,1000)
+      

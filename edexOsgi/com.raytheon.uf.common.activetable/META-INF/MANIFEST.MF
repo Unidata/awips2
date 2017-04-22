@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Activetable Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.activetable
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: com.raytheon.uf.common.dataplugin.annotations,
+ com.raytheon.uf.common.dataplugin.persist,
+ com.raytheon.uf.common.dataplugin.warning,
+ com.raytheon.uf.common.serialization.comm,
+ com.vividsolutions.jts.geom,
+ javax.persistence,
+ org.hibernate.annotations
+Export-Package: com.raytheon.uf.common.activetable,
+ com.raytheon.uf.common.activetable.request,
+ com.raytheon.uf.common.activetable.response
+Require-Bundle: com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.message;bundle-version="1.12.1174",
+ com.raytheon.uf.common.localization;bundle-version="1.12.1174",
+ com.raytheon.uf.common.python;bundle-version="1.12.1174",
+ org.jep;bundle-version="1.0.0",
+ com.raytheon.uf.common.util;bundle-version="1.12.1174",
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.time;bundle-version="1.15.0"

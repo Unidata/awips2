@@ -1,0 +1,51 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean class="com.raytheon.uf.common.logback.appender.ThreadBasedAppender" factory-method="registerThreadPattern">
+        <constructor-arg value="sportlma" />
+        <constructor-arg value="Ingest.SportLma.*" />
+    </bean>
+
+	<bean id="lmaDecoder" class="gov.nasa.msfc.sport.edex.plugin.lma.LmaDecoder" depends-on="getParameterHandlerRegistered">
+	   <property name="gridCoverageLookup" ref="gridcoveragelookup"/>
+	   <property name="levelDao" ref="sportlmalevelDao"/>
+	</bean>
+	
+	
+	<bean id="sportlmalevelDao" class="com.raytheon.uf.edex.plugin.level.dao.LevelDao"/>
+	
+    <bean id="lmaDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg ref="lmaPluginName" />
+		<constructor-arg value="jms-durable:queue:Ingest.SportLma" />
+	</bean>
+
+     
+
+	<camelContext id="lma-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+		
+
+		<!-- Begin LMA route -->
+		<route id="lmaIngestRoute">
+			<from uri="jms-durable:queue:Ingest.SportLma" />
+			<setHeader headerName="pluginName">
+				<constant>sportlma</constant>
+			</setHeader>
+			<doTry>
+				<pipeline>
+					<bean ref="stringToFile" />
+					<bean ref="lmaDecoder" method="decode" />
+					<to uri="direct-vm:persistIndexAlert" />
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:sportlma?level=ERROR"/>
+				</doCatch>
+			</doTry>
+		</route>
+	</camelContext>
+</beans>

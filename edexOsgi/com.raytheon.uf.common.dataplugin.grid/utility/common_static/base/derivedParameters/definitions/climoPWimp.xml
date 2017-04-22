@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	// NARR Climo grids
+	
+	AWIPS I format
+	climoPWimp |0| |Import NARR PW     |mm         |CONTOUR,IMAGE,OTHER|Layer |       *Import,Layer,GFS20|PW,Layer,NARR|       
+																					  *Import,Layer,GFS95|PW,Layer,NARR|       
+																					  *Import,Layer,RAP20|PW,Layer,NARR|       
+																					  *Import,Layer,RAP13|PW,Layer,NARR|       
+																					  *Import,Layer,RAP40|PW,Layer,NARR|       
+																					  *Import,Layer,NAM40|PW,Layer,NARR|       
+																					  *Import,Layer,NAM12|PW,Layer,NARR|       
+																					  *Import,Layer,NAM80|PW,Layer,NARR
+
+	varId: |climoPWimp| 
+	Cross Section (CS): |0| 
+	isAttachToSource: | | 
+	varName: |Import NARR PW     | 
+	units: |mm| 
+	displayTypes: |CONTOUR,IMAGE,OTHER| 	//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: |Layer| 						//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+	
+	functionName, planeList, source: |Import,Layer,GFS20|		
+	varId, plane, source: |PW,Layer,NARR|
+	 
+	functionName, planeList, source: |Import,Layer,GFS95| 
+	varId, plane, source: |PW,Layer,NARR| 
+	
+	functionName, planeList, source: |Import,Layer,RAP20|
+	varId, plane, source: |PW,Layer,NARR| 
+	
+	functionName, planeList, source: |Import,Layer,RAP13|
+	varId, plane, source: |PW,Layer,NARR| 
+	
+	functionName, planeList, source: |Import,Layer,RAP40|
+	varId, plane, source: |PW,Layer,NARR| 
+	
+	functionName, planeList, source: |Import,Layer,NAM40|
+	varId, plane, source: |PW,Layer,NARR| 
+	
+	functionName, planeList, source: |Import,Layer,NAM12|
+	varId, plane, source: |PW,Layer,NARR| 
+	
+	functionName, planeList, source: |Import,Layer,NAM80|
+	varId, plane, source: |PW,Layer,NARR| 
+
+	
+	AWIPS II NEW FILE - climoPWimp.xml
+-->
+<DerivedParameter unit="in" name="Import NARR PW" abbreviation="climoPWimp" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method models="GFS20" levels="Layer" name="Import">
+        <Field model="NARR" level="Layer" abbreviation="PW"/>
+    </Method>
+    <Method models="GFS95" levels="Layer" name="Import">
+        <Field model="NARR" level="Layer" abbreviation="PW"/>
+    </Method>
+    <Method models="RAP20" levels="Layer" name="Import">
+        <Field model="NARR" level="Layer" abbreviation="PW"/>
+    </Method>
+    <Method models="RAP13" levels="Layer" name="Import">
+        <Field model="NARR" level="Layer" abbreviation="PW"/>
+    </Method>
+    <Method models="RAP40" levels="Layer" name="Import">
+        <Field model="NARR" level="Layer" abbreviation="PW"/>
+    </Method>
+    <Method models="NAM40" levels="Layer" name="Import">
+        <Field model="NARR" level="Layer" abbreviation="PW"/>
+    </Method>
+    <Method models="NAM12" levels="Layer" name="Import">
+        <Field model="NARR" level="Layer" abbreviation="PW"/>
+    </Method>
+    <Method models="NAM80" levels="Layer" name="Import">
+        <Field model="NARR" level="Layer" abbreviation="PW"/>
+    </Method>
+</DerivedParameter>

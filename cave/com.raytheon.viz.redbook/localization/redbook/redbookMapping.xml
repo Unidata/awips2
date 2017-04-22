@@ -1,0 +1,923 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        a_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<redbookWMOMap>
+	<mapping>
+		<entry>
+			<key>PEIY47, PETT00</key>
+			<value><name>6-10, 8-14 Day Precip Anom</name></value>
+		</entry>
+		<entry>
+			<key>PEBI98</key>
+			<value><name>6Hr QPF - Time Proj 54-60Hrs</name></value>
+		</entry>
+		<entry>
+			<key>PHKQ50</key>
+			<value><name>gfs 144hr 500 hgt *</name></value>
+		</entry>
+        <entry>
+            <key>PENV01,PENV02,PENV03,PENV04,PENV05,PENV06,PENV07,PENV08,PENV09,PENV10,PENV11,PENV12,PENV13</key>
+            <value><name>50% POE Precip Outlook</name></value>
+        </entry>
+        <entry>
+            <key>PEIE41</key>
+            <value><name>Precip Fcst - 24hr accum</name></value>
+        </entry>
+        <entry>
+            <key>PTNS98</key>
+            <value><name>Day 7 Heat Index Probabilities</name></value>
+        </entry>
+        <entry>
+            <key>PEIE40</key>
+            <value><name>18-24HR QPF</name></value>
+        </entry>
+        <entry>
+            <key>PWAA65</key>
+            <value>
+            	<name>Atl 850-200MB Wind Shear/Wind Analy</name>
+            	<projection>mercator 0 -80 -3.4581 -121.0959 45.0 -38.9041</projection>
+           	</value>
+        </entry>
+        <entry>
+            <key>PHKO50</key>
+            <value><name>gfs 120hr 500 hgt *</name></value>
+        </entry>
+        <entry>
+            <key>PSBD04</key>
+            <value><name>Day 3 Prob 4+&quot; Snow</name></value>
+        </entry>
+        <entry>
+            <key>PGNE00</key>
+            <value><name>Day 1 Tornado outlook</name></value>
+        </entry>
+        <entry>
+            <key>PSBD08</key>
+            <value><name>Day 3 Prob 8+&quot; Snow</name></value>
+        </entry>
+        <entry>
+            <key>PPKE01</key>
+            <value><name>gfs  24hr MSLP *</name></value>
+        </entry>
+        <entry>
+            <key>PHKA50</key>
+            <value><name>gfs  00hr 500 hgt *</name></value>
+        </entry>
+        <entry>
+            <key>PHKK50</key>
+            <value><name>gfs  72hr 500 hgt *</name></value>
+        </entry>
+        <entry>
+            <key>PYMA50</key>
+            <value><name>500mb UA plot</name></value>
+        </entry>
+        <entry>
+            <key>PGNA00</key>
+            <value><name>Active Mesoscale Disc Summary</name></value>
+        </entry>
+        <entry>
+            <key>PPKQ01</key>
+            <value><name>gfs 144hr MSLP *</name></value>
+        </entry>
+        <entry>
+            <key>PPKI01</key>
+            <value><name>gfs  48hr MSLP *</name></value>
+        </entry>
+        <entry>
+            <key>PSBD12</key>
+            <value><name>Day 3 Prob 12+&quot; Snow</name></value>
+        </entry>
+        <entry>
+            <key>PHNT50</key>
+            <value><name>6-10 day 500 Hgt Anomaly</name></value>
+        </entry>
+        <entry>
+            <key>PTIV98</key>
+            <value><name>30 Day Temp Anomaly</name></value>
+        </entry>
+        <entry>
+            <key>PHKM50</key>
+            <value><name>gfs  96hr 500 hgt *</name></value>
+        </entry>
+        <entry>
+            <key>PTTU98, PTIY51</key>
+            <value><name>6-10, 8-14 Day Temp Anom</name></value>
+        </entry>
+        <entry>
+            <key>PGWB45</key>
+            <value><name>Severe Thunderstorm Probability</name></value>
+        </entry>
+        <entry>
+            <key>PAWO82</key>
+            <value><name>Radar Summary</name></value>
+        </entry>
+        <entry>
+            <key>PAWO83</key>
+            <value><name>Radar Legends</name></value>
+        </entry>
+        <entry>
+            <key>PTAS00</key>
+            <value><name>6-10 Day Heat Index &gt;=95F</name></value>
+        </entry>
+        <entry>
+            <key>PTWA31, PTWA32</key>
+            <value><name>Max/Min Temperatures</name></value>
+        </entry>
+        <entry>
+            <key>PTWO33, PTWO34</key>
+            <value><name>Normal Max/Min Temps</name></value>
+        </entry>                
+        <entry>
+            <key>PTWA93</key>
+            <value><name>Freezing Level Analysis</name></value>
+        </entry>
+        <entry>
+            <key>PTWA94</key>
+            <value><name>Freezing Level Plot</name></value>
+        </entry>
+        <entry>
+            <key>PGWB44</key>
+            <value><name>Thunderstorm Probability</name></value>
+        </entry>
+        <entry>
+            <key>PTNO98</key>
+            <value><name>Day 5 Heat Index Probabilities</name></value>
+        </entry>
+        <entry>
+            <key>PPKA01</key>
+            <value><name>gfs  00hr MSLP *</name></value>
+        </entry>
+        <entry>
+            <key>PEIK98</key>
+            <value><name>Day 3 QPF - Time Proj 60-72Hrs</name></value>
+        </entry>
+        <entry>
+            <key>PEIY96</key>
+            <value><name>8-14 Day Precip Hazards </name></value>
+        </entry>
+        <entry>
+            <key>PEIY97</key>
+            <value><name>3-7 Day Precip Hazards</name></value>
+        </entry>
+        <entry>
+            <key>PLQI51</key>
+            <value><name>redbook graphic</name></value>
+        </entry>
+        <entry>
+            <key>PEIY50</key>
+            <value><name>3-10 Day Threat Assess Precip</name></value>
+        </entry> 
+        <entry>
+            <key>PYMA70</key>
+            <value><name>700mb UA plot</name></value>
+        </entry>
+        <entry>
+            <key>PPTR98</key>
+            <value><name>Day 7 Frontal Position FCST</name></value>
+        </entry>
+        <entry>
+            <key>PJAI88,PJAA88</key>
+            <value><name>N Atlantic Sig Wave/Winds</name></value>
+        </entry>
+        <entry>
+            <key>PHZI50</key>
+            <value><name>48 ukmo 500 hgt</name></value>
+        </entry>
+        <entry>
+            <key>PPHM01</key>
+            <value><name>day 4 frnt/pres</name></value>
+        </entry>
+        <entry>
+            <key>PTNT98</key>
+            <value><name>8-14 Day Maximum Heat Index Outlook</name></value>
+        </entry>
+        <entry>
+            <key>PPZA50,PPZM50,PPZO50,PPZQ50</key>
+            <value><name>UKMO MSL Pressure</name></value>
+        </entry>
+        <entry>
+            <key>PPIC01, PPIE01, PPIG01, PPII01</key>
+            <value><name>Fronts/Pressure</name></value>
+        </entry>
+        <entry>
+            <key>PPHK01, PPHM01, PPHO01, PPTG98, PPTR98</key>
+            <value><name>Fronts/Pressure</name></value>
+        </entry>            
+        <entry>
+            <key>PXWA50</key>
+            <value><name>Lifted-K Index Plot</name></value>
+        </entry>
+        <entry>
+            <key>PGIC42, PGIE43</key>
+            <value><name>Wx Depiction Fcst</name></value>
+        </entry>  
+        <entry>
+            <key>PZKY51</key>
+            <value><name>redbook graphic</name></value>
+        </entry>
+        <entry>
+            <key>PPZE50</key>
+            <value><name>ukmo  24 mslp</name></value>
+        </entry>
+        <entry>
+            <key>PGNI00</key>
+            <value><name>Day 2 Combined Severe Outlook</name></value>
+        </entry>
+        <entry>
+            <key>PSBC08</key>
+            <value><name>Day 2 Prob 8+&quot; Snow</name></value>
+        </entry>
+        <entry>
+            <key>PSBC04</key>
+            <value><name>Day 2 Prob 4+&quot; Snow</name></value>
+        </entry>
+		<entry>
+            <key>PTNR98</key>
+            <value><name>6-10 Day Maximum Heat Index Outlook</name></value>
+        </entry>      
+		<entry>
+            <key>PTIY96</key>
+            <value><name>8-14 Temp/Wind Hazards</name></value>
+        </entry>      
+ 		<entry>
+            <key>PTIY97</key>
+            <value><name>3-7 Day Temp/Wind Hazards</name></value>
+        </entry>      
+        <entry>
+            <key>PNWA68</key>
+            <value><name>redbook graphic</name></value>
+        </entry>
+        <entry>
+            <key>PPII01</key>
+            <value><name>48hr frnt/pres</name></value>
+        </entry>
+        <entry>
+            <key>PYWD63</key>
+            <value><name>ngm 18hr sfc qconv</name></value>
+        </entry>
+        <entry>
+            <key>PSBC12</key>
+            <value><name>Day 2 Prob 12+&quot; Snow</name></value>
+        </entry>
+        <entry>
+            <key>PYAA98</key>
+            <value><name>Sfc Frontal Analysis</name></value>
+        </entry>
+        <entry>
+            <key>PTAT00</key>
+            <value><name>8-14 Day Heat Index &gt;=95F</name></value>
+        </entry>
+        <entry>
+            <key>PYMA20</key>
+            <value><name>200mb UA plot</name></value>
+        </entry>
+        <entry>
+            <key>PPAM89</key>
+            <value><name>96Hr North Atlantic Fronts/Pressure/Winds FCST</name></value>
+        </entry>
+        <entry>
+            <key>PYAA89</key>
+            <value><name>N Atlantic Surface Anal</name></value>
+        </entry>
+        <entry>
+            <key>PYIY96</key>
+            <value><name>8-14 Day Soil/Wildfire Hazards</name></value>
+        </entry>
+        <entry>
+            <key>PYIY97</key>
+            <value><name>3-7 Day Soil/Wildfire Hazards</name></value>
+        </entry>
+        <entry>
+            <key>PSBD25</key>
+            <value><name>Day 3 Prob .25+&quot; Ice</name></value>
+        </entry>
+        <entry>
+            <key>PSBC25</key>
+            <value><name>Day 2 Prob .25+&quot; Ice</name></value>
+        </entry>
+        <entry>
+            <key>PENE00</key>
+            <value><name>Day 1 Hail Outlook</name></value>
+        </entry>
+        <entry>
+            <key>PWDA65</key>
+            <value>
+            	<name>Pac 850-200MB Winds/Shear Analy</name>
+            	<projection>mercator 0 -120 -4.3808 -160.0 45.5722 -75.0</projection>
+           	</value>
+        </entry>
+        <entry>
+            <key>PWAA85</key>
+            <value>
+            	<name>Atl 850MB StrmLines/Wind Anal</name>
+            	<projection>mercator 0 -80 -3.4581 -121.0959 45.0 -38.9041</projection>
+           	</value>
+        </entry>
+        <entry>
+            <key>PYWK62</key>
+            <value><name>redbook graphic</name></value>
+        </entry>
+        <entry>
+            <key>PHTT51</key>
+            <value><name>8-14 day mean 500 ht anomaly</name></value>
+        </entry>
+        <entry>
+            <key>PHTT50</key>
+            <value><name>8-14 day mean 500 ht</name></value>
+        </entry>
+        <entry>
+            <key>PYMA30</key>
+            <value><name>300mb UA plot</name></value>
+        </entry>
+        <entry>
+            <key>PWIA98, PWIE98</key>
+            <value><name>WATL wind/wave</name></value>
+        </entry>
+        <entry>
+            <key>PSBB25</key>
+            <value><name>Day 1 Prob .25+&quot; Ice</name></value>
+        </entry>
+        <entry>
+            <key>PWIA97, PWIE97</key>
+            <value><name>EPAC wind/wave</name></value>
+        </entry>
+        <entry>
+            <key>PYMA25</key>
+            <value><name>250mb UA plot</name></value>
+        </entry>
+        <entry>
+            <key>POWA31</key>
+            <value><name>redbook graphic</name></value>
+        </entry>
+        <entry>
+            <key>PPKM01</key>
+            <value><name>gfs  96hr MSLP *</name></value>
+        </entry>
+        <entry>
+            <key>PPAI89, PPAM89</key>
+            <value><name>N Atl Fronts/Press/Winds</name></value>
+        </entry>
+        <entry>
+            <key>PEIW01,PEIW02,PEIW03,PEIW04,PEIW05,PEIW06,PEIW07,PEIW08,PEIW09,PEIW10,PEIW11,PEIW12,PEIW13</key>
+            <value><name>90 Day Seasonal Precip Outlook</name></value>            
+        </entry>      
+        <entry>
+            <key>PTIW01,PTIW02,PTIW03,PTIW04,PTIW05,PTIW06,PTIW07,PTIW08,PTIW09,PTIW10,PTIW11,PTIW12,PTIW13</key>
+            <value><name>90 Day Seasonal Temp Outlook</name></value>            
+        </entry>        
+        <entry>
+            <key>PMWE98</key>
+            <value><name>SPC Fire Weather Outlook - Day 1</name></value>
+        </entry>   
+        <entry>
+            <key>PMWI98</key>
+            <value><name>SPC Fire Weather Outlook - Day 2</name></value>
+        </entry>
+        <entry>
+            <key>PGNO98</key>
+            <value><name>SPC Fire Weather Outlook - Day 3-8</name></value>
+        </entry>
+        <entry>
+            <key>PWEA88, PWEC88, PWEE88, PWEG88</key>
+            <value>
+            	<name>Caribbean Wind/Seas</name>
+            	<projection>mercator 0 -75 -30.0 -160.0 59.0 0.0</projection>
+           	</value>
+        </entry>
+        <entry>
+            <key>PJME10</key>
+            <value><name>24HR NGM MOS HRS OF SUNHINE PLOT</name></value>
+        </entry>
+        <entry>
+            <key>PGWE46</key>
+            <value><name>Day One Convectv Outlook</name></value>
+        </entry>
+        <entry>
+            <key>PTAS90</key>
+            <value><name>6-10 Day Heat Index &gt;=85F</name></value>
+        </entry>
+        <entry>
+            <key>PEIV98</key>
+            <value><name>30 Day Precip Anomaly</name></value>
+        </entry>
+        <entry>
+            <key>PJME11</key>
+            <value><name>24HR NGM MOS PCNT POSSIBLE SUN</name></value>
+        </entry>
+        <entry>
+            <key>PYWE64</key>
+            <value><name>ngm 24hr sfc qconv</name></value>
+        </entry>
+        <entry>
+            <key>PTAT90</key>
+            <value><name>8-14 Day Heat Index &gt;=85F</name></value>
+        </entry>
+        <entry>
+            <key>PHZO50</key>
+            <value><name>120 ukmo 500 hgt</name></value>
+        </entry>
+        <entry>
+            <key>PEBK98</key>
+            <value><name>6Hr QPF - Time Proj 72-78Hrs</name></value>
+        </entry>
+        <entry>
+            <key>PSBB12</key>
+            <value><name>Day 1 Prob 12+&quot; Snow</name></value>
+        </entry>
+        <entry>
+            <key>PGNE88</key>
+            <value><name>24Hr Marine Dense Fog FCST</name></value>
+        </entry>
+        <entry>
+            <key>PJMI11</key>
+            <value><name>48HR NGM MOS PCNT POSSIBLE SUN</name></value>
+        </entry>
+        <entry>
+            <key>PTAT95</key>
+            <value><name>8-14 Day Heat Index &gt;=90F</name></value>
+        </entry>
+        <entry>
+            <key>PHZQ50</key>
+            <value><name>144 ukmo 500 hgt</name></value>
+        </entry>
+        <entry>
+            <key>PJMI10</key>
+            <value><name>48HR NGM MOS HRS OF SUNHINE PLOT</name></value>
+        </entry>
+        <entry>
+            <key>PPAE89</key>
+            <value><name>W Atlantic Fronts/Press Fcst</name></value>
+        </entry>
+        <entry>
+            <key>PTAS95</key>
+            <value><name>6-10 Day Heat Index &gt;=90F</name></value>
+        </entry>
+        <entry>
+            <key>PYWK43, PYWM44, PYWO45, PYWQ46, PYWS98</key>
+            <value><name>Max/Min/PoP Prog</name></value>
+        </entry>
+        <entry>
+            <key>PJME03</key>
+            <value><name>NGM MOS Max/Min Temp Plot</name></value>
+        </entry>
+        <entry>
+            <key>PJME02</key>
+            <value><name>NGM MOS Max/Min Isotherms</name></value>
+        </entry>
+        <entry>
+            <key>PSBB08</key>
+            <value><name>Day 1 Prob 8+&quot; Snow</name></value>
+        </entry>
+        <entry>
+            <key>PPZM50</key>
+            <value><name>ukmo  96 mslp</name></value>
+        </entry>
+        <entry>
+            <key>PJME01</key>
+            <value><name>12-24HR NGM MOS POP</name></value>
+        </entry>
+        <entry>
+            <key>PJME09</key>
+            <value><name>24HR NGM MOS SOLAR ENERGY PLOT</name></value>
+        </entry>
+        <entry>
+            <key>PJBI88,PJBA88</key>
+            <value><name>N Pacific Sig Wave/Winds</name></value>
+        </entry>
+        <entry>
+            <key>PJMJ02</key>
+            <value><name>NGM MOS Max/Min Isotherms</name></value>
+        </entry>
+        <entry>
+            <key>PJMJ01</key>
+            <value><name>48-60HR NGM MOS POP</name></value>
+        </entry>
+        <entry>
+            <key>PJME07</key>
+            <value><name>12-24 HR 700 VERT DISP</name></value>
+        </entry>
+        <entry>
+            <key>PJMJ03</key>
+            <value><name>NGM MOS Max/Min Temp Plot</name></value>
+        </entry>
+        <entry>
+            <key>PSBB04</key>
+            <value><name>Day 1 Prob 4+&quot; Snow</name></value>
+        </entry>
+        <entry>
+            <key>PPTG98</key>
+            <value><name>Day 6 Frontal Position FCST</name></value>
+        </entry>
+        <entry>
+            <key>PJMG07</key>
+            <value><name>24-36 HR 700 VERT DISP</name></value>
+        </entry>
+        <entry>
+            <key>PJMI01</key>
+            <value><name>36-48HR NGM MOS POP</name></value>
+        </entry>
+        <entry>
+            <key>PJMI02</key>
+            <value><name>NGM MOS Max/Min Isotherms</name></value>
+        </entry>
+        <entry>
+            <key>PJMG02</key>
+            <value><name>NGM MOS Max/Min Isotherms</name></value>
+        </entry>
+        <entry>
+            <key>PPZK50</key>
+            <value><name>ukmo  72 mslp</name></value>
+        </entry>
+        <entry>
+            <key>PJMI03</key>
+            <value><name>NGM MOS Max/Min Temp Plot</name></value>
+        </entry>
+        <entry>
+            <key>PJMG03</key>
+            <value><name>NGM MOS Max/Min Temp Plot</name></value>
+        </entry>
+        <entry>
+            <key>PGWK48</key>
+            <value><name>Day 3 Convective Outlook</name></value>
+        </entry>
+        <entry>
+            <key>PJMG01</key>
+            <value><name>24-36HR NGM MOS POP</name></value>
+        </entry>
+        <entry>
+            <key>PJMI07</key>
+            <value><name>36-48 HR 700 VERT DISP</name></value>
+        </entry>
+        <entry>
+            <key>PJMI09</key>
+            <value><name>48HR NGM MOS SOLAR ENERGY PLOT</name></value>
+        </entry>
+        <entry>
+            <key>PMNE98</key>
+            <value><name>ngm 24hr sfc parcel traj</name></value>
+        </entry>
+        <entry>
+            <key>PYNA98</key>
+            <value>
+            	<name>Tropical Surface Analysis</name>
+            	<projection>mercator 0 -80 -21.7022 -155.0 51.1567 -30.0</projection>
+           	</value>
+        </entry>
+        <entry>
+            <key>PSAO72</key>
+            <value><name>3-Day Sig Winter Low Tracks</name></value>
+        </entry>
+        <entry>
+            <key>PYWC62</key>
+            <value><name>ngm 12hr sfc qconv</name></value>
+        </entry>
+        <entry>
+            <key>PPZQ50</key>
+            <value><name>ukmo 144 mslp</name></value>
+        </entry>
+        <entry>
+            <key>PGWI47</key>
+            <value><name>Day Two Convectv Outlook</name></value>
+        </entry>
+        <entry>
+            <key>PHZE50</key>
+            <value><name>24 ukmo 500 hgt</name></value>
+        </entry>
+        <entry>
+            <key>PTNM98</key>
+            <value><name>Day 4 Heat Index Probabilities</name></value>
+        </entry>
+        <entry>
+            <key>PWNE00</key>
+            <value><name>Day 1 Convective wind outlook</name></value>
+        </entry>
+        <entry>
+            <key>PPZO50</key>
+            <value><name>ukmo 120 mslp</name></value>
+        </entry>
+        <entry>
+            <key>PTIO52</key>
+            <value><name>5-day Max Temp Anom</name></value>
+        </entry>
+        <entry>
+            <key>PRWA51</key>
+            <value><name>Surface-500mb RH Plot</name></value>
+        </entry>
+        <entry>
+            <key>PYWB61</key>
+            <value><name>ngm 6hr sfc qconv</name></value>
+        </entry>
+        <entry>
+            <key>PTIO53</key>
+            <value><name>5-day Min Temp Anom</name></value>
+        </entry>
+        <entry>
+            <key>PTNK98</key>
+            <value><name>Day 3 Heat Index Probabilities</name></value>
+        </entry>
+        <entry>
+            <key>PTNQ98</key>
+            <value><name>Day 6 Heat Index Probabilities</name></value>
+        </entry>
+        <entry>
+            <key>PEID44</key>
+            <value><name>12-18HR QPF</name></value>
+        </entry>
+        <entry>
+            <key>PEIB40</key>
+            <value><name>0-6HR QPF</name></value>
+        </entry>
+        <entry>
+            <key>PHZM50</key>
+            <value><name>96 ukmo 500 hgt</name></value>
+        </entry>
+        <entry>
+            <key>PPAA89</key>
+            <value><name>MSL Pressure Analysis</name></value>
+        </entry>
+        <entry>
+            <key>PYIA88</key>
+            <value><name>Weekly Drought Analysis</name></value>
+        </entry>
+        <entry>
+            <key>PMNV88</key>
+            <value><name>Drought Outlook</name></value>
+        </entry>        
+        <entry>
+            <key>PXVA01</key>
+            <value><name>redbook graphic</name></value>
+        </entry>
+        <entry>
+            <key>PHZK50</key>
+            <value><name>72 ukmo 500 hgt</name></value>
+        </entry>
+        <entry>
+            <key>PHBV50</key>
+            <value><name>6-10 day mean 500 Height</name></value>
+        </entry>
+        <entry>
+            <key>PPIC01</key>
+            <value><name>12hr frnt/pres</name></value>
+        </entry>
+        <entry>
+            <key>PPZI50</key>
+            <value><name>ukmo  48 mslp</name></value>
+        </entry>
+        <entry>
+            <key>PENJ88</key>
+            <value><name>Sig River Flood Outlook</name></value>
+        </entry>
+        <entry>
+            <key>PENA01</key>
+            <value><name>Mesoscale Precip Discussion</name></value>
+        </entry>
+        <entry>
+            <key>PEBG98</key>
+            <value><name>6Hr QPF - Time Proj 36-42Hrs</name></value>
+        </entry>
+        <entry>
+            <key>PWAA20</key>
+            <value>
+            	<name>Atl 200MB StrmLines/Wind Anal</name>
+            	<projection>mercator 0 -80 -3.4581 -121.0959 45.0 -38.9041</projection>
+           	</value>
+        </entry>
+        <entry>
+            <key>PEIO46</key>
+            <value><name>5 Day Total Precip</name></value>
+        </entry>
+        <entry>
+            <key>PAW883</key>
+            <value><name>redbook graphic</name></value>
+        </entry>
+        <entry>
+            <key>PGWA32</key>
+            <value><name>Wx Depiction analysis</name></value>
+        </entry>
+        <entry>
+            <key>PEBJ98</key>
+            <value><name>6Hr QPF - Time Proj 66-72Hrs</name></value>
+        </entry>
+        <entry>
+            <key>PMNE70</key>
+            <value><name>ngm 24hr 700 parcel traj</name></value>
+        </entry>
+        <entry>
+            <key>PPBA89</key>
+            <value><name>NA mslp anal</name></value>
+        </entry>
+        <entry>
+            <key>PGWA31</key>
+            <value><name>Wx Depiction plot</name></value>
+        </entry>
+        <entry>
+            <key>PYMA85</key>
+            <value><name>850mb UA plot</name></value>
+        </entry>
+        <entry>
+            <key>PPIG01</key>
+            <value><name>36hr frnt/pres</name></value>
+        </entry>
+        <entry>
+            <key>PHZA50</key>
+            <value><name>ukmo 500 hgt</name></value>
+        </entry>
+        <entry>
+            <key>PPBE89</key>
+            <value><name>E Pacific Fronts/Press Fcst</name></value>
+        </entry>
+        <entry>
+            <key>PWDA00</key>
+            <value>
+            	<name>Pac Deep Layer Mean Circulation</name>
+            	<projection>mercator 0 -120 -4.3808 -160.0 45.5722 -75.0</projection>
+           	</value>
+        </entry>
+        <entry>
+            <key>PMNE85</key>
+            <value><name>ngm 24hr 850 parcel traj</name></value>
+        </entry>
+        <entry>
+            <key>PEI745</key>
+            <value><name>Day 1 Excessive Rainfall</name></value>
+        </entry>
+        <entry>
+            <key>PZNK00</key>
+            <value><name>Day 3 Combined Severe Outlook</name></value>
+        </entry>
+        <entry>
+            <key>PGNM98</key>
+            <value><name>Day 4-8 Composite Severe Outlook</name></value>
+        </entry>
+        <entry>
+            <key>PEIC61, PEIE62, PEIG63, PEII64</key>
+            <value><name>Instantaneous Precip</name></value>
+        </entry>
+        <entry>
+            <key>PPBI89, PPBM89</key>
+            <value><name>N Pac Fronts/Press/Winds</name></value>
+        </entry>
+        <entry>
+            <key>PWBA88</key>
+            <value>
+            	<name>Eastern Pacific Winds/Seas Analysis</name>
+            	<projection>mercator 0 -115 -30.0 -160.0 59.0 0.0</projection>
+           	</value>
+        </entry>
+        <entry>
+            <key>PPHO01</key>
+            <value><name>day 5 frnt/pres</name></value>
+        </entry>
+        <entry>
+            <key>PTIY98</key>
+            <value><name>3-10 Day Threat Assess Temp/Wind</name></value>
+        </entry>
+        <entry>
+            <key>PPKO01</key>
+            <value><name>gfs 120hr MSLP *</name></value>
+        </entry>
+        <entry>
+            <key>PEWA31</key>
+            <value><name>Daily Precipitation</name></value>
+        </entry>
+        <entry>
+            <key>PEWA32</key>
+            <value><name>Snow Cover Plot</name></value>
+        </entry>
+        <entry>
+            <key>SRUS43</key>
+            <value><name>NOHRSC Snow Water Equivalent % of normal</name></value>
+        </entry>        
+        <entry>
+            <key>PEWA33</key>
+            <value><name>Precip H2O Plot</name></value>
+        </entry>
+        <entry>
+            <key>PHKE50</key>
+            <value><name>gfs  24hr 500 hgt *</name></value>
+        </entry>
+        <entry>
+            <key>PWAA00</key>
+            <value>
+            	<name>Atl Deep Layer Mean Circulation</name>
+            	<projection>mercator 0 -80 -3.4581 -121.0959 45.0 -38.9041</projection>
+           	</value>
+        </entry>
+        <entry>
+            <key>PDKI59</key>
+            <value><name>redbook graphic</name></value>
+        </entry>
+        <entry>
+            <key>PTNV01,PTNV02,PTNV03,PTNV04,PTNV05,PTNV06,PTNV07,PTNV08,PTNV09,PTNV10,PTNV11,PTNV12,PTNV13</key>
+            <value><name>50% POE Temp Outlook</name></value>
+        </entry>
+        <entry>
+            <key>PYBA89</key>
+            <value><name>N Pacific Surface Anal</name></value>
+        </entry>
+        <entry>
+            <key>PYIY88</key>
+            <value><name>3-10 Day Threat Assess Soil/Wildfire</name></value>
+        </entry>
+        <entry>
+            <key>PGNE98</key>
+            <value><name>24Hr Marine Freezing Spray FCST</name></value>
+        </entry>
+        <entry>
+            <key>PEBF98</key>
+            <value><name>6Hr QPF - Time Proj 30-36Hrs</name></value>
+        </entry>
+        <entry>
+            <key>PPHK01</key>
+            <value><name>day 3 frnt/pres</name></value>
+        </entry>
+        <entry>
+            <key>PHKI50</key>
+            <value><name>gfs  48hr 500 hgt *</name></value>
+        </entry>
+        <entry>
+            <key>PTIC94, PTIE94</key>
+            <value><name>Freezing Level Fcst</name></value>
+        </entry>
+        <entry>
+            <key>PPKK01</key>
+            <value><name>gfs  72hr MSLP *</name></value>
+        </entry>
+        <entry>
+            <key>PEIC43</key>
+            <value><name>Precip Fcst - 6hr accum</name></value>
+        </entry>
+        <entry>
+            <key>PEBJ88</key>
+            <value><name>6Hr QPF - Time Proj 60-66Hrs</name></value>
+        </entry>
+        <entry>
+            <key>PYBA98</key>
+            <value><name>NA frontal analysis</name></value>
+        </entry>
+        <entry>
+            <key>PEIF40</key>
+            <value><name>24-30HR QPF</name></value>
+        </entry>
+        <entry>
+            <key>PEBI88</key>
+            <value><name>6Hr QPF - Time Proj 48-54Hrs</name></value>
+        </entry>
+        <entry>
+            <key>PYWA31</key>
+            <value><name>Sfc Geostrophic Wind</name></value>
+        </entry>
+        <entry>
+            <key>PYWA32</key>
+            <value><name>Sfc Geo Relative Vort</name></value>
+        </entry>
+        <entry>
+            <key>PEWA34</key>
+            <value><name>Precip H2O Analysis</name></value>
+        </entry>
+        <entry>
+            <key>PEBH98</key>
+            <value><name>6Hr QPF - Time Proj 42-48Hrs</name></value>
+        </entry>
+        <entry>
+            <key>PEIE41, PEII42, PEIK98</key>
+            <value><name>Precip Fcst - 24hr accum</name></value>
+        </entry>
+        <entry>
+            <key>PGNW49</key>
+            <value><name>Day 4 Severe Outlook</name></value>
+        </entry>
+        <entry>
+            <key>PGNW50</key>
+            <value><name>Day 5 Severe Outlook</name></value>
+        </entry>
+        <entry>
+            <key>PGNW51</key>
+            <value><name>Day 6 Severe Outlook</name></value>
+        </entry>
+        <entry>
+            <key>PGNW52</key>
+            <value><name>Day 7 Severe Outlook</name></value>
+        </entry>
+        <entry>
+            <key>PGNW53</key>
+            <value><name>Day 8 Severe Outlook</name></value>
+        </entry>
+    </mapping>
+</redbookWMOMap>

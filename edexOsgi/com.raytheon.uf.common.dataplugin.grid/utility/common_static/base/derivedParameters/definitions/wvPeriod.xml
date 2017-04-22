@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DerivedParameter name="wvPeriod" abbreviation="wvPeriod" xmlns:ns2="group">
+    <Method name="wvPeriod.execute1">
+        <Field abbreviation="wavePeriod"/>
+        <Field abbreviation="windWavePeriod"/>
+    </Method>
+</DerivedParameter>

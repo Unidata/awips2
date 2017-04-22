@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<requestPatterns>
+    <regex>^[ACFNRUW][A-Z][A-Z0-9]{4} [A-Z0-9]{4}</regex>
+    <regex>^S[A-CEG-Z].*</regex>
+    <!-- Only have AFOS mapping for T[BCX] -->
+    <regex>^T[BCX].*</regex>
+    <regex>^SF[A-OQ-TV-Z].*</regex>
+    <regex>^SDUS1.*</regex>
+    <regex>^SDUS4[1-6].*</regex>
+    <regex>^SDUS9[^7].*</regex>
+    <regex>^SFU[^S].*</regex>
+    <regex>^SFUS4[^1].*</regex>
+    <regex>^SFP[^A].*</regex>
+    <regex>^SFPA[^4].*</regex>
+    <regex>^SFPA4[^12].*</regex>
+    <regex>^BMBB91.*</regex>
+    <regex>^N[A-Z][A-Z0-9]{4} [A-Z0-9]{4}</regex>
+    <regex>^F[EHIJKLMQVWX].*</regex>
+    <regex>wcl_decrypted</regex>
+    <regex>ecmwf_mos_decrypted</regex>
+    
+    <!-- AWIPS I pattern
+    TextDBPatterns.txt
+    ^[ACDFHMORTU][A-Z].*
+    ^S[A-CEG-Z]|^SD($|[^U])|^SDU($|[^S])|^SDUS($|[^2345789])|^SDUS9($|[^7])
+    ^SF($|[A-OQ-TV-Z)|^SFU($|[^S])|^SFUS($|[^4])|^SFUS4($|[^1])
+    ^SFP($|[^A])|^SFPA($|[^4])|^SFPA4($|[^1])
+    ^V[A-DF-Z]|^VE$|^VE[^U]|^VEU$|^VEU[^S]  Would all go under NOAFOSPIL
+    ^SDUS4[1-6].KWBC
+    ^N[A-WYZ]|^NX[^U]|^NXU[^S]
+    ^BMBB91.*  Would all go under NOAFOSPIL
+	
+	WarnDBPatterns.txt
+	^W[A-Z].*
+    ^NOUS71.KNCF
+    ^NTUS96.KNCF
+    ^NTUS98.KNCF
+	-->
+</requestPatterns>

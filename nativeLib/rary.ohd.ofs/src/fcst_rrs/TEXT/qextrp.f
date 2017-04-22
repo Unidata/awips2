@@ -1,0 +1,85 @@
+C MODULE QEXTRP
+C-----------------------------------------------------------------------
+C
+C  ROUTINE QEXTRP EXTRAPOLATES INSTANTANEOUS AND MEAN DATA BY APPLYING
+C  A USER SUPPLIED RECESSION FACTOR (FACTOR IS FOR 24 HR PERIOD).
+C
+C  ORIGINALLY CODED BY DEBBIE VANDEMARK - 5/27/83
+C  REVISED BY J.OSTROWSKI - SEPT 88
+C     INCLUDED PROVISION FOR BACKWARDS INTERPOLATION
+C
+C----------------------------------------------------------------------
+C
+C  INPUT ARGUMENTS
+C       PREOBS - VALUE OF PREVIOUS OBSERVATION
+C       EXTRP  - RECESSION CONSTANT FOR 24 HR PERIOD
+C       INTVAL - TIME INTERVAL
+C       NTIMES - NUMBER OF TIME INTERVALS TO APPLY RECESSION
+C
+C  OUTPUT ARGUMENTS
+C        DATA  - ARRAY CONTAINING EXTRAPOLATED DATA
+C
+C----------------------------------------------------------------------
+C
+      SUBROUTINE QEXTRP (PREOBS,EXTRP,INTVAL,DATA,NTIMES)
+      DIMENSION DATA(1)
+      DIMENSION OLDOPN(2)
+      LOGICAL BKWDS
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/pptime'
+      INCLUDE 'common/pudbug'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_rrs/RCS/qextrp.f,v $
+     . $',                                                             '
+     .$Id: qextrp.f,v 1.3 1999/07/06 15:54:42 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C  THE TRACE LEVEL FOR THIS ROUTINE IS 2
+      IF (IPTRCE.GT.1) WRITE (IOPDBG,20)
+C
+      IOPNUM=-3
+      CALL FSTWHR(8HQEXTRP  ,IOPNUM,OLDOPN,IOLDOP)
+C
+C  CHECK DEBUG CODES
+      IBUG=IPBUG(4HQEXT)
+      IF (IBUG.GT.0) WRITE (IOPDBG,30)PREOBS,NTIMES
+      IF (IBUG.GT.0) WRITE (IOPDBG,40) EXTRP
+C
+C  IF NTIMES IS NEGATIVE THEN THIS IS A BACKWARD RECESSION
+C
+      BKWDS = .FALSE.
+      IF (NTIMES .LT. 0) BKWDS = .TRUE.
+      NTIMES = IABS(NTIMES)
+      DELT = FLOAT(INTVAL)
+      IF (BKWDS) PREOBS = PREOBS / EXTRP**((NTIMES+1)*DELT/24.)
+      RECESS = EXTRP**(DELT/24.)
+C
+C  APPLY THE RECESSION CONSTANT TO GET THE EXTRAPOLATED VALUE
+C
+      DO 10 I=1,NTIMES
+      DATA(I)=PREOBS*RECESS
+      PREOBS=DATA(I)
+10    CONTINUE
+C
+      IF (IBUG.GT.0) WRITE (IOPDBG,50) (DATA(J),J=1,NTIMES)
+C
+C  ALL FINISHED!
+C
+      IF (IPTRCE.GT.1) WRITE (IOPDBG,60)
+      CALL FSTWHR(OLDOPN,IOLDOP,OLDOPN,IOLDOP)
+C
+20    FORMAT('0*** ENTER - QEXTRP')
+30    FORMAT('0THE PREVIOUS VALUE ',G15.7,'WILL BE EXTRAPOLATED',I4,
+     $'TIMES')
+40    FORMAT('0THE RECESSION CONSTANT IS ',F5.3)
+50    FORMAT('0THE EXTRAPOLATED VALUES ARE:'/(8G15.7/))
+60    FORMAT('0*** EXIT QEXTRP')
+C
+      RETURN
+C
+      END

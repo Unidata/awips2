@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Qc Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.qc
+Bundle-Version: 1.14.1.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: com.raytheon.uf.common.dataplugin
+Export-Package: com.raytheon.uf.common.dataplugin.qc
+Import-Package: com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.pointdata.spatial,
+ com.raytheon.uf.common.serialization.annotations,
+ com.raytheon.uf.common.status,
+ javax.persistence

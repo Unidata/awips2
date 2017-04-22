@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ 
+		<contribute xsi:type="menuItem" menuText="12hr Mean Snowfall" key="SNOL12mean" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="12-hr Snowfall Spread" key="SNOL12sprd"  indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 12hr grtn 1 in" key="SNOL12c1" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 12hr grtn 2 in" key="SNOL12c2" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 12hr grtn 4 in" key="SNOL12c3" indentText="false" />
+	    <contribute xsi:type="menuItem" menuText="Prob 12hr grtn 6 in" key="SNOL12c4" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 12hr grtn 7.5 in" key="SNOL12c5" indentText="false" />			
+		<contribute xsi:type="menuItem" menuText="Prob 12hr grtn 8 in"   key="SNOL12c6" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 12hr grtn 10 in"  key="SNOL12c7" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 12hr grtn 12 in"  key="SNOL12c8" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 12hr grtn 16 in"  key="SNOL12c9" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Prob 12hr grtn 24 in"  key="SNOL12c10" indentText="false" />
+
+</menuTemplate>

@@ -1,0 +1,8 @@
+<project name="component-substitute" basedir="." default="utility-substitute">
+
+	<property name="enable-component-substitute" value="true" />
+
+	<target name="utility-substitute">
+	</target>
+	
+</project>

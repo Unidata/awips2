@@ -1,0 +1,55 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="vaaDecoder" class="com.raytheon.uf.edex.plugin.vaa.VAADecoder"/>
+
+    <bean id="vaaDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg ref="vaaPluginName" />
+		<constructor-arg value="jms-durable:queue:Ingest.vaa"/>
+	</bean>
+
+    <camelContext id="vaa-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+        <!--
+        <endpoint id="vaaFileEndpoint" uri="file:${edex.home}/data/sbn/vaa?noop=true&amp;idempotent=false" />
+
+        <route id="vaaFileConsumerRoute">
+            <from ref="vaaFileEndpoint" />
+            <bean ref="fileToString" />
+            <setHeader headerName="pluginName">
+                <constant>vaa</constant>
+            </setHeader>
+            <to uri="jms-durable:queue:Ingest.vaa" />
+        </route>
+        -->
+
+        <!-- Begin vaa routes -->
+        <route id="vaaIngestRoute">
+            <from uri="jms-durable:queue:Ingest.vaa"/>
+            <setHeader headerName="pluginName">
+                <constant>vaa</constant>
+            </setHeader>
+            <pipeline>
+                <doTry>
+                    <pipeline>
+                        <bean ref="stringToFile" />
+                        <bean ref="vaaDecoder" method="decode" />
+                        <to uri="direct-vm:indexAlert" />
+                    </pipeline>
+                    <doCatch>
+                        <exception>com.raytheon.uf.common.dataplugin.exception.MalformedDataException</exception>
+                        <to uri="direct-vm:logFailureAsInfo" />
+                    </doCatch>                    
+                    <doCatch>
+                        <exception>java.lang.Throwable</exception>
+                        <to uri="direct-vm:logFailedData"/>
+                    </doCatch>
+                </doTry>
+            </pipeline>
+        </route>
+    </camelContext>
+</beans>

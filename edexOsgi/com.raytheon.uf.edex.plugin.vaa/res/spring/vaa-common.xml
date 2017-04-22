@@ -1,0 +1,21 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+    <bean id="vaaPluginName" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="vaa" />
+    </bean>
+
+    <bean id="vaaProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+        <property name="pluginName" ref="vaaPluginName" />
+		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.vaa" />
+        <property name="dao" value="com.raytheon.edex.db.dao.DefaultPluginDao" />
+        <property name="record" value="com.raytheon.uf.common.dataplugin.vaa.VAARecord" />
+    </bean>
+    
+    <bean factory-bean="pluginRegistry" factory-method="register">
+        <constructor-arg ref="vaaPluginName" />
+        <constructor-arg ref="vaaProperties"/>
+    </bean>
+    
+</beans>

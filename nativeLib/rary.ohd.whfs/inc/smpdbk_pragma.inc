@@ -1,0 +1,1 @@
+c $PRAGMA C (gettim)

@@ -1,0 +1,134 @@
+C        SIMPLIFIED DAMBREAK MODEL - SMPDBK
+C        BATCH/INTERACTIVE VERSION: 09/91
+
+C        WRITTEN BY D.L. FREAD, J.M. LEWIS, & J.N. WETMORE
+C        HYDROLOGIC RESEARCH LAB, NWS W/OH3
+C        1325 EAST-WEST HIGHWAY
+C        SILVER SPRING, MD  20910
+C        PHONE: (301) 427-7640
+C
+C               TO REVIEW THE UPDATE HISTORY OF THIS PROGRAM LIST THE
+C               FILE 'HISTORY.SDB'.
+
+      SUBROUTINE SDB_MAIN
+
+      CHARACTER DATFIL*12,DATFIL2*12,DAMN*41,RIVER*41,NWS,PC
+      CHARACTER TOWN*26,COUNTY*26,STATE*2,DATE*6,XCESS*18,ANSW,WH
+      CHARACTER SDAMN*41,SRIVER*41,STOWN*26, TYPE*4, RFC*5
+      CHARACTER*3 FO,CWO,WFO,WSFO
+      COMMON /FOFF/FO, TYPE
+      COMMON/PC/PC
+      COMMON/RECNO/IREC
+
+C.......................................................................
+C..........................  SPECIAL NOTE  .............................
+C.....  WHEN COMPILING THE SMPDBK PROGRAM WITHOUT THE DAM CATALOG ......
+C.....  THE TWO STATEMENTS HAVING THE ISDB PARAMETER SHOULD NOT   ......
+C.....  BE COMMENTED OUT.  ALSO SDBCTLGP.FOR SHOULD BE USED       ......
+C.....  INSTEAD OF SDBCTLG.FOR                                    ......
+C.......................................................................
+
+      ISDB=1
+      IREC=0
+      ICAT=0
+      ICAT2=0
+      I400=0
+
+C      CALL GETARG(1,DATFIL)
+C      PRINT *, 'OUTPUT FILE ',DATFIL
+C
+C      CALL GETARG(2,DATFIL2)
+C      PRINT *, 'INPUT FILE ',DATFIL2
+
+C      IN=155
+C      IOUT=166
+
+C     OPEN OUTPUT FILE
+C      OPEN(FILE=DATFIL,UNIT=IOUT,IOSTAT=IERR)
+
+C     OPEN INPUT FILE
+C      OPEN(FILE=DATFIL2,UNIT=IN,IOSTAT=IERR)
+
+      PRINT *, 'BEFORE CALL TO SMPDBK'
+  500 CALL SMPDBK(DAMN,RIVER,TOWN,VOL,BRCHW,TIMEFL,PKFLDM,PKDPDM,PKFLTN,
+     . PKDPTN,DISTTN,TRAVEL,SLOPE,FLDPTN,TFLDP,BOTM,ICAT)
+
+      PRINT *, 'AFTER CALL TO SMPDBK'
+
+      STOP
+      END
+c ---------------------------------------------------------------------
+      BLOCK DATA
+      COMMON/ARAY/ F(15,6),X(6)
+C         X(I) IS THE X* DISTANCE (10X)
+C         F(1,I) IS FC25(1,I), F(2,I) IS FC25(2,I), ETC, I=X* POINTER
+C         F(6,I) IS FC50(1,I), F(7,I) IS FC50(2,I), ETC, I=X* POINTER
+C         F(11,I) IS FC75(1,I), F(12,I) IS FC75(2,I), ETC, I=X* POINTER
+C
+C         THESE DATA ARE USED TO DESCRIBE THE DAM-BREACH FLOOD ROUTING CURVES.
+C
+      DATA X(1),X(2),X(3),X(4),X(5),X(6)
+     1/0.0001,10.00,30.00,50.00,100.00,200.00/
+      DATA F(1,1),F(1,2),F(1,3),F(1,4),F(1,5),F(1,6)
+     1/100.,56.,32.,20.,12.,7./
+      DATA F(2,1),F(2,2),F(2,3),F(2,4),F(2,5),F(2,6)
+     1/100.,74.,49.,35.,24.,13./
+      DATA F(3,1),F(3,2),F(3,3),F(3,4),F(3,5),F(3,6)
+     1/100.,85.,64.,50.,35.,20./
+      DATA F(4,1),F(4,2),F(4,3),F(4,4),F(4,5),F(4,6)
+     1/100.,90.,74.,62.,45.,26./
+      DATA F(5,1),F(5,2),F(5,3),F(5,4),F(5,5),F(5,6)
+     1/100.,93.,81.,71.,53.,31./
+      DATA F(6,1),F(6,2),F(6,3),F(6,4),F(6,5),F(6,6)
+     1/100.,73.,53.,43.,30.,20./
+      DATA F(7,1),F(7,2),F(7,3),F(7,4),F(7,5),F(7,6)
+     1/100.,83.,66.,57.,42.,28./
+      DATA F(8,1),F(8,2),F(8,3),F(8,4),F(8,5),F(8,6)
+     1/100.,92.,79.,70.,54.,36./
+      DATA F(9,1),F(9,2),F(9,3),F(9,4),F(9,5),F(9,6)
+     1/100.,95.,86.,79.,64.,43./
+      DATA F(10,1),F(10,2),F(10,3),F(10,4),F(10,5),F(10,6)
+     1/100.,97.,90.,84.,71.,50./
+      DATA F(11,1),F(11,2),F(11,3),F(11,4),F(11,5),F(11,6)
+     1/100.,78.,58.,47.,34.,24./
+      DATA F(12,1),F(12,2),F(12,3),F(12,4),F(12,5),F(12,6)
+     1/100.,91.,75.,62.,48.,34./
+      DATA F(13,1),F(13,2),F(13,3),F(13,4),F(13,5),F(13,6)
+     1/100.,94.,83.,74.,60.,44./
+      DATA F(14,1),F(14,2),F(14,3),F(14,4),F(14,5),F(14,6)
+     1/100.,95.,87.,81.,69.,53./
+      DATA F(15,1),F(15,2),F(15,3),F(15,4),F(15,5),F(15,6)
+     1/100.,97.,91.,86.,76.,60./
+      END
+c ---------------------------------------------------------------------
+      SUBROUTINE SAVFIL(ISV,IOUTR,IN)
+      CHARACTER ANSW
+      CHARACTER*14 FILIN,FILOUT
+      COMMON/IOANUM/IOUTA
+      COMMON/FILS/FILIN,FILOUT
+
+      CLOSE(IN)
+      CLOSE(IOUTR)
+
+      WRITE(IOUTA,10)
+   10 FORMAT(' WOULD YOU LIKE TO SAVE THE CHANGES MADE TO THE INPUT DATA
+     . SET? '/)
+      READ '(A)', ANSW
+      IF(ANSW.NE.'Y') GO TO 1000
+      PRINT 15, FILIN
+   15 FORMAT('  FILIN=',A12)
+      WRITE(IOUTA,20)
+   20 FORMAT(' WOULD YOU LIKE TO REPLACE THE CURRENT DATA SET? '/)
+      READ '(A)', ANSW
+      IF(ANSW.EQ.'Y') GO TO 100
+      WRITE(IOUTA,30)
+   30 FORMAT(' WHERE WOULD YOU LIKE THE MODIFIED DATA SET TO BE STORED?
+     .'/ )
+      READ 905, FILIN
+  100 OPEN(IOUTR,FILE=FILIN)
+      ISV=1
+C
+  900 FORMAT(A1)
+  905 FORMAT(A14)
+ 1000 RETURN
+      END

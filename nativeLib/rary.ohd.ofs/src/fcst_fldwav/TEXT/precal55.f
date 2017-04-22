@@ -1,0 +1,85 @@
+      SUBROUTINE PRECAL55(NB,NGAGE,NGS,X,STT,LTSTT,NJUN,GZ,KD,STN,LTSTN,
+     & GZN,MRV,IORDR,K1,K2,K4)
+
+C  THIS SUBROUTINE GENERATES STAGE TIME SERIES
+C  AT THE DOWNSTREAM END OF TRIBUTARIES IF NO OBSERVED DATA THERE
+C  BY LINEAR INTERPOLATION FROM TWO NEAREST OBSERVED STATION
+C  FROM THE MAIN RIVER
+
+      INCLUDE 'common/fdbug'
+      COMMON/M155/NU,JN,JJ,KIT,G,DT,TT,TIMF,F1
+
+      DIMENSION STT(*),LTSTT(*),STN(*),NGAGE(K1),NGS(K4,K1)
+      DIMENSION X(K2,K1),NJUN(K1),MRV(K1),IORDR(K1),GZ(K4,K1),GZN(K1)
+      DIMENSION KD(K1),NB(K1),SNAME(2)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_fldwav/RCS/precal55.f,v $
+     . $',                                                             '
+     .$Id: precal55.f,v 1.1 1999/04/23 18:08:49 dws Exp $
+     . $' /
+C    ===================================================================
+C
+
+      DATA SNAME/4HPREC,4HAL55/
+C
+      CALL FPRBUG(SNAME,1,55,IBUG)
+
+      DO 1500 M=1,JN
+      J=IORDR(M)
+      J1=MRV(J)
+      NGAG=NGAGE(J)
+      IF(NB(J).EQ.NGS(NGAG,J).OR.J.EQ.1) GO TO 1300
+      NGAGE(J)=NGAGE(J)+1
+      NGAG=NGAGE(J)
+      GZ(NGAG,J)=0.0
+      NGS(NGAG,J)=NB(J)
+      IJ=NJUN(J)
+CC      NGAG1=NGAGE(1)
+CC      DO 1250 K=1,NGAG1
+CC      IF(NGS(K,1).GE.IJ)GO TO 1255
+      NGAG1=NGAGE(J1)
+      DO 1250 K=1,NGAG1
+      IF(NGS(K,J1).GE.IJ) GO TO 1255
+ 1250 CONTINUE
+ 1255 KK=K-1
+      NJ=LCAT21(NGAG,J,NGAGE)
+      KJ1=LCAT21(K,J,NGAGE)
+      KKJ1=LCAT21(KK,J,NGAGE)
+      LNJ=LTSTT(NJ)-1
+      LKJ1=LTSTT(KJ1)-1
+      LKKJ1=LTSTT(KKJ1)-1
+      IU=NGS(KK,J1)
+      ID=NGS(K,J1)
+      XU=X(IU,J1)
+      XD=X(ID,J1)
+      XJ=0.5*(X(IJ,J1)+X(IJ+1,J1))
+      FAC=ABS((XJ-XU))/ABS((XD-XU))
+      DO 1257 L=1,NU
+      SKK=STT(L+LKKJ1)+GZ(KK,J1)
+      SK=STT(L+LKJ1)+GZ(K,J1)
+      STT(L+LNJ)=SKK+FAC*(SK-SKK)
+ 1257 CONTINUE
+      IF(IBUG.EQ.0) GO TO 1300
+      WRITE(IODBUG,100) J
+  100 FORMAT(/10X,'GENERATED STAGE HYDROGRAPH (MSL) AT THE CONFLUENCE OF
+     . RIVER NO.',I2)
+      WRITE(IODBUG,110) (STT(L+LNJ),L=1,NU)
+  110 FORMAT(10F10.2)
+ 1300 CONTINUE
+      IF(KD(J).NE.0) GO TO 1500
+      GZN(J)=0.0
+      LJ=LTSTN-1
+      DO 1400 L=1,NU
+      STN(L+LJ)=STT(L+LNJ)+GZ(NGAG,J)
+ 1400 CONTINUE
+      IF(IBUG.EQ.0) GO TO 1500
+      WRITE(IODBUG,200) J
+  200 FORMAT(/10X,'GENERATED STAGE HYDROGRAPH (MSL) AT THE DOWNSTREAM BO
+     .UNDARY ON RIVER NO.',I2)
+      WRITE(IODBUG,110) (STN(L+LNJ),L=1,NU)
+ 1500 CONTINUE
+      RETURN
+      END

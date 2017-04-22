@@ -1,0 +1,3 @@
+Phrase consolidation uses the "splitPhrase" method which is given a tree, phrase, and list of elements to "split off".  In this example, we end up with the original wind_withGusts_phrase in which WindGust has been diabled.  The "getStatDict" method examines the list of disabled elements and removes them from the "statDict". We also spawn a new phrase for WindGust.  The "gust_phrase" is given as the "phraseDef" in the elementInfo for WindGust. The new phrase is created as follows:        
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;     newPhrase = tree.addPhraseDef(phrase, elementInfo.phraseDef) 
+

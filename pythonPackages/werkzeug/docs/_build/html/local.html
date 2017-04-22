@@ -1,0 +1,274 @@
+
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Werkzeug Documentation</title>
+    <link rel="stylesheet" href="_static/style.css" type="text/css">
+    <link rel="stylesheet" href="_static/print.css" type="text/css" media="print">
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css">
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:   '#',
+        VERSION:    '0.6.1'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/interface.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/werkzeug.js"></script>
+    <link rel="contents" title="Global table of contents" href="contents.html">
+    <link rel="index" title="Global index" href="genindex.html">
+    <link rel="search" title="Search" href="search.html">
+    <link rel="top" title="Werkzeug v0.6.1 documentation" href="index.html">
+    <link rel="next" title="Middlewares" href="middlewares.html">
+    <link rel="prev" title="Mini Templates" href="templates.html">
+    
+  </head>
+  <body>
+    <div class="page">
+      <div class="header">
+        <h1 class="heading"><a href="index.html"
+          title="back to the documentation overview"><span>Werkzeug</span></a></h1>
+      </div>
+      <ul class="navigation">
+        <li class="indexlink"><a href="index.html">Overview</a></li>
+        <li><a href="templates.html">&laquo; Mini Templates</a></li>
+        <li class="active"><a href="#">Context Locals</a></li>
+        <li><a href="middlewares.html">Middlewares &raquo;</a></li>
+      </ul>
+      <div class="body">
+        
+  <div class="section" id="module-werkzeug">
+<span id="context-locals"></span><h1>Context Locals<a class="headerlink" href="#module-werkzeug" title="Permalink to this headline">¶</a></h1>
+<p>Sooner or later you have some things you want to have in every single view
+or helper function or whatever.  In PHP the way to go are global
+variables.  However that is not possible in WSGI applications without a
+major drawback:  As soon as you operate on the global namespace your
+application is not thread safe any longer.</p>
+<p>The python standard library comes with a utility called &#8220;thread locals&#8221;.
+A thread local is a global object where you can put stuff in and get back
+later in a thread safe way.  That means whenever you set or get an object
+to / from a thread local object the thread local object checks in which
+thread you are and delivers the correct value.</p>
+<p>This however has a few disadvantages.  For example besides threads there
+are other ways to handle concurrency in Python.  A very popular approach
+are greenlets.  Also, whether every request gets its own thread is not
+guaranteed in WSGI.  It could be that a request is reusing a thread from
+before and data is left in the thread local object.</p>
+<p>Here a simple example how you can use werkzeug.local:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">werkzeug</span> <span class="kn">import</span> <span class="n">Local</span><span class="p">,</span> <span class="n">LocalManager</span>
+
+<span class="n">local</span> <span class="o">=</span> <span class="n">Local</span><span class="p">()</span>
+<span class="n">local_manager</span> <span class="o">=</span> <span class="n">LocalManager</span><span class="p">([</span><span class="n">local</span><span class="p">])</span>
+
+<span class="k">def</span> <span class="nf">application</span><span class="p">(</span><span class="n">environ</span><span class="p">,</span> <span class="n">start_response</span><span class="p">):</span>
+    <span class="n">local</span><span class="o">.</span><span class="n">request</span> <span class="o">=</span> <span class="n">request</span> <span class="o">=</span> <span class="n">Request</span><span class="p">(</span><span class="n">environ</span><span class="p">)</span>
+    <span class="o">...</span>
+
+<span class="n">application</span> <span class="o">=</span> <span class="n">local_manager</span><span class="o">.</span><span class="n">make_middleware</span><span class="p">(</span><span class="n">application</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now what this code does is binding request to <cite>local.request</cite>.  Every
+other piece of code executed after this assignment in the same context can
+safely access local.request and will get the same request object.  The
+<cite>make_middleware</cite> method on the local manager ensures that everything is
+cleaned up after the request.</p>
+<p>The same context means the same greenlet (if you&#8217;re using greenlets) in
+the same thread and same process.</p>
+<p>If a request object is not yet set on the local object and you try to
+access it you will get an <cite>AttributeError</cite>.  You can use <cite>getattr</cite> to avoid
+that:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">get_request</span><span class="p">():</span>
+    <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">local</span><span class="p">,</span> <span class="s">&#39;request&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This will try to get the request or return <cite>None</cite> if the request is not
+(yet?) available.</p>
+<p>Note that local objects cannot manage themselves, for that you need a local
+manager.  You can pass a local manager multiple locals or add additionals
+later by appending them to <cite>manager.locals</cite> and everytime the manager
+cleans up it will clean up all the data left in the locals for this
+context.</p>
+<dl class="function">
+<dt id="werkzeug.release_local">
+<tt class="descclassname">werkzeug.</tt><tt class="descname">release_local</tt><big>(</big><em>local</em><big>)</big><a class="headerlink" href="#werkzeug.release_local" title="Permalink to this definition">¶</a></dt>
+<dd><p>Releases the contents of the local for the current context.
+This makes it possible to use locals without a manager.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">loc</span> <span class="o">=</span> <span class="n">Local</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loc</span><span class="o">.</span><span class="n">foo</span> <span class="o">=</span> <span class="mi">42</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">release_local</span><span class="p">(</span><span class="n">loc</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">hasattr</span><span class="p">(</span><span class="n">loc</span><span class="p">,</span> <span class="s">&#39;foo&#39;</span><span class="p">)</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+<p>With this function one can release <tt class="xref py py-class docutils literal"><span class="pre">Local</span></tt> objects as well
+as <tt class="xref py py-class docutils literal"><span class="pre">StackLocal</span></tt> objects.  However it is not possible to
+release data held by proxies that way, one always has to retain
+a reference to the underlying local object in order to be able
+to release it.</p>
+<p class="versionadded">
+<span class="versionmodified">New in version 0.6.1.</span></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="werkzeug.LocalManager">
+<em class="property">class </em><tt class="descclassname">werkzeug.</tt><tt class="descname">LocalManager</tt><big>(</big><em>locals=None</em><big>)</big><a class="headerlink" href="#werkzeug.LocalManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Local objects cannot manage themselves. For that you need a local
+manager.  You can pass a local manager multiple locals or add them later
+by appending them to <cite>manager.locals</cite>.  Everytime the manager cleans up
+it, will clean up all the data left in the locals for this context.</p>
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 0.6.1: </span>Instead of a manager the <a title="werkzeug.release_local" class="reference internal" href="#werkzeug.release_local"><tt class="xref py py-func docutils literal"><span class="pre">release_local()</span></tt></a> function can be used
+as well.</p>
+<dl class="method">
+<dt id="werkzeug.LocalManager.cleanup">
+<tt class="descname">cleanup</tt><big>(</big><big>)</big><a class="headerlink" href="#werkzeug.LocalManager.cleanup" title="Permalink to this definition">¶</a></dt>
+<dd>Manually clean up the data in the locals for this context.  Call
+this at the end of the request or use <cite>make_middleware()</cite>.</dd></dl>
+
+<dl class="method">
+<dt id="werkzeug.LocalManager.make_middleware">
+<tt class="descname">make_middleware</tt><big>(</big><em>app</em><big>)</big><a class="headerlink" href="#werkzeug.LocalManager.make_middleware" title="Permalink to this definition">¶</a></dt>
+<dd>Wrap a WSGI application so that cleaning up happens after
+request end.</dd></dl>
+
+<dl class="method">
+<dt id="werkzeug.LocalManager.middleware">
+<tt class="descname">middleware</tt><big>(</big><em>func</em><big>)</big><a class="headerlink" href="#werkzeug.LocalManager.middleware" title="Permalink to this definition">¶</a></dt>
+<dd><p>Like <cite>make_middleware</cite> but for decorating functions.</p>
+<p>Example usage:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@manager.middleware</span>
+<span class="k">def</span> <span class="nf">application</span><span class="p">(</span><span class="n">environ</span><span class="p">,</span> <span class="n">start_response</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>The difference to <cite>make_middleware</cite> is that the function passed
+will have all the arguments copied from the inner application
+(name, docstring, module).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="werkzeug.LocalManager.get_ident">
+<tt class="descname">get_ident</tt><big>(</big><big>)</big><a class="headerlink" href="#werkzeug.LocalManager.get_ident" title="Permalink to this definition">¶</a></dt>
+<dd>Return the context identifier the local objects use internally for
+this context.  You cannot override this method to change the behavior
+but use it to link other context local objects (such as SQLAlchemy&#8217;s
+scoped sessions) to the Werkzeug locals.</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="werkzeug.LocalStack">
+<em class="property">class </em><tt class="descclassname">werkzeug.</tt><tt class="descname">LocalStack</tt><a class="headerlink" href="#werkzeug.LocalStack" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class works similar to a <tt class="xref py py-class docutils literal"><span class="pre">Local</span></tt> but keeps a stack
+of objects instead.  This is best explained with an example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">ls</span> <span class="o">=</span> <span class="n">LocalStack</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ls</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ls</span><span class="o">.</span><span class="n">top</span>
+<span class="go">42</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ls</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="mi">23</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ls</span><span class="o">.</span><span class="n">top</span>
+<span class="go">23</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ls</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+<span class="go">23</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ls</span><span class="o">.</span><span class="n">top</span>
+<span class="go">42</span>
+</pre></div>
+</div>
+<p>They can be force released by using a <a title="werkzeug.LocalManager" class="reference internal" href="#werkzeug.LocalManager"><tt class="xref py py-class docutils literal"><span class="pre">LocalManager</span></tt></a> or with
+the <a title="werkzeug.release_local" class="reference internal" href="#werkzeug.release_local"><tt class="xref py py-func docutils literal"><span class="pre">release_local()</span></tt></a> function but the correct way is to pop the
+item from the stack after using.  When the stack is empty it will
+no longer be bound to the current context (and as such released).</p>
+<p>By calling the stack without arguments it returns a proxy that resolves to
+the topmost item on the stack.</p>
+<p class="versionadded">
+<span class="versionmodified">New in version 0.6.1.</span></p>
+<dl class="method">
+<dt id="werkzeug.LocalStack.push">
+<tt class="descname">push</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#werkzeug.LocalStack.push" title="Permalink to this definition">¶</a></dt>
+<dd>Pushes a new item to the stack</dd></dl>
+
+<dl class="method">
+<dt id="werkzeug.LocalStack.pop">
+<tt class="descname">pop</tt><big>(</big><big>)</big><a class="headerlink" href="#werkzeug.LocalStack.pop" title="Permalink to this definition">¶</a></dt>
+<dd>Removes the topmost item from the stack, will return the
+old value or <cite>None</cite> if the stack was already empty.</dd></dl>
+
+<dl class="attribute">
+<dt id="werkzeug.LocalStack.top">
+<tt class="descname">top</tt><a class="headerlink" href="#werkzeug.LocalStack.top" title="Permalink to this definition">¶</a></dt>
+<dd>The topmost item on the stack.  If the stack is empty,
+<cite>None</cite> is returned.</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="werkzeug.LocalProxy">
+<em class="property">class </em><tt class="descclassname">werkzeug.</tt><tt class="descname">LocalProxy</tt><big>(</big><em>local</em>, <em>name=None</em><big>)</big><a class="headerlink" href="#werkzeug.LocalProxy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Acts as a proxy for a werkzeug local.  Forwards all operations to
+a proxied object.  The only operations not supported for forwarding
+are right handed operands and any kind of assignment.</p>
+<p>Example usage:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">werkzeug</span> <span class="kn">import</span> <span class="n">Local</span>
+<span class="n">l</span> <span class="o">=</span> <span class="n">Local</span><span class="p">()</span>
+
+<span class="c"># these are proxies</span>
+<span class="n">request</span> <span class="o">=</span> <span class="n">l</span><span class="p">(</span><span class="s">&#39;request&#39;</span><span class="p">)</span>
+<span class="n">user</span> <span class="o">=</span> <span class="n">l</span><span class="p">(</span><span class="s">&#39;user&#39;</span><span class="p">)</span>
+
+
+<span class="kn">from</span> <span class="nn">werkzeug</span> <span class="kn">import</span> <span class="n">LocalStack</span>
+<span class="n">_response_local</span> <span class="o">=</span> <span class="n">LocalStack</span><span class="p">()</span>
+
+<span class="c"># this is a proxy</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">_response_local</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Whenever something is bound to l.user / l.request the proxy objects
+will forward all operations.  If no object is bound a <tt class="xref py py-exc docutils literal"><span class="pre">RuntimeError</span></tt>
+will be raised.</p>
+<p>To create proxies to <tt class="xref py py-class docutils literal"><span class="pre">Local</span></tt> or <a title="werkzeug.LocalStack" class="reference internal" href="#werkzeug.LocalStack"><tt class="xref py py-class docutils literal"><span class="pre">LocalStack</span></tt></a> objects,
+call the object as shown above.  If you want to have a proxy to an
+object looked up by a function, you can (as of Werkzeug 0.6.1) pass
+a function to the <a title="werkzeug.LocalProxy" class="reference internal" href="#werkzeug.LocalProxy"><tt class="xref py py-class docutils literal"><span class="pre">LocalProxy</span></tt></a> constructor:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">session</span> <span class="o">=</span> <span class="n">LocalProxy</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">get_current_request</span><span class="p">()</span><span class="o">.</span><span class="n">session</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 0.6.1: </span>The class can be instanciated with a callable as well now.</p>
+<p>Keep in mind that <tt class="docutils literal"><span class="pre">repr()</span></tt> is also forwarded, so if you want to find
+out if you are dealing with a proxy you can do an <tt class="docutils literal"><span class="pre">isinstance()</span></tt> check:</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">werkzeug</span> <span class="kn">import</span> <span class="n">LocalProxy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">isinstance</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">LocalProxy</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>You can also create proxy objects by hand:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">werkzeug</span> <span class="kn">import</span> <span class="n">Local</span><span class="p">,</span> <span class="n">LocalProxy</span>
+<span class="n">local</span> <span class="o">=</span> <span class="n">Local</span><span class="p">()</span>
+<span class="n">request</span> <span class="o">=</span> <span class="n">LocalProxy</span><span class="p">(</span><span class="n">local</span><span class="p">,</span> <span class="s">&#39;request&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="werkzeug.LocalProxy._get_current_object">
+<tt class="descname">_get_current_object</tt><big>(</big><big>)</big><a class="headerlink" href="#werkzeug.LocalProxy._get_current_object" title="Permalink to this definition">¶</a></dt>
+<dd>Return the current object.  This is useful if you want the real
+object behind the proxy at a time for performance reasons or because
+you want to pass the object into a different context.</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+        <div style="clear: both"></div>
+      </div>
+      <div class="footer">
+        © Copyright 2008 by the <a href="http://pocoo.org/">Pocoo Team</a>,
+        documentation generated by <a href="http://sphinx.pocoo.org/">Sphinx</a>
+      </div>
+    </div>
+  </body>
+</html>

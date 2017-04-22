@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='UTF-8'?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<pointDataDescription>
+  <dimension name="maxSkyCover" length="6"/>
+  <dimension name="maxWeather" length="5"/>
+  
+  <parameter name="autoStationType" numDims="1" type="STRING" size="3"/>
+  <parameter name="wmoId" numDims="1" type="INT" />
+  <parameter name="correction" numDims="1" type="INT" />
+  <parameter name="rawMETAR" numDims="1" type="STRING" />
+  <parameter name="temperature" numDims="1" type="FLOAT" unit="Celsius" />
+  <parameter name="dewpoint" numDims="1" type="FLOAT" unit="Celsius" />
+  <parameter name="tempFromTenths" numDims="1" type="FLOAT" unit="Celsius" />
+  <parameter name="dpFromTenths" numDims="1" type="FLOAT" unit="Celsius" />
+  <parameter name="maxTemp6Hour" numDims="1" type="FLOAT" unit="Celsius" />
+  <parameter name="minTemp6Hour" numDims="1" type="FLOAT" unit="Celsius" />
+  <parameter name="maxTemp24Hour" numDims="1" type="FLOAT" unit="Celsius" />
+  <parameter name="minTemp24Hour" numDims="1" type="FLOAT" unit="Celsius" />
+  <parameter name="skyCover" numDims="2" type="STRING" size="8" dimension="maxSkyCover"/>
+  <parameter name="skyLayerBase" numDims="2" type="FLOAT" unit="ft" dimension="maxSkyCover"/>
+  <parameter name="seaLevelPress" numDims="1" type="FLOAT" unit="Pa" />
+  <parameter name="pressChange3Hour" numDims="1" type="FLOAT" unit="Pa" />
+  <parameter name="pressChangeChar" numDims="1" type="STRING" size="1"/>
+  <parameter name="precip1Hour" numDims="1" type="FLOAT" unit="in" />
+  <parameter name="precip6Hour" numDims="1" type="FLOAT" unit="in" />
+  <parameter name="precip24Hour" numDims="1" type="FLOAT" unit="in" />
+  <parameter name="precip3Hour" numDims="1" type="FLOAT" unit="in" />
+  <!-- added 20110427 -->
+  <parameter name="snowDepth" numDims="1" type="INT" unit="in" />
+  <parameter name="snowWater" numDims="1" type="FLOAT" unit="in" />
+  <parameter name="snowfall6Hour" numDims="1" type="FLOAT" unit="in" />
+  <parameter name="sunshine" numDims="1" type="INT" unit="min" />
+  <!-- **************************************** -->
+  <parameter name="visibility" numDims="1" type="FLOAT" unit="mi" />
+  <parameter name="presWeather" numDims="2" type="STRING" size="8" dimension="maxWeather"/>
+  <parameter name="altimeter" numDims="1" type="FLOAT" unit="inHg" />
+  <parameter name="windDir" numDims="1" type="FLOAT" unit="degree_angle" />
+  <parameter name="windSpeed" numDims="1" type="FLOAT" unit="kn" />
+  <parameter name="windGust" numDims="1" type="FLOAT" unit="kn" />
+  <parameter name="windDirStr" numDims="1" type="STRING" size="3"/>
+  <parameter name="pkwndDir" numDims="1" type="FLOAT" unit="degree_angle" />
+  <parameter name="pkwndSpeed" numDims="1" type="FLOAT" unit="kn" />
+  <parameter name="pkwndTime" numDims="1" type="LONG" unit="seconds since 1-1-1970" />
+  <parameter name="vertVisibility" numDims="1" type="FLOAT" unit="m" />
+  <!--  The following parameters are for backwards compatibility and may be removed later -->
+  <parameter name="skyCoverType" numDims="2" type="STRING"  size="8" dimension="maxSkyCover"/>
+  <parameter name="skyCoverGenus" numDims="2" type="STRING"  size="8" dimension="maxSkyCover"/>
+</pointDataDescription>

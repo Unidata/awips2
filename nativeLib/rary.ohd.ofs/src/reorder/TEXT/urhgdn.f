@@ -1,0 +1,337 @@
+C MEMBER URHGDN
+C-----------------------------------------------------------------------
+C
+C                             LAST UPDATE: 04/22/94.15:00:46 BY $WC20SV
+C
+C @PROCESS LVL(77)
+C
+      SUBROUTINE URHGDN (NEOFRC,NEOLOC,NAMES,NUMNAM,ISTAT)
+C
+C          SUBROUTINE:  URHGDN
+C
+C 1/16/85 FIX INIT OF LOCAL DEFAULT FILE
+C              VERSION: 1.0.1  UPDATED FOR THE REORDER PROGRAM
+C                       11-5-85    JF
+C             VERSION:  1.0.0
+C
+C                DATE:  8-16-82
+C
+C              AUTHOR:  JONATHAN D GERSHAN
+C                       DATA SCIENCES INC
+C
+C
+C***********************************************************************
+C
+C          DESCRIPTION:
+C
+C    THIS ROUTINE COMPRESSES THE GLOBAL DEFINITION FILES.
+C
+C***********************************************************************
+C
+C          ARGUMENT LIST:
+C
+C         NAME    TYPE  I/O   DIM   DESCRIPTION
+C
+C       NEOFRC     I     I    1       NEW END OF FILE POINTER
+C       ISTAT      I     O    1       STATUS O=OK, NOT 0=ERROR
+C
+C
+C
+C
+C
+C
+C
+C
+C
+C***********************************************************************
+C
+C          COMMON:
+C
+      INCLUDE 'uio'
+      INCLUDE 'udebug'
+      INCLUDE 'hclcommon/hdatas'
+      INCLUDE 'hclcommon/hldrpt'
+      INCLUDE 'hclcommon/hcuuno'
+      INCLUDE 'hclcommon/hindx'
+C
+C***********************************************************************
+C
+C          DIMENSION AND TYPE DECLARATIONS:
+C
+       DIMENSION IBUF(4),KBUF(512),JBUF(16),NAMES(2,50)
+       DIMENSION  IZERO(16),LBUF(16) ,IWORD(3,3)
+C
+       INTEGER FSTLST(3,2),FNAME(2),TYPENM(3),DEFBUF(512)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/reorder/RCS/urhgdn.f,v $
+     . $',                                                             '
+     .$Id: urhgdn.f,v 1.1 1995/09/17 19:17:46 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+C***********************************************************************
+C
+C          DATA:
+C
+       DATA TYPENM/4HPROC,4HFUNC,4HTECH/
+       DATA IDEFN/4HDEFN/,IF001/4HF001/,IZERO/16*0/
+       DATA IWORD/4HPROC,4HEDUR,4HE   ,4HFUNC,4HTION,4H    ,4HTECH,
+     1           4HNIQU,4HE   /
+C
+C
+C***********************************************************************
+C       VARIABLE DEFINITIONS:
+C
+C***********************************************************************
+C
+C
+       IF ( IHCLTR.GT.0 ) WRITE (IOGDB,280)
+C
+C   INITIALIZE:
+C
+       FNAME(2)= IF001
+       MAX    =512
+       LRECJ  =16
+       LRECLI =4
+       IPOS   =0
+C
+C   GET CONTROL RECORD FROM INDEX FILE AND SET FIRST AND
+C   LAST POINTERS TO EACH TYPE OF RECORD IN THE HCL
+C   GLOBAL DEFINTION FILE. THE RECORD TYPES ARE:
+C      1.    PROCEDURES
+C      2.    FUNCTIONS
+C      3.    TECHNIQUES
+C
+       DO 10 ITYPE=1,3
+          CALL UREADT( KGLXUI,ITYPE,IBUF,ISTAT )
+          FSTLST( ITYPE,1 )=IBUF( 2 )
+          FSTLST( ITYPE,2 )=IBUF( 3 )
+10     CONTINUE
+C
+       IF ( IHCLDB.LT.1 ) GO TO 30
+C
+          WRITE ( IOGDB,290 )
+          DO 20 ITYPE=1,3
+             WRITE ( IOGDB,310 ) ITYPE,TYPENM(ITYPE), (FSTLST
+     1      (ITYPE,ICOL),ICOL=1,2)
+20        CONTINUE
+30        CONTINUE
+C
+C   COPY CONTROL RECORD FOR DEFINITION FILE:
+C
+       IF (IHCLDB.GT.0) WRITE (IOGDB,40) KGLFUI
+40     FORMAT (' IN URHGDN - KGLFUI=',I5)
+       CALL UREADT( KGLFUI,1,JBUF,ISTAT )
+       IF (IHCLDB.GT.0) WRITE (IOGDB,300) (JBUF(J),J=1,7),JBUF(13)
+C
+       IF ( JBUF(3).EQ.IDEFN.AND.JBUF(2).EQ.-1) GO TO 50
+C
+C   THIS IS NOT A GLOBAL DEFINITION FILE
+C
+       WRITE (IOGDB,320) KGLFUI
+       ISTAT=1
+       GO TO 270
+C
+C   SET THE FILE IN USE INDICATOR (WORD 1) AND PRINT:
+C
+50     CONTINUE
+       JBUF(1)=1
+       CALL UWRITT( KGLFUO,1,JBUF,ISTAT )
+       IOUTNO=2
+       ILOCNO=2
+C
+C   ENTER MAIN LOOP --- FOR EACH DEFINITION RECORD TYPE, GO THROUGH
+C   THE INDEX AND GET A DEFINITION RECORD IF NOT DELETED. THEN
+C   WRITE OUT THE GOOD RECORD AND UPDATE THE POINTER IN THE INDEX
+C   FILE.
+C
+       DO 220 ITYPE=1,3
+          ISTART=FSTLST(ITYPE,1)
+          ISTOP =FSTLST(ITYPE,2)
+          IF (ISTOP.GE.ISTART) GO TO 70
+          WRITE (LP,60) (IWORD(J,ITYPE),J=1,3)
+60        FORMAT ('0NO ',3A4,' DEFINITION RECORDS FOUND.')
+          GO TO 220
+70        CONTINUE
+C
+          DO 210 IIXREC=ISTART,ISTOP
+             CALL UREADT( KGLXUI,IIXREC,IBUF,ISTAT )
+C
+C   PRINT INDEX RECORD FOR DEBUG:
+C
+             IF (IHCLDB.GT.0) WRITE (IOGDB,80)IIXREC,(IBUF(I),I=1,4)
+80           FORMAT (' INDEX RECORD ',I4,' : ',3X,
+     1        2A4,2(3X,I4) )
+C
+             IF (IBUF(1).EQ.IDELE.AND.IBUF(2).EQ.ITED) GO TO 210
+             IRECNO=IBUF(3)
+C
+C   READ IN DEFINITION RECORD
+C
+             CALL HGTRDN( KGLFUI,IRECNO,KBUF,MAX,ISTAT )
+C
+C   PRINT DEFINITION RECORD FOR DEBUG:
+C
+             IF (IHCLDB.GT.0) WRITE (IOGDB,90)IRECNO,(KBUF(I),I=1,9)
+90           FORMAT (' DEFINITION RECORD # ',I4,' : ',
+     1       3(3X,I4),3X,2A4,3X,A4,3(3X,I4))
+C
+             IPOS=IPOS+KBUF(1)
+C
+C   CHECK ACTUAL LENGTH OF RECORD HERE FOR PROCS AND FUNCS.
+C
+C   COPY GLOBAL DEFAULTS FOR THIS DEFINITION RECORD:
+C
+             GO TO ( 100,100,110 ),ITYPE
+C
+100          IDFLT=KBUF(8)
+             IF (IDFLT.NE.0) KBUF(8)=IOUTNO
+             LDFGD=KBUF(7)
+             IF (LDFGD.NE.0) KBUF(7)=ILOCNO
+             GO TO 120
+110          IDFLT=KBUF(9)
+             IF (IDFLT.NE.0) KBUF(9)=IOUTNO
+             LDFGD=KBUF(8)
+             IF (LDFGD.NE.0) KBUF(8)=ILOCNO
+C
+120          IF (IDFLT.EQ.0) GO TO 190
+             CALL HGTRDN( KGLFUI,IDFLT,DEFBUF,MAX,ISTAT )
+C
+C   PRINT DEFAULT RECORD NUMBER FOR DEBUG:
+C
+             IF (IHCLDB.GT.0) WRITE (IOGDB,130)IDFLT
+130          FORMAT (' THE GLOBAL DEFAULT RECORD NUMBER IS: ',I4)
+C
+C   PRINT DEFAULT RECORD FOR DEBUG:
+C
+             IF (IHCLDB.GT.0) WRITE (IOGDB,140) (DEFBUF(I),I=1,7)
+140          FORMAT ('GLOB. DEFAULT RECORD: ',3(3X,I4),3X,2A4,2(3X,I4))
+C
+             CALL WVLRCD( KGLFUO,IOUTNO,DEFBUF(1),DEFBUF,LRECJ,ISTAT)
+              ISIZE=DEFBUF(1)
+             IOUTNO=IOUTNO+DEFBUF(1)
+C
+C
+C   COPY LOCAL DEFAULTS FOR GLOBAL DEFINITIONS TO PROPER FILES:
+C    ALLOCATE FILE IN THIS LOOP
+C
+C
+             DO 180 NFILE=1,NUMNAM,2
+                CALL URHCLF(NAMES(1,NFILE),ISTAT)
+                IF (ISTAT.NE.0) GO TO 180
+                IFNUM=KLODUI
+                IF (IHCLDB.GT.0) WRITE (IOGDB,160) IFNUM,MAX
+160             FORMAT (' IFNUM(KLODUI)=',I5,' MAX=',I5)
+              IF (IHCLDB.GT.0) WRITE (IOGDB,170)LDFGD,(DEFBUF(I),I=1,7)
+170             FORMAT (' DEFAULT RECORD  #',I4,'=',3(3X,I4),
+     1          3X,2A4,2(3X,I4))
+                CALL HGTRDN (IFNUM,LDFGD,DEFBUF,MAX,ISTAT )
+                CALL UCLOST(IFNUM)
+C
+C   PRINT DEFAULT RECORD FOR DEBUG:
+C
+              IF (IHCLDB.GT.0) WRITE (IOGDB,170)LDFGD,(DEFBUF(I),I=1,7)
+C
+                IFNUM=KLODUO
+                CALL WVLRCD(IFNUM,ILOCNO,ISIZE,DEFBUF,LRECJ,ISTAT)
+                CALL UCLOST(IFNUM)
+C
+180          CONTINUE
+             ILOCNO=ILOCNO+ISIZE
+C
+190          CONTINUE
+C
+C   WRITE OUT DEFINITION RECORD:
+C
+C
+C   PRINT OUTPUT RECORD NUMBER (DEFINITION RECORD) FOR DEBUG:
+C
+             IF (IHCLDB.GT.0) WRITE (IOGDB,200)IOUTNO
+200          FORMAT (' THE DEFINITION RECORD WILL BE WRITTEN AT',
+     1       'RECORD NUMBER ',I5)
+C
+             CALL WVLRCD( KGLFUO,IOUTNO,KBUF(1),KBUF,LRECJ,ISTAT)
+C
+C   RESET POINTER TO DEFINTION RECORD AND UPDATE INDEX IN PLACE:NEW FILE
+C
+             IBUF(3)=IOUTNO
+             CALL UWRITT( KGLXUO,IIXREC,IBUF,ISTAT )
+C
+             IOUTNO=IOUTNO+KBUF(1)
+C
+210       CONTINUE
+C
+220     CONTINUE
+C
+C   RESET DEFINTION CONTROL RECORD VALUES AND COPY
+C
+       JBUF(7)=IOUTNO - 1
+       JBUF(1)=0
+       CALL UWRITT(  KGLFUO,1,JBUF,ISTAT )
+C
+C   FILE EXPANSION SECTION:
+C
+       IF (NEOFRC.GT.JBUF(6)) JBUF(6)=NEOFRC
+C
+       ICONT=IOUTNO
+       IMAX=JBUF(6)
+C
+       IF (IHCLDB.GT.0) WRITE (IOGDB,360) ICONT,IMAX,KGLFUO
+       DO 230 IOUTNO=ICONT,IMAX
+            CALL UWRITT ( KGLFUO,IOUTNO,IZERO,ISTAT )
+230    CONTINUE
+C
+       CALL UWRITT (KGLFUO,1,JBUF,ISTAT )
+C
+C   LOCAL EXPANSION:
+C
+        IF (IHCLDB.GT.0) WRITE (IOGDB,240)NEOLOC
+240    FORMAT (' THE NEOLOC IS ',I4)
+       ICONT=ILOCNO
+C
+       DO 260 NFILE=1,NUMNAM,2
+                CALL URHCLF(NAMES(1,NFILE),ISTAT)
+                IF (ISTAT.NE.0) GO TO 260
+C
+C READ IN CONTROL RECORD FROM OLD FILE RESET & WRITE TO NEW
+C
+              CALL UREADT(KLODUI,1,LBUF,ISTAT)
+           IF ( NEOLOC.GT.LBUF(12) ) LBUF(12)=NEOLOC
+           IMAX=LBUF(12)
+              CALL UWRITT(KLODUO,1,LBUF,ISTAT)
+          IF (IHCLDB.GT.0) WRITE (IOGDB,360)ICONT,IMAX,KLODUO
+          DO 250 ILOCNO=ICONT,IMAX
+             CALL UWRITT(KLODUO,ILOCNO,IZERO,ISTAT)
+250       CONTINUE
+          CALL UWRITT(KLODUO,1,LBUF,ISTAT)
+260    CONTINUE
+       WRITE (IOGDB,350) JBUF(6),LBUF(12)
+C
+C
+C
+270    IF ( IHCLTR.GT.0 ) WRITE (IOGDB,340)
+C
+       RETURN
+C
+280     FORMAT (' ENTERING SUBROUTINE URHGDN')
+290    FORMAT (' TYPE',5X,'TYPE',5X,'STARTS AT',
+     1   5X,'STOPS AT' / 4X,'NUMBER',4X,'NAME',2(5X,'INDEX POS'),/)
+300    FORMAT (' CONTROL REC LOCDEFN FILE: ',2(3X,I4,3X,A4,3X,I4,3X,A4),
+     1  3(3X,I4))
+310    FORMAT (7X,I1,6X,A4,8X,I4,10X,I4)
+320    FORMAT (' **ERROR** FILE OPENED ON UNIT ',I2,' IS NOT GLOBAL'
+     1  ,'DEFINITION FILE')
+340     FORMAT (' EXITING SUBROUTINE URHGDN')
+350     FORMAT (//,'  THE MAXIMUM RECORD NUMBER FOR THE GLOBAL',
+     1  ' DEFINITION FILE IS - ',I5,//,'  THE MAXIMUM RECORD',
+     2  ' NUMBER FOR THE LOCAL DEFAULT FOR GLOBAL DEFINITION',
+     3  ' FILES IS - ',I5,/)
+360    FORMAT (' ABOUT TO INITALIZE RECORDS ',I4,' THRU ',
+     1 I4,' FOR FILE ON UNIT ',I2)
+C
+      END

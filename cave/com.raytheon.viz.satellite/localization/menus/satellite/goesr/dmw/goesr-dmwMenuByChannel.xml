@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+   <!-- TOWRdocs Header
+    GOES-R DMW sub-menu items file (sorted by channel number)
+    -->
+    <!-- TOWRdocs Description
+        This file adds a DMW sub-menu item  to the GOES-R menu in AWIPS II CAVE.
+        The menu items defined by this file correspond to the DMW-producing channels of GOES-R (2, 7, 8, 9, 10, and 14).
+
+            - "menuText" references the text that will appear in the menu.
+            - "file" references the corresponding bundle (in the localization hierarchy) to load when selecting the menu item. 
+            - "substitute" entities create key-value pairs. Referencing each key inside subsequent files (i.e. "file" and any 
+                nested files underneath) will instead replace that entry with the corresponding value (e.g. "&#36;{keyname}" = "value").
+    -->
+    <!-- TOWRdocs Status
+        File is a modification from the existing base menu file ../base/menus/satellite/goesr/dmwByChannel.xml
+        and it will replace it.
+    -->
+    <!-- TOWRdocs POC
+        Matt Comerford
+    -->
+
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <!-- Ch 02 -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByChannel.xml" 
+           menuText="0.64 μm Red Visible (Ch 02 - Daytime - 1000-700mb)" id="goesr-DMW-Channel-03">
+        <substitute key="channel" value="2"/>
+        <substitute key="legend" value="${legend1} 02)" />
+    </contribute>
+
+    <!-- Ch 07 -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByChannel.xml" 
+           menuText="3.90μm Shortwave Window IR (Ch 07 - Nighttime - 1000-700mb)" id="goesr-DMW-Channel-07">
+        <substitute key="channel" value="7"/>
+        <substitute key="legend" value="${legend1} 07)" />
+    </contribute>
+    
+    <!-- Ch 08 -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByChannel.xml" 
+           menuText="6.19μm Upper-level Water Vapor IR (Ch 08)" id="goesr-DMW-Channel-08">
+        <substitute key="channel" value="8"/>
+        <substitute key="legend" value="${legend1} 08)" />
+    </contribute>
+
+    <!-- Ch 09 -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByChannel.xml" 
+           menuText="6.93μm Mid-level Water Vapor IR (Ch 09)" id="goesr-DMW-Channel-09">  
+        <substitute key="channel" value="9"/>
+        <substitute key="legend" value="${legend1} 09)" />
+    </contribute>
+
+    <!-- Ch 10 -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByChannel.xml" 
+           menuText="7.34μm Low-level Water Vapor IR (Ch 10)" id="goesr-DMW-Channel-10">
+        <substitute key="channel" value="10"/>
+        <substitute key="legend" value="${legend1} 10)" />
+    </contribute>
+
+    <!-- Ch 14 -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByChannel.xml" 
+           menuText="11.21μm Legacy Window IR (Ch 14)" id="goesr-DMW-Channel-14">
+        <substitute key="channel" value="14"/>
+        <substitute key="legend" value="${legend1} 14)" />
+    </contribute>    
+
+</menuTemplate>

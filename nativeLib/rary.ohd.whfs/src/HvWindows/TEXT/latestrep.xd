@@ -1,0 +1,418 @@
+module 'XApplication'
+version = 48;
+xdesigned = 1;
+applicationName = 'XApplication';
+generateNameC = * 'latestrep.c';
+generateNameExterns = * 'latestrep.h';
+generateNameResDB = * 'latestrep.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+motifFlavour = 2;
+generateMask = 4390920;
+useMask = 0;
+ansiC = 0;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+javaVersion = 2;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'latestrepDS' : XmDialogShell {
+	arguments {
+	lastGenName = 'latestrepDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_latestrepDS (parent)
+Widget parent;
+';
+	XmNallowShellResize = true;
+	XmNtitle = 'Station Reporting Status';
+	XmNminWidth = 940;
+	XmNminHeight = 755;
+	XmNmaxWidth = 940;
+	XmNmaxHeight = 755;
+	};
+object 'latestrepFO' : XmForm {
+	arguments {
+	lastGenName = 'latestrepFO';
+	XmNautoUnmanage = false;
+	};
+object 'latest_filterOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'latest_filterOM';
+	};
+abstract object 'latest_filterLB' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'latest_filterLB';
+	XmNlabelString = 'List';
+	};
+};
+abstract object 'latest_filterCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'latest_filterCB';
+	};
+object 'latest_filterPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'latest_filterPDM';
+	};
+object 'filter_allPB' : XmPushButton {
+	arguments {
+	lastGenName = 'filter_allPB';
+	XmNlabelString = 'All Locations With Latest Data';
+	};
+};
+object 'filter_olderthanPB' : XmPushButton {
+	arguments {
+	lastGenName = 'filter_olderthanPB';
+	XmNlabelString = 'Only Locations With Latest Data Older Than';
+	};
+};
+object 'filter_neverPB' : XmPushButton {
+	arguments {
+	lastGenName = 'filter_neverPB';
+	XmNlabelString = 'Locations Without Any Latest Data';
+	};
+};
+};
+};
+};
+object 'latest_sortOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'latest_sortOM';
+	};
+abstract object 'latest_sortLB' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'latest_sortLB';
+	XmNlabelString = 'Sort';
+	};
+};
+abstract object 'latest_sortCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'latest_sortCB';
+	};
+object 'latest_sortPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'latest_sortPDM';
+	};
+object 'sort_locationPB' : XmPushButton {
+	arguments {
+	lastGenName = 'sort_locationPB';
+	XmNlabelString = 'By Location';
+	};
+};
+object 'sort_timePB' : XmPushButton {
+	arguments {
+	lastGenName = 'sort_timePB';
+	XmNlabelString = 'By Time';
+	};
+};
+};
+};
+};
+object 'latestrepLB' : XmLabel {
+	arguments {
+	lastGenName = 'latestrepLB';
+	XmNlabelString = 'Location     Name                        Observation TimeZ                                 Latest Data Posted TimeZ';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'latestlistSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'latestlistSL';
+	};
+abstract object 'latestlistHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'latestlistHSB';
+	};
+};
+abstract object 'latestlistVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'latestlistVSB';
+	};
+};
+abstract object 'latestlistLS' : XmList {
+	arguments {
+	lastGenName = 'latestlistLS';
+	XmNlistSizePolicy = XmRESIZE_IF_POSSIBLE;
+	};
+};
+};
+object 'latestlocFR' : XmFrame {
+	arguments {
+	lastGenName = 'latestlocFR';
+	};
+object 'latestlocFO' : XmForm {
+	arguments {
+	lastGenName = 'latestlocFO';
+	};
+object 'latestlocSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'latestlocSL';
+	};
+abstract object 'latestlocHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'latestlocHSB';
+	};
+};
+abstract object 'latestlocVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'latestlocVSB';
+	};
+};
+abstract object 'latestlocLS' : XmList {
+	arguments {
+	lastGenName = 'latestlocLS';
+	XmNlistSizePolicy = XmRESIZE_IF_POSSIBLE;
+	};
+};
+};
+object 'latestlocLB1' : XmLabel {
+	arguments {
+	lastGenName = 'latestlocLB1';
+	XmNlabelString = 'Location      Elm    Dur Src Ex    ObsTimeZ                     Value     SQ  QC  RV      Id             TimeZ                       TimeZ';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'latestlocLB2' : XmLabel {
+	arguments {
+	was_selected = true;
+	lastGenName = 'latestlocLB2';
+	XmNlabelString = '              Phys       Typ                                                                             Product                     Posting';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'cutimeLB' : XmLabel {
+	arguments {
+	lastGenName = 'cutimeLB';
+	XmNlabelString = 'Current TimeZ:';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'curtimeTX' : XmText {
+	arguments {
+	lastGenName = 'curtimeTX';
+	XmNeditable = false;
+	};
+};
+object 'dcpfreqLB' : XmLabel {
+	arguments {
+	lastGenName = 'dcpfreqLB';
+	XmNlabelString = 'DCP Reports
+Every:';
+	XmNalignment = XmALIGNMENT_END;
+	};
+};
+object 'dcpfreqTX' : XmText {
+	arguments {
+	lastGenName = 'dcpfreqTX';
+	XmNmaxLength = 5;
+	XmNeditable = false;
+	};
+};
+object 'dcprepLB' : XmLabel {
+	arguments {
+	lastGenName = 'dcprepLB';
+	XmNlabelString = 'Minutes
+Starting:';
+	XmNalignment = XmALIGNMENT_END;
+	};
+};
+object 'dcprepTX' : XmText {
+	arguments {
+	lastGenName = 'dcprepTX';
+	XmNmaxLength = 8;
+	XmNeditable = false;
+	};
+};
+object 'telemfreqLB' : XmLabel {
+	arguments {
+	lastGenName = 'telemfreqLB';
+	XmNlabelString = 'Telemetry
+Reports Every:';
+	XmNalignment = XmALIGNMENT_END;
+	};
+};
+object 'telemfreqTX' : XmText {
+	arguments {
+	lastGenName = 'telemfreqTX';
+	XmNmaxLength = 5;
+	XmNeditable = false;
+	};
+};
+object 'telemrepLB' : XmLabel {
+	arguments {
+	lastGenName = 'telemrepLB';
+	XmNlabelString = 'Minutes';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -925;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -220;
+	XmNtopAttachment = 1 0 50;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -925;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -50;
+	XmNtopAttachment = 1 0 25;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -925;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -25;
+	XmNtopAttachment = 1 0 0;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -200;
+	XmNleftAttachment = 1 0 60;
+	XmNbottomAttachment = 2 0 -250;
+	XmNtopAttachment = 1 0 225;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -240;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -285;
+	XmNtopAttachment = 1 0 250;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -660;
+	XmNleftAttachment = 1 0 555;
+	XmNbottomAttachment = 2 0 -280;
+	XmNtopAttachment = 1 0 240;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -735;
+	XmNleftAttachment = 1 0 665;
+	XmNbottomAttachment = 2 0 -280;
+	XmNtopAttachment = 1 0 245;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -810;
+	XmNleftAttachment = 1 0 740;
+	XmNbottomAttachment = 2 0 -280;
+	XmNtopAttachment = 1 0 240;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -925;
+	XmNleftAttachment = 1 0 815;
+	XmNbottomAttachment = 2 0 -280;
+	XmNtopAttachment = 1 0 245;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -390;
+	XmNleftAttachment = 1 0 265;
+	XmNbottomAttachment = 2 0 -280;
+	XmNtopAttachment = 1 0 240;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -470;
+	XmNleftAttachment = 1 0 395;
+	XmNbottomAttachment = 2 0 -280;
+	XmNtopAttachment = 1 0 245;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -545;
+	XmNleftAttachment = 1 0 475;
+	XmNbottomAttachment = 2 0 -280;
+	XmNtopAttachment = 1 0 240;
+    };
+    };
+};
+object 'latestlocLB' : XmLabel {
+	arguments {
+	lastGenName = 'latestlocLB';
+	XmNframeChildType = XmFRAME_TITLE_CHILD;
+	XmNlabelString = 'Latest Data for Selected Location';
+	};
+};
+};
+object 'latestrep_okPB' : XmPushButton {
+	arguments {
+	lastGenName = 'latestrep_okPB';
+	XmNlabelString = 'Close';
+	};
+};
+object 'durationTX' : XmText {
+	arguments {
+	lastGenName = 'durationTX';
+	XmNmaxLength = 4;
+	};
+};
+object 'hoursLB' : XmLabel {
+	arguments {
+	lastGenName = 'hoursLB';
+	XmNlabelString = 'Hours Ago';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -465;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -40;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -990;
+	XmNleftAttachment = 1 0 730;
+	XmNbottomAttachment = 2 0 -40;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -985;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -80;
+	XmNtopAttachment = 1 0 45;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -935;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -395;
+	XmNtopAttachment = 1 0 80;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -935;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 2 0 -710;
+	XmNtopAttachment = 1 0 400;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -535;
+	XmNleftAttachment = 1 0 435;
+	XmNbottomAttachment = 2 0 -750;
+	XmNtopAttachment = 1 0 715;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -545;
+	XmNleftAttachment = 1 0 475;
+	XmNbottomAttachment = 2 0 -40;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -640;
+	XmNleftAttachment = 1 0 550;
+	XmNbottomAttachment = 2 0 -40;
+	XmNtopAttachment = 1 0 5;
+    };
+    };
+};
+};
+end module;

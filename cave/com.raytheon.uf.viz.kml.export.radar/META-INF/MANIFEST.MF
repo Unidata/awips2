@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: KML Radar Graphics Extension
+Bundle-SymbolicName: com.raytheon.uf.viz.kml.export.radar;singleton:=true
+Bundle-Version: 1.16.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: com.raytheon.uf.viz.kml.export;bundle-version="1.16.0",
+ com.raytheon.uf.viz.core;bundle-version="1.15.2",
+ org.geotools;bundle-version="10.5.0",
+ com.raytheon.viz.radar;bundle-version="1.14.0"

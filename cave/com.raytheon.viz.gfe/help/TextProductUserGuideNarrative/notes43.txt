@@ -1,0 +1,2 @@
+Here's an example.  Notice that the (lowVal, highVal) pairs have no "gaps". The meaning is that any value greater or equal to the first value and less than the second will take on the corresponding value.  Notice also the special use of the "default" keyword which applies to any value outside the given key ranges.
+

@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: LPI Plug-in
+Bundle-SymbolicName: com.raytheon.viz.lpi;singleton:=true
+Bundle-Version: 1.14.0.qualifier
+Bundle-Activator: com.raytheon.viz.lpi.Activator
+Bundle-Vendor: Raytheon
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ com.raytheon.viz.core,
+ com.raytheon.viz.ui,
+ org.geotools,
+ com.raytheon.uf.viz.core.maps;bundle-version="1.0.0"
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.viz.lpi
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ClassPath: com.raytheon.viz.lpi.jar

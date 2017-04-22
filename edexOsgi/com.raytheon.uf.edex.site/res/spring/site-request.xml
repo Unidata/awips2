@@ -1,0 +1,63 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="ValidateConfigRequestHandler"
+        class="com.raytheon.uf.edex.site.handlers.ValidateConfigRequestHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.site.requests.ValidateConfigRequest" />
+        <constructor-arg ref="ValidateConfigRequestHandler" />
+    </bean>
+
+    <bean id="activateSiteHandler"
+        class="com.raytheon.uf.edex.site.handlers.ActivateSiteHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.site.requests.ActivateSiteRequest" />
+        <constructor-arg ref="activateSiteHandler" />
+    </bean>
+
+    <bean id="deactivateSiteHandler"
+        class="com.raytheon.uf.edex.site.handlers.DeactivateSiteHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.site.requests.DeactivateSiteRequest" />
+        <constructor-arg ref="deactivateSiteHandler" />
+    </bean>
+
+    <bean id="getActiveSitesHandler"
+        class="com.raytheon.uf.edex.site.handlers.GetActiveSitesHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.site.requests.GetActiveSitesRequest" />
+        <constructor-arg ref="getActiveSitesHandler" />
+    </bean>
+
+    <bean id="siteActivateNotifyFilter"
+        class="com.raytheon.uf.edex.site.notify.SiteActivateNotifyFilter" />
+    <bean id="siteActivationMonitor" class="com.raytheon.uf.edex.site.SiteActivationMonitor"
+        factory-method="getInstance" />
+
+    <camelContext id="siteActivationMonitoring"
+        xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+
+        <route id="siteActivateNotify">
+            <from uri="jms-generic:topic:siteActivateNotification" />
+            <bean ref="serializationUtil" method="transformFromThrift" />
+            <filter>
+                <method bean="siteActivateNotifyFilter" method="isSiteActivateNotification" />
+                <bean ref="siteActivationMonitor" method="handleNotification" />
+                <filter>
+                    <simple>${body} == null</simple>
+                    <stop />
+                </filter>
+                <bean ref="serializationUtil" method="transformToThrift" />
+                <to
+                    uri="jms-generic:topic:edex.alerts.siteActivate?timeToLive=60000" />
+            </filter>
+        </route>
+    </camelContext>
+</beans>
+  

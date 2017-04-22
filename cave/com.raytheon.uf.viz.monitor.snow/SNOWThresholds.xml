@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<configuration>
+<zone>
+<Default>
+<Display>
+<Product>
+<Blizzard>
+<visibility>
+<red>4</red>
+<yellow>8</yellow>
+</visibility>
+<wind_speed>
+<red>35</red>
+<yellow>25</yellow>
+</wind_speed>
+<gust_speed>
+<red>35</red>
+<yellow>25</yellow>
+</gust_speed>
+<peak_wind_speed>
+<red>35</red>
+<yellow>25</yellow>
+</peak_wind_speed>
+</Blizzard>
+<Freezing_Precip>
+<temperature>
+<red>32</red>
+<yellow>35</yellow>
+</temperature>
+<hourly_precip>
+<red>5</red>
+<yellow>0</yellow>
+</hourly_precip>
+</Freezing_Precip>
+<Heavy_Snow_Warning>
+<snincr_hourly>
+<red>2</red>
+<yellow>1</yellow>
+</snincr_hourly>
+<snincr_total>
+<red>12</red>
+<yellow>6</yellow>
+</snincr_total>
+<snow_depth>
+<red>12</red>
+<yellow>6</yellow>
+</snow_depth>
+</Heavy_Snow_Warning>
+<Wind>
+<wind_speed>
+<red>35</red>
+<yellow>25</yellow>
+</wind_speed>
+<peak_wind_speed>
+<red>35</red>
+<yellow>25</yellow>
+</peak_wind_speed>
+<gust_speed>
+<red>35</red>
+<yellow>25</yellow>
+</gust_speed>
+<dir_1>
+<red>0</red>
+<yellow>0</yellow>
+</dir_1>
+<dir_2>
+<red>0</red>
+<yellow>0</yellow>
+</dir_2>
+</Wind>
+</Product>
+<Meteo>
+<temperature>
+<red>32</red>
+<yellow>40</yellow>
+</temperature>
+<dewpoint>
+<red>32</red>
+<yellow>40</yellow>
+</dewpoint>
+<visibility>
+<red>4</red>
+<yellow>8</yellow>
+</visibility>
+<slp>
+<red>980</red>
+<yellow>1000</yellow>
+</slp>
+<hourly_precip>
+<red>5</red>
+<yellow>0</yellow>
+</hourly_precip>
+<wind_chill>
+<red>10</red>
+<yellow>20</yellow>
+</wind_chill>
+<frostbite_time>
+<red>10</red>
+<yellow>20</yellow>
+</frostbite_time>
+<snow_depth>
+<red>12</red>
+<yellow>6</yellow>
+</snow_depth>
+<snincr_hourly>
+<red>2</red>
+<yellow>1</yellow>
+</snincr_hourly>
+<snincr_total>
+<red>12</red>
+<yellow>6</yellow>
+</snincr_total>
+</Meteo>
+</Display>
+<Monitor>
+<Meteo>
+<wind_speed>
+<red>35</red>
+<yellow>25</yellow>
+</wind_speed>
+<peak_wind_speed>
+<red>35</red>
+<yellow>25</yellow>
+</peak_wind_speed>
+<gust_speed>
+<red>35</red>
+<yellow>25</yellow>
+</gust_speed>
+<temperature>
+<red>10</red>
+<yellow>20</yellow>
+</temperature>
+<wind_chill>
+<red>10</red>
+<yellow>20</yellow>
+</wind_chill>
+<visibility>
+<red>4</red>
+<yellow>8</yellow>
+</visibility>
+<snow_depth>
+<red>6</red>
+<yellow>2</yellow>
+</snow_depth>
+</Meteo>
+</Monitor>
+</Default>
+</zone>
+</configuration>

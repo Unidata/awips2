@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<polarStereographicGrid>
+  <!-- Based on: /rary.ohd.pproc.gribit/TEXT/w3fi71.f -->
+  <numVertCoords>0</numVertCoords>
+  <pvPL255>255</pvPL255>
+  <dataRepresentationType>5</dataRepresentationType>
+  <numXAxisPoints>139</numXAxisPoints>
+  <numYAxisPoints>107</numYAxisPoints>
+  <originLat>30000</originLat>
+  <originLon>-173000</originLon>
+  <resolutionFlag>8</resolutionFlag>
+  <lonMeridianParallelX>-135000</lonMeridianParallelX>
+  <gridLengthX>45000</gridLengthX>
+  <gridLengthY>45000</gridLengthY>
+  <projectionCenterFlag>0</projectionCenterFlag>
+  <scanningModeFlag>64</scanningModeFlag>
+</polarStereographicGrid>

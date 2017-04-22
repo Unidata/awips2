@@ -1,0 +1,2115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<?eclipse version="3.3"?>
+<plugin>
+	<extension point="org.eclipse.ui.actionSets">
+		<actionSet id="com.raytheon.viz.gfe.GFEActionSet" label="GFE Action Set"
+			visible="false">
+		</actionSet>
+	</extension>
+	<extension point="org.eclipse.core.expressions.definitions">
+		<definition id="com.raytheon.viz.gfe.inGFEActionSet">
+			<and>
+				<with variable="activeContexts">
+					<iterate operator="or">
+						<equals value="com.raytheon.viz.gfe.GFEActionSet">
+						</equals>
+					</iterate>
+				</with>
+				<or>
+				    <with variable="activePart">
+				       <instanceof value="com.raytheon.viz.gfe.GridManagerView"/>
+				    </with>
+	          	  	<with variable="activeEditor">
+	       				<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+	    	      	</with>
+    	      	</or>
+    		</and>
+		</definition>
+	</extension>
+	<extension point="org.eclipse.ui.commands">
+    <category
+          description="GFE Commands"
+          id="com.raytheon.viz.gfe.GFECategory"
+          name="GFE">
+    </category>
+		<command
+			id="com.raytheon.viz.gfe.actions.ShowTemporalEditorRangeStatisticsDialog"
+			name="ShowTemporalEditorRangeStatisticsDialog">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.FormatterlauncherAction"
+			name="FormatterlauncherAction">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.ShowAutoSaveIntervalDialog"
+			name="ShowAutoSaveIntervalDialog">
+		</command>
+		<command
+			id="com.raytheon.viz.gfe.actions.ShowSaveSelectionTimeRangeDialog"
+			name="ShowSaveSelectionTimeRangeDialog">
+		</command>
+		<command
+			id="com.raytheon.viz.gfe.actions.ShowDeleteSelectionTimeRangeDialog"
+			name="ShowDeleteSelectionTimeRangeDialog">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.ShowEditActionsDialog"
+			name="Edit Action Dialog">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.ExpandTimeScale"
+			name="ExpandTimeScale">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.ContractTimeScale"
+			name="ContractTimeScale">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.ClearSelection"
+			name="ClearSelection">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.DeleteSelectedGrids"
+			name="DeleteSelectedGrids">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.SelectAllWeatherElements"
+			name="SelectAllWeatherElements">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.SplitSelectedGrids"
+			name="SplitSelectedGrids">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.FragmentSelectedGrids"
+			name="FragmentSelectedGrids">
+		</command>
+		<command
+			id="com.raytheon.viz.gfe.actions.ShowWeatherElementBrowserDialog"
+			name="ShowWeatherElementBrowserDialog">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.ShowHiddenWeatherElementDialog"
+			name="ShowHiddenWeatherElementDialog">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.ShowCopyGridsDialog"
+			name="ShowCopyGridsDialog">
+     <commandParameter
+           id="selectedOrAll"
+           name="Selected or All"
+           optional="false">
+     </commandParameter>
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.ShowCreateFromScratchDialog"
+			name="ShowCreateFromScratchDialog">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.AssignDefaultValue"
+			name="AssignDefaultValue">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.AssignPickupValue"
+			name="AssignPickupValue">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.ShowGridsInterpolationDialog"
+			name="ShowGridsInterpolationDialog">
+		</command>
+		<command
+			id="com.raytheon.viz.gfe.actions.ShowSetInterpolationAlgorithmDialog"
+			name="ShowSetInterpolationAlgorithmDialog">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.ShowSaveForecastDialog"
+			name="ShowSaveForecastDialog">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.ShowRevertForecastDialog"
+			name="ShowRevertForecastDialog">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.ShowTimeShiftDialog"
+			name="ShowTimeShiftDialog">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.ShowDefineSamplesLatLongAction"
+			name="ShowDefineSamplesLatLongAction">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.ShowPublishToOfficialDialog"
+			name="ShowPublishToOfficialDialog">
+		</command>
+		<command
+			id="com.raytheon.viz.gfe.actions.ShowProductGenerationScriptDialog"
+			name="ShowProductGenerationScriptDialog">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.ShowProcessMonitorDialog"
+			name="ShowProcessMonitorDialog">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.ShowLoadSampleSetDialog"
+			name="ShowLoadSampleSetDialog">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.ShowSendIsc"
+			name="ShowSendIscGridsDialog">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.ShowIscRequestReply"
+			name="ShowIscRequestReplyDialog">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.ShowSaveDeleteSampleSetDialog"
+			name="ShowSaveDeleteSampleSetDialog">
+     <commandParameter
+           id="Action"
+           name="Action"
+           optional="false">
+     </commandParameter>
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.ShowClearSamples"
+			name="ShowClearSamples">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.ShowDefineRefSetDialog"
+			name="ShowDefineRefSetDialog">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.EditArea" name="Load Edit Area">
+			<commandParameter id="name" name="Reference Set Name">
+			</commandParameter>
+		</command>
+		<command id="com.raytheon.viz.gfe.editAreaMode" name="Set Edit Area Mode">
+			<commandParameter id="mode" name="Mode">
+			</commandParameter>
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.WEGroup" name="Load Weather Element Group">
+			<commandParameter id="name" name="Weather Element Group Name">
+			</commandParameter>
+		</command>
+		<command id="com.raytheon.viz.gfe.editAreaModeButton" name="Update Edit Area Mode Button">
+		</command>
+		<command id="com.raytheon.viz.gfe.displayModeButton" name="Update Display Mode">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.clearEditArea" name="Clear Edit Area">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.undoEditArea" name="Undo Edit Area">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.toggleEditArea"
+			name="Toggle Edit Area">
+		</command>
+		<command categoryId="com.raytheon.viz.ui.modalTool.gfe" id="com.raytheon.viz.gfe.editTools.pencil"
+			name="Pencil Tool">
+		</command>
+		<command categoryId="com.raytheon.viz.ui.modalTool.gfe" id="com.raytheon.viz.gfe.editTools.contour"
+			name="Contour Tool">
+		</command>
+		<command categoryId="com.raytheon.viz.ui.modalTool.gfe" id="com.raytheon.viz.gfe.editTools.sample"
+			name="Sample Tool">
+		</command>
+		<command categoryId="com.raytheon.viz.ui.modalTool.gfe"
+			id="com.raytheon.viz.gfe.editTools.selectPoints" name="Select Points Tool">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.quickSet" name="Quick Set">
+			<commandParameter id="button" name="button">
+			</commandParameter>
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.quickSetMode" name="Quick Set Mode">
+		</command>
+		<command categoryId="com.raytheon.viz.ui.modalTool.gfe" id="com.raytheon.viz.gfe.editTools.moveCopy"
+			name="Move Copy Tool">
+		</command>
+		<command id="com.raytheon.viz.gfe.undo" name="Undo Grid Edit">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.ShowSamplesLatLonAction"
+			name="com.raytheon.viz.gfe.actions.ShowSamplesLatLonAction">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.ShowBreakLock" name="com.raytheon.viz.gfe.actions.ShowBreakLock">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.topo" name="Enable/Disable Topo">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.ShowTimeScalePeriodsDialog"
+			name="Time Scale Periods">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.setCombineMode"
+			name="Set Combine Mode">
+		</command>
+		<command
+        categoryId="com.raytheon.viz.gfe.GFECategory"
+        id="com.raytheon.viz.gfe.actions.toggleTemporalEditor"
+        name="Toggle Temporal Editor">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.showDescription"
+			name="Wx/Discrete Show Description">
+		</command>
+		<command
+        categoryId="com.raytheon.viz.gfe.GFECategory"
+        id="com.raytheon.viz.gfe.actions.showISCGrids"
+        name="ShowISCGrids">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.showISCMarkers"
+			name="showISCMarkers">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.showISCMarkerUpdateTime"
+			name="ShowISCMarkerUpdateTime">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.showISCMarkerSiteId"
+			name="ShowISCMarkerSiteId">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.showISCMarkerOfficial"
+			name="ShowISCMarkerOfficial">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.showISCSampleUpdateTime"
+			name="showSampleUpdateTime">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.showISCSampleSiteId"
+			name="showIscSampleSiteId">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.showISCSampleOfficial"
+			name="showIscSampleOfficial">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.SelectGridsWhenStepping"
+			name="SelectGridsWhenStepping">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.editAreaAppearance"
+			name="showEditAreaAppearance">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.selectTimeRange"
+			name="Select Time Range">
+			<commandParameter id="name" name="Select Time Range Name"
+				optional="false">
+			</commandParameter>
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.setSmoothSize" name="Set Smooth Size">
+			<commandParameter id="size" name="size" optional="false">
+			</commandParameter>
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.setTEEditMode" name="Set Temporal Editor Mode">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.setQuickViewMode"
+			name="Set Quick View Mode">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.setImageOnActive"
+			name="Set Image On Active">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.setTEOverlyMode"
+			name="Set Temporal Overlay Mode">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.setShowTimeRangeWarning"
+			name="Show Time Range Warning">
+		</command>
+		<command id="com.raytheon.viz.gfe.actions.setShowEmptyEditAreaWarning"
+			name="Show Empty Edit Area Warning">
+		</command>
+  <command
+        id="com.raytheon.viz.gfe.actions.showHelpBrowser"
+        name="Show Help Browser">
+  </command>
+  <command
+        id="com.raytheon.viz.gfe.actions.findWeatherElement"
+        name="Find Weather Element">
+     <commandParameter
+           id="parm"
+           name="Parm"
+           optional="false">
+     </commandParameter>
+  </command>
+  <command
+        id="com.raytheon.viz.gfe.iscSendEnable"
+        name="ISC Send Enable">
+  </command>
+  <command
+        defaultHandler="com.raytheon.viz.gfe.actions.ClearPracticeVTECTable"
+        id="com.raytheon.viz.gfe.ClearPracticeVTECTblCmd"
+        name="Clear VTEC Practice Table">
+  </command>
+  <command
+        defaultHandler="com.raytheon.viz.gfe.actions.ClearPracticeGrids"
+        id="com.raytheon.viz.gfe.ClearPraticeGridCmd"
+        name="Clear Fcst Grids">
+  </command>
+  <command
+        id="com.raytheon.viz.gfe.clearHighlights"
+        name="ClearHightlights">
+     <commandParameter
+           id="selectedOnly"
+           name="selectedOnly"
+           optional="false">
+     </commandParameter>
+  </command>
+  <command
+        id="com.raytheon.viz.gfe.actions.DefineAction"
+        name="DefineCommand">
+     <commandParameter
+           id="DefineParameter"
+           name="DefineParameter"
+           optional="true">
+     </commandParameter>
+  </command>
+		<command
+        categoryId="com.raytheon.viz.gfe.GFECategory"
+        description="Run a GFE Procedure"
+        id="com.raytheon.viz.gfe.actions.RunProcedureAction"
+        name="Run Procedure">
+			<commandParameter
+         id="name"
+         name="Procedure Name"
+         optional="false">
+			</commandParameter>
+		</command>
+  <command
+        categoryId="com.raytheon.viz.gfe.GFECategory"
+        description="Run a GFE SmartTool"
+        id="com.raytheon.viz.gfe.actions.RunSmartToolAction"
+        name="Run SmartTool">
+     <commandParameter
+           id="name"
+           name="SmartTool Name"
+           optional="false">
+     </commandParameter>
+  </command>
+  <command
+        categoryId="com.raytheon.viz.gfe.GFECategory"
+        description="Site Activation"
+        id="com.raytheon.viz.gfe.SiteActivation"
+        name="GFE Site Activation">
+  </command>
+  <command
+        categoryId="com.raytheon.viz.gfe.GFECategory"
+        description="Coordinate Conversion"
+        id="com.raytheon.viz.gfe.CoordinateConversion"
+        name="GFE Coordinate Conversion">
+  </command>
+  <category
+        description="GFE Edit Tools"
+        id="com.raytheon.viz.ui.modalTool.gfe"
+        name="GFE">
+  </category>
+	</extension>
+	<extension point="org.eclipse.ui.handlers">
+		<handler
+			class="com.raytheon.viz.gfe.actions.ShowTemporalEditorRangeStatisticsDialog"
+			commandId="com.raytheon.viz.gfe.actions.ShowTemporalEditorRangeStatisticsDialog">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.FormatterlauncherAction"
+			commandId="com.raytheon.viz.gfe.actions.FormatterlauncherAction">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ShowAutoSaveIntervalDialog"
+			commandId="com.raytheon.viz.gfe.actions.ShowAutoSaveIntervalDialog">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler
+			class="com.raytheon.viz.gfe.actions.ShowSaveSelectionTimeRangeDialog"
+			commandId="com.raytheon.viz.gfe.actions.ShowSaveSelectionTimeRangeDialog">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler
+			class="com.raytheon.viz.gfe.actions.ShowDeleteSelectionTimeRangeDialog"
+			commandId="com.raytheon.viz.gfe.actions.ShowDeleteSelectionTimeRangeDialog">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ShowEditActionsDialog"
+			commandId="com.raytheon.viz.gfe.actions.ShowEditActionsDialog">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ExpandTimeScale"
+			commandId="com.raytheon.viz.gfe.actions.ExpandTimeScale">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ContractTimeScale"
+			commandId="com.raytheon.viz.gfe.actions.ContractTimeScale">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ClearSelection"
+			commandId="com.raytheon.viz.gfe.actions.ClearSelection">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.DeleteSelectedGrids"
+			commandId="com.raytheon.viz.gfe.actions.DeleteSelectedGrids">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.SelectAllWeatherElements"
+			commandId="com.raytheon.viz.gfe.actions.SelectAllWeatherElements">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.SplitSelectedGrids"
+			commandId="com.raytheon.viz.gfe.actions.SplitSelectedGrids">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.FragmentSelectedGrids"
+			commandId="com.raytheon.viz.gfe.actions.FragmentSelectedGrids">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler
+			class="com.raytheon.viz.gfe.actions.ShowWeatherElementBrowserDialog"
+			commandId="com.raytheon.viz.gfe.actions.ShowWeatherElementBrowserDialog">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ShowHiddenWeatherElementDialog"
+			commandId="com.raytheon.viz.gfe.actions.ShowHiddenWeatherElementDialog">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ShowCopyGridsDialog"
+			commandId="com.raytheon.viz.gfe.actions.ShowCopyGridsDialog">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ShowCreateFromScratchDialog"
+			commandId="com.raytheon.viz.gfe.actions.ShowCreateFromScratchDialog">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.AssignDefaultValue"
+			commandId="com.raytheon.viz.gfe.actions.AssignDefaultValue">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.AssignPickupValue"
+			commandId="com.raytheon.viz.gfe.actions.AssignPickupValue">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ShowGridsInterpolationDialog"
+			commandId="com.raytheon.viz.gfe.actions.ShowGridsInterpolationDialog">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler
+			class="com.raytheon.viz.gfe.actions.ShowSetInterpolationAlgorithmDialog"
+			commandId="com.raytheon.viz.gfe.actions.ShowSetInterpolationAlgorithmDialog">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ShowSaveForecastDialog"
+			commandId="com.raytheon.viz.gfe.actions.ShowSaveForecastDialog">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ShowRevertForecastDialog"
+			commandId="com.raytheon.viz.gfe.actions.ShowRevertForecastDialog">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ShowTimeShiftDialog"
+			commandId="com.raytheon.viz.gfe.actions.ShowTimeShiftDialog">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ShowDefineSamplesLatLongAction"
+			commandId="com.raytheon.viz.gfe.actions.ShowDefineSamplesLatLongAction">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ShowPublishDialog"
+			commandId="com.raytheon.viz.gfe.actions.ShowPublishToOfficialDialog">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ShowProductScriptsDialog"
+			commandId="com.raytheon.viz.gfe.actions.ShowProductGenerationScriptDialog">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ShowProcessMonitorDialog"
+			commandId="com.raytheon.viz.gfe.actions.ShowProcessMonitorDialog">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ShowLoadSampleSetDialog"
+			commandId="com.raytheon.viz.gfe.actions.ShowLoadSampleSetDialog">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ShowSaveDeleteSampleSetDialog"
+			commandId="com.raytheon.viz.gfe.actions.ShowSaveDeleteSampleSetDialog">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ShowClearSamples"
+			commandId="com.raytheon.viz.gfe.actions.ShowClearSamples">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ShowDefineRefSetDialog"
+			commandId="com.raytheon.viz.gfe.actions.ShowDefineRefSetDialog">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.LoadEditArea"
+			commandId="com.raytheon.viz.gfe.actions.EditArea">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.EditAreaMode"
+			commandId="com.raytheon.viz.gfe.editAreaMode">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.EditAreaModeButton"
+			commandId="com.raytheon.viz.gfe.editAreaModeButton">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.DisplayModeButton"
+			commandId="com.raytheon.viz.gfe.displayModeButton">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ClearEditArea"
+			commandId="com.raytheon.viz.gfe.actions.clearEditArea">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ToggleEditArea"
+			commandId="com.raytheon.viz.gfe.actions.toggleEditArea">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.edittool.PencilTool"
+			commandId="com.raytheon.viz.gfe.editTools.pencil">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.edittool.contour.ContourTool"
+			commandId="com.raytheon.viz.gfe.editTools.contour">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.edittool.sample.SampleTool"
+			commandId="com.raytheon.viz.gfe.editTools.sample">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.edittool.SelectPointsTool"
+			commandId="com.raytheon.viz.gfe.editTools.selectPoints">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.QuickSetHandler"
+			commandId="com.raytheon.viz.gfe.actions.quickSet">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.QuickSetModeHandler"
+			commandId="com.raytheon.viz.gfe.actions.quickSetMode">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.UndoEditAreaHandler"
+			commandId="com.raytheon.viz.gfe.actions.undoEditArea">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.edittool.MoveCopyTool"
+			commandId="com.raytheon.viz.gfe.editTools.moveCopy">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.UndoGridEditHandler"
+			commandId="com.raytheon.viz.gfe.undo">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.LoadWEGroup"
+			commandId="com.raytheon.viz.gfe.actions.WEGroup">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ShowSamplesLatLonAction"
+			commandId="com.raytheon.viz.gfe.actions.ShowSamplesLatLonAction">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ShowBreakLock"
+			commandId="com.raytheon.viz.gfe.actions.ShowBreakLock">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ToggleLegend"
+            commandId="com.raytheon.uf.viz.core.rsc.key.numpadEnter">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.TopoHandler"
+			commandId="com.raytheon.viz.gfe.actions.topo">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.RunProcedureAction"
+			commandId="com.raytheon.viz.gfe.actions.RunProcedureAction">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ShowTimeScalePeriodsDialog"
+			commandId="com.raytheon.viz.gfe.actions.ShowTimeScalePeriodsDialog">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.SetCombineMode"
+			commandId="com.raytheon.viz.gfe.actions.setCombineMode">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ToggleTemporalEditor"
+			commandId="com.raytheon.viz.gfe.actions.toggleTemporalEditor">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ShowDescription"
+			commandId="com.raytheon.viz.gfe.actions.showDescription">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ShowISCGridsAction"
+			commandId="com.raytheon.viz.gfe.actions.showISCGrids">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ShowISCMarkersAction"
+			commandId="com.raytheon.viz.gfe.actions.showISCMarkers">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ShowISCUpdateTimeMarkerAction"
+			commandId="com.raytheon.viz.gfe.actions.showISCMarkerUpdateTime">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ShowISCSiteIDMarkerAction"
+			commandId="com.raytheon.viz.gfe.actions.showISCMarkerSiteId">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler
+			class="com.raytheon.viz.gfe.actions.ShowISCOfficialSymbolMarkerAction"
+			commandId="com.raytheon.viz.gfe.actions.showISCMarkerOfficial">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ShowISCUpdateTimeAction"
+			commandId="com.raytheon.viz.gfe.actions.showISCSampleUpdateTime">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ShowISCSiteIDAction"
+			commandId="com.raytheon.viz.gfe.actions.showISCSampleSiteId">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ShowISCOfficialSymbolAction"
+			commandId="com.raytheon.viz.gfe.actions.showISCSampleOfficial">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.SelectGridsWhenStepping"
+			commandId="com.raytheon.viz.gfe.actions.SelectGridsWhenStepping">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ShowRefSetAreaAppearance"
+			commandId="com.raytheon.viz.gfe.actions.editAreaAppearance">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.SelectTimeRange"
+			commandId="com.raytheon.viz.gfe.actions.selectTimeRange">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.ToggleResourceHandler"
+			commandId="com.raytheon.viz.ui.actions.toggleResource">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.SetSmoothSizeHandler"
+			commandId="com.raytheon.viz.gfe.actions.setSmoothSize">
+			<activeWhen>
+				<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+				</reference>
+			</activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.SetTEEditMode"
+			commandId="com.raytheon.viz.gfe.actions.setTEEditMode">
+			<activeWhen>
+				<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+				</reference>
+			</activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.SetQuickViewMode"
+			commandId="com.raytheon.viz.gfe.actions.setQuickViewMode">
+			<activeWhen>
+				<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+				</reference>
+			</activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.SetImageOnActive"
+			commandId="com.raytheon.viz.gfe.actions.setImageOnActive">
+			<activeWhen>
+				<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+				</reference>
+			</activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.SetTEOverlyMode"
+			commandId="com.raytheon.viz.gfe.actions.setTEOverlyMode">
+			<activeWhen>
+				<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+				</reference>
+			</activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.SetShowTimeRangeWarning"
+			commandId="com.raytheon.viz.gfe.actions.setShowTimeRangeWarning">
+			<activeWhen>
+				<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+				</reference>
+			</activeWhen>
+		</handler>
+		<handler class="com.raytheon.viz.gfe.actions.SetShowEmptyEditAreaWarning"
+			commandId="com.raytheon.viz.gfe.actions.setShowEmptyEditAreaWarning">
+			<activeWhen>
+				<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+				</reference>
+			</activeWhen>
+		</handler>
+  <handler
+        class="com.raytheon.viz.gfe.actions.ShowHelpBrowser"
+        commandId="com.raytheon.viz.gfe.actions.showHelpBrowser">
+     <activeWhen>
+        <reference
+              definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+        </reference>
+     </activeWhen>
+  </handler>
+  <handler
+        class="com.raytheon.viz.gfe.actions.FindWeatherElement"
+        commandId="com.raytheon.viz.gfe.actions.findWeatherElement">
+     <activeWhen>
+        <reference
+              definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+        </reference>
+     </activeWhen>
+  </handler>
+  <handler
+        class="com.raytheon.viz.gfe.actions.IscSendEnableHandler"
+        commandId="com.raytheon.viz.gfe.iscSendEnable">
+     <activeWhen>
+        <reference
+              definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+        </reference>
+     </activeWhen>
+  </handler>
+  <handler
+        class="com.raytheon.viz.gfe.actions.ClearHighlightsAction"
+        commandId="com.raytheon.viz.gfe.clearHighlights">
+     <activeWhen>
+        <reference
+              definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+        </reference>
+     </activeWhen>
+  </handler>
+  <handler
+        class="com.raytheon.viz.gfe.actions.DefineAction"
+        commandId="com.raytheon.viz.gfe.actions.DefineAction">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+  </handler>
+  <handler
+        class="com.raytheon.viz.gfe.actions.RunSmartToolAction"
+        commandId="com.raytheon.viz.gfe.actions.RunSmartToolAction">
+            <activeWhen>
+                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </activeWhen>
+  </handler>
+  <handler
+        class="com.raytheon.viz.gfe.actions.ShowSiteActivationDlg"
+        commandId="com.raytheon.viz.gfe.SiteActivation">
+     <activeWhen>
+        <reference
+              definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+        </reference>
+     </activeWhen>
+  </handler>
+  <handler
+        class="com.raytheon.viz.gfe.actions.CoordinateConversionHandler"
+        commandId="com.raytheon.viz.gfe.CoordinateConversion">
+  </handler>
+  <handler
+         class="com.raytheon.viz.gfe.export.image.GfeExportImageHandler"
+         commandId="com.raytheon.uf.viz.image.export.save">
+     <activeWhen>
+        <reference
+              definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+        </reference>
+     </activeWhen>
+  </handler>
+  <handler
+         class="com.raytheon.viz.gfe.export.kml.GfeKmlExportHandler"
+         commandId="com.raytheon.uf.viz.kml.export.exportKML">
+     <activeWhen>
+        <reference
+              definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+        </reference>
+     </activeWhen>
+  </handler>
+    <handler
+         class="com.raytheon.viz.gfe.actions.ShowSendIscGridsDialog"
+         commandId="com.raytheon.viz.gfe.actions.ShowSendIsc">
+     <activeWhen>
+        <reference
+              definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+        </reference>
+     </activeWhen>
+  </handler>
+    <handler
+         class="com.raytheon.viz.gfe.actions.ShowIscRequestReplyDialog"
+         commandId="com.raytheon.viz.gfe.actions.ShowIscRequestReply">
+     <activeWhen>
+        <reference
+              definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+        </reference>
+     </activeWhen>
+  </handler>
+	</extension>
+	<extension point="com.raytheon.uf.viz.core.resource">
+		<resource class="com.raytheon.viz.gfe.rsc.GFEResource" name="GFEResource"
+			recordClass="com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord"
+			renderingOrderId="IMAGE_COUNTRY" resourceType="PLAN_VIEW">
+		</resource>
+		<resource class="com.raytheon.viz.gfe.rsc.colorbar.GFEColorbarResource"
+			name="GFEColorbar" renderingOrderId="HIGHEST">
+		</resource>
+		<resource class="com.raytheon.viz.gfe.rsc.GFEReferenceSetResource"
+			name="Edit Area" renderingOrderId="ANNOTATION">
+		</resource>
+	</extension>
+	<extension point="org.eclipse.ui.views">
+		<view category="com.raytheon.viz.ui" allowMultiple="true"
+			class="com.raytheon.viz.gfe.GridManagerView" id="com.raytheon.viz.gfe.GridManagerView"
+			name="Grid Manager" />
+	</extension>
+	<extension point="org.eclipse.ui.menus">
+		<menuContribution locationURI="menu:org.eclipse.ui.main.menu?after=CAVE">
+			<menu id="gfe" label="GFE" mnemonic="G">
+				<visibleWhen>
+					<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+					</reference>
+				</visibleWhen>
+				<menu label="Editing Preferences">
+					<menu id="com.raytheon.viz.gfe.ui.missingdatamode" label="Missing Data Mode ...">
+					</menu>
+					<separator name="xxx" visible="true">
+					</separator>
+					<command commandId="com.raytheon.viz.gfe.actions.setTEEditMode"
+						label="Temporal Editor Mode: Relative" style="toggle">
+					</command>
+					<menu id="com.raytheon.viz.gfe.ui.vectoreditmode" label="Vector Editor Mode">
+					</menu>
+					<menu id="com.raytheon.viz.gfe.ui.smoothsizemenu" label="Smoothing Algorithm">
+					</menu>
+					<command commandId="com.raytheon.viz.gfe.actions.setCombineMode"
+						label="Wx/Discrete: Combine" style="toggle">
+					</command>
+					<separator name="xxx" visible="true">
+					</separator>
+					<command commandId="com.raytheon.viz.gfe.actions.SelectGridsWhenStepping"
+						label="Select Grids When Stepping" style="toggle">
+					</command>
+					<command commandId="com.raytheon.viz.gfe.actions.ShowAutoSaveIntervalDialog"
+						label="Auto Save...">
+					</command>
+					<separator name="xxx" visible="true">
+					</separator>
+					<menu id="com.raytheon.viz.gfe.ui.ContourServerAlgorithmMenu"
+						label="Contour Server Selection">
+					</menu>
+					<command
+						commandId="com.raytheon.viz.gfe.actions.ShowSetInterpolationAlgorithmDialog"
+						label="Interpolate Algorithm...">
+					</command>
+				</menu>
+				<menu label="Viewing Preferences">
+					<command commandId="com.raytheon.viz.gfe.actions.setQuickViewMode"
+						label="Quick View Mode" style="toggle">
+					</command>
+					<command commandId="com.raytheon.viz.gfe.actions.setImageOnActive"
+						label="Image On Edit" style="toggle">
+					</command>
+					<separator name="xxx" visible="true" />
+					<command commandId="com.raytheon.viz.gfe.actions.setTEOverlyMode"
+						label="Temporal Editor Overlay Mode" style="toggle">
+					</command>
+
+					<menu id="com.raytheon.viz.gfe.ui.TEweModeMenu" label="Temporal Editor Weather Element Mode">
+					</menu>
+					<command
+						commandId="com.raytheon.viz.gfe.actions.ShowTemporalEditorRangeStatisticsDialog"
+						label="Temporal Editor Statistics Mode...">
+					</command>
+					<separator name="xxx" visible="true">
+					</separator>
+					<command commandId="com.raytheon.viz.gfe.actions.ShowTimeScalePeriodsDialog"
+						label="Time Scale Periods..." style="push">
+					</command>
+					<command label="Edit Area Appearance ..."
+						commandId="com.raytheon.viz.gfe.actions.editAreaAppearance">
+					</command>
+
+					<command commandId="com.raytheon.viz.gfe.actions.showDescription"
+						label="Wx/Discrete: Show Description" style="toggle">
+					</command>
+				</menu>
+				<separator name="xxx1" visible="true" />
+				<menu label="Show Warnings">
+					<command commandId="com.raytheon.viz.gfe.actions.setShowTimeRangeWarning"
+						label="Show Edit Action Time Range Warning" style="toggle">
+					</command>
+					<command commandId="com.raytheon.viz.gfe.actions.setShowEmptyEditAreaWarning"
+						label="Show Empty Edit Area Warning" style="toggle">
+					</command>
+
+				</menu>
+				<separator name="xxx2" visible="true">
+				</separator>
+				<command commandId="com.raytheon.viz.gfe.actions.ShowBreakLock"
+					label="Break Lock...">
+				</command>
+				<separator name="xxx3" visible="true">
+				</separator>
+				<command commandId="com.raytheon.viz.gfe.actions.DefineAction"
+					label="Define Config and ifpIMAGE Files...">
+       <parameter
+             name="DefineParameter"
+             value="config">
+       </parameter>
+				</command>
+				<command commandId="com.raytheon.viz.gfe.actions.DefineAction"
+					label="Define Smart Tools...">
+       <parameter
+             name="DefineParameter"
+             value="smartTools">
+       </parameter>
+				</command>
+				<command
+					commandId="com.raytheon.viz.gfe.actions.DefineAction"
+					label="Define Procedures...">
+       <parameter
+             name="DefineParameter"
+             value="procedures">
+       </parameter>
+				</command>
+				<command commandId="com.raytheon.viz.gfe.actions.DefineAction"
+					label="Define Text Products...">
+       <parameter
+             name="DefineParameter"
+             value="textProducts">
+       </parameter>
+				</command>
+				<menu label="Define Time Ranges">
+					<command label="Save Select Time Range..."
+						commandId="com.raytheon.viz.gfe.actions.ShowSaveSelectionTimeRangeDialog">
+					</command>
+					<command label="Delete Select Time Range..."
+						commandId="com.raytheon.viz.gfe.actions.ShowDeleteSelectionTimeRangeDialog">
+					</command>
+				</menu>
+                <separator name="xxx4" visible="true">
+                </separator>
+                <command
+                      commandId="com.raytheon.viz.gfe.SiteActivation"
+                      label="Site Activation..."
+                      style="push">
+                </command>
+                <!-- Commented out for now. May re-enable when DR #15463 is worked
+                <command
+                      commandId="com.raytheon.viz.gfe.CoordinateConversion"
+                      label="Coordinate Conversion..."
+                      style="push">
+                </command>
+                -->
+			</menu>
+			<menu label="WeatherElement" mnemonic="W">
+				<visibleWhen>
+					<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+					</reference>
+				</visibleWhen>
+				<menu id="com.raytheon.viz.gfe.ui.wegroups" label="Weather Element Groups">
+					<visibleWhen>
+						<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+						</reference>
+					</visibleWhen>
+				</menu>
+				<separator name="xxx" visible="true">
+				</separator>
+				<command label="Weather Element Browser..."
+					commandId="com.raytheon.viz.gfe.actions.ShowWeatherElementBrowserDialog">
+				</command>
+				<command label="Manage Hidden Weather Elements..."
+					commandId="com.raytheon.viz.gfe.actions.ShowHiddenWeatherElementDialog">
+				</command>
+			</menu>
+			<menu label="Populate" mnemonic="P">
+				<visibleWhen>
+					<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+					</reference>
+				</visibleWhen>
+				<dynamic class="com.raytheon.viz.gfe.procedures.menu.PopulateItems"
+					id="com.raytheon.viz.gfe.procedures.menu.PopulateItems" />
+				<separator name="xxx" visible="true">
+				</separator>
+				<command label="Copy Selected Grids From..."
+					commandId="com.raytheon.viz.gfe.actions.ShowCopyGridsDialog">
+       <parameter
+             name="selectedOrAll"
+             value="selected">
+       </parameter>
+				</command>
+				<command label="Copy All Grids From..."
+					commandId="com.raytheon.viz.gfe.actions.ShowCopyGridsDialog">
+       <parameter
+             name="selectedOrAll"
+             value="all">
+       </parameter>
+				</command>
+			</menu>
+			<menu label="Grids" mnemonic="G">
+				<visibleWhen>
+					<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+					</reference>
+				</visibleWhen>
+				<command label="Interpolate..."
+					commandId="com.raytheon.viz.gfe.actions.ShowGridsInterpolationDialog">
+				</command>
+				<command label="Split Grids"
+					commandId="com.raytheon.viz.gfe.actions.SplitSelectedGrids">
+				</command>
+				<command label="Fragment Grids"
+					commandId="com.raytheon.viz.gfe.actions.FragmentSelectedGrids">
+				</command>
+				<command label="Create Grids From Scratch..."
+					commandId="com.raytheon.viz.gfe.actions.ShowCreateFromScratchDialog">
+				</command>
+				<command label="Assign Default Value"
+					commandId="com.raytheon.viz.gfe.actions.AssignDefaultValue">
+				</command>
+				<command label="Assign Pickup Value"
+					commandId="com.raytheon.viz.gfe.actions.AssignPickupValue">
+				</command>
+				<separator name="xxx1" visible="true">
+				</separator>
+				<command label="Delete Grids"
+					commandId="com.raytheon.viz.gfe.actions.DeleteSelectedGrids">
+				</command>
+				<separator name="xxx2" visible="true">
+				</separator>
+				<menu id="com.raytheon.viz.gfe.ui.selectTRmenu" label="Select Grids By Time">
+				</menu>
+				<command label="Select All Weather Elements"
+					commandId="com.raytheon.viz.gfe.actions.SelectAllWeatherElements">
+				</command>
+				<command label="Deselect All" commandId="com.raytheon.viz.gfe.actions.ClearSelection">
+				</command>
+				<separator name="xxx3" visible="true">
+				</separator>
+				<command label="Time Shift..."
+					commandId="com.raytheon.viz.gfe.actions.ShowTimeShiftDialog">
+				</command>
+				<separator name="xxx4" visible="true">
+				</separator>
+				<menu
+          id="com.raytheon.viz.gfe.ui.findParmMenu"
+          label="Find Weather Element">
+				</menu>
+			</menu>
+
+			<menu label="Edit" mnemonic="E">
+				<visibleWhen>
+					<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+					</reference>
+				</visibleWhen>
+				<command commandId="com.raytheon.viz.gfe.undo" label="Undo Grid Edit">
+				</command>
+				<command commandId="com.raytheon.viz.gfe.actions.undoEditArea"
+					label="Undo Edit Area">
+				</command>
+				<separator name="xxx1" visible="true">
+				</separator>
+				<dynamic class="com.raytheon.viz.gfe.procedures.menu.EditItems"
+					id="com.raytheon.viz.gfe.procedures.menu.EditItems" />
+				<separator name="xxx2" visible="true">
+				</separator>
+				<command label="Save Forecast ..."
+					commandId="com.raytheon.viz.gfe.actions.ShowSaveForecastDialog">
+				</command>
+				<command label="Revert Forecast ..."
+					commandId="com.raytheon.viz.gfe.actions.ShowRevertForecastDialog">
+				</command>
+			</menu>
+
+			<menu label="Consistency" mnemonic="C">
+				<visibleWhen>
+					<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+					</reference>
+				</visibleWhen>
+				<dynamic class="com.raytheon.viz.gfe.procedures.menu.ConsistencyItems"
+					id="com.raytheon.viz.gfe.procedures.menu.ConsistencyItems" />
+				<separator name="com.raytheon.viz.gfe.separator1" visible="true">
+				</separator>
+    <command
+          commandId="com.raytheon.viz.gfe.clearHighlights"
+          label="Clear Selected Highlights">
+       <parameter
+             name="selectedOnly"
+             value="true">
+       </parameter>
+    </command>
+    <command
+          commandId="com.raytheon.viz.gfe.clearHighlights"
+          label="Clear All Highlights">
+       <parameter
+             name="selectedOnly"
+             value="false">
+       </parameter>
+    </command>
+    <separator
+          name="com.raytheon.viz.gfe.separator2"
+          visible="true">
+    </separator>
+    <command
+          commandId="com.raytheon.viz.gfe.actions.ShowSendIsc"
+          label="Send Intersite Grids" />
+    <command
+          commandId="com.raytheon.viz.gfe.actions.ShowIscRequestReply"
+          label="ISC Request/Reply" />
+	<command
+          commandId="com.raytheon.viz.gfe.iscSendEnable"
+          label="ISC Send Enable" style="toggle" />
+			</menu>
+			<menu label="Products" mnemonic="P">
+				<visibleWhen>
+					<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+					</reference>
+				</visibleWhen>
+				<command commandId="com.raytheon.viz.gfe.actions.ShowPublishToOfficialDialog"
+					label="Publish to Official...">
+				</command>
+				<command commandId="com.raytheon.viz.gfe.actions.FormatterlauncherAction"
+					label="Formatter Launcher...">
+				</command>
+				<command
+					commandId="com.raytheon.viz.gfe.actions.ShowProductGenerationScriptDialog"
+					label="Scripts...">
+				</command>
+				<command commandId="com.raytheon.viz.gfe.actions.ShowProcessMonitorDialog"
+					label="Process Monitor...">
+				</command>
+			</menu>
+			<menu id="GFEMaps" label="Maps" mnemonic="M">
+				<visibleWhen>
+					<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+					</reference>
+				</visibleWhen>
+				<command commandId="com.raytheon.viz.gfe.actions.topo"
+					label="Topography" style="toggle">
+				</command>
+				<separator name="separator" visible="true">
+				</separator>
+				<menu label="Samples">
+					<command commandId="com.raytheon.viz.gfe.actions.ShowLoadSampleSetDialog"
+						label="Load...">
+					</command>
+					<command commandId="com.raytheon.viz.gfe.actions.ShowClearSamples"
+						label="Clear">
+					</command>
+					<command commandId="com.raytheon.viz.gfe.actions.ShowSaveDeleteSampleSetDialog"
+						label="Save...">
+        <parameter
+              name="Action"
+              value="Save">
+        </parameter>
+					</command>
+					<command commandId="com.raytheon.viz.gfe.actions.ShowSaveDeleteSampleSetDialog"
+						label="Delete...">
+        <parameter
+              name="Action"
+              value="Delete">
+        </parameter>
+					</command>
+					<separator name="xxx" visible="true" />
+					<command
+						commandId="com.raytheon.viz.gfe.actions.ShowDefineSamplesLatLongAction"
+						label="Define by Lat/Lon...">
+					</command>
+					<command commandId="com.raytheon.viz.gfe.actions.ShowSamplesLatLonAction"
+						label="Show Lat/Lon..." style="toggle">
+					</command>
+					<separator name="xxxx" visible="true">
+					</separator>
+					<command commandId="com.raytheon.viz.gfe.actions.showISCSampleUpdateTime"
+						label="Show ISC Update Time on Data Samples" style="toggle">
+					</command>
+					<command commandId="com.raytheon.viz.gfe.actions.showISCSampleSiteId"
+						label="Show ISC Site Id on Data Samples" style="toggle">
+					</command>
+					<command commandId="com.raytheon.viz.gfe.actions.showISCSampleOfficial"
+						label="Show ISC Official DB Symbol on Data Samples" style="toggle">
+					</command>
+				</menu>
+				<menu label="ISC Markers">
+					<command commandId="com.raytheon.viz.gfe.actions.showISCMarkers"
+						label="Show ISC Markers" style="toggle">
+					</command>
+					<separator name="xxxxx" visible="true">
+					</separator>
+					<command commandId="com.raytheon.viz.gfe.actions.showISCMarkerUpdateTime"
+						label="Show ISC Update Time on Marker" style="toggle">
+					</command>
+					<command commandId="com.raytheon.viz.gfe.actions.showISCMarkerSiteId"
+						label="Show ISC Site Id on Marker" style="toggle">
+					</command>
+					<command commandId="com.raytheon.viz.gfe.actions.showISCMarkerOfficial"
+						label="Show ISC Official DB Symbol on Marker" style="toggle">
+					</command>
+				</menu>
+				<separator name="beforeMaps" visible="true">
+				</separator>
+				<dynamic class="com.raytheon.uf.viz.core.maps.menus.MapsMenu" id="com.raytheon.uf.viz.core.maps.menus.MapsMenu">
+				</dynamic>
+			</menu>
+			<menu id="com.raytheon.viz.gfe.ui.editareas" label="Edit Areas"
+				mnemonic="E">
+				<visibleWhen>
+					<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+					</reference>
+				</visibleWhen>
+			</menu>
+			<menu label="Verify" mnemonic="V">
+				<visibleWhen>
+					<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+					</reference>
+				</visibleWhen>
+				<dynamic class="com.raytheon.viz.gfe.procedures.menu.VerifyItems"
+					id="com.raytheon.viz.gfe.procedures.menu.VerifyItems" />
+			</menu>
+			<menu label="Hazards" mnemonic="H">
+				<visibleWhen>
+					<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+					</reference>
+				</visibleWhen>
+				<dynamic class="com.raytheon.viz.gfe.procedures.menu.HazardsItems"
+					id="com.raytheon.viz.gfe.procedures.menu.HazardsItems" />
+			</menu>
+            <menu label="Reset Practice" mnemonic="R">
+                <visibleWhen>
+                   <and>
+                      <reference
+                            definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                      </reference>
+                      <test
+                            args="PRACTICE"
+                            property="com.raytheon.viz.core.mode.CAVEMode"
+                            value="true">
+                      </test>
+                   </and>
+                </visibleWhen>
+                <command
+                    commandId="com.raytheon.viz.gfe.ClearPracticeVTECTblCmd"
+                    id="Clear Practice VTEC Table"
+                    style="push">
+                </command>
+                <command
+                    commandId="com.raytheon.viz.gfe.ClearPraticeGridCmd"
+                    id="Clear Practice Grids"
+                    style="push">
+                </command>
+            </menu>
+		</menuContribution>
+		<menuContribution
+			locationURI="toolbar:org.eclipse.ui.main.toolbar?after=mapControls">
+			<toolbar id="gfe-1">
+				<command commandId="com.raytheon.viz.gfe.actions.toggleTemporalEditor"
+					icon="icons/gmTe0.gif" style="toggle" tooltip="Toggle Grid Manager/Temporal Editor">
+					<visibleWhen>
+						<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+						</reference>
+					</visibleWhen>
+				</command>
+				<command commandId="com.raytheon.viz.gfe.actions.ExpandTimeScale"
+					icon="icons/expand0.gif" tooltip="Expand Time Scale">
+					<visibleWhen>
+						<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+						</reference>
+					</visibleWhen>
+				</command>
+				<command commandId="com.raytheon.viz.gfe.actions.ContractTimeScale"
+					icon="icons/contract0.gif" tooltip="Contract Time Scale">
+					<visibleWhen>
+						<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+						</reference>
+					</visibleWhen>
+				</command>
+				<command commandId="com.raytheon.viz.gfe.actions.ClearSelection"
+					icon="icons/deselectAll0.gif" tooltip="Deselect All">
+					<visibleWhen>
+						<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+						</reference>
+					</visibleWhen>
+				</command>
+				<command commandId="com.raytheon.viz.gfe.displayModeButton"
+					id="com.raytheon.viz.gfe.ui.GridModeMenu" label="Display Mode"
+					style="pulldown"
+					tooltip="Display Mode: Normal, History, Saved, Modified, Published, Sent">
+					<visibleWhen>
+						<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+						</reference>
+					</visibleWhen>
+				</command>
+				<command commandId="com.raytheon.viz.gfe.actions.setQuickViewMode"
+					icon="icons/quickView1.gif" style="toggle" tooltip="Toggle Quick View Mode">
+					<visibleWhen>
+						<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+						</reference>
+					</visibleWhen>
+				</command>
+				<command commandId="com.raytheon.viz.gfe.actions.showISCGrids"
+					icon="icons/isc0.gif" style="toggle" tooltip="Toggle Intersite Coordination Mode">
+					<visibleWhen>
+						<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+						</reference>
+					</visibleWhen>
+				</command>
+				<command commandId="com.raytheon.viz.gfe.actions.ShowSaveForecastDialog"
+					icon="icons/saveFcst0.gif" tooltip="Save Forecast">
+					<visibleWhen>
+						<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+						</reference>
+					</visibleWhen>
+				</command>
+			</toolbar>
+			<toolbar id="gfe-2">
+				<command commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+					icon="icons/back0.gif" label="Previous Frame" tooltip="Previous Frame" style="push">
+					<visibleWhen>
+						<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+						</reference>
+					</visibleWhen>
+					<parameter name="mode" value="TIME_AND_SPACE">
+					</parameter>
+					<parameter name="operation" value="PREVIOUS">
+					</parameter>
+				</command>
+				<command commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+					icon="icons/fwd0.gif" label="Next Frame" tooltip="Next Frame" style="push">
+					<visibleWhen>
+						<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+						</reference>
+					</visibleWhen>
+					<parameter name="mode" value="TIME_AND_SPACE">
+					</parameter>
+					<parameter name="operation" value="NEXT">
+					</parameter>
+				</command>
+			</toolbar>
+			<toolbar id="gfe-3">
+				<command commandId="com.raytheon.viz.gfe.actions.ShowEditActionsDialog"
+					icon="icons/editActions0.gif" tooltip="Edit Action Dialog">
+					<visibleWhen>
+						<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+						</reference>
+					</visibleWhen>
+				</command>
+				<command commandId="com.raytheon.viz.gfe.undo" icon="icons/undoGridEdit0.gif"
+					style="push" tooltip="Undo Grid Edit">
+					<visibleWhen>
+						<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+						</reference>
+					</visibleWhen>
+				</command>
+			</toolbar>
+			<toolbar id="gfe-4">
+				<command commandId="com.raytheon.viz.gfe.editTools.sample"
+					icon="icons/samples0.gif" style="toggle" tooltip="Sample Tool">
+					<visibleWhen>
+						<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+						</reference>
+					</visibleWhen>
+				</command>
+				<command commandId="com.raytheon.viz.gfe.editTools.contour"
+					icon="icons/contourTool0.gif" style="toggle" tooltip="Contour Tool">
+					<visibleWhen>
+						<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+						</reference>
+					</visibleWhen>
+				</command>
+				<command commandId="com.raytheon.viz.gfe.editTools.pencil"
+					icon="icons/pencilTool0.gif" style="toggle" tooltip="Pencil Tool">
+					<visibleWhen>
+						<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+						</reference>
+					</visibleWhen>
+				</command>
+				<command commandId="com.raytheon.viz.gfe.editTools.moveCopy"
+					icon="icons/movecopy0.gif" style="toggle" tooltip="Move/Copy Tool">
+					<visibleWhen>
+						<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+						</reference>
+					</visibleWhen>
+				</command>
+				<command commandId="com.raytheon.viz.gfe.editTools.selectPoints"
+					icon="icons/refset0.gif" style="toggle" tooltip="Draw Edit Area Tool">
+					<visibleWhen>
+						<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+						</reference>
+					</visibleWhen>
+				</command>
+			</toolbar>
+			<toolbar id="gfe-5">
+				<command commandId="com.raytheon.viz.gfe.actions.toggleEditArea"
+					icon="icons/toggleRefset0.gif" tooltip="Toggle Edit Area">
+					<visibleWhen>
+						<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+						</reference>
+					</visibleWhen>
+				</command>
+				<command commandId="com.raytheon.viz.gfe.actions.clearEditArea"
+					icon="icons/clearRefset0.gif" tooltip="Clear Edit Area">
+					<visibleWhen>
+						<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+						</reference>
+					</visibleWhen>
+				</command>
+				<command commandId="com.raytheon.viz.gfe.actions.ShowDefineRefSetDialog"
+					icon="icons/defineRefset0.gif" tooltip="Edit Area and Query Dialog">
+					<visibleWhen>
+						<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+						</reference>
+					</visibleWhen>
+				</command>
+			</toolbar>
+			<toolbar id="gfe-6">
+				<command commandId="com.raytheon.viz.gfe.editAreaModeButton"
+					id="com.raytheon.viz.ui.actions.EditMode" label="=" style="pulldown"
+					tooltip="Edit Area Mode: Replace (=), Union (|), Intersect (&amp;&amp;), Subtract (-)">
+					<visibleWhen>
+						<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+						</reference>
+					</visibleWhen>
+				</command>
+			</toolbar>
+			<toolbar id="quickSetButtons">
+				<command commandId="com.raytheon.viz.gfe.actions.quickSetMode"
+					icon="icons/quickset0.gif" style="toggle"
+					tooltip="Save Edit Area to Quickset Button">
+					<visibleWhen>
+						<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+						</reference>
+					</visibleWhen>
+				</command>
+				<command commandId="com.raytheon.viz.gfe.actions.quickSet"
+					icon="icons/quick10.gif" tooltip="Empty">
+                    <visibleWhen>
+                       <and>
+                          <reference
+                                definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                          </reference>
+                          <test
+                                property="com.raytheon.viz.gfe.QuickSetButtons"
+                                value="1">
+                          </test>
+                       </and>
+                    </visibleWhen>
+					<parameter name="button" value="1">
+					</parameter>
+				</command>
+				<command commandId="com.raytheon.viz.gfe.actions.quickSet"
+					icon="icons/quick20.gif" tooltip="Empty">
+                    <visibleWhen>
+                       <and>
+                          <reference
+                                definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                          </reference>
+                          <test
+                                property="com.raytheon.viz.gfe.QuickSetButtons"
+                                value="2">
+                          </test>
+                       </and>
+                    </visibleWhen>
+					<parameter name="button" value="2">
+					</parameter>
+				</command>
+				<command commandId="com.raytheon.viz.gfe.actions.quickSet"
+					icon="icons/quick30.gif" tooltip="Empty">
+                    <visibleWhen>
+                       <and>
+                          <reference
+                                definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                          </reference>
+                          <test
+                                property="com.raytheon.viz.gfe.QuickSetButtons"
+                                value="3">
+                          </test>
+                       </and>
+                    </visibleWhen>
+					<parameter name="button" value="3">
+					</parameter>
+				</command>
+				<command commandId="com.raytheon.viz.gfe.actions.quickSet"
+					icon="icons/quick40.gif" tooltip="Empty">
+                    <visibleWhen>
+                       <and>
+                          <reference
+                                definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                          </reference>
+                          <test
+                                property="com.raytheon.viz.gfe.QuickSetButtons"
+                                value="4">
+                          </test>
+                       </and>
+                    </visibleWhen>
+					<parameter name="button" value="4">
+					</parameter>
+				</command>
+                <command commandId="com.raytheon.viz.gfe.actions.quickSet"
+                    icon="icons/quick50.gif" tooltip="Empty">
+                    <visibleWhen>
+                       <and>
+                          <reference
+                                definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                          </reference>
+                          <test
+                                property="com.raytheon.viz.gfe.QuickSetButtons"
+                                value="5">
+                          </test>
+                       </and>
+                    </visibleWhen>
+                    <parameter name="button" value="5">
+                    </parameter>
+                </command>
+                <command commandId="com.raytheon.viz.gfe.actions.quickSet"
+                    icon="icons/quick60.gif" tooltip="Empty">
+                    <visibleWhen>
+                       <and>
+                          <reference
+                                definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                          </reference>
+                          <test
+                                property="com.raytheon.viz.gfe.QuickSetButtons"
+                                value="6">
+                          </test>
+                       </and>
+                    </visibleWhen>
+                    <parameter name="button" value="6">
+                    </parameter>
+                </command>
+                <command commandId="com.raytheon.viz.gfe.actions.quickSet"
+                    icon="icons/quick70.gif" tooltip="Empty">
+                    <visibleWhen>
+                       <and>
+                          <reference
+                                definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                          </reference>
+                          <test
+                                property="com.raytheon.viz.gfe.QuickSetButtons"
+                                value="7">
+                          </test>
+                       </and>
+                    </visibleWhen>
+                    <parameter name="button" value="7">
+                    </parameter>
+                </command>
+			</toolbar>
+		</menuContribution>
+		<menuContribution locationURI="menu:com.raytheon.viz.gfe.ui.editareas">
+			<dynamic class="com.raytheon.viz.gfe.ui.GFEEditAreaMenu" id="com.raytheon.viz.gfe.ui.editarea">
+			</dynamic>
+		</menuContribution>
+		<menuContribution locationURI="menu:com.raytheon.viz.gfe.ui.vectoreditmode">
+			<dynamic class="com.raytheon.viz.gfe.ui.VectorEditModeMenu"
+				id="com.raytheon.viz.gfe.ui.vectoreditmode">
+			</dynamic>
+		</menuContribution>
+		<menuContribution locationURI="menu:com.raytheon.viz.gfe.ui.wegroups">
+			<dynamic class="com.raytheon.viz.gfe.ui.GFEWEGroupMenu" id="com.raytheon.viz.gfe.ui.wegroup">
+			</dynamic>
+		</menuContribution>
+		<menuContribution locationURI="menu:com.raytheon.viz.gfe.ui.GridModeMenu">
+			<dynamic class="com.raytheon.viz.gfe.ui.GridModeMenu" id="com.raytheon.viz.gfe.ui.GridModeMenu">
+			</dynamic>
+		</menuContribution>
+  <menuContribution
+        locationURI="menu:com.raytheon.viz.gfe.ui.findParmMenu">
+     <dynamic
+           class="com.raytheon.viz.gfe.ui.FindParmMenu"
+           id="com.raytheon.viz.gfe.ui.findParmMenu">
+     </dynamic>
+  </menuContribution>
+		<menuContribution locationURI="menu:com.raytheon.viz.ui.actions.EditMode">
+			<command commandId="com.raytheon.viz.gfe.editAreaMode" label="="
+				tooltip="Replace">
+				<parameter name="mode" value="REPLACE">
+				</parameter>
+			</command>
+			<command commandId="com.raytheon.viz.gfe.editAreaMode" label="|"
+				tooltip="Union">
+				<parameter name="mode" value="UNION">
+				</parameter>
+			</command>
+			<command commandId="com.raytheon.viz.gfe.editAreaMode" label="&amp;&amp;"
+				tooltip="Intersect">
+				<parameter name="mode" value="INTERSECT">
+				</parameter>
+			</command>
+			<command commandId="com.raytheon.viz.gfe.editAreaMode" label="-"
+				tooltip="Subtract">
+				<parameter name="mode" value="SUBTRACT">
+				</parameter>
+			</command>
+		</menuContribution>
+		<menuContribution
+			locationURI="menu:com.raytheon.viz.gfe.ui.ContourServerAlgorithmMenu">
+			<dynamic class="com.raytheon.viz.gfe.ui.ContourServerAlgorithmMenu"
+				id="com.raytheon.viz.gfe.ui.ContourServerAlgorithmMenu">
+			</dynamic>
+		</menuContribution>
+		<menuContribution locationURI="menu:com.raytheon.viz.gfe.ui.selectTRmenu">
+			<dynamic class="com.raytheon.viz.gfe.ui.SelectTRMenu" id="com.raytheon.viz.gfe.ui.selectTRmenu">
+			</dynamic>
+		</menuContribution>
+		<menuContribution locationURI="menu:com.raytheon.viz.gfe.ui.missingdatamode">
+			<dynamic class="com.raytheon.viz.gfe.ui.MissingDataModeMenu"
+				id="com.raytheon.viz.gfe.ui.missingdatamode">
+			</dynamic>
+		</menuContribution>
+		<menuContribution locationURI="menu:com.raytheon.viz.gfe.ui.smoothsizemenu">
+			<dynamic class="com.raytheon.viz.gfe.ui.SmoothSizeMenu" id="com.raytheon.viz.gfe.ui.smoothsizemenu">
+			</dynamic>
+		</menuContribution>
+		<menuContribution locationURI="menu:com.raytheon.viz.gfe.ui.TEweModeMenu">
+			<dynamic class="com.raytheon.viz.gfe.ui.TemporalEditorWEModeMenu"
+				id="com.raytheon.viz.gfe.ui.TEweModeMenu">
+			</dynamic>
+		</menuContribution>
+  <menuContribution
+        locationURI="menu:help">
+     <command
+           commandId="com.raytheon.viz.gfe.actions.showHelpBrowser"
+           label="Online Table of Contents..."
+           style="push">
+        <visibleWhen
+              checkEnabled="false">
+           <reference
+                 definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+           </reference>
+        </visibleWhen>
+     </command>
+  </menuContribution>
+	</extension>
+
+	<extension point="com.raytheon.viz.ui.contextualMenu">
+		<contextualMenu actionClass="com.raytheon.viz.gfe.actions.SetContourValues"
+			capabilityInterface="com.raytheon.viz.gfe.rsc.GFEResource" name="Set Contour Values..."
+			sortID="550">
+		</contextualMenu>
+		<contextualMenu actionClass="com.raytheon.viz.gfe.actions.GridOpsAction"
+			capabilityInterface="com.raytheon.viz.gfe.rsc.GFEResource" name="Grid Ops"
+			sortID="601">
+		</contextualMenu>
+		<contextualMenu actionClass="com.raytheon.viz.gfe.actions.DisplayAsAction"
+			capabilityInterface="com.raytheon.viz.gfe.rsc.GFEResource" name="DisplayAs"
+			sortID="701">
+		</contextualMenu>
+		<contextualMenu actionClass="com.raytheon.viz.gfe.actions.DisplayAttributesAction"
+			capabilityInterface="com.raytheon.viz.gfe.rsc.GFEResource" name="DisplayAttrs"
+			sortID="702">
+		</contextualMenu>
+	</extension>
+	<extension point="com.raytheon.viz.ui.perspectiveManager">
+		<perspectiveManager
+		    perspectiveId="com.raytheon.viz.ui.GFEPerspective"
+			class="com.raytheon.viz.gfe.perspective.GFEPerspectiveManager" 
+			name="GFEPerspectiveManager">
+		</perspectiveManager>
+	</extension>
+	<extension point="org.eclipse.ui.perspectives">
+		<perspective class="com.raytheon.viz.gfe.perspective.GFEPerspective"
+			icon="icons/gfe.gif" id="com.raytheon.viz.ui.GFEPerspective" name="GFE">
+		</perspective>
+	</extension>
+	<extension point="org.eclipse.ui.perspectiveExtensions">
+		<perspectiveExtension targetID="com.raytheon.viz.ui.GFEPerspective">
+			<actionSet id="com.raytheon.viz.gfe.GFEActionSet">
+			</actionSet>
+		</perspectiveExtension>
+		<perspectiveExtension targetID="*">
+			<perspectiveShortcut id="com.raytheon.viz.ui.GFEPerspective">
+			</perspectiveShortcut>
+		</perspectiveExtension>
+	</extension>
+	<extension
+   		point="com.raytheon.uf.viz.core.component">
+   		<component key="gfeclient" class="com.raytheon.viz.gfe.GfeClient"/>
+    </extension>
+    <extension
+   		point="com.raytheon.uf.viz.core.component">
+   		<component key="ServiceBackup" class="com.raytheon.viz.gfe.ServiceBackupComponent"/>
+    </extension>
+    <extension
+   		point="com.raytheon.uf.viz.core.component">
+   		<component key="ActivateSite" class="com.raytheon.viz.gfe.ActivateSiteComponent"/>
+    </extension>
+ <extension
+       point="org.eclipse.core.expressions.propertyTesters">
+    <propertyTester
+          class="com.raytheon.viz.gfe.QuickSetPropertyTester"
+          id="com.raytheon.viz.gfe.QuickSetPropertyTester"
+          namespace="com.raytheon.viz.gfe"
+          properties="QuickSetButtons"
+          type="java.lang.Object">
+    </propertyTester>
+ </extension>
+ <extension
+       id="GFE"
+       name="GFE"
+       point="com.raytheon.uf.viz.localization.perspective.localizationpath">
+    <path
+          application="GFE"
+          extensionFilter=".py"
+          localizationAdapter="com.raytheon.viz.gfe.localization.adapters.ConfigAdapter"
+          localizationType="CAVE_STATIC"
+          name="Config Files"
+          value="gfe/userPython/gfeConfig">
+    </path>
+    <path
+          application="GFE"
+          extensionFilter=".xml"
+          localizationType="COMMON_STATIC"
+          name="Edit Areas"
+          recursive="false"
+          value="gfe/editAreas">
+    </path>
+    <path
+          application="GFE"
+          extensionFilter=".txt"
+          localizationType="COMMON_STATIC"
+          name="Edit Area Groups"
+          recursive="false"
+          value="gfe/editAreaGroups">
+    </path>
+    <path
+          application="GFE"
+          extensionFilter=".xml"
+          localizationType="COMMON_STATIC"
+          name="Sample Points"
+          recursive="true"
+          value="gfe/sampleSets">
+    </path>
+    <path
+          application="GFE"
+          extensionFilter=".py"
+          localizationAdapter="com.raytheon.viz.gfe.localization.adapters.ProceduresAdapter"
+          localizationType="CAVE_STATIC"
+          name="Procedures"
+          value="gfe/userPython/procedures">
+    </path>
+    <path
+          application="GFE"
+          extensionFilter=".py"
+          localizationAdapter="com.raytheon.viz.gfe.localization.adapters.SmartToolAdapter"
+          localizationType="CAVE_STATIC"
+          name="Smart Tools"
+          value="gfe/userPython/smartTools">
+    </path>
+    <path
+          application="GFE"
+          extensionFilter=".py"
+          localizationAdapter="com.raytheon.viz.gfe.localization.adapters.TextProductAdapter"
+          localizationType="CAVE_STATIC"
+          name="Text Products"
+          recursive="false"
+          value="gfe/userPython/textProducts">
+    </path>
+    <path
+          application="GFE"
+          extensionFilter=".SELECTTR"
+          localizationType="COMMON_STATIC"
+          name="Time Range"
+          recursive="true"
+          value="gfe/text/selecttr">
+    </path>
+    <path
+          application="GFE"
+          extensionFilter=".py"
+          localizationAdapter="com.raytheon.viz.gfe.localization.adapters.TextUtilityAdapter"
+          localizationType="CAVE_STATIC"
+          name="Text Utilities"
+          recursive="false"
+          value="gfe/userPython/textUtilities/regular">
+    </path>
+    <path
+          application="GFE"
+          extensionFilter=".py"
+          localizationAdapter="com.raytheon.viz.gfe.localization.adapters.UtilityAdapter"
+          localizationType="CAVE_STATIC"
+          name="Utilities"
+          value="gfe/userPython/utilities">
+    </path>
+    <path
+          application="GFE"
+          localizationType="COMMON_STATIC"
+          name="ISC Utilities"
+          value="isc/utilities">
+    </path>
+    <path
+          application="GFE"
+          extensionFilter=".xml"
+          localizationType="CAVE_STATIC"
+          name="Weather Element Groups"
+          recursive="true"
+          value="gfe/weGroups">
+    </path>
+    <path
+          application="GFE Server"
+          extensionFilter=".py,.properties"
+          localizationAdapter="com.raytheon.viz.gfe.localization.adapters.ServerConfigAdapter"
+          localizationType="COMMON_STATIC"
+          name="Server Config Files"
+          recursive="false"
+          value="gfe/config">
+    </path>
+    <path
+          application="GFE Server"
+          extensionFilter=".py"
+          localizationAdapter="com.raytheon.viz.gfe.localization.adapters.SmartInitAdapter"
+          localizationType="COMMON_STATIC"
+          name="Smart Inits"
+          recursive="false"
+          value="gfe/smartinit">
+    </path>
+    <path
+          application="GFE Server"
+          extensionFilter=".xml"
+          localizationAdapter="com.raytheon.viz.gfe.localization.adapters.ParameterInfoAdapter"
+          localizationType="COMMON_STATIC"
+          name="Parameter Info Files"
+          value="grid/parameterInfo">
+    </path>
+    <path
+          application="GFE Server"
+          extensionFilter="gfeParamName.xml"
+          localizationType="COMMON_STATIC"
+          name="Param Names"
+          value="parameter/alias">
+    </path>
+    <path
+          application="GFE Server"
+          extensionFilter="gfeParamInfo.xml"
+          localizationType="COMMON_STATIC"
+          name="Param Info Mapping"
+          value="grid/dataset/alias">
+    </path>
+    <path
+          application="GFE Server"
+          extensionFilter="gfeLevelMappingFile.xml"
+          localizationType="COMMON_STATIC"
+          name="Level Mapping"
+          value="grid">
+    </path>
+    <path
+          application="GFE Server"
+          extensionFilter="VTECPartners.py"
+          localizationAdapter="com.raytheon.viz.gfe.localization.adapters.ServerConfigAdapter"
+          localizationType="COMMON_STATIC"
+          name="VTEC Partners"
+          value="vtec">
+    </path>
+ </extension>
+ 
+ <extension
+       point="org.eclipse.ui.contexts">
+    <context
+          description="GFE Context"
+          id="com.raytheon.viz.gfe.GFEContext"
+          name="GFE">
+    </context>
+    <context
+          description="GFE ShortCut defined in GFE Config file. Do not create key bindings in CAVE preferences for this context use GFE context instead."
+          id="com.raytheon.viz.gfe.GFEShortCutContext"
+          name="GFE ShortCut"
+          parentId="com.raytheon.viz.gfe.GFEContext">
+    </context>
+ </extension>
+ <extension
+       point="com.raytheon.uf.viz.core.classContext">
+    <classContext
+          class="com.raytheon.viz.gfe.perspective.GFEPerspectiveManager">
+       <contextId
+             id="com.raytheon.viz.gfe.GFEActionSet">
+       </contextId>
+       <contextId
+             id="com.raytheon.viz.gfe.GFEContext">
+       </contextId>
+    </classContext>
+    <classContext
+          class="com.raytheon.viz.gfe.GridManagerView">
+       <contextId
+             id="com.raytheon.viz.ui.loopContext">
+       </contextId>
+    </classContext>
+    <classContext
+          class="com.raytheon.viz.gfe.perspective.GFEContextActivator">
+       <contextId
+             id="com.raytheon.viz.gfe.GFEShortCutContext">
+       </contextId>
+    </classContext>
+ </extension>
+</plugin>

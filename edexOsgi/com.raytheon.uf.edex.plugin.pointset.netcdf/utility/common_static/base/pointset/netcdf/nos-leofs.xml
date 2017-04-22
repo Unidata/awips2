@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+  <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+        
+        Allow ingest of National Ocean Service: Lake Erie Operational Forecast System (LEOFS), NetCDF files
+  -->
+<pointSetProductDescriptions>
+
+  <default>
+    <matches>
+      <match pattern="^nos\.leofs\.fields\.[nf].*">
+        <filename />
+      </match>
+    </matches>
+
+    <triangulation type="delauney" maxRadius="7000"/>
+
+    <level>
+      <dimension name="siglay" />
+      <masterLevel>
+        <value value="SCOORD" />
+      </masterLevel>
+      <levelOneValue>
+        <values>
+          <value>-0.025</value>
+          <value>-0.075</value>
+          <value>-0.125</value>
+          <value>-0.175</value>
+          <value>-0.225</value>
+          <value>-0.275</value>
+          <value>-0.325</value>
+          <value>-0.375</value>
+          <value>-0.425</value>
+          <value>-0.475</value>
+          <value>-0.525</value>
+          <value>-0.575</value>
+          <value>-0.625</value>
+          <value>-0.675</value>
+          <value>-0.725</value>
+          <value>-0.775</value>
+          <value>-0.825</value>
+          <value>-0.875</value>
+          <value>-0.925</value>
+          <value>-0.975</value>
+        </values>
+      </levelOneValue>
+    </level>
+  </default>
+
+  <!-- Eastward Water Velocity: u-direction -->
+  <description>
+    <data>
+        <variable name="u" />
+    </data>
+
+    <parameter>
+        <abbreviation>
+            <value value="UOGRD" />
+        </abbreviation>
+        <units>
+            <value value="m/s" />
+        </units>
+    </parameter>
+  </description>
+
+  <!-- Northward Water Velocity: v-direction -->
+  <description>
+    <data>
+        <variable name="v" />
+    </data>
+
+    <parameter>
+        <abbreviation>
+            <value value="VOGRD" />
+        </abbreviation>
+        <units>
+            <value value="m/s" />
+        </units>
+    </parameter>
+  </description>
+
+  <!-- Sea Water Temperature -->
+  <description>
+    <data>
+        <variable name="temp" />
+    </data>
+
+    <parameter>
+        <abbreviation>
+            <value value="WTMP" />
+        </abbreviation>
+        <units>
+            <value value="C" />
+        </units>
+    </parameter>
+  </description>
+
+  <!-- Zeta: Height above model sea level -->
+  <description>
+    <data>
+        <variable name="zeta" />
+    </data>
+
+    <parameter>
+        <abbreviation>
+            <value value="DSLM" />
+        </abbreviation>
+        <units>
+            <value value="m" />
+        </units>
+    </parameter>
+
+    <level>
+      <masterLevel>
+        <value value="SFC" />
+      </masterLevel>
+      <levelOneValue>
+        <value value="0.0" />
+      </levelOneValue>
+    </level>
+  </description>
+
+  <!-- Forecast data -->
+  <description>
+    <matches>
+      <match pattern="^nos\.leofs\.fields\.f.*">
+        <filename />
+      </match>
+    </matches>
+
+    <dataTime>
+      <formattedRefTime dateFormat="yyyyMMdd HH'Z'">
+        <pattern inputPattern="^nos\.leofs\.fields\.f\d{3}\.(\d{8})\.t(\d{2}z).*" outputFormat="%S %S">
+          <filename />
+        </pattern>
+      </formattedRefTime>
+
+      <epochOffsetValidTime epoch="2015-01-01 00:00:00" units="DAYS" roundTo="HOURS">
+        <variable name="time" />
+      </epochOffsetValidTime>
+    </dataTime>
+
+    <datasetId>
+        <value value="NOS-LEOFS-FORECAST" />
+    </datasetId>
+  </description>
+
+  <!-- Nowcast data -->
+  <description allowRecordOverwrite="true">
+    <matches>
+      <match pattern="^nos\.leofs\.fields\.n.*">
+          <filename />
+      </match>
+    </matches>
+
+    <dataTime>
+      <epochOffsetRefTime epoch="2015-01-01 00:00:00" units="DAYS" roundTo="HOURS">
+          <variable name="time" />
+      </epochOffsetRefTime>
+    </dataTime>
+
+    <datasetId>
+        <value value="NOS-LEOFS-NOWCAST" />
+    </datasetId>
+  </description>
+
+</pointSetProductDescriptions>

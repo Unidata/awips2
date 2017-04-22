@@ -1,0 +1,36 @@
+<HTML>
+<HEAD>
+<title>HWR NWR Threshold Parameters</title>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<IMG align=left SRC="roundup_cloud.gif"</A><P>
+<center>
+<h3><b><a name=defin>HWR NWR Threshold Parameters</a></b></h3>
+</center>
+<hr>
+<A HREF=productnwr.html>Product #</a>,  
+<a href=stationnwr.html>Station Format</a>,
+<a href=broadcast.html>Broadcast Format</a>,
+<a href=default.html>Default Format</a>,
+<a href=confignwr.html>Configuration</a>,
+<a href=helpnwr.html#helpnwr>HWR NWR Home</a>
+<hr>
+<p>
+The <B>"Wind Speed"</B> field represents the lower threshold wind speed that is necessary 
+for a threshold broadcast or default phrase to be generated.<BR><BR>
+Similarly, the <B>"Wind Gust"</B> field represents the gust value that is required for a
+threshold phrase to be generated.<BR><BR><BR>
+Whenever the visibility is at or below the <B>"Visibility"</B> threshold, a visibility phrase 
+may be generated, using the broadcast or default formats.<BR><BR>
+A heat index phrase will be generated whenever the calculated heat index exceeds or equals the 
+<B>"Heat Index"</B> threshold.<BR><BR><BR>
+The wind chill threshold is more complex, since three threshold criteria need to be met 
+for a broadcast of the wind chill index value:<BR>
+* The temperature must be at or below the <B>"Max Temp"</B> value.<BR>
+* The wind speed must be at or above the <B>"Min WS"</B> value. Do not choose a value less than 5
+mph, since the wind chill equation does not permit values below this threshold.<BR>
+* The calculated wind chill index must be at or below the <B>"WCI"</B> field.
+<p>
+<CENTER><a href=helpnwr.html>home</a></CENTER>
+</body>
+</HTML>

@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bufrua Plug-in
+Bundle-SymbolicName: com.raytheon.edex.plugin.bufrua
+Bundle-Version: 1.16.1.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: com.raytheon.edex.plugin.bufrua.dao
+Require-Bundle: com.raytheon.uf.common.dataplugin.bufrua;bundle-version="1.12.1174",
+ com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
+ com.raytheon.uf.common.datastorage;bundle-version="1.12.1174",
+ com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
+ com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
+ com.raytheon.uf.common.localization;bundle-version="1.12.1174",
+ com.raytheon.uf.common.status;bundle-version="1.12.1174",
+ com.raytheon.uf.edex.core;bundle-version="1.12.1174",
+ com.raytheon.uf.edex.database;bundle-version="1.0.0",
+ com.raytheon.uf.edex.pointdata;bundle-version="1.12.1174",
+ ucar.nc2;bundle-version="4.2.0",
+ com.raytheon.uf.common.wmo;bundle-version="1.14.0",
+ org.slf4j;bundle-version="1.7.12"

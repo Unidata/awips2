@@ -1,0 +1,286 @@
+module '*Hb'
+version = 47;
+xdesigned = 1;
+applicationName = '*Hb';
+generateNameC = * 'uhgds.c';
+generateNameExterns = * 'uhgds.h';
+generateNameResDB = * 'uhgds.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+generateMask = 39256293;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'uhgDS' : XmDialogShell {
+	arguments {
+	name = 'uhgDS';
+	lastGenName = 'uhgDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_uhgDS (Widget parent)
+';
+	XmNwidth = 350;
+	XmNheight = 580;
+	XmNallowShellResize = true;
+	XmNtitle = 'Unit Hydrograph';
+	XmNminWidth = 350;
+	XmNminHeight = 580;
+	XmNmaxWidth = 350;
+	XmNmaxHeight = 580;
+	XmNbaseWidth = 350;
+	XmNbaseHeight = 580;
+	};
+object 'uhgFM' : XmForm {
+	arguments {
+	name = 'uhgFM';
+	was_selected = true;
+	lastGenName = 'uhgFM';
+	XmNwidth = 350;
+	XmNheight = 580;
+	XmNautoUnmanage = false;
+	};
+object 'uhgimpPB' : XmPushButton {
+	arguments {
+	name = 'uhgimpPB';
+	lastGenName = 'uhgimpPB';
+	XmNwidth =  * 85;
+	XmNheight =  * 35;
+	XmNlabelString =  * 'Import';
+	};
+};
+object 'uhgaddPB' : XmPushButton {
+	arguments {
+	name = 'uhgaddPB';
+	lastGenName = 'uhgaddPB';
+	XmNwidth =  * 85;
+	XmNheight =  * 35;
+	XmNlabelString =  * 'Add';
+	};
+};
+object 'uhgmodifyPB' : XmPushButton {
+	arguments {
+	name = 'uhgmodifyPB';
+	lastGenName = 'uhgmodifyPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Modify';
+	};
+};
+object 'uhgremPB' : XmPushButton {
+	arguments {
+	name = 'uhgremPB';
+	lastGenName = 'uhgremPB';
+	XmNwidth =  * 85;
+	XmNheight =  * 35;
+	XmNlabelString =  * 'Remove';
+	};
+};
+object 'uhgstgLbl' : XmLabel {
+	arguments {
+	name = 'uhgstgLbl';
+	lastGenName = 'uhgstgLbl';
+	XmNlabelString =  * '    Area ID         Dur       Ord       Discharge';
+	XmNalignment = 0;
+	};
+};
+object 'uhgSLB' : XmScrolledList {
+	arguments {
+	name = 'uhgSLB';
+	lastGenName = 'uhgSLB';
+	};
+abstract object 'uhg_vSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'uhg_vSB';
+	};
+};
+abstract object 'uhg_hSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'uhg_hSB';
+	};
+};
+abstract object 'uhgLB' : XmList {
+	arguments {
+	name = 'uhgLB';
+	lastGenName = 'uhgLB';
+	XmNwidth =  * 244;
+	XmNheight =  * 261;
+	XmNlistSizePolicy = 2;
+	};
+};
+};
+object 'uhgstgTxt' : XmText {
+	arguments {
+	name = 'uhgstgTxt';
+	lastGenName = 'uhgstgTxt';
+	XmNmaxLength =  * 3;
+	XmNcolumns =  * 3;
+	};
+};
+object 'uhgdurTxt' : XmText {
+	arguments {
+	lastGenName = 'uhgdurTxt';
+	XmNmaxLength = 4;
+	XmNeditable = false;
+	};
+};
+object 'uhgqTxt' : XmText {
+	arguments {
+	name = 'uhgqTxt';
+	lastGenName = 'uhgqTxt';
+	XmNmaxLength =  * 8;
+	XmNcolumns =  * 10;
+	};
+};
+object 'uhgareaTxt' : XmText {
+	arguments {
+	lastGenName = 'uhgareaTxt';
+	XmNmaxLength = 8;
+	};
+};
+object 'uhgfmSP' : XmSeparator {
+	arguments {
+	name = 'uhgfmSP';
+	lastGenName = 'uhgfmSP';
+	XmNwidth =  * 966;
+	};
+};
+object 'uhgokPB' : XmPushButton {
+	arguments {
+	lastGenName = 'uhgokPB';
+	XmNwidth =  * 85;
+	XmNheight =  * 35;
+	XmNlabelString =  * 'Ok';
+	};
+};
+object 'uhgapplyPB' : XmPushButton {
+	arguments {
+	lastGenName = 'uhgapplyPB';
+	XmNwidth =  * 85;
+	XmNheight =  * 35;
+	XmNlabelString =  * 'Apply';
+	};
+};
+object 'uhgclosePB' : XmPushButton {
+	arguments {
+	lastGenName = 'uhgclosePB';
+	XmNwidth =  * 85;
+	XmNheight =  * 35;
+	XmNlabelString =  * 'Cancel';
+	};
+};
+object 'uhgdelPB' : XmPushButton {
+	arguments {
+	lastGenName = 'uhgdelPB';
+	XmNwidth =  * 85;
+	XmNheight =  * 35;
+	XmNlabelString =  * 'Delete';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 60;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 470;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -145;
+	XmNleftAttachment = 1 0 60;
+	XmNbottomAttachment = 2 0 -465;
+	XmNtopAttachment = 1 0 430;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -275;
+	XmNleftAttachment = 1 0 190;
+	XmNbottomAttachment = 2 0 -465;
+	XmNtopAttachment = 1 0 430;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 190;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 470;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -345;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -25;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -345;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -385;
+	XmNtopAttachment = 1 0 25;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -230;
+	XmNleftAttachment = 1 0 180;
+	XmNbottomAttachment = 2 0 -420;
+	XmNtopAttachment = 1 0 385;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -180;
+	XmNleftAttachment = 1 0 115;
+	XmNbottomAttachment = 2 0 -420;
+	XmNtopAttachment = 1 0 385;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -340;
+	XmNleftAttachment = 1 0 230;
+	XmNbottomAttachment = 2 0 -420;
+	XmNtopAttachment = 1 0 385;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -115;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -420;
+	XmNtopAttachment = 1 0 385;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -345;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -530;
+	XmNtopAttachment = 1 0 515;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -80;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -575;
+	XmNtopAttachment = 1 0 540;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -165;
+	XmNleftAttachment = 1 0 90;
+	XmNbottomAttachment = 2 0 -575;
+	XmNtopAttachment = 1 0 540;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -345;
+	XmNleftAttachment = 1 0 270;
+	XmNbottomAttachment = 2 0 -575;
+	XmNtopAttachment = 1 0 540;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -260;
+	XmNleftAttachment = 1 0 185;
+	XmNbottomAttachment = 2 0 -575;
+	XmNtopAttachment = 1 0 540;
+    };
+    };
+};
+};
+end module;

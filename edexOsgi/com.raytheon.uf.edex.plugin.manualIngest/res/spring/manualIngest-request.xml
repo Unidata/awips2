@@ -1,0 +1,23 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+	<camelContext id="manualFilePushContext"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+        <!-- Non clustered, specifically used by handleOUP.py to push published files directly into stream -->
+        <!-- This route does not delete the file passed!  If delete is needed, create a new route and use moveFileToArchive -->
+		<route id="manualFilePush">
+		    <from uri="jms-durable:queue:Ingest.manual?concurrentConsumers=5"/>
+			<doTry>
+			    <bean ref="stringToFile"/>
+			    <bean ref="manualProc" />
+		        <to uri="jms-durable:queue:external.dropbox"/>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:manual?level=ERROR&amp;showBody=true" />
+				</doCatch>
+			</doTry>
+		</route>
+	</camelContext>
+</beans>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<latLonGrid>
+  <!-- Based on: /rary.ohd.pproc.gribit/TEXT/w3fi71.f -->
+  <numVertCoords>0</numVertCoords>
+  <pvPL255>255</pvPL255>
+  <dataRepresentationType>0</dataRepresentationType>
+  <numberLatPoints>373</numberLatPoints>
+  <numberLonPoints>224</numberLonPoints>
+  <originLat>6050</originLat>
+  <originLon>-170250</originLon>
+  <resolutionFlag>72</resolutionFlag>
+  <extremePointLat>4750</extremePointLat>
+  <extremePointLon>-77250</extremePointLon>
+  <incrementLat>75</incrementLat>
+  <incrementLon>75</incrementLon>
+  <scanningModeFlag>64</scanningModeFlag>
+</latLonGrid>

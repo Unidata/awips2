@@ -1,0 +1,2 @@
+so it is important to check for this whenever you call "getStats". 
+

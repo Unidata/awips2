@@ -1,0 +1,12 @@
+<included>
+   <!-- Appenders shared by all EDEX logback files. -->
+   <!-- general application log --> 
+   <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+       <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/>
+   </appender>
+
+   <appender name="asyncConsole" class="ch.qos.logback.classic.AsyncAppender">
+      <appender-ref ref="console" />
+   </appender>
+
+</included>

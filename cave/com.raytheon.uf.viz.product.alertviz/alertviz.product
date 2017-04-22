@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="alertviz" id="com.raytheon.uf.viz.product.alertviz.alertviz" application="com.raytheon.uf.viz.application.application" useFeatures="true" includeLaunchers="true">
+
+   <aboutInfo>
+      <image path="/com.raytheon.viz.product.awips/icons/ipr.gif"/>
+      <text>
+         Alert Visualizer
+
+
+
+Developed on the Raytheon Visualization Environment (viz)
+      </text>
+   </aboutInfo>
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <programArgs>-data @user.home/caveData -user @user.home/caveData -clean
+      </programArgs>
+      <programArgsLin>-consoleLog
+      </programArgsLin>
+      <vmArgs>-XX:+UseConcMarkSweepGC -Xms16M -Xmx256M -Xss2024k
+-Dosgi.instance.area.readOnly=true
+-Dorg.eclipse.update.reconcile=false
+-Dqpid.dest_syntax=BURL
+-Dorg.eclipse.update.reconcile=false
+-Dorg.eclipse.swt.internal.gtk.cairoGraphics=false
+-Dorg.eclipse.ui/KEY_CONFIGURATION_ID=com.raytheon.viz.ui.cave.scheme
+-Dqpid.dest_syntax=BURL
+-Dlogback.configurationFile=logback-alertviz.xml
+-Dlogback.statusListenerClass=com.raytheon.uf.common.logback.UFLogbackInternalStatusListener
+-Dthrift.stream.maxsize=200
+      </vmArgs>
+   </launcherArgs>
+
+   <windowImages/>
+
+   <launcher name="alertviz">
+      <solaris/>
+      <win useIco="false">
+         <bmp
+            winSmallHigh="/com.raytheon.viz.ui.personalities.awips/alertViz_icon16x16_32bit.bmp"
+            winSmallLow="/com.raytheon.viz.ui.personalities.awips/alertViz_icon16x16_8bit.bmp"
+            winMediumHigh="/com.raytheon.viz.ui.personalities.awips/alertViz_icon32x32_32bit.bmp"
+            winMediumLow="/com.raytheon.viz.ui.personalities.awips/alertViz_icon32x32_8bit.bmp"
+            winLargeHigh="/com.raytheon.viz.ui.personalities.awips/alertViz_icon48x48_32bit.bmp"
+            winLargeLow="/com.raytheon.viz.ui.personalities.awips/alertViz_icon48x48_8bit.bmp"/>
+      </win>
+   </launcher>
+
+   <vm>
+      <linux include="true">jdk1.6.0</linux>
+      <windows include="true">jdk1.6.0</windows>
+   </vm>
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="com.raytheon.uf.viz.feature.alertviz" version="1.9.0.qualifier"/>
+   </features>
+
+   <configurations>
+      <plugin id="com.raytheon.uf.viz.spring.dm" autoStart="true" startLevel="4" />
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
+      <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
+   </configurations>
+
+</product>

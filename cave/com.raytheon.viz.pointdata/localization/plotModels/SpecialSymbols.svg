@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<svg width="80" height="80" 
+viewBox="0 0 80 80" 
+overflow="visible" 
+xmlns="http://www.w3.org/2000/svg" 
+xmlns:xlink="http://www.w3.org/1999/xlink">
+   <defs>
+<font id="SpecialSymbols" horiz-adv-x="7" ><font-face
+    font-family="SpecialSymbolFont"
+    units-per-em="12"
+    alphabetic="0" />
+<missing-glyph horiz-adv-x="878" d="M128 0V1238H896V0H128ZM276 148H748V1090H276V148Z" />
+<glyph unicode="75" glyph-name="75" d="M-2 -2L0 0M0 -4L2 -2M0 -4V0M-2 -2L0 -4M-2 -2H2L0 0M-1 -1H1M-1 -3H1V-1L-1 -3V-1L1 -3" />
+<glyph unicode="74" glyph-name="74" d="M-3 2V4M-3 2H3V4H-3" />
+<glyph unicode="73" glyph-name="73" d="M-2 -2L0 0L2 -2L0 -4L-2 -2" />
+<glyph unicode="72" glyph-name="72" d="M-3 -4L0 4M-3 -4H3L0 4" />
+<glyph unicode="71" glyph-name="71" d="M0 -4V4M-2 4L3 -1M-3 1L2 -4" />
+<glyph unicode="70" glyph-name="70" d="M1 -2H3M-3 2L1 -2M-3 4V2M-3 4L-2 3V2L1 -1H2L3 -2M-1 1L2 4H3V3L0 0M-1 0L3 4M-2 -3V1M-3 -3H-2M-3 -4V-3M-3 -4H0L-1 -3V-1H0" />
+<glyph unicode="69" glyph-name="69" d="M-3 -4V4M-3 -4H3V4H-3M-2 -3V3M-2 -3H2V3H-2" />
+<glyph unicode="68" glyph-name="68" d="M-3 4H3V-4H-3V4M-3 0L0 3L3 0L0 -3L-3 0" />
+<glyph unicode="67" glyph-name="67" d="M-3 2L-1 4M-3 -1V2M-3 -1L-1 -3H1L3 -1V2L1 4H-1M-1 1L0 2M-1 0V1M-1 0L0 -1L1 0V1L0 2V-1" />
+<glyph unicode="66" glyph-name="66" d="M-3 2V4M-3 2H-1V4H-3M-2 3H2M1 2V4M1 2H3M1 4H3M-2 0V3M-2 0H-1M-1 -4H1V-1H2V0L3 1V4M2 3L3 2M-1 -2H1M-1 0V-4M-1 -3H1" />
+<glyph unicode="65" glyph-name="65" d="M-3 1L0 4M-3 -1V1M-3 -1L0 -4L3 -1V1L0 4" />
+<glyph unicode="64" glyph-name="64" d="M-3 0V2M3 0V2M-1 4H1M-1 -2H1M-3 2L-1 4M1 4L3 2M-3 0L-1 -2M1 -2L3 0M0 1V4M0 1H3M0 2H3M0 3H2M1 1V4M2 3V1" />
+<glyph unicode="63" glyph-name="empty" d="M0 0" />
+<glyph unicode="62" glyph-name="empty" d="M0 0" />
+<glyph unicode="61" glyph-name="empty" d="M0 0" />
+<glyph unicode="60" glyph-name="60" d="M-3 3L3 -3M-3 -3L3 3" />
+<glyph unicode="59" glyph-name="59" d="M0 3V-3L-3 0H3M-3 0L0 3M-2 1H2M0 3L3 0M-1 2H1M0 -3L3 0M-2 -1H2M-1 -2H1M-2 -1V1M-1 2V-2M1 -2V2M2 1V-1" />
+<glyph unicode="58" glyph-name="58" d="M-3 0H3M0 3V-3" />
+<glyph unicode="57" glyph-name="57" d="M-3 1L-1 3H1L3 1V-1L1 -3H-1L-3 -1V1M-2 -2L2 2M-2 2L2 -2" />
+<glyph unicode="56" glyph-name="56" d="M-1 -3V3M0 3V-3M1 -3V3M2 2V-2M-3 1H3M-3 0H3M-3 -1H3M-2 -2H2M-2 2H2M-2 -2V2M-3 1L-1 3M-3 -1V1M-3 -1L-1 -3H1L3 -1V1L1 3H-1" />
+<glyph unicode="55" glyph-name="55" d="M-2 -4H2L0 4L-2 -4M0 2L2 -4M-2 -4L0 2M0 0L2 -4M-2 -4L0 0M-2 -4L0 -1L2 -4L0 -2L-2 -4L0 -3L2 -4M0 4V-4" />
+<glyph unicode="54" glyph-name="54" d="M-2 -4H2L0 4L-2 -4" />
+<glyph unicode="53" glyph-name="53" d="M-2 -1V3M2 -1V3M-2 3L0 1L2 3" />
+<glyph unicode="52" glyph-name="52" d="M3 0V2M-1 4H1L3 2M-2 -1L2 3M-3 2L-1 4M-3 2V0L-1 -2H1L3 0M-2 3L2 -1" />
+<glyph unicode="51" glyph-name="51" d="M0 -2V4M-3 0V2M3 0V2M-1 4H1M-3 2L-1 4M1 4L3 2M-3 0L-1 -2M1 -2L3 0M-1 -2H1M-3 1H3" />
+<glyph unicode="50" glyph-name="50" d="M-1 -2V4M1 -2V4M-3 0V2M-2 3H-1M1 3H2M-2 -1H-1M1 -1H2M-3 2L-1 4H1L3 2V0L1 -2H-1L-3 0M-2 3V-1M2 -1V3M1 2H3M1 1H3M1 0H3M-3 2H-1M-3 1H-1M-3 0H-1" />
+<glyph unicode="49" glyph-name="49" d="M0 -2V4M-3 0V2M3 0V2M-1 4H1M-3 2L-1 4M1 4L3 2M-3 0L-1 -2M1 -2L3 0M-1 -2H1" />
+<glyph unicode="48" glyph-name="48" d="M-3 0V2M3 0V2M-1 4H1M-1 -2H1M-3 2L-1 4M1 4L3 2M-3 0L-1 -2M1 -2L3 0" />
+<glyph unicode="47" glyph-name="empty" d="M0 0" />
+<glyph unicode="46" glyph-name="empty" d="M0 0" />
+<glyph unicode="45" glyph-name="empty" d="M0 0" />
+<glyph unicode="44" glyph-name="44" d="M-2 -4L3 1M-2 -4L0 4M-3 1H3M0 4L2 -4L-3 1" />
+<glyph unicode="43" glyph-name="43" d="M-1 -3V4M0 -3V4M1 -3V4M-2 -2V3M2 -2V3M-3 -1V2L-1 4H1L3 2V-1L1 -3H-1L-3 -1" />
+<glyph unicode="42" glyph-name="42" d="M-3 0H3M0 4L3 1M-3 0V1L0 4" />
+<glyph unicode="41" glyph-name="41" d="M-3 0V2M3 0V2M-1 4H1M-1 -2H1M-3 2L-1 4M1 4L3 2M-3 0L-1 -2M1 -2L3 0" />
+<glyph unicode="40" glyph-name="40" d="M3 -2V4H-3V-2H3" />
+<glyph unicode="39" glyph-name="39" d="M0 -4V4M1 -4V4M-3 0V1M-3 0L0 3H1L3 1M1 4L3 2M0 4H1M-3 1L0 4M0 -4H1" />
+<glyph unicode="38" glyph-name="38" d="M-3 -3H3M3 -1V0M-3 -3V-2L-2 -1V0L-1 1V2L0 3V4H1V3L2 2V1L3 0" />
+<glyph unicode="37" glyph-name="37" d="M-3 4L3 -2M-3 -3L3 3" />
+<glyph unicode="36" glyph-name="36" d="M-3 4H3M-3 4V3L-2 2V1L-1 0V-1L0 -2V-3H1V-2L2 -1V0L3 1V2" />
+<glyph unicode="35" glyph-name="35" d="M0 -1V2M1 -1V2M-1 0V1L0 2H1L2 1V0L1 -1H0L-1 0" />
+<glyph unicode="34" glyph-name="34" d="M0 -3V4M1 -3V4M-3 1H3M-3 0V1M-3 0H3M0 -3H1M0 4H1" />
+<glyph unicode="33" glyph-name="33" d="M-3 -1V2M-1 4H2M-1 -3H2M-3 2L-1 4M2 4L3 3M-3 -1L-1 -3M2 -3L3 -2" />
+<glyph unicode="32" glyph-name="empty" d="M0 0" />
+<glyph unicode="31" glyph-name="empty" d="M0 0" />
+<glyph unicode="30" glyph-name="empty" d="M0 0" />
+<glyph unicode="29" glyph-name="empty" d="M0 0" />
+<glyph unicode="28" glyph-name="empty" d="M0 0" />
+<glyph unicode="27" glyph-name="empty" d="M0 0" />
+<glyph unicode="26" glyph-name="empty" d="M0 0" />
+<glyph unicode="25" glyph-name="empty" d="M0 0" />
+<glyph unicode="24" glyph-name="empty" d="M0 0" />
+<glyph unicode="23" glyph-name="empty" d="M0 0" />
+<glyph unicode="22" glyph-name="empty" d="M0 0" />
+<glyph unicode="21" glyph-name="empty" d="M0 0" />
+<glyph unicode="20" glyph-name="empty" d="M0 0" />
+<glyph unicode="19" glyph-name="empty" d="M0 0" />
+<glyph unicode="18" glyph-name="empty" d="M0 0" />
+<glyph unicode="17" glyph-name="empty" d="M0 0" />
+<glyph unicode="16" glyph-name="empty" d="M0 0" />
+<glyph unicode="15" glyph-name="empty" d="M0 0" />
+<glyph unicode="14" glyph-name="empty" d="M0 0" />
+<glyph unicode="13" glyph-name="empty" d="M0 0" />
+<glyph unicode="12" glyph-name="empty" d="M0 0" />
+<glyph unicode="11" glyph-name="empty" d="M0 0" />
+<glyph unicode="10" glyph-name="empty" d="M0 0" />
+<glyph unicode="9" glyph-name="empty" d="M0 0" />
+<glyph unicode="8" glyph-name="empty" d="M0 0" />
+<glyph unicode="7" glyph-name="empty" d="M0 0" />
+<glyph unicode="6" glyph-name="empty" d="M0 0" />
+<glyph unicode="5" glyph-name="empty" d="M0 0" />
+<glyph unicode="4" glyph-name="empty" d="M0 0" />
+<glyph unicode="3" glyph-name="empty" d="M0 0" />
+<glyph unicode="2" glyph-name="empty" d="M0 0" />
+<glyph unicode="1" glyph-name="empty" d="M0 0" />
+<glyph unicode="0" glyph-name="empty" d="M0 0" />
+</font>
+</defs>
+</svg>
+

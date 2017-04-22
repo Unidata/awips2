@@ -1,0 +1,4 @@
+C                                           *--> FROM SCOMMON.SARRYX
+C  WORK ARRAY COMMON BLOCK
+      COMMON /SARRYX/ LARRAY,ARRAY(75000)
+C

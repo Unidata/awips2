@@ -1,0 +1,3 @@
+Now the phrases will automatically reflect whatever temporal resolution is represented by the duration of the grids. 
+
+PLEASE NOTE:  You should only use this temporal resolution IF you using the duration of the Wx grids to indicate the duration of weather events.  IF, on the other hand, you are producing hourly Wx grids through interpolation, this could yield cumbersome, lengthy phrases.  In this case, keep the default temporal resolution for the product.

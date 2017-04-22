@@ -1,0 +1,114 @@
+C MODULE DFPSMAIN
+C-----------------------------------------------------------------------
+C
+C    MAIN ROUTINE FOR PROGRAM SHEFPOST.
+C
+C    THIS IS THE DRIVER FOR THE POSTING PROGRAM. IT OPENS THE PPDB
+C    FILES AND READS IN THE PPDB CONTROLS AND THE SHEF/PPDB
+C    TRANSLATION TABLE. IT SETS THE REVISION FLAG BASED ON THE USER
+C    OPTION TO OVERRIDE THE REVISION INDICATOR IN EACH RECORD.
+C    THE POSTING PROGRAM IS THEN CALLED TO PROCESS THE DATA BEFORE
+C    WRITING TO THE PPDB AND PRODUCING A REPORT.
+C
+      SUBROUTINE DFPSMAIN_MAIN
+C
+      PARAMETER (MSHPDB=60)
+      DIMENSION ISHPDB(9,MSHPDB)
+C
+      INCLUDE 'uiox'
+      INCLUDE 'upagex'
+      INCLUDE 'dfcommon/dfunts'
+      INCLUDE 'hclcommon/hdflts'
+      INCLUDE 'pdbcommon/pdenqx'
+      INCLUDE 'pdbcommon/pdunts'
+      COMMON /FCTIME/ IFCD1(11),LOCALF,NOUTZ,NOUTDS,NLSTZF,IFCD2(5)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/shefpost/RCS/dfpsmain.f,v $
+     . $',                                                             '
+     .$Id: dfpsmain.f,v 1.7 2004/08/11 13:18:58 hank Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C     Subroutine ARGVER outputs the version/date info and exits the
+C      program if the first command line argument is "-version"
+C
+      CALL ARGVER()
+C
+
+      CALL UPRIMO_POST()
+C
+C  SET OPTIONS FOR UTILITY ROUTINES
+      IPAGE=0
+      IERPRT=0
+      ICDPRT=0
+      ITMPRT=1
+      CALL USETOP (IPAGE,IERPRT,ICDPRT,ITMPRT)
+      CALL USETO1 ('NOOVERPRINT',IERR)
+      NPAGSZ=80
+      CALL USETPS (NPAGSZ,0,0,IERR)
+C
+C  READ USER PARAMETERS
+      CALL HGETPM (ISTAT)
+C
+C  SET USER NAME
+      IF (ISTAT.EQ.0) THEN
+         CALL SUBSTR (HNAMRF,1,8,PUSRID,1)
+         LOCALF=LOCAL
+         NLSTZF=NLSTZ
+         ENDIF
+C
+      CALL UPAGE (LP)
+C
+C  READ SHEF TO PPDB TRANSLATION INFORMATION
+      NSHPDB=0
+      CALL DFRSPD (MSHPDB,ISHPDB,NSHPDB,ISTAT)
+      IF (ISTAT.NE.0) GO TO 20
+C
+C  SET INDICATOR TO ENQ PREPROCESSOR DATA BASE
+      IPDENQ=0
+C
+C  READ PREPROCESSOR DATA BASE CONTROLS
+      CALL RPPDCO (ISTAT)
+      IF (ISTAT.NE.0) THEN
+         WRITE (LP,10) 'OPENING',ISTAT
+10    FORMAT (' **ERROR** ',A,'PREPROCESSOR DATA BASE. ISTAT=',I2)
+         GO TO 20
+         ENDIF
+C
+C  READ PPDB INDEX ARRAYS, READ CONTROL CARDS, CALL POSTING ROUTINE
+      CALL RPDHSH (1,ISTAT)
+      IF (ISTAT.NE.0) GO TO 20
+      CALL DAPSCM (IREVSN,IERNPR,ISTAT)
+      IF (ISTAT.NE.0) GO TO 20
+      JPRINT=0
+      CALL DFPOST (MSHPDB,ISHPDB,NSHPDB,IREVSN,IERNPR,PUSRID,JPRINT)
+C
+C  UPDATE CONTROLS
+      CALL WPPDCO (ISTAT)
+      IF (ISTAT.NE.0) WRITE (LP,10) 'CLOSING',ISTAT
+C
+20    IUSTOP=-1
+      CALL USTOP (LP,IUSTOP)
+C
+C  CLOSE ALL FILES
+      CALL UCLOSL
+C
+C  CLOSE UNITS
+      IF (ICD   .NE.1) CALL UPCLOS (ICD,   ' ',ISTAT)
+      IF (LP    .NE.1) CALL UPCLOS (LP,    ' ',ISTAT)
+      IF (LPE   .NE.1) CALL UPCLOS (LPE,   ' ',ISTAT)
+      IF (KFSOUT.NE.1) CALL UPCLOS (KFSOUT,' ',ISTAT)
+C
+CHDH  Change made on 2004-06-22 by Hank Herr.  Use new lock mech.
+C      CALL FREE_OFS_LOCK(ISTAT)
+      CALL HUNLOCKFILES('SHEFPOST',ISTAT)
+C
+      CALL USTOP2
+C
+      STOP
+C
+      END

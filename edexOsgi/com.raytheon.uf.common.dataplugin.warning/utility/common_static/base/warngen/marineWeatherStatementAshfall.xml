@@ -1,0 +1,155 @@
+<!--Generic Marine Weather Statement configuration -->
+<warngenConfig>
+<!-- Original MWS template by Phil Kurimski WFO DTX
+     Customized by Tom Birchard WFO DTX 23 September 2011 for Ashfall 
+                   Evan Bookbinder 09-11-2012 Added settings for locations shapefile   
+                                              Added new areaSource objects  
+                   Phil Kurimski   09-19-2013 added geospatialConfig.xml
+-->
+
+<!-- INCLUDE ALL GEOSPTATIAL INFORMATION FOR THIS PRODUCT
+ANY pointSource/areaSource/pathcastConfig OVERRIDES TO THAT FILE CAN BE
+PLACED IN FULL BELOW THE INCLUDE LINE BELOW. -->
+<include file="geospatialConfig_MARINE.xml"/>
+
+<!-- Include Various geospatial XML files to create their objects. These are *NOT*
+turned on unless the corresponding .vm file is turned on in a given template's .vm file
+-->  
+<include file="mileMarkers.xml"/>
+<!-- To enable, make sure mileMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
+<include file="pointMarkers.xml"/>
+<!-- To enable, make sure pointMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
+
+ <!-- Config distance/speed units -->
+ <unitDistance>nmi</unitDistance>
+ <unitSpeed>kn</unitSpeed>
+
+ <!-- Maps to load on template selection. Refer to 'Maps' menu in CAVE. 
+ 	The various menu items are also the different maps
+ 	that can be loaded with each template. -->
+ <maps>
+  <map>Coastal Marine Zones</map>
+ </maps>
+ 
+ <!-- Followups: VTEC actions of allowable followups when this template is selected 
+	Each followup will become available when the appropriate time range permits.
+ -->
+ <followups>
+  <followup>NEW</followup>
+  <followup>COR</followup>
+ </followups>
+ 
+ <!-- Product ID: nnn id of the product -->
+ <productId>MWS</productId>
+
+ <!-- Phensigs: The list of phenomena and significance combinations that this template applies to -->
+ <phensigs>
+   <phensig>MA.S</phensig>
+ </phensigs>
+ 
+  <!-- Enables/disables user from selecting the Restart button the GUI -->
+ <enableRestart>true</enableRestart>
+ 
+  <!-- Enable/disables the system to lock text based on various patterns -->
+ <autoLockText>true</autoLockText>
+
+ <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
+ 	included with the warning product include TO.A and/or SV.A, 
+ 	respectively. Please refer to 'includedWatchAreaBuffer' in <areaConfig/>. -->
+ <includedWatches>
+  <includedWatch>TO.A</includedWatch>
+  <includedWatch>SV.A</includedWatch>
+ </includedWatches>
+ 
+ <!-- durations: the list of possible durations -->
+ <defaultDuration>60</defaultDuration>
+ <durations>
+  <duration>10</duration>
+  <duration>15</duration>
+  <duration>20</duration>
+  <duration>25</duration>
+  <duration>30</duration>
+  <duration>40</duration>
+  <duration>45</duration>
+  <duration>50</duration>
+  <duration>60</duration>
+  <duration>90</duration>
+  <duration>120</duration>
+ </durations>
+  
+ <!-- Customized several sections in bullet section including:
+ 	Placed Basis Section at the top to come in line with SVR templates
+	Added Satellite Imagery to Basis Section
+	Removed line selections in Basis Section
+		Line phenomena will be determined by Track Type
+	Added Shower...Cloud and Front to Event Type Section
+	Added a Threat Section with selections for Wind...Hail and Waterspouts 
+        Added CTA statements for the possibility of a SMW 
+        Changed the CTA Bullet names for easier parsing in the vm file 
+        Added Special Event option to Pathcast section
+        Placed CTA section at the bottom to come in line with SVR templates -->
+<bulletActionGroups>
+<bulletActionGroup action="NEW" phen="MA" sig="S">
+ <bullets>
+  <bullet bulletText="  *****HEADLINE SECTION*****...(Choose 1) " bulletType="title"/>
+  <bullet bulletName="ashadv" bulletText="Ashfall advisory" bulletGroup="group2" bulletDefault="true" parseString="ASHFALL ADVISORY"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="  *****BASIS SECTION*****...(Choose 1) " bulletType="title"/>
+  <bullet bulletName="seismic" bulletText="Seismic activity and satellite imagery indicated eruption" bulletGroup="group5" bulletDefault="true" parseString="SEISMIC ACTIVITY AND SATELLITE IMAGERY INDICATED"/>
+  <bullet bulletName="reports" bulletText="Reports indicated eruption" bulletGroup="group5" parseString="REPORTS INDICATED"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="  ****EVENT TYPE SECTION****...(Choose 1) " bulletType="title"/>
+  <bullet bulletName="va" bulletText="Volcanic Ash" bulletGroup="group1" bulletDefault="true" parseString="VOLCANIC ASH"/>
+  <bullet bulletName="lightva" bulletText="Light Volcanic Ashfall" bulletGroup="group1" parseString="LIGHT VOLCANIC ASH"/>
+  <bullet bulletName="verylightva" bulletText="Very Light Volcanic Ashfall" bulletGroup="group1" parseString="VERY LIGHT VOLCANIC ASH"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="  *****VISIBILITY SECTION*****...(Choose 1) " bulletType="title"/>
+  <bullet bulletName="vis2nm" bulletText="Visibility less than 2 NM" bulletGroup="group4" bulletDefault="true" parseString="APPROACHING THE COASTAL WATERS"/>
+  <bullet bulletName="vis3nm" bulletText="Visibility less than 3 NM" bulletGroup="group4" parseString="OVER THE COASTAL WATERS"/>
+  <bullet bulletName="visnear5nm" bulletText="Visibility near 5 NM" bulletGroup="group4" parseString="OVER THE COASTAL WATERS"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="*********** Pathcast Section **********" bulletType="title"/>
+  <bullet bulletName="pathcast" bulletText="select for pathcast" bulletGroup="group3" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listoflocations" bulletDefault="true" bulletText="Select for a list of locations" bulletGroup="group3"/>
+  <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" bulletGroup="group3" parseString="THOSE ATTENDING"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText=" *****Call to Action SECTION*****" bulletType="title"/>
+  <bullet bulletName="ashCTA" bulletText="Ashfall Calls To Action" bulletDefault="true" parseString="LOCALLY HIGHER WAVES...AND LIGHTNING STRIKES"/>
+  <bullet bulletName="reportCTA" bulletText="Report severe weather to coast guard" parseString="REPORT SEVERE WEATHER TO THE COAST GUARD"/>
+ </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="COR" phen="MA" sig="S">
+ <bullets>
+  <bullet bulletText="  *****HEADLINE SECTION*****...(Choose 1) " bulletType="title"/>
+  <bullet bulletName="ashadv" bulletText="Ashfall advisory" bulletGroup="group2" bulletDefault="true" parseString="ASHFALL ADVISORY"/>
+  <bullet bulletName="approachHead" bulletText="Approaching waters" bulletGroup="group2" parseString="APPROACHING THE COASTAL WATERS"/>
+  <bullet bulletName="overHead" bulletText="Over the waters" bulletGroup="group2" parseString="OVER THE COASTAL WATERS"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="  *****BASIS SECTION*****...(Choose 1) " bulletType="title"/>
+  <bullet bulletName="seismic" bulletText="Seismic activity and satellite imagery indicated eruption" bulletGroup="group5" bulletDefault="true" parseString="SEISMIC ACTIVITY AND SATELLITE IMAGERY INDICATED"/>
+  <bullet bulletName="reports" bulletText="Reports indicated eruption" bulletGroup="group5" parseString="REPORTS INDICATED"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="  ****EVENT TYPE SECTION****...(Choose 1) " bulletType="title"/>
+  <bullet bulletName="va" bulletText="Volcanic Ash" bulletGroup="group1" bulletDefault="true" parseString="VOLCANIC ASH"/>
+  <bullet bulletName="lightva" bulletText="Light Volcanic Ash" bulletGroup="group1" parseString="LIGHT VOLCANIC ASH"/>
+  <bullet bulletName="verylightva" bulletText="Very Light Volcanic Ash" bulletGroup="group1" parseString="VERY LIGHT VOLCANIC ASH"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="  *****VISIBILITY SECTION*****...(Choose 1) " bulletType="title"/>
+  <bullet bulletName="vis2nm" bulletText="Visibility less than 2 NM" bulletGroup="group4" bulletDefault="true" parseString="APPROACHING THE COASTAL WATERS"/>
+  <bullet bulletName="vis3nm" bulletText="Visibility less than 3 NM" bulletGroup="group4" parseString="OVER THE COASTAL WATERS"/>
+  <bullet bulletName="visnear5nm" bulletText="Visibility near 5 NM" bulletGroup="group4" parseString="OVER THE COASTAL WATERS"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="*********** Pathcast Section **********" bulletType="title"/>
+  <bullet bulletName="pathcast" bulletText="select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listoflocations" bulletText="Select for a list of locations" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;"/>
+  <bullet bulletName="listoflocations" bulletText="Select for a list of locations" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>  
+  <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
+  <bullet bulletText="" bulletType="title"/>
+   <bullet bulletText=" *****Call to Action SECTION*****" bulletType="title"/>
+  <bullet bulletName="ashCTA" bulletText="Ashfall Calls to Action" bulletDefault="true" parseString="LOCALLY HIGHER WAVES...AND LIGHTNING STRIKES"/>
+  <bullet bulletName="reportCTA" bulletText="Report severe weather to coast guard" parseString="REPORT SEVERE WEATHER TO THE COAST GUARD"/>
+ </bullets>
+</bulletActionGroup>
+</bulletActionGroups>
+
+</warngenConfig>

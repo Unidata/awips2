@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+    COMMENT:
+    
+    
+    AWIPS 1 format
+    cTOT | |N |Cross Totals    | |CONTOUR,IMAGE,OTHER|Layer|*Difference,Layer|DpT,850MB|T,500MB
+    
+    
+    abbreviation: |cTOT| 
+    Notused1: | | 
+    Notused2: |N | 
+    name: |Cross Totals    | 
+    FIELD: || 
+    FIELD: |CONTOUR,IMAGE,OTHER| 
+    FIELD: |Layer| 
+    FIELD: |DpT,850MB| 
+    FIELD: |T,500MB| 
+    
+    
+    NEW FILE - cTOT.xml
+    -->
+<DerivedParameter unit="C" name="Cross Totals" abbreviation="cTOT" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="Layer" name="Difference">
+        <Field level="850MB" abbreviation="DpT"/>
+        <Field level="500MB" abbreviation="T"/>
+    </Method>
+</DerivedParameter>

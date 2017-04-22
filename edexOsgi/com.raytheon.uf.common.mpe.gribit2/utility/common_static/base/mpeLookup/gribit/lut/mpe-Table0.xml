@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<table0>
+  <!-- TABLE 0 - NATIONAL/INTERNATIONAL ORIGINATING CENTERS. Ported from: 
+    /rary.ohd.pproc.gribit/TEXT/bdgparm.f. -->
+  <center>
+    <num>07</num>
+    <name>US National Weather Service - NCEP (WMC)</name>
+  </center>
+  <center>
+    <num>08</num>
+    <name>US National Weather Service - NWSTG (WMC)</name>
+  </center>
+  <center>
+    <num>09</num>
+    <name>US National Weather Service - Other (Field Stations)</name>
+  </center>
+  <center>
+    <num>53</num>
+    <name>Canadian Meteorological Service - Montreal (RSMC)</name>
+  </center>
+  <center>
+    <num>55</num>
+    <name>San Francisco</name>
+  </center>
+  <center>
+    <num>57</num>
+    <name>US Air Force - Global Weather Center</name>
+  </center>
+  <center>
+    <num>58</num>
+    <name>US Navy - Fleet Numerical Oceanography Center</name>
+  </center>
+  <center>
+    <num>59</num>
+    <name>NOAA Forecast Systems Lab, Boulder CO</name>
+  </center>
+  <center>
+    <num>60</num>
+    <name>National Center for Atmospheric Research (NCAR), Boulder CO
+    </name>
+  </center>
+  <center>
+    <num>64</num>
+    <name>Honolulu</name>
+  </center>
+</table0>

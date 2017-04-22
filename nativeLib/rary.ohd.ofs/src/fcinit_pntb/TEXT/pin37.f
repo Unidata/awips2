@@ -1,0 +1,390 @@
+C MEMBER PIN37
+C  (from old member FCPIN37)
+C
+      SUBROUTINE PIN37(PO,LEFTP,IUSEP,P,MP)
+C........................................
+C     THIS IS THE INPUT ROUTINE FOR THE 'LIST-MSP' OPERATION.
+C........................................
+C      WRITTEN BY ERIC ANDERSON-HRL JULY 1987
+C........................................
+C     SET REAL AND INTEGER SEGMENT NAME EQUAL
+      EQUIVALENCE (ISEG(1),SEG(1))
+C........................................
+      DIMENSION PO(1),P(MP)
+      DIMENSION SNAME(2),APITYP(2),APINME(2),SNWTYP(2),SNWNME(2),SEG(2)
+C
+C     COMMON BLOCKS
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/where'
+      INCLUDE 'common/fprog'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_pntb/RCS/pin37.f,v $
+     . $',                                                             '
+     .$Id: pin37.f,v 1.1 1995/09/17 18:48:33 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C     DATA STATEMENTS
+      DATA SNAME/4HPIN3,4H7   /,FNONE/4HNONE/,BLANK/4H    /
+      DATA API/4HAPI-/,FMKC/4HMKC /,CIN/4HCIN /,SLC/4HSLC /,HAR/4HHAR /
+      DATA SNOW/4HSNOW/,H17/4H-17 /,ALL/4HALL /,FINFW/4HINFW/
+C........................................
+C     TRACE LEVEL=1,DEBUG SWITCH=IBUG
+      CALL FPRBUG(SNAME,1,37,IBUG)
+C........................................
+C     INITIALIZE CONTROL VARIABLES
+      IUSEP=0
+      IVER=1
+      IAPI=1
+      ISNW=1
+      IDISPL=0
+C........................................
+C     READ INPUT CARD AND CHECK VALUES.
+      READ(IN,900) APITYP,APINME,SNWTYP,SNWNME,DISPL
+  900 FORMAT (2A4,3(2X,2A4),2X,A4)
+      IF((APITYP(1).EQ.FNONE).AND.(APITYP(2).EQ.BLANK)) IAPI=0
+      IF((SNWTYP(1).EQ.FNONE).AND.(SNWTYP(2).EQ.BLANK)) ISNW=0
+      IF((IAPI.EQ.1).OR.(ISNW.EQ.1)) GO TO 100
+      WRITE (IPR,901)
+  901 FORMAT (1H0,10X,56H**ERROR** NEITHER AN API OR SNOW OPERATION IS I
+     1NDICATED.,2X,31HAT LEAST ONE MUST BE SPECIFIED.)
+      CALL ERROR
+      GO TO 199
+C........................................
+C     TRY TO LOCATE API OPERATION
+  100 LAPI=0
+      IF (IAPI.EQ.0) GO TO 110
+      IF (APITYP(1).NE.API) GO TO 101
+      IF((APITYP(2).EQ.FMKC).OR.(APITYP(2).EQ.CIN).OR.(APITYP(2).EQ.SLC)
+     *.OR.(APITYP(2).EQ.HAR)) GO TO 105
+  101 WRITE(IPR,902) APITYP
+  902 FORMAT (1H0,10X,9H**ERROR**,1X,2A4,1X,
+     * 39HIS NOT A VALID API OPERATION IDENTIFIER)
+      CALL ERROR
+      GO TO 110
+  105 CALL FOPCDE(APITYP,NAPI)
+      IF (NAPI.EQ.0) GO TO 101
+      IF((APINME(1).NE.BLANK).OR.(APINME(2).NE.BLANK))GO TO 106
+      APINME(1)=SEG(1)
+      APINME(2)=SEG(2)
+  106 CALL FSERCH(NAPI,APINME,LAPI,P,MP)
+      IF (LAPI.GT.0) GO TO 110
+      WRITE (IPR,903) APITYP,APINME
+  903 FORMAT (1H0,10X,25H**ERROR** OPERATION(TYPE=,2A4,2X,5HNAME=,2A4,
+     * 44H) DOES NOT EXIST PREVIOUSLY IN THIS SEGMENT.)
+      CALL ERROR
+C........................................
+C     TRY TO LOCATE SNOW MODEL OPERATION
+  110 LSNW=0
+      IF(ISNW.EQ.0) GO TO 119
+      IF ((SNWTYP(1).EQ.BLANK).AND.(SNWTYP(2).EQ.BLANK)) GO TO 114
+      IF (SNWTYP(1).NE.SNOW) GO TO 111
+      IF (SNWTYP(2).EQ.H17) GO TO 115
+  111 WRITE (IPR,904) SNWTYP
+  904 FORMAT (1H0,10X,9H**ERROR**,1X,2A4,1X,
+     * 40HIS NOT A VALID SNOW OPERATION IDENTIFIER)
+      CALL ERROR
+      GO TO 120
+  114 SNWTYP(1)=SNOW
+      SNWTYP(2)=H17
+  115 CALL FOPCDE (SNWTYP,NSNW)
+      IF (NSNW.EQ.0) GO TO 111
+      IF((SNWNME(1).NE.BLANK).OR.(SNWNME(2).NE.BLANK)) GO TO 117
+      IF (LAPI.EQ.0) GO TO 116
+      SNWNME(1)=APINME(1)
+      SNWNME(2)=APINME(2)
+      GO TO 117
+  116 SNWNME(1)=SEG(1)
+      SNWNME(2)=SEG(2)
+  117 CALL FSERCH(NSNW,SNWNME,LSNW,P,MP)
+      IF (LSNW.GT.0) GO TO 120
+      WRITE (IPR,903) SNWTYP,SNWNME
+      CALL ERROR
+      GO TO 120
+  119 SNWTYP(1)=BLANK
+C........................................
+C     CHECK DISPLAY CONTROL IF CALIBRATION PROGRAM
+  120 IF (MAINUM.LT.3) GO TO 130
+      IDISPL=2
+      IF (DISPL.EQ.ALL) IDISPL=1
+      IF (DISPL.EQ.FINFW)IDISPL=3
+C........................................
+C     CHECK IF EITHER OPERATION EXISTS
+  130 IF((LAPI.EQ.0).AND.(LSNW.EQ.0)) GO TO 199
+      IF((IAPI.EQ.1).AND.(LAPI.EQ.0)) GO TO 199
+      IF((ISNW.EQ.1).AND.(LSNW.EQ.0)) GO TO 199
+C     ALL OPERATIONS SPECIFIED WER FOUND.
+C........................................
+C     CHECK REMAINING VALUES AND DETERMINE SPACE NEEDED.
+C         COMPUTATIONAL TIME INTERVAL MUST BE 6.
+      IER=0
+C
+C     MAKE SURE API BASIC TIME INTERVAL IS 6.
+      IDT=0
+      LRM=0
+      IF (IAPI.EQ.0) GO TO 135
+      IF((APITYP(2).NE.CIN).AND.(APITYP(2).NE.FMKC)) GO TO 131
+      IDT=P(LAPI+12)
+      LRM=LAPI+13
+      GO TO 133
+  131 IF (APITYP(2).NE.HAR) GO TO 132
+      IDT=P(LAPI+19)
+      LRM=LAPI+25
+      GO TO 133
+  132 IF (APITYP(2).NE.SLC) GO TO 134
+      IDT=P(LAPI+10)
+      LRM=LAPI+11
+  133 IF (IDT.EQ.6) GO TO 140
+      WRITE (IPR,908) APITYP,APINME,IDT
+  908 FORMAT (1H0,10X,61H**ERROR** THE API MODEL RAIN+MELT TIME INTERVAL
+     * MUST EQUAL 6.,/16X,2A4,2X,2A4,1X,23HUSES A TIME INTERVAL OF,I3)
+      CALL ERROR
+  134 IER=1
+      GO TO 175
+C
+C     VERIFY RAIN+MELT EXISTS FOR SNOW MODEL AND TIME INTERVAL IS 6.
+  135 L=P(LSNW+16)
+      IF (L.GT.0) GO TO 136
+      WRITE(IPR,909) SNWTYP,SNWNME
+  909 FORMAT (1H0,10X,29H**ERROR** THE SNOW OPERATION(,2A4,2X,2A4,44H) D
+     *OES NOT GENERATE A RAIN+MELT TIME SERIES.)
+      CALL ERROR
+      IER=1
+      GO TO 175
+  136 LRM=LSNW+L-1
+      IDT=P(LSNW+13)
+      IF (IDT.EQ.6) GO TO 140
+      WRITE (IPR,905) SNWTYP,SNWNME,IDT
+  905 FORMAT(1H0,10X,62H**ERROR** THE SNOW MODEL RAIN+MELT TIME INTERVAL
+     * MUST EQUAL 6.,/16X,2A4,2X,2A4,1X,23HUSES A TIME INTERVAL OF,I3)
+      CALL ERROR
+      IER=1
+      GO TO 175
+C
+C     LOCATE RUNOFF TIME SERIES
+  140 LRO=0
+      IF (IAPI.EQ.0) GO TO 141
+      IF((APITYP(2).EQ.CIN).OR.(APITYP(2).EQ.FMKC)) LRO=LAPI+16
+      IF (APITYP(2).EQ.HAR) LRO=LAPI+31
+      IF (APITYP(2).EQ.SLC) LRO=LAPI+15
+      GO TO 145
+  141 LRO=LRM
+C
+C     LOCATE PRECIPITATION TIME SERIES
+  145 LPX=0
+      IF(ISNW.EQ.1) GO TO 146
+      LPX=LRM
+      ITPX=IDT
+      GO TO 150
+  146 LPX=LSNW+6
+      ITPX=P(LSNW+9)
+C
+C     SNOW MODEL PRECIP TIME INTERVAL MUST DIVIDE INTO 6.
+      IF (IAPI.EQ.0) GO TO 150
+      IF ((IDT/ITPX)*ITPX.EQ.IDT) GO TO 150
+      WRITE(IPR,906) SNWTYP,SNWNME,ITPX
+  906 FORMAT (1H0,10X,79H**ERROR** THE SNOW MODEL PRECIPITATION TIME INT
+     1ERVAL MUST EVENLY DIVIDE INTO 6.,/16X,2A4,2X,2A4,1X,23HUSES A TIME
+     2 INTERVAL OF, I3)
+      CALL ERROR
+      IER=1
+C
+C        DOES W.E. TIME SERIES EXIST, IF SO CHECK TIME INTERVAL.
+  150 LWE=0
+         IF (IAPI.EQ.1) GO TO 151
+         L=P(LSNW+19)
+         IF (L.EQ.0) GO TO 155
+         LWE=LSNW+L-1
+         ITWE=P(LWE+3)
+         GO TO 155
+  151 IF((APITYP(2).NE.FMKC).AND.(APITYP(2).NE.CIN)) GO TO 152
+         LWE=LAPI+19
+         ITWE=24
+         GO TO 155
+  152 IF (ISNW.EQ.0) GO TO 155
+         L=P(LSNW+19)
+         IF (L.EQ.0) GO TO 155
+         ITWE=P(LSNW+L+2)
+         IF((ITWE/IDT)*IDT.EQ.ITWE) GO TO 154
+         WRITE (IPR,907) SNWTYP,SNWNME,ITPX
+  907 FORMAT (1H0,10X,78H**ERROR** THE SNOW MODEL WATER EQUIVALENT TIME
+     1SERIES MUST BE A MULTIPLE OF 6.,/16X,2A4,2X,2A4,1X,23HUSES A TIME
+     2INTERVAL OF, I3)
+         CALL ERROR
+         IER=1
+         GO TO 155
+  154 LWE=LSNW+L-1
+C
+C        DOES API TIME SERIES EXISTS.
+  155 LAP=0
+         L=0
+         IF (IAPI.EQ.0) GO TO 160
+         IF (APITYP(2).NE.HAR) GO TO 156
+         L=P(LAPI+23)
+         IF (L.LE.0) GO TO 160
+         L=LAPI+37
+         ITAP=6
+         GO TO 157
+  156 IF((APITYP(2).EQ.CIN).OR.(APITYP(2).EQ.FMKC)) L=LAPI+31
+         IF (APITYP(2).EQ.SLC) L=LAPI+23
+         ITAP=24
+         IF (L.EQ.0) GO TO 160
+  157 IF (P(L).EQ.BLANK) GO TO 160
+         LAP=L
+C
+C        DOES AI/FI TIME SERIES EXIST
+  160 LAI=0
+         L=0
+         IF (IAPI.EQ.0) GO TO 165
+         IF (APITYP(2).EQ.SLC) GO TO 165
+         IF ( APITYP(2).NE.HAR) GO TO 161
+         L=P(LAPI+23)
+         IF (L.LE.0) GO TO 165
+         L=LAPI+34
+         ITAI=6
+         GO TO 162
+  161 IF((APITYP(2).EQ.CIN).OR.(APITYP(2).EQ.FMKC)) L=LAPI+34
+         ITAI=24
+         IF (L.EQ.0) GO TO 165
+  162 IF (P(L).EQ.BLANK) GO TO 165
+         LAI=L
+C
+C        DOES AIADJ,AEI,OR AESC INFORMATION EXIST.
+  165 LMS=0
+         IMS=0
+         L=0
+         IF (IAPI.EQ.0) GO TO 175
+         IF((APITYP(2).NE.CIN).AND.(APITYP(2).NE.FMKC)) GO TO 166
+         IMS=LAPI+11
+         GO TO 175
+  166 ITMS=0
+         IF (APITYP(2).NE.HAR) GO TO 167
+         L=P(LAPI+23)
+         IF (L.LE.0) GO TO 175
+         L=LAPI+40
+         IMS=1
+         ITMS=6
+         GO TO 168
+  167 IF (APITYP(2).NE.SLC) GO TO 175
+         L=LAPI+19
+         IMS=2
+         ITMS=24
+  168 IF (P(L).EQ.BLANK) GO TO 175
+         LMS=L
+C........................................
+C        ALL CHECKS MADE, DETERMINE IF THE PO ARRAY CAN BE FILLED.
+  175 IF (IER.EQ.1) GO TO 199
+         NEEDP=38
+         JWE=0
+         JAP=0
+         JAI=0
+         JMS=0
+         IF (LWE.EQ.0) GO TO 176
+         JWE=NEEDP+1
+         NEEDP=NEEDP+4
+  176 IF (LAP.EQ.0) GO TO 177
+         JAP=NEEDP+1
+         NEEDP=NEEDP+4
+  177 IF (LAI.EQ.0) GO TO 178
+         JAI=NEEDP+1
+         NEEDP=NEEDP+4
+  178 IF (IMS.EQ.0) GO TO 180
+         JMS=NEEDP+1
+         NEEDP=NEEDP+1
+         IF (LMS.GT.0) NEEDP=NEEDP+4
+C
+C         CHECK SPACE AVAILABLE FOR PO ARRAY
+  180 CALL CHECKP(NEEDP,LEFTP,IER)
+         IF (IER.EQ.1) GO TO 199
+C........................................
+C        FILL THE PO ARRAY
+         PO(1)=IVER+0.01
+         PO(7)=BLANK
+         IF (IAPI.EQ.0) GO TO 181
+         I1=LAPI+1
+         I2=I1+5
+         IF (APITYP(2).NE.HAR) GO TO 182
+         I1=LAPI+3
+         I2=I1+4
+         GO TO 182
+  181 I1=LSNW+1
+         I2=I1+4
+  182 J=2
+         DO 183 I=I1,I2
+         PO(J)=P(I)
+         J=J+1
+  183 CONTINUE
+         PO(8)=APITYP(1)
+         PO(9)=APITYP(2)
+         PO(10)=APINME(1)
+         PO(11)=APINME(2)
+         PO(12)=ISNW+0.01
+         PO(13)=SNWTYP(1)
+         PO(14)=SNWTYP(2)
+         PO(15)=SNWNME(1)
+         PO(16)=SNWNME(2)
+         PO(17)=IDISPL+0.01
+         PO(18)=IDT+0.01
+         PO(19)=P(LRM)
+         PO(20)=P(LRM+1)
+         PO(21)=P(LRM+2)
+         PO(22)=P(LRO)
+         PO(23)=P(LRO+1)
+         PO(24)=P(LRO+2)
+         PO(25)=P(LPX)
+         PO(26)=P(LPX+1)
+         PO(27)=P(LPX+2)
+         PO(28)=ITPX+0.01
+         PO(29)=JWE+0.01
+         PO(30)=JAP+0.01
+         PO(31)=JAI+0.01
+         PO(32)=JMS+0.01
+         PO(33)=NEEDP+0.01
+         PO(34)=0.01
+         PO(35)=0.01
+         PO(36)=0.01
+         PO(37)=0.01
+         PO(38)=0.01
+         IF (JWE.EQ.0) GO TO 184
+         PO(JWE)=P(LWE)
+         PO(JWE+1)=P(LWE+1)
+         PO(JWE+2)=P(LWE+2)
+         PO(JWE+3)=ITWE+0.01
+  184 IF (JAP.EQ.0) GO TO 185
+         PO(JAP)=P(LAP)
+         PO(JAP+1)=P(LAP+1)
+         PO(JAP+2)=P(LAP+2)
+         PO(JAP+3)=ITAP+0.01
+  185 IF (JAI.EQ.0) GO TO 186
+         PO(JAI)=P(LAI)
+         PO(JAI+1)=P(LAI+1)
+         PO(JAI+2)=P(LAI+2)
+         PO(JAI+3)=ITAI+0.01
+  186 IF(JMS.EQ.0) GO TO 189
+         PO(JMS)=IMS+0.01
+         IF(LMS.EQ.0) GO TO 189
+         PO(JMS+1)=P(LMS)
+         PO(JMS+2)=P(LMS+1)
+         PO(JMS+3)=P(LMS+2)
+         PO(JMS+4)=ITMS+0.01
+C        PO ARRAY HAS BEEN FILLED.
+  189 IUSEP=NEEDP
+C.........................................
+C     CHECK FOR DEBUG OUTPUT
+         IF (IBUG.EQ.0) GO TO 199
+         WRITE (IODBUG,910)
+  910 FORMAT(1H0,36HLIST-MSP DEBUG--CONTENTS OF PO ARRAY)
+         WRITE (IODBUG,911) (PO(I),I=1,IUSEP)
+  911 FORMAT (1H0,15F8.2)
+         WRITE (IODBUG,912) (PO(I),I=1,IUSEP)
+  912 FORMAT (1H0,15(4X,A4))
+C........................................
+  199 IF (ITRACE.GE.1) WRITE(IODBUG,913)
+  913 FORMAT(1H0,10HEXIT PIN37)
+         RETURN
+         END

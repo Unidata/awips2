@@ -1,0 +1,4 @@
+C     data type definitions for the upvsrx common block
+      CHARACTER*4 PGMCMP,PGMSYS
+      CHARACTER*8 PGMNAM,PGMVRD
+      CHARACTER*10 PGMVRN

@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<pointSetProductDescriptions>
+  <default>
+    <matches>
+      <match pattern="^nos\.ngofs\.fields\.[nf].*">
+        <filename />
+      </match>
+    </matches>
+
+    <level>
+      <dimension name="siglay" />
+      <masterLevel>
+        <value value="SCOORD" />
+      </masterLevel>
+      <levelOneValue>
+        <values>
+          <value>-0.0125</value>
+          <value>-0.0375</value>
+          <value>-0.0625</value>
+          <value>-0.0875</value>
+          <value>-0.1125</value>
+          <value>-0.1375</value>
+          <value>-0.1625</value>
+          <value>-0.1875</value>
+          <value>-0.2125</value>
+          <value>-0.2375</value>
+          <value>-0.2625</value>
+          <value>-0.2875</value>
+          <value>-0.3125</value>
+          <value>-0.3375</value>
+          <value>-0.3625</value>
+          <value>-0.3875</value>
+          <value>-0.4125</value>
+          <value>-0.4375</value>
+          <value>-0.4625</value>
+          <value>-0.4875</value>
+          <value>-0.5125</value>
+          <value>-0.5375</value>
+          <value>-0.5625</value>
+          <value>-0.5875</value>
+          <value>-0.6125</value>
+          <value>-0.6375</value>
+          <value>-0.6625</value>
+          <value>-0.6875</value>
+          <value>-0.7125</value>
+          <value>-0.7375</value>
+          <value>-0.7625</value>
+          <value>-0.7875</value>
+          <value>-0.8125</value>
+          <value>-0.8375</value>
+          <value>-0.8625</value>
+          <value>-0.8875</value>
+          <value>-0.9125</value>
+          <value>-0.9375</value>
+          <value>-0.9625</value>
+          <value>-0.9875</value>
+        </values>
+      </levelOneValue>
+    </level>
+
+    <triangulation type="delauney" maxRadius="7000"/>
+
+    
+  </default>
+
+  <!-- Temperature -->
+  <description>
+    <data>
+        <variable name="temp" />
+    </data>
+
+    <parameter>
+      <abbreviation>
+        <value value="WTMP" />
+      </abbreviation>
+      <units>
+        <value value="c" />
+      </units>
+    </parameter>
+
+  </description>
+
+
+  <!-- Salinity -->
+  <description>
+    <data>
+        <variable name="salinity" />
+    </data>
+
+    <parameter>
+      <abbreviation>
+        <value value="SALIN" />
+      </abbreviation>
+      <units>
+          <value value="PSU" />
+      </units>
+    </parameter>
+  </description>
+
+
+  <!-- Eastward Water Velocity -->
+  <description>
+    <data>
+        <variable name="u" />
+    </data>
+
+    <parameter>
+      <abbreviation>
+        <value value="UOGRD" />
+      </abbreviation>
+        <units>
+            <value value="m/s" />
+        </units>
+    </parameter>
+  </description>
+
+
+    <!-- Northward Water Velocity -->
+  <description>
+    <data>
+        <variable name="v" />
+    </data>
+
+    <parameter>
+        <abbreviation>
+            <value value="VOGRD" />
+        </abbreviation>
+        <units>
+            <value value="m/s" />
+        </units>
+    </parameter>
+  </description>
+
+  <!-- Water Surface Elevation -->
+  <description>
+    <data>
+        <variable name="zeta" />
+    </data>
+
+    <parameter>
+        <abbreviation>
+            <value value="DSLM" />
+        </abbreviation>
+        <units>
+            <value value="m" />
+        </units>
+    </parameter>
+
+    <level>
+      <masterLevel>
+        <value value="SFC" />
+      </masterLevel>
+      <levelOneValue>
+        <value value="0.0" />
+      </levelOneValue>
+    </level>
+  </description>
+
+
+  <!-- Forecast-specific fields -->
+  <description>
+    <matches>
+      <match pattern="^nos\.ngofs\.fields\.f.*">
+        <filename />
+      </match>
+    </matches>
+
+    <datasetId>
+        <pattern inputPattern="^([a-zA-Z]+).*" outputFormat="NOS-%S-FORECAST">
+            <attribute name="title" />
+        </pattern>
+    </datasetId> 
+
+    <dataTime>
+      <formattedRefTime dateFormat="yyyyMMdd HH'Z'">
+        <pattern inputPattern="^nos\.ngofs\.fields\.f\d{3}\.(\d{8})\.t(\d{2}z).*" outputFormat="%S %S">
+          <filename />
+        </pattern>
+      </formattedRefTime>
+      <epochOffsetValidTime epoch="2012-01-01 00:00:00" units="DAYS" roundTo="HOURS">
+        <variable name="time" />
+      </epochOffsetValidTime>
+    </dataTime>
+  </description>
+
+  <!-- Nowcast-specific fields -->
+  <description allowRecordOverwrite="true">
+    <matches>
+      <match pattern="^nos\.ngofs\.fields\.n.*">
+        <filename />
+      </match>
+    </matches>
+
+    <datasetId>
+        <pattern inputPattern="^([a-zA-Z]+).*" outputFormat="NOS-%S-NOWCAST">
+            <attribute name="title" />
+        </pattern>
+    </datasetId> 
+
+    <dataTime>
+      <epochOffsetRefTime epoch="2012-01-01 00:00:00" units="DAYS" roundTo="HOURS">
+        <variable name="time" />
+      </epochOffsetRefTime>
+    </dataTime>
+  </description>
+</pointSetProductDescriptions>

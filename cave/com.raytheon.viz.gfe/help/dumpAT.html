@@ -1,0 +1,194 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]">
+  <title>dumpAT User's Guide</title>
+</head>
+<body bgcolor="#ffffff">
+<h1 class="1Heading">
+dumpAT User's Guide</h1>
+<div class="1Heading">January 9, 2012<br>
+</div>
+<h2 class="1Heading">
+<a name="TableofContents"></a>Table of Contents</h2>
+<h4 class="1Heading">
+<a href="#Overview">Overview</a></h4>
+<h4 class="1Heading">
+<a href="#Running">Running the dumpAT Program</a></h4>
+<h4 class="1Heading">
+<a href="#ExampleData">Example Output</a></h4>
+<div class="1Heading">
+<hr width="100%"></div>
+<h2 class="1Heading">
+<a name="Overview"></a>Overview</h2>
+<div class="1Heading">The dumpAT is a utility program to output all or
+portions of the VTEC active table.&nbsp; For further information on the
+meaning of the codes within the VTEC active table, refer to the <a
+ href="VTEC.html">GFESuite VTEC Guide</a>.<br>
+</div>
+<div class="1Heading">
+<hr width="100%"></div>
+<h3 class="1Heading">Running the dumpAT Program</h3>
+<div class="1Heading"><span style="color: rgb(255, 0, 0); font-weight: bold;">Restriction:
+The dumpAT program can only be run from the same machine as the VTEC
+active table is residing!</span><br>
+<br>
+</div>
+<div class="1Heading">The command line syntax is:</div>
+<div class="1Heading"><tt>dumpAT -w siteid [-p phenomena] [-s
+significance] [-a id] [-e etn] [-l pil] [-a action] [-n tableName] [-f
+tableFilename]<br>
+<br>
+</tt></div>
+<div class="1Heading">A sample command line is:
+<br>
+<tt>dumpAT -n active -a NEW -p WS -p FA -p GL<br>
+</tt></div>
+<div class="1Heading">&nbsp;</div>
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td><b>Option Syntax</b></td>
+      <td><b>Optional or Mandatory</b></td>
+      <td><b>Description</b></td>
+    </tr>
+    <tr>
+      <td>-w wfoid<br>
+      </td>
+      <td>Mandatory. May have more than one -w switch.<br>
+      </td>
+      <td>Defines the WFOID filter.<br>
+      </td>
+    </tr>
+    <tr>
+      <td>-p phenomena<br>
+      </td>
+      <td>Optional. May have more than one -p switch.<br>
+      </td>
+      <td>Defines the VTEC phenomena filter, e.g., "WS".&nbsp; If not
+specified,
+then all phenomenas will be output.<br>
+      </td>
+    </tr>
+    <tr>
+      <td>-s significance<br>
+      </td>
+      <td>Optional. May have more than one -s switch.</td>
+      <td>Defines the VTEC significance filter, e.g., "A".&nbsp; If not
+specified,
+then all significances will be output.<br>
+      </td>
+    </tr>
+    <tr>
+      <td>-e etn<br>
+      </td>
+      <td>Optional. May have more than one -e switch.<br>
+      </td>
+      <td>Defines the etn (event tracking number) filter, e.g.,
+0245.&nbsp; If not
+specified, then all etns will be output.<br>
+      </td>
+    </tr>
+    <tr>
+      <td>-l pil<br>
+      </td>
+      <td>Optional. May have more than one -l switch.<br>
+      </td>
+      <td>Defines the product pil (category) filter, e.g., NPW.&nbsp;
+If not
+specified, then records from all product pils will be output.<br>
+      </td>
+    </tr>
+    <tr>
+      <td>-a action<br>
+      </td>
+      <td>Optional. May have more than one -a switch.<br>
+      </td>
+      <td>Defines the VTEC action filter, e.g., CON.&nbsp; If not
+specified, then
+all actions will be output.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-i id<br>
+      </td>
+      <td style="vertical-align: top;">Optional. May have more than one
+-i switch. <br>
+      </td>
+      <td style="vertical-align: top;">Defines the Geographical ID
+filter, e.g., COZ023.<br>
+      </td>
+    </tr>
+    <tr>
+      <td>-n tableName<br>
+      </td>
+      <td>Optional.<br>
+      </td>
+      <td>Determines the name of the active table to dump.&nbsp;
+Default is "active".<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-f tableFileName<br>
+      </td>
+      <td style="vertical-align: top;">Optional.&nbsp; Only the -f or
+-n switch may be provided, not both.<br>
+      </td>
+      <td style="vertical-align: top;">Uses this file as the table to
+dump. This file may be an uncompressed active table, or a compressed
+active table.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<font color="#3366ff"></font><font color="#3366ff"></font>
+<div class="1Heading">
+<hr width="100%"></div>
+<h3 class="1Heading">
+<a name="ExampleData"></a>Example Execution</h3>
+<div class="1Heading">The following shows an example of running the
+dumpAT without any filtering:<br>
+<p><tt>lx1-nhda{jdynina}113: ./dumpAT -w LWX<br>
+INFO:dumpAT:*********** dumpAT ****************<br>
+INFO:dumpAT:Cmd: -h ec -r 9581 -w LWX<br>
+INFO:dumpAT:Requesting active table dump from server.<br>
+INFO:dumpAT:Response received from server.<br>
+INFO:dumpAT:Number of records (unfiltered): 16<br>
+INFO:dumpAT:Number of records (filtered): 16<br>
+INFO:dumpAT:Records:<br>
+Vtec: /O.CAN.KLWX.WI.Y.0001.000000T0000Z-120102T1000Z/<br>
+Hdln:<br>
+Start:  Mon Jan  2 08:09:00 2012 1325491740L  Action: CAN  Pil: NPW<br>
+End:    Mon Jan  2 10:00:00 2012 1325498400L  UFN: False RecState: Decoded<br>
+Purge:  Mon Jan  2 09:15:00 2012 1325495700L<br>
+Issue:  Mon Jan  2 08:09:00 2012 1325491740L<br>
+Phen: WI   Sig: Y   Office: KLWX   Etn: 0001 Seg: 1   Key: WI.Y<br>
+Zone: MDZ501<br>
+<br>
+Vtec: /O.CON.KLWX.WS.W.0001.000000T0000Z-120103T2200Z/<br>
+Hdln:<br>
+Start:  Tue Jan  3 15:29:00 2012 1325604540L  Action: CON  Pil: WSW<br>
+End:    Tue Jan  3 22:00:00 2012 1325628000L  UFN: False RecState: Decoded<br>
+Purge:  Tue Jan  3 22:00:00 2012 1325628000L<br>
+Issue:  Tue Jan  3 15:29:00 2012 1325604540L<br>
+Phen: WS   Sig: W   Office: KLWX   Etn: 0001 Seg: 2   Key: WS.W<br>
+Zone: MDZ501<br>
+<br>
+Vtec: /O.EXT.KLWX.GL.W.0001.000000T0000Z-120104T0000Z/<br>
+Hdln:<br>
+Start:  Tue Jan  3 22:36:00 2012 1325630160L  Action: EXT  Pil: MWW<br>
+End:    Wed Jan  4 00:00:00 2012 1325635200L  UFN: False RecState: Decoded<br>
+Purge:  Wed Jan  4 06:45:00 2012 1325659500L<br>
+Issue:  Tue Jan  3 22:36:00 2012 1325630160L<br>
+Phen: GL   Sig: W   Office: KLWX   Etn: 0001 Seg: 1   Key: GL.W<br>
+Zone: ANZ530<br>
+<br>
+<br>
+INFO:dumpAT:Final: wctime:2.40, cputime:0.28</tt><br>
+</p>
+</div>
+</body>
+</html>

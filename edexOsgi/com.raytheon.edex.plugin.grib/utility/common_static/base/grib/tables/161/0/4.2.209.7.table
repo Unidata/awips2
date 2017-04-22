@@ -1,0 +1,7 @@
+#Product Discipline 209 - Multi-Radar/Multi-Sensor, Parameter Category 5: Model-Derived Fields
+0:0:Surface Temperature:C:ModelSurfaceTemperature
+1:1:Wet Bulb Temperature:C:ModelWetbulbTemperature
+2:2:Probability of Warm Rain:%:WarmRainProbability
+3:3:Freezing Level Height:m:ModelHeight0C
+4:4:Bright Band Top Height:m:BrightBandTopHeight
+5:5:Bright Band Bottom Height:m:BrightBandBottomHeight

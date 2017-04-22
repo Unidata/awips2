@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Products xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Product name="Default" type="Default" forecaster="Default" center="Default" onOff="true" useFile="true" filePath="./" fileName="/usr1/mlaryukhin/to11dr11/eclipse/ncep/base/resources/obs_and_analysis_rscs/PGEN/Local/gfa49_Default.xml">
+        <Layer name="Default" onOff="true" monoColor="false" filled="false">
+            <Color red="255" green="255" blue="0" alpha="255"/>
+            <DrawableElement>
+                <Gfa pgenCategory="MET" pgenType="GFA" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="true" filled="false" fillPattern="SOLID" lonText="-111.41217587557452" latText="41.81941597763051" hazard="IFR" fcstHr="6" tag="1" desk="W" issueType="NRML" cycleDay="2" cycleHour="20" type="CIG BLW 010">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="42.12569642567261" Lon="-108.51801430067064"/>
+                    <Point Lat="39.59928610944933" Lon="-108.20454161878976"/>
+                    <Point Lat="39.788992153196425" Lon="-104.42321535019198"/>
+                    <Point Lat="42.27375885024791" Lon="-105.06141723289056"/>
+                </Gfa>
+                <Gfa pgenCategory="MET" pgenType="GFA" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="true" filled="false" fillPattern="SOLID" lonText="-96.24156284001212" latText="41.745249739628626" hazard="IFR" fcstHr="9" tag="1" desk="W" issueType="NRML" cycleDay="2" cycleHour="20" type="CIG BLW 010">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="40.680099857981745" Lon="-102.44126472782732"/>
+                    <Point Lat="38.955633944360734" Lon="-101.0752161463985"/>
+                    <Point Lat="38.60600735470448" Lon="-97.4923531179547"/>
+                    <Point Lat="40.392131608853525" Lon="-97.29255553644532"/>
+                </Gfa>
+                <Gfa pgenCategory="MET" pgenType="GFA" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="true" filled="false" fillPattern="SOLID" lonText="-94.39934753966106" latText="39.388190631515805" hazard="IFR" fcstHr="12" tag="1" desk="W" issueType="NRML" cycleDay="2" cycleHour="20" type="CIG BLW 010">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="39.73044781495785" Lon="-100.24376434117436"/>
+                    <Point Lat="37.831324021963084" Lon="-100.5431038764773"/>
+                    <Point Lat="37.40895748837977" Lon="-95.58921156694633"/>
+                    <Point Lat="38.90699399481381" Lon="-96.0713023603529"/>
+                </Gfa>
+            </DrawableElement>
+        </Layer>
+    </Product>
+</Products>

@@ -1,0 +1,2 @@
+      common /iodev/ iubb,iudx,iuff,iuiov,iupm,iuop,
+     +               iurc,iuro,iuts

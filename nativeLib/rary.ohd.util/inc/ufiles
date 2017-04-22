@@ -1,0 +1,4 @@
+C                                                *--> FROM CMS(UFILES)
+C  FORTRAN UNIT NUMBER USAGE COMMON BLOCK
+      COMMON /UFILES/ MFILES,IFILES(256)
+C

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+     <xsd:element name="gageTableSettings" type="gageTableSettings"/>
+     <xsd:complexType name="gageTableSettings">
+      <xsd:sequence>
+       <xsd:element ref="column" minOccurs="1" maxOccurs="unbounded"/>
+      </xsd:sequence> 
+     </xsd:complexType> 
+     <xsd:element name="column" type="gageTableColumnData"/>  
+     <xsd:complexType name="gageTableColumnData">
+      <xsd:sequence>
+       <xsd:element name="name" type="xsd:string"/>
+       <xsd:element name="width" type="xsd:integer"/>     
+       <xsd:element name="sort" type="gageTableSortType" minOccurs="0" maxOccurs="1"/>
+      </xsd:sequence>
+     </xsd:complexType>
+     <xsd:complexType name="gageTableSortType">
+      <xsd:attribute name="order" type="xsd:integer" use="required"/>
+      <xsd:attribute name="ascending" type="xsd:boolean" use="required"/>
+     </xsd:complexType>
+    </xsd:schema>
+
+    <!--  xjc gageTableSettings.xsd -p packageName -d ../src/path -->
+    

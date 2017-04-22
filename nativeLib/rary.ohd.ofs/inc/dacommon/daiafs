@@ -1,0 +1,5 @@
+C                                           *--> FROM DACOMMON.DAIAFS
+C  ASAP CONTROL FILE, AFOS INDEX RECORDS
+      COMMON /DAIAFS/ IDXAFS(4,1100)
+C
+C

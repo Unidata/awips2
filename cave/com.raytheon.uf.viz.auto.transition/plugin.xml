@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="com.raytheon.viz.ui.contextualMenu">
+      <contextualMenu
+            actionClass="com.raytheon.uf.viz.auto.transition.AutoTransitionAction"
+            capabilityClass="com.raytheon.viz.core.rsc.BlendedResource"
+            name="com.raytheon.uf.viz.auto.transition.AutoTransitionAction"
+            sortID="50">
+      </contextualMenu>
+      <contextualMenu
+            actionClass="com.raytheon.uf.viz.auto.transition.ConfigureAutoTransitionAction"
+            capabilityClass="com.raytheon.uf.viz.auto.transition.AutoTransitionResource"
+            name="com.raytheon.uf.viz.auto.transition.ConfigureAutoTransitionAction"
+            sortID="51">
+      </contextualMenu>
+   </extension>
+</plugin>

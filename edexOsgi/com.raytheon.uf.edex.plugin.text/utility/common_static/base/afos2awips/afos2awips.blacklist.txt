@@ -1,0 +1,15 @@
+# This is the afos2awips "blacklist" file. It is the opposite of afos2awips.txt
+# in that it contains entries that should NOT be used. This file follows the
+# same format as afos2awips.txt.
+#
+# This is an incremental override file--see the BASE afos2awips.txt for the
+# override order.
+#
+# Note that the BASE blacklist is ignored. Any manual additions to the blacklist
+# should go in the SITE file.
+#
+# The typical usage of this file is to add entries here that are present in
+# afos2awips.txt, but should not be used at the current site.
+#
+# Example entry:
+#AAATIBCAX WECA42 PHEB

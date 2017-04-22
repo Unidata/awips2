@@ -1,0 +1,47 @@
+C..............................................
+C    COMMON BLOCK SNPM31
+C
+C    VARIABLE            DESCRIPTION
+C    --------            -----------
+C      ALAT              Latitude of the area or point in degrees.
+C      SCF               Multiplying factor to correct for 
+C                        precipitation gage catch deficiency 
+C                        during periods of snowfall.
+C      MFMAX             Maximum non-rain melt factor which occurs
+C                        on 06/21.
+C      MFMIN             Minimum non-rain melt factor which occurs
+C                        on 12/21.
+C      NMF               Maximum negative melt factor (mm/DEGC/6hr).
+C      UADJ              Average six-hour wind function during 
+C                        rain on snow events (mm/mb).
+C      SI                Mean Areal water-equivalent above which 
+C                        100 % areal snow cover exists (mm).
+C      MBASE             Base temperature for melt computations 
+C                        during non-rain periods (DEGC).
+C      PXTEMP            Temperature above which precipitation
+C                        is assumed to be rain (DEGC). 
+C      PLWHC             % liquid water holding capacity.
+C      TIPM              Antecedent temperature index parameter.
+C                        ( 0.0 < TIPM <= 1.0).
+C      PA                Atmospheric Pressure
+C      ADC               Areal depletion curve.
+C      LMFV              Location of the Melt factor variations
+C                        in the P array.
+C      SMFV              Array containing user specified seasonal
+C                        meltfactors.
+C      LAEC              Location of Area elevation curve in P array.
+C      NPTAE             Number of points in the Area Elevation curve.
+C      AE                Area Elevation Curve points
+C..............................................
+C
+      real    ALAT,  SCF, MFMAX, MFMIN, NMF,
+     1        UADJ, SI, MBASE, PXTEMP, PLWHC,
+     2        TIPM, PA, ADC, SMFV, AE
+C
+      integer NPTAE, LAEC, LMFV
+C
+      COMMON/SNPM31/ALAT, SCF, MFMAX, MFMIN, NMF,
+     1              UADJ, SI, MBASE, PXTEMP, PLWHC,
+     2              TIPM, PA, ADC(11), LMFV, SMFV(12),
+     3              LAEC, NPTAE, AE(2,14)
+C

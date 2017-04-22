@@ -1,0 +1,967 @@
+/*
+    File: MonthlyValues.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:25 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "MonthlyValues.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct MonthlyValues_t
+{
+    char		lid[9];
+    char		pe[3];
+    short		dur;
+    char		ts[3];
+    char		extremum[2];
+    char		adjustment[2];
+    dtime_t		postingtime;
+    double		jan_value;
+    double		feb_value;
+    double		mar_value;
+    double		apr_value;
+    double		may_value;
+    double		jun_value;
+    double		jul_value;
+    double		aug_value;
+    double		sep_value;
+    double		oct_value;
+    double		nov_value;
+    double		dec_value;
+
+} MonthlyValues_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+MonthlyValues * GetMonthlyValues(const char * where)
+{
+
+    MonthlyValues * listPtr = NULL;
+    MonthlyValues * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM MonthlyValues ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct MonthlyValues_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetMonthlyValues() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetMonthlyValues() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetMonthlyValues() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.lid, :dbs.pe, 
+    :dbs.dur, :dbs.ts, 
+    :dbs.extremum, :dbs.adjustment, 
+    :dbs.postingtime, :dbs.jan_value, 
+    :dbs.feb_value, :dbs.mar_value, 
+    :dbs.apr_value, :dbs.may_value, 
+    :dbs.jun_value, :dbs.jul_value, 
+    :dbs.aug_value, :dbs.sep_value, 
+    :dbs.oct_value, :dbs.nov_value, 
+    :dbs.dec_value    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetMonthlyValues() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (MonthlyValues *) malloc(sizeof(MonthlyValues))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->pe, dbs.pe);
+
+            structPtr->dur = dbs.dur;
+
+            strcpy(structPtr->ts, dbs.ts);
+
+            strcpy(structPtr->extremum, dbs.extremum);
+
+            strcpy(structPtr->adjustment, dbs.adjustment);
+
+            structPtr->postingtime = dbs.postingtime;
+
+            structPtr->jan_value = dbs.jan_value;
+
+            structPtr->feb_value = dbs.feb_value;
+
+            structPtr->mar_value = dbs.mar_value;
+
+            structPtr->apr_value = dbs.apr_value;
+
+            structPtr->may_value = dbs.may_value;
+
+            structPtr->jun_value = dbs.jun_value;
+
+            structPtr->jul_value = dbs.jul_value;
+
+            structPtr->aug_value = dbs.aug_value;
+
+            structPtr->sep_value = dbs.sep_value;
+
+            structPtr->oct_value = dbs.oct_value;
+
+            structPtr->nov_value = dbs.nov_value;
+
+            structPtr->dec_value = dbs.dec_value;
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.lid, :dbs.pe, 
+        :dbs.dur, :dbs.ts, 
+        :dbs.extremum, :dbs.adjustment, 
+        :dbs.postingtime, :dbs.jan_value, 
+        :dbs.feb_value, :dbs.mar_value, 
+        :dbs.apr_value, :dbs.may_value, 
+        :dbs.jun_value, :dbs.jul_value, 
+        :dbs.aug_value, :dbs.sep_value, 
+        :dbs.oct_value, :dbs.nov_value, 
+        :dbs.dec_value        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetMonthlyValues() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+MonthlyValues * SelectMonthlyValues(const char * where)
+{
+
+    MonthlyValues * listPtr = NULL;
+    MonthlyValues * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM MonthlyValues ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct MonthlyValues_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectMonthlyValues() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectMonthlyValues() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectMonthlyValues() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.lid, :dbs.pe, 
+    :dbs.dur, :dbs.ts, 
+    :dbs.extremum, :dbs.adjustment, 
+    :dbs.postingtime, :dbs.jan_value, 
+    :dbs.feb_value, :dbs.mar_value, 
+    :dbs.apr_value, :dbs.may_value, 
+    :dbs.jun_value, :dbs.jul_value, 
+    :dbs.aug_value, :dbs.sep_value, 
+    :dbs.oct_value, :dbs.nov_value, 
+    :dbs.dec_value    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectMonthlyValues() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (MonthlyValues *) malloc(sizeof(MonthlyValues))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->pe, dbs.pe);
+
+            structPtr->dur = dbs.dur;
+
+            strcpy(structPtr->ts, dbs.ts);
+
+            strcpy(structPtr->extremum, dbs.extremum);
+
+            strcpy(structPtr->adjustment, dbs.adjustment);
+
+            structPtr->postingtime = dbs.postingtime;
+
+            structPtr->jan_value = dbs.jan_value;
+
+            structPtr->feb_value = dbs.feb_value;
+
+            structPtr->mar_value = dbs.mar_value;
+
+            structPtr->apr_value = dbs.apr_value;
+
+            structPtr->may_value = dbs.may_value;
+
+            structPtr->jun_value = dbs.jun_value;
+
+            structPtr->jul_value = dbs.jul_value;
+
+            structPtr->aug_value = dbs.aug_value;
+
+            structPtr->sep_value = dbs.sep_value;
+
+            structPtr->oct_value = dbs.oct_value;
+
+            structPtr->nov_value = dbs.nov_value;
+
+            structPtr->dec_value = dbs.dec_value;
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.lid, :dbs.pe, 
+        :dbs.dur, :dbs.ts, 
+        :dbs.extremum, :dbs.adjustment, 
+        :dbs.postingtime, :dbs.jan_value, 
+        :dbs.feb_value, :dbs.mar_value, 
+        :dbs.apr_value, :dbs.may_value, 
+        :dbs.jun_value, :dbs.jul_value, 
+        :dbs.aug_value, :dbs.sep_value, 
+        :dbs.oct_value, :dbs.nov_value, 
+        :dbs.dec_value        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectMonthlyValues() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectMonthlyValuesCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM MonthlyValues ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountMonthlyValues() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountMonthlyValues() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountMonthlyValues() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountMonthlyValues() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutMonthlyValues(const MonthlyValues * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct MonthlyValues_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.pe, structPtr->pe);
+
+    dbs.dur = structPtr->dur;
+
+    strcpy(dbs.ts, structPtr->ts);
+
+    strcpy(dbs.extremum, structPtr->extremum);
+
+    strcpy(dbs.adjustment, structPtr->adjustment);
+
+    dbs.postingtime = structPtr->postingtime;
+
+    dbs.jan_value = structPtr->jan_value;
+
+    dbs.feb_value = structPtr->feb_value;
+
+    dbs.mar_value = structPtr->mar_value;
+
+    dbs.apr_value = structPtr->apr_value;
+
+    dbs.may_value = structPtr->may_value;
+
+    dbs.jun_value = structPtr->jun_value;
+
+    dbs.jul_value = structPtr->jul_value;
+
+    dbs.aug_value = structPtr->aug_value;
+
+    dbs.sep_value = structPtr->sep_value;
+
+    dbs.oct_value = structPtr->oct_value;
+
+    dbs.nov_value = structPtr->nov_value;
+
+    dbs.dec_value = structPtr->dec_value;
+
+
+    EXEC SQL INSERT INTO MonthlyValues (lid,pe,
+        dur,ts,extremum,
+        adjustment,postingtime,jan_value,
+        feb_value,mar_value,apr_value,
+        may_value,jun_value,jul_value,
+        aug_value,sep_value,oct_value,
+        nov_value,dec_value        )
+        VALUES (
+         :dbs.lid, :dbs.pe, :dbs.dur,
+         :dbs.ts, :dbs.extremum, :dbs.adjustment,
+         :dbs.postingtime, :dbs.jan_value, :dbs.feb_value,
+         :dbs.mar_value, :dbs.apr_value, :dbs.may_value,
+         :dbs.jun_value, :dbs.jul_value, :dbs.aug_value,
+         :dbs.sep_value, :dbs.oct_value, :dbs.nov_value,
+         :dbs.dec_value);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutMonthlyValues() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertMonthlyValues(const MonthlyValues * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct MonthlyValues_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.pe, structPtr->pe);
+
+    dbs.dur = structPtr->dur;
+
+    strcpy(dbs.ts, structPtr->ts);
+
+    strcpy(dbs.extremum, structPtr->extremum);
+
+    strcpy(dbs.adjustment, structPtr->adjustment);
+
+    dbs.postingtime = structPtr->postingtime;
+
+    dbs.jan_value = structPtr->jan_value;
+
+    dbs.feb_value = structPtr->feb_value;
+
+    dbs.mar_value = structPtr->mar_value;
+
+    dbs.apr_value = structPtr->apr_value;
+
+    dbs.may_value = structPtr->may_value;
+
+    dbs.jun_value = structPtr->jun_value;
+
+    dbs.jul_value = structPtr->jul_value;
+
+    dbs.aug_value = structPtr->aug_value;
+
+    dbs.sep_value = structPtr->sep_value;
+
+    dbs.oct_value = structPtr->oct_value;
+
+    dbs.nov_value = structPtr->nov_value;
+
+    dbs.dec_value = structPtr->dec_value;
+
+
+    EXEC SQL INSERT INTO MonthlyValues (lid,pe,
+        dur,ts,extremum,
+        adjustment,postingtime,jan_value,
+        feb_value,mar_value,apr_value,
+        may_value,jun_value,jul_value,
+        aug_value,sep_value,oct_value,
+        nov_value,dec_value        )
+        VALUES (
+         :dbs.lid, :dbs.pe, :dbs.dur,
+         :dbs.ts, :dbs.extremum, :dbs.adjustment,
+         :dbs.postingtime, :dbs.jan_value, :dbs.feb_value,
+         :dbs.mar_value, :dbs.apr_value, :dbs.may_value,
+         :dbs.jun_value, :dbs.jul_value, :dbs.aug_value,
+         :dbs.sep_value, :dbs.oct_value, :dbs.nov_value,
+         :dbs.dec_value);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertMonthlyValues() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateMonthlyValues(const MonthlyValues *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct MonthlyValues_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.pe, structPtr->pe);
+
+    dbs.dur = structPtr->dur;
+
+    strcpy(dbs.ts, structPtr->ts);
+
+    strcpy(dbs.extremum, structPtr->extremum);
+
+    strcpy(dbs.adjustment, structPtr->adjustment);
+
+    dbs.postingtime = structPtr->postingtime;
+
+    dbs.jan_value = structPtr->jan_value;
+
+    dbs.feb_value = structPtr->feb_value;
+
+    dbs.mar_value = structPtr->mar_value;
+
+    dbs.apr_value = structPtr->apr_value;
+
+    dbs.may_value = structPtr->may_value;
+
+    dbs.jun_value = structPtr->jun_value;
+
+    dbs.jul_value = structPtr->jul_value;
+
+    dbs.aug_value = structPtr->aug_value;
+
+    dbs.sep_value = structPtr->sep_value;
+
+    dbs.oct_value = structPtr->oct_value;
+
+    dbs.nov_value = structPtr->nov_value;
+
+    dbs.dec_value = structPtr->dec_value;
+
+
+    sprintf(queryBuffer, " UPDATE MonthlyValues SET " );
+    strcat(queryBuffer, "lid = ? , pe = ? , dur = ? , ts = ? , extremum = ? ,     ");
+    strcat(queryBuffer, "adjustment = ? , postingtime = ? , jan_value = ? , feb_value = ? , mar_value = ? ,     ");
+    strcat(queryBuffer, "apr_value = ? , may_value = ? , jun_value = ? , jul_value = ? , aug_value = ? ,     ");
+    strcat(queryBuffer, "sep_value = ? , oct_value = ? , nov_value = ? , dec_value = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateMonthlyValues() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.lid, :dbs.pe, :dbs.dur, :dbs.ts, :dbs.extremum,
+     :dbs.adjustment, :dbs.postingtime, :dbs.jan_value, :dbs.feb_value, :dbs.mar_value,
+     :dbs.apr_value, :dbs.may_value, :dbs.jun_value, :dbs.jul_value, :dbs.aug_value,
+     :dbs.sep_value, :dbs.oct_value, :dbs.nov_value, :dbs.dec_value;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateMonthlyValues() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteMonthlyValues(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM MonthlyValues ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteMonthlyValues() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateMonthlyValuesByRecord (const MonthlyValues * newStructPtr, const MonthlyValues * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetMonthlyValuesPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateMonthlyValues(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateMonthlyValues(const MonthlyValues * structPtr)
+{
+    UpdateMonthlyValuesByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertMonthlyValues(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueMonthlyValues(const MonthlyValues * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (MonthlyValuesExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertMonthlyValues(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteMonthlyValuesByRecord(const MonthlyValues * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetMonthlyValuesPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteMonthlyValues(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool MonthlyValuesExists(const MonthlyValues * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetMonthlyValuesPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectMonthlyValuesCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetMonthlyValuesPrimaryKeyWhereString (const MonthlyValues * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE lid = '%s'  AND pe = '%s'  AND dur = %d  AND ts = '%s'  AND extremum = '%s'  AND adjustment = '%s' ",
+            structPtr->lid, structPtr->pe, structPtr->dur, structPtr->ts, structPtr->extremum, 
+            structPtr->adjustment);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeMonthlyValues( MonthlyValues * structPtr)
+{
+    MonthlyValues* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( MonthlyValues * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetMonthlyValuesDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetMonthlyValuesErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

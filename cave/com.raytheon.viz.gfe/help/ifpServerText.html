@@ -1,0 +1,400 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-34smp i686) [Netscape]">
+  <title>ifpServerText User's Guide</title>
+</head>
+<body bgcolor="#ffffff">
+<h1 class="1Heading">
+ifpServerText User's Guide</h1>
+<div class="1Heading">January 6, 2012<br>
+<br>
+</div>
+<a name="TableofContents"></a>Table of Contents
+<h4 class="1Heading"><a href="#Overview">Overview</a></h4>
+<h4 class="1Heading">
+<a href="#Running">Running the ifpServerText Program</a></h4>
+<h4 class="1Heading">
+<a href="#ExampleData">Example Execution</a></h4>
+<div class="1Heading"><b><a href="#formats">Output Formats</a></b></div>
+<div class="1Heading">
+<hr width="100%"></div>
+<h2 class="1Heading">
+<a name="Overview"></a>Overview</h2>
+<div class="1Heading">The ifpServerText is a program to allow reading,
+writing, deleting, and inventorying text data in EDEX.
+It is an easy way to store items such as smart tools directly into EDEX.
+The following data types are supported:
+<br>
+<table nosave="" border="1" cols="2" width="100%">
+  <tbody>
+    <tr>
+      <td><b>Category</b></td>
+      <td><b>Description</b></td>
+    </tr>
+    <tr>
+      <td>Tool</td>
+      <td>Smart tools</td>
+    </tr>
+    <tr>
+      <td>Procedure</td>
+      <td>Procedures</td>
+    </tr>
+    <tr>
+      <td>Utility</td>
+      <td>Utilities for smart tools and procedures</td>
+    </tr>
+    <tr>
+      <td>TextUtility</td>
+      <td>Utilities for text products</td>
+    </tr>
+    <tr>
+      <td>TextProduct</td>
+      <td>Text product definitions</td>
+    </tr>
+    <tr>
+      <td>EditArea</td>
+      <td>Edit areas</td>
+    </tr>
+    <tr>
+      <td>EditAreaGroup</td>
+      <td>Edit area group definitions</td>
+    </tr>
+    <tr>
+      <td>WeatherElementGroup</td>
+      <td>Weather element groups</td>
+    </tr>
+    <tr>
+      <td>SelectTR</td>
+      <td>User-defined selection time ranges</td>
+    </tr>
+    <tr>
+      <td>SampleSet</td>
+      <td>Sample Sets</td>
+    </tr>
+    <tr>
+      <td>ColorTable</td>
+      <td>Color Tables</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Combinations<br>
+      </td>
+      <td style="vertical-align: top;">Zone Combiner Active Combination
+Files<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="1Heading">
+<hr width="100%"></div>
+<h2 class="1Heading">
+</h2>
+<h3 class="1Heading"><a name="Running"></a>Running the ifpServerText
+Program</h3>
+<div class="1Heading">The command line syntax is:</div>
+<div class="1Heading"><tt>ifpServerText -h hostname -p portnumber -o siteID [-u
+user]
+[-s -n name -f filename -c class] [-d -n name [-c class]] [-i [-c
+class]
+[-g -f filename -n name [-c class]] [-m infoType]</tt></div>
+<div class="1Heading">
+<br>
+A sample command line to store data is:
+<br>
+<tt>ifpServerText -h dx3-oax -p 9581 -o LWX -s -n MaxT_Tool -f /tmp/maxt.py
+-c Tool</tt></div>
+<div class="1Heading">&nbsp;</div>
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td><b>Option Syntax</b></td>
+      <td><b>Optional or Mandatory</b></td>
+      <td><b>Description</b></td>
+    </tr>
+    <tr>
+      <td>-h hostname</td>
+      <td>Mandatory (See Note)</td>
+      <td>Specifies the host, upon which EDEX is running.</td>
+    </tr>
+    <tr>
+      <td>-p port</td>
+      <td>Mandatory (See Note)</td>
+      <td>Specifies the port, upon which EDEX is running.</td>
+    </tr>
+    <tr>
+      <td>-o siteID</td>
+      <td>Mandatory</td>
+      <td>Specifies the site ID for which EDEX is running.</td>
+    </tr>
+    <tr>
+      <td>-u user</td>
+      <td>Optional</td>
+      <td>The connection to EDEX will be made using this user,
+which defaults to the UNIX login user.</td>
+    </tr>
+    <tr>
+      <td><b><i>MetaData Mode:</i></b></td>
+      <td><br>
+      </td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td>-m infoType</td>
+      <td>Mandatory for meta mode</td>
+      <td>infoType specifies the type of data to be obtained.&nbsp;
+Choices are
+"site", "sitetimezone", "domain", and "singleton". The "site"
+will
+list the site for which EDEX is configured. The
+"sitetimezone"
+lists the site and the timezone for EDEX. The
+"singleton"
+lists all of the databases that are configured as singletons. The
+"domain"
+lists the common database domain information.</td>
+    </tr>
+    <tr>
+      <td>-f filename</td>
+      <td>Optional</td>
+      <td>Indicates the name of the file to contain the output
+information.</td>
+    </tr>
+    <tr>
+      <td><b><i>Save Mode:</i></b></td>
+      <td><br>
+      </td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td>-s</td>
+      <td>Mandatory for save mode</td>
+      <td>Indicates SAVE mode, requires the -n, -f, and -c switches.</td>
+    </tr>
+    <tr>
+      <td>-n name</td>
+      <td>Mandatory</td>
+      <td>Indicates the name to store the file under in EDEX</td>
+    </tr>
+    <tr>
+      <td>-f filename</td>
+      <td>Mandatory</td>
+      <td>Indicates the filename source for the operation.</td>
+    </tr>
+    <tr>
+      <td>-c class</td>
+      <td>Mandatory</td>
+      <td>Indicates the type of the file.&nbsp; Must be one of:
+Config,
+"Tool", "Procedure", "Utility", "TextUtility",&nbsp;
+"TextProduct",
+"EditArea", "EditAreaGroup", "WeatherElementGroup", ColorTable",
+"SampleSet",
+"SelectTR", "Combinations".</td>
+    </tr>
+    <tr>
+      <td><b><i>Delete Mode:</i></b></td>
+      <td><br>
+      </td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td>-d</td>
+      <td>Mandatory for delete mode</td>
+      <td>Indicates DELETE mode, requires the -n switch.&nbsp; The -c
+switch
+is used only for the class type of Config.</td>
+    </tr>
+    <tr>
+      <td>-n name</td>
+      <td>Mandatory</td>
+      <td>Indicates the name of the entry to be deleted from EDEX.</td>
+    </tr>
+    <tr>
+      <td>-c class</td>
+      <td>Mandatory</td>
+      <td>Indicates the type of the file.&nbsp; Must be one of:
+Config,
+"Tool", "Procedure", "Utility", "TextUtility",&nbsp;
+"TextProduct",
+"EditArea", "EditAreaGroup", "WeatherElementGroup", ColorTable",
+"SampleSet",
+"SelectTR", "Combinations".</td>
+    </tr>
+    <tr>
+      <td><b><i>Inventory Mode:</i></b></td>
+      <td><br>
+      </td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td>-i</td>
+      <td>Mandatory for inventory mode</td>
+      <td>Indicates INVENTORY mode.&nbsp; The -c switch is used only
+for the
+class type of Config.</td>
+    </tr>
+    <tr>
+      <td>-c class</td>
+      <td>Mandatory</td>
+      <td>Indicates the type of the file.&nbsp; Must be one of:
+Config,
+"Tool", "Procedure", "Utility", "TextUtility",&nbsp;
+"TextProduct",
+"EditArea", "EditAreaGroup", "WeatherElementGroup", ColorTable",
+"SampleSet",
+"SelectTR", "Combinations"</td>
+    </tr>
+    <tr>
+      <td><b><i>Get Mode:</i></b></td>
+      <td><br>
+      </td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td>-g</td>
+      <td>Mandatory for get mode</td>
+      <td>Indicates GET mode, requires the -n switch. The -f
+switch is
+used to output the resulting file to another file, otherwise the output
+goes to the terminal. The -c switch is used only for the class
+type
+of Config.</td>
+    </tr>
+    <tr>
+      <td>-f filename</td>
+      <td>Optional</td>
+      <td>If present, the retrieved file will be written to the
+specified location.</td>
+    </tr>
+    <tr>
+      <td>-c class</td>
+      <td>Mandatory</td>
+      <td>Indicates the type of the file. Must be one of:
+Config,
+"Tool", "Procedure", "Utility", "TextUtility",
+"TextProduct",
+"EditArea", "EditAreaGroup", "WeatherElementGroup", ColorTable",
+"SampleSet",
+"SelectTR", "Combinations".</td>
+    </tr>
+  </tbody>
+</table>
+<font color="#3366ff"><b>Note:</b> The -h serverhost and -p port are
+predefined
+based on your installation configuration of GFESuite. The -h and
+-r
+will be defined for the server host and port specified during
+installation.
+If you wish to connect to another server, then these switches will be
+necessary.</font>
+<div class="1Heading">
+<hr width="100%"></div>
+<h3 class="1Heading">
+<a name="ExampleData"></a>Example Execution</h3>
+<div class="1Heading">Note that in the following examples, the -h and
+-p
+switches are not included. They will default to the currently
+installed EDEX configuration.  Also in AWIPS2 the site switch becomes mandatory.</div>
+<h4>
+Saving Data</h4>
+<tt>camper&gt; <b><i>ifpServerText -o LWX -s -n MyMaxTool -f
+../examples/smartTools/Td_SmartTool.py
+-c Tool</i></b></tt>
+<h4>Obtaining an Inventory</h4>
+<tt>camper &gt; <b><i>ifpServerText -c Tool -i -o LWX</i></b></tt> <br>
+<h4>Getting Data</h4>
+<tt>camper &gt; <b><i>ifpServerText -g -c Tool -n Assign_Value -f
+1.txt -o LWX</i></b></tt>
+<h4>Deleting Data</h4>
+<tt>camper &gt; <b><i>ifpServerText -c Tool -d -n MyTool -o LWX</i></b></tt>
+<br><br>
+<hr width="100%">
+<h3><a name="formats"></a>Output Formats</h3>
+The output formats for each of the classes are described in this
+section.
+<br>
+<h4>Tool, Procedure, Utility, TextUtility, TextProduct, Config,
+Combinations<br>
+</h4>
+The output format is the exact copy of the file in EDEX.
+<br>
+<h4>EditArea</h4>
+<p>In AWIPS2 edit areas are now stored in xml format.</p>
+<tt>&lt?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt<br>
+&lt referenceData xmlns:ns2="group"&gt<br>
+    &lt polygons &gt MULTIPOLYGON (((-100.74059659999995 39.56791216000005, -100.73749659999999 
+    39.56791216000005, -100.72409659999994 39.56801216000008, -100.72139659999999 
+    39.56801216000008, -100.72009659999998 39.56571216000003, -100.72009659999998 
+    39.56201216000005, -100.71999659999994 39.55391216000004, -100.72009659999998 
+    39.54661216000005, -100.71999659999994 39.53941216000004, -100.71999659999994 
+    39.53111216000008, -100.71999659999994 39.524712160000036, -100.72009659999998 
+    39.520412160000035, -100.72019659999995 39.513312160000055, -100.72019659999995 
+    39.50911216000003)))&lt/polygons &gt<br>
+    &lt/referenceData &gt</tt>
+<br>
+<h4>EditAreaGroup</h4>
+The output consists of a list of edit area names, one per line, that
+are
+contained within the edit area group, such as:
+<p><tt>1<br>
+PPLN1HW</tt>
+<br>
+</p>
+<h4>WeatherElementGroup</h4>
+<p>In AWIPS2 weather element groups are stored in xml files:</p>
+<p><tt>&lt?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt<br>
+&lt WEGroup  name="FireWx" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType"&gt<br>
+    &lt WEItem relativeCycleNumber="-1" parmID="Hazards_SFC:OAX_GRID__Fcst_00000000_0000"/&gt<br>
+    &lt WEItem relativeCycleNumber="-1" parmID="PoP_SFC:OAX_GRID__Fcst_00000000_0000"/&gt<br>
+    &lt WEItem relativeCycleNumber="-1" parmID="QPF_SFC:OAX_GRID__Fcst_00000000_0000"/&gt<br>
+    &lt WEItem relativeCycleNumber="-1" parmID="RH_SFC:OAX_GRID__Fcst_00000000_0000"/&gt<br>
+    &lt WEItem relativeCycleNumber="-1" parmID="Sky_SFC:OAX_GRID__Fcst_00000000_0000"/&gt<br>
+    &lt WEItem relativeCycleNumber="-1" parmID="T_SFC:OAX_GRID__Fcst_00000000_0000"/&gt<br>
+    &lt WEItem relativeCycleNumber="-1" parmID="Td_SFC:OAX_GRID__Fcst_00000000_0000"/&gt<br>
+&lt/WEGroup &gt</tt>
+<br>
+</p>
+<h4>SelectTR</h4>
+The output consists of the identical format of the user-defined
+selection
+time range in EDEX, such as:
+<p><tt>54 78</tt>
+</p>
+<h4>SampleSet</h4>
+<p>In AWIPS2 sample sets are stored in xml files:</p>
+<tt>&lt?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt<br>
+&lt sampleData xmlns:ns2="group"&gt<br>
+    <points>-95.2074,41.009</points><br>
+    <points>-95.6972,41.0414</points><br>
+    <points>-96.4373,41.4339</points><br>
+    <points>-96.6898,41.8389</points><br>
+    <points>-98.0257,42.7388</points><br>
+    <points>-96.75,40.86</points><br>
+    <points>-95.9,41.3</points><br>
+    <points>-97.43,41.98</points><br>
+    <points>-95.92,40.95</points><br>
+&lt/sampleData&gt</tt>
+<br>
+<h4>ColorTable</h4>
+<p>In AWIPS2 color tables are stored in xml files:</p>
+<tt>&lt colorMap &gt<br>
+    &lt color r="0" g="0" b="0" a="1" /><br>
+    &lt color r="0.00392156862745098" g="0.00392156862745098" b="0.00392156862745098" a="1" /&gt<br>
+    &lt color r="0.00784313725490196" g="0.00784313725490196" b="0.00784313725490196" a="1" /&gt<br>
+    &lt color r="0.0117647058823529" g="0.0117647058823529" b="0.0117647058823529" a="1" /&gt<br>
+    &lt color r="0.0156862745098039" g="0.0156862745098039" b="0.0156862745098039" a="1" /&gt<br>
+    &lt color r="0.0196078431372549" g="0.0196078431372549" b="0.0196078431372549" a="1" /&gt<br>
+    &lt color r="1" g="1" b="1" a="1" /&gt<br>
+&lt/colorMap &gt</tt><br>
+</p>
+</body>
+</html>

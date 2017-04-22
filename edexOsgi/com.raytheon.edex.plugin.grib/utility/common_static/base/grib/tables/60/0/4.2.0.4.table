@@ -1,0 +1,18 @@
+# Product Discipline 0: Meteorological products, Parameter Category 4: Short-wave Radiation
+#192-254 Reserved for local use
+192:192:Downward Short-Wave Rad. Flux:W/m^2:DSWRF
+193:193:Upward Short-Wave Rad. Flux:W/m^2:USWRF
+194:194:UV-B downward solar flux:W/m^2:DUVB
+195:195:Clear sky UV-B downward solar flux:W/m^2:CDUVB
+196:196:Clear sky downward solar flux:W/m^2:CSDSF
+197:197:Solar Radiative Heating Rate:K/s:SWHR
+198:198:Clear Sky Upward Solar Flux:W/m^2:CSUSF
+199:199:Cloud Forcing Net Solar Flux:W/m^2:CFNSF
+200:200:Visible Beam Downward Solar Flux:W/m^2:VBDSF
+201:201:Visible Diffuse Downward Solar Flux:W/m^2:VDDSF
+202:202:Near IR Beam Downward Solar Flux:W/m^2:NBDSF
+203:203:Near IR Diffuse Downward Solar Flux:W/m^2:NDDSF
+204:204:Downward Total radiation Flux:W/m^2:DTRF
+205:205:Upward Total radiation Flux:W/m^2:UTRF
+255:255:Missing
+

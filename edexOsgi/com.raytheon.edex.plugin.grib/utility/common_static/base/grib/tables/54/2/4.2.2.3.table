@@ -1,0 +1,16 @@
+# Product Discipline 2: Land surface products, Parameter Category 3: Soil Products
+#192-254 Reserved for local use
+192:192:Liquid volumetric soil moisture (non-frozen):Proportion:SOILL
+193:193:Number of soil layers in root zone::RLYRS
+194:194:Surface Slope Type:Index:SLTYP
+195:195:Transpiration stress-onset (soil moisture):Proportion:SMREF
+196:196:Direct evaporation cease (soil moisture):Proportion:SMDRY
+197:197:Soil porosity:Proportion:POROS
+198:198:Direct evaporation from bare soil:W/m^2:EVBS
+199:199:Land Surface Precipitation Accumulation:mm:LSPA
+200:200:Bare soil surface skin temperature:K:BARET
+201:201:Average surface skin temperature:K:AVSFT
+202:202:Effective radiative skin temperature:K:RADT
+203:203:Field Capacity:fraction:FLDCP
+255:255:Missing
+

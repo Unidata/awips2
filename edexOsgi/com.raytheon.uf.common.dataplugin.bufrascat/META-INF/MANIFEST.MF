@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bufrascat Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.bufrascat
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: com.raytheon.uf.common.dataplugin.bufrascat
+Require-Bundle: javax.persistence,
+ javax.measure,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.geospatial
+Import-Package: com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.common.pointdata.spatial

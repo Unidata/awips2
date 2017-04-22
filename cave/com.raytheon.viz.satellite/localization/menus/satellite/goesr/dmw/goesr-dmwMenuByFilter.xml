@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+   
+   <!-- TOWRdocs Header
+        GOES-R DMW sub-menu items file (Ordering by channel or filter)
+    -->
+    <!-- TOWRdocs Description
+        This file adds a DMW sub-menu item  to the GOES-R menu in AWIPS II CAVE. This sets up the menu
+        structure that opens after selecting a menu item contained in the "- Derived Motion Winds -" section. 
+
+            - "subMenu" references the text that will appear in the menu.
+            - "fileName" references the file (in the localization hierarchy) that will load when clicking the menu item. 
+            - "substitute" entities create key-value pairs. Referencing each key in subsequent files
+            (i.e. "fileName" and any nested files underneath) will instead replace that entry with the
+            corresponding value e.g. "&#36;{keyname}" = "value". 
+    -->
+    <!-- TOWRdocs Status
+        This file is a modification to the baseline file /menus/satellite/goesr/dmwByScene. 
+        It takes out the redundant "legend1" declaration, as well as handles the enhancements
+        made to DMW plugin and database table.
+    -->
+    <!-- TOWRdocs POC
+        Matt Comerford
+    -->
+    
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <!-- By Filter -->
+    <contribute xsi:type="subinclude" subMenu="By Pressure"
+        fileName="menus/satellite/goesr/dmw/goesr-dmwMenuByPressure.xml">
+        <substitute key="legend1" value="All Ch DMW" />
+        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
+        <substitute key="plugin" value="dmw" />
+    </contribute>
+    
+    <!-- By Mandatory Levels -->
+    <contribute xsi:type="subinclude" subMenu="By Mandatory Levels"
+        fileName="menus/satellite/goesr/dmw/goesr-dmwMenuByMandatoryLevels.xml">
+        <substitute key="legend1" value="All Ch DMW" />
+        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
+        <substitute key="plugin" value="dmw" />
+    </contribute>
+    
+    <!-- By Channel -->
+    <contribute xsi:type="subinclude" subMenu="By Channel"
+        fileName="menus/satellite/goesr/dmw/goesr-dmwMenuByChannel.xml">
+        <substitute key="legend1" value="DMW (Ch" />
+        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
+        <substitute key="plugin" value="dmw" />
+    </contribute>
+    
+</menuTemplate>

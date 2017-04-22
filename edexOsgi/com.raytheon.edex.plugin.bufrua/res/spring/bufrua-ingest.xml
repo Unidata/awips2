@@ -1,0 +1,40 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+   <bean id="bufruaDecoder" class="com.raytheon.edex.plugin.bufrua.BufrUADecoder">
+        <constructor-arg ref="bufruaPluginName" />
+    </bean>
+
+    <bean id="bufruaDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg ref="bufruaPluginName" />
+		<constructor-arg value="jms-durable:queue:Ingest.bufrua" />
+	</bean>
+
+    <camelContext id="bufrua-camel" 
+                  xmlns="http://camel.apache.org/schema/spring" 
+                  errorHandlerRef="errorHandler">
+
+        <!-- Begin BUFRUA routes -->
+        <route id="bufruaIngestRoute">
+            <from uri="jms-durable:queue:Ingest.bufrua"/>
+            <setHeader headerName="pluginName">
+                <constant>bufrua</constant>
+            </setHeader>
+            <doTry>
+                <pipeline>
+            		<bean ref="stringToFile" />
+                    <bean ref="bufruaDecoder" method="decode"/>
+                    <to uri="direct-vm:persistIndexAlert" />
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:bufrua?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+	</camelContext>
+</beans>

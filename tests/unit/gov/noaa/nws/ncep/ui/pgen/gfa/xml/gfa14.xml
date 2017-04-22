@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Products xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Product name="Default" type="Default" forecaster="Default" center="Default" onOff="true" useFile="true" filePath="./" fileName="/usr1/mlaryukhin/to11dr11/eclipse/ncep/base/resources/obs_and_analysis_rscs/PGEN/Local/gfa14_Default.xml">
+        <Layer name="Default" onOff="true" monoColor="false" filled="false">
+            <Color red="255" green="255" blue="0" alpha="255"/>
+            <DrawableElement>
+                <Gfa pgenCategory="MET" pgenType="GFA" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="true" filled="false" fillPattern="SOLID" lonText="-106.63933282456554" latText="43.19799459547461" hazard="IFR" fcstHr="3" tag="1" desk="W" issueType="NRML" cycleDay="28" cycleHour="20" type="CIG BLW 010">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="41.308525917062255" Lon="-108.21321703492313"/>
+                    <Point Lat="39.130591659671055" Lon="-107.99773215301369"/>
+                    <Point Lat="39.05590858753905" Lon="-103.97605208285555"/>
+                    <Point Lat="41.55894266960883" Lon="-104.68040273436061"/>
+                </Gfa>
+                <Gfa pgenCategory="MET" pgenType="GFA" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="true" filled="false" fillPattern="SOLID" lonText="-111.36560433027252" latText="38.82378765629467" hazard="IFR" fcstHr="6" tag="1" desk="W" issueType="NRML" cycleDay="28" cycleHour="20" type="CIG BLW 010">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="39.79891139303492" Lon="-107.33416292707027"/>
+                    <Point Lat="35.68764572910258" Lon="-107.73933240026201"/>
+                    <Point Lat="35.990576901327586" Lon="-103.27022640803084"/>
+                    <Point Lat="39.78072078380366" Lon="-104.92349132178833"/>
+                </Gfa>
+            </DrawableElement>
+        </Layer>
+    </Product>
+</Products>

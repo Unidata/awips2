@@ -1,0 +1,4 @@
+C                                           *--> FROM SCOMMON.DIMPE
+C  ARRAYS FOR STATION PE PARAMETERS
+      DIMENSION PECOEF(6),PESUM(12),NPESUM(12)
+C

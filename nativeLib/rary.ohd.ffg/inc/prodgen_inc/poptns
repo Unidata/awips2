@@ -1,0 +1,4 @@
+      character*4 tzout
+      character*1 nowz,lcptim,nowlcl
+      common /poptns/ iabug,ndes,nstr,ndur,tzout,ucon,
+     1                nowz(12),lcptim(12),nowlcl(12),ibend

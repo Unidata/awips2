@@ -1,0 +1,160 @@
+C MEMBER XSMO26
+C  (from old member FCXSMO26)
+C
+C @PROCESS LVL(77)
+C DESC OUTPUT SIMULATED MODEL VALUES TO TIME-SERIES
+C---------------------------------------------------------------------
+C                             LAST UPDATE: 10/12/95.09:16:26 BY $WC30KH
+C
+      SUBROUTINE XSMO26(PO,W,D,IDPT,LOCTRI,LOCTRM,LOCTRE,LOCTRS,LRPPOS,
+     .                  LRPVAL)
+C---------------------------------------------------------------------
+C  SUBROUTINE TO OUTPUT SIMULATED VALUES TO TIME-SERIES. CERTAIN TIME-
+C  SERIES MUST BE WRITTEN AND OTHERS ARE OPTIONAL.
+C---------------------------------------------------------------------
+C  WRITTEN BY - JOE OSTROWSKI - HRL - NOV 1983
+C----------------------------------------------------------------------
+C
+      INCLUDE 'common/resv26'
+      INCLUDE 'common/exg26'
+      INCLUDE 'common/fdbug'
+C
+      DIMENSION W(*),D(*),IDPT(*),PO(*)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_res/RCS/xsmo26.f,v $
+     . $',                                                             '
+     .$Id: xsmo26.f,v 1.3 1996/07/12 14:05:57 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C-----------------------------------
+C  TRACE OUTPUT IF REQUESTED
+C
+      IF (IBUG.GE.1) WRITE(IODBUG,1600)
+ 1600 FORMAT('   *** ENTER XSMO26 ***')
+C
+      IF (IBUG.LT.2) GO TO 10
+C
+C  WRITE INST. SIM. DISCHARGES
+C
+      WRITE(IODBUG,1610)
+ 1610 FORMAT(/10X,'** INST. SIM. DISCHARGES **')
+      WRITE(IODBUG,1650) (W(LOCTRI+I-1),I=1,NUM)
+ 1650 FORMAT(1X,8F10.0)
+C
+C  WRITE MEAN SIM. DISCHARGES
+C
+      WRITE(IODBUG,1612)
+ 1612 FORMAT(/10X,'** MEAN SIM. DISCHARGES **')
+      WRITE(IODBUG,1650) (W(LOCTRM+I-1),I=1,NUM)
+C
+C  WRITE SIM. POOL ELEVATIONS
+C
+      WRITE(IODBUG,1614)
+ 1614 FORMAT(/10X,'** SIM. POOL ELEVATIONS **')
+      WRITE(IODBUG,1651) (W(LOCTRE+I-1),I=1,NUM)
+ 1651 FORMAT(1X,8F10.3)
+C
+C  WRITE SIM. STORAGES
+C
+      WRITE(IODBUG,1616)
+ 1616 FORMAT(/10X,'** SIM. STORAGES **')
+      WRITE(IODBUG,1650) (W(LOCTRS+I-1),I=1,NUM)
+C
+C  FOR SIMULATED, OUTPUT OF MEAN DISCHARGE IS REQUIRED
+C  VALUES MUST BE CONVERTED TO CMSD FOR STANDARD UNITS OF FLOW VOLUMES
+C
+C  SET TIME INTERVAL SCHEDULE FOR THIS TIME-SERIES OUTPUT
+C
+   10 CONTINUE
+      LOCTST = PO(11) + 11
+      IDT = PO(LOCTST+3)
+      IOFFTS = IDOFST * 24/IDT
+      NINT = IDT/MINODT
+C
+      DO 50 I=1,NUM
+      IF (MOD(I,NINT) .NE. 0) GO TO 50
+      D(IDPT(3)+IOFFTS+I-1) = W(LOCTRM+I-1)/NTIM24
+   50 CONTINUE
+C
+C  OUTPUT OF INSTANTANEOUS DISCHARGE IS OPTIONAL
+C
+      LOCTST = LOCTST + 5
+      IADD = 2
+      IF (IDPT(4) .EQ. 0) GO TO 200
+C
+C  SET TIME INTERVAL SCHEDULE FOR OUTPUT
+C
+      IDT = PO(LOCTST+3)
+      IOFFTS = IDOFST * 24/IDT
+      NINT = IDT/MINODT
+      IADD = 5
+C
+      DO 100 I=1,NUM
+      IF (MOD(I,NINT) .NE. 0) GO TO 100
+      D(IDPT(4)+IOFFTS+I-1) = W(LOCTRI+I-1)
+  100 CONTINUE
+C
+C  HERE WE MUST CHECK TO SEE IF ANY INST. DISCHARGES MUST BE REPLACED
+C  BY PEAK VALUES
+C
+      IF (NUMPKO .LE. 0) GO TO 200
+C
+      DO 150 I=1,NUMPKO
+      IPOS = W(LRPPOS+I-1)
+      IF (MOD(IPOS,NINT) .NE. 0) GO TO 150
+      VAL =  W(LRPVAL+I-1)
+      D(IDPT(4)+IOFFTS+IPOS-1) = VAL
+  150 CONTINUE
+C
+C  POOL ELEVATION OUTPUT IS OPTIONAL
+C
+  200 CONTINUE
+      LOCTST = LOCTST + IADD
+      IADD = 2
+      IF (IDPT(5) .EQ. 0) GO TO 300
+C
+C  SET TIME INTERVAL SCHEDULE FOR OUTPUT
+C
+      IDT = PO(LOCTST+3)
+      IOFFTS = IDOFST * 24/IDT
+      NINT = IDT/MINODT
+      IADD = 5
+C
+      DO 250 I=1,NUM
+      IF (MOD(I,NINT) .NE. 0) GO TO 250
+      D(IDPT(5)+IOFFTS+I-1) = W(LOCTRE+I-1)
+  250 CONTINUE
+C
+C  STORAGE OUTPUT IS OPTIONAL. IF REQUESTED, VALUES MUST BE CONVERTED TO
+C  CMSD (STANDARD UNITS).
+C
+  300 CONTINUE
+      LOCTST = LOCTST + IADD
+      IADD = 2
+      IF (IDPT(6) .EQ. 0) GO TO 9000
+C
+C  SET TIME INTERVAL SCHEDULE FOR OUTPUT
+C
+      LOCDT = LOCTST + 3
+      IDT = PO(LOCDT)
+      IOFFTS = IDOFST * 24/IDT
+      NINT = IDT/MINODT
+C
+      DO 350 I=1,NUM
+      IF (MOD(I,NINT) .NE. 0) GO TO 350
+      J = I/NINT
+      D(IDPT(6)+IOFFTS+J-1) = W(LOCTRS+I-1)/NTIM24
+  350 CONTINUE
+C
+C  ALL DONE OUTPUTTING SIMULATED TRACES TO TIME-SERIES.
+C
+ 9000 CONTINUE
+      IF (IBUG.GE.1) WRITE(IODBUG,1699)
+ 1699 FORMAT('    *** EXIT XSMO26 ***')
+      RETURN
+      END

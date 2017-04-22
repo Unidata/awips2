@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# This starts the desired script passing the script name and arguments as a 
+# single string ("$@"). It then sends stdout/stderr to the bit bucket 
+# (>&/dev/null).
+# The stdin for the script is also the bit bucket (</dev/null) so if used it 
+# immediately indicates end of file. Finally the script is set to run in the 
+# background (&) so the launcher returns without waiting for the script to 
+# return.
+exec "$@" >&/dev/null </dev/null &

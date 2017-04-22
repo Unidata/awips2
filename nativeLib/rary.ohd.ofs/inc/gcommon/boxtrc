@@ -1,0 +1,2 @@
+C                                           *--> FROM GCOMMON.BOXTRC
+      COMMON /BOXTRC/ NTRBOX(20), NBXDBG, LEVEL(2), IPBOXA, IBTCON

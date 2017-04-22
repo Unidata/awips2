@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+    	This portion of the software was developed to support GOES-R and JPSS.
+        Developer:		Jordan Gerth / Jordan.Gerth @ noaa.gov
+        Organization:	Cooperative Institute for Meteorological Satellite Studies
+        Address:		1225 W. Dayton St., Madison, WI 53706
+    -->
+<customLegends>
+    <map>
+        <entry><key>GOES-13(N) Imager Visible</key><value>GOES-13 Visible Imagery</value></entry>
+        <entry><key>GOES-14(O) Imager Visible</key><value>GOES-14 Visible Imagery</value></entry>
+        <entry><key>GOES-15(P) Imager Visible</key><value>GOES-15 Visible Imagery</value></entry>
+        <entry><key>Imager Visible</key><value>Visible Imagery</value></entry>
+    </map>
+</customLegends>

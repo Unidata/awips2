@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<purgeRuleSet>
+	<key>info.datasetId</key>
+	<!-- Default rule for data not covered by any rules, 2 versions up to 7 days.   
+      Rules are made up of the following tags:
+        keyValue is the name of model (required)
+        versionsToKeep is the number of versions you'd like to keep (must have this and/or period)
+        period is the amount of time to keep file (must have this and/or versionsToKeep)
+        modTimeToWait will increase the versionsToKeep by 1 if data matching this rule has been stored within modTimeToWait (optional, should only be specified with versionsToKeep)
+        ruleDescription is the description of this rule (optional)
+    -->
+	<defaultRule>
+		<versionsToKeep>2</versionsToKeep>
+		<period>07-00:00:00</period>
+	</defaultRule>
+	<rule>
+		<keyValue>HPCqpf</keyValue>
+		<versionsToKeep>5</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>MPE-Local</keyValue>
+		<versionsToKeep>72</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>TPCWindProb</keyValue>
+		<versionsToKeep>8</versionsToKeep>
+	</rule>
+        <rule regex="true">
+        	<keyValue>QPE.</keyValue>
+        	<versionsToKeep>72</versionsToKeep>
+        </rule>
+	<rule regex="true">
+		<keyValue>(RTMA|RTMA25|URMA)</keyValue>
+		<versionsToKeep>24</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>GFSLAMPGrid</keyValue>
+		<versionsToKeep>24</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>HPCqpfNDFD</keyValue>
+		<versionsToKeep>42</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>SPCGuide</keyValue>
+		<versionsToKeep>5</versionsToKeep>
+	</rule>
+	<rule regex="true">
+		<keyValue>(HRRR|HRRRX|RAP13|RAP20|RAP40)</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+	</rule>
+        <rule regex="true">
+        	<keyValue>MRMS_(?:05|10|50)00</keyValue>
+        	<period>00-08:00:00</period>
+        </rule>
+        <rule>
+        	<keyValue>NARR</keyValue>
+        	<period>40-00:00:00</period>
+        </rule>
+</purgeRuleSet>

@@ -1,0 +1,95 @@
+#include <stdio.h>
+#include <string.h>
+
+#include "DbmsAccess.h"
+#include "GeneralUtil.h"
+#include <sqlca.h>
+
+/*
+ Function to open a connection to the named database.
+ Although it takes a dmbsname as an argument, the function has been modified to read the database connection information directly from the keys of a token file.
+
+ */
+int OpenDbms(const char *dbmsname) {
+
+	EXEC SQL BEGIN DECLARE SECTION;
+	char sqlstmt[STMT_LEN+1];
+	EXEC SQL END DECLARE SECTION;
+        int result = Ok;
+
+	if (!dbmsname || !*dbmsname) {
+             result= errNoDatabaseName;    
+             goto  freeALL;
+	}
+
+	char * db_name = getAppDefault("db_name");
+	char * db_host = getAppDefault("pghost");
+	char * db_port = getAppDefault("pgport");
+        char * db_user = getAppDefault("pguser");
+        char * ssl_home = getAppDefault("DB_ssl_cert_dir");
+        char * ssl_mode = getAppDefault("DB_ssl_mode");
+
+        snprintf(sqlstmt,sizeof(sqlstmt), "tcp:postgresql://%s:%s/%s?user=%s&sslmode=%s"
+                        "&sslkey=%s/%s.key&sslcert=%s/%s.crt&sslrootcert=%s/root.crt"
+                         ,db_host,db_port,db_name,db_user,ssl_mode,ssl_home,db_user,
+                         ssl_home,db_user,ssl_home);
+
+        printf("Connecting to database '%s' as user '%s'\n", sqlstmt, db_user);
+
+
+        EXEC SQL CONNECT TO :sqlstmt ;
+
+	if (SQLCODE < 0) {
+		fprintf(stderr, "Unable to open database %s - (%ld)\n", dbmsname,
+				SQLCODE);
+		result=errSqlFail;
+                goto  freeALL;
+	}
+
+freeALL:
+    free(db_name);
+    free(db_host);
+    free(db_port);
+    free(db_user);
+    free(ssl_home);
+    free(ssl_mode);
+
+ 
+	return (result);
+}
+
+/*
+ Function to close a connection to a previously opened
+ database.
+ */
+int CloseDbms() {
+	if (ECPGstatus(__LINE__, "CURRENT")) {
+
+		EXEC SQL DISCONNECT;
+
+		if (SQLCODE < 0)
+			return (errCloseFail);
+	}
+
+	return (Ok);
+}
+
+/**
+ * Returns a character string pointer containing the value of the given token.
+ *
+ * free should be called on the given character string pointer when finished with the value.
+ */
+char * getAppDefault(char * token) {
+
+	int valueLength = 512;
+	char * value = (char *) malloc(valueLength * sizeof(char ));
+
+	int tokenLength = strlen(token);
+
+	get_apps_defaults(token, &tokenLength, value, &valueLength);
+
+	value[valueLength] = '\0';
+
+	return value;
+
+}

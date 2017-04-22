@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <contribute xsi:type="toolbarSubMenu" menuText="Layers">
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="3C_-1C"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="-3C_-10C"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="-10C_-13C"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="-10C_-20C"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="-10C_-30C"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="-12C_-18C"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="-20C_-30C"  indentText="false"/>    
+    	</contribute>
+    	<contribute xsi:type="toolbarSubMenu" menuText="More Levels">
+    	 <contribute xsi:type="menuItem" menuText="4C" key="4C"  indentText="false"/>
+		 <contribute xsi:type="menuItem" menuText="3C" key="3C"  indentText="false"/>
+		 <contribute xsi:type="menuItem" menuText="2C" key="2C"  indentText="false"/>
+		 <contribute xsi:type="menuItem" menuText="1C" key="1C"  indentText="false"/>
+		 <contribute xsi:type="menuItem" menuText="-2C" key="-2C"  indentText="false"/>
+		 <contribute xsi:type="menuItem" menuText="-3C" key="-3C"  indentText="false"/>
+		 <contribute xsi:type="menuItem" menuText="-4C" key="-4C"  indentText="false"/>
+		 <contribute xsi:type="menuItem" menuText="-6C" key="-6C"  indentText="false"/>
+		 <contribute xsi:type="menuItem" menuText="-7C" key="-7C"  indentText="false"/>
+		 <contribute xsi:type="menuItem" menuText="-8C" key="-8C"  indentText="false"/>
+		 <contribute xsi:type="menuItem" menuText="-9C" key="-9C"  indentText="false"/>
+		 <contribute xsi:type="menuItem" menuText="-11C" key="-11C"  indentText="false"/>
+		 <contribute xsi:type="menuItem" menuText="-12C" key="-12C"  indentText="false"/>
+		 <contribute xsi:type="menuItem" menuText="-13C" key="-13C"  indentText="false"/>
+		 <contribute xsi:type="menuItem" menuText="-14C" key="-14C"  indentText="false"/>
+		 <contribute xsi:type="menuItem" menuText="-16C" key="-16C"  indentText="false"/>
+		 <contribute xsi:type="menuItem" menuText="-17C" key="-17C"  indentText="false"/>
+		 <contribute xsi:type="menuItem" menuText="-18C" key="-18C"  indentText="false"/>
+		 <contribute xsi:type="menuItem" menuText="-19C" key="-19C"  indentText="false"/>
+		</contribute>
+		
+    	<contribute xsi:type="menuItem" menuText="30C" key="30C"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="25C" key="25C"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="20C" key="20C"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="15C" key="15C"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="10C" key="10C"  indentText="false"/>
+		 <contribute xsi:type="menuItem" menuText="5C" key="5C"  indentText="false"/>		
+		<contribute xsi:type="menuItem" menuText="0C" key="0C"  indentText="false"/>
+		<contribute xsi:type="menuItem" menuText="-5C" key="-5C"  indentText="false"/>		
+		<contribute xsi:type="menuItem" menuText="-10C" key="-10C"  indentText="false"/>	
+		<contribute xsi:type="menuItem" menuText="-15C" key="-15C"  indentText="false"/>	
+		<contribute xsi:type="menuItem" menuText="-20C" key="-20C"  indentText="false"/>
+		<contribute xsi:type="menuItem" menuText="-25C" key="-25C"  indentText="false"/>
+		<contribute xsi:type="menuItem" menuText="-30C" key="-30C"  indentText="false"/>
+		<contribute xsi:type="menuItem" menuText="-35C" key="-35C"  indentText="false"/>
+		<contribute xsi:type="menuItem" menuText="-40C" key="-40C"  indentText="false"/>
+      	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="Htfl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="MaxT" indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="MaxTW" indentText="false"/>    	
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="WetBulb0"  indentText="false"/>
+   
+ 
+</menuTemplate>

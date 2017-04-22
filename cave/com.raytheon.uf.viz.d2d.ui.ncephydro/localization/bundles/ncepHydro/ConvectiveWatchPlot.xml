@@ -1,0 +1,29 @@
+<bundle>
+    <displayList>
+        <displays xsi:type="d2DMapRenderableDisplay"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <descriptor xsi:type="mapDescriptor">
+                <resource>
+                    <loadProperties loadWithoutData="true">
+                    <capabilities />
+                    </loadProperties>
+                    <properties isSystemResource="false" isBlinking="false"
+                        isMapLayer="false" isHoverOn="false" isVisible="true" />
+                    <resourceData xsi:type="wouWcnWatchesResourceData"
+                        isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true"
+                        name="Convective Watches">
+                        <metadataMap>
+                            <mapping key="phensig">
+                                <constraint constraintValue="TO.A,SV.A"
+                                    constraintType="IN" />
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="warning" constraintType="EQUALS" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+            </descriptor>
+        </displays>
+    </displayList>
+</bundle>

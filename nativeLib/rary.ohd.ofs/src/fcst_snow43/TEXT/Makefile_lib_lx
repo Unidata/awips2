@@ -1,0 +1,58 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-fcst_snow43 library file
+#
+#  cmt: File made on Wed Aug  6 12:51:11 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libfcst_snow43_t.a:  \
+     $(LIB)/libfcst_snow43_t.a(ab31.o)  \
+     $(LIB)/libfcst_snow43_t.a(adjc31.o)  \
+     $(LIB)/libfcst_snow43_t.a(adjp31.o)  \
+     $(LIB)/libfcst_snow43_t.a(aeco31.o)  \
+     $(LIB)/libfcst_snow43_t.a(case31.o)  \
+     $(LIB)/libfcst_snow43_t.a(chkx31.o)  \
+     $(LIB)/libfcst_snow43_t.a(csav31.o)  \
+     $(LIB)/libfcst_snow43_t.a(endo31.o)  \
+     $(LIB)/libfcst_snow43_t.a(ex31.o)  \
+     $(LIB)/libfcst_snow43_t.a(f031.o)  \
+     $(LIB)/libfcst_snow43_t.a(fltr31.o)  \
+     $(LIB)/libfcst_snow43_t.a(fmx31.o)  \
+     $(LIB)/libfcst_snow43_t.a(melt31.o)  \
+     $(LIB)/libfcst_snow43_t.a(pack31.o)  \
+     $(LIB)/libfcst_snow43_t.a(prco31.o)  \
+     $(LIB)/libfcst_snow43_t.a(prop31.o)  \
+     $(LIB)/libfcst_snow43_t.a(prsm31.o)  \
+     $(LIB)/libfcst_snow43_t.a(prsn31.o)  \
+     $(LIB)/libfcst_snow43_t.a(rout31.o)  \
+     $(LIB)/libfcst_snow43_t.a(stsp31.o)  \
+     $(LIB)/libfcst_snow43_t.a(swst31.o)  \
+     $(LIB)/libfcst_snow43_t.a(updt31.o)  \
+     $(LIB)/libfcst_snow43_t.a(zero31.o)
+

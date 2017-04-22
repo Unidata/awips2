@@ -1,0 +1,1523 @@
+#!/usr/bin/env python
+
+# a2pgca - A "mini CA" script for managing certificates used for accessing
+# the database in AWIPS II.
+#
+# There are two main ways this script is used:
+#
+# At the NCF, it manages the root certificate and generates site-level CA
+# certificates.
+#
+# At sites, it manages the server and database account certificates.
+#
+# Because the PostgreSQL software mandates keys not be group- or
+# other-readable it is not possible to have certs/keys in a shared location.
+# Each system user that connects to the database needs to have its own copy
+# of the certs/keys.  This script automates installing the certs/keys to
+# application and user home directories taking access levels into account.
+#
+# The script publicly manages the following types of objects:
+#  sites - site-level CA certificates and initialization bundles
+#  dbusers - PostgreSQL database account identity certificates
+#  roles - lists of database accounts comprising access levels (user vs. admin)
+#  users - system users that need certs/keys; has a single role assigned
+#
+# Internally, there more general 'target' and 'identity' types that also
+# manage cert/keys for the database server and applications.
+#
+# Modification History
+#
+# Name                Date         Comments
+# ---------------------------------------------------------------------------
+# David Friedman      2016-12-07   DR 19611 - Initial creation
+# David Friedman      2016-12-22   DR 19637 - Support multiple DB servers.
+# David Friedman      2017-02-21   DR 19777 - Support 'oper' and 'awipsusr'.
+
+from fnmatch import fnmatch
+from getopt import GetoptError, getopt
+from grp import getgrnam
+import json
+from os import chmod, chown, environ, geteuid, listdir, makedirs, mkdir, remove, rename, symlink
+from os.path import basename, dirname, exists, isabs, isdir, isfile, join, normpath, splitext
+from pwd import getpwall, getpwnam
+from shutil import copyfile, rmtree
+import subprocess
+import sys
+from tempfile import mkdtemp
+from types import FunctionType
+from zipfile import ZipFile
+
+if sys.version_info < (2, 7):
+    # ZipFile is not a context manager in 2.6
+    class ZipFile(ZipFile):
+        def __enter__(self):
+            return self
+        def __exit__(self, type, value, traceback):
+            self.close()
+
+def pout(text):
+    sys.stdout.write(text)
+
+def pmsg(level, msg, fp=None):
+    fp = fp or sys.stderr
+    fp.write('%s: %s\n' % (level, msg))
+
+def pinf(msg):
+    sys.stdout.write(msg + '\n')
+
+def perr(msg):
+    pmsg('error', msg)
+
+def pwrn(msg):
+    pmsg('warning', msg)
+
+def pftl(msg):
+    pmsg('error', msg)
+    sys.exit(1)
+
+class Fail(Exception):
+    pass
+
+class UsageError(Fail):
+    pass
+
+def make_safe_wrapper(name, f):
+    """Return a "safe" version of the given function that reports
+    system errors instead of raising an exception."""
+    def safe_wrapper(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except EnvironmentError as e:
+            perr('%s: %s' % (name, e))
+    return safe_wrapper
+
+safe_chmod = make_safe_wrapper('chmod', chmod)
+safe_remove = make_safe_wrapper('remove', remove)
+safe_rename = make_safe_wrapper('rename', rename)
+safe_symlink = make_safe_wrapper('symlink', symlink)
+def safe_rmtree(path):
+    def handle_error(func, path, exc_info):
+        perr('%s: %s failed: %s' % (path, func.__name__, exc_info[1]))
+    rmtree(path, onerror=handle_error)
+
+# As a precaution, rsync'ing to top-level directories and relative paths is
+# not allowed.
+def sanity_check_target_directory(path):
+    if not isabs(path) or len(normpath(path).split('/')) < 3:
+        raise Fail('unsafe destination directory: ' + path)
+
+def get_has_rax_db():
+    return environ.get('SITE_TYPE') == 'rfc'
+
+def get_most_hosts():
+    result = BASE_MOST_HOSTS
+    if get_has_rax_db():
+        result += ' ax'
+    return result
+
+sub_commands = {}
+
+def show_subcommand_usage(f):
+    prog_name_key = '#'
+    prog_name = basename(sys.argv[0])
+    cmd_text = prog_name + ' ' + f.name
+    usage_text = getattr(f, 'usage', None) or \
+        ('  %s' % (prog_name_key,))
+    pout('%s - %s\n\nUsage:\n\n%s\n' % (f.name, f.desc, usage_text.replace(prog_name_key, cmd_text)))
+
+def subcommand(arg=None, desc=None):
+    """Decorate a function with an optional command name and
+    description."""
+    override_name = None
+    def impl(f):
+        name = override_name or f.func_name.replace('_','-')
+        sub_commands[name] = f
+        f.name = name
+        f.desc = desc
+        return f
+    if isinstance(arg, FunctionType):
+        return impl(arg)
+    else:
+        override_name = arg
+        return impl
+
+def usage(text):
+    """Decorate a function with a usage message and return a
+    wrapper function that catches usage errors and prints
+    the message."""
+    def impl(f):
+        def wrapper(*args, **kwargs):
+            try:
+                f(*args, **kwargs)
+            except (GetoptError, UsageError) as e:
+                perr(str(e))
+                show_subcommand_usage(wrapper)
+        f.usage = text
+        wrapper.usage = f.usage
+        wrapper.func_name = f.func_name
+        wrapper.name = getattr(f, 'name', None)
+        return wrapper
+    return impl
+
+class Policy(object):
+    """Represents target-specific policies for storing certificate files."""
+
+    def __init__(self, java_keys=False, create_dir=False, link_awips=False):
+        self.java_keys = java_keys
+        self.create_dir = create_dir
+        self.link_awips = link_awips
+
+PUBLIC_DIR_PERM = int('755', 8)
+PRIVATE_DIR_PERM = int('700', 8)
+PUBLIC_FILE_PERM = int('644', 8)
+PRIVATE_FILE_PERM = int('600', 8)
+SYSTEM_PKI_DIR = '/etc/pki'
+DEFAULT_PKI_SUBDIR = 'a2pgca'
+VALIDITY_DAYS = 365 * 5
+ORG_DN_PREFIX = '/O=AWIPS DB Auth'
+BASELINE_DB_USERS = ('awips', 'awipsadmin', 'pguser', 'postgres')
+UNPRIVILEGED_DB_USERS = ('awips','pguser')
+TARGET_TYPE_POLICIES = {
+    'edex':   Policy(java_keys=True, create_dir=True, link_awips=False),
+    'user':   Policy(java_keys=True, create_dir=False, link_awips=True),
+    'server': Policy(java_keys=False, create_dir=False, link_awips=False),
+}
+JDBC_CRED_SUFFIXES = ('.crt', '.key', '.pk8')
+LIBPQ_CRED_SUFFIXES = ('.crt', '.key')
+ALL_CRED_SUFFIXES = JDBC_CRED_SUFFIXES
+ALL_KEY_SUFFIXES = ('.key', '.pk8')
+SERVER_ROLE = 'server'
+INTERNAL_ROLES = (SERVER_ROLE,)
+BASELINE_ROLES = ('server', 'user', 'admin')
+BASELINE_ROLE_DB_USERS = {
+    'user': ('awips', 'pguser'),
+    'admin': BASELINE_DB_USERS
+}
+BASELINE_USERS = ('awips', 'awipsusr', 'fxa', 'ncf', 'oper', 'root') # @fxa *is* allowed to be removed
+DEFAULT_SITES = '''abq abr acr afc afg ajk akq alr aly ama apx arx awcn bcq
+bgm bis bmx boi bou box bro btv buf byz cae car chs cle crp ctp cys ddc dlh
+dmx dtx dvn eax ehu eka epz ewx ffc fgf fgz fsd fslc fwd fwr ggw gid gjt gld
+grb grr gsp gum gyx hfon hgx hnx hpcn hun ict ilm iln ilx ind iwx jan jax jkl
+key krf lbf lch lix lkn lmk lot lox lsx lub lwx lzk maf meg mfl mfr mhx mkx
+mlb mob mpx mqt mrx mso msr mtr nhcn nhcr nhor nmtr nmtw ntca ntcb ntcc ntcd
+oax ohx okx opcn opga orn osfw otx oun pah pbp pbz pdt phi pih pqr psr ptr
+pub rah rev rha riw rlx rnk rsa sew sfmg sgf sgx shv sjt sju slc spcn sto str
+swpn tae tar tbw tfx tir top tsa tua twc unr vef vhw vrh vuy wncf nwco
+nwct'''.split()
+BASE_MOST_HOSTS = '$DX_SERVERS $PX_SERVERS $LX_WORKSTATIONS $XT_WORKSTATIONS'
+
+def make_init_bundle_name(site_id):
+    return 'a2pgca-init-' + site_id + '.zip'
+
+def init_empty_dir(path, mode=PUBLIC_DIR_PERM):
+    """Create an empty directory if it does exist.
+
+    Fails if the directory cannot be created or if it already exists
+    and is not empty."""
+    if not exists(path):
+        makedirs(path, mode)
+    elif isdir(path) and listdir(path) == []:
+        return
+    else:
+        raise Fail('%s: already exists and is not an empty diretory' % (path, ))
+
+def verify_dir(path):
+    if not isdir(path):
+        raise Fail('%s: does not exist or is not a directory' % (path,))
+def verify_file(path):
+    if not isfile(path):
+        raise Fail('%s: does not exist or is not a regular file' % (path,))
+
+def cat_files(src_paths, dest_path):
+    with open(dest_path, 'wb') as fd:
+        for path in src_paths:
+            with open(path, 'rb') as fs:
+                fd.write(fs.read())
+
+def run_impl(*popenargs, **kwargs):
+    """Executes a process via subprocess.Popen and its standard output.
+
+    Additional keyword arguments:
+    input -- If not None, is sent to the process via its standard
+      input.
+
+    echo_stderr_filtered -- If True, print standard error from the
+      process after it has completed.  Removes the government
+      warning message.
+
+    echo_stdout -- If True, the process inherits standard output
+      (so that it will be echoed.)
+
+    stderr_to_stdout -- If True, pass stderr=subprocess.STDOUT to
+      Popen.
+    """
+
+    proc_input = None
+    if 'input' in kwargs:
+        proc_input = kwargs.pop('input')
+
+    echo_stderr_filtered = False
+    if 'echo_stderr_filtered' in kwargs:
+        echo_stderr_filtered = kwargs.pop('echo_stderr_filtered')
+
+    echo_stdout = False
+    if 'echo_stdout' in kwargs:
+        echo_stdout = kwargs.pop('echo_stdout')
+
+    stderr_to_stdout = False
+    if 'stderr_to_stdout' in kwargs:
+        stderr_to_stdout = kwargs.pop('stderr_to_stdout')
+
+    if 'stdout' in kwargs or 'stderr' in kwargs:
+        raise ValueError('stdout/stderr argument not allowed, it will be overridden.')
+
+    with open('/dev/null', 'rb') as dev_null:
+        stdin = subprocess.PIPE if proc_input is not None else dev_null
+        stdout = None if echo_stdout else subprocess.PIPE
+        stderr = subprocess.STDOUT if stderr_to_stdout else subprocess.PIPE
+
+        process = subprocess.Popen(stdin=stdin, stdout=stdout,
+            stderr=stderr, *popenargs, **kwargs)
+    output, err = process.communicate(proc_input)
+    if stderr_to_stdout:
+        err = output
+    retcode = process.poll()
+    if echo_stderr_filtered:
+        filtered = False
+        initial = True
+        for line in err.split('\n'):
+            if initial and not line:
+                continue
+            elif line.strip() == '**WARNING**WARNING**WARNING**':
+                filtered = not filtered
+            elif not filtered:
+                initial = False
+                pout(line + '\n')
+        err = ''
+    if retcode:
+        cmd = kwargs.get("args")
+        if cmd is None:
+            cmd = popenargs[0]
+        e = subprocess.CalledProcessError(retcode, cmd)
+        e.output = err
+        raise e
+    return output
+
+def run(cmd, **kwargs):
+    """Run a process, catching errors and re-raising them as Fail
+    exceptions."""
+    try:
+        run_impl(cmd, **kwargs)
+    except subprocess.CalledProcessError as e:
+        str_output = str(e.output).rstrip('\n')
+        tail = '\n---\n%s\n---' % (str_output,)
+        raise Fail('running "%s": failed%s' % (' '.join(cmd), tail))
+    except EnvironmentError as e:
+        raise Fail('running "%s": %s' % (' '.join(cmd), e))
+    except KeyboardInterrupt:
+        raise Fail('running "%s": interrupted' % (' '.join(cmd),))
+
+def generate_cert(cn, output_prefix, ca_prefix=None, ca=False, pathlen=None):
+    """Generate an x509 certificate and key.
+
+    Return output_prefix.
+
+    output_prefix -- Base path of the output files to which ".crt", etc.
+      will be appended.
+    ca_prefix -- Base path of CA cert/key files used to sign the
+      certificate.
+    ca -- If True, create a CA certificate
+    pathlen -- Specifies the maximum number of levels of CA certificates
+      that can be derived from this one.
+    """
+    ext_path = None
+    req_path = output_prefix + '.req'
+    key_path = output_prefix + '.key'
+    crt_path = output_prefix + '.crt'
+    pk8_path = output_prefix + '.pk8'
+
+    def cleanup():
+        for path in (ext_path, req_path, key_path, crt_path, pk8_path):
+            if path and exists(path):
+                safe_remove(path)
+
+    try:
+        if ca:
+            ext_path = output_prefix + '.ext'
+            with open(ext_path, 'w') as f:
+                # The following statement uses defaults copied from openssl.cnf
+                f.write('''subjectKeyIdentifier=hash
+    authorityKeyIdentifier=keyid:always,issuer
+    basicConstraints=CA:true''')
+                # Add path length constraint if specified
+                if pathlen:
+                    f.write(',pathlen:%d' % (pathlen,))
+                f.write('\n')
+
+        run(['openssl', 'req', '-new', '-nodes', '-subj', g.format_dn(cn),
+            '-out', req_path, '-keyout', key_path])
+        chmod(key_path, PRIVATE_FILE_PERM)
+        cmd = ['openssl', 'x509', '-req', '-in', req_path, '-out', crt_path,
+            '-days', str(VALIDITY_DAYS)]
+        if ext_path:
+            cmd += ['-extfile', ext_path]
+        if ca_prefix:
+            cmd += ['-CA', ca_prefix + '.crt', '-CAkey', ca_prefix + '.key', '-CAcreateserial']
+        else:
+            cmd += ['-signkey', key_path]
+        run(cmd)
+        if not isfile(crt_path):
+            raise Fail("certificate file '%s' was not generated" % (crt_path,))
+        safe_remove(req_path)
+        if ext_path:
+            safe_remove(ext_path)
+        if not ca:
+            run(['openssl', 'pkcs8', '-nocrypt', '-in', key_path, '-topk8',
+                '-outform', 'der', '-out', pk8_path])
+            chmod(pk8_path, PRIVATE_FILE_PERM)
+    except Exception as e:
+        cleanup()
+        raise Fail("generating %s.*: %s" % (output_prefix, e))
+    except:
+        cleanup()
+        raise
+
+    return output_prefix
+
+def self_sign_cert(cn, output_prefix, pathlen=None):
+    return generate_cert(cn, output_prefix, ca=True, pathlen=pathlen)
+def make_ca_cert(cn, ca_prefix, output_prefix, pathlen=None):
+    return generate_cert(cn, output_prefix, ca_prefix=ca_prefix, ca=True, pathlen=pathlen)
+def make_ident_cert(cn, ca_prefix, output_prefix):
+    return generate_cert(cn, output_prefix, ca_prefix=ca_prefix)
+
+def make_spec(ttype, name):
+    return '%s:%s' % (ttype, name)
+
+def get_from_map(mapping, key, ttype):
+    try:
+        return mapping[key]
+    except KeyError:
+        raise Fail("unknown %s '%s'" % (ttype, key))
+
+def delete_from_map(mapping, key, ttype):
+    try:
+        del mapping[key]
+    except KeyError:
+        raise Fail("unknown %s '%s'" % (ttype, key))
+
+def resolve_target_locations(target):
+    """Return the expanded list of the storage locations of the given
+    target.
+
+    If the target is of type 'user' and no locations are specified
+    or there is an entry with and empty host and path, return an entry
+    for the user's $HOME/.postrgresql on the local system.
+
+    If the host part of any storage location contains environment
+    variable references, expand them.
+
+    Return a list of (host, path).
+    """
+    result = []
+    specs = target.location_specs
+    if target.type == 'user' and not specs:
+        specs = [':']
+    for spec in specs:
+        host_specs, path = spec.split(':', 1)
+        if target.type == 'user' and not path:
+            try:
+                path = getpwnam(target.name).pw_dir
+            except (KeyError, AttributeError):
+                perr('user %s: can not determine home directory' % (target.name,))
+                continue
+            path = join(path, '.postgresql')
+        if not path:
+            perr("target '%s': location spec missing destination directory" % (target.get_spec()))
+            continue
+        if not host_specs.strip():
+            host_list = ['']
+        else:
+            hosts = set()
+            for hs in host_specs.split():
+                exclude = False
+                if hs[0:1] == '!':
+                    exclude = True
+                    hs = hs[1:]
+                if hs[0:1] == '$':
+                    # Only one level of expansion supported
+                    name = hs[1:]
+                    hs = environ.get(name)
+                    if hs:
+                        hs = hs.split()
+                    else:
+                        # Do not report missing XT_WORKSTATIONS since that will
+                        # go away soon.
+                        if hs is None and name != "XT_WORKSTATIONS":
+                            pwrn('environment variable %s not set' % (name,))
+                        continue
+                else:
+                    hs = [ hs ]
+                for host in hs:
+                    if not exclude:
+                        hosts.add(host)
+                    else:
+                        for test_host in list(hosts):
+                            if fnmatch(test_host, host):
+                                hosts.discard(test_host)
+            host_list = list(hosts)
+            host_list.sort()
+        for host in host_list:
+            result.append((host, path))
+
+    return result
+
+class Global(object):
+    """Contains global variables for the script.
+
+    Members:
+    data_dir -- Path where all CA data is stored.
+    state -- Object state.  See State class.
+    site_id -- $SITE_IDENTIFIER value for the site.
+    idents -- Map of all database access and identity certificate/key
+      files that currently exist.
+    dn_prefix -- Prefix for the openssl -subj argument.  The common name
+      attribute is appended to this.
+    """
+
+    def __init__(self):
+        self.data_dir = join(SYSTEM_PKI_DIR, DEFAULT_PKI_SUBDIR)
+        self.state = None
+        self.site_id = environ.get('SITE_IDENTIFIER')
+        self.idents = {}
+        self.dn_prefix = ORG_DN_PREFIX + '/OU=DBauth'
+
+    def get_data_dir(self):
+        if not self.data_dir:
+            pftl('data directory not set to a valid value')
+        return self.data_dir
+    def get_ca_dir(self):
+        return join(self.get_data_dir(), 'ca')
+    def get_ident_dir(self):
+        return join(self.get_data_dir(), 'ident')
+    def get_state_dir(self):
+        return join(self.get_data_dir(), 'state')
+    def get_ca_prefix(self):
+        return join(self.get_ca_dir(), 'ca')
+    def get_root_bundle(self):
+        return join(self.get_data_dir(), 'root.crt')
+
+    def set_dn_prefix(self, dn_prefix):
+        self.dn_prefix = dn_prefix
+        if self.state:
+            self.state.dn_prefix = dn_prefix
+    def format_dn(self, cn):
+        return self.dn_prefix + '/CN=' + cn
+
+    def create_data_dir(self):
+        init_empty_dir(self.get_data_dir())
+        try:
+            mkdir(self.get_ca_dir(), PRIVATE_DIR_PERM)
+            mkdir(self.get_ident_dir(), PRIVATE_DIR_PERM)
+            mkdir(self.get_state_dir(), PUBLIC_DIR_PERM)
+        except:
+            safe_rmtree(self.get_data_dir())
+            raise
+
+    def verify_data_dir(self):
+        verify_dir(self.get_data_dir())
+
+    def verify_ca(self):
+        self.verify_data_dir()
+        pfx = self.get_ca_prefix()
+        verify_file(pfx + '.crt')
+        verify_file(pfx + '.key')
+        verify_file(self.get_root_bundle())
+        return pfx
+
+    def verify_model(self, model):
+        self.verify_ca()
+        self.load_state()
+        if self.state.model != model:
+            raise Fail('This command can only be used with a %s CA' % (model,))
+
+    def verify_role(self, role):
+        if role not in self.get_state().roles:
+            raise Fail("Invalid role '%s'" % (role,))
+
+    def get_site_id(self):
+        if not self.site_id:
+            raise Fail('site identifier not specified (maybe set SITE_IDENTIFIER?)')
+        return self.site_id
+
+    def get_state(self):
+        return self.state
+    def set_state(self, state):
+        self.state = state
+    def get_state_file(self):
+        return join(self.get_state_dir(), 'state.json')
+    def load_state(self):
+        if self.state is not None:
+            return
+
+        s = State()
+        s.load(self.get_state_file())
+        upgraded = self.upgrade_state(s)
+        self.state = s
+        if upgraded:
+            pinf('Upgraded CA data directory')
+            self.store_state()
+
+        if s.dn_prefix is not None:
+            self.dn_prefix = s.dn_prefix
+
+        # Identities are stored implicitly as credential files
+        idents = {}
+        ident_dir = self.get_ident_dir()
+        for itype in listdir(ident_dir):
+            sub_dir = join(ident_dir, itype)
+            for name in listdir(sub_dir):
+                iname = splitext(name)[0]
+                ident = Identity(itype, iname)
+                idents[ident.get_spec()] = ident
+        self.idents = idents
+    def store_state(self):
+        if self.state is not None:
+            self.state.store(self.get_state_file())
+
+    def upgrade_state(self, s):
+        result = False
+        if s.version == 1:
+            try:
+                target = s.targets.pop('server:server')
+                target.name = 'dx1f'
+                s.targets[target.get_spec()] = target
+            except KeyError:
+                pass # ignore
+            try:
+                s.roles[SERVER_ROLE].remove('server:server')
+            except (KeyError, ValueError):
+                pass # ignore
+            src_pfx = join(self.get_ident_dir(), 'server', 'server')
+            dst_pfx = join(self.get_ident_dir(), 'server', 'dx1f')
+            for sfx in ALL_CRED_SUFFIXES:
+                if exists(src_pfx + sfx):
+                    safe_rename(src_pfx + sfx, dst_pfx + sfx)
+            s.version = 2
+            result = True
+        if s.version == 2:
+            if s.model == 'site':
+                most_hosts = get_most_hosts()
+                if get_has_rax_db():
+                    def fix(spec):
+                        return most_hosts + ':' if spec.strip() == BASE_MOST_HOSTS + ':' else spec
+                    for target in s.get_targets():
+                        if target.type == 'user':
+                            target.location_specs = [ fix(spec)
+                                    for spec in target.location_specs ]
+                if not s.has_target('user', 'oper'):
+                    s.add_target('user', 'oper', 'admin', [])
+                if not s.has_target('user', 'awipsusr'):
+                    s.add_target('user', 'awipsusr', 'user', [most_hosts + ':'])
+            s.version = 3
+            result = True
+        if not s.version or s.version < 1 or s.version > 3:
+            pftl('Unknown CA data directory version %s' % (s.version,))
+        return result
+
+    def has_ident(self, ident):
+        return ident.get_spec() in self.idents
+    def add_ident(self, ident):
+        self.idents[ident.get_spec()] = ident
+    def get_idents(self):
+        return self.idents.values()
+
+    def get_policy_for_target(self, target):
+        return TARGET_TYPE_POLICIES[target.type]
+
+class Target(object):
+    """Describes a consumer of certificate/key files, including which
+    files should be stored and where to store them.
+
+    Targets are referenced externally by a "type:name" spec string.
+
+    Each target may have zero or more storage location specs.  (For
+    user targets, no explicit location specs means to store in the
+    user's $HOME/.postgresql directory.)  Each spec is of the
+    form "host list:path".  If the host list is empty, it indicates
+    rsync should operate on the local system.  The host list can
+    reference environment variable with the form "$VARNAME".
+    """
+    def __init__(self, ini=None):
+        self.type = None
+        self.name = None
+        self.role = None
+        self.location_specs = []
+        self.owner = None
+        if ini:
+            self.__dict__.update(ini)
+    def get_spec(self):
+        return make_spec(self.type, self.name)
+    def __str__(self):
+        return self.get_spec()
+
+class Identity(object):
+    """Describes a certificate/key file that will be used by users and
+    applications.
+
+    Identiy objects are referenced externally by a "type:name" spec string.
+    """
+    def __init__(self, itype, name):
+        self.type = itype
+        self.name = name
+    def get_spec(self):
+        return make_spec(self.type, self.name)
+    def __repr__(self):
+        return self.get_spec()
+    def __str__(self):
+        return self.get_spec()
+
+class State(object):
+    """Represents object state of the CA, excluding existing certificate/key files.
+
+    Members:
+    roles -- Map of role names to list of identity specs.
+    targets -- Map of target spec names to Target objects.
+    version -- State file format version.
+    model -- Indicates the role of the CA (NCF or site.)
+    dn_prefix -- Stored version of Global.dn_prefix
+    backups -- List of hosts to rsync the CA data directory to.
+    """
+    def __init__(self):
+        self.roles = {}
+        self.targets = {}
+        self.version = 3
+        self.model = None
+        self.dn_prefix = None
+        self.backups = []
+    def load(self, path):
+        self.version = None
+        with open(path, 'r') as f:
+            self.__dict__.update(json.load(f))
+            self.targets = dict([ (target.get_spec(), target) for target in
+                [ Target(ini) for ini in self.targets ] ])
+    def store(self, path):
+        with open(path, 'w') as f:
+            d = self.__dict__.copy()
+            d['targets'] = [ target.__dict__ for target in self.targets.values() ]
+            json.dump(d, f)
+    def add_role(self, role, ident_specs):
+        if role in self.roles:
+            raise Fail("role '%s' already exists" % (role,))
+        self.roles[role] = list(ident_specs)
+    def remove_role(self, role):
+        delete_from_map(self.roles, role, 'role')
+    def get_role_idents(self, role):
+        return [ Identity(*spec.split(':', 1)) for spec in
+            get_from_map(self.roles, role, 'role') ]
+    def get_roles(self):
+        return self.roles.copy()
+    def set_role_ident_specs(self, role, ident_specs):
+        get_from_map(self.roles, role, 'role') # check existence
+        self.roles[role] = ident_specs
+    def add_target(self, ttype, name, role, location_specs, owner=None):
+        if ttype not in TARGET_TYPE_POLICIES:
+            raise Fail("target type '%s' is not valid" % (ttype,))
+        target = Target()
+        target.type = ttype
+        target.name = name
+        target.role = role
+        target.location_specs = location_specs
+        target.owner = owner
+        target_spec = target.get_spec()
+        if target_spec in self.targets:
+            raise Fail("target '%s' already exists" % (target_spec))
+        self.targets[target_spec] = target
+    def remove_target(self, ttype, name):
+        delete_from_map(self.targets, make_spec(ttype, name), 'target')
+    def has_target(self, ttype, name):
+        spec = make_spec(ttype, name)
+        return spec in self.targets
+    def get_target(self, ttype, name):
+        spec = make_spec(ttype, name)
+        try:
+            return self.targets[spec]
+        except KeyError:
+            raise Fail("unknown target '%s'" % (spec,))
+    def get_targets(self):
+        return self.targets.values()
+
+g = Global()
+
+def add_ident_impl(itype, name, cn=None):
+    ident = Identity(itype, name)
+    if g.has_ident(ident):
+        raise Fail("identity '%s' already exists" % (ident,))
+    if cn is None:
+        cn = name
+    d = join(g.get_ident_dir(), itype)
+    if not exists(d):
+        makedirs(d, PRIVATE_DIR_PERM)
+    make_ident_cert(cn, g.get_ca_prefix(), join(d, name))
+    g.add_ident(ident)
+
+def remove_ident_impl(itype, iname):
+    found = False
+    ident = Identity(itype, iname)
+    if g.has_ident(ident):
+        d = join(g.get_ident_dir(), itype)
+        if isdir(d):
+            for name in listdir(d):
+                if name == iname or splitext(name)[0] == iname:
+                    found = True
+                    safe_remove(join(d, name))
+    if not found:
+        pwrn("no existing identity '%s'" % (ident,))
+
+@subcommand(desc='Initialize the CA data directory for use at the NCF')
+@usage('''  # [options]
+
+Options:
+    -n {string}   Override default distinguished name attributes
+    -O            Do not generate certificates for operational sites
+''')
+def init_ncf(argv):
+    generate_operational_sites = True
+    dn_prefix = ORG_DN_PREFIX + '/OU=NCF'
+    opts, _ = getopt(argv, 'n:O')
+    for k, v in opts:
+        if k == '-n':
+            dn_prefix = v
+        elif k == '-O':
+            generate_operational_sites = False
+    g.create_data_dir()
+    try:
+        ca_dir = g.get_ca_dir()
+        g.set_state(State())
+        g.set_dn_prefix(dn_prefix)
+        g.get_state().model = 'ncf'
+        cn = 'ca-root'
+        root = self_sign_cert(cn, join(ca_dir, 'ncf-ca-root'))
+        ca = make_ca_cert('ncf-ca', root, g.get_ca_prefix(), pathlen=1)
+        cat_files([ca + '.crt', root + '.crt'], g.get_root_bundle())
+        g.store_state()
+    except:
+        safe_rmtree(g.get_data_dir())
+        raise
+    pinf('successfully created CA data directory in %s' % (g.get_data_dir(),))
+    backup_impl()
+    if generate_operational_sites:
+        pinf('generating certificates for %s sites...' % (len(DEFAULT_SITES),))
+        site_cmd(['-a'] + list(DEFAULT_SITES))
+
+@subcommand(desc='Initialize the CA data directory for use at an AWIPS site')
+@usage('''  # [ -b {file} | -s ]  [-h {host}]
+
+Options:
+   -b {file}    Initialize with the given bundle [/root/a2pgca-init-{site}.zip]
+   -s           Initialize using a self-signed certificate
+   -h {host}    Specify the database host name that applications use to connect [dx1f]''')
+def init_site(argv):
+    bundle = None
+    db_host_name = 'dx1f'
+    self_signed = False
+
+    opts, _ = getopt(argv, 'b:h:s')
+    for k, v in opts:
+        if k == '-b':
+            bundle = v
+        elif k == '-h':
+            if not v:
+                raise Fail('database server host name must not be empty')
+            db_host_name = v
+        elif k == '-s':
+            self_signed = True
+    if bundle and self_signed:
+        raise UsageError('Can not specify both initialization bundle and self-signed mode')
+
+    g.create_data_dir()
+    try:
+        g.set_state(State())
+        g.set_dn_prefix(ORG_DN_PREFIX + '/OU=Site ' + g.get_site_id().upper())
+        st = g.get_state()
+        st.model = 'site'
+
+        if not self_signed and bundle is None:
+            name = make_init_bundle_name(g.get_site_id())
+            try:
+                home = getpwnam('root').pw_dir
+            except Exception as e:
+                home = None
+            directories = (SYSTEM_PKI_DIR, home)
+            for directory in directories:
+                if directory:
+                    bundle = join(directory, name)
+                    if exists(bundle):
+                        break
+            if not bundle or not exists(bundle):
+                raise Fail("initialization bundle %s not found in any of %s" % (name, directories))
+        if self_signed:
+            cn = 'ca-root-' + g.get_site_id()
+            ca = self_sign_cert(cn, g.get_ca_prefix(), pathlen=0)
+            cat_files([ca + '.crt'], g.get_root_bundle())
+        else:
+            ca = g.get_ca_prefix()
+            with ZipFile(bundle, 'r') as fs:
+                for name, path in (
+                            ('ca.crt', ca + '.crt'),
+                            ('ca.key', ca + '.key'),
+                            ('root.crt', g.get_root_bundle())):
+                    with open(path, 'wb') as fd:
+                        fd.write(fs.read(name))
+            try:
+                run(['openssl', 'verify', '-CAfile', g.get_root_bundle(),
+                    g.get_ca_prefix() + '.crt'], stderr_to_stdout=True)
+            except Exception as e:
+                raise Fail('Failed to validate site CA certificate: %s' % (e,))
+
+        has_rax_db = get_has_rax_db()
+        most_hosts = get_most_hosts()
+        for name in BASELINE_DB_USERS:
+            add_ident_impl('dbuser', name)
+        add_ident_impl('server', db_host_name, cn=db_host_name)
+        if has_rax_db:
+            add_ident_impl('server', 'ax', cn='ax')
+
+        st.add_role(SERVER_ROLE, [])
+
+        st.add_role('user', ['dbuser:' + u for u in BASELINE_ROLE_DB_USERS['user']])
+        st.add_role('admin', ['dbuser:' + u for u in BASELINE_ROLE_DB_USERS['admin']])
+        st.add_target('server', 'dx1f', 'server', ['dx1f:/awips2/data'], owner='awips')
+        if has_rax_db:
+            st.add_target('server', 'ax', 'server', ['ax:/awips2/data'], owner='awips')
+        st.add_target('edex', 'edex', 'admin', ['$DX_SERVERS !dx[12]* $PX_SERVERS $COMMS_PROCESSORS:/awips2/edex/conf/db/auth'], owner='awips')
+        st.add_target('user', 'awips', 'admin', [])
+        st.add_target('user', 'oper', 'admin', [])
+        st.add_target('user', 'ncfuser', 'admin', [])
+        st.add_target('user', '@fxalpha', 'user', [])
+        # /awips/fxa is not on CPs.  root should not need DB access there either.
+        st.add_target('user', 'awipsusr', 'user', [most_hosts + ':'])
+        st.add_target('user', 'root', 'admin', [most_hosts + ':'])
+        st.add_target('user', 'fxa', 'admin', [most_hosts + ':'])
+
+        st.backups += [ pfx + '-' + g.get_site_id() for pfx in ('dx1', 'dx2') ]
+
+        g.store_state()
+    except:
+        safe_rmtree(g.get_data_dir())
+        raise
+    pinf('successfully created CA data directory in %s' % (g.get_data_dir(),))
+    backup_impl()
+
+class ObjectOps(object):
+    """Base class to manage list/add/modify/delete operations for set of
+    CA data objects."""
+
+    Add = '-a'
+    Delete = '-d'
+    List = '-l'
+    Modify = '-m'
+    OPS = (Add, Delete, List, Modify)
+    OP_NAMES = { Add: 'add', Delete: 'delete', List: 'list', Modify: 'modify' }
+    def __init__(self, model=None, type_desc=''):
+        self.model = model
+        self.type_desc = type_desc
+        self.options = ''
+        self.can_modify = False
+        self.add_if_needed = False
+    def run(self, argv):
+        """Process subcommand arguments for a class of objects."""
+        op = None
+        opts, args = getopt(argv, 'adl' + (self.can_modify and 'mM' or '') + self.options)
+        other_opts = []
+        for k, v in opts:
+            if k == '-M':
+                self.add_if_needed = True
+                k = self.Modify
+            if k in self.OPS:
+                if op is not None:
+                    raise UsageError('conflicting operations')
+                op = k
+            else:
+                other_opts.append((k, v))
+        if op is None:
+            op = self.List
+        op_name = self.OP_NAMES[op]
+        fn = getattr(self, op_name)
+        n_good = 0
+        n_bad = 0
+        if self.model:
+            g.verify_model(self.model)
+        else:
+            g.load_state()
+        mid_args = self.mid_parse(op, other_opts, args)
+
+        if op == self.List:
+            return self.list()
+
+        try:
+            for arg in mid_args:
+                try:
+                    fn(arg)
+                    n_good += 1
+                except Exception as e:
+                    perr('%s %s: %s' % (op_name, arg, e))
+                    n_bad += 1
+        finally:
+            if n_good:
+                try:
+                    g.store_state()
+                except Exception as e:
+                    perr('error while saving state: %s' % (e,))
+                try:
+                    backup_impl()
+                except Exception as e:
+                    perr('error while backing up: %s' % (e,))
+        if n_bad:
+            return n_good and 2 or 1
+        else:
+            return  0
+    def get_list_items(self):
+        return []
+    def mid_parse(self, op, opts, args):
+        """Parse subcommand-specific options after the basic mode
+        options have been processed.
+
+        Return the list of arguments that processed for the specified
+        operation.
+
+        Base implementation just returns the input arguments.
+        """
+        return args
+    def add(self, arg):
+        raise NotImplementedError()
+    def delete(self, arg):
+        raise NotImplementedError()
+    def list(self):
+        items = self.get_list_items()
+        if items:
+            pout('\n'.join(items))
+            pout('\n')
+    def modify(self, _):
+        raise Fail('can not modify %s objects' % (self.type_desc))
+
+class SiteOps(ObjectOps):
+    def __init__(self):
+        super(SiteOps, self).__init__(model='ncf', type_desc='site')
+    def add(self, site):
+        """Create an archive used to initialize the CA data directory at
+        a site.
+
+        The archive file contains a site-level CA certificate created by
+        this method and the root certificate bundle file that should be
+        used at the site.
+        """
+        d = join(g.get_ident_dir(), 'site', site)
+        ident = Identity('site', site)
+        if g.has_ident(ident):
+            raise Fail("site '%s' already exists" % (site,))
+        init_empty_dir(d)
+        try:
+            site_ca_pfx = make_ca_cert('site-%s-ca' % (site,), g.get_ca_prefix(), join(d, site))
+            site_root_bundle = join(d, 'root-' + site + '.crt')
+            cat_files([site_ca_pfx + '.crt', g.get_root_bundle()], site_root_bundle)
+            g.add_ident(ident)
+
+            arch_name = join(d, make_init_bundle_name(site))
+            with ZipFile(arch_name, 'w') as fd:
+                for name, path in (
+                        ('ca.crt', site_ca_pfx + '.crt'),
+                        ('ca.key', site_ca_pfx + '.key'),
+                        ('root.crt', site_root_bundle)):
+                    with open(path, 'rb') as fs:
+                        fd.writestr(name, fs.read())
+            pinf('created site initialization bundle: ' + arch_name)
+        except:
+            safe_rmtree(d)
+            raise
+    def delete(self, site):
+        d = join(g.get_ident_dir(), 'site', site)
+        if exists(d):
+            rmtree(d)
+        else:
+            pwrn("site '%s' does not exist" % (site,))
+    def get_list_items(self):
+        return [ ident.name for ident in g.get_idents() if ident.type == 'site' ]
+
+@subcommand('site',desc='Manage site CA certificates (for NCF)')
+@usage('''  # [-l]                List existing site certificates
+  # -a {site ID}...     Generate new certificates for sites
+  # -d {site ID}...     Delete site certificates''')
+def site_cmd(argv):
+    return SiteOps().run(argv)
+
+class DBUserOps(ObjectOps):
+    def __init__(self):
+        super(DBUserOps, self).__init__(model='site', type_desc='database user')
+    def add(self, name):
+        add_ident_impl('dbuser', name)
+    def delete(self, name):
+        if name not in BASELINE_DB_USERS:
+            remove_ident_impl('dbuser', name)
+        else:
+            raise Fail("database user '%s' is baseline and can not be deleted" % (name,))
+    def get_list_items(self):
+        return [ ident.name for ident in g.get_idents() if ident.type == 'dbuser' ]
+
+@subcommand('dbuser', desc='Manage certificates for database accounts')
+@usage('''  # [-l]                         List existing account certificates
+  # -a {database user ID}...     Create new certificates for accounts
+  # -d {database user ID}...     Delete account certificates''')
+def dbuser_cmd(argv):
+    return DBUserOps().run(argv)
+
+class UserOps(ObjectOps):
+    def __init__(self):
+        super(UserOps, self).__init__(model='site', type_desc='system user')
+        self.role = None
+        self.options = 'r:'
+        self.can_modify = True
+    def mid_parse(self, op, opts, args):
+        if op == self.Add:
+            self.role = 'user'
+        for k, v in opts:
+            if k == '-r':
+                self.role = v
+        if self.role:
+            g.verify_role(self.role)
+        return args
+    def add(self, user):
+        g.get_state().add_target('user', user, role=self.role, location_specs=[])
+    def delete(self, user):
+        if user not in BASELINE_USERS:
+            g.get_state().remove_target('user', user)
+        else:
+            raise Fail("user '%s' is baseline and can not be deleted")
+    def get_list_items(self):
+        return [ target.name + ' : ' + target.role for target in g.get_state().get_targets()
+            if target.type == 'user' ]
+    def modify(self, user):
+        if self.role:
+            if self.add_if_needed and \
+                    not g.get_state().has_target('user', user):
+                self.add(user)
+            target = g.get_state().get_target('user', user)
+            target.role = self.role
+
+@subcommand('user', desc='Manage system users who need access to certificates')
+@usage('''  # [-l]                                  List registered users
+  # -a    [-r role] {system user ID}...   Register new users (role defaults to 'user')
+  # -m|-M [-r role] {system user ID}...   Change role of specified users (-M registers if needed)
+  # -d {system user ID}...                Unregister users
+
+In addition to user IDs, a group account can be specified as "@groupname".
+This will be expanded to a list of users during a refresh, excluding any
+users which are explicitly registered.''')
+def user_cmd(argv):
+    return UserOps().run(argv)
+
+class RoleOps(ObjectOps):
+    Set = 'set'
+    def __init__(self):
+        super(RoleOps, self).__init__(model='site', type_desc='role')
+        self.dbuser_list = []
+        self.can_modify = True
+        self.item_op = None
+        self.options = 'ADS'
+    def mid_parse(self, op, opts, args):
+        """Handles role-specific options.
+
+        Unlike most object commands, the role command can only operate
+        on a single role at a time.  Additional arguments are
+        interpreted as a list of database user identities.
+        """
+        for k, _ in opts:
+            if k == '-A':
+                self.item_op = self.Add
+            elif k == '-D':
+                self.item_op = self.Delete
+            elif k == '-S':
+                self.item_op = self.Set
+        if op != self.Modify and self.item_op:
+            raise UsageError('-A/-D/-S options can only be used with modify (-m) operation')
+        elif op == self.Modify and not self.item_op:
+            raise UsageError('missing database user list operation (-A/-D/-S)')
+        self.dbuser_list = args[1:]
+        return args[0:1]
+    def validate_ident_specs(self, ident_specs):
+        for spec in ident_specs:
+            if not g.has_ident(Identity(* spec.split(':', 1))):
+                raise Fail("unknown identity '%s'" % (spec,))
+    def add(self, name):
+        new_role_idents = [ make_spec('dbuser', dbuser) for dbuser in self.dbuser_list ]
+        self.validate_ident_specs(new_role_idents)
+        g.get_state().add_role(name, new_role_idents)
+    def delete(self, name):
+        if name not in BASELINE_ROLES:
+            g.get_state().remove_role(name)
+        else:
+            raise Fail("role '%s' is baseline and can not be deleted" % (name,))
+    def get_list_items(self):
+        def fmt_ident(ident):
+            pfx = 'dbuser:'
+            s = str(ident)
+            return s[len(pfx):] if s.startswith(pfx) else s
+        return [ name + ' : ' + ' '.join([fmt_ident(ident) for ident in idents])
+            for name, idents in g.get_state().get_roles().iteritems()
+            if name not in INTERNAL_ROLES ]
+    def modify(self, name):
+        def make_unique(l):
+            ol = []
+            seen = set()
+            for i in l:
+                if i not in seen:
+                    seen.add(i)
+                    ol.append(i)
+            return ol
+        if name not in INTERNAL_ROLES:
+            st = g.get_state()
+            if self.add_if_needed and name not in st.get_roles():
+                st.add_role(name, [])
+            role_idents = [ ident.get_spec() for ident in st.get_role_idents(name) ]
+            new_role_idents = [ make_spec('dbuser', dbuser) for dbuser in self.dbuser_list ]
+            if self.item_op == self.Add:
+                new_role_idents = role_idents + new_role_idents
+            elif self.item_op == self.Delete:
+                for ident in new_role_idents:
+                    try:
+                        role_idents.remove(ident)
+                    except ValueError:
+                        pass # ignore
+                new_role_idents = role_idents
+            elif self.item_op == self.Set:
+                pass
+            new_role_idents = make_unique(new_role_idents)
+            if self.item_op in (self.Add, self.Set):
+                self.validate_ident_specs(new_role_idents)
+            if name in BASELINE_ROLE_DB_USERS:
+                for dbuser in BASELINE_ROLE_DB_USERS[name]:
+                    spec = make_spec('dbuser', dbuser)
+                    if spec not in new_role_idents:
+                        pwrn("can not remove database user '%s' from role '%s'" % (dbuser, name))
+                        new_role_idents.append(spec)
+
+            st.set_role_ident_specs(name, new_role_idents)
+        else:
+            raise Fail('unmodifiable role')
+
+@subcommand('role', 'Manage lists of database accounts')
+@usage('''  # [-l]
+       List roles
+
+  # -a               {role name} {database user ID}...
+       Add new role containing the specified database user IDs
+
+  # -m|-M  -A|-D|-S  {role name} {database user ID}...
+       Modify the given role, adding (-A), deleting (-D), or setting
+       the exact list of (-S) specified database user IDs
+
+       With -M, add the role if it does not exist
+
+  # -d {role name}...
+       Delete the specified roles''')
+def role_cmd(argv):
+    return RoleOps().run(argv)
+
+REFRESH_AND_CLEAR_OPTIONS='''
+
+Options:
+  -n      Perform a dry run and show rsync commands that would be run
+  -v      Be verbose
+  -N      rsync dry run (pass "-n" to rsync)'''
+
+@subcommand(desc='Install certs/keys to user and application directories')
+@usage('  # [options]' + REFRESH_AND_CLEAR_OPTIONS)
+def refresh(argv, clear_files=False):
+    dry_run = False
+    verbose = False
+    rsync_dry_run = False
+    opts, args = getopt(argv, 'nvN')
+    for k, _ in opts:
+        if k == '-n':
+            dry_run = True
+        elif k == '-v':
+            verbose = True
+        elif k == '-N':
+            rsync_dry_run = True
+    refresh_impl(args, dry_run=dry_run, rsync_dry_run=rsync_dry_run,
+        verbose=verbose, clear_files=clear_files)
+
+def expand_user_groups(targets):
+    """Expand group targets to individual user targets.
+
+    Expand any targets of the form user:@group in the list to
+    individual user:username targets.  If a group member is
+    already in the list of targets, it is not added.
+
+    Note that this handles primary and secondary group assignments.
+    """
+    try:
+        all_users = getpwall()
+    except Exception as e:
+        perr("error retrieving system user information: %s" % (e,))
+        return targets
+    seen = set()
+    result = []
+    groups_to_expand = []
+    for target in targets:
+        if target.type == 'user' and target.name[0:1] == '@':
+            groups_to_expand.append(target)
+        else:
+            result.append(target)
+            seen.add(target.get_spec())
+    for group_target in groups_to_expand:
+        try:
+            gr_ent = getgrnam(group_target.name[1:])
+            users_in_group = list(gr_ent.gr_mem)
+            for pw_ent in all_users:
+                if pw_ent.pw_gid == gr_ent.gr_gid:
+                    users_in_group.append(pw_ent.pw_name)
+        except Exception as e:
+            perr("error retrieving group information: %s" % (e,))
+            continue
+        for user in users_in_group:
+            target = Target()
+            target.type = 'user'
+            target.name = user
+            target.role = group_target.role
+            spec = target.get_spec()
+            if spec not in seen:
+                seen.add(spec)
+                result.append(target)
+    return result
+
+def refresh_impl(args, dry_run=False, rsync_dry_run=False,
+        clear_files=False, verbose=False):
+    """Install/uninstall certificate key files to user and application
+    directories.
+
+    For each storage location, use rsync to add/remove certificate files
+    so that the location contains the set of files appropriate for
+    the target's role.  For user targets, creates postgresql.*
+    symbolic links to awips.* files if they are installed.
+
+    args -- Optional list of target specs.  These can use shell-style
+      wildcards.  If empty, all known targets are refreshed.  Note
+      that a user:username spec will not match a user:@group target
+      that includes the user.
+
+    clear_files -- If True, remove all certificate/key files from the
+      targets.
+
+    dry_run -- Only print targets that would be refreshed.
+    rsync_dry_run -- Run rsync with its "-n" option.
+    verbose -- Print more information and pass the "-v" option
+      to rsync if it is run.
+    """
+    g.verify_model('site')
+
+    st = g.get_state()
+    if args:
+        targets_to_refresh = set()
+        for target_pattern in args:
+            matched_one = False
+            for target in st.get_targets():
+                if fnmatch(target.get_spec(), target_pattern):
+                    targets_to_refresh.add(target)
+                    matched_one = True
+            if not matched_one:
+                pwrn("pattern '%s' did not match any targets" % (target_pattern,))
+        targets_to_refresh = list(targets_to_refresh)
+    else:
+        targets_to_refresh = st.get_targets()
+
+    targets_to_refresh = expand_user_groups(targets_to_refresh)
+
+    is_root = geteuid() == 0
+    tmpdir = mkdtemp()
+    staging_dir = join(tmpdir, 'work')
+    paths_by_host = {}
+    bad_idents = set()
+    rsync_template = ['rsync', '-a', '--no-r', '--dirs', '--delete'] + \
+        [ '--include=*' + sfx for sfx in ALL_CRED_SUFFIXES ] + \
+        ['--exclude=*']
+    if rsync_dry_run:
+        rsync_template.append('-n')
+    if verbose:
+        rsync_template.append('-v')
+
+    try:
+        for target in targets_to_refresh:
+            try:
+                policy = g.get_policy_for_target(target)
+
+                owner = target.owner
+                if owner is None and target.type == 'user':
+                    owner = target.name
+                if owner is None:
+                    raise Fail("could not determine owner for target '%s'")
+
+                if is_root:
+                    pw_ent = getpwnam(owner)
+                    uid = pw_ent.pw_uid
+                    gid = pw_ent.pw_gid
+                else:
+                    uid = -1
+                    gid = -1
+
+                if exists(staging_dir):
+                    rmtree(staging_dir)
+                mkdir(staging_dir, PRIVATE_DIR_PERM)
+                if is_root:
+                    chown(staging_dir, uid, gid)
+
+                if not clear_files:
+                    if target.role != SERVER_ROLE:
+                        idents = st.get_role_idents(target.role)
+                    else:
+                        idents = [ Identity('server', target.name) ]
+                    if verbose:
+                        pinf("refresh '%s' identities: '%s'" % (target, idents))
+                    for ident in idents:
+                        if not g.has_ident(ident) and ident not in bad_idents:
+                            bad_idents.add(ident)
+                            pwrn("invalid identity '%s'" % (ident,))
+                            continue
+                        name = ident.name
+                        abs_src_pfx = join(g.get_ident_dir(), ident.type, name)
+                        dst_name = name if ident.type != 'server' else 'server'
+                        for sfx in policy.java_keys and JDBC_CRED_SUFFIXES or LIBPQ_CRED_SUFFIXES:
+                            dst_path = join(staging_dir, dst_name + sfx)
+                            copyfile(abs_src_pfx + sfx, dst_path)
+                            if sfx in ALL_KEY_SUFFIXES:
+                                chmod(dst_path, PRIVATE_FILE_PERM)
+                            if is_root:
+                                chown(dst_path, uid, gid)
+                            if policy.link_awips and ident.type == 'dbuser' and ident.name == 'awips':
+                                symlink('awips' + sfx, join(staging_dir, 'postgresql' + sfx))
+
+                    dst_path = join(staging_dir, 'root.crt')
+                    copyfile(g.get_root_bundle(), dst_path)
+                    if is_root:
+                        chown(dst_path, uid, gid)
+
+                for host, path in resolve_target_locations(target):
+                    try:
+                        if host not in paths_by_host:
+                            paths_by_host[host] = set()
+                        if path in paths_by_host[host]:
+                            pwrn("path '%s' on %s is claimed by multiple targets" %
+                                (path, host and host or 'the local host'))
+                        paths_by_host[host].add(path)
+                        parent_dir = dirname(path)
+                        if target.type == 'user' and not host and not isdir(parent_dir):
+                            pwrn("target '%s': directory %s does not exist" % (target, parent_dir))
+                            continue
+                        if verbose:
+                            pinf("refresh '%s' destination: '%s:%s'" % (target, host, path))
+
+                        # Unfortunately, we can't use rsync to enforce policy.create_dir as it
+                        # will always create the destination directory.
+                        sanity_check_target_directory(path)
+                        rsync_dest = (host and (host + ':') or '') + path + '/'
+                        cmd = rsync_template + [staging_dir + '/', rsync_dest]
+                        if not dry_run:
+                            run(cmd, echo_stdout=verbose, echo_stderr_filtered=True)
+                        else:
+                            pinf(' '.join(cmd))
+                    except Exception as e:
+                        perr('refreshing %s:%s: %s' % (host, path, e))
+            except Exception as e:
+                perr("refreshing target '%s': %s" % (target.get_spec(), e))
+    finally:
+        safe_rmtree(tmpdir)
+
+@subcommand(desc='Uninstall certs/keys from user and application directories')
+@usage('  # [options]' + REFRESH_AND_CLEAR_OPTIONS)
+def clear(argv):
+    refresh(argv, clear_files=True)
+
+@subcommand(desc='Sync CA data directory to backup locations')
+def backup(argv):
+    _, _ = getopt(argv, '')
+    backup_impl(False)
+
+def backup_impl(auto=True):
+    """Back up the CA data directory to the list of configured hosts."""
+    import socket
+
+    host_name = socket.gethostname()
+    g.load_state()
+    backup_targets = [ backup_spec for backup_spec in g.get_state().backups
+        if backup_spec != host_name ]
+    if backup_targets:
+        path = g.get_data_dir() + '/'
+        sanity_check_target_directory(path)
+        for backup_spec in backup_targets:
+            try:
+                run(['rsync', '-a', '--delete', path, backup_spec + ':' + path],
+                    echo_stderr_filtered=True)
+                pinf('backed up to ' + backup_spec)
+            except Exception as e:
+                perr("attempting to back up to '%s': %s" % (backup_spec, e))
+    elif not auto:
+        pwrn(g.get_state().backups and 'no targets to back up to' or 'no backup targets defined')
+
+def show_usage():
+    col_width = max([len(k) for k in sub_commands])
+    fmt = '%%-%ds    %%s' % (col_width,)
+    sc = [ fmt % (k, getattr(v, 'desc', None) or '')
+        for k, v in sub_commands.iteritems() ]
+    sc.sort()
+    pname = basename(sys.argv[0])
+
+    pout('''Usage: %s [global option...] {command} [sub-option...] [arg...]
+
+Global options:
+  -D {dir}     Override the data directory [/etc/pki/a2pgca]
+  -R           Allow running without being root
+  -h           Display help (on a command, if specified)
+
+Commands:
+  %s
+''' % (pname, '\n  '.join(sc)))
+
+def main():
+    require_root = True
+    help_mode = False
+    try:
+        opts, args = getopt(sys.argv[1:], 'D:Rh')
+        for k, v in opts:
+            if k == '-D':
+                g.data_dir = v
+            elif k == '-R':
+                require_root = False
+            elif k == '-h':
+                help_mode = True
+    except GetoptError as e:
+        perr(str(e))
+        show_usage()
+        sys.exit(1)
+
+    if len(args):
+        subcommand_f = sub_commands.get(args[0])
+        if subcommand_f is None:
+            perr("unknown command '%s'" % (args[0],))
+            show_usage()
+            sys.exit(1)
+        if help_mode:
+            show_subcommand_usage(subcommand_f)
+            sys.exit(0)
+        try:
+            if require_root and geteuid() != 0:
+                raise Fail('must be root or use the -R option')
+            sys.exit(subcommand_f(args[1:]) or 0)
+        except (EnvironmentError, Fail) as e:
+            perr(str(e))
+            sys.exit(1)
+    else:
+        show_usage()
+        sys.exit(0 if help_mode else 1)
+
+if __name__ == '__main__':
+    main()

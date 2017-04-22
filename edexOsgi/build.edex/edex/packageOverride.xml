@@ -1,0 +1,9 @@
+<project name="package.override" default="main" > 
+  <import file="${buildDirectory}/${assembleScriptName}" /> 
+ 
+  <target name="cleanup.assembly"> 
+     <antcall target="perform.cleanup.assembly" /> 
+  </target> 
+  <target name="perform.cleanup.assembly" if="doAssemblyCleanup" > 
+  </target>  
+</project> 

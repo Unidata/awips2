@@ -1,0 +1,1963 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]">
+  <title>localConfig.py</title>
+</head>
+<body bgcolor="#ffffff">
+<div class="Body">
+<h1>localConfig.py - Local Server Database Configuration</h1>
+December 30, 2011<br>
+<br>
+<br>
+Table of Contents
+<br>
+<br>
+<a href="#Overview">Overview</a>
+<br>
+<a href="#AddingYourOwnlocalConfig.pyFile">Adding Your Own
+localConfig.py
+File</a>
+<br>
+<a href="#Testing">Testing Your localConfig.py File</a>
+<br>
+<a href="#WhatcanyoucontrolfromyourcustomlocalConfig">What
+can you control from your custom localConfig.py file?</a>
+<br>
+<a href="#AddinganewWeatherElement">Adding a new Weather Element</a>
+<br>
+<a href="#RemovinganexistingWeatherElement">Removing an existing
+Weather
+Element</a>
+<br>
+<a href="#ModifyanexistingWeatherElementsAttributes">Modifying the
+characteristics of a Weather Element</a>
+<br>
+<a href="#ChangetheWeatherConfiguration">Changing the Weather
+Configuration</a>
+<br>
+<a href="#AddanewProjection">Adding a new Projection</a>
+<br>
+<a href="#ModifyanexistingProjection">Modifying an existing Projection</a>
+<br>
+<a href="#RemoveaProjection">Removing a Projection</a>
+<br>
+<a href="#AddinganewSite">Adding a new Site</a>
+<br>
+<a href="#ChangingtheSitesDomainsResolutionTimeZone">Modify a
+Site's
+Domains, Resolution, TimeZone</a>
+<br>
+<a href="#RemovingaSite">Removing a Site</a>
+<br>
+<a href="#AddinganewTimeConstraint">Adding a new Time Constraint</a>
+<br>
+<a href="#ModifyinganexistingTimeConstraint">Modifying an existing
+Time Constraint</a>
+<br>
+<a href="#RemovinganexistingTimeConstraint">Removing a Time Contraint</a>
+<br>
+<a href="#AddinganewDatabase">Adding a new Database</a>
+<br>
+<a href="#ModifyingaDatabase">Modifying an existing Database</a>
+<br>
+<a href="#RemovingaDatabase">Removing a Database</a>
+<br>
+<a href="#ModifyingExistingParmGroups">Modifying existing Parm Groups</a>
+<br>
+<a href="#RemovingParmGroups">Removing Parm Groups</a>
+<br>
+<a href="#ModifyingthelistofD2DDirectoriesformodelaccess">Modifying
+the list of D2D directories for model access</a><br>
+<a href="#SATDIRS">Modifying the list of D2D directories for satellite
+data access</a><br>
+<a href="#D2DVersion">Modifying the number of available D2D model
+versions</a>
+<br>
+<a href="#InitializationModules">Modifying the list of initialization
+modules</a>
+<br>
+<a href="#Logs">Modifying the Number of Days to Keep Logs</a>
+<br>
+<a href="#ExtraPrecision">Defining Extra Precision for Certain Weather
+Elements</a>
+<br>
+<a href="#D2DAccum">Defining D2D Accumulative Weather Elements</a><br>
+<a href="#NotifyTextProd">Automatic Configuration of NotifyTextProd</a><br>
+<a href="#ISC">Intersite Coordination Grids Configuration</a><br>
+<p></p>
+<hr width="100%">
+<h1><a name="Overview"></a>Overview</h1>
+<div class="Body">The localConfig.py file is one of several
+configuration
+files for GFE. The localConfig
+file is optional, and is not provided with the install or
+release.
+It is added by the field site to override certain features of the GFE
+database configuration that are defined in the <a
+ href="serverConfig.html">serverConfig.py</a>
+file.&nbsp; <b><font color="#ff0000">You should NEVER change the
+original
+serverConfig.py since your changes will be overwritten with the next
+upgrade.
+See the <a
+ href="serverConfiguration.html#ServerDatabaseConfigurationModificationOptions">server
+configuration overview</a> for information on how to make changes that
+are supported to the server.</font></b>
+<p>The localConfig.py file can be used to override many of the
+definitions
+in <a href="serverConfig.html">serverConfig.py</a>, but not all of
+them.
+This document will describe what you can, and what you cannot
+override.
+If you need to override an element that is not supported by
+localConfig.py
+or <a href="localWxConfig.html">localWxConfig.py</a>, then refer to
+the
+<font color="#000000"><a
+ href="serverConfiguration.html#ServerDatabaseConfigurationModificationOptions">server
+configuration overview</a> for details.</font>
+</p>
+<p><font color="#000000">The localConfig.py file is not used to
+override
+the map background definitions, refer to the <a
+ href="serverConfiguration.html#ServerMapConfigurationModificationOptions">methods
+of modifying map definitions</a> to do this.</font>
+<br>
+</p>
+<hr width="100%">
+<h1><a name="AddingYourOwnlocalConfig.pyFile"></a>Adding Your Own
+localConfig.py
+File</h1>
+If you want to make changes to the server database definitions, then
+you will want to add your own localConfig.py file. Refer to the <a
+ href="serverConfiguration.html#LocationofFiles">server
+configuration overview file location section</a> for details on
+where the localConfig.py file should be located.
+<p>The first lines of the localConfig.py <i>must</i> have the
+following
+format. Failure to do so will not let you refer to any of the
+definitions
+in serverConfig.py:
+</p>
+<p><tt>from serverConfig import *</tt>
+<br>
+<tt>import serverConfig</tt>
+</p>
+<p>The syntax appearing in localConfig.py varies depending whether you
+are adding new definitions, or changing existing definitions.
+Typically
+when changing existing definitions you will need to prefix the
+serverConfig
+to the name of the variable. For example,
+</p>
+<p><tt>var = (a,b,c,d)</tt> refers to a local copy of this definition
+and
+doesn't override the definition in serverConfig.py
+</p>
+<p><tt>serverConfig.var = (a,b,c,d) </tt>refers to the variable in the
+serverConfig and overrides it.
+</p>
+<p>The localConfig.py file can be created in the CAVE Localization perspective by expanding 
+GFE Server->Server Config Files, right clicking on serverConfig.py and selecting Override... 
+</p>
+<p><a href="EXAMPLElocalConfig.py">Example localConfig.py file</a>
+<br>
+</p>
+<hr width="100%">
+<h1><a name="Testing"></a>Testing Your localConfig.py File</h1>
+The recommended way to test your localConfig.py file is to start 
+EDEX while running a tail command on the /awips2/edex/logs/edex-request-date.log. 
+If no exceptions result from the changes, you should be fine to proceed into GFE 
+for further testing. 
+<p></p>
+<hr width="100%">
+<h1><a name="WhatcanyoucontrolfromyourcustomlocalConfig"></a>What
+can
+you control from your custom localConfig.py file?</h1>
+The following table describes what can be done using a custom
+localConfig.py
+file.&nbsp; If the override capability is marked as "NO" and you still
+need the modification, you will need to review <a
+ href="serverConfiguration.html#ServerDatabaseConfigurationModificationOptions">methods
+of modifying database configurations</a> for alternative choices.
+<br>
+&nbsp;
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td><b>Item</b></td>
+      <td><b>localConfig.py override</b></td>
+      <td><b>Link to serverConfig info</b></td>
+    </tr>
+    <tr>
+      <td><a href="#AddinganewWeatherElement">Add a new weather element</a></td>
+      <td>
+      <center>YES</center>
+      </td>
+      <td><a href="serverConfig.html#WeatherElementConfigurationSection">weather
+element configuration</a></td>
+    </tr>
+    <tr>
+      <td><a href="#RemovinganexistingWeatherElement">Remove an
+existing weather
+element</a>*</td>
+      <td>
+      <center>NO</center>
+      </td>
+      <td><a href="serverConfig.html#WeatherElementConfigurationSection">weather
+element configuration</a></td>
+    </tr>
+    <tr>
+      <td><a href="#ModifyanexistingWeatherElementsAttributes">Modify
+an existing
+weather element's attributes</a> (name, type, units, descriptive name,
+maximum possible value, minimum possible value, precision)</td>
+      <td>
+      <center>YES</center>
+      </td>
+      <td><a href="serverConfig.html#WeatherElementConfigurationSection">weather
+element configuration</a></td>
+    </tr>
+    <tr>
+      <td><a href="#ChangetheWeatherConfiguration">Change the weather
+configuration</a>
+(coverages, types, intensities, visibilities, optional attributes)</td>
+      <td>
+      <center>NO, but you can change this through <a
+ href="localWxConfig.html">localWxConfig.py</a></center>
+      </td>
+      <td><a href="serverConfig.html#WeatherConfigurationSection">weather
+configuration</a></td>
+    </tr>
+    <tr>
+      <td><a href="#AddanewProjection">Add a new projection</a></td>
+      <td>
+      <center>YES</center>
+      </td>
+      <td><a href="serverConfig.html#ProjectionConfigurationSection">projection
+configuraton</a></td>
+    </tr>
+    <tr>
+      <td><a href="#ModifyanexistingProjection">Modify an existing
+projection</a></td>
+      <td>
+      <center>NO</center>
+      </td>
+      <td><a href="serverConfig.html#ProjectionConfigurationSection">projection
+configuraton</a></td>
+    </tr>
+    <tr>
+      <td><a href="#RemoveaProjection">Remove an existing projection</a>*</td>
+      <td>
+      <center>NO</center>
+      </td>
+      <td><a href="serverConfig.html#ProjectionConfigurationSection">projection
+configuraton</a></td>
+    </tr>
+    <tr>
+      <td><a href="#AddinganewSite">Adding a new site</a> (Grid Domain
+Configuration
+Section)</td>
+      <td>
+      <center>YES</center>
+      </td>
+      <td><a href="serverConfig.html#GridDomainConfiguration">grid
+domain configuration</a></td>
+    </tr>
+    <tr>
+      <td><a href="#ChangingtheSitesDomainsResolutionTimeZone">Change
+the
+site's domains</a> (grid sizes, grid location and extent, time zone,
+projection,
+adjusting the site's resolution)</td>
+      <td>
+      <center>YES</center>
+      </td>
+      <td><a href="serverConfig.html#GridDomainConfiguration">grid
+domain configuration</a></td>
+    </tr>
+    <tr>
+      <td><a href="#RemovingaSite">Removing a site</a>*</td>
+      <td>
+      <center>NO</center>
+      </td>
+      <td><a href="serverConfig.html#GridDomainConfiguration">grid
+domain configuration</a></td>
+    </tr>
+    <tr>
+      <td><a href="#AddinganewTimeConstraint">Adding a new time
+constraint</a></td>
+      <td>
+      <center>YES</center>
+      </td>
+      <td><a href="serverConfig.html#TimeConstraintConfiguration">time
+constraint
+info</a></td>
+    </tr>
+    <tr>
+      <td><a href="#ModifyinganexistingTimeConstraint">Modifying an
+existing
+time constraint</a></td>
+      <td>
+      <center>YES</center>
+      </td>
+      <td><a href="serverConfig.html#TimeConstraintConfiguration">time
+constraint
+info</a></td>
+    </tr>
+    <tr>
+      <td><a href="#RemovinganexistingTimeConstraint">Removing an
+existing time
+constraint</a>*</td>
+      <td>
+      <center>NO</center>
+      </td>
+      <td><a href="serverConfig.html#TimeConstraintConfiguration">time
+constraint
+info</a></td>
+    </tr>
+    <tr>
+      <td><a href="#AddinganewDatabase">Adding a database attribute
+configuration</a></td>
+      <td>
+      <center>YES</center>
+      </td>
+      <td><a href="serverConfig.html#DatabaseModelConfiguration">database
+attribute
+configuration</a></td>
+    </tr>
+    <tr>
+      <td><a href="#ModifyingaDatabase">Modifying a database attribute
+configuration</a>
+(name, singleton flag, official flag, number of versions to keep, purge
+age)</td>
+      <td>
+      <center>YES</center>
+      </td>
+      <td><a href="serverConfig.html#DatabaseModelConfiguration">database
+attribute
+configuration</a></td>
+    </tr>
+    <tr>
+      <td><a href="#RemovingaDatabase">Removing a database attribute
+configuration</a>*</td>
+      <td>
+      <center>NO</center>
+      </td>
+      <td><a href="serverConfig.html#DatabaseModelConfiguration">database
+attribute
+configuration</a></td>
+    </tr>
+    <tr>
+      <td><a href="#ModifyingthelistofD2DDirectoriesformodelaccess">Modifying
+the list of D2D directories</a> to search for model data</td>
+      <td>
+      <center>YES</center>
+      </td>
+      <td><a href="serverConfig.html#D2DModelFileDirectories">D2D model
+list</a></td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><a href="#SATDIRS">Modifying the
+list of D2D directories to search for satellite data</a><br>
+      </td>
+      <td style="vertical-align: top; text-align: center;">YES<br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="serverConfig.html#SATDIRS">SATDIRS list</a><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#InitializationModules">Modifying the list of
+initialization
+modules</a></td>
+      <td>
+      <center>YES</center>
+      </td>
+      <td><a href="serverConfig.html#InitializationModules">Initialization
+Modules</a></td>
+    </tr>
+    <tr>
+      <td><a href="#D2DVersion">Modifying the number of available D2D
+databases</a></td>
+      <td>
+      <center>YES</center>
+      </td>
+      <td><a href="serverConfig.html#D2DVersion">D2D Model Database
+Version Specification</a></td>
+    </tr>
+    <tr>
+      <td><a href="#AddinganewDatabase">Adding Parm Group</a>s (mapping
+of weather
+elements to time constraints)&nbsp;</td>
+      <td>
+      <center>YES</center>
+      </td>
+      <td><a href="serverConfig.html#WeatherElementGroupings">Parm
+Group configuration</a></td>
+    </tr>
+    <tr>
+      <td><a href="#ModifyingExistingParmGroups">Modifying Existing
+Parm Groups</a></td>
+      <td>
+      <center>YES</center>
+      </td>
+      <td><a href="serverConfig.html#WeatherElementGroupings">Parm
+Group configuration</a></td>
+    </tr>
+    <tr>
+      <td><a href="#RemovingParmGroups">Removing Existing Parm Groups</a>*</td>
+      <td>
+      <center>NO</center>
+      </td>
+      <td><a href="serverConfig.html#WeatherElementGroupings">Parm
+Group configuration</a></td>
+    </tr>
+    <tr>
+      <td><a href="#AddinganewDatabase">Adding new Databases</a>
+(database configuration
+and parm group mapping)</td>
+      <td>
+      <center>YES</center>
+      </td>
+      <td><a href="serverConfig.html#DatabaseGroupings">database
+groupings</a></td>
+    </tr>
+    <tr>
+      <td><a href="#ModifyingaDatabase">Modifying existing Databases</a>
+(other
+than adding weather elements to Fcst/Official)</td>
+      <td>
+      <center>NO</center>
+      </td>
+      <td><a href="serverConfig.html#DatabaseGroupings">database
+groupings</a></td>
+    </tr>
+    <tr>
+      <td><a href="#RemovingaDatabase">Removing existing Databases</a></td>
+      <td>
+      <center>NO</center>
+      </td>
+      <td><a href="serverConfig.html#DatabaseGroupings">database
+groupings</a></td>
+    </tr>
+    <tr>
+      <td><a href="#Logs">Modifying the Number of Days to keep Logs</a></td>
+      <td>
+      <center>YES</center>
+      </td>
+      <td><a href="serverConfig.html#MiscellaneousConfigurationItems">Misc.
+Configurations</a></td>
+    </tr>
+    <tr>
+      <td><a href="#ExtraPrecision">Defining Extra Precision for
+Certain Weather
+Elements</a></td>
+      <td>
+      <center>YES</center>
+      </td>
+      <td><a href="serverConfig.html#WeatherElementConfigurationSection">weather
+element configuration</a></td>
+    </tr>
+    <tr>
+      <td><a href="#D2DAccum">Defining D2D Accumulative Weather Elements</a></td>
+      <td>
+      <center>YES</center>
+      </td>
+      <td><a href="serverConfig.html#D2DAccumulativeWeatherElements">D2D
+Accumulative
+Elements</a><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><a href="#ISC">Intersite
+Coordination Grids Configuration</a><br>
+      </td>
+      <td style="vertical-align: top; text-align: center;">YES<br>
+      </td>
+      <td style="vertical-align: top;"><a href="serverConfig.html#ISC">Intersite
+Coordination Configuration Items</a><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+*There usually is no need to remove definitions from
+serverConfig.py.&nbsp;
+They generally do not take up an significant space.
+<p></p>
+<hr width="100%">
+<h1><a name="AddinganewWeatherElement"></a>Adding a new Weather Element</h1>
+<h4>
+Defining the New Weather Element</h4>
+You can define a new weather element to add to the Fcst and Official
+database,
+or add to a new database, or both.&nbsp; You can also use
+localConfig.py
+to add a new weather element to the model databases, e.g., NAM.
+<p>The format of the entry in localConfig.py is identical to that
+described
+in the <a href="serverConfig.html#WeatherElementConfigurationSection">weather
+element section of serverConfig.py</a>.
+</p>
+<p><a href="EXAMPLElocalConfigAddElement.py">Example localConfig.py file</a>
+</p>
+<p>The following example defines a relative humidity element with the
+following
+characteristics:
+<br>
+&nbsp;
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td>Element Name</td>
+      <td>"RH", which defines "RH" at the SFC, this element name may
+also be
+written "RH_SFC".</td>
+    </tr>
+    <tr>
+      <td>Data Type</td>
+      <td>SCALAR</td>
+    </tr>
+    <tr>
+      <td>Units</td>
+      <td>%</td>
+    </tr>
+    <tr>
+      <td>Descriptive Name</td>
+      <td>Relative Humidity</td>
+    </tr>
+    <tr>
+      <td>Maximum Possible Value</td>
+      <td>100.0</td>
+    </tr>
+    <tr>
+      <td>Minimum Possible Value</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Precision</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>Time Constraints</td>
+      <td>TC1 (as defined in either serverConfig.py or localConfig.py)</td>
+    </tr>
+    <tr>
+      <td>Rate-Dependent Parm</td>
+      <td>NO</td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<p><tt>rh =&nbsp;&nbsp;&nbsp; ("RH", SCALAR, "%", "Relative Humidity",
+100.0, 0.0, 0, NO)</tt>
+</p>
+<p>Simply defining the new weather element has no affect.&nbsp; You
+need
+to add it to the Fcst/Official databases or a new database for that
+weather
+element to truly be created.
+</p>
+<p>The format of the weather element line is different for WEATHER and
+DISCRETE-type weather elements.&nbsp; In particular, DISCRETE type
+elements
+require a overlapping/non-overlapping flag, as well as the discrete key
+definitions.&nbsp; WEATHER and DISCRETE-type elements do not allow
+specification
+of a maximum possible value, minimum possible value, precision, or
+rate-dependent
+parm.&nbsp; Here is an example entry for a new discrete element called
+SevereWx, which has two possible values, YES and NO.&nbsp; It is
+non-overlapping,
+since you can't have both YES and NO at the same time. We want an
+auxiliary data field with a maximum of 2 characters in length:
+<br>
+&nbsp;
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td>Element Name</td>
+      <td>"SevereWx"</td>
+    </tr>
+    <tr>
+      <td>Data Type</td>
+      <td>DISCRETE</td>
+    </tr>
+    <tr>
+      <td>Units</td>
+      <td>cat</td>
+    </tr>
+    <tr>
+      <td>Descriptive Name</td>
+      <td>Severe Weather</td>
+    </tr>
+    <tr>
+      <td>Time Constraints</td>
+      <td>TC1 (as defined in either serverConfig.py or localConfig.py)</td>
+    </tr>
+    <tr>
+      <td>Overlapping</td>
+      <td>NO</td>
+    </tr>
+    <tr>
+      <td>DiscreteKey</td>
+      <td>YES, NO<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">AuxDataFieldSize<br>
+      </td>
+      <td style="vertical-align: top;">2<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<p><tt>severewxKeys = [('NO', 'no'), ('YES', 'yes')]</tt>
+<br>
+<tt>severewx =&nbsp;&nbsp;&nbsp; ("SevereWx", DISCRETE, "cat", "Severe
+Weather", NO, severewxKeys, 2)</tt>
+<br>
+&nbsp;
+</p>
+<h4>Adding the New Weather Element to the Fcst and Official Databases</h4>
+To add the new weather element to just the Fcst and Official databases,
+include a line similar to that below after all of the weather element
+definitions
+(and any <a href="#AddinganewTimeConstraint">new time constraint
+definitions</a>).
+The line is in the standard <a
+ href="serverConfig.html#WeatherElementGroupings">parm
+grouping format, with the exception that the name of the parm group is
+"parm".</a>This format consists of a list of new weather elements and
+their
+time constraint.&nbsp; The time constraint can be an existing one in
+the
+serverConfig.py, or a <a href="#AddinganewTimeConstraint">new one
+defined</a>
+earlier in localConfig.py.&nbsp; <b><font color="#ff0000">Be sure that
+the name to the left of the entry is "parms".</font></b>
+<p><tt>parms = [([rh], TC1)]</tt>
+</p>
+<p>If you choose to add multiple parms using the same time constraint,
+then the second line needs to be modified to be in this format:
+</p>
+<p><tt>parms = [([parm1, parm2, parm3], tc1)]</tt>
+</p>
+<p>If you choose to add multiple parms using different time
+constraints,
+then the second line needs to be modified to be in this format:
+</p>
+<p><tt>parms = [([parm1], tc1), ([parm2], tc2), ([parm3, parm4], tc3)]</tt>
+</p>
+<p><i>Note: There can only be one "parms =" line in the localConfig.py
+file.&nbsp; If you use more than one, then only the last one will be
+used.</i>
+<br>
+&nbsp;
+</p>
+<h4>Adding the New Weather Element to a New Database</h4>
+If you only want to add a new weather element for a new database, and
+not
+the Fcst and Official databases, then do not include your weather
+element
+in the parms statement.&nbsp; However, if you add it to a new database,
+then you will usually want to add it to the Fcst and Official databases
+so you can edit it.&nbsp; You will include the list of weather elements
+when you <a href="#AddinganewDatabase">define a new database</a>.
+<h4>Adding The New Weather Element to a New Database and the
+Fcst/Official
+Databases</h4>
+If you want to add the new weather element to both new databases, and
+the
+Fcst/Official databases, then include the weather elements in the parms
+line, and include it in the list of weather elements when you <a
+ href="#AddinganewDatabase">define
+a new database</a>.
+<br>
+&nbsp;
+<h4>Adding the New Weather Element to one of the standard model
+Databases</h4>
+You can add new weather elements to one of the standard model
+databases.&nbsp;
+The syntax is identical to that described above, except that the Python
+object name is not "parms", instead it is different depending upon the
+model you are modifying.&nbsp; The following table relates the standard
+models and the Python object name that is required:
+<br>
+&nbsp;
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td><b>Standard Model</b></td>
+      <td><b>Python Object Name</b></td>
+    </tr>
+    <tr>
+      <td>Fcst, Official, Restore</td>
+      <td>parms</td>
+    </tr>
+    <tr>
+      <td>NAM80</td>
+      <td>parmsNAM80</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">NAM40<br>
+      </td>
+      <td style="vertical-align: top;">parmsNAM40<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">NAM12<br>
+      </td>
+      <td style="vertical-align: top;">parmsNAM12<br>
+      </td>
+    </tr>
+    <tr>
+      <td>RAP40</td>
+      <td>parmsRAP40</td>
+    </tr>
+    <tr>
+      <td>GFS80<br>
+      </td>
+      <td>parmsGFS80</td>
+    </tr>
+    <tr>
+      <td>GFS40<br>
+      </td>
+      <td>parmsGFS40</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">GFS190<br>
+      </td>
+      <td style="vertical-align: top;">parmsGFS190<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">GFS75<br>
+      </td>
+      <td style="vertical-align: top;">parmsGFS75<br>
+      </td>
+    </tr>
+    <tr>
+      <td>LAPS</td>
+      <td>parmsLAPS</td>
+    </tr>
+    <tr>
+      <td>gfsLR</td>
+      <td>parmsgfsLR</td>
+    </tr>
+    <tr>
+      <td>GWW</td>
+      <td>parmsGWW</td>
+    </tr>
+    <tr>
+      <td>MSAS</td>
+      <td>parmsMSAS</td>
+    </tr>
+    <tr>
+      <td>GLERL</td>
+      <td>parmsGLERL</td>
+    </tr>
+    <tr>
+      <td>AKWAVE</td>
+      <td>parmsAKWAVE</td>
+    </tr>
+    <tr>
+      <td>WNAWAVE</td>
+      <td>parmsWNAWAVE</td>
+    </tr>
+    <tr>
+      <td>MOS</td>
+      <td>parmsMOS</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">RFCQPF<br>
+      </td>
+      <td style="vertical-align: top;">parmsRFCQPF<br>
+      </td>
+    </tr>
+    <tr>
+      <td>HPCQPF</td>
+      <td>parmsHPCQPF</td>
+    </tr>
+    <tr>
+      <td>HPCGuide</td>
+      <td>parmsHPCGuide</td>
+    </tr>
+    <tr>
+      <td>HPCDelta</td>
+      <td>parmsHPCDelta</td>
+    </tr>
+    <tr>
+      <td>TPCtcm</td>
+      <td>parmsTCM</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">SAT<br>
+      </td>
+      <td style="vertical-align: top;">parmsSAT<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ISC<br>
+      </td>
+      <td style="vertical-align: top;">parmsISC<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">NAM95<br>
+      </td>
+      <td style="vertical-align: top;">parmsNAM95<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">MOSGuide<br>
+      </td>
+      <td style="vertical-align: top;">parmsMOSGuide<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">OPCTAFBE<br>
+      </td>
+      <td style="vertical-align: top;">parmsOPCWavE<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">OPCTAFBSW<br>
+      </td>
+      <td style="vertical-align: top;">parmsOPCWavSW<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">OPCTAFBNW<br>
+      </td>
+      <td style="vertical-align: top;">parmsOPCWavNW<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>Keep in mind that adding a new element to one of the standard model
+databases does not cause that field to be automatically generated by
+the
+initialization routines.&nbsp; You will have to also write a smart
+initialization
+algorithm for that database.&nbsp; Refer to the <a
+ href="SmartInit.html">Smart
+Initialization Configuration and User's Guide</a> for more details.
+</p>
+<p>Here is an example of adding the relative humidity weather element
+with
+a three-hour time constraint to the NAM12 database:
+</p>
+<p><tt>rh =&nbsp;&nbsp;&nbsp; ("RH", SCALAR, "%", "Relative Humidity",
+100.0, 0.0, 0, NO)</tt>
+<br>
+<tt>parmsNAM12 = [([rh], TC3)]</tt>
+</p>
+<p></p>
+<hr width="100%">
+<h1><a name="RemovinganexistingWeatherElement"></a>Removing an existing
+Weather
+Element</h1>
+This is not supported through localConfig.py.
+<br>
+<hr width="100%">
+<h1><a name="ModifyanexistingWeatherElementsAttributes"></a>Modify an
+existing
+Weather Element's Attributes</h1>
+An existing weather elements attributes can be modified by duplicating
+the entry in serverConfig.py, modifying the particular attributes, and
+prefixing 'serverConfig.' to the beginning of the definition:
+<p><tt>serverConfig.Temp =&nbsp;&nbsp;&nbsp; ("T", SCALAR, "F",
+"Surface
+Temperature",</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 120.0,
+-30.0, 0, NO)</tt>
+</p>
+<p>The entry above changes the definition of temperature to range from
+-30 to +120 degrees.&nbsp; The minimum possible value was
+changed.&nbsp;
+This will affect all databases that use the "Temp" weather element.
+</p>
+<p>You can modify the association between an existing weather element
+and
+its time constraints (parm groups) through localConfig.py.&nbsp; If you
+simply want to change the time constraints associated with an existing
+weather element, refer to <a href="#ModifyingExistingParmGroups">Modifying
+Existing Parm Groups</a>.
+</p>
+<p><a href="EXAMPLElocalConfigModWxElem.py">Example localConfig.py file</a>
+<br>
+</p>
+<hr width="100%">
+<h1><a name="ChangetheWeatherConfiguration"></a>Changing the Weather
+Configuration</h1>
+The changing of the weather configuration is not supported through
+localConfig.py
+but is supported through <a href="localWxConfig.html">localWxConfig.py</a>.
+If you do change the weather configuration, you may find that your
+weather
+grids are not compatible with weather grids from other sites.
+<br>
+<hr width="100%">
+<h1><a name="AddanewProjection"></a>Add a new Projection</h1>
+Adding a new projection is straight forward once you figure out all of
+the constants that are required.&nbsp; Refer to the <a
+ href="serverConfig.html#ProjectionConfigurationSection">projection
+configuration information in serverConfig.py</a> for more details.
+<p>Here is an example of adding a Local211 projection, which is similar
+to the Grid211 except that the 'North is up' has been changed from 95
+degrees
+west longitude to 116 degrees west longitude:
+</p>
+<p><tt>Local211 = ('Local211', LAMBERT_CONFORMAL,</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (-133.459, 12.190), (-49.385,
+57.290),</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (-116.0, 25.0), 25.0, 25.0, (1,
+1), (93, 65), 0.0, 0.0, 0.0)</tt>
+<br>
+&nbsp;
+</p>
+<p>If you do create your own projection, you should strive to name it
+differently
+from the standard projections provided with the system.&nbsp; In the
+above
+example we created a Local211 projection and named it 'Local211' in the
+first argument.
+</p>
+<p>Adding a new projection does no good unless you use it in a new or
+modified
+site definition.&nbsp; Therefore if you add a new projection for your
+site,
+you also will want to update the site definition (grid size, location,
+and projection) information.
+</p>
+<p>For example, changing Boise from Grid211 to the Local211 projection
+would require the following lines in localConfig.py.
+</p>
+<p><tt>from serverConfig import *</tt>
+<br>
+<tt>import serverConfig</tt>
+<br>
+<tt>Local211 = ('Local211', LAMBERT_CONFORMAL,</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (-133.459, 12.190), (-49.385,
+57.290),</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (-116.0, 25.0), 25.0, 25.0, (1,
+1), (93, 65), 0.0, 0.0, 0.0)</tt>
+<br>
+<tt>SITES['BOI'] = ([45, 45], (25.00, 34.00), (11.0, 11.0), 'MST7MDT',
+Local211))</tt>
+</p>
+<p>Note that when changing a projection, you will also be changing the
+AWIPS world coordinate systems as defined.&nbsp; This can result in a
+distorted
+map background.
+</p>
+<p><a href="EXAMPLElocalConfigProjection.py">Example localConfig.py file</a>
+<br>
+</p>
+<hr width="100%">
+<h1><a name="ModifyanexistingProjection"></a>Modify an existing
+Projection</h1>
+<font color="#000000">Modifying an existing projection is not
+supported.
+Attempts to do so will result in EDEX failing to initialize GFE successfully.</font>
+<br>
+<p></p>
+<hr width="100%">
+<h1><a name="RemoveaProjection"></a>Remove a Projection</h1>
+The removal of a projection is not supported through localConfig.py.
+There
+is no harm in leaving unused projections in the serverConfig.py file.
+<br>
+<hr width="100%">
+<h1><a name="AddinganewSite"></a>Adding a new Site</h1>
+Adding a new site is not supported through localConfig.py.&nbsp; You
+should
+use an existing entry and then reset its domain and grid size to that
+appropriate
+for your new site.
+<p></p>
+<hr width="100%">
+<h1><a name="ChangingtheSitesDomainsResolutionTimeZone"></a>Changing
+the
+Site's Domains, Resolution, Time Zone, Office Type<br>
+</h1>
+A existing site's definition may be changed in the localConfig.py
+file.&nbsp;
+The format of the entry in localConfig.py is identical to that
+described
+in the <a href="serverConfig.html#GridDomainConfiguration">grid domain
+section of serverConfig.py</a>.
+<p>The following example modifies a existing site's definition to the
+following
+characteristics:
+<br>
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td>Site Name</td>
+      <td>ABQ</td>
+    </tr>
+    <tr>
+      <td>Grid Size</td>
+      <td>x=70, y=70</td>
+    </tr>
+    <tr>
+      <td>Grid Origin in AWIPS world coordinates</td>
+      <td>x=36.25, y=22.25</td>
+    </tr>
+    <tr>
+      <td>Grid Extent in AWIPS world coordinates</td>
+      <td>x=8.5 y=8.5</td>
+    </tr>
+    <tr>
+      <td>Time Zone</td>
+      <td>MST7MDT</td>
+    </tr>
+    <tr>
+      <td>Projection</td>
+      <td>Grid211</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Office Type<br>
+      </td>
+      <td style="vertical-align: top;">wfo<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<p><tt>SITES['ABQ'] = ([70, 70], (36.25, 22.25), (8.5, 8.5), 'MST7MDT',
+Grid211, 'wfo')</tt>
+<br>
+&nbsp;
+</p>
+<p>If your modified site is using a new or modified projection, then be
+sure to define the new or modified projection BEFORE you redefine the
+site's
+characteristics.
+<br>
+&nbsp;
+</p>
+<h4>Adjusting the Grid Resolution</h4>
+The numbers that define the grid resolution are not particularily
+obvious.&nbsp;
+The grid resolution is determined from the grid location on Earth
+(defined
+by Grid Origin, Grid Extent, and Projection), and the Grid Size.&nbsp;
+The nominal resolution of the common AWIPS projections are shown in the
+table below.&nbsp; They are equivilant to a grid box of (1,1) in
+size.&nbsp;
+The approximate resolution of your domain entry can be figured by:
+<p><tt>approx resolution = projectionResolution * (extent / (grid size
+- 1))</tt>
+</p>
+<p>Solving for your grid size results in the following equation; enter
+your desired resolution:
+</p>
+<p><tt>grid size = (projectionResolution * extent / desiredResolution)
++ 1</tt>
+</p>
+<p>The resulting grid size defines the number of grid cells in each
+direction
+for the given resolution. For example, if you were on the Grid211
+projection
+with an AWIPS world coordinate extent of 9.0, and would like a
+resolution
+of approximately 2.5 kilometers, the approximate grid size you would
+use
+would be:
+</p>
+<p><tt>grid size = 80 * 9.0 / 5.0 + 1</tt>
+<br>
+<tt>grid size = 145</tt>
+</p>
+<p>Therefore an example entry&nbsp; would change from this:
+</p>
+<p><tt>SITES['AAA'] = ([145, 145], (23.00, 22.00), (9.0, 9.0),
+'MST7MDT',
+Grid211, 'wfo')</tt>
+</p>
+<p>to this:
+</p>
+<p><tt>SITES['AAA'] = ([289, 289], (23.00, 22.00), (9.0, 9.0),
+'MST7MDT',
+Grid211, 'wfo')</tt>
+</p>
+<p>You can get different resolutions in the x and y direction which is
+generally not recommended.&nbsp; To avoid this, make sure that the
+ratio
+of extent and grid size are identical.
+<br>
+&nbsp;
+<br>
+&nbsp;
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td><b>AWIPS Projection</b></td>
+      <td><b>Nominal Resolution (km)</b></td>
+    </tr>
+    <tr>
+      <td>Grid211</td>
+      <td>80</td>
+    </tr>
+    <tr>
+      <td>Grid212</td>
+      <td>40</td>
+    </tr>
+    <tr>
+      <td>Grid214</td>
+      <td>47</td>
+    </tr>
+    <tr>
+      <td>Grid210</td>
+      <td>80</td>
+    </tr>
+    <tr>
+      <td>Grid208</td>
+      <td>80</td>
+    </tr>
+    <tr>
+      <td>Grid215</td>
+      <td>20</td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<p><a href="EXAMPLElocalConfigResolution.py">Example localConfig.py file</a>
+<br>
+</p>
+<hr width="100%">
+<h1><a name="RemovingaSite"></a>Removing a Site</h1>
+Removing a site is not possible through the localConfig.py. Generally
+it
+is not necessary to remove a site from serverConfig.py since the site
+definitions
+do not take up significant space.
+<br>
+<hr width="100%">
+<h1><a name="AddinganewTimeConstraint"></a>Adding a new Time Constraint</h1>
+Adding a new time constraint is straight forward.&nbsp; It has the same
+format as described in the <a
+ href="serverConfig.html#TimeConstraintConfiguration">time
+constraint section of serverConfig.py</a>.&nbsp; You can make use of
+the
+localTC() script defined in serverConfig.py if desired.
+<p>The following line adds a new time constraint with the name of TC8,
+that starts at 0200z, repeats every eight hours, and has a duration of
+four hours.&nbsp; The second line adds a new time constraint with the
+name
+of LT9 that starts at 900am local time, repeats every 24 hours, and has
+a duration of 3 hours:
+</p>
+<p><tt>TC8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = (2*HOUR, 8*HOUR, 4*HOUR)</tt>
+<br>
+<tt>LT9 = localTC(9*HOUR, 24*HOUR, 3*HOUR, 0)</tt>
+</p>
+<p>Simply adding a new time constraint by itself provides no benefit,
+unless
+you also define new parm groupings and a database.&nbsp; Any new time
+constraints
+to be used with new weather elements need to be defined before the
+definition
+is used.
+</p>
+<p><a href="EXAMPLElocalConfigTC.py">Example localConfig.py file</a>
+<br>
+</p>
+<hr width="100%">
+<h1><a name="ModifyinganexistingTimeConstraint"></a>Modifying an
+existing Time
+Constraint</h1>
+Modifying an existing time constraint is fairly easy.&nbsp; Simply copy
+the definition from serverConfig.py and put it in localConfig.py, then
+modify it.&nbsp; This modifies the maximum temperature time constraint
+so it starts at 500am local time and runs until 800pm local time
+(start=5,
+repeat=24, duration=15); the daylight savings flag is set to zero.
+<p><tt>serverConfig.MaxTTC&nbsp;&nbsp;&nbsp;&nbsp; = localTC(5*HOUR,
+24*HOUR,
+15*HOUR, 0)</tt>
+</p>
+<p>Modifying the TC6 time constraint to have grids every 6 hours, but
+with
+grid lengths of 2 hours (2 hour grid, 4 hour gap) is accomplished by:
+</p>
+<p><tt>serverConfig.TC6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = (0, 6 * HOUR,
+3*HOUR)</tt>
+<br>
+&nbsp;
+</p>
+<p><font color="#ff0000">Modifying an existing time constraint can have
+far-reaching effects.</font>&nbsp; Every subsequent use of this time
+constraint
+in serverConfig.py (and localConfig.py) will use this new definition.
+This
+can affect all of the model time constraints for all of the
+models.&nbsp;
+Be sure you know what you are doing!&nbsp; It is much better to simply
+<a href="#AddinganewTimeConstraint">create
+a new tme constraint</a> and use it.
+</p>
+<p></p>
+<hr width="100%">
+<h1><a name="RemovinganexistingTimeConstraint"></a>Removing an existing
+Time
+Constraint</h1>
+It is not possible to remove an existing time constraint through
+localConfig.py.&nbsp;
+Having unused definitions of Time Constraints in serverConfig.py does
+no
+harm.
+<br>
+<hr width="100%">
+<h1><a name="AddinganewDatabase"></a>Adding a new Database</h1>
+There are several steps to adding a new database:
+<ul>
+  <li>First, ask yourself if you really want to do this.&nbsp; There
+may be
+other
+techniques available that if used, will not require the addition of a
+new
+database.</li>
+  <li>Define any <a href="#AddinganewWeatherElement">new weather
+elements</a>
+that you want in this database.</li>
+  <li>Define any <a href="#AddinganewTimeConstraint">new time
+constraints</a>
+that will be needed by this database.</li>
+  <li>Define the <a href="#DefiningDatabaseAttributes">database
+attributes</a>
+for the new database.</li>
+  <li>Define the <a href="#DefiningNewParmGroupings">new parm groupings</a>
+for
+this database.</li>
+  <li> <a href="#AddingtheDatabasetothelistofnewdatabases">Add the
+database to
+the list</a> of new databases.</li>
+</ul>
+<h4>
+<a name="DefiningDatabaseAttributes"></a>Defining Database Attributes</h4>
+The database attributes for the new database are defined in the same
+format
+as those in the <a href="serverConfig.html#DatabaseModelConfiguration">serverConfig.py</a>.
+<p>If you were adding a new database with the following characterstics:
+<br>
+&nbsp;
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td>Model Name</td>
+      <td>Climo</td>
+    </tr>
+    <tr>
+      <td>Format (always GRID)</td>
+      <td>GRID</td>
+    </tr>
+    <tr>
+      <td>Optional Type, simply used to filter viewable databases by
+the GFE
+through <a href="gfeConfig_DB.html#MutableDatabaseandViewableDatabase">gfe
+configuration file</a></td>
+      <td>""</td>
+    </tr>
+    <tr>
+      <td>Singleton</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>Official</td>
+      <td>NO</td>
+    </tr>
+    <tr>
+      <td>Number of Versions&nbsp;</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>Grid Purge Age</td>
+      <td>48 hours</td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<p>then you would use the following syntax to define this database
+attribute:
+</p>
+<p><tt>Climo&nbsp;&nbsp; = ('Climo',&nbsp;&nbsp; GRID,&nbsp;&nbsp; '',
+YES, NO,&nbsp; 1, 48)</tt>
+</p>
+<p>However, if you are modifying an already defined database, then be
+sure
+to prefix your entry with serverConfig.&nbsp; For example, to modify
+the
+NAM12 database to retain 4 versions, the entry in localConfig.py will
+be:
+</p>
+<p><tt>serverConfig.NAM12 = ('NAM12', GRID, '', NO,&nbsp; NO, 4, 0)</tt>
+<br>
+&nbsp;
+</p>
+<h4><a name="DefiningNewParmGroupings"></a>Defining New Parm Groupings</h4>
+Now you need to define the list of weather elements and their time
+constraints.&nbsp;
+The list of weather elements can include previous definitions from
+serverConfig
+and your new definitions. The composite list of weather elements and
+time
+constraints is done in an identical manner to that described in <a
+ href="serverConfig.html#WeatherElementGroupings">serverConfig.py</a>.&nbsp;
+Of course, you will first need to define any new time constraints that
+you plan to use.
+<p>In this example, we have assumed to already add the definitions for
+the the following weather elements: NormalMax, NormalMin.&nbsp; We plan
+to use existing local time definitions for max and min temperature so
+we
+don't need to redefine or define new ones.
+</p>
+<p><tt>CLIMO_MODEL = [([NormalMax], MaxTTC), ([NormalMin], MinTTC)]</tt>
+</p>
+<h4><a name="AddingtheDatabasetothelistofnewdatabases"></a>Adding the
+Database
+to the list of new databases</h4>
+The final step is to relate the parm groupings to the database
+attributes
+and then append those to a list of new databases.&nbsp; This is done in
+the simliar format to&nbsp; <a
+ href="serverConfig.html#DatabaseGroupings">database
+groupings in serverConfig.py</a>.&nbsp; The Python variable that is
+expected
+is 'localDBs'.
+<p><tt>dbs = [(Climo, CLIMO_MODEL)]</tt>
+</p>
+<p>If multiple local databases were required, the format of the entry
+would
+be:
+</p>
+<p><tt>dbs = [(dbattr1, dbParmGroup1), (dbattr2, dbParmGroup2)]</tt>
+</p>
+<p><a href="EXAMPLElocalConfigNewDB.py">Example localConfig.py file</a>
+<br>
+</p>
+<hr width="100%">
+<h1><a name="ModifyingaDatabase"></a>Modifying a Database</h1>
+There are only a limited number of items that can be changed on an
+existing
+database.&nbsp; You can <a href="#AddinganewWeatherElement">add new
+weather
+elements</a> (to Fcst and Official databases, or any of the standard
+model
+databases), <a href="#ModifyanexistingWeatherElementsAttributes">change
+the weather element definitions</a>, change the <a
+ href="#DefiningDatabaseAttributes">database
+attribute</a> information, and <a
+ href="#ModifyinganexistingTimeConstraint">change
+weather element time constraints</a> using different methods outlined
+in
+this file.&nbsp;&nbsp;&nbsp; If you really need to make additional
+modifications,
+then you will need to copy the entire serverConfig.py and make changes
+to it as described in the <a
+ href="serverConfiguration.html#ServerDatabaseConfigurationModificationOptions">server
+configuration guide</a>.
+<p></p>
+<hr width="100%">
+<h1><a name="RemovingaDatabase"></a>Removing a Database</h1>
+The removal of databases are not supported through the
+localConfig.py.&nbsp;
+If a database really needs to be removed, then you will need to make a
+copy of the serverConfig.py and change it, and place it in the correct
+directory.&nbsp; See <a
+ href="serverConfiguration.html#ServerDatabaseConfigurationModificationOptions">server
+configuration options</a> for details.
+<br>
+<hr width="100%">
+<h1><a name="ModifyingExistingParmGroups"></a>Modifying Existing Parm
+Groups</h1>
+Modification of existing parm groups through localConfig.py is used to
+change the mapping between weather elements, and their time
+constraints.&nbsp;
+You can&nbsp; modify existing parm groups for the Fcst and Official
+databases,
+or any of the standard model databases,&nbsp; through this method.
+<p>Modifying an existing parm group is accomplished by linking new or
+existing
+weather elements to new or existing time constraints.&nbsp; This is
+similar
+to the technique in <a href="#AddinganewWeatherElement">Adding A New
+Weather
+Element</a>.
+</p>
+<p>To modify the existing parm group for the Fcst and Official
+databases,
+include a line similar to that below after all of the weather element
+definitions
+(and any <a href="#AddinganewTimeConstraint">new time constraint
+definitions</a>).
+The line is in the standard <a
+ href="serverConfig.html#WeatherElementGroupings">parm
+grouping format, with the exception that the name of the parm group is
+"parm".</a>This format consists of a list of new weather elements and
+their
+time constraint.&nbsp; The time constraint can be an existing one in
+the
+serverConfig.py, or a <a href="#AddinganewTimeConstraint">new one
+defined</a>
+earlier in localConfig.py.&nbsp; <b><font color="#ff0000">Be sure that
+the name to the left of the entry is "parms".</font></b>
+</p>
+<p><tt>parms = [([rh], TC1)]</tt>
+</p>
+<p>If you choose to add multiple parms using the same time constraint,
+then the&nbsp; line needs to be modified to be in this format:
+</p>
+<p><tt>parms = [([parm1, parm2, parm3], tc1)]</tt>
+</p>
+<p>&nbsp;If you choose to add multiple parms using different time
+constraints,
+then the second line needs to be modified to be in this format:
+</p>
+<p><tt>parms = [([parm1], tc1), ([parm2], tc2), ([parm3, parm4], tc3)]</tt>
+</p>
+<p>For example, if you want the T, Td, Wind, Wx, and Sky parameters to
+all be 3 hours in length, with no gaps, you would use the existing
+TC3NG
+time constraint.&nbsp; If you wanted the MaxT and MinT parameters to be
+18 hours in length instead of 12, then you would need to create two new
+time constraints. The lines that would be placed in localConfig.py
+would
+be:
+</p>
+<p><tt>MaxTTC18 = localTC(4*HOUR, 24*HOUR, 18*HOUR, 0)</tt>
+<br>
+<tt>MinTTC18 = localTC(16*HOUR, 24*HOUR, 18*HOUR, 0)</tt>
+<br>
+<tt>parms = [([T, Td, Wind, Wx, Sky], TC3NG), ([MaxT], MaxTTC18),
+([MinT],
+MinTTC18)]</tt>
+</p>
+<p><a href="EXAMPLElocalConfigModParmGroups.py">Example localConfig file</a>
+</p>
+<p><i>Note: There can only be one "parms =" line in the localConfig.py
+file.&nbsp; If you use more than one, then only the last one will be
+used.</i>
+</p>
+<p>Likewise, you can modify existing parm groupings for the models
+through
+localConfig.py.&nbsp; Instead of the "parms =" statement, you need to
+use
+the correct statement for the model.&nbsp; Refer to the table under <a
+ href="#AddinganewWeatherElement">Adding
+a New Weather Element</a> for the proper syntax for the parm groupings
+for the models.
+</p>
+<p>For example, if you wanted to modify the RAP40 T (temperature) and
+Td
+(dew point) time constraint to TC1, then you would do the following.
+</p>
+<p><tt>parmsRAP40 = [([T,Td], TC1)]</tt>
+</p>
+<p></p>
+<hr width="100%">
+<h1><a name="RemovingParmGroups"></a>Removing Parm Groups</h1>
+The removal of parm groups is not supported through the
+localConfig.py.&nbsp;
+There is no need to remove parm groups since by themselves, they do not
+take up any storage space.
+<br>
+<hr width="100%">
+<h1><a name="ModifyingthelistofD2DDirectoriesformodelaccess"></a>Modifying
+the list of D2D Directories for model access</h1>
+The standard list of D2D directories may not include all of the D2D
+models
+that you wish to use in the GFE.&nbsp; The entry in <a
+ href="serverConfig.html#D2DModelFileDirectories">serverConfig.py</a>
+can be overriden using the following syntax:
+<p><tt>serverConfig.D2DMODELS = [('directory1', 'model')]</tt>
+</p>
+<p>This definition will completely override the one in <a
+ href="serverConfig.html#D2DModelFileDirectories">serverConfig.py</a>
+so you will probably want to include those original definitions.
+</p>
+<p>Here is an example of adding an SREF model on
+projection SREF12:
+</p>
+<p><tt>serverConfig.D2DMODELS = [('SREF212', 'SREF')]<br>
+</tt></p>
+<p><span style="color: rgb(255, 0, 0);">Note that overridding the
+complete D2DMODELS is not recommended</span>, since you will
+miss baseline updates with each release. Instead, you should use the
+append feature to simply add a new entry without
+modifying existing entries as:
+</p>
+<p><tt>serverConfig.D2DDIRS.append(('CONUS212', 'NAM20'))</tt>
+</p>
+<p><font color="#ff0000">Note that GFE simply cannot see and
+intrepret every type of hdf5 file in existance. Even if the hdf5
+files are D2D-displayable, there may be some missing information in the
+files that make GFE ignore the file. Refer to the <a
+ href="edexHDF5.html">EDEX
+hdf5 format requirements document</a> for more details.</font>
+</p>
+<p><a href="EXAMPLElocalConfigD2DDir.py">Example localConfig file</a>
+<br>
+</p>
+<hr style="width: 100%; height: 2px;">
+<h1><a name="SATDIRS"></a>Modifying
+the list of D2D Directories for satellite data access</h1>
+The standard list of D2D directories for satellite access may not
+include all of the D2D directories
+that you wish to use in the GFE, or may contain weather element names
+that are not desirable. The entry in <a
+ href="serverConfig.html#SATDIRS">serverConfig.py</a>
+can be overriden using the following syntax:
+<p><tt>serverConfig.SATDATA = [('directory1', 'weather element name
+1'), ('directory2', 'weather element names 2')]</tt>
+</p>
+<p>This definition will completely override the one in <a
+ href="serverConfig.html#SATDIRS">serverConfig.py</a>
+so you will probably want to include those original definitions.
+</p>
+<p>Here is an example of redefining the complete list of SATDATA; this
+technique is not the best, since you will miss updates to serverConfig
+and is not recommended:<br>
+</p>
+<p><tt>serverConfig.SATDATA =
+[("NESDIS/GOES-13(N)/East CONUS/Imager Visible", "visibleWest"),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("NESDIS/GOES-13(N)/East CONUS/Imager 6.7-6.5 micron IR (WV)", "waterVaporEast")]<br>
+</tt><br>
+</p>
+<p>You can also use the append feature to simply add a new entry
+without
+modifying existing entries as:
+</p>
+<p><tt>serverConfig.SATDATA.append(("NESDIS/GOES-13(N)/East CONUS/Imager 3.9 micron IR", "ir39East"))</tt>
+</p>
+<font color="#ff0000">Note that GFE simply cannot see and
+intrepret every type of satellite hdf5 file in existance. Even
+if the satellite hdf5
+files are D2D-displayable, there may be some missing information in the
+files that make GFE ignore the file. Refer to the <a
+ href="edexHDF5.html">EDEX
+satellite hdf5 format requirements document</a> for more details.</font>
+<p></p>
+<p><a href="EXAMPLElocalConfigSATDIR.py">Example localConfig file</a></p>
+<p><br>
+</p>
+<hr width="100%">
+<h2><a name="D2DVersion"></a>D2D Model Database Version Specification</h2>
+You can override the default number of retained (available) D2D
+model versions through localConfig.py. This can also be used to define
+the number of D2D Satellite images that can be seen through GFE.
+Further information, including restrictions,
+is provided in the <a href="serverConfig.html#D2DVersion">serverConfig.py
+D2D Model Database Version Specification section</a>. The format to
+override all entries (not recommended) is:
+<p><tt>serverConfig.D2DDBVERSIONS = {</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; "modelname" : numberOfVersions,</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; "modelname2": numberOfVersions2</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp; }</tt>
+</p>
+<p>For example, to override the number of available NAM12 versions,
+which
+is called NAM12 on the D2D, and to set the available versions to 3, the
+following
+syntax is used:
+</p>
+<p><tt>serverConfig.D2DDBVERSIONS = {</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; "NAM12" : 3</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp; }</tt>
+</p>
+<p>The above will completely overwrite all of the definitions of
+D2DDBVERSIONS
+in serverConfig.py, which may not be what you have intended.&nbsp; The
+preferred way to make a modification is by individual items. For
+example, in
+order to just affect the NAM12, you could do
+this:
+</p>
+<p><tt>serverConfig.D2DDBVERSIONS["NAM12"] = 3</tt>
+</p>
+<p></p>
+<hr width="100%">
+<h1><a name="InitializationModules"></a>Modifying the list of
+Initialization
+Modules</h1>
+The standard list of initialization modules (smart initialization) may
+be modified to include, or exclude certain models from producing
+IFP-type
+databases, or for adding new model databases or modifying algorithms
+from
+existing databases. You can also choose to skip certain model runs for
+each model if desired. Refer to the <a href="SmartInit.html">Smart
+Initialization
+documentation</a> for more details on smart initialization.&nbsp; The
+entry
+in serverConfig.py can be completely overridden using the following
+syntax (which is not recommended):
+<p><tt>serverConfig.INITMODULES = {</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; moduleName : ["d2dmodelname",
+"d2dmodelname"],</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; modulename :
+["d2dmodelname"]</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</tt>
+</p>
+<p>An example is shown in the following example, where the NAM
+initialization
+(D2D modelname NAM12) is now going to be controlled by module name
+MyNAM.
+</p>
+<p><tt>serverConfig.INITMODULES = {</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; "NAM40" : ["NAM40", "NAM20"],</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; "RAP40" : ["RAP40"],</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; "GFS40" : ["GFS40"],</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; "MyNAM" : ["NAM12"],</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; "gfsLR" : ["gfsLR"]</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; }</tt>
+</p>
+<p>There are alternate ways of adding an entry, modifying an entry, or
+deleting an entry.&nbsp;
+The method of completely redefining INITMODULES as shown above is not
+recommended.<br>
+&nbsp;
+</p>
+<h2>Adding An Entry</h2>
+The format is:
+<p><tt>serverConfig.INITMODULES["newModuleName" = ["d2dmodel",
+"anotherd2dmodel"]</tt>
+</p>
+<p>Example of adding a new initialization module for LAPS, which we
+assume
+that a user has created a LAPS.py and placed it into 
+<i>/awips2/edex/data/utility/edex_static/site/SITE_ID/smartinit</i>:
+</p>
+<p><tt>serverConfig.INITMODULES["LAPS] = ["LAPS"]</tt>
+</p>
+<h2>Modifying An Entry</h2>
+Modifying an entry uses the adding and deleting entry syntax.&nbsp;
+First
+you add the new initialization module, then you delete the old
+one.&nbsp;
+In this example we are changing the initialization module from NAM12 to
+MyNAM
+for the NAM12 model:
+<p><tt>serverConfig.INITMODULES["MyNAM"] = ["NAM12"]</tt>
+<br>
+<tt>del serverConfig.INITMODULES["NAM12"]</tt>
+</p>
+<h2>Deleting An Entry</h2>
+The format is:
+<p><tt>del serverConfig.INITMODULES[moduleName]</tt>
+</p>
+<p>Example of deleting the RUC is:
+</p>
+<p><tt>del serverConfig.INITMODULES["RUC"]</tt>
+<br>
+&nbsp;
+</p>
+<h2>Skipping Model Runs</h2>
+The user can choose to skip model runs for any of the initialization
+modules.&nbsp;
+The entry in serverConfig.py can be overriden using the following
+syntax:
+<p><tt>serverConfig.INITSKIPS = {</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; modelname : [skiptime1,
+skiptime2,
+skiptime3],</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; modelname : [skiptime1,
+skiptime2],</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</tt>
+</p>
+<p>Note that unlike the INITMODULES, the key in this dictionary is the
+modelname, and not the module name. An example is shown in the
+following
+example, where the RAP40 initialization is skipped except for every 3
+hours,
+and the NAM40/NAM20 run is skipped for the 00z run:
+</p>
+<p><tt>serverConfig.INITSKIPS = {</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; "NAM40" : [0],</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; "NAM20" : [0],</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; "RAP40" :
+[1,2,4,5,7,8,10,11,13,14,16,17,19,20,22,23],</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; }</tt>
+</p>
+<p>There are alternate ways of adding an entry, modifying an entry, or
+deleting an entry which are similar to that described above in the
+INITMODULES
+section which should be used.<br>
+</p>
+<hr width="100%">
+<h2><a name="Logs"></a>Modifying the Number of Days to Keep Logs</h2>
+You may override the serverConfig.py's definition of the number of days
+to keep the GFESuite logs with this syntax:
+<p><tt>serverConfig.LOG_FILE_PURGE_AFTER = 6</tt>
+<br>
+</p>
+<p></p>
+<hr width="100%">
+<h2><a name="ExtraPrecision"></a>Defining Extra Precision for Certain
+Weather
+Elements</h2>
+Weather Elements are stored in their specified precision in GFE,
+thus if you have the precision set to 0 for a weather element, it will
+effectively be stored as integers.&nbsp; Sometimes you might want
+additional
+precision available for certain weather elements in order to faciliate
+computations on the data.&nbsp; For those cases, where you don't want
+to
+specify a higher precision (which affects labeling, sampling, ISC data
+sizes, etc.), you can use the ExtraWEPrecision entry.&nbsp; The entry
+is
+a listing of weather elements that require extra precision.&nbsp; The
+effective
+precision assigned to these elements is one more than that defined in
+the
+weather element configuration section in serverConfig, if the string
+version
+of the definition is used, or the precision increase value, if the
+tuple
+(wename, extraprecision) form is used..&nbsp; To declare an additional
+weather element to contain extra precision, use this format:
+<p><tt>serverConfig.ExtraWEPrecision.append('parmname')</tt>
+</p>
+<p><tt>serverConfig.ExtraWEPrecision.append(('parmname', extraPrec))</tt>
+</p>
+<p>To redefine the entire list, use this format:
+</p>
+<p><tt>serverConfig.ExtraWEPrecision = ['parmname1', 'parmname2',
+'parmname3',
+...]</tt>
+</p>
+<p><tt>serverConfig.ExtraWEPrecision = [('parmname1', exPrec1),
+'parmname2',
+('parmname3', exPrec3), ...]</tt>
+</p>
+<p>The forms of 'parmname' and ('parmname', extraPrecAmount) may be
+contained
+in the same statement.
+<br>
+</p>
+<hr width="100%">
+<h2><a name="D2DAccum"></a>Defining D2D Accumulative Weather Elements</h2>
+The dictionary of accumulative weather elements is defined by model and
+weather element.&nbsp; If a weather element is declared, then the
+software
+will treat that element as a duration or accumulative element.&nbsp;
+The
+model grid time will be considered as the ending time of the grid
+rather
+than a snapshot time.&nbsp; Through localConfig.py, you can modify and
+entry, add a new entry, or delete an entry.&nbsp; You may also redefine
+the entire dictionary.&nbsp; The element names do not include the level
+definition.<br>
+<br>
+It is recommended that you follow the technique to add, remove, and
+modify entries, rather than redefining the entire dictionary.<br>
+<p>To add a new model entry:
+</p>
+<p><tt>serverConfig.D2DAccumulativeElements["modelName"] = ["elem1",
+"elem2",
+"elem3"]</tt>
+</p>
+<p>To remove an existing model entry:
+</p>
+<p><tt>del serverConfig.D2DAccumulativeElements["modelName"]</tt>
+</p>
+<p>To modify an existing entry:
+</p>
+<p><tt>serverConfig.D2DAccumulativeElements["modelName"] = ["elem1",
+"elem2",
+"elem3"]</tt>
+</p>
+<p>To redefine the entire dictionary:
+</p>
+<p><tt>serverConfig.D2DAccumulativeElements= {</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; "GFS40": ["tp", "cp"],</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; "NAM80": ["tp", "cp"],</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; "RAP40": ["tp", "cp"],</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; "NAM40": ["tp", "cp"],</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; "NAM20": ["tp", "cp"],</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; "MSAS": ["tp", "cp"],</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; "LAPS": ["pc"],</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; "HPCQPF": ["tpHPC"],</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; "HPCdelta": ["pop"],</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; "NAM12": ["tp", "cp"],</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; }</tt>
+<br>
+</p>
+<hr width="100%">
+<h2><a name="NotifyTextProd"></a>Automatic Configuration of
+NotifyTextProd</h2>
+NotifyTextProd is a AWIPS D2D process that routes certain text
+bulletins to the VTECDecoder. The pattern file is automatically created when GFE
+is loaded in EDEX and is customized to the configured site. This
+reduces the amount of traffic being sent to the VTECDecoder by 90%.<br>
+<br>
+Due to the staging of the GFESuite and AWIPS softwares, a configuration
+item is required to tell GFE to begin generating the custom
+pattern file. This is done through a simple localConfig.py
+addition:<br>
+<br>
+<span style="font-weight: bold; font-family: monospace;">serverConfig.AUTO_CONFIGURE_NOTIFYTEXTPROD
+= 1</span><br>
+<br>
+<hr style="width: 100%; height: 2px;">
+<h2><span style="font-weight: bold;"><a name="ISC"></a></span>Intersite
+Coordination Grids Configuration
+</h2>
+The Intersite Coordination Grids configuration can be overridden in the
+localConfig.py file.&nbsp; <br>
+<h3>ISC Routing Table Address</h3>
+The base url for the ISC Routing Table web server may be changed from
+the default.&nbsp; This is normally only done for isolated
+testing.&nbsp; The baseline value of this entry is sufficient.&nbsp;
+The value of None indicates no ISC Routing Web Service, which precludes
+the transmission and reception of ISC data. To modify the default
+value, use this syntax:<br>
+<br>
+<span style="font-family: monospace;">serverConfig.ISC_ROUTING_TABLE_ADDRESS
+= "http://exampleurl.nws.noaa.gov"</span><br>
+<h3>Requested ISC Sites</h3>
+The default is to have EDEX calculate the list of sites to
+request ISC data from based on the generated ISC_xxx edit
+areas.&nbsp;&nbsp; This is accomplished by setting the value to None.
+If you wish to override this value, then use this syntax:<br>
+<br>
+<span style="font-family: monospace;">serverConfig.REQUESTED_ISC_SITES
+= ["CLE", "PBZ", "CTP", "BUF"]</span><br>
+<br>
+Be sure to always include your own site; if you don't you won't see
+your own ISC data in the ISC database.<br>
+<br>
+<h3>Request ISC</h3>
+Setting the value to 0 disables the request of ISC data and
+EDEX will not register with the ISC Routing Table Web
+Server. To enable the reception of ISC data, you use this
+syntax in the localConfig.py file:<br>
+<br>
+<span style="font-family: monospace;">serverConfig.REQUEST_ISC = 1</span><br>
+<br>
+<h3>Send ISC On Save</h3>
+Setting the value to 0 disables sending of ISC data when data is saved
+to the Fcst database.&nbsp; Setting the value to 1 will send ISC data
+when data is stored to the Fcst database.<br>
+<br>
+<span style="font-family: monospace;">serverConfig.SEND_ISC_ON_SAVE = 1</span><br>
+<br>
+<h3>Send ISC On Publish</h3>
+Setting the value to 0 disables sending of ISC data when data is
+published
+to the Fcst database.&nbsp; Setting the value to 1 will send ISC data
+when
+data is stored to the publish database.<br>
+<br>
+<span style="font-family: monospace;">serverConfig.SEND_ISC_ON_PUBLISH
+= 1</span><br>
+<br>
+<h3>Requested ISC Parms</h3>
+The default is to have EDEX calculate the list of weather
+elements to be requested from the list of available weather elements in
+the Fcst database. This is denoted by setting the variable to None.
+&nbsp; The site can override this and specify a list of weather
+elements desired from ISC as a list. If you wish to override
+this value, then use this syntax:<br>
+<br>
+<span style="font-family: monospace;">serverConfig.REQUESTED_ISC_PARMS
+= ["T_SFC", "Td_SFC", "Wx", "Wind"]</span><br>
+<br>
+You can just specify the weather element name (e.g., T), or the weather
+element name and the level (e.g., T_SFC, T_MB700).<br>
+<br>
+<h3>Transmit Script</h3>
+The transmit script is used to move the data from the server machine to
+the destination.&nbsp; For AWIPS, this is the msg_send
+program.&nbsp;&nbsp; For testing or other purposes, you can override
+the entry and specify your own program.&nbsp;&nbsp; The program you
+specify should expect the following switches:<br>
+<ul>
+  <li>-s - subject line, normally ISCGRIDS</li>
+  <li>-a - address list, generates comma separated addressee list, such
+as "CLE,PBZ,BUF"<br>
+  </li>
+  <li>-i - id string, normally similar to TTAA0 KXXX 021232</li>
+  <li>-c - AWIPS MHS code, normally 11</li>
+  <li>-p - priority mode, 0 is lowest, 2 is highest</li>
+  <li>-e - enclosure list, such as "f1, f2, f3", containing the ISC
+data compressed, and the ISC destination routing information </li>
+</ul>
+Use this syntax to specify a different program:<br>
+<br>
+<span style="font-family: monospace;">serverConfig.TRANSMIT_SCRIPT =
+"/awips/bin/msg_send"<br>
+<br>
+</span>
+<h3>Extra ISC Weather Elements<br>
+</h3>
+The Extra ISC Weather Elements allows you to configure your ISC
+database to store weather elements received from a different office
+type, such as receiving rfc grids at a wfo.&nbsp; You never need to add
+an entry for your own "office type", just others.&nbsp; Use this syntax
+to specify the set of weather elements and office types:<br>
+<br>
+To completely replace the serverConfig definition:<br>
+<br>
+<span style="font-family: monospace;">serverConfig.EXTRA_ISC_PARMS =
+[([T,Wind], 'rfc')]<br>
+<br>
+</span>To augment the serverConfig definition:<span
+ style="font-family: monospace;"><br>
+<br>
+extraISCparms = [([RH, QPF], 'rfc')]<br>
+<br style="font-family: monospace;">
+</span><br>
+</div>
+<div class="Body"><a href="#Overview">Back To Top</a>
+<br>
+<a href="GFESuite.html#TableOfContents">Back To TOC</a></div>
+</div>
+</body>
+</html>

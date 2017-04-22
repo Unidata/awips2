@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="subMenu" menuText="VWP height-level plots">
+		<contribute xsi:type="bundleItem" file="bundles/VWP.xml"
+			menuText="15km AGL" id="VWP15kmAGL">
+	    	<substitute key="levelKey" value="15kmAgl"/>
+	    	<substitute key="label" value="15km AGL"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/VWP.xml"
+			menuText="14km AGL" id="VWP14kmAGL">
+	    	<substitute key="levelKey" value="14kmAgl"/>
+	    	<substitute key="label" value="14km AGL"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/VWP.xml"
+			menuText="13km AGL" id="VWP13kmAGL">
+	    	<substitute key="levelKey" value="13kmAgl"/>
+	    	<substitute key="label" value="13km AGL"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/VWP.xml"
+			menuText="12km AGL" id="VWP12kmAGL">
+	    	<substitute key="levelKey" value="12kmAgl"/>
+	    	<substitute key="label" value="12km AGL"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/VWP.xml"
+			menuText="11km AGL" id="VWP11kmAGL">
+	    	<substitute key="levelKey" value="11kmAgl"/>
+	    	<substitute key="label" value="11km AGL"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/VWP.xml"
+			menuText="10km AGL" id="VWP10kmAGL">
+	    	<substitute key="levelKey" value="10kmAgl"/>
+	    	<substitute key="label" value="10km AGL"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/VWP.xml"
+			menuText="9km AGL" id="VWP9kmAGL">
+	    	<substitute key="levelKey" value="9kmAgl"/>
+	    	<substitute key="label" value="9km AGL"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/VWP.xml"
+			menuText="8km AGL" id="VWP8kmAGL">
+	    	<substitute key="levelKey" value="8kmAgl"/>
+	    	<substitute key="label" value="8km AGL"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/VWP.xml"
+			menuText="7km AGL" id="VWP7kmAGL">
+	    	<substitute key="levelKey" value="7kmAgl"/>
+	    	<substitute key="label" value="7km AGL"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/VWP.xml"
+			menuText="6km AGL" id="VWP6kmAGL">
+	    	<substitute key="levelKey" value="6kmAgl"/>
+	    	<substitute key="label" value="6km AGL"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/VWP.xml"
+			menuText="5km AGL" id="VWP5kmAGL">
+	    	<substitute key="levelKey" value="5kmAgl"/>
+	    	<substitute key="label" value="5km AGL"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/VWP.xml"
+			menuText="4km AGL" id="VWP4kmAGL">
+	    	<substitute key="levelKey" value="4kmAgl"/>
+	    	<substitute key="label" value="4km AGL"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/VWP.xml"
+			menuText="3km AGL" id="VWP3kmAGL">
+	    	<substitute key="levelKey" value="3kmAgl"/>
+	    	<substitute key="label" value="3km AGL"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/VWP.xml"
+			menuText="2km AGL" id="VWP2kmAGL">
+	    	<substitute key="levelKey" value="2kmAgl"/>
+	    	<substitute key="label" value="2km AGL"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/VWP.xml"
+			menuText="1500m AGL" id="VWP1500mAGL">
+	    	<substitute key="levelKey" value="1.5kmAgl"/>
+	    	<substitute key="label" value="1500m AGL"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/VWP.xml"
+			menuText="1250m AGL" id="VWP1250mAGL">
+	    	<substitute key="levelKey" value="1250mAgl"/>
+	    	<substitute key="label" value="1250m AGL"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/VWP.xml"
+			menuText="1000m AGL" id="VWP1000mAGL">
+	    	<substitute key="levelKey" value="1kmAgl"/>
+	    	<substitute key="label" value="1000m AGL"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/VWP.xml"
+			menuText="750m AGL" id="VWP750mAGL">
+	    	<substitute key="levelKey" value="750mAgl"/>
+	    	<substitute key="label" value="750m AGL"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/VWP.xml"
+			menuText="500m AGL" id="VWP500mAGL">
+	    	<substitute key="levelKey" value="0.5kmAgl"/>
+	    	<substitute key="label" value="500m AGL"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/VWP.xml"
+			menuText="250m AGL" id="VWP250mAGL">
+	    	<substitute key="levelKey" value="250mAgl"/>
+	    	<substitute key="label" value="250m AGL"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/VWP.xml"
+			menuText="100m AGL" id="VWP100mAGL">
+	    	<substitute key="levelKey" value="100mAgl"/>
+	    	<substitute key="label" value="100m AGL"/>
+		</contribute>
+	</contribute>
+	<contribute xsi:type="subMenu" menuText="VWP pressure-level plots">
+		<contribute xsi:type="bundleItem" file="bundles/VWP.xml"
+			menuText="200hPa" id="VWP200mb">
+	    	<substitute key="levelKey" value="200MB"/>
+	    	<substitute key="label" value="200mb"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/VWP.xml"
+			menuText="250hPa" id="VWP250mb">
+	    	<substitute key="levelKey" value="250MB"/>
+	    	<substitute key="label" value="250mb"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/VWP.xml"
+			menuText="300hPa" id="VWP300mb">
+	    	<substitute key="levelKey" value="300MB"/>
+	    	<substitute key="label" value="300mb"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/VWP.xml"
+			menuText="400hPa" id="VWP400mb">
+	    	<substitute key="levelKey" value="400MB"/>
+	    	<substitute key="label" value="400mb"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/VWP.xml"
+			menuText="500hPa" id="VWP500mb">
+	    	<substitute key="levelKey" value="500MB"/>
+	    	<substitute key="label" value="500mb"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/VWP.xml"
+			menuText="700hPa" id="VWP700mb">
+	    	<substitute key="levelKey" value="700MB"/>
+	    	<substitute key="label" value="700mb"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/VWP.xml"
+			menuText="850hPa" id="VWP850mb">
+	    	<substitute key="levelKey" value="850MB"/>
+	    	<substitute key="label" value="850mb"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/VWP.xml"
+			menuText="925hPa" id="VWP925mb">
+	    	<substitute key="levelKey" value="925MB"/>
+	    	<substitute key="label" value="925mb"/>
+		</contribute>
+	</contribute>
+	<contribute xsi:type="separator" id="MySeparatorId2"/>
+</menuTemplate>

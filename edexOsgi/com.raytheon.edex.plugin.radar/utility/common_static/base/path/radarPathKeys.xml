@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<pathKeySet>
+	<pathKey>
+		<key>icao</key>
+		<order>0</order>
+	</pathKey>
+    <pathKey>
+        <key>primaryElevationAngle</key>
+        <order>1</order>
+    </pathKey>
+</pathKeySet>
+

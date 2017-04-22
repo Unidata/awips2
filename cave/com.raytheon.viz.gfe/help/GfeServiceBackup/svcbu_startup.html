@@ -1,0 +1,131 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta name="Author" content="Ron Anderson">
+   <title>GFE Service Backup Startup Actions</title>
+</head>
+<body>
+
+<H1>GFE Service Backup Startup Actions</H1>
+<HR>
+
+<H3><a name="Entering_Svcbu">ENTERING SERVICE BACKUP FOR A FAILED SITE</a></H3>
+
+<ol>
+<li>Verify that the banner at the top of the Service Backup 
+Dialog reads &quot;YOU ARE NOT IN BACKUP MODE&quot;&nbsp; or does not include the failed site
+you wish to back up under "YOU ARE BACKING UP". 
+<br>
+If the failed site is listed you may want to 
+<a href="#HOW_TO_EXIT_SERVICE_BACKUP" style="text-decoration: none">exit</a> and re-enter service backup to ensure you are using the failed site's latest configuration.</li>
+<p align="center">
+<img border="0" hspace="10" src="images/banner_no_backup.png">
+<img border="0" hspace="10" src="images/banner_svcbuMode.png"></p>
+
+<li>Select the failed site from the drop down next to the "Enter Service Backup" button. 
+The sites you commonly back up will appear at the top of the list.
+</li>
+
+<li>Check the boxes next to any desired start up options:</li>
+<ol type="a">
+<li><b>Import Forecast Grids:</b> Automatically import the failed site's digital forecast grids. 
+If you are entering service backup to issue an urgent warning product you may wish to skip 
+this step. You can import the grids after after entering service backup using the 
+<a href="#Import_Grids" style="text-decoration: none">"Import Forecast Grids"</a> button.
+</li>
+
+<li><b>Troubleshooting Mode:</b> You should check this box if you are activating the site 
+for testing and intending to enter service backup. This will disable ISC and 
+VTEC Active Table sharing since you are not acting as the failed site.
+</li>
+
+<li><b>Automatically Start GFE:</b> Checking this box will automatically start a GFE session 
+for the failed site as you enter service backup. You can also do this after entering 
+service backup using the 
+<a href="#Starting_GFE" style="text-decoration: none">"Start GFE Session"</a> button. 
+</li>
+</ol>
+
+<p align="center">
+<img border="0" src="images/svcbu_enter.png">
+</p>
+
+<li>After you have selected the desired start up options, click the "Enter Service Backup" 
+button.
+</li>
+
+<li>A  
+<a target="main" style="text-decoration: none" 
+href="svcbu_status_dialog.html#Status_Information">Service Backup Status Dialog</a>
+ will open showing the status of each step required to enter 
+service backup for the failed site.
+</li>
+</ol>
+
+<H3><a name="Import_Grids">IMPORTING A FAILED SITE'S FORECAST GRIDS</a></H3>
+
+<ol>
+<li>Verify that the failed site is listed in the banner at the top of the Service Backup Dialog under 
+&quot;YOU ARE CURRENTLY BACKING UP&quot;. If it isn't, you must first 
+<a href="#Entering_Svcbu" style="text-decoration: none">enter service backup for the failed site.</a>
+</li>
+
+<p align="center">
+<img border="0" src="images/banner_svcbuMode_2.png"></p>
+
+<li>Select the failed site from the drop down next to the "Import Forecast Grids" button. 
+Only sites you are currently backing up will appear in the list.
+</li>
+
+<p align="center">
+<img border="0" src="images/svcbu_import_grids.png"></p>
+
+<li>
+Click the "Import Forecast Grids" button to start the import.
+</li>
+
+<li>A  
+<a target="main" style="text-decoration: none" 
+href="svcbu_status_dialog.html#Status_Information">Service Backup Status Dialog</a>
+ will open showing the status of each step required to import
+the failed site's forecast grids.
+<p align="center">
+<img border="0" src="images/svcbu_import_grids_status.png"</p>
+</li>
+</ol>
+
+<H3><a name="Starting_GFE">STARTING A GFE SESSION</a></H3>
+
+<ol>
+<li>Verify that the failed site is listed in the banner at the top of the Service Backup Dialog under 
+&quot;YOU ARE CURRENTLY BACKING UP&quot;. If it isn't, you must first 
+<a href="#Entering_Svcbu" style="text-decoration: none">enter service backup for the failed site.</a>
+</li>
+
+<p align="center">
+<img border="0" src="images/banner_svcbuMode_2.png"></p>
+
+<li>Select the failed site from the drop down next to the "Start GFE Session" button. 
+Only sites you are currently backing up will appear in the list.
+</li>
+
+<p align="center">
+<img border="0" src="images/svcbu_start_gfe.png"></p>
+
+<li>
+Click the "Start GFE Session" button to start the import.
+</li>
+
+<li>A  
+<a target="main" style="text-decoration: none" 
+href="svcbu_status_dialog.html#Status_Information">Service Backup Status Dialog</a>
+ will open showing the status of each step required to start a GFE session for the failed site.
+<p align="center">
+<img border="0" src="images/svcbu_start_gfe_status.png"</p>
+</li>
+</ol>
+
+</ol>
+
+</body>
+</html>

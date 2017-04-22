@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Profiler Plug-in
+Bundle-SymbolicName: com.raytheon.edex.plugin.profiler
+Bundle-Version: 1.13.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: com.raytheon.uf.common.dataplugin.profiler,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.datastorage,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.edex.database,
+ com.raytheon.uf.edex.pointdata,
+ com.raytheon.uf.edex.decodertools,
+ com.raytheon.uf.common.geospatial;bundle-version="1.15.1"
+Import-Package: com.raytheon.edex.esb,
+ com.raytheon.edex.plugin,
+ com.raytheon.uf.common.wmo,
+ com.raytheon.uf.edex.bufrtools,
+ com.raytheon.uf.edex.bufrtools.descriptors,
+ com.raytheon.uf.edex.bufrtools.packets

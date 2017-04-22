@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<pointSetProductDescriptions>
+  <default>
+    <matches>
+      <match pattern="AMSR2">
+        <attribute name="instrument_name"/>
+      </match>
+    </matches>
+
+    <dataTime>
+      <formattedRefTime dateFormat="yyyy-MM-dd'T'HH:mm:ss.S'Z'">
+        <attribute name="time_coverage_start" />
+      </formattedRefTime>
+    </dataTime>
+
+    <datasetId>
+      <attribute name="instrument_name" />
+    </datasetId>
+
+    <triangulation type="grid" />
+
+    <level>
+      <masterLevel>
+        <value value="EA" />
+      </masterLevel>
+      <levelOneValue>
+        <value value="0.0" />
+      </levelOneValue>
+    </level>
+  </default>
+
+  <description>
+    <data>
+      <variable name="WSPD" />
+    </data>
+    <parameter>
+      <abbreviation>
+        <value value="WS" />
+      </abbreviation>
+    </parameter>
+  </description>
+
+  <description>
+    <data>
+      <variable name="Brightness_Temperature_10_GHzH" />
+    </data>
+    <parameter>
+      <abbreviation>
+        <value value="BT10.7H" />
+      </abbreviation>
+    </parameter>
+  </description>
+
+  <description>
+    <data>
+      <variable name="Brightness_Temperature_10_GHzV" />
+    </data>
+    <parameter>
+      <abbreviation>
+        <value value="BT10.7V" />
+      </abbreviation>
+    </parameter>
+  </description>
+
+  <description>
+    <data>
+      <variable name="Brightness_Temperature_18_GHzH" />
+    </data>
+    <parameter>
+      <abbreviation>
+        <value value="BT18.7H" />
+      </abbreviation>
+    </parameter>
+  </description>
+
+  <description>
+    <data>
+      <variable name="Brightness_Temperature_18_GHzV" />
+    </data>
+    <parameter>
+      <abbreviation>
+        <value value="BT18.7V" />
+      </abbreviation>
+    </parameter>
+  </description>
+
+  <description>
+    <data>
+      <variable name="Brightness_Temperature_23_GHzH" />
+    </data>
+    <parameter>
+      <abbreviation>
+        <value value="BT23.8H" />
+      </abbreviation>
+    </parameter>
+  </description>
+
+  <description>
+    <data>
+      <variable name="Brightness_Temperature_23_GHzV" />
+    </data>
+    <parameter>
+      <abbreviation>
+        <value value="BT23.8V" />
+      </abbreviation>
+    </parameter>
+  </description>
+
+  <description>
+    <data>
+      <variable name="Brightness_Temperature_36_GHzH" />
+    </data>
+    <parameter>
+      <abbreviation>
+        <value value="BT36.5H" />
+      </abbreviation>
+    </parameter>
+  </description>
+
+  <description>
+    <data>
+      <variable name="Brightness_Temperature_36_GHzV" />
+    </data>
+    <parameter>
+      <abbreviation>
+        <value value="BT36.5V" />
+      </abbreviation>
+    </parameter>
+  </description>
+
+  <description>
+    <data>
+      <variable name="Brightness_Temperature_6_GHzH" />
+    </data>
+    <parameter>
+      <abbreviation>
+        <value value="BT6.9H" />
+      </abbreviation>
+    </parameter>
+  </description>
+
+  <description>
+    <data>
+      <variable name="Brightness_Temperature_6_GHzV" />
+    </data>
+    <parameter>
+      <abbreviation>
+        <value value="BT6.9V" />
+      </abbreviation>
+    </parameter>
+  </description>
+
+  <description>
+    <data>
+      <variable name="Brightness_Temperature_7_GHzH" />
+    </data>
+    <parameter>
+      <abbreviation>
+        <value value="BT7.3H" />
+      </abbreviation>
+    </parameter>
+  </description>
+
+  <description>
+    <data>
+      <variable name="Brightness_Temperature_7_GHzV" />
+    </data>
+    <parameter>
+      <abbreviation>
+        <value value="BT7.3V" />
+      </abbreviation>
+    </parameter>
+  </description>
+
+  <description>
+    <data>
+      <variable name="Brightness_Temperature_89_GHz_AH" />
+    </data>
+    <parameter>
+      <abbreviation>
+        <value value="BT89.0AH" />
+      </abbreviation>
+    </parameter>
+  </description>
+
+  <description>
+    <data>
+      <variable name="Brightness_Temperature_89_GHz_AV" />
+    </data>
+    <parameter>
+      <abbreviation>
+        <value value="BT89.0AV" />
+      </abbreviation>
+    </parameter>
+  </description>
+
+  <description>
+    <data>
+      <variable name="Brightness_Temperature_89_GHz_BH" />
+    </data>
+    <parameter>
+      <abbreviation>
+        <value value="BT89.0BH" />
+      </abbreviation>
+    </parameter>
+  </description>
+
+  <description>
+    <data>
+      <variable name="Brightness_Temperature_89_GHz_BV" />
+    </data>
+    <parameter>
+      <abbreviation>
+        <value value="BT89.0BV" />
+      </abbreviation>
+    </parameter>
+  </description>
+</pointSetProductDescriptions>

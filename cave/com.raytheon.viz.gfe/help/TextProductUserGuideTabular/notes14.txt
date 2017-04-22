@@ -1,0 +1,2 @@
+Every Smart Text Product follows the template format presented in Part 1 of the Text Product User Guide.  As such, it follows the steps of getting variables, setting up edit areas and time ranges, sampling the data, producing headers and footers and formatting the product.  We will be looking at helper methods in the Infrastructure which allow the product to perform these steps.
+

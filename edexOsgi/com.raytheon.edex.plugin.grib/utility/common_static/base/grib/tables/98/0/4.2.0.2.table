@@ -1,0 +1,9 @@
+# Product Discipline 0: Meteorological products, Parameter Category 2: Momentum
+# 192-254 Reserved for local use
+192:192:Vertical speed shear:s^-1:VWSH
+193:193:Horizontal Momentum Flux:N * m-2:MFLX
+194:194:U-Component Storm Motion:m/s:USTM
+195:195:V-Component Storm Motion:m/s:VSTM
+196:Drag Coefficient:non-dim:CD
+197:197:Frictional Velocity:m/s:FRICV
+255:255:Missing

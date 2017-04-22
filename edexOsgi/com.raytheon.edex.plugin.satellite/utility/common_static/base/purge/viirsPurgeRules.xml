@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+   <!-- TOWRdocs Header
+        VIIRS imagery purge rules.
+   -->
+   <!-- TOWRdocs Description
+        Purge rule options are added for VIIRS NPP data. This sets purging of data that have been ingested into 
+        edex and are stored in the HDF5 Data Store and PostgreSQL Metadata Store. 
+   -->                                                                
+   <!-- TOWRdocs Status
+        This is an addition of VIIRS HDF5 Data Store/PostgreSQL Metadata Store purge rules not found in the
+        current baseline. It sets VIIRS data files to purge every 1 day (01-00:00:00). 
+        The rule can be modified to purge by version, which is sometimes helpful when testing with manually
+	ingested files.
+   -->
+   <!-- TOWRdocs POC
+        Lee Byerle
+   -->
+<purgeRuleSet>
+    <defaultRule>
+        <period>01-00:00:00</period>
+    </defaultRule>
+</purgeRuleSet>

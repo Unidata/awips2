@@ -1,0 +1,4 @@
+C                                           *--> FROM COMMON.COMN51
+      COMMON/COMN51/IBUG,MINODT,NSE,STORGE(50),ELSTOR(50),OKELST
+      LOGICAL OKELST
+C

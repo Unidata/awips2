@@ -1,0 +1,4 @@
+C                                           *--> FROM SCOMMON.DIMGBOX
+C  ARRAYS FOR GRID BOX PARAMETERS
+      DIMENSION GBOXID(2),BOXLOC(2),IBXADJ(8)
+C

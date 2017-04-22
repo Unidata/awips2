@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<styleRuleset>
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>preciprate</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+		    <displayUnits>in/hr</displayUnits>
+			<defaultColormap>Radar/OSF/16 Level Reflectivity</defaultColormap>
+			<dataMapping>
+			    <entry sample='NO DATA' pixelValue="0" label=''/>
+			    <entry displayValue="0.0" pixelValue="16" label='0.0'/>
+				<entry displayValue='0.1' pixelValue='32'/>
+				<entry displayValue='0.2' pixelValue='48'/>
+				<entry displayValue='0.4' pixelValue='64'/>
+				<entry displayValue='0.6' pixelValue='80'/>
+				<entry displayValue='0.8' pixelValue='96'/>
+				<entry displayValue='1.0' pixelValue='112'/>
+				<entry displayValue='1.25' pixelValue='118'/>
+				<entry displayValue='1.5' pixelValue='144'/>
+				<entry displayValue='1.75' pixelValue='160'/>
+				<entry displayValue='2.0' pixelValue='176'/>
+				<entry displayValue='3.0' pixelValue='192'/>
+				<entry displayValue='4.0' pixelValue='208'/>
+				<entry displayValue='5.0' pixelValue='223'/>
+				<entry displayValue='6.0' pixelValue='240'/>
+				<entry displayValue='9999.0' pixelValue='255' label=''/>
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+</styleRuleset>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<extendedLatLonGrid>
+  <!-- Based on: /rary.ohd.pproc.gribit/TEXT/w3fi71.f -->
+  <numVertCoords>0</numVertCoords>
+  <pvPL255>33</pvPL255>
+  <dataRepresentationType>0</dataRepresentationType>
+  <numberLatPoints>65535</numberLatPoints>
+  <numberLonPoints>37</numberLonPoints>
+  <originLat>0</originLat>
+  <originLon>0</originLon>
+  <resolutionFlag>128</resolutionFlag>
+  <extremePointLat>90000</extremePointLat>
+  <extremePointLon>180000</extremePointLon>
+  <incrementLat>2500</incrementLat>
+  <incrementLon>5000</incrementLon>
+  <scanningModeFlag>64</scanningModeFlag>
+  <numberPoints>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>37</point>
+    <point>1</point>
+  </numberPoints>
+</extendedLatLonGrid>

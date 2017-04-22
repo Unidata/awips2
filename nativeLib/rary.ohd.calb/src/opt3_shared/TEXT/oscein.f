@@ -1,0 +1,101 @@
+C     MODULE OSCEIN
+C
+C @PROCESS LVL(77)
+      SUBROUTINE OSCEIN
+C
+C.......................................
+C     THIS SUBROUTINE READS AND PRINTS SHUFFLED COMPLEX EVOLUTION
+C            (SCE-UA) SEARCH OPTIONS.
+C.......................................
+C     SUBROUTINE INITIALLY WRITTEN BY
+C            QINGYUN DUAN - UNIVERSITY OF ARIZONA   OCTOBER, 1990
+C
+C     IMPLEMENTED ON NWSRWS IN HRL-NWS   OCTOBER, 1991
+C.......................................
+C
+      DIMENSION OLDOPN(2)
+C
+      CHARACTER*10 PCTRL,DEFLT,USRSP
+C
+C      INCLUDED FROM OCOMMON
+C
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/fdbug'
+      INCLUDE 'ocommon/opschm'
+      INCLUDE 'ocommon/opsce'
+      INCLUDE 'ocommon/odrop'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/calb/src/opt3_shared/RCS/oscein.f,v $
+     . $',                                                             '
+     .$Id: oscein.f,v 1.2 1996/07/11 20:55:08 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      DATA DEFLT/'DEFAULT   '/
+      DATA USRSP/'USER SPEC.'/
+C
+C     TRACE LEVEL=1
+      IF(ITRACE.GE.1) WRITE(IODBUG,1000)
+ 1000 FORMAT(1H0,17H** OSCEIN ENTERED)
+C
+      CALL FSTWHR('OSCEIN  ',0,OLDOPN,IOLDOP)
+C
+C  READ CARD FOR SHUFFLED COMPLEX EVOLUTION OPTIONS
+      IDEFLT = 0
+      READ(IN,800) NGS,MINGS,ISEED,KSTOP,PCENTO,IDEFLT
+  800 FORMAT(4I5,F5.2,I5)
+      IF (NGS .LT. 1) THEN
+        WRITE(IPR,801) NGS
+  801   FORMAT(1H0,11X,'**ERROR** THE NUMBER OF COMPLEXES IN INITIAL ',
+     *         ' POPULATION ',I2,' IS NOT A VALID CHOICE')
+C
+        CALL ERROR
+C
+      END IF
+C
+      IF(KSTOP.LT.0.AND.KSTOP.GE.10) THEN
+      WRITE(IPR,906) KSTOP
+  906 FORMAT(1H0,10X,'**WARNING** THE NUMBER OF TRIALS IN WHICH THE CRIT
+     *ERION VALUE MUST CHANGE MUST BE GREATER THAN 0 AND LESS THAN 10. '
+     */,23X,I3,32H WAS SPECIFIED.  5 WILL BE USED.)
+      KSTOP=5
+      CALL WARN
+      END IF
+C
+C
+C  IF IDEFLT IS EQUAL TO 1, READ THE SCE CONTROL PARAMETERS
+      IF (IDEFLT .EQ. 1) THEN
+        READ(IN,810) NPG,NPS,NSPL,INIFLG,IPRINT
+  810   FORMAT(5I5)
+        PCTRL = USRSP
+      ELSE
+        PCTRL = DEFLT
+      END IF
+C
+C  CHECK OBJECTIVE FUNCTION
+C
+C
+C  PRINT SHUFFLED COMPLEX EVOLUTION OPTIMIZATION OPTIONS
+C
+  104 WRITE(IPR,910)
+  910 FORMAT(1H0,//,24X,'SHUFFLED COMPLEX EVOLUTION OPTIMIZATION SCHEME'
+     *,/,24X,46(1H=),///,15X,'SCE CONTROL',11X,'REQUIRED IMPROVEMENT',
+     *14X,'RANDOM',/,16X,'PARAMETER',12X,'PERCENT',4X,'NO. LOOPS ',14X,
+     *'SEED',/,15X,11(1H-),11X,7(1H-),4X,9(1H-),14X,6(1H-))
+C
+      PCENTA=PCENTO*100.
+C
+      WRITE(IPR,912) PCTRL,PCENTA,KSTOP,ISEED
+  912 FORMAT(1H0,15X,A10,14X,F3.1,8X,I2,18X,I5)
+C
+      CALL FSTWHR(OLDOPN,IOLDOP,OLDOPN,IOLDOP)
+C
+      IF(ITRACE.GE.1) WRITE(IODBUG,1002)
+ 1002 FORMAT(1H0,'** EXIT OSCEIN')
+C
+      RETURN
+      END

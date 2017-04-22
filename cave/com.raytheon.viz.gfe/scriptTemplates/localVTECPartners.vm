@@ -1,0 +1,45 @@
+# ----------------------------------------------------------------------------
+# This software is in the public domain, furnished "as is", without technical
+# support, and with no warranty, express or implied, as to its usefulness for
+# any purpose.
+#
+# $itemName
+#
+# Author: $author
+# ----------------------------------------------------------------------------
+
+# The following two lines are required
+import VTECPartners
+from VTECPartners import *
+
+# For additional guidance on configuring your GFE server, refer to the 
+#    Configuration Guides->Server Configuration->Syntax for localVTECpartners.py
+# section of the GFE Online Help
+
+# The following list is a set of AWIPS WAN IDs (typically WFO IDs) which
+# identifies the locations from which we will request their active VTEC
+# table for merge purposes.  These are 3-letter WFO IDs, e.g., BOU.
+# For WFOs it is recommended to use the 3-letter WFO IDs of the primary and
+# secondary backups for your site
+#VTEC_TABLE_REQUEST_SITES = []
+
+# How often to sync active tables in seconds 
+#   30*60 = 1800 seconds = 30 minutes, which is about right
+#VTEC_REMOTE_TABLE_FETCH_TIME = 30*60 
+
+# Enable responding to active table sync requests.
+#VTEC_RESPOND_TO_TABLE_REQUESTS = 1
+
+# The following list is a set of office identifiers which is used
+# in the ingestAT/MergeVTEC software to filter out records from offices
+# that aren't in our area of responsibility.  Our site and the spc site
+# are automatically added to this list in the software.  These are 4-character
+# site identifiers, e.g., KBOU.
+#VTEC_MERGE_SITES = []
+
+# The following list is a set of office identifiers which is used
+# in the VTECDecoder software to filter out records from offices
+# that aren't in our area of responsibility.  Our site and the spc site
+# are automatically added to this list in the software.   These are
+# 4-letter WFO ids, e.g., KBOU.
+#VTEC_DECODER_SITES = []

@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 1
+Bundle-Name: Taf Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.taf
+Bundle-Version: 1.15.1.qualifier
+Bundle-Vendor: RAYTHEON
+Export-Package: com.raytheon.uf.common.dataplugin.taf
+Require-Bundle: javax.persistence
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.dataplugin.annotations,
+ com.raytheon.uf.common.dataplugin.persist,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.pointdata.spatial,
+ com.raytheon.uf.common.serialization.annotations,
+ com.raytheon.uf.common.time.util,
+ com.raytheon.uf.common.wmo,
+ org.hibernate.annotations

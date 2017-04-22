@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<WEGroup name="NWPS">
+    <WEItem relativeCycleNumber="0" parmID="WaveHeight_SFC:xxx_GRID__nwpsCG1_00000000_0000"/>
+    <WEItem relativeCycleNumber="0" parmID="Period_SFC:xxx_GRID__nwpsCG1_00000000_0000"/>
+    <WEItem relativeCycleNumber="0" parmID="SwanSwell_SFC:xxx_GRID__nwpsCG1_00000000_0000"/>
+    <WEItem relativeCycleNumber="0" parmID="PeakWaveDir_SFC:xxx_GRID__nwpsCG1_00000000_0000"/>
+</WEGroup>

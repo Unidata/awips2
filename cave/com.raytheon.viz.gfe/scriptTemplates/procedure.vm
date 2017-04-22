@@ -1,0 +1,54 @@
+# ----------------------------------------------------------------------------
+# This software is in the public domain, furnished "as is", without technical
+# support, and with no warranty, express or implied, as to its usefulness for
+# any purpose.
+#
+# ${itemName}.py
+#
+# Author: $author
+# ----------------------------------------------------------------------------
+
+# The MenuItems list defines the GFE menu item(s) under which the
+# Procedure is to appear.
+# Possible items are: Populate, Edit, Consistency, Verify, Hazards
+MenuItems = ["Edit"]
+import LogStream, time
+from math import *
+
+# The ToolList is optional, but recommended, if you are calling
+# Smart Tools from your Script.
+# If present, it can be used to show which grids will be
+# modified by the Script.
+
+## Double-pound starts a Velocity comment, so we have to use
+## substitution for Python comments starting with a double-pound
+#set($p = "#")
+
+$p${p}ToolList = [("T_Tool", "T"),
+$p$p            ("PoP_Tool", "PoP"),
+$p$p            ("Wind_Tool", "Wind"),
+$p$p          ]
+
+$p$p$p If desired, Set up variables to be solicited from the user:
+$p$p  If your script calls Smart Tools, this VariableList should
+$p$p  cover all the variables necessary for the tools.
+
+VariableList = []
+${p}VariableList.append(("Extrapolate:", "Forward in Time", "radio", ["Forward in Time", "Backward in Time"]))
+${p}VariableList.append(("Movement Speed (Kts):", "15", "numeric"))
+${p}VariableList.append(("This is just a label", "", "label"))
+${p}VariableList.append(("5% Sky Cover threshold at RH percentage:", 60., "scale", [44., 74.],2.0))
+
+import time
+import AbsTime
+import SmartScript
+$p$p For documentation on the available commands,
+$p$p   see the SmartScript Utility, which can be viewed from
+$p$p   the Edit Actions Dialog Utilities window
+
+class Procedure (SmartScript.SmartScript):
+    def __init__(self, dbss):
+        SmartScript.SmartScript.__init__(self, dbss)
+
+    def execute(self, editArea, timeRange, varDict):
+        pass

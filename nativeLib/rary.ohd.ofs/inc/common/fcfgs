@@ -1,0 +1,4 @@
+C                                           *--> FROM COMMON.FCFGS
+      COMMON /FCFGS/ FGID(2),NSEG,IREC,ISPEC,CGIDF(2),ICOSEQ,MINDTF,
+     .  DESCR(5),ICRDTF(5),IDUMYG,NFGREC
+C

@@ -1,0 +1,111 @@
+/*
+	File:		RecordCnt.ec
+	Date:		February 1996
+	Author:		Dale Shelton
+	
+	Purpose:	Implements a utility function to retrieve
+			a count of the number of rows in a user
+			specified table, matching the requested
+			search criteria.
+			
+*/
+
+
+/*
+	Standard includes.
+*/
+#include <stdio.h>
+#include <stdlib.h>
+
+
+/*
+	ESQL/C includes.
+*/
+
+/*
+	Returns a value indicating the number of rows in 
+	the requested table that match the user specified
+	search criteria.  A negative value indicates that
+	a null table name was passed as a parameter.
+*/
+long	recordCount(const char *table, const char *where)
+{
+   EXEC SQL BEGIN DECLARE SECTION;
+   	long 		numberRecords;
+    	char		sqlstmt[1024];
+   EXEC SQL END DECLARE SECTION;
+  
+	
+	/*
+		Ensure that a valid table name was provided.
+	*/
+	if (! table || ! *table)
+	   	return(-1);
+	
+	
+	/*
+		Build the SQL statement.
+	*/
+	if (where != NULL)
+	   sprintf(sqlstmt, " SELECT COUNT(*) FROM %s %s ", table, where);
+	else
+	  sprintf(sqlstmt, " SELECT COUNT(*) FROM %s ", table);
+	
+	/*
+		Prepare the selection cursor.
+	*/
+	EXEC SQL PREPARE tid FROM :sqlstmt;
+	if (SQLCODE < 0)
+	{
+	   	fprintf ( stderr, "RecordCount: prepare statement (%ld)\n", 
+                          SQLCODE ) ;
+	      fprintf(stderr, " table=%s:where=%s\n", table, where);
+		return(-2);
+	}
+	
+	
+	/*
+		Declare the selection cursor.
+	*/
+	EXEC SQL DECLARE tcur CURSOR WITH HOLD FOR tid;
+
+	if (SQLCODE < 0)
+	{
+	   	fprintf(stderr, "RecordCount: declare cursor (%ld)\n", SQLCODE);
+	   	return(-3);
+	}
+	
+	
+	/*
+		Open the cursor.
+	*/
+	EXEC SQL OPEN tcur;
+	if (SQLCODE < 0)
+	{
+	   	fprintf(stderr, "RecordCount: open cursor (%ld)\n", SQLCODE);
+	      fprintf(stderr, " table=%s:where=%s:sqlstmt=%s\n", table, where, sqlstmt);
+		return(-4);
+	}
+	
+	
+	/*
+		Retrieve the value from database.
+	*/
+	numberRecords = 0;
+	EXEC SQL FETCH tcur INTO :numberRecords;
+
+	if (SQLCODE < 0)
+	{
+	   	fprintf(stderr, "RecordCount: fetch data (%ld)\n", SQLCODE);
+	   	return(-5);
+	}
+	
+	
+	/*
+		Retrieval complete, cleanup and return the
+		number of records.
+	*/
+	EXEC SQL CLOSE tcur;
+
+ 	return(numberRecords);  
+}

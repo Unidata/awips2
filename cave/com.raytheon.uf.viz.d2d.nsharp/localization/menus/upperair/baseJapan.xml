@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Wajima (47600)" id="raobWajima"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="47600"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Tateno (47646)" id="raobTateno"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="47646"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Shionomisaki (47778)" id="raobShionomisaki"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="47778"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Fukuoka (47807)" id="raobFukuoka"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="47807"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Linjiang (54374)" id="raobLinjiang"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="54374"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Ship C7T/Tango (99025)" id="raobTango"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="99025"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Diego Garcia Is. (DJDG)" id="raobDiegoGarciaIs"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="61967"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Taoyuan (RCGM)" id="raobTaoyuan"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="46697"/>
+	    </contribute>
+
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Tungchiang (595530) (RCMJ)" id="raobTungchiang"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="595530"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Taipei (589680) (RCSS)" id="raobTaipei"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="589680"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Chichijima (RJAO)" id="raobChichijima"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="47971"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Iwo Jima (RJAW)" id="raobIwoJima"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="47981"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Sapporo (RJCO)" id="raobSapporo"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="47412"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Fukuoka/Itazuke AB (RJFF)" id="raobItazukeAB"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="47807"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Kagoshima/Yoshino (RJFK)" id="raobYoshino"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="47827"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Hamamatsu AB (RJNH)" id="raobHamamatsuAB"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="47681"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Tokushima AB (RJOS)" id="raobTokushimaAB"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="47881"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Akita (RJSK)" id="raobAkita"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="47582"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Misawa (RJSM)" id="raobMisawa"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="47580"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Sendai (RJSS)" id="raobMiami_FL"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="47590"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Kwangju (KOR-AFB) (RKJJ)" id="raobKwangju"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="47158"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Cheju Do/Mosulpo (RKPM)" id="raobMosulpo"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="47185"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Osan (RKSO)" id="raobOsan"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="47122"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Seoul/Kimpo Intl. (RKSS)" id="raobKimpoIntl"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="47110"/>
+	    </contribute>
+
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Pohang (RKTH)" id="raobPohang"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="47138"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Naha/Kagamizu (ROAH)" id="raobKagamizu"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="47936"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Kadena AB (RODN)" id="raobKadenaAB"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="47931"/>
+	    </contribute>
+
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Ishigakijima (ROIG)" id="raobIshigakijima"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="47918"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Minamidaitojima  (ROMD)" id="raobMinamidaltojima"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="47945"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Clark AFB (RPMK)" id="raobClarkAFB"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="98327"/>
+	    </contribute>
+
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Pyongyang (ZKKK)" id="raobPyongyang"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
+	        <substitute key="stationId" value="47058"/>
+	    </contribute>
+
+</menuTemplate>

@@ -1,0 +1,842 @@
+/*
+    File: IngestFilter.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:24 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "IngestFilter.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct IngestFilter_t
+{
+    char		lid[9];
+    char		pe[3];
+    short		dur;
+    char		ts[3];
+    char		extremum[2];
+    short		ts_rank;
+    char		ingest[2];
+    char		ofs_input[2];
+    char		stg2_input[2];
+
+    int		ind_ts_rank;
+    int		ind_ingest;
+    int		ind_ofs_input;
+    int		ind_stg2_input;
+} IngestFilter_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+IngestFilter * GetIngestFilter(const char * where)
+{
+
+    IngestFilter * listPtr = NULL;
+    IngestFilter * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM IngestFilter ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct IngestFilter_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetIngestFilter() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetIngestFilter() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetIngestFilter() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.lid, :dbs.pe, 
+    :dbs.dur, :dbs.ts, 
+    :dbs.extremum, :dbs.ts_rank:dbs.ind_ts_rank, 
+    :dbs.ingest:dbs.ind_ingest, :dbs.ofs_input:dbs.ind_ofs_input, 
+    :dbs.stg2_input:dbs.ind_stg2_input    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetIngestFilter() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (IngestFilter *) malloc(sizeof(IngestFilter))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->pe, dbs.pe);
+
+            structPtr->dur = dbs.dur;
+
+            strcpy(structPtr->ts, dbs.ts);
+
+            strcpy(structPtr->extremum, dbs.extremum);
+
+            structPtr->ts_rank = dbs.ts_rank;
+            setNullIfIndicated(dbs.ind_ts_rank, SHORT, &structPtr->ts_rank);
+
+            strcpy(structPtr->ingest, dbs.ingest);
+            setNullIfIndicated(dbs.ind_ingest, CHAR, structPtr->ingest);
+
+            strcpy(structPtr->ofs_input, dbs.ofs_input);
+            setNullIfIndicated(dbs.ind_ofs_input, CHAR, structPtr->ofs_input);
+
+            strcpy(structPtr->stg2_input, dbs.stg2_input);
+            setNullIfIndicated(dbs.ind_stg2_input, CHAR, structPtr->stg2_input);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.lid, :dbs.pe, 
+        :dbs.dur, :dbs.ts, 
+        :dbs.extremum, :dbs.ts_rank:dbs.ind_ts_rank, 
+        :dbs.ingest:dbs.ind_ingest, :dbs.ofs_input:dbs.ind_ofs_input, 
+        :dbs.stg2_input:dbs.ind_stg2_input        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetIngestFilter() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+IngestFilter * SelectIngestFilter(const char * where)
+{
+
+    IngestFilter * listPtr = NULL;
+    IngestFilter * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM IngestFilter ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct IngestFilter_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectIngestFilter() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectIngestFilter() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectIngestFilter() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.lid, :dbs.pe, 
+    :dbs.dur, :dbs.ts, 
+    :dbs.extremum, :dbs.ts_rank:dbs.ind_ts_rank, 
+    :dbs.ingest:dbs.ind_ingest, :dbs.ofs_input:dbs.ind_ofs_input, 
+    :dbs.stg2_input:dbs.ind_stg2_input    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectIngestFilter() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (IngestFilter *) malloc(sizeof(IngestFilter))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->pe, dbs.pe);
+
+            structPtr->dur = dbs.dur;
+
+            strcpy(structPtr->ts, dbs.ts);
+
+            strcpy(structPtr->extremum, dbs.extremum);
+
+            structPtr->ts_rank = dbs.ts_rank;
+            setNullIfIndicated(dbs.ind_ts_rank, SHORT, &structPtr->ts_rank);
+
+            strcpy(structPtr->ingest, dbs.ingest);
+            setNullIfIndicated(dbs.ind_ingest, CHAR, structPtr->ingest);
+
+            strcpy(structPtr->ofs_input, dbs.ofs_input);
+            setNullIfIndicated(dbs.ind_ofs_input, CHAR, structPtr->ofs_input);
+
+            strcpy(structPtr->stg2_input, dbs.stg2_input);
+            setNullIfIndicated(dbs.ind_stg2_input, CHAR, structPtr->stg2_input);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.lid, :dbs.pe, 
+        :dbs.dur, :dbs.ts, 
+        :dbs.extremum, :dbs.ts_rank:dbs.ind_ts_rank, 
+        :dbs.ingest:dbs.ind_ingest, :dbs.ofs_input:dbs.ind_ofs_input, 
+        :dbs.stg2_input:dbs.ind_stg2_input        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectIngestFilter() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectIngestFilterCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM IngestFilter ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountIngestFilter() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountIngestFilter() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountIngestFilter() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountIngestFilter() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutIngestFilter(const IngestFilter * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct IngestFilter_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.pe, structPtr->pe);
+
+    dbs.dur = structPtr->dur;
+
+    strcpy(dbs.ts, structPtr->ts);
+
+    strcpy(dbs.extremum, structPtr->extremum);
+
+    dbs.ts_rank = structPtr->ts_rank;
+    dbs.ind_ts_rank = getIndicator(SHORT, (void *)&structPtr->ts_rank);
+
+    strcpy(dbs.ingest, structPtr->ingest);
+    dbs.ind_ingest = getIndicator(CHAR, (void *)structPtr->ingest);
+
+    strcpy(dbs.ofs_input, structPtr->ofs_input);
+    dbs.ind_ofs_input = getIndicator(CHAR, (void *)structPtr->ofs_input);
+
+    strcpy(dbs.stg2_input, structPtr->stg2_input);
+    dbs.ind_stg2_input = getIndicator(CHAR, (void *)structPtr->stg2_input);
+
+
+    EXEC SQL INSERT INTO IngestFilter (lid,pe,
+        dur,ts,extremum,
+        ts_rank,ingest,ofs_input,
+        stg2_input        )
+        VALUES (
+         :dbs.lid, :dbs.pe, :dbs.dur,
+         :dbs.ts, :dbs.extremum, :dbs.ts_rank:dbs.ind_ts_rank,
+         :dbs.ingest:dbs.ind_ingest, :dbs.ofs_input:dbs.ind_ofs_input, :dbs.stg2_input:dbs.ind_stg2_input);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutIngestFilter() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIngestFilter(const IngestFilter * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct IngestFilter_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.pe, structPtr->pe);
+
+    dbs.dur = structPtr->dur;
+
+    strcpy(dbs.ts, structPtr->ts);
+
+    strcpy(dbs.extremum, structPtr->extremum);
+
+    dbs.ts_rank = structPtr->ts_rank;
+    dbs.ind_ts_rank = getIndicator(SHORT, (void *)&structPtr->ts_rank);
+
+    strcpy(dbs.ingest, structPtr->ingest);
+    dbs.ind_ingest = getIndicator(CHAR, (void *)structPtr->ingest);
+
+    strcpy(dbs.ofs_input, structPtr->ofs_input);
+    dbs.ind_ofs_input = getIndicator(CHAR, (void *)structPtr->ofs_input);
+
+    strcpy(dbs.stg2_input, structPtr->stg2_input);
+    dbs.ind_stg2_input = getIndicator(CHAR, (void *)structPtr->stg2_input);
+
+
+    EXEC SQL INSERT INTO IngestFilter (lid,pe,
+        dur,ts,extremum,
+        ts_rank,ingest,ofs_input,
+        stg2_input        )
+        VALUES (
+         :dbs.lid, :dbs.pe, :dbs.dur,
+         :dbs.ts, :dbs.extremum, :dbs.ts_rank:dbs.ind_ts_rank,
+         :dbs.ingest:dbs.ind_ingest, :dbs.ofs_input:dbs.ind_ofs_input, :dbs.stg2_input:dbs.ind_stg2_input);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertIngestFilter() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateIngestFilter(const IngestFilter *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct IngestFilter_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.pe, structPtr->pe);
+
+    dbs.dur = structPtr->dur;
+
+    strcpy(dbs.ts, structPtr->ts);
+
+    strcpy(dbs.extremum, structPtr->extremum);
+
+    dbs.ts_rank = structPtr->ts_rank;
+    dbs.ind_ts_rank = getIndicator(SHORT, (void *)&structPtr->ts_rank);
+
+    strcpy(dbs.ingest, structPtr->ingest);
+    dbs.ind_ingest = getIndicator(CHAR, (void *)structPtr->ingest);
+
+    strcpy(dbs.ofs_input, structPtr->ofs_input);
+    dbs.ind_ofs_input = getIndicator(CHAR, (void *)structPtr->ofs_input);
+
+    strcpy(dbs.stg2_input, structPtr->stg2_input);
+    dbs.ind_stg2_input = getIndicator(CHAR, (void *)structPtr->stg2_input);
+
+
+    sprintf(queryBuffer, " UPDATE IngestFilter SET " );
+    strcat(queryBuffer, "lid = ? , pe = ? , dur = ? , ts = ? , extremum = ? ,     ");
+    strcat(queryBuffer, "ts_rank = ? , ingest = ? , ofs_input = ? , stg2_input = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateIngestFilter() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.lid, :dbs.pe, :dbs.dur, :dbs.ts, :dbs.extremum,
+     :dbs.ts_rank:dbs.ind_ts_rank, :dbs.ingest:dbs.ind_ingest, :dbs.ofs_input:dbs.ind_ofs_input, :dbs.stg2_input:dbs.ind_stg2_input;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateIngestFilter() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteIngestFilter(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM IngestFilter ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteIngestFilter() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateIngestFilterByRecord (const IngestFilter * newStructPtr, const IngestFilter * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetIngestFilterPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateIngestFilter(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateIngestFilter(const IngestFilter * structPtr)
+{
+    UpdateIngestFilterByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertIngestFilter(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueIngestFilter(const IngestFilter * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (IngestFilterExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertIngestFilter(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteIngestFilterByRecord(const IngestFilter * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetIngestFilterPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteIngestFilter(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool IngestFilterExists(const IngestFilter * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetIngestFilterPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectIngestFilterCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetIngestFilterPrimaryKeyWhereString (const IngestFilter * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE lid = '%s'  AND pe = '%s'  AND dur = %d  AND ts = '%s'  AND extremum = '%s' ",
+            structPtr->lid, structPtr->pe, structPtr->dur, structPtr->ts, structPtr->extremum);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeIngestFilter( IngestFilter * structPtr)
+{
+    IngestFilter* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( IngestFilter * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetIngestFilterDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetIngestFilterErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

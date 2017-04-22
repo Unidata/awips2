@@ -1,0 +1,34 @@
+# Configuration file for make_hti.sh & kml_legend.sh
+
+GFESUITE_HOME="/awips2/GFESuite"     # Where is GFESuite?
+GFEBINdir="${GFESUITE_HOME}/bin"     # Where is GFESuite/bin?
+
+HTI_HOME="${GFESUITE_HOME}/hti"      # Where the hti stuff lives
+PRODUCTdir="${HTI_HOME}/data"        # Where the hti output/data will go
+ARCHIVE="YES"                        # YES, graphics/kml will be archived with 
+                                     # each run, NO otherwise.
+
+# LDAD setup
+LDADserver="ls1-${site}"             # Name of local rsync server
+LDADuser="ldad"                      # User on local rsync server
+LDAD_DATA="/data/ldad/hti"           # Directory where output is stored on
+                                     # local rsync server
+
+# CONSOLIDATED WEB FARM setup
+NWSHQ_RSYNCSERVER="sync.weather.gov" # Name of remote rsync server
+
+
+# OPTIONAL: Local office processing
+# The setup below is for site that do processing on local office Linux
+# workstations using Doug Gaer's webapps package.  (NOTE: the webapps
+# package is not supported by NCF or AWIPS.)
+# If you wish to use this, set LOCALlw_PROCESSING to TRUE,
+# then configure the following variables as appropriate
+LOCALlw_PROCESSING="FALSE"           # Set to TRUE to enable local processing
+LOCALlwserver="machine.xxx.noaa.gov" # Name of local workstation where webapps
+                                     # is installed
+LOCALlwuser="username"               # User on local workstation where webapps
+                                     # is installed
+LOCAL_LWDATA="/data/webapps"         # Directory where output is stored on
+                                     # local workstation above
+

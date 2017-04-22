@@ -1,0 +1,157 @@
+#  ============================================================================
+#  pgm: Makefile_obj_lx .. makefile to update the pproc-post_analysis object files
+#
+#  cmt: File made on Wed Aug  6 13:01:01 EDT 2008 by user "dsa"
+#  ============================================================================
+ 
+OBJ = /fs/hseb/ob83/ohd/pproc/obj/post_analysis/TEXT
+
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU -DUSE_XM_MWMUTIL_H -DUSE_XGPM -Wall -Wno-unused-variable -Wno-comment
+
+INSERTS      = -I/fs/hseb/ob83/ohd/whfs_lib/inc/general  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/dbms  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/gui  \
+               -I/fs/hseb/ob83/ohd/ffg/inc  \
+               -I/usr/local/netcdf/include  \
+               -I/fs/hseb/ob83/ohd/pproc_lib/inc  \
+               -I/fs/hseb/ob83/ohd/pproc/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc/messenger_inc
+
+INSERTS_CC   = -I/usr/include/informix/esql/  \
+               -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .c .h .o
+
+.c.o:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && chmod 664 ${*F}.o  \
+	   && echo "o - ${*F}.o" \
+	   || echo "e - ${*F}"
+	@echo "--------------------------------"
+
+objects:  \
+     $(OBJ)/close_gage.o  \
+     $(OBJ)/copy_area.o  \
+     $(OBJ)/fill_pixmap.o  \
+     $(OBJ)/main_post.o  \
+     $(OBJ)/merge.o  \
+     $(OBJ)/post_add_overlays.o  \
+     $(OBJ)/post_callbacks.o  \
+     $(OBJ)/post_choose_date.o  \
+     $(OBJ)/post_dates.o  \
+     $(OBJ)/post_gage_display.o  \
+     $(OBJ)/post_gage_table.o  \
+     $(OBJ)/post_locate.o  \
+     $(OBJ)/post_table_data.o  \
+     $(OBJ)/postX.o  \
+     $(OBJ)/read_geo_data.o  \
+     $(OBJ)/read_papref.o  \
+     $(OBJ)/read_postparam.o  \
+     $(OBJ)/set_coloroverlays.o  \
+     $(OBJ)/set_colorvalues.o  \
+     $(OBJ)/show_overlays.o  \
+     $(OBJ)/st3post.o  \
+     $(OBJ)/xor.o
+
+$(OBJ)/close_gage.o: close_gage.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/copy_area.o: copy_area.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/fill_pixmap.o: fill_pixmap.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/main_post.o: main_post.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/merge.o: merge.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/post_add_overlays.o: post_add_overlays.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/post_callbacks.o: post_callbacks.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/post_choose_date.o: post_choose_date.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/post_dates.o: post_dates.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/post_gage_display.o: post_gage_display.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/post_gage_table.o: post_gage_table.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/post_locate.o: post_locate.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/post_table_data.o: post_table_data.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/postX.o: postX.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/read_geo_data.o: read_geo_data.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/read_papref.o: read_papref.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/read_postparam.o: read_postparam.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/set_coloroverlays.o: set_coloroverlays.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/set_colorvalues.o: set_colorvalues.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/show_overlays.o: show_overlays.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/st3post.o: st3post.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/xor.o: xor.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+

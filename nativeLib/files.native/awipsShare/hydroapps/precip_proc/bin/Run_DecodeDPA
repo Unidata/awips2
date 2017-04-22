@@ -1,0 +1,131 @@
+#!/bin/ksh
+#
+#  the decodedpa executable decodes the products
+#
+#  a decoded radar product is a 131x131 array of REAL*4 values where each value
+#  represents the average hourly rainfall at the center of each bin
+# 
+#  beginning in OB3, the decoded radar products are in Little Endian format
+# 
+#  OB 16.1.1  Nov 05, 2015   snaples  15045  Updated script to use gather directory with nativelib decoder.
+#
+
+RUN_FROM_DIR=`dirname $0`
+
+. $RUN_FROM_DIR/../../set_hydro_env
+
+
+DPAPRODDIR=`get_apps_defaults dpa_gather`
+DPALOGDIR=`get_apps_defaults dpa_log_dir`
+BIN_DIR=`get_apps_defaults pproc_bin`
+
+#
+#  set up log filename                                  
+#
+
+Dte=`date +%m%d%Y`
+fnm=$DPALOGDIR/decodedpa_log_$Dte
+ctlfnm=$DPALOGDIR/decodedpa_ctl
+
+test -e $DPALOGDIR/decodedpa_log_$Dte
+FOUND=$?
+if test FOUND -eq 1
+then
+    touch $DPALOGDIR/decodedpa_log_$Dte
+fi
+
+test -e $DPALOGDIR/decodedpa_ctl
+FOUND=$?
+if test FOUND -eq 1
+then
+    touch $DPALOGDIR/decodedpa_ctl
+fi
+#----------------------------------------------------------------------
+#  Don't fire up another instance if one is underway
+
+AMIRUNNING_DIR=$(get_apps_defaults dpa_log_dir)
+
+. $RFCLX/public/bin/amirunning
+
+if [[ $AmIRunning = "yes" ]]; then
+  echo Run_DecodeDPA cancelled due to other instance running  >> $fnm
+  exit 1
+  fi
+
+# Check to see if age on file is more than 1 minute
+         runfreq=$((60))
+	     tnow=`date +%s`
+	     tfile=`date +%s -r $ctlfnm`
+	     agesecs=$(($tnow-$tfile))
+	     if [[ $agesecs -lt $runfreq ]]
+	        then
+	          exit 1
+	        else
+	          touch $ctlfnm
+         fi
+
+#----------------------------------------------------------------------
+#
+#  define delete messages written to log file           
+#
+
+delete_message=" product deleted"
+no_delete_message=" product not deleted"
+
+#
+#  check for products in the gather directory                  
+#  if found, then decode                                 
+#  note that products in the gather dir will not be decoded if they have "x"
+#   permission
+#
+echo "Log file: "  $fnm
+
+   for pname in `ls -1F $DPAPRODDIR | grep -v "*" | grep -v "/" `
+   do
+      echo $pname
+      runso rary.ohd.pproc decode_dpa_main $DPAPRODDIR/$pname >> $fnm
+
+
+##runso rary.ohd.pproc decode_dpa_main $1 >> $fnm
+
+#
+#   return codes from decodedpa
+#
+# 0 -- valid product (precip > 0 or supplemental message = "no precip detected")
+# 1 -- valid product, no decoded file created
+#      (product not top-of-hour, supplemental message = "bad rate scan" etc)
+# 2 -- invalid product
+#      (loss of data, unexpected EOF, invalid date or time, etc)
+# 3 -- problem outside of product
+#      (error opening database, error opening product)
+# 4 -- radar not in radarloc table  OR  use_radar=F
+# 5 -- problem converting raw product from Big Endian to Little Endian format
+#      (Linux only)
+
+      fstat=$?
+#      echo "decode dpa return code for file: $1 " $fstat >> $fnm
+      if test $fstat -lt 3
+      then
+        rm -f  $DPAPRODDIR/$pname
+      fi
+
+      if test $fstat -eq 2
+      then
+        echo "$delete_message" >> $fnm
+      elif test $fstat -eq 3
+      then
+        echo "$no_delete_message" >> $fnm
+      fi
+
+      if test $fstat -eq 4
+      then
+        rm -f  $DPAPRODDIR/$pname
+        echo "$delete_message" >> $fnm
+      fi
+      if test $fstat -eq 5
+      then
+        rm -f  $DPAPRODDIR/$pname
+        echo "$delete_message" >> $fnm
+      fi
+   done
+exit $fstat

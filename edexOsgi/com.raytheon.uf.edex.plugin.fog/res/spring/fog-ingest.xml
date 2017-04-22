@@ -1,0 +1,31 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+   <bean id="fogGenerator" class="com.raytheon.uf.edex.plugin.fog.FogGenerator"/>
+       
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="fog-camel" />
+        <constructor-arg ref="fogGenerator" />
+    </bean>
+       
+    <bean factory-bean="cpgSrvDispatcher" factory-method="register">
+		<constructor-arg ref="fogGenerator"/>
+	</bean>
+	
+	<camelContext id="fog-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+        <route id="FOGGenerate">
+        	<from uri="jms-durable:queue:fogGenerate"/>
+            <doTry>
+	          	<bean ref="serializationUtil" method="transformFromThrift" />
+	        	<bean ref="fogGenerator" method="generate" />
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:fog?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+</beans>

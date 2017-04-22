@@ -1,0 +1,671 @@
+0	0	1	  0	       0	 24	CCITT IA5 	Table A: ENTRY                             
+0	0	2	  0	       0	256	CCITT IA5 	TABLE A: DATA CATEGORY DESCRIPT., LINE 1   
+0	0	3	  0	       0	256	CCITT IA5 	TABLE A: DATA CATEGORY DESCRIPT., LINE 2   
+0	0	5	  0	       0	 24	CCITT IA5 	BUFR EDITION NUMBER                        
+0	0	10	  0	       0	  8	CCITT IA5 	F DESCRIPTOR TO BE ADDED OR DEFINED        
+0	0	11	  0	       0	 16	CCITT IA5 	X DESCRIPTOR TO BE ADDED OR DEFINED        
+0	0	12	  0	       0	 24	CCITT IA5 	Y DESCRIPTOR TO BE ADDED OR DEFINED        
+0	0	13	  0	       0	256	CCITT IA5 	ELEMENT NAME LINE 1                        
+0	0	14	  0	       0	256	CCITT IA5 	ELEMENT NAME LINE 2                        
+0	0	15	  0	       0	192	CCITT IA5 	UNITS NAME                                 
+0	0	16	  0	       0	  8	CCITT IA5 	UNITS SCALE SIGN                           
+0	0	17	  0	       0	 24	CCITT IA5 	UNITS SCALE                                
+0	0	18	  0	       0	  8	CCITT IA5 	UNITS REFERENCE SIGN                       
+0	0	19	  0	       0	 80	CCITT IA5 	UNITS REFERENCE VALUE                      
+0	0	20	  0	       0	 24	CCITT IA5 	ELEMENT DATA WIDTH                         
+0	0	30	  0	       0	 40	CCITT IA5 	DESCRIPTOR DEFINING SEQUENCE               
+0	1	1	  0	       0	  7	NUMERIC   	WMO BLOCK NUMBER                           
+0	1	2	  0	       0	 10	NUMERIC   	WMO STATION NUMBER                         
+0	1	3	  0	       0	  3	NUMERIC   	WMO REGION NUMBER                          
+0	1	4	  0	       0	  3	NUMERIC   	WMO REGION SUB-AREA                        
+0	1	5	  0	       0	 17	NUMERIC   	BUOY/PLATFORM IDENTIFIER                   
+0	1	6	  0	       0	 64	CCITT IA5 	AIRCRAFT IDENTIFIER                        
+0	1	7	  0	       0	 10	CODE TABLE	SATELLITE IDENTIFIER                       
+0	1	8	  0	       0	 64	CCITT IA5 	AIRCRAFT REGISTRATION NUMBER               
+0	1	9	  0	       0	 64	CCITT IA5 	TYPE OF COMMERCIAL ACFT                    
+0	1	10	  0	       0	 64	CCITT IA5 	STATIONARY BOUY PLATFORM IDENTIFIER        
+0	1	11	  0	       0	 72	CCITT IA5 	SHIP CALL SIGN                             
+0	1	12	  0	       0	  9	DEG TRUE  	DIR. MOTION OBSERVING/DRIFTING PLATFORM    
+0	1	13	  0	       0	 10	METER/SECOND     	SPEED OF MOTION OF OBSERVING PLATFORM      
+0	1	14	  2	       0	 10	METER/SECOND     	PLATFORM DRIFT SPEED (HIGH PRECISION)      
+0	1	15	  0	       0	  4	CODE TABLE	TRUE DIR OF MOVING PLATFORM PAST 3 HRS     
+0	1	16	  0	       0	  4	CODE TABLE	AVG SPD MOVING PLATFORM PAST 3 HOURS       
+0	1	21	  0	       0	 14	NUMERIC   	SYNOPTIC FEATURE IDENTIFIER                
+0	1	25	  0	       0	 24	CCITT IA5 	STORM IDENTIFIER                           
+0	1	26	  0	       0	 64	CCITT IA5 	WMO STORM NAME                             
+0	1	31	  0	       0	 16	CODE TABLE     	GENERATING CENTRE                          
+0	1	32	  0	       0	  8	CODE TABLE     	GENERATING APPLICATION                     
+0	1	50	  0	       0	 48	CCITT IA5 	NMC REPORT IDENTIFIER                      
+0	1	62	  0	       0	 40	CCITT IA5 	NAT'L ASSIGNED STATION IDENTIFIER          
+0	1	63	  0	       0	 64	CCITT IA5 	ICAO LOCATION IDENTIFIER                   
+0	1	198	  0	       0	 64	CCITT IA5 	STATION NAME                               
+0	1	205	  0	       0	 20	NUMERIC   	STATION NUMBER - 6 DIGITS                  
+0	2	1	  0	       0	  2	CODE TABLE	TYPE OF STATION                            
+0	2	2	  0	       0	  4	FLAG TABLE	TYPE OF INSTR. FOR WIND MEASUREMENT        
+0	2	3	  0	       0	  4	CODE TABLE	TYPE OF MEASURING INSTRUMENT USED          
+0	2	4	  0	       0	  4	CODE TABLE     	TYPE OF INSTR./CROP USED FOR EVAPOR. REPT  
+0	2	5	  2	       0	  7	DEG       	PRECISION OF TEMPERATURE OBS.              
+0	2	11	  0	       0	  8	CODE TABLE     	RADIOSONDE TYPE                            
+0	2	12	  0	       0	  4	CODE TABLE     	RADIOSONDE COMPUTATIONAL METHOD            
+0	2	13	  0	       0	  4	CODE TABLE     	SOLAR AND INFRARED RADIATION CORRECTION    
+0	2	14	  0	       0	  7	CODE TABLE     	TRACKING TECHNIQUE/STATUS OF THE SYSTEM    
+0	2	15	  0	       0	  4	CODE TABLE     	RADIOSONDE COMPLETENESS                    
+0	2	21	  0	       0	  9	FLAG TABLE	SATELLITE INSTRUMENT DATA USED IN PROC.    
+0	2	20	  0	       0	  9	FLAG TABLE	SATELLITE CLASSIFICATION                   
+0	2	22	  0	       0	  8	FLAG TABLE	SATELLITE DATA PROCESSING TECHNIQUE USED   
+0	2	23	  0	       0	  4	CODE TABLE     	CLOUD MOTION COMPUTATIONAL METHOD          
+0	2	24	  0	       0	  4	CODE TABLE     	INT. MEAN HUMIDITY COMPUTATIONAL METHOD    
+0	2	25	  0	       0	 25	FLAG TABLE	SATELLITE CHANNEL(S) USED IN COMPUTATION   
+0	2	26	  2	       0	 12	m         	CROSS TRACK RESOLUTION                     
+0	2	27	  2	       0	 12	m         	ALONG TRACK RESOLUTION                     
+0	2	28	  0	       0	 18	m         	SEGMENT SIZE AT NADIR IN X-DIRECTION       
+0	2	29	  0	       0	 18	m         	SEGMENT SIZE AT NADIR IN Y-DIRECTION       
+0	2	31	  0	       0	  5	CODE TABLE     	METHOD OF CURRENT MEASUREMENT (K3)         
+0	2	32	  0	       0	  2	CODE TABLE     	INDICATOR FOR DIGITIZATION                 
+0	2	33	  0	       0	  3	CODE TABLE     	METHOD OF SALINITY/DEPTH MEASUREMENT (K2)  
+0	2	34	  0	       0	  5	CODE TABLE     	DROGUE TYPE                                
+0	2	35	  0	       0	  9	m         	CABLE LENGTH                               
+0	2	36	  0	       0	  2	CODE TABLE     	BUOY TYPE                                  
+0	2	41	  0	       0	  6	CODE TABLE     	METHOD FOR ESTIMATG REPTS OF SYN. FEAT.    
+0	2	48	  0	       0	  4	CODE TABLE     	SATELLITE SENSOR INDICATOR                 
+0	2	49	  0	       0	  8	FLAG TABLE	GOES SATELLITE DATA-PROCESSING TECH USED   
+0	2	50	  0	       0	 20	FLAG TABLE	GOES SOUNDER SATELLITE CHANNELS USED       
+0	2	51	  0	       0	  4	CODE TABLE     	INDICATOR OF OBS METHOD FOR XTREME TEMPS   
+0	2	53	  0	       0	  4	CODE TABLE     	GOES-I/M BRIGHTNESS TEMPERATURE CHAR       
+0	2	54	  0	       0	  4	CODE TABLE     	GOES-I/M SOUNDING PARAMETER CHAR           
+0	2	57	  0	       0	  4	CODE TABLE     	ORIGIN OF FIRST GUESS GOES-I/M SOUNDINGS   
+0	2	61	  0	       0	  3	CODE TABLE     	AIRCRAFT NAVIGATIONAL SYSTEM               
+0	2	62	  0	       0	  4	CODE TABLE     	TYPE OF AIRCRAFT DATA RELAY SYSTEM         
+0	2	63	  2	  -18000	 16	degrees   	AIRCRAFT ROLL ANGLE                        
+0	2	70	  0	       0	  4	table     	ORIGINAL SPECIFICATION OF LATITUDE/LONG.   
+0	2	101	  0	       0	  4	CODE TABLE	TYPE OF ANTENNA                            
+0	2	64	  0	       0	  2 	code table	AIRCRAFT ROLL ANGLE QUALITY                
+0	2	65	  0	       0	 40 	CCITT IA5 	ACARS GROUND RECEIVING STATION             
+0	2	102	  0	       0	  8	metre     	ANTENNA HEIGHT ABOVE TOWER BASE            
+0	2	103	  0	       0	  2	FLAG TABLE	RADOME                                     
+0	2	104	  0	       0	  4	CODE TABLE	ANTENNA POLARIZATION                       
+0	2	105	  0	       0	  6	dB        	MAXIMUM ANTENNA GAIN                       
+0	2	106	  1	       0	  6	DEG       	3 dB BEAMWIDTH                             
+0	2	107	  0	       0	  6	dB        	SIDELOBE SUPPRESSION                       
+0	2	108	  0	       0	  6	dB        	CROSSPOL DISCRI. (ON AXIS)                 
+0	2	109	  2	       0	 12	DEG/SEC   	ANTENNA SPEED (AZIMUTH)                    
+0	2	110	  2	       0	 12	DEG/SEC   	ANTENNA SPEED (ELEVATION)                  
+0	2	111	  1	       0	 10	degre     	RADAR INCIDENCE ANGLE                      
+0	2	112	  1	       0	 12	degre     	RADAR LOOK ANGLE                           
+0	2	113	  0	       0	  4	numeric   	NUMBER OF AZIMUTH LOOKS                    
+0	2	114	  0	       0	 15	m**2      	ANTENNA EFFECTIVE SURFACE AREA             
+0	2	121	 -8	       0	  7	Hz        	MEAN FREQUENCY                             
+0	2	122	 -6	    -128	  8	Hz        	FREQUENCY AGILITY RANGE                    
+0	2	123	 -4	       0	  7	W         	PEAK POWER                                 
+0	2	124	 -1	       0	  7	W         	AVERAGE POWER                              
+0	2	125	 -1	       0	  8	Hz        	PULSE REPETITION FREQUENCY                 
+0	2	126	  7	       0	  6	SEC       	PULSE WIDTH                                
+0	2	127	 -6	       0	  7	Hz        	RECEIVER INTERMEDIATE FREQUENCY            
+0	2	128	 -5	       0	  6	Hz        	INTERMEDIATE FREQUENCY BANDWIDTH           
+0	2	129	  0	    -150	  5	db        	MINIMUM DETECTABLE SIGNAL                  
+0	2	130	  0	       0	  7	dB        	DYNAMIC RANGE                              
+0	2	131	  0	       0	  2	FLAG TABLE	SENSITIVITY TIME CONTROL                   
+0	2	132	  2	       0	  6	DEG       	AZIMUTH POINTING ACCURACY                  
+0	2	133	  2	       0	  6	DEG       	ELEVATION POINTING ACCURACY                
+0	2	134	  2	       0	 16	degre     	ANTENNA BEAM AZIMUTH                       
+0	2	135	  2	   -9000	 15	degre     	ANTENNA ELEVATION                          
+0	2	152	  0	       0	 31	FLAG TABLE	SATELLITE INSTR USED IN DATA PROCESSING    
+0	2	153	 -8	       0	 26	hz        	SATELLITE CHANNEL CENTRE FREQUENCY         
+0	2	154	 -8	       0	 26	hz        	SATELLITE CHANNEL BAND WIDTH               
+0	2	163	  0	       0	  4	CODE TABLE	HEIGHT ASSIGNMENT METHOD                   
+0	2	164	  0	       0	  3	CODE TABLE	TRACER CORRELATION METHOD                  
+0	2	196	  0	       0	  2	0 or 1    	CLASS OF PROFILE OUTPUT                    
+0	2	200	  0	       0	  4	CODE TABLE	OBJECTIVE FORECAST TECHNIQUE USED          
+0	4	1	  0	       0	 12	YEAR      	YEAR                                       
+0	4	2	  0	       0	  4	MONTH     	MONTH                                      
+0	4	3	  0	       0	  6	DAY       	DAY                                        
+0	4	4	  0	       0	  5	HOUR      	HOUR                                       
+0	4	5	  0	       0	  6	MINUTE    	MINUTE                                     
+0	4	6	  0	       0	  6	SEC       	SEC                                        
+0	4	11	  0	   -1024	 11	YEARS     	TIME INCREMENT                             
+0	4	12	  0	   -1024	 11	MONTHS    	TIME INCREMENT                             
+0	4	13	  0	   -1024	 11	DAYS      	TIME INCREMENT                             
+0	4	14	  0	   -1024	 11	HOURS     	TIME INCREMENT                             
+0	4	15	  0	   -2048	 12	MONTHS    	TIME INCREMENT                             
+0	4	16	  0	   -4096	 13	DAYS      	TIME INCREMENT                             
+0	4	21	  0	   -1024	 11	YEARS     	TIME PERIOD OR DISPLACEMENT                
+0	4	22	  0	   -1024	 11	MONTHS    	TIME PERIOD OR DISPLACEMENT                
+0	4	23	  0	   -1024	 11	DAYS      	TIME PERIOD OR DISPLACEMENT                
+0	4	24	  0	   -2048	 12	HOURS     	TIME PERIOD OR DISPLACEMENT                
+0	4	25	  0	   -2048	 12	MIN       	TIME PERIOD OR DISPLACEMENT                
+0	4	26	  0	   -4096	 13	SECS      	TIME PERIOD OR DISPLACEMENT                
+0	4	31	  0	       0	  8	HOUR      	DURATION OF TIME RELATED TO FOLL. VALUE    
+0	4	32	  0	       0	  6	MINUTE    	DURATION OF TIME RELATED TO FOLL. VALUE    
+0	4	43	  0	       0	  9	day       	DAY OF THE YEAR                            
+0	4	194	  0	       0	 24	SECS      	FORECAST TIME                              
+0	5	1	  5	-9000000	 25	DEG       	LATITUDE(HIGH ACCURACY)                    
+0	5	2	  2	   -9000	 15	DEG       	LATITUDE(COARSE ACCURACY)                  
+0	5	11	  5	-9000000	 25	DEG       	LATITUDE INCREMENT(HIGH ACCURACY)          
+0	5	12	  2	   -9000	 15	DEG       	LATITUDE INCREMENT(COARSE ACCURACY)        
+0	5	21	  2	       0	 16	DEG TRUE  	BEARING OR AZIMUTH                         
+0	5	22	  2	       0	 16	DEG TRUE  	SOLAR AZIMUTH                              
+0	5	30	  0	       0	 12	degre     	DIRECTION (SPECTRAL)                       
+0	5	31	  0	       0	 12	NUM       	ROW NUMBER                                 
+0	5	33	 -1	       0	 16	M         	PIXEL SIZE ON HORIZONTAL-l                 
+0	5	34	  0	       0	 11	numeric   	ALONG TRACK ROW NUMBER                     
+0	5	40	  0	       0	 24	numeric   	ORBIT NUMBER                               
+0	5	41	  0	       0	  8	numeric   	SCAN LINE NUMBER                           
+0	5	42	  0	       0	  6	numeric   	CHANNEL NUMBER                             
+0	5	43	  0	       0	  8	numeric   	FIELD OF VIEW NUMBER                       
+0	5	52	  0	       0	  5	numeric   	CHANNEL NUMBER INCREMENT                   
+0	5	53	  0	       0	  5	numeric   	FIELD OF VIEW NUMBER INCREMENT             
+0	5	201	  0	       0	 14	numeric   	SCAN NUMBER                                
+0	5	202	  0	       0	 10	numeric   	POSITION NUMBER                            
+0	6	1	  5	-18000000	 26	DEG       	LONGITUDE(HIGH ACCURACY)                   
+0	6	2	  2	  -18000	 16	DEG       	LONGITUDE(COARSE ACCURACY)                 
+0	6	11	  5	-18000000	 26	DEG       	LONGITUDE INCREMENT(HIGH ACCURACY)         
+0	6	12	  2	  -18000	 16	DEG       	LONGITUDE INCREMENT(COARSE ACCURACY)       
+0	6	21	 -1	       0	 13	M         	DISTANCE                                   
+0	6	30	  5	       0	 13	rads/m    	WAVENUMBER (SPECTRAL)                      
+0	6	31	  0	       0	 12	NUM       	COLUMN NUMBER                              
+0	6	33	 -1	       0	 16	M         	PIXEL SIZE ON HORIZONTAL-2                 
+0	6	34	  0	       0	  7	numeric   	CROSS TRACK CELL NUMBER                    
+0	7	1	  0	    -400	 15	M         	HEIGHT OF STATION                          
+0	7	2	 -1	     -40	 16	M         	HEIGHT OR ALTITUDE                         
+0	7	3	 -1	    -400	 17	M**2/S**2 	GEOPOTENTIAL                               
+0	7	4	 -1	       0	 14	PASCALS   	PRESSURE                                   
+0	7	5	  0	    -400	 12	M         	HEIGHT INCREMENT                           
+0	7	6	  0	       0	 15	M         	HEIGHT ABOVE STATION                       
+0	7	21	  2	   -9000	 15	DEG       	ELEVATION                                  
+0	7	22	  2	   -9000	 15	DEG       	SOLAR ELEVATION                            
+0	7	24	  2	   -9000	 15	DEG       	SATELLITE ZENITH ANGLE                     
+0	7	61	  2	       0	 14	M         	DEPTH BELOW LAND SURFACE                   
+0	7	62	  1	       0	 17	M         	DEPTH BELOW SEA SURFACE                    
+0	8	1	  0	       0	  7	FLAG TABLE	VERTICAL SOUNDING SIGNIFICANCE             
+0	8	2	  0	       0	  6	TABLE     	VERT. SIGNIFICANCE (SFC OBSERVATIONS)      
+0	8	3	  0	       0	  6	TABLE     	VERT. SIGNIFICANCE (SAT OBSERVATIONS)      
+0	8	4	  0	       0	  3	TABLE     	PHASE OF AIRCRAFT FLIGHT                   
+0	8	11	  0	       0	  6	TABLE     	METEOROLOGICAL FEATURE SIGNIFICANCE        
+0	8	12	  0	       0	  2	TABLE     	LAND/SEA MASK                              
+0	8	13	  0	       0	  2	TABLE     	DAY/NIGHT QUALIFIER                        
+0	8	18	  0	       0	 17	TABLE     	SEAWINDS LAND/ICE SURFACE FLAG             
+0	8	21	  0	       0	  5	TABLE     	TIME SIGNIFICANCE                          
+0	8	22	  0	       0	 16	NUMERIC   	TOTAL NUMBER(W/RESPECT TO ACCUM OR AVG)    
+0	8	23	  0	       0	  6	table     	FIRST ORDER STATISTICS                     
+0	8	24	  0	       0	  6	table     	DIFFERENCE STATISTICS                      
+0	8	25	  0	       0	  4	table     	TIME DIFFERENCE QUALIFIER                  
+0	10	1	  0	    -400	 15	M         	HEIGHT OF LAND SURFACE                     
+0	10	2	 -1	     -40	 16	M         	HEIGHT                                     
+0	10	3	 -1	    -400	 17	M**2/S**2 	GEOPOTENTIAL                               
+0	10	4	 -1	       0	 14	PASCALS   	PRESSURE AT STATION LEVEL                  
+0	10	8	  0	  -10000	 20	M**2/S**2 	GEOPOTENTIAL                               
+0	10	40	  0	       0	 10	NUMERIC   	NUMBER OF RETRIEVED LAYERS                 
+0	10	50	  2	       0	 16	m         	STD DEVIATION ALTITUDE                     
+0	10	51	 -1	       0	 14	PASCALS   	PRESSURE REDUCED TO MSL                    
+0	10	52	 -1	       0	 14	PASCALS   	ALTIM SETTING (QNH)                        
+0	10	60	 -1	   -1024	 11	Pascals   	PRESSURE CHANGE                            
+0	10	61	 -1	    -500	 10	PASCALS   	3 HOUR PRESSURE CHANGE                     
+0	10	62	 -1	   -1000	 11	PASCALS   	24 HOUR PRESSURE CHANGE                    
+0	10	63	  0	       0	  4	TABLE     	CHARACTERISTIC OF PRESSURE TENDENCY        
+0	10	70	  0	    -400	 16 	m         	INDICATED AIRCRAFT ALTITUDE                
+0	10	194	  0	    -400	 15	METERS    	GRID POINT ELEVATION                       
+0	10	195	 -1	       0	 14	PASCALS   	SURFACE PRESSURE                           
+0	11	1	  0	       0	  9	DEG TRUE  	WIND DIRECTION                             
+0	11	2	  1	       0	 12	METER/SECOND     	WIND SPEED                                 
+0	11	3	  1	   -4096	 13	METER/SECOND     	U-COMPONENT                                
+0	11	4	  1	   -4096	 13	METER/SECOND     	V-COMPONENT                                
+0	11	5	  1	    -512	 10	PASCALS/SE	W-COMPONEBT                                
+0	11	6	  2	   -4096	 13	METER/SECOND     	W-COMPONENT                                
+0	11	11	  0	       0	  9	DEG TRUE  	WIND DIRECTION AT 10M                      
+0	11	12	  1	       0	 12	METER/SECOND     	WIND SPEED AT 10M                          
+0	11	13	  0	       0	  9	DEG TRUE  	WIND DIRECTION AT 5M                       
+0	11	14	  1	       0	 12	METER/SECOND     	WIND SPEED AT 5M                           
+0	11	21	  9	  -65536	 17	1/SEC     	RELATIVE VORTICITY                         
+0	11	22	  9	  -65536	 17	1/SEC     	DIVERGENCE                                 
+0	11	23	 -2	  -65536	 17	M**2/SEC  	VELOCITY POTENTIAL                         
+0	11	31	  0	       0	  4	TABLE     	DEGREE OF TURBULENCE                       
+0	11	32	 -1	     -40	 16	M         	HEIGHT OF BASE OF TURBULENCE               
+0	11	33	 -1	     -40	 16	M         	HEIGHT OF TOP OF TURBULENCE                
+0	11	34	  1	   -1024	 11	METER/SECOND     	VERTICAL GUST VELOCITY                     
+0	11	35	  2	   -8192	 14	METER/SECOND**2  	VERTICAL GUST ACCELERATION                 
+0	11	36	  1	       0	 10	METER/SECOND     	MAXIMUM DERIVED EQUIVALENT VERTICAL GUST   
+0	11	41	  1	       0	 12	METER/SECOND     	MAX WIND SPEED (GUSTS)                     
+0	11	42	  1	       0	 12	METER/SECOND     	MAX WIND SPEED(10 MIN MEAN WIND)           
+0	11	50	  1	       0	 12	METER/SECOND     	STD DEVIATION WIND SPEED                   
+0	11	51	  1	       0	  8	METER/SECOND     	STD DEVIATION, VERTICAL WIND COMPONENT     
+0	11	52	  2	       0	 13	METER/SECOND     	FORMAL UNCERTAINTY IN WIND SPEED           
+0	11	53	  2	       0	 15	DEG TRUE  	FORMAL UNCERTAINTY IN WIND DIRECTION       
+0	11	61	  1	       0	 12	METER/SECOND     	ABSOLUTE WIND SHEAR IN 1KM LAYER BELOW     
+0	11	62	  1	       0	 12	METER/SECOND     	ABSOLUTE WIND SHEAR(1KM LAYER ABOVE)       
+0	11	81	  2	       0	 16 	DEG TRUE  	MODEL WIND DIRECTION AT 10 M               
+0	11	82	  2	       0	 14	METER/SECOND     	MODEL WIND SPEED AT 10 M                   
+0	11	193	  2	   -1024	 13	M**2/S**2 	TURBULENT KINETIC ENERGY IN A LAYER        
+0	11	196	  1	   -4096	 13	METER/SECOND     	U-COMPONENT AT 10 M                        
+0	11	197	  1	   -4096	 13	METER/SECOND     	V-COMPONENT AT 10 M                        
+0	11	200	  1	       0	 12	METER/SECOND     	INFLATED WIND SPEED (MOS)                  
+0	11	201	  1	       0	 12	METER/SECOND     	MEAN WIND SPEED PAST 12 HRS                
+0	11	206	  2	       0	 10	M         	ROUGHNESS LENGTH                           
+0	11	208	  3	       0	 10	METER/SECOND     	SURFACE EXCHANGE COEFFICIENT               
+0	11	229	  1	    -512	 10	PA/SEC    	OMEGA                                      
+0	11	231	  1	   -4096	 13	METER/SECOND     	U-COMPONENT OF STORM MOTION                
+0	11	232	  1	   -4096	 13	METER/SECOND     	V-COMPONENT OF STORM MOTION                
+0	11	233	  1	  -10000	 15	M**2/S**2 	STORM RELATIVE HELICITY                    
+0	11	235	  0	       0	  6 	code table	TURBULENCE INDEX(ACARS)                    
+0	12	1	  1	       0	 12	DEG K     	TEMPERATURE/DRY BULB TEMPERATURE           
+0	12	2	  1	       0	 12	DEG K     	WET BULB TEMPERATURE                       
+0	12	3	  1	       0	 12	DEG K     	TEMPERATURE/DEW POINT TEMPERATURE          
+0	12	4	  1	       0	 12	DEG K     	DRY BULB TEMPERATURE AT 2M                 
+0	12	5	  1	       0	 12	DEG K     	WET BULB TEMPERATURE AT 2M                 
+0	12	6	  1	       0	 12	DEG K     	DEW POINT TEMPERATURE AT 2M                
+0	12	7	  1	       0	 12	DEG K     	VIRTUAL TEMPERATURE                        
+0	12	11	  1	       0	 12	DEG K     	MAXIMUM TEMPERATURE                        
+0	12	12	  1	       0	 12	DEG K     	MINIMUM TEMPERATURE                        
+0	12	13	  1	       0	 12	DEG K     	GROUND MINIMUM TEMPERATURE PAST 12 HRS     
+0	12	14	  1	       0	 12	DEG K     	MAXIMUM TEMPERATURE AT 2M,PAST 12 HRS      
+0	12	15	  1	       0	 12	DEG K     	MINIMUM TEMPERATURE AT 2M,PAST 12 HRS      
+0	12	16	  1	       0	 12	DEG K     	MAXIMUM TEMPERATURE AT 2M,PAST 24 HRS      
+0	12	17	  1	       0	 12	DEG K     	MINIMUM TEMPERATURE AT 2M,PAST 24 HRS      
+0	12	21	  2	       0	 16	DEG K     	DAYTIME MAX TEMPERATURE   2m               
+0	12	22	  2	       0	 16	DEG K     	NIGHTTIME MIN TEMPERATURE 2m               
+0	12	30	  1	       0	 12	DEG K     	SOIL TEMPERATURE                           
+0	12	61	  1	       0	 12	DEG K     	SKIN TEMPERATURE                           
+0	12	62	  1	       0	 12	DEG K     	EQUIVALENT BLACK BODY TEMPERATURE          
+0	12	63	  1	       0	 12	DEG K     	BRIGHTNESS TEMPERATURE                     
+0	12	65	  1	       0	 12	DEG K     	STANDARD DEVIATION BRIGHTNESS TEMPERATURE  
+0	12	71	  1	       0	 12	DEG K     	COLDEST CLUSTER TEMPERATURE                
+0	12	101	  2	       0	 16	DEG K     	DRY BULB TEMPERATURE                       
+0	12	103	  2	       0	 16	DEG K     	DEW POINT TEMPERATURE                      
+0	12	104	  2	       0	 16	DEG K     	TEMPERATURE/DRY BULB TEMPERATURE 2m        
+0	12	106	  2	       0	 16	DEG K     	DEW POINT TEMPERATURE            2m        
+0	12	161	  2	       0	 16	DEG K     	SKIN TEMPERATURE                           
+0	12	163	  2	       0	 16	DEG K     	BRIGHTNESS TEMPERATURE                     
+0	12	196	  1	       0	 12	DEG K     	1-HR MIN TEMPERATURE AT LOWEST MODEL LEVEL 
+0	12	197	  1	       0	 12	DEG K     	1-HR MAX TEMPERATURE AT LOWEST MODEL LEVEL 
+0	12	198	  1	       0	 12	DEG K     	LAYER SOIL TEMPERATURE                     
+0	12	199	  1	  -10000	 15	W/M**2    	1-HR AVG FLUX OF LATENT HEAT               
+0	12	200	  1	  -10000	 15	W/M**2    	1-HR AVG POTENTIAL FLUX OF LATENT HEAT     
+0	12	201	  1	  -10000	 15	W/M**2    	1-HR AVG FLUX OF SENSIBLE HEAT             
+0	12	202	  1	   -5000	 14	W/M**2    	1-HR AVG FLUX OF SUB-SURFACE HEAT          
+0	12	203	  1	  -10000	 14	W/M**2    	1-HR AVG FLUX OF SNOW PHASE CHANGE HEAT    
+0	12	204	  1	       0	 12	DEG K     	BOTTOM SOIL TEMPERATURE                    
+0	12	205	  1	       0	 12	DEG K     	POTENTIAL TEMPERATURE AT 10M               
+0	12	221	  6	   -6000	 14	DEG K/SEC 	CONVECTIVE LATENT HEATING RATE             
+0	12	222	  6	   -6000	 14	DEG K/SEC 	STABLE LATENT HEATING RATE                 
+0	13	1	  5	       0	 14	kg/kg     	SPECIFIC HUMIDITY                          
+0	13	2	  5	       0	 14	kg/kg     	MIXING RATIO                               
+0	13	3	  0	       0	  7	%         	RELATIVE HUMIDITY                          
+0	13	4	 -1	       0	 10	PASCALS   	VAPOR PRESSURE                             
+0	13	5	  3	       0	  7	kg/m**3   	VAPOR DENSITY                              
+0	13	6	 -1	     -40	 16	M         	MIXING HEIGHTS                             
+0	13	11	  1	      -1	 14	kg/m**2   	TOTAL PRECIPITATION/TOTAL WATER EQUIV.     
+0	13	12	  2	      -2	 12	M         	DEPTH OF FRESH SNOW                        
+0	13	13	  2	      -2	 16	M         	TOTAL SNOW DEPTH                           
+0	13	14	  4	       0	 12	kg/m**2/se	RAINFALL/WATER EQUIV OF SNOW(AVG RATE)     
+0	13	15	  7	       0	 12	METER/SECOND     	SNOWFALL (AVERAGED RATE)                   
+0	13	16	  0	       0	  7	kg/m**2   	PRECIPITABLE WATER                         
+0	13	19	  1	      -1	 14	kg/m**2   	TOTAL PRECIPITATION PAST HOUR              
+0	13	20	  1	      -1	 14	kg/m**2   	TOTAL PRECIPITATION PAST 3 HOURS           
+0	13	21	  1	      -1	 14	kg/m**2   	TOTAL PRECIPITATION PAST 6 HOURS           
+0	13	22	  1	      -1	 14	kg/m**2   	TOTAL PRECIPITATION PAST 12 HOURS          
+0	13	23	  1	      -1	 14	kg/m**2   	TOTAL PRECIPITATION PAST 24 HOURS          
+0	13	31	  0	       0	  7	kg/m**2   	EVAPOTRANSPIRATION                         
+0	13	32	  1	       0	  8	kg/m**2   	EVAPORATION/EVAPOTRANSPIRATION             
+0	13	41	  0	       0	  4	TABLE     	PASQUILL-GIFFORD STABILITY CATEGORY        
+0	13	55	  4	       0	  8	kg/m**2   	INTENSITY OF PRECIPITATION                 
+0	13	197	  2	       0	 18	kg/m**2   	TOTAL SOIL MOISTURE                        
+0	13	198	  5	       0	 14	kg/kg     	SPECIFIC HUMIDITY AT 2M                    
+0	13	208	  1	      -1	 14	kg/m**2   	ACCUMULATED CONVECTIVE PRECIP PAST HOUR    
+0	13	210	  2	       0	 18	kg/m**2   	SNOW WATER EQUIVALENT                      
+0	13	212	  3	       0	 11	kg/m**2   	CANOPY WATER                               
+0	13	216	  1	      -1	 14	kg/m**2   	1-HR ACCUMULATED SNOWFALL                  
+0	13	218	  2	       0	 14	kg/m**2   	1-HR ACCUMULATED SNOW MELT                 
+0	13	220	  0	       0	  8	%         	SOIL MOISTURE AVAILABILITY                 
+0	13	222	  2	       0	 15	kg/m**2   	1-HR ACCUMULATED SURFACE RUNOFF            
+0	13	224	  2	       0	 15	kg/m**2   	1-HR ACCUMULATED BASEFLOW-GRDWATER RUNOFF  
+0	13	226	  3	       0	 10	none      	LAYER VOLUMETRIC SOIL MOISTURE             
+0	13	231	  0	       0	  7	%         	SNOW RATIO FROM EXPLICITY CLOUD SCHEME     
+0	13	232	  0	       0	  2	1=SNOW    	SNOW PRECIP TYPE                           
+0	13	233	  0	       0	  2	1=ICE PEL 	ICE PELLET PRECIP TYPE                     
+0	13	234	  0	       0	  2	1=FZRA    	FREEZING RAIN PRECIP TYPE                  
+0	13	235	  0	       0	  2	1=RAIN    	RAIN PRECIP TYPE                           
+0	13	38	  0	       0	  2	CODE TABLE	SUPERADIABATIC INDICATOR                   
+0	13	39	  0	       0	  3	CODE TABLE	TERRAIN TYPE (ICE/SNOW)                    
+0	13	239	  5	       0	 16	kg/kg     	CLOUD WATER MIXING RATIO                   
+0	13	240	  5	       0	 14	kg/kg     	SPECIFIC HUMIDITY AT 10M                   
+0	13	42	  0	     -20	  6	K         	PARCEL LIFTED INDEX (TP 500 MB)            
+0	13	244	  5	       0	 16	kg/kg     	ICED MIXING RATIO                          
+0	14	1	 -3	   -2048	 12	J/M**2    	LONGWAVE RADIATION. INTEGRATED 24 HOURS    
+0	14	2	 -3	   -2048	 12	J/M**2    	LONGWAVE RAD. INTEGRATED SPEC.PERIOD       
+0	14	3	 -3	   -2048	 12	J/M**2    	SHORTWAVE RAD. INTEGRATED 24 HOURS         
+0	14	4	 -3	   -2048	 12	J/M**2    	SHORTWAVE RAD. INTEGRATED SPEC PERIOD      
+0	14	11	 -3	   -2048	 12	J/M**2    	NET LONGWAVE RAD. INTEG. 24 HOURS          
+0	14	12	 -3	   -2048	 12	J/M**2    	NET LONGWAVE RAD. INT SPEC PERIOD          
+0	14	13	 -3	   -2048	 12	J/M**2    	NET SHORTWAVE RAD. INTEG 24 HOURS          
+0	14	14	 -3	   -2048	 12	J/M**2    	NET SHORTWAVE RAD. INTEG SPEC PERIOD       
+0	14	15	 -4	  -16384	 15	J/M**2    	NET RADIATION INTEGRATED OVR 24 HOURS      
+0	14	16	 -4	  -16384	 15	J/m**2    	NET RADIATION INTEGR. OVER PD SPECIFIED    
+0	14	17	 -3	   -2048	 12	W/m**2    	INSTANTANEOUS LONGWAVE RADIATION           
+0	14	18	 -3	   -2048	 12	W/m**2    	INSTANTANEOUS SHORTWAVE RADIATION          
+0	14	20	 -4	       0	 15	J/m**2    	GLOBAL SOLAR RADIATION INTEGR. OVER 24 H.  
+0	14	21	 -4	       0	 15	J/M**2    	GLOBAL RADIATION INTEGR. OVER PD SPECIFIED 
+0	14	22	 -4	       0	 15	J/M**2    	DIFFUSE SOLAR RADIATION INTEGR. OVER 24 H. 
+0	14	23	 -4	       0	 15	J/M**2    	DIFF. SOLAR RADIATION INTEG. OVR PD SPECD  
+0	14	24	 -4	       0	 15	J/M**2    	DIRECT SOLAR RADIATION INTEGR. OVER 24 H.  
+0	14	25	 -4	       0	 15	J/M**2    	DIRECT SOLAR RADIATION INTEG. OVR PD SPECD 
+0	14	31	  0	       0	 11	MIN       	TOTAL SUNSHINE                             
+0	14	32	  0	       0	 10	HOURS     	TOTAL SUNSHINE                             
+0	14	33	  0	       0	  9	%         	TOTAL SUNSHINE(PERCENTAGE)                 
+0	14	42	  0	       0	  7	%         	BIDIRECTIONAL REFLECTANCE                  
+0	14	194	  7	  -12000	 15	DEG K/SEC 	SHORT-WAVE HEATING RATE                    
+0	14	195	  7	  -12000	 15	DEG K/SEC 	LONG-WAVE HEATING RATE                     
+0	14	198	  1	       0	 14	W/M**2    	1-HR AVG SHORTWAVE DOWNWARD FLUX           
+0	14	199	  1	  -15000	 14	W/M**2    	1-HR AVG SHORTWAVE UPWARD FLUX             
+0	14	200	  1	       0	 13	W/M**2    	1-HR AVG LONGWAVE DOWNWARD FLUX            
+0	14	201	  1	   -8192	 13	W/M**2    	1-HR AVG LONGWAVE UPWARD FLUX              
+0	14	202	  1	   -8192	 13	W/M**2    	1-HR AVG NET LONGWAVE FLUX AT TOP          
+0	14	203	  1	  -15000	 15	W/M**2    	1-HR AVG NET SHORTWAVE FLUX AT TOP         
+0	15	1	  0	       0	 10	DOBSON    	OZONE                                      
+0	19	1	  0	       0	  6	TABLE     	TYPE OF SYNOPTIC FEATURE                   
+0	19	2	 -2	       0	 12	M         	EFFECTIVE RADIUS OF FEATURE                
+0	19	3	  0	       0	  8	METER/SECOND     	WIND SPEED THRESHOLD                       
+0	19	4	 -2	       0	 12	M         	EFF. RAD. WITH RESP. WINDS ABV THRESHOLD   
+0	20	1	 -1	       0	 13	M         	HORIZONTAL VISIBILITY                      
+0	20	2	 -1	       0	  7	M         	VERTICAL VISIBILITY                        
+0	20	3	  0	       0	  9	TABLE     	PRESENT WEATHER (SM)                       
+0	20	4	  0	       0	  5	TABLE     	PAST WEATHER (1)                           
+0	20	5	  0	       0	  5	TABLE     	PAST WEATHER (2)                           
+0	20	9	 -1	     -40	 11	M         	CEILING ? ? ? ? ? ? ? ? ? ? ? ? ? ? ?      
+0	20	10	  0	       0	  7	%         	CLOUD COVER (TOTAL)                        
+0	20	11	  0	       0	  4	CODE TABLE 	CLOUD AMOUNT                               
+0	20	12	  0	       0	  6	TABLE     	CLOUD TYPE                                 
+0	20	13	 -1	     -40	 11	M         	HEIGHT OF BASE OF CLOUD (SA/SM)            
+0	20	14	 -1	     -40	 11	M         	HEIGHT OF TOP OF CLOUD                     
+0	20	15	 -1	       0	 14	PASCALS   	PRESSURE AT THE BASE OF CLOUD              
+0	20	16	 -1	       0	 14	PASCALS   	PRESSURE AT THE TOP OF CLOUD               
+0	20	17	  0	       0	  4	TABLE     	CLOUD TOP DESCRIPTION                      
+0	20	31	  2	       0	  7	M         	ICE DEPOSIT (THICKNESS)                    
+0	20	32	  0	       0	  3	TABLE     	RATE OF ICE ACCRETION                      
+0	20	33	  0	       0	  4	FLAG TABLE	CAUSE OF IC ACCRETION                      
+0	20	34	  0	       0	  5	TABLE     	SEA ICE CONCENTRATION                      
+0	20	35	  0	       0	  4	TABLE     	AMOUNT AND TYPE OF ICE                     
+0	20	36	  0	       0	  5	TABLE     	ICE SITUATION                              
+0	20	37	  0	       0	  5	TABLE     	ICE DEVELOPMENT                            
+0	20	38	  0	       0	 12	DEG TRUE  	BEARING OF ICE EDGE                        
+0	20	39	 -1	       0	 13	M         	ICE DISTANCE                               
+0	20	41	  0	       0	  4	TABLE     	AIRFRAME ICING                             
+0	20	51	  0	       0	  7	%         	AMOUNT OF LOW CLOUDS                       
+0	20	52	  0	       0	  7	%         	AMOUNT OF MIDDLE CLOUDS                    
+0	20	53	  0	       0	  7	%         	AMOUNT OF HIGH CLOUDS                      
+0	20	61	  0	       0	 12	M         	RUNWAY VISUAL RANGE (RVR)                  
+0	20	62	  0	       0	  5	TABLE     	STATE OF GROUND(WITH / W/O SNOW)           
+0	20	63	  0	       0	 10	TABLE     	SPECIAL PHENOMENA                          
+0	20	90	  0	       0	  4	TABLE     	SPECIAL CLOUDS                             
+0	20	198	  0	       0	  7	%         	CLOUD COVER IN A LAYER                     
+0	20	200	  0	    0	  7	%             	MEAN CLD COVER (OPAQUE) PAST 12 HRS        
+0	20	217	  0	       0	  3	TABLE     	SURFACE TAG                                
+0	20	231	  0	       0	  7	%         	GREEN VEGETATION COVER                     
+0	21	1	  0	     -64	  7	dB        	HORIZONTAL REFLECTIVITY ZH                 
+0	21	2	  0	     -64	  7	dB        	VERTICAL REFLECTIVITY ZV                   
+0	21	3	  1	      -5	  7	dB        	DIFFERENTIAL REFLECTIVITY ZDR              
+0	21	5	  0	     -65	  6	dB        	LINEAR DEPOLARIZATION RATIO LDR            
+0	21	6	  0	     -65	  6	dB        	CIRCULAR DEPOLARIZATION RATIO CDR          
+0	21	11	  0	    -128	  8	METER/SECOND     	DOPPLER MEAN VELOCITY IN X DIRECTION (VX)  
+0	21	12	  0	    -128	  8	METER/SECOND     	DOPPLER MEAN VELOCITY IN Y DIRECTION (VY)  
+0	21	13	  0	    -128	  8	METER/SECOND     	DOPPLER MEAN VELOCITY IN Z DIRECTION (VZ)  
+0	21	14	  1	   -4096	 13	METER/SECOND     	DOPPLER MEAN VELOCITY RADIAL               
+0	21	17	  1	   -4096	  8	METER/SECOND     	DOPPLER VELOCITY SPECTRAL WIDTH            
+0	21	21	 -3	       0	  4	M         	ECHO TOPS                                  
+0	21	31	  0	       0	  7	KG/M**2   	VERTICALLY INTEGR. LIQUID WATER CONTENT    
+0	21	36	  7	       0	 12	METER/SECOND     	RADAR RAINFALL INTENSITY                   
+0	21	41	 -2	       0	  8	M         	BRIGHT BAND HEIGHT                         
+0	21	51	  0	    -256	  8	db        	SIGNAL POWER ABOVE ONE mW                  
+0	21	101	  0	       0	  3	numeric   	NUMBER OF VECTOR AMBIGUITIES               
+0	21	102	  0	       0	  3	numeric   	INDEX OF SELECTED WIND VECTOR              
+0	21	103	  0	       0	  5	numeric   	TOTAL NUMBER OF SIGMA-O MEASUREMENTS       
+0	21	104	  3	  -30000	 15	numeric   	LIKELIHOOD COMPUTED FOR WIND SOLUTION      
+0	21	106	  3	       0	 14	numeric   	Kp VARIANCE COEFFICIENT (ALPHA)            
+0	21	107	  8	       0	 16	numeric   	Kp VARIANCE COEFFICIENT (BETA)             
+0	21	109	  0	       0	 17	FLAG TABLE	SEAWINDS WIND VECTOR CELL QUALITY FLAG     
+0	21	110	  0	       0	  6	numeric   	NUMBER OF INNER-BEAM SIGMA-O (FWD OF SAT)  
+0	21	111	  0	       0	  6	numeric   	NUMBER OF OUTER-BEAM SIGMA-O (FWD OF SAT)  
+0	21	112	  0	       0	  6	numeric   	NUMBER OF INNER-BEAM SIGMA-O (AFT OF SAT)  
+0	21	113	  0	       0	  6	numeric   	NUMBER OF OUTER-BEAM SIGMA-O (AFT OF SAT)  
+0	21	114	  3	 -140000	 18	numeric   	Kp VARIANCE COEFFICIENT (GAMMA)            
+0	21	115	  0	       0	 17	TABLE     	SEAWINDS SIGMA-O QUALITY FLAG              
+0	21	116	  0	       0	 17	TABLE     	SEAWINDS SIGMA-O MODE FLAG                 
+0	21	117	  2	       0	 16	numeric   	SIGMA-O VARIANCE QUALITY CONTROL           
+0	21	118	  2	  -10000	 14	dB        	ATTENUATION CORRECTION ON SIGMA-O          
+0	21	119	  0	       0	  6	TABLE     	WIND SCATTEROMETER GEOPHYS MODEL FUNCTION  
+0	21	120	  3	       0	 10	NUMERIC   	PROBABILITY OF RAIN                        
+0	21	121	  0	       0	  8	NUMERIC   	SEAWINDS NOF RAIN INDEX                    
+0	21	122	  2	  -10000	 14	dB        	ATTENUATION CORRECTION ON SIGMA-O          
+0	21	123	  2	  -30000	 15	dB        	SEAWINDS NORMALIZED RADAR CROSS SECTION    
+0	21	192	  0	       0	  7	dB        	SPECTRAL PEAK POWER 0TH MOMENT             
+0	22	1	  0	       0	  9	DEG TRUE  	DIRECTION OF WAVES                         
+0	22	2	  0	       0	  9	DEG TRUE  	DIRECTION OF WIND WAVES                    
+0	22	3	  0	       0	  9	DEG TRUE  	DIRECTION OF SWELL WAVES                   
+0	22	4	  0	       0	  9	DEG TRUE  	DIRECTION OF CURRENT WAVES                 
+0	22	11	  0	       0	  6	SEC       	PERIOD OF WAVES                            
+0	22	12	  0	       0	  6	SEC       	PERIOD OF WIND WAVES                       
+0	22	13	  0	       0	  6	SEC       	PERIOD OF SWELL WAVES                      
+0	22	21	  1	       0	 10	M         	HEIGHT OF WAVES                            
+0	22	22	  1	       0	 10	M         	HEIGHT OF WIND WAVES                       
+0	22	23	  1	       0	 10	M         	HEIGHT OF SWELL WAVES                      
+0	22	25	  2	       0	 10	m         	STANDARD DEVIATION WAVE HEIGHT             
+0	22	31	  2	       0	 13	METER/SECOND     	SPEED OF CURRENT                           
+0	22	42	  1	       0	 12	DEG K     	SEA TEMPERATURE                            
+0	22	43	  2	       0	 15	DEG K     	SEA TEMPERATURE                            
+0	22	44	  1	       0	 14	METER/SECOND     	SOUND VELOCITY                             
+0	22	50	  2	       0	  8	K         	STANDARD DEVIATION SEA SURFACE TEMPERATURE 
+0	22	61	  0	       0	  4	TABLE     	STATE OF SEA                               
+0	22	62	  2	       0	 14	PARTS/1000	SALINITY                                   
+0	22	63	  0	       0	 14	M         	TOTAL WATER DEPTH                          
+0	22	143	  2	    2650	 13	DEG K     	SEA TEMPERATURE ? ? ? ? ? ? ? ?            
+0	23	1	  0	       0	  3	CODE TABLE	ACCIDENT EARLY NOTIFICATION                
+0	23	2	  0	       0	  5	CODE TABLE	ACTIVITY OR FACILITY INVOLVED              
+0	23	3	  0	       0	  3	CODE TABLE	TYPE OF RELEASE                            
+0	23	4	  0	       0	  3	CODE TABLE	COUNTER MEASURES TAKEN NEAR BORDER         
+0	23	5	  0	       0	  2	CODE TABLE	COURSE OF INCIDENT                         
+0	23	6	  0	       0	  3	CODE TABLE	INCIDENT SITUATION                         
+0	23	7	  0	       0	  3	CODE TABLE	CHARACTERISTIC OF RELEASE                  
+0	23	8	  0	       0	  2	CODE TABLE	STATE OF CURRENT RELEASE                   
+0	23	9	  0	       0	  2	CODE TABLE	STATE OF EXPECTED RELEASE                  
+0	23	16	  0	       0	  2	CODE TABLE	POSSIB. OF SIGNIFICANT CHEM. TOXIC HEALTH  
+0	23	17	  6	       0	 20	M**3/SEC  	FLOW DISCHARGE OF MAJOR RECIPIENT          
+0	23	18	  0	       0	  3	CODE TABLE	RELEASE BEHAVIOUR OVER TIME                
+0	23	19	  0	  -15000	 17	M         	ACTUAL RELEASE HEIGHT                      
+0	23	21	  0	  -15000	 17	M         	EFFECTIVE RELEASE HEIGHT                   
+0	23	22	  0	       0	 24	M         	DISTANCE OF RELEASE POINT/SITE OF INCIDENT 
+0	23	23	  1	       0	 12	METER/SECOND     	MAIN TRANSPORT SPEED IN THE ATMOSPHERE     
+0	23	24	  2	       0	 13	METER/SECOND     	MAIN TRANSPORT SPEED IN WATER              
+0	23	25	  2	       0	 13	METER/SECOND     	MAIN TRANSPORT SPEED IN GROUND WATER       
+0	23	27	  0	       0	  9	deg true  	MAIN TRANSPORT DIRECTION IN THE ATMOSPHERE 
+0	23	28	  0	       0	  9	DEG true  	MAIN TRANSPORT DIRECTION IN WATER          
+0	23	29	  0	       0	  9	DEG true  	MAIN TRANSPORT DIRECTION IN GROUND WATER   
+0	23	31	  0	       0	  2	CODE TABLE	POSSIB. THAT PLUME ENCOUNT. PCPN IN STATE  
+0	23	32	  0	       0	  2	FLAG TABLE	PLUME ENCOUNT. CHANGE IN WIND DIR. AND/OR  
+0	24	1	-11	       0	 28	Bq        	EST. AMOUNT OF RADIOACTIV. RELEASED UP TO  
+0	24	2	-11	       0	 28	Bq        	ESTIMATED MAXIMUM POTENTIAL RELEASE        
+0	24	3	  0	       0	  5	CODE TABLE	COMPOSITION OF RELEASE                     
+0	24	4	  0	       0	 16	CCITT IA5 	ELEMENT NAME                               
+0	24	5	  0	       0	  9	NUMERIC   	ISOTOPE MASS                               
+0	24	11	  2	       0	 32	MILLI-SIEV	DOSE                                       
+0	24	12	  2	       0	 32	MILLI-SIEV	TRAJECTORY DOSE (DEFINED LOCATION AND TIME 
+0	24	13	  2	       0	 32	MILLI-SIEV	GAMMA DOSE IN AIR ALONG PATH               
+0	24	21	  2	       0	 32	Bq/M**3   	AIR CONCENTRATION OF NAMED ISOTOPE         
+0	24	22	  2	       0	 32	Bq/L      	CONCENTRATION IN PRECIPITATION             
+0	25	1	 -1	       0	  6	M         	RANGE-GATE LENGTH                          
+0	25	2	  0	       0	  4	NUM       	NUMBER OF GATES AVERAGED                   
+0	25	3	  0	       0	  8	NUM       	NUMBER OF INTEGRATED PULSES                
+0	25	4	  0	       0	  2	CODE TABLE	ECHO PROCESSING                            
+0	25	5	  0	       0	  2	CODE TABLE	ECHO INTEGRATION                           
+0	25	6	  0	       0	  3	CODE TABLE	Z TO R CONVERSION                          
+0	25	7	  0	       0	 12	NUM       	Z TO R CONVERSION FACTOR                   
+0	25	8	  2	       0	  9	NUM       	Z TO R CONVERSION EXPONENT                 
+0	25	9	  0	       0	  4	FLAG TABLE	CALIBRATION METHOD                         
+0	25	10	  0	       0	  4	CODE TABLE	CLUTTER TREATMENT                          
+0	25	11	  0	       0	  2	CODE TABLE	GROUND OCCULTATION CORRECTION SCREENING    
+0	25	12	  0	       0	  2	CODE TABLE	RANGE ATTENUATION CORRECTION               
+0	25	13	  0	       0	  2	FLAG TABLE	BRIGHT BAND CORRECTION                     
+0	25	15	  0	       0	  2	FLAG TABLE	RADOME ATTENUATION CORRECTION              
+0	25	16	  5	       0	  6	dB/M      	CLEAR AIR ATTENUATION CORRECTION           
+0	25	17	  0	       0	  2	FLAG TABLE	PRECIPITATION ATTENUATION CORRECTION       
+0	25	18	  7	       0	  6	NUM       	A TO Z LAW FOR ATTENUATION FACTOR          
+0	25	19	  2	       0	  7	NUM       	A TO Z LAW FOR ATTENUATION EXPONENT        
+0	25	20	  0	       0	  2	CODE TABLE	MEAN SPEED ESTIMATION                      
+0	25	21	  0	       0	  8	flag table	WIND COMPUTATION ENHANCEMENT               
+0	25	30	  0	     -32	  8	db        	RAPPORT SIGNAL SUR BRUIT                   
+0	25	32	  0	       0	  2	code table	WIND PROFILER MODE INFORMATION             
+0	25	33	  0	       0	  2	code table	NOAA WIND PROFILER SUBMODE INFORMATION     
+0	25	34	  0	       0	  4	FLAG table	NOAA WIND PROFILER QC TESTS RESULTS        
+0	25	36	  0	       0	  4	CODE table	ATMOSPHERICS LOCATION METHOD               
+0	25	45	  0	       0	 21	FLAG table	HIRS CHANNEL COMBINATION                   
+0	25	48	  0	       0	 16	FLAG table	AMSU-A CHANNEL COMBINATION                 
+0	25	49	  0	       0	  6	FLAG table	AMSU-B CHANNEL COMBINATION                 
+0	25	60	  0	       0	 14	NUMERIC   	SOFTWARE IDENTIFICATION                    
+0	25	71	  0	       0	  5	NUM       	FRAME COUNT                                
+0	25	202	  0	       0	  8	FLAG table	NESDIS RECURSIVE FILTER FLAG               
+0	27	1	  5	-9000000	 25	degre     	LATITUDE(HIGH ACCURACY)                    
+0	27	2	  2	   -9000	 15	degre     	LATITUDE(COARSE ACCURACY)                  
+0	27	3	  2	   -9000	 15	degre     	ALTERNATE LATITUDE                         
+0	27	20	  0	       0	 16	numeric   	SATELLITE LOCATION COUNTER                 
+0	28	1	  5	-1800000	 26	degre     	LONGITUDE(HIGH ACCURACY)                   
+0	28	2	  2	  -18000	 16	degre     	LONGITUDE(COARSE ACCURACY)                 
+0	28	3	  2	  -18000	 16	degre     	ALTERNATE LONGITUDE                        
+0	29	1	  0	       0	  3	CODE TABLE	PROJECTION TYPE                            
+0	29	2	  0	       0	  2	CODE TABLE	CO-ORDINATE GRID TYPE                      
+0	30	1	  0	       0	  4	NUM       	PIXEL VALUE (4 BUTS)                       
+0	30	21	  0	       0	 12	NUM       	NUMBER OF PIXELS PER ROW                   
+0	30	22	  0	       0	 12	NUM       	NUMBER OF PIXELS PER COLUMN                
+0	30	31	  0	       0	  4	CODE TABLE	PICTURE TYPE                               
+0	30	32	  0	       0	 16	FLAG TABLE	COMBINED PICTURE                           
+0	31	1	  0	       0	  8	NUMERIC   	DELAYED DESCRIPTOR REPLICATION FACTOR      
+0	31	2	  0	       0	 16	NUMERIC   	EXT DELAYED DESCRIPTOR REPLICAT. FACTOR    
+0	31	11	  0	       0	  8	NUMERIC   	DELAYED DESC. & DATA REPETIT. FACTOR       
+0	31	12	  0	       0	 16	NUMERIC   	EXT DELAYED DESC. & DATA REPETIT. FACTOR   
+0	31	21	  0	       0	  6	TABLE     	ASSOCIATED FIELD SIGNIFICANCE              
+0	31	31	  0	       0	  1	flag      	DATA PRESENT INDICATOR                     
+0	33	1	  0	       0	  1	flag table	QUALITY INFORMATION AS A 1 BIT FLAG        
+0	33	2	  0	       0	  2	flag table	QUALITY INFORMATION AS A 2 BIT FLAG        
+0	33	3	  0	       0	  3	code table	QUALITY INFORMATION AS A 3 BIT CODE        
+0	33	4	  0	       0	  4	code table	QUALITY INFORMATION AS A 4 BIT CODE        
+0	33	7	  0	       0	  7	%         	% CONFIDENCE                               
+0	33	25	  0	       0	  3	code table	ACARS INTERPOLATED VALUES                  
+0	33	26	  0	       0	  6	code table	MOISTURE QUALITY                           
+0	60	1	  0	       0	  7	%         	PROB. OF LIQ PCPN GE .01 INCH PAST 6HRS    
+0	60	2	  0	       0	  7	%         	PROB. OF LIQ PCPN GE .01 INCH PAST 12HRS   
+0	60	3	  0	       0	  7	%         	PROB. OF LIQ PCPN GE .01 INCH PAST 24HRS   
+0	60	4	  0	       0	  7	%         	PROB. OF LIQ PCPN GE .10 INCH PAST 6HRS    
+0	60	5	  0	       0	  7	%         	PROB. OF LIQ PCPN GE .10 INCH PAST 12HRS   
+0	60	6	  0	       0	  7	%         	PROB. OF LIQ PCPN GE .10 INCH PAST 24HRS   
+0	60	7	  0	       0	  7	%         	PROB. OF LIQ PCPN GE .25 INCH PAST 6HRS    
+0	60	8	  0	       0	  7	%         	PROB. OF LIQ PCPN GE .25 INCH PAST 12HRS   
+0	60	9	  0	       0	  7	%         	PROB. OF LIQ PCPN GE .25 INCH PAST 24HRS   
+0	60	10	  0	       0	  7	%         	PROB. OF LIQ PCPN GE .50 INCH PAST 6HRS    
+0	60	11	  0	       0	  7	%         	PROB. OF LIQ PCPN GE .50 INCH PAST 12HRS   
+0	60	12	  0	       0	  7	%         	PROB. OF LIQ PCPN GE .50 INCH PAST 24HRS   
+0	60	13	  0	       0	  7	%         	PROB. OF LIQ PCP GE 1.00 INCH PAST 6 HRS   
+0	60	14	  0	       0	  7	%         	PROB. OF LIQ PCP GE 1.00 INCH PAST 12HRS   
+0	60	15	  0	       0	  7	%         	PROB. OF LIQ PCP GE 1.00 INCH PAST 24HRS   
+0	60	16	  0	       0	  7	%         	PROB. OF LIQ PCP GE 2.00 INCH PAST 12HRS   
+0	60	17	  0	       0	  7	%         	PROB. OF LIQ PCP GE 2.00 INCH PAST 24HRS   
+0	60	18	  0	       0	  7	%         	REL FRQ GE .01 LQ EQV PCP PAST 12HRS       
+0	60	19	  0	       0	  7	%         	REL FRQ GE .01 LQ EQV PCP PAST 24HRS       
+0	60	20	  0	       0	  7	%         	COND PROB PCP TYPE FREEZING                
+0	60	21	  0	       0	  7	%         	COND PROB PCP TYPE SNOW                    
+0	60	22	  0	       0	  7	%         	COND PROB PCP TYPE LIQUID                  
+0	60	23	  0	       0	  7	%         	COND PROB PCP TYPE DRIZZLE                 
+0	60	24	  0	       0	  7	%         	COND PROB PCP TYPE CONTINUOUS              
+0	60	25	  0	       0	  7	%         	COND PROB PCP TYPE SHOWERS                 
+0	60	26	  0	       0	  7	%         	PROB SNOW AMT GE TRACE PAST 6HRS           
+0	60	27	  0	       0	  7	%         	PROB SNOW AMT GE TRACE PAST 12HRS          
+0	60	28	  0	       0	  7	%         	PROB SNOW AMT GE TRACE PAST 24HRS          
+0	60	29	  0	       0	  7	%         	PROB SNOW AMT GE 2.0IN PAST 6HRS           
+0	60	30	  0	       0	  7	%         	PROB SNOW AMT GE 2.0IN PAST 12HRS          
+0	60	31	  0	       0	  7	%         	PROB SNOW AMT GE 2.0IN PAST 24HRS          
+0	60	32	  0	       0	  7	%         	PROB SNOW AMT GE 4.0IN PAST 12HRS          
+0	60	33	  0	       0	  7	%         	PROB SNOW AMT GE 4.0IN PAST 24HRS          
+0	60	34	  0	       0	  7	%         	PROB SNOW AMT GE 6.0IN PAST 12HRS          
+0	60	35	  0	       0	  7	%         	PROB SNOW AMT GE 6.0IN PAST 24HRS          
+0	60	36	  0	       0	  7	%         	COND PROB SNOW PAST 12 HRS                 
+0	60	37	  0	       0	  7	%         	COND REL FRQ PROB SNOW PAST 12 HRS         
+0	60	38	  0	       0	  7	%         	PROB OPAQUE SKY COVER  CLEAR               
+0	60	39	  0	       0	  7	%         	PROB OPAQUE SKY COVER  SCATTERED           
+0	60	40	  0	       0	  7	%         	PROB OPAQUE SKY COVER  BROKEN              
+0	60	41	  0	       0	  7	%         	PROB OPAQUE SKY COVER  OVERCAST            
+0	60	42	  0	       0	  7	%         	PROB CIG HGT < 200 FT                      
+0	60	43	  0	       0	  7	%         	PROB CIG HGT 200-400 FT                    
+0	60	44	  0	       0	  7	%         	PROB CIG HGT 500-900 FT                    
+0	60	46	  0	       0	  7	%         	PROB CIG HGT 3100-6500 FT                  
+0	60	47	  0	       0	  7	%         	PROB CIG HGT 6600-12000 FT                 
+0	60	48	  0	       0	  7	%         	PROB CIG HGT GT 12000 FT                   
+0	60	49	  0	       0	  7	%         	PROB VSBY < 1/2 MILES                      
+0	60	50	  0	       0	  7	%         	PROB VSBY < 0/2 - 7/8 MILES                
+0	60	51	  0	       0	  7	%         	PROB VSBY < 0 - 2 3/4 MILES                
+0	60	52	  0	       0	  7	%         	PROB VSBY < 3 - 5 MILES                    
+0	60	53	  0	       0	  7	%         	PROB VSBY > 5   MILES                      
+0	60	54	  0	       0	  7	%         	PROB OBS TO VISION  BLOWING PHENOM         
+0	60	55	  0	       0	  7	%         	PROB OBS TO VISION  HAZE                   
+0	60	56	  0	       0	  7	%         	PROB OBS TO VISION  FOG                    
+0	60	57	  0	       0	  7	%         	PROB OBS TO VISION  NONE                   
+0	60	58	  0	       0	  7	%         	PROB TSTM PAST 6 HRS                       
+0	60	59	  0	       0	  7	%         	PROB TSTM PAST 12HRS                       
+0	60	60	  0	       0	  7	%         	PROB TSTM PAST 24HRS                       
+0	60	61	  0	       0	  7	%         	COND PROB SVR WX PAST 6 HRS                
+0	60	62	  0	       0	  7	%         	COND PROB SVR WX PAST 12HRS                
+0	60	63	  0	       0	  7	%         	COND PROB SVR WX PAST 24HRS                
+0	60	64	  0	       0	  7	%         	CLIM AVG CLD COVER (OPAQUE)                
+0	60	65	  1	       0	 12	METER/SECOND     	CLIMATIC WIND SPEED                        
+0	60	66	  1	       0	 12	DEG K     	CLIMATIC(NORMAL) DAY MAX TEMP              
+0	60	67	  1	       0	 12	DEG K     	CLIMATIC(NORMAL) NIGHT MIN TEMP            
+0	60	71	  0	       0	  7	%         	PROB. OF PCPN AMT GE .01 INCH PAST 6HRS    
+0	60	72	  0	       0	  7	%         	PROB. OF PCPN AMT GE .01 INCH PAST 12HRS   
+0	60	78	  0	       0	  7	%         	PROB OF CNV PAST 2 HRS
+0	60	79	  0	       0	  7	%         	PROB OF LTG PAST 2 HRS                    
+0	60	80	  0	       0	  7	%         	PROB CIG HGT 1000-1900 FT                  
+0	60	81	  0	       0	  7	%         	PROB CIG HGT 2000 - 3000 FT                
+0	60	82	  0	       0	  7	%         	COND PROB CIG HGT < 200 FT                 
+0	60	83	  0	       0	  7	%         	COND PROB CIG HGT 200-400 FT               
+0	60	84	  0	       0	  7	%         	COND PROB CIG HGT 500-900 FT               
+0	60	85	  0	       0	  7	%         	COND PROB CIG HGT 1000-1900 FT             
+0	60	86	  0	       0	  7	%         	COND PROB CIG HGT 2000-3000 FT             
+0	60	87	  0	       0	  7	%         	COND PROB CIG HGT 3100-6500 FT             
+0	60	88	  0	       0	  7	%         	COND PROB CIG HGT 6600-12000 FT            
+0	60	89	  0	       0	  7	%         	COND PROB CIG HGT GT 12000 FT              
+0	60	90	  0	       0	  4	CODE TABLE	UANT PCP FCST (CATEGORIES)                 
+0	60	91	  0	       0	  3	CODE TABLE	COND PCP TYPE FCST (CATS)                  
+0	60	92	  0	       0	  3	CODE TABLE	COND PCP CHARACTER FCST (CATS)             
+0	60	93	  0	       0	  4	CODE TABLE	QUANT SNOW AMT FCST (CATS)                 
+0	60	94	  0	       0	  4	CODE TABLE	CIG HEIGHT FCST (CATS)                     
+0	60	95	  0	       0	  3	CODE TABLE	VISIBILITY FCST (CATS)                     
+0	60	96	  0	       0	  3	CODE TABLE	OBSTRUCT TO VISION FCST (CATS)             
+0	60	97	  0	       0	  2	CODE TABLE	THUNDERSTORM FCST (CATS)                   
+0	60	98	  0	       0	  2	CODE TABLE	SEVERE WEATHER FCST (CATS)                 
+0	60	99	  0	       0	  3	CODE TABLE	COMBINED CEILING/VISIBILITY (CATS)         
+0	60	100	  0	       0	  7	%         	PROB TOTAL  SKY COVER  < 1/8               
+0	60	103	  0	       0	  7	%         	PROB TOTAL  SKY COVER  5/8-7/8             
+0	60	104	  0	       0	  7	%         	PROB TOTAL  SKY COVER  8/8                 
+0	60	108	  0	       0	  7	%         	PROB TOTAL  SKY COVER  1/8-2/8             
+0	60	109	  0	       0	  7	%         	PROB TOTAL  SKY COVER  3/8-4/8             
+0	60	112	  0	       0	  7	%         	PROB VSBY <= 1 MILE                        
+0	60	113	  0	       0	  7	%         	PROB VSBY <= 3 MILES                       
+0	60	114	  0	       0	  7	%         	PROB VSBY <= 5 MILES                       
+0	60	115	  0	       0	  7	%         	PROB VSBY <= 6 MILES                       
+0	60	116	  0	       0	  7	%         	PROB OBS TO VISION  mist                   
+0	60	117	  0	       0	  7	%         	PROB OBS TO VISION  FOG                    
+0	60	118	  0	       0	  7	%         	PROB VSBY <= 2 MILES                       
+0	60	144	  0	       0	  7	%         	PROB SNOW AMT GE 0.1IN PAST 24HRS          
+0	60	145	  0	       0	  7	%         	PROB SNOW AMT GE 8.0IN PAST 24HRS          
+0	60	148	  0	       0	  7	%         	PROB OF PRECIP OCCURRENCE                  
+0	60	149	  0	       0	  7	%         	PROB OF PRECIP OCCURRENCE LAST 3 HRS       
+0	60	150	  0	       0	  7	%         	PROB SVR WX PAST 6 HRS                     
+0	60	151	  0	       0	  7	%         	PROB SVR WX PAST 12HRS                     
+0	60	152	  0	       0	  7	%         	PROB SVR WX PAST 24HRS                     
+0	60	190	  0	       0	  4	CODE TABLE	VISIBILITY FCST (CATS)                     
+0	60	193	  0	       0	  4	CODE TABLE	COND VISIBILITY FCST (CATS)                
+0	60	194	  0	       0	  4	CODE TABLE	COND CIG HGT FCST (CATS)                   
+0	60	195	  0	       0	  2	CODE TABLE	PROB OF PRECIP FCST (CATS)
+0	60	196	  0	       0	  4	CODE TABLE	CNV POT (CATS)            
+0	60	197	  0	       0	  4	CODE TABLE	LTG POT (CATS)                                  
+0	60	200	  0	       0	  7	%         	COND PROB VSBY <= 1/2 MILE                 
+0	60	201	  0	       0	  7	%         	COND PROB VSBY <= 1 MILE                   
+0	60	202	  0	       0	  7	%         	COND PROB VSBY <= 2 MILES                  
+0	60	203	  0	       0	  7	%         	COND PROB VSBY <= 3 MILES                  
+0	60	204	  0	       0	  7	%         	COND PROB VSBY <= 5 MILES                  
+0	60	205	  0	       0	  7	%         	COND PROB VSBY <= 6 MILES                  
+0	63	255	  0	       0	  1	NUMERIC   	FILL BIT                                   

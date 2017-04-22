@@ -1,0 +1,75 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the util-util_gen3 library file
+#
+#  cmt: File made on Wed Aug  6 12:57:18 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/util/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/ofs/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libutil_gen3_t.a:  \
+     $(LIB)/libutil_gen3_t.a(isnwpg.o)  \
+     $(LIB)/libutil_gen3_t.a(rvlrcd.o)  \
+     $(LIB)/libutil_gen3_t.a(suerrs.o)  \
+     $(LIB)/libutil_gen3_t.a(sufatl.o)  \
+     $(LIB)/libutil_gen3_t.a(suline.o)  \
+     $(LIB)/libutil_gen3_t.a(supage.o)  \
+     $(LIB)/libutil_gen3_t.a(supcrd.o)  \
+     $(LIB)/libutil_gen3_t.a(susecs.o)  \
+     $(LIB)/libutil_gen3_t.a(sutimr.o)  \
+     $(LIB)/libutil_gen3_t.a(suwarn.o)  \
+     $(LIB)/libutil_gen3_t.a(suwrns.o)  \
+     $(LIB)/libutil_gen3_t.a(uchnge.o)  \
+     $(LIB)/libutil_gen3_t.a(uclost.o)  \
+     $(LIB)/libutil_gen3_t.a(udacpy.o)  \
+     $(LIB)/libutil_gen3_t.a(uddnst.o)  \
+     $(LIB)/libutil_gen3_t.a(udkblk.o)  \
+     $(LIB)/libutil_gen3_t.a(udsatr.o)  \
+     $(LIB)/libutil_gen3_t.a(udsfln.o)  \
+     $(LIB)/libutil_gen3_t.a(udtatr.o)  \
+     $(LIB)/libutil_gen3_t.a(udtrrs.o)  \
+     $(LIB)/libutil_gen3_t.a(udtype.o)  \
+     $(LIB)/libutil_gen3_t.a(uduchk.o)  \
+     $(LIB)/libutil_gen3_t.a(uducnn.o)  \
+     $(LIB)/libutil_gen3_t.a(uducnv.o)  \
+     $(LIB)/libutil_gen3_t.a(udundc.o)  \
+     $(LIB)/libutil_gen3_t.a(udunit.o)  \
+     $(LIB)/libutil_gen3_t.a(ufdstr.o)  \
+     $(LIB)/libutil_gen3_t.a(ufldcb.o)  \
+     $(LIB)/libutil_gen3_t.a(uincld.o)  \
+     $(LIB)/libutil_gen3_t.a(unpaks.o)  \
+     $(LIB)/libutil_gen3_t.a(upncrd.o)  \
+     $(LIB)/libutil_gen3_t.a(upntrk.o)  \
+     $(LIB)/libutil_gen3_t.a(urdpds.o)  \
+     $(LIB)/libutil_gen3_t.a(urelch.o)  \
+     $(LIB)/libutil_gen3_t.a(urghtc.o)  \
+     $(LIB)/libutil_gen3_t.a(useto1.o)  \
+     $(LIB)/libutil_gen3_t.a(usetop.o)  \
+     $(LIB)/libutil_gen3_t.a(usetps.o)  \
+     $(LIB)/libutil_gen3_t.a(usort1.o)  \
+     $(LIB)/libutil_gen3_t.a(usort2.o)  \
+     $(LIB)/libutil_gen3_t.a(utocrd.o)  \
+     $(LIB)/libutil_gen3_t.a(wvlrcd.o)
+

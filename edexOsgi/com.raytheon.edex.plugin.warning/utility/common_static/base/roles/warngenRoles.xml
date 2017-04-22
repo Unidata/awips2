@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<nwsRoleData xmlns:ns2="group">
+   <!-- AWIPS 2 WarnGen permissions file -->
+   <application>WarnGen</application>
+   <permission id="advancedOptions">
+      <description>
+         This permission allows the user to view advanced options in practice mode.
+       </description>
+   </permission>
+</nwsRoleData>

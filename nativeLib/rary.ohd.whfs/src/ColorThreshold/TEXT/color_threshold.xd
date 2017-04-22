@@ -1,0 +1,450 @@
+module 'XApplication'
+version = 48;
+xdesigned = 1;
+applicationName = 'XApplication';
+generateNameC = * 'color_threshold.c';
+generateNameExterns = * 'color_threshold.h';
+generateCPixmapFile = '';
+generateCHeaderFile = 'color_threshold.h';
+motifFlavour = 2;
+generateMask = 4390920;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+javaVersion = 2;
+/* group data */
+groupIndex 0;
+/* end group data */
+/*object 'colorThresholdDS' : XmDialogShell {
+	arguments {
+	lastGenName = 'colorThresholdDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_colorThresholdDS (Widget parent)
+';
+	XmNwidth = 555;
+	XmNheight = 900;
+	XmNallowShellResize = true;
+	XmNtitle = 'Color Thresholds';
+	XmNminWidth = 555;
+	XmNminHeight = 900;
+	XmNmaxWidth = 555;
+	XmNmaxHeight = 900;
+	};*/
+/*object 'colorThresholdFO' : XmForm {
+	arguments {
+	lastGenName = 'colorThresholdFO';
+	XmNx = 666;
+	XmNy = 17;
+	XmNwidth = 555;
+	XmNheight = 900;
+	XmNautoUnmanage = false;
+	XmNnoResize = false;
+	};*/
+/*object 'ct_closePB' : XmPushButton {
+	arguments {
+	lastGenName = 'ct_closePB';
+	XmNwidth = 105;
+	XmNheight = 35;
+	XmNlabelString = 'Close';
+	};
+};*/
+object 'ct_colorValueSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'ct_colorValueSL';
+	};
+abstract object 'ct_colorValueHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'ct_colorValueHSB';
+	};
+};
+abstract object 'ct_colorValueVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'ct_colorValueVSB';
+	};
+};
+abstract object 'ct_colorValueLI' : XmList {
+	arguments {
+	lastGenName = 'ct_colorValueLI';
+	XmNlistSizePolicy = XmRESIZE_IF_POSSIBLE;
+	};
+};
+};
+object 'ct_recordFR' : XmFrame {
+	arguments {
+	lastGenName = 'ct_recordFR';
+	};
+object 'ct_recordFO' : XmForm {
+	arguments {
+	lastGenName = 'ct_recordFO';
+	};
+/*object 'ct_colorUseOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'ct_colorUseOM';
+	};*/
+abstract object 'ct_colorUseOMLA' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'ct_colorUseOMLA';
+	XmNlabelString = 'ColorUse:';
+	};
+};
+abstract object 'ct_colorUseCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'ct_colorUseCB';
+	XmNlabelString = 'Prism';
+	};
+object 'ct_colorUsePDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'ct_colorUsePDM';
+	};
+};
+};
+};
+object 'ct_durationLA' : XmLabel {
+	arguments {
+	lastGenName = 'ct_durationLA';
+	XmNlabelString = 'Hours:';
+	};
+};
+/*object 'ct_durationTE' : XmText {
+	arguments {
+	lastGenName = 'ct_durationTE';
+	};
+};*/
+object 'ct_colorNameSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'ct_colorNameSL';
+	};
+abstract object 'ct_colorNameHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'ct_colorNameHSB';
+	};
+};
+abstract object 'ct_colorNameVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'ct_colorNameVSB';
+	};
+};
+/*abstract object 'ct_colorNameLI' : XmList {
+	arguments {
+	lastGenName = 'ct_colorNameLI';
+	XmNlistSizePolicy = XmRESIZE_IF_POSSIBLE;
+	};
+};*/
+};
+/*object 'ct_thresholdValueTE' : XmText {
+	arguments {
+	lastGenName = 'ct_thresholdValueTE';
+	};
+};*/
+object 'ct_colorNameLA' : XmLabel {
+	arguments {
+	lastGenName = 'ct_colorNameLA';
+	XmNlabelString = 'Color Name:';
+	};
+};
+object 'ct_thresholdValueLA' : XmLabel {
+	arguments {
+	lastGenName = 'ct_thresholdValueLA';
+	XmNlabelString = 'Value:';
+	};
+};
+/*object 'ct_thresholdTypeOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'ct_thresholdTypeOM';
+	};*/
+abstract object 'ct_thresholdTypeOMLA' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'ct_thresholdTypeOMLA';
+	XmNlabelString = 'Threshold:';
+	};
+};
+abstract object 'ct_thresholdTypeCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'ct_thresholdTypeCB';
+	};
+object 'ct_thresholdTypePDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'ct_thresholdTypePDM';
+	};
+object 'ct_thresholdMissingPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ct_thresholdMissingPB';
+	XmNlabelString = 'Missing';
+	};
+};
+object 'ct_thresholdLessPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ct_thresholdLessPB';
+	XmNlabelString = '< Min Threshold';
+	};
+};
+object 'ct_thresholdGreaterEqualPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ct_thresholdGreaterEqualPB';
+	XmNlabelString = '>= Value';
+	};
+};
+};
+};
+};
+object 'ct_selectedColorTE' : XmText {
+	arguments {
+	name = 'ct_selectedColorTE';
+	lastGenName = 'ct_selectedColorTE';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 325;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 20;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -470;
+	XmNleftAttachment = 1 0 390;
+	XmNbottomAttachment = 2 0 -50;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -350;
+	XmNleftAttachment = 1 0 120;
+	XmNbottomAttachment = 2 0 -265;
+	XmNtopAttachment = 1 0 115;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -470;
+	XmNleftAttachment = 1 0 360;
+	XmNbottomAttachment = 2 0 -100;
+	XmNtopAttachment = 1 0 60;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 115;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 300;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 65;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 60;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -468;
+	XmNleftAttachment = 1 0 384;
+	XmNbottomAttachment = 2 0 -154;
+	XmNtopAttachment = 1 0 113;
+    };
+    };
+};
+object 'ct_recordFRLA' : XmLabel {
+	arguments {
+	lastGenName = 'ct_recordFRLA';
+	XmNframeChildType = XmFRAME_TITLE_CHILD;
+	XmNlabelString = 'Entries';
+	};
+};
+};
+object 'ct_colorLILA' : XmLabel {
+	arguments {
+	lastGenName = 'ct_colorLILA';
+	XmNlabelString = 'Use                 Duration          Threshold      Color';
+	};
+};
+object 'ct_deleteentryPB' : XmPushButton {
+	arguments {
+	name = 'ct_deleteentryPB';
+	lastGenName = 'ct_deleteentryPB';
+	XmNwidth = 105;
+	XmNheight = 35;
+	XmNlabelString = 'Delete Entry';
+	};
+};
+/*object 'ct_saveuserPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ct_saveuserPB';
+	XmNwidth = 105;
+	XmNheight = 35;
+	XmNlabelString = 'Save To
+User Set';
+	XmNrecomputeSize = false;
+	};
+};*/
+object 'ct_deleteusersetPB' : XmPushButton {
+	arguments {
+	name = 'ct_deleteusersetPB';
+	lastGenName = 'ct_deletesetPB';
+	XmNwidth = 105;
+	XmNheight = 35;
+	XmNlabelString = 'Delete
+User Set';
+	XmNrecomputeSize = false;
+	};
+};
+object 'ct_copyofficesetPB' : XmPushButton {
+	arguments {
+	name = 'ct_copyofficesetPB';
+	lastGenName = 'ct_copyofficesetPB';
+	XmNwidth = 105;
+	XmNheight = 35;
+	XmNlabelString = 'Copy Office Set 
+To User Set';
+	};
+};
+object 'ct_copydefaultPB' : XmPushButton {
+	arguments {
+	name = 'ct_copydefaultPB';
+	lastGenName = 'ct_copydefaultPB';
+	XmNwidth = 105;
+	XmNheight = 35;
+	XmNlabelString = 'Copy Default Set
+To User Set';
+	};
+};
+object 'ct_saveofficesetPB' : XmPushButton {
+	arguments {
+	name = 'ct_saveofficesetPB';
+	lastGenName = 'ct_saveofficesetPB';
+	XmNwidth = 105;
+	XmNheight = 35;
+	XmNlabelString = 'Save To
+Office Set';
+	};
+};
+object 'ct_deleteofficesetPB' : XmPushButton {
+	arguments {
+	name = 'ct_deleteofficesetPB';
+	lastGenName = 'ct_deleteofficeset';
+	XmNwidth = 105;
+	XmNheight = 35;
+	XmNlabelString = 'Delete
+Office Set';
+	XmNrecomputeSize = false;
+	};
+};
+object 'ct_colorsourceLB' : XmLabel {
+	arguments {
+	name = 'ct_colorsourceLB';
+	XmNlabelString = 'Color Source:';
+	};
+};
+/*object 'ct_sourceLB' : XmLabel {
+	arguments {
+	name = 'ct_sourceLB';
+	was_selected = true;
+	XmNlabelString = 'User';
+	};
+};*/
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 220;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 870;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -537;
+	XmNleftAttachment = 1 0 7;
+	XmNbottomAttachment = 2 0 -428;
+	XmNtopAttachment = 1 0 28;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -537;
+	XmNleftAttachment = 1 0 7;
+	XmNbottomAttachment = 2 0 -764;
+	XmNtopAttachment = 1 0 469;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 224;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 434;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 15;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 780;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -255;
+	XmNleftAttachment = 1 0 150;
+	XmNbottomAttachment = 2 0 -860;
+	XmNtopAttachment = 1 0 825;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 420;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 780;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 290;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 780;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -255;
+	XmNleftAttachment = 1 0 150;
+	XmNbottomAttachment = 2 0 -815;
+	XmNtopAttachment = 1 0 780;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -390;
+	XmNleftAttachment = 1 0 290;
+	XmNbottomAttachment = 2 0 -860;
+	XmNtopAttachment = 1 0 825;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 9;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 438;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 99;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 438;
+    };
+    };
+};
+};
+end module;

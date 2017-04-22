@@ -1,0 +1,174 @@
+C MEMBER PRP39
+C  (from old member FCPRP39)
+C
+C    THIS IS THE OUTPUT SUBROUTINE FOR THE WGRFC TABLE LOOKUP ROUTINE
+C
+C
+      SUBROUTINE PRP39(P)
+C
+C     DAVE REED  WGRFC      7/87
+C
+C     ROUTINE ADDED TO ROUND OFF NUMBER TO NUMBER OF SIGNIFICANT DIGITS
+C     IN WHOLE PART OF NUMBER.   JERRY M. NUNN   WGRFC   01/26/90
+C
+C    THIS IS THE PRINT PARAMETER SUBROUTINE FOR THE TABLE LOOKUP ROUTINE
+C
+C
+C
+C    DIMENSION AND COMMON STATEMENTS
+C
+      DIMENSION P(1),SNAME(2)
+C
+C    COMMON
+C
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/fengmt'
+      INCLUDE 'common/fdbug'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_prpc/RCS/prp39.f,v $
+     . $',                                                             '
+     .$Id: prp39.f,v 1.4 2002/10/10 13:46:55 xfan Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      DATA SNAME/4HPRP3,4H9   /
+C
+C   CHECK DEBUG
+C
+      CALL FPRBUG(SNAME,1,39,IBUG)
+C
+C   CHECK TRACE LEVEL
+C
+      IF(ITRACE.GE.1)WRITE(IODBUG,900)
+  900 FORMAT(1H0,17H** PRP39 ENTERED.)
+C
+C   PRIONT DEBUG IF NEEDED
+C
+      IF(IBUG.EQ.0)GOTO 100
+      I1=1
+      I10=10
+      WRITE(IODBUG,901)I1,I10,(P(J),J=1,10)
+  901 FORMAT(1H0,2HP(,I2,3H - ,I2,2H) ,10F10.3)
+      WRITE(IODBUG,940)(P(J),J=11,18)
+  940 FORMAT(1H0,21HINPUT TIME SERIES ID=,2A4,
+     16H TYPE=,A4,10H TIME INT=,F4.1,23H OUTPUT TIME SERIES ID=,
+     22A4,6H TYPE=,A4,10H TIME INT=,F4.1)
+      N=P(2)
+      DO 110 I=19,N,10
+      I1=I
+      I2=I1+9
+      IF(I2.GT.N)I2=N
+  110 WRITE(IODBUG,901)I1,I2,(P(J),J=I1,I2)
+C
+C
+  100 CONTINUE
+C
+C    DETERMINE ENGLISH/METRIC INPUT VALUE AND PRINTOUT
+C
+      WRITE(IPR,902)
+  902 FORMAT(1H0,10X,28HWGRFC TABLE LOOKUP OPERATION)
+      IF(P(1).GT.1.5)WRITE(IPR,903)P(1)
+  903 FORMAT(15X,8HVERSION ,F4.0)
+C
+C
+C      GET ALL UNITS AND CONVERSIONS FROM METTRIC TO ENGLISH
+C
+C    GET INPUT UNITS FIRST
+C
+      CALL FDCODE(P(13),RIMET,DIMS,I1,I2,I3,I4,I5)
+C
+      CALL FCONVT(RIMET,DIMS,RIENG,RMI,RBI,IER)
+C
+C
+      CALL FDCODE(P(17),ROMET,DIMS,I1,I2,I3,I4,I5)
+      CALL FCONVT(ROMET,DIMS,ROENG,RMO,RBO,IER)
+C
+C
+C
+C    CHECK TO SEE IF CONVERSION FOR OUTPUT IS REQUIRED
+C
+      ICONV=0
+      IF(METRIC.EQ.1)GOTO 130
+      IF(METRIC.EQ.-1.AND.P(4).GT.0.5)GOTO 130
+      UNITI=RIENG
+      UNITO=ROENG
+      ICONV=1
+      GOTO 120
+C
+  130 UNITI=RIMET
+      UNITO=ROMET
+  120 CONTINUE
+C
+C
+C
+      WRITE(IPR,906)P(3)
+  906 FORMAT(1H0,10X,30HNUMBER OF TABLE LOOKUP POINTS=,F4.0)
+C
+C
+      WRITE(IPR,912)(P(I),I=11,14),UNITI,(P(I),I=15,18),UNITO
+  912 FORMAT(1H0,10X,21HINPUT TIME SERIES ID=,2A4,
+     16H TYPE=,A4,10H TIME INT=,F4.0,12H DATA UNITS=,A4,
+     2//,11X,22HOUTPUT TIME SERIES ID=,2A4,6H TYPE=,A4,
+     310H TIME INT=,F4.0,12H DATA UNITS=,A4)
+      WRITE(IPR,907)
+C
+C
+  907 FORMAT(1H0,20X,20HINPUT         OUTPUT,
+     1/,20X,         21HPOINTS         POINTS)
+C
+      NP=P(3)
+      DO 200 I=1,NP
+      I1=19+(I-1)*2
+      I2=I1+1
+      R1=P(I1)
+      R2=P(I2)
+      IF(ICONV.EQ.0)GOTO 200
+      R1=R1*RMI+RBI
+      R2=R2*RMO+RBO
+C
+C.....FIND NUMBER OF SIGNIFICANT DIGITS IN EACH LOOKUP POINT...AND
+C.....ROUND OFF TO WHOLE NUMBER.
+C jgg this comment no longer true based on MR 1675 - 7/02
+C
+      DO 140 JP = 1, 11
+      KP = JP - 1
+      X = 10.**KP
+      IF(R1 .LE. X) GOTO 150
+  140 CONTINUE
+C
+C.....DO NOT LET NUMBER OF SIGNIFICANT DIGITS EXCEED 5.
+C
+C jgg preserving meaningful digits for input like output below - MR 1675 - 7/02
+C jgg  150 IF(KP .GT. 5) KP = 5
+  150 KP = 5
+      CALL FSIGFG(R1, KP, IER)
+C
+      DO 160 JP = 1, 11
+      KP = JP - 1
+      X = 10.**KP
+      IF(R2 .LE. X) GOTO 170
+  160 CONTINUE
+C
+C.....DO NOT LET NUMBER OF SIGNIFICANT DIGITS EXCEED 5.
+C
+C jg replaced the following line to preserve some meaningful digits
+C    rounding off to a whole number is not desirable if we are
+C    writing to 3 dec. points in 908, below  - MR 1604 r21 3/13/02
+C jg 170 IF(KP .GT. 5) KP = 5
+  170 KP = 5
+      CALL FSIGFG(R2, KP, IER)
+C
+  200 WRITE(IPR,908)R1,R2
+  908 FORMAT(14X,F12.3,3X,F12.3)
+C
+C    CHECK TRACE AND RETURN
+C
+C
+      IF(ITRACE.GE.1)WRITE(IODBUG,910)
+  910 FORMAT(1H0,13H** EXIT PRP27)
+      RETURN
+      END

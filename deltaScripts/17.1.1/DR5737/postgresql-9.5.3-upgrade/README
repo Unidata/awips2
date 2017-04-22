@@ -1,0 +1,42 @@
+This directory contains scripts to handle the upgrade from PostgreSQL 9.3.x to
+9.5.x.
+
+*** IMPORTANT: If you are upgrading a server that runs Openfire, do NOT use
+these scripts. Use the scripts in the directory "DR5794" instead.
+
+There are two parts to this install: Steps to be done BEFORE installing
+the new PostgreSQL RPM packages (awips2-postgresql and awips2-psql), and steps
+to be done AFTER installing those packages. All scripts must be run as root.
+
+
+INSTRUCTIONS - BEFORE INSTALLING ANY RPMS:
+
+1. Stop PostgreSQL if it is not already stopped.
+
+2. Run postgres_pre_upgrade.sh.
+
+
+INSTRUCTIONS - AFTER INSTALLING RPMS:
+
+1. BEFORE starting PostgreSQL, run postgres_post_upgrade.sh. This script should
+NOT be run unattended. Check the end of the output for "UPGRADE COMPLETE"
+before continuing.
+
+2. When the upgrade is finished, start PostgreSQL.
+
+3. Run upgrade_postgis.sh to upgrade the PostGIS extension. This must be done
+while PostgreSQL is running. You may see one or more lines like this in
+the script output:
+
+psql:/awips2/postgresql/share/contrib/postgis-2.2/legacy.sql:1973: ERROR:
+function "st_extent3d" already exists with same argument types
+
+These lines can be ignored.
+
+4. Run rebuild_stats.sh. This must be done while PostgreSQL is running. To
+limit downtime, this script can be run even while EDEX or other users of the
+database are running. This script can be run unattended.
+
+5. If all previous steps have completed successfully and PostgreSQL is not
+producing errors, you can delete the old PostgreSQL install located at
+/awips2/postgresql-9.3.10

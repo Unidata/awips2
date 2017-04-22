@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<lambertConformalGrid>
+  <!-- Based on: /rary.ohd.pproc.gribit/TEXT/w3fi71.f -->
+  <numVertCoords>0</numVertCoords>
+  <pvPL255>255</pvPL255>
+  <dataRepresentationType>3</dataRepresentationType>
+  <numXAxisPoints>275</numXAxisPoints>
+  <numYAxisPoints>223</numYAxisPoints>
+  <originLat>-4850</originLat>
+  <originLon>-151100</originLon>
+  <resolutionFlag>8</resolutionFlag>
+  <lonMeridianParallelX>-111000</lonMeridianParallelX>
+  <gridLengthX>44000</gridLengthX>
+  <gridLengthY>44000</gridLengthY>
+  <projectionCenterFlag>0</projectionCenterFlag>
+  <scanningModeFlag>64</scanningModeFlag>
+  <!-- skip element 14 -->
+  <firstLatConeCut>45000</firstLatConeCut>
+  <secondLat>45000</secondLat>
+  <latSouthPole>0</latSouthPole>
+  <lonSouthPole>0</lonSouthPole>
+</lambertConformalGrid>

@@ -1,0 +1,106 @@
+C-----------------------------------------------------------------------
+      SUBROUTINE IPSPASTE(I1,I2,J1,J2,NF,MS,LS,FS,M,KGDS,L,F,IRET)
+C$$$  SUBPROGRAM DOCUMENTATION BLOCK
+C
+C SUBPROGRAM:  IPSPASTE   PASTE A SUBSECTOR OF A GRID BACK
+C   PRGMMR: IREDELL       ORG: W/NMC23       DATE: 1998-04-08
+C
+C ABSTRACT: THIS SUBPROGRAM PASTES A SUBSECTOR OF A GRID BACK
+C           INTO THE ORIGINAL GRID.
+C
+C PROGRAM HISTORY LOG:
+C 1999-04-08  IREDELL
+C
+C USAGE:    CALL IPSPASTE(I1,I2,J1,J2,NF,MS,LS,FS,M,KGDS,L,F,IRET)
+C
+C   INPUT ARGUMENT LIST:
+C     I1       - INTEGER FIRST X POINT OF THE SECTOR
+C                OR IF 0<=I2<I1,
+C                THE TOTAL NUMBER OF NON-OVERLAPPING X SECTORS
+C                OR IF 0<=I2<-I1,
+C                THE NEGATIVE TOTAL NUMBER OF OVERLAPPING X SECTORS.
+C     I2       - INTEGER LAST X POINT OF THE SECTOR
+C                OR IF 0<=I2<ABS(I1), THE SECTOR NUMBER.
+C     J1       - INTEGER FIRST Y POINT OF THE SECTOR
+C                OR IF 0<=J2<J1,
+C                THE TOTAL NUMBER OF NON-OVERLAPPING Y SECTORS
+C                OR IF 0<=J2<-J1,
+C                THE NEGATIVE TOTAL NUMBER OF OVERLAPPING Y SECTORS.
+C     J2       - INTEGER LAST Y POINT OF THE SECTOR
+C                OR IF 0<=J2<ABS(J1), THE SECTOR NUMBER.
+C     NF       - INTEGER NUMBER OF FIELDS TO CUT
+C     MS       - INTEGER FIRST DIMENSION OF INPUT FIELD ARRAYS
+C     LS       - LOGICAL(1) (MS,NF) BITMAP FOR INPUT FIELD
+C     FS       - REAL (MS,NF) DATA FOR INPUT FIELD
+C     M        - INTEGER FIRST DIMENSION OF INPUT FIELD ARRAYS
+C     KGDS     - INTEGER (200) OUTPUT GDS PARAMETERS
+C
+C   OUTPUT ARGUMENT LIST:
+C     L        - LOGICAL(1) (M,NF) BITMAP FOR OUTPUT FIELD
+C     F        - REAL (M,NF) DATA FOR OUTPUT FIELD
+C     IRET     - INTEGER RETURN CODE
+C                (0 IF SUCCESSFUL;
+C                 71 IF UNSUPPORTED PROJECTION;
+C                 72 IF INVALID SECTOR SPECIFICATION)
+C
+C ATTRIBUTES:
+C   LANGUAGE: FORTRAN 90
+C
+C$$$
+      INTEGER I1,I2,J1,J2,NF,MS,M
+      LOGICAL(1) LS(MS,NF)
+      REAL FS(MS,NF)
+      INTEGER KGDS(200)
+      LOGICAL(1) L(M,NF)
+      REAL F(M,NF)
+      INTEGER IRET
+      INTEGER I1A,I2A,INA,J1A,J2A,JNA,K,KS,NS,NSCAN
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C  COMPUTE ACTUAL SECTOR BOUNDARIES
+      IF((KGDS(1).NE.0.AND.KGDS(1).NE.1.AND.KGDS(1).NE.3.AND.
+     &   KGDS(1).NE.4.AND.KGDS(1).NE.5).OR.KGDS(20).NE.255) THEN
+        IRET=71
+        RETURN
+      ENDIF
+      I1A=I1
+      I2A=I2
+      J1A=J1
+      J2A=J2
+      IF(I2.GE.0.AND.I1.GT.I2) THEN
+        I1A=MIN(I2*((KGDS(2)-1)/I1+1)+1,KGDS(2)+1)
+        I2A=MIN((I2+1)*((KGDS(2)-1)/I1+1),KGDS(2))
+      ELSEIF(I2.GE.0.AND.-I1.GT.I2) THEN
+        I1A=MIN(I2*((KGDS(2)-2)/(-I1)+1)+1,KGDS(2)+1)
+        I2A=MIN((I2+1)*((KGDS(2)-2)/(-I1)+1)+1,KGDS(2))
+      ENDIF
+      IF(J2.GE.0.AND.J1.GT.J2) THEN
+        J1A=MIN(J2*((KGDS(3)-1)/J1+1)+1,KGDS(3)+1)
+        J2A=MIN((J2+1)*((KGDS(3)-1)/J1+1),KGDS(3))
+      ELSEIF(J2.GE.0.AND.-J1.GT.J2) THEN
+        J1A=MIN(J2*((KGDS(3)-2)/(-J1)+1)+1,KGDS(3)+1)
+        J2A=MIN((J2+1)*((KGDS(3)-2)/(-J1)+1)+1,KGDS(3))
+      ENDIF
+      IF(I1A.LT.1.OR.I2A.GT.KGDS(2).OR.I1A.GT.I2A.OR.
+     &   J1A.LT.1.OR.J2A.GT.KGDS(3).OR.J1A.GT.J2A) THEN
+        IRET=72
+        RETURN
+      ENDIF
+      INA=I2A-I1A+1
+      JNA=J2A-J1A+1
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C  COPY BITMAPS AND DATA
+      NS=INA*JNA
+      NSCAN=MOD(KGDS(11)/32,2)
+      DO N=1,NF
+        DO KS=1,NS
+          IF(NSCAN.EQ.0) THEN
+            K=((KS-1)/INA+J1A-1)*KGDS(2)+MOD(KS-1,INA)+I1A-1
+          ELSE
+            K=((KS-1)/JNA+I1A-1)*KGDS(3)+MOD(KS-1,JNA)+J1A-1
+          ENDIF
+          L(K,N)=LS(KS,N)
+          F(K,N)=FS(KS,N)
+        ENDDO
+      ENDDO
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      END

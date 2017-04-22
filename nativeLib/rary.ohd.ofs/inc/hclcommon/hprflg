@@ -1,0 +1,4 @@
+C                                           *--> FROM HCLCOMMON.HPRFLG
+C  HYDROLOGIC COMMAND LANGUAGE CARD PRINT INDICATOR
+      COMMON /HPRFLG/ IPRFLG
+C

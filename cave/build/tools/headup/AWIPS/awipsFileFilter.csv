@@ -1,0 +1,16 @@
+,,Valid FileTypes
+includeFiletype,.java
+includeFiletype,.py
+includeFiletype,.sh
+includeFiletype,.xml
+includeFiletype,.sql
+,,Include Patterns
+include,/com.raytheon
+include,/build.cave
+include,/build.edex
+include,/build.rcm
+include,/build.native
+,,Exclude Patterns
+exclude,/.svn/
+exclude,-spring.xml
+exclude,-server.xml

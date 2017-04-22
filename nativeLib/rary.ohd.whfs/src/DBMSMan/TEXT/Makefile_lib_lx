@@ -1,0 +1,87 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the whfs_lib-DBMSMan library file
+#
+#  cmt: File made on Wed Aug  6 12:58:57 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/whfs_lib/lib
+
+ARFLAGS  = rv
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU -DUSE_XM_MWMUTIL_H -DUSE_XGPM -Wall -Wno-unused-variable -Wno-comment
+
+INSERTS      = -I/fs/hseb/ob83/ohd/whfs_lib/inc/general  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/dbms  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/gui  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/riverpro  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/pproc_lib/inc
+
+INSERTS_CC   = -I/usr/include/informix/esql/  \
+               -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+INSERTS_EC   = -I/usr/include/informix/esql/  \
+               -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I../TEXT
+
+IFX_DIR  = /usr/bin/
+
+.SUFFIXES:
+.SUFFIXES:   .c .pgc .h .o .a
+
+.c.a:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+.pgc.a:
+	@echo "-------------------------------- $<"
+	@rm -f $*.c
+	@-$(IFX_DIR)/ecpg -t -c -C INFORMIX -r no_indicator $*.pgc \
+	 && $(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS_EC) $(INSERTS) -c $*.c \
+	     && ar $(ARFLAGS) $@ $*.o \
+	     || echo "e - $*"
+	@rm -f $*.[co]
+	@echo "--------------------------------"
+
+$(LIB)/libDBMSMan_t.a:  \
+     $(LIB)/libDBMSMan_t.a(bldts_height.o)  \
+     $(LIB)/libDBMSMan_t.a(Forecast.o)  \
+     $(LIB)/libDBMSMan_t.a(get_best_ts.o)  \
+     $(LIB)/libDBMSMan_t.a(get_curobs_maxfcst.o)  \
+     $(LIB)/libDBMSMan_t.a(get_last_run_time.o)  \
+     $(LIB)/libDBMSMan_t.a(get_limits.o)  \
+     $(LIB)/libDBMSMan_t.a(get_loc_info.o)  \
+     $(LIB)/libDBMSMan_t.a(get_loc_latlon.o)  \
+     $(LIB)/libDBMSMan_t.a(load_maxfcst.o)  \
+     $(LIB)/libDBMSMan_t.a(Observation.o)  \
+     $(LIB)/libDBMSMan_t.a(purge_fcst_alerts.o)  \
+     $(LIB)/libDBMSMan_t.a(qc_range_values.o)  \
+     $(LIB)/libDBMSMan_t.a(qcrng.o)  \
+     $(LIB)/libDBMSMan_t.a(rating_util.o)  \
+     $(LIB)/libDBMSMan_t.a(read_radargrids.o)  \
+     $(LIB)/libDBMSMan_t.a(set_stnclass.o)  \
+     $(LIB)/libDBMSMan_t.a(set_timevals.o)  \
+     $(LIB)/libDBMSMan_t.a(set_window_title.o)  \
+     $(LIB)/libDBMSMan_t.a(ts_ops.o)  \
+     $(LIB)/libDBMSMan_t.a(ts_read.o)  \
+     $(LIB)/libDBMSMan_t.a(fetch_loc.o)  \
+     $(LIB)/libDBMSMan_t.a(find_last_run_time.o)  \
+     $(LIB)/libDBMSMan_t.a(get_ingestfilter.o)  \
+     $(LIB)/libDBMSMan_t.a(txtprod.o)  \
+     $(LIB)/libDBMSMan_t.a(wr2log.o)
+

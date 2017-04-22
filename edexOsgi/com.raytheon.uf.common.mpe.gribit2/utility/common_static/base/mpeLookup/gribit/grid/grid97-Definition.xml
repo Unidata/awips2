@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<staggeredGrid>
+  <!-- Based on: /rary.ohd.pproc.gribit/TEXT/w3fi71.f -->
+  <numVertCoords>0</numVertCoords>
+  <pvPL255>255</pvPL255>
+  <dataRepresentationType>203</dataRepresentationType>
+  <ni>89</ni>
+  <nj>143</nj>
+  <la1>14451</la1>
+  <lo1>-71347</lo1>
+  <resolutionComponentFlag>136</resolutionComponentFlag>
+  <la2>18000</la2>
+  <lo2>-66500</lo2>
+  <di>53</di>
+  <dj>53</dj>
+  <scanningModeFlag>64</scanningModeFlag>
+</staggeredGrid>

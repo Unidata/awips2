@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="com.raytheon.uf.viz.core.descriptor">
+      <descriptor
+            class="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpDescriptor"
+            editor="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor"
+            name="com.raytheon.uf.viz.d2d.nsharp.D2DNSharpDescriptor">
+      </descriptor>
+   </extension>
+
+	<extension 
+         point="org.eclipse.ui.views">
+           <view 
+            category="com.raytheon.viz.ui"
+            allowMultiple="true"
+            restorable="false"
+            class="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPaletteWindow"
+            id="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPaletteWindow"
+            name="NSHARP(D2D)"/>
+   </extension> 
+
+<extension point="org.eclipse.ui.perspectiveExtensions">
+  <perspectiveExtension 
+	targetID="com.raytheon.uf.viz.d2d.ui.perspectives.D2D5Pane">
+    	<view id="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPaletteWindow"
+    		relative="org.eclipse.ui.editorss" 
+    		relationship="right"
+    		ratio="0.85"
+    		visible="false"/>	
+  </perspectiveExtension> 
+</extension>
+
+<extension
+      point="org.eclipse.ui.handlers">
+      <handler
+         class="com.raytheon.uf.viz.d2d.nsharp.rsc.action.NSharpSaveScreenAction"
+         commandId="com.raytheon.uf.viz.image.export.save">
+         <activeWhen>
+         	<with variable="activeEditorId">
+       			<equals value="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor"/>
+    		</with>
+         </activeWhen>
+   </handler>
+   <handler
+         class="com.raytheon.uf.viz.d2d.nsharp.rsc.action.NSharpPrintScreenAction"
+         commandId="com.raytheon.uf.viz.image.export.print">
+		 <activeWhen>
+         	<with variable="activeEditorId">
+       			<equals value="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor"/>
+    		</with>
+         </activeWhen>
+   </handler>
+   <handler
+        class="com.raytheon.viz.ui.actions.NullAction"
+        commandId="com.raytheon.viz.ui.tools.nav.PanTool">
+        <!-- This will always disable the PanTool -->
+         <activeWhen>
+         	<with variable="activeEditorId">
+       			<equals value="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor"/>
+    		</with>
+         </activeWhen>
+         <enabledWhen>
+         	<not>
+	         	<with variable="activeEditorId">
+	       			<equals value="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor"/>
+	    		</with>
+    		</not>
+         </enabledWhen>
+  </handler>
+   <handler
+         class="com.raytheon.uf.viz.d2d.nsharp.D2DNsharpViewAction"
+         commandId="com.raytheon.uf.viz.d2d.nsharp.dialog">
+   </handler>
+</extension>
+<extension
+  point="com.raytheon.uf.viz.core.classContext">
+  <classContext
+     class="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPaletteWindow">
+      <contextId id="com.raytheon.viz.ui.loopContext"/>     
+      <contextId id="com.raytheon.viz.ui.loop.space"/>
+  </classContext>
+</extension>
+<extension
+      point="com.raytheon.viz.volumebrowser.productcreator">
+   <productCreator
+         creatorClass="com.raytheon.uf.viz.d2d.nsharp.vb.NSharpProductCreator"
+         plugins="grid,bufrua,modelsounding,poessounding,goessounding"
+         resourceType="sounding">
+   </productCreator>
+</extension>
+<extension
+      point="org.eclipse.ui.commands">
+   <command
+         id="com.raytheon.uf.viz.d2d.nsharp.dialog"
+         name="D2DNsharp">
+   </command>
+</extension>
+
+      
+</plugin>

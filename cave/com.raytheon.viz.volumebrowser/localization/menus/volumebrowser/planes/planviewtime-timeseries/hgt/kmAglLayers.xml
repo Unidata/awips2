@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+           <contribute xsi:type="toolbarSubMenu" menuText="Thin Layers">
+    	    <contribute xsi:type="menuItem" menuText="0-0.5 km AGL" key="0-0.5kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="0.5-1 km AGL" key="0.5-1kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="1-1.5 km AGL" key="1-1.5kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="1.5-2 km AGL" key="1.5-2kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="2-2.5 km AGL" key="2-2.5kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="2.5-3 km AGL" key="2.5-3kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="3-3.5 km AGL" key="3-3.5kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="3.5-4 km AGL" key="3.5-4kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="4-4.5 km AGL" key="4-4.5kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="4.5-5 km AGL" key="4.5-5kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="5-5.5 km AGL" key="5-5.5kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="5.5-6 km AGL" key="5.5-6kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="6-7   km AGL" key="6-7kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="7-8   km AGL" key="7-8kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="8-9   km AGL" key="8-9kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="9-10  km AGL" key="9-10kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="10-11 km AGL" key="10-11kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="11-12 km AGL" key="11-12kmAgl"  indentText="false"/>	
+    	   </contribute>    	
+       	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="0-1kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="0-1.5kmAgl"  indentText="false"/>
+	    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="0-2kmAgl"  indentText="false"/>
+	    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="0-2.5kmAgl"  indentText="false"/>
+	    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="0-3kmAgl"  indentText="false"/>
+	    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="0-4kmAgl"  indentText="false"/>
+	    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="0-5kmAgl"  indentText="false"/>
+	    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="0-6kmAgl"  indentText="false"/>
+	    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="0-8kmAgl"  indentText="false"/>
+	    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="0-10kmAgl"  indentText="false"/>
+	    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="1-3kmAgl"  indentText="false"/>
+	    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="1-6kmAgl"  indentText="false"/>
+	    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="1-7kmAgl"  indentText="false"/>
+	    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="2-5kmAgl"  indentText="false"/>
+	    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="2-7kmAgl"  indentText="false"/>
+	    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="2-8kmAgl"  indentText="false"/>
+	    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="3-6kmAgl"  indentText="false"/>
+	    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="3-8kmAgl"  indentText="false"/>
+	    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="3-12kmAgl"  indentText="false"/>
+    
+    	   
+</menuTemplate>

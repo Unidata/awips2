@@ -1,0 +1,106 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="TafQueueRequestHandler" class="com.raytheon.uf.edex.aviation.TafQueueRequestHandler" />
+
+    <bean id="TafQueueManager" class="com.raytheon.uf.edex.aviation.TafQueueManager"
+        factory-method="getInstance">
+        <property name="destinationUri" value="jms-generic:topic:tafQueueChanged" />
+    </bean>
+
+    <bean id="tafQueueProperties"
+        class="com.raytheon.uf.edex.database.DatabasePluginProperties">
+        <property name="pluginFQN" value="com.raytheon.uf.common.tafqueue" />
+        <property name="database" value="metadata" />
+    </bean>
+
+    <bean id="tafqueueHandlerRegistered" factory-bean="handlerRegistry"
+        factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.tafqueue.TafQueueRequest" />
+        <constructor-arg ref="TafQueueRequestHandler" />
+    </bean>
+
+    <bean id="tafqueueRegistered" factory-bean="dbPluginRegistry"
+        factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.tafqueue" />
+        <constructor-arg ref="tafQueueProperties" />
+    </bean>
+
+    <bean id="autoSaveTafPurger"
+        class="com.raytheon.uf.edex.maintenance.LocalizationFilePurger">
+        <!-- directory to be purged -->
+        <constructor-arg value="aviation/tmp/" />
+        <!-- purge age: 28 days in milliseconds -->
+        <constructor-arg value="2419200000" />
+        <!-- file name pattern for purge -->
+        <constructor-arg value="taf\..*\.taf" />
+        <!-- LocalizationType for context for path -->
+        <constructor-arg>
+            <bean
+                id="com.raytheon.uf.common.localization.LocalizationContext.LocalizationType.CAVE_STATIC"
+                class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+        </constructor-arg>
+        <!-- LocalizationLevels for context for path -->
+        <constructor-arg>
+            <list>
+                <bean
+                    id="com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel.SITE"
+                    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <camelContext id="taf-request-camel"
+        xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+        <endpoint id="purgeAutoSavedTafCron"
+            uri="clusteredquartz://taf/purgeAutoSavedTafs/?cron=${purge.taf.auto.save.cron}" />
+
+        <route id="purgeAutoSavedTaf">
+            <from uri="purgeAutoSavedTafCron" />
+            <to uri="jms-generic:queue:purgeAutoSavedTafWork" />
+        </route>
+        <route id="purgeAutoSavedTafWork">
+            <from uri="jms-generic:queue:purgeAutoSavedTafWork" />
+            <doTry>
+                <bean ref="autoSaveTafPurger" method="purge" />
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:autoSavedTafPurge?level=ERROR" />
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+
+    <!-- TAF Send Routes -->
+    <camelContext id="clusteredTafQueueRoutes"
+        xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+
+        <route id="tafQueueSendJobAggr">
+            <from uri="quartz://tafQueueQuartz?trigger.repeatInterval=1" />
+            <doTry>
+                <bean ref="TafQueueManager" method="startManager" />
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:tafSendQueue?level=ERROR" />
+                </doCatch>
+            </doTry>
+        </route>
+        <route id="tafQueueChangedJob">
+            <from uri="jms-generic:topic:tafQueueChanged" />
+            <doTry>
+                <bean ref="TafQueueManager" method="queueChanged" />
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:tafSendQueue?level=ERROR" />
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+
+    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
+        <constructor-arg ref="clusteredTafQueueRoutes" />
+    </bean>
+</beans>

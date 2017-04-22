@@ -1,0 +1,427 @@
+#!/bin/bash
+#-----------------------------------------------------------------------#
+# Options                                                               #
+#                                                                       #
+# edex [status]                                                         #
+#       'edex' defaults to 'edex status', notifying the user whether    #
+#       edex services are on, and which ones.                           #
+#                                                                       #
+# edex start/stop                                                       #
+#       Controls stopping / starting all edex standalone services:      #
+#               edex_postgres                                           #
+#               edex_camel                                              #
+#               httpd-pypies                                            #
+#               qpidd                                                   #
+#               edex_ldm                                                #
+#                                                                       #
+# edex log [ingest|request|grib|text|satellite|radar|ldm]               #
+#       Monitors the current day's requested log. Defaults to ingest.   #
+#                                                                       #
+#                                                                       #
+# edex setup                                                            #
+#   Adds server IP and hostname to EDEX config files if they don't      #
+#   contain the correct setting already (requires user prompt)          #
+#                                                                       #
+#-----------------------------------------------------------------------#
+# ChangeLog                                                             #
+# 07/2011 M.James/Unidata	Created					#
+# 10/2015 M.James/Unidata	Log files fixed; purge check added	#
+# 11/2015 M.James/Unidata	Added CAVE user count as "edex users"	#
+# 10/2016 M.James/Unidata	No longer need to edit ldmd.conf	#
+#-----------------------------------------------------------------------#
+. /etc/profile.d/awips2.sh
+# directories definitions
+AWIPS_HOME=/awips2
+EDEX_PATH=${AWIPS_HOME}/edex
+DATA_PATH=${AWIPS_HOME}/data
+LOG_PATH=${EDEX_PATH}/logs
+
+# files
+PG_FILE=${DATA_PATH}/pg_hba.conf
+EDEX_ENV_FILE=${EDEX_PATH}/bin/setup.env
+
+# valid options
+options=( 'status' 'start' 'stop' 'log' 'setup' 'purge' 'users')
+nopts=${options[@]}
+
+# find interface for routeable IPs
+usedev=`netstat -rn | egrep "^0.0.0.0" | awk '{print $8}'| head -1`
+IP=`/sbin/ifconfig $usedev | grep -v "inet6" | grep "inet" | awk '{ print $2 }' | cut -d: -f2`
+
+# truncate
+IP_CIDR="${IP%.*}"
+editFiles=($PG_FILE $EDEX_ENV_FILE)
+boolFiles=(true true)
+editFuncs=(edit_pg edit_edex)
+
+YMD=`date '+%Y%m%d'`
+
+args=("$@")
+
+# functions
+edex_status() { # report back edex server on/off status
+   echo ''
+   echo '[edex status]'
+   # CHECK POSTGRES
+   postgres_prc=`ps aux | grep postgresql | grep -v grep | grep -v java |awk '{ print $11 }'`
+   if [ -z $postgres_prc ]; then
+      echo ' postgres    :: not running'
+   else
+      postgresPid=`ps aux | grep postgresql\/bin\/postmaster | grep -v grep | awk '{ print $2 }'`
+      echo ' postgres    :: running :: pid '$postgresPid''
+   fi
+
+   # CHECK PYPIES
+       pypies_prc=`ps aux | grep httpd_pypies | grep -v grep | head -1 | awk '{ print $11 }'`
+       if [ -z $pypies_prc ]; then
+          echo ' pypies      :: not running'
+       else
+          pypiesPid=`ps aux | grep awips2\/httpd_pypies\/usr\/sbin\/httpd | grep -v grep | head -1 | awk '{ print $2 }'`
+          echo ' pypies      :: running :: pid '$pypiesPid''
+       fi
+
+   # CHECK QPID
+   qpid_prc=`ps aux | grep qpid- | grep -v grep | head -1 | awk '{ print $11 }'`
+   if [ -z $qpid_prc ]; then
+      echo ' qpid        :: not running'
+   else
+      qpidPid=`ps aux | grep qpid- | grep -v grep | head -1 | awk '{ print $2 }'`
+      echo ' qpid        :: running :: pid '$qpidPid''
+   fi
+
+   # CHECK EDEX
+   edex_ingest_ps=`ps aux | grep ingest | grep -v ingestGrib | grep -v ingestDat | awk '{ print $15 }'`
+   if [ -z $edex_ingest_ps ]; then
+      echo ' EDEXingest  :: not running'
+   else
+      edex_ingest_pid=`ps aux | grep ingest | grep -v ingestGrib | grep -v ingestDat | awk '{ print $2 }'`
+      echo ' EDEXingest  :: running :: pid '$edex_ingest_pid''
+   fi
+   
+   edex_ingestGrib_ps=`ps aux | grep ingestGrib | awk '{ print $15 }'`
+   if [ -z $edex_ingestGrib_ps ]; then
+      echo ' EDEXgrib    :: not running'
+   else
+      edex_ingestGrib_pid=`ps aux | grep ingestGrib | awk '{ print $2 }'`
+      echo ' EDEXgrib    :: running :: pid '$edex_ingestGrib_pid''
+   fi
+   
+   edex_request_ps=`ps aux | grep request | awk '{ print $15 }'`
+   if [ -z $edex_request_ps ]; then
+      echo ' EDEXrequest :: not running'   
+   else
+      edex_request_pid=`ps aux | grep request | awk '{ print $2 }'`
+      echo ' EDEXrequest :: running :: pid '$edex_request_pid''
+   fi
+
+   ldmd_ps=`ps aux | grep ldmd | grep -v "grep ldmd" | head -1 | awk '{ print $2 }'`
+        if [ -z $ldmd_ps ]; then
+                echo ' ldmadmin    :: not running'
+        else
+                ldmd_pid=`ps aux | grep ldmd | grep -v "grep ldmd" | head -1 | awk '{ print $2 }'`
+                echo ' ldmadmin    :: running :: pid '$ldmd_pid''
+        fi
+
+   echo ''
+}
+
+tail_log() {
+   if [ -e $LOG_FILE ]; then
+      echo ' :: Viewing '${LOG_FILE}'. Press CTRL+C to exit'
+      echo ''
+      tail --follow=name ${LOG_FILE}
+   else 
+      echo ' :: '$LOG_FILE' not found'
+      echo ' :: Check '$LOG_PATH
+      echo ''
+   fi
+}
+
+edex_log() { # display todays log, default to ingest
+   echo '[edex] EDEX Log Viewer'
+   echo ''
+   # LDM log
+   if [ "${args[1]}" == 'ldm' ]; then
+      LOG_FILE=${AWIPS_HOME}/ldm/logs/ldmd.log
+      tail_log
+      exit;
+   fi
+   # EDEX ingestGrib log
+   if [ "${args[1]}" == 'grib' ]; then
+                LOG_FILE=${LOG_PATH}/edex-ingestGrib-${YMD}.log
+      tail_log
+      exit;
+   fi
+   # EDEX request log
+   if [ "${args[1]}" == 'request' ]; then   
+      LOG_FILE=${LOG_PATH}/edex-request-${YMD}.log
+      tail_log
+      exit;
+   fi
+   # Radar
+   if [ "${args[1]}" == 'radar' ]; then
+      YMD=`date -u '+%Y%m%d'`
+      LOG_FILE=${LOG_PATH}/edex-ingest-radar-${YMD}.log
+      tail_log
+      exit;
+   fi
+   # Satellite
+   if [ "${args[1]}" == 'satellite' ]; then
+      YMD=`date -u '+%Y%m%d'`
+      LOG_FILE=${LOG_PATH}/edex-ingest-satellite-${YMD}.log
+      tail_log
+      exit;
+   fi
+   # Text
+   if [ "${args[1]}" == 'text' ]; then
+      YMD=`date -u '+%Y%m%d'`
+      LOG_FILE=${LOG_PATH}/edex-ingest-text-${YMD}.log
+      tail_log
+      exit;
+   fi
+   # OHD
+   if [ "${args[1]}" == 'ohd' ]; then
+      YMD=`date -u '+%Y%m%d'`
+      LOG_FILE=${LOG_PATH}/edex-ingest-ohd-${YMD}.log
+      tail_log
+      exit;
+   fi
+   # EDEX ingest log (default)
+   LOG_FILE=${LOG_PATH}/edex-ingest-${YMD}.log
+   if [ "${args[1]}" == 'ingest' ]; then
+      tail_log
+      exit;
+   fi   
+   if [ -z ${args[1]} ]; then
+      echo ' :: No log specified - Defaulting to ingest log'
+      tail_log
+      exit;
+   else
+      echo 'Unknown argument' ${args[1]}' -  Viewing ingest log'
+      tail_log
+      exit;
+   fi
+}
+
+edit_pg() { # edex pg_hba.conf
+   schStr=`grep "\/24" $PG_FILE | head -1 | awk '{ print $4 }' | cut -d/ -f1`
+   subStr=$IP_CIDR'.0'
+   sed -i.setup_$YMD 's/'$schStr'/'$subStr'/g' $PG_FILE
+   echo '[edit] '$subStr' added to '$iPG_FILE
+   echo '       File backed up to '$PG_FILE'.setup_'$YMD
+}
+
+edit_edex() { # setup.env automatic edit
+   sed -i.setup_$YMD 's/localhost/'$HOSTNAME'/g' $EDEX_ENV_FILE
+   echo '[edit] '$HOSTNAME' added to '$EDEX_ENV_FILE
+   echo '       File backed up to '$EDEX_ENV_FILE'.setup_'$YMD
+}
+
+edex_edits() {
+   for index in ${!editFiles[*]}; do
+      if ${boolFiles[$index]}; then
+         ${editFuncs[$index]}
+      fi
+   done
+   echo '[done]'
+   exit;
+}
+
+edex_ipexit() { # abandon ip editing, post msg to guide manual edits
+   for index in ${!editFiles[*]}; do
+                if ${boolFiles[$index]}; then
+                        editCom+='\t'${editFiles[$index]}'\n'
+                fi
+        done
+   echo -e '[edex] Exiting EDEX IP Setup'
+   echo -e ''
+   echo -e ' You may need to MANUALLY EDIT the following files'
+   echo -e '\n'$editCom
+   echo -e ' for EDEX to work properly. \n'
+   echo -e ' Special notes:'
+   echo -e ' '$PG_FILE' *must* contain your subdomain.'
+   echo ''
+}
+
+edex_setup() { # setup IP subnet and domains for EDEX, prompt user for confirm
+   echo ''
+   # run services on system startup
+   chkconfig edex_postgres --add
+   chkconfig httpd-pypies --add
+   chkconfig qpidd --add
+   chkconfig edex_camel --add
+   chkconfig edex_postgres on --level 35
+   chkconfig httpd-pypies on --level 35
+   chkconfig qpidd on --level 35
+   chkconfig edex_camel on --level 35
+   echo '[edex] EDEX IP and Hostname Setup'
+   # check files exist
+   continue=true
+   for index in ${!editFiles[*]}; do
+      if [[ ! -f ${editFiles[$index]} ]]; then
+         echo '[Error] ** '${editFiles[$index]}' not found.'
+         continue=false
+      fi
+   done
+   if ! $continue; then
+      echo 'Exiting'
+      exit;
+   fi
+   continue=false
+
+   # pg_hba.conf
+
+   pgGrep=`grep $IP_CIDR $PG_FILE | head -1`
+   echo -n ' Checking '$PG_FILE
+   if [[ ! -z ${pgGrep} ]]; then
+      echo ' [OK]'
+      boolFiles[0]=false
+   else
+      echo -e '\n      ** Missing '$IP_CIDR
+      continue=true
+   fi
+
+   # EDEX env
+
+   envGrep=`grep $HOSTNAME $EDEX_ENV_FILE | head -1`
+   echo -n ' Checking '$EDEX_ENV_FILE
+   if [[ ! -z ${envGrep} ]]; then
+      echo ' [OK]'
+      boolFiles[1]=false
+   else 
+      echo '      ** Missing '$HOSTNAME
+      continue=true
+   fi
+   #echo '[edit] ldm regutil...'
+   su - awips -c 'regutil -s '$HOSTNAME' /hostname'
+   echo ''
+   edex_edits
+   if [ $continue=true ]; then
+      echo ' EDEX correctly configured'
+   fi
+   echo ''
+}
+
+
+edex_conf_check() { # check that IP and hostname are set correctly. if not, call setup
+   if [[ -z `grep $IP_CIDR $PG_FILE` ]]; then
+      echo '[WARN] *** File ['$PG_FILE'] contains incorrect IP addresses'
+      while true; do
+                   echo ''
+                   read -p "Run setup now? [y/n]" eyn
+                   case $eyn in
+                                [Yy]* ) edex_setup; break;;
+                                [Nn]* ) echo 'exiting'; exit;;
+                                * ) echo "Please answer yes or no.";;
+                        esac
+                   echo ''
+                done
+      echo '        Run "edex setup" to configure'
+      exit
+   fi
+   #if [[ -z `grep $HOSTNAME $EDEX_ENV_FILE` ]]; then
+   #   echo '[WARN] *** File ['$EDEX_ENV_FILE'] contains localhost'
+   #   echo '       *** Run "edex setup" to configure'
+   #   exit
+   #fi
+}
+
+edex_start() { # start all edex services
+   edex_conf_check
+   edex_cleanup
+   su -c "service edex_postgres start"
+   su -c "service httpd-pypies start"
+   su -c "service qpidd start"
+   edex_purge_reset
+   if [ "${args[1]}" == 'base' ]; then
+      su -c "service edex_camel start"
+   elif [ "${args[1]}" != 'dev' ]; then
+      su -c "service edex_camel start"
+      su -c "service edex_ldm start"
+   fi
+}
+
+edex_stop() { # stop all edex services
+   if [ "${args[1]}" != 'dev' ]; then
+      su -c "service edex_camel stop"
+      su -c "service edex_ldm stop"
+   fi
+   su -c "service qpidd stop"
+   su -c "service httpd-pypies stop"
+   su -c "service edex_postgres stop"
+   edex_status;
+}
+
+edex_purge() {
+        if [ "${args[1]}" == 'reset' ]; then
+      edex_purge_reset
+                echo ' EDEX purge has been reset'
+                exit;
+        else
+      purgeCheck=`su - awips -c 'psql metadata -c "select plugin from purgejobs where failedcount = 3;"'`
+                if [[ ${#purgeCheck} > 26 ]]; then
+                    su - awips -c 'psql metadata -c "select plugin from purgejobs where failedcount = 3;"'
+                fi
+                exit;
+        fi
+}
+edex_purge_reset() {
+        su - awips -c 'psql metadata -c "update purgejobs set failedcount = 0;"' >& /dev/null
+}
+edex_cleanup() {
+   rm -rf /awips2/qpid/edexMessageStore/edex/
+}
+edex_users(){
+        if [ "${args[1]}" != '' ]; then
+                YMD=${args[1]}
+        fi
+        userList=$(cat ${LOG_PATH}/edex-request-thriftSrv-${YMD}.log |grep ":CAVE:"|cut -d "[" -f 3| cut -d ":" -f 1|grep -v pluginName|sort | uniq)
+        echo ""
+        echo " -- EDEX Users ${YMD} --"
+        echo "$userList"
+        echo ""
+}
+
+edex_options() { # print out options for this programs
+   echo ''
+   echo '     edex (status|start|stop|setup|log|purge|users)'
+   echo ''
+}
+
+edex_invalid() {
+   echo ''
+   echo "     Invalid option: '"${args[0]}"' not understood"
+   edex_options
+}
+
+check_input() { # check input against accepted options
+   found=false
+   for i in "${options[@]}"
+   do
+      if [[ "${args[0]}" == $i ]]; then
+         edexcmd='edex_'${args[0]}
+         found=true
+      fi
+   done
+   if [[ "$found" == 'false' ]]; then
+      if [[ -z ${args[0]} ]]; then
+         # if no input specified, default to status
+         edex_status
+         edex_options
+      else
+         # if bad command
+         edex_invalid
+      fi
+   else
+      $edexcmd
+   fi
+}
+
+# check input - first/only program run
+#
+check_input
+
+exit;
+
+
+

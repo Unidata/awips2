@@ -1,0 +1,20 @@
+COPY stns.TCABKPT_WATER (PKEY, STATION_ID, STATION_NUM, NAME, STATE, COUNTRY, LATITUDE, LONGITUDE, PRI) FROM stdin with delimiter as ',';
+1,FLA_BAY,800010,Florida_Bay,FL,US,24.95,-80.9,80
+2,L_MAUREP,808080,Lake_Maurepas,LA,US,30.25,-90.54,80
+3,L_OKEECH,800020,Lake_Okeechobee,FL,US,26.95,-80.8,80
+4,PAMLICO,800030,Pamlico_Sound,NC,US,35.35,-75.85,80
+5,ALBEMARL,800040,Albemarle_Sound,NC,US,36.05,-76,80
+6,CB_NPTCM,808410,Chesapeake_Bay_New_Point_Comfort,VA,US,37.1,-76.15,80
+7,CB_WNDPT,808420,Chesapeake_Bay_Windmill_Point,VA,US,37.45,-76.1,80
+8,CB_SMTPT,808430,Chesapeake_Bay_Smith_Point,VA,US,37.75,-76.05,80
+9,CB_DRMPT,808440,Chesapeake_Bay_Drum_Point,MD,US,38.1,-76.1,80
+10,CB_NBCH,808450,Chesapeake_Bay_North_Beach,MD,US,38.5,-76.4,80
+11,CB_SNDPT,808460,Chesapeake_Bay_Sandy_Point,MD,US,38.85,-76.4,80
+12,CB_POOLI,808470,Chesapeake_Bay_Pooles_Island,MD,US,39.15,-76.35,80
+13,CB_N_PLI,808476,Chesa_Bay_North_of_Pooles_Islnd,MD,US,39.4,-76.1,80
+14,TP_COBBI,808480,Tidal_Potomac_Cobb_Island,MD,US,38.15,-76.6,80
+15,TP_INDHD,808490,Tidal_Potomac_Indian_Head,MD,US,38.4,-77.1,80
+16,TP_KEYBR,808496,Tidal_Potomac_Key_Bridge,MD,US,38.8,-77.05,80
+17,DELBAY_S,809010,Delaware_Bay_South_Sl_B_to_E_Pt,DE,US,38.95,-75.1,80
+18,DELBAY_N,809110,Delaware_Bay_North_Sl_B_to_E_Pt,DE,US,39.1,-75.25,80
+\.

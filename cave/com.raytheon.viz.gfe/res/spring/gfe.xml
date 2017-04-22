@@ -1,0 +1,42 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+  
+        <bean id="gfeClientConfig" class="com.raytheon.viz.gfe.core.GfeClientConfig" factory-method="getInstance">
+           <property name="maxSaveThreads" value="3"/>
+           <property name="gridSaveThreshold" value="33554432"/>
+           <!-- threshold = 32*1024*1024 bytes (32 MB)-->
+        </bean>
+        
+        <bean id="gfeVtecConfig" class="com.raytheon.viz.gfe.vtec.GFEVtecConfig" factory-method="getInstance">
+           <property name="nationalEtnPhensigs">
+              <set>
+                 <value>TO.A</value>
+                 <value>SV.A</value>
+                 <value>HU.A</value>
+                 <value>HU.S</value>
+                 <value>HU.W</value>
+                 <value>TR.A</value>
+                 <value>TR.W</value>
+                 <value>SS.A</value>
+                 <value>SS.W</value>
+                 <value>TY.A</value>
+                 <value>TY.W</value>
+              </set>
+           </property>
+           <property name="tropicalEtnPhensigs">
+              <set>
+                 <value>HU.A</value>
+                 <value>HU.S</value>
+                 <value>HU.W</value>
+                 <value>TR.A</value>
+                 <value>TR.W</value>
+                 <value>SS.A</value>
+                 <value>SS.W</value>
+                 <value>TY.A</value>
+                 <value>TY.W</value>
+              </set>
+           </property>
+        </bean>
+</beans>

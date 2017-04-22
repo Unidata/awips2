@@ -1,0 +1,292 @@
+C MODULE RPDRRS
+C-----------------------------------------------------------------------
+C
+      SUBROUTINE RPDRRS (ID,IDTYPE,ITYPE,NVLPOB,IFHOUR,LHOUR,LOBS,OBS,
+     *   NUMOBS,LMIN,MIN,LWKBUF,IWKBUF,LSTHR,ISTAT)
+C
+C  THIS ROUTINE READS RIVER, RESERVOIR, OR SNOW (RRS) DATA
+C  FROM THE PREPROCESSOR DATA BASE FOR ONE STATION FOR A GIVEN
+C  DATA TYPE FOR A SPECIFIED PERIOD.
+C
+C  ARGUMENT LIST:
+C
+C       NAME    TYPE    I/O   DIM   DESCRIPTION
+C       ------  ----    ---   ---   -----------
+C       ID      A8 OR I  I  1 OR 2  STATION IDENTIFIER
+C       IDTYPE    I      I     1    ID TYPE:
+C                                     0=CHARACTER
+C                                     1=INTEGER
+C       ITYPE     A4     I     1    DATA TYPE
+C       NVLPOB    I      O     1    NUMBER OF VALUES PER OBSERVATION
+C       IFHOUR    I     I/O    1    JULIAN HOUR OF FIRST DATA
+C       LHOUR     I     I/O    1    JULIAN HOUR OF LAST DATA
+C       LOBS      I      I     1    LENGTH OF OBS
+C       OBS       I      O    LOBS  ARRAY TO CONTAIN DATA
+C       NUMOBS    I      O     1    NUMBER OF OBS RETURNED
+C       LMIN      I      I     1    LENGTH OF MINUTES
+C       MIN       I      O    LMIN  ARRAY FOR MINUTES
+C       LWKBUF    I      I     1    LENGTH OF IWKBUF
+C       IWKBUF    I     I/ O LWKBUF WORK ARRAY
+C       LSTHR     I      O     1    LAST HOUR OF OBSERVED DATA
+C       ISTAT     I      O     1    STATUS INDICATOR:
+C                                      0=NORMAL RETURN
+C                                      1=OBS IS TOO SMALL
+C                                      2=STATION NOT FOUND
+C                                      3=DATA TYPE NOT FOUND
+C                                      4=NO OBS IN TIME RANGE
+C                                      5=MIN TOO SMALL
+C                                      6=WORK ARRAY TOO SMALL
+C                                      7=SYSTEM ERROR
+C
+      INCLUDE 'uiox'
+      INCLUDE 'udsi'
+      INCLUDE 'udebug'
+      INCLUDE 'pdbcommon/pdnxrd'
+      INCLUDE 'pdbcommon/pdrrsc'
+      INCLUDE 'pdbcommon/pdsifc'
+C
+      INTEGER OBS(LOBS)
+      INTEGER*2 ISIBUF(128)
+      DIMENSION MIN(LMIN)
+      DIMENSION IWKBUF(LWKBUF)
+      DIMENSION ID(1)
+      CHARACTER*4 DTYPE
+      CHARACTER*8 STAID
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/db_pdbrw/RCS/rpdrrs.f,v $
+     . $',                                                             '
+     .$Id: rpdrrs.f,v 1.3 2002/02/11 20:34:13 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      IF (IPDTR.GT.0) WRITE (IOGDB,*) 'ENTER RPDRRS'
+C
+      ISTAT=0
+      LSIBUF=128
+      CALL UMEMST (0,MIN,LMIN)
+      LSTHR=0
+      IMPOS=0
+      MAXBUF=LWKBUF-2*IFREEL
+C
+      IF (IPDDB.GT.0) THEN
+         WRITE (IOGDB,230) ID(1),IDTYPE,ITYPE,IFHOUR,LHOUR
+         WRITE (IOGDB,240) LWKBUF,IFREEL,MAXBUF,NEXTRD,MXRRSF
+         ENDIF
+C
+C  CHECK IF NEXT RECORD TO BE READ GREATER THAN MAXIMIM RRS RECORDS
+      IF (NEXTRD.GT.MXRRSF) GO TO 30
+C
+C  READ NEXT RRS RECORD
+      CALL PDRRRR (NEXTRD,LRCPDR,MAXBUF,IWKBUF,ISTA)
+      IF (IPDDB.GT.0) WRITE (IOGDB,250) ISTA
+      IF (ISTA.EQ.2) THEN
+         ISTAT=6
+         GO TO 210
+         ENDIF
+      IF (ISTA.NE.0) GO TO 190
+C
+C  CHECK IF THIS IS THE RECORD REQUESTED
+C
+C  CHECK IDENTIFIER TYPE
+      IF (IDTYPE.EQ.1) GO TO 10
+C
+C  IDENTIFIER IS CHARACTER
+      CALL UNAMCP (ID,IWKBUF(2),IMATCH)
+      IF (IMATCH.NE.0) GO TO 30
+      GO TO 20
+C
+C  IDENTIFIER IS NUMBER
+10    IF (ID(1).NE.IWKBUF(4)) GO TO 30
+C
+C  CHECK DATA TYPE
+20    IF (ITYPE.EQ.IWKBUF(5)) GO TO 80
+C
+C  GET STATION INFORMATION RECORD
+30    IF (IPDDB.GT.0) WRITE (IOGDB,260)
+      IF (IDTYPE.EQ.1) GO TO 40
+C
+C  IDENTIFIER IS CHARACTER
+      CALL PDFNDR (ID,LSIBUF,IFIND,ISIREC,ISIBUF,IFREE,ISTA)
+      GO TO 50
+C
+C  IDENTIFIER IS NUMBER
+40    CALL PDFNDI (ID,LSIBUF,IFIND,ISIREC,ISIBUF,IFREE,ISTA)
+50    IF (ISTA.NE.0) GO TO 190
+      IF (IFIND.NE.0) GO TO 60
+      ISTAT=2
+      GO TO 210
+C
+C  FIND DATA TYPE IN RECORD
+60    IREC=IPDFDT(ISIBUF,ITYPE)
+      IF (IREC.NE.0) GO TO 70
+      ISTAT=3
+      GO TO 210
+C
+C  READ THE RRS RECORD
+70    CALL PDRRRR (IREC,LRCPDR,MAXBUF,IWKBUF,ISTA)
+      IF (ISTA.EQ.2) THEN
+         ISTAT=6
+         GO TO 210
+         ENDIF
+      IF (ISTA.NE.0) GO TO 190
+      GO TO 90
+C
+80    IREC=NEXTRD
+      IF (IPDDB.GT.0) WRITE (IOGDB,*) 'IREC=',IREC
+C
+90    IF (IDTYPE.EQ.0) THEN
+         CALL UMEMOV (ID,STAID,2)
+         IF (STAID.EQ.'?') THEN
+            IPDDB=1
+            ENDIF
+         ENDIF
+      CALL UMEMOV (ITYPE,DTYPE,1)
+      IF (IPDDB.GT.0) THEN
+         WRITE (IOGDB,280) (IWKBUF(I),I=1,10)
+         WRITE (IOGDB,290) (IWKBUF(I),I=11,20)
+         ENDIF
+C
+C  COMPUTE WHERE NEXT RRS RECORD STARTS
+      NEXTRD=IREC+(IWKBUF(1)+LRCPDR-1)/LRCPDR
+      IF (IPDDB.GT.0) WRITE (IOGDB,310) IWKBUF(1),LRCPDR,IREC,NEXTRD
+C
+      LENREC=IWKBUF(1)
+      IF (IPDDB.GT.0) WRITE (IOGDB,300) LENREC,(IWKBUF(I),I=21,LENREC)
+      NVLPOB=IWKBUF(14)
+      NUMOBS=0
+C
+C  CHECK IF NEED TO GET DATA FROM FREE POOL RECORD
+      ICKVAL=99999
+      IF (IWKBUF(9).GT.ICKVAL) THEN
+         WRITE (LP,313) 'IWKBUF(9)',IWKBUF(9),ICKVAL,STAID,DTYPE
+         CALL UEROR (LP,0,-1)
+         GO TO 190
+         ENDIF
+      IF (IWKBUF(9).GE.0) THEN
+         ELSE
+            WRITE (LP,315) STAID,DTYPE
+            CALL UEROR (LP,0,-1)
+            GO TO 190
+         ENDIF
+      IF (IPDDB.GT.0) WRITE (IOGDB,320) NVLPOB,IWKBUF(9),
+     *   IWKBUF(IWKBUF(9))
+      IVAL=JULMIN(NVLPOB,IWKBUF(IWKBUF(9)))
+      IF (IPDDB.GT.0) WRITE (IOGDB,*) 'IVAL=',IVAL,' IFHOUR=',IFHOUR
+      IF (IVAL.LT.IFHOUR) GO TO 130
+      IF (IPDDB.GT.0) WRITE (IOGDB,340) IWKBUF(13),IWKBUF(15)
+      IF (IWKBUF(13).EQ.0) GO TO 130
+      IF (IWKBUF(15).GT.LHOUR) GO TO 170
+      IFREC=IWKBUF(13)
+C
+C  READ A FREE POOL RECORD
+100   CALL PDRDFR (IFREC,IWKBUF(MAXBUF+1),ISTA)
+      IF (ISTA.NE.0) GO TO 190
+      NUM=IWKBUF(MAXBUF+2)
+      IPOS=MAXBUF+3
+C
+C  SEARCH THE RECORD
+      DO 120 I=1,NUM
+         IF (JULMIN(NVLPOB,IWKBUF(IPOS)).GT.LHOUR) GO TO 170
+         IF (JULMIN(NVLPOB,IWKBUF(IPOS)).LT.IFHOUR) GO TO 110
+         CALL PDMOVO (IWKBUF(IPOS),NVLPOB,LOBS,OBS,NUMOBS,LMIN,MIN,
+     *      IMPOS,IERR)
+         IF (IPDDB.GT.0) WRITE (IOGDB,*) 'PDMOVO CALLED - IERR=',IERR
+         IF (IERR.NE.0) THEN
+            IF (IERR.EQ.1) ISTAT=1
+            IF (IERR.EQ.2) ISTAT=5
+            GO TO 170
+            ENDIF
+110      IPOS=IPOS+NVLPOB
+120      CONTINUE
+C
+C  CHECK IF MORE FREEPOOL RECORDS
+      IFREC=IWKBUF(MAXBUF+1)
+      IF (IFREC.NE.0) GO TO 100
+C
+C  GET VALUES FROM REGULAR RECORD
+130   IF (IPDDB.GT.0) WRITE (IOGDB,350) IWKBUF(8),IWKBUF(9),IWKBUF(11)
+      IF (IWKBUF(8).EQ.0) GO TO 170
+      IF (IWKBUF(9).GT.0) THEN
+         ELSE
+            WRITE (LP,315) STAID,DTYPE
+            CALL UEROR (LP,0,-1)
+            GO TO 190
+         ENDIF
+      IPOS=IWKBUF(9)
+      NUM=IWKBUF(8)
+      IF (IWKBUF(9).GT.IWKBUF(11)) NUM=(IWKBUF(1)-IWKBUF(9)+1)/NVLPOB
+      IFLAG=0
+C
+C  SEARCH THE RECORD FOR VALUES
+140   IF (IPDDB.GT.0) WRITE (IOGDB,*) 'NUM=',NUM,' IPOS=',IPOS,
+     *   ' NVLPOB=',NVLPOB
+      DO 160 I=1,NUM
+         IF (JULMIN(NVLPOB,IWKBUF(IPOS)).GT.LHOUR) GO TO 170
+         IF (JULMIN(NVLPOB,IWKBUF(IPOS)).LT.IFHOUR) GO TO 150
+         CALL PDMOVO (IWKBUF(IPOS),NVLPOB,LOBS,OBS,NUMOBS,LMIN,MIN,
+     *      IMPOS,IERR)
+         IF (IPDDB.GT.0) WRITE (IOGDB,*) 'PDMOVO CALLED - IERR=',IERR
+         IF (IERR.NE.0) THEN
+            IF (IERR.EQ.1) ISTAT=1
+            IF (IERR.EQ.2) ISTAT=5
+            GO TO 170
+            ENDIF
+150      IPOS=IPOS+NVLPOB
+160      CONTINUE
+C
+C  CHECK FOR WRAP AROUND
+      IF (IFLAG.EQ.1) GO TO 170
+      IF (NUM.EQ.IWKBUF(8)) GO TO 170
+      IFLAG=1
+      NUM=IWKBUF(8)-NUM
+      IPOS=IWKBUF(1)-IWKBUF(7)*IWKBUF(14)+1
+      GO TO 140
+C
+C  SET HOUR
+170   LSTHR=IWKBUF(16)
+      IF (NUMOBS.NE.0) GO TO 180
+         IFHOUR=0
+         LHOUR=0
+         ISTAT=4
+         GO TO 210
+180   IFHOUR=OBS(1)
+      LHOUR=OBS((NUMOBS-1)*NVLPOB+1)
+      GO TO 210
+C
+C  SYSTEM ERROR
+190   ISTAT=7
+      NEXTRD=2
+C
+210   IF (IPDTR.GT.0) WRITE (IOGDB,*) 'EXIT RPDRRS'
+C
+      RETURN
+C
+C-----------------------------------------------------------------------
+C
+230   FORMAT (' ID=',A4,3X,'IDTYPE=',I2,3X,'ITYPE=',A4,3X,
+     *   'IFHOUR=',I6,3X,'LHOUR=',I6)
+240   FORMAT (' LWKBUF=',I6,3X,'IFREEL=',I6,3X,'MAXBUF=',I6,3X,
+     *   'NEXTRD=',I6,3X,'MXRRSF=',I6)
+250   FORMAT (' PDRRRR CALLED : ISTA=',I2)
+260   FORMAT (' GET RRS RECORD BY HASHING ')
+280   FORMAT (' IWKBUF(1...10)=',10(I7,1X))
+290   FORMAT (' IWKBUF(11...20)=',10(I7,1X))
+300   FORMAT (' LENREC=',I3,4X,'IWKBUF(21...LENREC)=',10(1X,I8))
+310   FORMAT (' IWKBUF(1)=',I6,3X,'LRCPRD=',I3,3X,'IREC=',I6,3X,
+     *   'NEXTRD=',I6)
+313   FORMAT ('0**ERROR** IN RPDRRS - VALUE OF VARIABLE ',A,
+     *   ' (',I10,') IS GREATER THAN ',I6,
+     *   ' FOR STATION ',A,' AND DATA TYPE ',A,'.')
+315   FORMAT ('0**ERROR** IN RPDRRS - POSITION OF LATEST DATA VALUE ',
+     *   'IS NOT GREATER THAN ZERO ',
+     *   'FOR STATION ',A,' AND DATA TYPE ',A,'.')
+320   FORMAT (' NVLPOB=',I6,3X,'IWKBUF(9)=',I6,3X,
+     *   'IWKBUF(IWKBUF(9))=',I8)
+340   FORMAT (' IWKBUF(13)=',I6,3X,'IWKBUF(15)=',I6)
+350   FORMAT (' IWKBUF(8)=',I6,3X,'IWKBUF(9)=',I6,3X,'IWKBUF(11)=',I6)
+C
+      END

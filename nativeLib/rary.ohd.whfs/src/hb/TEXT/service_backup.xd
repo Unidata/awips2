@@ -1,0 +1,103 @@
+module 'XApplication'
+version = 47;
+xdesigned = 1;
+applicationName = 'XApplication';
+sourceDirectory = '/fs/awips/whfs/dev/standard/src/app/hydrobase/';
+generateNameC = * 'service_backup.c';
+generateNameExterns = * 'service_backup.h';
+generateNameResDB = * 'service_backup.res';
+generateCHeaderFile = 'service_backup.h';
+generateMask = 4390924;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 1;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'hbsbfilterDS' : XmDialogShell {
+	arguments {
+	lastGenName = 'hbsbfilterDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_hbsbfilterDS (Widget parent)
+';
+	XmNwidth = 250;
+	XmNallowShellResize = true;
+	XmNtitle = 'Service Backup Office List';
+	XmNminWidth = 250;
+	XmNminHeight = 200;
+	XmNmaxWidth = 250;
+	XmNmaxHeight = 200;
+	};
+object 'hbsbfilterFO' : XmForm {
+	arguments {
+	lastGenName = 'hbsbfilterFO';
+	XmNautoUnmanage = false;
+	};
+object 'hbsbfwfoSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'hbsbfwfoSL';
+	};
+abstract object 'hbsbfwfoHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'hbsbfwfoHSB';
+	};
+};
+abstract object 'hbsbfwfoVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'hbsbfwfoVSB';
+	};
+};
+abstract object 'hbsbfwfoLI' : XmList {
+	arguments {
+	lastGenName = 'hbsbfwfoLI';
+	XmNselectionPolicy = 1;
+	};
+};
+};
+object 'hbsbfapplyPB' : XmPushButton {
+	arguments {
+	was_selected = true;
+	lastGenName = 'hbsbfapplyPB';
+	XmNlabelString = 'Apply';
+	};
+};
+object 'hbsbfcancelPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbsbfcancelPB';
+	XmNlabelString = 'Cancel';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -188;
+	XmNleftAttachment = 1 0 60;
+	XmNbottomAttachment = 2 0 -144;
+	XmNtopAttachment = 1 0 24;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -83;
+	XmNleftAttachment = 1 0 8;
+	XmNbottomAttachment = 2 0 -194;
+	XmNtopAttachment = 1 0 164;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -239;
+	XmNleftAttachment = 1 0 164;
+	XmNbottomAttachment = 2 0 -194;
+	XmNtopAttachment = 1 0 164;
+    };
+    };
+};
+};
+end module;

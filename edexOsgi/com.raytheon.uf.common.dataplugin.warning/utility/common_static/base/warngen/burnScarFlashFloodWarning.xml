@@ -1,0 +1,295 @@
+<!-- Burn Scar Flash Flood Warning configuration for County-based products-->
+<!-- This template can be used for any pre-defined polygon that a site needs
+     to issue a FFW for outside of a dam break. -->
+<!-- Created by Phil Kurimski 02-07-2013 for OB13.2.1-5   
+     Phil Kurimski   09-19-2013 added geospatialConfig.xml       
+     Mike Dangelo 10-20-2015 standard CTAs   
+-->
+
+<warngenConfig>
+
+<!-- INCLUDE ALL GEOSPTATIAL INFORMATION FOR THIS PRODUCT
+ANY pointSource/areaSource/pathcastConfig OVERRIDES TO THAT FILE CAN BE
+PLACED IN FULL BELOW THE INCLUDE LINE BELOW. -->
+<include file="geospatialConfig_COUNTY.xml"/>
+
+<!-- Include Various geospatial XML files to create their objects. These are *NOT*
+turned on unless the corresponding .vm file is turned on in a given template's .vm file
+-->  
+<include file="mileMarkers.xml"/>
+<!-- To enable, make sure mileMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
+<include file="pointMarkers.xml"/>
+<!-- To enable, make sure pointMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
+
+ <!-- Config distance/speed units -->
+ <unitDistance>mi</unitDistance>
+ <unitSpeed>mph</unitSpeed>
+
+     <!-- OPTIONAL: Maps to load on template selection. Refer to 'Maps' menu in CAVE. 
+ 	The various menu items are also the different maps
+ 	that can be loaded with each template. -->
+ <maps>
+<!-- 	<map>FFMP Small Stream Basin Links</map> -->    
+   <map>County Names</map>
+   <map>County Warning Areas</map>
+   <map>FFMP Small Stream Basin Links</map> 
+   <map>Major Rivers</map> 
+ </maps>
+ 	
+ <!-- Followups: VTEC actions of allowable followups when this template is selected 
+	Each followup will become available when the appropriate time range permits.
+ -->
+ <followups>
+  <followup>NEW</followup>
+  <followup>COR</followup>
+  <followup>EXT</followup>
+ </followups>
+ 
+ <!-- Product ID: nnn id of the product -->
+ <productId>FFW</productId>
+
+ <!-- Phensigs: The list of phenomena and significance combinations that this template applies to -->
+ <phensigs>
+   <phensig>FF.W</phensig>
+ </phensigs>
+ 
+  <!-- Enables/disables user from selecting the Restart button the GUI -->
+ <enableRestart>true</enableRestart>
+ 
+   <!-- Enable/disables the system to lock text based on various patterns -->
+ <autoLockText>true</autoLockText>
+ 
+ <!-- Enables/disables the 'Dam Break Threat Area' button -->
+<enableDamBreakThreat>true</enableDamBreakThreat>
+ 
+  <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
+ 	included with the warning product include TO.A and/or SV.A, 
+ 	respectively. Please refer to 'includedWatchAreaBuffer' in <areaConfig/>. 
+ <includedWatches>
+  <includedWatch>TO.A</includedWatch>
+  <includedWatch>SV.A</includedWatch>
+ </includedWatches>
+ -->
+ 
+ <!-- durations: the list of possible durations of the warning -->
+ <defaultDuration>45</defaultDuration>
+ <durations>
+  <duration>30</duration>
+  <duration>45</duration>
+  <duration>60</duration>
+  <duration>90</duration>
+  <duration>120</duration>
+  <duration>180</duration>
+  <duration>240</duration>
+  <duration>360</duration>
+  <duration>480</duration>
+ </durations>
+ 
+<!-- UNCOMMENT IF YOU HAVE YOUR RIVER DRAINAGE BASINS SETUP 
+ <pointSource variable="riverdrainages">
+ 	<pointSource>ffmp_basins</pointSource>
+    <geometryDecimationTolerance>0.064</geometryDecimationTolerance>
+ 	<pointField>streamname</pointField>
+ 	<filter>
+ 		<mapping key="cwa">
+ 			<constraint constraintValue="$warngenCWAFilter" constraintType="EQUALS" />
+ 		</mapping>
+ 	</filter>
+ 	<withinPolygon>true</withinPolygon>
+ </pointSource>
+--> 
+ 
+<lockedGroupsOnFollowup>ic</lockedGroupsOnFollowup> 
+<bulletActionGroups>
+<bulletActionGroup action="NEW" phen="FF" sig="W">
+ <bullets>
+  <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" parseString="FLASH FLOOD EMERGENCY"/>
+  <bullet bulletName="icrs" bulletText="Also snowmelt" parseString=".RS."/>
+  <bullet bulletText="*********** SOURCE (CHOOSE 1) **********" bulletType="title"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="source" bulletDefault="true" parseString="DOPPLER RADAR INDICATED"/>
+  <!-- 
+  <bullet bulletName="dopplerGauge" bulletText="Doppler radar and automated gauges" bulletGroup="source" parseString="DOPPLER RADAR AND AUTOMATED RAIN GAUGES"/>
+  <bullet bulletName="trainedSpotters" bulletText="Trained spotters reported" bulletGroup="source" parseString="TRAINED WEATHER SPOTTERS REPORTED"/>
+  <bullet bulletName="public" bulletText="Public reported" bulletGroup="source" parseString="THE PUBLIC REPORTED"/>
+  <bullet bulletName="lawEnforcement" bulletText="Local law enforcement reported" bulletGroup="source" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
+  <bullet bulletName="emergencyManagement" bulletText="Emergency management reported" bulletGroup="source" parseString="EMERGENCY MANAGEMENT REPORTED"/>
+  -->
+  <!-- The following bullets will add satellite and gauges as a source. If you would like to use this
+     in your template uncomment the next few lines. -->  
+<!-- <bullet bulletName="satellite" bulletText="satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES"/>
+  <bullet bulletName="satelliteGauge" bulletText="satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE AND "/> -->
+  <bullet bulletText="*********** (OPTIONAL) DEBRIS FLOW INFO **********" bulletType="title"/>
+  <bullet bulletName="burnScar" bulletText="Burn scar area with debris flow" bulletGroup="addevent" parseString="BURN SCAR"/>
+  <bullet bulletName="mudSlide" bulletText="Mud Slides" bulletGroup="addevent" parseString="MUD SLIDE"/>
+  <bullet bulletText="*********** RAIN SO FAR (OPTIONAL) **********" bulletType="title"/>
+  <!-- 
+  <bullet bulletName="rain1" bulletText="One inch so far" bulletGroup="rainAmt" parseString="ONE INCH"/>
+  <bullet bulletName="rain2" bulletText="Two inches so far" bulletGroup="rainAmt" parseString="TWO INCHES"/>
+  <bullet bulletName="rain3" bulletText="Three inches so far" bulletGroup="rainAmt" parseString="THREE INCHES"/>
+  -->
+  <bullet bulletName="rainEdit" bulletText="User defined amount" bulletGroup="rainAmt" parseString="INCHES OF RAIN HAVE FALLEN"/>
+  <bullet bulletText="*********** ADDITIONAL INFO ***********" bulletType="title"/>
+  <bullet bulletName="listofcities" bulletDefault="true" bulletText="Select for a list of cities" bulletGroup="pcast"/>
+  <!-- 
+  <bullet bulletName="addRainfall" bulletText="Additional rainfall of XX inches expected" parseString="ADDITIONAL RAINFALL"/>
+  <bullet bulletName="particularStream" bulletText="Flooding is occurring in a particular stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
+  <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
+  -->
+  <bullet bulletText="**** CALL TO ACTIONS (CHOOSE 1 OR MORE) ****" bulletType="title"/>
+<!-- end all call to action bullets with "CTA" ex: "obviousNameCTA" -->
+  <bullet bulletName="ffwEmergencyCTA" bulletText="FLASH FLOOD EMERGENCY" parseString=" DO NOT ATTEMPT TO TRAVEL UNLESS YOU ARE FLEEING AN AREA SUBJECT TO FLOODING OR ARE UNDER AN EVACUATION ORDER"/>
+  <bullet bulletName="burnAreasCTA" bulletText="Burn Areas" bulletDefault="true" parseString="RECENTLY BURNED AREAS"/>
+  <bullet bulletName="TADD_CTA" bulletText="Turn around, don't drown" parseString="&quot;TURN AROUND&quot;,&quot;DON'T DROWN&quot;"/>
+  <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly" parseString="ACT QUICKLY TO PROTECT YOUR LIFE"/>
+  <bullet bulletName="childSafetyCTA" bulletText="Child Safety" parseString="KEEP CHILDREN AWAY"/>
+  <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding" parseString="AT NIGHT WHEN IT IS HARDER TO RECOGNIZE"/>
+  <bullet bulletName="urbanCTA" bulletText="Urban areas" parseString="&quot;URBAN AREAS&quot;,&quot;HIGHWAYS&quot;,&quot;UNDERPASSES&quot;"/>
+  <bullet bulletName="ruralCTA" bulletText="Rural areas" parseString="&quot;COUNTRY ROADS&quot;,&quot;FARMLAND&quot;,&quot;LOW LYING SPOTS&quot;"/>
+  <bullet bulletName="stayAwayCTA" bulletText="Stay away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
+  <bullet bulletName="lowSpotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
+  <bullet bulletName="arroyosCTA" bulletText="Arroyos" parseString="ARROYOS"/>
+  <bullet bulletName="camperSafetyCTA" bulletText="Camper/Hiker Safety" parseString="CAMPERS AND HIKERS"/>
+  <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to law enforcement" parseString="REPORT FLOODING TO YOUR LOCAL LAW ENFORCEMENT"/>
+  <bullet bulletName="ffwMeansCTA" bulletText="Flash Flood Warning means" parseString="A FLASH FLOOD WARNING MEANS"/>
+  <bullet bulletText="************************************************************" bulletType="title"/>
+  <bullet bulletText="* The next section is for sites to load pre-configured *"/>
+  <bullet bulletText="* polygons for burn scars and other scenarios needing *"/>
+  <bullet bulletText="* a flash flood warning. *"/>
+  <bullet bulletText="****** BURN SCAR AREA (Choose BurnArea and Scenario) ******" bulletType="title"/>
+ </bullets>
+ <!-- The following are examples on how to include site specific burn scars in your template
+       You can choose to do this by editing the template and listing each burn scar in the
+       template or listing the burn scars in a separate file and using the include command
+       This can also be done for other flash flood areas that need a pre-defined polygon -->
+<include file="burnScarInfoBullet.xml"/>
+<!-- include file="burnScarInfoBullet.xml"/>  -->
+</bulletActionGroup>
+<bulletActionGroup action="EXT" phen="FF" sig="W">
+ <bullets>
+  <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" parseString="FLASH FLOOD EMERGENCY"/>
+  <bullet bulletName="icrs" bulletText="Also snowmelt" parseString=".RS."/>
+  <bullet bulletText="*********** SOURCE (CHOOSE 1) **********" bulletType="title"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="source" bulletDefault="true" parseString="DOPPLER RADAR INDICATED"/>
+  <bullet bulletName="dopplerGauge" bulletText="Doppler radar and automated gauges" bulletGroup="source" parseString="DOPPLER RADAR AND AUTOMATED RAIN GAUGES"/>
+  <bullet bulletName="trainedSpotters" bulletText="Trained spotters reported" bulletGroup="source" parseString="TRAINED WEATHER SPOTTERS REPORTED"/>
+  <bullet bulletName="public" bulletText="Public reported" bulletGroup="source" parseString="THE PUBLIC REPORTED"/>
+  <bullet bulletName="lawEnforcement" bulletText="Local law enforcement reported" bulletGroup="source" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
+  <bullet bulletName="emergencyManagement" bulletText="Emergency management reported" bulletGroup="source" parseString="EMERGENCY MANAGEMENT REPORTED"/>
+  <!-- The following bullets will add satellite and gauges as a source. If you would like to use this
+     in your template uncomment the next few lines. -->  
+<!-- <bullet bulletName="satellite" bulletText="satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES"/>
+  <bullet bulletName="satelliteGauge" bulletText="satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE AND "/> -->
+  <bullet bulletText="*********** (OPTIONAL) DEBRIS FLOW INFO **********" bulletType="title"/>
+  <bullet bulletName="burnScar" bulletText="Burn scar area with debris flow" bulletGroup="addevent" parseString="BURN SCAR"/>
+  <bullet bulletName="mudSlide" bulletText="Mud Slides" bulletGroup="addevent" parseString="MUD SLIDE"/>
+  <bullet bulletText="*********** RAIN SO FAR (OPTIONAL) **********" bulletType="title"/>
+  <bullet bulletName="rain1" bulletText="One inch so far" bulletGroup="rainAmt" parseString="ONE INCH"/>
+  <bullet bulletName="rain2" bulletText="Two inches so far" bulletGroup="rainAmt" parseString="TWO INCHES"/>
+  <bullet bulletName="rain3" bulletText="Three inches so far" bulletGroup="rainAmt" parseString="THREE INCHES"/>
+  <bullet bulletName="rainEdit" bulletText="User defined amount" bulletGroup="rainAmt" parseString="INCHES OF RAIN HAVE FALLEN"/>
+  <bullet bulletText="*********** ADDITIONAL INFO ***********" bulletType="title"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>  
+  <bullet bulletName="addRainfall" bulletText="Additional rainfall of XX inches expected" parseString="ADDITIONAL RAINFALL"/>
+  <bullet bulletName="particularStream" bulletText="Flooding is occurring in a particular stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
+  <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
+  <bullet bulletText="**** CALL TO ACTIONS (CHOOSE 1 OR MORE) ****" bulletType="title"/>
+<!-- end all call to action bullets with "CTA" ex: "obviousNameCTA" -->
+  <bullet bulletName="ffwEmergencyCTA" bulletText="FLASH FLOOD EMERGENCY" parseString=" DO NOT ATTEMPT TO TRAVEL UNLESS YOU ARE FLEEING AN AREA SUBJECT TO FLOODING OR ARE UNDER AN EVACUATION ORDER"/>
+  <bullet bulletName="burnAreasCTA" bulletText="Burn Areas" bulletDefault="true" parseString="RECENTLY BURNED AREAS"/>
+  <bullet bulletName="TADD_CTA" bulletText="Turn around, don't drown" parseString="&quot;TURN AROUND&quot;,&quot;DON'T DROWN&quot;"/>
+  <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly" parseString="ACT QUICKLY TO PROTECT YOUR LIFE"/>
+  <bullet bulletName="childSafetyCTA" bulletText="Child Safety" parseString="KEEP CHILDREN AWAY"/>
+  <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding" parseString="AT NIGHT WHEN IT IS HARDER TO RECOGNIZE"/>
+  <bullet bulletName="urbanCTA" bulletText="Urban areas" parseString="&quot;URBAN AREAS&quot;,&quot;HIGHWAYS&quot;,&quot;UNDERPASSES&quot;"/>
+  <bullet bulletName="ruralCTA" bulletText="Rural areas" parseString="&quot;COUNTRY ROADS&quot;,&quot;FARMLAND&quot;,&quot;LOW LYING SPOTS&quot;"/>
+  <bullet bulletName="stayAwayCTA" bulletText="Stay away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
+  <bullet bulletName="lowSpotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
+  <bullet bulletName="arroyosCTA" bulletText="Arroyos" parseString="ARROYOS"/>
+  <bullet bulletName="camperSafetyCTA" bulletText="Camper/Hiker Safety" parseString="CAMPERS AND HIKERS"/>
+  <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to law enforcement" parseString="REPORT FLOODING TO YOUR LOCAL LAW ENFORCEMENT"/>
+  <bullet bulletName="ffwMeansCTA" bulletText="Flash Flood Warning means" parseString="A FLASH FLOOD WARNING MEANS"/>
+  <bullet bulletText="************************************************************" bulletType="title"/>
+  <bullet bulletText="* The next section is for sites to load pre-configured *"/>
+  <bullet bulletText="* polygons for burn scars and other scenarios needing *"/>
+  <bullet bulletText="* a flash flood warning. *"/>
+  <bullet bulletText="****** BURN SCAR AREA (Choose 1) ******" bulletType="title"/>
+ </bullets>
+ <!-- The following are examples on how to include site specific burn scars in your template
+       You can choose to do this by editing the template and listing each burn scar in the
+       template or listing the burn scars in a separate file and using the include command
+       This can also be done for other flash flood areas that need a pre-defined polygon -->
+<include file="burnScarInfoBullet.xml"/>
+<!-- include file="burnScarInfoBullet.xml"/>  -->
+</bulletActionGroup>
+<bulletActionGroup action="COR" phen="FF" sig="W">
+ <bullets>
+  <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" parseString="FLASH FLOOD EMERGENCY"/>
+  <bullet bulletName="icrs" bulletText="Also snowmelt" parseString=".RS."/>
+  <bullet bulletText="*********** SOURCE (CHOOSE 1) **********" bulletType="title"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="source" bulletDefault="true" parseString="DOPPLER RADAR INDICATED"/>
+  <!-- 
+  <bullet bulletName="dopplerGauge" bulletText="Doppler radar and automated gauges" bulletGroup="source" parseString="DOPPLER RADAR AND AUTOMATED RAIN GAUGES"/>
+  <bullet bulletName="trainedSpotters" bulletText="Trained spotters reported" bulletGroup="source" parseString="TRAINED WEATHER SPOTTERS REPORTED"/>
+  <bullet bulletName="public" bulletText="Public reported" bulletGroup="source" parseString="THE PUBLIC REPORTED"/>
+  <bullet bulletName="lawEnforcement" bulletText="Local law enforcement reported" bulletGroup="source" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
+  <bullet bulletName="emergencyManagement" bulletText="Emergency management reported" bulletGroup="source" parseString="EMERGENCY MANAGEMENT REPORTED"/>
+  -->
+  <!-- The following bullets will add satellite and gauges as a source. If you would like to use this
+     in your template uncomment the next few lines. -->  
+<!-- <bullet bulletName="satellite" bulletText="satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES"/>
+  <bullet bulletName="satelliteGauge" bulletText="satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE AND "/> -->
+  <bullet bulletText="*********** (OPTIONAL) DEBRIS FLOW INFO **********" bulletType="title"/>
+  <bullet bulletName="burnScar" bulletText="Burn scar area with debris flow" bulletGroup="addevent" parseString="BURN SCAR"/>
+  <bullet bulletName="mudSlide" bulletText="Mud Slides" bulletGroup="addevent" parseString="MUD SLIDE"/>
+  <bullet bulletText="*********** RAIN SO FAR (OPTIONAL) **********" bulletType="title"/>
+  <!-- 
+  <bullet bulletName="rain1" bulletText="One inch so far" bulletGroup="rainAmt" parseString="ONE INCH"/>
+  <bullet bulletName="rain2" bulletText="Two inches so far" bulletGroup="rainAmt" parseString="TWO INCHES"/>
+  <bullet bulletName="rain3" bulletText="Three inches so far" bulletGroup="rainAmt" parseString="THREE INCHES"/>
+  -->
+  <bullet bulletName="rainEdit" bulletText="User defined amount" bulletGroup="rainAmt" parseString="INCHES OF RAIN HAVE FALLEN"/>
+  <bullet bulletText="*********** ADDITIONAL INFO ***********" bulletType="title"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>    
+  <bullet bulletName="addRainfall" bulletText="Additional rainfall of XX inches expected" parseString="ADDITIONAL RAINFALL"/>
+  <bullet bulletName="particularStream" bulletText="Flooding is occurring in a particular stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
+  <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
+  
+  <bullet bulletText="**** CALL TO ACTIONS (CHOOSE 1 OR MORE) ****" bulletType="title"/>
+<!-- end all call to action bullets with "CTA" ex: "obviousNameCTA" -->
+  <bullet bulletName="ffwEmergencyCTA" bulletText="FLASH FLOOD EMERGENCY" parseString=" DO NOT ATTEMPT TO TRAVEL UNLESS YOU ARE FLEEING AN AREA SUBJECT TO FLOODING OR ARE UNDER AN EVACUATION ORDER"/>
+  <bullet bulletName="burnAreasCTA" bulletText="Burn Areas" bulletDefault="true" parseString="RECENTLY BURNED AREAS"/>
+  <bullet bulletName="TADD_CTA" bulletText="Turn around, don't drown" parseString="&quot;TURN AROUND&quot;,&quot;DON'T DROWN&quot;"/>
+  <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly" parseString="ACT QUICKLY TO PROTECT YOUR LIFE"/>
+  <bullet bulletName="childSafetyCTA" bulletText="Child Safety" parseString="KEEP CHILDREN AWAY"/>
+  <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding" parseString="AT NIGHT WHEN IT IS HARDER TO RECOGNIZE"/>
+  <bullet bulletName="urbanCTA" bulletText="Urban areas" parseString="&quot;URBAN AREAS&quot;,&quot;HIGHWAYS&quot;,&quot;UNDERPASSES&quot;"/>
+  <bullet bulletName="ruralCTA" bulletText="Rural areas" parseString="&quot;COUNTRY ROADS&quot;,&quot;FARMLAND&quot;,&quot;LOW LYING SPOTS&quot;"/>
+  <bullet bulletName="stayAwayCTA" bulletText="Stay away" parseString="STAY AWAY OR BE SWEPT AWAY"/>
+  <bullet bulletName="lowSpotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
+  <bullet bulletName="arroyosCTA" bulletText="Arroyos" parseString="ARROYOS"/>
+  <bullet bulletName="camperSafetyCTA" bulletText="Camper/Hiker Safety" parseString="CAMPERS AND HIKERS"/>
+  <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to law enforcement" parseString="REPORT FLOODING TO YOUR LOCAL LAW ENFORCEMENT"/>
+  <bullet bulletName="ffwMeansCTA" bulletText="Flash Flood Warning means" parseString="A FLASH FLOOD WARNING MEANS"/>
+  <bullet bulletText="************************************************************" bulletType="title"/>
+  <bullet bulletText="* The next section is for sites to load pre-configured *"/>
+  <bullet bulletText="* polygons for burn scars and other scenarios needing *"/>
+  <bullet bulletText="* a flash flood warning. *"/>
+  <bullet bulletText="****** BURN SCAR AREA (Choose 1) ******" bulletType="title"/>
+ </bullets>
+ <!-- The following are examples on how to include site specific burn scars in your template
+       You can choose to do this by editing the template and listing each burn scar in the
+       template or listing the burn scars in a separate file and using the include command
+       This can also be done for other flash flood areas that need a pre-defined polygon -->
+<include file="burnScarInfoBullet.xml"/>
+<!-- include file="burnScarInfoBullet.xml"/>  -->
+</bulletActionGroup>
+</bulletActionGroups>
+
+<!-- The following are examples on how to include site burnscar locations in your template
+       You can choose to do this by editing the template and listing each dam in the
+       template or listing the dams in a separate file and using the include command -->
+<include file="burnScarInfoBullet.xml"/>  
+ 
+</warngenConfig>

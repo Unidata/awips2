@@ -1,0 +1,25 @@
+<html>
+<title>GFESuite Documentation - Working With Vector Data</title>
+<body>
+<h1 align=center>
+<a NAME="WorkingwithVectorData"></a>Working with Vector Data</h1>
+<hr width="100%">
+Vector weather elements, such as Wind, are treated as two numerical arrays,
+one representing magnitude and one representing direction. For example:
+<p>&nbsp;&nbsp;&nbsp; def calcWind(self, wind_FHAG10):
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # The Wind Vector consists
+of two numerical array grids, one for magnitude and one for direction
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mag = wind_FHAG10[0]&nbsp;
+# get the wind magnitude grid
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dir = wind_FHAG10[1]&nbsp;
+# get wind direction grid
+<p>&nbsp;A Vector Cube consists of two sub-cubes, one for magnitude and
+one for direction. For example:
+<p>&nbsp;&nbsp; def calcFreeWind(self,&nbsp; gh_c,&nbsp; wind_c,&nbsp;
+topo):
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # The Vector Cube, wind_c,
+consists of two sub-cubes, one for magnitude and one for direction
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; magnitudeCube = wind_c[0]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; directionCube = wind_c[1]
+</body>
+</html>

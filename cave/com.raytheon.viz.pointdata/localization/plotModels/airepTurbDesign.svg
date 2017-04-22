@@ -1,0 +1,128 @@
+<?xml version="1.0"?>
+<svg width="80" height="80" 
+viewBox="0 0 80 80" 
+overflow="visible" 
+xmlns="http://www.w3.org/2000/svg" 
+xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
+   <defs>
+<script type="text/python" plotDelegate="plotDelegate">
+import time
+
+class AirepPlotDelegate(PlotDelegate):
+    def __init__(self):
+        PlotDelegate.__init__(self)
+
+    def getSampleText(self, rec):
+        sampleString = "ARP "
+        sampleString += rec.getString("stationId")
+        sampleString += " "
+        lat = rec.getFloat("latitude")
+        if(lat &lt; 0):
+            sampleString += "%.3fS " % (-1*lat)
+        else:
+            sampleString += "%.3fN " % (lat)
+        lon = rec.getFloat("longitude")
+        if(lon &lt; 0):
+            sampleString += "%.3fW " % (-1*lon)
+        else:
+            sampleString += "%.3fE " % (lon)
+        timeObs = rec.getLong("timeObs")
+        sampleString += time.strftime("%H%M",time.localtime(timeObs/1000))
+        sampleString += " F%d" % (rec.getInt("flightLevel")/100)
+        temp = rec.getFloat("temperature")
+        if temp &lt; -273.15:
+          pass
+        elif temp &lt; 0:
+            sampleString += " M%d" % (int(-1*temp))
+        else:
+            sampleString += " P%d" % (int(temp))
+        windDir = int(rec.getFloat("windDir"))
+        windSpeed = int(rec.getFloat("windSpeed"))
+        if windDir > -1080 or windSpeed > 0:
+            sampleString += " %d/%dKT" % (windDir, windSpeed)
+        turbFreq = rec.getString("turbFreq")
+        turbInten = rec.getString("turbInten")
+        turbType = rec.getString("turbType")
+        if turbFreq != "" or turbInten != "" or turbType != "":
+            sampleString += " TB"
+            if turbFreq != "":
+                sampleString += " "
+                sampleString += turbFreq
+            if turbInten != "":
+                sampleString += " "
+                sampleString += turbInten
+            if turbType != "":
+                sampleString += " "
+                sampleString += turbType
+        return sampleString
+
+    def isValid(self, rec):
+        # DCS10257
+        # need some turbulence data
+        # only show non-severe / no severity
+        if rec.isValidParameter("turbInten"):
+            turbInten = rec.getString("turbInten")
+        else:
+            turbInten = ""
+        if rec.isValidParameter("turbFreq"):
+            turbFreq = rec.getString("turbFreq")
+        else:
+            turbFreq = ""
+        if rec.isValidParameter("turbType"):
+            turbType = rec.getString("turbType")
+        else:
+            turbType = ""
+        if (turbInten == "") and (turbFreq == "") and (turbType == ""):
+            # no turbulence data present
+            return False
+        elif (turbInten == "SEV") or (turbInten == "EXTRM"):
+            # turbulence data present, but not correct severity
+            return False
+        else:
+            # turbulence data present, and if severity is present it is not high
+            return True
+
+plotDelegate = AirepPlotDelegate()
+
+</script>
+<style type="text/css">
+<![CDATA[
+        @font-face { font-family: "WindSymbolFont";
+                src: url(WindSymbols.svg#WindSymbols); }
+        @font-face { font-family: "StandardFont";
+                src: url(Standard.svg#Standard); }
+        @font-face { font-family: "WxSymbolFont";
+                src: url(WxSymbols.svg#WxSymbols); }
+        @font-face { font-family: "SpecialSymbolFont";
+                src: url(SpecialSymbols.svg#SpecialSymbols); }
+
+        text.text
+            {
+                fill: none;
+                font-size: 1em;
+                stroke-width: 1px;
+                font-family: StandardFont;
+                font-size: 1em;
+            }
+        text.weather
+            {
+                fill: none;
+                font-size: 1em;
+                stroke-width: 1px;
+                font-family: WxSymbolFont;
+
+            }
+]]>
+</style>
+<symbol overflow="visible" id="plotData" class="info">
+  <text id="sampleParams1" plotMode="sample" plotParam="stationId,longitude,latitude,timeObs,flightLevel"> </text> 
+  <text id="sampleParams2" plotMode="sample" plotParam="temperature,windDir,windSpeed,turbInten,turbFreq,turbType"> </text> 
+  <text id="validityParams" plotMode="null" class="text" plotParam="turbType" x="0" y="0" visibility="hidden">0</text>
+  <text id="airepturbIntensity" plotMode="table" class="weather" plotLookupTable="turb_intens_trans.txt" plotParam="turbInten" x="0" y="0">0</text>
+  <text id="airepturbFreq" plotMode="table" class="weather" plotLookupTable="turb_freq_trans.txt" plotParam="turbFreq" style="text-anchor: end" x="0" y="-10">0</text>
+  <text id="airepfltLvlText" plotMode="text" plotParam="flightLevel" plotFormat="%3.0f" plotUnit="hft" style="text-anchor: end;" x="-15px" y="0px">75</text>
+</symbol>
+
+</defs>
+<use id="wind" x="40" y="40" width="80" height="80" visibility="visible" xlink:href="#plotData"/>
+</svg>

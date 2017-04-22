@@ -1,0 +1,2 @@
+Note that since this has the suffix, "nlValue", we could specify it as a non-linear value.
+

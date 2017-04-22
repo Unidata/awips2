@@ -1,0 +1,1063 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<gridParamInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ <valtimeMINUSreftime>
+  <!-- 1 hour intervals 0 to 126 hours -->
+  <fcst>0</fcst>
+  <fcst>3600</fcst>
+  <fcst>7200</fcst>
+  <fcst>10800</fcst>
+  <fcst>14400</fcst>
+  <fcst>18000</fcst>
+  <fcst>21600</fcst>
+  <fcst>25200</fcst>
+  <fcst>28800</fcst>
+  <fcst>32400</fcst>
+  <fcst>36000</fcst>
+  <fcst>39600</fcst>
+  <fcst>43200</fcst>
+  <fcst>46800</fcst>
+  <fcst>50400</fcst>
+  <fcst>54000</fcst>
+  <fcst>57600</fcst>
+  <fcst>61200</fcst>
+  <fcst>64800</fcst>
+  <fcst>68400</fcst>
+  <fcst>72000</fcst>
+  <fcst>75600</fcst>
+  <fcst>79200</fcst>
+  <fcst>82800</fcst>
+  <fcst>86400</fcst>
+  <fcst>90000</fcst>
+  <fcst>93600</fcst>
+  <fcst>97200</fcst>
+  <fcst>100800</fcst>
+  <fcst>104400</fcst>
+  <fcst>108000</fcst>
+  <fcst>111600</fcst>
+  <fcst>115200</fcst>
+  <fcst>118800</fcst>
+  <fcst>122400</fcst>
+  <fcst>126000</fcst>
+  <fcst>129600</fcst>
+  <fcst>133200</fcst>
+  <fcst>136800</fcst>
+  <fcst>140400</fcst>
+  <fcst>144000</fcst>
+  <fcst>147600</fcst>
+  <fcst>151200</fcst>
+  <fcst>154800</fcst>
+  <fcst>158400</fcst>
+  <fcst>162000</fcst>
+  <fcst>165600</fcst>
+  <fcst>169200</fcst>
+  <fcst>172800</fcst>
+  <fcst>176400</fcst>
+  <fcst>180000</fcst>
+  <fcst>183600</fcst>
+  <fcst>187200</fcst>
+  <fcst>190800</fcst>
+  <fcst>194400</fcst>
+  <fcst>198000</fcst>
+  <fcst>201600</fcst>
+  <fcst>205200</fcst>
+  <fcst>208800</fcst>
+  <fcst>212400</fcst>
+  <fcst>216000</fcst>
+  <fcst>219600</fcst>
+  <fcst>223200</fcst>
+  <fcst>226800</fcst>
+  <fcst>230400</fcst>
+  <fcst>234000</fcst>
+  <fcst>237600</fcst>
+  <fcst>241200</fcst>
+  <fcst>244800</fcst>
+  <fcst>248400</fcst>
+  <fcst>252000</fcst>
+  <fcst>255600</fcst>
+  <fcst>259200</fcst>
+  <fcst>262800</fcst>
+  <fcst>266400</fcst>
+  <fcst>270000</fcst>
+  <fcst>273600</fcst>
+  <fcst>277200</fcst>
+  <fcst>280800</fcst>
+  <fcst>284400</fcst>
+  <fcst>288000</fcst>
+  <fcst>291600</fcst>
+  <fcst>295200</fcst>
+  <fcst>298800</fcst>
+  <fcst>302400</fcst>
+  <fcst>306000</fcst>
+  <fcst>309600</fcst>
+  <fcst>313200</fcst>
+  <fcst>316800</fcst>
+  <fcst>320400</fcst>
+  <fcst>324000</fcst>
+  <fcst>327600</fcst>
+  <fcst>331200</fcst>
+  <fcst>334800</fcst>
+  <fcst>338400</fcst>
+  <fcst>342000</fcst>
+  <fcst>345600</fcst>
+  <fcst>349200</fcst>
+  <fcst>352800</fcst>
+  <fcst>356400</fcst>
+  <fcst>360000</fcst>
+  <fcst>363600</fcst>
+  <fcst>367200</fcst>
+  <fcst>370800</fcst>
+  <fcst>374400</fcst>
+  <fcst>378000</fcst>
+  <fcst>381600</fcst>
+  <fcst>385200</fcst>
+  <fcst>388800</fcst>
+  <fcst>392400</fcst>
+  <fcst>396000</fcst>
+  <fcst>399600</fcst>
+  <fcst>403200</fcst>
+  <fcst>406800</fcst>
+  <fcst>410400</fcst>
+  <fcst>414000</fcst>
+  <fcst>417600</fcst>
+  <fcst>421200</fcst>
+  <fcst>424800</fcst>
+  <fcst>428400</fcst>
+  <fcst>432000</fcst>
+  <fcst>435600</fcst>
+  <fcst>439200</fcst>
+  <fcst>442800</fcst>
+  <fcst>446400</fcst>
+  <fcst>450000</fcst>
+  <fcst>453600</fcst>
+ </valtimeMINUSreftime>
+
+ <gridParameterInfo xsi:type="parameterInfo">
+  <short_name>av</short_name>
+  <long_name>absolute vorticity</long_name>
+  <units>/s</units>
+  <udunits>1/second</udunits>
+  <uiname>absVort</uiname>
+  <valid_range>-0.00999999977648</valid_range>
+  <valid_range>0.00999999977648</valid_range>
+  <fillValue>-99999.0</fillValue>
+  <n3D>4</n3D>
+  <levelsDesc>MB 1000-100 25mb increments</levelsDesc>
+  <levels>
+   <level>MB1000</level>
+   <level>MB975</level>
+   <level>MB950</level>
+   <level>MB925</level>
+   <level>MB900</level>
+   <level>MB875</level>
+   <level>MB850</level>
+   <level>MB825</level>
+   <level>MB800</level>
+   <level>MB750</level>
+   <level>MB750</level>
+   <level>MB725</level>
+   <level>MB700</level>
+   <level>MB675</level>
+   <level>MB650</level>
+   <level>MB625</level>
+   <level>MB600</level>
+   <level>MB575</level>
+   <level>MB550</level>
+   <level>MB525</level>
+   <level>MB500</level>
+   <level>MB475</level>
+   <level>MB450</level>
+   <level>MB425</level>
+   <level>MB400</level>
+   <level>MB375</level>
+   <level>MB350</level>
+   <level>MB325</level>
+   <level>MB300</level>
+   <level>MB275</level>
+   <level>MB250</level>
+   <level>MB225</level>
+   <level>MB200</level>
+   <level>MB175</level>
+   <level>MB150</level>
+   <level>MB125</level>
+   <level>MB100</level>
+   <level>MB75</level>
+   <level>MB70</level>
+   <level>MB50</level>
+   <level>MB30</level>
+   <level>MB20</level>
+   <level>MB10</level>
+   <level>MB7</level>
+   <level>MB5</level>
+   <level>MB2</level>
+  </levels>
+ </gridParameterInfo>
+
+ <gridParameterInfo xsi:type="parameterInfo">
+  <short_name>cape</short_name>
+  <long_name>Convective Available Potential Energy</long_name>
+  <units>J/kg</units>
+  <udunits>joule/Kilogram</udunits>
+  <uiname>CAPE</uiname>
+  <valid_range>0.0</valid_range>
+  <valid_range>6000.0</valid_range>
+  <fillValue>-99999.0</fillValue>
+  <n3D>0</n3D>
+  <levelsDesc>SFC</levelsDesc>
+  <levels>
+   <level>SFC</level>
+  </levels>
+ </gridParameterInfo>
+
+
+ <gridParameterInfo xsi:type="parameterInfo">
+  <short_name>cice</short_name>
+  <long_name>cloud ice</long_name>
+  <units>kg/m^2</units>
+  <udunits />
+  <uiname>cloudIce</uiname>
+  <valid_range>0.0</valid_range>
+  <valid_range>100.0</valid_range>
+  <fillValue>-99999.0</fillValue>
+  <n3D>21</n3D>
+  <levelsDesc>MB 1000-100 25mb increments</levelsDesc>
+  <levels>
+   <level>MB1000</level>
+   <level>MB975</level>
+   <level>MB950</level>
+   <level>MB925</level>
+   <level>MB900</level>
+   <level>MB875</level>
+   <level>MB850</level>
+   <level>MB825</level>
+   <level>MB800</level>
+   <level>MB750</level>
+   <level>MB750</level>
+   <level>MB725</level>
+   <level>MB700</level>
+   <level>MB675</level>
+   <level>MB650</level>
+   <level>MB625</level>
+   <level>MB600</level>
+   <level>MB575</level>
+   <level>MB550</level>
+   <level>MB525</level>
+   <level>MB500</level>
+   <level>MB475</level>
+   <level>MB450</level>
+   <level>MB425</level>
+   <level>MB400</level>
+   <level>MB375</level>
+   <level>MB350</level>
+   <level>MB325</level>
+   <level>MB300</level>
+   <level>MB275</level>
+   <level>MB250</level>
+   <level>MB225</level>
+   <level>MB200</level>
+   <level>MB175</level>
+   <level>MB150</level>
+   <level>MB125</level>
+   <level>MB100</level>
+   <level>MB75</level>
+   <level>MB70</level>
+   <level>MB50</level>
+   <level>MB30</level>
+   <level>MB20</level>
+   <level>MB10</level>
+   <level>MB7</level>
+   <level>MB5</level>
+   <level>MB2</level>
+  </levels>
+ </gridParameterInfo>
+
+ <gridParameterInfo xsi:type="parameterInfo">
+  <short_name>cin</short_name>
+  <long_name>Convective Inhibition</long_name>
+  <units>J/kg</units>
+  <udunits>joule/Kilogram</udunits>
+  <uiname>convInhib</uiname>
+  <valid_range>-1000.0</valid_range>
+  <valid_range>1000.0</valid_range>
+  <fillValue>-99999.0</fillValue>
+  <n3D>0</n3D>
+  <levelsDesc>SFC</levelsDesc>
+  <levels>
+   <level>SFC</level>
+  </levels>
+ </gridParameterInfo>
+
+ <!-- CLWMR Cloud Mixing Ratio need valid range and fill value -->
+
+ <gridParameterInfo xsi:type="parameterInfo">
+  <short_name>cp</short_name>
+  <long_name>convective precipitation</long_name>
+  <units>mm</units>
+  <udunits>millimeter</udunits>
+  <uiname>convPrecip</uiname>
+  <valid_range>0.0</valid_range>
+  <valid_range>1000.0</valid_range>
+  <fillValue>-99999.0</fillValue>
+  <n3D>0</n3D>
+  <levelsDesc>SFC</levelsDesc>
+  <levels>
+   <level>SFC</level>
+  </levels>
+ </gridParameterInfo>
+
+ <!-- DLWRF Downward Long-Wave Rad. Flux need valid range and fill value 
+  ave fcst -->
+
+ <gridParameterInfo xsi:type="parameterInfo">
+  <short_name>dpt</short_name>
+  <long_name>Dewpoint Temperature</long_name>
+  <units>K</units>
+  <udunits>degree_Kelvin</udunits>
+  <uiname>Td</uiname>
+  <valid_range>180.0</valid_range>
+  <valid_range>330.0</valid_range>
+  <fillValue>-99999.0</fillValue>
+  <n3D>1</n3D>
+  <levelsDesc>FHAG 2 MB 850 700 500 300 200 100</levelsDesc>
+  <levels>
+   <level>FHAG2</level>
+   <level>MB850</level>
+   <level>MB700</level>
+   <level>MB500</level>
+   <level>MB300</level>
+   <level>MB200</level>
+   <level>MB100</level>
+  </levels>
+ </gridParameterInfo>
+
+ <!-- DSWRF Downward Short-Wave Radiationn Flux need valid range and fill 
+  value ave fcst -->
+ <!-- Ignore ELON -->
+ <!-- FRIME (grib RIME) need value range and fill value. -->
+
+ <gridParameterInfo xsi:type="parameterInfo">
+  <short_name>gh</short_name>
+  <long_name>Geopotential height</long_name>
+  <units>m</units>
+  <udunits>meters</udunits>
+  <uiname>HGT</uiname>
+  <valid_range>-5000.0</valid_range>
+  <valid_range>20000.0</valid_range>
+  <fillValue>-99999.0</fillValue>
+  <n3D>0</n3D>
+  <levelsDesc>SFC TROP MB 1000-100 25mb increments</levelsDesc>
+  <levels>
+   <level>SFC</level>
+   <level>TROP</level>
+   <level>MB1000</level>
+   <level>MB975</level>
+   <level>MB950</level>
+   <level>MB925</level>
+   <level>MB900</level>
+   <level>MB875</level>
+   <level>MB850</level>
+   <level>MB825</level>
+   <level>MB800</level>
+   <level>MB750</level>
+   <level>MB750</level>
+   <level>MB725</level>
+   <level>MB700</level>
+   <level>MB675</level>
+   <level>MB650</level>
+   <level>MB625</level>
+   <level>MB600</level>
+   <level>MB575</level>
+   <level>MB550</level>
+   <level>MB525</level>
+   <level>MB500</level>
+   <level>MB475</level>
+   <level>MB450</level>
+   <level>MB425</level>
+   <level>MB400</level>
+   <level>MB375</level>
+   <level>MB350</level>
+   <level>MB325</level>
+   <level>MB300</level>
+   <level>MB275</level>
+   <level>MB250</level>
+   <level>MB225</level>
+   <level>MB200</level>
+   <level>MB175</level>
+   <level>MB150</level>
+   <level>MB125</level>
+   <level>MB100</level>
+   <level>MB75</level>
+   <level>MB70</level>
+   <level>MB50</level>
+   <level>MB30</level>
+   <level>MB20</level>
+   <level>MB10</level>
+   <level>MB7</level>
+   <level>MB5</level>
+   <level>MB2</level>
+  </levels>
+ </gridParameterInfo>
+
+ <gridParameterInfo xsi:type="parameterInfo">
+  <short_name>heli</short_name>
+  <long_name>helicity</long_name>
+  <units>m^2/s^2</units>
+  <udunits>meter2/second2</udunits>
+  <uiname>hel</uiname>
+  <valid_range>0.0</valid_range>
+  <valid_range>1000.0</valid_range>
+  <fillValue>-99999.0</fillValue>
+  <n3D>0</n3D>
+  <levelsDesc>FHAG 3000</levelsDesc>
+  <levels>
+   <level>FHAG03000</level>
+  </levels>
+ </gridParameterInfo>
+
+ <gridParameterInfo xsi:type="parameterInfo">
+  <short_name>hpbl</short_name>
+  <long_name>Height of Planetary Boundary Layer</long_name>
+  <units>m</units>
+  <udunits>meter</udunits>
+  <uiname>HPBL</uiname>
+  <valid_range>0.0</valid_range>
+  <valid_range>4000.0</valid_range>
+  <fillValue>-99999.0</fillValue>
+  <n3D>0</n3D>
+  <levelsDesc>SFC</levelsDesc>
+  <levels>
+   <level>SFC</level>
+  </levels>
+ </gridParameterInfo>
+
+ <!-- Ignore LAND -->
+
+ <gridParameterInfo xsi:type="parameterInfo">
+  <short_name>lgsp</short_name>
+  <long_name>large scale precipitation</long_name>
+  <units>mm</units>
+  <udunits>millimeter</udunits>
+  <uiname>lgScalePrecip</uiname>
+  <valid_range>0.0</valid_range>
+  <valid_range>1000.0</valid_range>
+  <fillValue>-99999.0</fillValue>
+  <n3D>0</n3D>
+  <levelsDesc>SFC</levelsDesc>
+  <levels>
+   <level>SFC</level>
+  </levels>
+ </gridParameterInfo>
+
+ <gridParameterInfo xsi:type="parameterInfo">
+  <short_name>lhf</short_name>
+  <long_name>latent heat flux</long_name>
+  <units>W/m^2</units>
+  <valid_range>-10000.0</valid_range>
+  <valid_range>10000.0</valid_range>
+  <fillValue>-99999.0</fillValue>
+  <n3D>0</n3D>
+  <levelsDesc>SFC</levelsDesc>
+  <levels>
+   <level>SFC</level>
+  </levels>
+ </gridParameterInfo>
+
+ <!-- Ignore NLAT -->
+
+ <gridParameterInfo xsi:type="parameterInfo">
+  <short_name>p</short_name>
+  <long_name>pressure</long_name>
+  <units>Pa</units>
+  <udunits>pascal</udunits>
+  <uiname>atmP</uiname>
+  <valid_range>0.0</valid_range>
+  <valid_range>110000.0</valid_range>
+  <fillValue>-99999.0</fillValue>
+  <n3D>0</n3D>
+  <levelsDesc>SFC TROP</levelsDesc>
+  <levels>
+   <level>SFC</level>
+   <level>TROP</level>
+  </levels>
+ </gridParameterInfo>
+
+ <gridParameterInfo xsi:type="parameterInfo">
+  <short_name>pmsl</short_name>
+  <long_name>pressure at mean sea level</long_name>
+  <units>Pa</units>
+  <udunits>pascal</udunits>
+  <uiname>PMSL</uiname>
+  <valid_range>80000.0</valid_range>
+  <valid_range>110000.0</valid_range>
+  <fillValue>-99999.0</fillValue>
+  <n3D>0</n3D>
+  <levelsDesc>MSL</levelsDesc>
+  <levels>
+   <level>MSL</level>
+  </levels>
+ </gridParameterInfo>
+
+ <gridParameterInfo xsi:type="parameterInfo">
+  <short_name>pot</short_name>
+  <long_name>potential temperature </long_name>
+  <units>K</units>
+  <udunits>degree_Kelvin</udunits>
+  <uiname>Tp</uiname>
+  <valid_range>180.0</valid_range>
+  <valid_range>330.0</valid_range>
+  <fillValue>-99999.0</fillValue>
+  <n3D>0</n3D>
+  <levelsDesc>TROP</levelsDesc>
+  <levels>
+   <level>TROP</level>
+  </levels>
+ </gridParameterInfo>
+
+ <gridParameterInfo xsi:type="parameterInfo">
+  <short_name>pvv</short_name>
+  <long_name>Pressure vertical velocity</long_name>
+  <units>Pa/s</units>
+  <udunits>pascal/second</udunits>
+  <uiname>Pvv</uiname>
+  <valid_range>-2.5</valid_range>
+  <valid_range>2.5</valid_range>
+  <fillValue>-99999.0</fillValue>
+  <n3D>6</n3D>
+  <levelsDesc>MB 1000-100 25mb increments</levelsDesc>
+  <levels>
+   <level>MB1000</level>
+   <level>MB975</level>
+   <level>MB950</level>
+   <level>MB925</level>
+   <level>MB900</level>
+   <level>MB875</level>
+   <level>MB850</level>
+   <level>MB825</level>
+   <level>MB800</level>
+   <level>MB750</level>
+   <level>MB750</level>
+   <level>MB725</level>
+   <level>MB700</level>
+   <level>MB675</level>
+   <level>MB650</level>
+   <level>MB625</level>
+   <level>MB600</level>
+   <level>MB575</level>
+   <level>MB550</level>
+   <level>MB525</level>
+   <level>MB500</level>
+   <level>MB475</level>
+   <level>MB450</level>
+   <level>MB425</level>
+   <level>MB400</level>
+   <level>MB375</level>
+   <level>MB350</level>
+   <level>MB325</level>
+   <level>MB300</level>
+   <level>MB275</level>
+   <level>MB250</level>
+   <level>MB225</level>
+   <level>MB200</level>
+   <level>MB175</level>
+   <level>MB150</level>
+   <level>MB125</level>
+   <level>MB100</level>
+   <level>MB75</level>
+   <level>MB70</level>
+   <level>MB50</level>
+   <level>MB30</level>
+   <level>MB20</level>
+   <level>MB10</level>
+   <level>MB7</level>
+   <level>MB5</level>
+   <level>MB2</level>
+  </levels>
+ </gridParameterInfo>
+
+ <gridParameterInfo xsi:type="parameterInfo">
+  <short_name>pw</short_name>
+  <long_name>precipitable water</long_name>
+  <units>mm</units>
+  <udunits>millimeter</udunits>
+  <uiname>precipH2O</uiname>
+  <valid_range>0.0</valid_range>
+  <valid_range>300.0</valid_range>
+  <fillValue>-99999.0</fillValue>
+  <n3D>0</n3D>
+  <levelsDesc>EA</levelsDesc>
+  <levels>
+   <level>EA</level>
+  </levels>
+ </gridParameterInfo>
+
+ <gridParameterInfo xsi:type="parameterInfo">
+  <short_name>refc</short_name>
+  <long_name>composite radar reflectivity</long_name>
+  <units>dBZ</units>
+  <udunits>decibals</udunits>
+  <uiname>Refc</uiname>
+  <valid_range>0.0</valid_range>
+  <valid_range>100000.0</valid_range>
+  <fillValue>-99999.0</fillValue>
+  <n3D>0</n3D>
+  <levelsDesc>EA</levelsDesc>
+  <levels>
+   <level>EA</level>
+  </levels>
+ </gridParameterInfo>
+
+ <gridParameterInfo xsi:type="parameterInfo">
+  <short_name>refd</short_name>
+  <long_name>derived radar reflectivity</long_name>
+  <units>dBZ</units>
+  <udunits>decibals</udunits>
+  <uiname>Refd</uiname>
+  <valid_range>0.0</valid_range>
+  <valid_range>100000.0</valid_range>
+  <fillValue>-99999.0</fillValue>
+  <n3D>0</n3D>
+  <levelsDesc>MB 1000-100 25mb increments</levelsDesc>
+  <levels>
+   <level>MB1000</level>
+   <level>MB975</level>
+   <level>MB950</level>
+   <level>MB925</level>
+   <level>MB900</level>
+   <level>MB875</level>
+   <level>MB850</level>
+   <level>MB825</level>
+   <level>MB800</level>
+   <level>MB750</level>
+   <level>MB750</level>
+   <level>MB725</level>
+   <level>MB700</level>
+   <level>MB675</level>
+   <level>MB650</level>
+   <level>MB625</level>
+   <level>MB600</level>
+   <level>MB575</level>
+   <level>MB550</level>
+   <level>MB525</level>
+   <level>MB500</level>
+   <level>MB475</level>
+   <level>MB450</level>
+   <level>MB425</level>
+   <level>MB400</level>
+   <level>MB375</level>
+   <level>MB350</level>
+   <level>MB325</level>
+   <level>MB300</level>
+   <level>MB275</level>
+   <level>MB250</level>
+   <level>MB225</level>
+   <level>MB200</level>
+   <level>MB175</level>
+   <level>MB150</level>
+   <level>MB125</level>
+   <level>MB100</level>
+   <level>MB75</level>
+   <level>MB70</level>
+   <level>MB50</level>
+   <level>MB30</level>
+   <level>MB20</level>
+   <level>MB10</level>
+   <level>MB7</level>
+   <level>MB5</level>
+   <level>MB2</level>
+  </levels>
+ </gridParameterInfo>
+
+ <gridParameterInfo xsi:type="parameterInfo">
+  <short_name>rh</short_name>
+  <long_name>relative humidity</long_name>
+  <units>%</units>
+  <udunits>percent</udunits>
+  <uiname>rh</uiname>
+  <valid_range>0.0</valid_range>
+  <valid_range>100.0</valid_range>
+  <fillValue>-99999.0</fillValue>
+  <n3D>6</n3D>
+  <levelsDesc>FHAG 2 MB 1000-100 25mb increments</levelsDesc>
+  <levels>
+   <level>FHAG2</level>
+   <level>MB1000</level>
+   <level>MB975</level>
+   <level>MB950</level>
+   <level>MB925</level>
+   <level>MB900</level>
+   <level>MB875</level>
+   <level>MB850</level>
+   <level>MB825</level>
+   <level>MB800</level>
+   <level>MB750</level>
+   <level>MB750</level>
+   <level>MB725</level>
+   <level>MB700</level>
+   <level>MB675</level>
+   <level>MB650</level>
+   <level>MB625</level>
+   <level>MB600</level>
+   <level>MB575</level>
+   <level>MB550</level>
+   <level>MB525</level>
+   <level>MB500</level>
+   <level>MB475</level>
+   <level>MB450</level>
+   <level>MB425</level>
+   <level>MB400</level>
+   <level>MB375</level>
+   <level>MB350</level>
+   <level>MB325</level>
+   <level>MB300</level>
+   <level>MB275</level>
+   <level>MB250</level>
+   <level>MB225</level>
+   <level>MB200</level>
+   <level>MB175</level>
+   <level>MB150</level>
+   <level>MB125</level>
+   <level>MB100</level>
+   <level>MB75</level>
+   <level>MB70</level>
+   <level>MB50</level>
+   <level>MB30</level>
+   <level>MB20</level>
+   <level>MB10</level>
+   <level>MB7</level>
+   <level>MB5</level>
+   <level>MB2</level>
+  </levels>
+ </gridParameterInfo>
+
+ <!-- RWMR Rain Mixing Ratio need valid range and fill value -->
+ <!-- SFCR Surface Roughness need valid range and fill value -->
+
+ <gridParameterInfo xsi:type="parameterInfo">
+  <short_name>sh</short_name>
+  <long_name>specific humidity</long_name>
+  <units>kg/kg</units>
+  <udunits>kg water/kg air</udunits>
+  <valid_range>0.0</valid_range>
+  <valid_range>0.10000000149</valid_range>
+  <fillValue>-99999.0</fillValue>
+  <n3D>0</n3D>
+  <levelsDesc>FHAG 2 MB 1000-100 25mb increments</levelsDesc>
+  <levels>
+   <level>FHAG2</level>
+   <level>MB1000</level>
+   <level>MB975</level>
+   <level>MB950</level>
+   <level>MB925</level>
+   <level>MB900</level>
+   <level>MB875</level>
+   <level>MB850</level>
+   <level>MB825</level>
+   <level>MB800</level>
+   <level>MB750</level>
+   <level>MB750</level>
+   <level>MB725</level>
+   <level>MB700</level>
+   <level>MB675</level>
+   <level>MB650</level>
+   <level>MB625</level>
+   <level>MB600</level>
+   <level>MB575</level>
+   <level>MB550</level>
+   <level>MB525</level>
+   <level>MB500</level>
+   <level>MB475</level>
+   <level>MB450</level>
+   <level>MB425</level>
+   <level>MB400</level>
+   <level>MB375</level>
+   <level>MB350</level>
+   <level>MB325</level>
+   <level>MB300</level>
+   <level>MB275</level>
+   <level>MB250</level>
+   <level>MB225</level>
+   <level>MB200</level>
+   <level>MB175</level>
+   <level>MB150</level>
+   <level>MB125</level>
+   <level>MB100</level>
+   <level>MB75</level>
+   <level>MB70</level>
+   <level>MB50</level>
+   <level>MB30</level>
+   <level>MB20</level>
+   <level>MB10</level>
+   <level>MB7</level>
+   <level>MB5</level>
+   <level>MB2</level>
+  </levels>
+ </gridParameterInfo>
+
+ <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:type="parameterInfo">
+  <short_name>shf</short_name>
+  <long_name>sensible heat flux</long_name>
+  <units>W/m^2</units>
+  <valid_range>0.0</valid_range>
+  <valid_range>0.10000000149</valid_range>
+  <fillValue>-99999.0</fillValue>
+  <n3D>0</n3D>
+  <levelsDesc>SFC</levelsDesc>
+  <levels>
+   <level>SFC</level>
+  </levels>
+ </gridParameterInfo>
+
+ <!-- SNMR Snow Mixing Ratio need valid range and fill value -->
+
+ <gridParameterInfo xsi:type="parameterInfo">
+  <short_name>t</short_name>
+  <long_name>Temperature</long_name>
+  <units>K</units>
+  <udunits>degree_Kelvin</udunits>
+  <uiname>T</uiname>
+  <valid_range>180.0</valid_range>
+  <valid_range>330.0</valid_range>
+  <fillValue>-99999.0</fillValue>
+  <n3D>0</n3D>
+  <levelsDesc>SFC FHAG 2 TROP MB 1000-100 25mb increments</levelsDesc>
+  <levels>
+   <level>SFC</level>
+   <level>FHAG2</level>
+   <level>TROP</level>
+   <level>MB1000</level>
+   <level>MB975</level>
+   <level>MB950</level>
+   <level>MB925</level>
+   <level>MB900</level>
+   <level>MB875</level>
+   <level>MB850</level>
+   <level>MB825</level>
+   <level>MB800</level>
+   <level>MB750</level>
+   <level>MB750</level>
+   <level>MB725</level>
+   <level>MB700</level>
+   <level>MB675</level>
+   <level>MB650</level>
+   <level>MB625</level>
+   <level>MB600</level>
+   <level>MB575</level>
+   <level>MB550</level>
+   <level>MB525</level>
+   <level>MB500</level>
+   <level>MB475</level>
+   <level>MB450</level>
+   <level>MB425</level>
+   <level>MB400</level>
+   <level>MB375</level>
+   <level>MB350</level>
+   <level>MB325</level>
+   <level>MB300</level>
+   <level>MB275</level>
+   <level>MB250</level>
+   <level>MB225</level>
+   <level>MB200</level>
+   <level>MB175</level>
+   <level>MB150</level>
+   <level>MB125</level>
+   <level>MB100</level>
+   <level>MB75</level>
+   <level>MB70</level>
+   <level>MB50</level>
+   <level>MB30</level>
+   <level>MB20</level>
+   <level>MB10</level>
+   <level>MB7</level>
+   <level>MB5</level>
+   <level>MB2</level>
+  </levels>
+ </gridParameterInfo>
+
+ <!-- TCOLC Total Column-Integrated Condensate need valid range and fill 
+  value -->
+ <!-- TCOLI Total Column-Integrated Cloud Ice need valid range and fill value -->
+ <!-- TCOLR Total Column-Integrated Rain need valid range and fill value -->
+ <!-- TCOLS Total Column-Integrated Snow need valid range and fill value -->
+ <!-- TCOLW Total Column-Integrated Cloud Water need valid range and fill value -->
+ <!-- TCOND Total Condensate need valid range and fill value -->
+
+ <gridParameterInfo xsi:type="parameterInfo">
+  <short_name>TEMPWTR</short_name>
+  <long_name>Water Temperature</long_name>
+  <units>K</units>
+  <udunits>degree_Kelvin</udunits>
+  <uiname>TEMPWTR</uiname>
+  <valid_range>180.0</valid_range>
+  <valid_range>330.0</valid_range>
+  <fillValue>-9999.0</fillValue>
+  <n3D>0</n3D>
+  <levelsDesc>SFC</levelsDesc>
+  <levels>
+   <level>SFC</level>
+  </levels>
+ </gridParameterInfo>
+
+ <gridParameterInfo xsi:type="parameterInfo">
+  <short_name>tp</short_name>
+  <long_name>total precipitation</long_name>
+  <units>mm</units>
+  <udunits>millimeter</udunits>
+  <uiname>totPrecip</uiname>
+  <valid_range>0.0</valid_range>
+  <valid_range>1000.0</valid_range>
+  <fillValue>-99999.0</fillValue>
+  <n3D>0</n3D>
+  <levelsDesc>SFC</levelsDesc>
+  <levels>
+   <level>SFC</level>
+  </levels>
+ </gridParameterInfo>
+
+ <!-- UFLX Momentum Flux U-Component need valid range and fill value -->
+ <!-- ULWRF Upward Long-Wave Rad. Flux need valid range and fill value ave fcst -->
+ <!-- USWRF Upward Short-Wave Radiation Flux need valid range and fill value ave fcst-->
+
+ <gridParameterInfo xsi:type="parameterInfo">
+  <short_name>uw</short_name>
+  <long_name>u wind component</long_name>
+  <units>m/s</units>
+  <udunits>meter/sec</udunits>
+  <uiname>uWind</uiname>
+  <valid_range>-150.0</valid_range>
+  <valid_range>150.0</valid_range>
+  <fillValue>-99999.0</fillValue>
+  <n3D>0</n3D>
+  <levelsDesc>FHAG 10 TROP MB 1000-100 25mb increments</levelsDesc>
+  <levels>
+   <level>FHAG10</level>
+   <level>TROP</level>
+   <level>MB1000</level>
+   <level>MB975</level>
+   <level>MB950</level>
+   <level>MB925</level>
+   <level>MB900</level>
+   <level>MB875</level>
+   <level>MB850</level>
+   <level>MB825</level>
+   <level>MB800</level>
+   <level>MB750</level>
+   <level>MB750</level>
+   <level>MB725</level>
+   <level>MB700</level>
+   <level>MB675</level>
+   <level>MB650</level>
+   <level>MB625</level>
+   <level>MB600</level>
+   <level>MB575</level>
+   <level>MB550</level>
+   <level>MB525</level>
+   <level>MB500</level>
+   <level>MB475</level>
+   <level>MB450</level>
+   <level>MB425</level>
+   <level>MB400</level>
+   <level>MB375</level>
+   <level>MB350</level>
+   <level>MB325</level>
+   <level>MB300</level>
+   <level>MB275</level>
+   <level>MB250</level>
+   <level>MB225</level>
+   <level>MB200</level>
+   <level>MB175</level>
+   <level>MB150</level>
+   <level>MB125</level>
+   <level>MB100</level>
+   <level>MB75</level>
+   <level>MB70</level>
+   <level>MB50</level>
+   <level>MB30</level>
+   <level>MB20</level>
+   <level>MB10</level>
+   <level>MB7</level>
+   <level>MB5</level>
+   <level>MB2</level>
+  </levels>
+ </gridParameterInfo>
+
+  <!-- VFLX Momentum Flux V-Component need valid range and fill value -->
+
+ <gridParameterInfo xsi:type="parameterInfo">
+  <short_name>vss</short_name>
+  <long_name>vertical speed shear</long_name>
+  <units>/s</units>
+  <udunits>1/second</udunits>
+  <uiname>vertSpeedShear</uiname>
+  <valid_range>-0.10000000149</valid_range>
+  <valid_range>0.10000000149</valid_range>
+  <fillValue>-99999.0</fillValue>
+  <n3D>0</n3D>
+  <levelsDesc>TROP</levelsDesc>
+  <levels>
+   <level>TROP</level>
+  </levels>
+ </gridParameterInfo>
+
+ <gridParameterInfo xsi:type="parameterInfo">
+  <short_name>vw</short_name>
+  <long_name>v wind component</long_name>
+  <units>m/s</units>
+  <udunits>meter/sec</udunits>
+  <uiname>vWind</uiname>
+  <valid_range>-150.0</valid_range>
+  <valid_range>150.0</valid_range>
+  <fillValue>-99999.0</fillValue>
+  <n3D>0</n3D>
+  <levelsDesc>FHAG 10 TROP MB 1000-100 25mb increments</levelsDesc>
+  <levels>
+   <level>FHAG10</level>
+   <level>TROP</level>
+   <level>MB1000</level>
+   <level>MB975</level>
+   <level>MB950</level>
+   <level>MB925</level>
+   <level>MB900</level>
+   <level>MB875</level>
+   <level>MB850</level>
+   <level>MB825</level>
+   <level>MB800</level>
+   <level>MB750</level>
+   <level>MB750</level>
+   <level>MB725</level>
+   <level>MB700</level>
+   <level>MB675</level>
+   <level>MB650</level>
+   <level>MB625</level>
+   <level>MB600</level>
+   <level>MB575</level>
+   <level>MB550</level>
+   <level>MB525</level>
+   <level>MB500</level>
+   <level>MB475</level>
+   <level>MB450</level>
+   <level>MB425</level>
+   <level>MB400</level>
+   <level>MB375</level>
+   <level>MB350</level>
+   <level>MB325</level>
+   <level>MB300</level>
+   <level>MB275</level>
+   <level>MB250</level>
+   <level>MB225</level>
+   <level>MB200</level>
+   <level>MB175</level>
+   <level>MB150</level>
+   <level>MB125</level>
+   <level>MB100</level>
+   <level>MB75</level>
+   <level>MB70</level>
+   <level>MB50</level>
+   <level>MB30</level>
+   <level>MB20</level>
+   <level>MB10</level>
+   <level>MB7</level>
+   <level>MB5</level>
+   <level>MB2</level>
+  </levels>
+ </gridParameterInfo>
+</gridParamInfo>

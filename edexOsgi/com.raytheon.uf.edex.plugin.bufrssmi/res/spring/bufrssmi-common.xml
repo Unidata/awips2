@@ -1,0 +1,21 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+    <bean id="bufrssmiPluginName" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="bufrssmi" />
+    </bean>
+
+    <bean id="bufrssmiProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+        <property name="pluginName" ref="bufrssmiPluginName" />
+		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.bufrssmi" />
+        <property name="dao" value="com.raytheon.uf.edex.plugin.bufrssmi.SSMIScanDataDao" />
+        <property name="record" value="com.raytheon.uf.common.dataplugin.bufrssmi.SSMIScanData" />
+    </bean>
+    
+	<bean factory-bean="pluginRegistry" factory-method="register">
+		<constructor-arg value="bufrssmi"/>
+		<constructor-arg ref="bufrssmiProperties"/>
+	</bean>
+
+</beans>

@@ -1,0 +1,88 @@
+#  ============================================================================
+#  pgm: dd_help .. dot cmd - list header or run gvn cmds on current script text
+#
+#  use:     type dd_help 1>/dev/null 2>&1 && . dd_help 2>/dev/null
+#
+#   in: -hh ........ (optional) list current script header and quit
+#   in: -hhver ..... (optional) output the version number ("#  ver:" line)
+#   in: -hhuse ..... (optional) output the "#  use:" statement only
+#   in: -hhargs .... (optional) output the "#  use:" and i/o stmts only
+#   in: -hhpgm ..... (optional) output the "#  pgm:" statement only
+#   in: -hhcat ..... (optional) cat the current script and quit
+#   in: -hhex ...... (optional) run ex session on current script
+#   in: -hhvi ...... (optional) echo the vi command on current script
+#   in: -hhwc ...... (optional) run wc on current script
+#   in: -hhls ...... (optional) run ls -l on current script
+#   in: -hhgrep<x> . (optional) run grep -ni for string <x> on current script
+#   in: (env var) .. DS_HH   - if exists turn shell debug on using the value
+#   in:                        of DS_HH (minus sign optional, ex. set -$DS_HH
+#   in:                            (currently commented out)
+#  i/o: (env var) .. DS_BUG  - if set and not null, then turn off debug tracing
+#  i/o: (env var) .. dd_help - skip rtn if "on", else run and set "on"
+#  out: (stdout) ... outputs the current script's header from "#  ===" to
+#  out:              the first line not starting with #
+#  out: (file) ..... (optional) log info in $HOME/hhlog if it exists
+#
+#  ver: 20051115
+#  ============================================================================
+
+set +u
+
+#           type dd_help_sup1 1>/dev/null 2>&1 && . dd_help_sup1 2>/dev/null
+#           type dd_help_sup2 1>/dev/null 2>&1 && . dd_help_sup2 2>/dev/null
+#           type dd_help_sup3 1>/dev/null 2>&1 && . dd_help_sup3 2>/dev/null
+
+[ -n "$DS_BUG" ] && set +x
+
+if [ "$dd_help" != "on" ]; then
+
+  u_Fl=/fs/home/dws/hhlog;  [ -w $u_Fl ] && [ "${HHLOG:-:}" != "${0##*/}" ] &&
+   >> $u_Fl 2>&1 printf '%10s %8s %s\n' "`uname -n`" "$LOGNAME" \
+   "$(date +%d-%H:%M) ${0##*/} ${*:-<no-args>}" && export HHLOG="${0##*/}"
+  unset u_Fl
+
+  u_On=${1:-'a'}; u_Cm=${u_On#-hh}
+  if [ "$u_Cm" != "$u_On" ]; then
+    u_Sc=${0##*/}; u_Sc=${u_Sc#-}
+    if [ "$u_Sc" != ksh  -a "$u_Sc" != zsh -a "$u_Sc" != rsh -a \
+         "$u_Sc" != bash -a "$u_Sc" != sh                         ]; then
+      u_Ln=""
+      case $u_Cm in
+        ""     ) u_Ln="sed -n '/^# *======/,/^[^#]/{/^#/p;/^[^#]/q;/^$/q;}'";;
+        ver    ) u_Ln="sed -n '/^#  ver: \( *[^ ].*\) *$/s//\1/p'";;
+        use    ) u_Ln="sed -n '/^#  use: \( *[^ ].*\) *$/s//\1/p'";;
+        arg*   ) u_Ln="sed -n '/^#  use: \( *[^ ].*\) *$/s//\1/p
+                               /^#  \( in:  *[^ ].*\) *$/s//    \1/p
+                               /^#  \(i\/o:  *[^ ].*\) *$/s//    \1/p
+                               /^#  \(out:  *[^ ].*\) *$/s//    \1/p
+                               /^#  \(oth:  *[^ ].*\) *$/s//    \1/p'";;
+        pgm    ) u_Ln="sed -n '/^#  pgm: \( *[^ ].*\) *$/s//\1/p'";;
+        rqd    ) u_Ln="sed -n '/^#  rqd: \( *[^ ].*\) *$/s//\1/p'";;
+        cat    ) u_Ln="cat";;
+        ex     ) u_Ln="ex";;
+        wc     ) u_Ln="wc";;
+        ls     ) u_Ln="ls -l";;
+        vi     ) u_Ln="echo vi";;
+        type   ) type "$u_Sc";;
+        grep?* ) u_Ln="grep -ni ${u_Cm#grep}";;
+        ?*     ) type $u_Cm 1>/dev/null 2>&1 && u_Ln="$u_Cm";;
+      esac
+
+      if [ -n "$u_Ln" ]; then
+        u_Sc=$(type $0 | sed -n "/t  *found/d;/^.* \(\.*\/*..*\) *$/s//\1/p" |
+                         sed "/^\./s#^#$(pwd)/#" |
+                         sed "s#^\./#$(pwd)/#;s#/\./#/#g;s#///*#/#g" |
+                         sed "s#/\./#/#g;s#/\./#/#g;s/[')]$//" |
+                         sed "s#/[^/][^/]*/\.\./#/#g")
+        [ -r "$u_Sc" ] && [ "$u_Cm" = "" ] && echo "      PATHNAME:  $u_Sc"
+        [ -r "$u_Sc" ] && eval exec "$u_Ln" $u_Sc
+      fi
+      unset u_Sc u_Ln; exit
+    fi; unset u_Sc
+  fi; unset u_Cm u_On
+
+# [ "${DS_HH:-}" ] && { echo "   ---------------- ${0##*/}"; set -${DS_HH#-}; }
+
+  dd_help="on"
+fi
+

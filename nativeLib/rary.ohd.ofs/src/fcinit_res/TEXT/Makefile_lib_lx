@@ -1,0 +1,157 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-fcinit_res library file
+#
+#  cmt: File made on Wed Aug  6 12:49:25 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libfcinit_res_t.a:  \
+     $(LIB)/libfcinit_res_t.a(ascn26.o)  \
+     $(LIB)/libfcinit_res_t.a(bdrc26.o)  \
+     $(LIB)/libfcinit_res_t.a(card26.o)  \
+     $(LIB)/libfcinit_res_t.a(cknm26.o)  \
+     $(LIB)/libfcinit_res_t.a(ckrc26.o)  \
+     $(LIB)/libfcinit_res_t.a(cmps26.o)  \
+     $(LIB)/libfcinit_res_t.a(cnvt26.o)  \
+     $(LIB)/libfcinit_res_t.a(co0226.o)  \
+     $(LIB)/libfcinit_res_t.a(co0326.o)  \
+     $(LIB)/libfcinit_res_t.a(co0526.o)  \
+     $(LIB)/libfcinit_res_t.a(co0626.o)  \
+     $(LIB)/libfcinit_res_t.a(co0826.o)  \
+     $(LIB)/libfcinit_res_t.a(co1126.o)  \
+     $(LIB)/libfcinit_res_t.a(co1226.o)  \
+     $(LIB)/libfcinit_res_t.a(co1326.o)  \
+     $(LIB)/libfcinit_res_t.a(co1426.o)  \
+     $(LIB)/libfcinit_res_t.a(co1726.o)  \
+     $(LIB)/libfcinit_res_t.a(co1826.o)  \
+     $(LIB)/libfcinit_res_t.a(elst26.o)  \
+     $(LIB)/libfcinit_res_t.a(erot26.o)  \
+     $(LIB)/libfcinit_res_t.a(fcmp26.o)  \
+     $(LIB)/libfcinit_res_t.a(fcnrcf.o)  \
+     $(LIB)/libfcinit_res_t.a(flwk26.o)  \
+     $(LIB)/libfcinit_res_t.a(fpop26.o)  \
+     $(LIB)/libfcinit_res_t.a(fpr26.o)  \
+     $(LIB)/libfcinit_res_t.a(fpus26.o)  \
+     $(LIB)/libfcinit_res_t.a(frcl26.o)  \
+     $(LIB)/libfcinit_res_t.a(gco26.o)  \
+     $(LIB)/libfcinit_res_t.a(genl26.o)  \
+     $(LIB)/libfcinit_res_t.a(glst26.o)  \
+     $(LIB)/libfcinit_res_t.a(gpar26.o)  \
+     $(LIB)/libfcinit_res_t.a(gts26.o)  \
+     $(LIB)/libfcinit_res_t.a(hx1126.o)  \
+     $(LIB)/libfcinit_res_t.a(idck26.o)  \
+     $(LIB)/libfcinit_res_t.a(idwp26.o)  \
+     $(LIB)/libfcinit_res_t.a(ikey26.o)  \
+     $(LIB)/libfcinit_res_t.a(ioff26.o)  \
+     $(LIB)/libfcinit_res_t.a(maxv26.o)  \
+     $(LIB)/libfcinit_res_t.a(mlts26.o)  \
+     $(LIB)/libfcinit_res_t.a(mpar26.o)  \
+     $(LIB)/libfcinit_res_t.a(mref26.o)  \
+     $(LIB)/libfcinit_res_t.a(pm0226.o)  \
+     $(LIB)/libfcinit_res_t.a(pm0326.o)  \
+     $(LIB)/libfcinit_res_t.a(pm0426.o)  \
+     $(LIB)/libfcinit_res_t.a(pm0526.o)  \
+     $(LIB)/libfcinit_res_t.a(pm0626.o)  \
+     $(LIB)/libfcinit_res_t.a(pm0726.o)  \
+     $(LIB)/libfcinit_res_t.a(pm0926.o)  \
+     $(LIB)/libfcinit_res_t.a(pm1126.o)  \
+     $(LIB)/libfcinit_res_t.a(pm1226.o)  \
+     $(LIB)/libfcinit_res_t.a(pm1326.o)  \
+     $(LIB)/libfcinit_res_t.a(pm1426.o)  \
+     $(LIB)/libfcinit_res_t.a(pm1526.o)  \
+     $(LIB)/libfcinit_res_t.a(pm1626.o)  \
+     $(LIB)/libfcinit_res_t.a(pm1726.o)  \
+     $(LIB)/libfcinit_res_t.a(pm2026.o)  \
+     $(LIB)/libfcinit_res_t.a(pm2226.o)  \
+     $(LIB)/libfcinit_res_t.a(pm2326.o)  \
+     $(LIB)/libfcinit_res_t.a(pm2626.o)  \
+     $(LIB)/libfcinit_res_t.a(pop26.o)  \
+     $(LIB)/libfcinit_res_t.a(posn26.o)  \
+     $(LIB)/libfcinit_res_t.a(post26.o)  \
+     $(LIB)/libfcinit_res_t.a(prcl26.o)  \
+     $(LIB)/libfcinit_res_t.a(prpc26.o)  \
+     $(LIB)/libfcinit_res_t.a(prpd26.o)  \
+     $(LIB)/libfcinit_res_t.a(prpe26.o)  \
+     $(LIB)/libfcinit_res_t.a(prpf26.o)  \
+     $(LIB)/libfcinit_res_t.a(prpg26.o)  \
+     $(LIB)/libfcinit_res_t.a(prpu26.o)  \
+     $(LIB)/libfcinit_res_t.a(push26.o)  \
+     $(LIB)/libfcinit_res_t.a(rcl26.o)  \
+     $(LIB)/libfcinit_res_t.a(rfil26.o)  \
+     $(LIB)/libfcinit_res_t.a(rpn26.o)  \
+     $(LIB)/libfcinit_res_t.a(rpnf26.o)  \
+     $(LIB)/libfcinit_res_t.a(ster26.o)  \
+     $(LIB)/libfcinit_res_t.a(stor26.o)  \
+     $(LIB)/libfcinit_res_t.a(strn26.o)  \
+     $(LIB)/libfcinit_res_t.a(stwn26.o)  \
+     $(LIB)/libfcinit_res_t.a(su0126.o)  \
+     $(LIB)/libfcinit_res_t.a(su0226.o)  \
+     $(LIB)/libfcinit_res_t.a(su0326.o)  \
+     $(LIB)/libfcinit_res_t.a(su0426.o)  \
+     $(LIB)/libfcinit_res_t.a(su0526.o)  \
+     $(LIB)/libfcinit_res_t.a(su0626.o)  \
+     $(LIB)/libfcinit_res_t.a(su0726.o)  \
+     $(LIB)/libfcinit_res_t.a(su0926.o)  \
+     $(LIB)/libfcinit_res_t.a(su1026.o)  \
+     $(LIB)/libfcinit_res_t.a(su1126.o)  \
+     $(LIB)/libfcinit_res_t.a(su1226.o)  \
+     $(LIB)/libfcinit_res_t.a(su1326.o)  \
+     $(LIB)/libfcinit_res_t.a(su1426.o)  \
+     $(LIB)/libfcinit_res_t.a(su1526.o)  \
+     $(LIB)/libfcinit_res_t.a(su1626.o)  \
+     $(LIB)/libfcinit_res_t.a(su1726.o)  \
+     $(LIB)/libfcinit_res_t.a(su1826.o)  \
+     $(LIB)/libfcinit_res_t.a(su2026.o)  \
+     $(LIB)/libfcinit_res_t.a(su2126.o)  \
+     $(LIB)/libfcinit_res_t.a(su2226.o)  \
+     $(LIB)/libfcinit_res_t.a(su2326.o)  \
+     $(LIB)/libfcinit_res_t.a(su2426.o)  \
+     $(LIB)/libfcinit_res_t.a(su2626.o)  \
+     $(LIB)/libfcinit_res_t.a(tran26.o)  \
+     $(LIB)/libfcinit_res_t.a(ts0226.o)  \
+     $(LIB)/libfcinit_res_t.a(ts0326.o)  \
+     $(LIB)/libfcinit_res_t.a(ts0526.o)  \
+     $(LIB)/libfcinit_res_t.a(ts0626.o)  \
+     $(LIB)/libfcinit_res_t.a(ts0826.o)  \
+     $(LIB)/libfcinit_res_t.a(ts1226.o)  \
+     $(LIB)/libfcinit_res_t.a(ts1426.o)  \
+     $(LIB)/libfcinit_res_t.a(ts1626.o)  \
+     $(LIB)/libfcinit_res_t.a(ts1726.o)  \
+     $(LIB)/libfcinit_res_t.a(ts1826.o)  \
+     $(LIB)/libfcinit_res_t.a(tsid26.o)  \
+     $(LIB)/libfcinit_res_t.a(uaft26.o)  \
+     $(LIB)/libfcinit_res_t.a(ubef26.o)  \
+     $(LIB)/libfcinit_res_t.a(udo26.o)  \
+     $(LIB)/libfcinit_res_t.a(ufld26.o)  \
+     $(LIB)/libfcinit_res_t.a(uif26.o)  \
+     $(LIB)/libfcinit_res_t.a(usch26.o)  \
+     $(LIB)/libfcinit_res_t.a(uset26.o)  \
+     $(LIB)/libfcinit_res_t.a(wksp26.o)  \
+     $(LIB)/libfcinit_res_t.a(wnot26.o)
+

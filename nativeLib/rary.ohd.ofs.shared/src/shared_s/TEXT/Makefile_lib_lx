@@ -1,0 +1,117 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-shared_s library file
+#
+#  cmt: File made on Wed Aug  6 12:55:56 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libshared_s_t.a:  \
+     $(LIB)/libshared_s_t.a(isbug2.o)  \
+     $(LIB)/libshared_s_t.a(isbug.o)  \
+     $(LIB)/libshared_s_t.a(isleft.o)  \
+     $(LIB)/libshared_s_t.a(istrc2.o)  \
+     $(LIB)/libshared_s_t.a(istrc.o)  \
+     $(LIB)/libshared_s_t.a(sbdbug.o)  \
+     $(LIB)/libshared_s_t.a(sbldbg.o)  \
+     $(LIB)/libshared_s_t.a(sbllgd.o)  \
+     $(LIB)/libshared_s_t.a(sbltrc.o)  \
+     $(LIB)/libshared_s_t.a(sbpdbg.o)  \
+     $(LIB)/libshared_s_t.a(sbsdb2.o)  \
+     $(LIB)/libshared_s_t.a(sbsdbg.o)  \
+     $(LIB)/libshared_s_t.a(sfconv.o)  \
+     $(LIB)/libshared_s_t.a(smppd2.o)  \
+     $(LIB)/libshared_s_t.a(smppdc.o)  \
+     $(LIB)/libshared_s_t.a(smppdp.o)  \
+     $(LIB)/libshared_s_t.a(smppdt.o)  \
+     $(LIB)/libshared_s_t.a(sofpid.o)  \
+     $(LIB)/libshared_s_t.a(soidup.o)  \
+     $(LIB)/libshared_s_t.a(sorder.o)  \
+     $(LIB)/libshared_s_t.a(sordup.o)  \
+     $(LIB)/libshared_s_t.a(spfmpo.o)  \
+     $(LIB)/libshared_s_t.a(spmpco.o)  \
+     $(LIB)/libshared_s_t.a(spmpfo.o)  \
+     $(LIB)/libshared_s_t.a(spmxco.o)  \
+     $(LIB)/libshared_s_t.a(spordr.o)  \
+     $(LIB)/libshared_s_t.a(spugnl.o)  \
+     $(LIB)/libshared_s_t.a(spxgrd.o)  \
+     $(LIB)/libshared_s_t.a(srbasn.o)  \
+     $(LIB)/libshared_s_t.a(srfmpo.o)  \
+     $(LIB)/libshared_s_t.a(srmapx.o)  \
+     $(LIB)/libshared_s_t.a(srmpco.o)  \
+     $(LIB)/libshared_s_t.a(srmpfo.o)  \
+     $(LIB)/libshared_s_t.a(srmxco.o)  \
+     $(LIB)/libshared_s_t.a(srordr.o)  \
+     $(LIB)/libshared_s_t.a(srppst.o)  \
+     $(LIB)/libshared_s_t.a(srprst.o)  \
+     $(LIB)/libshared_s_t.a(srugnl.o)  \
+     $(LIB)/libshared_s_t.a(srxgrd.o)  \
+     $(LIB)/libshared_s_t.a(sschk.o)  \
+     $(LIB)/libshared_s_t.a(ssppd2.o)  \
+     $(LIB)/libshared_s_t.a(ssppd3.o)  \
+     $(LIB)/libshared_s_t.a(ssppd.o)  \
+     $(LIB)/libshared_s_t.a(ssppp2.o)  \
+     $(LIB)/libshared_s_t.a(ssppp.o)  \
+     $(LIB)/libshared_s_t.a(ssprd1.o)  \
+     $(LIB)/libshared_s_t.a(ssprd2.o)  \
+     $(LIB)/libshared_s_t.a(ssprd.o)  \
+     $(LIB)/libshared_s_t.a(ssuprm.o)  \
+     $(LIB)/libshared_s_t.a(sublid.o)  \
+     $(LIB)/libshared_s_t.a(sucomp.o)  \
+     $(LIB)/libshared_s_t.a(sudalc.o)  \
+     $(LIB)/libshared_s_t.a(sudcls.o)  \
+     $(LIB)/libshared_s_t.a(sudds2.o)  \
+     $(LIB)/libshared_s_t.a(sudds3.o)  \
+     $(LIB)/libshared_s_t.a(suddst.o)  \
+     $(LIB)/libshared_s_t.a(sudop2.o)  \
+     $(LIB)/libshared_s_t.a(sudopn.o)  \
+     $(LIB)/libshared_s_t.a(sudptr.o)  \
+     $(LIB)/libshared_s_t.a(sudwrt.o)  \
+     $(LIB)/libshared_s_t.a(suend.o)  \
+     $(LIB)/libshared_s_t.a(sueror.o)  \
+     $(LIB)/libshared_s_t.a(sufcls.o)  \
+     $(LIB)/libshared_s_t.a(sugtpt.o)  \
+     $(LIB)/libshared_s_t.a(sugtug.o)  \
+     $(LIB)/libshared_s_t.a(suidc2.o)  \
+     $(LIB)/libshared_s_t.a(suidck.o)  \
+     $(LIB)/libshared_s_t.a(supcls.o)  \
+     $(LIB)/libshared_s_t.a(supdm2.o)  \
+     $(LIB)/libshared_s_t.a(supdmp.o)  \
+     $(LIB)/libshared_s_t.a(suppst.o)  \
+     $(LIB)/libshared_s_t.a(susort.o)  \
+     $(LIB)/libshared_s_t.a(sustop.o)  \
+     $(LIB)/libshared_s_t.a(swfmpo.o)  \
+     $(LIB)/libshared_s_t.a(swmpco.o)  \
+     $(LIB)/libshared_s_t.a(swmpfo.o)  \
+     $(LIB)/libshared_s_t.a(swmxco.o)  \
+     $(LIB)/libshared_s_t.a(swordr.o)  \
+     $(LIB)/libshared_s_t.a(swppst.o)  \
+     $(LIB)/libshared_s_t.a(swprst.o)  \
+     $(LIB)/libshared_s_t.a(swugnl.o)  \
+     $(LIB)/libshared_s_t.a(swxgrd.o)
+

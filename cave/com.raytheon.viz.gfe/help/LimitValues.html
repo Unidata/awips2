@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="CONTENT-TYPE" content="text/html; charset=utf-8">
+  <title>LimitValues</title>
+  <meta name="GENERATOR" content="OpenOffice.org 1.1.3  (Linux)">
+  <meta name="CREATED" content="19951121;16410000">
+  <meta name="CHANGED" content="20050706;13040400">
+  <style>
+	<!--
+		@page { size: 8.5in 11in; margin-right: 1.25in; margin-top: 1in; margin-bottom: 1in }
+		P { margin-bottom: 0.08in; direction: ltr; color: #000000; text-align: left; widows: 0; orphans: 0 }
+		P.western { font-family: "Bitstream Vera Serif", "Times New Roman", serif; font-size: 12pt; so-language: en-US }
+		P.cjk { font-family: "Bitstream Vera Sans"; font-size: 12pt; so-language:  }
+		P.ctl { font-family: "Lucidasans"; font-size: 12pt; so-language:  }
+	-->
+	</style>
+</head>
+<body dir="ltr" lang="de-DE" text="#000000">
+<font face="New Century Schoolbook, Times New Roman, serif"><font
+ size="5"><b>LimitValues</b></font></font>
+<br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif"><font
+ size="3"><b>Introduction</b></font></font>
+<br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">Sometimes it is desirable to “clip” 
+grid values to particular limits.  For example, you might not want temperatures to cross some 
+important threshold such as 32 or 100.  There are a variety of tools you might use that would 
+allow you to raise/lower values over a region such that the values do not cross these thresholds.  
+However, depending on the color curve, it may be difficult to see if any pixels reach these 
+values, and using other tools might inadvertently change other pixels that you want to remain 
+constant.
+<br><br>
+The Limit_Values tool clips grid values at limits that you specify.  It is purely an “editing” 
+tool, with no meteorological “theory” behind it - it is simply a quick way to accomplish a 
+common editing task.  It is similar to the “NoHigherThan” and “NoLowerThan” tools by Thomas 
+Mazza, but it combines the two tools in one, and when you start the tool, the slider shows 
+the current value - which makes modifications easier.</font>
+<br>
+<br>
+<br>
+<big><big><font style="font-weight: bold;"
+ face="New Century Schoolbook, Times New Roman, serif">How
+the Procedure Works</font><span style="font-weight: bold;">
+</span></big></big><br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">Lets say we start with a complex temperature pattern like this:<br><br>
+<img alt="LimitValues" src="images/LimitValues.png"></font>
+<br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">Lets say that for some reason, we do 
+not believe any of the locations near the center of the screen will be in the 90s.  There are 
+quite a few non-contiguous pixels above 90, so it will be difficult to remove them without also 
+editing other nearby points.  For some reason, lets say that we just want to set the temperature 
+to 89 in those areas.  We could create a complex query of edit areas, areas where temperatures 
+are above 89, etc. and then use the Assign_Value tool to assign 89 to those points.  That 
+approach is complex and takes many steps.  
+<br><br>
+With the Limit_Values tool, we simply draw a general edit area that covers the points in 
+question:<br>
+<img alt="LimitValues" src="images/LimitValues1.png"></font>
+<br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">Then we call the Limit_Values tool 
+and a dialog box comes up with the current max/min values in the current edit area:<br>
+<img alt="LimitValues" src="images/LimitValues2.png"></font>
+<br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">Now we can see that some pixel in 
+the edit area was 96 (which is difficult to tell with the color curve we are using)!  Now we 
+simply set the maximum value to 89:<br>
+<img alt=LimitValues" src="images/LimitValues3.png"><br><br>
+And when we click on OK, all the pixels above 89 in the edit area are set to 89:<br>
+<img alt="LimitValues" src="images/LimitValues4.png"><br><br>
+You can limit the minimum value on the grid in a similar way.  You can certainly run the tool 
+without defining an edit area, in which case it acts upon the entire grid.
+</font>
+</body>
+</html>

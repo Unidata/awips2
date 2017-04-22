@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+   <bean id="customPluginDeployersList" class="java.util.ArrayList">
+      <constructor-arg>
+         <list>
+            <ref bean="customLocalizationDeploy" />
+            <ref bean="customResourcesDeploy" />
+            <ref bean="customWebDeploy" />
+            <ref bean="customDeploymentRunner" />
+         </list>
+      </constructor-arg>
+   </bean>
+
+   <bean id="customWebDeploy" class="DeployWeb" />
+   <bean id="customLocalizationDeploy" class="DeployEdexLocalization" />
+   <bean id="customResourcesDeploy" class="DeployEdexResources" />
+   <bean id="customDeploymentRunner" class="CustomDeploymentRunner" />
+</beans>

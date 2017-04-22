@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    
+<!-- 
+       Refer to edex/modes/README.txt for documentation
+--> 
+<edexModes>
+    <!-- this file is specifically for ALR/SJU -->
+    <mode name="ingest">
+        <exclude>obs-ingest-metarshef.xml</exclude>
+    </mode>
+    <mode name="ingestHydro">
+    	<include>distribution-spring.xml</include>
+    	<include>manualIngest-common.xml</include>
+    	<include>manualIngest-spring.xml</include>
+    	<include>shef-ingest.xml</include>
+    	<include>persist-ingest.xml</include>
+    	<include>obs-common.xml</include>
+    	<include>obs-ingest.xml</include>
+        <include>obs-ingest-metarshef.xml</include>
+        <include>metartohmdb-plugin.xml</include>
+        <include>pointdata-common.xml</include>
+    	<include>shef-common.xml</include>
+        <include>ohd-common-database.xml</include>
+    	<include>ohd-common.xml</include>
+    	<include>alarmWhfs-spring.xml</include>
+    	<include>arealffgGenerator-spring.xml</include>
+    	<include>arealQpeGen-spring.xml</include>
+    	<include>DPADecoder-spring.xml</include>
+    	<include>dqcPreprocessor-spring.xml</include>
+    	<include>floodArchiver-spring.xml</include>
+    	<include>freezingLevel-spring.xml</include>
+    	<include>hpeDHRDecoder-spring.xml</include>
+    	<include>ihfsDbPurge-spring.xml</include>
+    	<include>logFilePurger-spring.xml</include>
+    	<include>mpeFieldgen-spring.xml</include>
+    	<include>mpeHpeFilePurge-spring.xml</include>
+    	<include>mpeLightningSrv-ingest.xml</include>
+    	<include>mpeProcessGrib-spring.xml</include>
+    	<include>ohdSetupService-spring.xml</include>
+    	<include>pointDataRetrievel-spring.xml</include>
+    	<include>q2FileProcessor-spring.xml</include>
+    	<include>satpre-spring.xml</include>
+    	<include>purge-logs.xml</include>
+        <exclude>fssobs-ingest.xml</exclude>
+        <exclude>fssobs-common.xml</exclude>
+        <include>ndm-ingest.xml</include>
+    </mode>
+    <mode name="requestHydro">
+        <include>ohd-common-database.xml</include>
+    	<include>ohd-common.xml</include>
+    	<include>database-common.xml</include>
+    	<include>ohd-request.xml</include>
+    	<include>alertviz-request.xml</include>
+    	<include>auth-common.xml</include>
+    	<include>auth-request.xml</include>
+    	<include>persist-request.xml</include>
+    	<include>menus-request.xml</include>
+    	<include>utility-request.xml</include>
+    	<include>management-common.xml</include>
+    	<include>management-request.xml</include>
+    	<include>manualIngest-common.xml</include>
+    	<include>manualIngest-request.xml</include>
+    	<include>nwsauth-request.xml</include>
+    	<include>persist-request.xml</include>
+    	<include>site-common.xml</include>
+    	<include>site-request.xml</include>
+    	<include>time-common.xml</include>
+    	<include>units-common.xml</include>
+    	<include>useradmin-common.xml</include>
+    	<include>useradmin-request.xml</include>
+    	<include>event-common.xml</include>
+    	<include>eventbus-common.xml</include>
+    	<include>edex-request.xml</include>
+    	<include>request-service.xml</include>
+    	<include>request-service-common.xml</include>
+    </mode>
+</edexModes>

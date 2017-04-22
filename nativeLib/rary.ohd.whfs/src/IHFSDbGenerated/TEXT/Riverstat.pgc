@@ -1,0 +1,1324 @@
+/*
+    File: Riverstat.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:28 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "Riverstat.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct Riverstat_t
+{
+    char		lid[9];
+    char		primary_pe[3];
+    double		bf;
+    double		cb;
+    double		da;
+    double		response_time;
+    double		threshold_runoff;
+    double		fq;
+    double		fs;
+    char		gsno[11];
+    char		level[21];
+    double		mile;
+    double		pool;
+    char		por[31];
+    char		rated[21];
+    double		lat;
+    double		lon;
+    char		remark[256];
+    date		rrevise;
+    char		rsource[21];
+    char		stream[33];
+    char		tide[9];
+    char		backwater[9];
+    char		vdatum[21];
+    double		action_flow;
+    double		wstg;
+    double		zd;
+    date		ratedat;
+    char		usgs_ratenum[6];
+    long		uhgdur;
+    char		use_latest_fcst[2];
+
+    int		ind_primary_pe;
+    int		ind_bf;
+    int		ind_cb;
+    int		ind_da;
+    int		ind_response_time;
+    int		ind_threshold_runoff;
+    int		ind_fq;
+    int		ind_fs;
+    int		ind_gsno;
+    int		ind_level;
+    int		ind_mile;
+    int		ind_pool;
+    int		ind_por;
+    int		ind_rated;
+    int		ind_lat;
+    int		ind_lon;
+    int		ind_remark;
+    int		ind_rrevise;
+    int		ind_rsource;
+    int		ind_stream;
+    int		ind_tide;
+    int		ind_backwater;
+    int		ind_vdatum;
+    int		ind_action_flow;
+    int		ind_wstg;
+    int		ind_zd;
+    int		ind_ratedat;
+    int		ind_usgs_ratenum;
+    int		ind_uhgdur;
+    int		ind_use_latest_fcst;
+} Riverstat_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+Riverstat * GetRiverstat(const char * where)
+{
+
+    Riverstat * listPtr = NULL;
+    Riverstat * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM Riverstat ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Riverstat_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRiverstat() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRiverstat() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRiverstat() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.lid, :dbs.primary_pe:dbs.ind_primary_pe, 
+    :dbs.bf:dbs.ind_bf, :dbs.cb:dbs.ind_cb, 
+    :dbs.da:dbs.ind_da, :dbs.response_time:dbs.ind_response_time, 
+    :dbs.threshold_runoff:dbs.ind_threshold_runoff, :dbs.fq:dbs.ind_fq, 
+    :dbs.fs:dbs.ind_fs, :dbs.gsno:dbs.ind_gsno, 
+    :dbs.level:dbs.ind_level, :dbs.mile:dbs.ind_mile, 
+    :dbs.pool:dbs.ind_pool, :dbs.por:dbs.ind_por, 
+    :dbs.rated:dbs.ind_rated, :dbs.lat:dbs.ind_lat, 
+    :dbs.lon:dbs.ind_lon, :dbs.remark:dbs.ind_remark, 
+    :dbs.rrevise:dbs.ind_rrevise, :dbs.rsource:dbs.ind_rsource, 
+    :dbs.stream:dbs.ind_stream, :dbs.tide:dbs.ind_tide, 
+    :dbs.backwater:dbs.ind_backwater, :dbs.vdatum:dbs.ind_vdatum, 
+    :dbs.action_flow:dbs.ind_action_flow, :dbs.wstg:dbs.ind_wstg, 
+    :dbs.zd:dbs.ind_zd, :dbs.ratedat:dbs.ind_ratedat, 
+    :dbs.usgs_ratenum:dbs.ind_usgs_ratenum, :dbs.uhgdur:dbs.ind_uhgdur, 
+    :dbs.use_latest_fcst:dbs.ind_use_latest_fcst    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRiverstat() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (Riverstat *) malloc(sizeof(Riverstat))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->primary_pe, dbs.primary_pe);
+            setNullIfIndicated(dbs.ind_primary_pe, CHAR, structPtr->primary_pe);
+
+            structPtr->bf = dbs.bf;
+            setNullIfIndicated(dbs.ind_bf, DOUBLE, &structPtr->bf);
+
+            structPtr->cb = dbs.cb;
+            setNullIfIndicated(dbs.ind_cb, DOUBLE, &structPtr->cb);
+
+            structPtr->da = dbs.da;
+            setNullIfIndicated(dbs.ind_da, DOUBLE, &structPtr->da);
+
+            structPtr->response_time = dbs.response_time;
+            setNullIfIndicated(dbs.ind_response_time, DOUBLE, &structPtr->response_time);
+
+            structPtr->threshold_runoff = dbs.threshold_runoff;
+            setNullIfIndicated(dbs.ind_threshold_runoff, DOUBLE, &structPtr->threshold_runoff);
+
+            structPtr->fq = dbs.fq;
+            setNullIfIndicated(dbs.ind_fq, DOUBLE, &structPtr->fq);
+
+            structPtr->fs = dbs.fs;
+            setNullIfIndicated(dbs.ind_fs, DOUBLE, &structPtr->fs);
+
+            strcpy(structPtr->gsno, dbs.gsno);
+            setNullIfIndicated(dbs.ind_gsno, CHAR, structPtr->gsno);
+
+            strcpy(structPtr->level, dbs.level);
+            setNullIfIndicated(dbs.ind_level, CHAR, structPtr->level);
+
+            structPtr->mile = dbs.mile;
+            setNullIfIndicated(dbs.ind_mile, DOUBLE, &structPtr->mile);
+
+            structPtr->pool = dbs.pool;
+            setNullIfIndicated(dbs.ind_pool, DOUBLE, &structPtr->pool);
+
+            strcpy(structPtr->por, dbs.por);
+            setNullIfIndicated(dbs.ind_por, CHAR, structPtr->por);
+
+            strcpy(structPtr->rated, dbs.rated);
+            setNullIfIndicated(dbs.ind_rated, CHAR, structPtr->rated);
+
+            structPtr->lat = dbs.lat;
+            setNullIfIndicated(dbs.ind_lat, DOUBLE, &structPtr->lat);
+
+            structPtr->lon = dbs.lon;
+            setNullIfIndicated(dbs.ind_lon, DOUBLE, &structPtr->lon);
+
+            strcpy(structPtr->remark, dbs.remark);
+            setNullIfIndicated(dbs.ind_remark, CHAR, structPtr->remark);
+
+            structPtr->rrevise = pg_date_to_date_t(dbs.rrevise);
+            setNullIfIndicated(dbs.ind_rrevise, INT, &structPtr->rrevise);
+
+            strcpy(structPtr->rsource, dbs.rsource);
+            setNullIfIndicated(dbs.ind_rsource, CHAR, structPtr->rsource);
+
+            strcpy(structPtr->stream, dbs.stream);
+            setNullIfIndicated(dbs.ind_stream, CHAR, structPtr->stream);
+
+            strcpy(structPtr->tide, dbs.tide);
+            setNullIfIndicated(dbs.ind_tide, CHAR, structPtr->tide);
+
+            strcpy(structPtr->backwater, dbs.backwater);
+            setNullIfIndicated(dbs.ind_backwater, CHAR, structPtr->backwater);
+
+            strcpy(structPtr->vdatum, dbs.vdatum);
+            setNullIfIndicated(dbs.ind_vdatum, CHAR, structPtr->vdatum);
+
+            structPtr->action_flow = dbs.action_flow;
+            setNullIfIndicated(dbs.ind_action_flow, DOUBLE, &structPtr->action_flow);
+
+            structPtr->wstg = dbs.wstg;
+            setNullIfIndicated(dbs.ind_wstg, DOUBLE, &structPtr->wstg);
+
+            structPtr->zd = dbs.zd;
+            setNullIfIndicated(dbs.ind_zd, DOUBLE, &structPtr->zd);
+
+            structPtr->ratedat = pg_date_to_date_t(dbs.ratedat);
+            setNullIfIndicated(dbs.ind_ratedat, INT, &structPtr->ratedat);
+
+            strcpy(structPtr->usgs_ratenum, dbs.usgs_ratenum);
+            setNullIfIndicated(dbs.ind_usgs_ratenum, CHAR, structPtr->usgs_ratenum);
+
+            structPtr->uhgdur = dbs.uhgdur;
+            setNullIfIndicated(dbs.ind_uhgdur, INT, &structPtr->uhgdur);
+
+            strcpy(structPtr->use_latest_fcst, dbs.use_latest_fcst);
+            setNullIfIndicated(dbs.ind_use_latest_fcst, CHAR, structPtr->use_latest_fcst);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.lid, :dbs.primary_pe:dbs.ind_primary_pe, 
+        :dbs.bf:dbs.ind_bf, :dbs.cb:dbs.ind_cb, 
+        :dbs.da:dbs.ind_da, :dbs.response_time:dbs.ind_response_time, 
+        :dbs.threshold_runoff:dbs.ind_threshold_runoff, :dbs.fq:dbs.ind_fq, 
+        :dbs.fs:dbs.ind_fs, :dbs.gsno:dbs.ind_gsno, 
+        :dbs.level:dbs.ind_level, :dbs.mile:dbs.ind_mile, 
+        :dbs.pool:dbs.ind_pool, :dbs.por:dbs.ind_por, 
+        :dbs.rated:dbs.ind_rated, :dbs.lat:dbs.ind_lat, 
+        :dbs.lon:dbs.ind_lon, :dbs.remark:dbs.ind_remark, 
+        :dbs.rrevise:dbs.ind_rrevise, :dbs.rsource:dbs.ind_rsource, 
+        :dbs.stream:dbs.ind_stream, :dbs.tide:dbs.ind_tide, 
+        :dbs.backwater:dbs.ind_backwater, :dbs.vdatum:dbs.ind_vdatum, 
+        :dbs.action_flow:dbs.ind_action_flow, :dbs.wstg:dbs.ind_wstg, 
+        :dbs.zd:dbs.ind_zd, :dbs.ratedat:dbs.ind_ratedat, 
+        :dbs.usgs_ratenum:dbs.ind_usgs_ratenum, :dbs.uhgdur:dbs.ind_uhgdur, 
+        :dbs.use_latest_fcst:dbs.ind_use_latest_fcst        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetRiverstat() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+Riverstat * SelectRiverstat(const char * where)
+{
+
+    Riverstat * listPtr = NULL;
+    Riverstat * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM Riverstat ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Riverstat_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRiverstat() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRiverstat() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRiverstat() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.lid, :dbs.primary_pe:dbs.ind_primary_pe, 
+    :dbs.bf:dbs.ind_bf, :dbs.cb:dbs.ind_cb, 
+    :dbs.da:dbs.ind_da, :dbs.response_time:dbs.ind_response_time, 
+    :dbs.threshold_runoff:dbs.ind_threshold_runoff, :dbs.fq:dbs.ind_fq, 
+    :dbs.fs:dbs.ind_fs, :dbs.gsno:dbs.ind_gsno, 
+    :dbs.level:dbs.ind_level, :dbs.mile:dbs.ind_mile, 
+    :dbs.pool:dbs.ind_pool, :dbs.por:dbs.ind_por, 
+    :dbs.rated:dbs.ind_rated, :dbs.lat:dbs.ind_lat, 
+    :dbs.lon:dbs.ind_lon, :dbs.remark:dbs.ind_remark, 
+    :dbs.rrevise:dbs.ind_rrevise, :dbs.rsource:dbs.ind_rsource, 
+    :dbs.stream:dbs.ind_stream, :dbs.tide:dbs.ind_tide, 
+    :dbs.backwater:dbs.ind_backwater, :dbs.vdatum:dbs.ind_vdatum, 
+    :dbs.action_flow:dbs.ind_action_flow, :dbs.wstg:dbs.ind_wstg, 
+    :dbs.zd:dbs.ind_zd, :dbs.ratedat:dbs.ind_ratedat, 
+    :dbs.usgs_ratenum:dbs.ind_usgs_ratenum, :dbs.uhgdur:dbs.ind_uhgdur, 
+    :dbs.use_latest_fcst:dbs.ind_use_latest_fcst    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRiverstat() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (Riverstat *) malloc(sizeof(Riverstat))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->primary_pe, dbs.primary_pe);
+            setNullIfIndicated(dbs.ind_primary_pe, CHAR, structPtr->primary_pe);
+
+            structPtr->bf = dbs.bf;
+            setNullIfIndicated(dbs.ind_bf, DOUBLE, &structPtr->bf);
+
+            structPtr->cb = dbs.cb;
+            setNullIfIndicated(dbs.ind_cb, DOUBLE, &structPtr->cb);
+
+            structPtr->da = dbs.da;
+            setNullIfIndicated(dbs.ind_da, DOUBLE, &structPtr->da);
+
+            structPtr->response_time = dbs.response_time;
+            setNullIfIndicated(dbs.ind_response_time, DOUBLE, &structPtr->response_time);
+
+            structPtr->threshold_runoff = dbs.threshold_runoff;
+            setNullIfIndicated(dbs.ind_threshold_runoff, DOUBLE, &structPtr->threshold_runoff);
+
+            structPtr->fq = dbs.fq;
+            setNullIfIndicated(dbs.ind_fq, DOUBLE, &structPtr->fq);
+
+            structPtr->fs = dbs.fs;
+            setNullIfIndicated(dbs.ind_fs, DOUBLE, &structPtr->fs);
+
+            strcpy(structPtr->gsno, dbs.gsno);
+            setNullIfIndicated(dbs.ind_gsno, CHAR, structPtr->gsno);
+
+            strcpy(structPtr->level, dbs.level);
+            setNullIfIndicated(dbs.ind_level, CHAR, structPtr->level);
+
+            structPtr->mile = dbs.mile;
+            setNullIfIndicated(dbs.ind_mile, DOUBLE, &structPtr->mile);
+
+            structPtr->pool = dbs.pool;
+            setNullIfIndicated(dbs.ind_pool, DOUBLE, &structPtr->pool);
+
+            strcpy(structPtr->por, dbs.por);
+            setNullIfIndicated(dbs.ind_por, CHAR, structPtr->por);
+
+            strcpy(structPtr->rated, dbs.rated);
+            setNullIfIndicated(dbs.ind_rated, CHAR, structPtr->rated);
+
+            structPtr->lat = dbs.lat;
+            setNullIfIndicated(dbs.ind_lat, DOUBLE, &structPtr->lat);
+
+            structPtr->lon = dbs.lon;
+            setNullIfIndicated(dbs.ind_lon, DOUBLE, &structPtr->lon);
+
+            strcpy(structPtr->remark, dbs.remark);
+            setNullIfIndicated(dbs.ind_remark, CHAR, structPtr->remark);
+
+            structPtr->rrevise = pg_date_to_date_t(dbs.rrevise);
+            setNullIfIndicated(dbs.ind_rrevise, INT, &structPtr->rrevise);
+
+            strcpy(structPtr->rsource, dbs.rsource);
+            setNullIfIndicated(dbs.ind_rsource, CHAR, structPtr->rsource);
+
+            strcpy(structPtr->stream, dbs.stream);
+            setNullIfIndicated(dbs.ind_stream, CHAR, structPtr->stream);
+
+            strcpy(structPtr->tide, dbs.tide);
+            setNullIfIndicated(dbs.ind_tide, CHAR, structPtr->tide);
+
+            strcpy(structPtr->backwater, dbs.backwater);
+            setNullIfIndicated(dbs.ind_backwater, CHAR, structPtr->backwater);
+
+            strcpy(structPtr->vdatum, dbs.vdatum);
+            setNullIfIndicated(dbs.ind_vdatum, CHAR, structPtr->vdatum);
+
+            structPtr->action_flow = dbs.action_flow;
+            setNullIfIndicated(dbs.ind_action_flow, DOUBLE, &structPtr->action_flow);
+
+            structPtr->wstg = dbs.wstg;
+            setNullIfIndicated(dbs.ind_wstg, DOUBLE, &structPtr->wstg);
+
+            structPtr->zd = dbs.zd;
+            setNullIfIndicated(dbs.ind_zd, DOUBLE, &structPtr->zd);
+
+            structPtr->ratedat = pg_date_to_date_t(dbs.ratedat);
+            setNullIfIndicated(dbs.ind_ratedat, INT, &structPtr->ratedat);
+
+            strcpy(structPtr->usgs_ratenum, dbs.usgs_ratenum);
+            setNullIfIndicated(dbs.ind_usgs_ratenum, CHAR, structPtr->usgs_ratenum);
+
+            structPtr->uhgdur = dbs.uhgdur;
+            setNullIfIndicated(dbs.ind_uhgdur, INT, &structPtr->uhgdur);
+
+            strcpy(structPtr->use_latest_fcst, dbs.use_latest_fcst);
+            setNullIfIndicated(dbs.ind_use_latest_fcst, CHAR, structPtr->use_latest_fcst);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.lid, :dbs.primary_pe:dbs.ind_primary_pe, 
+        :dbs.bf:dbs.ind_bf, :dbs.cb:dbs.ind_cb, 
+        :dbs.da:dbs.ind_da, :dbs.response_time:dbs.ind_response_time, 
+        :dbs.threshold_runoff:dbs.ind_threshold_runoff, :dbs.fq:dbs.ind_fq, 
+        :dbs.fs:dbs.ind_fs, :dbs.gsno:dbs.ind_gsno, 
+        :dbs.level:dbs.ind_level, :dbs.mile:dbs.ind_mile, 
+        :dbs.pool:dbs.ind_pool, :dbs.por:dbs.ind_por, 
+        :dbs.rated:dbs.ind_rated, :dbs.lat:dbs.ind_lat, 
+        :dbs.lon:dbs.ind_lon, :dbs.remark:dbs.ind_remark, 
+        :dbs.rrevise:dbs.ind_rrevise, :dbs.rsource:dbs.ind_rsource, 
+        :dbs.stream:dbs.ind_stream, :dbs.tide:dbs.ind_tide, 
+        :dbs.backwater:dbs.ind_backwater, :dbs.vdatum:dbs.ind_vdatum, 
+        :dbs.action_flow:dbs.ind_action_flow, :dbs.wstg:dbs.ind_wstg, 
+        :dbs.zd:dbs.ind_zd, :dbs.ratedat:dbs.ind_ratedat, 
+        :dbs.usgs_ratenum:dbs.ind_usgs_ratenum, :dbs.uhgdur:dbs.ind_uhgdur, 
+        :dbs.use_latest_fcst:dbs.ind_use_latest_fcst        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectRiverstat() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectRiverstatCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM Riverstat ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRiverstat() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRiverstat() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRiverstat() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRiverstat() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutRiverstat(const Riverstat * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Riverstat_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.primary_pe, structPtr->primary_pe);
+    dbs.ind_primary_pe = getIndicator(CHAR, (void *)structPtr->primary_pe);
+
+    dbs.bf = structPtr->bf;
+    dbs.ind_bf = getIndicator(DOUBLE, (void *)&structPtr->bf);
+
+    dbs.cb = structPtr->cb;
+    dbs.ind_cb = getIndicator(DOUBLE, (void *)&structPtr->cb);
+
+    dbs.da = structPtr->da;
+    dbs.ind_da = getIndicator(DOUBLE, (void *)&structPtr->da);
+
+    dbs.response_time = structPtr->response_time;
+    dbs.ind_response_time = getIndicator(DOUBLE, (void *)&structPtr->response_time);
+
+    dbs.threshold_runoff = structPtr->threshold_runoff;
+    dbs.ind_threshold_runoff = getIndicator(DOUBLE, (void *)&structPtr->threshold_runoff);
+
+    dbs.fq = structPtr->fq;
+    dbs.ind_fq = getIndicator(DOUBLE, (void *)&structPtr->fq);
+
+    dbs.fs = structPtr->fs;
+    dbs.ind_fs = getIndicator(DOUBLE, (void *)&structPtr->fs);
+
+    strcpy(dbs.gsno, structPtr->gsno);
+    dbs.ind_gsno = getIndicator(CHAR, (void *)structPtr->gsno);
+
+    strcpy(dbs.level, structPtr->level);
+    dbs.ind_level = getIndicator(CHAR, (void *)structPtr->level);
+
+    dbs.mile = structPtr->mile;
+    dbs.ind_mile = getIndicator(DOUBLE, (void *)&structPtr->mile);
+
+    dbs.pool = structPtr->pool;
+    dbs.ind_pool = getIndicator(DOUBLE, (void *)&structPtr->pool);
+
+    strcpy(dbs.por, structPtr->por);
+    dbs.ind_por = getIndicator(CHAR, (void *)structPtr->por);
+
+    strcpy(dbs.rated, structPtr->rated);
+    dbs.ind_rated = getIndicator(CHAR, (void *)structPtr->rated);
+
+    dbs.lat = structPtr->lat;
+    dbs.ind_lat = getIndicator(DOUBLE, (void *)&structPtr->lat);
+
+    dbs.lon = structPtr->lon;
+    dbs.ind_lon = getIndicator(DOUBLE, (void *)&structPtr->lon);
+
+    strcpy(dbs.remark, structPtr->remark);
+    dbs.ind_remark = getIndicator(CHAR, (void *)structPtr->remark);
+
+    dbs.rrevise = date_t_to_pg_date(structPtr->rrevise);
+    dbs.ind_rrevise = getIndicator(INT, (void *)&structPtr->rrevise);
+
+    strcpy(dbs.rsource, structPtr->rsource);
+    dbs.ind_rsource = getIndicator(CHAR, (void *)structPtr->rsource);
+
+    strcpy(dbs.stream, structPtr->stream);
+    dbs.ind_stream = getIndicator(CHAR, (void *)structPtr->stream);
+
+    strcpy(dbs.tide, structPtr->tide);
+    dbs.ind_tide = getIndicator(CHAR, (void *)structPtr->tide);
+
+    strcpy(dbs.backwater, structPtr->backwater);
+    dbs.ind_backwater = getIndicator(CHAR, (void *)structPtr->backwater);
+
+    strcpy(dbs.vdatum, structPtr->vdatum);
+    dbs.ind_vdatum = getIndicator(CHAR, (void *)structPtr->vdatum);
+
+    dbs.action_flow = structPtr->action_flow;
+    dbs.ind_action_flow = getIndicator(DOUBLE, (void *)&structPtr->action_flow);
+
+    dbs.wstg = structPtr->wstg;
+    dbs.ind_wstg = getIndicator(DOUBLE, (void *)&structPtr->wstg);
+
+    dbs.zd = structPtr->zd;
+    dbs.ind_zd = getIndicator(DOUBLE, (void *)&structPtr->zd);
+
+    dbs.ratedat = date_t_to_pg_date(structPtr->ratedat);
+    dbs.ind_ratedat = getIndicator(INT, (void *)&structPtr->ratedat);
+
+    strcpy(dbs.usgs_ratenum, structPtr->usgs_ratenum);
+    dbs.ind_usgs_ratenum = getIndicator(CHAR, (void *)structPtr->usgs_ratenum);
+
+    dbs.uhgdur = structPtr->uhgdur;
+    dbs.ind_uhgdur = getIndicator(INT, (void *)&structPtr->uhgdur);
+
+    strcpy(dbs.use_latest_fcst, structPtr->use_latest_fcst);
+    dbs.ind_use_latest_fcst = getIndicator(CHAR, (void *)structPtr->use_latest_fcst);
+
+
+    EXEC SQL INSERT INTO Riverstat (lid,primary_pe,
+        bf,cb,da,
+        response_time,threshold_runoff,fq,
+        fs,gsno,level,
+        mile,pool,por,
+        rated,lat,lon,
+        remark,rrevise,rsource,
+        stream,tide,backwater,
+        vdatum,action_flow,wstg,
+        zd,ratedat,usgs_ratenum,
+        uhgdur,use_latest_fcst        )
+        VALUES (
+         :dbs.lid, :dbs.primary_pe:dbs.ind_primary_pe, :dbs.bf:dbs.ind_bf,
+         :dbs.cb:dbs.ind_cb, :dbs.da:dbs.ind_da, :dbs.response_time:dbs.ind_response_time,
+         :dbs.threshold_runoff:dbs.ind_threshold_runoff, :dbs.fq:dbs.ind_fq, :dbs.fs:dbs.ind_fs,
+         :dbs.gsno:dbs.ind_gsno, :dbs.level:dbs.ind_level, :dbs.mile:dbs.ind_mile,
+         :dbs.pool:dbs.ind_pool, :dbs.por:dbs.ind_por, :dbs.rated:dbs.ind_rated,
+         :dbs.lat:dbs.ind_lat, :dbs.lon:dbs.ind_lon, :dbs.remark:dbs.ind_remark,
+         :dbs.rrevise:dbs.ind_rrevise, :dbs.rsource:dbs.ind_rsource, :dbs.stream:dbs.ind_stream,
+         :dbs.tide:dbs.ind_tide, :dbs.backwater:dbs.ind_backwater, :dbs.vdatum:dbs.ind_vdatum,
+         :dbs.action_flow:dbs.ind_action_flow, :dbs.wstg:dbs.ind_wstg, :dbs.zd:dbs.ind_zd,
+         :dbs.ratedat:dbs.ind_ratedat, :dbs.usgs_ratenum:dbs.ind_usgs_ratenum, :dbs.uhgdur:dbs.ind_uhgdur,
+         :dbs.use_latest_fcst:dbs.ind_use_latest_fcst);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutRiverstat() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertRiverstat(const Riverstat * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Riverstat_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.primary_pe, structPtr->primary_pe);
+    dbs.ind_primary_pe = getIndicator(CHAR, (void *)structPtr->primary_pe);
+
+    dbs.bf = structPtr->bf;
+    dbs.ind_bf = getIndicator(DOUBLE, (void *)&structPtr->bf);
+
+    dbs.cb = structPtr->cb;
+    dbs.ind_cb = getIndicator(DOUBLE, (void *)&structPtr->cb);
+
+    dbs.da = structPtr->da;
+    dbs.ind_da = getIndicator(DOUBLE, (void *)&structPtr->da);
+
+    dbs.response_time = structPtr->response_time;
+    dbs.ind_response_time = getIndicator(DOUBLE, (void *)&structPtr->response_time);
+
+    dbs.threshold_runoff = structPtr->threshold_runoff;
+    dbs.ind_threshold_runoff = getIndicator(DOUBLE, (void *)&structPtr->threshold_runoff);
+
+    dbs.fq = structPtr->fq;
+    dbs.ind_fq = getIndicator(DOUBLE, (void *)&structPtr->fq);
+
+    dbs.fs = structPtr->fs;
+    dbs.ind_fs = getIndicator(DOUBLE, (void *)&structPtr->fs);
+
+    strcpy(dbs.gsno, structPtr->gsno);
+    dbs.ind_gsno = getIndicator(CHAR, (void *)structPtr->gsno);
+
+    strcpy(dbs.level, structPtr->level);
+    dbs.ind_level = getIndicator(CHAR, (void *)structPtr->level);
+
+    dbs.mile = structPtr->mile;
+    dbs.ind_mile = getIndicator(DOUBLE, (void *)&structPtr->mile);
+
+    dbs.pool = structPtr->pool;
+    dbs.ind_pool = getIndicator(DOUBLE, (void *)&structPtr->pool);
+
+    strcpy(dbs.por, structPtr->por);
+    dbs.ind_por = getIndicator(CHAR, (void *)structPtr->por);
+
+    strcpy(dbs.rated, structPtr->rated);
+    dbs.ind_rated = getIndicator(CHAR, (void *)structPtr->rated);
+
+    dbs.lat = structPtr->lat;
+    dbs.ind_lat = getIndicator(DOUBLE, (void *)&structPtr->lat);
+
+    dbs.lon = structPtr->lon;
+    dbs.ind_lon = getIndicator(DOUBLE, (void *)&structPtr->lon);
+
+    strcpy(dbs.remark, structPtr->remark);
+    dbs.ind_remark = getIndicator(CHAR, (void *)structPtr->remark);
+
+    dbs.rrevise = date_t_to_pg_date(structPtr->rrevise);
+    dbs.ind_rrevise = getIndicator(INT, (void *)&structPtr->rrevise);
+
+    strcpy(dbs.rsource, structPtr->rsource);
+    dbs.ind_rsource = getIndicator(CHAR, (void *)structPtr->rsource);
+
+    strcpy(dbs.stream, structPtr->stream);
+    dbs.ind_stream = getIndicator(CHAR, (void *)structPtr->stream);
+
+    strcpy(dbs.tide, structPtr->tide);
+    dbs.ind_tide = getIndicator(CHAR, (void *)structPtr->tide);
+
+    strcpy(dbs.backwater, structPtr->backwater);
+    dbs.ind_backwater = getIndicator(CHAR, (void *)structPtr->backwater);
+
+    strcpy(dbs.vdatum, structPtr->vdatum);
+    dbs.ind_vdatum = getIndicator(CHAR, (void *)structPtr->vdatum);
+
+    dbs.action_flow = structPtr->action_flow;
+    dbs.ind_action_flow = getIndicator(DOUBLE, (void *)&structPtr->action_flow);
+
+    dbs.wstg = structPtr->wstg;
+    dbs.ind_wstg = getIndicator(DOUBLE, (void *)&structPtr->wstg);
+
+    dbs.zd = structPtr->zd;
+    dbs.ind_zd = getIndicator(DOUBLE, (void *)&structPtr->zd);
+
+    dbs.ratedat = date_t_to_pg_date(structPtr->ratedat);
+    dbs.ind_ratedat = getIndicator(INT, (void *)&structPtr->ratedat);
+
+    strcpy(dbs.usgs_ratenum, structPtr->usgs_ratenum);
+    dbs.ind_usgs_ratenum = getIndicator(CHAR, (void *)structPtr->usgs_ratenum);
+
+    dbs.uhgdur = structPtr->uhgdur;
+    dbs.ind_uhgdur = getIndicator(INT, (void *)&structPtr->uhgdur);
+
+    strcpy(dbs.use_latest_fcst, structPtr->use_latest_fcst);
+    dbs.ind_use_latest_fcst = getIndicator(CHAR, (void *)structPtr->use_latest_fcst);
+
+
+    EXEC SQL INSERT INTO Riverstat (lid,primary_pe,
+        bf,cb,da,
+        response_time,threshold_runoff,fq,
+        fs,gsno,level,
+        mile,pool,por,
+        rated,lat,lon,
+        remark,rrevise,rsource,
+        stream,tide,backwater,
+        vdatum,action_flow,wstg,
+        zd,ratedat,usgs_ratenum,
+        uhgdur,use_latest_fcst        )
+        VALUES (
+         :dbs.lid, :dbs.primary_pe:dbs.ind_primary_pe, :dbs.bf:dbs.ind_bf,
+         :dbs.cb:dbs.ind_cb, :dbs.da:dbs.ind_da, :dbs.response_time:dbs.ind_response_time,
+         :dbs.threshold_runoff:dbs.ind_threshold_runoff, :dbs.fq:dbs.ind_fq, :dbs.fs:dbs.ind_fs,
+         :dbs.gsno:dbs.ind_gsno, :dbs.level:dbs.ind_level, :dbs.mile:dbs.ind_mile,
+         :dbs.pool:dbs.ind_pool, :dbs.por:dbs.ind_por, :dbs.rated:dbs.ind_rated,
+         :dbs.lat:dbs.ind_lat, :dbs.lon:dbs.ind_lon, :dbs.remark:dbs.ind_remark,
+         :dbs.rrevise:dbs.ind_rrevise, :dbs.rsource:dbs.ind_rsource, :dbs.stream:dbs.ind_stream,
+         :dbs.tide:dbs.ind_tide, :dbs.backwater:dbs.ind_backwater, :dbs.vdatum:dbs.ind_vdatum,
+         :dbs.action_flow:dbs.ind_action_flow, :dbs.wstg:dbs.ind_wstg, :dbs.zd:dbs.ind_zd,
+         :dbs.ratedat:dbs.ind_ratedat, :dbs.usgs_ratenum:dbs.ind_usgs_ratenum, :dbs.uhgdur:dbs.ind_uhgdur,
+         :dbs.use_latest_fcst:dbs.ind_use_latest_fcst);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertRiverstat() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateRiverstat(const Riverstat *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Riverstat_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.primary_pe, structPtr->primary_pe);
+    dbs.ind_primary_pe = getIndicator(CHAR, (void *)structPtr->primary_pe);
+
+    dbs.bf = structPtr->bf;
+    dbs.ind_bf = getIndicator(DOUBLE, (void *)&structPtr->bf);
+
+    dbs.cb = structPtr->cb;
+    dbs.ind_cb = getIndicator(DOUBLE, (void *)&structPtr->cb);
+
+    dbs.da = structPtr->da;
+    dbs.ind_da = getIndicator(DOUBLE, (void *)&structPtr->da);
+
+    dbs.response_time = structPtr->response_time;
+    dbs.ind_response_time = getIndicator(DOUBLE, (void *)&structPtr->response_time);
+
+    dbs.threshold_runoff = structPtr->threshold_runoff;
+    dbs.ind_threshold_runoff = getIndicator(DOUBLE, (void *)&structPtr->threshold_runoff);
+
+    dbs.fq = structPtr->fq;
+    dbs.ind_fq = getIndicator(DOUBLE, (void *)&structPtr->fq);
+
+    dbs.fs = structPtr->fs;
+    dbs.ind_fs = getIndicator(DOUBLE, (void *)&structPtr->fs);
+
+    strcpy(dbs.gsno, structPtr->gsno);
+    dbs.ind_gsno = getIndicator(CHAR, (void *)structPtr->gsno);
+
+    strcpy(dbs.level, structPtr->level);
+    dbs.ind_level = getIndicator(CHAR, (void *)structPtr->level);
+
+    dbs.mile = structPtr->mile;
+    dbs.ind_mile = getIndicator(DOUBLE, (void *)&structPtr->mile);
+
+    dbs.pool = structPtr->pool;
+    dbs.ind_pool = getIndicator(DOUBLE, (void *)&structPtr->pool);
+
+    strcpy(dbs.por, structPtr->por);
+    dbs.ind_por = getIndicator(CHAR, (void *)structPtr->por);
+
+    strcpy(dbs.rated, structPtr->rated);
+    dbs.ind_rated = getIndicator(CHAR, (void *)structPtr->rated);
+
+    dbs.lat = structPtr->lat;
+    dbs.ind_lat = getIndicator(DOUBLE, (void *)&structPtr->lat);
+
+    dbs.lon = structPtr->lon;
+    dbs.ind_lon = getIndicator(DOUBLE, (void *)&structPtr->lon);
+
+    strcpy(dbs.remark, structPtr->remark);
+    dbs.ind_remark = getIndicator(CHAR, (void *)structPtr->remark);
+
+    dbs.rrevise = date_t_to_pg_date(structPtr->rrevise);
+    dbs.ind_rrevise = getIndicator(INT, (void *)&structPtr->rrevise);
+
+    strcpy(dbs.rsource, structPtr->rsource);
+    dbs.ind_rsource = getIndicator(CHAR, (void *)structPtr->rsource);
+
+    strcpy(dbs.stream, structPtr->stream);
+    dbs.ind_stream = getIndicator(CHAR, (void *)structPtr->stream);
+
+    strcpy(dbs.tide, structPtr->tide);
+    dbs.ind_tide = getIndicator(CHAR, (void *)structPtr->tide);
+
+    strcpy(dbs.backwater, structPtr->backwater);
+    dbs.ind_backwater = getIndicator(CHAR, (void *)structPtr->backwater);
+
+    strcpy(dbs.vdatum, structPtr->vdatum);
+    dbs.ind_vdatum = getIndicator(CHAR, (void *)structPtr->vdatum);
+
+    dbs.action_flow = structPtr->action_flow;
+    dbs.ind_action_flow = getIndicator(DOUBLE, (void *)&structPtr->action_flow);
+
+    dbs.wstg = structPtr->wstg;
+    dbs.ind_wstg = getIndicator(DOUBLE, (void *)&structPtr->wstg);
+
+    dbs.zd = structPtr->zd;
+    dbs.ind_zd = getIndicator(DOUBLE, (void *)&structPtr->zd);
+
+    dbs.ratedat = date_t_to_pg_date(structPtr->ratedat);
+    dbs.ind_ratedat = getIndicator(INT, (void *)&structPtr->ratedat);
+
+    strcpy(dbs.usgs_ratenum, structPtr->usgs_ratenum);
+    dbs.ind_usgs_ratenum = getIndicator(CHAR, (void *)structPtr->usgs_ratenum);
+
+    dbs.uhgdur = structPtr->uhgdur;
+    dbs.ind_uhgdur = getIndicator(INT, (void *)&structPtr->uhgdur);
+
+    strcpy(dbs.use_latest_fcst, structPtr->use_latest_fcst);
+    dbs.ind_use_latest_fcst = getIndicator(CHAR, (void *)structPtr->use_latest_fcst);
+
+
+    sprintf(queryBuffer, " UPDATE Riverstat SET " );
+    strcat(queryBuffer, "lid = ? , primary_pe = ? , bf = ? , cb = ? , da = ? ,     ");
+    strcat(queryBuffer, "response_time = ? , threshold_runoff = ? , fq = ? , fs = ? , gsno = ? ,     ");
+    strcat(queryBuffer, "level = ? , mile = ? , pool = ? , por = ? , rated = ? ,     ");
+    strcat(queryBuffer, "lat = ? , lon = ? , remark = ? , rrevise = ? , rsource = ? ,     ");
+    strcat(queryBuffer, "stream = ? , tide = ? , backwater = ? , vdatum = ? , action_flow = ? ,     ");
+    strcat(queryBuffer, "wstg = ? , zd = ? , ratedat = ? , usgs_ratenum = ? , uhgdur = ? ,     ");
+    strcat(queryBuffer, "use_latest_fcst = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateRiverstat() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.lid, :dbs.primary_pe:dbs.ind_primary_pe, :dbs.bf:dbs.ind_bf, :dbs.cb:dbs.ind_cb, :dbs.da:dbs.ind_da,
+     :dbs.response_time:dbs.ind_response_time, :dbs.threshold_runoff:dbs.ind_threshold_runoff, :dbs.fq:dbs.ind_fq, :dbs.fs:dbs.ind_fs, :dbs.gsno:dbs.ind_gsno,
+     :dbs.level:dbs.ind_level, :dbs.mile:dbs.ind_mile, :dbs.pool:dbs.ind_pool, :dbs.por:dbs.ind_por, :dbs.rated:dbs.ind_rated,
+     :dbs.lat:dbs.ind_lat, :dbs.lon:dbs.ind_lon, :dbs.remark:dbs.ind_remark, :dbs.rrevise:dbs.ind_rrevise, :dbs.rsource:dbs.ind_rsource,
+     :dbs.stream:dbs.ind_stream, :dbs.tide:dbs.ind_tide, :dbs.backwater:dbs.ind_backwater, :dbs.vdatum:dbs.ind_vdatum, :dbs.action_flow:dbs.ind_action_flow,
+     :dbs.wstg:dbs.ind_wstg, :dbs.zd:dbs.ind_zd, :dbs.ratedat:dbs.ind_ratedat, :dbs.usgs_ratenum:dbs.ind_usgs_ratenum, :dbs.uhgdur:dbs.ind_uhgdur,
+     :dbs.use_latest_fcst:dbs.ind_use_latest_fcst;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateRiverstat() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteRiverstat(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM Riverstat ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteRiverstat() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateRiverstatByRecord (const Riverstat * newStructPtr, const Riverstat * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetRiverstatPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateRiverstat(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateRiverstat(const Riverstat * structPtr)
+{
+    UpdateRiverstatByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertRiverstat(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueRiverstat(const Riverstat * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (RiverstatExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertRiverstat(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteRiverstatByRecord(const Riverstat * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetRiverstatPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteRiverstat(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool RiverstatExists(const Riverstat * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetRiverstatPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectRiverstatCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetRiverstatPrimaryKeyWhereString (const Riverstat * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE lid = '%s' ",
+            structPtr->lid);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeRiverstat( Riverstat * structPtr)
+{
+    Riverstat* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( Riverstat * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetRiverstatDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetRiverstatErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

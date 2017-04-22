@@ -1,0 +1,19 @@
+C                                           *--> FROM COMMON.MODUHG
+       CHARACTER*8 UHGOPN 
+       COMMON /MODUHG/MDTUHG,NDTUHG,IOPUHG(2,20),JDTUHG(3,20),
+     *                MVLUHG,NVLUHG(20),UHGVAL(20,100), UHGOPN(20)
+C
+ckwz MDTUHG: Maximum mods allowing for UHGCDATE(20?)
+ckwz NDTUHG: number mods upto 20
+ckwz IOPUHG: identifier ??????
+ckwz JDTUHG(1,mod number): start date include hour (in time.h tm format)
+ckwz JDTUHG(2,mod number): valid date include hour
+ckwz JDTUHG(3,mod number): end date include hour
+ckwz MVLUHG: Maximum number of ordinates for a UHGCDATE mod(100?)
+ckwz NVLUHG(mod number): Number of ordinates for each UHGCDATE mod.
+ckwz UHGVAL(mod number,mod value index): Mod ordinates
+ckwz UHGOPN: Basin or Operation Name? (defined twice???)
+
+c*******UHGCDATE FORMAT************
+c .UHGCDATE MMDDYYHHZ MMDDYYHHZ MMDDYYHHZ
+c identifier values [/opname]

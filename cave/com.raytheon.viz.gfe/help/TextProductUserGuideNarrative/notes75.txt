@@ -1,0 +1,2 @@
+There is the case of a "degenerate" conjunctive local effect in which we initially had multiple time periods, but in the process of combining sub-phrases, we ended up with only one time period for each local effect area.  We must now "glue" these single-period phrases back together to form the embedded Local Effect.  The code for this is in the PhraseBuilder method "combineConjunctiveLocalEffects" which is called when we assemble the component phrases..
+

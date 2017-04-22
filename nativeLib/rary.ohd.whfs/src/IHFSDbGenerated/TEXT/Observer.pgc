@@ -1,0 +1,1111 @@
+/*
+    File: Observer.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:25 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "Observer.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct Observer_t
+{
+    char		lid[9];
+    char		a1[31];
+    char		a2[31];
+    char		a3[31];
+    char		city[31];
+    char		state[3];
+    char		zip[11];
+    char		comm[11];
+    date		dos;
+    char		gn[2];
+    char		hphone[19];
+    char		firstname[13];
+    char		lastname[29];
+    char		phone[19];
+    char		email[61];
+    char		ornr[5];
+    double		rate;
+    char		recip[16];
+    char		rprt[61];
+    char		spons[8];
+    char		ssn[12];
+    char		tsk[14];
+
+    int		ind_a1;
+    int		ind_a2;
+    int		ind_a3;
+    int		ind_city;
+    int		ind_zip;
+    int		ind_dos;
+    int		ind_gn;
+    int		ind_hphone;
+    int		ind_firstname;
+    int		ind_lastname;
+    int		ind_phone;
+    int		ind_email;
+    int		ind_ornr;
+    int		ind_rate;
+    int		ind_rprt;
+    int		ind_ssn;
+    int		ind_tsk;
+} Observer_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+Observer * GetObserver(const char * where)
+{
+
+    Observer * listPtr = NULL;
+    Observer * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM Observer ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Observer_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetObserver() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetObserver() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetObserver() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.lid, :dbs.a1:dbs.ind_a1, 
+    :dbs.a2:dbs.ind_a2, :dbs.a3:dbs.ind_a3, 
+    :dbs.city:dbs.ind_city, :dbs.state, 
+    :dbs.zip:dbs.ind_zip, :dbs.comm, 
+    :dbs.dos:dbs.ind_dos, :dbs.gn:dbs.ind_gn, 
+    :dbs.hphone:dbs.ind_hphone, :dbs.firstname:dbs.ind_firstname, 
+    :dbs.lastname:dbs.ind_lastname, :dbs.phone:dbs.ind_phone, 
+    :dbs.email:dbs.ind_email, :dbs.ornr:dbs.ind_ornr, 
+    :dbs.rate:dbs.ind_rate, :dbs.recip, 
+    :dbs.rprt:dbs.ind_rprt, :dbs.spons, 
+    :dbs.ssn:dbs.ind_ssn, :dbs.tsk:dbs.ind_tsk    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetObserver() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (Observer *) malloc(sizeof(Observer))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->a1, dbs.a1);
+            setNullIfIndicated(dbs.ind_a1, CHAR, structPtr->a1);
+
+            strcpy(structPtr->a2, dbs.a2);
+            setNullIfIndicated(dbs.ind_a2, CHAR, structPtr->a2);
+
+            strcpy(structPtr->a3, dbs.a3);
+            setNullIfIndicated(dbs.ind_a3, CHAR, structPtr->a3);
+
+            strcpy(structPtr->city, dbs.city);
+            setNullIfIndicated(dbs.ind_city, CHAR, structPtr->city);
+
+            strcpy(structPtr->state, dbs.state);
+
+            strcpy(structPtr->zip, dbs.zip);
+            setNullIfIndicated(dbs.ind_zip, CHAR, structPtr->zip);
+
+            strcpy(structPtr->comm, dbs.comm);
+
+            structPtr->dos = pg_date_to_date_t(dbs.dos);
+            setNullIfIndicated(dbs.ind_dos, INT, &structPtr->dos);
+
+            strcpy(structPtr->gn, dbs.gn);
+            setNullIfIndicated(dbs.ind_gn, CHAR, structPtr->gn);
+
+            strcpy(structPtr->hphone, dbs.hphone);
+            setNullIfIndicated(dbs.ind_hphone, CHAR, structPtr->hphone);
+
+            strcpy(structPtr->firstname, dbs.firstname);
+            setNullIfIndicated(dbs.ind_firstname, CHAR, structPtr->firstname);
+
+            strcpy(structPtr->lastname, dbs.lastname);
+            setNullIfIndicated(dbs.ind_lastname, CHAR, structPtr->lastname);
+
+            strcpy(structPtr->phone, dbs.phone);
+            setNullIfIndicated(dbs.ind_phone, CHAR, structPtr->phone);
+
+            strcpy(structPtr->email, dbs.email);
+            setNullIfIndicated(dbs.ind_email, CHAR, structPtr->email);
+
+            strcpy(structPtr->ornr, dbs.ornr);
+            setNullIfIndicated(dbs.ind_ornr, CHAR, structPtr->ornr);
+
+            structPtr->rate = dbs.rate;
+            setNullIfIndicated(dbs.ind_rate, DOUBLE, &structPtr->rate);
+
+            strcpy(structPtr->recip, dbs.recip);
+
+            strcpy(structPtr->rprt, dbs.rprt);
+            setNullIfIndicated(dbs.ind_rprt, CHAR, structPtr->rprt);
+
+            strcpy(structPtr->spons, dbs.spons);
+
+            strcpy(structPtr->ssn, dbs.ssn);
+            setNullIfIndicated(dbs.ind_ssn, CHAR, structPtr->ssn);
+
+            strcpy(structPtr->tsk, dbs.tsk);
+            setNullIfIndicated(dbs.ind_tsk, CHAR, structPtr->tsk);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.lid, :dbs.a1:dbs.ind_a1, 
+        :dbs.a2:dbs.ind_a2, :dbs.a3:dbs.ind_a3, 
+        :dbs.city:dbs.ind_city, :dbs.state, 
+        :dbs.zip:dbs.ind_zip, :dbs.comm, 
+        :dbs.dos:dbs.ind_dos, :dbs.gn:dbs.ind_gn, 
+        :dbs.hphone:dbs.ind_hphone, :dbs.firstname:dbs.ind_firstname, 
+        :dbs.lastname:dbs.ind_lastname, :dbs.phone:dbs.ind_phone, 
+        :dbs.email:dbs.ind_email, :dbs.ornr:dbs.ind_ornr, 
+        :dbs.rate:dbs.ind_rate, :dbs.recip, 
+        :dbs.rprt:dbs.ind_rprt, :dbs.spons, 
+        :dbs.ssn:dbs.ind_ssn, :dbs.tsk:dbs.ind_tsk        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetObserver() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+Observer * SelectObserver(const char * where)
+{
+
+    Observer * listPtr = NULL;
+    Observer * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM Observer ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Observer_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectObserver() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectObserver() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectObserver() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.lid, :dbs.a1:dbs.ind_a1, 
+    :dbs.a2:dbs.ind_a2, :dbs.a3:dbs.ind_a3, 
+    :dbs.city:dbs.ind_city, :dbs.state, 
+    :dbs.zip:dbs.ind_zip, :dbs.comm, 
+    :dbs.dos:dbs.ind_dos, :dbs.gn:dbs.ind_gn, 
+    :dbs.hphone:dbs.ind_hphone, :dbs.firstname:dbs.ind_firstname, 
+    :dbs.lastname:dbs.ind_lastname, :dbs.phone:dbs.ind_phone, 
+    :dbs.email:dbs.ind_email, :dbs.ornr:dbs.ind_ornr, 
+    :dbs.rate:dbs.ind_rate, :dbs.recip, 
+    :dbs.rprt:dbs.ind_rprt, :dbs.spons, 
+    :dbs.ssn:dbs.ind_ssn, :dbs.tsk:dbs.ind_tsk    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectObserver() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (Observer *) malloc(sizeof(Observer))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->a1, dbs.a1);
+            setNullIfIndicated(dbs.ind_a1, CHAR, structPtr->a1);
+
+            strcpy(structPtr->a2, dbs.a2);
+            setNullIfIndicated(dbs.ind_a2, CHAR, structPtr->a2);
+
+            strcpy(structPtr->a3, dbs.a3);
+            setNullIfIndicated(dbs.ind_a3, CHAR, structPtr->a3);
+
+            strcpy(structPtr->city, dbs.city);
+            setNullIfIndicated(dbs.ind_city, CHAR, structPtr->city);
+
+            strcpy(structPtr->state, dbs.state);
+
+            strcpy(structPtr->zip, dbs.zip);
+            setNullIfIndicated(dbs.ind_zip, CHAR, structPtr->zip);
+
+            strcpy(structPtr->comm, dbs.comm);
+
+            structPtr->dos = pg_date_to_date_t(dbs.dos);
+            setNullIfIndicated(dbs.ind_dos, INT, &structPtr->dos);
+
+            strcpy(structPtr->gn, dbs.gn);
+            setNullIfIndicated(dbs.ind_gn, CHAR, structPtr->gn);
+
+            strcpy(structPtr->hphone, dbs.hphone);
+            setNullIfIndicated(dbs.ind_hphone, CHAR, structPtr->hphone);
+
+            strcpy(structPtr->firstname, dbs.firstname);
+            setNullIfIndicated(dbs.ind_firstname, CHAR, structPtr->firstname);
+
+            strcpy(structPtr->lastname, dbs.lastname);
+            setNullIfIndicated(dbs.ind_lastname, CHAR, structPtr->lastname);
+
+            strcpy(structPtr->phone, dbs.phone);
+            setNullIfIndicated(dbs.ind_phone, CHAR, structPtr->phone);
+
+            strcpy(structPtr->email, dbs.email);
+            setNullIfIndicated(dbs.ind_email, CHAR, structPtr->email);
+
+            strcpy(structPtr->ornr, dbs.ornr);
+            setNullIfIndicated(dbs.ind_ornr, CHAR, structPtr->ornr);
+
+            structPtr->rate = dbs.rate;
+            setNullIfIndicated(dbs.ind_rate, DOUBLE, &structPtr->rate);
+
+            strcpy(structPtr->recip, dbs.recip);
+
+            strcpy(structPtr->rprt, dbs.rprt);
+            setNullIfIndicated(dbs.ind_rprt, CHAR, structPtr->rprt);
+
+            strcpy(structPtr->spons, dbs.spons);
+
+            strcpy(structPtr->ssn, dbs.ssn);
+            setNullIfIndicated(dbs.ind_ssn, CHAR, structPtr->ssn);
+
+            strcpy(structPtr->tsk, dbs.tsk);
+            setNullIfIndicated(dbs.ind_tsk, CHAR, structPtr->tsk);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.lid, :dbs.a1:dbs.ind_a1, 
+        :dbs.a2:dbs.ind_a2, :dbs.a3:dbs.ind_a3, 
+        :dbs.city:dbs.ind_city, :dbs.state, 
+        :dbs.zip:dbs.ind_zip, :dbs.comm, 
+        :dbs.dos:dbs.ind_dos, :dbs.gn:dbs.ind_gn, 
+        :dbs.hphone:dbs.ind_hphone, :dbs.firstname:dbs.ind_firstname, 
+        :dbs.lastname:dbs.ind_lastname, :dbs.phone:dbs.ind_phone, 
+        :dbs.email:dbs.ind_email, :dbs.ornr:dbs.ind_ornr, 
+        :dbs.rate:dbs.ind_rate, :dbs.recip, 
+        :dbs.rprt:dbs.ind_rprt, :dbs.spons, 
+        :dbs.ssn:dbs.ind_ssn, :dbs.tsk:dbs.ind_tsk        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectObserver() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectObserverCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM Observer ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountObserver() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountObserver() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountObserver() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountObserver() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutObserver(const Observer * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Observer_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.a1, structPtr->a1);
+    dbs.ind_a1 = getIndicator(CHAR, (void *)structPtr->a1);
+
+    strcpy(dbs.a2, structPtr->a2);
+    dbs.ind_a2 = getIndicator(CHAR, (void *)structPtr->a2);
+
+    strcpy(dbs.a3, structPtr->a3);
+    dbs.ind_a3 = getIndicator(CHAR, (void *)structPtr->a3);
+
+    strcpy(dbs.city, structPtr->city);
+    dbs.ind_city = getIndicator(CHAR, (void *)structPtr->city);
+
+    strcpy(dbs.state, structPtr->state);
+
+    strcpy(dbs.zip, structPtr->zip);
+    dbs.ind_zip = getIndicator(CHAR, (void *)structPtr->zip);
+
+    strcpy(dbs.comm, structPtr->comm);
+
+    dbs.dos = date_t_to_pg_date(structPtr->dos);
+    dbs.ind_dos = getIndicator(INT, (void *)&structPtr->dos);
+
+    strcpy(dbs.gn, structPtr->gn);
+    dbs.ind_gn = getIndicator(CHAR, (void *)structPtr->gn);
+
+    strcpy(dbs.hphone, structPtr->hphone);
+    dbs.ind_hphone = getIndicator(CHAR, (void *)structPtr->hphone);
+
+    strcpy(dbs.firstname, structPtr->firstname);
+    dbs.ind_firstname = getIndicator(CHAR, (void *)structPtr->firstname);
+
+    strcpy(dbs.lastname, structPtr->lastname);
+    dbs.ind_lastname = getIndicator(CHAR, (void *)structPtr->lastname);
+
+    strcpy(dbs.phone, structPtr->phone);
+    dbs.ind_phone = getIndicator(CHAR, (void *)structPtr->phone);
+
+    strcpy(dbs.email, structPtr->email);
+    dbs.ind_email = getIndicator(CHAR, (void *)structPtr->email);
+
+    strcpy(dbs.ornr, structPtr->ornr);
+    dbs.ind_ornr = getIndicator(CHAR, (void *)structPtr->ornr);
+
+    dbs.rate = structPtr->rate;
+    dbs.ind_rate = getIndicator(DOUBLE, (void *)&structPtr->rate);
+
+    strcpy(dbs.recip, structPtr->recip);
+
+    strcpy(dbs.rprt, structPtr->rprt);
+    dbs.ind_rprt = getIndicator(CHAR, (void *)structPtr->rprt);
+
+    strcpy(dbs.spons, structPtr->spons);
+
+    strcpy(dbs.ssn, structPtr->ssn);
+    dbs.ind_ssn = getIndicator(CHAR, (void *)structPtr->ssn);
+
+    strcpy(dbs.tsk, structPtr->tsk);
+    dbs.ind_tsk = getIndicator(CHAR, (void *)structPtr->tsk);
+
+
+    EXEC SQL INSERT INTO Observer (lid,a1,
+        a2,a3,city,
+        state,zip,comm,
+        dos,gn,hphone,
+        firstname,lastname,phone,
+        email,ornr,rate,
+        recip,rprt,spons,
+        ssn,tsk        )
+        VALUES (
+         :dbs.lid, :dbs.a1:dbs.ind_a1, :dbs.a2:dbs.ind_a2,
+         :dbs.a3:dbs.ind_a3, :dbs.city:dbs.ind_city, :dbs.state,
+         :dbs.zip:dbs.ind_zip, :dbs.comm, :dbs.dos:dbs.ind_dos,
+         :dbs.gn:dbs.ind_gn, :dbs.hphone:dbs.ind_hphone, :dbs.firstname:dbs.ind_firstname,
+         :dbs.lastname:dbs.ind_lastname, :dbs.phone:dbs.ind_phone, :dbs.email:dbs.ind_email,
+         :dbs.ornr:dbs.ind_ornr, :dbs.rate:dbs.ind_rate, :dbs.recip,
+         :dbs.rprt:dbs.ind_rprt, :dbs.spons, :dbs.ssn:dbs.ind_ssn,
+         :dbs.tsk:dbs.ind_tsk);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutObserver() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertObserver(const Observer * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Observer_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.a1, structPtr->a1);
+    dbs.ind_a1 = getIndicator(CHAR, (void *)structPtr->a1);
+
+    strcpy(dbs.a2, structPtr->a2);
+    dbs.ind_a2 = getIndicator(CHAR, (void *)structPtr->a2);
+
+    strcpy(dbs.a3, structPtr->a3);
+    dbs.ind_a3 = getIndicator(CHAR, (void *)structPtr->a3);
+
+    strcpy(dbs.city, structPtr->city);
+    dbs.ind_city = getIndicator(CHAR, (void *)structPtr->city);
+
+    strcpy(dbs.state, structPtr->state);
+
+    strcpy(dbs.zip, structPtr->zip);
+    dbs.ind_zip = getIndicator(CHAR, (void *)structPtr->zip);
+
+    strcpy(dbs.comm, structPtr->comm);
+
+    dbs.dos = date_t_to_pg_date(structPtr->dos);
+    dbs.ind_dos = getIndicator(INT, (void *)&structPtr->dos);
+
+    strcpy(dbs.gn, structPtr->gn);
+    dbs.ind_gn = getIndicator(CHAR, (void *)structPtr->gn);
+
+    strcpy(dbs.hphone, structPtr->hphone);
+    dbs.ind_hphone = getIndicator(CHAR, (void *)structPtr->hphone);
+
+    strcpy(dbs.firstname, structPtr->firstname);
+    dbs.ind_firstname = getIndicator(CHAR, (void *)structPtr->firstname);
+
+    strcpy(dbs.lastname, structPtr->lastname);
+    dbs.ind_lastname = getIndicator(CHAR, (void *)structPtr->lastname);
+
+    strcpy(dbs.phone, structPtr->phone);
+    dbs.ind_phone = getIndicator(CHAR, (void *)structPtr->phone);
+
+    strcpy(dbs.email, structPtr->email);
+    dbs.ind_email = getIndicator(CHAR, (void *)structPtr->email);
+
+    strcpy(dbs.ornr, structPtr->ornr);
+    dbs.ind_ornr = getIndicator(CHAR, (void *)structPtr->ornr);
+
+    dbs.rate = structPtr->rate;
+    dbs.ind_rate = getIndicator(DOUBLE, (void *)&structPtr->rate);
+
+    strcpy(dbs.recip, structPtr->recip);
+
+    strcpy(dbs.rprt, structPtr->rprt);
+    dbs.ind_rprt = getIndicator(CHAR, (void *)structPtr->rprt);
+
+    strcpy(dbs.spons, structPtr->spons);
+
+    strcpy(dbs.ssn, structPtr->ssn);
+    dbs.ind_ssn = getIndicator(CHAR, (void *)structPtr->ssn);
+
+    strcpy(dbs.tsk, structPtr->tsk);
+    dbs.ind_tsk = getIndicator(CHAR, (void *)structPtr->tsk);
+
+
+    EXEC SQL INSERT INTO Observer (lid,a1,
+        a2,a3,city,
+        state,zip,comm,
+        dos,gn,hphone,
+        firstname,lastname,phone,
+        email,ornr,rate,
+        recip,rprt,spons,
+        ssn,tsk        )
+        VALUES (
+         :dbs.lid, :dbs.a1:dbs.ind_a1, :dbs.a2:dbs.ind_a2,
+         :dbs.a3:dbs.ind_a3, :dbs.city:dbs.ind_city, :dbs.state,
+         :dbs.zip:dbs.ind_zip, :dbs.comm, :dbs.dos:dbs.ind_dos,
+         :dbs.gn:dbs.ind_gn, :dbs.hphone:dbs.ind_hphone, :dbs.firstname:dbs.ind_firstname,
+         :dbs.lastname:dbs.ind_lastname, :dbs.phone:dbs.ind_phone, :dbs.email:dbs.ind_email,
+         :dbs.ornr:dbs.ind_ornr, :dbs.rate:dbs.ind_rate, :dbs.recip,
+         :dbs.rprt:dbs.ind_rprt, :dbs.spons, :dbs.ssn:dbs.ind_ssn,
+         :dbs.tsk:dbs.ind_tsk);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertObserver() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateObserver(const Observer *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Observer_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.a1, structPtr->a1);
+    dbs.ind_a1 = getIndicator(CHAR, (void *)structPtr->a1);
+
+    strcpy(dbs.a2, structPtr->a2);
+    dbs.ind_a2 = getIndicator(CHAR, (void *)structPtr->a2);
+
+    strcpy(dbs.a3, structPtr->a3);
+    dbs.ind_a3 = getIndicator(CHAR, (void *)structPtr->a3);
+
+    strcpy(dbs.city, structPtr->city);
+    dbs.ind_city = getIndicator(CHAR, (void *)structPtr->city);
+
+    strcpy(dbs.state, structPtr->state);
+
+    strcpy(dbs.zip, structPtr->zip);
+    dbs.ind_zip = getIndicator(CHAR, (void *)structPtr->zip);
+
+    strcpy(dbs.comm, structPtr->comm);
+
+    dbs.dos = date_t_to_pg_date(structPtr->dos);
+    dbs.ind_dos = getIndicator(INT, (void *)&structPtr->dos);
+
+    strcpy(dbs.gn, structPtr->gn);
+    dbs.ind_gn = getIndicator(CHAR, (void *)structPtr->gn);
+
+    strcpy(dbs.hphone, structPtr->hphone);
+    dbs.ind_hphone = getIndicator(CHAR, (void *)structPtr->hphone);
+
+    strcpy(dbs.firstname, structPtr->firstname);
+    dbs.ind_firstname = getIndicator(CHAR, (void *)structPtr->firstname);
+
+    strcpy(dbs.lastname, structPtr->lastname);
+    dbs.ind_lastname = getIndicator(CHAR, (void *)structPtr->lastname);
+
+    strcpy(dbs.phone, structPtr->phone);
+    dbs.ind_phone = getIndicator(CHAR, (void *)structPtr->phone);
+
+    strcpy(dbs.email, structPtr->email);
+    dbs.ind_email = getIndicator(CHAR, (void *)structPtr->email);
+
+    strcpy(dbs.ornr, structPtr->ornr);
+    dbs.ind_ornr = getIndicator(CHAR, (void *)structPtr->ornr);
+
+    dbs.rate = structPtr->rate;
+    dbs.ind_rate = getIndicator(DOUBLE, (void *)&structPtr->rate);
+
+    strcpy(dbs.recip, structPtr->recip);
+
+    strcpy(dbs.rprt, structPtr->rprt);
+    dbs.ind_rprt = getIndicator(CHAR, (void *)structPtr->rprt);
+
+    strcpy(dbs.spons, structPtr->spons);
+
+    strcpy(dbs.ssn, structPtr->ssn);
+    dbs.ind_ssn = getIndicator(CHAR, (void *)structPtr->ssn);
+
+    strcpy(dbs.tsk, structPtr->tsk);
+    dbs.ind_tsk = getIndicator(CHAR, (void *)structPtr->tsk);
+
+
+    sprintf(queryBuffer, " UPDATE Observer SET " );
+    strcat(queryBuffer, "lid = ? , a1 = ? , a2 = ? , a3 = ? , city = ? ,     ");
+    strcat(queryBuffer, "state = ? , zip = ? , comm = ? , dos = ? , gn = ? ,     ");
+    strcat(queryBuffer, "hphone = ? , firstname = ? , lastname = ? , phone = ? , email = ? ,     ");
+    strcat(queryBuffer, "ornr = ? , rate = ? , recip = ? , rprt = ? , spons = ? ,     ");
+    strcat(queryBuffer, "ssn = ? , tsk = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateObserver() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.lid, :dbs.a1:dbs.ind_a1, :dbs.a2:dbs.ind_a2, :dbs.a3:dbs.ind_a3, :dbs.city:dbs.ind_city,
+     :dbs.state, :dbs.zip:dbs.ind_zip, :dbs.comm, :dbs.dos:dbs.ind_dos, :dbs.gn:dbs.ind_gn,
+     :dbs.hphone:dbs.ind_hphone, :dbs.firstname:dbs.ind_firstname, :dbs.lastname:dbs.ind_lastname, :dbs.phone:dbs.ind_phone, :dbs.email:dbs.ind_email,
+     :dbs.ornr:dbs.ind_ornr, :dbs.rate:dbs.ind_rate, :dbs.recip, :dbs.rprt:dbs.ind_rprt, :dbs.spons,
+     :dbs.ssn:dbs.ind_ssn, :dbs.tsk:dbs.ind_tsk;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateObserver() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteObserver(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM Observer ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteObserver() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateObserverByRecord (const Observer * newStructPtr, const Observer * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetObserverPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateObserver(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateObserver(const Observer * structPtr)
+{
+    UpdateObserverByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertObserver(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueObserver(const Observer * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (ObserverExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertObserver(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteObserverByRecord(const Observer * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetObserverPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteObserver(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool ObserverExists(const Observer * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetObserverPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectObserverCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetObserverPrimaryKeyWhereString (const Observer * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE lid = '%s' ",
+            structPtr->lid);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeObserver( Observer * structPtr)
+{
+    Observer* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( Observer * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetObserverDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetObserverErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

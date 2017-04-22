@@ -1,0 +1,379 @@
+module 'Hb'
+version = 47;
+xdesigned = 1;
+applicationName = 'Hb';
+generateNameC = * 'rpfparams.c';
+generateNameExterns = * 'rpfparams.h';
+generateNameResDB = * 'rpfparams.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+generateMask = 39256301;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'rpfparamsDS' : XmDialogShell {
+	arguments {
+	was_selected = true;
+	lastGenName = 'rpfparamsDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_rpfparamsDS (Widget parent)
+';
+	XmNwidth = 750;
+	XmNheight = 480;
+	XmNallowShellResize = true;
+	XmNtitle = 'RiverPro General Parameters';
+	XmNminWidth = 750;
+	XmNminHeight = 480;
+	XmNmaxWidth = 750;
+	XmNmaxHeight = 480;
+	XmNbaseWidth = 750;
+	XmNbaseHeight = 480;
+	};
+object 'rpfparamsFO' : XmForm {
+	arguments {
+	lastGenName = 'rpfparamsFO';
+	XmNwidth = 750;
+	XmNheight = 480;
+	XmNresizePolicy = 2;
+	XmNautoUnmanage = false;
+	XmNnoResize = false;
+	XmNrubberPositioning = true;
+	};
+object 'rpfparams_timespanFrm' : XmFrame {
+	arguments {
+	lastGenName = 'rpfparams_timespanFrm';
+	};
+object 'rpfparams_timespanFO' : XmForm {
+	arguments {
+	lastGenName = 'rpfparams_timespanFO';
+	XmNheight = 106;
+	};
+object 'obshrsLbl' : XmLabel {
+	arguments {
+	lastGenName = 'obshrsLbl';
+	XmNlabelString = 'Number of Lookback Hours for Observed Data:';
+	};
+};
+object 'obshrsTE' : XmText {
+	arguments {
+	lastGenName = 'obshrsTE';
+	XmNmaxLength = 5;
+	XmNcolumns = 5;
+	};
+};
+object 'fcsthrsLbl' : XmLabel {
+	arguments {
+	lastGenName = 'fcsthrsLbl';
+	XmNlabelString = 'Number of Lookforward Hours for Forecast Data:';
+	};
+};
+object 'fcsthrsTE' : XmText {
+	arguments {
+	lastGenName = 'fcsthrsTE';
+	XmNmaxLength = 5;
+	XmNcolumns = 5;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 3 2 20;
+	XmNleftAttachment = 0 0 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 504;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 4;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 4 1 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 60;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 4 2 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 3 -6;
+    };
+    };
+};
+object 'rpfparams_timespanLbl' : XmLabel {
+	arguments {
+	lastGenName = 'rpfparams_timespanLbl';
+	XmNchildType = 2;
+	XmNlabelString = 'Time-Span Parameters';
+	};
+};
+};
+object 'rpfparams_missvalFrm' : XmFrame {
+	arguments {
+	lastGenName = 'rpfparams_missvalFrm';
+	XmNwidth = 340;
+	};
+object 'rpfparams_missvalFO' : XmForm {
+	arguments {
+	lastGenName = 'rpfparams_missvalFO';
+	XmNwidth = 336;
+	XmNheight = 166;
+	};
+object 'missvalLbl' : XmLabel {
+	arguments {
+	lastGenName = 'missvalLbl';
+	XmNlabelString = 'Data Value:';
+	};
+};
+object 'missvalTE' : XmText {
+	arguments {
+	lastGenName = 'missvalTE';
+	XmNmaxLength = 12;
+	XmNcolumns = 12;
+	};
+};
+object 'misscatLbl' : XmLabel {
+	arguments {
+	lastGenName = 'misscatLbl';
+	XmNlabelString = 'Stage Category:';
+	};
+};
+object 'misscatTE' : XmText {
+	arguments {
+	lastGenName = 'misscatTE';
+	XmNmaxLength = 12;
+	XmNcolumns = 12;
+	};
+};
+object 'misstimLbl' : XmLabel {
+	arguments {
+	lastGenName = 'misstimLbl';
+	XmNlabelString = 'Data Time:';
+	};
+};
+object 'misstimTE' : XmText {
+	arguments {
+	lastGenName = 'misstimTE';
+	XmNmaxLength = 12;
+	XmNcolumns = 12;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 20;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 20;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 165;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 4 1 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 67;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 166;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 60;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 4 1 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 116;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 166;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 110;
+    };
+    };
+};
+object 'rpfparams_missvalLbl' : XmLabel {
+	arguments {
+	lastGenName = 'rpfparams_missvalLbl';
+	XmNchildType = 2;
+	XmNlabelString = 'String to Use for Missing';
+	};
+};
+};
+object 'rpfparams_defvalFrm' : XmFrame {
+	arguments {
+	lastGenName = 'rpfparams_defvalFrm';
+	};
+object 'rpfparams_defvalFO' : XmForm {
+	arguments {
+	lastGenName = 'rpfparams_defvalFO';
+	XmNwidth = 357;
+	XmNheight = 166;
+	};
+object 'rvsexphrsLbl' : XmLabel {
+	arguments {
+	lastGenName = 'rvsexphrsLbl';
+	XmNlabelString = 'RVS:';
+	};
+};
+object 'rvsexphrsTE' : XmText {
+	arguments {
+	lastGenName = 'rvsexphrsTE';
+	XmNmaxLength = 5;
+	XmNcolumns = 5;
+	};
+};
+object 'flsexphrsLbl' : XmLabel {
+	arguments {
+	lastGenName = 'flsexphrsLbl';
+	XmNlabelString = 'FLS:';
+	};
+};
+object 'flsexphrsTE' : XmText {
+	arguments {
+	lastGenName = 'flsexphrsTE';
+	XmNmaxLength = 5;
+	XmNcolumns = 5;
+	};
+};
+object 'flwexphrsLbl' : XmLabel {
+	arguments {
+	lastGenName = 'flwexphrsLbl';
+	XmNlabelString = 'FLW:';
+	};
+};
+object 'flwexphrsTE' : XmText {
+	arguments {
+	lastGenName = 'flwexphrsTE';
+	XmNmaxLength = 5;
+	XmNcolumns = 5;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 3 2 15;
+	XmNleftAttachment = 0 0 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 16;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 150;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 4 1 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 66;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 4 2 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 60;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 4 1 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 116;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 4 4 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 110;
+    };
+    };
+};
+object 'rpfparams_defvalLbl' : XmLabel {
+	arguments {
+	lastGenName = 'rpfparams_defvalLbl';
+	XmNchildType = 2;
+	XmNlabelString = 'Default Number of Hrs Before Expiration of';
+	};
+};
+};
+object 'rpfparams_updatePB' : XmPushButton {
+	arguments {
+	lastGenName = 'rpfparams_updatePB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Update';
+	};
+};
+object 'rpfparamsSP' : XmSeparator {
+	arguments {
+	lastGenName = 'rpfparamsSP';
+	};
+};
+object 'rpfparams_closePB' : XmPushButton {
+	arguments {
+	lastGenName = 'rpfparams_closePB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNresizable =  * false;
+	XmNlabelString = 'Close';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 1 0 15;
+	XmNleftAttachment = 1 0 15;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 15;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 4 1 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 1 20;
+    };
+    attachment {
+	XmNrightAttachment = 4 1 0;
+	XmNleftAttachment = 3 2 15;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 1 20;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 325;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 365;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 0;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 4 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 8;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 5 10;
+    };
+    };
+};
+};
+end module;

@@ -1,0 +1,10 @@
+
+<WEGroup name="Temps">
+ <WEItem parmID="MinT_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="MaxT_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="T_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="Td_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="RH_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="WindChill_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="HeatIndex_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+</WEGroup>

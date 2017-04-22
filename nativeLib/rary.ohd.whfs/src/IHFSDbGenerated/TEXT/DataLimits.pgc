@@ -1,0 +1,1014 @@
+/*
+    File: DataLimits.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:19 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "DataLimits.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct DataLimits_t
+{
+    char		pe[3];
+    short		dur;
+    char		monthdaystart[6];
+    char		monthdayend[6];
+    double		gross_range_min;
+    double		gross_range_max;
+    double		reason_range_min;
+    double		reason_range_max;
+    double		roc_max;
+    double		alert_upper_limit;
+    double		alert_roc_limit;
+    double		alarm_upper_limit;
+    double		alarm_roc_limit;
+    double		alert_lower_limit;
+    double		alarm_lower_limit;
+    double		alert_diff_limit;
+    double		alarm_diff_limit;
+
+    int		ind_gross_range_min;
+    int		ind_gross_range_max;
+    int		ind_reason_range_min;
+    int		ind_reason_range_max;
+    int		ind_roc_max;
+    int		ind_alert_upper_limit;
+    int		ind_alert_roc_limit;
+    int		ind_alarm_upper_limit;
+    int		ind_alarm_roc_limit;
+    int		ind_alert_lower_limit;
+    int		ind_alarm_lower_limit;
+    int		ind_alert_diff_limit;
+    int		ind_alarm_diff_limit;
+} DataLimits_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+DataLimits * GetDataLimits(const char * where)
+{
+
+    DataLimits * listPtr = NULL;
+    DataLimits * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM DataLimits ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DataLimits_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDataLimits() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDataLimits() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDataLimits() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.pe, :dbs.dur, 
+    :dbs.monthdaystart, :dbs.monthdayend, 
+    :dbs.gross_range_min:dbs.ind_gross_range_min, :dbs.gross_range_max:dbs.ind_gross_range_max, 
+    :dbs.reason_range_min:dbs.ind_reason_range_min, :dbs.reason_range_max:dbs.ind_reason_range_max, 
+    :dbs.roc_max:dbs.ind_roc_max, :dbs.alert_upper_limit:dbs.ind_alert_upper_limit, 
+    :dbs.alert_roc_limit:dbs.ind_alert_roc_limit, :dbs.alarm_upper_limit:dbs.ind_alarm_upper_limit, 
+    :dbs.alarm_roc_limit:dbs.ind_alarm_roc_limit, :dbs.alert_lower_limit:dbs.ind_alert_lower_limit, 
+    :dbs.alarm_lower_limit:dbs.ind_alarm_lower_limit, :dbs.alert_diff_limit:dbs.ind_alert_diff_limit, 
+    :dbs.alarm_diff_limit:dbs.ind_alarm_diff_limit    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDataLimits() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (DataLimits *) malloc(sizeof(DataLimits))) != NULL)
+        {
+
+            strcpy(structPtr->pe, dbs.pe);
+
+            structPtr->dur = dbs.dur;
+
+            strcpy(structPtr->monthdaystart, dbs.monthdaystart);
+
+            strcpy(structPtr->monthdayend, dbs.monthdayend);
+
+            structPtr->gross_range_min = dbs.gross_range_min;
+            setNullIfIndicated(dbs.ind_gross_range_min, DOUBLE, &structPtr->gross_range_min);
+
+            structPtr->gross_range_max = dbs.gross_range_max;
+            setNullIfIndicated(dbs.ind_gross_range_max, DOUBLE, &structPtr->gross_range_max);
+
+            structPtr->reason_range_min = dbs.reason_range_min;
+            setNullIfIndicated(dbs.ind_reason_range_min, DOUBLE, &structPtr->reason_range_min);
+
+            structPtr->reason_range_max = dbs.reason_range_max;
+            setNullIfIndicated(dbs.ind_reason_range_max, DOUBLE, &structPtr->reason_range_max);
+
+            structPtr->roc_max = dbs.roc_max;
+            setNullIfIndicated(dbs.ind_roc_max, DOUBLE, &structPtr->roc_max);
+
+            structPtr->alert_upper_limit = dbs.alert_upper_limit;
+            setNullIfIndicated(dbs.ind_alert_upper_limit, DOUBLE, &structPtr->alert_upper_limit);
+
+            structPtr->alert_roc_limit = dbs.alert_roc_limit;
+            setNullIfIndicated(dbs.ind_alert_roc_limit, DOUBLE, &structPtr->alert_roc_limit);
+
+            structPtr->alarm_upper_limit = dbs.alarm_upper_limit;
+            setNullIfIndicated(dbs.ind_alarm_upper_limit, DOUBLE, &structPtr->alarm_upper_limit);
+
+            structPtr->alarm_roc_limit = dbs.alarm_roc_limit;
+            setNullIfIndicated(dbs.ind_alarm_roc_limit, DOUBLE, &structPtr->alarm_roc_limit);
+
+            structPtr->alert_lower_limit = dbs.alert_lower_limit;
+            setNullIfIndicated(dbs.ind_alert_lower_limit, DOUBLE, &structPtr->alert_lower_limit);
+
+            structPtr->alarm_lower_limit = dbs.alarm_lower_limit;
+            setNullIfIndicated(dbs.ind_alarm_lower_limit, DOUBLE, &structPtr->alarm_lower_limit);
+
+            structPtr->alert_diff_limit = dbs.alert_diff_limit;
+            setNullIfIndicated(dbs.ind_alert_diff_limit, DOUBLE, &structPtr->alert_diff_limit);
+
+            structPtr->alarm_diff_limit = dbs.alarm_diff_limit;
+            setNullIfIndicated(dbs.ind_alarm_diff_limit, DOUBLE, &structPtr->alarm_diff_limit);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.pe, :dbs.dur, 
+        :dbs.monthdaystart, :dbs.monthdayend, 
+        :dbs.gross_range_min:dbs.ind_gross_range_min, :dbs.gross_range_max:dbs.ind_gross_range_max, 
+        :dbs.reason_range_min:dbs.ind_reason_range_min, :dbs.reason_range_max:dbs.ind_reason_range_max, 
+        :dbs.roc_max:dbs.ind_roc_max, :dbs.alert_upper_limit:dbs.ind_alert_upper_limit, 
+        :dbs.alert_roc_limit:dbs.ind_alert_roc_limit, :dbs.alarm_upper_limit:dbs.ind_alarm_upper_limit, 
+        :dbs.alarm_roc_limit:dbs.ind_alarm_roc_limit, :dbs.alert_lower_limit:dbs.ind_alert_lower_limit, 
+        :dbs.alarm_lower_limit:dbs.ind_alarm_lower_limit, :dbs.alert_diff_limit:dbs.ind_alert_diff_limit, 
+        :dbs.alarm_diff_limit:dbs.ind_alarm_diff_limit        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetDataLimits() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+DataLimits * SelectDataLimits(const char * where)
+{
+
+    DataLimits * listPtr = NULL;
+    DataLimits * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM DataLimits ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DataLimits_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDataLimits() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDataLimits() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDataLimits() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.pe, :dbs.dur, 
+    :dbs.monthdaystart, :dbs.monthdayend, 
+    :dbs.gross_range_min:dbs.ind_gross_range_min, :dbs.gross_range_max:dbs.ind_gross_range_max, 
+    :dbs.reason_range_min:dbs.ind_reason_range_min, :dbs.reason_range_max:dbs.ind_reason_range_max, 
+    :dbs.roc_max:dbs.ind_roc_max, :dbs.alert_upper_limit:dbs.ind_alert_upper_limit, 
+    :dbs.alert_roc_limit:dbs.ind_alert_roc_limit, :dbs.alarm_upper_limit:dbs.ind_alarm_upper_limit, 
+    :dbs.alarm_roc_limit:dbs.ind_alarm_roc_limit, :dbs.alert_lower_limit:dbs.ind_alert_lower_limit, 
+    :dbs.alarm_lower_limit:dbs.ind_alarm_lower_limit, :dbs.alert_diff_limit:dbs.ind_alert_diff_limit, 
+    :dbs.alarm_diff_limit:dbs.ind_alarm_diff_limit    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDataLimits() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (DataLimits *) malloc(sizeof(DataLimits))) != NULL)
+        {
+
+            strcpy(structPtr->pe, dbs.pe);
+
+            structPtr->dur = dbs.dur;
+
+            strcpy(structPtr->monthdaystart, dbs.monthdaystart);
+
+            strcpy(structPtr->monthdayend, dbs.monthdayend);
+
+            structPtr->gross_range_min = dbs.gross_range_min;
+            setNullIfIndicated(dbs.ind_gross_range_min, DOUBLE, &structPtr->gross_range_min);
+
+            structPtr->gross_range_max = dbs.gross_range_max;
+            setNullIfIndicated(dbs.ind_gross_range_max, DOUBLE, &structPtr->gross_range_max);
+
+            structPtr->reason_range_min = dbs.reason_range_min;
+            setNullIfIndicated(dbs.ind_reason_range_min, DOUBLE, &structPtr->reason_range_min);
+
+            structPtr->reason_range_max = dbs.reason_range_max;
+            setNullIfIndicated(dbs.ind_reason_range_max, DOUBLE, &structPtr->reason_range_max);
+
+            structPtr->roc_max = dbs.roc_max;
+            setNullIfIndicated(dbs.ind_roc_max, DOUBLE, &structPtr->roc_max);
+
+            structPtr->alert_upper_limit = dbs.alert_upper_limit;
+            setNullIfIndicated(dbs.ind_alert_upper_limit, DOUBLE, &structPtr->alert_upper_limit);
+
+            structPtr->alert_roc_limit = dbs.alert_roc_limit;
+            setNullIfIndicated(dbs.ind_alert_roc_limit, DOUBLE, &structPtr->alert_roc_limit);
+
+            structPtr->alarm_upper_limit = dbs.alarm_upper_limit;
+            setNullIfIndicated(dbs.ind_alarm_upper_limit, DOUBLE, &structPtr->alarm_upper_limit);
+
+            structPtr->alarm_roc_limit = dbs.alarm_roc_limit;
+            setNullIfIndicated(dbs.ind_alarm_roc_limit, DOUBLE, &structPtr->alarm_roc_limit);
+
+            structPtr->alert_lower_limit = dbs.alert_lower_limit;
+            setNullIfIndicated(dbs.ind_alert_lower_limit, DOUBLE, &structPtr->alert_lower_limit);
+
+            structPtr->alarm_lower_limit = dbs.alarm_lower_limit;
+            setNullIfIndicated(dbs.ind_alarm_lower_limit, DOUBLE, &structPtr->alarm_lower_limit);
+
+            structPtr->alert_diff_limit = dbs.alert_diff_limit;
+            setNullIfIndicated(dbs.ind_alert_diff_limit, DOUBLE, &structPtr->alert_diff_limit);
+
+            structPtr->alarm_diff_limit = dbs.alarm_diff_limit;
+            setNullIfIndicated(dbs.ind_alarm_diff_limit, DOUBLE, &structPtr->alarm_diff_limit);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.pe, :dbs.dur, 
+        :dbs.monthdaystart, :dbs.monthdayend, 
+        :dbs.gross_range_min:dbs.ind_gross_range_min, :dbs.gross_range_max:dbs.ind_gross_range_max, 
+        :dbs.reason_range_min:dbs.ind_reason_range_min, :dbs.reason_range_max:dbs.ind_reason_range_max, 
+        :dbs.roc_max:dbs.ind_roc_max, :dbs.alert_upper_limit:dbs.ind_alert_upper_limit, 
+        :dbs.alert_roc_limit:dbs.ind_alert_roc_limit, :dbs.alarm_upper_limit:dbs.ind_alarm_upper_limit, 
+        :dbs.alarm_roc_limit:dbs.ind_alarm_roc_limit, :dbs.alert_lower_limit:dbs.ind_alert_lower_limit, 
+        :dbs.alarm_lower_limit:dbs.ind_alarm_lower_limit, :dbs.alert_diff_limit:dbs.ind_alert_diff_limit, 
+        :dbs.alarm_diff_limit:dbs.ind_alarm_diff_limit        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectDataLimits() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectDataLimitsCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM DataLimits ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDataLimits() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDataLimits() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDataLimits() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDataLimits() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutDataLimits(const DataLimits * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DataLimits_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.pe, structPtr->pe);
+
+    dbs.dur = structPtr->dur;
+
+    strcpy(dbs.monthdaystart, structPtr->monthdaystart);
+
+    strcpy(dbs.monthdayend, structPtr->monthdayend);
+
+    dbs.gross_range_min = structPtr->gross_range_min;
+    dbs.ind_gross_range_min = getIndicator(DOUBLE, (void *)&structPtr->gross_range_min);
+
+    dbs.gross_range_max = structPtr->gross_range_max;
+    dbs.ind_gross_range_max = getIndicator(DOUBLE, (void *)&structPtr->gross_range_max);
+
+    dbs.reason_range_min = structPtr->reason_range_min;
+    dbs.ind_reason_range_min = getIndicator(DOUBLE, (void *)&structPtr->reason_range_min);
+
+    dbs.reason_range_max = structPtr->reason_range_max;
+    dbs.ind_reason_range_max = getIndicator(DOUBLE, (void *)&structPtr->reason_range_max);
+
+    dbs.roc_max = structPtr->roc_max;
+    dbs.ind_roc_max = getIndicator(DOUBLE, (void *)&structPtr->roc_max);
+
+    dbs.alert_upper_limit = structPtr->alert_upper_limit;
+    dbs.ind_alert_upper_limit = getIndicator(DOUBLE, (void *)&structPtr->alert_upper_limit);
+
+    dbs.alert_roc_limit = structPtr->alert_roc_limit;
+    dbs.ind_alert_roc_limit = getIndicator(DOUBLE, (void *)&structPtr->alert_roc_limit);
+
+    dbs.alarm_upper_limit = structPtr->alarm_upper_limit;
+    dbs.ind_alarm_upper_limit = getIndicator(DOUBLE, (void *)&structPtr->alarm_upper_limit);
+
+    dbs.alarm_roc_limit = structPtr->alarm_roc_limit;
+    dbs.ind_alarm_roc_limit = getIndicator(DOUBLE, (void *)&structPtr->alarm_roc_limit);
+
+    dbs.alert_lower_limit = structPtr->alert_lower_limit;
+    dbs.ind_alert_lower_limit = getIndicator(DOUBLE, (void *)&structPtr->alert_lower_limit);
+
+    dbs.alarm_lower_limit = structPtr->alarm_lower_limit;
+    dbs.ind_alarm_lower_limit = getIndicator(DOUBLE, (void *)&structPtr->alarm_lower_limit);
+
+    dbs.alert_diff_limit = structPtr->alert_diff_limit;
+    dbs.ind_alert_diff_limit = getIndicator(DOUBLE, (void *)&structPtr->alert_diff_limit);
+
+    dbs.alarm_diff_limit = structPtr->alarm_diff_limit;
+    dbs.ind_alarm_diff_limit = getIndicator(DOUBLE, (void *)&structPtr->alarm_diff_limit);
+
+
+    EXEC SQL INSERT INTO DataLimits (pe,dur,
+        monthdaystart,monthdayend,gross_range_min,
+        gross_range_max,reason_range_min,reason_range_max,
+        roc_max,alert_upper_limit,alert_roc_limit,
+        alarm_upper_limit,alarm_roc_limit,alert_lower_limit,
+        alarm_lower_limit,alert_diff_limit,alarm_diff_limit        )
+        VALUES (
+         :dbs.pe, :dbs.dur, :dbs.monthdaystart,
+         :dbs.monthdayend, :dbs.gross_range_min:dbs.ind_gross_range_min, :dbs.gross_range_max:dbs.ind_gross_range_max,
+         :dbs.reason_range_min:dbs.ind_reason_range_min, :dbs.reason_range_max:dbs.ind_reason_range_max, :dbs.roc_max:dbs.ind_roc_max,
+         :dbs.alert_upper_limit:dbs.ind_alert_upper_limit, :dbs.alert_roc_limit:dbs.ind_alert_roc_limit, :dbs.alarm_upper_limit:dbs.ind_alarm_upper_limit,
+         :dbs.alarm_roc_limit:dbs.ind_alarm_roc_limit, :dbs.alert_lower_limit:dbs.ind_alert_lower_limit, :dbs.alarm_lower_limit:dbs.ind_alarm_lower_limit,
+         :dbs.alert_diff_limit:dbs.ind_alert_diff_limit, :dbs.alarm_diff_limit:dbs.ind_alarm_diff_limit);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutDataLimits() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertDataLimits(const DataLimits * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DataLimits_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.pe, structPtr->pe);
+
+    dbs.dur = structPtr->dur;
+
+    strcpy(dbs.monthdaystart, structPtr->monthdaystart);
+
+    strcpy(dbs.monthdayend, structPtr->monthdayend);
+
+    dbs.gross_range_min = structPtr->gross_range_min;
+    dbs.ind_gross_range_min = getIndicator(DOUBLE, (void *)&structPtr->gross_range_min);
+
+    dbs.gross_range_max = structPtr->gross_range_max;
+    dbs.ind_gross_range_max = getIndicator(DOUBLE, (void *)&structPtr->gross_range_max);
+
+    dbs.reason_range_min = structPtr->reason_range_min;
+    dbs.ind_reason_range_min = getIndicator(DOUBLE, (void *)&structPtr->reason_range_min);
+
+    dbs.reason_range_max = structPtr->reason_range_max;
+    dbs.ind_reason_range_max = getIndicator(DOUBLE, (void *)&structPtr->reason_range_max);
+
+    dbs.roc_max = structPtr->roc_max;
+    dbs.ind_roc_max = getIndicator(DOUBLE, (void *)&structPtr->roc_max);
+
+    dbs.alert_upper_limit = structPtr->alert_upper_limit;
+    dbs.ind_alert_upper_limit = getIndicator(DOUBLE, (void *)&structPtr->alert_upper_limit);
+
+    dbs.alert_roc_limit = structPtr->alert_roc_limit;
+    dbs.ind_alert_roc_limit = getIndicator(DOUBLE, (void *)&structPtr->alert_roc_limit);
+
+    dbs.alarm_upper_limit = structPtr->alarm_upper_limit;
+    dbs.ind_alarm_upper_limit = getIndicator(DOUBLE, (void *)&structPtr->alarm_upper_limit);
+
+    dbs.alarm_roc_limit = structPtr->alarm_roc_limit;
+    dbs.ind_alarm_roc_limit = getIndicator(DOUBLE, (void *)&structPtr->alarm_roc_limit);
+
+    dbs.alert_lower_limit = structPtr->alert_lower_limit;
+    dbs.ind_alert_lower_limit = getIndicator(DOUBLE, (void *)&structPtr->alert_lower_limit);
+
+    dbs.alarm_lower_limit = structPtr->alarm_lower_limit;
+    dbs.ind_alarm_lower_limit = getIndicator(DOUBLE, (void *)&structPtr->alarm_lower_limit);
+
+    dbs.alert_diff_limit = structPtr->alert_diff_limit;
+    dbs.ind_alert_diff_limit = getIndicator(DOUBLE, (void *)&structPtr->alert_diff_limit);
+
+    dbs.alarm_diff_limit = structPtr->alarm_diff_limit;
+    dbs.ind_alarm_diff_limit = getIndicator(DOUBLE, (void *)&structPtr->alarm_diff_limit);
+
+
+    EXEC SQL INSERT INTO DataLimits (pe,dur,
+        monthdaystart,monthdayend,gross_range_min,
+        gross_range_max,reason_range_min,reason_range_max,
+        roc_max,alert_upper_limit,alert_roc_limit,
+        alarm_upper_limit,alarm_roc_limit,alert_lower_limit,
+        alarm_lower_limit,alert_diff_limit,alarm_diff_limit        )
+        VALUES (
+         :dbs.pe, :dbs.dur, :dbs.monthdaystart,
+         :dbs.monthdayend, :dbs.gross_range_min:dbs.ind_gross_range_min, :dbs.gross_range_max:dbs.ind_gross_range_max,
+         :dbs.reason_range_min:dbs.ind_reason_range_min, :dbs.reason_range_max:dbs.ind_reason_range_max, :dbs.roc_max:dbs.ind_roc_max,
+         :dbs.alert_upper_limit:dbs.ind_alert_upper_limit, :dbs.alert_roc_limit:dbs.ind_alert_roc_limit, :dbs.alarm_upper_limit:dbs.ind_alarm_upper_limit,
+         :dbs.alarm_roc_limit:dbs.ind_alarm_roc_limit, :dbs.alert_lower_limit:dbs.ind_alert_lower_limit, :dbs.alarm_lower_limit:dbs.ind_alarm_lower_limit,
+         :dbs.alert_diff_limit:dbs.ind_alert_diff_limit, :dbs.alarm_diff_limit:dbs.ind_alarm_diff_limit);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertDataLimits() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateDataLimits(const DataLimits *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DataLimits_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.pe, structPtr->pe);
+
+    dbs.dur = structPtr->dur;
+
+    strcpy(dbs.monthdaystart, structPtr->monthdaystart);
+
+    strcpy(dbs.monthdayend, structPtr->monthdayend);
+
+    dbs.gross_range_min = structPtr->gross_range_min;
+    dbs.ind_gross_range_min = getIndicator(DOUBLE, (void *)&structPtr->gross_range_min);
+
+    dbs.gross_range_max = structPtr->gross_range_max;
+    dbs.ind_gross_range_max = getIndicator(DOUBLE, (void *)&structPtr->gross_range_max);
+
+    dbs.reason_range_min = structPtr->reason_range_min;
+    dbs.ind_reason_range_min = getIndicator(DOUBLE, (void *)&structPtr->reason_range_min);
+
+    dbs.reason_range_max = structPtr->reason_range_max;
+    dbs.ind_reason_range_max = getIndicator(DOUBLE, (void *)&structPtr->reason_range_max);
+
+    dbs.roc_max = structPtr->roc_max;
+    dbs.ind_roc_max = getIndicator(DOUBLE, (void *)&structPtr->roc_max);
+
+    dbs.alert_upper_limit = structPtr->alert_upper_limit;
+    dbs.ind_alert_upper_limit = getIndicator(DOUBLE, (void *)&structPtr->alert_upper_limit);
+
+    dbs.alert_roc_limit = structPtr->alert_roc_limit;
+    dbs.ind_alert_roc_limit = getIndicator(DOUBLE, (void *)&structPtr->alert_roc_limit);
+
+    dbs.alarm_upper_limit = structPtr->alarm_upper_limit;
+    dbs.ind_alarm_upper_limit = getIndicator(DOUBLE, (void *)&structPtr->alarm_upper_limit);
+
+    dbs.alarm_roc_limit = structPtr->alarm_roc_limit;
+    dbs.ind_alarm_roc_limit = getIndicator(DOUBLE, (void *)&structPtr->alarm_roc_limit);
+
+    dbs.alert_lower_limit = structPtr->alert_lower_limit;
+    dbs.ind_alert_lower_limit = getIndicator(DOUBLE, (void *)&structPtr->alert_lower_limit);
+
+    dbs.alarm_lower_limit = structPtr->alarm_lower_limit;
+    dbs.ind_alarm_lower_limit = getIndicator(DOUBLE, (void *)&structPtr->alarm_lower_limit);
+
+    dbs.alert_diff_limit = structPtr->alert_diff_limit;
+    dbs.ind_alert_diff_limit = getIndicator(DOUBLE, (void *)&structPtr->alert_diff_limit);
+
+    dbs.alarm_diff_limit = structPtr->alarm_diff_limit;
+    dbs.ind_alarm_diff_limit = getIndicator(DOUBLE, (void *)&structPtr->alarm_diff_limit);
+
+
+    sprintf(queryBuffer, " UPDATE DataLimits SET " );
+    strcat(queryBuffer, "pe = ? , dur = ? , monthdaystart = ? , monthdayend = ? , gross_range_min = ? ,     ");
+    strcat(queryBuffer, "gross_range_max = ? , reason_range_min = ? , reason_range_max = ? , roc_max = ? , alert_upper_limit = ? ,     ");
+    strcat(queryBuffer, "alert_roc_limit = ? , alarm_upper_limit = ? , alarm_roc_limit = ? , alert_lower_limit = ? , alarm_lower_limit = ? ,     ");
+    strcat(queryBuffer, "alert_diff_limit = ? , alarm_diff_limit = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateDataLimits() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.pe, :dbs.dur, :dbs.monthdaystart, :dbs.monthdayend, :dbs.gross_range_min:dbs.ind_gross_range_min,
+     :dbs.gross_range_max:dbs.ind_gross_range_max, :dbs.reason_range_min:dbs.ind_reason_range_min, :dbs.reason_range_max:dbs.ind_reason_range_max, :dbs.roc_max:dbs.ind_roc_max, :dbs.alert_upper_limit:dbs.ind_alert_upper_limit,
+     :dbs.alert_roc_limit:dbs.ind_alert_roc_limit, :dbs.alarm_upper_limit:dbs.ind_alarm_upper_limit, :dbs.alarm_roc_limit:dbs.ind_alarm_roc_limit, :dbs.alert_lower_limit:dbs.ind_alert_lower_limit, :dbs.alarm_lower_limit:dbs.ind_alarm_lower_limit,
+     :dbs.alert_diff_limit:dbs.ind_alert_diff_limit, :dbs.alarm_diff_limit:dbs.ind_alarm_diff_limit;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateDataLimits() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteDataLimits(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM DataLimits ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteDataLimits() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateDataLimitsByRecord (const DataLimits * newStructPtr, const DataLimits * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetDataLimitsPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateDataLimits(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateDataLimits(const DataLimits * structPtr)
+{
+    UpdateDataLimitsByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertDataLimits(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueDataLimits(const DataLimits * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (DataLimitsExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertDataLimits(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteDataLimitsByRecord(const DataLimits * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetDataLimitsPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteDataLimits(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool DataLimitsExists(const DataLimits * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetDataLimitsPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectDataLimitsCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetDataLimitsPrimaryKeyWhereString (const DataLimits * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE pe = '%s'  AND dur = %d  AND monthdaystart = '%s' ",
+            structPtr->pe, structPtr->dur, structPtr->monthdaystart);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeDataLimits( DataLimits * structPtr)
+{
+    DataLimits* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( DataLimits * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetDataLimitsDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetDataLimitsErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

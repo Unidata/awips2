@@ -1,0 +1,87 @@
+#!/bin/ksh
+#
+# post_remote_CRS_msg
+# 
+# version:  January 30, 2002
+#
+# usage: post_remote_CRS_msg filename subject_string msgtype
+# where the arguments are provided via the mhs receive process
+# and are translated from the mhs args %ENCLOSE(1) %SUBJECT %MSGTYPE args.
+#
+# This script is invoked via the message handling service (MHS) mechanisms.
+# It is called when a CRS product file from a remote (i.e. nonlocal) WFO
+# is received at the local WFO.  This script is used so the local WFO can
+# pass the file to the local CRS.  The arguments passed to this function
+# are provided by the mhs receive process, and originate in the
+# arguments provides on the mhs send process at the remote system.
+#
+# mhs places the incoming file in the directory:
+#	/data/x400/mhs/msg/hydro
+# transferNWR copies the file into the directory:
+#	/data/fxa/workFiles/nwr/pending
+#
+
+# This allows you to run this script outside of ./standard/bin
+RUN_FROM_DIR=`dirname $0`
+
+# set up SOME environment variables for WHFS applications
+. $RUN_FROM_DIR/../../set_hydro_env
+export WHFS_UTIL_LOG_DIR=$(get_apps_defaults whfs_util_log_dir)
+export WHFS_PRODUCT_DIR=$(get_apps_defaults whfs_product_dir)
+
+#
+#
+FILENAME=$1
+SUBJECT=$2
+MSGTYPE=$3
+#
+LOGFILE=$WHFS_UTIL_LOG_DIR/post_remote_CRS_msg.log
+TMPFILE=$WHFS_UTIL_LOG_DIR/post_remote_CRS_msg.tmp
+#
+# save only the latest events in the log file
+#
+tail -1200 $LOGFILE > $TMPFILE
+mv $TMPFILE $LOGFILE
+#
+#
+Dte=`date -u`
+echo "----" >> $LOGFILE
+echo Processing file: $FILENAME at $Dte >> $LOGFILE
+echo Subject: $SUBJECT    Msgtype: $MSGTYPE >> $LOGFILE
+#
+export FXA_HOME=/awips/fxa
+. $FXA_HOME/readenv.sh
+#
+#
+# use a shell function to extract the argument from the subject line
+#
+parseSubject()
+{
+DESCRIP=$1
+PRODUCTID=$2
+return
+}
+#
+# get the product id from the subject, then use it to build the
+# new filename, which is written to when the two header lines
+# are stripped off the product and the extra carriage returns
+# are added by the distributeproduct operations.
+#
+parseSubject $SUBJECT
+NEWFILENAME=$WHFS_PRODUCT_DIR/$PRODUCTID.remote
+/bin/sed -e '1,2d' $FILENAME | /bin/tr -d '\015' > $NEWFILENAME
+#
+# issue the product as appropriate
+#
+echo Sending product $NEWFILENAME to transferNWR as pending. >> $LOGFILE
+/awips/fxa/bin/transferNWR -d $NEWFILENAME
+RETURN_STATUS=$? 
+
+if [ $RETURN_STATUS -eq 0 ]
+then
+   echo Request successfully completed >> $LOGFILE
+else
+   echo Error detected; return status= $RETURN_STATUS >> $LOGFILE
+fi
+#
+#

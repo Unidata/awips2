@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: AlertViz UI Plugin
+Bundle-SymbolicName: com.raytheon.uf.viz.alertviz.ui;singleton:=true
+Bundle-Version: 1.15.0.qualifier
+Bundle-Activator: com.raytheon.uf.viz.alertviz.ui.Activator
+Bundle-Vendor: Raytheon
+Service-Component: OSGI-INF/alertvizService.xml
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.message;bundle-version="1.11.11",
+ com.raytheon.uf.viz.alertviz;bundle-version="1.11.11",
+ org.apache.commons.lang3;bundle-version="3.4.0",
+ com.raytheon.viz.ui;bundle-version="1.15.3"
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.uf.viz.alertviz.ui,
+ com.raytheon.uf.viz.alertviz.ui.audio,
+ com.raytheon.uf.viz.alertviz.ui.dialogs,
+ com.raytheon.uf.viz.alertviz.ui.timer
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: com.raytheon.uf.common.alertmonitor
+Bundle-ClassPath: com.raytheon.uf.viz.alertviz.ui.jar

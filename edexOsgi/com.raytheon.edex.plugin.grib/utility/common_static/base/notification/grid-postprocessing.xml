@@ -1,0 +1,14 @@
+<pluginNotificationList>
+    <pluginNotification>
+        <endpointName>Grid.PostProcess</endpointName>
+        <format>DATAURI</format>
+        <endpointType>QUEUE</endpointType>
+        <durable>true</durable>
+        <timeToLive>120000</timeToLive>
+        <metadataMap>
+            <mapping key="pluginName">
+                <constraint constraintValue="grid" constraintType="EQUALS"/>
+            </mapping>
+        </metadataMap>
+    </pluginNotification>
+</pluginNotificationList>

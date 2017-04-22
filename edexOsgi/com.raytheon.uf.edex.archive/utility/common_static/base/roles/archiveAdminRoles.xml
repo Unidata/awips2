@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<nwsRoleData xmlns:ns2="group">
+   <application>Data Archiving</application>
+   <!-- Archive Retention permission.-->
+   <permission id="archive.retention">
+      <description>
+         This permission allows the user to access Archive Retention.
+       </description>
+   </permission>
+   <!-- Archive Case Creation permission. -->
+   <permission id="archive.casecreation">
+      <description>
+         This permission allows the user to access Archive Case Creation. 
+       </description>
+   </permission>
+   <!--
+   <user userId="ALL">
+      <userPermission>archive.retention</userPermission>
+      <userPermission>archive.casecreation</userPermission>
+   </user>
+   -->
+</nwsRoleData>

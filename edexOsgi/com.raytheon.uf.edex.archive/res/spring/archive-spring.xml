@@ -1,0 +1,73 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+    <bean class="com.raytheon.uf.common.logback.appender.ThreadBasedAppender" factory-method="registerThreadPattern">
+        <constructor-arg value="archive" />
+        <constructor-arg value="Archive.*" />
+    </bean>
+
+    <bean id="dataArchiver" class="com.raytheon.uf.edex.archive.DataArchiver"/>
+
+    <bean id="databaseArchiver" class="com.raytheon.uf.edex.archive.DatabaseArchiver"/>
+
+    <bean id="databaseArchiverRegistered" factory-bean="dataArchiver" factory-method="registerPluginArchiver" depends-on="dataArchiver">
+        <constructor-arg ref="databaseArchiver"/>
+    </bean>
+
+    <bean id="archivePurge" class="com.raytheon.uf.edex.archive.purge.ArchivePurger" />
+
+    <camelContext id="archive-context"
+        xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+
+        <endpoint id="archiveCron"
+            uri="clusteredquartz://archive/archiveScheduled/?cron=${archive.cron}"/>
+
+        <endpoint id="archivePurgeCron"
+            uri="clusteredquartz://archive/archivePurgeScheduled/?cron=${archive.purge.cron}" />
+
+        <!-- Archive on Scheduled timer -->
+        <route id="archiveScheduled">
+            <from uri="archiveCron" />
+            <doTry>
+                <to uri="jms-generic:queue:archiveScheduledWork" />
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to
+                        uri="log:archive?level=ERROR" />
+                </doCatch>
+            </doTry>
+        </route>
+
+        <route id="archiveScheduledWork">
+            <from uri="jms-generic:queue:archiveScheduledWork" />
+            <doTry>
+                <bean ref="dataArchiver" method="archivePlugins" />
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to
+                        uri="log:archive?level=ERROR" />
+                </doCatch>
+            </doTry>
+        </route>
+
+        <!-- Run archivePurge on Scheduled timer -->
+        <route id="archivePurgeScheduled">
+            <from uri="archivePurgeCron" />
+            <to uri="jms-generic:queue:archivePurgeScheduledWork" />
+        </route>
+
+        <route id="archivePurgeScheduledWork">
+            <from uri="jms-generic:queue:archivePurgeScheduledWork" />
+            <doTry>
+                <bean ref="archivePurge" method="purge" />
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to
+                        uri="log:archivePurge?level=ERROR" />
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+
+</beans>

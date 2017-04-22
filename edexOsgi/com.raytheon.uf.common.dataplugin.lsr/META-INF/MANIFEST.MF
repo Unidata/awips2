@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Lsr Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.lsr
+Bundle-Version: 1.14.1.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.pointdata,
+ org.geotools,
+ javax.persistence,
+ javax.measure,
+ com.raytheon.uf.common.dataplugin
+Import-Package: com.raytheon.uf.common.geospatial
+Export-Package: com.raytheon.uf.common.dataplugin.lsr

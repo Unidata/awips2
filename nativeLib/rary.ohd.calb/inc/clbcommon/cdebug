@@ -1,0 +1,4 @@
+C                                           *--> FROM CLBCOMMON.CDEBUG
+C  CALIBRATION DEBUG OPTIONS
+      COMMON /CDEBUG/ IND,IDEBUG,JDEBUG,KDEBUG,LDEBUG
+C

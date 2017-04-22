@@ -1,0 +1,244 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the whfs_lib-IHFSDbGenerated library file
+#
+#  cmt: File made on Wed Aug  6 12:59:17 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/whfs_lib/lib
+
+ARFLAGS  = rv
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU -DUSE_XM_MWMUTIL_H -DUSE_XGPM -Wall -Wno-unused-variable -Wno-comment
+
+INSERTS      = -I/fs/hseb/ob83/ohd/whfs_lib/inc/general  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/dbms  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/gui  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/riverpro  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/pproc_lib/inc
+
+INSERTS_EC   = -I/usr/include/informix/esql/  \
+               -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I../TEXT
+
+IFX_DIR  = /usr/bin/
+
+.SUFFIXES:
+.SUFFIXES:   .pgc .h .o .a
+
+.pgc.a:
+	@echo "-------------------------------- $<"
+	@rm -f $*.c
+	@-$(IFX_DIR)/ecpg -t -c -C INFORMIX -r no_indicator $*.pgc \
+	 && $(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS_EC) $(INSERTS) -c $*.c \
+	     && ar $(ARFLAGS) $@ $*.o \
+	     || echo "e - $*"
+	@rm -f $*.[co]
+	@echo "--------------------------------"
+
+$(LIB)/libIHFSDbGenerated_t.a:  \
+     $(LIB)/libIHFSDbGenerated_t.a(AdjustFactor.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Admin.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(AgencyOfficeUnique.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Agricultural.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(AlertAlarmVal.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(ArealFcst.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(ArealObs.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Benchmark.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(City.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(ColorName.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(ColorOverlay.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(ColorValue.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(CommentValue.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Contacts.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(ContingencyValue.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(CoopComms.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(CoopRecip.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(CoopSpons.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Counties.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(CountyInfo.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Countynum.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(CountyTransmit.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Crest.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(CurPC.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(CurPP.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(DailyPP.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(DamTypes.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(DataLimits.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Datum.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(DcpOwner.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Dcp.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(DefiningIssueCriteria.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Descrip.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(DHRAdapt.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(DHRRadar.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Discharge.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(DPAAdapt.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(DPARadar.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(DSPAdapt.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(DSPRadar.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Eligzon.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Evaporation.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(FcstDischarge.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(FcstGenMethod.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(FcstHeight.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(FcstHorizon.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(FcstOther.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(FcstPrecip.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(FcstPtDeterm.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(FcstPtESP.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(FcstPtService.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(FcstPtWatSup.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(FcstTemperature.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(FcstType.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(FishCount.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Floodcat.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Flood.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Floodstmt.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(FloodTs.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(FlowType.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(FpInfo.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(FpPrevProd.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(FpPrevProdPractice.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(FrequencyUpdate.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(GageMaint.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(GageOwner.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Gage.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(GageType.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(GateDam.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(GeoArea.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Ground.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Height.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(HgStation.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(HourlyPC.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(HourlyPP.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Hsa.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(HvStation.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(HwStages.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(HydrologicMethod.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Ice.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(IngestFilter.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Lake.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(LatestObsValue.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Lightning.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(LineSegs.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(LocArea.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Location.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(LocClass.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(LocDataLimits.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(LocExtAgency.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(LocImage.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(LocPDC.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(LocRiverMon.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(LocTransmit.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(LocView.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(LocWfo.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Lowwater.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(LWstmt.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Moisture.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(MonthlyValues.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Network.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(NWRTransmitter.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Observer.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(OfficeNotes.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(OFSDataTrans.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(OFSStnTrans.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(PairedValue.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(PerfLog.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(PointDataPresets.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(PostProcessor.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Power.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Pressure.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(PrevProd.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(ProcValue.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(ProductLink.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Proximity.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(PseudoGageVal.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Pub.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(PurgeDynData.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(PurgeProduct.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(RadarLoc.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(RadarResp.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Radiation.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Rating.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(RatingShift.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(RawPC.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(RawPother.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(RawPP.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Refer.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(RejectedData.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(RequiredPeriod.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Rescap.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(ReservoirModel.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Reservoir.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(ResOwner.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Rfc.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(RiverMonGroup.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(RiverMonLocation.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Riverstat.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(RiverStatus.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(RoutingMethod.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(RpfFcstGroup.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(RpfFcstPoint.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(RpfParams.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(RWBiasDyn.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(RWBiasStat.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(RWParams.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(RWPrefs.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(RWRadarResult.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(RWResult.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(S3PostAnalParams.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(S3PostAnalPrefs.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(SacSmaParams.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(SacSmaState.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(ServiceTableView.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(ServiceType.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(ShefDur.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(ShefEx.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(ShefPe.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(ShefPETrans.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(ShefProb.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(ShefQc.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(ShefTs.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(SnowMethod.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Snow.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(SshpConfig.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(State.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(StationList.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(StatProf.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(StnClass.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Telem.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(TelmOwner.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(TelmPayor.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(TelmType.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Temperature.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(TextProduct.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(TimeZone.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(UnitGraph.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(UnkStn.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(UnkStnValue.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(UserPrefs.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(VTECaction.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(VTECcause.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(VTECevent.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(VTECphenom.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(VTECpractice.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(VTECrecord.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(VTECsever.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(VTECsignif.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(WaterQuality.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(WatSupCoordAgency.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(WatSupCriterion.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(WatSupMethod.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(WatSupRespAgency.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Weather.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Wfo.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Wind.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(YUnique.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(ZoneInfo.o)  \
+     $(LIB)/libIHFSDbGenerated_t.a(Zonenum.o)
+

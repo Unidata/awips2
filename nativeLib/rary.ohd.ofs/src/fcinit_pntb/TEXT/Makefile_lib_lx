@@ -1,0 +1,187 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-fcinit_pntb library file
+#
+#  cmt: File made on Wed Aug  6 12:48:54 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU -DUSE_XM_MWMUTIL_H -DUSE_XGPM -Wall -Wno-unused-variable -Wno-comment
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+INSERTS_CC   = -I/usr/include/informix/esql/  \
+               -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .c .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+.c.a:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libfcinit_pntb_t.a:  \
+     $(LIB)/libfcinit_pntb_t.a(chk32.o)  \
+     $(LIB)/libfcinit_pntb_t.a(ckco19.o)  \
+     $(LIB)/libfcinit_pntb_t.a(ckco31.o)  \
+     $(LIB)/libfcinit_pntb_t.a(cksi22.o)  \
+     $(LIB)/libfcinit_pntb_t.a(cksr22.o)  \
+     $(LIB)/libfcinit_pntb_t.a(clear.o)  \
+     $(LIB)/libfcinit_pntb_t.a(ctrn20.o)  \
+     $(LIB)/libfcinit_pntb_t.a(frderr.o)  \
+     $(LIB)/libfcinit_pntb_t.a(frdfg1.o)  \
+     $(LIB)/libfcinit_pntb_t.a(fstfg1.o)  \
+     $(LIB)/libfcinit_pntb_t.a(ioer22.o)  \
+     $(LIB)/libfcinit_pntb_t.a(mk6c29.o)  \
+     $(LIB)/libfcinit_pntb_t.a(ms6c29.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin10.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin11.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin12.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin13.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin14.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin15.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin18.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin19.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin1.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin20.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin21.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin22.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin23.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin24.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin25.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin26.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin27.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin29.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin2.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin30.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin31.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin32.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin33.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin34.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin35.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin36.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin37.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin38.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin39.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin41.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin42.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin43.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin44.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin45.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin46.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin48.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin4.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin50.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin51.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin52.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin53.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin54.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin56.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin57.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin59.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin60.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin61.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin62.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin63.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin64.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin6.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin7.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin8.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin9.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pina7.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pm0826.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pm2726.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pros7.o)  \
+     $(LIB)/libfcinit_pntb_t.a(spec26.o)  \
+     $(LIB)/libfcinit_pntb_t.a(su0826.o)  \
+     $(LIB)/libfcinit_pntb_t.a(su2726.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab10.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab11.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab12.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab13.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab14.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab15.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab18.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab19.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab1.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab20.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab21.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab22.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab23.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab24.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab25.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab26.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab27.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab29.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab2.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab30.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab31.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab32.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab33.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab34.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab35.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab36.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab37.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab38.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab39.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab41.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab42.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab43.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab44.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab45.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab46.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab48.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab49.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab50.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab51.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab52.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab53.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab54.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab56.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab57.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab59.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab60.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab61.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab62.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab63.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab64.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab6.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab7.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab8.o)  \
+     $(LIB)/libfcinit_pntb_t.a(tab9.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin64_is_input_valid.o)  \
+     $(LIB)/libfcinit_pntb_t.a(pin64_parse_input.o)
+

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mercatorGrid>
+  <!-- Based on: /rary.ohd.pproc.gribit/TEXT/w3fi71.f -->
+  <numVertCoords>0</numVertCoords>
+  <pvPL255>255</pvPL255>
+  <dataRepresentationType>1</dataRepresentationType>
+  <numberLatPoints>73</numberLatPoints>
+  <numberLonPoints>23</numberLonPoints>
+  <originLat>-48090</originLat>
+  <originLon>0</originLon>
+  <resolutionFlag>128</resolutionFlag>
+  <extremePointLat>48090</extremePointLat>
+  <extremePointLon>0</extremePointLon>
+  <incrementLat>513669</incrementLat>
+  <incrementLon>513669</incrementLon>
+  <latProjCylinderIntersect>22500</latProjCylinderIntersect>
+  <scanningModeFlag>64</scanningModeFlag>
+</mercatorGrid>

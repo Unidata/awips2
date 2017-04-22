@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <contribute xsi:type="toolbarSubMenu" menuText="6hr">
+        <contribute xsi:type="menuItem" menuText="6hr 5th Percentile Total Precipitation" key="TP5pct6hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="6hr 10th Percentile Total Precipitation" key="TP10pct6hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="6hr 25th Percentile Total Precipitation" key="TP25pct6hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="6hr 50th Percentile Total Precipitation" key="TP50pct6hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="6hr 75th Percentile Total Precipitation" key="TP75pct6hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="6hr 90th Percentile Total Precipitation" key="TP90pct6hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="6hr 95th Percentile Total Precipitation" key="TP95pct6hr" indentText="false" />
+    </contribute>
+    
+    <contribute xsi:type="toolbarSubMenu" menuText="12hr">
+        <contribute xsi:type="menuItem" menuText="12hr 5th Percentile Total Precipitation" key="TP5pct12hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="12hr 10th Percentile Total Precipitation" key="TP10pct12hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="12hr 25th Percentile Total Precipitation" key="TP25pct12hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="12hr 50th Percentile Total Precipitation" key="TP50pct12hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="12hr 75th Percentile Total Precipitation" key="TP75pct12hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="12hr 90th Percentile Total Precipitation" key="TP90pct12hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="12hr 95th Percentile Total Precipitation" key="TP95pct12hr" indentText="false" />
+    </contribute>
+    
+    <contribute xsi:type="toolbarSubMenu" menuText="24hr">
+        <contribute xsi:type="menuItem" menuText="24hr 5th Percentile Total Precipitation" key="TP5pct24hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="24hr 10th Percentile Total Precipitation" key="TP10pct24hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="24hr 25th Percentile Total Precipitation" key="TP25pct24hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="24hr 50th Percentile Total Precipitation" key="TP50pct24hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="24hr 75th Percentile Total Precipitation" key="TP75pct24hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="24hr 90th Percentile Total Precipitation" key="TP90pct24hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="24hr 95th Percentile Total Precipitation" key="TP95pct24hr" indentText="false" />
+    </contribute>
+    
+    <contribute xsi:type="toolbarSubMenu" menuText="72hr">
+        <contribute xsi:type="menuItem" menuText="72hr 5th Percentile Total Precipitation" key="TP5pct72hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="72hr 10th Percentile Total Precipitation" key="TP10pct72hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="72hr 25th Percentile Total Precipitation" key="TP25pct72hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="72hr 50th Percentile Total Precipitation" key="TP50pct72hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="72hr 75th Percentile Total Precipitation" key="TP75pct72hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="72hr 90th Percentile Total Precipitation" key="TP90pct72hr" indentText="false" />
+        <contribute xsi:type="menuItem" menuText="72hr 95th Percentile Total Precipitation" key="TP95pct72hr" indentText="false" />
+    </contribute>
+    
+</menuTemplate>

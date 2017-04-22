@@ -1,0 +1,346 @@
+C MODULE SLPCPN
+C-----------------------------------------------------------------------
+C
+C  ROUTINE TO DELETE STATION PCPN PARAMETERS.
+C
+      SUBROUTINE SLPCPN (LARRAY,ARRAY,NFLD,IRUNCK,ISTAT)
+C
+      CHARACTER*4 TYPE,RDISP,WDISP,STDISP,PDDISP,PRPARM
+      CHARACTER*20 CHAR/' '/,CHK/' '/
+C
+      DIMENSION ARRAY(LARRAY)
+C
+C
+C  STAN PARAMETER ARRAYS
+      INCLUDE 'scommon/dimstan'
+      DIMENSION GPSN(MGPS)
+C
+C  PCPN PARAMETER ARRAYS
+      DIMENSION PCPNCF(2)
+C
+C  TEMP PARAMETER ARRAYS
+      DIMENSION TEMPCF(2)
+C
+C  RRS PARAMETER ARRAYS
+      INCLUDE 'scommon/dimrrs'
+C
+C  PREPROCESSOR OBSERVED DATA BASE READ/WRITE ARRAYS
+      DIMENSION DLYTYP(25),IPNTRS(25)
+C
+      INCLUDE 'uio'
+      INCLUDE 'scommon/sudbgx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppinit_delete/RCS/slpcpn.f,v $
+     . $',                                                             '
+     .$Id: slpcpn.f,v 1.3 1998/04/07 15:18:04 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,250)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG('DELT')
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,260) LARRAY,NFLD
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      ISTAT=0
+C
+      LCHAR=LEN(CHAR)/4
+      LCHK=LEN(CHK)/4
+C
+      ISTRT=-1
+      ILPFND=0
+      IRPFND=0
+      NUMFLD=0
+      NUMERR=0
+      NUMWRN=0
+      NDELTE=0
+      IFIRST=1
+      NUMID1=0
+      NUMID2=0
+      NUMID3=0
+C
+      NDLYTP=0
+      MDLYTP=25
+      NGPSN=0
+      NDLYTP=0
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK FIELDS FOR IDENTIFIERS
+C
+10    CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPE,NREP,INTEGR,REAL,LCHAR,
+     *   CHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,IERR)
+      IF (LDEBUG.GT.0) THEN
+         CALL UPRFLD (NFLD,ISTRT,LENGTH,ITYPE,NREP,INTEGR,REAL,LCHAR,
+     *      CHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,IERR)
+         ENDIF
+      IF (IERR.NE.1) GO TO 20
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,290) NFLD
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+         GO TO 10
+C
+C  CHECK FOR END OF INPUT
+20    IF (NFLD.EQ.-1) GO TO 230
+C
+C  CHECK FOR COMMAND
+      IF (LATSGN.EQ.1) GO TO 230
+C
+C  CHECK FOR PAIRED PARENTHESIS
+      IF (ILPFND.GT.0.AND.IRPFND.EQ.0) THEN
+         IF (NFLD.EQ.1) CALL SUPCRD
+         WRITE (LP,300) NFLD
+         CALL SULINE (LP,2)
+         ILPFND=0
+         IRPFND=0
+         ENDIF
+      IF (LLPAR.GT.0) ILPFND=1
+      IF (LRPAR.GT.0) IRPFND=1
+C
+C  CHECK FOR PARENTHESIS IN FIELD
+      IF (LLPAR.GT.0) CALL UFPACK (LCHK,CHK,ISTRT,1,LLPAR-1,IERR)
+      IF (LLPAR.EQ.0) CALL UFPACK (LCHK,CHK,ISTRT,1,LENGTH,IERR)
+C
+      NUMFLD=NUMFLD+1
+C      
+      IF (NUMFLD.GT.1) GO TO 60
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK PARAMETER TYPE
+      IF (NFLD.EQ.1) CALL SUPCRD
+      TYPE=CHK
+      IF (TYPE.NE.'PCPN') THEN
+         WRITE (LP,270) CHK(1:LENSTR(CHK))
+         CALL SUERRS (LP,2,NUMERR)
+         ENDIF
+      GO TO 10
+C
+C  CHECK FOR KEYWORD
+60    CALL SUIDCK ('DELT',CHK,NFLD,0,IKEYWD,IERR)
+      IF (IERR.EQ.2) GO TO 230
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,*) CHK
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+C
+      IF (NUMERR.GT.0) GO TO 10
+C      
+      IF (NFLD.EQ.1) CALL SUPCRD
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+      CALL SUBSTR (CHAR,1,8,STAID,1)
+C
+C  READ STAN PARAMETERS
+      IPTR=0
+      IPRERR=0
+      RDISP='OLD'
+      INCLUDE 'scommon/callsrstan'
+      IF (IERR.EQ.0) GO TO 80
+         WRITE (LP,320) STAID
+         CALL SULINE (LP,2)
+         GO TO 10
+C
+C  CHECK IF STATION HAS PCPN PARAMETERS
+80    DO 90 IGP=1,NGPS
+         IF (GPS(IGP).EQ.'PCPN') GO TO 100
+90       CONTINUE
+         WRITE (LP,330) 'PCPN',STAID
+         CALL SUWRNS (LP,2,NUMWRN)
+         GO TO 10
+C
+C  CHECK IF IDENTIFIER REFERENCED BY OTHER PCPN STATIONS
+100   LARAY2=1000
+      LARAY1=LARRAY-LARAY2
+      LARAY3=0
+      CALL SLCHK ('PCPN',STAID,LARAY1,IARAY1,LARAY2,IARAY2,
+     *   LARAY3,ARAY3,IFIRST,IXSORT,NUMID1,NUMID2,NUMID3,NUMERR,IERR)
+      IF (IERR.NE.1) IFIRST=0
+      IF (IERR.GT.0) GO TO 10
+C
+C  UPDATE DATA GROUP CODES
+      IF (NGPS.GT.1) GO TO 110
+         NGPS=0
+         GO TO 125
+110   GPS(IGP)=' '
+      DO 120 I=1,NGPS
+         IF (GPS(I).NE.' ') GO TO 120
+         IF (I.EQ.NGPS) GO TO 120
+            GPS(I)=GPS(I+1)
+            GPS(I+1)=' '
+            IPARM(I)=IPARM(I+1)
+            IPARM(I+1)=0
+120      CONTINUE
+      NGPS=NGPS-1
+C
+C  CHECK IF RUNCHECK OPTION SPEFICIED
+125   IF (IRUNCK.EQ.1) GO TO 10
+C
+      IF (IPCHAR.EQ.0) GO TO 130
+C
+C  DELETE PRECIPITATION CHARACTERISTICS
+      CALL WPPDCH (IPCHAR,IERR)
+      IF (IERR.EQ.0) GO TO 135
+         IF (IERR.EQ.1) THEN
+            WRITE (LP,160) STAID,IPCHAR
+            CALL SUERRS (LP,2,NUMWRN)
+            ENDIF
+         IF (IERR.EQ.2) THEN
+            WRITE (LP,170) STAID,IPCHAR
+            CALL SUWRNS (LP,2,NUMWRN)
+            ENDIF
+         IF (IERR.EQ.3) THEN
+            WRITE (LP,180) STAID,IPCHAR
+            CALL SUERRS (LP,2,NUMERR)
+            ENDIF
+         GO TO 10
+C
+135   IPCHAR=0
+C
+C  UPDATE STAN PARAMETERS
+130   WDISP='OLD'
+      IWRITE=1
+      INCLUDE 'scommon/callswstan'
+      IF (IERR.NE.0) THEN
+         WRITE (LP,340) STAID
+         CALL SULINE (LP,2)
+         GO TO 10
+         ENDIF
+C      
+      WRITE (LP,350) STAID
+      CALL SULINE (LP,2)
+C
+      IF (LDEBUG.GT.0) THEN
+         IPRNT=1
+         INCLUDE 'scommon/callspstan'
+         ENDIF
+C
+C  DELETE PARAMETERS FROM PREPROCESSOR PARAMETRIC DATA BASE
+      TYPE='PCPN'
+      CALL WPPDEL (STAID,TYPE,IERR)
+      IF (IERR.EQ.0) GO TO 200
+         IF (IERR.EQ.1) THEN
+             WRITE (LP,360) STAID
+             CALL SUWRNS (LP,2,NUMWRN)
+            ENDIF
+         IF (IERR.GT.1) THEN
+            WRITE (LP,370) IERR,STAID
+            CALL SUWRNS (LP,2,NUMWRN)
+            ENDIF
+         GO TO 10
+C
+200   IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,380) STAID
+         CALL SULINE (LP,1)
+         ENDIF
+      CALL SUDWRT (1,4HPPP ,IERR)
+C
+C  PCPN PARAMETERS SUCCESSFULLY DELETED
+      WRITE (LP,390) STAID
+      CALL SULINE (LP,2)
+C
+C  READ PARAMETERS FOR GROUPS NOT REDEFINED
+      STDISP='OLD'
+      IDESCN=0
+      ISTATN=0
+      PRPARM='NO'
+      CALL SFRGPS (STDISP,PRPARM,STAID,NBRSTA,NGPS,GPS,
+     *   NGPSN,GPSN,IPARM,IDESCN,ISTATN,DESCRP,STATE,
+     *   INPCPN,IPPROC,PCPNCF,ITPPVR,
+     *   ITYOBS,TEMPCF,ITTAVR,ITFMM,
+     *   RRSTYP,NRRSTP,IRTIME,NVLPOB,NUMOBS,MNODAY,
+     *   LARRAY,ARRAY,IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (LP,210) STAID
+210   FORMAT ('0*** NOTE - STATION ',A,' NOT SUCCESSFULLY READ ',
+     *   'TO OBTAIN THOSE PARAMETERS NOT REDEFINED.')
+         CALL SULINE (LP,2)
+         GO TO 10
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHANGE STATION IN PREPROCESSOR DATA BASE
+      STDISP='DELT'
+      PDDISP='DELT'
+      CALL SFPDCR (STDISP,PDDISP,PRPARM,STAID,NBRSTA,NPSTAN,
+     *   ICSTAN,NGPS,GPS,NGPSN,
+     *   DLYTYP,NDLYTP,
+     *   INPCPN,IPPROC,PCPNCF,MDRBOX,IPCHAR,
+     *   ITYOBS,TEMPCF,IPMMMT,
+     *   RRSTYP,NRRSTP,NVLPOB,NUMOBS,MNODAY,
+     *   IPPPTR,
+     *   IPPP24,IPPPVR,IPTM24,IPTAVR,IPTF24,IPEA24,
+     *   LARRAY,ARRAY,NSTERR,NSTWRN,IDEERR,IERR)
+      IF (IERR.EQ.0) NDELTE=NDELTE+1
+      GO TO 10
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  PRINT NUMBER OF PCPN STATIONS DELETED
+230   IF (NDELTE.EQ.0) THEN
+         WRITE (LP,420)
+         CALL SULINE (LP,2)
+         ENDIF
+      IF (NDELTE.GT.0) THEN
+         WRITE (LP,430) NDELTE
+         CALL SULINE (LP,2)
+         ENDIF
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,440)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+250   FORMAT (' *** ENTER SLPCPN')
+260   FORMAT (' LARRAY=',I5,3X,'NFLD=',I2)
+270   FORMAT ('0*** ERROR - IN SLPCPN - ',A4,' IS AN INVALID ',
+     *   'PARAMETER TYPE.')
+290   FORMAT (' NULL FIELD FOUND IN FIELD ',I2)
+300   FORMAT ('0*** NOTE - RIGHT PARENTHESES ASSUMED IN FIELD ',I2,'.')
+320   FORMAT ('0*** WARNING - STAN PARAMETERS NOT FOUND ',
+     *   'FOR STATION ',A,'.')
+330   FORMAT ('0*** WARNING - ',A4,' PARAMETERS NOT DEFINED ',
+     *   'FOR STATION ',A,'.')
+160   FORMAT ('0*** ERROR - SYSTEM ERROR ACCESSING PCPN ',
+     *   'CHARACTERISTICS FOR STATION ',A,'. IPCHAR=',I3)
+170   FORMAT ('0*** WARNING - PCPN CHARACTERISTICS AT LOCATION ',I3,
+     *   ' FOR STATION ',A,' ARE ALREADY MARKED AS DELETED.')
+180   FORMAT ('0*** ERROR - INVALID VALUE OF PCPN CHARACTERISTICS ',
+     *   'POINTER (',I3,') FOR STATION ',A,'.')
+340   FORMAT ('0*** ERROR - STATION GENERAL PARAMETERS ',
+     *   'FOR STATION ',A,' NOT SUCCESSFULLY UPDATED.')
+350   FORMAT ('0*** NOTE - STATION GENERAL PARAMETERS ',
+     *   'FOR STATION ',A,' SUCCESSFULLY UPDATED.')
+360   FORMAT ('0*** WARNING - PCPN PARAMETERS  NOT FOUND ',
+     *   'FOR STATION ',A,'.')
+370   FORMAT ('0*** WARNING - STATUS CODE ',I3,' FROM WPPDEL ',
+     *   'ENCOUNTERED WHILE DELETING PCPN STATION ',A,'.')
+380   FORMAT (' PARAMETERS DELETED FOR PCPN STATION ',A)
+390   FORMAT ('0*** NOTE - PCPN PARAMETERS FOR STATION ',
+     *   'FOR STATION ',A,' SUCCESSFULLY DELETED.')
+420   FORMAT ('0*** NOTE - NO STATIONS WITH PCPN PARAMETERS ',
+     *   'SUCCESSFULLY PROCESSED.')
+430   FORMAT ('0*** NOTE - ',I3,' STATION PCPN PARAMETERS ',
+     *   'SUCCESSFULLY DELETED.')
+440   FORMAT (' *** EXIT SLPCPN')
+C
+      END

@@ -1,0 +1,347 @@
+C MODULE UDACPY
+C-----------------------------------------------------------------------
+C
+C  ROUTINE UDACPY IS USED TO COPY DATASETS.
+C
+      SUBROUTINE UDACPY (LPRINT,NUNIT,NUNIN,NUNOUT,NREC1,NRECL,
+     *    LARRAY,ARRAY,NUMDSN,NRTIN,NRTOUT,ISTAT)
+C
+      CHARACTER*4 UNIT,UNIT1,UNIT2
+      CHARACTER*4 RECFM,DSORG
+      CHARACTER*6 VOLUME
+      CHARACTER*8 DDNIN/'FTXXF001'/
+      CHARACTER*8 DDNOUT/'FTXXF001'/
+      CHARACTER*128 DSNIN,DSNOUT
+C
+      DIMENSION NUNIN(1),NUNOUT(1),NREC1(1),NRECL(1)
+      DIMENSION ARRAY(1)
+C
+      INCLUDE 'uiox'
+      INCLUDE 'udsatx'
+      INCLUDE 'ucmdbx'
+      INCLUDE 'udacpx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/util/src/util_gen3/RCS/udacpy.f,v $
+     . $',                                                             '
+     .$Id: udacpy.f,v 1.3 1998/10/14 15:59:02 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      IF (ICMTRC.GT.0) THEN
+         CALL ULINE (ICMPRU,1)
+         WRITE (ICMPRU,250)
+         ENDIF
+C
+      ISTAT=0
+C
+C  CHECK IF TOTAL NUMBER OF RECORDS COPIED TO BE PRINTED
+      IPRINT=0
+      IF (NRTIN.GT.0) THEN
+         IPRINT=1
+         NUMDSN=0
+         NRTIN=0
+         NRTOUT=0
+         ENDIF
+C
+10    IF (ICMDBG.GT.0) THEN
+         CALL ULINE (ICMPRU,1)
+         WRITE (ICMPRU,260) NUNIT
+         DO 20 I=1,NUNIT
+            CALL ULINE (ICMPRU,1)
+            WRITE (ICMPRU,270) I,NUNIN(I),NUNOUT(I),NREC1(I),NRECL(I)
+20          CONTINUE
+         ENDIF
+C
+30    NUMUNT=1
+C
+40    IF (NUMUNT.GT.NUNIT) GO TO 230
+      CALL ULINEL (LP,5,IERR)
+      IF (IERR.EQ.1) CALL UPAGE (LP)
+      CALL ULINE (LP,2)
+      WRITE (LP,280)
+C
+C  SET INPUT AND OUTPUT UNIT NUMBERS
+      NIN=NUNIN(NUMUNT)
+      NOUT=NUNOUT(NUMUNT)
+      IF (NIN.EQ.NOUT) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,290) NIN,NOUT
+         GO TO 220
+         ENDIF
+C
+C  CHECK IF DDNAME ALLOCATED
+      IPRERR=1
+      CALL UDDNST (DDNIN,NIN,IPRERR,IDDST1)
+      CALL UDDNST (DDNOUT,NOUT,IPRERR,IDDST2)
+      IF (IDDST1.EQ.0.AND.IDDST2.EQ.0) GO TO 60
+      IF (IDDST2.EQ.3.AND.ICPDMY.EQ.1) GO TO 60
+         CALL ULINE (LP,2)
+         WRITE (LP,300)
+         GO TO 220
+C
+60    IF (IDDST1.GT.0) GO TO 70
+C
+C  GET DATASET ATTRIBUTES FOR INPUT DATASET
+      IPRERR=1
+      CALL UDSATR (DDNIN,DSNIN,VOLUME,RECFM,LRECL1,LBLK1,DSORG,
+     *   NTRK1,NTRKU1,IPRERR,IERR)
+      CALL ULENTH (DSNIN,LEN(DSNIN),LDSIN)
+      IUNIT=0
+      CALL UPRDSA (DDNIN,IUNIT,'**SAME**',IPRERR,LP,IERR)
+      UNIT1=DSUNIT
+C
+C  CHECK IF OUTPUT DD IS DUMMY
+70    IF (IDDST2.GT.0) GO TO 80
+C
+C  GET DATASET ATTRIBUTES FOR OUTPUT DATASET
+      IPRERR=1
+      CALL UDSATR (DDNOUT,DSNOUT,VOLUME,RECFM,LRECL2,LBLK2,DSORG,
+     *   NTRK2,NTRK2U,IPRERR,IERR)
+      CALL ULENTH (DSNOUT,LEN(DSNOUT),LDSOUT)
+      CALL UPRDSA (DDNOUT,IUNIT,'**SAME**',IPRERR,LP,IERR)
+      UNIT2=DSUNIT
+C
+80    IF (IDDST1.EQ.0.AND.IDDST2.EQ.0) GO TO 90
+      IF (IDDST1.EQ.0.AND.IDDST2.EQ.3) GO TO 90
+         CALL ULINE (LP,2)
+         WRITE (LP,300)
+         GO TO 220
+C
+C  CHECK IF OUTPUT DDNAME IS DUMMY
+90    IF (IDDST2.EQ.3) GO TO 110
+C
+C  CHECK LOGICAL RECORD LENGTH
+      IF (LRECL1.LE.LRECL2) GO TO 100
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,330) LRECL1,LRECL2
+         CALL ULINE (LP,2)
+         WRITE (LP,300)
+         GO TO 220
+C
+C  CHECK SPACE ALLOCATION
+100   IF (NTRKU1.GT.NTRK2) THEN
+         CALL UWARN (LP,1,-1)
+         WRITE (LP,340) NTRK1,NTRK2
+         ENDIF
+C
+C  SET FIRST AND LAST RECORD TO BE COPIED
+C    IF FIRST RECORD NUMBER IS <0, NO RECORDS READ OR WRITTEN
+C    IF FIRST RECORD NUMBER IS =0, RECORDS ARE READ BUT NOT WRITTEN
+C    IF FIRST RECORD NUMBER IS >0, RECORDS ARE READ AND WRITTEN STARTING
+C                                  WITH THIS NUMBER
+C    IF LAST  RECORD NUMBER IS -2, ALL RECORDS ARE READ AND WRITTEN
+C                                  WITH NUMBER OF RECORDS DETERMINED
+C                                  FROM THE SMALLER OF THE INPUT AND
+C                                  OUTPUT DATASETS
+C    IF LAST  RECORD NUMBER IS -1, ALL RECORDS ARE READ AND WRITTEN
+C                                  WITH NUMBER OF RECORDS DETERMINED
+C                                  FROM THE OUTPUT DATASET
+C    IF LAST  RECORD NUMBER IS =0, ALL RECORDS ARE READ AND WRITTEN
+C                                  WITH NUMBER OF RECORDS DETERMINED
+C                                  FROM THE INPUT DATASET
+C    IF LAST  RECORD NUMBER IS >0, RECORDS ARE READ AND WRITTEN ENDING
+C                                  WITH THIS NUMBER
+C                                  BE READ AND WRITTEN
+110   NRF=NREC1(NUMUNT)
+      NRL=NRECL(NUMUNT)
+      IWRITE=1
+      IF (NRF.GT.0) GO TO 130
+         IF (NRF.NE.0) THEN
+            IWRITE=0
+            NRF=IABS(NRF)
+            CALL ULINE (LP,2)
+            WRITE (LP,350)
+            GO TO 130
+            ENDIF
+         CALL ULINE (LP,2)
+         WRITE (LP,360)
+         GO TO 220
+130   IF (NRL.GE.1) GO TO 160
+         IPUNIT=0
+         UNIT=UNIT1
+         LRECL=LRECL1
+         LBLOCK=LBLK1
+         NTRK=NTRK1
+         NSZDSN=1
+         IF (NRL.EQ.-2) THEN
+            CALL ULINE (LP,2)
+            WRITE (LP,385) 'SMALLER OF THE INPUT AND OUTPUT DATASETS'
+            IF (NTRK1.LE.NTRK2) GO TO 150
+               UNIT=UNIT2
+               LRECL=LRECL2
+               LBLOCK=LBLK2
+               NTRK=NTRK2
+               NSZDSN=2
+               GO TO 150
+               ENDIF
+         IF (NRL.EQ.-1) THEN
+            CALL ULINE (LP,2)
+            WRITE (LP,385) 'OUTPUT DATASET'
+            UNIT=UNIT2
+            LRECL=LRECL2
+            LBLOCK=LBLK2
+            NTRK=NTRK2
+            NSZDSN=2
+            ENDIF
+C  GET NUMBER OF BLOCKS PER TRACK
+150      CALL UDKBLK (' ',IPUNIT,UNIT,LBLOCK,LPRINT,NPRTRK,
+     *      NPCT,IERR)
+C  COMPUTE NUMBER OF RECORDS IN DATASET
+         MAXREC=LBLOCK/LRECL*NPRTRK*NTRK
+         IF (LPRINT.GT.1) THEN
+            CALL ULINE (LP,2)
+            IF (NSZDSN.EQ.1)
+     *         WRITE (LP,390) NTRK,MAXREC,DSNIN(1:LDSIN)
+            IF (NSZDSN.EQ.2)
+     *         WRITE (LP,390) NTRK,MAXREC,DSNOUT(1:LDSOUT)
+            ENDIF
+         NRL=MAXREC
+C
+160   CALL ULINE (LP,2)
+      WRITE (LP,380) NRF,NRL,NIN,NOUT
+C
+C  COPY RECORDS
+      NRCIN=0
+      NRCOUT=0
+      NRDERR=0
+      DO 170 IREC=NRF,NRL
+         IF (ICMDBG.GT.0) THEN
+            CALL ULINE (ICMPRU,1)
+            WRITE (ICMPRU,*) ' IREC=',IREC,' NIN=',NIN
+            ENDIF
+         CALL UREADT (NIN,IREC,ARRAY,IERR)
+         IF (IERR.GT.0) THEN
+            IF (IERR.EQ.2) THEN
+C           FILE READ ERROR
+               IF (IFILEE.GT.0) THEN
+                  CALL UEROR (LP,1,-1)
+                  WRITE (LP,420) IREC,NIN
+                  ENDIF
+               NRDERR=NRDERR+1
+               ENDIF
+            IF (IERR.NE.2) THEN
+               CALL UEROR (LP,1,-1)
+               WRITE (LP,425) IREC,NIN,IIERR
+               ENDIF
+            GO TO 170
+            ENDIF
+         NRCIN=NRCIN+1
+         NRTIN=NRTIN+1
+         IF (IWRITE.EQ.0) GO TO 170
+            IF (ICMDBG.GT.0) THEN
+               CALL ULINE (ICMPRU,1)
+               WRITE (ICMPRU,*) ' IREC=',IREC,' NOUT=',NOUT
+               ENDIF
+            CALL UWRITT (NOUT,IREC,ARRAY,IERR)
+            IF (IERR.GT.0) THEN
+C           FILE WRITE ERROR
+               CALL UEROR (LP,1,-1)
+               WRITE (LP,430) IREC,NOUT
+               GO TO 170
+               ENDIF
+            NRCOUT=NRCOUT+1
+            NRTOUT=NRTOUT+1
+170      CONTINUE
+C
+      IF (NRCIN.EQ.NRCOUT) THEN
+         CALL ULINE (LP,2)
+         WRITE (LP,450) NRCOUT,NOUT
+         ELSE
+            CALL ULINE (LP,2)
+            WRITE (LP,440) NRCIN,NIN,NRCOUT,NOUT
+         ENDIF
+C
+      IF (NRDERR.GT.0) THEN
+         CALL ULINE (LP,2)
+         WRITE (LP,455) NRDERR
+         ENDIF
+C
+C  CLOSE INPUT DATASET
+210   CALL UCLOST (NIN)
+      IF (ICMDBG.GT.0) THEN
+         CALL ULINE (ICMPRU,1)
+         WRITE (ICMPRU,460) NIN
+         ENDIF
+C
+C  CLOSE OUTPUT DATASET
+      CALL UCLOST (NOUT)
+      IF (ICMDBG.GT.0) THEN
+         CALL ULINE (ICMPRU,1)
+         WRITE (ICMPRU,460) NOUT
+         ENDIF
+C
+      NUMDSN=NUMDSN+1
+C
+      CALL ULINE (LP,2)
+      WRITE (LP,280)
+C
+220   NUMUNT=NUMUNT+1
+      GO TO 40
+C
+230   IF (IPRINT.EQ.1) THEN
+         CALL ULINE (LP,2)
+         WRITE (LP,475) NUMDSN
+         CALL ULINE (LP,2)
+         IF (NRTIN.EQ.NRTOUT) WRITE (LP,480) NRTIN
+         IF (NRTIN.NE.NRTOUT) WRITE (LP,490) NRTIN,NRTOUT
+         ENDIF
+C
+      IF (ICMTRC.GT.0) THEN
+         CALL ULINE (ICMPRU,1)
+         WRITE (ICMPRU,500)
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+250   FORMAT (' *** ENTER UDACPY')
+260   FORMAT (' NUNIT=',I2)
+270   FORMAT (' I=',I2,3X,'NUNIN=',I2,3X,'NUNOUT=',I2,3X,
+     *   'NREC1=',I6,3X,'NRECL=',I6)
+280   FORMAT ('0',132('-'))
+290   FORMAT ('+*** ERROR - IN UDACPY - INPUT UNIT NUMBER (',I2,
+     *   ') IS SAME AS OUTPUT UNIT NUMBER (',I2,').')
+300   FORMAT ('0*** NOTE - DATASET WILL NOT BE COPIED.')
+330   FORMAT ('+*** ERROR - INPUT LOGICAL RECORD LENGTH (',I5,
+     *   ') NOT COMPATIBLE WITH OUTPUT LOGICAL RECORD LENGTH (',
+     *   I5,').')
+340   FORMAT ('+*** WARNING - INPUT DATASET SIZE (',I5,
+     *   ' TRKS) MAY BE LARGER THAN OUTPUT DATASET SIZE (',I5,
+     *   ' TRKS).')
+350   FORMAT ('0*** NOTE - RECORDS WILL BE READ FROM INPUT FILE ',
+     *   'BUT NOT WRITTEN TO OUTPUT FILE.')
+360   FORMAT ('0*** NOTE - RECORD NUMBER OF FIRST RECORD TO BE COPIED ',
+     *   'IS NEGATIVE. NO RECORDS WILL BE READ OR WRITTEN.')
+380   FORMAT ('0*** NOTE - RECORDS ',I6,' THRU ',I6,' WILL BE COPIED ',
+     *   'FROM UNIT ',I2,' TO UNIT ',I2,'.')
+385   FORMAT ('0*** NOTE - THE NUMBER OF RECORDS COPIED WILL BE ',
+     *   'DETERMINED FROM THE ',A,'.')
+390   FORMAT ('0*** NOTE - THERE ARE ',I4,' TRACKS (',I6,
+     *   ' RECORDS) IN DATASET ',A,'.')
+420   FORMAT ('+*** ERROR - FILE READ ERROR AT RECORD ',I6,
+     *   ' OF UNIT ',I2,
+     *   '. RECORD NOT WRITTEN.')
+425   FORMAT ('+*** ERROR - FILE ERROR AT RECORD ',I6,
+     *   ' OF UNIT ',I2,'. UREADT STATUS CODE IS ',I2,
+     *   '. RECORD NOT WRITTEN.')
+430   FORMAT ('+*** ERROR - FILE WRITE ERROR AT RECORD ',I6,
+     *   'OF UNIT ',I2,'.')
+440   FORMAT ('0*** NOTE - ',I6,' RECORDS READ FROM INPUT UNIT ',I2,
+     *   '. ',I6,' RECORDS WRITTEN TO OUTPUT UNIT ',I2,'.')
+450   FORMAT ('0*** NOTE - ',I6,' RECORDS WRITTEN TO OUTPUT UNIT ',I2,
+     *   '.')
+455   FORMAT ('0*** NOTE - ',I6,' FILE READ ERRORS ENCOUNTERED.')
+460   FORMAT (' UNIT ',I2,' SUCCESSFULLY CLOSED')
+475   FORMAT ('0*** NOTE - ',I4,' TOTAL DATASETS PROCESSED.')
+480   FORMAT ('0*** NOTE - ',I6,' RECORDS COPIED FROM INPUT DATASETS ',
+     *   'TO OUTPUT DATASETS.')
+490   FORMAT ('0*** NOTE - ',I6,' RECORDS READ FROM INPUT DATASETS. ',
+     *   I6,' RECORDS WRITTEN TO OUTPUT DATASETS.')
+500   FORMAT (' *** EXIT UDACPY')
+C
+      END

@@ -1,0 +1,113 @@
+C MEMBER GMPRM
+C  (from old member PPGMPRM)
+C
+      SUBROUTINE GMPRM(PMRO)
+C
+C.....THIS SUBROUTINE BREAKS OUT THE MARO PARAMETRIC ARRAY INTO ITS
+C.....COMPONENT PARTS TO FACILITATE PROCESSING.
+C
+C.....THE ARGUMENT LIST IS:
+C
+C.....PMRO   - THE MARO AREA PARAMETRIC RECORD DATA ARRAY.
+C
+C.....WRITTEN BY:  JERRY M. NUNN     WGRFC FT. WORTH     SEPT. 1, 1987
+C
+C.....REVISED 10/23/87  TO USE SUBROUTINE SUBSTR TO BREAK OUT THE
+C.....MARO PARAMETRIC ARRAY.
+C
+      DIMENSION PMRO(1)
+
+C
+      INCLUDE 'common/pudbug'
+      INCLUDE 'gcommon/gmropa'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_maro/RCS/gmprm.f,v $
+     . $',                                                             '
+     .$Id: gmprm.f,v 1.1 1995/09/17 19:02:06 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+  900 FORMAT(1H0, '*** ENTER GMPRM ***')
+  901 FORMAT(1H0, '*** EXIT GMPRM ***')
+  902 FORMAT(1X ,'*** CALLING SUBSTR ***')
+  903 FORMAT(1X, 'IDMARO = ', 2A4)
+  904 FORMAT(1X, 'IDESC = ', 5A4)
+  905 FORMAT(1X, 'XLAT = ', F8.2)
+  906 FORMAT(1X, 'XLONG = ', F8.2)
+  907 FORMAT(1X, 'NGRIDA = ', I4)
+  908 FORMAT(1X, 'IREC = ', 2I5)
+  909 FORMAT(1X, 'IFGRID = ', I4)
+  910 FORMAT(1X, 'IFCLTR = ', 2A4)
+  911 FORMAT(1X, 'MDRBOX = ', 3I5)
+  912 FORMAT(1X, 'MDRGRD = ', 3I5)
+  913 FORMAT(1X, 'IGRID = ', /, 10I6)
+  914 FORMAT(1X, 'IRELN = ', /, 10I6)
+C
+      IF(IPTRCE .GE. 6) WRITE(IOPDBG,900)
+C
+C.....BREAK OUT THE COMPONENTS OF THE MARO PARAMETRIC ARRAY.
+C
+      CALL SUBSTR(PMRO(2), 1, 8, IDMARO(1), 1)
+      IF(IPTRCE .GE. 6) WRITE(IOPDBG,902)
+      IF(IPTRCE .GE. 6) WRITE(IOPDBG,903) IDMARO
+C
+      CALL SUBSTR(PMRO(4), 1, 20, IDESC(1), 1)
+      IF(IPTRCE .GE. 6) WRITE(IOPDBG,902)
+      IF(IPTRCE .GE. 6) WRITE(IOPDBG,904) IDESC
+C
+      CALL SUBSTR(PMRO(9), 1, 4, XLAT, 1)
+      IF(IPTRCE .GE. 6) WRITE(IOPDBG,902)
+      IF(IPTRCE .GE. 6) WRITE(IOPDBG,905) XLAT
+C
+      CALL SUBSTR(PMRO(10), 1, 4, XLONG, 1)
+      IF(IPTRCE .GE. 6) WRITE(IOPDBG,902)
+      IF(IPTRCE .GE. 6) WRITE(IOPDBG,906) XLONG
+C
+      NGRIDA = PMRO(11)
+      IF(IPTRCE .GE. 6) WRITE(IOPDBG,907) NGRIDA
+C
+      IREC(1) = PMRO(12)
+      IREC(2) = PMRO(13)
+      IF(IPTRCE .GE. 6) WRITE(IOPDBG,908) IREC
+C
+      IFGRID = PMRO(14)
+      IF(IPTRCE .GE. 6) WRITE(IOPDBG,909) IFGRID
+C
+      CALL SUBSTR(PMRO(15), 1, 8, IFCLTR(1), 1)
+      IF(IPTRCE .GE. 6) WRITE(IOPDBG,902)
+      IF(IPTRCE .GE. 6) WRITE(IOPDBG,910) IFCLTR
+C
+      JP = 17
+      KP = 20
+C
+      DO 10 NP = 1, 3
+      MDRBOX(NP) = PMRO(JP)
+      MDRGRD(NP) = PMRO(KP)
+      JP = JP + 1
+      KP = KP + 1
+   10 CONTINUE
+C
+      IF(IPTRCE .GE. 6) WRITE(IOPDBG,911) MDRBOX
+      IF(IPTRCE .GE. 6) WRITE(IOPDBG,912) MDRGRD
+C
+C
+      JP = 25
+      KP = 25 + NGRIDA
+C
+      DO 20 NP = 1, NGRIDA
+      IGRID(NP) = PMRO(JP)
+      IRELN(NP) = PMRO(KP)
+      JP = JP + 1
+      KP = KP + 1
+   20 CONTINUE
+C
+      IF(IPTRCE .GE. 6) WRITE(IOPDBG,913) IGRID
+      IF(IPTRCE .GE. 6) WRITE(IOPDBG,914) IRELN
+C
+      IF(IPTRCE .GE. 6) WRITE(IOPDBG,901)
+      RETURN
+      END

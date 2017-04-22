@@ -1,0 +1,348 @@
+C MODULE MPAR26
+C
+C  PERFORMS SYNTACTICAL AND LEXICAL ANALYSIS ON IF CLAUSE
+C
+      SUBROUTINE MPAR26(WORK,IUSEW,LEFTW,NUMFLD,IRM)
+C
+C  ARGUMENTS:
+C   WORK - ARRAY TO HOLD ENCODED IF CLAUSE
+C  IUSEW - NUMBER OF WORD USED IN WORK
+C  LEFTW - NUMBER OF WORDS LEFT IN WORK
+C NUMFLD - ACTION INDICATOR ON NEXT FIELD SCAN (OUTPUT)
+C
+C.......................................................
+C
+C  JTOSTROWSKI - HRL - MARCH 1983
+C................................................................
+      INCLUDE 'common/fld26'
+      INCLUDE 'common/cmpv26'
+      INCLUDE 'ufreex'
+      INCLUDE 'common/ifcl26'
+C
+      PARAMETER (LSTRNG=200)
+      CHARACTER*4 STRNG(LSTRNG)
+      DIMENSION EXP(3),EXC(5),EXE(5),C4NAM(3),
+     . IALLOW(5,5,3),INSYM(8),ISYMB(4,8),CODE(2),ICONDN(5,3),
+     . IPHEL(2,8),IACTON(5,5,8),WORK(1)
+C
+      INTEGER PHRASE,ELMENT,SYMBOL,SYMRED
+      LOGICAL GETAMP
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_res/RCS/mpar26.f,v $
+     . $',                                                             '
+     .$Id: mpar26.f,v 1.2 1998/07/02 19:36:20 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      DATA EXP/4HLOGI,4HLINK,4HINC /
+      DATA EXE/4HSCMP,4HRELP,4HUCMP,4HLINK,4HINC /
+      DATA EXC/1H(,1H),1H.,1HC,1H /
+C
+      DATA INSYM/1,1,2,2,2,3,3,4/
+      DATA ISYMB/1,5,5,5, 4,5,5,5, 1,4,5,5, 3,4,5,5, 2,3,5,5, 2,3,4,5,
+     .           2,3,5,5, 1,2,3,4/
+C
+      DATA IALLOW/0,7,2,4,0, 0,0,0,0,0, 0,7,2,4,0, 0,0,0,0,0, 0,0,0,0,0,
+     2            0,5,2,4,0, 3,0,3,8,0, 0,0,0,0,0, 3,0,3,6,0, 0,0,0,0,0,
+     3            0,5,2,4,0, 3,0,3,8,0, 0,0,0,0,0, 0,0,0,0,0, 3,0,0,6,1/
+C
+      DATA CODE/129.01,119.01/
+C
+      DATA ICONDN/4,0,5,0,0, 7,8,0,6,0, 2,3,0,0,1/
+C
+      DATA IPHEL/1,1, 2,3, 3,1, 4,2, 4,2, 1,1, 2,2, 3,1/
+C
+      DATA IACTON/1,0,0,3,0, 0,0,0,0,0, 0,0,0,0,0, 0,8,7,4,0, 1,0,0,0,0,
+     2            0,0,0,0,0, 0,2,5,0,0, 0,0,0,3,0, 0,0,7,4,0, 0,0,0,0,0,
+     3            1,0,0,3,0, 0,0,0,0,0, 1,0,0,3,0, 7,8,7,4,0, 0,0,0,0,0,
+     4            0,0,0,0,0, 0,2,5,0,6, 0,0,0,3,0, 0,0,7,4,0, 0,0,0,0,0,
+     5            0,0,0,0,0, 0,2,5,0,6, 0,0,0,3,0, 0,0,7,4,0, 0,0,0,0,0,
+     6            1,0,0,3,0, 0,0,0,0,0, 1,0,0,3,0, 0,8,7,4,0, 0,0,0,0,0,
+     7            0,0,0,0,0, 0,2,5,0,0, 0,0,0,3,0, 0,0,7,4,0, 0,0,0,0,0,
+     8            1,0,0,3,0, 0,0,0,0,0, 1,0,0,3,0, 7,8,7,4,0, 0,0,0,0,0/
+C
+C  INITIALIZE SYMBOLS, PHRASES, AND ELEMENTS
+C
+      PHRASE = 3
+      ELMENT = 5
+      SYMBOL = 5
+C
+      JUMP = 0
+      NSTACK = 0
+      IRM = 0
+C
+      NWLOC = NWIFCL
+      LEFTC = LIFCL - NWIFCL
+      GETAMP = .FALSE.
+      CALL FLWK26(CLAUSE,NWIFCL,LEFTC,1.01,504)
+      LSTR = 0
+      CALL UMEMST ('    ',STRNG,LSTRNG)
+C
+C  STORE IF CLAUSE UNTIL WE REACH NO MORE CONTINUATIONS ON A LINE
+C
+   20 NUMFLD = -2
+   30 CONTINUE
+      CALL UFLD26(NUMFLD,IRF)
+      IF (GETAMP) GO TO 40
+      IF (IRF.GT.0.AND.IRF.LT.4) GO TO 9900
+C
+C  STORE LINE IN STRING
+C
+      IF (LSTR+1+LEN-1.GT.LSTRNG) THEN
+         IERNUM=54
+         CALL STER26(IERNUM,1)
+         ELSE
+C        MOVE VALUES FROM STR1 TO STR2
+            DO 33 I=1,LEN
+            STRNG(LSTR+1+I-1)=ICDBUF(ISTRT+I-1:ISTRT+I-1)
+33          CONTINUE            
+         ENDIF
+      LSTR = LSTR + LEN
+C
+      GETAMP = .TRUE.
+      GO TO 20
+C
+C  LOOKING FOR A CONTINUATION HERE
+C
+   40 CONTINUE
+      IF (GETAMP.AND.LAMPS.NE.1) GO TO 50
+      GETAMP = .FALSE.
+      NUMFLD = 0
+      GO TO 30
+C
+C  ENTIRE STRING HAS BEEN STORED IN STRNG
+C
+   50 CONTINUE
+      NFLD = NFLD - 1
+C--------------------------------------------------------------
+C
+C  LOOP THRU ENTIRE STRING, ONE CHARACTER AT A TIME
+C
+      DO 9000 I=1,LSTR
+C
+C  FIRST DETERMINE ALLOWABLE NEXT SYMBOLS, BASED ON THE EXISTING
+C  SYMBOLS, ELEMENTS AND PHRASES
+C
+C  SEE IF WE NEED TO SKIP OVER CHARACTERS READ IN CKNM26
+C
+      IF (JUMP.GT.0) GO TO 8900
+C
+      ILOC = IALLOW(SYMBOL,ELMENT,PHRASE)
+      IF (ILOC.EQ.0) GO TO 9000
+C------------------------------------------------------------
+C
+C  DETERMINE TYPE OF NEXT CHARACTER IN STRNG
+C
+      DO 90 J=1,3
+      IF (IUSAME(STRNG(I),EXC(J),1).EQ.0) GO TO 90
+      SYMRED = J
+      GO TO 93
+C
+   90 CONTINUE
+C
+C  IF CHARACTER IS NEITHER (,), OR . SET IT TO CHAR
+C
+      SYMRED = 4
+   93 CONTINUE
+C-------------------------------------------------------------
+C
+C  SEE IF SYMBOL FOUND IS ALLOWED UNDER EXISTING CONDITIONS
+C
+      NSYMBA = INSYM(ILOC)
+      DO 95 J=1,NSYMBA
+      IF (SYMRED.EQ.ISYMB(J,ILOC)) GO TO 97
+   95 CONTINUE
+      CALL STER26(28,I)
+      IRM = 1
+      GO TO 9000
+C
+   97 CONTINUE
+C-----------------------------------------------------------------
+C
+C  DETERMINE ACTION TO BE DONE BASED ON THE EXISTING CONDITION AND
+C   THE LAST AND JUST READ SYMBOL
+C  CONDITION BASED ON EXTANT PHRASE AND ELEMENT
+C
+      ICOND = ICONDN(ELMENT,PHRASE)
+      IF (ICOND.EQ.0) GO TO 9000
+C
+C  POINT TO PROPER ACTION
+C
+      IACTPT = IACTON(SYMRED,SYMBOL,ICOND)
+      IF (IACTPT.EQ.0) GO TO 9000
+C
+      GO TO (100,200,300,400,500,600,700,800), IACTPT
+C-------------------------------------------------------------
+C
+C  '(' FOUND. JUST INCREMENT STACK AND STROE CODE IN CLAUSE
+C
+  100 CONTINUE
+       NSTACK = NSTACK + 1
+      CALL FLWK26(CLAUSE,NWIFCL,LEFTC,CODE(1),504)
+      SYMBOL = SYMRED
+      GO TO 9000
+C------------------------------------------------------------
+C
+C  ')' FOUND, DECREMENT STACK AND CHECK TO SEE IF STACK IS LE 0
+C
+  200 CONTINUE
+      NSTACK = NSTACK-1
+      IF (NSTACK.GT.0) GO TO 230
+      IF (I.EQ.LSTR) GO TO 9000
+      CALL STER26(11,I)
+      IRM = 1
+      GO TO 9000
+C
+C  STORE CODE FOR ')'
+C
+  230 CONTINUE
+      CALL FLWK26(CLAUSE,NWIFCL,LEFTC,CODE(2),504)
+      SYMBOL = SYMRED
+      GO TO 9000
+C-------------------------------------------------------------
+C
+C  STORE POINTER FOR START OF NAME AND SET LENGTH TO 1
+C
+  300 CONTINUE
+      INAMST = I
+      NAMLEN = 1
+      SYMBOL = SYMRED
+      GO TO 9000
+C---------------------------------------------------------------
+C
+C  INCREMENT LENGTH OF NAME
+C
+  400 CONTINUE
+      NAMLEN = NAMLEN+1
+      SYMBOL = SYMRED
+      GO TO 9000
+C----------------------------------------------------------------
+C
+C  A '.' FOUND FOLLOWING A ')'. NOTHIN NEED BE DONE 'CEPT RESET SYMBOL
+C
+  500 CONTINUE
+      SYMBOL = SYMRED
+      GO TO 9000
+C----------------------------------------------------------------------
+C
+C  CONTROL SHOULDN'T REACH HERE AS NO BLANKS ARE ALLOWED WITHIN STRING
+C
+  600 CONTINUE
+      SYMBOL = SYMRED
+      GO TO 9100
+C----------------------------------------------------------------
+C
+C  EITHER A '.' OR '(' FOUND WHEN WE NEED TO PACK AND CHECK NAME.
+C  NEED TO PACK STRING, COMPARE WITH THE EXPECTED TYPES, AND RESET
+C  ELEMENTS AND PHRASES TO LATEST FOUND.
+C
+C  ( WHEN '(' IS FOUND, WE ARE IN THE RIGHT-HAND SIDE OF AN 'A.GT.B'
+C    TYPE RELATION. CURRENTLY ONLY THE FUNCTION MAXQ IS ALLOWED MULTIPLE
+C    REFERENCE IN AN IF CLAUSE.)
+C
+  700 CONTINUE
+      NWORD = (NAMLEN -1)/4 + 1
+      CALL UPACKN(NAMLEN,STRNG(INAMST),NWORD,C4NAM,IERP)
+      IF (IERP.EQ.0) GO TO 710
+      CALL STER26(20,INAMST)
+      IRM = 1
+C
+C  SEE IF NAME FOUND IS ALLOWED IN GIVEN SITUATION
+C
+  710 CONTINUE
+      CALL CKNM26(C4NAM,NAMLEN,IPHEL(1,ICOND),IPHEL(2,ICOND),IPHRAS,
+     .STRNG,INAMST,I,SYMRED,CLAUSE,NWIFCL,LEFTC,JUMP,LHCODE,IRC)
+      IF (IRC.GT.0) IRM = 1
+C
+      PHRASE = IPHRAS
+      ELMENT = IPHEL(1,ICOND)
+      SYMBOL = SYMRED
+      GO TO 9000
+C-------------------------------------------------------
+C
+C  ')' FOUND WHEN A NAME NEEDS TO BE PACKED AND CHECKED. SAME AS FOR
+C  ACTION 7, WITH ADDITION OF STACK CHECKING
+C
+  800 CONTINUE
+      NSTACK = NSTACK-1
+      IF (NSTACK.GT.0) GO TO 810
+      IF (I.EQ.LSTR) GO TO 810
+      CALL STER26(11,I)
+      IRM = 1
+C
+C  PACK NAME AND CHECK TO SEE IF IT'S ALLOWED IN EXISITING CONDITIONS
+C
+  810 CONTINUE
+      NWORD = (NAMLEN -1)/4 + 1
+      CALL UPACKN(NAMLEN,STRNG(INAMST),NWORD,C4NAM,IERP)
+      IF (IERP.EQ.0) GO TO 820
+      CALL STER26(20,INAMST)
+      IRM = 1
+C
+  820 CONTINUE
+      CALL CKNM26(C4NAM,NAMLEN,IPHEL(1,ICOND),IPHEL(2,ICOND),IPHRAS,
+     .STRNG,INAMST,I,SYMRED,CLAUSE,NWIFCL,LEFTC,JUMP,LHCODE,IRC)
+      IF (IRC.GT.0) IRM = 1
+      PHRASE = IPHRAS
+      ELMENT = IPHEL(1,ICOND)
+      SYMBOL = SYMRED
+      CALL FLWK26(CLAUSE,NWIFCL,LEFTC,CODE(2),504)
+      GO TO 9000
+C--------------------------------------------------------------
+C
+C  NEED TO SKIP OVER CHARACTERS
+C
+ 8900 CONTINUE
+      JUMP = JUMP-1
+C
+ 9000 CONTINUE
+C
+C*************************************************************
+C  NOW FINISHED WITH STRING. SEE IF PARENS BALANCE AND LAST PHRASE WAS
+C  LOGICAL.
+ 9100 CONTINUE
+      IF (NSTACK.EQ.0) GO TO 9200
+      CALL STER26(13,LSTR)
+      IRM = 1
+C
+ 9200 CONTINUE
+      IF (PHRASE.EQ.1) GO TO 9300
+      CALL STER26(34,1)
+      IRM = 1
+C
+C  UPDATE IF CLAUSE BOOKKEEPING IF NO ERRORS
+C
+ 9300 CONTINUE
+      IF (NIFCL+1.LE.MAXIFC) GO TO 9500
+      CALL STER26(503,1)
+      IRM = 1
+      GO TO 9999
+C
+ 9500 CONTINUE
+      NIFCL = NIFCL+1
+      LENCL(NIFCL) = NWIFCL - NWLOC - 1
+      CCODE = - (1000+NIFCL+0.01)
+      CALL FLWK26(WORK,IUSEW,LEFTW,CCODE,501)
+      POSNXT = NWIFCL + 1.01
+      INTLOC = NWLOC + 1
+      CALL RFIL26(CLAUSE,INTLOC,POSNXT)
+      LPOSCL(NIFCL) = IUSEW
+      GO TO 9999
+C
+C------------------------------------------------------------------
+C  ERRORS FOUND IN UFLD26
+C
+ 9900 CONTINUE
+      IF (IRF.EQ.1) CALL STER26(19,1)
+      IF (IRF.EQ.3) CALL STER26(27,1)
+      IRM = 1
+C
+ 9999 CONTINUE
+      NFLD = NFLD + 1
+      NUMFLD = -1
+      RETURN
+      END
