@@ -401,7 +401,7 @@ public class RadarCoverageResource extends
         string.setCoordinates(screenExtent.getMinX() + 50,
                 screenExtent.getMinY() + 50);
         string.horizontalAlignment = HorizontalAlignment.LEFT;
-        string.verticallAlignment = VerticalAlignment.TOP;
+        string.verticalAlignment = VerticalAlignment.TOP;
         target.drawStrings(string);
 
         if (missingData) {

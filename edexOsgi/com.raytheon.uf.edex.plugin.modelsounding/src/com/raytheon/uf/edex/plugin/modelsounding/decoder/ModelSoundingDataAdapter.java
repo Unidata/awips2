@@ -68,7 +68,7 @@ import com.raytheon.uf.edex.plugin.modelsounding.common.SoundingModels;
  * Sep 16, 2014  3628     mapeters    Replaced static imports.
  * Jul 12, 2016  5744     mapeters    SoundingStations constructor no longer takes
  *                                    path parameter
- * Mar 14, 2017           mjames      Remove spi file spatial filter.
+
  * 
  * </pre>
  * 
@@ -81,10 +81,41 @@ public class ModelSoundingDataAdapter {
 
     private static final Object LOCK = new Object();
 
+    public static final String SPI_FILE = "basemaps" + IPathManager.SEPARATOR
+            + "modelBufr.spi";
+
     public static final String MODEL_STATION_LIST = "modelBufrStationList.txt";
 
-    private static SoundingStations stationsList = new SoundingStations(
-            MODEL_STATION_LIST);
+    private static SoundingStations stationsList = new SoundingStations();
+
+    private static SPIContainer SPI_DATA = populateSPIData();
+
+    public static void updateSPIData() {
+        SPIContainer spi = populateSPIData();
+        synchronized (LOCK) {
+            if ((spi != null) && (spi.isLoaded())) {
+                SPI_DATA = spi;
+            }
+        }
+    }
+
+    public static void updateStationList() {
+        SoundingStations ss = new SoundingStations();
+        synchronized (LOCK) {
+            stationsList = ss;
+        }
+    }
+
+    public static void update() {
+        SoundingStations ss = new SoundingStations();
+        SPIContainer spi = populateSPIData();
+        synchronized (LOCK) {
+            stationsList = ss;
+            if ((spi != null) && (spi.isLoaded())) {
+                SPI_DATA = spi;
+            }
+        }
+    }
 
     /**
      * Get the temporal and model information.
@@ -485,6 +516,31 @@ public class ModelSoundingDataAdapter {
             }
         }
         return retValue;
+    }
+
+    private static SPIContainer populateSPIData() {
+        SPIContainer container = null;
+
+        PathManager pathMgr = (PathManager) PathManagerFactory.getPathManager();
+
+        LocalizationContext ctx = pathMgr.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+        String site = ctx.getContextName();
+
+        logger.info("Loading " + SPI_FILE + " for site [" + site + "]");
+
+        File srcFile = pathMgr.getFile(ctx, SPI_FILE);
+
+        container = new SPIContainer(srcFile);
+        if (container.isLoaded()) {
+            logger.info("Loading " + SPI_FILE + " for site [" + site
+                    + "] Successful");
+        } else {
+            logger.error("Loading " + SPI_FILE + " for site [" + site
+                    + "] failed");
+        }
+
+        return container;
     }
 
 }

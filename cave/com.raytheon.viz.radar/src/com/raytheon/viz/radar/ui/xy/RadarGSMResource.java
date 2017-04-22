@@ -143,7 +143,7 @@ public class RadarGSMResource extends AbstractRadarResource<RadarXYDescriptor> {
             string.setCoordinates(400, yOffset);
             string.addTextStyle(TextStyle.BOXED);
             string.horizontalAlignment = HorizontalAlignment.CENTER;
-            string.verticallAlignment = VerticalAlignment.TOP;
+            string.verticalAlignment = VerticalAlignment.TOP;
             target.drawStrings(string);
 
             yOffset += 40;
@@ -439,7 +439,7 @@ public class RadarGSMResource extends AbstractRadarResource<RadarXYDescriptor> {
         DrawableString string = new DrawableString(text, color);
         string.font = (IFont) Font.getFont("serif");
         string.setCoordinates(xOffset, yOffset);
-        string.verticallAlignment = VerticalAlignment.TOP;
+        string.verticalAlignment = VerticalAlignment.TOP;
         target.drawStrings(string);
     }
 }

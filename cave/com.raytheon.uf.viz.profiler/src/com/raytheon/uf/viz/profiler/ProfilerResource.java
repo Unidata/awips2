@@ -516,7 +516,7 @@ public class ProfilerResource extends
                 parameters[i].addTextStyle(TextStyle.BLANKED);
                 parameters[i].font = font;
                 parameters[i].horizontalAlignment = IGraphicsTarget.HorizontalAlignment.CENTER;
-                parameters[i].verticallAlignment = verticalAlignment;
+                parameters[i].verticalAlignment = verticalAlignment;
                 parameters[i].basics.y = y;
                 parameters[i].magnification = magnification;
 
@@ -567,7 +567,7 @@ public class ProfilerResource extends
         string1.addTextStyle(TextStyle.BLANKED);
         string1.font = font;
         string1.horizontalAlignment = IGraphicsTarget.HorizontalAlignment.RIGHT;
-        string1.verticallAlignment = IGraphicsTarget.VerticalAlignment.MIDDLE;
+        string1.verticalAlignment = IGraphicsTarget.VerticalAlignment.MIDDLE;
         string1.basics.x = ProfilerUtils.profilerRectangle.x
                 - ProfilerUtils.LABEL_OFFSET;
         string1.basics.y = ProfilerUtils.profilerRectangle.y;
@@ -608,7 +608,7 @@ public class ProfilerResource extends
                     ProfilerUtils.GRAPH_COLOR);
             string.addTextStyle(TextStyle.BLANKED);
             string.font = font;
-            string.verticallAlignment = IGraphicsTarget.VerticalAlignment.MIDDLE;
+            string.verticalAlignment = IGraphicsTarget.VerticalAlignment.MIDDLE;
             string.basics.y = calcY(i * 1000);
             rect = target.getStringsBounds(string);
 
@@ -666,7 +666,7 @@ public class ProfilerResource extends
                         ProfilerUtils.GRAPH_COLOR);
                 string.addTextStyle(TextStyle.BLANKED);
                 string.font = font;
-                string.verticallAlignment = IGraphicsTarget.VerticalAlignment.MIDDLE;
+                string.verticalAlignment = IGraphicsTarget.VerticalAlignment.MIDDLE;
                 string.basics.y = calcY(height);
                 rect = target.getStringsBounds(string);
 

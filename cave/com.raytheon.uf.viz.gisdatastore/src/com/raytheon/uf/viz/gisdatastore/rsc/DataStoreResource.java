@@ -1245,7 +1245,7 @@ public class DataStoreResource extends
             ds.addTextStyle(TextStyle.BLANKED, new RGB(255, 255, 255));
             ds.addTextStyle(TextStyle.BOXED, new RGB(255, 255, 255));
             ds.horizontalAlignment = HorizontalAlignment.LEFT;
-            ds.verticallAlignment = VerticalAlignment.BOTTOM;
+            ds.verticalAlignment = VerticalAlignment.BOTTOM;
             target.drawStrings(ds);
         }
     }
@@ -1313,7 +1313,7 @@ public class DataStoreResource extends
                     - offsetY);
             string.font = getFont(target);
             string.horizontalAlignment = HorizontalAlignment.CENTER;
-            string.verticallAlignment = VerticalAlignment.MIDDLE;
+            string.verticalAlignment = VerticalAlignment.MIDDLE;
             boolean add = true;
 
             IExtent strExtent = new PixelExtent(
