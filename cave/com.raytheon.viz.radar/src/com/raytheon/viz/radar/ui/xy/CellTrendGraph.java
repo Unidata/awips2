@@ -255,7 +255,7 @@ public class CellTrendGraph extends XYGraph {
             strings[i] = new DrawableString(dataSeriesLabels.get(i),
                     colorCap.getColor());
             strings[i].setCoordinates(labelx[i] + offset, labely[i]);
-            strings[i].verticallAlignment = VerticalAlignment.MIDDLE;
+            strings[i].verticalAlignment = VerticalAlignment.MIDDLE;
         }
 
         target.drawLine(lines.toArray(new DrawableLine[0]));

@@ -498,7 +498,7 @@ public class PointPrecipPlotResource extends
 
             dstr.setText(tbuf, color);
             dstr.horizontalAlignment = HorizontalAlignment.LEFT;
-            dstr.verticallAlignment = VerticalAlignment.TOP;
+            dstr.verticalAlignment = VerticalAlignment.TOP;
             // orig code
             // dstr.setCoordinates(xc + (.75 * padding) + (text_width * scale),
             // yc
@@ -794,7 +794,7 @@ public class PointPrecipPlotResource extends
             string.setText(label, color);
             string.setCoordinates(xLoc, yLoc);
             string.horizontalAlignment = HorizontalAlignment.LEFT;
-            string.verticallAlignment = VerticalAlignment.BOTTOM;
+            string.verticalAlignment = VerticalAlignment.BOTTOM;
             target.drawStrings(string);
         }
         target.drawLine(lines);

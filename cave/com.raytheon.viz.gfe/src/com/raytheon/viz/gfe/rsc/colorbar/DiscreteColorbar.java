@@ -514,7 +514,7 @@ public class DiscreteColorbar implements IColorBarDisplay,
 
             dstring.setCoordinates(pickupLabelDrawPoint / xScaleFactor, center);
             dstring.horizontalAlignment = pickupValueAlignment;
-            dstring.verticallAlignment = VerticalAlignment.MIDDLE;
+            dstring.verticalAlignment = VerticalAlignment.MIDDLE;
             dstring.addTextStyle(TextStyle.BLANKED);
             dstring.addTextStyle(TextStyle.BOXED);
             dstring.addTextStyle(TextStyle.DROP_SHADOW,
@@ -553,7 +553,7 @@ public class DiscreteColorbar implements IColorBarDisplay,
                     dstring.setCoordinates(labelLoc, center);
                     dstring.font = colorbarResource.getColorbarWxLabelFont();
                     dstring.horizontalAlignment = HorizontalAlignment.CENTER;
-                    dstring.verticallAlignment = VerticalAlignment.MIDDLE;
+                    dstring.verticalAlignment = VerticalAlignment.MIDDLE;
                     strings.add(dstring);
                 }
             }

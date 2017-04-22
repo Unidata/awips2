@@ -1865,7 +1865,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     string.magnification = magnification;
                     string.setCoordinates(out[0], out[1]);
                     string.horizontalAlignment = IGraphicsTarget.HorizontalAlignment.CENTER;
-                    string.verticallAlignment = IGraphicsTarget.VerticalAlignment.MIDDLE;
+                    string.verticalAlignment = IGraphicsTarget.VerticalAlignment.MIDDLE;
                     strings.add(string);
                 }
             }

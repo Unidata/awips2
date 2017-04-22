@@ -168,7 +168,7 @@ public class SigWxTropHeightResource extends SigWxResource {
         string.font = font;
         string.setCoordinates(locationPixel[0], locationPixel[1]);
         string.horizontalAlignment = HorizontalAlignment.CENTER;
-        string.verticallAlignment = VerticalAlignment.MIDDLE;
+        string.verticalAlignment = VerticalAlignment.MIDDLE;
         target.drawStrings(string);
     }
 

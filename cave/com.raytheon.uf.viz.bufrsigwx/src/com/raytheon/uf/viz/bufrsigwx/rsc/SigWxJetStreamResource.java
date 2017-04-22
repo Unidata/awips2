@@ -356,7 +356,7 @@ public class SigWxJetStreamResource extends SigWxResource {
                 string.font = font;
                 string.setCoordinates(tmpX, locationPixel[1]);
                 string.horizontalAlignment = halignLevel;
-                string.verticallAlignment = valignLevel;
+                string.verticalAlignment = valignLevel;
                 target.drawStrings(string);
             } else {
                 DrawableString string = new DrawableString(flightLevelStr,
@@ -364,7 +364,7 @@ public class SigWxJetStreamResource extends SigWxResource {
                 string.font = font;
                 string.setCoordinates(locationPixel[0], locationPixel[1]);
                 string.horizontalAlignment = halignLevel;
-                string.verticallAlignment = valignLevel;
+                string.verticalAlignment = valignLevel;
                 target.drawStrings(string);
             }
         }
@@ -375,7 +375,7 @@ public class SigWxJetStreamResource extends SigWxResource {
             string.font = font;
             string.setCoordinates(locationPixel[0], locationPixel[1]);
             string.horizontalAlignment = halignSpeed;
-            string.verticallAlignment = valignSpeed;
+            string.verticalAlignment = valignSpeed;
             target.drawStrings(string);
         }
     }

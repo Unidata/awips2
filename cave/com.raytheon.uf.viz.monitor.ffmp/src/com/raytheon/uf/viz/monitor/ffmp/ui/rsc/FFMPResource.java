@@ -1281,20 +1281,20 @@ public class FFMPResource extends
                         getCapability(ColorableCapability.class).getColor());
                 fieldDescString.font = font;
                 fieldDescString.horizontalAlignment = HorizontalAlignment.CENTER;
-                fieldDescString.verticallAlignment = VerticalAlignment.MIDDLE;
+                fieldDescString.verticalAlignment = VerticalAlignment.MIDDLE;
 
                 basinLocatorString = new DrawableString("X", new RGB(255, 255,
                         255));
                 basinLocatorString.font = xfont;
                 basinLocatorString.horizontalAlignment = HorizontalAlignment.CENTER;
-                basinLocatorString.verticallAlignment = VerticalAlignment.MIDDLE;
+                basinLocatorString.verticalAlignment = VerticalAlignment.MIDDLE;
                 basinLocatorString.addTextStyle(TextStyle.BLANKED);
 
                 hpeLabelString = new DrawableString("", getCapability(
                         ColorableCapability.class).getColor());
                 hpeLabelString.font = font;
                 hpeLabelString.horizontalAlignment = HorizontalAlignment.CENTER;
-                hpeLabelString.verticallAlignment = VerticalAlignment.TOP;
+                hpeLabelString.verticalAlignment = VerticalAlignment.TOP;
 
             }
         });

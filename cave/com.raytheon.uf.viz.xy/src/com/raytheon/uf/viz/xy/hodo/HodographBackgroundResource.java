@@ -109,7 +109,7 @@ public class HodographBackgroundResource extends
                 / paintProps.getCanvasBounds().width;
 
         DrawableString label = new DrawableString(direction + "\u00B0", GREY);
-        label.verticallAlignment = VerticalAlignment.MIDDLE;
+        label.verticalAlignment = VerticalAlignment.MIDDLE;
         label.horizontalAlignment = HorizontalAlignment.CENTER;
         label.addTextStyle(TextStyle.BLANKED);
         double[] center = descriptor
@@ -123,7 +123,7 @@ public class HodographBackgroundResource extends
         Coordinate intersection = line.intersection(bottom);
         if (intersection != null) {
             label.setCoordinates(intersection.x, intersection.y - padding);
-            label.verticallAlignment = VerticalAlignment.BOTTOM;
+            label.verticalAlignment = VerticalAlignment.BOTTOM;
             return label;
         }
         LineSegment top = new LineSegment(extent.getMinX(), extent.getMinY(),
@@ -131,7 +131,7 @@ public class HodographBackgroundResource extends
         intersection = line.intersection(top);
         if (intersection != null) {
             label.setCoordinates(intersection.x, intersection.y + padding);
-            label.verticallAlignment = VerticalAlignment.TOP;
+            label.verticalAlignment = VerticalAlignment.TOP;
             return label;
         }
         LineSegment left = new LineSegment(extent.getMinX(), extent.getMinY(),

@@ -436,7 +436,7 @@ public class ScanDrawer {
             DrawableString ds = new DrawableString(dtdr.getIdent(),
                     getResourceColor());
             ds.horizontalAlignment = HorizontalAlignment.RIGHT;
-            ds.verticallAlignment = VerticalAlignment.BOTTOM;
+            ds.verticalAlignment = VerticalAlignment.BOTTOM;
             ds.font = font;
             ds.addTextStyle(TextStyle.DROP_SHADOW);
 
@@ -606,7 +606,7 @@ public class ScanDrawer {
         string.setCoordinates(x, y);
         string.addTextStyle(TextStyle.DROP_SHADOW);
         string.horizontalAlignment = HorizontalAlignment.CENTER;
-        string.verticallAlignment = VerticalAlignment.MIDDLE;
+        string.verticalAlignment = VerticalAlignment.MIDDLE;
         aTarget.drawStrings(string);
     }
 

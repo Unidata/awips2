@@ -363,7 +363,7 @@ public class CcfpResource extends
         DrawableString string = new DrawableString(lines, color);
         string.setCoordinates(pt[0], pt[1], pt[2]);
         string.addTextStyle(TextStyle.BLANKED);
-        string.verticallAlignment = VerticalAlignment.MIDDLE;
+        string.verticalAlignment = VerticalAlignment.MIDDLE;
         target.drawStrings(string);
     }
 

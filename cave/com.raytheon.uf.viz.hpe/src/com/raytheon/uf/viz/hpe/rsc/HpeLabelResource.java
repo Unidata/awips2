@@ -174,7 +174,7 @@ public class HpeLabelResource extends
                 ColorableCapability.class).getColor());
         drawableString.font = font;
         drawableString.horizontalAlignment = HorizontalAlignment.CENTER;
-        drawableString.verticallAlignment = VerticalAlignment.MIDDLE;
+        drawableString.verticalAlignment = VerticalAlignment.MIDDLE;
     }
 
     private String getText(Date date, String productId) {

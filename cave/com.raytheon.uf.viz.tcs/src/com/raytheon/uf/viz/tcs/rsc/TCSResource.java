@@ -215,7 +215,7 @@ public class TCSResource extends
         string.font = font;
         string.setCoordinates(loc[0], loc[1]);
         string.horizontalAlignment = HorizontalAlignment.CENTER;
-        string.verticallAlignment = VerticalAlignment.MIDDLE;
+        string.verticalAlignment = VerticalAlignment.MIDDLE;
         target.drawStrings(string);
     }
 
@@ -238,13 +238,13 @@ public class TCSResource extends
             strings[0].font = font;
             strings[0].setCoordinates(loc[0], loc[1]);
             strings[0].horizontalAlignment = HorizontalAlignment.CENTER;
-            strings[0].verticallAlignment = VerticalAlignment.MIDDLE;
+            strings[0].verticalAlignment = VerticalAlignment.MIDDLE;
 
             strings[1] = new DrawableString(name, color);
             strings[1].font = font;
             strings[1].setCoordinates(loc[0], loc[1] + (7 * scale));
             strings[1].horizontalAlignment = HorizontalAlignment.CENTER;
-            strings[1].verticallAlignment = VerticalAlignment.MIDDLE;
+            strings[1].verticalAlignment = VerticalAlignment.MIDDLE;
 
             target.drawStrings(strings);
             return;
@@ -261,7 +261,7 @@ public class TCSResource extends
         DrawableString string1 = new DrawableString(displayTime, color);
         string1.font = font;
         string1.setCoordinates(loc[0] + (2 * scale), loc[1]);
-        string1.verticallAlignment = VerticalAlignment.MIDDLE;
+        string1.verticalAlignment = VerticalAlignment.MIDDLE;
         strings.add(string1);
 
         // Plotting wind speed
@@ -270,7 +270,7 @@ public class TCSResource extends
         string2.font = font;
         string2.setCoordinates(loc[0] - (1.5 * scale), loc[1]);
         string2.horizontalAlignment = HorizontalAlignment.RIGHT;
-        string2.verticallAlignment = VerticalAlignment.MIDDLE;
+        string2.verticalAlignment = VerticalAlignment.MIDDLE;
         strings.add(string2);
 
         // Plotting pressure
@@ -280,7 +280,7 @@ public class TCSResource extends
             string3.font = font;
             string3.setCoordinates(loc[0], loc[1] + (2 * scale));
             string3.horizontalAlignment = HorizontalAlignment.CENTER;
-            string3.verticallAlignment = VerticalAlignment.MIDDLE;
+            string3.verticalAlignment = VerticalAlignment.MIDDLE;
             strings.add(string3);
         }
 
@@ -294,7 +294,7 @@ public class TCSResource extends
         string4.font = font;
         string4.setCoordinates(loc[0], loc[1] + (7 * scale));
         string4.horizontalAlignment = HorizontalAlignment.CENTER;
-        string4.verticallAlignment = VerticalAlignment.MIDDLE;
+        string4.verticalAlignment = VerticalAlignment.MIDDLE;
         strings.add(string4);
 
         target.drawStrings(strings);
@@ -445,22 +445,22 @@ public class TCSResource extends
         strings[0] = new DrawableString(LEGEND_12_FT, color);
         strings[0].font = font;
         strings[0].setCoordinates(x, y + (scale * 2));
-        strings[0].verticallAlignment = VerticalAlignment.MIDDLE;
+        strings[0].verticalAlignment = VerticalAlignment.MIDDLE;
 
         strings[1] = new DrawableString(LEGEND_34_KT, color);
         strings[1].font = font;
         strings[1].setCoordinates(x, y + (scale * 4));
-        strings[1].verticallAlignment = VerticalAlignment.MIDDLE;
+        strings[1].verticalAlignment = VerticalAlignment.MIDDLE;
 
         strings[2] = new DrawableString(LEGEND_50_KT, color);
         strings[2].font = font;
         strings[2].setCoordinates(x, y + (scale * 6));
-        strings[2].verticallAlignment = VerticalAlignment.MIDDLE;
+        strings[2].verticalAlignment = VerticalAlignment.MIDDLE;
 
         strings[3] = new DrawableString(LEGEND_64_KT, color);
         strings[3].font = font;
         strings[3].setCoordinates(x, y + (scale * 8));
-        strings[3].verticallAlignment = VerticalAlignment.MIDDLE;
+        strings[3].verticalAlignment = VerticalAlignment.MIDDLE;
 
         target.drawStrings(strings);
         target.setupClippingPlane(paintProps.getView().getExtent());

@@ -232,7 +232,7 @@ public class HydroColorBarResource extends
                     string.setCoordinates(
                             xMin + offset + width * entry.getLocation(), y1);
                     string.horizontalAlignment = HorizontalAlignment.CENTER;
-                    string.verticallAlignment = VerticalAlignment.TOP;
+                    string.verticalAlignment = VerticalAlignment.TOP;
                     strings.add(string);
                 }
             }
@@ -253,7 +253,7 @@ public class HydroColorBarResource extends
         DrawableString string = new DrawableString(getDataInfo(), new RGB(250,
                 250, 0));
         string.setCoordinates(xMin + padding, y1);
-        string.verticallAlignment = VerticalAlignment.TOP;
+        string.verticalAlignment = VerticalAlignment.TOP;
         target.drawStrings(string);
 
         return yMax - legendHeight;
