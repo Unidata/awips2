@@ -8,7 +8,7 @@
 Name: awips2-tools
 Summary: AWIPS II Tools Distribution
 Version: %{_component_version}
-Release: 1.8.5%{?dist}
+Release: 1%{?dist}
 Group: AWIPSII
 BuildRoot: %{_build_root}
 BuildArch: %{_build_arch}

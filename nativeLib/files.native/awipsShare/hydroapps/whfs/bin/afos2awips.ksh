@@ -4,7 +4,7 @@
 # the input file contains 3 fields:
 # 1) afos cccnnnxxx 2) wmo ttaaoo  3) awips cccc
 # Last Modified: 01/31/2002
-export FILENAME=/awips/fxa/data/afos2awips.txt
+export FILENAME=/awips2/edex/data/utility/common_static/base/afos2awips/afos2awips.txt
 
 if [[ $1 = "" ]]
 then

@@ -160,7 +160,6 @@ cd ../
 buildRPM "Installer.version"
 buildRPM "Installer.gfesuite-client"
 buildRPM "Installer.gfesuite-server"
-buildRPM "Installer.database-standalone-configuration"
 buildRPM "Installer.adapt-native"
 buildRPM "Installer.alertviz"
 buildRPM "Installer.aviation"
@@ -173,8 +172,6 @@ buildRPM "Installer.gfe"
 buildRPM "Installer.hydroapps"
 buildRPM "Installer.notification"
 buildRPM "Installer.pypies"
-buildRPM "Installer.rcm"
-buildRPM "Installer.localapps-environment"
 buildRPM "Installer.edex-configuration"
 
 unset AWIPSII_VERSION

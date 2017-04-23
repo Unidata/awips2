@@ -207,7 +207,7 @@ edit_pg() { # edex pg_hba.conf
    schStr=`grep "\/24" $PG_FILE | head -1 | awk '{ print $4 }' | cut -d/ -f1`
    subStr=$IP_CIDR'.0'
    sed -i.setup_$YMD 's/'$schStr'/'$subStr'/g' $PG_FILE
-   echo '[edit] '$subStr' added to '$iPG_FILE
+   echo '[edit] '$subStr' added to '$PG_FILE
    echo '       File backed up to '$PG_FILE'.setup_'$YMD
 }
 

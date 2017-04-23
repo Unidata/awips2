@@ -16,7 +16,7 @@
 Name: %{_component_name}
 Summary: awips2 Installation
 Version: %{_component_version}
-Release: %{_component_release}%{?dist}
+Release: %{_component_release}
 Group: AWIPSII
 BuildRoot: /tmp
 BuildArch: noarch

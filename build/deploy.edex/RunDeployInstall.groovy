@@ -144,7 +144,7 @@ class DeployInstall
 
       String localizationProject = "localization"
       DeployEdexSiteLocalization.deploy(this.edexRootDirectory, 
-         this.projectInformationMap[localizationProject], "BOU")
+         this.projectInformationMap[localizationProject], "OAX")
 
    }
 

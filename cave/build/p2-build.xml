@@ -288,8 +288,8 @@
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.d2d.gfe.feature" />
 		</antcall>
-        <antcall target="p2.build.repo">
-            <param name="feature" value="com.raytheon.uf.viz.d2d.damagepath.feature" />
+        	<antcall target="p2.build.repo">
+        		<param name="feature" value="com.raytheon.uf.viz.d2d.damagepath.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.gisdatastore.feature" />

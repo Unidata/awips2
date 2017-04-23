@@ -179,10 +179,6 @@ function lookupRPM()
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.hydroapps"
       return 0
    fi
-   if [ "${1}" = "awips2-localapps-environment" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.localapps-environment"
-      return 0
-   fi
    if [ "${1}" = "-localization" ]; then
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.localization"
       return 0

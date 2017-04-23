@@ -54,15 +54,15 @@ fi
 %build
 
 %install
-mkdir -p %{_build_root}%{_installation_directory}/edex-environment/scripts
+mkdir -p %{_build_root}%{_installation_directory}/edex/environment/scripts
 if [ $? -ne 0 ]; then
    exit 1
 fi
-mkdir -p %{_build_root}%{_installation_directory}/edex-environment/macro/utilities
+mkdir -p %{_build_root}%{_installation_directory}/edex/environment/macro/utilities
 if [ $? -ne 0 ]; then
    exit 1
 fi
-mkdir -p %{_build_root}%{_installation_directory}/edex-environment/macro/functions
+mkdir -p %{_build_root}%{_installation_directory}/edex/environment/macro/functions
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -76,7 +76,7 @@ mkdir -p %{_build_root}/usr/local/edex-environment
 # "install" the wes2bridge utilities
 cd %{_baseline_workspace}/com.raytheon.wes2bridge.common
 /awips2/ant/bin/ant -f build.xml \
-   -Ddestination.directory=%{_build_root}%{_installation_directory}/edex-environment/macro/utilities \
+   -Ddestination.directory=%{_build_root}%{_installation_directory}/edex/environment/macro/utilities \
    -Declipse.directory=%{_uframe_eclipse} \
    -Dbaseline.dir=%{_baseline_workspace}
 if [ $? -ne 0 ]; then
@@ -84,7 +84,7 @@ if [ $? -ne 0 ]; then
 fi
 cd %{_baseline_workspace}/com.raytheon.wes2bridge.configuration
 /awips2/ant/bin/ant -f build.xml \
-   -Ddestination.directory=%{_build_root}%{_installation_directory}/edex-environment/macro/utilities \
+   -Ddestination.directory=%{_build_root}%{_installation_directory}/edex/environment/macro/utilities \
    -Declipse.directory=%{_uframe_eclipse} \
    -Dbaseline.dir=%{_baseline_workspace}
 if [ $? -ne 0 ]; then
@@ -92,7 +92,7 @@ if [ $? -ne 0 ]; then
 fi
 cd %{_baseline_workspace}/com.raytheon.wes2bridge.datalink
 /awips2/ant/bin/ant -f build.xml \
-   -Ddestination.directory=%{_build_root}%{_installation_directory}/edex-environment/macro/utilities \
+   -Ddestination.directory=%{_build_root}%{_installation_directory}/edex/environment/macro/utilities \
    -Declipse.directory=%{_uframe_eclipse} \
    -Dbaseline.dir=%{_baseline_workspace}
 if [ $? -ne 0 ]; then
@@ -100,7 +100,7 @@ if [ $? -ne 0 ]; then
 fi
 cd %{_baseline_workspace}/com.raytheon.wes2bridge.manager
 /awips2/ant/bin/ant -f build.xml \
-   -Ddestination.directory=%{_build_root}%{_installation_directory}/edex-environment/macro/utilities \
+   -Ddestination.directory=%{_build_root}%{_installation_directory}/edex/environment/macro/utilities \
    -Declipse.directory=%{_uframe_eclipse} \
    -Dbaseline.dir=%{_baseline_workspace}
 if [ $? -ne 0 ]; then
@@ -115,22 +115,22 @@ HTTPD_PYPIES_INITD="%{_baseline_workspace}/installers/RPMs/httpd-pypies/configur
 
 # Copy the startup scripts.
 cp ${POSTGRES_INITD} \
-   %{_build_root}%{_installation_directory}/edex-environment/scripts
+   %{_build_root}%{_installation_directory}/edex/environment/scripts
 if [ $? -ne 0 ]; then
    exit 1
 fi
 cp ${QPID_INITD} \
-   %{_build_root}%{_installation_directory}/edex-environment/scripts
+   %{_build_root}%{_installation_directory}/edex/environment/scripts
 if [ $? -ne 0 ]; then
    exit 1
 fi
 cp ${EDEX_INITD} \
-   %{_build_root}%{_installation_directory}/edex-environment/scripts
+   %{_build_root}%{_installation_directory}/edex/environment/scripts
 if [ $? -ne 0 ]; then
    exit 1
 fi
 cp ${HTTPD_PYPIES_INITD} \
-   %{_build_root}%{_installation_directory}/edex-environment/scripts
+   %{_build_root}%{_installation_directory}/edex/environment/scripts
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -140,12 +140,12 @@ DELIVERABLES="${RPM_PROJECT}/awips2.core/Installer.edex-environment/wes2bridge.f
 
 # Macro and functions.
 cp ${DELIVERABLES}/scripts/edex-environment \
-   %{_build_root}%{_installation_directory}/edex-environment/macro
+   %{_build_root}%{_installation_directory}/edex/environment/macro
 if [ $? -ne 0 ]; then
    exit 1
 fi
 cp ${DELIVERABLES}/scripts/functions/*.sh \
-   %{_build_root}%{_installation_directory}/edex-environment/macro/functions
+   %{_build_root}%{_installation_directory}/edex/environment/macro/functions
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -162,14 +162,14 @@ fi
 %dir /usr/local/edex-environment
 
 %defattr(644,root,root,755)
-%dir /awips2/edex-environment
-%dir /awips2/edex-environment/scripts
-/awips2/edex-environment/scripts/*
-%dir /awips2/edex-environment/macro
-%dir /awips2/edex-environment/macro/utilities
-/awips2/edex-environment/macro/utilities/*
-%dir /awips2/edex-environment/macro/functions
-/awips2/edex-environment/macro/functions/*
+%dir /awips2/edex/environment
+%dir /awips2/edex/environment/scripts
+/awips2/edex/environment/scripts/*
+%dir /awips2/edex/environment/macro
+%dir /awips2/edex/environment/macro/utilities
+/awips2/edex/environment/macro/utilities/*
+%dir /awips2/edex/environment/macro/functions
+/awips2/edex/environment/macro/functions/*
 
 %defattr(700,root,root,755)
-/awips2/edex-environment/macro/edex-environment
+/awips2/edex/environment/macro/edex-environment

@@ -17,7 +17,7 @@
     </bean>
 
     <bean id="afosToAwipsListener" class="com.raytheon.uf.edex.plugin.text.dbsrv.ingest.AfosToAwipsListener">
-        <constructor-arg value="${afos2awips.legacyFileLocation}"/>
+        <constructor-arg value="/awips2/edex/data/utility/common_static/base/afos2awips/afos2awips.txt"/>
     </bean>
     
     <bean id="afosBrowserListener" class="com.raytheon.uf.edex.plugin.text.dbsrv.ingest.AfosBrowserModelSubscriber" />

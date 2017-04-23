@@ -4,7 +4,7 @@
 Name: awips2-edex-shapefiles
 Summary: AWIPS II Edex
 Version: %{_component_version}
-Release: %{_component_release}%{?dist}
+Release: %{_component_release}
 Group: AWIPSII
 BuildRoot: %{_build_root}
 BuildArch: noarch

@@ -129,6 +129,10 @@
 #02/18/14    - Added section for run_report_alarm service configuration.
 #04/10/14  - Added token for DuaPol radar productts processed in MPE, HPE/HPN
 #05/05/2014  - #3026 added hpe_grib_input_dir token
+#10/03/2016 - Added new tokens DB_ssl_cert_dir and DB_ssl_mode for SSL certificates
+#             to use to connect to the database.
+#11/21/2016 - Change DB_ssl_mode to verify-ca
+#02/23/2017 - set pguser=awips
 
 # ==============================================================================
 # To see syntax rules for this file, see the bottom of this file
@@ -145,17 +149,10 @@
 #$ tags.  Token names and commented lines should at column 1.
 
 #AWIPS_MODIFICATION_BLOCK_BEGIN
-fxa_local_site     : BOU     
-mpe_site_id        : bou     
-hv_center_lat      : 40.0    # HydroView center latitude 
-hv_center_lon      : -105.0  # HydroView center longitude 
-hv_map_width       : 860     # HydroView map width (nautical miles) 
-whfs_primary_radar : FTG     # WHFS primary radar id, for Stage II 
-whfs_tz            : MST6MDT # WHFS time zone code 
 
-apps_dir           : /awips2/edex/data/share/hydroapps   # Hydrologic applications directory
+apps_dir           : $(SHARE_DIR)/hydroapps   # Hydrologic applications directory
 
-data_archive_root  : /awips2/data_store  # root directory of the data archive
+data_archive_root  : /data_store  # root directory of the data archive
 
 mcp3_icp_iface     :  $(HOME)/mcp3_ntrfc
 #mcp3_icp_iface    :  /tmp/$(LOGNAME)/mcp3_ntrfc
@@ -169,24 +166,24 @@ vsys_dir           : $(apps_dir)/rfc/verify   #base verify directory
 #AWIPS_MODIFICATION_BLOCK_END
 
 #===================== Apps/Script Execution Tokens =================================
-WhfsSrv                                        : OFF
-WhfsSrv.purge_files                            : OFF
-WhfsSrv.run_db_purge                           : OFF
-WhfsSrv.run_floodseq                           : OFF
-PprocSrv                                       : OFF 
-PprocSrv.purge_mpe_files                       : OFF
-PprocSrv.purge_hpe_file                        : OFF
-MpeFieldGenSrv.run_mpe_fieldgen                : OFF
-WhfsSrv.run_pdc_pp                             : OFF
-WhfsSrv.run_alarm_whfs                         : OFF
-WhfsSrv.run_alarm_whfs.run_roc_checker         : OFF
-WhfsSrv.run_alarm_whfs.run_report_alarm        : OFF
-WhfsSrv.run_alarm_whfs.run_report_alarm.textdb : OFF
-ArealQpeGenSrv                                 : OFF
-DqcPreProcSrv                                  : OFF
-DqcPreProcSrv.run_dqc_preprocessor             : OFF
-MpeRUCFreezingLevel                            : OFF
-MpeLightningSrv                                : OFF
+WhfsSrv                                        : ON
+WhfsSrv.purge_files                            : ON
+WhfsSrv.run_db_purge                           : ON
+WhfsSrv.run_floodseq                           : ON
+PprocSrv                                       : ON
+PprocSrv.purge_mpe_files                       : ON
+PprocSrv.purge_hpe_file                        : ON
+MpeFieldGenSrv.run_mpe_fieldgen                : ON
+WhfsSrv.run_pdc_pp                             : ON
+WhfsSrv.run_alarm_whfs                         : ON
+WhfsSrv.run_alarm_whfs.run_roc_checker         : ON
+WhfsSrv.run_alarm_whfs.run_report_alarm        : ON
+WhfsSrv.run_alarm_whfs.run_report_alarm.textdb : ON
+ArealQpeGenSrv                                 : ON
+DqcPreProcSrv                                  : ON
+DqcPreProcSrv.run_dqc_preprocessor             : ON
+MpeRUCFreezingLevel                            : ON
+MpeLightningSrv                                : ON
 #====================================================================================
 
 #===================== run_report_alarm Configuration ===============================
@@ -247,17 +244,23 @@ mpe_display_maps   : statesCounties
 
 #  database selection tokens
 server_name        : ONLINE      # Informix database server name
-db_name            : hd_ob92oax    # IHFS database name
-damcat_db_name     : dc_ob7oax     # Dam Catalog database name
+db_name            : hd_ob92oax  # IHFS database name
+damcat_db_name     : dc_ob5oax   # Dam Catalog database name
 hdb_db_name        : ob81_histdata # Historical database. 
-pghost             : localhost     # The machine PostGres is running on
-pguser             : awips      # The user allowed to access PostGres
+pghost             : localhost   # The machine PostGres is running on
+pguser             : awips       # The user allowed to access PostGres
 pgport             : 5432        # The PostGres Server port
-adb_name           : adb_ob7xxx  # RFC archive database name
-rax_pghost         : localhost     # The machine PostGres is running on for the adb
+adb_name           : adb_ob7oax  # RFC archive database name
+rax_pghost         : localhost   # The machine PostGres is running on for the adb
+DB_ssl_cert_dir    :$(HOME)/.postgresql # path to the ssl keys directory
+DB_ssl_mode        :verify-ca           # if DB_ssl mode is not "disable"
 
 # vacuum log dir token.
 vacuum_log_dir     : $(whfs_log_dir)/vacuum
+
+# WHFS specific tokens
+whfs_tz                : EST5EDT # WHFS time zone for local time
+whfs_primary_radar     : TLX     # WHFS primary radar id, for Stage II
 
 #  damcat tokens
 damcat_hostoffice_type    :  wfo      # source of run-from office
@@ -284,27 +287,27 @@ damcrest_res_dir        : $(whfs_config_dir)/damcrest
 #===================== SHEFDECODE Application Tokens ================================
 
 shefdecode_userid  : oper                     # controlling UNIX user
-shefdecode_host    : localhost                # controlling UNIX system.
+shefdecode_host    : dx1f                     # controlling UNIX system.
 shefdecode_dir     : $(apps_dir)/shefdecode   # main directory location
 shefdecode_bin     : $(shefdecode_dir)/bin    # executable programs location
 shefdecode_input   : $(shefdecode_dir)/input  # SHEF parameter file location
-shef_data_dir      : /awips2/edex/data/shef   # input products location
+shef_data_dir      : /data/fxa/ispan/hydro    # input products location
 
 shefdecode_log     : $(shefdecode_dir)/logs/decoder  # daily log files location
 shef_error_dir     : $(shefdecode_dir)/logs/product  # product log files location
 shef_keeperror     : ALWAYS                          # keep product log files (=ALWAYS) or
                                                      # only when errors occur (=IF_ERROR)
-shef_perflog       : OFF  # ON/OFF - create a separate performance log file to
+shef_perflog       : ON  # ON/OFF - create a separate performance log file to
                           #          save internal decoder timing messages for
                           #          monitoring performance
-shef_data_log      : OFF  # ON/OFF - include messages in the log file detailing
+shef_data_log      : ON   # ON/OFF - include messages in the log file detailing
                                      the SHEF records
-dupmess            : OFF  # ON/OFF - include messages in the log file about
+dupmess            : ON   # ON/OFF - include messages in the log file about
                           #          duplicate data
-elgmess            : OFF  # ON/OFF - include messages in the log file about
+elgmess            : ON   # ON/OFF - include messages in the log file about
                           #          data types not found in IngestFilter or
                           #          data types turned off in IngestFilter
-locmess            : OFF  # ON/OFF - include messages in the log file about
+locmess            : ON   # ON/OFF - include messages in the log file about
                           #          stations and areas not found in Location
                           #          or GeoArea
 
@@ -317,7 +320,7 @@ shef_duplicate     : IF_DIFFERENT   # flag for handling duplicate date
                           # IF_DIFFERENT-overwrite if new value is different
                           # IF_DIFFERENT_OR_REVCODE-overwrite if new value is 
                           #           different or revcode is set
-shef_load_ingest   : OFF  # ON/OFF - automatically load the IngestFilter table or not
+shef_load_ingest   : ON   # ON/OFF - automatically load the IngestFilter table or not
                           #          with (station id-PEDTSE) combinations as they
                           #          arrive in the input data flow
 shef_storetext     : OFF  # ON/OFF - post/don't post raw encoded SHEF text messages
@@ -333,14 +336,14 @@ shef_post_baddata  : REJECT   # PE/REJECT - post data that have failed the gross
 shef_procobs       : OFF  # ON/OFF - post Processed data values (i.e., TS=P*) to
                           #          the observation data tables (=ON) or to
                           #          the ProcValue table (=OFF)
-shef_post_latest   : OFF  # ON/OFF - post/don't post data to the LatestObsValue table
+shef_post_latest   : ON   # ON/OFF - post/don't post data to the LatestObsValue table
                           # VALID_ONLY - post data to the LatestObsValue table
                           #              ONLY if the gross range check is passed
-shef_post_link     : OFF  # ON/OFF - post/don't post data to the ProductLink table
-shef_load_maxfcst  : OFF  # ON/OFF - after each product that resulted in forecast
+shef_post_link     : ON   # ON/OFF - post/don't post data to the ProductLink table
+shef_load_maxfcst  : ON   # ON/OFF - after each product that resulted in forecast
                           #          height or discharge data being posted, load
                           #          the maximum forecast data into the RiverStatus table
-shef_alertalarm    : OFF  # ON/OFF - causes shefdecoder to screen data against
+shef_alertalarm    : ON   # ON/OFF - causes shefdecoder to screen data against
                           #          alert and alarm thresholds
 # -- Intermediate output from ShefParser prior to post
 shef_out : OFF
@@ -348,7 +351,7 @@ shef_out : OFF
 
 #===================== WHFS Applications Tokens ================================
 
-whfs_base_dir          : /awips2/edex/data/share/hydroapps/whfs    # top of the WHFS tree
+whfs_base_dir          : $(apps_dir)/whfs    # top of the WHFS tree
 whfs_local_dir         : $(whfs_base_dir)/local       # top of WHFS local tree
 whfs_local_data_dir    : $(whfs_local_dir)/data       # top of WHFS local data tree
 whfs_local_grid_dir    : $(whfs_local_data_dir)/grid  # top of WHFS grids tree
@@ -387,7 +390,7 @@ hb_gagrad_log_dir      : $(whfs_log_dir)/create_gagradloc # gage-radar locator l
 qcalarm_log_dir        : $(whfs_log_dir)/qcalarm        # batch QC logs
 
 db_purge_log_dir       : $(whfs_log_dir)/db_purge # db_purge token
-db_purge_backup_retention_use   :  OFF             # db_purge token for using backup retention value
+db_purge_backup_retention_use   :  ON             # db_purge token for using backup retention value
 
 purge_files_log_dir    : $(whfs_log_dir)/misc     # purge_files token
 
@@ -400,20 +403,23 @@ sws_home_dir           : $(whfs_bin_dir)/pa   # SWS dir
 # -----------------------------------------------------------------
 
 gage_pp_userid     : oper                     # controlling UNIX user
-gage_pp_host       : localhost                # controlling UNIX system
+gage_pp_host       : dx                       # controlling UNIX system
 gage_pp_data       : $(pproc_local_data)/gpp_input  # input data files location 
 gage_pp_log        : $(pproc_log)/gage_pp     # daily log files location
 gage_pp_sleep	   : 10	  # sleep duration in seconds in between queries
-gage_pp_enable         : OFF      # gpp enabled; shef uses to determine post
+gage_pp_enable         : ON      # gpp enabled; shef uses to determine post
 shef_post_precip       : OFF     # post to Precip/CurPrecip tables
-build_hourly_enable    : OFF      # Enable the build_hourly application
+build_hourly_enable    : ON      # Enable the build_hourly application
 
 # ----------------------------------------------------------------
 # The following tokens are most likely to be customized by the user
 #  (the first 4 MUST be customized at each site in the .Apps_defaults_site file)
 # ----------------------------------------------------------------
+hv_center_lat          : 35.0    # HydroView center latitude
+hv_center_lon          : -97.8   # HydroView center longitude
 hv_height_in_pixels    : 900     # Hydroview map height in pixels
 hv_width_in_pixels     : 1200    # Hydroview map width in pixels
+hv_map_width           : 320     # HydroView map width (nautical miles)
 hv_pointdata_display   : ON      # Hydroview point data display flag (ON, OFF)
 hv_hours_in_window     : 4       # Change window hours
 hv_zoom_out_limit      : 20      # Limits how far the map can be zoomed out
@@ -464,11 +470,12 @@ event_expire_withinhr  : 3   # in RiverPro
 #=====Tokens To Generate Areal FFG from Mosaicked FFG Grids for Use By SSHP=====
 #     (NOTE: gaff_rfc_list MUST be customized at EVERY Field Office)
 
-gaff_execution         : OFF   # ON/OFF token for the gen_areal_ffg process
+gaff_execution         : ON   # ON/OFF token for the gen_areal_ffg process
                               # the gen_areal_ffg process is run from the
                               # process_dpa_files script at WFOs
-
-gaff_rfc_list          : MBRFC,NCRFC,NWRFC,CNRFC,CBRFC,WGRFC,ABRFC,LMRFC,SERFC,OHRFC,MARFC,NERFC  # list of RFCs to be mosaicked
+gaff_rfc_list          : ABRFC,LMRFC  # list of RFCs to be mosaicked
+                                      # list is comma separated, no embedded
+                                      #    spaces are allowed
 gaff_input_dir         : $(EDEX_HOME)/data/processing
                              # directory containing gridded FFG
                              #    generated by RFCs
@@ -688,7 +695,7 @@ dpa_arch_dir     : $(pproc_local_data)/stage1_archive # DPA archives
 dpa_wind         : 10                        
 
 
-dpa_filter_decode   :  OFF            # flag for non-top-of-hour
+dpa_filter_decode   :  ON             # flag for non-top-of-hour
                                       #   filtering of decoded products
                                       # ON  - filter products for decode
                                       # OFF - do not filter (ie decode all products)
@@ -887,6 +894,7 @@ mpe_fieldgen_product_dir   :   $(mpe_dir)
 
 ### MPE station list tokens
 mpe_station_list_dir   :  $(mpe_app_dir)/station_lists
+mpe_site_id            :  ounx
 mpe_area_names         :  $(mpe_site_id)
 
 ### MPE static data files
@@ -964,8 +972,8 @@ mpe_localfield3_dir		   :   $(mpe_fieldgen_product_dir)/localfield3
 
 ### Tokens related to the MPE Editor map display.
 mpe_config_dir             :   $(whfs_config_dir)
-mpe_center_lat             :   40.0
-mpe_center_lon             :   -105.0
+mpe_center_lat             :   39.8
+mpe_center_lon             :   -98.55
 mpe_height_in_pixels       :   900
 mpe_width_in_pixels        :   1200
 mpe_map_width              :   1320
@@ -974,7 +982,7 @@ mpe_disclosure_limit       :   60
 mpe_map_projection         :   FLAT
 
 ### Misc tokens 
-mpe_load_hourlypc          :   OFF
+mpe_load_hourlypc          :   ON
 mpe_gageqc_gif_dir         :   $(whfs_image_dir)
 mpe_gif_location           :   34.0,-97.0,34.0,-94.0,33.0,-94.0
 mpe_overlay_dir            :   $(whfs_geodata_dir)
@@ -984,7 +992,7 @@ mpe_type_source            :   RG:GOES,RR:ALERT,RM:SNOTEL,RP:LARC,RZ:COOP
 ### New tokens for DQC/CHPS
 mpe_level2_type_value	:	2    # Allow user to customize the type value. The default is “2”
 mpe_td_details_set		:	OFF   # Allow generating a time distribution details file.
-mpe_process_PC 			:	OFF		# Skip call to the load_PC_hourly routine if "OFF"
+mpe_process_PC 			:	ON		# Skip call to the load_PC_hourly routine if "OFF"
 mpe_map_one_zone		:	OFF	# Allow MAP generation for one zone only
 fewsgrib_dir			:	$(mpe_gageqc_dir)/fewsgrib  # default nc2grib grib file output dir
 nc2g_app_dir			:	$(mpe_app_dir)/nc2grib      # directory for gfe2grib.txt file
@@ -1035,7 +1043,7 @@ mpe_netcdf_id      :
 mpe_grib_id        :
 
 ###   mpe gage QC tokens
-mpe_gage_qc               :  OFF
+mpe_gage_qc               :  ON 
 mpe_sccqc_threshold       :  2.0
 mpe_scc_boxes_failed  :  4
 mpe_msc_precip_limit  :  1.0
@@ -1089,11 +1097,11 @@ lightning_log_dir     :   $(pproc_log)/lightning_proc
 
 ### tokens for D2D display
 
-mpe_d2d_display_grib     :  OFF  # ON/OFF token to determine if further
+mpe_d2d_display_grib     :  ON  # ON/OFF token to determine if further
                                 #  processing of grib file for D2D display
                                 #  is required
 
-d2d_input_dir            :  /awips2/data_store/ingest/mpe # dir containing grib files
+d2d_input_dir            :  $(EDEX_HOME)/data/manual/mpe  # dir containing grib files
                                                           # to be processed for D2D display
 
 mpe_send_grib            :  OFF  # ON/OFF token to determine if grib file is
@@ -1148,7 +1156,7 @@ dsp_error_dir    : $(pproc_local_data)/dsp_error   # DSP error files
 dsp_arch_dir     : $(pproc_local_data)/dsp_archive # DSP archives
 
 
-hpe_grib_input_dir     :  /awips2/edex/data/local/hpegrib
+hpe_grib_input_dir     :  $(EDEX_HOME)/data/local/hpegrib                                       
 hpe_generate_list      :  DHRMOSAIC,BDHRMOSAIC,ERMOSAIC,LSATPRE,EBMOSAIC
 hpe_qpe_fieldtype      :  ERMOSAIC  # field type to be saved as qpe
 
@@ -1218,7 +1226,7 @@ dsp_duration            : 60
 hpe_base_radar_mosaic  : ERMOSAIC
 hpe_qpe_fieldtype      : ERMOSAIC
 hpe_load_misbin        : OFF
-hpe_debug_log          : OFF
+hpe_debug_log          : ON
 hpe_use_locbias        : OFF
 hpe_runfreq          :  5
 hpe_timelag          :  5
@@ -1228,11 +1236,11 @@ hpe_purge_logage     :  720
 hpe_purge_fileage    :  180
 hpe_purge_xmrgage    :  75
 
-dhrmosaic_d2d_display_grib  : OFF
-ermosaic_d2d_display_grib   : OFF
-ebmosaic_d2d_display_grib   : OFF
-bdhrmosaic_d2d_display_grib : OFF
-hpe_run_nowcast         : OFF
+dhrmosaic_d2d_display_grib  : ON
+ermosaic_d2d_display_grib   : ON
+ebmosaic_d2d_display_grib   : ON
+bdhrmosaic_d2d_display_grib : ON
+hpe_run_nowcast         : ON
 hpe_nowcast_generate_list      :  PRTM, BPTRM
 hpe_nowcast_dir         : $(hpe_output_dir)/nowcast
 hpe_rate_save_grib      : save
@@ -1241,7 +1249,7 @@ hpe_tp1h_save_grib      : save
 hpe_btp1h_save_grib     : save
 hpe_4km_tp1h_save_grib  : nosave
 hpe_4km_btp1h_save_grib : nosave
-nowcast_d2d_display_grib : OFF
+nowcast_d2d_display_grib : ON
 hpe_smooth_method       : 1  # 0=no smoothing 1=FFP method (default) 2=BZ94 method
 hpn_use_meanvelocity    : OFF
 hpn_meanvelocity_direction : 45 # direction precip is moving towards
@@ -1664,18 +1672,18 @@ adb_shef_pro_err_dir   : $(adb_logs_dir)/decoder/processed/err   # pathname for 
                                                                  # product logs directory
 adb_shef_pro_keeperror : ALWAYS         # keep files (=ALWAYS) or only
                                         # when errors occur (=IF_ERROR)
-adb_shef_raw_checktab  : OFF            # ON checks location and ingestfilter tables
+adb_shef_raw_checktab  : ON             # ON checks location and ingestfilter tables
 adb_shef_pro_checktab  : OFF            # ON checks location and ingestfilter tables
 adb_shef_duplicate_raw : USE_REVCODE    # Token for allowing duplicate records to be 
                                         # posted for raw decoder.
 adb_shef_duplicate_pro : USE_REVCODE    # Same thing but for processed decoder.
-adb_shef_raw_dupmess   : OFF            # duplication messages from adb raw decoder.
-adb_shef_raw_locmess   : OFF            # invalid location messages from adb raw decoder.
-adb_shef_raw_elgmess   : OFF            # invalid ingestfilter messages from adb raw 
+adb_shef_raw_dupmess   : ON             # duplication messages from adb raw decoder.
+adb_shef_raw_locmess   : ON             # invalid location messages from adb raw decoder.
+adb_shef_raw_elgmess   : ON             # invalid ingestfilter messages from adb raw 
                                         # decoder.
 adb_shef_raw_storall   : OFF            # OFF - default-  will only write to pecrsep table
 					# ON will write to both pecrsep and peirsep tables
-adb_shef_pro_dupmess   : OFF            # duplication messages from adb processed decoder.
+adb_shef_pro_dupmess   : ON             # duplication messages from adb processed decoder.
 adb_shef_pro_locmess   : OFF            # invalid location messages from adb pro decoder.
 adb_shef_pro_elgmess   : OFF            # invalid ingestfilter messages from adb pro 
                                         # decoder.
@@ -1815,8 +1823,8 @@ sshp_ingest_xml_dir       : $(local_data_sshp_dir)/ingest_xml
 sshp_incoming_dir         : $(local_data_sshp_dir)/incoming
 sshp_outgoing_dir         : $(local_data_sshp_dir)/outgoing
 sshp_log_dir              : $(whfs_log_dir)/sshp
-sshp_java_process_host    : localhost
-sshp_invoke_map_preprocess: OFF
+sshp_java_process_host    : px1f
+sshp_invoke_map_preprocess: ON
 sshp_map_qpe_to_use	  : MIXED    # choices are: MIXED, LOCAL_BEST_ONLY, RFC_ONLY
 sshp_fcst_ts         	  : FZ       # SSHP type-source code for generated forecasts
 sshp_initial_forecast_length: 24     # length of forecast in hours
@@ -1878,7 +1886,7 @@ hdb_map_projection   : FLAT       # The initial map projection used by HDB.
 # ====================== DHM Token =======================
 dhm_data_dir               : $(ofs_files)/$(ofs_level)/dhmdata	 # DHM data dir
 dhm_d2d_data_dir           : /data/fxa/Grid/LOCAL/netCDF/DHM  # d2d data dir
-dhm_d2d_notify_bin_dir     : /awips2/fxa/bin              # d2d notify bin dir
+dhm_d2d_notify_bin_dir     : /awips/fxa/bin              # d2d notify bin dir
 rdhm_input_dir             :  $(geo_data)
 dhm_rain_plus_melt_data_dir:  $(geo_data)
 
@@ -1898,7 +1906,7 @@ daa_archive_window  :   7             # number of minutes around top of hour
 
 daa_wind            :  5
 daa_decode_window   :  5
-daa_filter_decode   :  OFF # whether time window filtering is on or off
+daa_filter_decode   :  ON  # whether time window filtering is on or off
 
 daa_min_coverage_dur  :  60
 

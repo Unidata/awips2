@@ -16,7 +16,7 @@ Packager: %{_build_site}
 
 AutoReq: no
 Provides: %{_component_name}
-Requires: awips2-edex, awips2-edex-radar, awips2-edex-upc
+Requires: awips2-edex, awips2-edex-upc
 Requires: awips2-edex-shapefiles
 Obsoletes: awips2-localization-OAX < 16.1.4
 
@@ -43,6 +43,7 @@ if [ -d ${RPM_BUILD_ROOT} ]; then
 fi
 
 %build
+
 # Build all WFO site localization Map Scales (Regional.xml and WFO.xml)
 BUILD_DIR=%{_baseline_workspace}/rpms/awips2.core/Installer.localization/
 UTIL=%{_baseline_workspace}/localization/utility
@@ -73,7 +74,6 @@ do
 
    mkdir -p ~/awips2-builds/localization/localization/utility/cave_static/site/$site
    cp -R $BUILD_DIR/utility/cave_static/* ~/awips2-builds/localization/localization/utility/cave_static/site/$site
-
    grep -rl 'LOWX'  $CAVE_DIR/bundles/scales/WFO.xml | xargs sed -i 's/LOWX/'$lowx'/g'
    grep -rl 'HIGHX' $CAVE_DIR/bundles/scales/WFO.xml | xargs sed -i 's/HIGHX/'$highx'/g'
    grep -rl 'LOWY'  $CAVE_DIR/bundles/scales/WFO.xml | xargs sed -i 's/LOWY/'$lowy'/g'
@@ -118,6 +118,7 @@ COMMON_DIR=$UTIL/common_static
 mkdir -p $COMMON_DIR
 cp -R $BUILD_DIR/utility/common_static/* $COMMON_DIR/
 
+
 %install
 if [ ! -d %{_baseline_workspace}/%{_localization_directory} ]; then
    echo "ERROR: The specified localization directory does not exist - %{_localization_directory}."
@@ -139,7 +140,15 @@ fi
 %pre
 
 %post
+# only import the shapefiles and/or hydro databases, if we are on 
+# the same machine as the db.
 # verify the following exists:
+#   1) /awips2/data/maps
+#   2) /awips2/postgresql/bin/postmaster
+#   3) /awips2/postgresql/bin/pg_ctl
+#   4) /awips2/psql/bin/psql
+#   5) /awips2/database/sqlScripts/share/sql/maps/importShapeFile.sh
+#   6) /awips2/postgresql/bin/pg_restore
 if [ ! -d /awips2/data/maps ] ||
    [ ! -f /awips2/postgresql/bin/postmaster ] ||
    [ ! -f /awips2/postgresql/bin/pg_ctl ] ||
@@ -161,57 +170,268 @@ chmod 666 ${log_file}
 edex_utility="/awips2/edex/data/utility"
 I_STARTED_POSTGRESQL="NO"
 POSTGRESQL_RUNNING="NO"
-a2_postmaster="/awips2/postgresql/bin/postmaster"
-a2_pg_ctl="/awips2/postgresql/bin/pg_ctl"
-DB_OWNER=`ls -l /awips2/ | grep -w 'data' | awk '{print $3}'`
 
-echo "Determining if PostgreSQL is running ..." >> ${log_file}
-su ${DB_OWNER} -c \
-   "${a2_pg_ctl} status -D /awips2/data >> ${log_file} 2>&1"
-RC=$?
-echo "" >> ${log_file}
-
-# start PostgreSQL if it is not running as the user that owns data
-if [ ${RC} -eq 0 ]; then
-   echo "INFO: PostgreSQL is running." >> ${log_file}
-else
-   echo "Starting PostgreSQL as User: ${DB_OWNER} ..." >> ${log_file}
-   su ${DB_OWNER} -c \
-      "${a2_postmaster} -D /awips2/data >> ${log_file} 2>&1 &"
-   if [ $? -ne 0 ]; then
-      echo "FATAL: Failed to start PostgreSQL." >> ${log_file}
+function prepare()
+{
+   if [ "${POSTGRESQL_RUNNING}" = "YES" ]; then
       return 0
    fi
-   # give PostgreSQL time to start.
-   /bin/sleep 10
-   I_STARTED_POSTGRESQL="YES"
-fi
-POSTGRESQL_RUNNING="YES"
+   
+   local a2_postmaster="/awips2/postgresql/bin/postmaster"
+   local a2_pg_ctl="/awips2/postgresql/bin/pg_ctl"
+   
+   # retrieve the owner of the database
+   DB_OWNER=`ls -l /awips2/ | grep -w 'data' | awk '{print $3}'`
+   
+   # determine if PostgreSQL is running
+   I_STARTED_POSTGRESQL="NO"
+   echo "Determining if PostgreSQL is running ..." >> ${log_file}
+   su ${DB_OWNER} -c \
+      "${a2_pg_ctl} status -D /awips2/data >> ${log_file} 2>&1"
+   RC=$?
+   echo "" >> ${log_file}
+   
+   # start PostgreSQL if it is not running as the user that owns data
+   if [ ${RC} -eq 0 ]; then
+      echo "INFO: PostgreSQL is running." >> ${log_file}
+   else
+      echo "Starting PostgreSQL as User: ${DB_OWNER} ..." >> ${log_file}
+      su ${DB_OWNER} -c \
+         "${a2_postmaster} -D /awips2/data >> ${log_file} 2>&1 &"
+      if [ $? -ne 0 ]; then
+         echo "FATAL: Failed to start PostgreSQL." >> ${log_file}
+         return 0
+      fi
+   
+      # give PostgreSQL time to start.
+      /bin/sleep 10
+      I_STARTED_POSTGRESQL="YES"
+   fi
+   POSTGRESQL_RUNNING="YES"
+   
+   return 0  
+}
+
+function restartPostgreSQL()
+{
+   if [ "${POSTGRESQL_RUNNING}" = "NO" ]; then
+      return 0
+   fi
+   
+   local a2_pg_ctl="/awips2/postgresql/bin/pg_ctl"
+   
+   # retrieve the owner of the database
+   DB_OWNER=`ls -l /awips2/ | grep -w 'data' | awk '{print $3}'`
+   
+   echo "Restarting PostgreSQL ..." >> ${log_file}
+   su ${DB_OWNER} -c \
+      "${a2_pg_ctl} restart -D /awips2/data" >> ${log_file}
+   sleep 20
+   echo "PostgreSQL restart complete ..." >> ${log_file}
+}
+
+function importShapefiles()
+{   
+   local site_directory="${edex_utility}/common_static/site/OAX"
+   
+   # determine if we include ffmp shapefiles
+   local ffmp_shp_directory="${site_directory}/shapefiles/FFMP"
+   
+   # if we do not, halt
+   if [ ! -d ${ffmp_shp_directory} ]; then
+      return 0
+   fi
+   
+   # shapefiles exist
+   
+   prepare
+   
+   # verify the both the basins and streams shapefile are present.
+   if [ ! -f ${ffmp_shp_directory}/FFMP_aggr_basins.shp ] ||
+      [ ! -f ${ffmp_shp_directory}/FFMP_ref_sl.shp ]; then
+      # if they are not, exit
+      return 0
+   fi
+   
+   # verify that the files the streams and basins shapefile depend on
+   # are present.
+   if [ ! -f ${ffmp_shp_directory}/FFMP_aggr_basins.dbf ] ||
+      [ ! -f ${ffmp_shp_directory}/FFMP_aggr_basins.shx ] ||
+      [ ! -f ${ffmp_shp_directory}/FFMP_ref_sl.dbf ] ||
+      [ ! -f ${ffmp_shp_directory}/FFMP_ref_sl.shx ]; then
+      # if they are not, exit
+      return 0
+   fi
+   
+   local a2_shp_script="/awips2/database/sqlScripts/share/sql/maps/importShapeFile.sh"
+   
+   echo "Importing the FFMP Shapefiles ... Please Wait."
+   /bin/date >> ${log_file}
+   echo "Preparing to import the FFMP shapefiles ..." >> ${log_file}   
+   
+   echo "" >> ${log_file}
+   # import the shapefiles; log the output
+   
+   # import the ffmp basins
+   /bin/bash ${a2_shp_script} \
+      ${ffmp_shp_directory}/FFMP_aggr_basins.shp \
+      mapdata ffmp_basins 0.064,0.016,0.004,0.001 \
+      awips 5432 /awips2 >> ${log_file} 2>&1
+   if [ $? -ne 0 ]; then
+      echo "FATAL: failed to import the FFMP basins." >> ${log_file}
+      return 0
+   fi
+   
+   # import the ffmp streams
+   /bin/bash ${a2_shp_script} \
+      ${ffmp_shp_directory}/FFMP_ref_sl.shp \
+      mapdata ffmp_streams 0.064,0.016,0.004,0.001 \
+      awips 5432 /awips2 >> ${log_file} 2>&1
+   if [ $? -ne 0 ]; then
+      echo "FATAL: failed to import the FFMP streams." >> ${log_file}
+      return 0
+   fi
+   
+   # indicate success
+   echo "INFO: The FFMP shapefiles were successfully imported." >> ${log_file}
+   return 0
+}
+
+function removeHydroDbDirectory()
+{
+   # remove the hydro db directory since it is not officially part
+   # of the localization.
+
+   local site_directory="${edex_utility}/common_static/site/OAX"
+   local hydro_db_directory="${site_directory}/hydro/db"
+   
+   if [ -d ${hydro_db_directory} ]; then
+      rm -rf ${hydro_db_directory}
+      if [ $? -ne 0 ]; then
+         echo "WARNING: Failed to remove hydro db directory from localization."
+         echo "         Please remove directory manually: ${hydro_db_directory}."
+      fi
+   fi
+   
+   return 0
+}
+
+function restoreHydroDb()
+{
+   local site_directory="${edex_utility}/common_static/site/OAX"
+   
+   # determine if we include the hydro databases
+   local hydro_db_directory="${site_directory}/hydro/db"
+   
+   # if we do not, halt
+   if [ ! -d ${hydro_db_directory} ]; then
+      return 0
+   fi
+   
+   # hydro databases exist
+   prepare   
+   
+   # verify that the hydro database definition is present
+   if [ ! -f ${hydro_db_directory}/hydroDatabases.sh ]; then
+      return 0
+   fi
+   
+   # discover the hydro databases
+   source ${hydro_db_directory}/hydroDatabases.sh
+   
+   # ensure that the expected information has been provided
+   if [ "${DAMCAT_DATABASE}" = "" ] ||
+      [ "${DAMCAT_SQL_DUMP}" = "" ] ||
+      [ "${IHFS_DATABASE}" = "" ] ||
+      [ "${IHFS_SQL_DUMP}" = "" ]; then
+      echo "Sufficient information has not been provided for the Hydro Restoration!" \
+         >> ${log_file}
+      return 0
+   fi
+   
+   # ensure that the specified databases are available for import
+   if [ ! -f ${hydro_db_directory}/${DAMCAT_DATABASE} ] ||
+      [ ! -f ${hydro_db_directory}/${IHFS_DATABASE} ]; then
+      echo "The expected Hydro Database Exports are not present!" >> ${log_file}
+      return 0
+   fi
+   
+   # update pg_hba.conf
+   
+   local default_damcat="dc_ob7oax"
+   local default_ihfs="hd_ob83oax"
+   local pg_hba_conf="/awips2/data/pg_hba.conf"
+   
+   # update the entry for the damcat database
+   perl -p -i -e "s/${default_damcat}/${DAMCAT_DATABASE}/g" ${pg_hba_conf}
+   if [ $? -ne 0 ]; then
+      echo "Failed to update damcat database in ${pg_hba_conf}!" >> ${log_file}
+      return 0
+   fi
+   
+   # update the entry for the ihfs database
+   perl -p -i -e "s/${default_ihfs}/${IHFS_DATABASE}/g" ${pg_hba_conf}
+   if [ $? -ne 0 ]; then
+      echo "Failed to update ihfs database in ${pg_hba_conf}!" >> ${log_file}
+      return 0
+   fi
+   
+   # prepare PostgreSQL
+   restartPostgreSQL
+   
+   echo "Restoring the Hydro Databases ... Please Wait."
+   /bin/date >> ${log_file}
+   echo "Preparing to restore the Hydro databases ..." >> ${log_file}
+   
+   local a2_pg_restore="/awips2/postgresql/bin/pg_restore"
+   
+   # perform the restoration
+   echo "Restoring Database ${DAMCAT_DATABASE} ..." >> ${log_file}
+   ${a2_pg_restore} -U awips -C -d postgres ${hydro_db_directory}/${DAMCAT_DATABASE} \
+      >> ${log_file} 2>&1
+   # do not check the return code because any errors encountered during
+   # the restoration may cause the return code to indicate a failure even
+   # though the database was successfully restored.
+   
+   echo "" >> ${log_file} 
+   
+   echo "Restoring Database ${IHFS_DATABASE} ..." >> ${log_file}
+   ${a2_pg_restore} -U awips -C -d postgres ${hydro_db_directory}/${IHFS_DATABASE} \
+      >> ${log_file} 2>&1
+   # do not check the return code because any errors encountered during
+   # the restoration may cause the return code to indicate a failure even
+   # though the database was successfully restored.
+   
+   # indicate success
+   echo "INFO: The Hydro databases were successfully restored." >> ${log_file}
+}
+
+importShapefiles
+restoreHydroDb
+removeHydroDbDirectory
+
+
 
 static_shp_directory="${edex_utility}/edex_static/base/shapefiles"
 a2_shp_script="/awips2/database/sqlScripts/share/sql/maps/importShapeFile.sh"
-  
 /bin/bash ${a2_shp_script} \
-   ${static_shp_directory}/NHAdomain/NHAdomain.shp mapdata nhadomain >> ${log_file} 2>&1 
+   ${static_shp_directory}/NHAdomain/NHAdomain.shp mapdata nhadomain >> ${log_file} 2>&1
 if [ $? -ne 0 ]; then
    echo "FATAL: failed to import NHAdomain." >> ${log_file}
-   return 0
 fi
 /bin/bash ${a2_shp_script} \
-   ${static_shp_directory}/StormSurgeWW/StormSurgeWW.shp mapdata stormsurgeww >> ${log_file} 2>&1 
+   ${static_shp_directory}/StormSurgeWW/StormSurgeWW.shp mapdata stormsurgeww >> ${log_file} 2>&1
 if [ $? -ne 0 ]; then
    echo "FATAL: failed to import StormSurgeWW." >> ${log_file}
-   return 0
 fi
-   
 echo "INFO: NHAdomain and StormSurgeWW shapefiles were successfully imported." >> ${log_file}
 
-PSQL="/awips2/psql/bin/psql"
-echo "Updating metadata.radar_spatial from common_static/base/radar/radarSpatial.sql"
-${PSQL} -U awips -d metadata -q -f /awips2/edex/data/utility/common_static/base/radar/radarSpatial.sql >> ${log_file} 2>&1
 
+a2_pg_ctl="/awips2/postgresql/bin/pg_ctl"
+# if we started PostgreSQL, shutdown PostgreSQL
 if [ "${I_STARTED_POSTGRESQL}" = "YES" ]; then
    echo "" >> ${log_file}
+
    su ${DB_OWNER} -c \
       "${a2_pg_ctl} stop -D /awips2/data" >> ${log_file}
    if [ $? -ne 0 ]; then

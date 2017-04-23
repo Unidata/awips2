@@ -63,3 +63,5 @@ rm -rf ${RPM_BUILD_ROOT}
 %defattr(644,awips,fxalpha,700)
 %dir /awips2
 %dir /awips2/data
+
+/%files

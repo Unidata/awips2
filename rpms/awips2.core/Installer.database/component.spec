@@ -25,7 +25,6 @@ Provides: awips2-static-user
 Requires: libpng
 Requires: awips2-postgresql
 Requires: awips2-psql
-Requires: awips2-database-configuration
 Requires: netcdf = 4.1.2
 Requires: netcdf-devel = 4.1.2
 
@@ -46,6 +45,19 @@ fi
 %build
 
 %install
+mkdir -p ${RPM_BUILD_ROOT}/awips2/data
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+PROJECT_DIR="Installer.database"
+CONFIGURATION_DIR="rpms/awips2.core/${PROJECT_DIR}/configuration"
+CONF_FILE="postgresql.conf"
+
+cp %{_baseline_workspace}/${CONFIGURATION_DIR}/${CONF_FILE} \
+   ${RPM_BUILD_ROOT}/awips2/data
+
+
 mkdir -p ${RPM_BUILD_ROOT}/awips2/database
 if [ $? -ne 0 ]; then
    exit 1
@@ -93,19 +105,9 @@ cp -r %{_baseline_workspace}/${PATH_TO_REPLICATION}/* \
 touch ${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share/sql/sql_install.log   
 
 %pre
-# Verify that one of the official AWIPS II PostgreSQL configuration files exist.
-if [ ! -f /awips2/data/postgresql.conf ]; then
-   echo "ERROR: /awips2/data/postgresql.conf does not exist. However, "
-   echo "       the AWIPS II PostgreSQL Configuration RPM is installed. "
-   echo "       If you recently uninstalled awips2-database and purged "
-   echo "       the /awips2/data directory, you will need to re-install "
-   echo "       the AWIPS II PostgreSQL configuration rpm so that the "
-   echo "       postgresql.conf file will be restored."
-   exit 1
-fi
-
-if [ "${1}" = "2" ]; then
-   exit 0
+# Remove any existing postgresql.conf files
+if [ -f /awips2/data/postgresql.conf ]; then
+   rm -f /awips2/data/postgresql.conf
 fi
 
 %post
@@ -310,12 +312,16 @@ copy_addl_config
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
+%defattr(644,awips,fxalpha,700)
+%dir /awips2/data
+
 %defattr(644,awips,fxalpha,755)
 %dir /awips2
 %dir /awips2/database
 %dir /awips2/database/sqlScripts
 %dir /awips2/database/replication
 %dir /awips2/database/sqlScripts/share
+/awips2/data/postgresql.conf
 /awips2/database/sqlScripts/share/sql/sql_install.log
 /awips2/database/sqlScripts/share/sql/pg_hba.conf
 /awips2/database/replication/README

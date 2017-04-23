@@ -1,5 +1,5 @@
 <project default="main" basedir=".">
-	<property name="localization.sites" value="BOU" />
+	<property name="localization.sites" value="OAX" />
 	<property name="deploy.python" value="true" />
 	<property name="python.packages" value="pypies" />
 	<property name="edex.root" value="/awips2/edex" />
