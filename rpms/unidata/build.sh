@@ -86,7 +86,13 @@ cp -v ${dir}/buildEnvironment.sh .
 # check rpms/build/x86_64/build.sh for these groups
 #
 pwd
-/bin/bash ${_build_sh_directory}/build.sh ${1} ${2} > ${dir}/build${1}-${timestamp}.log
+
+build_log=${dir}/build${1}-${timestamp}.log
+if [ "${1}" = "-b" -a -n "${2}" ]; then
+   build_log=${dir}/build-${2}-${timestamp}.log
+fi
+
+/bin/bash ${_build_sh_directory}/build.sh ${1} ${2} > ${build_log}
 
 popd > /dev/null 2>&1
 

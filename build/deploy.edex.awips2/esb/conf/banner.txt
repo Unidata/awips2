@@ -1,6 +1,6 @@
 **************************************************
 * AWIPS II EDEX ESB Platform                     *
-* Version: 16.2.2                                *
+* Version: 17.1.1                                *
 * Raytheon Company                               *
 * UCAR Unidata Program Center                    *
 *------------------------------------------------*

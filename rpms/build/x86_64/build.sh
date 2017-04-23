@@ -3,7 +3,7 @@
 function usage()
 {
    echo "Usage: $0 OPTION [-nobinlightning]"
-   echo "   -buildRPM preform a build of an rpm."
+   echo "   -b preform a build of an rpm."
    echo "   -WA       perform a build of all work assignments."
    echo "   -rh6      perform a full build of all the rpms."
    echo "   -dev      call functions directly"
@@ -81,7 +81,7 @@ if [ "${2}" = "-nobinlightning" ]; then
    LIGHTNING=false
 fi
 
-if [ "${1}" = "-buildRPM" -a -n "${2}" ]; then
+if [ "${1}" = "-b" -a -n "${2}" ]; then
    echo "Building RPM: ${2}"
    # also allow buildCAVE, buildEDEX, buildRPM args
    buildName=`echo ${2} | cut -c1-5`
@@ -153,6 +153,10 @@ if [ "${1}" = "-edex" ]; then
    buildRPM "awips2-edex-upc"
 fi
 
+
+if [ "${1}" = "-localization" ]; then
+  buildLocalizationRPMs
+fi
 
 if [ "${1}" = "-server" ]; then
    #buildEDEX
