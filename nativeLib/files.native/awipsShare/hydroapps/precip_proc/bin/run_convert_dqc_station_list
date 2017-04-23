@@ -75,7 +75,7 @@ then
    #
    #   Generate station list for 1 hr MPE
    #
-   a2dbauth $POSTGRESQLBINDIR/psql -q -t -A -F '     ' $DB_NAME \
+   $POSTGRESQLBINDIR/psql -q -t -A -F '     ' $DB_NAME \
             -f $RUN_FROM_DIR/hourly_precip_station_gen.sql \
             > hourly_precip_station_list
 

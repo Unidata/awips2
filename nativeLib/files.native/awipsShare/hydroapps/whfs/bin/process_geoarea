@@ -284,7 +284,7 @@ then
 #          $SQLCMD_BIN_DIR/sqlcmd -d $DB_NAME@$INFORMIXSERVER \
 #             2>&1 | tee -a $LOGNAME
 
-      echo $delete_linesegs | a2dbauth $POSTGRESQLBINDIR/psql $DB_NAME 2>&1 | tee -a $LOGNAME
+      echo $delete_linesegs | $POSTGRESQLBINDIR/psql $DB_NAME 2>&1 | tee -a $LOGNAME
 
       if [ $? -ne 0 ]
       then
@@ -306,7 +306,7 @@ then
 #      echo $delete_geoarea | $SQLCMD_BIN_DIR/sqlcmd -d $DB_NAME@$INFORMIXSERVER |\
 #           tee -a $LOGNAME
    
-      echo $delete_geoarea | a2dbauth $POSTGRESQLBINDIR/psql $DB_NAME 2>&1 | tee -a $LOGNAME
+      echo $delete_geoarea | $POSTGRESQLBINDIR/psql $DB_NAME 2>&1 | tee -a $LOGNAME
 
       if [ $? -ne 0 ]
       then   

@@ -110,7 +110,7 @@ touch /tmp/dhrgather_control.temp
 
 Num_Rad=$(
 echo "select count(*) from Radarloc WHERE use_radar='T'; " | \
-a2dbauth $POSTGRESQLBINDIR/psql -q -t $DB_NAME
+$POSTGRESQLBINDIR/psql -q -t $DB_NAME
          )
 
 if [[ $Num_Rad = 0 ]]
@@ -139,7 +139,7 @@ fi
 #WHERE use_radar='T';
 
 echo "select lower(radid_prefix), lower(radid) from Radarloc WHERE use_radar='T';" | \
-a2dbauth $POSTGRESQLBINDIR/psql -q  -A  -t  $DB_NAME > $DSP_LOG_DIR/radid.temp
+$POSTGRESQLBINDIR/psql -q  -A  -t  $DB_NAME > $DSP_LOG_DIR/radid.temp
 
 #
 #  if radid.temp is not created or is 0 bytes in length, then print message and exit gather script
