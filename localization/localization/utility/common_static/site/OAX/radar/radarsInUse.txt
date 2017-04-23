@@ -1,0 +1,44 @@
+# DO NOT EDIT LINES BEGINNING WITH '#'
+# LOCAL_RADARS (including terminal) - MUST HAVE THIS LINE
+koax
+tmsp
+ktlx
+tjua
+
+# DIAL_RADARS - MUST HAVE THIS LINE
+kabr
+kcys
+kdmx
+kgld
+kuex
+keax
+karx
+kmpx
+klnx
+kdvn
+kudx
+kfsd
+ktwx
+tmsp
+
+# ASR_RADARS - MUST HAVE THIS LINE
+eeri
+
+# ARSR_RADARS - MUST HAVE THIS LINE
+fqwa
+
+# MOSAIC_RADARS - MUST HAVE THIS LINE
+koax
+kabr
+kcys
+kdmx
+kgld
+kuex
+keax
+karx
+kmpx
+klnx
+kdvn
+kudx
+kfsd
+ktwx
