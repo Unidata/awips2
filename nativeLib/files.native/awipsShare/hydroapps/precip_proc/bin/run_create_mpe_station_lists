@@ -39,12 +39,11 @@ FILENAME=$MPE_STATION_LIST_DIR/${MPE_SITE_ID}_station_list
 export LD_LIBRARY_PATH=/awips2/psql/lib:$LD_LIBRARY_PATH
 export  PATH=/awips2/psql/bin:$PATH
 
-SSL_KEYS='sslcert='$DB_SSL_DIR'/'"$PGUSER"'.crt sslkey='$DB_SSL_DIR'/'"$PGUSER".key' sslrootcert='$DB_SSL_DIR'/root.crt'
 ####################################################################################
 #
 #   Generate station list for 1 hr MPE
 #
-$POSTGRESQLBINDIR/psql -q -t -A -F '	' "host=$PGHOST dbname=$DB_NAME  user=$PGUSER sslmode=$DB_SSL_MODE $SSL_KEYS" \
+$POSTGRESQLBINDIR/psql -q -t -A -F '	' "host=$PGHOST dbname=$DB_NAME  user=$PGUSER" \
                                         -f $RUN_FROM_DIR/hourly_precip_station_gen.sql  > $RUN_FROM_DIR/hourly_precip_station_list
 #
 #   Get count of records from above and write to station_list file
@@ -62,7 +61,7 @@ cat $RUN_FROM_DIR/hourly_precip_station_list >> $FILENAME
 #
 #   Generate station info for precip stations and write results to temporary file
 #
-$POSTGRESQLBINDIR/psql -q -t -A -F '	' "host=$PGHOST dbname=$DB_NAME user=$PGUSER sslmode=$DB_SSL_MODE $SSL_KEYS" \
+$POSTGRESQLBINDIR/psql -q -t -A -F '	' "host=$PGHOST dbname=$DB_NAME user=$PGUSER" \
                                    -f $RUN_FROM_DIR/precip_station_gen.sql  > $RUN_FROM_DIR/precip_station_list
 
 #
@@ -81,7 +80,7 @@ cat $RUN_FROM_DIR/precip_station_list >> $FILENAME
 #
 #   Generate station info for temperature stations and write results to temporary file
 #
-$POSTGRESQLBINDIR/psql -q -t -A  -F '	' "host=$PGHOST dbname=$DB_NAME user=$PGUSER sslmode=$DB_SSL_MODE $SSL_KEYS" \
+$POSTGRESQLBINDIR/psql -q -t -A  -F '	' "host=$PGHOST dbname=$DB_NAME user=$PGUSER" \
                                    -f $RUN_FROM_DIR/temperature_station_gen.sql > $RUN_FROM_DIR/temperature_station_list
 
 #
