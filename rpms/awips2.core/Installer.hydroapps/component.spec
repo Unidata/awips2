@@ -6,7 +6,7 @@
 Name: %{_component_name}
 Summary: AWIPS II Hydroapps Distribution
 Version: %{_component_version}
-Release: %{_component_release}
+Release: %{_component_release}%{?dist}
 Group: AWIPSII
 BuildRoot: /tmp
 URL: N/A

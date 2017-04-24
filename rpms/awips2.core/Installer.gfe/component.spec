@@ -4,7 +4,7 @@
 Name: awips2-data.gfe
 Summary: AWIPS II gfe Distribution
 Version: %{_component_version}
-Release: %{_component_release}
+Release: %{_component_release}%{?dist}
 Group: AWIPSII
 # We default the buildroot to determine whether or not the user has
 # specified the buildroot.

@@ -4,7 +4,7 @@
 Name: awips2-irt
 Summary: AWIPS II IRT Installation
 Version: 1.0.0
-Release: 1
+Release: 1%{?dist}
 Group: AWIPSII
 BuildRoot: /tmp
 Prefix: /irt

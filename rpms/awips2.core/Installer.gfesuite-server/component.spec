@@ -4,7 +4,7 @@
 Name: awips2-gfesuite-server
 Summary: AWIPS II gfesuite server Installation
 Version: %{_component_version}
-Release: %{_component_release}
+Release: %{_component_release}%{?dist}
 Group: AWIPSII
 BuildRoot: /tmp
 BuildArch: noarch

@@ -4,7 +4,7 @@
 Name: awips2-pypies
 Summary: AWIPS II PyPIES
 Version: %{_component_version}
-Release: %{_component_release}
+Release: %{_component_release}%{?dist}
 Group: AWIPSII
 BuildRoot: /tmp
 URL: N/A

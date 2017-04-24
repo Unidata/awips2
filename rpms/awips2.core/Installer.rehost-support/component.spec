@@ -10,7 +10,7 @@
 Name: awips2-rehost-support-postgresql
 Summary: AWIPS II Rehost Support (PostgreSQL)
 Version: %{_component_version}
-Release: %{_component_release}
+Release: %{_component_release}%{?dist}
 Group: AWIPSII
 BuildArch: noarch
 URL: N/A

@@ -10,7 +10,7 @@
 Name: awips2-eclipse
 Summary: AWIPS II Eclipse Distribution
 Version: 3.8.2
-Release: 1
+Release: 1%{?dist}
 Group: AWIPSII
 BuildRoot: %{_build_root}
 URL: N/A

@@ -4,7 +4,7 @@
 Name: %{_component_name}
 Summary: AWIPS II Localization Installation
 Version: %{_component_version}
-Release: %{_component_release}
+Release: %{_component_release}%{?dist}
 Group: AWIPSII
 BuildRoot: /tmp
 BuildArch: noarch
@@ -426,6 +426,9 @@ if [ $? -ne 0 ]; then
 fi
 echo "INFO: NHAdomain and StormSurgeWW shapefiles were successfully imported." >> ${log_file}
 
+#PSQL="/awips2/psql/bin/psql"
+#echo "Adding KLGX to metadata.radar_spatial from common_static/base/radar/radar_add_klgx.sql"
+#${PSQL} -U awips -d metadata -q -f /awips2/edex/data/utility/common_static/base/radar/radar_add_klgx.sql >> ${log_file} 2>&1
 
 a2_pg_ctl="/awips2/postgresql/bin/pg_ctl"
 # if we started PostgreSQL, shutdown PostgreSQL
