@@ -110,7 +110,11 @@ touch /tmp/dhrgather_control.temp
 
 Num_Rad=$(
 echo "select count(*) from Radarloc WHERE use_radar='T'; " | \
+<<<<<<< HEAD
 $POSTGRESQLBINDIR/psql -q -t $DB_NAME
+=======
+$POSTGRESQLBINDIR/psql -q -t $DB_NAME 
+>>>>>>> parent of ca980b9... ASM #19760 - Nativelib code updates for db connection with ssl
          )
 
 if [[ $Num_Rad = 0 ]]

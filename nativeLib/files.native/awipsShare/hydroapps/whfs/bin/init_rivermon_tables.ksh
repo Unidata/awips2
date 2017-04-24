@@ -13,7 +13,11 @@ export DB_NAME=$(get_apps_defaults db_name)
 
 ###################### function
 fn(){
+<<<<<<< HEAD
 psql $DB_NAME -e << END
+=======
+ psql $DB_NAME -e << END
+>>>>>>> parent of ca980b9... ASM #19760 - Nativelib code updates for db connection with ssl
  \copy rpffcstgroup (group_id, group_name, ordinal) to './input.grp' with delimiter '|'
  \copy rivermongroup(group_id, group_name, ordinal) from './input.grp' with delimiter '|'
  insert into rivermongroup values('DEFAULT', 'DEFAULT GROUP', 1);
