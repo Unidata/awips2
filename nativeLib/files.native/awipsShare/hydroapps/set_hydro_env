@@ -66,17 +66,11 @@ export DB_NAME=$(get_apps_defaults db_name)
 export PGUSER=$(get_apps_defaults pguser)
 export DAMCAT_DB_NAME=$(get_apps_defaults damcat_db_name)
 
-#new JDBCURL to use with ssl keys.
-export DB_SSL_DIR=$(get_apps_defaults DB_ssl_cert_dir)
-export DB_SSL_MODE=$(get_apps_defaults DB_ssl_mode)
-
-DB_SSL_KEYS='sslcert='$DB_SSL_DIR'/'$PGUSER'.crt&sslkey='$DB_SSL_DIR'/'$PGUSER'.pk8&sslrootcert='$DB_SSL_DIR'/root.crt'
 DB_URL='postgresql://'$PGHOST':'$PGPORT'/'$DB_NAME'?user='$PGUSER''
 DAMCREST_DB_URL='postgresql://'$PGHOST':'$PGPORT'/'$DAMCAT_DB_NAME'?user='$PGUSER''
 
-export JDBCURL=jdbc:$DB_URL'&'sslfactory=org.postgresql.ssl.jdbc4.LibPQFactory'&'sslmode=$DB_SSL_MODE'&'$DB_SSL_KEYS''
-export DAMCREST_JDBCURL=jdbc:$DAMCREST_DB_URL'&'sslfactory=org.postgresql.ssl.jdbc4.LibPQFactory'&'sslmode=$DB_SSL_MODE'&'$DB_SSL_KEYS''
-
+export JDBCURL=jdbc:$DB_URL
+export DAMCREST_JDBCURL=jdbc:$DAMCREST_DB_URL
 
 if [ "${PGSQL_DRIVER_DIR}" = "" ]; then
 	DB_DRIVER_DIR=${EDEX_HOME}/lib/dependencies/org.postgres
