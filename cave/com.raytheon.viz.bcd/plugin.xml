@@ -40,7 +40,7 @@
             locationURI="menu:import">
          <command
                commandId="com.raytheon.viz.bcd.openBCD"
-               label="BCD File"
+               label="BCD File..."
                style="push">
          </command>
       </menuContribution>

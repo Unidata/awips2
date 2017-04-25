@@ -63,7 +63,7 @@
 <extension
          point="org.eclipse.ui.menus">
       <menuContribution
-            locationURI="menu:org.eclipse.ui.main.menu?after=CAVE">
+            locationURI="menu:org.eclipse.ui.main.menu">
           <menu id="d2dFile" label="File" mnemonic="F">
              <visibleWhen>
                 <reference
@@ -85,29 +85,6 @@
                    label="New Window"
                    style="push">
              </command>
-             <menu
-                   label="Procedures">
-            <command
-                  commandId="com.raytheon.viz.ui.newAWIPSProcedure"
-                  label="New..."
-                  style="push">
-            </command>
-            <command
-                  commandId="com.raytheon.viz.ui.openAWIPSProcedure"
-                  label="Open..."
-                  style="push">
-            </command>
-            <command
-                  commandId="com.raytheon.viz.ui.deleteAWIPSProcedure"
-                  label="Delete..."
-                  style="push">
-            </command>
-            <command
-                  commandId="com.raytheon.viz.ui.copyOutAWIPSProcedure"
-                  label="Copy Display to Procedure(s)"
-                  style="push">
-            </command>
-             </menu>
              <menu
                    id="import"
                    label="Import">
@@ -154,6 +131,30 @@
                       value="current">
                 </parameter>
              </command>
+             <separator
+                   name="afterNewGroup"
+                   visible="true">
+             </separator>
+             <separator
+                   name="group1"
+                   visible="true">
+             </separator>
+             <separator
+                   name="group2"
+                   visible="true">
+             </separator>
+             <separator
+                   name="group3"
+                   visible="true">
+             </separator>
+             <separator
+                   name="group4"
+                   visible="true">
+             </separator>
+             <separator
+                   name="group5"
+                   visible="true">
+             </separator>
           </menu>
           <menu
                 id="view"
@@ -228,26 +229,6 @@
                    commandId="com.raytheon.viz.ui.tools.looping.loop"
                    label="Looping"
                    style="toggle">
-             </command>
-             <separator
-                   name="beforeLayoutGroup"
-                   visible="true">
-             </separator>
-             <command
-                   commandId="com.raytheon.uf.viz.d2d.ui.actions.changeD2DLayout"
-                   label="1 Pane Layout">
-                <parameter
-                      name="sideViews"
-                      value="4">
-                </parameter>
-             </command>
-             <command
-                   commandId="com.raytheon.uf.viz.d2d.ui.actions.changeD2DLayout"
-                   label="5 Pane Layout">
-                <parameter
-                      name="sideViews"
-                      value="0">
-                </parameter>
              </command>
              <separator
                    name="afterLayoutGroup"
@@ -629,24 +610,6 @@
                </visibleWhen>
             </command>
 			-->
-            <command
-                  commandId="gov.noaa.nws.ncep.viz.actions.resourceManager"
-                  icon="icons/plus.png"
-                  id="gov.noaa.nws.ncep.viz.actions.resourceManager"
-                  label="Ncdata"
-                  mode="FORCE_TEXT"
-                  style="push"
-                  tooltip="NCP Data Manager">
-               <visibleWhen>
-                  <reference
-                        definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
-                  </reference>
-               </visibleWhen>
-               <parameter
-                     name="mode"
-                     value="CREATE_RBD">
-               </parameter>
-            </command>
 			<command
                   commandId="com.raytheon.uf.viz.productbrowser.productBrowser"
 				  icon="icons/plus.png"
@@ -1169,12 +1132,6 @@
             sequence="M1+N">
       </key>
       <key
-      		contextId="com.raytheon.uf.viz.d2d.ui"
-            commandId="com.raytheon.viz.ui.clear"
-            schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="M1+C">
-      </key>
-      <key
             commandId="com.raytheon.viz.ui.tools.looping.frameTool"
             contextId="com.raytheon.viz.ui.loopContext"
             schemeId="com.raytheon.viz.ui.cave.scheme"
@@ -1200,34 +1157,6 @@
             <parameter
                   id="operation"
                   value="NEXT">
-            </parameter>
-      </key>
-      <key
-            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
-            contextId="com.raytheon.viz.ui.loopContext"
-            schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="M1+ARROW_LEFT">
-            <parameter
-                  id="mode"
-                  value="TIME_AND_SPACE">
-            </parameter>
-            <parameter
-                  id="operation"
-                  value="FIRST">
-            </parameter>
-      </key>
-      <key
-            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
-            contextId="com.raytheon.viz.ui.loopContext"
-            schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="M1+ARROW_RIGHT">
-            <parameter
-                  id="mode"
-                  value="TIME_AND_SPACE">
-            </parameter>
-            <parameter
-                  id="operation"
-                  value="LAST">
             </parameter>
       </key>
       <key
@@ -1513,6 +1442,18 @@
             categoryId="com.raytheon.uf.viz.d2d.ui"
             description="Open time options dialog"
             name="Time Options">
+          <state id="org.eclipse.ui.commands.toggleState">
+              <class class="org.eclipse.ui.handlers.RegistryToggleState">
+                  <parameter
+                      name="persisted"
+                      value="false">
+                  </parameter>
+                  <parameter
+                      name="default"
+                      value="false">
+                  </parameter>
+              </class>
+          </state>
       </command>
       <command
             id="com.raytheon.viz.ui.actions.notImplemented"
@@ -1691,6 +1632,7 @@
 	          <contextId
 	                id="com.raytheon.uf.viz.d2d.ui">
 	          </contextId>
+	          <contextId id="com.raytheon.viz.ui.loop.space"/>
 	      </classContext>
 	</extension>
 	<extension

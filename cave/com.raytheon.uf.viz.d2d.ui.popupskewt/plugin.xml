@@ -21,16 +21,6 @@
 <?eclipse version="3.3"?>
 <plugin>
    <extension
-       point="com.raytheon.uf.viz.localization.perspective.localizationpath">
-       <path
-          application="D2D"
-          localizationType="CAVE_STATIC"
-          name="Cloud Height"
-          value="cloudheight" 
-          recursive="true">
-       </path>
-   </extension>
-   <extension
    		point="com.raytheon.viz.ui.displayCustomizer">
    		<displayCustomizer
            customizer="com.raytheon.uf.viz.d2d.ui.popupskewt.D2DPopupSkewTDisplayCustomizer"

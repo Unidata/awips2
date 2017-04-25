@@ -78,14 +78,4 @@
             commandId="com.raytheon.uf.viz.monitor.fog.ui.actions.fogThresholdAlertVisConfig">
       </handler>
    </extension>
-   <extension
-         point="com.raytheon.uf.viz.localization.perspective.localizationpath">
-      <path
-            application="D2D"
-            localizationType="common_static"
-            name="Fog"
-            recursive="true"
-            value="fog">
-      </path>
-   </extension>
 </plugin>

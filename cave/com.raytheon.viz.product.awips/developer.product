@@ -14,7 +14,7 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-data @user.home/caveData -user @user.home/caveData -clean -consoleLog -component thinclient -alertviz
+      <programArgs>-data @user.home/Library/caveData -user @user.home/Library/caveData -clean -consoleLog -component thinclient -alertviz
       </programArgs>
       <vmArgs>-Xmx4536M
 -XX:+UseG1GC
@@ -24,7 +24,7 @@
 -Dqpid.dest_syntax=BURL
 -Dlogback.configurationFile=logback-viz-core-developer.xml
 -Dlogback.statusListenerClass=com.raytheon.uf.common.logback.UFLogbackInternalStatusListener
--Dthrift.stream.maxsize=200
+-Dthrift.stream.maxsize=800
 -Dviz.memory.warn.threshold=99
 -Dorg.eclipse.swt.internal.gtk.cairoGraphics=false
 -Dhttps.certificate.check=false

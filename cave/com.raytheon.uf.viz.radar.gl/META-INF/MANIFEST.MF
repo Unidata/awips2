@@ -8,5 +8,6 @@ Require-Bundle: com.raytheon.viz.radar;bundle-version="1.14",
  com.raytheon.viz.core.gl;bundle-version="1.14",
  com.raytheon.uf.viz.core;bundle-version="1.14",
  com.raytheon.uf.common.geospatial;bundle-version="1.14"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
+Import-Package: com.jogamp.opengl

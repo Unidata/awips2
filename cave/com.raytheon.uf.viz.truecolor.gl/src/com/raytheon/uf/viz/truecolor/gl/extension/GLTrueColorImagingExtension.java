@@ -22,7 +22,7 @@ package com.raytheon.uf.viz.truecolor.gl.extension;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
-import javax.media.opengl.GL;
+import com.jogamp.opengl.GL2;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.viz.core.DrawableImage;
@@ -54,7 +54,7 @@ import com.raytheon.viz.core.gl.images.AbstractGLImage;
  * ------------ ---------- ----------- --------------------------
  * Aug  6, 2012            mschenke    Initial creation
  * Nov  4, 2013 2492       mschenke    Reworked to use GLSL Data mapping
- * Jan 27, 2016 DR 17997   jgerth      Support for gamma control
+ * Jun  2, 2016	           mjames@ucar Refactored for jogamp 2 for OS X
  * 
  * </pre>
  * 
@@ -68,8 +68,6 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
     private AbstractGLImage writeToImage;
 
     private Channel renderingChannel;
-
-    private double renderingGamma = 1.0;
 
     private Map<ColorMapParameters, Object> parameters = new IdentityHashMap<ColorMapParameters, Object>();
 
@@ -125,7 +123,6 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
                     boolean allPainted = true;
                     for (Channel channel : Channel.values()) {
                         renderingChannel = channel;
-                        renderingGamma = trueColorImage.getGamma(channel);
                         DrawableImage[] imagesToDraw = trueColorImage
                                 .getImages(channel);
                         if (imagesToDraw != null && imagesToDraw.length > 0) {
@@ -151,7 +148,6 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
                     throw e;
                 }
                 renderingChannel = null;
-                renderingGamma = 1.0;
                 writeToImage = null;
                 trueColorImage.setImageParameters(parameters.keySet());
                 trueColorImage.bind(target.getGl());
@@ -163,13 +159,13 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
                 return null;
             }
         } else if (image instanceof AbstractGLColormappedImage) {
-            GL gl = target.getGl();
+            GL2 gl = target.getGl();
 
             GLColormappedImageExtension.setupDataMapping(gl,
-                    (AbstractGLColormappedImage) image, GL.GL_TEXTURE2,
-                    GL.GL_TEXTURE3);
+                    (AbstractGLColormappedImage) image, GL2.GL_TEXTURE2,
+                    GL2.GL_TEXTURE3);
             // bind on GL_TEXTURE1 as 0 is channel image
-            writeToImage.bind(gl, GL.GL_TEXTURE1);
+            writeToImage.bind(gl, GL2.GL_TEXTURE1);
             return image;
         }
         return null;
@@ -193,17 +189,17 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
                     ((GLTrueColorImage) image).getWrappedImage(),
                     (PixelCoverage) data));
         } else if (writeToImage != null) {
-            GL gl = target.getGl();
+            GL2 gl = target.getGl();
             // Unbind the writeToImage from GL_TEXTURE1
-            gl.glActiveTexture(GL.GL_TEXTURE1);
+            gl.glActiveTexture(GL2.GL_TEXTURE1);
             gl.glBindTexture(writeToImage.getTextureStorageType(), 0);
 
             // Unbind the data mapped textures
-            gl.glActiveTexture(GL.GL_TEXTURE2);
-            gl.glBindTexture(GL.GL_TEXTURE_1D, 0);
+            gl.glActiveTexture(GL2.GL_TEXTURE2);
+            gl.glBindTexture(GL2.GL_TEXTURE_1D, 0);
 
-            gl.glActiveTexture(GL.GL_TEXTURE3);
-            gl.glBindTexture(GL.GL_TEXTURE_1D, 0);
+            gl.glActiveTexture(GL2.GL_TEXTURE3);
+            gl.glBindTexture(GL2.GL_TEXTURE_1D, 0);
         }
     }
 
@@ -250,8 +246,6 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
             GLSLStructFactory.createColorMapping(program, "colorMapping", -1,
                     -1, colorMapParameters);
 
-            program.setUniform("gamma", renderingGamma);
-
             // Set the composite image data
             program.setUniform("trueColorTexture", 1);
             program.setUniform("width", (float) writeToImage.getWidth());
@@ -270,7 +264,7 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
      * (javax.media.opengl.GL)
      */
     @Override
-    protected void enableBlending(GL gl) {
+    protected void enableBlending(GL2 gl) {
         // Do not enable blending for this extension as it messes with alpha
         // values between passes
     }
