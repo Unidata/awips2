@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<menuContributionFile>	
+<menuContributionFile>
+<include installTo="menu:satellite?before=GROUP1" 
+             fileName="menus/satellite/goesr/goesrMenu.xml">
+    </include>
 	<include installTo="menu:satellite?before=GROUP1" 
              fileName="menus/satellite/baseUniwiscComposite.xml">
     </include>
