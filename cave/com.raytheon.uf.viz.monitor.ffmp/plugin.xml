@@ -110,6 +110,13 @@
        </path>
        <path
              application="D2D"
+             localizationType="common_static"
+             name="Monitoring"
+             recursive="true"
+             value="monitoring">
+       </path>
+       <path
+             application="D2D"
              localizationType="cave_static"
              name="FFMP GUI CONFIG"
              value="ffmp/guiConfig">

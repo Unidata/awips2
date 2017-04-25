@@ -29,4 +29,15 @@
       </contextualMenu>
    </extension>
    
+   <extension
+         point="com.raytheon.uf.viz.localization.perspective.localizationpath">
+      <path
+            application="D2D"
+            extensionFilter=".xml"
+            localizationType="COMMON_STATIC"
+            name="Damage Path"
+            recursive="false"
+            value="damagepath">
+      </path>
+   </extension>
 </plugin>

@@ -1819,6 +1819,22 @@
 	          </contextId>
 	      </classContext>
 	</extension>
+    <extension
+          point="com.raytheon.uf.viz.localization.perspective.localizationpath">
+       <path
+             application="MPE"
+             localizationType="COMMON_STATIC"
+             name="MPE Proc"
+             value="mpeProc">
+       </path>
+       <path
+             application="MPE"
+             localizationType="COMMON_STATIC"
+             name="MPE Lookup"
+             value="mpeLookup"
+             recursive="true">
+       </path>
+    </extension>
 	<extension point="org.eclipse.ui.services">
 		<sourceProvider
        		provider="com.raytheon.viz.mpe.ui.TransmitBestEstimateQPEProvider">

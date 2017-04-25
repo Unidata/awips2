@@ -39,8 +39,8 @@
          point="org.eclipse.ui.menus">
       <menuContribution
             locationURI="menu:import">
-         <command
-               commandId="com.raytheon.viz.lpi.openLPI"
+            <command
+                 commandId="com.raytheon.viz.lpi.openLPI"
                  label="LPI File"
                style="push">
          </command>
