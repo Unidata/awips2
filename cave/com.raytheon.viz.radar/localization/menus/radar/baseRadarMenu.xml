@@ -46,7 +46,7 @@
 		<substitute key="interpolate" value="false"/>
     </contribute>
 	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
-		menuText="DAA - One-Hour Precipitation" id="DAA">
+		menuText="DAA - One-Hour Digital Accum Array" id="DAA">
         <substitute key="element" value="DAA"/>
         <substitute key="colormap" value="Radar/8-bit STP"/>
 		<substitute key="interpolate" value="true"/>
@@ -57,13 +57,19 @@
         <substitute key="colormap" value="Radar/8-bit STP"/>
 		<substitute key="interpolate" value="true"/>
     </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
+		menuText="OHA - One-Hour Accumulation" id="OHA">
+        <substitute key="element" value="OHA"/>
+        <substitute key="colormap" value="Radar/8-bit STP"/>
+		<substitute key="interpolate" value="true"/>
+    </contribute>
 	<contribute xsi:type="titleItem" titleText="------ NEXRAD Mosaic ------"
 		id="RadarMosaic" />
 	<contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml"
 			subMenu="N0Q - 0.5 Reflectivity" id="Radar05Reflectivity">
 			<substitute key="product" value="153,94,19,20" />
 			<substitute key="elevation" value="0.5" />
-			<substitute key="name" value="N0Q 0.5 Reflectivity />
+			<substitute key="name" value="N0Q 0.5 Reflectivity" />
 		</contribute>
 		<contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml"
 			subMenu="DHR - Hybrid Scan Reflectivity" id="RadarHybridScanRefl">
