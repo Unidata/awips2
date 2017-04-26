@@ -23,18 +23,18 @@
                 menuText="IRWindow" id="irWindow">
         <substitute key="element" value="CH-14-11.20um,Imager 11 micron IR"/>
         <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-        <substitute key="entity" value="GOES%"/>
+        <substitute key="entity" value="GOES-16"/>
     </contribute>
     <contribute xsi:type="satBundleItem" file="bundles/satellite/goesr/goesrConusLegacyBlend.xml" 
                 menuText="3.9u" id="3.9u">
         <substitute key="element" value="CH-07-3.90um,Imager 3.9 micron IR"/>
         <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-        <substitute key="entity" value="GOES%"/>
+        <substitute key="entity" value="GOES-16"/>
     </contribute>
     <contribute xsi:type="satBundleItem" file="bundles/satellite/goesr/goesrConusLegacyBlend.xml" 
                 menuText="13u" id="13u">
         <substitute key="element" value="CH-16-13.30um,Imager 13 micron (IR)"/>
         <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-        <substitute key="entity" value="GOES%"/>
+        <substitute key="entity" value="GOES-16"/>
     </contribute>
 </menuTemplate>

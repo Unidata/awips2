@@ -21,19 +21,19 @@
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Fire Area" id="goesr-fdc-area">
-        <substitute key="entity" value="GOES%" />
+        <substitute key="entity" value="GOES-16" />
         <substitute key="element" value="FDC Area"/>
         <substitute key="colormap" value="Sat/GOESR-L2/VTRSB"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Fire Power" id="goesr-fdc-power">
-        <substitute key="entity" value="GOES%" />
+        <substitute key="entity" value="GOES-16" />
         <substitute key="element" value="FDC Power"/>
         <substitute key="colormap" value="Sat/GOESR-L2/VTRSB"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Fire Temperature" id="goesr-fdc-temp">
-        <substitute key="entity" value="GOES%" />
+        <substitute key="entity" value="GOES-16" />
         <substitute key="element" value="FDC Temp"/>
         <substitute key="colormap" value="Sat/GOESR-L2/VTRSB"/>
     </contribute>
