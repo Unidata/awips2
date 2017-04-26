@@ -21,49 +21,49 @@
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Aerosol Detection" id="goesr-adp">
-        <substitute key="entity" value="GOES%" />
+        <substitute key="entity" value="GOES-16" />
         <substitute key="element" value="ADP"/>
         <substitute key="colormap" value="Sat/GOESR-L2/ADP"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Aerosol Optical Depth" id="goesr-aod">
-        <substitute key="entity" value="GOES%" />
+        <substitute key="entity" value="GOES-16" />
         <substitute key="element" value="AOD"/>
         <substitute key="colormap" value="Sat/GOESR-L2/VTRSB"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Clear Sky Mask" id="goesr-csm">
-        <substitute key="entity" value="GOES%" />
+        <substitute key="entity" value="GOES-16" />
         <substitute key="element" value="CSM"/>
         <substitute key="colormap" value="Sat/GOESR-L2/CSM"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Cloud Optical Depth" id="goesr-cod">
-        <substitute key="entity" value="GOES%" />
+        <substitute key="entity" value="GOES-16" />
         <substitute key="element" value="COD"/>
         <substitute key="colormap" value="Sat/GOESR-L2/VTRSB"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Cloud Particle Size" id="goesr-cth">
-        <substitute key="entity" value="GOES%" />
+        <substitute key="entity" value="GOES-16" />
         <substitute key="element" value="CPSD"/>
         <substitute key="colormap" value="Sat/GOESR-L2/VTRSB"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Cloud Top Height" id="goesr-cth">
-        <substitute key="entity" value="GOES%" />
+        <substitute key="entity" value="GOES-16" />
         <substitute key="element" value="CTH"/>
         <substitute key="colormap" value="Sat/GOESR-L2/VTRSB"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Cloud Top Phase" id="goesr-actp">
-        <substitute key="entity" value="GOES%" />
+        <substitute key="entity" value="GOES-16" />
         <substitute key="element" value="ACTP"/>
         <substitute key="colormap" value="Sat/GOESR-L2/ACTP"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Cloud Top Pressure" id="goesr-ctp">
-        <substitute key="entity" value="GOES%" />
+        <substitute key="entity" value="GOES-16" />
         <substitute key="element" value="CTP"/>
         <substitute key="colormap" value="Sat/GOESR-L2/VTRSB"/>
     </contribute>
@@ -71,19 +71,19 @@
     <contribute xsi:type="subinclude" subMenu="Fire/Hot Spot" fileName="menus/satellite/goesr/goesrLevel2Fire.xml" />
     <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Land Skin Temp" id="goesr-lst">
-        <substitute key="entity" value="GOES%" />
+        <substitute key="entity" value="GOES-16" />
         <substitute key="element" value="LST"/>
         <substitute key="colormap" value="Sat/GOESR-L2/VTRSB"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Snow Cover" id="goesr-fsc">
-        <substitute key="entity" value="GOES%" />
+        <substitute key="entity" value="GOES-16" />
         <substitute key="element" value="FSC"/>
         <substitute key="colormap" value="Sat/GOESR-L2/FSC"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Total Precip Water" id="goesr-tpw">
-        <substitute key="entity" value="GOES%" />
+        <substitute key="entity" value="GOES-16" />
         <substitute key="element" value="TPW"/>
         <substitute key="colormap" value="Sat/Precip Water/Precip Water - New CIMSS Table"/>
     </contribute>

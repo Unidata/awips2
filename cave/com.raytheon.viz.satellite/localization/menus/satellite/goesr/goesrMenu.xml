@@ -19,50 +19,39 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="subMenu" menuText="GOES-R" id="goesr">
-        <contribute xsi:type="titleItem" titleText="------ Best Res East Conus ------" id="goesrBestRes"/>
+    <contribute xsi:type="subMenu" menuText="GOES-16 Provisional Products" id="goesr">
+        <contribute xsi:type="titleItem" titleText="------ CONUS ------" id="goesrBestRes"/>
         <contribute xsi:type="subinclude" fileName="menus/satellite/goesr/goesrBestResConusByChannel.xml">
-            <substitute key="primaryPosition" value="E"/>
-            <substitute key="secondaryPosition" value="W"/>
         </contribute>
-        <contribute xsi:type="subMenu" menuText="Regional Best Res">
-            <contribute xsi:type="subinclude" subMenu="West Conus" fileName="menus/satellite/goesr/goesrBestResConusByChannel.xml">
-                <substitute key="primaryPosition" value="W"/>
-                <substitute key="secondaryPosition" value="E"/>
-            </contribute>
-            <contribute xsi:type="subinclude" subMenu="Alaska" fileName="menus/satellite/goesr/goesrBestResRegionByChannel.xml">
-                <substitute key="primaryPosition" value="W"/>
-                <substitute key="secondaryPosition" value="E"/>
-                <substitute key="region" value="AK"/>
-            </contribute>
-            <contribute xsi:type="subinclude" subMenu="Hawaii" fileName="menus/satellite/goesr/goesrBestResRegionByChannel.xml">
-                <substitute key="primaryPosition" value="W"/>
-                <substitute key="secondaryPosition" value="E"/>
-                <substitute key="region" value="HI"/>
-            </contribute>
-            <contribute xsi:type="subinclude" subMenu="Puerto Rico" fileName="menus/satellite/goesr/goesrBestResRegionByChannel.xml">
-                <substitute key="primaryPosition" value="E"/>
-                <substitute key="secondaryPosition" value="W"/>
-                <substitute key="region" value="PR"/>
-            </contribute>
+        <contribute xsi:type="titleItem" titleText="------ Full Disk ------" id="goesrBestRes"/>
+        <contribute xsi:type="subinclude" fileName="menus/satellite/goesr/goesrFullDiskByChannel.xml">
         </contribute>
+        
+        <contribute xsi:type="titleItem" titleText="------ RGB Composites ------" id="goesrRGBComposites"/>
+	    <contribute xsi:type="subinclude" subMenu="CONUS"
+	        fileName="menus/satellite/goesr/goesrRGBComposites.xml">
+	        <substitute key="sector" value="TCONUS" />
+	        <substitute key="entity" value="GOES-16" />
+	    </contribute>
+	    <contribute xsi:type="subinclude" subMenu="Full Disk"
+	        fileName="menus/satellite/goesr/goesrRGBComposites.xml">
+	        <substitute key="sector" value="TFD" />
+	        <substitute key="entity" value="GOES-16" />
+	    </contribute>
+	    <contribute xsi:type="subinclude" subMenu="Mesoscale 1"
+	        fileName="menus/satellite/goesr/goesrRGBComposites.xml">
+	        <substitute key="sector" value="TMESO-1" />
+	        <substitute key="entity" value="GOES-16" />
+	    </contribute>
+	    <contribute xsi:type="subinclude" subMenu="Mesoscale 2"
+	        fileName="menus/satellite/goesr/goesrRGBComposites.xml">
+	        <substitute key="sector" value="TMESO-2" />
+	        <substitute key="entity" value="GOES-16" />
+	    </contribute>
+	        
         <contribute xsi:type="titleItem" titleText="------ By Sector ------" id="goesrBySector"/>
         <contribute xsi:type="subinclude" subMenu="All Channels" fileName="menus/satellite/goesr/goesrBySectorByChannel.xml" />
         <contribute xsi:type="subinclude" subMenu="Level 2 Products" fileName="menus/satellite/goesr/goesrLevel2.xml" />
         <contribute xsi:type="subinclude" subMenu="Locally Derived" fileName="menus/satellite/goesr/goesrBySectorLocallyDerived.xml" />
-        <contribute xsi:type="subinclude" subMenu="RGB Composites" fileName="menus/satellite/goesr/goesrBySectorRGBComposites.xml" />
-        <contribute xsi:type="titleItem" titleText="------ Conus With Legacy ------" id="goesrWithLegacy"/>
-        <contribute xsi:type="subinclude" subMenu="GOES-R + GOES-15" fileName="menus/satellite/goesr/goesrConusWithLegacy.xml">
-            <substitute key="sector0" value="West CONUS"/>
-            <substitute key="sector1" value="ECONUS"/>
-        </contribute>
-        <contribute xsi:type="subinclude" subMenu="GOES-R + GOES-13" fileName="menus/satellite/goesr/goesrConusWithLegacy.xml">
-            <substitute key="sector0" value="East CONUS"/>
-            <substitute key="sector1" value="WCONUS"/>
-        </contribute>
-        <contribute xsi:type="subinclude" subMenu="Automatic" fileName="menus/satellite/goesr/goesrConusWithLegacy.xml">
-            <substitute key="sector0" value="ECONUS,East CONUS"/>
-            <substitute key="sector1" value="WCONUS,West CONUS"/>
-        </contribute>
     </contribute>
 </menuTemplate>
