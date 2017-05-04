@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+    <!-- TOWRdocs Header
+        GOES-R Derived Motion Winds (DMW) bundle (query by "filter" DB column)
+    -->
+    <!-- TOWRdocs Description
+        File defines contains the custom query mappings and contraints used to query the Postgres database to return
+        corresponding DMW records. 
+
+        The queries are created in with each "mapping" entity:
+
+            key - The corresponding database column/entry to query against
+            contstraintValue - The constraint values to place on the query
+            constraint - The Postgres constraint to place on the query (i.e. >, <, =, etc.)
+
+        Note: Here we can see where previously-defined "substitute" entities come into play. A key-value substitution is taking 
+        place anywhere we see an "&#36;{key}" entry. While these substitutions may be useful, they are not necessary, as can
+        be seen with the "windSpd" mappings.
+    -->
+    <!-- TOWRdocs Status
+        New file not in the baseline. It was modeled after the baseline 16.2.2 file /bundles/satellite/goesr/DerivedMotionWinds.xml, with slight modifications made to the queries and query constraints.
+    -->
+    <!-- TOWRdocs POC
+        Matt Comerford
+    -->
+
+<bundle>
+    <displayList>
+        <displays xsi:type="d2DMapRenderableDisplay"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <descriptor xsi:type="mapDescriptor">
+
+                <resource>
+                    <loadProperties>
+                        <capabilities>
+                            <capability xsi:type="colorableCapability" colorAsString="#00ff00" />
+                        </capabilities>
+                    </loadProperties>
+                    <resourceData xsi:type="windPlotResourceData" legend="${legend} wspd &lt; 30 kts"
+                        windFile="dmw_wind.xml" baseDensity="2.0">
+                        <metadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="${plugin}" constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="orbitalSlot">
+                                <constraint constraintValue="${orbitalSlot}" constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="scene">
+                                <constraint constraintValue="${scene}" constraintType="EQUALS" />
+                            </mapping>
+                        </metadataMap>
+                        <dataMetadataMap>
+                            <mapping key="windSpd">
+                                <!-- 0.0 to 30.0 converted from knots to m/s -->
+                                <constraint constraintValue="0.0--15.43" constraintType="BETWEEN" />
+                            </mapping>
+                            <mapping key="filter">
+                                <constraint constraintValue="${pressure}" constraintType="${pressureConstraint}" />
+                            </mapping>
+                        </dataMetadataMap>
+                    </resourceData>
+                </resource>
+
+                <resource>
+                    <loadProperties>
+                        <capabilities>
+                            <capability xsi:type="colorableCapability" colorAsString="#ffff00" />
+                        </capabilities>
+                    </loadProperties>
+                    <resourceData xsi:type="windPlotResourceData" legend="${legend} 30 &lt;= wspd &lt; 50 kts"
+                        windFile="dmw_wind.xml" baseDensity="2.0">
+                        <metadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="${plugin}" constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="orbitalSlot">
+                                <constraint constraintValue="${orbitalSlot}" constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="scene">
+                                <constraint constraintValue="${scene}" constraintType="EQUALS" />
+                            </mapping>
+                        </metadataMap>
+                        <dataMetadataMap>
+                            <mapping key="windSpd">
+                                <!-- 30.0 to 50.0 converted from knots to m/s -->
+                                <constraint constraintValue="15.43--25.72" constraintType="BETWEEN" />
+                            </mapping>
+                            <mapping key="filter">
+                                <constraint constraintValue="${pressure}" constraintType="${pressureConstraint}" />
+                            </mapping>
+                        </dataMetadataMap>
+                    </resourceData>
+                </resource>
+
+                <resource>
+                    <loadProperties>
+                        <capabilities>
+                            <capability xsi:type="colorableCapability" colorAsString="#ff0000" />
+                        </capabilities>
+                    </loadProperties>
+                    <resourceData xsi:type="windPlotResourceData" legend="${legend} wspd &gt;= 50 kts"
+                        windFile="dmw_wind.xml" baseDensity="2.0">
+                        <metadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="${plugin}" constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="orbitalSlot">
+                                <constraint constraintValue="${orbitalSlot}" constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="scene">
+                                <constraint constraintValue="${scene}" constraintType="EQUALS" />
+                            </mapping>
+                        </metadataMap>
+                        <dataMetadataMap>
+                            <mapping key="windSpd">
+                                <!-- 50.0 to 999.0 converted from knots to m/s -->
+                                <constraint constraintValue="25.72--513.93" constraintType="BETWEEN" />
+                            </mapping>
+                            <mapping key="filter">
+                                <constraint constraintValue="${pressure}" constraintType="${pressureConstraint}" />
+                            </mapping>
+                        </dataMetadataMap>
+                    </resourceData>
+                </resource>
+
+      </descriptor>
+    </displays>
+  </displayList>
+</bundle>
