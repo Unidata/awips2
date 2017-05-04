@@ -171,8 +171,10 @@ public class SatelliteDao extends PluginDao {
 
                     });
             
-            // If these are 1-4km UCAR NEXRCOMP composites, show full res (no tiling)
-            if (satRecord.getSectorID().equals("NEXRCOMP")){
+            // If these are 1-4km UCAR NEXRCOMP composites, or GOES-16(R) images, 
+            // show full res (no tiling)
+            if (satRecord.getSource().equals("WCDAS") || 
+            		satRecord.getSource().equals("UCAR")){
             	satRecord.setInterpolationLevels(1);
             } else {
             	satRecord.setInterpolationLevels(levels);
