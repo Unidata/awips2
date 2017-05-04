@@ -28,7 +28,6 @@
 -Dviz.memory.warn.threshold=99
 -Dorg.eclipse.swt.internal.gtk.cairoGraphics=false
 -Dhttps.certificate.check=false
--Djava.library.path=/awips2/python/lib/python2.7/site-packages/jep
 -XX:MaxDirectMemorySize=1G
 -XX:+UnlockExperimentalVMOptions
 -XX:G1HeapRegionSize=4M
@@ -52,13 +51,17 @@
       startupForegroundColor="000000" />
    <launcher name="cave">
       <solaris/>
-      <win useIco="false">
+      <win useIco="true">
+         <ico path="/com.raytheon.viz.product.awips/icons/cave.ico"/>
          <bmp/>
       </win>
    </launcher>
 
    <vm>
-      <windows include="true">jdk1.7.0</windows>
+      <linux include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</linux>
+      <macos include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</macos>
+      <solaris include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</solaris>
+      <windows include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</windows>
    </vm>
 
    <plugins>
@@ -75,5 +78,12 @@
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
    </configurations>
+
+   <preferencesInfo>
+      <targetfile overwrite="false"/>
+   </preferencesInfo>
+
+   <cssInfo>
+   </cssInfo>
 
 </product>
