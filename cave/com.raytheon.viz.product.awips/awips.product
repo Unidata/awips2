@@ -109,7 +109,7 @@
       <feature id="com.raytheon.viz.text.feature"/>
       <feature id="com.raytheon.viz.warngen.feature"/>
       <feature id="com.raytheon.viz.gfe.feature"/>
-      <feature id="com.raytheon.uf.viz.dat.feature"/>
+      <!-- <feature id="com.raytheon.uf.viz.dat.feature"/> -->
       <feature id="com.raytheon.uf.viz.d2d.ui.awips.feature"/>
       <feature id="com.raytheon.uf.viz.d2d.gfe.feature"/>
       <feature id="com.raytheon.uf.viz.ncep.dataplugins.feature"/>
