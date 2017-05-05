@@ -595,40 +595,6 @@
                   </reference>
                </visibleWhen>
             </command>
-            <!--
-            <command
-                  commandId="com.raytheon.viz.radar.rsc.map.dialog"
-                  icon="icons/nsharp.png"
-                  id="com.raytheon.viz.radar.rsc.map.dialog"
-                  label="NEXRAD"
-                  mode="FORCE_TEXT"
-                  style="push"
-                  tooltip="NEXRAD">
-               <visibleWhen>
-                  <reference
-                        definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
-                  </reference>
-               </visibleWhen>
-            </command>
-            -->
-			<!--
-			com.raytheon.viz.radar.rsc.map.RadarMapResource
-			
-            <command
-                  commandId="gov.noaa.nws.ncep.ui.nsharp.palette"
-                  icon="icons/nsharp.png"
-                  id="gov.noaa.nws.ncep.ui.nsharp.palette"
-                  label="Nsharp"
-                  mode="FORCE_TEXT"
-                  style="push"
-                  tooltip="Nsharp">
-               <visibleWhen>
-                  <reference
-                        definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
-                  </reference>
-               </visibleWhen>
-            </command>
-			-->
             <command
                   commandId="gov.noaa.nws.ncep.viz.actions.resourceManager"
                   icon="icons/plus.png"
@@ -659,14 +625,19 @@
 			         </reference>
 			      </visibleWhen>
             </command>
-            <!--
 		   <command
-		         commandId="SetBrowserViewType"
-		         label="Plot Type"
-		         style="pulldown">
+           commandId="gov.noaa.nws.ncep.ui.pgen.palette"
+           icon="icons/edit.png"
+           label="Pgen"
+           mode="FORCE_TEXT"
+           style="push"
+           tooltip="Pgen">
+        <visibleWhen>
+           <reference
+                 definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+           </reference>
+        </visibleWhen>
 		   </command>
-		   -->
-
          </toolbar>
          </menuContribution>
          <menuContribution
