@@ -94,6 +94,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------------------------
  * Aug 05, 2016           mjames   Copied from MetarPrecipResource
+ * May 09, 2017           mjames   Extend range from -30 to +130 F
  * 
  * </pre>
  * 
@@ -259,7 +260,7 @@ public class MetarTempResource extends
         DataMappingPreferences preferences = new DataMappingPreferences();
 
         DataMappingEntry entry = new DataMappingEntry();
-        entry.setDisplayValue(20.);
+        entry.setDisplayValue(-30.);
         entry.setPixelValue(0.0);
         preferences.addEntry(entry);
 
@@ -303,6 +304,11 @@ public class MetarTempResource extends
         entry.setPixelValue(8.0);
         preferences.addEntry(entry);
 
+        entry = new DataMappingEntry();
+        entry.setDisplayValue(130.);
+        entry.setPixelValue(9.0);
+        preferences.addEntry(entry);
+        
         params.setDisplayUnit(Unit.ONE);
         params.setDataMapping(preferences);
         params.setColorMapMin(0);
