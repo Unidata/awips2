@@ -20,8 +20,4 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<contribute xsi:type="subinclude" fileName="menus/ncepHydro/ncepMenu.xml"/>
-	<contribute xsi:type="subMenu" menuText="Hurricane"
-	            id="ncepHydro.tpc.hurricane">
-	    <contribute xsi:type="subinclude" fileName="menus/ncepHydro/tpc/hurricane.xml"/>
-	</contribute>
 </menuTemplate>

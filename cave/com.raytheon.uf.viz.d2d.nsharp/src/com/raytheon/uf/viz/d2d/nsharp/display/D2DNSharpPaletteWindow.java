@@ -23,7 +23,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
@@ -47,6 +49,7 @@ import gov.noaa.nws.ncep.ui.nsharp.view.NsharpPaletteWindow;
  * ------------- -------- --------- ------------------------------------------
  * May 12, 2011  9249     bsteffen  Initial creation
  * Apr 29, 2016  5607     bsteffen  Fix modal tool manipulation in eclipse 4.
+ * May 05, 2017           mjames    Use NCEP NSHARP dialog.
  * 
  * </pre>
  * 
@@ -57,6 +60,10 @@ public class D2DNSharpPaletteWindow extends NsharpPaletteWindow {
     private static final String EDIT_TOOL_CATEGY = "com.raytheon.viz.ui.modalTool.nav";
 
     private AbstractModalTool lastTool = null;
+    
+    Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+    
+    D2DNsharpLoadDialog loadDia = D2DNsharpLoadDialog.getInstance(shell);
 
     @Override
     public void init(IViewSite site) {
@@ -104,8 +111,7 @@ public class D2DNSharpPaletteWindow extends NsharpPaletteWindow {
 
             @Override
             public void handleEvent(Event event) {
-                D2DNsharpHandleArchiveFile.openArchiveFile(getViewSite()
-                        .getShell());
+            	if (loadDia != null) loadDia.open();
             }
         });
 

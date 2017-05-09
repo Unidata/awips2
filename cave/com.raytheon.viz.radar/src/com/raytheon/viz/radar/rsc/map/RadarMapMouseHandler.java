@@ -193,18 +193,19 @@ public class RadarMapMouseHandler extends InputAdapter {
         GeodeticCalculator gc;
         // can't assume this is a map Editor/MapDescriptor
         AbstractEditor mapEditor = RadarMapResource.getMapEditor();
-        if (mapEditor != null) {
+        if (mapEditor != null && ! Double.isNaN(pt.x) && ! Double.isNaN(pt.y) ) {
             IMapDescriptor desc = (IMapDescriptor) mapEditor
                     .getActiveDisplayPane().getRenderableDisplay()
                     .getDescriptor();
-            gc = new GeodeticCalculator(desc.getCRS());
-            gc.setStartingGeographicPoint(pt.x, pt.y);
+            
             for (RadarStation selectPoint : points) {
-
-                gc.setDestinationGeographicPoint(selectPoint.getLon(),
-                		selectPoint.getLat());
+            	
                 double dist;
                 try {
+                	gc = new GeodeticCalculator(desc.getCRS());
+                    gc.setStartingGeographicPoint(pt.x, pt.y);
+                    gc.setDestinationGeographicPoint(selectPoint.getLon(),
+                    		selectPoint.getLat());
                     dist = gc.getOrthodromicDistance();
                     if (dist < minDistance) {
                         minDistance = dist;
@@ -212,7 +213,7 @@ public class RadarMapMouseHandler extends InputAdapter {
                     }
                 } catch (Exception e) {
                     statusHandler.handle(
-                    		Priority.ERROR,"getOrthodromicDistance exception.",e);
+                    		Priority.WARN,"getOrthodromicDistance exception.",e);
                 }
             }
            
