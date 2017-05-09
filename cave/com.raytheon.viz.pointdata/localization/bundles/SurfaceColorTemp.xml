@@ -36,10 +36,10 @@
 						isMapLayer="false" isHoverOn="false"
 						isVisible="true" />
 					<resourceData xsi:type="metarTempResourceData" plotSource="Surface Temps [F]"
-						plotModelFile="colorTemp.svg" spiFile="basemaps/MTR.spi"
+						spiFile="basemaps/MTR.spi"
 						isUpdatingOnMetadataOnly="true" retrieveData="false"
 						isRequeryNecessaryOnTimeMatch="true" isTopOfTheHour="true" pixelSizeHint="45">
-						<binOffset posOffset="600" negOffset="600" virtualOffset="0"/>
+						<binOffset posOffset="1800" negOffset="1800" virtualOffset="0"/>
 						<metadataMap>
 							<mapping key="reportType">
 								<constraint constraintValue="METAR" constraintType="EQUALS" />
