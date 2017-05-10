@@ -595,24 +595,6 @@
                   </reference>
                </visibleWhen>
             </command>
-            <command
-                  commandId="gov.noaa.nws.ncep.viz.actions.resourceManager"
-                  icon="icons/plus.png"
-                  id="gov.noaa.nws.ncep.viz.actions.resourceManager"
-                  label="Ncdata"
-                  mode="FORCE_TEXT"
-                  style="push"
-                  tooltip="NCP Data Manager">
-               <visibleWhen>
-                  <reference
-                        definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
-                  </reference>
-               </visibleWhen>
-               <parameter
-                     name="mode"
-                     value="CREATE_RBD">
-               </parameter>
-            </command>
 			<command
                   commandId="com.raytheon.uf.viz.productbrowser.productBrowser"
 				  icon="icons/plus.png"
