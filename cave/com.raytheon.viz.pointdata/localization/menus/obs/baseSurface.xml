@@ -20,16 +20,16 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<contribute xsi:type="bundleItem" file="bundles/SurfaceColorTemp.xml" 
-		menuText="Surface Temperature" id="MetarPlot">
+		menuText="Surface Temperature" id="SurfaceColorTemp">
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/SurfacePlotWinds.xml"
-			menuText="Surface Winds" id="MetarPlot">
+			menuText="Surface Winds" id="SurfacePlotWinds">
     </contribute>
 	<contribute xsi:type="bundleItem" file="bundles/SurfacePlotMetar.xml"
-			menuText="METAR Station Plot" id="MetarPlot">
+			menuText="METAR Station Plot" id="SurfacePlotMetar">
     </contribute>
 	<contribute xsi:type="bundleItem" file="bundles/SurfaceMSLP.xml" 
-			menuText="METAR MSLP Plot" id="MetarPlot">
+			menuText="METAR MSLP Plot" id="SurfaceMSLP">
 	</contribute> 
 	<contribute xsi:type="bundleItem" file="bundles/MetarPrecipPlot.xml" 
            menuText="METAR 24hr Precip" id="24HrPrecip">
@@ -63,8 +63,8 @@
 	    <substitute key="negOffset" value="1800"/> 
 	</contribute>
 	<contribute xsi:type="subMenu" menuText="Other Plots">
-		<contribute xsi:type="bundleItem" file="bundles/15minSurfacePlot.xml"
-			menuText="15 min METARs" id="15MinSurfacePlot" />
+	    <contribute xsi:type="bundleItem" file="bundles/15minSurfacePlot.xml"
+               menuText="15 min METARs" id="15MinSurfacePlot" />
 	    <contribute xsi:type="bundleItem" file="bundles/MetarPlot.xml" 
                menuText="24Hr Chg" id="24HrChg">
 	        <substitute key="svg" value="metar24ChgDesign.svg"/>
