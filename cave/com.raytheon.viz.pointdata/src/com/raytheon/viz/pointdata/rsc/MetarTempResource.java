@@ -275,7 +275,7 @@ public class MetarTempResource extends
         preferences.addEntry(entry);
 
         entry = new DataMappingEntry();
-        entry.setDisplayValue(50.);
+        entry.setDisplayValue(50.5);
         entry.setPixelValue(3.0);
         preferences.addEntry(entry);
 

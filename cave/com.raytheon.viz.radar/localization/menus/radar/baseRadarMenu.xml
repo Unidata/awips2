@@ -25,13 +25,13 @@
                 menuText="DHR - Digital Hybrid Reflectivity" id="DHR">
         <substitute key="element" value="DHR"/>
         <substitute key="colormap" value="Radar/DHR"/>
-		<substitute key="interpolate" value="false"/>
+		<substitute key="interpolate" value="true"/>
     </contribute>
 	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
                 menuText="DVL - Digital VIL" id="DVL">
         <substitute key="element" value="DVL"/>
         <substitute key="colormap" value="Radar/OSF/Digital VIL"/>
-		<substitute key="interpolate" value="false"/>
+		<substitute key="interpolate" value="true"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
                 menuText="EET - Enhanced Echo Tops" id="EET">
