@@ -138,10 +138,6 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.viz.useradmin.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.uf.viz.kml.export.feature"
          version="0.0.0"/>
 
@@ -223,10 +219,6 @@
 
    <includes
          id="com.raytheon.uf.viz.bmh.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.useradmin.feature"
          version="0.0.0"/>
 
    <includes

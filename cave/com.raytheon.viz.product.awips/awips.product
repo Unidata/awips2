@@ -87,7 +87,6 @@
       <feature id="com.raytheon.uf.viz.nwsauth.feature"/>
       <feature id="com.raytheon.uf.viz.archive.feature"/>
       <feature id="com.raytheon.uf.viz.gisdatastore.feature"/>
-      <feature id="com.raytheon.uf.viz.useradmin.feature"/>
       <feature id="com.raytheon.viz.dataaccess.feature"/>
       <feature id="com.raytheon.uf.viz.localization.perspective.feature"/>
       <feature id="com.raytheon.uf.viz.core.feature"/>
