@@ -14,18 +14,19 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-data @user.home/Library/caveData -user @user.home/Library/caveData -clean -consoleLog -component thinclient -alertviz
+      <programArgs>-data @user.home/Library/CAVE -user @user.home/Library/CAVE -clean -consoleLog -component thinclient -alertviz
       </programArgs>
       <vmArgs>-Xmx4536M
 -XX:+UseG1GC
 -XstartOnFirstThread
 -Dosgi.instance.area.readOnly=true
+-Djava.library.path=lib/ext
 -Dorg.eclipse.update.reconcile=false
 -Dorg.eclipse.ui/KEY_CONFIGURATION_ID=com.raytheon.viz.ui.cave.scheme
 -Dqpid.dest_syntax=BURL
 -Dlogback.configurationFile=logback-viz-core-developer.xml
 -Dlogback.statusListenerClass=com.raytheon.uf.common.logback.UFLogbackInternalStatusListener
--Dthrift.stream.maxsize=800
+-Dthrift.stream.maxsize=400
 -Dviz.memory.warn.threshold=99
 -Dorg.eclipse.swt.internal.gtk.cairoGraphics=false
 -Dhttps.certificate.check=false
@@ -58,7 +59,8 @@
    </launcher>
 
    <vm>
-      <windows include="true">jdk1.7.0</windows>
+      <macos include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</macos>
+      <windows include="true">JavaSE-1.8</windows>
    </vm>
 
    <plugins>

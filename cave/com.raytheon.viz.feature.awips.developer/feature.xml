@@ -92,7 +92,7 @@
    <includes
          id="com.raytheon.uf.viz.satellite.goesr.feature"
          version="0.0.0"/>
-   
+
    <includes
          id="com.raytheon.uf.viz.ncep.core.feature"
          version="0.0.0"/>
@@ -162,19 +162,7 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.viz.avnfps.feature"
-         version="0.0.0"/>
-<!--
-   <includes
-         id="com.raytheon.uf.viz.dat.feature"
-         version="0.0.0"/>
--->
-   <includes
          id="com.raytheon.uf.viz.d2d.gfe.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.collaboration.feature"
          version="0.0.0"/>
 
    <includes
@@ -200,11 +188,7 @@
    <includes
          id="com.raytheon.uf.viz.d2d.damagepath.feature"
          version="0.0.0"/>
-<!--
-   <includes
-         id="gov.noaa.gsd.viz.hazards.feature"
-         version="0.0.0"/>
--->
+
    <includes
          id="com.raytheon.uf.viz.ncep.npp.feature"
          version="0.0.0"/>
@@ -215,10 +199,6 @@
 
    <includes
          id="com.raytheon.uf.viz.grib.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.bmh.feature"
          version="0.0.0"/>
 
    <includes

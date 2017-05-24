@@ -24,9 +24,9 @@
 -Dorg.eclipse.swt.internal.gtk.cairoGraphics=false
 -Dorg.eclipse.ui/KEY_CONFIGURATION_ID=com.raytheon.viz.ui.cave.scheme
 -Dqpid.dest_syntax=BURL
--Dlogback.configurationFile=logback-viz-core.xml
+-Dlogback.configurationFile=logback-viz-core-developer.xml
 -Dlogback.statusListenerClass=com.raytheon.uf.common.logback.UFLogbackInternalStatusListener
--Dthrift.stream.maxsize=200
+-Dthrift.stream.maxsize=400
 -Dviz.memory.warn.threshold=98
 -Dhttps.certificate.check=true
 -XX:+UnlockExperimentalVMOptions
@@ -108,7 +108,6 @@
       <feature id="com.raytheon.viz.text.feature"/>
       <feature id="com.raytheon.viz.warngen.feature"/>
       <feature id="com.raytheon.viz.gfe.feature"/>
-      <!-- <feature id="com.raytheon.uf.viz.dat.feature"/> -->
       <feature id="com.raytheon.uf.viz.d2d.ui.awips.feature"/>
       <feature id="com.raytheon.uf.viz.d2d.gfe.feature"/>
       <feature id="com.raytheon.uf.viz.ncep.dataplugins.feature"/>
