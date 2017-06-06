@@ -80,6 +80,7 @@
                   value="PLANVIEW">
             </parameter>
          </command>
+	<!--
          <command
                commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef"
                label="Cross Sections">
@@ -120,6 +121,7 @@
                   value="SOUNDING">
             </parameter>
          </command>
+	-->
          <separator
                name="afterVB"
                visible="false">
