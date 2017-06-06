@@ -39,6 +39,7 @@
 # Aug 03, 2015  #4694     dlovely     Logback will now add user.home to LOGDIR
 # Sep 16, 2015  #4869     bkowal      Read dynamic CAVE version information at startup.
 # Apr 28, 2016  #5609     bkowal      Specify the location of the java.io.tmpdir as a jvm arg.
+# Nov  3, 2016  19508     Qinglu Lin  Export proper TEXTWS if no matching XT in XT_WORKSTATIONS for LX.
 #
 
 
@@ -88,6 +89,11 @@ export HYDRO_APPS_DIR="/awips2/edex/data/share/hydroapps"
 
 export EDEX_HOME=/awips2/edex 
 export LOCALIZATION_ROOT=~/caveData/common
+export PGSQL_DRIVER_DIR=`ls -1d /awips2/cave/plugins/org.postgres_*` 
+if [ $? -ne 0 ]; then
+   echo "FATAL: Unable to locate the PostgreSQL JDBC Driver."
+   exit 1
+fi
 export apps_dir=${HYDRO_APPS_DIR} 
 
 SWITCHES=($SWITCHES)
@@ -104,7 +110,8 @@ if [ -f ${CAVE_INSTALL}/awipsVersion.txt ]; then
    IFS=${prevIFS}
 fi
 
-export TEXTWS=`hostname`
+TEXTWS=`hostname`
+export TEXTWS
 
 hostName=`hostname -s`
 
@@ -194,11 +201,12 @@ if [ ! -d $FULL_LOGDIR ]; then
 fi
 
 # delete any old disk caches in the background
-#deleteOldCaveLogs &
+deleteOldCaveLogs &
 
 curTime=`date +%Y%m%d_%H%M%S`
 
 pid=$!
+export LOGFILE_STARTUP_SHUTDOWN="$FULL_LOGDIR/${PROGRAM_NAME}_${pid}_${curTime}_pid_%PID%_startup-shutdown.log"
 
 createEclipseConfigurationDir
 TMP_VMARGS="--launcher.appendVmargs -vmargs -Djava.io.tmpdir=${eclipseConfigurationDir}"
@@ -206,8 +214,12 @@ TMP_VMARGS="--launcher.appendVmargs -vmargs -Djava.io.tmpdir=${eclipseConfigurat
 # At this point fork so that log files can be set up with the process pid and
 # this process can log the exit status of cave.
 (
+  # can we write to log directory
+  if [ -w $FULL_LOGDIR ]; then
+    touch ${LOGFILE_STARTUP_SHUTDOWN}
+  fi
 
-  # remove "-noredirect" flag from command-line if set so it doesn't confuse any
+  # remove "-noredirect" flag from command-line if set so it does not confuse any
   # commands we call later.
   redirect="true"
   USER_ARGS=()
@@ -234,6 +246,9 @@ TMP_VMARGS="--launcher.appendVmargs -vmargs -Djava.io.tmpdir=${eclipseConfigurat
     nohup ${CAVE_INSTALL}/monitorThreads.sh $pid >> /dev/null 2>&1 &
   fi
 
+  echo "Launching cave application using the following command: " >> ${LOGFILE_STARTUP_SHUTDOWN}
+  echo "${CAVE_INSTALL}/cave ${CAVE_INI_ARG} ${SWITCHES[@]} ${USER_ARGS[@]} ${TMP_VMARGS} ${VERSION_ARGS[@]}" >> ${LOGFILE_STARTUP_SHUTDOWN}
+
   if [[ "${redirect}" == "true" ]] ; then
      # send output to /dev/null because the logback CaveConsoleAppender will capture that output 
     exec ${CAVE_INSTALL}/cave ${CAVE_INI_ARG} "${SWITCHES[@]}" "${USER_ARGS[@]}" ${TMP_VMARGS} "${VERSION_ARGS[@]}" >> /dev/null 2>&1
@@ -242,4 +257,7 @@ TMP_VMARGS="--launcher.appendVmargs -vmargs -Djava.io.tmpdir=${eclipseConfigurat
     exec ${CAVE_INSTALL}/cave ${CAVE_INI_ARG} "${SWITCHES[@]}" "${USER_ARGS[@]}" ${TMP_VMARGS} "${VERSION_ARGS[@]}" 2>&1
   fi
 ) &
+
+pid=$!
+logExitStatus $pid $LOGFILE_STARTUP_SHUTDOWN
 
