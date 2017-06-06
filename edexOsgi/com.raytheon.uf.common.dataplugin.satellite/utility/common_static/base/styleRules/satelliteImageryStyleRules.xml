@@ -104,7 +104,7 @@
         <minValue>0</minValue>
         <maxValue>255</maxValue>
      </range>
-      <defaultColormap>Sat/VIS/ZA (Vis Default)</defaultColormap>
+      <defaultColormap>Sat/VIS/Linear</defaultColormap>
   </imageStyle>
 </styleRule>
 <styleRule>
