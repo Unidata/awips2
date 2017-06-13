@@ -1015,8 +1015,8 @@
                 <h1 id="unidata-awips-user-manual">Unidata AWIPS User Manual<a class="headerlink" href="#unidata-awips-user-manual" title="Permanent link"></a></h1>
 <hr />
 <p><a href="http://www.unidata.ucar.edu/software/awips2/">Unidata AWIPS</a> is a meteorological display and analysis package originally developed by the <a href="http://www.nws.noaa.gov/ost/SEC/AE/">National Weather Service</a> and <a href="http://www.raytheon.com/capabilities/products/awips/">Raytheon</a>, repackaged by Unidata to support non-operational use in research and education by <a href="http://president.ucar.edu/governance/members/universities-representatives">UCAR member institutions</a>.</p>
-<p>AWIPS takes a unified approach to data ingest, and most data types follow a path through the system starting with an <a href="#ldm">LDM</a> client requesting data from the <a href="http://www.unidata.ucar.edu/projects/#idd">Unidata IDD</a>. These data files are then decoded and stored as HDF5 and Postgres metadata by <a href="./install/install-edex.html">EDEX</a>. </p>
-<p>Unidata supports two visualization frameworks for rendering data: <a href="./install/install-cave.html">CAVE</a>, and the Python Data Access Framework (<a href="http://python-awips.readthedocs.io">python-awips</a>).</p>
+<p>AWIPS takes a unified approach to data ingest, and most data types follow a path through the system starting with an <a href="#ldm">LDM</a> client requesting data from the <a href="http://www.unidata.ucar.edu/projects/#idd">Unidata IDD</a>. These data files are then decoded and stored as HDF5 and Postgres metadata by <a href="./install/install-edex/">EDEX</a>. </p>
+<p>Unidata supports two visualization frameworks for rendering data: <a href="./install/install-cave/">CAVE</a>, and the Python Data Access Framework (<a href="http://python-awips.readthedocs.io">python-awips</a>).</p>
 <hr />
 <h2 id="download-cave">Download CAVE<a class="headerlink" href="#download-cave" title="Permanent link"></a></h2>
 <hr />
@@ -1062,7 +1062,7 @@
 </tr>
 </tbody>
 </table>
-<p><a href="./install/install-edex.html">Read full EDEX install instructions...</a></p>
+<p><a href="./install/install-edex">Read full EDEX install instructions...</a></p>
 <hr />
 <h2 id="license">License<a class="headerlink" href="#license" title="Permanent link"></a></h2>
 <p>Unidata AWIPS source code and binaries (RPMs) are considered to be in the public domain, meaning there are no restrictions on any download, modification, or distribution in any form (original or modified).  Unidata AWIPS contains no proprietery content and is therefore not subject to export controls as stated in the <a href="https://github.com/Unidata/awips2/blob/unidata_16.2.2/rpms/legal/Master_Rights_File.pdf">Master Rights</a> licensing file. </p>
@@ -1084,12 +1084,12 @@
 <h3 id="edex">EDEX<a class="headerlink" href="#edex" title="Permanent link"></a></h3>
 <p>The main server for AWIPS.  Qpid sends alerts to EDEX when data stored by the LDM is ready for processing.  These Qpid messages include file header information which allows EDEX to determine the appropriate data decoder to use.  The default ingest server (simply named ingest) handles all data ingest other than grib messages, which are processed by a separate ingestGrib server.  After decoding, EDEX writes metadata to the database via Postgres and saves the processed data in HDF5 via PyPIES.   A third EDEX server, request, feeds requested data to CAVE clients. EDEX ingest and request servers are started and stopped with the commands <code>edex start</code> and <code>edex stop</code>, which runs the system script <code>/etc/rc.d/init.d/edex_camel</code></p>
 <ul>
-<li><a href="./install/install-edex.html">Read More: How to Install EDEX</a></li>
+<li><a href="./install/install-edex">Read More: How to Install EDEX</a></li>
 </ul>
 <h3 id="cave">CAVE<a class="headerlink" href="#cave" title="Permanent link"></a></h3>
 <p>Common AWIPS Visualization Environment. The data rendering and visualization tool for AWIPS. CAVE contains of a number of different data display configurations called perspectives.  Perspectives used in operational forecasting environments include <strong>D2D</strong> (Display Two-Dimensional), <strong>GFE</strong> (Graphical Forecast Editor), and <strong>NCP</strong> (National Centers Perspective). CAVE is started with the command <code>/awips2/cave/cave.sh</code> or <code>cave.sh</code></p>
 <ul>
-<li><a href="./install/install-cave.html">Read More: How to Install CAVE</a></li>
+<li><a href="./install/install-cave">Read More: How to Install CAVE</a></li>
 </ul>
 <p><img alt="CAVE" src="http://www.unidata.ucar.edu/software/awips2/images/Unidata_AWIPS2_CAVE.png" /></p>
 <h3 id="ldm">LDM<a class="headerlink" href="#ldm" title="Permanent link"></a></h3>
