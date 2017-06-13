@@ -1,10 +1,3 @@
----
-layout: default
-type: guide
-shortname: Docs
-title: Regular expressions
-subtitle: EDEX Admin
----
 
 AWIPS uses regular expressions for data filtering at two steps in the ingest process:
 

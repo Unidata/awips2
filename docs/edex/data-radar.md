@@ -1,12 +1,3 @@
----
-layout: default
-type: guide
-shortname: Docs
-title: Radar Data
-subtitle: Data Types
----
-
-
 
 ### Level 3 Radar (All)
 

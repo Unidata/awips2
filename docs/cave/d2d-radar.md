@@ -1,11 +1,3 @@
----
-layout: default
-type: guide
-shortname: Docs
-title: Radar Menu
-subtitle: D2D User Guide
----
-
 
 # NEXRAD Radar Display
 

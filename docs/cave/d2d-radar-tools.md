@@ -1,11 +1,5 @@
----
-layout: default
-type: guide
-title: Radar Tools
----
 
 These programs are accessible though the **Tools** dropdown menu, and in individual site radar menus.
-
 
 # Estimated Actual Velocity (EAV)
 

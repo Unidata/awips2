@@ -1,9 +1,3 @@
----
-layout: default
-type: guide
-shortname: Docs
-title: Distributed EDEX in the Cloud
----
 
 An example of a two-server configuration (LDM and EDEX seperately) using Microsoft Azure CentOS 7.2 virtual machines (Unidata EDEX is supported on CentOS/RHEL 7 since 16.2.2).
 

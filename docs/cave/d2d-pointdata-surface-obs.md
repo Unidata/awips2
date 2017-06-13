@@ -1,10 +1,3 @@
----
-layout: default
-type: guide
-title: Surface Obs
-subtitle: D2D User Guide
----
-
 
 Several of the data sets in the Obs menu can be interrogated (sampled) for more detailed information by clicking mouse Button 1 (B1) over a site. These data sets include METAR, Maritime, and Local. The Obs menu is subdivided into sections that contain related products. These sections are described below.
 

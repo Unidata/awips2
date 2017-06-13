@@ -1,11 +1,3 @@
----
-layout: default
-type: guide
-shortname: Docs
-title: Satellite Imagery
-subtitle: D2D User Guide
----
-
 
 # VIIRS
 

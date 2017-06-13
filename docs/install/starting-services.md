@@ -1,7 +1,3 @@
----
-layout: default
-title: Start EDEX Manually
----
 
 All EDEX services are started and stopped with the commands `edex start` and `edex stop`, and individual services can be started in the following order
 

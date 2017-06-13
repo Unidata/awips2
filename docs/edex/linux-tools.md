@@ -1,12 +1,3 @@
----
-layout: default
-type: guide
-shortname: Docs
-title: Linux Tools
-subtitle: EDEX Admin
----
-
-
 
 ## Using Standard Linux Tools 
 

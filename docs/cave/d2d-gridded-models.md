@@ -1,10 +1,3 @@
----
-layout: default
-type: guide
-shortname: Docs
-title: Volume Browser
-subtitle: D2D User Guide
----
 
 The Volume Browser provides access to numerical models, other gridded data, and selected point data sources, such as RAOB, METAR, and Profiler. Through the Browser interface, you can choose the data source(s), field(s), plane(s), and point(s), and generate a customized list of model graphics or images for display.
 

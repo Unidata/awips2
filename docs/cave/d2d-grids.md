@@ -1,10 +1,3 @@
----
-layout: default
-type: guide
-title: Gridded Model Display
-subtitle: D2D User Guide
----
-
 
 # MSLP and Precipitation
 
