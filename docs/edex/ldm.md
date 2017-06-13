@@ -1,5 +1,5 @@
 
-# Default LDM Feeds for EDEX
+## Default LDM Feeds for EDEX
 
 from `/awips2/ldm/etc/ldmd.conf`
 
@@ -16,7 +16,7 @@ from `/awips2/ldm/etc/ldmd.conf`
 
 > Remember than LDM commands such as these require **TAB SEPARATION** between items.
 
-# Optional LDM Feeds
+## Optional LDM Feeds
 
 FNMOC and CMC models
 
@@ -32,13 +32,13 @@ FSL/GSD Experimental HRRR (Sub-hourly)
 
     REQUEST FSL2 "^GRIB2.FSL.HRRR" hrrr.unidata.ucar.edu
 
-# Restart the LDM
+## Restart the LDM
 
     sudo service edex_ldm restart
 
     ldmadmin restart
         
-# Monitor Incoming Data Feeds
+## Monitor Incoming Data Feeds
 
 To watch incoming data in real-time:
 
@@ -52,7 +52,7 @@ To watch the same on a remote queue:
 
     notifyme -vl - -h idd.unidata.ucar.edu -f NEXRAD3 -p DHR -o 360
     
-# Logging
+## LDM Logging
 
     edex log ldm
     

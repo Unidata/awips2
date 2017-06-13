@@ -25,6 +25,29 @@ Unidata supports two visualization frameworks for rendering data: [CAVE](install
 
 ---
 
+## Download CAVE
+
+---
+
+|                |                        |
+|----------------|-----------------------:|
+| Linux x86_64   | [installCAVE.sh <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/software/awips2/installCAVE.sh)         |
+| macOS	         | [awips2-cave-16.2.2.dmg <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/downloads/awips2/awips2-cave-16.2.2.dmg)|
+| 32-bit Windows | [awips-cave.msi <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi)        |
+| 64-bit Windows | [awips-cave.amd64.msi <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/downloads/awips2/awips-cave.amd64.msi)  |
+
+---
+
+## Download EDEX Data Server
+
+|                |                        |
+|----------------|-----------------------:|
+| Linux x86_64   | [installEDEX.sh <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/software/awips2/installEDEX.sh)         |
+
+[Read full EDEX install instructions...](install/install-edex.html)
+
+---
+
 ## License
 
 Unidata AWIPS source code and binaries (RPMs) are considered to be in the public domain, meaning there are no restrictions on any download, modification, or distribution in any form (original or modified).  Unidata AWIPS contains no proprietery content and is therefore not subject to export controls as stated in the [Master Rights](https://github.com/Unidata/awips2/blob/unidata_16.2.2/rpms/legal/Master_Rights_File.pdf) licensing file. 
