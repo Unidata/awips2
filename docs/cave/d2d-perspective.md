@@ -6,7 +6,7 @@ D2D (Display 2-Dimensions) is the default AWIPS CAVE perspective, designed to mi
 
 System menus include **CAVE**, **File**, **View**, **Options**, **Tools**, and **Help** (far right)
 
-Data menus include **[Models](d2d-grids.html)**, **[Surface](d2d-obs.html)**, **[NCEP/Hydro](d2d-hydro.html)**, **[Upper Air](d2d-uair.html)**, **[Satellite](d2d-satellite.html)**, **[Radar](d2d-radar.html)**, **[MRMS](d2d-mrms.html)**, and **[Maps](d2d-maps.html)**.
+Data menus include **[Models](d2d-grids)**, **[Surface](d2d-obs)**, **[NCEP/Hydro](d2d-hydro)**, **[Upper Air](d2d-uair)**, **[Satellite](d2d-satellite)**, **[Radar](d2d-radar)**, **[MRMS](d2d-mrms)**, and **[Maps](d2d-maps)**.
 
 Frame control, map projection, image properties, and a few featured applications (**Warngen**, **Nsharp**, **Ncdata**, and **Browser**) make up the the primary D2D toolbar.  
 

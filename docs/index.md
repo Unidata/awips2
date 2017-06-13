@@ -19,9 +19,9 @@
 
 [Unidata AWIPS](http://www.unidata.ucar.edu/software/awips2/) is a meteorological display and analysis package originally developed by the [National Weather Service](http://www.nws.noaa.gov/ost/SEC/AE/) and [Raytheon](http://www.raytheon.com/capabilities/products/awips/), repackaged by Unidata to support non-operational use in research and education by [UCAR member institutions](http://president.ucar.edu/governance/members/universities-representatives).
 
-AWIPS takes a unified approach to data ingest, and most data types follow a path through the system starting with an [LDM](#ldm) client requesting data from the [Unidata IDD](http://www.unidata.ucar.edu/projects/#idd). These data files are then decoded and stored as HDF5 and Postgres metadata by [EDEX](install/install-edex.html). 
+AWIPS takes a unified approach to data ingest, and most data types follow a path through the system starting with an [LDM](#ldm) client requesting data from the [Unidata IDD](http://www.unidata.ucar.edu/projects/#idd). These data files are then decoded and stored as HDF5 and Postgres metadata by [EDEX](install/install-edex/). 
 
-Unidata supports two visualization frameworks for rendering data: [CAVE](install/install-cave.html), and the Python Data Access Framework ([python-awips](http://python-awips.readthedocs.io)).
+Unidata supports two visualization frameworks for rendering data: [CAVE](install/install-cave/), and the Python Data Access Framework ([python-awips](http://python-awips.readthedocs.io)).
 
 ---
 
@@ -44,7 +44,7 @@ Unidata supports two visualization frameworks for rendering data: [CAVE](install
 |----------------|-----------------------:|
 | Linux x86_64   | [installEDEX.sh <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/software/awips2/installEDEX.sh)         |
 
-[Read full EDEX install instructions...](install/install-edex.html)
+[Read full EDEX install instructions...](install/install-edex)
 
 ---
 
@@ -76,13 +76,13 @@ In addition to programs developed specifically for AWIPS, AWIPS uses several com
 
 The main server for AWIPS.  Qpid sends alerts to EDEX when data stored by the LDM is ready for processing.  These Qpid messages include file header information which allows EDEX to determine the appropriate data decoder to use.  The default ingest server (simply named ingest) handles all data ingest other than grib messages, which are processed by a separate ingestGrib server.  After decoding, EDEX writes metadata to the database via Postgres and saves the processed data in HDF5 via PyPIES.   A third EDEX server, request, feeds requested data to CAVE clients. EDEX ingest and request servers are started and stopped with the commands `edex start` and `edex stop`, which runs the system script `/etc/rc.d/init.d/edex_camel`
 
-* [Read More: How to Install EDEX](install/install-edex.html)
+* [Read More: How to Install EDEX](install/install-edex)
 
 ### CAVE
 
 Common AWIPS Visualization Environment. The data rendering and visualization tool for AWIPS. CAVE contains of a number of different data display configurations called perspectives.  Perspectives used in operational forecasting environments include **D2D** (Display Two-Dimensional), **GFE** (Graphical Forecast Editor), and **NCP** (National Centers Perspective). CAVE is started with the command `/awips2/cave/cave.sh` or `cave.sh`
 
-* [Read More: How to Install CAVE](install/install-cave.html)
+* [Read More: How to Install CAVE](install/install-cave)
 
 ![CAVE](http://www.unidata.ucar.edu/software/awips2/images/Unidata_AWIPS2_CAVE.png)
 
