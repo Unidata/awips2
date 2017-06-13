@@ -397,14 +397,20 @@
     </model>
 
     <model>
-        <name>ETA${COVERAGE}</name>
+        <name>AK-NAM11</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grids>
-            <id>207</id>
-            <id>218</id>
-            <id>242</id>
-        </grids>
+        <grid>242</grid>
+        <process>
+            <id>84</id>
+        </process>
+    </model>
+
+    <model>
+        <name>AK-NAM95</name>
+        <center>7</center>
+        <subcenter>0</subcenter>
+        <grid>207</grid>
         <process>
             <id>84</id>
         </process>
