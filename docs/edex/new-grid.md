@@ -7,7 +7,7 @@ To add support for a new grid, two edits must be made:
 * **Grid name**, **center**, **subcenter**, and **process ID** must be defined in a *model definition file*.
  
 
-# Ingest an Unsupported Grid
+## Ingest an Unsupported Grid
 
 1. Download an example grib1 file and rename to a `*.grib` extension, then copy to the manual ingest point `/awips2/data_store/ingest/` 
 
@@ -34,7 +34,7 @@ To add support for a new grid, two edits must be made:
 
     Though the grib file has been decoded, it has been given a generic name with its center, subcenter, and process IDs (7, 0, 89, respectively). 
 
-# Determine Grid Projection
+## Determine Grid Projection
 
 When the grid was ingested a record was added to the `grid_coverage` table with its navigation information:
 
@@ -61,7 +61,7 @@ Compare with the projection info returned by wgrib on the original file:
 
 Notice that our grib1 file is a **Lambert Conformal** projection.  We will need these values for the next step. Note that **there is a tolerance of +/- 0.1 degrees** to keep in mind when defining your coverage area.
 
-# Create Grid Projection File
+## Create Grid Projection File
     
 Grid projection files are stored in `/awips2/edex/data/utility/edex_static/base/grib/grids/` and there are four grid coverage types available:
 
@@ -170,7 +170,7 @@ And edit the new `wrf.xml` to define the projection values (example provided):
 
 > Notice `<name>201155</name>` defined from the number of grid points (201 x 155). This value will be matched against an entry in our models file (below) to set the name of the model (e.g. WRF).
 
-# Create Model Definition 
+## Create Model Definition 
 
 Model definition XML files are found in **/awips2/edex/data/utility/edex_static/base/grid/models/**. Since our grib1 file has a center ID of 7 (NCEP) we will edit the **gribModels_NCEP-7.xml** file.
 
@@ -202,7 +202,7 @@ Now copy the `wrf.grib` file *again* to **/awips2/data_store/ingest/**.  If ever
 
 After you have confirmed that the grid was ingested with the given name, you can [edit the D2D product menus to display the new grid](../cave/d2d-edit-menus.html).
 
-# Troubleshooting Grib Ingest
+## Troubleshooting Grib Ingest
 
 If you ingest a piece of data and the parameter appears as unknown in the metadata database, ensure that the correct parameter tables are in place for the center/subcenter.
 

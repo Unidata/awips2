@@ -1,5 +1,4 @@
 
-
 The Geographic Information System (GIS) application enables users to import geospatial data from varying GIS data sources for display in CAVE. CAVE currently only supports shape data in WGS84 unprojected latitude/longitude.
 
 This section describes how to start the GIS application, configure the display attributes, and navigate through the various dialogs for importing map/map product shapefiles for display within CAVE. The following topics are discussed:

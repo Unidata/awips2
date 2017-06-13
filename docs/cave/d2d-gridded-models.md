@@ -10,7 +10,7 @@ The Volume Browser window is divided into four areas:
 
 Each area is then subdivided into menu components. The menu bar along the top of the Volume Browser window has dropdown lists that contain options for controlling all the various menu choices of the Volume Browser.
 
-# Volume Browser Menu Bar
+## Volume Browser Menu Bar
 
 The dropdown menus in the Volume Browser menu bar contain options for controlling and manipulating the Volume Browser or the products chosen through the Volume Browser
 
@@ -26,7 +26,7 @@ The dropdown menus in the Volume Browser menu bar contain options for controllin
     * Select All
     * Find (Ctrl+F)
     
-# VB Tools
+## VB Tools
 
 >### Baselines
 
@@ -55,7 +55,7 @@ Points may be created, deleted, hidden, and manipulated (location, name, font, a
 not limited in terms of number, location, or designation. Points may also be assigned to different
 groups to facilitate their use.
 
-# Display Types
+## Display Types
 
 >### Plan View (default)
 
@@ -82,7 +82,7 @@ Works in conjunction with the Interactive Points Tool to enable you to generate 
 
 Used in conjunction with the Interactive Points Tool to enable you to plot gridded data on a time versus data value graph for a specified point.
 
-# Animation Types
+## Animation Types
 
 >### Time
 

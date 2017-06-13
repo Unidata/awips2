@@ -32,25 +32,23 @@ pages:
 - CAVE User Manual:
     - D2D Perspective: cave/d2d-perspective.md
     - Maps, Views, Projections: cave/maps-views-projections.md
-#    - Bundles and Procedures: cave/bundles-and-procedures.md
+    - Bundles and Procedures: cave/bundles-and-procedures.md
+    - Import/Export: cave/import-export.md
     - Localization Perspective: cave/localization-perspective.md
     - NCP Perspective: cave/ncp-perspective.md
     - NSHARP: cave/nsharp.md
     - WarnGen: cave/warngen.md
     - GIS and Shapefiles: cave/d2d-gis-shapefiles.md
     - Volume Browser: cave/d2d-gridded-models.md
-#    - Derived Parameters: cave/d2d-gridded-models.md
-#    - GEMPAK Grid Display: cave/d2d-gridded-models.md
     - Display Tools: cave/d2d-tools.md
     - Radar Tools: cave/d2d-radar-tools.md
     - Editing Menus: cave/d2d-edit-menus.md
     - Change Localization: cave/cave-localization.md
-    - Keyboard Shortcuts: cave/cave-keyboard-shortcuts.md
 - EDEX User Manual:
     - EDEX Start and Stop: install/start-edex.md
     - LDM Feeds: edex/ldm.md
+    - Data Distribution Files: edex/data-distribution-files.md
     - Ingest a New Grid: edex/new-grid.md
-    - Data Distribution Files: devguide/data-distribution-files.md
     - Purging and Retention: edex/data-purge.md
     - Monitor Users: edex/edex-users.md
     - Data Plugins: edex/data-plugins.md
@@ -62,11 +60,15 @@ pages:
     - Upper Air: cave/d2d-uair.md
     - NCEP/Hydro: cave/d2d-hydro.md
     - Map Overlays: cave/d2d-map-resources.md
+- Python:
+    - Derived Parameters: python/derived-parameters.md
+    - Python AWIPS API: python/python-awips-data-access.md
 - Appendix:
     - AWIPS Grid Parameters: appendix/appendix-grid-parameters.md
     - Acronyms and Abbreviations: appendix/appendix-acronyms.md
     - COTS and FOSS: appendix/appendix-cots.md
     - WSR-88D Product Table: appendix/appendix-wsr88d.md
+    - Keyboard Shortcuts: cave/cave-keyboard-shortcuts.md
 
 extra_css:
     - css/extra.css
