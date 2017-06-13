@@ -1,10 +1,3 @@
----
-layout: default
-type: guide
-shortname: Docs
-title: NCEP/Hydro Menu
-subtitle: D2D User Guide
----
 
 The NCEP/Hydro menu contains nine sections: SPC, TPC, NCO, HPC, MPC, CPC, AWC, Hydro, and Local Analyses/Statistical Guidance. Each section is further subdivided into related products, as described below. For more information on hydro products, refer to documentation prepared by the NWS' Office of Hydrology.
 

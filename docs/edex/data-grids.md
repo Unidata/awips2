@@ -1,35 +1,9 @@
----
-layout: default
-type: guide
-shortname: Docs
-title: Gridded Data
-subtitle: Data Types
----
-
 
 # Available IDD Grids
 
 The file `/awips2/ldm/etc/pqact.conf` defines which grids the LDM will request for EDEX ingest.  After editing this file (as user `awips`) you should run `ldmadmin pqactHUP` to re-read the new edits (`ldmadmin restart` will also work).
-
-
-
-## DGEX
-
-### DGEX CONUS 12km
-
-    NGRID   ^[LM].E... KWBD ...... !grib2/[^/]*/([^/]*)/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
-            FILE    -edex -log
-            /awips2/data_store/grid/DGEX/DGEX_CONUS_12km_\1_\2_\3Z_\4_\5-(seq).grib2
-
-### AK-DGEX Alaska 12km
-
-    NGRID   ^[LM].F... KWBD ...... !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
-            FILE    -edex -log
-            /awips2/data_store/grid/AK-DGEX/DGEX_Alaska_12km_\1_\2Z_\3_\4-(seq).grib2
         
 ## GFS
-
-
 
 ### GFS Global 0.25 degree
 

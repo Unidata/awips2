@@ -1,10 +1,3 @@
----
-layout: default
-type: guide
-shortname: Docs
-title: File system directories
-subtitle: EDEX Admin
----
 
 The major file systems on the Linux-OS EDEX Data Server are as follows:
 

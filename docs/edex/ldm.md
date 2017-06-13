@@ -1,12 +1,3 @@
----
-layout: default
-type: guide
-shortname: Docs
-title: Default LDM feeds
-subtitle: EDEX Admin
----
-
-
 
 # Default LDM Feeds for EDEX
 

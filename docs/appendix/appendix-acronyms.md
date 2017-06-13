@@ -1,9 +1,3 @@
----
-layout: default
-type: guide
-title: Acronyms and Abbreviations
----
-
 ## A
 
 * ACARS - Aircraft Communications Addressing and Reporting System

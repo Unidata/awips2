@@ -1,7 +1,3 @@
----
-layout: default
-title: WSR-88D Products
----
 
 | Product Name  | Mnemonic  | ID  | Levels  | Res | Elevation |
 | -------------  |:--:|:--:|:--:|:-----:|:---:|

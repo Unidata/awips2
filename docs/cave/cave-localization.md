@@ -1,7 +1,3 @@
----
-layout: default
-title: Change CAVE Localization Site
----
 
 # Localization Preferences
 

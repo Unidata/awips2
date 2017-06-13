@@ -1,10 +1,3 @@
----
-layout: default
-type: guide
-shortname: Docs
-title: LDM for AWIPS and GEMPAK
-subtitle: EDEX Admin
----
 
 # LDM for AWIPS and GEMPAK
 

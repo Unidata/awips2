@@ -1,7 +1,3 @@
----
-layout: default
-title: Editing Menus for D2D
----
 
 Any of the data menus can be customized in the Localization Perspective.  
 

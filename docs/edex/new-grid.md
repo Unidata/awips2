@@ -1,9 +1,3 @@
----
-layout: default
-type: guide
-shortname: Docs
-title: Add a New Grid to EDEX
----
 
 Unrecognized grids can be decoded by EDEX simply by dropping `*.grib` or `*.grib2` files into `/awips2/data_store/ingest/`
 

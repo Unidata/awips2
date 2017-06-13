@@ -1,12 +1,5 @@
----
-layout: default
-type: guide
-shortname: Docs
-title: Display Tools
----
 
 These programs are accessible though the **Tools** dropdown menu.
-
 
 ![image](../images/xiXbVEr.png)
 
