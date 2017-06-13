@@ -9,7 +9,7 @@
         <meta name="description" content="Documentation for all things AWIPS.">
       
       
-        <link rel="canonical" href="http://unidata.github.io/awips2/edex/gempak-nex2gini/">
+        <link rel="canonical" href="http://unidata.github.io/awips2/cave/import-export/">
       
       
         <meta name="author" content="mjames@ucar.edu">
@@ -21,7 +21,7 @@
     
     
       
-        <title>GEMPAK and NEX2GINI - Unidata AWIPS User Manual</title>
+        <title>Import/Export - Unidata AWIPS User Manual</title>
       
     
     
@@ -84,19 +84,16 @@
       <div class="md-flex__cell md-flex__cell--stretch">
         <span class="md-flex__ellipsis md-header-nav__title">
           
+            
               
-
-                  
-                      <span class="md-header-nav__parent">
-                      EDEX User Manual
-                      </span>
-                  
- 
-                  
-                      GEMPAK and NEX2GINI
-                  
-
+                <span class="md-header-nav__parent">
+                  CAVE User Manual
+                </span>
               
+            
+            
+              Import/Export
+            
           
         </span>
       </div>
@@ -237,10 +234,12 @@
       
       
 
+  
 
-  <li class="md-nav__item md-nav__item--nested">
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4" checked>
     
     <label class="md-nav__link" for="nav-4">
       CAVE User Manual
@@ -258,7 +257,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-perspective/" title="D2D Perspective" class="md-nav__link">
+    <a href="../d2d-perspective/" title="D2D Perspective" class="md-nav__link">
       D2D Perspective
     </a>
   </li>
@@ -270,7 +269,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/maps-views-projections/" title="Maps, Views, Projections" class="md-nav__link">
+    <a href="../maps-views-projections/" title="Maps, Views, Projections" class="md-nav__link">
       Maps, Views, Projections
     </a>
   </li>
@@ -282,9 +281,74 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/bundles-and-procedures/" title="TODO Bundles and Procedures" class="md-nav__link">
-      TODO Bundles and Procedures
+    <a href="../bundles-and-procedures/" title="Bundles and Procedures" class="md-nav__link">
+      Bundles and Procedures
     </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        Import/Export
+      </label>
+    
+    <a href="./" title="Import/Export" class="md-nav__link md-nav__link--active">
+      Import/Export
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#export-images" title="Export Images" class="md-nav__link">
+    Export Images
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#export-kml" title="Export KML" class="md-nav__link">
+    Export KML
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cave-import-formats" title="CAVE Import Formats" class="md-nav__link">
+    CAVE Import Formats
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cave-export-formats" title="CAVE Export Formats" class="md-nav__link">
+    CAVE Export Formats
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+    
   </li>
 
         
@@ -294,7 +358,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/localization-perspective/" title="Localization Perspective" class="md-nav__link">
+    <a href="../localization-perspective/" title="Localization Perspective" class="md-nav__link">
       Localization Perspective
     </a>
   </li>
@@ -306,7 +370,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/ncp-perspective/" title="NCP Perspective" class="md-nav__link">
+    <a href="../ncp-perspective/" title="NCP Perspective" class="md-nav__link">
       NCP Perspective
     </a>
   </li>
@@ -318,7 +382,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/nsharp/" title="NSHARP" class="md-nav__link">
+    <a href="../nsharp/" title="NSHARP" class="md-nav__link">
       NSHARP
     </a>
   </li>
@@ -330,7 +394,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/warngen/" title="WarnGen" class="md-nav__link">
+    <a href="../warngen/" title="WarnGen" class="md-nav__link">
       WarnGen
     </a>
   </li>
@@ -342,7 +406,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-gis-shapefiles/" title="GIS and Shapefiles" class="md-nav__link">
+    <a href="../d2d-gis-shapefiles/" title="GIS and Shapefiles" class="md-nav__link">
       GIS and Shapefiles
     </a>
   </li>
@@ -354,7 +418,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-gridded-models/" title="Volume Browser" class="md-nav__link">
+    <a href="../d2d-gridded-models/" title="Volume Browser" class="md-nav__link">
       Volume Browser
     </a>
   </li>
@@ -366,31 +430,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-gridded-models/" title="TODO Derived Parameters" class="md-nav__link">
-      TODO Derived Parameters
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../cave/d2d-gridded-models/" title="TODO GEMPAK Grid Display" class="md-nav__link">
-      TODO GEMPAK Grid Display
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../cave/d2d-tools/" title="Display Tools" class="md-nav__link">
+    <a href="../d2d-tools/" title="Display Tools" class="md-nav__link">
       Display Tools
     </a>
   </li>
@@ -402,7 +442,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-radar-tools/" title="Radar Tools" class="md-nav__link">
+    <a href="../d2d-radar-tools/" title="Radar Tools" class="md-nav__link">
       Radar Tools
     </a>
   </li>
@@ -414,7 +454,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-edit-menus/" title="Editing Menus" class="md-nav__link">
+    <a href="../d2d-edit-menus/" title="Editing Menus" class="md-nav__link">
       Editing Menus
     </a>
   </li>
@@ -426,20 +466,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/cave-localization/" title="Change Localization" class="md-nav__link">
+    <a href="../cave-localization/" title="Change Localization" class="md-nav__link">
       Change Localization
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../cave/cave-keyboard-shortcuts/" title="Keyboard Shortcuts" class="md-nav__link">
-      Keyboard Shortcuts
     </a>
   </li>
 
@@ -453,12 +481,10 @@
       
       
 
-  
 
-
-  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+  <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5" checked>
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
     
     <label class="md-nav__link" for="nav-5">
       EDEX User Manual
@@ -488,7 +514,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../ldm/" title="LDM Feeds" class="md-nav__link">
+    <a href="../../edex/ldm/" title="LDM Feeds" class="md-nav__link">
       LDM Feeds
     </a>
   </li>
@@ -500,19 +526,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../new-grid/" title="Ingest a New Grid" class="md-nav__link">
-      Ingest a New Grid
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../devguide/data-distribution-files/" title="Data Distribution Files" class="md-nav__link">
+    <a href="../../edex/data-distribution-files/" title="Data Distribution Files" class="md-nav__link">
       Data Distribution Files
     </a>
   </li>
@@ -524,85 +538,9 @@
 
 
   <li class="md-nav__item">
-    <a href="../data-purge/" title="Purging and Data Retention" class="md-nav__link">
-      Purging and Data Retention
+    <a href="../../edex/new-grid/" title="Ingest a New Grid" class="md-nav__link">
+      Ingest a New Grid
     </a>
-  </li>
-
-        
-          
-          
-          
-
-  
-
-
-  <li class="md-nav__item md-nav__item--active">
-    
-    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
-    
-      
-    
-    
-      <label class="md-nav__link md-nav__link--active" for="toc">
-        GEMPAK and NEX2GINI
-      </label>
-    
-    <a href="./" title="GEMPAK and NEX2GINI" class="md-nav__link md-nav__link--active">
-      GEMPAK and NEX2GINI
-    </a>
-    
-      
-<nav class="md-nav md-nav--secondary">
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="toc">Table of contents</label>
-    <ul class="md-nav__list" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#install-gempak-on-edex" title="Install GEMPAK on EDEX" class="md-nav__link">
-    Install GEMPAK on EDEX
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#gempak-cron-jobs" title="GEMPAK Cron Jobs" class="md-nav__link">
-    GEMPAK Cron Jobs
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#nex2gini-script" title="NEX2GINI Script" class="md-nav__link">
-    NEX2GINI Script
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#manual-ingest" title="Manual Ingest" class="md-nav__link">
-    Manual Ingest
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#display-in-cave" title="Display in CAVE" class="md-nav__link">
-    Display in CAVE
-  </a>
-  
-</li>
-      
-      
-      
-    </ul>
-  
-</nav>
-    
   </li>
 
         
@@ -612,7 +550,19 @@
 
 
   <li class="md-nav__item">
-    <a href="../edex-users/" title="Monitor Users" class="md-nav__link">
+    <a href="../../edex/data-purge/" title="Purging and Retention" class="md-nav__link">
+      Purging and Retention
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../edex/edex-users/" title="Monitor Users" class="md-nav__link">
       Monitor Users
     </a>
   </li>
@@ -624,7 +574,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../data-plugins/" title="Data Plugins" class="md-nav__link">
+    <a href="../../edex/data-plugins/" title="Data Plugins" class="md-nav__link">
       Data Plugins
     </a>
   </li>
@@ -660,7 +610,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-grids/" title="Gridded Model Display" class="md-nav__link">
+    <a href="../d2d-grids/" title="Gridded Model Display" class="md-nav__link">
       Gridded Model Display
     </a>
   </li>
@@ -672,7 +622,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-pointdata-surface-obs/" title="Surface Obs" class="md-nav__link">
+    <a href="../d2d-pointdata-surface-obs/" title="Surface Obs" class="md-nav__link">
       Surface Obs
     </a>
   </li>
@@ -684,7 +634,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-satellite/" title="Satellite Imagery" class="md-nav__link">
+    <a href="../d2d-satellite/" title="Satellite Imagery" class="md-nav__link">
       Satellite Imagery
     </a>
   </li>
@@ -696,7 +646,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-radar/" title="NEXRAD Radar" class="md-nav__link">
+    <a href="../d2d-radar/" title="NEXRAD Radar" class="md-nav__link">
       NEXRAD Radar
     </a>
   </li>
@@ -708,7 +658,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-uair/" title="Upper Air" class="md-nav__link">
+    <a href="../d2d-uair/" title="Upper Air" class="md-nav__link">
       Upper Air
     </a>
   </li>
@@ -720,7 +670,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-hydro/" title="NCEP/Hydro" class="md-nav__link">
+    <a href="../d2d-hydro/" title="NCEP/Hydro" class="md-nav__link">
       NCEP/Hydro
     </a>
   </li>
@@ -732,7 +682,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-map-resources/" title="Map Overlays" class="md-nav__link">
+    <a href="../d2d-map-resources/" title="Map Overlays" class="md-nav__link">
       Map Overlays
     </a>
   </li>
@@ -753,10 +703,58 @@
       <input class="md-toggle md-nav__toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7">
     
     <label class="md-nav__link" for="nav-7">
-      Appendix
+      Python
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
       <label class="md-nav__title" for="nav-7">
+        Python
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../python/derived-parameters/" title="Derived Parameters" class="md-nav__link">
+      Derived Parameters
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../python/python-awips-data-access/" title="Python AWIPS API" class="md-nav__link">
+      Python AWIPS API
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-8" type="checkbox" id="nav-8">
+    
+    <label class="md-nav__link" for="nav-8">
+      Appendix
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-8">
         Appendix
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -810,6 +808,18 @@
   </li>
 
         
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../cave-keyboard-shortcuts/" title="Keyboard Shortcuts" class="md-nav__link">
+      Keyboard Shortcuts
+    </a>
+  </li>
+
+        
       </ul>
     </nav>
   </li>
@@ -829,43 +839,34 @@
 <nav class="md-nav md-nav--secondary">
   
   
-    
-  
   
     <label class="md-nav__title" for="toc">Table of contents</label>
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#install-gempak-on-edex" title="Install GEMPAK on EDEX" class="md-nav__link">
-    Install GEMPAK on EDEX
+  <a href="#export-images" title="Export Images" class="md-nav__link">
+    Export Images
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#gempak-cron-jobs" title="GEMPAK Cron Jobs" class="md-nav__link">
-    GEMPAK Cron Jobs
+  <a href="#export-kml" title="Export KML" class="md-nav__link">
+    Export KML
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#nex2gini-script" title="NEX2GINI Script" class="md-nav__link">
-    NEX2GINI Script
+  <a href="#cave-import-formats" title="CAVE Import Formats" class="md-nav__link">
+    CAVE Import Formats
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#manual-ingest" title="Manual Ingest" class="md-nav__link">
-    Manual Ingest
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#display-in-cave" title="Display in CAVE" class="md-nav__link">
-    Display in CAVE
+  <a href="#cave-export-formats" title="CAVE Export Formats" class="md-nav__link">
+    CAVE Export Formats
   </a>
   
 </li>
@@ -884,119 +885,89 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/Unidata/awips2/edit/master/docs/edex/gempak-nex2gini.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
+                  <a href="https://github.com/Unidata/awips2/edit/master/docs/cave/import-export.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
-                <h1 id="gempaknex2gini-for-edex">GEMPAK/NEX2GINI for EDEX<a class="headerlink" href="#gempaknex2gini-for-edex" title="Permanent link"></a></h1>
-<h2 id="install-gempak-on-edex">Install GEMPAK on EDEX<a class="headerlink" href="#install-gempak-on-edex" title="Permanent link"></a></h2>
-<p>The Unidata AWIPS yum repository includes the latest <a href="https://www.unidata.ucar.edu/software/gempak/">GEMPAK</a> binary, installed with the command:</p>
-<div class="codehilite"><pre><span></span>yum install gempak
-</pre></div>
-
-
-<p>You can also install a version linked against <strong>/awips2/python</strong> to use <a href="https://python-awips.readthedocs.io">python-awips</a> within GEMPAK:</p>
-<div class="codehilite"><pre><span></span>yum install gempak-python
-</pre></div>
-
-
-<h2 id="gempak-cron-jobs">GEMPAK Cron Jobs<a class="headerlink" href="#gempak-cron-jobs" title="Permanent link"></a></h2>
-<p>And example cron job and script for generating a national DAA or DTA radar precipitation composite from individual level3 files:</p>
-<p><strong>crontab -e</strong></p>
-<div class="codehilite"><pre><span></span>*/5 * * * * /awips2/ldm/bin/gini daa &gt;&amp; /dev/null 2&gt;&amp;1
-*/5 * * * * /awips2/ldm/bin/gini dta &gt;&amp; /dev/null 2&gt;&amp;1
-</pre></div>
-
-
-<h2 id="nex2gini-script">NEX2GINI Script<a class="headerlink" href="#nex2gini-script" title="Permanent link"></a></h2>
-<p>The following gini script is bundled with the <strong>awips2-ldm</strong> package and is installed automatically in the latest AWIPS EDEX release, but does not run unless you add it to the cron mentioned above.</p>
-<p>The AWIPS LDM client will write level 3 NEXRAD files to <strong>/awips2/data_store/radar/NIDS</strong> which allows us to override the GEMPAK envvar <strong>$RAD</strong> and allow nex2gini and other programs to find the site files.</p>
-<p>Some notes:</p>
+                  <h1>Import/Export</h1>
+                
+                <h2 id="export-images">Export Images<a class="headerlink" href="#export-images" title="Permanent link"></a></h2>
+<p><strong>File &gt; Export &gt; Image</strong></p>
+<p>which captures a screenshot of the current view</p>
+<p><img alt="image" src="../../images/UxmboZS.png" /></p>
+<hr />
+<h2 id="export-kml">Export KML<a class="headerlink" href="#export-kml" title="Permanent link"></a></h2>
+<p><strong>File &gt; Export &gt; KML</strong></p>
+<p>The "Export" submenu also includes a "KML" option, which allows users to save D2D displays or
+GFE grids in the KML (Keyhole Markup Language) file format. When zipped (compressed), the KML
+file format forms a KMZ file, which can be used in applications such as Google Earth.</p>
+<p><img alt="image" src="../../images/YRP9kOM.png" /></p>
+<p>The KML dialog box includes options to select frames to export. This includes exporting all frames,
+the current/displayed frame, a range of frames, and, in GFE, the selected time range as highlighted in
+the Grid Manager. Additional options are available for selection under the "Other Options" section:</p>
+<ul>
+<li>
+<p><strong>Export Hidden</strong>: When selected, all displayed and hidden products listed in the Product Legend section of the Main Display Pane will be exported.</p>
+</li>
+<li>
+<p><strong>Export Maps</strong>: When selected, all enabled maps displayed within the Main Display Pane will be
+exported.</p>
+</li>
+<li>
+<p><strong>Shade Earth</strong>: When selected, a shaded background is applied to the exported product. If loaded in Google Earth, the earth will be overlaid with a black backdrop, and data will be displayed as it would in D2D with a black background.</p>
+</li>
+<li>
+<p><strong>Show Background Tiles</strong>: When selected, data (such as plot data) will display on top of black
+tiles when loaded in Google Earth.</p>
+</li>
+</ul>
+<hr />
+<h2 id="cave-import-formats">CAVE Import Formats<a class="headerlink" href="#cave-import-formats" title="Permanent link"></a></h2>
+<p>CAVE supported the following geo-referenced data files. CAVE can import the following through formats through the <strong>CAVE</strong> -&gt; <strong>Import</strong> menu.</p>
 <ol>
-<li>The EDEX satellite decoder requires <em>uncompressed</em> GINI files, so use <code>COMPRESS=no</code> </li>
-<li>You can customize <strong>/awips2/ldm/bin/nexrad.tbl</strong> to include a subset of stations for a regional or local composite</li>
-<li>The commands <code>RAD=/awips2/data_store/radar ; export RAD</code> override the GEMPAK environmental variable in order to use files in <code>/awips2/data_store</code></li>
-<li><strong>GDPFUN</strong> must be lower case (e.g. <em>daa</em> and not <em>DAA</em>)</li>
+<li>
+<p><strong>GIS Data</strong></p>
+</li>
+<li>
+<p><strong>BCD File</strong></p>
+</li>
+<li>
+<p><strong>GeoTIFF</strong></p>
+</li>
+<li>
+<p><strong>LPI File</strong></p>
+</li>
+<li>
+<p><strong>SPI File</strong></p>
+</li>
+<li>
+<p><strong>Displays</strong></p>
+</li>
 </ol>
-<p>If you don't have this script already, copy the following to <strong>/awips2/ldm/bin/gini</strong></p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-25
-26
-27
-28
-29
-30</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="ch">#!/bin/bash</span>
-<span class="k">if</span> <span class="o">[[</span> ! -e /home/gempak/GEMPAK7/Gemenviron.profile <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
-  <span class="nb">exit</span>
-<span class="k">fi</span>
-. /home/gempak/GEMPAK7/Gemenviron.profile
-<span class="nv">RAD</span><span class="o">=</span>/awips2/data_store/radar <span class="p">;</span> <span class="nb">export</span> RAD
-<span class="k">if</span> <span class="o">[[</span> ! -e <span class="nv">$OS_BIN</span>/nex2gini <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
-  <span class="nb">exit</span>
-<span class="k">fi</span>
-nex2gini <span class="s">&lt;&lt; EOF</span>
-<span class="s">GRDAREA = 23;-120;47.2634;-63.5664</span>
-<span class="s">PROJ    = lcc/40;-100;40</span>
-<span class="s">KXKY    = 2368;1500</span>
-<span class="s">CPYFIL  =</span>
-<span class="s">GFUNC   = ${1}</span>
-<span class="s">RADTIM  = current</span>
-<span class="s">RADDUR  = 30</span>
-<span class="s">RADFRQ  = 0</span>
-<span class="s">STNFIL  = nexrad.tbl</span>
-<span class="s">RADMODE =</span>
-<span class="s">SATFIL  = nexrcomp_${1}_YYYYMMDD_HHNN</span>
-<span class="s">COMPRESS= no</span>
-<span class="s">r</span>
-
-<span class="s">e</span>
-<span class="s">EOF</span>
-
-<span class="c1"># Move to manual ingest endpoint</span>
-<span class="nv">files</span><span class="o">=</span><span class="k">$(</span>ls <span class="p">|</span> grep <span class="si">${</span><span class="nv">1</span><span class="si">}</span><span class="k">)</span>
-mv <span class="nv">$files</span> /awips2/data_store/ingest/
-</pre></div>
-</td></tr></table>
-
-<h2 id="manual-ingest">Manual Ingest<a class="headerlink" href="#manual-ingest" title="Permanent link"></a></h2>
-<p>The last line moves the created file to <strong>/awips2/data_store/ingest</strong> (previously /awips2/edex/data/manual), and you can confirm decoding by the GINI satellite plugin by watching the satellite log:</p>
-<div class="codehilite"><pre><span></span>edex log satellite
-
-INFO [Ingest.Gini-1] satellite /awips2/data_store/manual/satellite.gini/20170414/18/nexrcomp_daa_20170414_1835 processed in: 0.1620 (sec) Latency: 0.1930 (sec)
-INFO [Ingest.Gini-1] satellite /awips2/data_store/manual/satellite.gini/20170414/18/nexrcomp_dta_20170414_1838 processed in: 0.1570 (sec) Latency: 0.3450 (sec)
-    ...
-</pre></div>
-
-
-<div class="admonition note">
-<p class="admonition-title">NEXRAD composites are GINI images and therefore decoded by the satellite plugin rather than the radar plugin</p>
-</div>
-<h2 id="display-in-cave">Display in CAVE<a class="headerlink" href="#display-in-cave" title="Permanent link"></a></h2>
-<p>In the <strong>CAVE &gt; Radar</strong> menu select the <strong>DAA</strong> or <strong>DTA</strong> product:</p>
-<p><img alt="" src="../../images/radar_menu_daa.png" /></p>
-<p><img alt="" src="../../images/dta_product.png" /></p>
+<p><img alt="image" src="../../images/image_14.png" /></p>
+<hr />
+<h2 id="cave-export-formats">CAVE Export Formats<a class="headerlink" href="#cave-export-formats" title="Permanent link"></a></h2>
+<p>CAVE can export to the following through the <strong>CAVE</strong> -&gt; <strong>Export</strong> menu.</p>
+<ol>
+<li>
+<p><strong>KML</strong></p>
+</li>
+<li>
+<p><strong>Editor Display</strong></p>
+</li>
+<li>
+<p><strong>Perspective Display</strong></p>
+</li>
+<li>
+<p><strong>Capture Current Frame</strong></p>
+</li>
+<li>
+<p><strong>Capture All Frames</strong></p>
+</li>
+<li>
+<p><strong>Print Screen</strong></p>
+</li>
+</ol>
+<p><img alt="image" src="../../images/image_15.png" /></p>
                 
                   
                 
@@ -1015,7 +986,7 @@ INFO [Ingest.Gini-1] satellite /awips2/data_store/manual/satellite.gini/20170414
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href="../data-purge/" title="Purging and Data Retention" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../bundles-and-procedures/" title="Bundles and Procedures" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -1024,19 +995,19 @@ INFO [Ingest.Gini-1] satellite /awips2/data_store/manual/satellite.gini/20170414
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Purging and Data Retention
+                Bundles and Procedures
               </span>
             </div>
           </a>
         
         
-          <a href="../edex-users/" title="Monitor Users" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../localization-perspective/" title="Localization Perspective" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Monitor Users
+                Localization Perspective
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">
