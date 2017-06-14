@@ -20,6 +20,22 @@
     -->
 <?eclipse version="3.2"?>
 <plugin>
+<extension
+		point="org.eclipse.ui.menus">
+		<menuContribution locationURI="menu:tools">
+			<command
+				commandId="com.raytheon.viz.textworkstation.opentextworkstation"
+				label="Text Workstation">
+				<visibleWhen>
+				    <and>
+						<reference
+							definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+						</reference>
+                   </and>
+				</visibleWhen>
+			</command>
+		</menuContribution>
+   </extension>
    <extension
          point="org.eclipse.ui.commands">
       <command
