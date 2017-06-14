@@ -133,7 +133,7 @@ public final class AwipsBrowserModel extends AbstractBrowserModel {
             parseAwipsMasterPil(
                     pathManager.getLocalizationFile(lc, AWIPS_MASTER_PIL));
         }
-        addRadarToMasterPil();
+        //addRadarToMasterPil();
     }
 
     /**
