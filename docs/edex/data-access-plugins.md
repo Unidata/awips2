@@ -1,9 +1,3 @@
----
-layout: default
-type: guide
-title: Unidata AWIPS
-subtitle: EDEX Data Plugins
----
 
 <style>
 td:first-child { font-weight: bold }

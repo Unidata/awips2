@@ -1,8 +1,3 @@
----
-layout: default
-type: guide
-title: Grid Parameters
----
 
 | Abbreviation | Description | Units |
 | ---------|:-----|---------- |

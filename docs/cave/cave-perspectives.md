@@ -1,8 +1,3 @@
----
-layout: default
-title: Perspectives
-subtitle: CAVE User Guide
----
 
 # D2D 
 

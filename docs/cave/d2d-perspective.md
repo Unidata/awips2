@@ -17,42 +17,42 @@ Frame control, map projection, image properties, and a few featured applications
 
 At bottom-right of the map window the the Resource Stack, which displays all loaded resources and map overlays, and allows for interaction and customization with the resource via a **right-click menu**.
 
->#### Left-Click Resource Name to Hide
+> Left-Click Resource Name to Hide
 
 A left click on any resource in the stack will hide the resource and turn the label gray.  Clicking the name again makes the resource visible.
 
 ![image](../images/rASkR3Rp6y.gif)
 
->#### Left-Click Background to Hide Resource Types
+> Left-Click Background to Hide Resource Types
 
 A left click of the mouse anywhere on the map will hide the Resource Stack display names, which may help to declutter the view if a number of data types are loaded at once.
 
->#### Hold-Right-Click Background for Display Menu
+> Hold-Right-Click Background for Display Menu
 
 Holding down the right mouse button anywhere in the map view will open a right-click menu
 
 ![image](../images/rightclickmenu.gif)
 
->#### Show Map Legends
+> Show Map Legends
 
 From the above menu select **Show Map Legends** and watch the Resource Stack show only map resources which are loaded to the view.
 
 ![image](../images/maplayers.png)
 
->#### Toggle 2 or 4-Panel Layout
+> Toggle 2 or 4-Panel Layout
 
 Right-click hold in the view and select **Two Panel Layout** or **Four Panel Layout** to create duplicates of the current view (note that any data loaded to the *view* will be loaded to *both displays within the view*).
 
 From this multi-pane display, hold-right-click again and you will see the **Single Panel Layout** option to switch back to a standard view (defaulting to the left of two, and top-left of four).
 
->#### Sample Loaded Resources
+> Sample Loaded Resources
 
 Most data types have a right-click menu option for reading out the pixel value, displayed as multi-line text for multiple resources.
 
 ![image](../images/ui4fNI3X0C.gif)
 
 
->#### Hold-Right-Click Resource Name for Menu
+> Hold-Right-Click Resource Name for Menu
 
 Drag the mouse over a loaded resource and **hold** the right mouse button until a menu appears (simply clicking the resource with the right mouse button will toggle its visibility).
 

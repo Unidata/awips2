@@ -1,11 +1,3 @@
----
-title: AWIPS Data Delivery
-subtitle: Data Subscription Management
-shortname: Docs
-layout: default
-type: guide 
----
-
 
 PDA: ESPDS Product Distribution & Access
 ESPDS: NOAA/NESDIS Environmental Satellite Processing and Distribution System

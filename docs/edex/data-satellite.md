@@ -1,12 +1,3 @@
----
-layout: default
-type: guide
-shortname: Docs
-title: Satellite Data
-subtitle: Data Types
----
-
-
 
 # Satellite Imagery
     

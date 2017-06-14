@@ -1,7 +1,3 @@
----
-layout: default
-title: Keyboard Shortcuts
----
 
 Action|Command
 ----------------|------------

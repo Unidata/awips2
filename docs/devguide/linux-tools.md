@@ -1,10 +1,3 @@
----
-layout: default
-type: guide
-shortname: Docs
-title: Using Standard Linux Tools
-subtitle: EDEX Admin
----
 
 
 Several standard Linux tools can be used to monitor the EDEX  processes, and for the purposes of this document and the Unidata AWIPS Training Workshop, it is assumed that all are available and that the user has some knowledge of how they are used.  Regardless, this document includes the full command syntax that can be copy and pasted from the document to the terminal.

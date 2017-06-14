@@ -1,9 +1,3 @@
----
-layout: default
-type: guide
-title: Logging Users
-subtitle: EDEX Admin
----
 
 To see a list of clients connecting to your EDEX server, use the `edex users [YYYYMMDD]` command, where `YYYYMMDD` is the optional date string.
 

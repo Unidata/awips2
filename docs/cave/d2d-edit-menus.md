@@ -1,11 +1,7 @@
----
-layout: default
-title: Editing Menus for D2D
----
 
 Any of the data menus can be customized in the Localization Perspective.  
 
-# Changing the models displayed with D2D bundles
+## Changing the models displayed with D2D bundles
 
 1. In the Localization Perspective you can navigate to **D2D** > **Volume Browser** > **VbSources** and click on **volume.xml** to expand. Then right-click on **BASE** and select **Copy To...** **User** (awips).
 
@@ -38,7 +34,7 @@ Your new localization file exists on the EDEX server (assuming username awips) a
 and will exist on the local CAVE machine under `~/caveData/etc/user/awips/volumebrowser/VbSources/index.html`
 
 
-# Removing menus from the menubar
+## Removing menus from the menubar
 
 This example covers how to remove a menu (in this case **MRMS**) from D2D:
 

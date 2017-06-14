@@ -1,8 +1,3 @@
----
-layout: default
-title: GIS Data
-subtitle: D2D User Guide
----
 
 The Geographic Information System (GIS) application enables users to import geospatial data from varying GIS data sources for display in CAVE. CAVE currently only supports shape data in WGS84 unprojected latitude/longitude.
 

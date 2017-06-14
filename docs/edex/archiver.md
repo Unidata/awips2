@@ -1,5 +1,4 @@
 
-
 # Grant Users Permission to Create Case Study Archives
 
 The file `/awips2/edex/data/utility/common_static/base/roles/archiveAdminRoles.xml` controls which users can run the archiving tools from CAVE.

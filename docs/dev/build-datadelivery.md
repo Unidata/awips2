@@ -1,11 +1,3 @@
----
-title: Build AWIPS Data Delivery RPMs
-subtitle: Work Assignment (WA) Features
-shortname: Docs
-layout: default
-type: guide 
----
-
 
 Data Delivery has been implemented into the AWIPS(II) baseline to provide access to data that is not resident locally at a Weather Forecast Office, River Forecast Center, or National Center. Data Delivery gives users the ability to create queries (One Time Requests) and
 subscriptions to data sets (provided OGC / OpenDAP servers such as THREDDS).

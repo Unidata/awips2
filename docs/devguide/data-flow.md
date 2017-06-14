@@ -1,10 +1,4 @@
----
-layout: default
-type: guide
-shortname: Docs
-title: Data flow
-subtitle: EDEX Admin
----
+
 ## Data Receipt
 
 1. The LDM obtains a data product from an upstream LDM site on the IDD.

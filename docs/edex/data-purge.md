@@ -1,12 +1,3 @@
----
-layout: default
-type: guide
-shortname: Docs
-title: EDEX Data Purging
----
-
-
-
 
 AWIPS uses a plugin-based purge strategy for HDF5 data, allowing the user to change the purge frequency for each plugin individually, and specific products for a particular plugin.
 
@@ -14,7 +5,7 @@ AWIPS uses a plugin-based purge strategy for HDF5 data, allowing the user to cha
 
 Purging rules are defined in XML files in the Localization Store, accessible from the CAVE localization perspective. On EDEX, most are located in `/awips2/edex/data/utility/common_static/base/purge`, and follow the **base/site** localization pattern (e.g. site purge files are in `site/XXX/purge` rather than `base/purge`, where XXX is the site identifier.
 
-# Time-base purge
+## Time-base purge
 
 If a plugin has no XML file, the default rule of 1 day (24 hours) is used, from `/awips2/edex/data/utility/common_static/base/purge/defaultPurgeRules.xml` 
 
@@ -27,19 +18,20 @@ If a plugin has no XML file, the default rule of 1 day (24 hours) is used, from 
 Time-based purging uses the *reference time* of the data, and dtermination of the reference time is decoder based. 
 
 
-> ### 30-day NEXRAD3 archive
->Modify `/awips2/edex/data/utility/common_static/base/purge/radarPurgeRules.xml` to increase the data retention period from 7 to 31 days:
->
+## 30-day NEXRAD3 Example
+
+Modify `/awips2/edex/data/utility/common_static/base/purge/radarPurgeRules.xml` to increase the data retention period from 7 to 31 days:
+
     <purgeRuleSet>
             <defaultRule>
                     <period>31-00:00:00</period>
             </defaultRule>
     </purgeRuleSet>
->
->**Note**: you do NOT have to restart EDEX when you change a purge rule!
+
+**Note**: you do NOT have to restart EDEX when you change a purge rule!
 
 
-# Frame-based purge
+## Frame-based purge
 
 Some plugins use frame-base purging, retaining and certain number of prpduct "versions". 
 
@@ -62,7 +54,7 @@ Some plugins use frame-base purging, retaining and certain number of prpduct "ve
 
 > In the above example, notice a *default rule* (196) as well as specific sectors with their own rules. 
 
-# Logging
+## Purge Logs
 
 Data purge events are logged to the file `edex-ingest-purge-<yyyymmdd>.log`, where `<yyyymmdd>` is the date stamp. 
 
@@ -77,7 +69,7 @@ Data purge events are logged to the file `edex-ingest-purge-<yyyymmdd>.log`, whe
     INFO  2012-03-27 00:31:23,155 [DefaultQuartzScheduler_Worker-3] PurgeLogger: EDEX - PURGE LOGS::---------END LOG PURGE-----------
 
 
-# All Purge Rules
+## All Purge Rules
 
 To see all purge rule directories (base, site, region, configured):
 

@@ -1,10 +1,3 @@
----
-layout: default
-type: guide
-shortname: Docs
-title: Install on Azure
-subtitle: Install & Config
----
 
 # Azure Portal
 
@@ -12,8 +5,6 @@ subtitle: Install & Config
 * network rules for ports
 * disk drive mount
 * iptables
-* 
-
 
 
 > All of these commands are issued as root user!

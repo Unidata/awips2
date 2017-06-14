@@ -1,9 +1,3 @@
----
-layout: default
-type: guide
-title: COTS and FOSS
----
-
 COTS and FOSS used in AWIPS
 
 Component|Version|Description
