@@ -9,7 +9,7 @@
         <meta name="description" content="Documentation for all things AWIPS.">
       
       
-        <link rel="canonical" href="http://unidata.github.io/awips2/appendix/appendix-cots/">
+        <link rel="canonical" href="http://unidata.github.io/awips2/cave/goes-16-satellite/">
       
       
         <meta name="author" content="mjames@ucar.edu">
@@ -21,7 +21,7 @@
     
     
       
-        <title>COTS and FOSS - Unidata AWIPS User Manual</title>
+        <title>GOES-16 (GOES-R) - Unidata AWIPS User Manual</title>
       
     
     
@@ -87,12 +87,12 @@
             
               
                 <span class="md-header-nav__parent">
-                  Appendix
+                  CAVE User Manual
                 </span>
               
             
             
-              COTS and FOSS
+              GOES-16 (GOES-R)
             
           
         </span>
@@ -234,10 +234,12 @@
       
       
 
+  
 
-  <li class="md-nav__item md-nav__item--nested">
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4" checked>
     
     <label class="md-nav__link" for="nav-4">
       CAVE User Manual
@@ -255,7 +257,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-perspective/" title="D2D Perspective" class="md-nav__link">
+    <a href="../d2d-perspective/" title="D2D Perspective" class="md-nav__link">
       D2D Perspective
     </a>
   </li>
@@ -267,7 +269,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/maps-views-projections/" title="Maps, Views, Projections" class="md-nav__link">
+    <a href="../maps-views-projections/" title="Maps, Views, Projections" class="md-nav__link">
       Maps, Views, Projections
     </a>
   </li>
@@ -279,7 +281,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/bundles-and-procedures/" title="Bundles and Procedures" class="md-nav__link">
+    <a href="../bundles-and-procedures/" title="Bundles and Procedures" class="md-nav__link">
       Bundles and Procedures
     </a>
   </li>
@@ -291,7 +293,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/import-export/" title="Import/Export" class="md-nav__link">
+    <a href="../import-export/" title="Import/Export" class="md-nav__link">
       Import/Export
     </a>
   </li>
@@ -303,7 +305,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/localization-perspective/" title="Localization Perspective" class="md-nav__link">
+    <a href="../localization-perspective/" title="Localization Perspective" class="md-nav__link">
       Localization Perspective
     </a>
   </li>
@@ -315,7 +317,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/ncp-perspective/" title="NCP Perspective" class="md-nav__link">
+    <a href="../ncp-perspective/" title="NCP Perspective" class="md-nav__link">
       NCP Perspective
     </a>
   </li>
@@ -327,7 +329,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/nsharp/" title="NSHARP" class="md-nav__link">
+    <a href="../nsharp/" title="NSHARP" class="md-nav__link">
       NSHARP
     </a>
   </li>
@@ -339,7 +341,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/warngen/" title="WarnGen" class="md-nav__link">
+    <a href="../warngen/" title="WarnGen" class="md-nav__link">
       WarnGen
     </a>
   </li>
@@ -349,11 +351,159 @@
           
           
 
+  
 
-  <li class="md-nav__item">
-    <a href="../../cave/goes-16-satellite/" title="GOES-16 (GOES-R)" class="md-nav__link">
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        GOES-16 (GOES-R)
+      </label>
+    
+    <a href="./" title="GOES-16 (GOES-R)" class="md-nav__link md-nav__link--active">
       GOES-16 (GOES-R)
     </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#noaaport-provisional-products" title="NOAAport Provisional Products" class="md-nav__link">
+    NOAAport Provisional Products
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ldm-pattern-action" title="LDM Pattern Action" class="md-nav__link">
+    LDM Pattern Action
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#puerto-rico-sector-prregi" title="Puerto Rico sector (PRREGI)" class="md-nav__link">
+    Puerto Rico sector (PRREGI)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conus-1km" title="CONUS 1km" class="md-nav__link">
+    CONUS 1km
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#full-disk-6km" title="Full Disk 6km" class="md-nav__link">
+    Full Disk 6km
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mesoscale-sectors-tmeso-1-tmeso-2" title="Mesoscale Sectors (TMESO-1, TMESO-2)" class="md-nav__link">
+    Mesoscale Sectors (TMESO-1, TMESO-2)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#icing-composite" title="Icing Composite" class="md-nav__link">
+    Icing Composite
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#daytime-composite-1" title="Daytime Composite 1" class="md-nav__link">
+    Daytime Composite 1
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#daytime-composite-2" title="Daytime Composite 2" class="md-nav__link">
+    Daytime Composite 2
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hdf5-data-store" title="HDF5 Data Store" class="md-nav__link">
+    HDF5 Data Store
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#level-2-products" title="Level 2+ Products" class="md-nav__link">
+    Level 2+ Products
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#level-2-decoder-regular-expression" title="Level 2+ Decoder Regular Expression" class="md-nav__link">
+    Level 2+ Decoder Regular Expression
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#goes-lightning-mapper-glm" title="GOES Lightning Mapper (GLM)" class="md-nav__link">
+    GOES Lightning Mapper (GLM)
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ingest-sample-data" title="Ingest Sample Data" class="md-nav__link">
+    Ingest Sample Data
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#display-glm-lightning-data" title="Display GLM Lightning Data" class="md-nav__link">
+    Display GLM Lightning Data
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+    
   </li>
 
         
@@ -363,7 +513,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-gis-shapefiles/" title="GIS and Shapefiles" class="md-nav__link">
+    <a href="../d2d-gis-shapefiles/" title="GIS and Shapefiles" class="md-nav__link">
       GIS and Shapefiles
     </a>
   </li>
@@ -375,7 +525,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-gridded-models/" title="Volume Browser" class="md-nav__link">
+    <a href="../d2d-gridded-models/" title="Volume Browser" class="md-nav__link">
       Volume Browser
     </a>
   </li>
@@ -387,7 +537,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-tools/" title="Display Tools" class="md-nav__link">
+    <a href="../d2d-tools/" title="Display Tools" class="md-nav__link">
       Display Tools
     </a>
   </li>
@@ -399,7 +549,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-radar-tools/" title="Radar Tools" class="md-nav__link">
+    <a href="../d2d-radar-tools/" title="Radar Tools" class="md-nav__link">
       Radar Tools
     </a>
   </li>
@@ -411,7 +561,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-edit-menus/" title="Editing Menus" class="md-nav__link">
+    <a href="../d2d-edit-menus/" title="Editing Menus" class="md-nav__link">
       Editing Menus
     </a>
   </li>
@@ -423,7 +573,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/cave-localization/" title="Change Localization" class="md-nav__link">
+    <a href="../cave-localization/" title="Change Localization" class="md-nav__link">
       Change Localization
     </a>
   </li>
@@ -567,7 +717,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-grids/" title="Gridded Model Display" class="md-nav__link">
+    <a href="../d2d-grids/" title="Gridded Model Display" class="md-nav__link">
       Gridded Model Display
     </a>
   </li>
@@ -579,7 +729,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-pointdata-surface-obs/" title="Surface Obs" class="md-nav__link">
+    <a href="../d2d-pointdata-surface-obs/" title="Surface Obs" class="md-nav__link">
       Surface Obs
     </a>
   </li>
@@ -591,7 +741,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-satellite/" title="Satellite Imagery" class="md-nav__link">
+    <a href="../d2d-satellite/" title="Satellite Imagery" class="md-nav__link">
       Satellite Imagery
     </a>
   </li>
@@ -603,7 +753,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-radar/" title="NEXRAD Radar" class="md-nav__link">
+    <a href="../d2d-radar/" title="NEXRAD Radar" class="md-nav__link">
       NEXRAD Radar
     </a>
   </li>
@@ -615,7 +765,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-uair/" title="Upper Air" class="md-nav__link">
+    <a href="../d2d-uair/" title="Upper Air" class="md-nav__link">
       Upper Air
     </a>
   </li>
@@ -627,7 +777,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-hydro/" title="NCEP/Hydro" class="md-nav__link">
+    <a href="../d2d-hydro/" title="NCEP/Hydro" class="md-nav__link">
       NCEP/Hydro
     </a>
   </li>
@@ -639,7 +789,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-map-resources/" title="Map Overlays" class="md-nav__link">
+    <a href="../d2d-map-resources/" title="Map Overlays" class="md-nav__link">
       Map Overlays
     </a>
   </li>
@@ -750,12 +900,10 @@
       
       
 
-  
 
-
-  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+  <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-9" type="checkbox" id="nav-9" checked>
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-9" type="checkbox" id="nav-9">
     
     <label class="md-nav__link" for="nav-9">
       Appendix
@@ -773,7 +921,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../appendix-grid-parameters/" title="AWIPS Grid Parameters" class="md-nav__link">
+    <a href="../../appendix/appendix-grid-parameters/" title="AWIPS Grid Parameters" class="md-nav__link">
       AWIPS Grid Parameters
     </a>
   </li>
@@ -785,7 +933,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../appendix-acronyms/" title="Acronyms and Abbreviations" class="md-nav__link">
+    <a href="../../appendix/appendix-acronyms/" title="Acronyms and Abbreviations" class="md-nav__link">
       Acronyms and Abbreviations
     </a>
   </li>
@@ -795,18 +943,11 @@
           
           
 
-  
 
-
-  <li class="md-nav__item md-nav__item--active">
-    
-    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
-    
-    
-    <a href="./" title="COTS and FOSS" class="md-nav__link md-nav__link--active">
+  <li class="md-nav__item">
+    <a href="../../appendix/appendix-cots/" title="COTS and FOSS" class="md-nav__link">
       COTS and FOSS
     </a>
-    
   </li>
 
         
@@ -816,7 +957,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../appendix-wsr88d/" title="WSR-88D Product Table" class="md-nav__link">
+    <a href="../../appendix/appendix-wsr88d/" title="WSR-88D Product Table" class="md-nav__link">
       WSR-88D Product Table
     </a>
   </li>
@@ -828,7 +969,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/cave-keyboard-shortcuts/" title="Keyboard Shortcuts" class="md-nav__link">
+    <a href="../cave-keyboard-shortcuts/" title="Keyboard Shortcuts" class="md-nav__link">
       Keyboard Shortcuts
     </a>
   </li>
@@ -854,6 +995,136 @@
   
   
   
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#noaaport-provisional-products" title="NOAAport Provisional Products" class="md-nav__link">
+    NOAAport Provisional Products
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ldm-pattern-action" title="LDM Pattern Action" class="md-nav__link">
+    LDM Pattern Action
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#puerto-rico-sector-prregi" title="Puerto Rico sector (PRREGI)" class="md-nav__link">
+    Puerto Rico sector (PRREGI)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conus-1km" title="CONUS 1km" class="md-nav__link">
+    CONUS 1km
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#full-disk-6km" title="Full Disk 6km" class="md-nav__link">
+    Full Disk 6km
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mesoscale-sectors-tmeso-1-tmeso-2" title="Mesoscale Sectors (TMESO-1, TMESO-2)" class="md-nav__link">
+    Mesoscale Sectors (TMESO-1, TMESO-2)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#icing-composite" title="Icing Composite" class="md-nav__link">
+    Icing Composite
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#daytime-composite-1" title="Daytime Composite 1" class="md-nav__link">
+    Daytime Composite 1
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#daytime-composite-2" title="Daytime Composite 2" class="md-nav__link">
+    Daytime Composite 2
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hdf5-data-store" title="HDF5 Data Store" class="md-nav__link">
+    HDF5 Data Store
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#level-2-products" title="Level 2+ Products" class="md-nav__link">
+    Level 2+ Products
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#level-2-decoder-regular-expression" title="Level 2+ Decoder Regular Expression" class="md-nav__link">
+    Level 2+ Decoder Regular Expression
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#goes-lightning-mapper-glm" title="GOES Lightning Mapper (GLM)" class="md-nav__link">
+    GOES Lightning Mapper (GLM)
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ingest-sample-data" title="Ingest Sample Data" class="md-nav__link">
+    Ingest Sample Data
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#display-glm-lightning-data" title="Display GLM Lightning Data" class="md-nav__link">
+    Display GLM Lightning Data
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -864,533 +1135,78 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/Unidata/awips2/edit/master/docs/appendix/appendix-cots.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
+                  <a href="https://github.com/Unidata/awips2/edit/master/docs/cave/goes-16-satellite.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
-                  <h1>COTS and FOSS</h1>
+                  <h1>GOES-16 (GOES-R)</h1>
                 
-                <p>COTS and FOSS used in AWIPS</p>
-<table>
-<thead>
-<tr>
-<th>Component</th>
-<th align="center">Version</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>ActiveMQ</td>
-<td align="center">5.3.0</td>
-<td>JMS (still used by AlertViz and internally in parts of Camel)</td>
-</tr>
-<tr>
-<td>Apache Batik</td>
-<td align="center">1.6</td>
-<td>Batik is a Java-based toolkit for applications or applets that want to use images in the Scalable Vector Graphics (SVG) format for various purposes, such as display, generation or manipulation.</td>
-</tr>
-<tr>
-<td>Apache MINA</td>
-<td align="center">1.1.7</td>
-<td>Network application framework</td>
-</tr>
-<tr>
-<td>Apache WSS4J</td>
-<td align="center">1.6.5</td>
-<td>Web Services Security</td>
-</tr>
-<tr>
-<td>Ant</td>
-<td align="center">1.7.1</td>
-<td>Java Build Tool</td>
-</tr>
-<tr>
-<td>Ant-Contrib</td>
-<td align="center">1.0b3</td>
-<td>Additional useful tasks and types for Ant</td>
-</tr>
-<tr>
-<td>Antlr</td>
-<td align="center">2.7.6</td>
-<td>Parser generator</td>
-</tr>
-<tr>
-<td>Atomikos TransactionEssentials</td>
-<td align="center">3.6.2</td>
-<td>Transaction management system</td>
-</tr>
-<tr>
-<td>Bitstream Vera Fonts</td>
-<td align="center">1.10</td>
-<td>Font library from Gnome</td>
-</tr>
-<tr>
-<td>bzip2</td>
-<td align="center">none</td>
-<td>Stream compression algorithm</td>
-</tr>
-<tr>
-<td>C3p0</td>
-<td align="center">0.9.1</td>
-<td>c3p0 is an easy-to-use library for making traditional JDBC drivers "enterprise-ready" by augmenting them with functionality defined by the jdbc3 spec and the optional extensions to jdbc2.</td>
-</tr>
-<tr>
-<td>Camel</td>
-<td align="center">2.4</td>
-<td>Enterprise Service Bus</td>
-</tr>
-<tr>
-<td>cglib</td>
-<td align="center">2.2</td>
-<td>Byte Code Generation Library is high level API to generate and transform JAVA byte code.</td>
-</tr>
-<tr>
-<td>CherryPy</td>
-<td align="center">3.1.2</td>
-<td>Object-oriented HTTP framework</td>
-</tr>
-<tr>
-<td>commons-beanutils</td>
-<td align="center">1.8.3</td>
-<td>Apache Common Libraries</td>
-</tr>
-<tr>
-<td>commons-codec</td>
-<td align="center">1.4.1</td>
-<td>Apache Common Libraries</td>
-</tr>
-<tr>
-<td>commons-collection</td>
-<td align="center">3.2</td>
-<td>Apache Common Libraries</td>
-</tr>
-<tr>
-<td>commons-configuration</td>
-<td align="center">1.6</td>
-<td>Apache Common Libraries</td>
-</tr>
-<tr>
-<td>Commons-cli</td>
-<td align="center">1.2</td>
-<td>Apache Common Libraries</td>
-</tr>
-<tr>
-<td>commons-digester</td>
-<td align="center">1.8.1</td>
-<td>Apache Common Libraries</td>
-</tr>
-<tr>
-<td>commons-cxf</td>
-<td align="center">2.5</td>
-<td>Apache Common Libraries</td>
-</tr>
-<tr>
-<td>commons-httpclient</td>
-<td align="center">3.1</td>
-<td>Apache Common Libraries</td>
-</tr>
-<tr>
-<td>commons-lang</td>
-<td align="center">2.3</td>
-<td>Apache Common Libraries</td>
-</tr>
-<tr>
-<td>commons-logging</td>
-<td align="center">1.1.1</td>
-<td>Apache Common Libraries</td>
-</tr>
-<tr>
-<td>commons-management</td>
-<td align="center">1.0</td>
-<td>Apache Common Libraries</td>
-</tr>
-<tr>
-<td>commons-pool</td>
-<td align="center">1.3</td>
-<td>Apache Common Libraries</td>
-</tr>
-<tr>
-<td>commons-validator</td>
-<td align="center">1.2</td>
-<td>Apache Common Libraries</td>
-</tr>
-<tr>
-<td>dom4j</td>
-<td align="center">1.6.1</td>
-<td>An open source library for working with XML, XPath, and XSLT on the Java platform using the Java Collections Framework</td>
-</tr>
-<tr>
-<td>dwr (direct web remoting) Getahead</td>
-<td align="center">1.1.3</td>
-<td>Java open source library</td>
-</tr>
-<tr>
-<td>Eclipse</td>
-<td align="center">3.6.1</td>
-<td>Java IDE</td>
-</tr>
-<tr>
-<td>Eclipse CDT</td>
-<td align="center">5.0.2</td>
-<td>C/C++ IDE for Eclipse</td>
-</tr>
-<tr>
-<td>ehcache</td>
-<td align="center">1.3.0</td>
-<td>Caching Support</td>
-</tr>
-<tr>
-<td>GEOS</td>
-<td align="center">3.0.2</td>
-<td>Geometry Engine, Required for PostGIS</td>
-</tr>
-<tr>
-<td>GeoTools Java API</td>
-<td align="center">2.6.4</td>
-<td>Java API for Manipulation of Geospatial Data</td>
-</tr>
-<tr>
-<td>Geronimo-jms</td>
-<td align="center">1.1 spec 1.1.1</td>
-<td>Server runtime framework</td>
-</tr>
-<tr>
-<td>GRIBJava</td>
-<td align="center">8.0</td>
-<td>Grib Java Decoder</td>
-</tr>
-<tr>
-<td>h5py</td>
-<td align="center">1.3.0</td>
-<td>HDF5 for Python</td>
-</tr>
-<tr>
-<td>hdf5</td>
-<td align="center">1.8.4-patch1</td>
-<td>Core HDF5 APIs</td>
-</tr>
-<tr>
-<td>hdf5</td>
-<td align="center">2.5</td>
-<td>Core HDF5 APIs</td>
-</tr>
-<tr>
-<td>Hibernate</td>
-<td align="center">3.5.0</td>
-<td>Data Access Layer</td>
-</tr>
-<tr>
-<td>IzPack</td>
-<td align="center">4.2.0</td>
-<td>Installer creator for EDEX</td>
-</tr>
-<tr>
-<td>JAI</td>
-<td align="center">1.1.3</td>
-<td>Java API for Image Manipulation</td>
-</tr>
-<tr>
-<td>JAI – Image I/O</td>
-<td align="center">1.1</td>
-<td>Plug-ins for JAI</td>
-</tr>
-<tr>
-<td>Jasper</td>
-<td align="center">1.900.1</td>
-<td>JPEG-2000 codec</td>
-</tr>
-<tr>
-<td>Java</td>
-<td align="center">1.6u46</td>
-<td>Kit for both 32-bit and 64-bit</td>
-</tr>
-<tr>
-<td>javax.mail</td>
-<td align="center">1.4.3</td>
-<td>mail modeling classes</td>
-</tr>
-<tr>
-<td>javax.measure</td>
-<td align="center">1.0-beta-2</td>
-<td>Strong types for measurements</td>
-</tr>
-<tr>
-<td>javax.persistence</td>
-<td align="center">1.0.0</td>
-<td>persistence classes and interfaces</td>
-</tr>
-<tr>
-<td>javax.vecmath</td>
-<td align="center">1.3.1</td>
-<td>Coordinates and vectors</td>
-</tr>
-<tr>
-<td>Jep</td>
-<td align="center">2.3+</td>
-<td>Java Python interface</td>
-</tr>
-<tr>
-<td>jetty</td>
-<td align="center">7.2.2</td>
-<td>Jetty provides an HTTP server, HTTP client, and javax.servlet container</td>
-</tr>
-<tr>
-<td>jGrapht</td>
-<td align="center">0.6.0</td>
-<td>JGraphT is a free Java graph library that provides mathematical graphtheory objects and algorithms</td>
-</tr>
-<tr>
-<td>JMock</td>
-<td align="center">2.0.0</td>
-<td>Java Mock Object Framework</td>
-</tr>
-<tr>
-<td>jna (java native access)</td>
-<td align="center">3.09</td>
-<td>JNA provides Java programs easy access to native shared libraries (DLLs on Windows) without writing anything but Java code—no JNI or native code is required. This functionality is comparable to Windows' Platform/Invoke and Python's ctypes. Access is dynamic at runtime without code generation.</td>
-</tr>
-<tr>
-<td>jogl</td>
-<td align="center">1.1.1-rc8</td>
-<td>Provides hardware-supported 3D graphics</td>
-</tr>
-<tr>
-<td>Jscience</td>
-<td align="center">4.3.1</td>
-<td>Library for Scientific Calculations and Visualizations</td>
-</tr>
-<tr>
-<td>JTS Topology Suite</td>
-<td align="center">1.10</td>
-<td>Java API for 2D spatial data</td>
-</tr>
-<tr>
-<td>JUnit</td>
-<td align="center">4.10</td>
-<td>Java Unit Test Framework</td>
-</tr>
-<tr>
-<td>lapack</td>
-<td align="center">3.0.0</td>
-<td>Linear Algebra Package for python</td>
-</tr>
-<tr>
-<td>ldm</td>
-<td align="center">6.11.2, 6.11.6</td>
-<td>Local Data Manager</td>
-</tr>
-<tr>
-<td>Log4J</td>
-<td align="center">1.2.16</td>
-<td>Logging Component used by Commons Logging</td>
-</tr>
-<tr>
-<td>libgfortran</td>
-<td align="center">4.1.2</td>
-<td>Fortran Library</td>
-</tr>
-<tr>
-<td>matplotlib</td>
-<td align="center">0.99.1.1-r7813</td>
-<td>Python 2D Plotting Library</td>
-</tr>
-<tr>
-<td>Mozilla Rhino</td>
-<td align="center">1.6R7</td>
-<td>Implementation of JavaScript embedded in Java</td>
-</tr>
-<tr>
-<td>NCEP Grib2 Libraries</td>
-<td align="center"></td>
-<td>Libraries for decoding &amp; encoding data in GRIB2 format</td>
-</tr>
-<tr>
-<td>&nbsp;&nbsp;&nbsp;&nbsp;cnvgrib</td>
-<td align="center">1.1.8 and 11.9</td>
-<td>Fortran GRIB1 &lt;--&gt; GRIB2 conversion utility</td>
-</tr>
-<tr>
-<td>&nbsp;&nbsp;&nbsp;&nbsp;g2clib</td>
-<td align="center">1.1.8</td>
-<td>"C" grib2 encoder/decoder</td>
-</tr>
-<tr>
-<td>&nbsp;&nbsp;&nbsp;&nbsp;g2lib</td>
-<td align="center">1.1.8 and 1.1.9</td>
-<td>Fortran grib2 encoder/decoder and search/indexing routines</td>
-</tr>
-<tr>
-<td>&nbsp;&nbsp;&nbsp;&nbsp;w3lib</td>
-<td align="center">1.6 and 1.7.1</td>
-<td>Fortran grib1 encoder/decoder and utilities</td>
-</tr>
-<tr>
-<td>nose</td>
-<td align="center">0.11.1</td>
-<td>Python unittest extension</td>
-</tr>
-<tr>
-<td>NumPy</td>
-<td align="center">1.3.0</td>
-<td>Numerical Python Scientific package for Python</td>
-</tr>
-<tr>
-<td>objectweb asm</td>
-<td align="center">2.1</td>
-<td>ASM is an all-purpose Java bytecode manipulation and analysis framework. It can be used to modify existing classes or dynamically generate classes, directly in binary form</td>
-</tr>
-<tr>
-<td>Openfire</td>
-<td align="center">3.7.1</td>
-<td>Collaboration Server – Not used but eventually will replace Wildfire. Only 3.7 approved.</td>
-</tr>
-<tr>
-<td>pil</td>
-<td align="center">1.1.6</td>
-<td>Python Imaging Library</td>
-</tr>
-<tr>
-<td>PostGIS</td>
-<td align="center">1.3.5</td>
-<td>Geographic Object Support for PostgreSQL</td>
-</tr>
-<tr>
-<td>PostgreSQL</td>
-<td align="center">9.2.3, 9.2.4</td>
-<td>Database</td>
-</tr>
-<tr>
-<td>Proj</td>
-<td align="center">4.6.1</td>
-<td>Cartographic Projections library</td>
-</tr>
-<tr>
-<td>pupynere</td>
-<td align="center">1.0.13</td>
-<td>Python module for reading and writing NetCDF files</td>
-</tr>
-<tr>
-<td>pydev</td>
-<td align="center">1.5</td>
-<td>Python Development Environment</td>
-</tr>
-<tr>
-<td>PyTables</td>
-<td align="center">2.1.2</td>
-<td>Python package for managing hierarchical datasets</td>
-</tr>
-<tr>
-<td>Python</td>
-<td align="center">2.7.1</td>
-<td>Dynamic programming language</td>
-</tr>
-<tr>
-<td>Python megawidgets</td>
-<td align="center">1.3.2</td>
-<td>Toolkit for building high-level compound widgets in Python using the Tkinter module</td>
-</tr>
-<tr>
-<td>Qpid</td>
-<td align="center">0.18</td>
-<td>Open Source AMQP (Advanced Message Queuing Protocol) Messaging</td>
-</tr>
-<tr>
-<td>SciPy</td>
-<td align="center">0.7.0</td>
-<td>Python Library of Scientific Tools</td>
-</tr>
-<tr>
-<td>ScientificPython</td>
-<td align="center">2.8</td>
-<td>Python library for common tasks in scientific computing</td>
-</tr>
-<tr>
-<td>slf4j</td>
-<td align="center">1.6.1</td>
-<td>The Simple Logging Facade for Java or (SLF4J) serves as a simple facade or abstraction for various logging frameworks</td>
-</tr>
-<tr>
-<td>smack</td>
-<td align="center">2.2.1</td>
-<td>Smack is an Open Source XMPP (Jabber) client library for instant messaging and presence.</td>
-</tr>
-<tr>
-<td>stomp.py</td>
-<td align="center">revision 18</td>
-<td>Python client library for accessing messaging servers</td>
-</tr>
-<tr>
-<td>Spring Framework OSGI</td>
-<td align="center">1.2.0</td>
-<td>dynamic modules</td>
-</tr>
-<tr>
-<td>Spring Framework</td>
-<td align="center">2.5.6</td>
-<td>Layered Java/J2EE application platform</td>
-</tr>
-<tr>
-<td>stomp.py</td>
-<td align="center">revision 18</td>
-<td>Python client libarary for accessing messaging servers</td>
-</tr>
-<tr>
-<td>Subclipse</td>
-<td align="center">1.4.8</td>
-<td>Eclipse plugin for Subversion support</td>
-</tr>
-<tr>
-<td>SWT Add-ons</td>
-<td align="center">0.1.1</td>
-<td>Add-ons for Eclipse SWT widgets</td>
-</tr>
-<tr>
-<td>Symphony OGNL</td>
-<td align="center">2.7.3</td>
-<td>Object-Graph Navigation Language; an expression language for getting/setting properties of Java objects.</td>
-</tr>
-<tr>
-<td>Thrift</td>
-<td align="center">20080411p1-3</td>
-<td>Binary Serialization Framework</td>
-</tr>
-<tr>
-<td>Tomcat Native</td>
-<td align="center">1.1.17</td>
-<td>Library for native memory control</td>
-</tr>
-<tr>
-<td>TPG</td>
-<td align="center">3.1.2</td>
-<td>Parser generator for Python</td>
-</tr>
-<tr>
-<td>utilconcurrent</td>
-<td align="center">1.3.2</td>
-<td>Utility classes</td>
-</tr>
-<tr>
-<td>Velocity</td>
-<td align="center">1.5.0</td>
-<td>Templating Engine</td>
-</tr>
-<tr>
-<td>werkzeug</td>
-<td align="center">0.6.2</td>
-<td>Python WSGI utility library</td>
-</tr>
-<tr>
-<td>Wildfire</td>
-<td align="center">3.1.1</td>
-<td>Collaboration Server</td>
-</tr>
-<tr>
-<td>xmltask</td>
-<td align="center">1.15.1</td>
-<td>Facility for automatically editing XML files as part of an Ant build</td>
-</tr>
-</tbody>
-</table>
+                <p>AWIPS ingest and display of GOES-16 (GOES-R) products is handled by contributions from the <strong><a href="https://github.com/Unidata/awips2-goesr">awips2-goesr</a></strong> plugin repository. As of Unidata AWIPS 17.1.1, the GOES-R decoder supports the ingest and display of NOAAport provisional products (currently on the NOTHER feed), as well as Level 2b netCDF files.  A GOES-R Lightning Mapper (GLM) decoder is also provided to handle sensor lightning observations.  </p>
+<p>GOES-R products are accessible in the menu <strong>Satellite</strong> &gt; <strong>GOES-16 Provisional Products</strong></p>
+<p><img alt="" src="../../images/goes_16_menu.png" /></p>
+<hr />
+<h2 id="noaaport-provisional-products">NOAAport Provisional Products<a class="headerlink" href="#noaaport-provisional-products" title="Permanent link"></a></h2>
+<h3 id="ldm-pattern-action">LDM Pattern Action<a class="headerlink" href="#ldm-pattern-action" title="Permanent link"></a></h3>
+<pre><code>NOTHER  ^(TI[RS]...) (KNES) (......) (...)
+        FILE    -close -edex
+        /awips2/data_store/satellite/goes16/\1_\2_\3_\4_(seq).gini
+</code></pre>
+<h3 id="puerto-rico-sector-prregi">Puerto Rico sector (PRREGI)<a class="headerlink" href="#puerto-rico-sector-prregi" title="Permanent link"></a></h3>
+<p><img alt="" src="../../images/goes_16_pr.png" /></p>
+<h3 id="conus-1km">CONUS 1km<a class="headerlink" href="#conus-1km" title="Permanent link"></a></h3>
+<p><img alt="" src="../../images/goes_16_conus.png" /></p>
+<h3 id="full-disk-6km">Full Disk 6km<a class="headerlink" href="#full-disk-6km" title="Permanent link"></a></h3>
+<p><img alt="" src="../../images/goes_16_fd.png" /></p>
+<h3 id="mesoscale-sectors-tmeso-1-tmeso-2">Mesoscale Sectors (TMESO-1, TMESO-2)<a class="headerlink" href="#mesoscale-sectors-tmeso-1-tmeso-2" title="Permanent link"></a></h3>
+<p>Two floating mesoscale sectors (will vary from image shown)</p>
+<p><img alt="" src="../../images/goes_16_meso.png" /></p>
+<h3 id="icing-composite">Icing Composite<a class="headerlink" href="#icing-composite" title="Permanent link"></a></h3>
+<p>Channels 5,3,2 (1.61u, 0.87u, 0.64u)</p>
+<p><img alt="" src="../../images/goes_16_comp1.png" /></p>
+<h3 id="daytime-composite-1">Daytime Composite 1<a class="headerlink" href="#daytime-composite-1" title="Permanent link"></a></h3>
+<p>Channels 2,5,14 (0.64u, 1.61u, 11.20u)</p>
+<p><img alt="" src="../../images/goes_16_comp2.png" /></p>
+<h3 id="daytime-composite-2">Daytime Composite 2<a class="headerlink" href="#daytime-composite-2" title="Permanent link"></a></h3>
+<p>Channels 2,3,2 (0.64u, 0.87u, 0.64u)</p>
+<p><img alt="" src="../../images/goes_16_comp3.png" /></p>
+<div class="admonition warning">
+<p class="admonition-title">GOES-16 Composite Imagery NOT SUPPORTED on macOS</p>
+<p>OpenGL Scripting Language limitations on Mac prevent multi-channel imagery from shading:</p>
+<ul>
+<li>Icing (1.61, 0.87, 0.64)</li>
+<li>Daytime Composite (0.64, 1.61, 11.20)</li>
+<li>Daytime Composite (0.64, 0.87, 0.64)  </li>
+</ul>
+</div>
+<p>To display multi-channel composites requires CAVE for Linux or Windows.</p>
+<h3 id="hdf5-data-store">HDF5 Data Store<a class="headerlink" href="#hdf5-data-store" title="Permanent link"></a></h3>
+<p>Decoded GOES-R satellite images are stored in <code>/awips2/edex/data/hdf5/satellite/</code> under sector subdirectories:</p>
+<pre><code>drwxr-xr-x 18 awips fxalpha PRREGI
+drwxr-xr-x 18 awips fxalpha TCONUS
+drwxr-xr-x 18 awips fxalpha TFD
+drwxr-xr-x 18 awips fxalpha TMESO-1
+drwxr-xr-x 18 awips fxalpha TMESO-2
+</code></pre>
+<hr />
+<h2 id="level-2-products">Level 2+ Products<a class="headerlink" href="#level-2-products" title="Permanent link"></a></h2>
+<p>Level 2+ products are described as derived environmental variables which will be created and disseminated when GOES-16 is used operationally (compared to <strong>Level 0</strong>, described as unprocessed instrument data at full resolution, and <strong>Level 1b</strong> products, described as radiometric and geometric correction applied to produce parameters in physical units). </p>
+<p>Unidata does not currently have access to these products, but EDEX 17.1.1 can support their ingest if made available. </p>
+<p><a href="http://www.goes-r.gov/ground/overview.html">Read more about GOES-R data levels...</a></p>
+<h3 id="level-2-decoder-regular-expression">Level 2+ Decoder Regular Expression<a class="headerlink" href="#level-2-decoder-regular-expression" title="Permanent link"></a></h3>
+<p>From <code>/awips2/edex/data/utility/common_static/base/distribution/goesr.xml</code></p>
+<pre><code>^OR_ABI-L2-\w{3,5}(C|F|M1|M2)-M[34]_G\d\d_s\d{14}_e\d{14}_c\d{14}.nc$
+</code></pre>
+<hr />
+<h2 id="goes-lightning-mapper-glm">GOES Lightning Mapper (GLM)<a class="headerlink" href="#goes-lightning-mapper-glm" title="Permanent link"></a></h2>
+<p>NASA's SPoRT MSFC Earth Science Office has contributed plugins to decode GLM level2 products, which displayed as point data in CAVE.</p>
+<p>Though Unidata is currently not distributing GLM products, you can <a href="http://www.unidata.ucar.edu/software/awips2/OR_GLM-L2-LCFA_G16_s20170402339144_e20170402339307_c20170402339509.nc">download a sample netCDF file</a> and copy it to <code>/awips2/data_store/ingest/</code> in order to test the decoding and display of GOES-R lightning data.</p>
+<h3 id="ingest-sample-data">Ingest Sample Data<a class="headerlink" href="#ingest-sample-data" title="Permanent link"></a></h3>
+<p>Run the single command from your EDEX server to ingest a single-time sample data set:</p>
+<pre><code>wget http://www.unidata.ucar.edu/software/awips2/OR_GLM-L2-LCFA_G16_s20170402339144.nc -P /awips2/data_store/ingest/
+</code></pre>
+<h3 id="display-glm-lightning-data">Display GLM Lightning Data<a class="headerlink" href="#display-glm-lightning-data" title="Permanent link"></a></h3>
+<p>And then access the GLM data in <strong>Satellite</strong> &gt; <strong>GOES-16 Provisional</strong> &gt; <strong>GLM-Lightning</strong>.  Data are displayable as <strong>Flash</strong>, <strong>Event</strong>, and <strong>Group</strong>.</p>
+<p><img alt="" src="../../images/goes_16_glmmenu.png" /></p>
+<p><img alt="" src="../../images/goes_16_glm.png" /></p>
                 
                   
                 
@@ -1409,7 +1225,7 @@
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href="../appendix-acronyms/" title="Acronyms and Abbreviations" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../warngen/" title="WarnGen" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -1418,19 +1234,19 @@
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Acronyms and Abbreviations
+                WarnGen
               </span>
             </div>
           </a>
         
         
-          <a href="../appendix-wsr88d/" title="WSR-88D Product Table" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../d2d-gis-shapefiles/" title="GIS and Shapefiles" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                WSR-88D Product Table
+                GIS and Shapefiles
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">

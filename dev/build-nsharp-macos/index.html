@@ -9,7 +9,7 @@
         <meta name="description" content="Documentation for all things AWIPS.">
       
       
-        <link rel="canonical" href="http://unidata.github.io/awips2/appendix/appendix-cots/">
+        <link rel="canonical" href="http://unidata.github.io/awips2/dev/build-nsharp-macos/">
       
       
         <meta name="author" content="mjames@ucar.edu">
@@ -21,7 +21,7 @@
     
     
       
-        <title>COTS and FOSS - Unidata AWIPS User Manual</title>
+        <title>Building NSHARP for macOS - Unidata AWIPS User Manual</title>
       
     
     
@@ -87,12 +87,12 @@
             
               
                 <span class="md-header-nav__parent">
-                  Appendix
+                  Development
                 </span>
               
             
             
-              COTS and FOSS
+              Building NSHARP for macOS
             
           
         </span>
@@ -702,10 +702,12 @@
       
       
 
+  
 
-  <li class="md-nav__item md-nav__item--nested">
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-8" type="checkbox" id="nav-8">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-8" type="checkbox" id="nav-8" checked>
     
     <label class="md-nav__link" for="nav-8">
       Development
@@ -723,7 +725,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../dev/awips-development-environment/" title="AWIPS Development Environment (ADE)" class="md-nav__link">
+    <a href="../awips-development-environment/" title="AWIPS Development Environment (ADE)" class="md-nav__link">
       AWIPS Development Environment (ADE)
     </a>
   </li>
@@ -733,11 +735,50 @@
           
           
 
+  
 
-  <li class="md-nav__item">
-    <a href="../../dev/build-nsharp-macos/" title="Building NSHARP for macOS" class="md-nav__link">
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        Building NSHARP for macOS
+      </label>
+    
+    <a href="./" title="Building NSHARP for macOS" class="md-nav__link md-nav__link--active">
       Building NSHARP for macOS
     </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#nsharp-pre-built-libraries" title="NSHARP pre-built libraries" class="md-nav__link">
+    NSHARP pre-built libraries
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gempak-pre-built-libraries" title="GEMPAK pre-built libraries" class="md-nav__link">
+    GEMPAK pre-built libraries
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+    
   </li>
 
         
@@ -750,12 +791,10 @@
       
       
 
-  
 
-
-  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+  <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-9" type="checkbox" id="nav-9" checked>
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-9" type="checkbox" id="nav-9">
     
     <label class="md-nav__link" for="nav-9">
       Appendix
@@ -773,7 +812,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../appendix-grid-parameters/" title="AWIPS Grid Parameters" class="md-nav__link">
+    <a href="../../appendix/appendix-grid-parameters/" title="AWIPS Grid Parameters" class="md-nav__link">
       AWIPS Grid Parameters
     </a>
   </li>
@@ -785,7 +824,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../appendix-acronyms/" title="Acronyms and Abbreviations" class="md-nav__link">
+    <a href="../../appendix/appendix-acronyms/" title="Acronyms and Abbreviations" class="md-nav__link">
       Acronyms and Abbreviations
     </a>
   </li>
@@ -795,18 +834,11 @@
           
           
 
-  
 
-
-  <li class="md-nav__item md-nav__item--active">
-    
-    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
-    
-    
-    <a href="./" title="COTS and FOSS" class="md-nav__link md-nav__link--active">
+  <li class="md-nav__item">
+    <a href="../../appendix/appendix-cots/" title="COTS and FOSS" class="md-nav__link">
       COTS and FOSS
     </a>
-    
   </li>
 
         
@@ -816,7 +848,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../appendix-wsr88d/" title="WSR-88D Product Table" class="md-nav__link">
+    <a href="../../appendix/appendix-wsr88d/" title="WSR-88D Product Table" class="md-nav__link">
       WSR-88D Product Table
     </a>
   </li>
@@ -854,6 +886,27 @@
   
   
   
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#nsharp-pre-built-libraries" title="NSHARP pre-built libraries" class="md-nav__link">
+    NSHARP pre-built libraries
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gempak-pre-built-libraries" title="GEMPAK pre-built libraries" class="md-nav__link">
+    GEMPAK pre-built libraries
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -864,533 +917,182 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/Unidata/awips2/edit/master/docs/appendix/appendix-cots.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
+                  <a href="https://github.com/Unidata/awips2/edit/master/docs/dev/build-nsharp-macos.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
-                  <h1>COTS and FOSS</h1>
+                  <h1>Building NSHARP for macOS</h1>
                 
-                <p>COTS and FOSS used in AWIPS</p>
-<table>
-<thead>
-<tr>
-<th>Component</th>
-<th align="center">Version</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>ActiveMQ</td>
-<td align="center">5.3.0</td>
-<td>JMS (still used by AlertViz and internally in parts of Camel)</td>
-</tr>
-<tr>
-<td>Apache Batik</td>
-<td align="center">1.6</td>
-<td>Batik is a Java-based toolkit for applications or applets that want to use images in the Scalable Vector Graphics (SVG) format for various purposes, such as display, generation or manipulation.</td>
-</tr>
-<tr>
-<td>Apache MINA</td>
-<td align="center">1.1.7</td>
-<td>Network application framework</td>
-</tr>
-<tr>
-<td>Apache WSS4J</td>
-<td align="center">1.6.5</td>
-<td>Web Services Security</td>
-</tr>
-<tr>
-<td>Ant</td>
-<td align="center">1.7.1</td>
-<td>Java Build Tool</td>
-</tr>
-<tr>
-<td>Ant-Contrib</td>
-<td align="center">1.0b3</td>
-<td>Additional useful tasks and types for Ant</td>
-</tr>
-<tr>
-<td>Antlr</td>
-<td align="center">2.7.6</td>
-<td>Parser generator</td>
-</tr>
-<tr>
-<td>Atomikos TransactionEssentials</td>
-<td align="center">3.6.2</td>
-<td>Transaction management system</td>
-</tr>
-<tr>
-<td>Bitstream Vera Fonts</td>
-<td align="center">1.10</td>
-<td>Font library from Gnome</td>
-</tr>
-<tr>
-<td>bzip2</td>
-<td align="center">none</td>
-<td>Stream compression algorithm</td>
-</tr>
-<tr>
-<td>C3p0</td>
-<td align="center">0.9.1</td>
-<td>c3p0 is an easy-to-use library for making traditional JDBC drivers "enterprise-ready" by augmenting them with functionality defined by the jdbc3 spec and the optional extensions to jdbc2.</td>
-</tr>
-<tr>
-<td>Camel</td>
-<td align="center">2.4</td>
-<td>Enterprise Service Bus</td>
-</tr>
-<tr>
-<td>cglib</td>
-<td align="center">2.2</td>
-<td>Byte Code Generation Library is high level API to generate and transform JAVA byte code.</td>
-</tr>
-<tr>
-<td>CherryPy</td>
-<td align="center">3.1.2</td>
-<td>Object-oriented HTTP framework</td>
-</tr>
-<tr>
-<td>commons-beanutils</td>
-<td align="center">1.8.3</td>
-<td>Apache Common Libraries</td>
-</tr>
-<tr>
-<td>commons-codec</td>
-<td align="center">1.4.1</td>
-<td>Apache Common Libraries</td>
-</tr>
-<tr>
-<td>commons-collection</td>
-<td align="center">3.2</td>
-<td>Apache Common Libraries</td>
-</tr>
-<tr>
-<td>commons-configuration</td>
-<td align="center">1.6</td>
-<td>Apache Common Libraries</td>
-</tr>
-<tr>
-<td>Commons-cli</td>
-<td align="center">1.2</td>
-<td>Apache Common Libraries</td>
-</tr>
-<tr>
-<td>commons-digester</td>
-<td align="center">1.8.1</td>
-<td>Apache Common Libraries</td>
-</tr>
-<tr>
-<td>commons-cxf</td>
-<td align="center">2.5</td>
-<td>Apache Common Libraries</td>
-</tr>
-<tr>
-<td>commons-httpclient</td>
-<td align="center">3.1</td>
-<td>Apache Common Libraries</td>
-</tr>
-<tr>
-<td>commons-lang</td>
-<td align="center">2.3</td>
-<td>Apache Common Libraries</td>
-</tr>
-<tr>
-<td>commons-logging</td>
-<td align="center">1.1.1</td>
-<td>Apache Common Libraries</td>
-</tr>
-<tr>
-<td>commons-management</td>
-<td align="center">1.0</td>
-<td>Apache Common Libraries</td>
-</tr>
-<tr>
-<td>commons-pool</td>
-<td align="center">1.3</td>
-<td>Apache Common Libraries</td>
-</tr>
-<tr>
-<td>commons-validator</td>
-<td align="center">1.2</td>
-<td>Apache Common Libraries</td>
-</tr>
-<tr>
-<td>dom4j</td>
-<td align="center">1.6.1</td>
-<td>An open source library for working with XML, XPath, and XSLT on the Java platform using the Java Collections Framework</td>
-</tr>
-<tr>
-<td>dwr (direct web remoting) Getahead</td>
-<td align="center">1.1.3</td>
-<td>Java open source library</td>
-</tr>
-<tr>
-<td>Eclipse</td>
-<td align="center">3.6.1</td>
-<td>Java IDE</td>
-</tr>
-<tr>
-<td>Eclipse CDT</td>
-<td align="center">5.0.2</td>
-<td>C/C++ IDE for Eclipse</td>
-</tr>
-<tr>
-<td>ehcache</td>
-<td align="center">1.3.0</td>
-<td>Caching Support</td>
-</tr>
-<tr>
-<td>GEOS</td>
-<td align="center">3.0.2</td>
-<td>Geometry Engine, Required for PostGIS</td>
-</tr>
-<tr>
-<td>GeoTools Java API</td>
-<td align="center">2.6.4</td>
-<td>Java API for Manipulation of Geospatial Data</td>
-</tr>
-<tr>
-<td>Geronimo-jms</td>
-<td align="center">1.1 spec 1.1.1</td>
-<td>Server runtime framework</td>
-</tr>
-<tr>
-<td>GRIBJava</td>
-<td align="center">8.0</td>
-<td>Grib Java Decoder</td>
-</tr>
-<tr>
-<td>h5py</td>
-<td align="center">1.3.0</td>
-<td>HDF5 for Python</td>
-</tr>
-<tr>
-<td>hdf5</td>
-<td align="center">1.8.4-patch1</td>
-<td>Core HDF5 APIs</td>
-</tr>
-<tr>
-<td>hdf5</td>
-<td align="center">2.5</td>
-<td>Core HDF5 APIs</td>
-</tr>
-<tr>
-<td>Hibernate</td>
-<td align="center">3.5.0</td>
-<td>Data Access Layer</td>
-</tr>
-<tr>
-<td>IzPack</td>
-<td align="center">4.2.0</td>
-<td>Installer creator for EDEX</td>
-</tr>
-<tr>
-<td>JAI</td>
-<td align="center">1.1.3</td>
-<td>Java API for Image Manipulation</td>
-</tr>
-<tr>
-<td>JAI – Image I/O</td>
-<td align="center">1.1</td>
-<td>Plug-ins for JAI</td>
-</tr>
-<tr>
-<td>Jasper</td>
-<td align="center">1.900.1</td>
-<td>JPEG-2000 codec</td>
-</tr>
-<tr>
-<td>Java</td>
-<td align="center">1.6u46</td>
-<td>Kit for both 32-bit and 64-bit</td>
-</tr>
-<tr>
-<td>javax.mail</td>
-<td align="center">1.4.3</td>
-<td>mail modeling classes</td>
-</tr>
-<tr>
-<td>javax.measure</td>
-<td align="center">1.0-beta-2</td>
-<td>Strong types for measurements</td>
-</tr>
-<tr>
-<td>javax.persistence</td>
-<td align="center">1.0.0</td>
-<td>persistence classes and interfaces</td>
-</tr>
-<tr>
-<td>javax.vecmath</td>
-<td align="center">1.3.1</td>
-<td>Coordinates and vectors</td>
-</tr>
-<tr>
-<td>Jep</td>
-<td align="center">2.3+</td>
-<td>Java Python interface</td>
-</tr>
-<tr>
-<td>jetty</td>
-<td align="center">7.2.2</td>
-<td>Jetty provides an HTTP server, HTTP client, and javax.servlet container</td>
-</tr>
-<tr>
-<td>jGrapht</td>
-<td align="center">0.6.0</td>
-<td>JGraphT is a free Java graph library that provides mathematical graphtheory objects and algorithms</td>
-</tr>
-<tr>
-<td>JMock</td>
-<td align="center">2.0.0</td>
-<td>Java Mock Object Framework</td>
-</tr>
-<tr>
-<td>jna (java native access)</td>
-<td align="center">3.09</td>
-<td>JNA provides Java programs easy access to native shared libraries (DLLs on Windows) without writing anything but Java code—no JNI or native code is required. This functionality is comparable to Windows' Platform/Invoke and Python's ctypes. Access is dynamic at runtime without code generation.</td>
-</tr>
-<tr>
-<td>jogl</td>
-<td align="center">1.1.1-rc8</td>
-<td>Provides hardware-supported 3D graphics</td>
-</tr>
-<tr>
-<td>Jscience</td>
-<td align="center">4.3.1</td>
-<td>Library for Scientific Calculations and Visualizations</td>
-</tr>
-<tr>
-<td>JTS Topology Suite</td>
-<td align="center">1.10</td>
-<td>Java API for 2D spatial data</td>
-</tr>
-<tr>
-<td>JUnit</td>
-<td align="center">4.10</td>
-<td>Java Unit Test Framework</td>
-</tr>
-<tr>
-<td>lapack</td>
-<td align="center">3.0.0</td>
-<td>Linear Algebra Package for python</td>
-</tr>
-<tr>
-<td>ldm</td>
-<td align="center">6.11.2, 6.11.6</td>
-<td>Local Data Manager</td>
-</tr>
-<tr>
-<td>Log4J</td>
-<td align="center">1.2.16</td>
-<td>Logging Component used by Commons Logging</td>
-</tr>
-<tr>
-<td>libgfortran</td>
-<td align="center">4.1.2</td>
-<td>Fortran Library</td>
-</tr>
-<tr>
-<td>matplotlib</td>
-<td align="center">0.99.1.1-r7813</td>
-<td>Python 2D Plotting Library</td>
-</tr>
-<tr>
-<td>Mozilla Rhino</td>
-<td align="center">1.6R7</td>
-<td>Implementation of JavaScript embedded in Java</td>
-</tr>
-<tr>
-<td>NCEP Grib2 Libraries</td>
-<td align="center"></td>
-<td>Libraries for decoding &amp; encoding data in GRIB2 format</td>
-</tr>
-<tr>
-<td>&nbsp;&nbsp;&nbsp;&nbsp;cnvgrib</td>
-<td align="center">1.1.8 and 11.9</td>
-<td>Fortran GRIB1 &lt;--&gt; GRIB2 conversion utility</td>
-</tr>
-<tr>
-<td>&nbsp;&nbsp;&nbsp;&nbsp;g2clib</td>
-<td align="center">1.1.8</td>
-<td>"C" grib2 encoder/decoder</td>
-</tr>
-<tr>
-<td>&nbsp;&nbsp;&nbsp;&nbsp;g2lib</td>
-<td align="center">1.1.8 and 1.1.9</td>
-<td>Fortran grib2 encoder/decoder and search/indexing routines</td>
-</tr>
-<tr>
-<td>&nbsp;&nbsp;&nbsp;&nbsp;w3lib</td>
-<td align="center">1.6 and 1.7.1</td>
-<td>Fortran grib1 encoder/decoder and utilities</td>
-</tr>
-<tr>
-<td>nose</td>
-<td align="center">0.11.1</td>
-<td>Python unittest extension</td>
-</tr>
-<tr>
-<td>NumPy</td>
-<td align="center">1.3.0</td>
-<td>Numerical Python Scientific package for Python</td>
-</tr>
-<tr>
-<td>objectweb asm</td>
-<td align="center">2.1</td>
-<td>ASM is an all-purpose Java bytecode manipulation and analysis framework. It can be used to modify existing classes or dynamically generate classes, directly in binary form</td>
-</tr>
-<tr>
-<td>Openfire</td>
-<td align="center">3.7.1</td>
-<td>Collaboration Server – Not used but eventually will replace Wildfire. Only 3.7 approved.</td>
-</tr>
-<tr>
-<td>pil</td>
-<td align="center">1.1.6</td>
-<td>Python Imaging Library</td>
-</tr>
-<tr>
-<td>PostGIS</td>
-<td align="center">1.3.5</td>
-<td>Geographic Object Support for PostgreSQL</td>
-</tr>
-<tr>
-<td>PostgreSQL</td>
-<td align="center">9.2.3, 9.2.4</td>
-<td>Database</td>
-</tr>
-<tr>
-<td>Proj</td>
-<td align="center">4.6.1</td>
-<td>Cartographic Projections library</td>
-</tr>
-<tr>
-<td>pupynere</td>
-<td align="center">1.0.13</td>
-<td>Python module for reading and writing NetCDF files</td>
-</tr>
-<tr>
-<td>pydev</td>
-<td align="center">1.5</td>
-<td>Python Development Environment</td>
-</tr>
-<tr>
-<td>PyTables</td>
-<td align="center">2.1.2</td>
-<td>Python package for managing hierarchical datasets</td>
-</tr>
-<tr>
-<td>Python</td>
-<td align="center">2.7.1</td>
-<td>Dynamic programming language</td>
-</tr>
-<tr>
-<td>Python megawidgets</td>
-<td align="center">1.3.2</td>
-<td>Toolkit for building high-level compound widgets in Python using the Tkinter module</td>
-</tr>
-<tr>
-<td>Qpid</td>
-<td align="center">0.18</td>
-<td>Open Source AMQP (Advanced Message Queuing Protocol) Messaging</td>
-</tr>
-<tr>
-<td>SciPy</td>
-<td align="center">0.7.0</td>
-<td>Python Library of Scientific Tools</td>
-</tr>
-<tr>
-<td>ScientificPython</td>
-<td align="center">2.8</td>
-<td>Python library for common tasks in scientific computing</td>
-</tr>
-<tr>
-<td>slf4j</td>
-<td align="center">1.6.1</td>
-<td>The Simple Logging Facade for Java or (SLF4J) serves as a simple facade or abstraction for various logging frameworks</td>
-</tr>
-<tr>
-<td>smack</td>
-<td align="center">2.2.1</td>
-<td>Smack is an Open Source XMPP (Jabber) client library for instant messaging and presence.</td>
-</tr>
-<tr>
-<td>stomp.py</td>
-<td align="center">revision 18</td>
-<td>Python client library for accessing messaging servers</td>
-</tr>
-<tr>
-<td>Spring Framework OSGI</td>
-<td align="center">1.2.0</td>
-<td>dynamic modules</td>
-</tr>
-<tr>
-<td>Spring Framework</td>
-<td align="center">2.5.6</td>
-<td>Layered Java/J2EE application platform</td>
-</tr>
-<tr>
-<td>stomp.py</td>
-<td align="center">revision 18</td>
-<td>Python client libarary for accessing messaging servers</td>
-</tr>
-<tr>
-<td>Subclipse</td>
-<td align="center">1.4.8</td>
-<td>Eclipse plugin for Subversion support</td>
-</tr>
-<tr>
-<td>SWT Add-ons</td>
-<td align="center">0.1.1</td>
-<td>Add-ons for Eclipse SWT widgets</td>
-</tr>
-<tr>
-<td>Symphony OGNL</td>
-<td align="center">2.7.3</td>
-<td>Object-Graph Navigation Language; an expression language for getting/setting properties of Java objects.</td>
-</tr>
-<tr>
-<td>Thrift</td>
-<td align="center">20080411p1-3</td>
-<td>Binary Serialization Framework</td>
-</tr>
-<tr>
-<td>Tomcat Native</td>
-<td align="center">1.1.17</td>
-<td>Library for native memory control</td>
-</tr>
-<tr>
-<td>TPG</td>
-<td align="center">3.1.2</td>
-<td>Parser generator for Python</td>
-</tr>
-<tr>
-<td>utilconcurrent</td>
-<td align="center">1.3.2</td>
-<td>Utility classes</td>
-</tr>
-<tr>
-<td>Velocity</td>
-<td align="center">1.5.0</td>
-<td>Templating Engine</td>
-</tr>
-<tr>
-<td>werkzeug</td>
-<td align="center">0.6.2</td>
-<td>Python WSGI utility library</td>
-</tr>
-<tr>
-<td>Wildfire</td>
-<td align="center">3.1.1</td>
-<td>Collaboration Server</td>
-</tr>
-<tr>
-<td>xmltask</td>
-<td align="center">1.15.1</td>
-<td>Facility for automatically editing XML files as part of an Ant build</td>
-</tr>
-</tbody>
-</table>
+                <p>A little known fact in the world of AWIPS(II) is just how dependent the system still is on NAWIPS-GEMPAK.  The entire National Centers Perspective is dependent on pre-built shared object files for 64-bit Linux, which means that all of the D2D plugins which extend NSHARP (for bufr obs, NPP profiles, forecast models, etc.) also depend on these libraries.</p>
+<p>This dependency has prevented use of the NSHARP plugin in the first release (15.1.1) of the <a href="http://www.unidata.ucar.edu/downloads/awips2/awips2-cave.dmg">OS X CAVE client</a>.  These are the steps taken to build NSHARP and GEMPAK libraries for OS X AWIPS 16.2.2.</p>
+<p>You will need the <a href="https://github.com/Unidata/awips2-gemlibs">https://github.com/Unidata/awips2-gemlibs</a> repository on your Mac, as well as gcc and gfortran (from XCode).  Pay attention to any version-specific include path or linked files, such as <code>/usr/local/Cellar/gcc/4.9.2_1/lib/gcc/4.9/</code>, always account for the correct versions and locations on your own system.</p>
+<h2 id="nsharp-pre-built-libraries">NSHARP pre-built libraries<a class="headerlink" href="#nsharp-pre-built-libraries" title="Permanent link"></a></h2>
+<blockquote>
+<p>libbignsharp.dylib</p>
+</blockquote>
+<p>Using the script below, the NSHARP dynamic library is built from C and FORTRAN source files (and their required include files supplied by the <code>awips2-gemlibs</code> repository, and as linked against <code>$GEMINC</code>, meaning that GEMPAK for OS X must be built and installed).</p>
+<pre><code>git clone https://github.com/Unidata/awips2-gemlibs.git
+cd awips2-gemlibs/nsharp/
+</code></pre>
+<p>An optional step, which can be performed in a separate script or within the build script below, is to create <em>ld-style</em> *.a files in <code>$OS_LIB</code> which can then be referenced with <code>-l</code> flags (e.g. <code>-lgemlib</code>):</p>
+<pre><code>libs=(snlist sflist nxmlib gemlib gplt cgemlib rsl device xwp xw ps gn nsharp netcdf textlib)
+for file in ${libs[@]}
+do
+  if [ ! -f $OS_LIB/lib$file.a ]; then
+    echo "$OS_LIB/lib$file.a does not exist"
+    if [ -f $OS_LIB/$file.a ]; then
+      cp $OS_LIB/$file.a $OS_LIB/lib$file.a
+      echo "copied OS_LIB/$file.a to OS_LIB/lib$file.a for linking"
+    fi
+  fi
+done
+</code></pre>
+<p>Build libbignsharp.dylib with the following script (Note the GEMPAK includes and links <code>-I$NSHARP</code>, <code>-I$GEMPAK/include</code>, <code>-L$OS_LIB</code>, etc.).</p>
+<pre><code>#!/bin/bash
+cd ~/awips2-gemlibs/nsharp/
+. $NAWIPS/Gemenviron.profile
+CC=gcc
+FC=gfortran
+
+export NSHARP=$GEMPAK/source/programs/gui/nsharp
+export NWX=$GEMPAK/source/programs/gui/nwx
+
+myLibs="$OS_LIB/ginitp_alt.o $OS_LIB/gendp_alt.o"
+
+myCflags="$CFLAGS -I. -I./Sndglib -I$NSHARP  -I$GEMPAK/include  -I$OS_INC -I$NWX \
+-I/opt/X11/include/X11 -I/usr/include/Xm -I/opt/local/include -I/usr/include/malloc -Wcomment -Wno-return-type -Wincompatible-pointer-types -DUNDERSCORE -fPIC -DDEBUG -c"
+
+myFflags="-I. -I$OS_INC -I$GEMPAK/include -I$NSHARP -fPIC -g -c -fno-second-underscore -fmax-errors=200 -std=f95"
+
+myLinkflags="-L/usr/local/Cellar/gcc/4.9.2_1/lib/gcc/4.9/ -L/opt/local/lib -L$OS_LIB -L. -L./Sndglib -L/usr/X11R6/lib \
+-shared -Wl -Wcomment -Wincompatible-pointer-types -Wimplicit-function-declaration -Wno-return-type,-install_name,libbignsharp.dylib -o libbignsharp.dylib"
+
+myLibsInc="$OS_LIB/ginitp_alt.o $OS_LIB/gendp_alt.o $OS_LIB/libnxmlib.a $OS_LIB/libsnlist.a \
+ $OS_LIB/libsflist.a $OS_LIB/libgemlib.a $OS_LIB/libcgemlib.a $OS_LIB/libgplt.a $OS_LIB/libdevice.a \
+ $OS_LIB/libxwp.a $OS_LIB/libxw.a $OS_LIB/libps.a  $OS_LIB/libgn.a $OS_LIB/libcgemlib.a $OS_LIB/libgemlib.a \
+ $OS_LIB/libnetcdf.a $OS_LIB/libtextlib.a $OS_LIB/libxml2.a $OS_LIB/libxslt.a \
+ $OS_LIB/libgemlib.a $OS_LIB/libcgemlib.a $OS_LIB/librsl.a $OS_LIB/libbz2.a"
+
+myLinktail="-I$OS_INC \
+  -I$GEMPAK/include -I$NWX -I$NSHARP -I. -I./Sndglib  -I/opt/X11/include/X11 -I/usr/include -I/usr/include/Xm -I/opt/local/include/ -I/opt/local/include -lhdf5 -lgfortran -ljasper -lpng -liconv -lc -lXt -lX11 -lz -lm -lXm"
+
+$CC $myCflags *.c Sndglib/*.c
+$FC $myFflags *.f
+$CC $myLinkflags *.o $myLibsInc $myLinktail
+
+cp libbignsharp.dylib ~/awips2-ncep/viz/gov.noaa.nws.ncep.ui.nsharp.macosx/
+</code></pre>
+<h2 id="gempak-pre-built-libraries">GEMPAK pre-built libraries<a class="headerlink" href="#gempak-pre-built-libraries" title="Permanent link"></a></h2>
+<blockquote>
+<p>libgempak.dylib</p>
+</blockquote>
+<p>libgempak.dylib is built in a similar way as libbignsharp.dylib:</p>
+<pre><code>#!/bin/bash
+cd ~/awips2-gemlibs/gempak/
+. $NAWIPS/Gemenviron.profile
+CC=gcc
+FC=gfortran
+
+myCflags="$CFLAGS -I. -I$GEMPAK/source/diaglib/dg -I$GEMPAK/source/gemlib/er \
+-I/opt/X11/include/X11 -I/usr/include/Xm -I/opt/local/include -I/usr/include/malloc -fPIC -DDEBUG -c"
+
+myFflags="-I. -I$OS_INC -I$GEMPAK/include -fPIC -g -c -Wtabs -fno-second-underscore"
+
+myLinkflags="-L/usr/local/Cellar/gcc/4.9.2_1/lib/gcc/4.9/ -L/opt/local/lib -L$OS_LIB -L. \
+-shared -Wl -Wno-return-type,-install_name,libgempak.dylib -o libgempak.dylib"
+
+myLibs="$OS_LIB/ginitp_alt.o $OS_LIB/gendp_alt.o $OS_LIB/libcgemlib.a \
+$OS_LIB/libsflist.a $OS_LIB/gdlist.a $OS_LIB/libcgemlib.a $OS_LIB/libgemlib.a \
+$OS_LIB/libcgemlib.a $OS_LIB/libgplt.a $OS_LIB/libdevice.a $OS_LIB/libcgemlib.a \
+$OS_LIB/libgn.a $OS_LIB/libgemlib.a $OS_LIB/libcgemlib.a $OS_LIB/libnetcdf.a \
+$OS_LIB/libcgemlib.a $OS_LIB/libtextlib.a $OS_LIB/libxml2.a $OS_LIB/libxslt.a \
+$OS_LIB/libcgemlib.a $OS_LIB/libgemlib.a $OS_LIB/libcgemlib.a $OS_LIB/libcgemlib.a \
+$OS_LIB/librsl.a $OS_LIB/libcgemlib.a $OS_LIB/libbz2.a"
+
+myLinktail="-I$OS_INC -I$GEMPAK/include -I. -I/opt/X11/include/X11 -I/usr/include \
+-I/usr/include/Xm -I/opt/local/include/ -I/opt/local/include \
+-lhdf5 -lgfortran -ljasper -lpng -liconv -lc -lXt -lX11 -lz -lm -lXm"
+
+$CC $myCflags *.c
+$FC $myFflags *.f
+$CC $myLinkflags *.o $myLibs $myLinktail
+
+cp libgempak.dylib ~/awips2-ncep/viz/gov.noaa.nws.ncep.viz.gempak.nativelib.macosx/
+</code></pre>
+<blockquote>
+<p>libcnflib.dylib</p>
+</blockquote>
+<pre><code>#!/bin/bash
+cd ~/awips2-gemlibs/cnflib/
+. $NAWIPS/Gemenviron.profile
+CC=gcc
+FC=gfortran
+
+myCflags="$CFLAGS -I/opt/X11/include/X11 -I/usr/include/Xm -I/opt/local/include \
+-I/usr/include/malloc -Wno-return-type -DUNDERSCORE  -fPIC -DDEBUG -g -c"
+
+myLinkflags="-L/usr/local/Cellar/gcc/4.9.2_1/lib/gcc/4.9/ -L/opt/local/lib \
+-shared -Wl -Wno-return-type,-install_name,libcnflib.dylib -o libcnflib.dylib"
+
+myLinktail="-lgfortran -lc"
+
+myLibs="$OS_LIB/ginitp_alt.o $OS_LIB/gendp_alt.o $OS_LIB/gdlist.a $OS_LIB/gdcfil.a \
+$OS_LIB/libgemlib.a $OS_LIB/libgplt.a $OS_LIB/libdevice.a $OS_LIB/libgn.a \
+$OS_LIB/libcgemlib.a $OS_LIB/libgemlib.a $OS_LIB/libnetcdf.a $OS_LIB/libtextlib.a \
+$OS_LIB/libxslt.a $OS_LIB/libxml2.a -liconv \
+$OS_LIB/libz.a $OS_LIB/librsl.a -lbz2"
+
+$CC $myCflags *.c
+$CC $myLinkflags *.o $myLibs $myLinktail
+
+cp libcnflib.dylib ~/awips2-ncep/viz/gov.noaa.nws.ncep.viz.gempak.nativelib.macosx/
+</code></pre>
+<blockquote>
+<p>libaodtv64.dylib</p>
+</blockquote>
+<pre><code>#!/bin/bash
+CC=gcc
+FC=gfortran
+
+cd ~/awips2-gemlibs/aodt/AODTLIB/
+
+gcc -fPIC -g -c -Wall *.c *.h
+gcc -shared -Wl,-Wno-return-type,-install_name,libaodtv64.dylib -o libaodtv64.dylib *.o -lc
+
+cp libaodtv64.dylib ~/awips2-ncep/viz/gov.noaa.nws.ncep.viz.gempak.nativelib.macosx/
+</code></pre>
+<blockquote>
+<p>libg2g.dylib</p>
+</blockquote>
+<pre><code>#!/bin/bash
+cd ~/awips2-gemlibs/g2g/
+. $NAWIPS/Gemenviron.profile
+CC=gcc
+FC=gfortran
+
+myCflags="$CFLAGS -I$GEMPAK/include -I. -I$GEMPAK/source/diaglib/dg \
+-I$GEMPAK/source/gemlib/er -I/opt/X11/include/X11 -I/usr/include/Xm \
+-I/opt/local/include -I/usr/include/malloc -Wno-return-type -DUNDERSCORE \
+-fPIC -DDEBUG -c"
+
+myFflags="-I. -I$OS_INC -I$GEMPAK/include -fPIC -g -c -Wtabs -fno-second-underscore"
+
+myLinkflags="-L/usr/local/Cellar/gcc/4.9.2_1/lib/gcc/4.9/ -L/opt/local/lib \
+-L/usr/X11R6/lib -shared -Wl -Wno-return-type,-install_name,libg2g.dylib -o libg2g.dylib"
+
+myLinktail="-lgfortran $OS_LIB/libjasper.a -lpng  -lc"
+
+myLibs="$OS_LIB/ginitp_alt.o $OS_LIB/gendp_alt.o $OS_LIB/gdlist.a \
+$OS_LIB/gdcfil.a $OS_LIB/libgemlib.a $OS_LIB/libgplt.a $OS_LIB/libdevice.a \
+$OS_LIB/libgn.a $OS_LIB/libcgemlib.a $OS_LIB/libgemlib.a $OS_LIB/libnetcdf.a \
+$OS_LIB/libtextlib.a $OS_LIB/libxslt.a $OS_LIB/libxml2.a \
+-liconv $OS_LIB/libz.a $OS_LIB/librsl.a -lbz2"
+
+$CC $myCflags *.c
+$FC $myFflags *.f
+$CC $myLinkflags *.o $myLibs $myLinktail
+
+cp libg2g.dylib ~/awips2-ncep/viz/gov.noaa.nws.ncep.viz.gempak.nativelib.macosx/
+</code></pre>
                 
                   
                 
@@ -1409,7 +1111,7 @@
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href="../appendix-acronyms/" title="Acronyms and Abbreviations" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../awips-development-environment/" title="AWIPS Development Environment (ADE)" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -1418,19 +1120,19 @@
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Acronyms and Abbreviations
+                AWIPS Development Environment (ADE)
               </span>
             </div>
           </a>
         
         
-          <a href="../appendix-wsr88d/" title="WSR-88D Product Table" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../../appendix/appendix-grid-parameters/" title="AWIPS Grid Parameters" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                WSR-88D Product Table
+                AWIPS Grid Parameters
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">
