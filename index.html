@@ -9,28 +9,28 @@
         <meta name="description" content="Documentation for all things AWIPS.">
       
       
-        <link rel="canonical" href="http://unidata.github.io/awips2/install/install-cave/">
+        <link rel="canonical" href="http://unidata.github.io/awips2/">
       
       
         <meta name="author" content="mjames@ucar.edu">
       
       
-        <link rel="shortcut icon" href="../../images/favicon.ico">
+        <link rel="shortcut icon" href="./images/favicon.ico">
       
       <meta name="generator" content="mkdocs-0.16.3, mkdocs-unidata-1.5.4">
     
     
       
-        <title>Install CAVE - Unidata AWIPS User Manual</title>
+        <title>Unidata AWIPS User Manual</title>
       
     
     
-      <script src="../../assets/javascripts/modernizr-56ade86843.js"></script>
+      <script src="./assets/javascripts/modernizr-56ade86843.js"></script>
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/application-b1a1975878.css">
+      <link rel="stylesheet" href="./assets/stylesheets/application-b1a1975878.css">
       
-        <link rel="stylesheet" href="../../assets/stylesheets/application-f78e5cb881.palette.css">
+        <link rel="stylesheet" href="./assets/stylesheets/application-f78e5cb881.palette.css">
       
     
     
@@ -44,7 +44,7 @@
       <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     
     
-      <link rel="stylesheet" href="../../css/extra.css">
+      <link rel="stylesheet" href="./css/extra.css">
     
     
   </head>
@@ -69,12 +69,12 @@
       <header class="md-header" data-md-component="header">
   <nav class="md-header-nav md-grid">
     
-      <a href="../.."><div class="background-logo" style="background-image: url(../../images/cave.png);"></div>
+      <a href="."><div class="background-logo" style="background-image: url(./images/cave.png);"></div>
     
     <div class="md-flex">
       <div class="md-flex__cell md-flex__cell--shrink">
         
-          <a href="../.." title="Unidata AWIPS User Manual" class="md-icon md-icon--home md-header-nav__button">
+          <a href="." title="Unidata AWIPS User Manual" class="md-icon md-icon--home md-header-nav__button">
           </a>
         
       </div>
@@ -88,7 +88,7 @@
               
             
             
-              Install CAVE
+              Unidata AWIPS User Manual
             
           
         </span>
@@ -194,18 +194,6 @@
       
       
 
-
-  <li class="md-nav__item">
-    <a href="../.." title="Home" class="md-nav__link">
-      Home
-    </a>
-  </li>
-
-    
-      
-      
-      
-
   
 
 
@@ -217,11 +205,11 @@
     
     
       <label class="md-nav__link md-nav__link--active" for="toc">
-        Install CAVE
+        Home
       </label>
     
-    <a href="./" title="Install CAVE" class="md-nav__link md-nav__link--active">
-      Install CAVE
+    <a href="." title="Home" class="md-nav__link md-nav__link--active">
+      Home
     </a>
     
       
@@ -235,37 +223,92 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#linux" title=" Linux" class="md-nav__link">
-     Linux
+  <a href="#download-cave" title="Download CAVE" class="md-nav__link">
+    Download CAVE
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#macos" title=" macOS" class="md-nav__link">
-     macOS
+  <a href="#download-edex-data-server" title="Download EDEX Data Server" class="md-nav__link">
+    Download EDEX Data Server
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#windows" title=" Windows" class="md-nav__link">
-     Windows
+  <a href="#license" title="License" class="md-nav__link">
+    License
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#awips-data-in-the-cloud" title="AWIPS Data in the Cloud" class="md-nav__link">
-    AWIPS Data in the Cloud
+  <a href="#software-components" title="Software Components" class="md-nav__link">
+    Software Components
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#edex" title="EDEX" class="md-nav__link">
+    EDEX
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#troubleshooting" title="Troubleshooting" class="md-nav__link">
-    Troubleshooting
+        
+          <li class="md-nav__item">
+  <a href="#cave" title="CAVE" class="md-nav__link">
+    CAVE
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ldm" title="LDM" class="md-nav__link">
+    LDM
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edexbridge" title="edexBridge" class="md-nav__link">
+    edexBridge
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qpid" title="Qpid" class="md-nav__link">
+    Qpid
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postgresql" title="PostgreSQL" class="md-nav__link">
+    PostgreSQL
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hdf5" title="HDF5" class="md-nav__link">
+    HDF5
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pypies-httpd-pypies" title="PyPIES (httpd-pypies)" class="md-nav__link">
+    PyPIES (httpd-pypies)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -284,7 +327,19 @@
 
 
   <li class="md-nav__item">
-    <a href="../install-edex/" title="Install EDEX" class="md-nav__link">
+    <a href="install/install-cave/" title="Install CAVE" class="md-nav__link">
+      Install CAVE
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="install/install-edex/" title="Install EDEX" class="md-nav__link">
       Install EDEX
     </a>
   </li>
@@ -315,7 +370,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-perspective/" title="D2D Perspective" class="md-nav__link">
+    <a href="cave/d2d-perspective/" title="D2D Perspective" class="md-nav__link">
       D2D Perspective
     </a>
   </li>
@@ -327,7 +382,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/maps-views-projections/" title="Maps, Views, Projections" class="md-nav__link">
+    <a href="cave/maps-views-projections/" title="Maps, Views, Projections" class="md-nav__link">
       Maps, Views, Projections
     </a>
   </li>
@@ -339,7 +394,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/bundles-and-procedures/" title="Bundles and Procedures" class="md-nav__link">
+    <a href="cave/bundles-and-procedures/" title="Bundles and Procedures" class="md-nav__link">
       Bundles and Procedures
     </a>
   </li>
@@ -351,7 +406,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/import-export/" title="Import/Export" class="md-nav__link">
+    <a href="cave/import-export/" title="Import/Export" class="md-nav__link">
       Import/Export
     </a>
   </li>
@@ -363,7 +418,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/localization-perspective/" title="Localization Perspective" class="md-nav__link">
+    <a href="cave/localization-perspective/" title="Localization Perspective" class="md-nav__link">
       Localization Perspective
     </a>
   </li>
@@ -375,7 +430,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/ncp-perspective/" title="NCP Perspective" class="md-nav__link">
+    <a href="cave/ncp-perspective/" title="NCP Perspective" class="md-nav__link">
       NCP Perspective
     </a>
   </li>
@@ -387,7 +442,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/nsharp/" title="NSHARP" class="md-nav__link">
+    <a href="cave/nsharp/" title="NSHARP" class="md-nav__link">
       NSHARP
     </a>
   </li>
@@ -399,7 +454,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/warngen/" title="WarnGen" class="md-nav__link">
+    <a href="cave/warngen/" title="WarnGen" class="md-nav__link">
       WarnGen
     </a>
   </li>
@@ -411,7 +466,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/goes-16-satellite/" title="GOES-16 (GOES-R)" class="md-nav__link">
+    <a href="cave/goes-16-satellite/" title="GOES-16 (GOES-R)" class="md-nav__link">
       GOES-16 (GOES-R)
     </a>
   </li>
@@ -423,7 +478,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-gis-shapefiles/" title="GIS and Shapefiles" class="md-nav__link">
+    <a href="cave/d2d-gis-shapefiles/" title="GIS and Shapefiles" class="md-nav__link">
       GIS and Shapefiles
     </a>
   </li>
@@ -435,7 +490,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-gridded-models/" title="Volume Browser" class="md-nav__link">
+    <a href="cave/d2d-gridded-models/" title="Volume Browser" class="md-nav__link">
       Volume Browser
     </a>
   </li>
@@ -447,7 +502,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-tools/" title="Display Tools" class="md-nav__link">
+    <a href="cave/d2d-tools/" title="Display Tools" class="md-nav__link">
       Display Tools
     </a>
   </li>
@@ -459,7 +514,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-radar-tools/" title="Radar Tools" class="md-nav__link">
+    <a href="cave/d2d-radar-tools/" title="Radar Tools" class="md-nav__link">
       Radar Tools
     </a>
   </li>
@@ -471,7 +526,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-edit-menus/" title="Editing Menus" class="md-nav__link">
+    <a href="cave/d2d-edit-menus/" title="Editing Menus" class="md-nav__link">
       Editing Menus
     </a>
   </li>
@@ -483,7 +538,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/cave-localization/" title="Change Localization" class="md-nav__link">
+    <a href="cave/cave-localization/" title="Change Localization" class="md-nav__link">
       Change Localization
     </a>
   </li>
@@ -519,7 +574,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../start-edex/" title="EDEX Start and Stop" class="md-nav__link">
+    <a href="install/start-edex/" title="EDEX Start and Stop" class="md-nav__link">
       EDEX Start and Stop
     </a>
   </li>
@@ -531,7 +586,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../edex/ldm/" title="LDM Feeds" class="md-nav__link">
+    <a href="edex/ldm/" title="LDM Feeds" class="md-nav__link">
       LDM Feeds
     </a>
   </li>
@@ -543,7 +598,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../edex/data-distribution-files/" title="Data Distribution Files" class="md-nav__link">
+    <a href="edex/data-distribution-files/" title="Data Distribution Files" class="md-nav__link">
       Data Distribution Files
     </a>
   </li>
@@ -555,7 +610,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../edex/new-grid/" title="Ingest a New Grid" class="md-nav__link">
+    <a href="edex/new-grid/" title="Ingest a New Grid" class="md-nav__link">
       Ingest a New Grid
     </a>
   </li>
@@ -567,7 +622,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../edex/data-purge/" title="Purging and Retention" class="md-nav__link">
+    <a href="edex/data-purge/" title="Purging and Retention" class="md-nav__link">
       Purging and Retention
     </a>
   </li>
@@ -579,7 +634,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../edex/edex-users/" title="Monitor Users" class="md-nav__link">
+    <a href="edex/edex-users/" title="Monitor Users" class="md-nav__link">
       Monitor Users
     </a>
   </li>
@@ -591,7 +646,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../edex/data-plugins/" title="Data Plugins" class="md-nav__link">
+    <a href="edex/data-plugins/" title="Data Plugins" class="md-nav__link">
       Data Plugins
     </a>
   </li>
@@ -627,7 +682,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-grids/" title="Gridded Model Display" class="md-nav__link">
+    <a href="cave/d2d-grids/" title="Gridded Model Display" class="md-nav__link">
       Gridded Model Display
     </a>
   </li>
@@ -639,7 +694,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-pointdata-surface-obs/" title="Surface Obs" class="md-nav__link">
+    <a href="cave/d2d-pointdata-surface-obs/" title="Surface Obs" class="md-nav__link">
       Surface Obs
     </a>
   </li>
@@ -651,7 +706,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-satellite/" title="Satellite Imagery" class="md-nav__link">
+    <a href="cave/d2d-satellite/" title="Satellite Imagery" class="md-nav__link">
       Satellite Imagery
     </a>
   </li>
@@ -663,7 +718,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-radar/" title="NEXRAD Radar" class="md-nav__link">
+    <a href="cave/d2d-radar/" title="NEXRAD Radar" class="md-nav__link">
       NEXRAD Radar
     </a>
   </li>
@@ -675,7 +730,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-uair/" title="Upper Air" class="md-nav__link">
+    <a href="cave/d2d-uair/" title="Upper Air" class="md-nav__link">
       Upper Air
     </a>
   </li>
@@ -687,7 +742,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-hydro/" title="NCEP/Hydro" class="md-nav__link">
+    <a href="cave/d2d-hydro/" title="NCEP/Hydro" class="md-nav__link">
       NCEP/Hydro
     </a>
   </li>
@@ -699,7 +754,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/d2d-map-resources/" title="Map Overlays" class="md-nav__link">
+    <a href="cave/d2d-map-resources/" title="Map Overlays" class="md-nav__link">
       Map Overlays
     </a>
   </li>
@@ -735,7 +790,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../python/derived-parameters/" title="Derived Parameters" class="md-nav__link">
+    <a href="python/derived-parameters/" title="Derived Parameters" class="md-nav__link">
       Derived Parameters
     </a>
   </li>
@@ -747,7 +802,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../python/python-awips-data-access/" title="Python AWIPS API" class="md-nav__link">
+    <a href="python/python-awips-data-access/" title="Python AWIPS API" class="md-nav__link">
       Python AWIPS API
     </a>
   </li>
@@ -783,7 +838,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../dev/awips-development-environment/" title="AWIPS Development Environment (ADE)" class="md-nav__link">
+    <a href="dev/awips-development-environment/" title="AWIPS Development Environment (ADE)" class="md-nav__link">
       AWIPS Development Environment (ADE)
     </a>
   </li>
@@ -795,7 +850,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../dev/build-nsharp-macos/" title="Building NSHARP for macOS" class="md-nav__link">
+    <a href="dev/build-nsharp-macos/" title="Building NSHARP for macOS" class="md-nav__link">
       Building NSHARP for macOS
     </a>
   </li>
@@ -831,7 +886,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../appendix/appendix-grid-parameters/" title="AWIPS Grid Parameters" class="md-nav__link">
+    <a href="appendix/appendix-grid-parameters/" title="AWIPS Grid Parameters" class="md-nav__link">
       AWIPS Grid Parameters
     </a>
   </li>
@@ -843,7 +898,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../appendix/appendix-acronyms/" title="Acronyms and Abbreviations" class="md-nav__link">
+    <a href="appendix/appendix-acronyms/" title="Acronyms and Abbreviations" class="md-nav__link">
       Acronyms and Abbreviations
     </a>
   </li>
@@ -855,7 +910,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../appendix/appendix-cots/" title="COTS and FOSS" class="md-nav__link">
+    <a href="appendix/appendix-cots/" title="COTS and FOSS" class="md-nav__link">
       COTS and FOSS
     </a>
   </li>
@@ -867,7 +922,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../appendix/appendix-wsr88d/" title="WSR-88D Product Table" class="md-nav__link">
+    <a href="appendix/appendix-wsr88d/" title="WSR-88D Product Table" class="md-nav__link">
       WSR-88D Product Table
     </a>
   </li>
@@ -879,7 +934,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/cave-keyboard-shortcuts/" title="Keyboard Shortcuts" class="md-nav__link">
+    <a href="cave/cave-keyboard-shortcuts/" title="Keyboard Shortcuts" class="md-nav__link">
       Keyboard Shortcuts
     </a>
   </li>
@@ -911,37 +966,92 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#linux" title=" Linux" class="md-nav__link">
-     Linux
+  <a href="#download-cave" title="Download CAVE" class="md-nav__link">
+    Download CAVE
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#macos" title=" macOS" class="md-nav__link">
-     macOS
+  <a href="#download-edex-data-server" title="Download EDEX Data Server" class="md-nav__link">
+    Download EDEX Data Server
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#windows" title=" Windows" class="md-nav__link">
-     Windows
+  <a href="#license" title="License" class="md-nav__link">
+    License
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#awips-data-in-the-cloud" title="AWIPS Data in the Cloud" class="md-nav__link">
-    AWIPS Data in the Cloud
+  <a href="#software-components" title="Software Components" class="md-nav__link">
+    Software Components
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#edex" title="EDEX" class="md-nav__link">
+    EDEX
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#troubleshooting" title="Troubleshooting" class="md-nav__link">
-    Troubleshooting
+        
+          <li class="md-nav__item">
+  <a href="#cave" title="CAVE" class="md-nav__link">
+    CAVE
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ldm" title="LDM" class="md-nav__link">
+    LDM
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edexbridge" title="edexBridge" class="md-nav__link">
+    edexBridge
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qpid" title="Qpid" class="md-nav__link">
+    Qpid
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postgresql" title="PostgreSQL" class="md-nav__link">
+    PostgreSQL
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hdf5" title="HDF5" class="md-nav__link">
+    HDF5
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pypies-httpd-pypies" title="PyPIES (httpd-pypies)" class="md-nav__link">
+    PyPIES (httpd-pypies)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -959,12 +1069,17 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/Unidata/awips2/edit/master/docs/install/install-cave.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
+                  <a href="https://github.com/Unidata/awips2/edit/master/docs/index.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
-                <h1 id="download-and-install-cave">Download and Install CAVE<a class="headerlink" href="#download-and-install-cave" title="Permanent link"></a></h1>
+                <h1 id="unidata-awips-user-manual">Unidata AWIPS User Manual<a class="headerlink" href="#unidata-awips-user-manual" title="Permanent link"></a></h1>
 <hr />
-<p><img style="width:300px;float:right;" src="../../images/Unidata_AWIPS2_CAVE.png"></p>
+<p><a href="http://www.unidata.ucar.edu/software/awips2/">Unidata AWIPS</a> is a meteorological display and analysis package originally developed by the <a href="http://www.nws.noaa.gov/ost/SEC/AE/">National Weather Service</a> and <a href="http://www.raytheon.com/capabilities/products/awips/">Raytheon</a>, repackaged by Unidata to support non-operational use in research and education by <a href="http://president.ucar.edu/governance/members/universities-representatives">UCAR member institutions</a>.</p>
+<p>AWIPS takes a unified approach to data ingest, and most data types follow a path through the system starting with an <a href="#ldm">LDM</a> client requesting data from the <a href="http://www.unidata.ucar.edu/projects/#idd">Unidata IDD</a>. These data files are then decoded and stored as HDF5 and Postgres metadata by <a href="./install/install-edex/">EDEX</a>. </p>
+<p>Unidata supports two visualization frameworks for rendering data: <a href="./install/install-cave/">CAVE</a>, and the Python Data Access Framework (<a href="http://python-awips.readthedocs.io">python-awips</a>).</p>
+<hr />
+<h2 id="download-cave">Download CAVE<a class="headerlink" href="#download-cave" title="Permanent link"></a></h2>
+<hr />
 <table>
 <thead>
 <tr>
@@ -992,62 +1107,68 @@
 </tbody>
 </table>
 <hr />
-<h2 id="linux"><i class="fa fa-linux"></i> Linux<a class="headerlink" href="#linux" title="Permanent link"></a></h2>
-<ul>
-<li><a href="http://www.unidata.ucar.edu/software/awips2/installCAVE.sh">installCAVE.sh <i class="fa fa-download"></i></a></li>
-</ul>
-<p>For CentOS/Red Hat 6 and 7. Installs to <strong>/awips2/cave</strong> and writes files to <strong>~/caveData</strong>.</p>
-<p>Install as root:</p>
-<pre><code>chmod 755 ./installCAVE.sh
-./installCAVE.sh
-</code></pre>
-<p>All package dependencies should be resolved by yum. </p>
-<p><strong>Run CAVE from the command line</strong></p>
-<pre><code>cave
-</code></pre>
-<p>or find CAVE in the GNOME menu <strong>Applications</strong> &gt; <strong>Internet</strong> &gt; <strong>AWIPS CAVE</strong></p>
-<div class="admonition note">
-<p class="admonition-title">System Requirements</p>
-<ul>
-<li>x86_64 CentOS/RHEL 6 or 7</li>
-<li>OpenGL 2.0</li>
-<li>4GB RAM</li>
-<li><a href="http://www.nvidia.com/Download/index.aspx?lang=en-us">Latest NVIDIA driver</a> for your graphics card</li>
-<li>2GB disk space for caching datasets in <strong>~/caveData</strong></li>
-</ul>
-</div>
+<h2 id="download-edex-data-server">Download EDEX Data Server<a class="headerlink" href="#download-edex-data-server" title="Permanent link"></a></h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th align="right"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Linux x86_64</td>
+<td align="right"><a href="http://www.unidata.ucar.edu/software/awips2/installEDEX.sh">installEDEX.sh <i class="fa fa-download"></i></a></td>
+</tr>
+</tbody>
+</table>
+<p><a href="./install/install-edex">Read full EDEX install instructions...</a></p>
 <hr />
-<h2 id="macos"><i class="fa fa-apple"></i> macOS<a class="headerlink" href="#macos" title="Permanent link"></a></h2>
+<h2 id="license">License<a class="headerlink" href="#license" title="Permanent link"></a></h2>
+<p>Unidata AWIPS source code and binaries (RPMs) are considered to be in the public domain, meaning there are no restrictions on any download, modification, or distribution in any form (original or modified).  Unidata AWIPS contains no proprietery content and is therefore not subject to export controls as stated in the <a href="https://github.com/Unidata/awips2/blob/unidata_16.2.2/rpms/legal/Master_Rights_File.pdf">Master Rights</a> licensing file. </p>
+<p><img style="float:right;width:450px;" src="http://www.unidata.ucar.edu/software/awips2/images/awips2_coms.png"></p>
+<hr />
+<h2 id="software-components">Software Components<a class="headerlink" href="#software-components" title="Permanent link"></a></h2>
 <ul>
-<li><a href="http://www.unidata.ucar.edu/downloads/awips2/awips2-cave-16.2.2.dmg">awips2-cave-16.2.2.dmg <i class="fa fa-download"></i></a></li>
+<li><a href="#edex">EDEX</a></li>
+<li><a href="#cave">CAVE</a></li>
+<li><a href="#ldm">LDM</a></li>
+<li><a href="#edexbridge">edexBridge</a></li>
+<li><a href="#qpid">Qpid</a></li>
+<li><a href="#postgresql">PostgreSQL</a></li>
+<li><a href="#hdf5">HDF5</a></li>
+<li><a href="#pypies">PyPIES</a></li>
 </ul>
-<p>Writes config files to <strong>~/Library/CAVE</strong></p>
-<div class="admonition warning">
-<p class="admonition-title">macOS 10.12 (Sierra) not fully supported, requires cave be run from the command line.</p>
-<p>New to 10.12 is Gatekeeper Path Randomization, which prevents applications delivered outside of the Mac App Store from running by normal means (taskbar icon or finder). </p>
-<p>Until the next release, CAVE on Sierra should be run from the terminal with the command <code>/Applications/CAVE/cave.app/Contents/MacOS/cave</code></p>
-</div>
-<hr />
-<h2 id="windows"><i class="fa fa-windows"></i> Windows<a class="headerlink" href="#windows" title="Permanent link"></a></h2>
+<p>The primary AWIPS application for data ingest, processing, and storage is the Environmental Data EXchange (<strong>EDEX</strong>) server; the primary AWIPS application for visualization/data manipulation is the Common AWIPS Visualization Environment (<strong>CAVE</strong>) client, which is typically installed on a workstation separate from other AWIPS components.  </p>
+<p>In addition to programs developed specifically for AWIPS, AWIPS uses several commercial off-the-shelf (COTS) and Free or Open Source software (FOSS) products to assist in its operation. The following components, working together and communicating, compose the entire AWIPS system.</p>
+<h3 id="edex">EDEX<a class="headerlink" href="#edex" title="Permanent link"></a></h3>
+<p>The main server for AWIPS.  Qpid sends alerts to EDEX when data stored by the LDM is ready for processing.  These Qpid messages include file header information which allows EDEX to determine the appropriate data decoder to use.  The default ingest server (simply named ingest) handles all data ingest other than grib messages, which are processed by a separate ingestGrib server.  After decoding, EDEX writes metadata to the database via Postgres and saves the processed data in HDF5 via PyPIES.   A third EDEX server, request, feeds requested data to CAVE clients. EDEX ingest and request servers are started and stopped with the commands <code>edex start</code> and <code>edex stop</code>, which runs the system script <code>/etc/rc.d/init.d/edex_camel</code></p>
 <ul>
-<li><a href="http://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi">awips-cave.msi <i class="fa fa-download"></i></a></li>
-<li><a href="http://www.unidata.ucar.edu/downloads/awips2/awips-cave.amd64.msi">awips-cave.amd64.msi <i class="fa fa-download"></i></a></li>
+<li><a href="./install/install-edex">Read More: How to Install EDEX</a></li>
 </ul>
-<p>Writes files to <strong>caveData</strong> in the user's home directory.</p>
-<div class="admonition warning">
-<p class="admonition-title">Beta status</p>
-<p>Client-side Python scripts (including Derived Parameters) do not work on Windows</p>
-</div>
-<hr />
-<h2 id="awips-data-in-the-cloud">AWIPS Data in the Cloud<a class="headerlink" href="#awips-data-in-the-cloud" title="Permanent link"></a></h2>
-<p>Unidata and XSEDE Jetstream have partnered to offer a EDEX data server in the cloud, open to the Unidata university community.  Select the server in the Connectivity Preferences dialog, or enter <strong><code>edex-cloud.unidata.ucar.edu</code></strong> (without <em>http://</em> before, or <em>:9581/services</em> after).</p>
-<p><img alt="EDEX in the cloud" src="../../images/boEbFSf28t.gif" /></p>
-<hr />
-<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link"></a></h2>
-<p><strong>Localization Preferences Error</strong></p>
-<p>You can reset CAVE by removing the <strong>~/caveData</strong> directory (on macOS <strong>~/Library/CAVE</strong>) and then run <code>cave</code> again to connect to an EDEX server.  Your local files have been removed, but if you are re-connecting to an EDEX server you have used before, the remote files will sync again to your local <strong>~/caveData</strong> (bundles, colormaps, etc.). </p>
-<p><strong>No Images Displayed</strong></p>
-<p>If you are able to load wire-frame contours but not images, <a href="http://www.nvidia.com/Download/index.aspx?lang=en-us">update your video driver</a>. </p>
+<h3 id="cave">CAVE<a class="headerlink" href="#cave" title="Permanent link"></a></h3>
+<p>Common AWIPS Visualization Environment. The data rendering and visualization tool for AWIPS. CAVE contains of a number of different data display configurations called perspectives.  Perspectives used in operational forecasting environments include <strong>D2D</strong> (Display Two-Dimensional), <strong>GFE</strong> (Graphical Forecast Editor), and <strong>NCP</strong> (National Centers Perspective). CAVE is started with the command <code>/awips2/cave/cave.sh</code> or <code>cave.sh</code></p>
+<ul>
+<li><a href="./install/install-cave">Read More: How to Install CAVE</a></li>
+</ul>
+<p><img alt="CAVE" src="http://www.unidata.ucar.edu/software/awips2/images/Unidata_AWIPS2_CAVE.png" /></p>
+<h3 id="ldm">LDM<a class="headerlink" href="#ldm" title="Permanent link"></a></h3>
+<p><a href="http://www.unidata.ucar.edu/software/ldm/">http://www.unidata.ucar.edu/software/ldm/</a></p>
+<p>The <strong>LDM</strong> (Local Data Manager), developed and supported by Unidata, is a suite of client and server programs designed for data distribution, and is the fundamental component comprising the Unidata Internet Data Distribution (IDD) system. In AWIPS, the LDM provides data feeds for grids, surface observations, upper-air profiles, satellite and radar imagery and various other meteorological datasets.   The LDM writes data directly to file and alerts EDEX via Qpid when a file is available for processing.  The LDM is started and stopped with the commands <code>edex start</code> and <code>edex stop</code>, which runs the commands <code>service edex_ldm start</code> and <code>service edex_ldm stop</code></p>
+<h3 id="edexbridge">edexBridge<a class="headerlink" href="#edexbridge" title="Permanent link"></a></h3>
+<p>edexBridge, invoked in the LDM configuration file <code>/awips2/ldm/etc/ldmd.conf</code>, is used by the LDM to post "data available" messaged to Qpid, which alerts the EDEX Ingest server that a file is ready for processing.</p>
+<h3 id="qpid">Qpid<a class="headerlink" href="#qpid" title="Permanent link"></a></h3>
+<p><a href="http://qpid.apache.org">http://qpid.apache.org</a></p>
+<p><strong>Apache Qpid</strong>, the Queue Processor Interface Daemon, is the messaging system used by AWIPS to facilitate communication between services.  When the LDM receives a data file to be processed, it employs <strong>edexBridge</strong> to send EDEX ingest servers a message via Qpid.  When EDEX has finished decoding the file, it sends CAVE a message via Qpid that data are available for display or further processing. Qpid is started and stopped by <code>edex start</code> and <code>edex stop</code>, and is controlled by the system script <code>/etc/rc.d/init.d/qpidd</code></p>
+<h3 id="postgresql">PostgreSQL<a class="headerlink" href="#postgresql" title="Permanent link"></a></h3>
+<p><a href="http://www.postgresql.org">http://www.postgresql.org</a></p>
+<p><strong>PostgreSQL</strong>, known simply as Postgres, is a relational database management system (DBMS) which handles the storage and retrieval of metadata, database tables and some decoded data.  The storage and reading of EDEX metadata is handled by the Postgres DBMS.  Users may query the metadata tables by using the termainal-based front-end for Postgres called <strong>psql</strong>. Postgres is started and stopped by <code>edex start</code> and <code>edex stop</code>, and is controlled by the system script <code>/etc/rc.d/init.d/edex_postgres</code></p>
+<h3 id="hdf5">HDF5<a class="headerlink" href="#hdf5" title="Permanent link"></a></h3>
+<p><a href="http://www.hdfgroup.org/HDF5/">http://www.hdfgroup.org/HDF5/</a></p>
+<p><a href="http://www.hdfgroup.org/HDF5/"><strong>Hierarchical Data Format (v.5)</strong></a> is the primary data storage format used by AWIPS for processed grids, satellite and radar imagery and other products.   Similar to netCDF, developed and supported by Unidata, HDF5 supports multiple types of data within a single file.  For example, a single HDF5 file of radar data may contain multiple volume scans of base reflectivity and base velocity as well as derived products such as composite reflectivity.  The file may also contain data from multiple radars. HDF5 is stored in <code>/awips2/edex/data/hdf5/</code></p>
+<h3 id="pypies-httpd-pypies">PyPIES (httpd-pypies)<a class="headerlink" href="#pypies-httpd-pypies" title="Permanent link"></a></h3>
+<p><strong>PyPIES</strong>, Python Process Isolated Enhanced Storage, was created for AWIPS to isolate the management of HDF5 Processed Data Storage from the EDEX processes.  PyPIES manages access, i.e., reads and writes, of data in the HDF5 files.  In a sense, PyPIES provides functionality similar to a DBMS (i.e PostgreSQL for metadata); all data being written to an HDF5 file is sent to PyPIES, and requests for data stored in HDF5 are processed by PyPIES.</p>
+<p>PyPIES is implemented in two parts: 1. The PyPIES manager is a Python application that runs as part of an Apache HTTP server, and handles requests to store and retrieve data. 2. The PyPIES logger is a Python process that coordinates logging. PyPIES is started and stopped by <code>edex start</code> and <code>edex stop</code>, and is controlled by the system script <code>/etc/rc.d/init.d/https-pypies</code> </p>
                 
                   
                 
@@ -1066,28 +1187,14 @@
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href="../.." title="Home" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
-            <div class="md-flex__cell md-flex__cell--shrink">
-              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
-            </div>
-            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
-              <span class="md-flex__ellipsis">
-                <span class="md-footer-nav__direction">
-                  Previous
-                </span>
-                Home
-              </span>
-            </div>
-          </a>
         
-        
-          <a href="../install-edex/" title="Install EDEX" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="install/install-cave/" title="Install CAVE" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Install EDEX
+                Install CAVE
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">
@@ -1135,8 +1242,8 @@
       
     </div>
     
-      <script src="../../assets/javascripts/application-0b7df094bf.js"></script>
-      <script>app.initialize({url:{base:"../.."}})</script>
+      <script src="./assets/javascripts/application-0b7df094bf.js"></script>
+      <script>app.initialize({url:{base:"."}})</script>
       
     
     
