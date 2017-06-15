@@ -61,7 +61,7 @@ Channels 2,3,2 (0.64u, 0.87u, 0.64u)
 
 	OpenGL Scripting Language limitations on Mac prevent multi-channel imagery from shading:
 	
-	  * Icing (1.61, 0.87, 0.64)
+	  * Icing (1.61, 0.87, 0.64)which dis
 	  * Daytime Composite (0.64, 1.61, 11.20)
 	  * Daytime Composite (0.64, 0.87, 0.64)  
 
@@ -100,9 +100,9 @@ From `/awips2/edex/data/utility/common_static/base/distribution/goesr.xml`
 
 ## GOES Lightning Mapper (GLM)
 
-NASA's SPoRT MSFC Earth Science Office has contributed plugins to decode GLM level2 products, which displayed as point data in CAVE.
+NASA's SPoRT MSFC Earth Science Office has contributed plugins to decode GLM level2 products, displayed as point data in CAVE.
 
-Though Unidata is currently not distributing GLM products, you can [download a sample netCDF file](http://www.unidata.ucar.edu/software/awips2/OR_GLM-L2-LCFA_G16_s20170402339144_e20170402339307_c20170402339509.nc) and copy it to `/awips2/data_store/ingest/` in order to test the decoding and display of GOES-R lightning data.
+While Unidata is not currently distributing GLM products, you can [download a sample netCDF file](http://www.unidata.ucar.edu/software/awips2/OR_GLM-L2-LCFA_G16_s20170402339144_e20170402339307_c20170402339509.nc) and copy it to `/awips2/data_store/ingest/` in order to test the decoding and display of GOES-R lightning data.
 
 ### Ingest Sample Data 
 
@@ -113,7 +113,7 @@ Run the single command from your EDEX server to ingest a single-time sample data
 
 ### Display GLM Lightning Data
 
-And then access the GLM data in **Satellite** > **GOES-16 Provisional** > **GLM-Lightning**.  Data are displayable as **Flash**, **Event**, and **Group**.
+Load GLM data from the menu **Satellite** > **GOES-16 Provisional** > **GLM-Lightning**.  Data are displayable as **Flash**, **Event**, and **Group** and 1min, 5min, 15min, and 1hr intervals.
 
 ![](../images/goes_16_glmmenu.png)
 
