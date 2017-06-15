@@ -3,14 +3,6 @@
 
     
     <url>
-     <loc>http://unidata.github.io/awips2/</loc>
-     <lastmod>2017-06-14</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-    
-
-    
-    <url>
      <loc>http://unidata.github.io/awips2/install/install-cave/</loc>
      <lastmod>2017-06-14</lastmod>
      <changefreq>daily</changefreq>
