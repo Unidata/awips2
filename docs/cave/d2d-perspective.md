@@ -17,6 +17,10 @@ Frame control, map projection, image properties, and a few featured applications
 
 At bottom-right of the map window the the Resource Stack, which displays all loaded resources and map overlays, and allows for interaction and customization with the resource via a **right-click menu**.
 
+There are three available views of the Resource Stack, the default will show all Product Resources.  **Right Click** the mouse on the map background to switch to a Simple View.  **Right Click** again to show all Map Resources.  **Right Click** again to toggle back to Product Resources.
+
+It's important to understand that Product Resources and Map Resources are handled differently given the time-based nature of Products, compared to the static nature of maps.  Selecting the **Clear** button will remove all Products but not remove any Map Products. 
+
 > Left-Click Resource Name to Hide
 
 A left click on any resource in the stack will hide the resource and turn the label gray.  Clicking the name again makes the resource visible.

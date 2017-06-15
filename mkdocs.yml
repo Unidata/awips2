@@ -38,6 +38,7 @@ pages:
     - NCP Perspective: cave/ncp-perspective.md
     - NSHARP: cave/nsharp.md
     - WarnGen: cave/warngen.md
+    - GOES-16 (GOES-R): cave/goes-16-satellite.md
     - GIS and Shapefiles: cave/d2d-gis-shapefiles.md
     - Volume Browser: cave/d2d-gridded-models.md
     - Display Tools: cave/d2d-tools.md
@@ -63,6 +64,9 @@ pages:
 - Python:
     - Derived Parameters: python/derived-parameters.md
     - Python AWIPS API: python/python-awips-data-access.md
+- Development:
+    - AWIPS Development Environment (ADE): dev/awips-development-environment.md
+    - Building NSHARP for macOS: dev/build-nsharp-macos.md
 - Appendix:
     - AWIPS Grid Parameters: appendix/appendix-grid-parameters.md
     - Acronyms and Abbreviations: appendix/appendix-acronyms.md

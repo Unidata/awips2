@@ -13,10 +13,10 @@ Quick instructions on how to deploy CAVE from Eclipse.
         
 2. `yum clean all && yum groupinstall awips2-ade`
 
-    This will install Eclipse (4.5), Java (1.8), Ant, Maven, Groovy, Python (2.7) and its modules (Numpy, Matplotlib, Shapely, and others). 
+    This will install Eclipse (4.5), Java (1.8), Ant, Maven, Python 2.7 and its modules (Numpy, Matplotlib, Shapely, others). 
 
 
-3. git clone https://github.com/Unidata/awips2.git
+3. `git clone https://github.com/Unidata/awips2.git`
 
     The full list of repositories required as of release 17.1.1:
     
@@ -47,14 +47,14 @@ Quick instructions on how to deploy CAVE from Eclipse.
          
         You'll want to import **~/awips2** in three parts to ensure a clean and error-free Eclipse build:
         
-        1. Import **awips2/cave** > Select All Projects > Import/Finish
-        2. Import **awips2/edexOsgi** > Select All Projects > Import/Finish
-        3. Import **awips2/Radar** > Select All Projects > Import/Finish
+        1. Import **awips2/cave** > Select All Projects > Finish
+        2. Import **awips2/edexOsgi** > Select All Projects > Finish
+        3. Import **awips2/Radar** > Select All Projects > Finish
             > The **Radar** folder contains the EDEX Radar Server plugins. Though the Unidata release does not build or use the radar server, the common libraries are required for other AWIPS radar processing and visualization plugins.
             
         Now import all other repositories fully: 
         
-        Select **awips2-core**, **awips2-core-foss**, **awips2-foss**, **awips2-ncep**, etc. > Select All Projects > Import/Finish 
+        Select **awips2-core**, **awips2-core-foss**, **awips2-foss**, **awips2-ncep**, etc. > Select All Projects > Finish 
 
     * Project > Clean
     
