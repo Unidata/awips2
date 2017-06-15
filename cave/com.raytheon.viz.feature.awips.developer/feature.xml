@@ -78,10 +78,6 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.viz.gfe.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.uf.viz.displays.feature"
          version="0.0.0"/>
 
@@ -99,10 +95,6 @@
 
    <includes
          id="com.raytheon.uf.viz.ncep.dataplugins.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.viz.hydro.feature"
          version="0.0.0"/>
 
    <includes
@@ -162,10 +154,6 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.viz.d2d.gfe.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.uf.viz.gisdatastore.feature"
          version="0.0.0"/>
 
@@ -175,10 +163,6 @@
 
    <includes
          id="com.raytheon.uf.viz.registry.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.aviation.advisory.feature"
          version="0.0.0"/>
 
    <includes
@@ -219,6 +203,10 @@
 
    <includes
          id="gov.noaa.nws.mdl.viz.boundaryTool.common.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.aviation.advisory.feature"
          version="0.0.0"/>
 
    <requires>

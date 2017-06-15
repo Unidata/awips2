@@ -52,5 +52,44 @@
         <contribute xsi:type="subinclude" subMenu="All Channels" fileName="menus/satellite/goesr/goesrBySectorByChannel.xml" />
         <contribute xsi:type="subinclude" subMenu="Level 2 Products" fileName="menus/satellite/goesr/goesrLevel2.xml" />
         <contribute xsi:type="subinclude" subMenu="Locally Derived" fileName="menus/satellite/goesr/goesrBySectorLocallyDerived.xml" />
+        
+        <contribute xsi:type="titleItem" titleText="------ GLM Lightning ------" id="glmLightning"/>
+        <contribute xsi:type="subMenu" menuText="GLM Flash" id="GLMflSubMenu">
+		<contribute xsi:type="subinclude"
+				fileName="menus/lightning/nldnLightningBundleItems.xml">
+				<substitute key="source" value="GLMfl" />
+			</contribute>
+		</contribute>
+		<contribute xsi:type="subMenu" menuText="GLM Flash Grid" id="glmGridSubmenu">
+			<contribute xsi:type="subinclude"
+				fileName="menus/lightning/gridLightningMenuItems.xml">
+				<substitute key="source" value="GLMfl" />
+			</contribute>
+		</contribute>
+		<contribute xsi:type="subMenu" menuText="GLM Event" id="GLMevSubMenu">
+			<contribute xsi:type="subinclude"
+				fileName="menus/lightning/nldnLightningBundleItems.xml">
+				<substitute key="source" value="GLMev" />
+			</contribute>
+		</contribute>
+		<contribute xsi:type="subMenu" menuText="GLM Event Grid" id="glmGridSubmenu">
+			<contribute xsi:type="subinclude"
+				fileName="menus/lightning/gridLightningMenuItems.xml">
+				<substitute key="source" value="GLMev" />
+			</contribute>
+		</contribute>
+		<contribute xsi:type="subMenu" menuText="GLM Group" id="GLMgrSubMenu">
+			<contribute xsi:type="subinclude"
+				fileName="menus/lightning/nldnLightningBundleItems.xml">
+				<substitute key="source" value="GLMgr" />
+			</contribute>
+		</contribute>
+		<contribute xsi:type="subMenu" menuText="GLM Group Grid" id="glmGridSubmenu">
+			<contribute xsi:type="subinclude"
+				fileName="menus/lightning/gridLightningMenuItems.xml">
+				<substitute key="source" value="GLMgr" />
+			</contribute>
+		</contribute>
+        
     </contribute>
 </menuTemplate>
