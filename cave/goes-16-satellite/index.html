@@ -1160,7 +1160,7 @@
 <p class="admonition-title">GOES-16 Composite Imagery NOT SUPPORTED on macOS</p>
 <p>OpenGL Scripting Language limitations on Mac prevent multi-channel imagery from shading:</p>
 <ul>
-<li>Icing (1.61, 0.87, 0.64)</li>
+<li>Icing (1.61, 0.87, 0.64)which dis</li>
 <li>Daytime Composite (0.64, 1.61, 11.20)</li>
 <li>Daytime Composite (0.64, 0.87, 0.64)  </li>
 </ul>
@@ -1185,14 +1185,14 @@ drwxr-xr-x 18 awips fxalpha TMESO-2
 </code></pre>
 <hr />
 <h2 id="goes-lightning-mapper-glm">GOES Lightning Mapper (GLM)<a class="headerlink" href="#goes-lightning-mapper-glm" title="Permanent link"></a></h2>
-<p>NASA's SPoRT MSFC Earth Science Office has contributed plugins to decode GLM level2 products, which displayed as point data in CAVE.</p>
-<p>Though Unidata is currently not distributing GLM products, you can <a href="http://www.unidata.ucar.edu/software/awips2/OR_GLM-L2-LCFA_G16_s20170402339144_e20170402339307_c20170402339509.nc">download a sample netCDF file</a> and copy it to <code>/awips2/data_store/ingest/</code> in order to test the decoding and display of GOES-R lightning data.</p>
+<p>NASA's SPoRT MSFC Earth Science Office has contributed plugins to decode GLM level2 products, displayed as point data in CAVE.</p>
+<p>While Unidata is not currently distributing GLM products, you can <a href="http://www.unidata.ucar.edu/software/awips2/OR_GLM-L2-LCFA_G16_s20170402339144_e20170402339307_c20170402339509.nc">download a sample netCDF file</a> and copy it to <code>/awips2/data_store/ingest/</code> in order to test the decoding and display of GOES-R lightning data.</p>
 <h3 id="ingest-sample-data">Ingest Sample Data<a class="headerlink" href="#ingest-sample-data" title="Permanent link"></a></h3>
 <p>Run the single command from your EDEX server to ingest a single-time sample data set:</p>
 <pre><code>wget http://www.unidata.ucar.edu/software/awips2/OR_GLM-L2-LCFA_G16_s20170402339144.nc -P /awips2/data_store/ingest/
 </code></pre>
 <h3 id="display-glm-lightning-data">Display GLM Lightning Data<a class="headerlink" href="#display-glm-lightning-data" title="Permanent link"></a></h3>
-<p>And then access the GLM data in <strong>Satellite</strong> &gt; <strong>GOES-16 Provisional</strong> &gt; <strong>GLM-Lightning</strong>.  Data are displayable as <strong>Flash</strong>, <strong>Event</strong>, and <strong>Group</strong>.</p>
+<p>Load GLM data from the menu <strong>Satellite</strong> &gt; <strong>GOES-16 Provisional</strong> &gt; <strong>GLM-Lightning</strong>.  Data are displayable as <strong>Flash</strong>, <strong>Event</strong>, and <strong>Group</strong> and 1min, 5min, 15min, and 1hr intervals.</p>
 <p><img alt="" src="../../images/goes_16_glmmenu.png" /></p>
 <p><img alt="" src="../../images/goes_16_glm.png" /></p>
                 
