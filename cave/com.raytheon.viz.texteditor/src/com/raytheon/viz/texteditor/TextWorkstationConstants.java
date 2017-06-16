@@ -19,26 +19,12 @@
  **/
 package com.raytheon.viz.texteditor;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 
-import org.eclipse.jface.preference.IPersistentPreferenceStore;
-import org.eclipse.jface.preference.PreferenceStore;
-
-import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.viz.core.mode.CAVEMode;
 
 /**
@@ -51,43 +37,26 @@ import com.raytheon.viz.core.mode.CAVEMode;
  * ------------ ---------- ----------- --------------------------
  * Nov 11, 2009            mschenke    Initial creation
  * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
+ * Jun 15, 2017            mjames@ucar Remove preferences store, assume localhost.
  * 
  * </pre>
  * 
  * @author mschenke
  * @version 1.0
+ * 
+ * 
  */
 
 public class TextWorkstationConstants {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(TextWorkstationConstants.class);
-
-    private static IPersistentPreferenceStore store = null;
 
     private static final String TEXTWORKSTATION_QUEUE = "textWorkstation";
 
     public static final String P_TEXTWORKSTATION_ID = "workstationId";
 
-    private static String host = null;
-
-    private static String TEXTWS = System.getenv("TEXTWS");
+    private static String host = "localhost";
 
     public static String getId() {
-        IPersistentPreferenceStore store = getPreferenceStore();
-        String id = store.getString(P_TEXTWORKSTATION_ID);
-        if (id == null || id.trim().equals("")) {
-            id = TEXTWS;
-            if (id != null && !id.trim().equals("")) {
-                store.putValue(P_TEXTWORKSTATION_ID, id);
-                try {
-                    store.save();
-                } catch (IOException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            e.getLocalizedMessage(), e);
-                }
-            }
-        }
-        return id;
+        return host;
     }
 
     /**
@@ -133,47 +102,6 @@ public class TextWorkstationConstants {
             }
         }
         return host;
-    }
-
-    public static IPersistentPreferenceStore getPreferenceStore() {
-        if (store == null) {
-            IPathManager pm = PathManagerFactory.getPathManager();
-            final LocalizationFile file = pm.getLocalizationFile(pm
-                    .getContext(LocalizationType.CAVE_STATIC,
-                            LocalizationLevel.WORKSTATION), "textWs"
-                    + File.separator + "textws.prefs");
-            File f = file.getFile();
-            if (f.exists() == false) {
-                try {
-                    f.getParentFile().mkdirs();
-                    f.createNewFile();
-                } catch (IOException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error getting text workstation preferences", e);
-                }
-            }
-            store = new PreferenceStore(file.getFile().getAbsolutePath()) {
-
-                @Override
-                public void save() throws IOException {
-                    super.save();
-                    try {
-                        file.save();
-                    } catch (LocalizationException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                "Error saving text workstation preferences", e);
-                    }
-                }
-
-            };
-            try {
-                ((PreferenceStore) store).load();
-            } catch (IOException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error loading text workstation preferences", e);
-            }
-        }
-        return store;
     }
 
     public static String getDestinationTextWorkstationQueueName()

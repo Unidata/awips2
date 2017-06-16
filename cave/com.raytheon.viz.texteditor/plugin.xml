@@ -66,13 +66,6 @@
       </handler>
    </extension>
    <extension
-         point="org.eclipse.ui.preferencePages">
-      <page
-            class="com.raytheon.viz.texteditor.TextWorkstationPreferences"
-            id="com.raytheon.viz.texteditor.TextWorkstationPreferences"
-            name="Text Workstation"/>
-   </extension>
-   <extension
          point="com.raytheon.uf.viz.localization.perspective.localizationpath">
       <path
             application="TextWS"

@@ -64,6 +64,7 @@ import com.raytheon.viz.texteditor.util.SiteAbbreviationUtil;
  * Sep 13, 2013 2368       rjpeter     Set delivery mode to PERSISTENT.
  * May  7, 2015 ASM #17438 D. Friedman Clean up debug and performance logging.
  * Sep 03, 2015 4784       rjpeter     Set notifySubscriptions on sendToTextDatabase.
+ * Jun 15, 2017 ----       mjames@ucar Force practice mode.
  * </pre>
  * 
  * @author mschenke
@@ -258,9 +259,7 @@ public class WarningSender implements IWarngenObserver {
      */
     public static void sendToTextDatabase(String id, String warning)
             throws VizException {
-        CAVEMode mode = CAVEMode.getMode();
-        boolean operationalMode = (CAVEMode.OPERATIONAL.equals(mode)
-                || CAVEMode.TEST.equals(mode) ? true : false);
+        boolean operationalMode = false;
 
         // Generate StdTextProduct and insert into db
         long t0 = System.currentTimeMillis();

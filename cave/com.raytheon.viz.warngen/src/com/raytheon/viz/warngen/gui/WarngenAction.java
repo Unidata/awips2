@@ -21,6 +21,7 @@ package com.raytheon.viz.warngen.gui;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
@@ -31,6 +32,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 import com.raytheon.uf.viz.core.rsc.tools.action.AbstractGenericToolAction;
+import com.raytheon.viz.textworkstation.TextWorkstationDlg;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.input.EditableManager;
 import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
 
@@ -47,6 +50,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  *                                      with minor changes.
  * Aug 15, 2013  DR 16418  D. Friedman  Always show the dialog.
  * Sep 22, 2015  4859      dgilling     Prevent dialog from showing in DRT mode.
+ * Jun 15, 2017  ----      mjames@ucar  Open TextWorkstation.
  * 
  * </pre>
  * 
@@ -55,6 +59,9 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  */
 
 public class WarngenAction extends AbstractGenericToolAction<WarngenLayer> {
+	
+    private static TextWorkstationDlg textWorkstationDlg;
+
     /*
      * (non-Javadoc)
      * 
@@ -88,6 +95,21 @@ public class WarngenAction extends AbstractGenericToolAction<WarngenLayer> {
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
+    	
+    	if ((textWorkstationDlg == null) || textWorkstationDlg.isDisposed()) {
+            textWorkstationDlg = new TextWorkstationDlg(Display.getCurrent());
+            textWorkstationDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    textWorkstationDlg = null;
+                }
+            });
+            textWorkstationDlg.open();
+        } else {
+            textWorkstationDlg.bringToTop();
+        }
+    	
         if (!SimulatedTimeOperations.isTransmitAllowed()) {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();

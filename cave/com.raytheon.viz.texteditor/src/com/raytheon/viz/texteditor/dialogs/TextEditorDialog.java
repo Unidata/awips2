@@ -6643,7 +6643,7 @@ public class TextEditorDialog extends CaveSWTDialog
     }
 
     /**
-     * Clear the information on the text workstaion button for this text editor
+     * Clear the information on the text workstation button for this text editor
      * dialog.
      */
     public void clearButtonology() {
