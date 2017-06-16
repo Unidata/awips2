@@ -12,10 +12,12 @@
     <!-- Post processor definitions for models which disseminate updated grids 
         containing identical metadata. This data is primarily from RFCs. The overwrite 
         post processor is used to prevent updated data from being discarded as duplicates. -->
+    <!--
     <postProcessedModel id="Overwrite">
         <modelName>HPCqpfNDFD|RFCqpf|HPCqpf|MPE-.*|QPE-.*|URMA25</modelName>
         <processorName>OverwriteGribPostProcessor</processorName>
     </postProcessedModel>
+    -->
 
     <!-- Post processor definition for FFG grids. Similar to the models using 
         the overwrite post processor, FFG gridded data is also updated without changing 
@@ -40,7 +42,7 @@
 
     <!-- Post processor definition for the RTMA model -->
     <postProcessedModel id="RTMA">
-        <modelName>RTMA</modelName>
+        <modelName>RTMA.*</modelName>
         <processorName>RTMAGribPostProcessor</processorName>
     </postProcessedModel>
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <accumulationConfigs>
     <accumulation>
-        <model>Canadian-Reg</model>
+        <model>CMC</model>
         <create forecastPeriodHours="3" accumulationParam="TP3hr" minuendParam="TPrun" subtrahendParam="TPrun" />
     </accumulation>
 
@@ -22,7 +22,7 @@
     </accumulation>
 
     <accumulation>
-        <model>ETA</model>
+        <model>NAM12|NAM40</model>
         <create forecastPeriodHours="6" accumulationParam="TP6hr" minuendParam="TP12hr" subtrahendParam="TP6hr" />
         <create forecastPeriodHours="6" accumulationParam="CP6hr" minuendParam="CP12hr" subtrahendParam="CP6hr" />
     </accumulation>
