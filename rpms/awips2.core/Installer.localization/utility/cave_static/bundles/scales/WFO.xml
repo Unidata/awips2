@@ -95,10 +95,8 @@
                                 <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
                             </properties>
                             <resourceData xsi:type="dbMapResourceData">
-                                <mapName>Local CWA Boundary</mapName>
+                                <mapName>County Warning Areas</mapName>
                                 <table>mapdata.cwa</table>
-                                <constraint>wfo = 'XXX'</constraint>
-                                <geomField>the_geom</geomField>
                             </resourceData>
                         </resource>
                         <resource>
@@ -108,7 +106,7 @@
                                     <capability xsi:type="colorableCapability" colorAsString="#bfbfbf"/>
                                     <capability xsi:type="labelableCapability" labelField="name" xOffset="0" yOffset="0"/>
                                     <capability xsi:type="densityCapability" density="0.4"/>
-                                    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+                                    <capability xsi:type="magnificationCapability" magnification="1.25"/>
                                     <capability xsi:type="pointCapability" pointStyle="CROSS"/>
                                     <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
                                 </capabilities>
