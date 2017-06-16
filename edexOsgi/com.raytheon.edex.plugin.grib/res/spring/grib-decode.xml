@@ -30,7 +30,6 @@
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.HPCqpfPostProcessor</value>
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.HWRFPostProcessor</value>
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.LiftedIndexPostProcessor</value>
-                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.OverwriteGribPostProcessor</value>
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.RTMAGribPostProcessor</value>
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.RAP13GribPostProcessor</value>
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.RAP40GribPostProcessor</value>
