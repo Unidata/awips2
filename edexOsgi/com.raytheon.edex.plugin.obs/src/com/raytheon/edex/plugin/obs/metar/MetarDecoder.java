@@ -94,6 +94,7 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
  *                                      some RVR strings
  * Mar 08, 2016 5345        tgurney     Convert sea level pressure from hPa to Pa
  * Mar 23, 2016 5501        tgurney     Handle data from end of previous month
+ * Jun 15, 2017 ----        mjames@ucar More verbose logging.
  * 
  * </pre>
  * 
@@ -844,7 +845,8 @@ public class MetarDecoder {
                         }
                     } else {
                         String dt = String
-                                .format("3/6 hour precip reported from %s at %2$tY%2$tm%2$td %2$tH%2$tM",
+                                .format("%d hour precip reported from %s at %2$tY%2$tm%2$td %2$tH%2$tM",
+                                        obsHr,
                                         record.getStationId(),
                                         record.getTimeObs());
                         logger.error(dt);
