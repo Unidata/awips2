@@ -45,6 +45,7 @@ import com.raytheon.uf.edex.core.EdexException;
  * ------------ ---------- ----------- --------------------------
  * Mar 28, 2014   2952     mpduff      Changed to use UFStatus for logging.
  * Jan 26, 2016   5264     bkowal      Use the apps defaults dir constant.
+ * Jun 15, 2017   ----     mjames@ucar More verbose logging.
  * 
  * </pre>
  * 
@@ -117,7 +118,8 @@ public class SetupSrv implements ServiceInterface {
                 } catch (IOException e) {
                     throw new EdexException(
                             "Error while copying localization files: "
-                                    + e.getMessage());
+                                    + e.getMessage() + " :: Attempting to copy from "
+				    + hydroappsSourceDir + " to " + hydroappsDestinationDir);
                 }
             }
         }
