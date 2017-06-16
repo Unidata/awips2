@@ -43,7 +43,6 @@ Export-Package: com.raytheon.edex.plugin.gfe,
  com.raytheon.edex.plugin.gfe.server.database,
  com.raytheon.edex.plugin.gfe.server.lock,
  com.raytheon.edex.plugin.gfe.smartinit,
- com.raytheon.edex.plugin.gfe.svcbackup,
  com.raytheon.edex.plugin.gfe.textproducts,
  com.raytheon.edex.plugin.gfe.util
 Import-Package: com.raytheon.edex.db.dao,
