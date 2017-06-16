@@ -54,22 +54,5 @@
    		point="com.raytheon.uf.viz.core.component">
    		<component key="textws" class="com.raytheon.viz.textworkstation.TextWorkstationComponent"/>
    </extension>
-   <extension
-        point="com.raytheon.uf.viz.localization.perspective.localizationpath">
-        <path
-                application="TextWS"
-                localizationType="CAVE_STATIC"
-                name="Configuration"
-                value="textws/gui"
-                recursive="true">
-        </path>
-        <path
-                application="TextWS"
-                localizationType="COMMON_STATIC"
-                name="Mixed Case"
-                value="mixedCase"
-                recursive="false">
-        </path>
-   </extension> 
    
 </plugin>

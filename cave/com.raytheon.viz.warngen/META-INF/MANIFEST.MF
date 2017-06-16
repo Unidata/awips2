@@ -38,6 +38,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.activetable,
  com.raytheon.uf.common.dataplugin.text.request,
  com.raytheon.viz.radar,
+ com.raytheon.viz.textworkstation,
  com.raytheon.viz.warnings,
  javax.vecmath,
  org.eclipse.core.expressions

@@ -186,7 +186,6 @@ public final class AfosBrowserModel extends AbstractBrowserModel {
             parseAfosMasterPil(
                     pathManager.getLocalizationFile(lc, AFOS_MASTER_PIL));
         }
-        addRadarToMasterPil();
     }
 
     /**
