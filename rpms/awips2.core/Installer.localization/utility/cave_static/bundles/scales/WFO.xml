@@ -22,7 +22,6 @@
                                             <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
                                             <capability xsi:type="shadeableCapability" opacity="1.0"/>
                                             <capability xsi:type="labelableCapability" xOffset="0" yOffset="0"/>
-                                            <capability xsi:type="magnificationCapability" magnification="1.0"/>
                                             <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
                                         </capabilities>
                                     </loadProperties>
@@ -43,7 +42,6 @@
                                             <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
                                             <capability xsi:type="shadeableCapability" opacity="1.0"/>
                                             <capability xsi:type="labelableCapability" xOffset="0" yOffset="0"/>
-                                            <capability xsi:type="magnificationCapability" magnification="1.0"/>
                                             <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
                                         </capabilities>
                                     </loadProperties>
@@ -63,7 +61,6 @@
                                             <capability xsi:type="colorableCapability" colorAsString="#9b9b9b"/>
                                             <capability xsi:type="shadeableCapability" opacity="1.0"/>
                                             <capability xsi:type="labelableCapability" xOffset="0" yOffset="0"/>
-                                            <capability xsi:type="magnificationCapability" magnification="1.0"/>
                                             <capability xsi:type="outlineCapability" outlineWidth="2" outlineOn="true" lineStyle="SOLID"/>
                                         </capabilities>
                                     </loadProperties>
@@ -86,7 +83,6 @@
                                     <capability xsi:type="colorableCapability" colorAsString="white"/>
                                     <capability xsi:type="shadeableCapability" opacity="1.0"/>
                                     <capability xsi:type="labelableCapability" xOffset="0" yOffset="0"/>
-                                    <capability xsi:type="magnificationCapability" magnification="1.0"/>
                                     <capability xsi:type="outlineCapability" outlineWidth="3" outlineOn="true" lineStyle="SOLID"/>
                                     <capability xsi:type="labelableCapability" labelField="CWA"/>
                                 </capabilities>

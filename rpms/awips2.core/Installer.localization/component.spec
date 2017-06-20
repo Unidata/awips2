@@ -115,6 +115,8 @@ done
 # Copy existing (default) OAX and TBW map scales
 cp -R %{_baseline_workspace}/localization.OAX/utility/cave_static/site/* %{_baseline_workspace}/localization/utility/cave_static/site/
 cp -R %{_baseline_workspace}/localization.TBW/utility/cave_static/site/* %{_baseline_workspace}/localization/utility/cave_static/site/
+cp %{_baseline_workspace}/localization.TBW/utility/cave_static/site/TBW/bundles/scales/WFO.xml ~/awips2-core/viz/com.raytheon.uf.viz.core.maps/localization/bundles/scales/WFO/TBW.xml
+cp %{_baseline_workspace}/localization.OAX/utility/cave_static/site/OAX/bundles/scales/WFO.xml ~/awips2-core/viz/com.raytheon.uf.viz.core.maps/localization/bundles/scales/WFO/OAX.xml
 
 # COMMON
 COMMON_DIR=$UTIL/common_static
