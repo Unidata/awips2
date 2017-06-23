@@ -483,6 +483,38 @@
         </styleRule>
         <styleRule>
                 <paramLevelMatches>
+                        <parameter>N0K</parameter>
+                </paramLevelMatches>
+                <imageStyle>
+                        <displayUnits>deg/km</displayUnits>
+                        <samplePrefs>
+                            <!-- Number of decimal places to format the sample string to -->
+                                <formatString>2</formatString>
+                        </samplePrefs>
+                        <defaultColormap>Radar/DualPol/Spec Differential Phase</defaultColormap>
+                        <dataMapping>
+                                <entry pixelValue="1" sample="RF" label="" />
+                                <entry displayValue='-2' pixelValue='16' />
+                                <entry displayValue='-1' pixelValue='32' />
+                                <entry displayValue='-0.5' pixelValue='48' />
+                                <entry displayValue='0.0' pixelValue='64' />
+                                <entry displayValue='0.25' pixelValue='80' />
+                                <entry displayValue='0.5' pixelValue='96' />
+                                <entry displayValue='1.0' pixelValue='112' />
+                                <entry displayValue='1.5' pixelValue='128' />
+                                <entry displayValue='2.0' pixelValue='144' />
+                                <entry displayValue='2.5' pixelValue='160' />
+                                <entry displayValue='3.0' pixelValue='176' />
+                                <entry displayValue='4.0' pixelValue='192' />
+                                <entry displayValue='5.0' pixelValue='208' />
+                                <entry displayValue='7.0' pixelValue='224' />
+                                <entry displayValue='10.0' pixelValue='240' label='' />
+                                <entry pixelValue='248' label='RF' />
+                        </dataMapping>
+                </imageStyle>
+        </styleRule>
+        <styleRule>
+                <paramLevelMatches>
                         <parameter>N0C</parameter>
                 </paramLevelMatches>
                 <imageStyle>
