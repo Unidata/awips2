@@ -1,4 +1,0 @@
-<menuContributionFile>
-	<include installTo="menu:obs-lighning?after=entlnGridSubmenu"
-		fileName="menus/glm/glmlightningMenuItems.xml" subMenu="GLM-Lightning" />
-</menuContributionFile>
