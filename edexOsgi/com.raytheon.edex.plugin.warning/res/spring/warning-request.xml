@@ -42,26 +42,11 @@
     <camelContext id="geospatialDataGenerator-camel"
         xmlns="http://camel.apache.org/schema/spring"
         errorHandlerRef="errorHandler">
-        <endpoint id="geospatialDataUpdaterCron"
-            uri="clusteredquartz://warning/checkGeospatialData/?cron=${geospatial.updater.cron}" />
 
         <!-- Generate once on context start -->
         <route id="geospatialDataGeneratorRoute">
             <from uri="timer://generateWarngenGeometries?repeatCount=1"/>
             <bean ref="geospatialDataGenerator" method="generateUniqueGeospatialMetadataGeometries"/>
-        </route>
-
-        <!-- check generate periodically -->
-        <route id="geospatialDataUpdaterRoute">
-            <from ref="geospatialDataUpdaterCron"/>
-            <doTry>
-                <bean ref="geospatialDataGenerator" method="generateUniqueGeospatialMetadataGeometries"/>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to
-                        uri="log:geospatialDataUpdater?level=ERROR" />
-                </doCatch>
-            </doTry>
         </route>
 
         <!-- Route to send geospatial data update notification -->
