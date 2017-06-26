@@ -346,7 +346,7 @@ public class WarngenDialog extends CaveSWTDialog implements
 
     public WarngenDialog(Shell parentShell, WarngenLayer layer) {
         super(parentShell,
-                SWT.MIN | SWT.CLOSE | SWT.MODELESS | SWT.BORDER  | SWT.TITLE | SWT.ON_TOP,
+                SWT.MIN | SWT.CLOSE | SWT.MODELESS | SWT.BORDER  | SWT.TITLE,
                 CAVE.DO_NOT_BLOCK | CAVE.INDEPENDENT_SHELL );
         setText("WarnGen");
         bulletListManager = new BulletListManager();
@@ -1421,7 +1421,7 @@ public class WarngenDialog extends CaveSWTDialog implements
      */
     private void closePressed() {
         EditableManager.makeEditable(warngenLayer, false);
-        hide();
+        close();
     }
 
     /**
