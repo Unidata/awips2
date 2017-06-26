@@ -4562,3 +4562,5 @@ ZUN           0 ZUNI                                    3497 -10915     0  0
 ZVL           0 EDMONTON / VOILLENEUVE           AB CN  5307 -11387     0  0
 ZWE           0 WEST END; GRAND BAHAMA IS,BA            2667  -7898     0  0
 ZZV           0 ZANESVILLE                              3994  -8189     0  0
+LSU           0 FLYING TIGER                            3049  -9129     0  0
+TED           0 TED                              AK US  6117 -14996     0  0

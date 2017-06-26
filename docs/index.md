@@ -19,9 +19,9 @@
 
 [Unidata AWIPS](http://www.unidata.ucar.edu/software/awips2/) is a meteorological display and analysis package originally developed by the [National Weather Service](http://www.nws.noaa.gov/ost/SEC/AE/) and [Raytheon](http://www.raytheon.com/capabilities/products/awips/), repackaged by Unidata to support non-operational use in research and education by [UCAR member institutions](http://president.ucar.edu/governance/members/universities-representatives).
 
-AWIPS takes a unified approach to data ingest, and most data types follow a path through the system starting with an [LDM](#ldm) client requesting data from the [Unidata IDD](http://www.unidata.ucar.edu/projects/#idd). These data files are then decoded and stored as HDF5 and Postgres metadata by [EDEX](install/install-edex). 
+AWIPS takes a unified approach to data ingest, and most data types follow a path through the system starting with an [LDM](#ldm) client requesting data from the [Unidata IDD](http://www.unidata.ucar.edu/projects/#idd). These data files are then decoded and stored as HDF5 and Postgres metadata by [EDEX](install/install-edex/). 
 
-Unidata supports two visualization frameworks for rendering data: [CAVE](install/install-cave), and the Python Data Access Framework ([python-awips](http://python-awips.readthedocs.io)).
+Unidata supports two visualization frameworks for rendering data: [CAVE](install/install-cave/), and the Python Data Access Framework ([python-awips](http://python-awips.readthedocs.io)).
 
 ---
 
@@ -44,7 +44,7 @@ Unidata supports two visualization frameworks for rendering data: [CAVE](install
 |----------------|-----------------------:|
 | Linux x86_64   | [installEDEX.sh <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/software/awips2/installEDEX.sh)         |
 
-[Read full EDEX install instructions...](install/install-edex.html)
+[Read full EDEX install instructions...](install/install-edex)
 
 ---
 

@@ -34,7 +34,7 @@ import string, time, re, os, types, copy
 class TextProduct(MultipleElementTable.TextProduct):
     Definition = copy.deepcopy(MultipleElementTable.TextProduct.Definition)
 
-    #Definition["displayName"] = "MultipleElementTable"
+    Definition["displayName"] = "MultipleElementTable"
     #Definition["outputFile"] = "/awips/GFESuite/products/TEXT/MultipleElementTable.txt"
     #Definition["regionList"] = [
     #        ("area1","AREA 1"),
@@ -52,7 +52,7 @@ class TextProduct(MultipleElementTable.TextProduct):
     #Definition["elementList"] = ["Temp", "PoP", "Humidity"] 
     #Definition["elementList"] = ["PoP", "Humidity", "Temp"] 
     #Definition["singleValueFormat"] = 1 # Default is 0
-    #Definition["introLetters"] = "&&\n  "
+    #Definition["introLetters"] = "&&"
 
     def __init__(self):
         MultipleElementTable.TextProduct.__init__(self)

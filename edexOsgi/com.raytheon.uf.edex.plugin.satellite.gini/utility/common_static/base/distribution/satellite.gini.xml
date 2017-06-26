@@ -32,4 +32,6 @@
      -->
     <regex>TI[CGT]... ....</regex>
     <regex>.*NEXRCOMP.*</regex>
+    <regex>.*nexrcomp.*</regex>
+    <regex>.*.gini</regex>
 </requestPatterns>

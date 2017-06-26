@@ -71,7 +71,6 @@ do
    CAVE_DIR=$UTIL/cave_static/site/$site
    mkdir -p $CAVE_DIR
    cp -R $BUILD_DIR/utility/cave_static/* $CAVE_DIR
-
    mkdir -p ~/awips2-builds/localization/localization/utility/cave_static/site/$site
    cp -R $BUILD_DIR/utility/cave_static/* ~/awips2-builds/localization/localization/utility/cave_static/site/$site
    grep -rl 'LOWX'  $CAVE_DIR/bundles/scales/WFO.xml | xargs sed -i 's/LOWX/'$lowx'/g'
@@ -112,6 +111,12 @@ do
    cp -R $BUILD_DIR/utility/edex_static/* $EDEX_DIR/
    grep -rl 'XXX' $EDEX_DIR | xargs sed -i 's/XXX/'$site'/g'
 done
+
+# Copy existing (default) OAX and TBW map scales
+cp -R %{_baseline_workspace}/localization.OAX/utility/cave_static/site/* %{_baseline_workspace}/localization/utility/cave_static/site/
+cp -R %{_baseline_workspace}/localization.TBW/utility/cave_static/site/* %{_baseline_workspace}/localization/utility/cave_static/site/
+cp %{_baseline_workspace}/localization.TBW/utility/cave_static/site/TBW/bundles/scales/WFO.xml ~/awips2-core/viz/com.raytheon.uf.viz.core.maps/localization/bundles/scales/WFO/TBW.xml
+cp %{_baseline_workspace}/localization.OAX/utility/cave_static/site/OAX/bundles/scales/WFO.xml ~/awips2-core/viz/com.raytheon.uf.viz.core.maps/localization/bundles/scales/WFO/OAX.xml
 
 # COMMON
 COMMON_DIR=$UTIL/common_static

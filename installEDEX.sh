@@ -69,7 +69,7 @@ if [[ $1 -eq "reinstall" ]]; then
   echo "Running 'yum groupremove awips2-server'"
   echo ''
   yum groupremove awips2-server -y 2>&1 /dev/null
-  rm -rf /awips2/data/ awips2/database/ 
+  rm -rf /awips2/data/ /awips2/database/ 
 fi
 
 echo ''

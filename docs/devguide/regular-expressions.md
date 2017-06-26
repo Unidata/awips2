@@ -1,7 +1,7 @@
 
 AWIPS uses regular expressions for data filtering at two steps in the ingest process:
 
-1. the [LDM](system-architecture.html#ldm) uses regular expressions to determine which data to write to **/awips2/data_store**/.
+1. the [LDM](../edex/ldm) uses regular expressions to determine which data to write to **/awips2/data_store**/.
 
       An example for radars products defined in **/awips2/ldm/etc/pqact.conf**
         NEXRAD3        ^(SDUS[23578].) .... (......) /p(...)(...)

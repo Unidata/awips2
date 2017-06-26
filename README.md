@@ -42,3 +42,5 @@ Through a grant provided by [Jetstream](https://jetstream-cloud.org/), Unidata i
 * [awips2-ncep](https://github.com/Unidata/awips2-ncep)
 * [awips2-goesr](https://github.com/Unidata/awips2-goesr)
 * [awips2-rpm](https://github.com/Unidata/awips2-rpmbuild)
+
+[Instructions for setting up the AWIPS Development Environment.](http://unidata.github.io/awips2/dev/awips-development-environment/)

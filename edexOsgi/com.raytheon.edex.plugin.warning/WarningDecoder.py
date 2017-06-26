@@ -51,6 +51,7 @@
 # Nov 10, 2015  17068    ryu            Improve handling of lines starting with a UGC code
 #                                       but do not really begin new segments
 # Jul 18, 2016  5749     randerso       Remove replacement of commas with ellipses in segment text
+# Jun 15, 2017  ----     mjames@ucar    Fix BEARINGS typo NORTWEST->NORTHWEST
 #
 #
 # @author rferrel
@@ -90,7 +91,7 @@ REGIONS = {
 
 BEARINGS = {
             "NORTH": 0, "NORTHEAST": 45, "EAST": 90, "SOUTHEAST": 135,
-            "SOUTH": 180, "SOUTHWEST": 225, "WEST": 270, "NORTWEST": 315 }
+            "SOUTH": 180, "SOUTHWEST": 225, "WEST": 270, "NORTHWEST": 315 }
 
 SPEED_CONVERSION = {
                     "MPH": 0.86898,
