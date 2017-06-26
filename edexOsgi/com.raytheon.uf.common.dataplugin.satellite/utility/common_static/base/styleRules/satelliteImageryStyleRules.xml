@@ -461,7 +461,7 @@
                         </samplePrefs>
                         <defaultColormap>Radar/DualPol/Differential Refl</defaultColormap>
                         <dataMapping>
-                                <entry pixelValue="1" sample="RF" label="" />
+                                <entry displayValue='' pixelValue="1" sample="RF" label="" />
                                 <entry displayValue='-4' pixelValue='16' />
                                 <entry displayValue='-2' pixelValue='32' />
                                 <entry displayValue='-0.5' pixelValue='48' />
@@ -493,7 +493,7 @@
                         </samplePrefs>
                         <defaultColormap>Radar/DualPol/Spec Differential Phase</defaultColormap>
                         <dataMapping>
-                                <entry pixelValue="1" sample="RF" label="" />
+                                <entry displayValue='' pixelValue="1" sample="RF" label="" />
                                 <entry displayValue='-2' pixelValue='16' />
                                 <entry displayValue='-1' pixelValue='32' />
                                 <entry displayValue='-0.5' pixelValue='48' />
@@ -509,7 +509,7 @@
                                 <entry displayValue='5.0' pixelValue='208' />
                                 <entry displayValue='7.0' pixelValue='224' />
                                 <entry displayValue='10.0' pixelValue='240' label='' />
-                                <entry pixelValue='248' label='RF' />
+                                <entry displayValue='' pixelValue='248' label='RF' />
                         </dataMapping>
                 </imageStyle>
         </styleRule>
@@ -525,7 +525,7 @@
                                 <formatString>4</formatString>
                         </samplePrefs>
                         <dataMapping>
-                                <entry pixelValue="1" sample="RF" label="" />
+                                <entry displayValue='' pixelValue="1" sample="RF" label="" />
                                 <entry displayValue='0.20' pixelValue='16' />
                                 <entry displayValue='0.45' pixelValue='32' />
                                 <entry displayValue='0.65' pixelValue='48' />
@@ -541,7 +541,7 @@
                                 <entry displayValue='0.99' pixelValue='208' />
                                 <entry displayValue='1.0' pixelValue='224' />
                                 <entry displayValue='1.05' pixelValue='240' label='' />
-                                <entry pixelValue='248' label='RF' />
+                                <entry displayValue='' pixelValue='248' label='RF' />
                         </dataMapping>
                 </imageStyle>
         </styleRule>
@@ -595,7 +595,7 @@
                 <entry displayValue='2' pixelValue='67'/>
                 <entry displayValue='3' pixelValue='100'/>
                 <entry displayValue='5' pixelValue='129'/>
-	            <entry displayValue='8' pixelValue='171'/>
+	        <entry displayValue='8' pixelValue='171'/>
                 <entry displayValue='10' pixelValue='200' />
                 <entry displayValue='20' pixelValue='239' />
                 <entry displayValue='24' pixelValue='255' label='' />
