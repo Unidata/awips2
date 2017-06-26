@@ -17,12 +17,6 @@
       [Enter License Description here.]
    </license>
 
-   <requires>
-      <import feature="com.raytheon.uf.edex.cots.feature" version="1.0.0.qualifier"/>
-      <import feature="com.raytheon.uf.edex.common.core.feature" version="1.0.0.qualifier"/>
-      <import feature="com.raytheon.uf.edex.core.feature" version="1.0.0.qualifier"/>
-   </requires>
-
    <plugin
          id="com.raytheon.uf.common.dataplugin.npp.viirs"
          download-size="0"
