@@ -28,6 +28,7 @@
 # 10/2015 M.James/Unidata	Log files fixed; purge check added	#
 # 11/2015 M.James/Unidata	Added CAVE user count as "edex users"	#
 # 10/2016 M.James/Unidata	No longer need to edit ldmd.conf	#
+# 06/2017 M.James/Unidata       Restart					#
 #-----------------------------------------------------------------------#
 . /etc/profile.d/awips2.sh
 # directories definitions
@@ -41,7 +42,7 @@ PG_FILE=${DATA_PATH}/pg_hba.conf
 EDEX_ENV_FILE=${EDEX_PATH}/bin/setup.env
 
 # valid options
-options=( 'status' 'start' 'stop' 'log' 'setup' 'purge' 'users')
+options=( 'status' 'start' 'stop' 'log' 'setup' 'purge' 'users' 'restart')
 nopts=${options[@]}
 
 # find interface for routeable IPs
@@ -349,6 +350,11 @@ edex_stop() { # stop all edex services
    su -c "service qpidd stop"
    su -c "service httpd-pypies stop"
    su -c "service edex_postgres stop"
+   edex_status;
+}
+
+edex_restart() {
+   su -c "service edex_camel restart"
    edex_status;
 }
 
