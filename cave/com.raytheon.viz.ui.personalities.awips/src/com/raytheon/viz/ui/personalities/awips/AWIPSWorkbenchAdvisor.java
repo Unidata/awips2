@@ -55,6 +55,7 @@ import com.raytheon.uf.viz.personalities.cave.workbench.VizWorkbenchAdvisor;
  * ------------ ---------- ----------- --------------------------
  * Mar 20, 2013            mschenke     Initial creation
  * Oct 01, 2014  3679      njensen      Fix propertyChange() for logPerformance
+ * Jun 25, 2017            mjames@ucar  No menu building from edex side.
  * 
  * </pre>
  * 
@@ -156,20 +157,6 @@ public class AWIPSWorkbenchAdvisor extends VizWorkbenchAdvisor {
         IContextService service = (IContextService) PlatformUI.getWorkbench()
                 .getService(IContextService.class);
         service.activateContext("com.raytheon.uf.viz.application.awips");
-    }
-
-    @Override
-    protected void createDynamicMenus() {
-        // create the request to send to EDEX to generate the menus
-        MenuCreationRequest request = new MenuCreationRequest();
-        request.setSite(LocalizationManager.getInstance().getSite());
-        try {
-            ThriftClient.sendRequest(request);
-        } catch (VizException e) {
-            UFStatus.getHandler(AWIPSWorkbenchAdvisor.class).handle(
-                    Priority.PROBLEM, e.getLocalizedMessage(), e);
-        }
-        super.createDynamicMenus();
     }
 
     @Override
