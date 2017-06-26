@@ -188,6 +188,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Feb 04, 2016 DR 14307 Daniel Huffman Added sorting to drop down items in recreateUpdates().
  *  Feb 16, 2016 DR 17531    Qinglu Lin  Added overloaded setTrackLocked(boolean, boolean), updated expSelected().
  *  Jul 07, 2016 DR 5665     Jon Schmid  Corrected WarngenLayer duration save and restore when selecting new TrackType. 
+ *  Jun 25, 2017             mjames@ucar Simple dialog.
  * </pre>
  * 
  * @author chammack
@@ -235,13 +236,11 @@ public class WarngenDialog extends CaveSWTDialog implements
 
     private static String UPDATELISTTEXT = "UPDATE LIST                                 ";
 
-    public static String NO_BACKUP_SELECTED = "none";
-
     /** "OK" button text */
     private static final String OK_BTN_LABEL = "Create Text";
 
     /** "Restart" button text */
-    private static final String RS_BTN_LABEL = "Restart";
+    private static final String RS_BTN_LABEL = "Reset";
 
     /** "Cancel" button text */
     private static final String CLOSE_BUTTON_LABEL = "Close";
@@ -334,8 +333,6 @@ public class WarngenDialog extends CaveSWTDialog implements
 
     private Text end;
 
-    private Combo backupSiteCbo;
-
     private Text instructionsBox;
 
     private Group productType;
@@ -349,8 +346,8 @@ public class WarngenDialog extends CaveSWTDialog implements
 
     public WarngenDialog(Shell parentShell, WarngenLayer layer) {
         super(parentShell,
-                SWT.MIN | SWT.CLOSE | SWT.MODELESS | SWT.BORDER | SWT.TITLE,
-                CAVE.DO_NOT_BLOCK | CAVE.INDEPENDENT_SHELL);
+                SWT.MIN | SWT.CLOSE | SWT.MODELESS | SWT.BORDER  | SWT.TITLE | SWT.ON_TOP,
+                CAVE.DO_NOT_BLOCK | CAVE.INDEPENDENT_SHELL );
         setText("WarnGen");
         bulletListManager = new BulletListManager();
         warngenLayer = layer;
@@ -370,10 +367,6 @@ public class WarngenDialog extends CaveSWTDialog implements
         timer.cancel();
         updateTimeTask.cancel();
         CurrentWarnings.removeListener(this);
-        IDisplayPaneContainer container = warngenLayer.getResourceContainer();
-        if (container != null && ! (container instanceof SideView)) {
-            WarngenLayer.setLastSelectedBackupSite(warngenLayer.getBackupSite());
-        }
         warngenLayer = null;
     }
 
@@ -421,7 +414,18 @@ public class WarngenDialog extends CaveSWTDialog implements
         createTimeRangeGroup(mainComposite);
         createBulletListAndLabel(mainComposite);
         createBottomButtons(mainComposite);
-        setBackupSite();
+        createMainProductButtons(productType);
+        createOtherProductsList(productType);
+        productType.layout(true, true);
+        // Don't let errors prevent the new controls from being displayed!
+        try {
+            changeTemplate(getDefaultTemplate());
+            resetPressed();
+        } catch (Exception e) {
+            statusHandler
+                    .error("Error occurred while switching to the default template.",
+                            e);
+        }
         setInstructions();
 
         if (advanced) {
@@ -766,63 +770,32 @@ public class WarngenDialog extends CaveSWTDialog implements
         backupTrackEditComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
                 true, true, 1, 1));
 
-        createBackupGroup(backupTrackEditComp);
+        createReset(backupTrackEditComp);
         createTrackGroup(backupTrackEditComp);
         createEditGroup(backupTrackEditComp);
 
-        // Populate the control
-        populateBackupGroup();
     }
 
     /**
-     * Create the backup site
+     * Create the reset button
      * 
      * @param backupTrackEditComp
      */
-    private void createBackupGroup(Composite backupTrackEditComp) {
-        Group backupGroup = new Group(backupTrackEditComp, SWT.NONE);
-        backupGroup.setLayoutData(new GridData(SWT.DEFAULT, SWT.FILL, false,
-                true));
-        backupGroup.setText("Backup");
-        backupGroup.setLayout(new GridLayout(2, false));
-
-        Label label2 = new Label(backupGroup, SWT.BOLD);
-        label2.setText("WFO:");
-        label2.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-        backupSiteCbo = new Combo(backupGroup, SWT.READ_ONLY | SWT.DROP_DOWN);
-        backupSiteCbo.addSelectionListener(new SelectionAdapter() {
+    private void createReset(Composite backupTrackEditComp) {
+        restartBtn = new Button(backupTrackEditComp, SWT.PUSH);
+        restartBtn.setText(RS_BTN_LABEL);
+        GridData gd = new GridData(SWT.CENTER, SWT.CENTER, true, true);
+        gd.widthHint = 100;
+        restartBtn.setLayoutData(gd);
+        restartBtn.addSelectionListener(new SelectionAdapter() {
             @Override
-            public void widgetSelected(SelectionEvent e) {
-                backupSiteSelected();
+            public void widgetSelected(SelectionEvent event) {
+                resetPressed();
             }
-
         });
+
     }
 
-    /**
-     * Populate the backup site combo with data from preference store
-     */
-    private void populateBackupGroup() {
-        backupSiteCbo.removeAll();
-        backupSiteCbo.add(NO_BACKUP_SELECTED);
-        String[] CWAs = warngenLayer.getDialogConfig().getBackupCWAs()
-                .split(",");
-        int index = 0, selectedIndex = 0;
-        for (String cwa : CWAs) {
-            if (cwa.length() > 0) {
-                index += 1;
-                BackupData data = new BackupData(cwa);
-                backupSiteCbo.setData(data.site, data);
-                backupSiteCbo.add(data.site);
-                if (data.site.equals(warngenLayer.getBackupSite())) {
-                    selectedIndex = index;
-                    warngenLayer.setBackupSite(data.site);
-                }
-            }
-        }
-        backupSiteCbo.select(selectedIndex);
-        setBackupCboColors();
-    }
 
     private void createTrackGroup(Composite backupTrackEditComp) {
         Group trackGroup = new Group(backupTrackEditComp, SWT.NONE);
@@ -916,7 +889,7 @@ public class WarngenDialog extends CaveSWTDialog implements
      */
     private void createBottomButtons(Composite parent) {
         Composite buttonComp = new Composite(parent, SWT.NONE);
-        GridLayout gl = new GridLayout(3, true);
+        GridLayout gl = new GridLayout(2, true);
         gl.marginHeight = 1;
         buttonComp.setLayout(gl);
         buttonComp.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true,
@@ -936,21 +909,7 @@ public class WarngenDialog extends CaveSWTDialog implements
                             "Create WarnGen product");
                     return;
                 }
-
                 okPressed();
-            }
-
-        });
-
-        restartBtn = new Button(buttonComp, SWT.PUSH);
-        restartBtn.setText(RS_BTN_LABEL);
-        gd = new GridData(SWT.CENTER, SWT.CENTER, true, true);
-        gd.widthHint = 100;
-        restartBtn.setLayoutData(gd);
-        restartBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                resetPressed();
             }
         });
 
@@ -1221,9 +1180,6 @@ public class WarngenDialog extends CaveSWTDialog implements
         final FollowupData followupData = (FollowupData) updateListCbo
                 .getData(updateListCbo.getItem(updateListCbo
                         .getSelectionIndex()));
-        final BackupData backupData = (BackupData) backupSiteCbo
-                .getData(backupSiteCbo.getItem(backupSiteCbo
-                        .getSelectionIndex()));
 
         if (checkFollowupSelection(followupData) == false) {
             return;
@@ -1272,7 +1228,7 @@ public class WarngenDialog extends CaveSWTDialog implements
                         String result = TemplateRunner.runTemplate(
                                 warngenLayer, startTime.getTime(),
                                 endTime.getTime(), selectedBullets,
-                                followupData, backupData);
+                                followupData, null);
                         resultContainer[0] = result;
                         Matcher m = FollowUpUtil.vtecPtrn.matcher(result);
                         totalSegments = 0;
@@ -1466,69 +1422,6 @@ public class WarngenDialog extends CaveSWTDialog implements
     private void closePressed() {
         EditableManager.makeEditable(warngenLayer, false);
         hide();
-    }
-
-    private boolean setBackupSite() {
-        if ((backupSiteCbo.getSelectionIndex() >= 0)
-                && (backupSiteCbo.getItemCount() > 0)) {
-            int index = backupSiteCbo.getSelectionIndex();
-            String backupSite = backupSiteCbo.getItem(index);
-            warngenLayer.setBackupSite(backupSite);
-            IDisplayPaneContainer container = warngenLayer.getResourceContainer();
-            if (container != null && ! (container instanceof SideView)) {
-                WarngenLayer.setLastSelectedBackupSite(backupSite);
-            }
-            if (backupSite.equalsIgnoreCase("none")) {
-                new TemplateRunnerInitJob().schedule();
-            } else {
-                new TemplateRunnerInitJob(backupSite).schedule();
-            }
-
-            /*
-             * When the product selection buttons are recreated below, the
-             * button for the default template will be selected and mainProducts
-             * will have been recreated. Then getDefaultTemplate() can be used
-             * here to change the state.
-             */
-            createMainProductButtons(productType);
-            createOtherProductsList(productType);
-
-            // Don't let errors prevent the new controls from being displayed!
-            try {
-                changeTemplate(getDefaultTemplate());
-                resetPressed();
-            } catch (Exception e) {
-                statusHandler
-                        .error("Error occurred while switching to the default template.",
-                                e);
-            }
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Action for when something is selected from the backup site combo
-     */
-    private void backupSiteSelected() {
-        if (setBackupSite()) {
-            productType.layout(true, true);
-            getShell().pack(true);
-        }
-        setBackupCboColors();
-    }
-
-    private void setBackupCboColors() {
-        if (backupSiteCbo.getSelectionIndex() == 0) {
-            backupSiteCbo.setBackground(null);
-            backupSiteCbo.setForeground(null);
-        } else {
-            backupSiteCbo.setBackground(shell.getDisplay().getSystemColor(
-                    SWT.COLOR_YELLOW));
-            backupSiteCbo.setForeground(shell.getDisplay().getSystemColor(
-                    SWT.COLOR_BLACK));
-        }
     }
 
     /**

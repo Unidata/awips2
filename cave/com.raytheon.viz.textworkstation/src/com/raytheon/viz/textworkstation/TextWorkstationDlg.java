@@ -103,6 +103,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Jan 26, 2016 5054        randerso    Changed to use display as parent
  * Feb 15, 2016 4860        njensen     Removed references to IAviationObserver
  * Mar 30, 2016 5513        randerso    Fixed to display on same monitor as parent
+ * Jun 25, 2017 ----        mjames@ucar Simple dialog.
  * 
  * </pre>
  * 
@@ -213,9 +214,6 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
                 .getTimeZone(localTZName) : TimeZone.getDefault());
 
         createMenus();
-        new Label(shell, SWT.NONE).setText("host: "
-                + TextWorkstationConstants.getHostName());
-        createAwipsLabel();
         createTimeLabels();
         startTimeTimer();
         createAlertAlarm();
@@ -361,27 +359,14 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         });
     }
 
-    private void createAwipsLabel() {
-        GridData gd = new GridData(300, 20);
-        Label awipsBlankLabel = new Label(shell, SWT.NONE);
-        awipsBlankLabel.setFont(fontAwipsLabel);
-        awipsBlankLabel.setText(" ");
-        awipsBlankLabel.setLayoutData(gd);
-        gd = new GridData(300, 80);
-        Label awipsLabel = new Label(shell, SWT.NONE);
-        awipsLabel.setFont(fontAwipsLabel);
-        awipsLabel.setText("   AWIPS  II");
-        awipsLabel.setLayoutData(gd);
-    }
-
     private void createTimeLabels() {
         GridData gd = null;
 
-        gd = new GridData(300, SWT.DEFAULT);
+        gd = new GridData(200, SWT.DEFAULT);
         utcTimeLabel = new Label(shell, SWT.CENTER);
         utcTimeLabel.setLayoutData(gd);
 
-        gd = new GridData(300, SWT.DEFAULT);
+        gd = new GridData(200, SWT.DEFAULT);
         localTimeLabel = new Label(shell, SWT.CENTER);
         localTimeLabel.setLayoutData(gd);
 

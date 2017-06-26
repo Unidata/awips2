@@ -270,6 +270,7 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * 03/11/2016  ASM #18720  D. Friedman Improve warning message when extension area is not available.
  * 03/22/2016  DCS  18719  D. Friedman Add dynamic extension area option.
  * 07/21/2016  DR 18159    Qinglu Lin  Added third filterArea().
+ * 06/25/2017              mjames@ucar Simple dialog.
  * </pre>
  * 
  * @author mschenke
@@ -288,13 +289,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     private static final String EXTENSION_AREA_MAP_NAME = "WarnGen Extension Area";
 
-    static String lastSelectedBackupSite;
-
     String uniqueFip = null;
-
-    String backupOfficeShort = null;
-
-    String backupOfficeLoc = null;
 
     Map<String, Double> geomArea = new HashMap<String, Double>();
 
@@ -1375,8 +1370,6 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     private String templateName;
 
-    private String backupSite;
-
     private boolean boxEditable = true;
 
     private final CustomMaps customMaps;
@@ -1436,8 +1429,6 @@ public class WarngenLayer extends AbstractStormTrackResource {
             statusHandler.handle(Priority.SIGNIFICANT,
                     "Error loading config.xml", e);
         }
-
-        setBackupSite(WarngenLayer.getLastSelectedBackupSite());
 
         // Load default template
         String defaultTemplate = dialogConfig.getDefaultTemplate();
@@ -1930,7 +1921,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
     }
 
     public void realizeExtensionAreaVisibility() {
-        VizApp.runAsync(new Runnable() {
+        VizApp.runSync(new Runnable() {
             @Override
             public void run() {
                 boolean actuallyVisible = isExtensionAreaActuallyVisible();
@@ -1953,7 +1944,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
         try {
             config = WarngenConfiguration.loadConfig(templateName,
                     LocalizationManager.getInstance().getCurrentSite(),
-                    backupSite);
+                    null);
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error occurred loading template " + templateName, e);
@@ -2278,99 +2269,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
         return state.getWarningPolygon();
     }
 
-    public void setBackupSite(String site) {
-        if (site == null || site.equalsIgnoreCase("none")) {
-            backupSite = null;
-        } else {
-            backupSite = site;
-        }
-
-        DialogConfiguration dc = null;
-        if (backupSite != null) {
-            boolean haveBackupConfig = DialogConfiguration
-                    .isSiteDialogConfigExtant(backupSite);
-            if (haveBackupConfig) {
-                try {
-                    dc = DialogConfiguration.loadDialogConfigNoUser(backupSite);
-                } catch (Exception e) {
-                    statusHandler
-                            .error(String
-                                    .format("Unable to load WarnGen configuration for site %s.  Falling back to local configuration.",
-                                            getLocalizedSite()), e);
-                }
-            } else {
-                statusHandler
-                        .warn(String
-                                .format("WarnGen configuration for site %s does not exist.  Falling back to local configuration.",
-                                        backupSite));
-            }
-            if (dc == null) {
-                try {
-                    dc = DialogConfiguration
-                            .loadDialogConfigNoUser(LocalizationManager
-                                    .getInstance().getCurrentSite());
-                } catch (Exception e) {
-                    dc = new DialogConfiguration();
-                    statusHandler
-                            .error(String
-                                    .format("Unable to load WarnGen configuration for site %s.",
-                                            getLocalizedSite()), e);
-                }
-            }
-        } else {
-            try {
-                dc = DialogConfiguration.loadDialogConfig(LocalizationManager
-                        .getInstance().getCurrentSite());
-            } catch (Exception e) {
-                dc = new DialogConfiguration();
-                statusHandler.error(
-                        "Unable to load local WarnGen configuration.", e);
-            }
-        }
-        if ((dc != null) && (dialogConfig != null)) {
-            dialogConfig.setDefaultTemplate(dc.getDefaultTemplate());
-            dialogConfig.setMainWarngenProducts(dc.getMainWarngenProducts());
-            dialogConfig.setOtherWarngenProducts(dc.getOtherWarngenProducts());
-            backupOfficeShort = dc.getWarngenOfficeShort();
-            backupOfficeLoc = dc.getWarngenOfficeLoc();
-            if (backupSite != null) {
-                boolean shortTag = false;
-                boolean locTag = false;
-                String infoType = null;
-                if ((backupOfficeShort == null)
-                        || (backupOfficeShort.trim().isEmpty())) {
-                    shortTag = true;
-                }
-                if ((backupOfficeLoc == null)
-                        || (backupOfficeLoc.trim().isEmpty())) {
-                    locTag = true;
-                }
-                if (shortTag && locTag) {
-                    infoType = "warngenOfficeShort and warngenOfficeLoc";
-                } else {
-                    if (shortTag) {
-                        infoType = "warngenOfficeShort";
-                    } else if (locTag) {
-                        infoType = "warngenOfficeLoc";
-                    }
-                }
-                if (infoType != null) {
-                    statusHandler.handle(Priority.CRITICAL, "Info for "
-                            + infoType + " in " + backupSite
-                            + "'s config.xml is missing.");
-                }
-            }
-        }
-    }
-
     public String getLocalizedSite() {
-        String site = "";
-        if (backupSite == null) {
-            site = LocalizationManager.getInstance().getCurrentSite();
-        } else {
-            site = backupSite;
-        }
-        return site;
+        return LocalizationManager.getInstance().getCurrentSite();
     }
 
     /**
@@ -4589,26 +4489,6 @@ public class WarngenLayer extends AbstractStormTrackResource {
             getStormTrackState().justSwitchedToLOS = true;
             StormTrackState.trackType = "lineOfStorms";
         }
-    }
-
-    public String getBackupOfficeShort() {
-        return backupOfficeShort;
-    }
-
-    public String getBackupOfficeLoc() {
-        return backupOfficeLoc;
-    }
-
-    public String getBackupSite() {
-        return backupSite;
-    }
-
-    public static String getLastSelectedBackupSite() {
-        return lastSelectedBackupSite;
-    }
-
-    public static void setLastSelectedBackupSite(String backupSite) {
-        lastSelectedBackupSite = backupSite;
     }
 
     private GeospatialData[] getActiveFeatures() {
