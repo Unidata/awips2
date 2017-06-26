@@ -1,19 +1,38 @@
-# WarnGEN
+WarnGen is an AWIPS graphics application for creating and issuing warnings by National Weather Service offices.  In the Unidata AWIPS realease it is a *non-operational* forecasting tool, meaning it allows users to experiment and simlulate with the drawing and text-generation tools, but prevents you from transmitting a generated warning upstream. 
 
-WarnGen is an AWIPS application for issuing short-term, text-based warnings by National Weather Service WFOs.  WarnGen is an operational tool, and is designed to create and issue warning products from CAVE to EDEX.  Unidata AWIPS is *non-operational*, and one of its limitations is that CAVE can not send or issue warning products.  Unidata developers have left the WarnGen tool accessible in CAVE for education and training purposes. 
+!!! warning "In order to select a feature it must be within your *CAVE localization* coverage (load **Maps** > **County Warning Areas** to see coverages)"
 
-## Launching WarnGen
+## Load NEXRAD level 3 display
 
-Select the WarnGen application from the D2D toolbar button. When WarnGen is started, the storm centroid marker appears and the WarnGen GUI will pop up as a separate window. 
+Select the menu **Radar** > **NEXRAD Display** and note coverage areas of current severe weather. These are good site IDs to use in the next step.
 
-You will need to load one or more products (and maps) to observe severe weather (ideal products are radar reflectivity or velocity, or both).
+![](../images/warngen_nexrad_display.gif)
+
+
+## Select SITE Localization
+
+Open **CAVE** > **Preferences** > **Localization**, select the WFO ID for the coverage area you want to use, followed by **Apply** and then **Restart**.
+
+![](../images/localization_restart.gif)
+
+
+## Select the nearest WSR-88D location
+
+Click on any NEXRAD Display station to load a two-pane Reflectivity/Velocity view.
+
+![](../images/warngen_nexrad_site.gif)
+
+
+## Launch WarnGen
+
+Select **WarnGen** from the D2D Toolbar or from the **Tools** menu.  When started, the storm centroid marker appears and the WarnGen GUI will pop up as a separate window. 
 
 |                           |                                   |
 :--------------------------:|:---------------------------------:|
 |![](../images/warngen.png) |  ![](../images/Warngen_Basic.png) |
 
 
-In order to select a feature it must be within your *EDEX server* localization coverage (default BOU)
+
 
 ## Generate a Storm Motion Vector
 
@@ -22,7 +41,9 @@ In order to select a feature it must be within your *EDEX server* localization c
 3. Drag the dot to the previous position of the feature you first marked.
 4. Review the product loop and make adjustments to ensure the vector is accurate.
 
-After determinng the storm motion you will want to redraw the polygon to fit the new storm track. The easiest way to do this task is to use one of the 
+## Restart
+
+Click the **Reset** button to clear all current polygons and vectors and reset the storm centroid marker.
 
 ## Redrawing a Polygon
 
@@ -40,9 +61,15 @@ When reshaping your warning polygon in this manner, the philosophy is to include
 
 There will be some occasions where you will want to add vertices to your warning polygon. Most often, these situations will involve line warnings with bowing segments or single storm warnings where you want to account for storm motion uncertainty or multiple threat areas that may have differing storm motions.
 
-New vertices are added to the warning polygon using a context relative menu accessed by selecting the warning polygon line segments with a Right Mouse Button “click and hold.” In the menu that appears, just select the “add vertex” option to add a new point to the warning polygon. Make sure, when using this feature, that you select the line segment in the warning where you want to add the additional vertex. After selecting this option, you will see a new vertex linked to the cursor. Just press your Left Mouse Button at the location you desire for the new vertex and the new point is located there. In addition, clicking with the middle mouse button (or scroll wheel) along an edge of the polygon will also place a vertex at that point.
+New vertices are added to the warning polygon using a context relative menu accessed by selecting the warning polygon line segments with a **Right Mouse Button "click and hold"**. 
+ 
+1. Hold right-click and select **add vertex**.
+2. Click the left mouse button at the location you desire for the new vertex and the point is created there.
+3. Clicking the middle mouse button (or scroll wheel) along an edge of the polygon will also place a vertex at that point.
 
-Vertex points are removed from the warning polygon using the same context relative menu. Instead of selecting a line segment, you select the vertex you wish to remove and then “click and hold” with the Right Mouse Button. In the menu that appears, select “remove vertex” to remove the point from the warning polygon. Generally speaking, you should always have at least four points in your warning polygon. So, you should only remove a vertex if you are at a point after you have already added one to your warning polygon.
+Vertex points are removed from the warning polygon using the same context relative menu. Instead of selecting a line segment, you select the vertex you wish to remove and then **click and hold** with right mouse button.  Hold right-click and select **remove vertex**. 
+
+!!! note "Generally you should have at least four points in your warning polygon."
 
 ## Restoring a Polygon
 

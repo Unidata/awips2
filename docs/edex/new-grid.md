@@ -21,10 +21,10 @@ To add support for a new grid, two edits must be made:
     
         edex log grib
     
-        INFO [Ingest.GribDecode] /awips2/data_store/manual/grib/20141026/14/wrf.grib processed in: 0.1200 (sec) Latency: 21.8080 (sec)
-        INFO [Ingest.GribDecode] /awips2/data_store/manual/grib/20141026/14/wrf.grib processed in: 0.1180 (sec) Latency: 21.8140 (sec)
-        INFO [Ingest.GribDecode] /awips2/data_store/manual/grib/20141026/14/wrf.grib processed in: 0.4230 (sec) Latency: 21.8360 (sec)
-        INFO [Ingest.GribDecode] /awips2/data_store/manual/grib/20141026/14/wrf.grib processed in: 0.2240 (sec) Latency: 21.9140 (sec)
+        INFO [Ingest.GribDecode] /awips2/data_store/ingest/grib/20141026/14/wrf.grib processed in: 0.1200 (sec) Latency: 21.8080 (sec)
+        INFO [Ingest.GribDecode] /awips2/data_store/ingest/grib/20141026/14/wrf.grib processed in: 0.1180 (sec) Latency: 21.8140 (sec)
+        INFO [Ingest.GribDecode] /awips2/data_store/ingest/grib/20141026/14/wrf.grib processed in: 0.4230 (sec) Latency: 21.8360 (sec)
+        INFO [Ingest.GribDecode] /awips2/data_store/ingest/grib/20141026/14/wrf.grib processed in: 0.2240 (sec) Latency: 21.9140 (sec)
         
         ...
 
