@@ -238,11 +238,15 @@ To manually start, stop, and restart:
 
 The fifth service, **edex_ldm**, does **not run at boot** to prevent filling up disk space if EDEX is not running. 
 
-    service edex_ldm start
+    ldmadmin start
 
 To start *all services except the LDM* (good for troubleshooting):
 
     edex start base
+
+To restart EDEX
+
+    edex restart
 
 ---
 

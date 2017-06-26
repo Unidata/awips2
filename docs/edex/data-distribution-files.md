@@ -87,7 +87,7 @@ To add this locally produced satellite data file to the EDEX distribution; perfo
 
 3. Save the file and exit the editor. EDEX will automatically pick up the new distribution pattern.
 
-Raw files are written to **/data_store**, and a message is sent via QPID to the EDEX distribution service from the LDM. When a regular expression match is found in a data distribution file, the raw data file is placed in a queue for the matching plugin to decode and process. The distribution files are used to match file headers as well as filenames, which is how files dropped into EDEXâ€™s manual endpoint (**/awips2/data_store/ingest**) are processed.
+Raw files are written to **/data_store**, and a message is sent via QPID to the EDEX distribution service from the LDM. When a regular expression match is found in a data distribution file, the raw data file is placed in a queue for the matching plugin to decode and process. The distribution files are used to match file headers as well as filenames, which is how files dropped into EDEX's manual endpoint (**/awips2/data_store/ingest**) are processed.
 
 ## Editing an EDEX Data Distribution File
 
