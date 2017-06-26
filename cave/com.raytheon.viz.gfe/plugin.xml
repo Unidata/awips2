@@ -2017,61 +2017,6 @@
           recursive="true"
           value="gfe/weGroups">
     </path>
-    <path
-          application="GFE Server"
-          extensionFilter=".py,.properties"
-          localizationAdapter="com.raytheon.viz.gfe.localization.adapters.ServerConfigAdapter"
-          localizationType="COMMON_STATIC"
-          name="Server Config Files"
-          recursive="false"
-          value="gfe/config">
-    </path>
-    <path
-          application="GFE Server"
-          extensionFilter=".py"
-          localizationAdapter="com.raytheon.viz.gfe.localization.adapters.SmartInitAdapter"
-          localizationType="COMMON_STATIC"
-          name="Smart Inits"
-          recursive="false"
-          value="gfe/smartinit">
-    </path>
-    <path
-          application="GFE Server"
-          extensionFilter=".xml"
-          localizationAdapter="com.raytheon.viz.gfe.localization.adapters.ParameterInfoAdapter"
-          localizationType="COMMON_STATIC"
-          name="Parameter Info Files"
-          value="grid/parameterInfo">
-    </path>
-    <path
-          application="GFE Server"
-          extensionFilter="gfeParamName.xml"
-          localizationType="COMMON_STATIC"
-          name="Param Names"
-          value="parameter/alias">
-    </path>
-    <path
-          application="GFE Server"
-          extensionFilter="gfeParamInfo.xml"
-          localizationType="COMMON_STATIC"
-          name="Param Info Mapping"
-          value="grid/dataset/alias">
-    </path>
-    <path
-          application="GFE Server"
-          extensionFilter="gfeLevelMappingFile.xml"
-          localizationType="COMMON_STATIC"
-          name="Level Mapping"
-          value="grid">
-    </path>
-    <path
-          application="GFE Server"
-          extensionFilter="VTECPartners.py"
-          localizationAdapter="com.raytheon.viz.gfe.localization.adapters.ServerConfigAdapter"
-          localizationType="COMMON_STATIC"
-          name="VTEC Partners"
-          value="vtec">
-    </path>
  </extension>
  
  <extension
