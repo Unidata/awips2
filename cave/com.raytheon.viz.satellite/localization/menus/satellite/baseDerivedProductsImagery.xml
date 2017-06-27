@@ -23,7 +23,7 @@
                         menuText="Blended Rain Rate" id="rainfallRate">
 	                <substitute key="element" value="Rain fall rate"/>
 	                <substitute key="entity" value="POES-NPOESS"/>
-	                <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+	                <substitute key="colormap" value="Sat/VIS/Linear"/>
 	             </contribute>
 		<contribute xsi:type="titleItem" titleText="------ GOES ------" 
             id="GOESLine"/>

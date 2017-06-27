@@ -29,7 +29,7 @@
                     <loadProperties loadWithoutData="true">
                         <capabilities>
                             <capability xsi:type="colorMapCapability">
-                                <colorMapParameters colorMapName="Sat/VIS/ZA (Vis Default)">
+                                <colorMapParameters colorMapName="Sat/VIS/Linear">
                                     <persisted>
                                         <colorMapMin>0.0</colorMapMin>
                                         <colorMapMax>255.0</colorMapMax>

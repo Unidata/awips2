@@ -35,7 +35,7 @@
     <contribute xsi:type="satBundleItem" file="bundles/DefaultCompositeSatellite.xml" 
                 menuText="Visible" id="visible">
         <substitute key="element" value="Imager Visible"/>
-        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+        <substitute key="colormap" value="Sat/VIS/Linear"/>
     </contribute>
     <contribute xsi:type="satBundleItem" file="bundles/DefaultCONUSSatellite.xml" 
                 menuText="3.9u" id="3.9u">

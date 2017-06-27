@@ -25,7 +25,7 @@
         <substitute key="element" value="Imager Visible"/>
 		<substitute key="sector" value="GOES-East"/>
     	<substitute key="entity" value="GOES-13(N)"/>
-        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+        <substitute key="colormap" value="Sat/VIS/Linear"/>
     </contribute>
 	<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="GOES Imager 11 micron IR" id="irWindow">

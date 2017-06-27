@@ -143,6 +143,7 @@ import com.raytheon.viz.satellite.tileset.SatRenderable.InterrogationResult;
  *  Jul 13, 2016  DCS 18781 jburks      Added ability to mask incomplete frames.
  * Aug 03, 2016  5786     bsteffen  Schedule the loading of all frames on
  *                                  initialization
+ * Jun 26, 2017           mjames    Set default viz colormap to linear.
  * 
  * </pre>
  * 
@@ -338,7 +339,7 @@ public class SatResource extends
                 if (unit != null && unit.isCompatible(Temperature.UNIT)) {
                     preferences.setDefaultColormap("Sat/IR/CIRA (IR Default)");
                 } else {
-                    preferences.setDefaultColormap("Sat/VIS/ZA (Vis Default)");
+                    preferences.setDefaultColormap("Sat/VIS/Linear");
                 }
                 DataScale range = new DataScale();
                 range.setScaleType(DataScale.Type.LINEAR);
@@ -372,7 +373,7 @@ public class SatResource extends
         // Load colormap into parameters
         if (colorMap == null) {
             if (cmName == null) {
-                cmName = "Sat/VIS/ZA (Vis Default)";
+                cmName = "Sat/VIS/Linear";
             }
             try {
                 colorMap = ColorMapLoader.loadColorMap(cmName);

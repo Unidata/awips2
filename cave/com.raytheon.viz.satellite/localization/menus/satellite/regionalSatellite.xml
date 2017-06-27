@@ -23,7 +23,7 @@
 	        <substitute key="element" value="Imager Visible"/>
 	        <substitute key="sector" value="Alaska National"/>
 			<substitute key="entity" value="GOES-15(P)" /> 
-	        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+	        <substitute key="colormap" value="Sat/VIS/Linear"/>
 	    </contribute>
 		<contribute xsi:type="separator" id="MySeparatorId"/>
 		<!-- ALASKA REGIONAL -->
@@ -53,7 +53,7 @@
 	        <substitute key="element" value="Imager Visible"/>
 	        <substitute key="sector" value="Alaska Regional"/>
 			<substitute key="entity" value="GOES-15(P)" /> 
-	        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+	        <substitute key="colormap" value="Sat/VIS/Linear"/>
 	    </contribute>
 		<contribute xsi:type="separator" id="MySeparatorId"/>
 		<!-- HAWAII NATIONAL -->
@@ -76,7 +76,7 @@
 	        <substitute key="element" value="Imager Visible"/>
 	        <substitute key="sector" value="Hawaii National"/>
 			<substitute key="entity" value="GOES-15(P)" /> 
-	        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+	        <substitute key="colormap" value="Sat/VIS/Linear"/>
 	    </contribute>
 		<contribute xsi:type="separator" id="MySeparatorId"/>
 		<!-- HAWAII REGIONAL -->
@@ -106,7 +106,7 @@
 	        <substitute key="element" value="Imager Visible"/>
 	        <substitute key="sector" value="Hawaii Regional"/>
 			<substitute key="entity" value="GOES-15(P)" /> 
-	        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+	        <substitute key="colormap" value="Sat/VIS/Linear"/>
 	    </contribute>
 		<contribute xsi:type="separator" id="MySeparatorId"/>
 		<!-- PUERTO RICO NATIONAL -->
@@ -129,7 +129,7 @@
 	        <substitute key="element" value="Imager Visible"/>
 	        <substitute key="sector" value="Puerto Rico National"/>
 			<substitute key="entity" value="GOES-13(N)" /> 
-	        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+	        <substitute key="colormap" value="Sat/VIS/Linear"/>
 	    </contribute>
 		<contribute xsi:type="separator" id="MySeparatorId"/>
 		<!-- PUERTO RICO REGIONAL -->
@@ -166,7 +166,7 @@
 	        <substitute key="element" value="Imager Visible"/>
 	        <substitute key="sector" value="Puerto Rico Regional"/>
 			<substitute key="entity" value="GOES-13(N)" /> 
-	        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+	        <substitute key="colormap" value="Sat/VIS/Linear"/>
 	    </contribute>
 		<contribute xsi:type="separator" id="MySeparatorId"/>
 		<!-- Arctic -->
@@ -203,7 +203,7 @@
 	        <substitute key="element" value="Imager Visible"/>
 	        <substitute key="sector" value="Arctic"/>
 	        <substitute key="entity" value="COMP" /> 
-	        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+	        <substitute key="colormap" value="Sat/VIS/Linear"/>
 	    </contribute>
 		<contribute xsi:type="separator" id="MySeparatorId"/>
 		<!-- Antarctica -->
@@ -219,7 +219,7 @@
 	        <substitute key="element" value="Imager Visible"/>
 	        <substitute key="sector" value="Antarctic" />     
 	        <substitute key="entity" value="COMP" /> 
-	        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+	        <substitute key="colormap" value="Sat/VIS/Linear"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
 	        menuText="Antarctica WV" id="Arctic-WV">
