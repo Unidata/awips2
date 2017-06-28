@@ -399,13 +399,6 @@ public class TemplateRunner {
         context.put("officeLoc", warngenLayer.getDialogConfig()
                 .getWarngenOfficeLoc());
 
-        if (backupData != null) {
-            context.remove("officeLoc");
-            context.remove("officeShort");
-            context.put("backupSite", warngenLayer.getDialogConfig()
-                    .getWarngenOfficeShort());
-        }
-
         String productId = config.getProductId();
         if (productId == null) {
             statusHandler.warn("Warngen configuration file: "
@@ -557,12 +550,12 @@ public class TemplateRunner {
                         warngenLayer, stormTrackState, selectedAction, wkt,
                         threeLetterSiteId, etn, phenSig);
 
-                if (std.getMotionSpeed() > 0) {
-                    t0 = System.currentTimeMillis();
-                    ToolsDataManager.getInstance().setStormTrackData(std);
-                    perfLog.logDuration("Save storm track data",
-                            System.currentTimeMillis() - t0);
-                }
+//                if (std.getMotionSpeed() > 0) {
+//                    t0 = System.currentTimeMillis();
+//                    ToolsDataManager.getInstance().setStormTrackData(std);
+//                    perfLog.logDuration("Save storm track data",
+//                            System.currentTimeMillis() - t0);
+//                }
             } else {
                 // Retrieve the old Warning
                 // Example: s[0-5] = T.CON-KLWX.SV.W.0123
@@ -880,25 +873,23 @@ public class TemplateRunner {
         }
         context.put("oldvtec", context.get("etn")); // Depreciated
         context.put("stationary", stormTrackState.timePoints == null);
-        /*
         // Store Watches
-        try {
-            t0 = System.currentTimeMillis();
-            WatchUtil watchUtil = new WatchUtil(warngenLayer);
-            List<Watch> watches = watchUtil.getWatches(config, warnPolygon,
-                    simulatedTime);
-            perfLog.logDuration("getWatches", System.currentTimeMillis() - t0);
-            if ((watches != null) && (watches.isEmpty() == false)) {
-                context.put("watches", watches);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            statusHandler
-                    .handle(Priority.VERBOSE,
-                            "WarnGen cannot populate Active Watches. Check your local config.xml",
-                            e);
-        }
-        */
+//        try {
+//            t0 = System.currentTimeMillis();
+//            WatchUtil watchUtil = new WatchUtil(warngenLayer);
+//            List<Watch> watches = watchUtil.getWatches(config, warnPolygon,
+//                    simulatedTime);
+//            perfLog.logDuration("getWatches", System.currentTimeMillis() - t0);
+//            if ((watches != null) && (watches.isEmpty() == false)) {
+//                context.put("watches", watches);
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            statusHandler
+//                    .handle(Priority.VERBOSE,
+//                            "WarnGen cannot populate Active Watches. Check your local config.xml",
+//                            e);
+//        }
 
         long tz0 = System.currentTimeMillis();
         String script = createScript(warngenLayer.getTemplateName() + ".vm",
