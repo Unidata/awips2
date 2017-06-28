@@ -268,9 +268,8 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         if (productToDisplay != null) {
             wgDlg.showWarngenProduct(productToDisplay, notify);
         }
-
         // Display the first Text Editor
-        showTextEditor(0);
+        //showTextEditor(0);
     }
 
     private void createMenus() {
