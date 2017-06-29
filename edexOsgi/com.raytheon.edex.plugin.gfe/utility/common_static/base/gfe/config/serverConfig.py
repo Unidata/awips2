@@ -2733,7 +2733,7 @@ else:
 #---------------------------------------------------------------------------
 #
 # Guam OCONUS
-elif SID == "GUM":
+if SID == "GUM":
     INITMODULES= {
         "GFS75" : ["GFS75"],
         "RTMA" : ['RTMA']
