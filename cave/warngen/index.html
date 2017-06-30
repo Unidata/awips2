@@ -21,7 +21,7 @@
     
     
       
-        <title>WarnGen - Unidata AWIPS User Manual</title>
+        <title>WarnGen Walkthrough - Unidata AWIPS User Manual</title>
       
     
     
@@ -92,7 +92,7 @@
               
             
             
-              WarnGen
+              WarnGen Walkthrough
             
           
         </span>
@@ -346,30 +346,47 @@
     
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
     
-      
-    
     
       <label class="md-nav__link md-nav__link--active" for="toc">
-        WarnGen
+        WarnGen Walkthrough
       </label>
     
-    <a href="./" title="WarnGen" class="md-nav__link md-nav__link--active">
-      WarnGen
+    <a href="./" title="WarnGen Walkthrough" class="md-nav__link md-nav__link--active">
+      WarnGen Walkthrough
     </a>
     
       
 <nav class="md-nav md-nav--secondary">
   
   
-    
-  
   
     <label class="md-nav__title" for="toc">Table of contents</label>
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#launching-warngen" title="Launching WarnGen" class="md-nav__link">
-    Launching WarnGen
+  <a href="#load-nexrad-level-3-display" title="Load NEXRAD level 3 display" class="md-nav__link">
+    Load NEXRAD level 3 display
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#select-site-localization" title="Select SITE Localization" class="md-nav__link">
+    Select SITE Localization
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#select-the-nearest-wsr-88d-location" title="Select the nearest WSR-88D location" class="md-nav__link">
+    Select the nearest WSR-88D location
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#launch-warngen" title="Launch WarnGen" class="md-nav__link">
+    Launch WarnGen
   </a>
   
 </li>
@@ -377,6 +394,13 @@
         <li class="md-nav__item">
   <a href="#generate-a-storm-motion-vector" title="Generate a Storm Motion Vector" class="md-nav__link">
     Generate a Storm Motion Vector
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#restart" title="Restart" class="md-nav__link">
+    Restart
   </a>
   
 </li>
@@ -931,15 +955,34 @@
 <nav class="md-nav md-nav--secondary">
   
   
-    
-  
   
     <label class="md-nav__title" for="toc">Table of contents</label>
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#launching-warngen" title="Launching WarnGen" class="md-nav__link">
-    Launching WarnGen
+  <a href="#load-nexrad-level-3-display" title="Load NEXRAD level 3 display" class="md-nav__link">
+    Load NEXRAD level 3 display
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#select-site-localization" title="Select SITE Localization" class="md-nav__link">
+    Select SITE Localization
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#select-the-nearest-wsr-88d-location" title="Select the nearest WSR-88D location" class="md-nav__link">
+    Select the nearest WSR-88D location
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#launch-warngen" title="Launch WarnGen" class="md-nav__link">
+    Launch WarnGen
   </a>
   
 </li>
@@ -947,6 +990,13 @@
         <li class="md-nav__item">
   <a href="#generate-a-storm-motion-vector" title="Generate a Storm Motion Vector" class="md-nav__link">
     Generate a Storm Motion Vector
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#restart" title="Restart" class="md-nav__link">
+    Restart
   </a>
   
 </li>
@@ -1010,11 +1060,38 @@
                   <a href="https://github.com/Unidata/awips2/edit/master/docs/cave/warngen.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
-                <h1 id="warngen">WarnGEN<a class="headerlink" href="#warngen" title="Permanent link"></a></h1>
-<p>WarnGen is an AWIPS application for issuing short-term, text-based warnings by National Weather Service WFOs.  WarnGen is an operational tool, and is designed to create and issue warning products from CAVE to EDEX.  Unidata AWIPS is <em>non-operational</em>, and one of its limitations is that CAVE can not send or issue warning products.  Unidata developers have left the WarnGen tool accessible in CAVE for education and training purposes. </p>
-<h2 id="launching-warngen">Launching WarnGen<a class="headerlink" href="#launching-warngen" title="Permanent link"></a></h2>
-<p>Select the WarnGen application from the D2D toolbar button. When WarnGen is started, the storm centroid marker appears and the WarnGen GUI will pop up as a separate window. </p>
-<p>You will need to load one or more products (and maps) to observe severe weather (ideal products are radar reflectivity or velocity, or both).</p>
+                  <h1>WarnGen Walkthrough</h1>
+                
+                <p>WarnGen is an AWIPS graphics application for creating and issuing warnings as is done by National Weather Service offices.  In the Unidata AWIPS release it is a <em>non-operational</em> forecasting tool, meaning it allows users to experiment and simulate with the drawing and text-generation tools, but prevents you from transmitting a generated warning upstream. </p>
+<div class="admonition warning">
+<p class="admonition-title">In order to select a feature it must be within your <em>CAVE localization</em> coverage (load <strong>Maps</strong> &gt; <strong>County Warning Areas</strong> to see coverages)</p>
+</div>
+<p>Steps involved in using WarnGen in Unidata AWIPS CAVE 17.1.1</p>
+<ul>
+<li>Load NEXRAD Display from the Radar menu.</li>
+<li>Choose a WFO site with active severe weather (LKZ is used in the video).</li>
+<li>Re-localize to this site in the CAVE &gt; Preferences &gt; Localization menu.</li>
+<li>Load NEXRAD Display again and select a WSR-88D site to load a 2-panel display of 0.5 degree Reflectivity (N0Q) and Velocity (N0U).</li>
+<li>Click the WarnGen toolbar button or load from Tools &gt; WarnGen.</li>
+<li>Drag the storm marker to the center of a storm feature.</li>
+<li>Step through frames back and forth and adjust the marker to match the trajectory of the storm feature.</li>
+<li>From the WarnGen dialog select the type of warning to generate, the time range, the basis of the warning, and any threats to add (wind, hail, etc). </li>
+<li>Click "Create Text" at the bottom of the WarnGen dialog to generate a text warning product in a new window.</li>
+<li>Click "Reset" at the top of the WarnGen dialog to reset the storm marker at any time.</li>
+<li>Select "Line of Storms" to enable a two-pointed vector which is to be positioned parallel to a storm line.</li>
+</ul>
+<iframe width="700" height="450"
+src="https://www.youtube.com/embed/KSKmIMjkVCU?autoplay=1">
+</iframe>
+
+<h2 id="load-nexrad-level-3-display">Load NEXRAD level 3 display<a class="headerlink" href="#load-nexrad-level-3-display" title="Permanent link"></a></h2>
+<p>Select the menu <strong>Radar</strong> &gt; <strong>NEXRAD Display</strong> and note coverage areas of current severe weather.  We choose a WFO ID that contains some active severe weather (KLZK Little Rock, Arkansas, in this example).</p>
+<h2 id="select-site-localization">Select SITE Localization<a class="headerlink" href="#select-site-localization" title="Permanent link"></a></h2>
+<p>Open <strong>CAVE</strong> &gt; <strong>Preferences</strong> &gt; <strong>Localization</strong>, select the WFO ID (KLZK) for the coverage area you want to use, followed by <strong>Apply</strong> and then <strong>Restart</strong>.</p>
+<h2 id="select-the-nearest-wsr-88d-location">Select the nearest WSR-88D location<a class="headerlink" href="#select-the-nearest-wsr-88d-location" title="Permanent link"></a></h2>
+<p>Click on any NEXRAD Display station to load a two-pane Reflectivity/Velocity view.</p>
+<h2 id="launch-warngen">Launch WarnGen<a class="headerlink" href="#launch-warngen" title="Permanent link"></a></h2>
+<p>Select <strong>WarnGen</strong> from the D2D Toolbar or from the <strong>Tools</strong> menu.  When started, the storm centroid marker appears and the WarnGen GUI will pop up as a separate window. </p>
 <table>
 <thead>
 <tr>
@@ -1024,12 +1101,11 @@
 </thead>
 <tbody>
 <tr>
-<td align="center"><img alt="" src="../../images/warngen.png" /></td>
 <td align="center"><img alt="" src="../../images/Warngen_Basic.png" /></td>
+<td align="center"><img alt="" src="../../images/warngen.png" /></td>
 </tr>
 </tbody>
 </table>
-<p>In order to select a feature it must be within your <em>EDEX server</em> localization coverage (default BOU)</p>
 <h2 id="generate-a-storm-motion-vector">Generate a Storm Motion Vector<a class="headerlink" href="#generate-a-storm-motion-vector" title="Permanent link"></a></h2>
 <ol>
 <li>Click and drag <strong>Drag Me to Storm</strong> to the feature you want to track (WarnGen uses a dot to track a single storm and a line to track a line of storms).</li>
@@ -1037,7 +1113,8 @@
 <li>Drag the dot to the previous position of the feature you first marked.</li>
 <li>Review the product loop and make adjustments to ensure the vector is accurate.</li>
 </ol>
-<p>After determinng the storm motion you will want to redraw the polygon to fit the new storm track. The easiest way to do this task is to use one of the </p>
+<h2 id="restart">Restart<a class="headerlink" href="#restart" title="Permanent link"></a></h2>
+<p>Click the <strong>Reset</strong> button to clear all current polygons and vectors and reset the storm centroid marker.</p>
 <h2 id="redrawing-a-polygon">Redrawing a Polygon<a class="headerlink" href="#redrawing-a-polygon" title="Permanent link"></a></h2>
 <p>Select the <strong>Track</strong> button in the <strong>"Redraw Box on Screen"</strong> section to redraw a default warning polygon oriented along the storm motion track and containing the storm centroid dot for the most recent volume scan. The initial polygon may have unhatched areas that will be removed from the warning due to crossing CWAs or not meeting area thresholds in the county for inclusion. The Warned/Hatched Area button allow you to preview the polygon shape that will be issued, so you can make further edits.</p>
 <h2 id="moving-vertex-points">Moving Vertex Points<a class="headerlink" href="#moving-vertex-points" title="Permanent link"></a></h2>
@@ -1046,8 +1123,13 @@
 <p>When reshaping your warning polygon in this manner, the philosophy is to include all areas that are at risk of experiencing severe weather covered by that warning type. Effective polygons account for uncertainty over time and typically widen downstream. There will be a lot of training provided on Storm-Based Warning Fundamentals in RAC and in the workshop, and this lesson is more focused on the basic mechanics.</p>
 <h2 id="add-and-remove-vertex-points">Add and Remove Vertex Points<a class="headerlink" href="#add-and-remove-vertex-points" title="Permanent link"></a></h2>
 <p>There will be some occasions where you will want to add vertices to your warning polygon. Most often, these situations will involve line warnings with bowing segments or single storm warnings where you want to account for storm motion uncertainty or multiple threat areas that may have differing storm motions.</p>
-<p>New vertices are added to the warning polygon using a context relative menu accessed by selecting the warning polygon line segments with a Right Mouse Button “click and hold.” In the menu that appears, just select the “add vertex” option to add a new point to the warning polygon. Make sure, when using this feature, that you select the line segment in the warning where you want to add the additional vertex. After selecting this option, you will see a new vertex linked to the cursor. Just press your Left Mouse Button at the location you desire for the new vertex and the new point is located there. In addition, clicking with the middle mouse button (or scroll wheel) along an edge of the polygon will also place a vertex at that point.</p>
-<p>Vertex points are removed from the warning polygon using the same context relative menu. Instead of selecting a line segment, you select the vertex you wish to remove and then “click and hold” with the Right Mouse Button. In the menu that appears, select “remove vertex” to remove the point from the warning polygon. Generally speaking, you should always have at least four points in your warning polygon. So, you should only remove a vertex if you are at a point after you have already added one to your warning polygon.</p>
+<p>New vertices are added to the warning polygon using a context relative menu accessed by selecting the warning polygon line segments with a <strong>Right Mouse Button "click and hold"</strong>. </p>
+<ol>
+<li>Hold right-click and select <strong>add vertex</strong>.</li>
+<li>Click the left mouse button at the location you desire for the new vertex and the point is created there.</li>
+<li>Clicking the middle mouse button (or scroll wheel) along an edge of the polygon will also place a vertex at that point.</li>
+</ol>
+<p>Vertex points are removed from the warning polygon using the same context relative menu. Instead of selecting a line segment, you select the vertex you wish to remove and then <strong>click and hold</strong> with right mouse button.  Hold right-click and select <strong>remove vertex</strong>. </p>
 <h2 id="restoring-a-polygon">Restoring a Polygon<a class="headerlink" href="#restoring-a-polygon" title="Permanent link"></a></h2>
 <p>When you are customizing a polygon in WarnGen, speed is critical. Everyone, even veteran warning forecasters, will occasionally draw a warning polygon one way and then realize, prior to sending the warning, that they want to draw the warning boundaries differently. Depending on the complexity of the changes you make to a warning polygon, sometimes it’s faster to just start over from scratch. The easiest way to proceed, especially if you are still comfortable with the storm motion, is to select the “Track” button from the “Redraw Box on Screen from” section of the WarnGen GUI.</p>
 <h2 id="text-window">Text Window<a class="headerlink" href="#text-window" title="Permanent link"></a></h2>

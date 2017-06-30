@@ -440,8 +440,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/warngen/" title="WarnGen" class="md-nav__link">
-      WarnGen
+    <a href="../../cave/warngen/" title="WarnGen Walkthrough" class="md-nav__link">
+      WarnGen Walkthrough
     </a>
   </li>
 
@@ -1264,10 +1264,13 @@ service qpidd start
 service edex_camel start
 </code></pre>
 <p>The fifth service, <strong>edex_ldm</strong>, does <strong>not run at boot</strong> to prevent filling up disk space if EDEX is not running. </p>
-<pre><code>service edex_ldm start
+<pre><code>ldmadmin start
 </code></pre>
 <p>To start <em>all services except the LDM</em> (good for troubleshooting):</p>
 <pre><code>edex start base
+</code></pre>
+<p>To restart EDEX</p>
+<pre><code>edex restart
 </code></pre>
 <hr />
 <h2 id="directories-to-know">Directories to know<a class="headerlink" href="#directories-to-know" title="Permanent link"></a></h2>
