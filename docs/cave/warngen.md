@@ -1,27 +1,37 @@
-WarnGen is an AWIPS graphics application for creating and issuing warnings by National Weather Service offices.  In the Unidata AWIPS realease it is a *non-operational* forecasting tool, meaning it allows users to experiment and simlulate with the drawing and text-generation tools, but prevents you from transmitting a generated warning upstream. 
+WarnGen is an AWIPS graphics application for creating and issuing warnings as is done by National Weather Service offices.  In the Unidata AWIPS release it is a *non-operational* forecasting tool, meaning it allows users to experiment and simulate with the drawing and text-generation tools, but prevents you from transmitting a generated warning upstream. 
 
 !!! warning "In order to select a feature it must be within your *CAVE localization* coverage (load **Maps** > **County Warning Areas** to see coverages)"
 
+Steps involved in using WarnGen in Unidata AWIPS CAVE 17.1.1
+
+* Load NEXRAD Display from the Radar menu.
+* Choose a WFO site with active severe weather (LKZ is used in the video).
+* Re-localize to this site in the CAVE &gt; Preferences &gt; Localization menu.
+* Load NEXRAD Display again and select a WSR-88D site to load a 2-panel display of 0.5 degree Reflectivity (N0Q) and Velocity (N0U).
+* Click the WarnGen toolbar button or load from Tools &gt; WarnGen.
+* Drag the storm marker to the center of a storm feature.
+* Step through frames back and forth and adjust the marker to match the trajectory of the storm feature.
+* From the WarnGen dialog select the type of warning to generate, the time range, the basis of the warning, and any threats to add (wind, hail, etc). 
+* Click "Create Text" at the bottom of the WarnGen dialog to generate a text warning product in a new window.
+* Click "Reset" at the top of the WarnGen dialog to reset the storm marker at any time.
+* Select "Line of Storms" to enable a two-pointed vector which is to be positioned parallel to a storm line.
+
+
+<iframe width="700" height="450"
+src="https://www.youtube.com/embed/KSKmIMjkVCU?autoplay=1">
+</iframe>
+
 ## Load NEXRAD level 3 display
 
-Select the menu **Radar** > **NEXRAD Display** and note coverage areas of current severe weather. These are good site IDs to use in the next step.
-
-![](../images/warngen_nexrad_display.gif)
-
+Select the menu **Radar** > **NEXRAD Display** and note coverage areas of current severe weather.  We choose a WFO ID that contains some active severe weather (KLZK Little Rock, Arkansas, in this example).
 
 ## Select SITE Localization
 
-Open **CAVE** > **Preferences** > **Localization**, select the WFO ID for the coverage area you want to use, followed by **Apply** and then **Restart**.
-
-![](../images/localization_restart.gif)
-
+Open **CAVE** > **Preferences** > **Localization**, select the WFO ID (KLZK) for the coverage area you want to use, followed by **Apply** and then **Restart**.
 
 ## Select the nearest WSR-88D location
 
 Click on any NEXRAD Display station to load a two-pane Reflectivity/Velocity view.
-
-![](../images/warngen_nexrad_site.gif)
-
 
 ## Launch WarnGen
 
@@ -29,7 +39,7 @@ Select **WarnGen** from the D2D Toolbar or from the **Tools** menu.  When starte
 
 |                           |                                   |
 :--------------------------:|:---------------------------------:|
-|![](../images/warngen.png) |  ![](../images/Warngen_Basic.png) |
+|![](../images/Warngen_Basic.png) |  ![](../images/warngen.png) |
 
 
 
@@ -68,8 +78,6 @@ New vertices are added to the warning polygon using a context relative menu acce
 3. Clicking the middle mouse button (or scroll wheel) along an edge of the polygon will also place a vertex at that point.
 
 Vertex points are removed from the warning polygon using the same context relative menu. Instead of selecting a line segment, you select the vertex you wish to remove and then **click and hold** with right mouse button.  Hold right-click and select **remove vertex**. 
-
-!!! note "Generally you should have at least four points in your warning polygon."
 
 ## Restoring a Polygon
 
