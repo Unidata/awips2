@@ -62,7 +62,6 @@ pages:
     - NCEP/Hydro: cave/d2d-hydro.md
     - Map Overlays: cave/d2d-map-resources.md
 - Python:
-    - Derived Parameters: python/derived-parameters.md
     - Python AWIPS API: python/python-awips-data-access.md
 - Development:
     - AWIPS Development Environment (ADE): dev/awips-development-environment.md
