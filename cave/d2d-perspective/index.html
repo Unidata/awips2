@@ -1,0 +1,1334 @@
+
+<!DOCTYPE html>
+<html class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for all things AWIPS.">
+      
+      
+        <link rel="canonical" href="http://unidata.github.io/awips2/cave/d2d-perspective/">
+      
+      
+        <meta name="author" content="mjames@ucar.edu">
+      
+      
+        <link rel="shortcut icon" href="../../images/favicon.ico">
+      
+      <meta name="generator" content="mkdocs-0.16.3, mkdocs-unidata-1.5.4">
+    
+    
+      
+        <title>D2D Perspective - Unidata AWIPS User Manual</title>
+      
+    
+    
+      <script src="../../assets/javascripts/modernizr-56ade86843.js"></script>
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/application-b1a1975878.css">
+      
+        <link rel="stylesheet" href="../../assets/stylesheets/application-f78e5cb881.palette.css">
+      
+    
+    
+      
+        
+        
+        
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    
+    
+      <link rel="stylesheet" href="../../css/extra.css">
+    
+    
+  </head>
+  
+  
+  
+  
+    <body data-md-color-primary="blue-grey" data-md-color-accent="light-blue">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="drawer">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="search">
+    <label class="md-overlay" data-md-component="overlay" for="drawer"></label>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    
+      <a href="../.."><div class="background-logo" style="background-image: url(../../images/cave.png);"></div>
+    
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <a href="../.." title="Unidata AWIPS User Manual" class="md-icon md-icon--home md-header-nav__button">
+          </a>
+        
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <span class="md-flex__ellipsis md-header-nav__title">
+          
+            
+              
+                <span class="md-header-nav__parent">
+                  CAVE User Manual
+                </span>
+              
+            
+            
+              D2D Perspective
+            
+          
+        </span>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
+          
+<div class="md-search" data-md-component="search">
+  <div class="md-search__overlay"></div>
+  <div class="md-search__inner">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" required placeholder="Search" accesskey="s" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query">
+      <label class="md-icon md-search__icon" for="search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset">close</button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta" data-md-lang-result-none="No matching documents" data-md-lang-result-one="1 matching document" data-md-lang-result-other="# matching documents">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <div class="md-header-nav__source">
+          
+            
+
+
+  
+
+
+  <a href="https://github.com/Unidata/awips2" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+          
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+      
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="drawer">
+    
+      <i class="md-icon md-icon--home md-nav__button"></i>
+    
+    Unidata AWIPS User Manual
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+
+  <a href="https://github.com/Unidata/awips2" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../.." title="Home" class="md-nav__link">
+      Home
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../install/install-cave/" title="Install CAVE" class="md-nav__link">
+      Install CAVE
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../install/install-edex/" title="Install EDEX" class="md-nav__link">
+      Install EDEX
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4" checked>
+    
+    <label class="md-nav__link" for="nav-4">
+      CAVE User Manual
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        CAVE User Manual
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        D2D Perspective
+      </label>
+    
+    <a href="./" title="D2D Perspective" class="md-nav__link md-nav__link--active">
+      D2D Perspective
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#resource-stack" title="Resource Stack" class="md-nav__link">
+    Resource Stack
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#product-browser" title="Product Browser" class="md-nav__link">
+    Product Browser
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#switch-pane-layouts" title="Switch Pane Layouts" class="md-nav__link">
+    Switch Pane Layouts
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#time-options-ctrl-t" title="Time Options (Ctrl + T)" class="md-nav__link">
+    Time Options (Ctrl + T)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-scale-ctrl-s" title="Data Scale (Ctrl + S)" class="md-nav__link">
+    Data Scale (Ctrl + S)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#image-combination-insert" title="Image Combination (Insert)" class="md-nav__link">
+    Image Combination (Insert)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#display-properties" title="Display Properties" class="md-nav__link">
+    Display Properties
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#loop-properties-ctrl-l" title="Loop Properties (Ctrl + L)" class="md-nav__link">
+    Loop Properties (Ctrl + L)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#image-properties-ctrl-i" title="Image Properties (Ctrl + I)" class="md-nav__link">
+    Image Properties (Ctrl + I)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#set-time" title="Set Time" class="md-nav__link">
+    Set Time
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#set-background-color" title="Set Background Color" class="md-nav__link">
+    Set Background Color
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#switching-perspectives" title="Switching Perspectives" class="md-nav__link">
+    Switching Perspectives
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cave-preferences" title="CAVE Preferences" class="md-nav__link">
+    CAVE Preferences
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#load-mode" title="Load Mode" class="md-nav__link">
+    Load Mode
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../maps-views-projections/" title="Maps, Views, Projections" class="md-nav__link">
+      Maps, Views, Projections
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../bundles-and-procedures/" title="Bundles and Procedures" class="md-nav__link">
+      Bundles and Procedures
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../import-export/" title="Import/Export" class="md-nav__link">
+      Import/Export
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../localization-perspective/" title="Localization Perspective" class="md-nav__link">
+      Localization Perspective
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../ncp-perspective/" title="NCP Perspective" class="md-nav__link">
+      NCP Perspective
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../nsharp/" title="NSHARP" class="md-nav__link">
+      NSHARP
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../warngen/" title="WarnGen Walkthrough" class="md-nav__link">
+      WarnGen Walkthrough
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../goes-16-satellite/" title="GOES-16 (GOES-R)" class="md-nav__link">
+      GOES-16 (GOES-R)
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../d2d-gis-shapefiles/" title="GIS and Shapefiles" class="md-nav__link">
+      GIS and Shapefiles
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../d2d-gridded-models/" title="Volume Browser" class="md-nav__link">
+      Volume Browser
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../d2d-tools/" title="Display Tools" class="md-nav__link">
+      Display Tools
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../d2d-radar-tools/" title="Radar Tools" class="md-nav__link">
+      Radar Tools
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../d2d-edit-menus/" title="Editing Menus" class="md-nav__link">
+      Editing Menus
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../cave-localization/" title="Change Localization" class="md-nav__link">
+      Change Localization
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      EDEX User Manual
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
+        EDEX User Manual
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../install/start-edex/" title="EDEX Start and Stop" class="md-nav__link">
+      EDEX Start and Stop
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../edex/ldm/" title="LDM Feeds" class="md-nav__link">
+      LDM Feeds
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../edex/data-distribution-files/" title="Data Distribution Files" class="md-nav__link">
+      Data Distribution Files
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../edex/new-grid/" title="Ingest a New Grid" class="md-nav__link">
+      Ingest a New Grid
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../edex/data-purge/" title="Purging and Retention" class="md-nav__link">
+      Purging and Retention
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../edex/edex-users/" title="Monitor Users" class="md-nav__link">
+      Monitor Users
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../edex/data-plugins/" title="Data Plugins" class="md-nav__link">
+      Data Plugins
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6">
+    
+    <label class="md-nav__link" for="nav-6">
+      Supported Data Types
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-6">
+        Supported Data Types
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../d2d-grids/" title="Gridded Model Display" class="md-nav__link">
+      Gridded Model Display
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../d2d-pointdata-surface-obs/" title="Surface Obs" class="md-nav__link">
+      Surface Obs
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../d2d-satellite/" title="Satellite Imagery" class="md-nav__link">
+      Satellite Imagery
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../d2d-radar/" title="NEXRAD Radar" class="md-nav__link">
+      NEXRAD Radar
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../d2d-uair/" title="Upper Air" class="md-nav__link">
+      Upper Air
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../d2d-hydro/" title="NCEP/Hydro" class="md-nav__link">
+      NCEP/Hydro
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../d2d-map-resources/" title="Map Overlays" class="md-nav__link">
+      Map Overlays
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7">
+    
+    <label class="md-nav__link" for="nav-7">
+      Python
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-7">
+        Python
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../python/derived-parameters/" title="Derived Parameters" class="md-nav__link">
+      Derived Parameters
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../python/python-awips-data-access/" title="Python AWIPS API" class="md-nav__link">
+      Python AWIPS API
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-8" type="checkbox" id="nav-8">
+    
+    <label class="md-nav__link" for="nav-8">
+      Development
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-8">
+        Development
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../dev/awips-development-environment/" title="AWIPS Development Environment (ADE)" class="md-nav__link">
+      AWIPS Development Environment (ADE)
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../dev/build-nsharp-macos/" title="Building NSHARP for macOS" class="md-nav__link">
+      Building NSHARP for macOS
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-9" type="checkbox" id="nav-9">
+    
+    <label class="md-nav__link" for="nav-9">
+      Appendix
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-9">
+        Appendix
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../appendix/appendix-grid-parameters/" title="AWIPS Grid Parameters" class="md-nav__link">
+      AWIPS Grid Parameters
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../appendix/appendix-acronyms/" title="Acronyms and Abbreviations" class="md-nav__link">
+      Acronyms and Abbreviations
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../appendix/appendix-cots/" title="COTS and FOSS" class="md-nav__link">
+      COTS and FOSS
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../appendix/appendix-wsr88d/" title="WSR-88D Product Table" class="md-nav__link">
+      WSR-88D Product Table
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../cave-keyboard-shortcuts/" title="Keyboard Shortcuts" class="md-nav__link">
+      Keyboard Shortcuts
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#resource-stack" title="Resource Stack" class="md-nav__link">
+    Resource Stack
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#product-browser" title="Product Browser" class="md-nav__link">
+    Product Browser
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#switch-pane-layouts" title="Switch Pane Layouts" class="md-nav__link">
+    Switch Pane Layouts
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#time-options-ctrl-t" title="Time Options (Ctrl + T)" class="md-nav__link">
+    Time Options (Ctrl + T)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-scale-ctrl-s" title="Data Scale (Ctrl + S)" class="md-nav__link">
+    Data Scale (Ctrl + S)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#image-combination-insert" title="Image Combination (Insert)" class="md-nav__link">
+    Image Combination (Insert)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#display-properties" title="Display Properties" class="md-nav__link">
+    Display Properties
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#loop-properties-ctrl-l" title="Loop Properties (Ctrl + L)" class="md-nav__link">
+    Loop Properties (Ctrl + L)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#image-properties-ctrl-i" title="Image Properties (Ctrl + I)" class="md-nav__link">
+    Image Properties (Ctrl + I)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#set-time" title="Set Time" class="md-nav__link">
+    Set Time
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#set-background-color" title="Set Background Color" class="md-nav__link">
+    Set Background Color
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#switching-perspectives" title="Switching Perspectives" class="md-nav__link">
+    Switching Perspectives
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cave-preferences" title="CAVE Preferences" class="md-nav__link">
+    CAVE Preferences
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#load-mode" title="Load Mode" class="md-nav__link">
+    Load Mode
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/Unidata/awips2/edit/master/docs/cave/d2d-perspective.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
+                
+                
+                <h1 id="d2d-perspective">D2D Perspective<a class="headerlink" href="#d2d-perspective" title="Permanent link"></a></h1>
+<p>D2D (Display 2-Dimensions) is the default AWIPS CAVE perspective, designed to mimmic the look and feel of the legacy AWIPS I system. </p>
+<p><img alt="image" src="../../images/iuNDS6J.png" /></p>
+<p>System menus include <strong>CAVE</strong>, <strong>File</strong>, <strong>View</strong>, <strong>Options</strong>, <strong>Tools</strong>, and <strong>Help</strong> (far right)</p>
+<p>Data menus include <strong><a href="../d2d-grids">Models</a></strong>, <strong><a href="../d2d-obs">Surface</a></strong>, <strong><a href="../d2d-hydro">NCEP/Hydro</a></strong>, <strong><a href="../d2d-uair">Upper Air</a></strong>, <strong><a href="../d2d-satellite">Satellite</a></strong>, <strong><a href="../d2d-radar">Radar</a></strong>, <strong><a href="../d2d-mrms">MRMS</a></strong>, and <strong><a href="../d2d-maps">Maps</a></strong>.</p>
+<p>Frame control, map projection, image properties, and a few featured applications (<strong>Warngen</strong>, <strong>Nsharp</strong>, <strong>Ncdata</strong>, and <strong>Browser</strong>) make up the the primary D2D toolbar.  </p>
+<hr />
+<h2 id="resource-stack">Resource Stack<a class="headerlink" href="#resource-stack" title="Permanent link"></a></h2>
+<p>At bottom-right of the map window the the Resource Stack, which displays all loaded resources and map overlays, and allows for interaction and customization with the resource via a <strong>right-click menu</strong>.</p>
+<p>There are three available views of the Resource Stack, the default will show all Product Resources.  <strong>Right Click</strong> the mouse on the map background to switch to a Simple View.  <strong>Right Click</strong> again to show all Map Resources.  <strong>Right Click</strong> again to toggle back to Product Resources.</p>
+<p>It's important to understand that Product Resources and Map Resources are handled differently given the time-based nature of Products, compared to the static nature of maps.  Selecting the <strong>Clear</strong> button will remove all Products but not remove any Map Products. </p>
+<blockquote>
+<p>Left-Click Resource Name to Hide</p>
+</blockquote>
+<p>A left click on any resource in the stack will hide the resource and turn the label gray.  Clicking the name again makes the resource visible.</p>
+<p><img alt="image" src="../../images/rASkR3Rp6y.gif" /></p>
+<blockquote>
+<p>Left-Click Background to Hide Resource Types</p>
+</blockquote>
+<p>A left click of the mouse anywhere on the map will hide the Resource Stack display names, which may help to declutter the view if a number of data types are loaded at once.</p>
+<blockquote>
+<p>Hold-Right-Click Background for Display Menu</p>
+</blockquote>
+<p>Holding down the right mouse button anywhere in the map view will open a right-click menu</p>
+<p><img alt="image" src="../../images/rightclickmenu.gif" /></p>
+<blockquote>
+<p>Show Map Legends</p>
+</blockquote>
+<p>From the above menu select <strong>Show Map Legends</strong> and watch the Resource Stack show only map resources which are loaded to the view.</p>
+<p><img alt="image" src="../../images/maplayers.png" /></p>
+<blockquote>
+<p>Toggle 2 or 4-Panel Layout</p>
+</blockquote>
+<p>Right-click hold in the view and select <strong>Two Panel Layout</strong> or <strong>Four Panel Layout</strong> to create duplicates of the current view (note that any data loaded to the <em>view</em> will be loaded to <em>both displays within the view</em>).</p>
+<p>From this multi-pane display, hold-right-click again and you will see the <strong>Single Panel Layout</strong> option to switch back to a standard view (defaulting to the left of two, and top-left of four).</p>
+<blockquote>
+<p>Sample Loaded Resources</p>
+</blockquote>
+<p>Most data types have a right-click menu option for reading out the pixel value, displayed as multi-line text for multiple resources.</p>
+<p><img alt="image" src="../../images/ui4fNI3X0C.gif" /></p>
+<blockquote>
+<p>Hold-Right-Click Resource Name for Menu</p>
+</blockquote>
+<p>Drag the mouse over a loaded resource and <strong>hold</strong> the right mouse button until a menu appears (simply clicking the resource with the right mouse button will toggle its visibility).</p>
+<p>The hold-right-click menu allows you to control individual resource <strong>Image Properties</strong>, <strong>Change Colormaps</strong>, change resource color, width, density, and magnification, <strong>move resources up and down</strong> in the stack, as well as configure custom options with other interactive resources.</p>
+<p><img alt="image" src="../../images/lP4W1kmTIh.gif" /></p>
+<hr />
+<h2 id="product-browser">Product Browser<a class="headerlink" href="#product-browser" title="Permanent link"></a></h2>
+<p>The Product Browser allows users to browse a complete data inventory in a side window, organized by data type.  Selections for <strong>GFE</strong>, <strong>Grids</strong>, <strong>Lightning</strong>, <strong>Map Overlays</strong>, <strong>Radar</strong>, <strong>Satellite</strong>, <strong>Redbook</strong>, and <strong>VIIRS</strong> are available.  All products loaded with the Product Browser are given default settings.  </p>
+<p><img alt="image" src="../../images/vPeaMsn9ZT.gif" /></p>
+<hr />
+<h2 id="switch-pane-layouts">Switch Pane Layouts<a class="headerlink" href="#switch-pane-layouts" title="Permanent link"></a></h2>
+<p>will switch between the single page (default) view and the 5-panel WFO view (centered on OAX by default).</p>
+<hr />
+<h2 id="time-options-ctrl-t">Time Options (Ctrl + T)<a class="headerlink" href="#time-options-ctrl-t" title="Permanent link"></a></h2>
+<p>This check button enables/disables the ability to select the time interval between frames of real-time or model data. This feature has the added benefit of allowing you to view extended amounts of data (temporally) but stay within the limits of 64 frames. For example, METAR surface plots, which typically display every hour, can be set to display every three hours via the Select Valid Time and Time Resolution Dialog Box.</p>
+<p>When the Time Options check button is selected, the next product you choose to display in the Main Display Pane launches either the Select Valid Time and Time Resolution dialog box or the Select
+Offset and Tolerance dialog box.</p>
+<ul>
+<li>
+<p>When you are loading data to an empty display and the Time Options check button is enabled, the Select Valid Time and Time Resolution dialog box opens.</p>
+<ul>
+<li>
+<p><strong>Valid Time:</strong> In this column of dates/times, you may choose the one that will be the first frame loaded onto the Large Display Pane. The Default option is the most recent data.</p>
+</li>
+<li>
+<p><strong>Time Resolution:</strong> This column contains various time increments in which the data can be displayed. Once you make a selection, the Valid Time Column indents the exact times that will
+be displayed. The Default resolution displays the most recent frames available.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>With the Time Options check button enabled for a display that already contains data, when you choose the data to be overlaid in the Main Display Pane, the Select Offset and Tolerance dialog
+box appears, providing the following options:</p>
+<ul>
+<li>
+<p><strong>Offset</strong>: This column contains various time increments at intervals before, at, or after the time you selected for the first product that is displayed in the Main Display Pane.</p>
+</li>
+<li>
+<p><strong>Tolerance</strong>: The options in this column refer to how strict the time matching is. "None" means an exact match, while "Infinite" will put the closest match in each frame, regardless of how
+far off it is.</p>
+</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="data-scale-ctrl-s">Data Scale (Ctrl + S)<a class="headerlink" href="#data-scale-ctrl-s" title="Permanent link"></a></h2>
+<p>This check button enables/disables the ability to display data on its native scale. For example, if you enable Data Scaling and select a product from an alternate radar, the data will be displayed with that radar in the center of the screen. Other data can be overlaid on this "dynamic" scale until the Main Display Pane is cleared or a non-plan-view product is loaded.</p>
+<hr />
+<h2 id="image-combination-insert">Image Combination (Insert)<a class="headerlink" href="#image-combination-insert" title="Permanent link"></a></h2>
+<p>This check button enables/disables the ability to display two images at once. You can also enable/disable the ability to combine images by using the Toggle Image Combination iconified button on the Toolbar.</p>
+<p>Combined-image displays have been improved by removing the valid time for non-forecast products and removing the date string (time is kept) from the left side of the legend. In particular, this
+makes All-Tilts radar legends more usable.</p>
+<hr />
+<h2 id="display-properties">Display Properties<a class="headerlink" href="#display-properties" title="Permanent link"></a></h2>
+<p>This menu option opens the Display Properties dialog box. All the options available in this dialog box are also available on the Toolbar.</p>
+<p><img alt="image" src="../../images/x9uQNAI.png" /></p>
+<hr />
+<h2 id="loop-properties-ctrl-l">Loop Properties (Ctrl + L)<a class="headerlink" href="#loop-properties-ctrl-l" title="Permanent link"></a></h2>
+<p>Loop Properties is another dialog box that can be opened from the Options menu or from the Loop Properties iconified button on the D2D Toolbar, or by using the Ctrl + L keyboard shortcut. The dialog allows you to adjust the forward and backward speeds, with 0 = off and 10 = maximum speed. You can set the duration of the first and last frame dwell times to between zero and 2.5 seconds.</p>
+<p>You can turn looping on or off by checking the Looping check button. There is also a Looping button located on the Toolbar that enables/disables the animation in the large display pane. Finally, you can turn looping on and increase/decrease forward speed by pressing Page Up/Page Down on your keyboard, and turn looping off with the Left or Right Arrow keys. On the toolbar, you can use the button to start/stop looping.</p>
+<hr />
+<h2 id="image-properties-ctrl-i">Image Properties (Ctrl + I)<a class="headerlink" href="#image-properties-ctrl-i" title="Permanent link"></a></h2>
+<p>The Image Properties dialog box can be opened here or by using the Image Properties iconified button on the D2D Toolbar, or using using the Ctrl + I keyboard shortcut. This dialog box provides options that allow you to change the color table; adjust the brightness, contrast, and alpha of either a single image or combined images; fade between combined images; and/or interpolate the displayed data.</p>
+<hr />
+<h2 id="set-time">Set Time<a class="headerlink" href="#set-time" title="Permanent link"></a></h2>
+<p>This option allows you to set the CAVE clock, located on the bottom of the screen, to an earlier time for reviewing archived data.</p>
+<hr />
+<h2 id="set-background-color">Set Background Color<a class="headerlink" href="#set-background-color" title="Permanent link"></a></h2>
+<p>You can now set the background display color on your workstation. You can also set the background display color for a single pane via mouse Button 3 (B3).</p>
+<hr />
+<h2 id="switching-perspectives">Switching Perspectives<a class="headerlink" href="#switching-perspectives" title="Permanent link"></a></h2>
+<p><strong>CAVE &gt; Perspective</strong></p>
+<p>D2D is one of many available CAVE perspectives.  By selecting the <strong>CAVE</strong> &gt; <strong>Perspective</strong> menu you can switch into the <strong>GFE</strong>, <strong>Hydro</strong>, <strong>Localization</strong>, <strong>MPE</strong>, or <strong>National Centers Perspective</strong> (which is available in the <strong>Other...</strong> submenu. Nobody seems to know why the NCP is not listed with the other perspectives, or how to make it appear with them).</p>
+<p><img alt="image" src="../../images/OU6rWMD.png" /></p>
+<hr />
+<h2 id="cave-preferences">CAVE Preferences<a class="headerlink" href="#cave-preferences" title="Permanent link"></a></h2>
+<p>Preferences and settings for the CAVE client can be found in the <strong>CAVE &gt; Preferences</strong> menu.</p>
+<p>Set the Localization Site and server for the workstation; configure mouse operations, change performance levels, font magnification, and text workstation hostname.</p>
+<p><img alt="image" src="../../images/ymFRs6S.png" /></p>
+<hr />
+<h2 id="load-mode">Load Mode<a class="headerlink" href="#load-mode" title="Permanent link"></a></h2>
+<p>Under the Display Properties option is Load Mode, which provides different ways to display data by manipulating previous model runs and inventories of data sets. The selected load mode is shown on the toolbar when the Load Mode menu is closed.</p>
+<p>A description of the Load Mode options follow.</p>
+<ul>
+<li><strong>Latest</strong>: Displays forecast data only from the latest model run, but also backfills at the beginning of the loop with available frames from previous runs to satisfy the requested number of
+frames.</li>
+<li><strong>Valid time seq</strong>: Displays the most recent data and fills empty frames with previous data. For models, it provides the product from the latest possible run for every available valid time.</li>
+<li><strong>No Backfill</strong>: Displays model data only from the most recent model run time with no backfilling to fill out a loop. Using this Load Mode prevents the mixing of old and new data.</li>
+<li><strong>Previous run</strong>: Displays the previous model run, backfilling with frames from previous runs at the beginning of the loop to satisfy the requested number of frames.</li>
+<li><strong>Prev valid time seq</strong>: Displays the previous model run and fills empty frames with previous model data or analyses.</li>
+<li><strong>Prognosis loop</strong>: Shows a sequence of n-hour forecasts from successive model runs.</li>
+<li><strong>Analysis loop</strong>: Loads a sequence of model analyses but no forecasts.</li>
+<li><strong>dProg/dt</strong>: Selects forecasts from different model runs that all have the same valid times. This load mode is available only when there are no other products loaded in the large display
+pane.</li>
+<li><strong>Forced</strong>: Puts the latest version of a selected product in all frames without time-matching.</li>
+<li><strong>Forecast match</strong>: Overlays a model product only when its forecast times match those of an initially loaded product. This load mode is available only when another product is already
+loaded in the large display pane.</li>
+<li><strong>Inventory</strong>: Selecting a product when the load mode is set to Inventory brings up a Dialog Box with the available forecast and inventory times from which you can select the product you
+want. Inventory loads into the currently displayed frame.</li>
+<li><strong>Slot</strong>: Puts the latest version of a selected product in the currently displayed frame.</li>
+</ul>
+                
+                  
+                
+              
+              
+                
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../../install/install-edex/" title="Install EDEX" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Install EDEX
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../maps-views-projections/" title="Maps, Views, Projections" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Maps, Views, Projections
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Copyright &copy; 2017 Unidata Program Center.
+          </div>
+        
+        powered by
+        <a href="http://www.mkdocs.org" title="MkDocs">MkDocs</a>
+        and
+        <a href="http://squidfunk.github.io/mkdocs-material/" title="Material for MkDocs">
+          Material for MkDocs</a>
+      </div>
+      
+        
+  <div class="md-footer-social">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
+      <a href="http://www.unidata.ucar.edu/software/awips2" class="md-footer-social__link fa fa-globe"></a>
+    
+      <a href="https://github.com/Unidata/awips2" class="md-footer-social__link fa fa-github-alt"></a>
+    
+      <a href="https://twitter.com/Unidata" class="md-footer-social__link fa fa-twitter"></a>
+    
+      <a href="https://facebook.com/Unidata" class="md-footer-social__link fa fa-facebook"></a>
+    
+  </div>
+
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../assets/javascripts/application-0b7df094bf.js"></script>
+      <script>app.initialize({url:{base:"../.."}})</script>
+      
+    
+    
+      
+    
+  </body>
+</html>
