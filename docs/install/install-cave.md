@@ -4,10 +4,12 @@
 
 <img style="width:300px;float:right;" src="../../images/Unidata_AWIPS2_CAVE.png">
 
-|                |                        |
+
+
+|          | current release 17.1.1                         |
 |----------------|-----------------------:|
 | Linux x86_64   | [installCAVE.sh <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/software/awips2/installCAVE.sh)         |
-| macOS	         | [awips2-cave-16.2.2.dmg <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/downloads/awips2/awips2-cave-16.2.2.dmg)|
+| macOS	         | Download and install both<br>[awips2-cave-17.1.1.dmg <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/downloads/awips2/awips2-cave-17.1.1.dmg)<br>[awips-python-jep.pkg <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/downloads/awips2/awips-python-jep.pkg)|
 | 32-bit Windows | [awips-cave.msi <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi)        |
 | 64-bit Windows | [awips-cave.amd64.msi <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/downloads/awips2/awips-cave.amd64.msi)  |
 
@@ -19,19 +21,15 @@
 
 For CentOS/Red Hat 6 and 7. Installs to **/awips2/cave** and writes files to **~/caveData**.
 
-Install as root:
+Install as root (all package dependencies should be resolved by yum)
 
 	chmod 755 ./installCAVE.sh
 	./installCAVE.sh
 
-All package dependencies should be resolved by yum. 
 
+Run CAVE from the menu **Applications** &gt; **Internet** &gt; **AWIPS CAVE**, or from the command line as simply `cave`.
 
-**Run CAVE from the command line**
-
-	cave
-
-or find CAVE in the GNOME menu **Applications** &gt; **Internet** &gt; **AWIPS CAVE**
+![](../images/cave_linux_menu.png)
 
 !!! note "System Requirements"
 
@@ -45,20 +43,22 @@ or find CAVE in the GNOME menu **Applications** &gt; **Internet** &gt; **AWIPS C
 
 ## <i class="fa fa-apple"></i> macOS
 
-* [awips2-cave-16.2.2.dmg <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/downloads/awips2/awips2-cave-16.2.2.dmg)
+CAVE for macOS requires the **[awips-python-jep.pkg](http://www.unidata.ucar.edu/downloads/awips2/awips-python-jep.pkg)** package be installed in order for **derived parameters** to work.
 
- 
-Writes config files to **~/Library/CAVE**
+* [awips2-cave-17.1.1.dmg <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/downloads/awips2/awips2-cave-17.1.1.dmg)
+* [awips-python-jep.pkg <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/downloads/awips2/awips-python-jep.pkg)
 
-!!! warning "macOS 10.12 (Sierra) not fully supported, requires cave be run from the command line."
+*awips-python-jep.pkg* is not a prerequisite, and CAVE will still run and display data without it, but to use any derived parameter functions such as wind barbs/arrows and grid parameters on various vertical coordinates, [jep](https://github.com/mrj0/jep/) must be installed in some way (it is assumed in `/Library/Python/2.7/site-packages/jep/`).  You are free to install jep yourself but should know that simply to install via source code or pip requires the Oracle JDK and Xcode and its Command Line Tools.  The **[awips-python-jep.pkg](http://www.unidata.ucar.edu/downloads/awips2/awips-python-jep.pkg)** package is provided as a workaround for this.
 
-    New to 10.12 is Gatekeeper Path Randomization, which prevents applications delivered outside of the Mac App Store from running by normal means (taskbar icon or finder). 
 
-    Until the next release, CAVE on Sierra should be run from the terminal with the command `/Applications/CAVE/cave.app/Contents/MacOS/cave`
+!!! info "CAVE for macOS writes and syncs files to ~/Library/caveData"
+
 
 ---
 
 ## <i class="fa fa-windows"></i> Windows
+
+Windows clients are still based on the CAVE 16.2.2 code base and provided in lieu of no 17.1.1 client.
 
 * [awips-cave.msi <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi)
 * [awips-cave.amd64.msi <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/downloads/awips2/awips-cave.amd64.msi)
@@ -82,7 +82,7 @@ Unidata and XSEDE Jetstream have partnered to offer a EDEX data server in the cl
 
 **Localization Preferences Error**
 
-You can reset CAVE by removing the **~/caveData** directory (on macOS **~/Library/CAVE**) and then run `cave` again to connect to an EDEX server.  Your local files have been removed, but if you are re-connecting to an EDEX server you have used before, the remote files will sync again to your local **~/caveData** (bundles, colormaps, etc.). 
+You can reset CAVE by removing the **~/caveData** directory (on macOS **~/Library/caveData**) and then run `cave` again to connect to an EDEX server.  Your local files have been removed, but if you are re-connecting to an EDEX server you have used before, the remote files will sync again to your local **~/caveData** (bundles, colormaps, etc.).
 
 **No Images Displayed**
 
