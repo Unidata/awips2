@@ -2,6 +2,7 @@
 set -xe
 if  [ ${2} = "buildCAVE"]; then
   rm -rf /awips2/jenkins/buildspace/workspace/AWIPS2-UPC_build/baseline/
+  rm -rf /awips2/jenkins/buildspace/workspace/tmp/mjames/
 fi
 export JENKINS_WORKSPACE=/awips2/repo/awips2-builds
 
