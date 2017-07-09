@@ -735,18 +735,6 @@
 
 
   <li class="md-nav__item">
-    <a href="../../python/derived-parameters/" title="Derived Parameters" class="md-nav__link">
-      Derived Parameters
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
     <a href="../../python/python-awips-data-access/" title="Python AWIPS API" class="md-nav__link">
       Python AWIPS API
     </a>
@@ -969,7 +957,7 @@
 <thead>
 <tr>
 <th></th>
-<th align="right"></th>
+<th align="right">current release 17.1.1</th>
 </tr>
 </thead>
 <tbody>
@@ -979,7 +967,7 @@
 </tr>
 <tr>
 <td>macOS</td>
-<td align="right"><a href="http://www.unidata.ucar.edu/downloads/awips2/awips2-cave-16.2.2.dmg">awips2-cave-16.2.2.dmg <i class="fa fa-download"></i></a></td>
+<td align="right">Download and install both<br><a href="http://www.unidata.ucar.edu/downloads/awips2/awips2-cave-17.1.1.dmg">awips2-cave-17.1.1.dmg <i class="fa fa-download"></i></a><br><a href="http://www.unidata.ucar.edu/downloads/awips2/awips-python-jep.pkg">awips-python-jep.pkg <i class="fa fa-download"></i></a></td>
 </tr>
 <tr>
 <td>32-bit Windows</td>
@@ -997,15 +985,12 @@
 <li><a href="http://www.unidata.ucar.edu/software/awips2/installCAVE.sh">installCAVE.sh <i class="fa fa-download"></i></a></li>
 </ul>
 <p>For CentOS/Red Hat 6 and 7. Installs to <strong>/awips2/cave</strong> and writes files to <strong>~/caveData</strong>.</p>
-<p>Install as root:</p>
+<p>Install as root (all package dependencies should be resolved by yum)</p>
 <pre><code>chmod 755 ./installCAVE.sh
 ./installCAVE.sh
 </code></pre>
-<p>All package dependencies should be resolved by yum. </p>
-<p><strong>Run CAVE from the command line</strong></p>
-<pre><code>cave
-</code></pre>
-<p>or find CAVE in the GNOME menu <strong>Applications</strong> &gt; <strong>Internet</strong> &gt; <strong>AWIPS CAVE</strong></p>
+<p>Run CAVE from the menu <strong>Applications</strong> &gt; <strong>Internet</strong> &gt; <strong>AWIPS CAVE</strong>, or from the command line as simply <code>cave</code>.</p>
+<p><img alt="" src="../../images/cave_linux_menu.png" /></p>
 <div class="admonition note">
 <p class="admonition-title">System Requirements</p>
 <ul>
@@ -1018,17 +1003,18 @@
 </div>
 <hr />
 <h2 id="macos"><i class="fa fa-apple"></i> macOS<a class="headerlink" href="#macos" title="Permanent link"></a></h2>
+<p>CAVE for macOS requires the <strong><a href="http://www.unidata.ucar.edu/downloads/awips2/awips-python-jep.pkg">awips-python-jep.pkg</a></strong> package be installed in order for <strong>derived parameters</strong> to work.</p>
 <ul>
-<li><a href="http://www.unidata.ucar.edu/downloads/awips2/awips2-cave-16.2.2.dmg">awips2-cave-16.2.2.dmg <i class="fa fa-download"></i></a></li>
+<li><a href="http://www.unidata.ucar.edu/downloads/awips2/awips2-cave-17.1.1.dmg">awips2-cave-17.1.1.dmg <i class="fa fa-download"></i></a></li>
+<li><a href="http://www.unidata.ucar.edu/downloads/awips2/awips-python-jep.pkg">awips-python-jep.pkg <i class="fa fa-download"></i></a></li>
 </ul>
-<p>Writes config files to <strong>~/Library/CAVE</strong></p>
-<div class="admonition warning">
-<p class="admonition-title">macOS 10.12 (Sierra) not fully supported, requires cave be run from the command line.</p>
-<p>New to 10.12 is Gatekeeper Path Randomization, which prevents applications delivered outside of the Mac App Store from running by normal means (taskbar icon or finder). </p>
-<p>Until the next release, CAVE on Sierra should be run from the terminal with the command <code>/Applications/CAVE/cave.app/Contents/MacOS/cave</code></p>
+<p><em>awips-python-jep.pkg</em> is not a prerequisite, and CAVE will still run and display data without it, but to use any derived parameter functions such as wind barbs/arrows and grid parameters on various vertical coordinates, <a href="https://github.com/mrj0/jep/">jep</a> must be installed in some way (it is assumed in <code>/Library/Python/2.7/site-packages/jep/</code>).  You are free to install jep yourself but should know that simply to install via source code or pip requires the Oracle JDK and Xcode and its Command Line Tools.  The <strong><a href="http://www.unidata.ucar.edu/downloads/awips2/awips-python-jep.pkg">awips-python-jep.pkg</a></strong> package is provided as a workaround for this.</p>
+<div class="admonition info">
+<p class="admonition-title">CAVE for macOS writes and syncs files to ~/Library/caveData</p>
 </div>
 <hr />
 <h2 id="windows"><i class="fa fa-windows"></i> Windows<a class="headerlink" href="#windows" title="Permanent link"></a></h2>
+<p>Windows clients are still based on the CAVE 16.2.2 code base and provided in lieu of no 17.1.1 client.</p>
 <ul>
 <li><a href="http://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi">awips-cave.msi <i class="fa fa-download"></i></a></li>
 <li><a href="http://www.unidata.ucar.edu/downloads/awips2/awips-cave.amd64.msi">awips-cave.amd64.msi <i class="fa fa-download"></i></a></li>
@@ -1045,7 +1031,7 @@
 <hr />
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link"></a></h2>
 <p><strong>Localization Preferences Error</strong></p>
-<p>You can reset CAVE by removing the <strong>~/caveData</strong> directory (on macOS <strong>~/Library/CAVE</strong>) and then run <code>cave</code> again to connect to an EDEX server.  Your local files have been removed, but if you are re-connecting to an EDEX server you have used before, the remote files will sync again to your local <strong>~/caveData</strong> (bundles, colormaps, etc.). </p>
+<p>You can reset CAVE by removing the <strong>~/caveData</strong> directory (on macOS <strong>~/Library/caveData</strong>) and then run <code>cave</code> again to connect to an EDEX server.  Your local files have been removed, but if you are re-connecting to an EDEX server you have used before, the remote files will sync again to your local <strong>~/caveData</strong> (bundles, colormaps, etc.).</p>
 <p><strong>No Images Displayed</strong></p>
 <p>If you are able to load wire-frame contours but not images, <a href="http://www.nvidia.com/Download/index.aspx?lang=en-us">update your video driver</a>. </p>
                 

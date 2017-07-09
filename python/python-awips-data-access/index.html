@@ -675,18 +675,6 @@
           
           
 
-
-  <li class="md-nav__item">
-    <a href="../derived-parameters/" title="Derived Parameters" class="md-nav__link">
-      Derived Parameters
-    </a>
-  </li>
-
-        
-          
-          
-          
-
   
 
 
@@ -695,9 +683,48 @@
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
     
     
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        Python AWIPS API
+      </label>
+    
     <a href="./" title="Python AWIPS API" class="md-nav__link md-nav__link--active">
       Python AWIPS API
     </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#install" title="Install" class="md-nav__link">
+    Install
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirements" title="Requirements" class="md-nav__link">
+    Requirements
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example" title="Example" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
     
   </li>
 
@@ -854,6 +881,34 @@
   
   
   
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#install" title="Install" class="md-nav__link">
+    Install
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirements" title="Requirements" class="md-nav__link">
+    Requirements
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example" title="Example" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -869,7 +924,40 @@
                 
                   <h1>Python AWIPS API</h1>
                 
-                
+                <p>The <a href="https://python-awips.readthedocs.io/en/latest/">python-awips</a> package provides a data access framework for requesting grid and geometry datasets from an EDEX server.</p>
+<div class="admonition info">
+<p class="admonition-title">For a more detailed look at the python-awips package, refer to the <a href="https://python-awips.readthedocs.io">full documentation site</a> which includes a number of <a href="https://python-awips.readthedocs.io/en/latest/examples/index.html">plotting examples for different data types</a>.</p>
+</div>
+<hr />
+<h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link"></a></h2>
+<pre><code>pip install python-awips
+</code></pre>
+<hr />
+<h2 id="requirements">Requirements<a class="headerlink" href="#requirements" title="Permanent link"></a></h2>
+<ul>
+<li>Python 2.7+</li>
+<li>Numpy 1.7+</li>
+<li>Shapely 1.4+</li>
+<li>MetPy and enum34 to run Jupyter Notebook examples</li>
+</ul>
+<hr />
+<h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link"></a></h2>
+<p>The simplest example requesting the RAP40 surface temperature grid from a remote EDEX server, saved to 2-dimensional Numpy arrays named <code>data</code>, <code>lons</code>, and <code>lats</code>.</p>
+<pre><code>from awips.dataaccess import DataAccessLayer
+DataAccessLayer.changeEDEXHost("edex-cloud.unidata.ucar.edu")
+request = DataAccessLayer.newDataRequest()
+dataTypes = DataAccessLayer.getSupportedDatatypes()
+request.setDatatype("grid")
+request.addLocationNames("RAP40")
+request.setParameters("T")
+request.setLevels("0.0SFC")
+cycles = DataAccessLayer.getAvailableTimes(request, True)
+times = DataAccessLayer.getAvailableTimes(request)
+response = DataAccessLayer.getGridData(request, times[-1])
+for grid in response:
+    data = grid.getRawData()
+    lons, lats = grid.getLatLonCoords()
+</code></pre>
                 
                   
                 
@@ -888,7 +976,7 @@
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href="../derived-parameters/" title="Derived Parameters" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../../cave/d2d-map-resources/" title="Map Overlays" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -897,7 +985,7 @@
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Derived Parameters
+                Map Overlays
               </span>
             </div>
           </a>
