@@ -236,11 +236,11 @@
    <includes
          id="gov.noaa.nws.obs.viz.geodata.feature"
          version="0.0.0"/>
-
+<!--
    <includes
          id="gov.noaa.nws.ocp.uf.viz.gisdatastore.feature"
          version="0.0.0"/>
-
+-->
    <includes
          id="gov.noaa.nws.mdl.viz.awipsref.feature"
          version="0.0.0"/>
