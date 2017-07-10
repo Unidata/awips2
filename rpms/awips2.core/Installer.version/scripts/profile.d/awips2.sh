@@ -2,6 +2,7 @@
 PATH=/awips2/tools/bin:$PATH
 if [[ ${USER} = "root" ]]; then
   alias ldmadmin='service edex_ldm'
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib64
   return
 fi
 alias cave='/awips2/cave/run.sh -alertviz -component thinclient'
