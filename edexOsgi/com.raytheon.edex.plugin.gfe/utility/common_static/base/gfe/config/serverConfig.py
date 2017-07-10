@@ -2398,7 +2398,6 @@ elif SID in groups['CONUS_EAST_SITES']:
                  'HRRR',
                  'HWRF',
                  ('MRF', 'gfsLR'),
-                 ('RAP13', 'RAP13'),
                  ('RUC', 'RAP40'),
                  ('NAM40', 'NAM40'),
                  ('NAM20', 'NAM20'),
@@ -2523,7 +2522,6 @@ else:   #######DCS3501 WEST_CONUS
                  ('AVN211', 'GFS80'),
                  ('ETA', 'NAM80'),
                  ('MRF', 'gfsLR'),
-                 ('RAP13', 'RAP13'),
                  ('RUC', 'RAP40'),
                  ('NAM40', 'NAM40'),
                  ('NAM20', 'NAM20'),
@@ -2768,7 +2766,6 @@ else:
 
 #initialization skip certain model runs
 INITSKIPS = {
-    "RAP13" : [1,2,4,5,7,8,10,11,13,14,16,17,19,20,22,23],
     "RAP40" : [1,2,4,5,7,8,10,11,13,14,16,17,19,20,22,23]
     }
 
@@ -2794,7 +2791,6 @@ D2DAccumulativeElements= {
     "NAM40": ["tp", "cp"],
     "NAM20": ["tp", "cp"],
     "gfsLR": ["tp", "cp"],
-    "RAP13": ["tp", "cp"],
     "RAP40": ["tp", "cp"],
     "MSAS": ["tp", "cp"],
     "LAPS": ["pc"],
