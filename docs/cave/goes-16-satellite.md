@@ -118,3 +118,14 @@ Load GLM data from the menu **Satellite** > **GOES-16 Provisional** > **GLM-Ligh
 ![](../images/goes_16_glmmenu.png)
 
 ![](../images/goes_16_glm.png)
+
+
+## Derived Motion Winds
+
+At the bottom of the menu **Satellite** > **GOES-16 Provisional Products** are sub-menus for GOES-16 Derived Motion Wind (DMW) products.  Select the sub-menu **GOES-Test** and then region (CONUS, Full Disk, Mesoscale), and then select the wind product by level:
+
+* By Pressure
+* By Mandatory Levels
+* By Channel
+
+![](../images/goesr_dmw.png)
