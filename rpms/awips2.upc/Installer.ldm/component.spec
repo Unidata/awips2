@@ -4,7 +4,7 @@
 # ISG makes retrans changes
 #
 # AWIPS LDM Spec File
-# 16.4.1.1-6.13.6.el6
+#
 %define __prelink_undo_cmd %{nil}
 Name: awips2-ldm
 Summary: AWIPS LDM Distribution
@@ -20,12 +20,12 @@ Vendor: %{_build_vendor}
 Packager: %{_build_site}
 
 AutoReq: no
-Requires: awips2-qpid-lib
+Requires: awips2, awips2-qpid-lib
 Requires: awips2-python
-Requires: compat-gcc-34-g77
-Requires: pax, gcc, libxml2-devel
+Requires: pax, gcc, libxml2-devel, boost-devel
 Requires: libtool, libpng-devel
 Provides: awips2-ldm
+BuildRequires: awips2-qpid-lib, awips2-python
 
 %description
 AWIPS LDM Distribution
@@ -169,7 +169,8 @@ if [ $? -ne 0 ]; then
 fi
 
 # build ldm
-rm -f /awips2/ldm/runtime
+. /etc/profile.d/awips2.sh
+rm -f ${_ldm_dir}/runtime
 cd ${_ldm_root_dir}/src
 if [ $? -ne 0 ]; then
    exit 1
@@ -195,10 +196,22 @@ if [ $? -ne 0 ]; then
 fi
 # Unpack patch tar files
 cd ${_ldm_dir}/SOURCES
-_PATCH_DIRS=( 'bin' 'decoders' 'etc' )
+_PATCH_DIRS=( 'decoders' 'etc' )
 for patchDir in ${_PATCH_DIRS[*]};
 do
    /bin/tar -xf ${patchDir}.tar -C ${_ldm_dir}
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+   /bin/rm -f ${patchDir}.tar
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+done
+_PATCH_DIRS=( 'bin' )
+for patchDir in ${_PATCH_DIRS[*]};
+do
+   /bin/tar -xf ${patchDir}.tar -C ${_ldm_dir}/ldm-%{_ldm_version}/
    if [ $? -ne 0 ]; then
       exit 1
    fi
