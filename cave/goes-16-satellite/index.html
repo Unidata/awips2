@@ -84,16 +84,19 @@
       <div class="md-flex__cell md-flex__cell--stretch">
         <span class="md-flex__ellipsis md-header-nav__title">
           
-            
               
-                <span class="md-header-nav__parent">
-                  CAVE User Manual
-                </span>
+
+                  
+                      <span class="md-header-nav__parent">
+                      CAVE User Manual
+                      </span>
+                  
+ 
+                  
+                      GOES-16 (GOES-R)
+                  
+
               
-            
-            
-              GOES-16 (GOES-R)
-            
           
         </span>
       </div>
@@ -472,8 +475,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#goes-lightning-mapper-glm" title="GOES Lightning Mapper (GLM)" class="md-nav__link">
-    GOES Lightning Mapper (GLM)
+  <a href="#geostationary-lightning-mapper-glm" title="Geostationary Lightning Mapper (GLM)" class="md-nav__link">
+    Geostationary Lightning Mapper (GLM)
   </a>
   
     <nav class="md-nav">
@@ -1083,8 +1086,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#goes-lightning-mapper-glm" title="GOES Lightning Mapper (GLM)" class="md-nav__link">
-    GOES Lightning Mapper (GLM)
+  <a href="#geostationary-lightning-mapper-glm" title="Geostationary Lightning Mapper (GLM)" class="md-nav__link">
+    Geostationary Lightning Mapper (GLM)
   </a>
   
     <nav class="md-nav">
@@ -1128,7 +1131,7 @@
                 
                   <h1>GOES-16 (GOES-R)</h1>
                 
-                <p>AWIPS ingest and display of GOES-16 (GOES-R) products is handled by contributions from the <strong><a href="https://github.com/Unidata/awips2-goesr">awips2-goesr</a></strong> plugin repository. As of Unidata AWIPS 17.1.1, the GOES-R decoder supports the ingest and display of NOAAport provisional products (currently on the NOTHER feed), as well as Level 2b netCDF files.  A GOES-R Lightning Mapper (GLM) decoder is also provided to handle sensor lightning observations.  </p>
+                <p>AWIPS ingest and display of GOES-16 (GOES-R) products is handled by contributions from the <strong><a href="https://github.com/Unidata/awips2-goesr">awips2-goesr</a></strong> plugin repository. As of Unidata AWIPS 17.1.1, the GOES-R decoder supports the ingest and display of NOAAport provisional products (currently on the NOTHER feed), as well as Level 2b netCDF files.  A GOES-R Geostationary Lightning Mapper (GLM) decoder is also provided to handle sensor lightning observations.</p>
 <p>GOES-R products are accessible in the menu <strong>Satellite</strong> &gt; <strong>GOES-16 Provisional Products</strong></p>
 <p><img alt="" src="../../images/goes_16_menu.png" /></p>
 <hr />
@@ -1184,7 +1187,7 @@ drwxr-xr-x 18 awips fxalpha TMESO-2
 <pre><code>^OR_ABI-L2-\w{3,5}(C|F|M1|M2)-M[34]_G\d\d_s\d{14}_e\d{14}_c\d{14}.nc$
 </code></pre>
 <hr />
-<h2 id="goes-lightning-mapper-glm">GOES Lightning Mapper (GLM)<a class="headerlink" href="#goes-lightning-mapper-glm" title="Permanent link"></a></h2>
+<h2 id="geostationary-lightning-mapper-glm">Geostationary Lightning Mapper (GLM)<a class="headerlink" href="#geostationary-lightning-mapper-glm" title="Permanent link"></a></h2>
 <p>NASA's SPoRT MSFC Earth Science Office has contributed plugins to decode GLM level2 products, displayed as point data in CAVE.</p>
 <p>While Unidata is not currently distributing GLM products, you can <a href="http://www.unidata.ucar.edu/software/awips2/OR_GLM-L2-LCFA_G16_s20170402339144_e20170402339307_c20170402339509.nc">download a sample netCDF file</a> and copy it to <code>/awips2/data_store/ingest/</code> in order to test the decoding and display of GOES-R lightning data.</p>
 <h3 id="ingest-sample-data">Ingest Sample Data<a class="headerlink" href="#ingest-sample-data" title="Permanent link"></a></h3>

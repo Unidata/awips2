@@ -84,16 +84,19 @@
       <div class="md-flex__cell md-flex__cell--stretch">
         <span class="md-flex__ellipsis md-header-nav__title">
           
-            
               
-                <span class="md-header-nav__parent">
-                  CAVE User Manual
-                </span>
+
+                  
+                      <span class="md-header-nav__parent">
+                      CAVE User Manual
+                      </span>
+                  
+ 
+                  
+                      WarnGen Walkthrough
+                  
+
               
-            
-            
-              WarnGen Walkthrough
-            
           
         </span>
       </div>
@@ -1050,34 +1053,19 @@
                 
                   <h1>WarnGen Walkthrough</h1>
                 
-                <p>WarnGen is an AWIPS graphics application for creating and issuing warnings as is done by National Weather Service offices.  In the Unidata AWIPS release it is a <em>non-operational</em> forecasting tool, meaning it allows users to experiment and simulate with the drawing and text-generation tools, but prevents you from transmitting a generated warning upstream. </p>
+                <p>WarnGen is an AWIPS graphics application for creating and issuing warnings by National Weather Service offices.  In the Unidata AWIPS realease it is a <em>non-operational</em> forecasting tool, meaning it allows users to experiment and simlulate with the drawing and text-generation tools, but prevents you from transmitting a generated warning upstream. </p>
 <div class="admonition warning">
 <p class="admonition-title">In order to select a feature it must be within your <em>CAVE localization</em> coverage (load <strong>Maps</strong> &gt; <strong>County Warning Areas</strong> to see coverages)</p>
 </div>
-<p>Steps involved in using WarnGen in Unidata AWIPS CAVE 17.1.1</p>
-<ul>
-<li>Load NEXRAD Display from the Radar menu.</li>
-<li>Choose a WFO site with active severe weather (LKZ is used in the video).</li>
-<li>Re-localize to this site in the CAVE &gt; Preferences &gt; Localization menu.</li>
-<li>Load NEXRAD Display again and select a WSR-88D site to load a 2-panel display of 0.5 degree Reflectivity (N0Q) and Velocity (N0U).</li>
-<li>Click the WarnGen toolbar button or load from Tools &gt; WarnGen.</li>
-<li>Drag the storm marker to the center of a storm feature.</li>
-<li>Step through frames back and forth and adjust the marker to match the trajectory of the storm feature.</li>
-<li>From the WarnGen dialog select the type of warning to generate, the time range, the basis of the warning, and any threats to add (wind, hail, etc). </li>
-<li>Click "Create Text" at the bottom of the WarnGen dialog to generate a text warning product in a new window.</li>
-<li>Click "Reset" at the top of the WarnGen dialog to reset the storm marker at any time.</li>
-<li>Select "Line of Storms" to enable a two-pointed vector which is to be positioned parallel to a storm line.</li>
-</ul>
-<iframe width="700" height="450"
-src="https://www.youtube.com/embed/KSKmIMjkVCU?autoplay=1">
-</iframe>
-
 <h2 id="load-nexrad-level-3-display">Load NEXRAD level 3 display<a class="headerlink" href="#load-nexrad-level-3-display" title="Permanent link"></a></h2>
-<p>Select the menu <strong>Radar</strong> &gt; <strong>NEXRAD Display</strong> and note coverage areas of current severe weather.  We choose a WFO ID that contains some active severe weather (KLZK Little Rock, Arkansas, in this example).</p>
+<p>Select the menu <strong>Radar</strong> &gt; <strong>NEXRAD Display</strong> and note coverage areas of current severe weather. These are good site IDs to use in the next step.</p>
+<p><img alt="" src="../../images/warngen_nexrad_display.gif" /></p>
 <h2 id="select-site-localization">Select SITE Localization<a class="headerlink" href="#select-site-localization" title="Permanent link"></a></h2>
-<p>Open <strong>CAVE</strong> &gt; <strong>Preferences</strong> &gt; <strong>Localization</strong>, select the WFO ID (KLZK) for the coverage area you want to use, followed by <strong>Apply</strong> and then <strong>Restart</strong>.</p>
+<p>Open <strong>CAVE</strong> &gt; <strong>Preferences</strong> &gt; <strong>Localization</strong>, select the WFO ID for the coverage area you want to use, followed by <strong>Apply</strong> and then <strong>Restart</strong>.</p>
+<p><img alt="" src="../../images/localization_restart.gif" /></p>
 <h2 id="select-the-nearest-wsr-88d-location">Select the nearest WSR-88D location<a class="headerlink" href="#select-the-nearest-wsr-88d-location" title="Permanent link"></a></h2>
 <p>Click on any NEXRAD Display station to load a two-pane Reflectivity/Velocity view.</p>
+<p><img alt="" src="../../images/warngen_nexrad_site.gif" /></p>
 <h2 id="launch-warngen">Launch WarnGen<a class="headerlink" href="#launch-warngen" title="Permanent link"></a></h2>
 <p>Select <strong>WarnGen</strong> from the D2D Toolbar or from the <strong>Tools</strong> menu.  When started, the storm centroid marker appears and the WarnGen GUI will pop up as a separate window. </p>
 <table>
@@ -1089,8 +1077,8 @@ src="https://www.youtube.com/embed/KSKmIMjkVCU?autoplay=1">
 </thead>
 <tbody>
 <tr>
-<td align="center"><img alt="" src="../../images/Warngen_Basic.png" /></td>
 <td align="center"><img alt="" src="../../images/warngen.png" /></td>
+<td align="center"><img alt="" src="../../images/Warngen_Basic.png" /></td>
 </tr>
 </tbody>
 </table>
@@ -1118,6 +1106,9 @@ src="https://www.youtube.com/embed/KSKmIMjkVCU?autoplay=1">
 <li>Clicking the middle mouse button (or scroll wheel) along an edge of the polygon will also place a vertex at that point.</li>
 </ol>
 <p>Vertex points are removed from the warning polygon using the same context relative menu. Instead of selecting a line segment, you select the vertex you wish to remove and then <strong>click and hold</strong> with right mouse button.  Hold right-click and select <strong>remove vertex</strong>. </p>
+<div class="admonition note">
+<p class="admonition-title">Generally you should have at least four points in your warning polygon.</p>
+</div>
 <h2 id="restoring-a-polygon">Restoring a Polygon<a class="headerlink" href="#restoring-a-polygon" title="Permanent link"></a></h2>
 <p>When you are customizing a polygon in WarnGen, speed is critical. Everyone, even veteran warning forecasters, will occasionally draw a warning polygon one way and then realize, prior to sending the warning, that they want to draw the warning boundaries differently. Depending on the complexity of the changes you make to a warning polygon, sometimes it’s faster to just start over from scratch. The easiest way to proceed, especially if you are still comfortable with the storm motion, is to select the “Track” button from the “Redraw Box on Screen from” section of the WarnGen GUI.</p>
 <h2 id="text-window">Text Window<a class="headerlink" href="#text-window" title="Permanent link"></a></h2>
