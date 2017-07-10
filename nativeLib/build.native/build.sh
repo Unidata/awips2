@@ -96,6 +96,10 @@ else
     eclipse_dir=$(get_full_path $1)
 fi
 
+
+echo "Using $eclipse_dir"
+#exit
+
 echo "Cleaning Eclipse plugins... "
 
 rm -vf $eclipse_dir/plugins/com.raytheon*
