@@ -25,8 +25,8 @@ Provides: awips2-static-user
 Requires: libpng
 Requires: awips2-postgresql
 Requires: awips2-psql
-Requires: netcdf = 4.1.2
-Requires: netcdf-devel = 4.1.2
+Requires: netcdf
+Requires: netcdf-devel
 
 
 %description
@@ -316,7 +316,6 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/data
 
 %defattr(644,awips,fxalpha,755)
-%dir /awips2
 %dir /awips2/database
 %dir /awips2/database/sqlScripts
 %dir /awips2/database/replication

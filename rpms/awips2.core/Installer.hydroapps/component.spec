@@ -72,9 +72,6 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %files
 %defattr(644,awips,fxalpha,775)
-%dir /awips2
-%dir /awips2/edex
-%dir /awips2/edex/data
 %dir /awips2/edex/data/share
 %defattr(777,awips,fxalpha,777)
 %dir /awips2/edex/data/share/hydroapps

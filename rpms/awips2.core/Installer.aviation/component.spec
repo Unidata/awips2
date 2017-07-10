@@ -56,10 +56,6 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %files
 %defattr(644,awips,fxalpha,775)
-%dir /awips2
-%dir /awips2/edex
-%dir /awips2/edex/data
-%dir /awips2/edex/data/share
 %dir /awips2/edex/data/share/aviation
 %dir /awips2/edex/data/share/aviation/tmp
 %defattr(664,awips,fxalpha,755)

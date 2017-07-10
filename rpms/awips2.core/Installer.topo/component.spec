@@ -70,6 +70,7 @@ done
 
 %pre
 %post
+chown -R awips:fxalpha -R /awips2/edex/data/hdf5
 %preun
 %postun
 
@@ -78,10 +79,6 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %files
 %defattr(664,awips,fxalpha,775)
-%dir /awips2
-%dir /awips2/edex
-%dir /awips2/edex/data
-%dir /awips2/edex/data/hdf5
 %dir /awips2/edex/data/hdf5/topo
 /awips2/edex/data/hdf5/topo/*
 %docdir /awips2/edex/data/hdf5/topo/licenses

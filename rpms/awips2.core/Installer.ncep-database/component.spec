@@ -284,11 +284,6 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %files
 %defattr(-,awips,fxalpha,-)
-%dir /awips2
-%dir /awips2/database
-%dir /awips2/database/sqlScripts
-%dir /awips2/database/sqlScripts/share
-%dir /awips2/database/sqlScripts/share/sql
 %dir /awips2/database/sqlScripts/share/sql/ncep
 %attr(777,root,root) /awips2/database/sqlScripts/share/sql/ncep/ncep_sql_install.log
 %attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/addNcepNwxAdminMessageGpTable.sql

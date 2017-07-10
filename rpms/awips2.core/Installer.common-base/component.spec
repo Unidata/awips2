@@ -23,8 +23,8 @@ Packager: %{_build_site}
 AutoReq: no
 Provides: awips2-common-base
 Requires: awips2-base
-Requires: netcdf = 4.1.2
-Requires: netcdf-devel = 4.1.2
+Requires: netcdf
+Requires: netcdf-devel
 
 BuildRequires: awips2-ant
 BuildRequires: awips2-java
@@ -122,6 +122,5 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %files
 %defattr(644,awips,fxalpha,755)
-%dir /awips2
 %dir /awips2/edex
 /awips2/edex/*

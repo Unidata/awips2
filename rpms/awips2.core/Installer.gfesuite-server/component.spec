@@ -83,6 +83,5 @@ rm -rf ${RPM_BUILD_ROOT}
 %files
 %defattr(644,root,root,-)
 %defattr(644,awips,fxalpha,755)
-%dir /awips2
 %dir /awips2/GFESuite
 /awips2/GFESuite/*

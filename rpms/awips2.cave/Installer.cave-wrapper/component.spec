@@ -155,7 +155,6 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %files
 %defattr(644,awips,fxalpha,755)
-%dir /awips2
 %dir /awips2/cave
 /awips2/cave/*.ini
 %dir /awips2/cave/etc
