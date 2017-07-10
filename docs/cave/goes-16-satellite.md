@@ -59,9 +59,9 @@ Channels 2,3,2 (0.64u, 0.87u, 0.64u)
 
 !!! warning "GOES-16 Composite Imagery NOT SUPPORTED on macOS"
 
-	OpenGL Scripting Language limitations on Mac prevent multi-channel imagery from shading:
+	OpenGL Shading Language limitations prevent multi-channel imagery from displaying correctly on Mac:
 	
-	  * Icing (1.61, 0.87, 0.64)which dis
+	  * Icing (1.61, 0.87, 0.64)
 	  * Daytime Composite (0.64, 1.61, 11.20)
 	  * Daytime Composite (0.64, 0.87, 0.64)  
 
