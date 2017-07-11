@@ -158,8 +158,7 @@ cd ../
 
 # Only Build The RPMs That May Have Changed - AWIPS II-Specific Components.
 buildRPM "Installer.version"
-buildRPM "Installer.gfesuite-client"
-buildRPM "Installer.gfesuite-server"
+buildRPM "Installer.gfesuite"
 buildRPM "Installer.adapt-native"
 buildRPM "Installer.alertviz"
 buildRPM "Installer.aviation"

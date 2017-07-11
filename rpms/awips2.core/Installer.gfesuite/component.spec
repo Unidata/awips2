@@ -1,8 +1,8 @@
 #
-# AWIPS II gfesuite server Spec File
+# AWIPS II gfesuite Spec File
 #
-Name: awips2-gfesuite-server
-Summary: AWIPS II gfesuite server Installation
+Name: awips2-gfesuite
+Summary: AWIPS II gfesuite Installation
 Version: %{_component_version}
 Release: %{_component_release}%{?dist}
 Group: AWIPSII
@@ -15,17 +15,16 @@ Vendor: %{_build_vendor}
 Packager: %{_build_site}
 
 AutoReq: no
-Provides: awips2-gfesuite-server
+Provides: awips2-gfesuite
 Requires: numpy
 Requires: awips2-python
-Requires: awips2-edex-gfe
 Requires: awips2-java
-
+Obsoletes: awips2-gfesuite-server, awips2-gfesuite-client
 BuildRequires: awips2-ant
 BuildRequires: awips2-java
 
 %description
-AWIPS II gfesuite-client Installation - Contains The AWIPS II gfesuite-server Component.
+AWIPS II gfesuite Installation - Contains The AWIPS II gfesuite Component.
 
 # Turn off the brp-python-bytecompile script
 %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
@@ -81,7 +80,6 @@ fi
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
-%defattr(644,root,root,-)
 %defattr(644,awips,fxalpha,755)
 %dir /awips2/GFESuite
 /awips2/GFESuite/*

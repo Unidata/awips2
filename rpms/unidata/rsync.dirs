@@ -13,15 +13,12 @@ javaUtilities/* rpms pythonPackages nativeLib/*
 ../awips2-nws/viz/* 
 ../awips2-nws/features/* 
 ../awips2-nws/edex/* 
-../awips2-nasa/edex/*
-../awips2-nasa/features/*
+../awips2-nasa/features/* 
+../awips2-nasa/edex/* 
 ../awips2-cimss/common/* 
 ../awips2-cimss/viz/* 
 ../awips2-cimss/features/* 
 ../awips2-cimss/edex/* 
-../awips2-ohd/lib/* 
-../awips2-ohd/features/* 
-../awips2-ohd/edex/* 
 ../awips2-ncep/common/* 
 ../awips2-ncep/viz/* 
 ../awips2-ncep/features/* 
