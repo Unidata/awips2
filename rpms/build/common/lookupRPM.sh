@@ -167,12 +167,8 @@ function lookupRPM()
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.database-standalone-configuration"
       return 0
    fi
-   if [ "${1}" = "awips2-gfesuite-client" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.gfesuite-client"
-      return 0
-   fi
-   if [ "${1}" = "awips2-gfesuite-server" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.gfesuite-server"
+   if [ "${1}" = "awips2-gfesuite" ]; then
+      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.gfesuite"
       return 0
    fi
    if [ "${1}" = "awips2-hydroapps-shared" ]; then
