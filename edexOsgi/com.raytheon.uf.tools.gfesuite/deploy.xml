@@ -22,7 +22,6 @@
 <!-- Deploy script for the GFESuite Command Line Interface Tools.                     -->
 <!-- Usage:                                                                           -->
 <!--    ant -f deploy.xml -Dinstall.dir={path to install} [-Dinstaller=true]          -->
-<!--       [-Dclient.build=true]                                                      -->
 <!-- ================================================================================ -->
 
 <project default="deploy.all" basedir="." >
@@ -41,15 +40,15 @@
 	</condition>
 	
 	<condition property="deploy.client" value="yes">
-		<istrue value="${client.build}"/>
+		<istrue value="true"/>
 	</condition>
 	
 	<condition property="deploy.hti" value="yes">
-			<isfalse value="${client.build}"/>
+		<istrue value="true"/>
 	</condition>
 	
 	<condition property="deploy.nwps" value="yes">
-			<isfalse value="${client.build}"/>
+		<istrue value="true"/>
 	</condition>
 
 	<property name="gfe.suite.home" value="${install.dir}" />
@@ -67,7 +66,6 @@
 	<target name="deploy.all" description="Deploys GFESuite CLI tools to a specific directory">
 		<!-- copy the CLI tools to the deploy directory -->
 		<echo message="Updating ${gfe.suite.bin} with latest GFESuite tools" />
-		<echo message="deploy.client=${deploy.client}" />
 		<mkdir dir="${gfe.suite.bin}"/>
 		<antcall target="-deploy.cli.common"/>
 		<antcall target="-deploy.hti"/>
