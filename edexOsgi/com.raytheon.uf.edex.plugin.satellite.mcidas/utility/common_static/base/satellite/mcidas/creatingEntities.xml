@@ -42,14 +42,14 @@
 	  <entry><key>70</key><value>GOES8</value></entry>
 	  <entry><key>71</key><value>SOUNDER</value></entry>
 	  <entry><key>74</key><value>GOES10</value></entry>
-	  <entry><key>76</key><value>GOES11</value></entry>
+	  <entry><key>76</key><value>GOES-11(L)</value></entry>
 	  <entry><key>77</key><value>DPD</value></entry>
-	  <entry><key>78</key><value>GOES12</value></entry>
+	  <entry><key>78</key><value>GOES-12(M)</value></entry>
           <entry><key>84</key><value>MTSAT-1R</value></entry>	
 	  <entry><key>85</key><value>MTSAT-2</value></entry>
 	  <entry><key>86</key><value>HIMAWARI-8</value></entry>
-	  <entry><key>180</key><value>GOES13</value></entry>
-	  <entry><key>184</key><value>GOES15</value></entry>
+	  <entry><key>180</key><value>GOES-13(N)</value></entry>
+	  <entry><key>184</key><value>GOES-15(P)</value></entry>
 	  <entry><key>185</key><value>SOUNDER</value></entry>
 	  <entry><key>401</key><value>COMP</value></entry>
 	  <entry><key>72</key><value>COMP</value></entry>

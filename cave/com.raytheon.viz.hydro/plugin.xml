@@ -970,15 +970,6 @@
 	      </classContext>
 	</extension>
     <extension
-          point="com.raytheon.uf.viz.localization.perspective.localizationpath">
-       <path
-             application="Hydro"
-             localizationType="COMMON_STATIC"
-             name="Hydro Apps"
-             value="hydro">
-       </path>
-    </extension>
-    <extension
           point="com.raytheon.uf.viz.core.component">
        <component
              class="com.raytheon.viz.hydro.timeseries.TimeSeriesconfigComponent"

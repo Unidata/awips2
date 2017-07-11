@@ -22,32 +22,32 @@
   <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml"
     menuText="Channel 1(0.47u)" id="himawari-ch1">
     <substitute key="element" value="CH-01-0.47um" />
-    <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)" />
+    <substitute key="colormap" value="Sat/VIS/Linear" />
   </contribute>
   <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml"
     menuText="Channel 2(0.51u)" id="himawari-ch2">
     <substitute key="element" value="CH-02-0.51um" />
-    <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)" />
+    <substitute key="colormap" value="Sat/VIS/Linear" />
   </contribute>
   <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml"
     menuText="Channel 3(0.64u)" id="himawari-ch3">
     <substitute key="element" value="CH-03-0.64um" />
-    <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)" />
+    <substitute key="colormap" value="Sat/VIS/Linear" />
   </contribute>
   <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml"
     menuText="Channel 4(0.86u)" id="himawari-ch4">
     <substitute key="element" value="CH-04-0.86um" />
-    <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)" />
+    <substitute key="colormap" value="Sat/VIS/Linear" />
   </contribute>
   <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml"
     menuText="Channel 5(1.61u)" id="himawari-ch5">
     <substitute key="element" value="CH-05-1.61um" />
-    <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)" />
+    <substitute key="colormap" value="Sat/VIS/Linear" />
   </contribute>
   <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml"
     menuText="Channel 6(2.26u)" id="himawari-ch6">
     <substitute key="element" value="CH-06-2.26um" />
-    <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)" />
+    <substitute key="colormap" value="Sat/VIS/Linear" />
   </contribute>
   <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml"
     menuText="Channel 7(3.89u)" id="himawari-ch7">

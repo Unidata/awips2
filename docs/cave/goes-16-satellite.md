@@ -1,6 +1,6 @@
 
 
-AWIPS ingest and display of GOES-16 (GOES-R) products is handled by contributions from the **[awips2-goesr](https://github.com/Unidata/awips2-goesr)** plugin repository. As of Unidata AWIPS 17.1.1, the GOES-R decoder supports the ingest and display of NOAAport provisional products (currently on the NOTHER feed), as well as Level 2b netCDF files.  A GOES-R Lightning Mapper (GLM) decoder is also provided to handle sensor lightning observations.  
+AWIPS ingest and display of GOES-16 (GOES-R) products is handled by contributions from the **[awips2-goesr](https://github.com/Unidata/awips2-goesr)** plugin repository. As of Unidata AWIPS 17.1.1, the GOES-R decoder supports the ingest and display of NOAAport provisional products (currently on the NOTHER feed), as well as Level 2b netCDF files.  A GOES-R Geostationary Lightning Mapper (GLM) decoder is also provided to handle sensor lightning observations.
 
 GOES-R products are accessible in the menu **Satellite** > **GOES-16 Provisional Products**
 
@@ -59,9 +59,9 @@ Channels 2,3,2 (0.64u, 0.87u, 0.64u)
 
 !!! warning "GOES-16 Composite Imagery NOT SUPPORTED on macOS"
 
-	OpenGL Scripting Language limitations on Mac prevent multi-channel imagery from shading:
+	OpenGL Shading Language limitations prevent multi-channel imagery from displaying correctly on Mac:
 	
-	  * Icing (1.61, 0.87, 0.64)which dis
+	  * Icing (1.61, 0.87, 0.64)
 	  * Daytime Composite (0.64, 1.61, 11.20)
 	  * Daytime Composite (0.64, 0.87, 0.64)  
 
@@ -98,7 +98,7 @@ From `/awips2/edex/data/utility/common_static/base/distribution/goesr.xml`
     
 ---
 
-## GOES Lightning Mapper (GLM)
+## Geostationary Lightning Mapper (GLM)
 
 NASA's SPoRT MSFC Earth Science Office has contributed plugins to decode GLM level2 products, displayed as point data in CAVE.
 
@@ -118,3 +118,14 @@ Load GLM data from the menu **Satellite** > **GOES-16 Provisional** > **GLM-Ligh
 ![](../images/goes_16_glmmenu.png)
 
 ![](../images/goes_16_glm.png)
+
+
+## Derived Motion Winds
+
+At the bottom of the menu **Satellite** > **GOES-16 Provisional Products** are sub-menus for GOES-16 Derived Motion Wind (DMW) products.  Select the sub-menu **GOES-Test** and then region (CONUS, Full Disk, Mesoscale), and then select the wind product by level:
+
+* By Pressure
+* By Mandatory Levels
+* By Channel
+
+![](../images/goesr_dmw.png)

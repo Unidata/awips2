@@ -33,7 +33,7 @@
     <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Visible" id="visible">
         <substitute key="element" value="Imager Visible"/>
-        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+        <substitute key="colormap" value="Sat/VIS/Linear"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/DerivedSatellite.xml"
                 menuText="WV/IR" id="WV/IR">

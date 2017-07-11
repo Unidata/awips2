@@ -26,13 +26,8 @@ int OpenDbms(const char *dbmsname) {
 	char * db_host = getAppDefault("pghost");
 	char * db_port = getAppDefault("pgport");
         char * db_user = getAppDefault("pguser");
-        char * ssl_home = getAppDefault("DB_ssl_cert_dir");
-        char * ssl_mode = getAppDefault("DB_ssl_mode");
 
-        snprintf(sqlstmt,sizeof(sqlstmt), "tcp:postgresql://%s:%s/%s?user=%s&sslmode=%s"
-                        "&sslkey=%s/%s.key&sslcert=%s/%s.crt&sslrootcert=%s/root.crt"
-                         ,db_host,db_port,db_name,db_user,ssl_mode,ssl_home,db_user,
-                         ssl_home,db_user,ssl_home);
+        snprintf(sqlstmt,sizeof(sqlstmt), "%s@%s:%s?user=%s",db_name,db_host,dp_port,db_user);
 
         printf("Connecting to database '%s' as user '%s'\n", sqlstmt, db_user);
 
@@ -40,7 +35,7 @@ int OpenDbms(const char *dbmsname) {
         EXEC SQL CONNECT TO :sqlstmt ;
 
 	if (SQLCODE < 0) {
-		fprintf(stderr, "Unable to open database %s - (%ld)\n", dbmsname,
+		fprintf(stderr, "DbmsAccess: Unable to open database %s - (%ld)\n", dbmsname,
 				SQLCODE);
 		result=errSqlFail;
                 goto  freeALL;
@@ -51,8 +46,6 @@ freeALL:
     free(db_host);
     free(db_port);
     free(db_user);
-    free(ssl_home);
-    free(ssl_mode);
 
  
 	return (result);

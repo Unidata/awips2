@@ -65,15 +65,4 @@
             commandId="com.raytheon.viz.texteditor.afosproduct">
       </handler>
    </extension>
-   <extension
-         point="com.raytheon.uf.viz.localization.perspective.localizationpath">
-      <path
-            application="TextWS"
-            extensionFilter=".xml"
-            localizationType="COMMON_STATIC"
-            name="Alarm-Alerts"
-            recursive="true"
-            value="alarms">
-      </path>
-   </extension>
 </plugin>

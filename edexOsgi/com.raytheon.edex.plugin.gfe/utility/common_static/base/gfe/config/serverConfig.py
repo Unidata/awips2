@@ -2168,8 +2168,6 @@ nwpsTrkngCG0AFG  = ('nwpsTrkngCG0AFG',   GRID,   '', NO,  NO,  2, 0)
 nwpsTrkngCG0AJK  = ('nwpsTrkngCG0AJK',   GRID,   '', NO,  NO,  2, 0)
 # JCM 16.4.1 added above
 HPCGuide    = ('HPCGuide',     GRID,   '', NO,  NO,  2, 0)
-NAM12       = ('NAM12',        GRID,   '', NO,  NO,  2, 0)
-NAM40       = ('NAM40',        GRID,   '', NO,  NO,  2, 0)
 NAM80       = ('NAM80',        GRID,   '', NO,  NO,  2, 0)
 NAM95       = ('NAM95',        GRID,   '', NO,  NO,  2, 0)
 GFS40       = ('GFS40',        GRID,   '', NO,  NO,  2, 0)
@@ -2177,7 +2175,6 @@ GFS80       = ('GFS80',        GRID,   '', NO,  NO,  2, 0)
 GFS190      = ('GFS190',       GRID,   '', NO,  NO,  2, 0)
 GFS75       = ('GFS75',        GRID,   '', NO,  NO,  2, 0)
 gfsLR       = ('gfsLR',        GRID,   '', NO,  NO,  2, 0)
-RAP13       = ('RAP13',        GRID,   '', NO,  NO,  2, 0)
 RAP40       = ('RAP40',        GRID,   '', NO,  NO,  2, 0)
 HPCGrid     = ('HPCGRID',      GRID,   '', NO,  NO,  2, 0)
 AKwave10    = ('AKwave10',     GRID,   '', NO,  NO,  2, 0)
@@ -2401,7 +2398,6 @@ elif SID in groups['CONUS_EAST_SITES']:
                  'HRRR',
                  'HWRF',
                  ('MRF', 'gfsLR'),
-                 ('RAP13', 'RAP13'),
                  ('RUC', 'RAP40'),
                  ('NAM40', 'NAM40'),
                  ('NAM20', 'NAM20'),
@@ -2423,7 +2419,6 @@ elif SID in groups['CONUS_EAST_SITES']:
                  'WNAwave10',
                  'WNAwave4',
                  'HurWind226',
-                 ('NAM12', 'NAM12'),
                  'HPCGuide',
                  ('OPCWave180', 'OPCTAFBE'),
                  ('OPCWave181', 'OPCTAFBNW'),
@@ -2527,7 +2522,6 @@ else:   #######DCS3501 WEST_CONUS
                  ('AVN211', 'GFS80'),
                  ('ETA', 'NAM80'),
                  ('MRF', 'gfsLR'),
-                 ('RAP13', 'RAP13'),
                  ('RUC', 'RAP40'),
                  ('NAM40', 'NAM40'),
                  ('NAM20', 'NAM20'),
@@ -2552,7 +2546,6 @@ else:   #######DCS3501 WEST_CONUS
                  'AKwave4',
                  'AKWAVE',
                  'HurWind226',
-                 ('NAM12', 'NAM12'),
                  'HPCGuide',
                  ('OPCWave180', 'OPCTAFBE'),
                  ('OPCWave181', 'OPCTAFBNW'),
@@ -2737,145 +2730,16 @@ else:
 #
 #---------------------------------------------------------------------------
 #
-# RFCs
-if SID in groups['RFC_SITES']:
-    INITMODULES = {}    #disable smart inits for RFCs
-
-# Alaska OCONUS
-elif SID in groups['ALASKA_SITES']:
-    INITMODULES = {
-#        "AKNAM40" : ["NAM40", "NAM20"],
-        "AKWAVE" : ['AKWAVE'],
-#        "AKwave4" : ['AKwave4'],
-#        "AKwave10" : ['AKwave10'],
-#        "GlobalWave" : ["GlobalWave"],
-#        "NAM95" : ["NAM95"],
-#        "gfsLR" : ["gfsLR"],
-        "NAM12" : ["NAM12"],
-        "GFS80" : ["GFS80"],
-#        "GFS190" : ["GFS190"],
-#DCS3501
-        "HIRESWarw" : ["HIRESWarw"],
-        "HIRESWnmm" : ["HIRESWnmm"],
-#DR20634        "SPC" : ["SPC"],
-        "LAPS" : ["LAPS"],
-        "HPCQPF" : ['HPCQPF'],
-        "RFCQPF" : ['RFCQPF'],
-        "MSAS" : ['MSAS'],
-#        "HPCdelta" : ['HPCdelta'],
-        "SAT" : ['Satellite'],
-#        "GWW" : ["GWW"],
-#        "OPCTAFBNW" : ['OPCTAFBNW'],
-# JCM 16.4.1 added below
-        "nwpsCG1AER" : ['nwpsCG1AER'],
-        "nwpsCG1ALU" : ['nwpsCG1ALU'],
-        "nwpsCG1AFG" : ['nwpsCG1AFG'],
-        "nwpsCG1AJK" : ['nwpsCG1AJK'],
-        "nwpsTrkngCG0AER" : ['nwpsTrkngCG0AER'],
-        "nwpsTrkngCG0ALU" : ['nwpsTrkngCG0ALU'],
-        "nwpsTrkngCG0AFG" : ['nwpsTrkngCG0AFG'],
-        "nwpsTrkngCG0AJK" : ['nwpsTrkngCG0AJK'],
-# JCM 16.4.1 added above
-        "RTMA" : ['RTMA'],
-        "NamDNG" : ["NamDNG"],
-        "AKMOSGuide" : ['MOSGuide'],
-        "ESTOFS" : ["ESTOFS"],
-        "ETSS" : ["ETSS"],
-        "NationalBlend" : ["NationalBlend"],
-        }
-
-# Hawaii OCONUS
-elif SID == "HFO":
-    INITMODULES= {
-        "GFS75" : ["GFS75"],
-#####DCS3501
-        "HIRESWarw" : ["HIRESWarw"],
-        "HIRESWnmm" : ["HIRESWnmm"],
-##DR20634        "SPC" : ["SPC"],
-#        "GlobalWave" : ["GlobalWave"],
-#        "EPwave10" : ["EPwEave10"],
-#        "GWW" : ["GWW"],
-#        "gfsLR" : ["gfsLR"],
-        "RTMA" : ['RTMA'],
-        "NamDNG" : ["NamDNG"],
-        "MOSGuide" : ['MOSGuide'],
-        "ESTOFS" : ["ESTOFS"],
-# JCM 16.4.1 added below
-        "nwpsCG1HFO" : ['nwpsCG1HFO'],
-        "nwpsCG1GUM" : ['nwpsCG1GUM'],
-        "nwpsTrkngCG0HFO" : ['nwpsTrkngCG0HFO'],
-        "nwpsTrkngCG0GUM" : ['nwpsTrkngCG0GUM'],
-# JCM 16.4.1 added above
-        "NationalBlend" : ["NationalBlend"],
-        }
-
-# San Juan OCONUS
-elif SID == "SJU":
-    #initialization  module to model mappings
-    INITMODULES = {
-#        "NAM40" : ["NAM40", "NAM20"],
-#        "NAM80" : ["NAM80"],
-        "RAP13" : ["RAP13"],
-        "RAP40" : ["RAP40"],
-#        "gfsLR" : ["gfsLR"],
-        "NAM12" : ["NAM12"],
-        "GFS80" : ["GFS80"],
-        "GFS40" : ["GFS40"],
-#####DCS3501
-        "HIRESWarw" : ["HIRESWarw"],
-        "HIRESWnmm" : ["HIRESWnmm"],
-#DR20634        "SPC" : ["SPC"],
-        "LAPS" : ["LAPS"],
-        "HPCQPF" : ['HPCQPF'],
-        "RFCQPF" : ['RFCQPF'],
-        "MSAS" : ['MSAS'],
-#        "HPCdelta" : ['HPCdelta'],
-        "SAT" : ['Satellite'],
-#        "GWW" : ["GWW"],
-#        "OPCTAFBE" : ['OPCTAFBE'],
-#        "GlobalWave" : ["GlobalWave"],
-#        "EPwave10" : ["EPwEave10"],
-        "RTMA" : ['RTMA'],
-        "NamDNG" : ["NamDNG"],
-        "ESTOFS" : ["ESTOFS"],
-# JCM 16.4.1 added below
-        "nwpsCG1SJU" : ['nwpsCG1SJU'],
-        "nwpsCG1MFL" : ['nwpsCG1MFL'],
-        "nwpsCG1KEY" : ['nwpsCG1KEY'],
-        "nwpsCG1MLB" : ['nwpsCG1MLB'],
-        "nwpsCG1JAX" : ['nwpsCG1JAX'],
-        "nwpsTrkngCG0SJU" : ['nwpsTrkngCG0SJU'],
-        "nwpsTrkngCG0MFL" : ['nwpsTrkngCG0MFL'],
-        "nwpsTrkngCG0KEY" : ['nwpsTrkngCG0KEY'],
-        "nwpsTrkngCG0MLB" : ['nwpsTrkngCG0MLB'],
-        "nwpsTrkngCG0JAX" : ['nwpsTrkngCG0JAX'],
-# JCM 16.4.1 added above
-        "NationalBlend" : ["NationalBlend"],
-        }
-
 # Guam OCONUS
-elif SID == "GUM":
+if SID == "GUM":
     INITMODULES= {
         "GFS75" : ["GFS75"],
-#        "GWW" : ["GWW"],
-#        "gfsLR" : ["gfsLR"],
-#        "GlobalWave" : ["GlobalWave"],
-        "RTMA" : ['RTMA'],
-# JCM 16.4.1 added below
-        "nwpsCG1GUM" : ['nwpsCG1GUM'],
-        "nwpsCG1HFO" : ['nwpsCG1HFO'],
-        "nwpsTrkngCG0GUM" : ['nwpsTrkngCG0GUM'],
-        "nwpsTrkngCG0HFO" : ['nwpsTrkngCG0HFO'],
-# JCM 16.4.1 added above
+        "RTMA" : ['RTMA']
         }
-
 #CONUS sites
 else:
-    #initialization  module to model mappings
     INITMODULES = {
-        "RAP13" : ["RAP13"],
         "RAP40" : ["RAP40"],
-        "NAM12" : ["NAM12"],
         "GFS40" : ["GFS40"],
         "GFS80" : ["GFS80"],
         "LAPS" : ["LAPS"],
@@ -2886,94 +2750,22 @@ else:
         "MOSGuide" : ['MOSGuide'],
         "HPCGuide" : ['HPCGuide'],
         "RTMA" : ['RTMA'],
-   #######DR17144
         "URMA25" : ['URMA25'],
         "NamDNG" : ["NamDNG"],
         "SREF" : ["SREF"],
         "HRRR" : ['HRRR'],
         "HRWF" : ['HRWF'],
-#########DCS3501
         "GLWM" : ["GLWM"],
         "HIRESWarw" : ["HIRESWarw"],
         "HIRESWnmm" : ["HIRESWnmm"],
-#DR20634        "SPC" : ["SPC"],
-#        "GlobalWave" : ["GlobalWave"],
-#        "EPwave10" : ["EPwave10"],
-#        "WCwave10" : ["WCwave10"],
-#        "WCwave4" : ["WCwave4"],
-#        "WNAwave10" : ["WNAwave10"],
-#        "WNAwave4" : ["WNAwave4"],
-#        "ENPwave": ["ENPwave"],
         "ESTOFS" : ["ESTOFS"],
         "ETSS" : ["ETSS"],
         "GFSLAMPGrid" : ["GFSLAMPGrid"],
-# JCM 16.4.1 added below
-        "nwpsCG1CAR" : ['nwpsCG1CAR'],
-        "nwpsCG1GYX" : ['nwpsCG1GYX'],
-        "nwpsCG1BOX" : ['nwpsCG1BOX'],
-        "nwpsCG1OKX" : ['nwpsCG1OKX'],
-        "nwpsCG1PHI" : ['nwpsCG1PHI'],
-        "nwpsCG1LWX" : ['nwpsCG1LWX'],
-        "nwpsCG1AKQ" : ['nwpsCG1AKQ'],
-        "nwpsCG1MHX" : ['nwpsCG1MHX'],
-        "nwpsCG1ILM" : ['nwpsCG1ILM'],
-        "nwpsCG1CHS" : ['nwpsCG1CHS'],
-        "nwpsCG1BRO" : ['nwpsCG1BRO'],
-        "nwpsCG1CRP" : ['nwpsCG1CRP'],
-        "nwpsCG1HGX" : ['nwpsCG1HGX'],
-        "nwpsCG1LCH" : ['nwpsCG1LCH'],
-        "nwpsCG1LIX" : ['nwpsCG1LIX'],
-        "nwpsCG1MOB" : ['nwpsCG1MOB'],
-        "nwpsCG1TAE" : ['nwpsCG1TAE'],
-        "nwpsCG1TBW" : ['nwpsCG1TBW'],
-        "nwpsCG1KEY" : ['nwpsCG1KEY'],
-        "nwpsCG1MFL" : ['nwpsCG1MFL'],
-        "nwpsCG1MLB" : ['nwpsCG1MLB'],
-        "nwpsCG1JAX" : ['nwpsCG1JAX'],
-        "nwpsCG1SJU" : ['nwpsCG1SJU'],
-        "nwpsCG1SEW" : ['nwpsCG1SEW'],
-        "nwpsCG1PQR" : ['nwpsCG1PQR'],
-        "nwpsCG1MFR" : ['nwpsCG1MFR'],
-        "nwpsCG1EKA" : ['nwpsCG1EKA'],
-        "nwpsCG1MTR" : ['nwpsCG1MTR'],
-        "nwpsCG1LOX" : ['nwpsCG1LOX'],
-        "nwpsCG1SGX" : ['nwpsCG1SGX'],
-        "nwpsTrkngCG0CAR" : ['nwpsTrkngCG0CAR'],
-        "nwpsTrkngCG0GYX" : ['nwpsTrkngCG0GYX'],
-        "nwpsTrkngCG0BOX" : ['nwpsTrkngCG0BOX'],
-        "nwpsTrkngCG0OKX" : ['nwpsTrkngCG0OKX'],
-        "nwpsTrkngCG0PHI" : ['nwpsTrkngCG0PHI'],
-        "nwpsTrkngCG0AKQ" : ['nwpsTrkngCG0AKQ'],
-        "nwpsTrkngCG0MHX" : ['nwpsTrkngCG0MHX'],
-        "nwpsTrkngCG0ILM" : ['nwpsTrkngCG0ILM'],
-        "nwpsTrkngCG0CHS" : ['nwpsTrkngCG0CHS'],
-        "nwpsTrkngCG0BRO" : ['nwpsTrkngCG0BRO'],
-        "nwpsTrkngCG0CRP" : ['nwpsTrkngCG0CRP'],
-        "nwpsTrkngCG0HGX" : ['nwpsTrkngCG0HGX'],
-        "nwpsTrkngCG0LCH" : ['nwpsTrkngCG0LCH'],
-        "nwpsTrkngCG0LIX" : ['nwpsTrkngCG0LIX'],
-        "nwpsTrkngCG0MOB" : ['nwpsTrkngCG0MOB'],
-        "nwpsTrkngCG0TAE" : ['nwpsTrkngCG0TAE'],
-        "nwpsTrkngCG0TBW" : ['nwpsTrkngCG0TBW'],
-        "nwpsTrkngCG0KEY" : ['nwpsTrkngCG0KEY'],
-        "nwpsTrkngCG0MFL" : ['nwpsTrkngCG0MFL'],
-        "nwpsTrkngCG0MLB" : ['nwpsTrkngCG0MLB'],
-        "nwpsTrkngCG0JAX" : ['nwpsTrkngCG0JAX'],
-        "nwpsTrkngCG0SJU" : ['nwpsTrkngCG0SJU'],
-        "nwpsTrkngCG0SEW" : ['nwpsTrkngCG0SEW'],
-        "nwpsTrkngCG0PQR" : ['nwpsTrkngCG0PQR'],
-        "nwpsTrkngCG0MFR" : ['nwpsTrkngCG0MFR'],
-        "nwpsTrkngCG0EKA" : ['nwpsTrkngCG0EKA'],
-        "nwpsTrkngCG0MTR" : ['nwpsTrkngCG0MTR'],
-        "nwpsTrkngCG0LOX" : ['nwpsTrkngCG0LOX'],
-        "nwpsTrkngCG0SGX" : ['nwpsTrkngCG0SGX'],
-# JCM 16.4.1 added above
-        "NationalBlend" : ["NationalBlend"],
+        "NationalBlend" : ["NationalBlend"]
         }
 
 #initialization skip certain model runs
 INITSKIPS = {
-    "RAP13" : [1,2,4,5,7,8,10,11,13,14,16,17,19,20,22,23],
     "RAP40" : [1,2,4,5,7,8,10,11,13,14,16,17,19,20,22,23]
     }
 
@@ -2998,9 +2790,7 @@ D2DAccumulativeElements= {
     "NAM80": ["tp", "cp"],
     "NAM40": ["tp", "cp"],
     "NAM20": ["tp", "cp"],
-    "NAM12": ["tp", "cp", "crain", "csnow", "cfrzr", "cicep"],
     "gfsLR": ["tp", "cp"],
-    "RAP13": ["tp", "cp"],
     "RAP40": ["tp", "cp"],
     "MSAS": ["tp", "cp"],
     "LAPS": ["pc"],
@@ -3319,14 +3109,11 @@ DATABASES = [
              (Fcst, OFFICIALDBS),
              (NAM80, STD6_MODEL),
              (NAM95, STD6_MODEL),
-             (RAP13, STD1_MODEL),
              (RAP40, STD1_MODEL),
              (GFS40, STD6_MODEL),
              (GFS80, STD6_MODEL),
              (GFS75, STD6_MODEL),
              (GFS190, STD6_MODEL),
-             (NAM40, STD3_MODEL),
-             (NAM12, STD3_MODEL),
              (gfsLR, STD12_MODEL),
              (GWW, WAVEPARMS),
              (WNAWAVE, WAVEPARMS),
