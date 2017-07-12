@@ -84,16 +84,19 @@
       <div class="md-flex__cell md-flex__cell--stretch">
         <span class="md-flex__ellipsis md-header-nav__title">
           
-            
               
-                <span class="md-header-nav__parent">
-                  CAVE User Manual
-                </span>
+
+                  
+                      <span class="md-header-nav__parent">
+                      CAVE User Manual
+                      </span>
+                  
+ 
+                  
+                      Bundles and Procedures
+                  
+
               
-            
-            
-              Bundles and Procedures
-            
           
         </span>
       </div>
@@ -304,16 +307,84 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#save-and-load-bundles" title="Save and Load Bundles" class="md-nav__link">
-    Save and Load Bundles
+  <a href="#bundles" title="Bundles" class="md-nav__link">
+    Bundles
   </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#file-open-bundle" title="File &gt; Open Bundle" class="md-nav__link">
+    File &gt; Open Bundle
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-save-bundle" title="File &gt; Save Bundle" class="md-nav__link">
+    File &gt; Save Bundle
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-delete-bundle" title="File &gt; Delete Bundle" class="md-nav__link">
+    File &gt; Delete Bundle
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load-bundle-from-local-disk" title="Load Bundle from Local Disk" class="md-nav__link">
+    Load Bundle from Local Disk
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#save-bundle-to-local-disk" title="Save Bundle to Local Disk" class="md-nav__link">
+    Save Bundle to Local Disk
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#save-and-load-procedures" title="Save and Load Procedures" class="md-nav__link">
-    Save and Load Procedures
+  <a href="#procedures" title="Procedures" class="md-nav__link">
+    Procedures
   </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#new-procedure" title="New Procedure" class="md-nav__link">
+    New Procedure
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#open-procedure" title="Open Procedure" class="md-nav__link">
+    Open Procedure
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-procedure" title="Delete Procedure" class="md-nav__link">
+    Delete Procedure
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -878,16 +949,84 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#save-and-load-bundles" title="Save and Load Bundles" class="md-nav__link">
-    Save and Load Bundles
+  <a href="#bundles" title="Bundles" class="md-nav__link">
+    Bundles
   </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#file-open-bundle" title="File &gt; Open Bundle" class="md-nav__link">
+    File &gt; Open Bundle
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-save-bundle" title="File &gt; Save Bundle" class="md-nav__link">
+    File &gt; Save Bundle
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-delete-bundle" title="File &gt; Delete Bundle" class="md-nav__link">
+    File &gt; Delete Bundle
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load-bundle-from-local-disk" title="Load Bundle from Local Disk" class="md-nav__link">
+    Load Bundle from Local Disk
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#save-bundle-to-local-disk" title="Save Bundle to Local Disk" class="md-nav__link">
+    Save Bundle to Local Disk
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#save-and-load-procedures" title="Save and Load Procedures" class="md-nav__link">
-    Save and Load Procedures
+  <a href="#procedures" title="Procedures" class="md-nav__link">
+    Procedures
   </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#new-procedure" title="New Procedure" class="md-nav__link">
+    New Procedure
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#open-procedure" title="Open Procedure" class="md-nav__link">
+    Open Procedure
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-procedure" title="Delete Procedure" class="md-nav__link">
+    Delete Procedure
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -910,25 +1049,41 @@
                 
                   <h1>Bundles and Procedures</h1>
                 
-                <h2 id="save-and-load-bundles">Save and Load Bundles<a class="headerlink" href="#save-and-load-bundles" title="Permanent link"></a></h2>
-<p><strong>File &gt; Save Bundle</strong></p>
+                <p>AWIPS contains two methods for saving and loading data resources: <strong>Bundles</strong> are a simple way to save loaded resources to access in future CAVE sessions.  <strong>Procedures</strong> are similar to Bundles, but can be thought of a <em>groups of bundles</em> and allows the user to manage saved resources with more control.</p>
+<h2 id="bundles">Bundles<a class="headerlink" href="#bundles" title="Permanent link"></a></h2>
+<h3 id="file-open-bundle"><strong>File &gt; Open Bundle</strong><a class="headerlink" href="#file-open-bundle" title="Permanent link"></a></h3>
+<p>Load a previously-saved bundle from within the AWIPS system.  The Open Bundle dialog allows you to select your own saved bundles as well as those saved by other users (and other localization-levels such as <em>workstation</em>).</p>
+<p>Each selected bundle will load its contents to new tabs which are named after the bundle file name (e.g. NAM_ThetaE)</p>
+<p><img alt="image" src="../../images/KTZZHoCV5S.gif" /></p>
+<p>Most saved bundles will consist of a single Map Editor (tab), but with multiple tabs saved each will open again in its own Map Editor</p>
+<hr />
+<h3 id="file-save-bundle"><strong>File &gt; Save Bundle</strong><a class="headerlink" href="#file-save-bundle" title="Permanent link"></a></h3>
 <p>Save a product display within the AWIPS system, synching the bundle between CAVE and the EDEX server.</p>
-<p><img alt="image" src="../../images/xl53gG4.png" /></p>
-<p><strong>File &gt; Load Bundle</strong></p>
-<p>Load a previously-saved bundle from within the AWIPS system.</p>
-<p><img alt="image" src="../../images/VWiGMHp.png" /></p>
-<p><strong>File &gt; Delete Bundle</strong></p>
-<p>Select and remove a saved bundle.</p>
-<p><img alt="image" src="../../images/eRqHZpD.png" /></p>
-<p><strong>File &gt; Load Bundle from Disk</strong></p>
-<p>Load a previously-saved display from a path within the file directory of the workstation.</p>
-<p><strong>File &gt; Save Bundle to Disk</strong></p>
-<p>Save a product display to a path within the file directory of the workstation.</p>
-<p><strong>File &gt; Load Map from Disk</strong></p>
-<p>Load a map or product display from a path within the file directory of the workstation.</p>
-<p><strong>File &gt; Save Map to Disk</strong></p>
-<p>Save a map or product display to a path within the file directory of the workstation.</p>
-<h2 id="save-and-load-procedures">Save and Load Procedures<a class="headerlink" href="#save-and-load-procedures" title="Permanent link"></a></h2>
+<hr />
+<h3 id="file-delete-bundle"><strong>File &gt; Delete Bundle</strong><a class="headerlink" href="#file-delete-bundle" title="Permanent link"></a></h3>
+<p>Select and remove a saved bundle under File &gt; Delete Bundle.  Select the file name and click <strong>OK</strong> and then confirm deletion to remove the saved file permanently.</p>
+<p><img alt="image" src="../../images/delete_bundle1.png" /></p>
+<p><img alt="image" src="../../images/delete_bundle2.png" /></p>
+<hr />
+<h3 id="load-bundle-from-local-disk">Load Bundle from Local Disk<a class="headerlink" href="#load-bundle-from-local-disk" title="Permanent link"></a></h3>
+<p>To load a previously-saved display from a path within the file directory of the workstation, select <strong>File &gt; Open Bundle</strong> and then select the <strong>File</strong> button on the right to browse your local directories.</p>
+<p><img alt="image" src="../../images/XB6vQf78pl.gif" /></p>
+<hr />
+<h3 id="save-bundle-to-local-disk">Save Bundle to Local Disk<a class="headerlink" href="#save-bundle-to-local-disk" title="Permanent link"></a></h3>
+<p>To save a product display to a path within the file directory of the workstation, select <strong>File &gt; Save Bundle</strong> and then select the <strong>File</strong> button on the right.</p>
+<hr />
+<h2 id="procedures">Procedures<a class="headerlink" href="#procedures" title="Permanent link"></a></h2>
+<h3 id="new-procedure">New Procedure<a class="headerlink" href="#new-procedure" title="Permanent link"></a></h3>
+<ul>
+<li>Select the menu <strong>File &gt; Procedures &gt; New</strong></li>
+<li>Select <strong>Copy Into</strong> to add all loaded resources to the Procedure Stack</li>
+<li>Select <strong>Save</strong> (or <strong>Save As</strong>) and then enter a name for the Procedure before clicking <strong>OK</strong> to save.</li>
+</ul>
+<p><img alt="image" src="../../images/O925hqJNac.gif" /></p>
+<h3 id="open-procedure">Open Procedure<a class="headerlink" href="#open-procedure" title="Permanent link"></a></h3>
+<p>Similar to creating a new Procedure, select <strong>File &gt; Procedures &gt; Open</strong>, select the saved resources and click <strong>Load</strong> to load them to CAVE.</p>
+<h3 id="delete-procedure">Delete Procedure<a class="headerlink" href="#delete-procedure" title="Permanent link"></a></h3>
+<p>From the menu  <strong>File &gt; Procedures &gt; Delete</strong> you can delete existing Procedure files in a way similar to deleting saved Bundle files.</p>
                 
                   
                 

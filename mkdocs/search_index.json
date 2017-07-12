@@ -267,18 +267,58 @@
         }, 
         {
             "location": "/cave/bundles-and-procedures/", 
-            "text": "Save and Load Bundles\n\uf0c1\n\n\nFile \n Save Bundle\n\n\nSave a product display within the AWIPS system, synching the bundle between CAVE and the EDEX server.\n\n\n\n\nFile \n Load Bundle\n\n\nLoad a previously-saved bundle from within the AWIPS system.\n\n\n\n\nFile \n Delete Bundle\n\n\nSelect and remove a saved bundle.\n\n\n\n\nFile \n Load Bundle from Disk\n\n\nLoad a previously-saved display from a path within the file directory of the workstation.\n\n\nFile \n Save Bundle to Disk\n\n\nSave a product display to a path within the file directory of the workstation.\n\n\nFile \n Load Map from Disk\n\n\nLoad a map or product display from a path within the file directory of the workstation.\n\n\nFile \n Save Map to Disk\n\n\nSave a map or product display to a path within the file directory of the workstation.\n\n\nSave and Load Procedures\n\uf0c1", 
+            "text": "AWIPS contains two methods for saving and loading data resources: \nBundles\n are a simple way to save loaded resources to access in future CAVE sessions.  \nProcedures\n are similar to Bundles, but can be thought of a \ngroups of bundles\n and allows the user to manage saved resources with more control.\n\n\nBundles\n\uf0c1\n\n\nFile \n Open Bundle\n\uf0c1\n\n\nLoad a previously-saved bundle from within the AWIPS system.  The Open Bundle dialog allows you to select your own saved bundles as well as those saved by other users (and other localization-levels such as \nworkstation\n).\n\n\nEach selected bundle will load its contents to new tabs which are named after the bundle file name (e.g. NAM_ThetaE)\n\n\n\n\nMost saved bundles will consist of a single Map Editor (tab), but with multiple tabs saved each will open again in its own Map Editor\n\n\n\n\nFile \n Save Bundle\n\uf0c1\n\n\nSave a product display within the AWIPS system, synching the bundle between CAVE and the EDEX server.\n\n\n\n\nFile \n Delete Bundle\n\uf0c1\n\n\nSelect and remove a saved bundle under File \n Delete Bundle.  Select the file name and click \nOK\n and then confirm deletion to remove the saved file permanently.\n\n\n\n\n\n\n\n\nLoad Bundle from Local Disk\n\uf0c1\n\n\nTo load a previously-saved display from a path within the file directory of the workstation, select \nFile \n Open Bundle\n and then select the \nFile\n button on the right to browse your local directories.\n\n\n\n\n\n\nSave Bundle to Local Disk\n\uf0c1\n\n\nTo save a product display to a path within the file directory of the workstation, select \nFile \n Save Bundle\n and then select the \nFile\n button on the right.\n\n\n\n\nProcedures\n\uf0c1\n\n\nNew Procedure\n\uf0c1\n\n\n\n\nSelect the menu \nFile \n Procedures \n New\n\n\nSelect \nCopy Into\n to add all loaded resources to the Procedure Stack\n\n\nSelect \nSave\n (or \nSave As\n) and then enter a name for the Procedure before clicking \nOK\n to save.\n\n\n\n\n\n\nOpen Procedure\n\uf0c1\n\n\nSimilar to creating a new Procedure, select \nFile \n Procedures \n Open\n, select the saved resources and click \nLoad\n to load them to CAVE.\n\n\nDelete Procedure\n\uf0c1\n\n\nFrom the menu  \nFile \n Procedures \n Delete\n you can delete existing Procedure files in a way similar to deleting saved Bundle files.", 
             "title": "Bundles and Procedures"
         }, 
         {
-            "location": "/cave/bundles-and-procedures/#save-and-load-bundles", 
-            "text": "File   Save Bundle  Save a product display within the AWIPS system, synching the bundle between CAVE and the EDEX server.   File   Load Bundle  Load a previously-saved bundle from within the AWIPS system.   File   Delete Bundle  Select and remove a saved bundle.   File   Load Bundle from Disk  Load a previously-saved display from a path within the file directory of the workstation.  File   Save Bundle to Disk  Save a product display to a path within the file directory of the workstation.  File   Load Map from Disk  Load a map or product display from a path within the file directory of the workstation.  File   Save Map to Disk  Save a map or product display to a path within the file directory of the workstation.", 
-            "title": "Save and Load Bundles"
+            "location": "/cave/bundles-and-procedures/#bundles", 
+            "text": "", 
+            "title": "Bundles"
         }, 
         {
-            "location": "/cave/bundles-and-procedures/#save-and-load-procedures", 
+            "location": "/cave/bundles-and-procedures/#file-open-bundle", 
+            "text": "Load a previously-saved bundle from within the AWIPS system.  The Open Bundle dialog allows you to select your own saved bundles as well as those saved by other users (and other localization-levels such as  workstation ).  Each selected bundle will load its contents to new tabs which are named after the bundle file name (e.g. NAM_ThetaE)   Most saved bundles will consist of a single Map Editor (tab), but with multiple tabs saved each will open again in its own Map Editor", 
+            "title": "File &gt; Open Bundle"
+        }, 
+        {
+            "location": "/cave/bundles-and-procedures/#file-save-bundle", 
+            "text": "Save a product display within the AWIPS system, synching the bundle between CAVE and the EDEX server.", 
+            "title": "File &gt; Save Bundle"
+        }, 
+        {
+            "location": "/cave/bundles-and-procedures/#file-delete-bundle", 
+            "text": "Select and remove a saved bundle under File   Delete Bundle.  Select the file name and click  OK  and then confirm deletion to remove the saved file permanently.", 
+            "title": "File &gt; Delete Bundle"
+        }, 
+        {
+            "location": "/cave/bundles-and-procedures/#load-bundle-from-local-disk", 
+            "text": "To load a previously-saved display from a path within the file directory of the workstation, select  File   Open Bundle  and then select the  File  button on the right to browse your local directories.", 
+            "title": "Load Bundle from Local Disk"
+        }, 
+        {
+            "location": "/cave/bundles-and-procedures/#save-bundle-to-local-disk", 
+            "text": "To save a product display to a path within the file directory of the workstation, select  File   Save Bundle  and then select the  File  button on the right.", 
+            "title": "Save Bundle to Local Disk"
+        }, 
+        {
+            "location": "/cave/bundles-and-procedures/#procedures", 
             "text": "", 
-            "title": "Save and Load Procedures"
+            "title": "Procedures"
+        }, 
+        {
+            "location": "/cave/bundles-and-procedures/#new-procedure", 
+            "text": "Select the menu  File   Procedures   New  Select  Copy Into  to add all loaded resources to the Procedure Stack  Select  Save  (or  Save As ) and then enter a name for the Procedure before clicking  OK  to save.", 
+            "title": "New Procedure"
+        }, 
+        {
+            "location": "/cave/bundles-and-procedures/#open-procedure", 
+            "text": "Similar to creating a new Procedure, select  File   Procedures   Open , select the saved resources and click  Load  to load them to CAVE.", 
+            "title": "Open Procedure"
+        }, 
+        {
+            "location": "/cave/bundles-and-procedures/#delete-procedure", 
+            "text": "From the menu   File   Procedures   Delete  you can delete existing Procedure files in a way similar to deleting saved Bundle files.", 
+            "title": "Delete Procedure"
         }, 
         {
             "location": "/cave/import-export/", 
