@@ -76,6 +76,13 @@
              <substitute key="frameCount" value="41" />
              <substitute key="TP" value="TP3hr"/>
     </include>
+	<include installTo="menu:models" 
+             fileName="menus/grid/allFamilies.xml">
+             <substitute key="modelName" value="NationalBlend" />
+             <substitute key="menuName" value="National Blend" />
+             <substitute key="frameCount" value="75" />
+             <substitute key="TP" value="TP3hr"/>
+    </include>
     <include installTo="menu:models" 
              fileName="menus/grid/allFamilies.xml">
              <substitute key="modelName" value="NAVGEM" />
