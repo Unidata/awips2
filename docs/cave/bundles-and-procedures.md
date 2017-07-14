@@ -1,39 +1,64 @@
-## Save and Load Bundles
+AWIPS contains two methods for saving and loading data resources: **Bundles** are a simple way to save loaded resources to access in future CAVE sessions.  **Procedures** are similar to Bundles, but can be thought of a *groups of bundles* and allows the user to manage saved resources with more control.
 
-**File > Save Bundle**
+
+##  Bundles
+
+### **File &gt; Open Bundle**
+
+Load a previously-saved bundle from within the AWIPS system.  The Open Bundle dialog allows you to select your own saved bundles as well as those saved by other users (and other localization-levels such as *workstation*).
+
+Each selected bundle will load its contents to new tabs which are named after the bundle file name (e.g. NAM_ThetaE)
+
+![image](../images/KTZZHoCV5S.gif)
+
+Most saved bundles will consist of a single Map Editor (tab), but with multiple tabs saved each will open again in its own Map Editor
+
+---
+
+### **File &gt; Save Bundle**
 
 Save a product display within the AWIPS system, synching the bundle between CAVE and the EDEX server.
 
-![image](../images/xl53gG4.png)
+---
 
-**File > Load Bundle**
+### **File &gt; Delete Bundle**
 
-Load a previously-saved bundle from within the AWIPS system.
+Select and remove a saved bundle under File &gt; Delete Bundle.  Select the file name and click **OK** and then confirm deletion to remove the saved file permanently.
 
-![image](../images/VWiGMHp.png)
+![image](../images/delete_bundle1.png)
 
-**File > Delete Bundle**
+![image](../images/delete_bundle2.png)
 
-Select and remove a saved bundle.
+---
 
-![image](../images/eRqHZpD.png)
+### Load Bundle from Local Disk
 
-**File > Load Bundle from Disk**
+To load a previously-saved display from a path within the file directory of the workstation, select **File &gt; Open Bundle** and then select the **File** button on the right to browse your local directories.
 
-Load a previously-saved display from a path within the file directory of the workstation.
+![image](../images/XB6vQf78pl.gif)
 
-**File > Save Bundle to Disk**
+---
 
-Save a product display to a path within the file directory of the workstation.
+### Save Bundle to Local Disk
 
-**File > Load Map from Disk**
+To save a product display to a path within the file directory of the workstation, select **File &gt; Save Bundle** and then select the **File** button on the right.
 
-Load a map or product display from a path within the file directory of the workstation.
+---
 
-**File > Save Map to Disk**
+## Procedures
 
-Save a map or product display to a path within the file directory of the workstation.
+### New Procedure
 
-## Save and Load Procedures
+* Select the menu **File &gt; Procedures &gt; New**
+* Select **Copy Into** to add all loaded resources to the Procedure Stack
+* Select **Save** (or **Save As**) and then enter a name for the Procedure before clicking **OK** to save.
 
+![image](../images/O925hqJNac.gif)
 
+### Open Procedure
+
+Similar to creating a new Procedure, select **File &gt; Procedures &gt; Open**, select the saved resources and click **Load** to load them to CAVE.
+
+### Delete Procedure
+
+From the menu  **File &gt; Procedures &gt; Delete** you can delete existing Procedure files in a way similar to deleting saved Bundle files.

@@ -131,6 +131,11 @@
 				   label="Save Bundle Locally"
 				   style="push">
              </command>
+			 <command
+                   commandId="com.raytheon.viz.ui.deleteAWIPSBundle"
+                   label="Delete Bundle"
+                   style="push">
+             </command>
              <separator
                    name="exportSeparator"
                    visible="true">
@@ -1048,6 +1053,11 @@
 	           class="com.raytheon.uf.viz.d2d.ui.actions.DeleteAWIPSProcedure"
 	           commandId="com.raytheon.viz.ui.deleteAWIPSProcedure">
 	     </handler>
+	     
+	     <handler
+	           class="com.raytheon.uf.viz.d2d.ui.actions.DeleteAWIPSBundle"
+	           commandId="com.raytheon.viz.ui.deleteAWIPSBundle">
+	     </handler>
 	     <handler
 	           class="com.raytheon.uf.viz.d2d.ui.actions.CopyOutAWIPSProcedure"
 	           commandId="com.raytheon.viz.ui.copyOutAWIPSProcedure">
@@ -1569,10 +1579,16 @@
             name="Save Bundle">
       </command>
       <command
-            id="com.raytheon.viz.ui.deleteAWIPSProcedure"
+            id="com.raytheon.viz.ui.deleteAWIPSBundle"
             categoryId="com.raytheon.uf.viz.d2d.ui"
             description="Delete a bundle"
             name="Delete Bundle">
+      </command>
+      <command
+            id="com.raytheon.viz.ui.deleteAWIPSProcedure"
+            categoryId="com.raytheon.uf.viz.d2d.ui"
+            description="Delete a bundle"
+            name="Delete Procedure">
       </command>
       <command
             id="com.raytheon.viz.ui.copyOutAWIPSProcedure"
