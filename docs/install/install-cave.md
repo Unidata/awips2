@@ -9,7 +9,7 @@
 |          | current release 17.1.1                         |
 |----------------|-----------------------:|
 | Linux x86_64   | [installCAVE.sh <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/software/awips2/installCAVE.sh)         |
-| macOS	         | Download and install both<br>[awips2-cave-17.1.1.dmg <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/downloads/awips2/awips2-cave-17.1.1.dmg)<br>[awips-python-jep.pkg <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/downloads/awips2/awips-python-jep.pkg)|
+| macOS	         | Download and install both<br>[awips2-cave-17.1.1.dmg <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/downloads/awips2/awips2-cave-17.1.1.dmg)<br>[awips-python.pkg <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg)|
 | 32-bit Windows | [awips-cave.msi <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi)        |
 | 64-bit Windows | [awips-cave.amd64.msi <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/downloads/awips2/awips-cave.amd64.msi)  |
 
@@ -43,12 +43,12 @@ Run CAVE from the menu **Applications** &gt; **Internet** &gt; **AWIPS CAVE**, o
 
 ## <i class="fa fa-apple"></i> macOS
 
-CAVE for macOS requires the **[awips-python-jep.pkg](http://www.unidata.ucar.edu/downloads/awips2/awips-python-jep.pkg)** package be installed in order for **derived parameters** to work.
+CAVE for macOS requires the **[awips-python.pkg](http://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg)** package be installed in order for **derived parameters** to work.
 
 * [awips2-cave-17.1.1.dmg <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/downloads/awips2/awips2-cave-17.1.1.dmg)
-* [awips-python-jep.pkg <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/downloads/awips2/awips-python-jep.pkg)
+* [awips-python.pkg <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg)
 
-*awips-python-jep.pkg* is not a prerequisite, and CAVE will still run and display data without it, but to use any derived parameter functions such as wind barbs/arrows and grid parameters on various vertical coordinates, [jep](https://github.com/mrj0/jep/) must be installed in some way (it is assumed in `/Library/Python/2.7/site-packages/jep/`).  You are free to install jep yourself but should know that simply to install via source code or pip requires the Oracle JDK and Xcode and its Command Line Tools.  The **[awips-python-jep.pkg](http://www.unidata.ucar.edu/downloads/awips2/awips-python-jep.pkg)** package is provided as a workaround for this.
+*awips-python.pkg* is not a prerequisite, and CAVE will still run and display data without it, but to use any derived parameter functions such as wind barbs/arrows and grid parameters on various vertical coordinates, [jep](https://github.com/mrj0/jep/) must be installed in some way (it is assumed in `/Library/Python/2.7/site-packages/jep/`).  You are free to install jep yourself but should know that simply to install via source code or pip requires the Oracle JDK and Xcode and its Command Line Tools.  The **[awips-python.pkg](http://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg)** package is provided as a workaround for this.
 
 
 !!! info "CAVE for macOS writes and syncs files to ~/Library/caveData"
