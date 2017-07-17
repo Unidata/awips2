@@ -1,4 +1,7 @@
 #!/bin/bash
+export AWIPSII_VERSION="17.1.1"
+export AWIPSII_RELEASE="2"
+
 . /etc/profile.d/awips2.sh
 
 # User-configurable environment parameters that are used during the build.
@@ -15,9 +18,6 @@ export BUILD_WORKSPACE=${BUILD_DIR}/workspace
 
 # baseline is...
 export BASELINE="${JENKINS_WORKSPACE}"
-export AWIPSII_VERSION="17.1.1"
-export AWIPSII_RELEASE="1"
-
 export AWIPSII_TOP_DIR="${BUILD_WORKSPACE}/tmp/rpms_built_dir"
 
 # WORKSPACE is to be removed and created, this should be a new directory
