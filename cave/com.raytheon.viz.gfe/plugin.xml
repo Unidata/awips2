@@ -1039,7 +1039,7 @@
 			name="Grid Manager" />
 	</extension>
 	<extension point="org.eclipse.ui.menus">
-		<menuContribution locationURI="menu:org.eclipse.ui.main.menu?after=CAVE">
+		<menuContribution locationURI="menu:org.eclipse.ui.main.menu">
 			<menu id="gfe" label="GFE" mnemonic="G">
 				<visibleWhen>
 					<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">

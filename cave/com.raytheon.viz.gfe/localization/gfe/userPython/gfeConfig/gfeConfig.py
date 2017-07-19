@@ -222,7 +222,7 @@ PublishTimes = ['Today', 'Tonight', 'Tomorrow', 'Tomorrow Night', 'Day 3',
 # Defines the initial loaded set of map backgrounds.  The name of each
 # background should match the name (without ".xml") of a map file in the 
 # CAVE/Bundles/maps directory under the Localization perspective.
-MapBackgrounds_default = ['States','CWA']
+MapBackgrounds_default = ['statesCounties','CWA']
 
 # Specific Colors for a map background
 # The user may specify a specific color to be used for a map background,
