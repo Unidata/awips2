@@ -72,6 +72,7 @@ import com.raytheon.viz.ui.personalities.awips.AbstractAWIPSComponent;
  * Apr 26, 2015  4259      njensen      Updated for new JEP API
  * May 20, 2015  4509      njensen      Added time and dataaccess to include path
  * Apr 28, 2016  5236      njensen      Use Jep redirectOutput for python prints
+ * Jul 19, 2017  ----      mjames@ucar  Add common python include path.
  * 
  * </pre>
  * 
@@ -119,6 +120,7 @@ public class GfeClient extends AbstractAWIPSComponent {
         boolean includeUser = (!VizApp.getWsId().getUserName().equals("SITE"));
 
         String includePath = PyUtil.buildJepIncludePath(true, utilityDir,
+                PythonIncludePathUtil.getCommonPythonIncludePath(),
                 PythonIncludePathUtil.getCommonPythonIncludePath("time",
                         "dataaccess"), GfePyIncludeUtil
                         .getCommonGfeIncludePath(), GfePyIncludeUtil
