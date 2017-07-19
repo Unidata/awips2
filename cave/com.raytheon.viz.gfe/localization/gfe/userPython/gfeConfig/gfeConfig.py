@@ -352,7 +352,7 @@ OfficeDomain_expandBottom = 10
 # Initial layout up of Grid Manager/Temporal Editor:
 # Values:  "OnTop" (default)
 #          "OnLeft"
-#GM_TE_Layout = "OnTop"
+GM_TE_Layout = "OnLeft"
 
 # Default setting for temporal editor weather elements. Choices are
 # ALL for all weather elements are displayed in the temporal

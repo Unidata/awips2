@@ -38,6 +38,7 @@ import com.raytheon.viz.gfe.Activator;
  * ------------	----------	-----------	--------------------------
  * 7/1/06                   chammack    Initial Creation.
  * Dec 14, 2015 5193        bsteffen    Specifically make Grid Manager moveable.
+ * Jul 19, 2017 ----        mjames@ucar Sticky Grid Manager to left onload.
 
  * 
  * </pre>
@@ -77,20 +78,10 @@ public class GFEPerspective implements IPerspectiveFactory {
 
         Rectangle windowSize = PlatformUI.getWorkbench()
                 .getActiveWorkbenchWindow().getShell().getClientArea();
-
-        String GM_TE_Layout = prefs.getString("GM_TE_Layout");
         int relationship = IPageLayout.TOP;
         float ratio = (float) height / windowSize.height;
-        if ("OnLeft".equals(GM_TE_Layout)) {
-            relationship = IPageLayout.LEFT;
-            ratio = (float) width / windowSize.width;
-        } else if ("OnRight".equals(GM_TE_Layout)) {
-            relationship = IPageLayout.RIGHT;
-            ratio = 1.0f - (float) width / windowSize.width;
-        } else if ("OnBottom".equals(GM_TE_Layout)) {
-            relationship = IPageLayout.BOTTOM;
-            ratio = 1.0f - (float) height / windowSize.height;
-        }
+        relationship = IPageLayout.LEFT;
+        ratio = (float) width / windowSize.width;
 
         layout.addStandaloneView(
                 "com.raytheon.viz.gfe.GridManagerView:GridManager", true,
