@@ -1177,6 +1177,11 @@
                       style="push">
                 </command>
                 -->
+                <command
+	                  commandId="com.raytheon.uf.viz.alertview.openAlertView"
+	                  label="Open AlertView"
+	                  style="push">
+	            </command>
 			</menu>
 			<menu label="WeatherElement" mnemonic="W">
 				<visibleWhen>
