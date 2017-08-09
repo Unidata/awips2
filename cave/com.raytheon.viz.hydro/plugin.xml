@@ -55,34 +55,239 @@
       </perspective>
    </extension>
    <extension
-         point="org.eclipse.ui.menus">
+         point="org.eclipse.ui.menus"> 
+      
+      
+      
+      
       <menuContribution
-            locationURI="menu:com.raytheon.viz.hydrocommon.Tools?after=hydroToolsAdditions">
-         <separator
-               name="com.raytheon.viz.hydro.separator1"
-               visible="true">
-         </separator>
+            locationURI="menu:org.eclipse.ui.main.menu">
+         <menu
+               id="com.raytheon.viz.hydrocommon.File"
+               label="File"
+               mnemonic="F">
+            <visibleWhen>
+               <reference
+                     definitionId="com.raytheon.viz.inHydroCommonActionSet">
+               </reference>
+            </visibleWhen>
             <command
-                  commandId="com.raytheon.viz.hydro.colorscalemgr.opencolorscalemgr"
-                  label="HydroView Color Manager..."
-                  mnemonic="M">
-               <visibleWhen>
-                  <reference definitionId="com.raytheon.viz.hydro.inHydroActionSet"/>
-               </visibleWhen>
+                  commandId="com.raytheon.uf.viz.alertview.openAlertView"
+                  label="Open AlertView"
+                  style="push">
             </command>
             <command
-                  commandId="com.raytheon.viz.hydro.actions.EditLocationShiftAction"
-                  label="Edit Shift Location"
-                  mnemonic="L">
+                  commandId="com.raytheon.uf.viz.image.export.save"
+                  label="Save Image as...">
+               <parameter
+                     name="frameSelection"
+                     value="current">
+               </parameter>
+               <parameter
+                     name="dialogType"
+                     value="file">
+               </parameter>
+            </command>
+            <command
+                  commandId="com.raytheon.uf.viz.image.export.print"
+                  label="Print Image...">
+            </command>
+            <command
+                  commandId="com.raytheon.viz.ui.actions.printScreenReverseAction"
+                  label="Print Reverse Image...">
+            </command>
+            <menu
+                  label="Set Font"
+                  mnemonic="F">
                <visibleWhen>
                   <reference
                         definitionId="com.raytheon.viz.hydro.inHydroActionSet">
                   </reference>
                </visibleWhen>
+               <command
+                     commandId="com.raytheon.viz.hydro.actions.setfont"
+                     label="Miniscule"
+                     mnemonic="M"
+                     style="radio">
+                  <parameter
+                        name="size"
+                        value="6">
+                  </parameter>
+                  <parameter
+                        name="org.eclipse.ui.commands.radioStateParameter"
+                        value="miniscule">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.hydro.actions.setfont"
+                     label="Very Small"
+                     mnemonic="V"
+                     style="radio">
+                  <parameter
+                        name="size"
+                        value="7">
+                  </parameter>
+                  <parameter
+                        name="org.eclipse.ui.commands.radioStateParameter"
+                        value="verysmall">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.hydro.actions.setfont"
+                     label="Small"
+                     mnemonic="S"
+                     style="radio">
+                  <parameter
+                        name="size"
+                        value="8">
+                  </parameter>
+                  <parameter
+                        name="org.eclipse.ui.commands.radioStateParameter"
+                        value="small">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.hydro.actions.setfont"
+                     label="Normal"
+                     mnemonic="N"
+                     style="radio">
+                  <parameter
+                        name="size"
+                        value="9">
+                  </parameter>
+                  <parameter
+                        name="org.eclipse.ui.commands.radioStateParameter"
+                        value="normal">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.hydro.actions.setfont"
+                     label="Large"
+                     mnemonic="L"
+                     style="radio">
+                  <parameter
+                        name="size"
+                        value="10">
+                  </parameter>
+                  <parameter
+                        name="org.eclipse.ui.commands.radioStateParameter"
+                        value="large">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.hydro.actions.setfont"
+                     label="Very Large"
+                     mnemonic="e"
+                     style="radio">
+                  <parameter
+                        name="size"
+                        value="14">
+                  </parameter>
+                  <parameter
+                        name="org.eclipse.ui.commands.radioStateParameter"
+                        value="verylarge">
+                  </parameter>
+               </command>
+            </menu>
+         </menu>
+         <menu
+               id="com.raytheon.viz.hydrocommon.Tools"
+               label="Tools"
+               mnemonic="T">
+            <visibleWhen>
+               <reference
+                     definitionId="com.raytheon.viz.inHydroCommonActionSet">
+               </reference>
+            </visibleWhen>
+            <menu
+                  id="com.raytheon.viz.hydrocommon.PointZoom"
+                  label="Point Zoom"
+                  mnemonic="o">
+               <command
+                     commandId="com.raytheon.viz.hydrocommon.actions.zoom"
+                     label="In">
+                  <parameter
+                        name="direction"
+                        value="in">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.hydrocommon.actions.zoom"
+                     label="Out">
+                  <parameter
+                        name="direction"
+                        value="out">
+                  </parameter>
+               </command>
+            </menu>
+            <menu
+                  label="Pan"
+                  mnemonic="P">
+               <command
+                     commandId="com.raytheon.viz.hydrocommon.actions.pan"
+                     label="Up"
+                     mnemonic="U">
+                  <parameter
+                        name="direction"
+                        value="U">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.hydrocommon.actions.pan"
+                     label="Down"
+                     mnemonic="D">
+                  <parameter
+                        name="direction"
+                        value="D">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.hydrocommon.actions.pan"
+                     label="Left"
+                     mnemonic="L">
+                  <parameter
+                        name="direction"
+                        value="L">
+                  </parameter>
+               </command>
+               <command
+                     commandId="com.raytheon.viz.hydrocommon.actions.pan"
+                     label="Right"
+                     mnemonic="R">
+                  <parameter
+                        name="direction"
+                        value="R">
+                  </parameter>
+               </command>
+            </menu>
+            <command
+                  commandId="com.raytheon.uf.viz.core.maps.actions.LoadMap"
+                  label="Radar Rings"
+                  style="toggle">
+               <visibleWhen
+                     checkEnabled="false">
+                  <reference
+                        definitionId="com.raytheon.viz.hydro.inHydroActionSet">
+                  </reference>
+               </visibleWhen>
+               <parameter
+                     name="mapName"
+                     value="Radar Rings">
+               </parameter>
+               <parameter
+                     name="mapPath"
+                     value="bundles/hydro/radarRingOverlay.xml">
+               </parameter>
             </command>
-      </menuContribution>
-      <menuContribution
-            locationURI="menu:org.eclipse.ui.main.menu?after=com.raytheon.viz.hydrocommon.Overlays">
+            <separator
+                  name="com.raytheon.viz.hydrocommon.separator4"
+                  visible="true">
+            </separator>
+            <separator
+                  name="hydroToolsAdditions"
+                  visible="true">
+            </separator>
+         </menu>
           <menu
                 id="HydroMapData"
                 label="MapData"
@@ -102,6 +307,26 @@
                    label="Station Selection..."
                    mnemonic="n"
                    style="push">
+             </command>
+             <command
+                   commandId="com.raytheon.viz.hydro.actions.EditLocationShiftAction"
+                   label="Edit Shift Location"
+                   mnemonic="L">
+                <visibleWhen>
+                   <reference
+                         definitionId="com.raytheon.viz.hydro.inHydroActionSet">
+                   </reference>
+                </visibleWhen>
+             </command>
+             <command
+                   commandId="com.raytheon.viz.hydro.colorscalemgr.opencolorscalemgr"
+                   label="HydroView Color Manager..."
+                   mnemonic="M">
+                <visibleWhen>
+                   <reference
+                         definitionId="com.raytheon.viz.hydro.inHydroActionSet">
+                   </reference>
+                </visibleWhen>
              </command>
              <command
                    commandId="com.raytheon.viz.hydro.resource.refreshresource"
@@ -309,11 +534,97 @@
 		          visible="true">
 		    </separator>
 			<!--command commandId="com.raytheon.viz.hydro.sshp.window.openunithydrographeditor" label="Launch UnitHydrographEditor..." style="push"/-->
-		  </menu>           
-      </menuContribution>
-      <menuContribution
-            locationURI="menu:help?after=aboutAdditions">
-             <command
+		  </menu>
+		  <menu
+                id="HydroProjection"
+                label="Projections">
+                <visibleWhen>
+                <reference
+                      definitionId="com.raytheon.viz.hydro.inHydroActionSet">
+                </reference>
+             </visibleWhen>
+		      <command
+                  commandId="com.raytheon.viz.hydrocommon.actions.setProjection"
+                  label="Flat Lat/Lon"
+                  mnemonic="F">
+               <visibleWhen>
+	               <reference
+	                     definitionId="com.raytheon.viz.hydro.inHydroActionSet">
+	               </reference>
+               </visibleWhen>
+               <parameter
+                     name="projection"
+                     value="FLAT">
+               </parameter>
+               <parameter
+               		 name="prefix"
+               		 value="hv">
+               </parameter>
+            </command>
+            <command
+                  commandId="com.raytheon.viz.hydrocommon.actions.setProjection"
+                  label="Polar Stereographic"
+                  mnemonic="P">
+               <visibleWhen>
+	               <reference
+	                     definitionId="com.raytheon.viz.hydro.inHydroActionSet">
+	               </reference>
+               </visibleWhen>
+               <parameter
+                     name="projection"
+                     value="POLAR">
+               </parameter>
+               <parameter
+               		 name="prefix"
+               		 value="hv">
+               </parameter>
+            </command>
+		  </menu>
+         <menu
+               id="com.raytheon.viz.hydrocommon.Overlays"
+               label="Maps"
+               mnemonic="O">
+            <visibleWhen>
+               <reference
+                     definitionId="com.raytheon.viz.inHydroCommonActionSet">
+               </reference>
+            </visibleWhen>
+            <dynamic
+                  class="com.raytheon.uf.viz.core.maps.menus.MapsMenu"
+                  id="com.raytheon.uf.viz.core.maps.menus.MapsMenu">
+            </dynamic>
+            <separator
+                  name="com.raytheon.viz.hydrocommon.separator1"
+                  visible="true">
+            </separator>
+            <command
+                  commandId="com.raytheon.uf.viz.core.maps.actions.LoadMap"
+                  label="HRAP"
+                  style="toggle">
+               <parameter
+                     name="mapName"
+                     value="HRAP">
+               </parameter>
+               <parameter
+                     name="mapPath"
+                     value="bundles/hydro/hrapOverlay.xml">
+               </parameter>
+            </command>
+            <separator
+                  name="commonSeparator"
+                  visible="true">
+            </separator>
+         </menu>
+		  
+		  <menu
+                id="HydroHelp"
+                label="Help">
+             <visibleWhen>
+                <reference
+                      definitionId="com.raytheon.viz.hydro.inHydroActionSet">
+                </reference>
+             </visibleWhen>
+		      <command
                    commandId="com.raytheon.viz.hydro.stationlegend.openstationlegend"
                    label="Station Legend"
                    style="push">
@@ -351,181 +662,124 @@
                       value="gad">
                 </parameter>
              </command>
+		  </menu>
       </menuContribution>
+     
       <menuContribution
-            locationURI="menu:com.raytheon.viz.hydrocommon.Overlays?after=commonSeparator">
-         <command
-               commandId="com.raytheon.uf.viz.core.maps.actions.LoadMap"
-               label="Radar Rings"
-               style="toggle">
-            <visibleWhen
-                  checkEnabled="false">
-               <reference
-                     definitionId="com.raytheon.viz.hydro.inHydroActionSet">
-               </reference>
-            </visibleWhen>
-            <parameter
-                  name="mapName"
-                  value="Radar Rings">
-            </parameter>
-            <parameter
-                  name="mapPath"
-                  value="bundles/hydro/radarRingOverlay.xml">
-            </parameter>
-         </command>
-      </menuContribution>
-      <menuContribution
-            locationURI="menu:com.raytheon.viz.hydrocommon.Tools?after=com.raytheon.viz.hydrocommon.separator4">
-         <menu
-               label="Set Font"
-               mnemonic="F">
-            <visibleWhen>
-               <reference
-                     definitionId="com.raytheon.viz.hydro.inHydroActionSet">
-               </reference>
-            </visibleWhen>
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=mapControls">
+         <toolbar
+               id="hydrocommon-1">
             <command
-                  commandId="com.raytheon.viz.hydro.actions.setfont"
-                  label="Miniscule"
-                  mnemonic="M"
-                  style="radio">
-               <parameter
-                     name="size"
-                     value="6">
-               </parameter>
-               <parameter
-                     name="org.eclipse.ui.commands.radioStateParameter"
-                     value="miniscule">
-               </parameter>
-            </command>
-            <command
-                  commandId="com.raytheon.viz.hydro.actions.setfont"
-                  label="Very Small"
-                  mnemonic="V"
-                  style="radio">
-               <parameter
-                     name="size"
-                     value="7">
-               </parameter>
-               <parameter
-                     name="org.eclipse.ui.commands.radioStateParameter"
-                     value="verysmall">
-               </parameter>
-            </command>
-            <command
-                  commandId="com.raytheon.viz.hydro.actions.setfont"
-                  label="Small"
-                  mnemonic="S"
-                  style="radio">
-               <parameter
-                     name="size"
-                     value="8">
-               </parameter>
-               <parameter
-                     name="org.eclipse.ui.commands.radioStateParameter"
-                     value="small">
-               </parameter>
-            </command>
-            <command
-                  commandId="com.raytheon.viz.hydro.actions.setfont"
-                  label="Normal"
-                  mnemonic="N"
-                  style="radio">
-               <parameter
-                     name="size"
-                     value="9">
-               </parameter>
-               <parameter
-                     name="org.eclipse.ui.commands.radioStateParameter"
-                     value="normal">
-               </parameter>
-            </command>
-            <command
-                  commandId="com.raytheon.viz.hydro.actions.setfont"
-                  label="Large"
-                  mnemonic="L"
-                  style="radio">
-               <parameter
-                     name="size"
-                     value="10">
-               </parameter>
-               <parameter
-                     name="org.eclipse.ui.commands.radioStateParameter"
-                     value="large">
-               </parameter>
-            </command>
-            <command
-                  commandId="com.raytheon.viz.hydro.actions.setfont"
-                  label="Very Large"
-                  mnemonic="e"
-                  style="radio">
-               <parameter
-                     name="size"
-                     value="14">
-               </parameter>
-               <parameter
-                     name="org.eclipse.ui.commands.radioStateParameter"
-                     value="verylarge">
-               </parameter>
-            </command>
-         </menu>
-      </menuContribution>
-      <menuContribution
-            locationURI="menu:com.raytheon.viz.hydrocommon.Projections">
-            <command
-                  commandId="com.raytheon.viz.hydrocommon.actions.setProjection"
-                  label="Flat Lat/Lon"
-                  mnemonic="F">
+                  commandId="com.raytheon.viz.hydrocommon.actions.pan"
+                  icon="icons/north.gif"
+                  label="Up"
+                  style="push"
+                  tooltip="Up">
                <visibleWhen>
-	               <reference
-	                     definitionId="com.raytheon.viz.hydro.inHydroActionSet">
-	               </reference>
+                  <reference
+                        definitionId="com.raytheon.viz.inHydroCommonActionSet">
+                  </reference>
                </visibleWhen>
                <parameter
-                     name="projection"
-                     value="FLAT">
-               </parameter>
-               <parameter
-               		 name="prefix"
-               		 value="hv">
+                     name="direction"
+                     value="U">
                </parameter>
             </command>
             <command
-                  commandId="com.raytheon.viz.hydrocommon.actions.setProjection"
-                  label="Polar Stereographic"
-                  mnemonic="P">
+                  commandId="com.raytheon.viz.hydrocommon.actions.pan"
+                  icon="icons/south.gif"
+                  label="Down"
+                  style="push"
+                  tooltip="Down">
                <visibleWhen>
-	               <reference
-	                     definitionId="com.raytheon.viz.hydro.inHydroActionSet">
-	               </reference>
+                  <reference
+                        definitionId="com.raytheon.viz.inHydroCommonActionSet">
+                  </reference>
                </visibleWhen>
                <parameter
-                     name="projection"
-                     value="POLAR">
-               </parameter>
-               <parameter
-               		 name="prefix"
-               		 value="hv">
+                     name="direction"
+                     value="D">
                </parameter>
             </command>
             <command
-                  commandId="com.raytheon.viz.hydrocommon.actions.setProjection"
-                  label="HRAP"
-                  mnemonic="H">
+                  commandId="com.raytheon.viz.hydrocommon.actions.pan"
+                  icon="icons/west.gif"
+                  label="Left"
+                  style="push"
+                  tooltip="Left">
                <visibleWhen>
-	               <reference
-	                     definitionId="com.raytheon.viz.hydro.inHydroActionSet">
-	               </reference>
+                  <reference
+                        definitionId="com.raytheon.viz.inHydroCommonActionSet">
+                  </reference>
                </visibleWhen>
                <parameter
-                     name="projection"
-                     value="HRAP">
-               </parameter>
-               <parameter
-               		 name="prefix"
-               		 value="hv">
+                     name="direction"
+                     value="L">
                </parameter>
             </command>
+            <command
+                  commandId="com.raytheon.viz.hydrocommon.actions.pan"
+                  icon="icons/east.gif"
+                  label="Right"
+                  style="push"
+                  tooltip="Right">
+               <visibleWhen>
+                  <reference
+                        definitionId="com.raytheon.viz.inHydroCommonActionSet">
+                  </reference>
+               </visibleWhen>
+               <parameter
+                     name="direction"
+                     value="R">
+               </parameter>
+            </command>
+            <separator
+                  name="separator1"
+                  visible="true">
+            </separator>
+            <command
+                  commandId="com.raytheon.viz.hydrocommon.actions.zoom"
+                  icon="icons/zoomin.gif"
+                  label="Zoom In"
+                  style="push"
+                  tooltip="Zoom In">
+               <visibleWhen>
+                  <reference
+                        definitionId="com.raytheon.viz.inHydroCommonActionSet">
+                  </reference>
+               </visibleWhen>
+               <parameter
+                     name="direction"
+                     value="in">
+               </parameter>
+            </command>
+            <command
+                  commandId="com.raytheon.viz.hydrocommon.actions.zoom"
+                  icon="icons/zoomout.gif"
+                  label="Zoom Out"
+                  style="push"
+                  tooltip="Zoom Out">
+               <visibleWhen>
+                  <reference
+                        definitionId="com.raytheon.viz.inHydroCommonActionSet">
+                  </reference>
+               </visibleWhen>
+               <parameter
+                     name="direction"
+                     value="out">
+               </parameter>
+            </command>
+            <command
+                  commandId="com.raytheon.viz.ui.clear"
+                  label="Clear"
+                  style="push">
+               <visibleWhen>
+                  <reference
+                        definitionId="com.raytheon.viz.inHydroCommonActionSet">
+                  </reference>
+               </visibleWhen>
+            </command>
+         </toolbar>
       </menuContribution>
    </extension>
    <extension
