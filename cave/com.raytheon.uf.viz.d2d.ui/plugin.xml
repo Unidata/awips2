@@ -1119,6 +1119,13 @@
    <extension
          id="com.raytheon.viz.ui.bindings"
          point="org.eclipse.ui.bindings">
+         
+	  <key
+	        commandId="com.raytheon.uf.viz.kml.export.exportKML"
+	        contextId="com.raytheon.uf.viz.d2d.ui"
+	        schemeId="com.raytheon.viz.ui.cave.scheme"
+	        sequence="M1+K">
+	  </key>
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
             commandId="com.raytheon.viz.ui.saveBundle"
@@ -1130,12 +1137,6 @@
             commandId="com.raytheon.viz.ui.saveProcedure"
             schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="M1+S">
-      </key>
-      <key
-      		contextId="com.raytheon.uf.viz.d2d.ui"
-            commandId="com.raytheon.uf.viz.d2d.ui.actions.changeLegendMode"
-            schemeId="com.raytheon.viz.ui.cave.scheme"
-            sequence="NUMPAD_ENTER">
       </key>
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
