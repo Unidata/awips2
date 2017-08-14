@@ -1,0 +1,1300 @@
+
+<!DOCTYPE html>
+<html class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for all things AWIPS.">
+      
+      
+        <link rel="canonical" href="http://unidata.github.io/awips2/python/nexrad-level-3-radar/">
+      
+      
+        <meta name="author" content="mjames@ucar.edu">
+      
+      
+        <link rel="shortcut icon" href="../../images/favicon.ico">
+      
+      <meta name="generator" content="mkdocs-0.16.3, mkdocs-unidata-1.5.4">
+    
+    
+      
+        <title>NEXRAD Level 3 Radar - Unidata AWIPS User Manual</title>
+      
+    
+    
+      <script src="../../assets/javascripts/modernizr-56ade86843.js"></script>
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/application-b1a1975878.css">
+      
+        <link rel="stylesheet" href="../../assets/stylesheets/application-f78e5cb881.palette.css">
+      
+    
+    
+      
+        
+        
+        
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    
+    
+      <link rel="stylesheet" href="../../css/extra.css">
+    
+    
+  </head>
+  
+  
+  
+  
+    <body data-md-color-primary="blue-grey" data-md-color-accent="light-blue">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="drawer">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="search">
+    <label class="md-overlay" data-md-component="overlay" for="drawer"></label>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    
+      <a href="../.."><div class="background-logo" style="background-image: url(../../images/cave.png);"></div>
+    
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <a href="../.." title="Unidata AWIPS User Manual" class="md-icon md-icon--home md-header-nav__button">
+          </a>
+        
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <span class="md-flex__ellipsis md-header-nav__title">
+          
+              
+
+                  
+                      <span class="md-header-nav__parent">
+                      Python API
+                      </span>
+                  
+ 
+                  
+                      NEXRAD Level 3 Radar
+                  
+
+              
+          
+        </span>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
+          
+<div class="md-search" data-md-component="search">
+  <div class="md-search__overlay"></div>
+  <div class="md-search__inner">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" required placeholder="Search" accesskey="s" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query">
+      <label class="md-icon md-search__icon" for="search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset">close</button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta" data-md-lang-result-none="No matching documents" data-md-lang-result-one="1 matching document" data-md-lang-result-other="# matching documents">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <div class="md-header-nav__source">
+          
+            
+
+
+  
+
+
+  <a href="https://github.com/Unidata/awips2" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+          
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+      
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="drawer">
+    
+      <i class="md-icon md-icon--home md-nav__button"></i>
+    
+    Unidata AWIPS User Manual
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+
+  <a href="https://github.com/Unidata/awips2" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../.." title="Home" class="md-nav__link">
+      Home
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../install/install-cave/" title="Install CAVE" class="md-nav__link">
+      Install CAVE
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../install/install-edex/" title="Install EDEX" class="md-nav__link">
+      Install EDEX
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
+    
+    <label class="md-nav__link" for="nav-4">
+      CAVE User Manual
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        CAVE User Manual
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-perspective/" title="D2D Perspective" class="md-nav__link">
+      D2D Perspective
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/maps-views-projections/" title="Maps, Views, Projections" class="md-nav__link">
+      Maps, Views, Projections
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/bundles-and-procedures/" title="Bundles and Procedures" class="md-nav__link">
+      Bundles and Procedures
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/import-export/" title="Import/Export" class="md-nav__link">
+      Import/Export
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/localization-perspective/" title="Localization Perspective" class="md-nav__link">
+      Localization Perspective
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/ncp-perspective/" title="NCP Perspective" class="md-nav__link">
+      NCP Perspective
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/nsharp/" title="NSHARP" class="md-nav__link">
+      NSHARP
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/warngen/" title="WarnGen Walkthrough" class="md-nav__link">
+      WarnGen Walkthrough
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/goes-16-satellite/" title="GOES-16 (GOES-R)" class="md-nav__link">
+      GOES-16 (GOES-R)
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-gis-shapefiles/" title="GIS and Shapefiles" class="md-nav__link">
+      GIS and Shapefiles
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-gridded-models/" title="Volume Browser" class="md-nav__link">
+      Volume Browser
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-tools/" title="Display Tools" class="md-nav__link">
+      Display Tools
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-radar-tools/" title="Radar Tools" class="md-nav__link">
+      Radar Tools
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-edit-menus/" title="Editing Menus" class="md-nav__link">
+      Editing Menus
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/cave-localization/" title="Change Localization" class="md-nav__link">
+      Change Localization
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      EDEX User Manual
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
+        EDEX User Manual
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../install/start-edex/" title="EDEX Start and Stop" class="md-nav__link">
+      EDEX Start and Stop
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../edex/ldm/" title="LDM Feeds" class="md-nav__link">
+      LDM Feeds
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../edex/data-distribution-files/" title="Data Distribution Files" class="md-nav__link">
+      Data Distribution Files
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../edex/new-grid/" title="Ingest a New Grid" class="md-nav__link">
+      Ingest a New Grid
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../edex/data-purge/" title="Purging and Retention" class="md-nav__link">
+      Purging and Retention
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../edex/edex-users/" title="Monitor Users" class="md-nav__link">
+      Monitor Users
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../edex/data-plugins/" title="Data Plugins" class="md-nav__link">
+      Data Plugins
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6">
+    
+    <label class="md-nav__link" for="nav-6">
+      Supported Data Types
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-6">
+        Supported Data Types
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-grids/" title="Gridded Model Display" class="md-nav__link">
+      Gridded Model Display
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-pointdata-surface-obs/" title="Surface Obs" class="md-nav__link">
+      Surface Obs
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-satellite/" title="Satellite Imagery" class="md-nav__link">
+      Satellite Imagery
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-radar/" title="NEXRAD Radar" class="md-nav__link">
+      NEXRAD Radar
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-uair/" title="Upper Air" class="md-nav__link">
+      Upper Air
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-hydro/" title="NCEP/Hydro" class="md-nav__link">
+      NCEP/Hydro
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/d2d-map-resources/" title="Map Overlays" class="md-nav__link">
+      Map Overlays
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7" checked>
+    
+    <label class="md-nav__link" for="nav-7">
+      Python API
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-7">
+        Python API
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../python-awips-data-access/" title="Overview" class="md-nav__link">
+      Overview
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../maps-database/" title="Maps Database" class="md-nav__link">
+      Maps Database
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../awips-grids-and-cartopy/" title="AWIPS Grids and Cartopy" class="md-nav__link">
+      AWIPS Grids and Cartopy
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../satellite-imagery/" title="Satellite Imagery" class="md-nav__link">
+      Satellite Imagery
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+      
+    
+    
+    <a href="./" title="NEXRAD Level 3 Radar" class="md-nav__link md-nav__link--active">
+      NEXRAD Level 3 Radar
+    </a>
+    
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../upper-air-bufr-soundings/" title="Upper air BUFR Soundings" class="md-nav__link">
+      Upper air BUFR Soundings
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../model-sounding-data/" title="Model Sounding Data" class="md-nav__link">
+      Model Sounding Data
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../map-resources-and-topography/" title="Map Resources and Topography" class="md-nav__link">
+      Map Resources and Topography
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../surface-obs-plot-metpy/" title="Surface Obs Plot with MetPy" class="md-nav__link">
+      Surface Obs Plot with MetPy
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-8" type="checkbox" id="nav-8">
+    
+    <label class="md-nav__link" for="nav-8">
+      Development
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-8">
+        Development
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../dev/awips-development-environment/" title="AWIPS Development Environment (ADE)" class="md-nav__link">
+      AWIPS Development Environment (ADE)
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../dev/build-nsharp-macos/" title="Building NSHARP for macOS" class="md-nav__link">
+      Building NSHARP for macOS
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-9" type="checkbox" id="nav-9">
+    
+    <label class="md-nav__link" for="nav-9">
+      Appendix
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-9">
+        Appendix
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../appendix/appendix-grid-parameters/" title="AWIPS Grid Parameters" class="md-nav__link">
+      AWIPS Grid Parameters
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../appendix/appendix-acronyms/" title="Acronyms and Abbreviations" class="md-nav__link">
+      Acronyms and Abbreviations
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../appendix/appendix-cots/" title="COTS and FOSS" class="md-nav__link">
+      COTS and FOSS
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../appendix/appendix-wsr88d/" title="WSR-88D Product Table" class="md-nav__link">
+      WSR-88D Product Table
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cave/cave-keyboard-shortcuts/" title="Keyboard Shortcuts" class="md-nav__link">
+      Keyboard Shortcuts
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/Unidata/awips2/edit/master/docs/python/nexrad-level-3-radar.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
+                
+                
+                <p>Shown here are plots for Base Reflectivity (N0Q, 94) and Base Velocity (N0U, 99) using AWIPS data rendered with Matplotlib, Cartopy, and MetPy.  This example improves upon existing Level 3 Python rendering by doing the following:</p>
+<ul>
+<li>Display scaled and labeled colorbar below each figure.</li>
+<li>Plot radar radial images as coordinate maps in Cartopy and label with lat/lon.</li>
+<li>8 bit Z and V colormap and data scaling added to MetPy from operational AWIPS. </li>
+<li>Level 3 data are retrieved from the <a href="http://unidata.github.io/awips2/docs/install/install-cave.html#how-to-run-cave">Unidata EDEX Cloud server</a> (<code>edex-cloud.unidata.ucar.edu</code>)</li>
+<li>Raw HDF5 byte data are converted to product values and scaled according to (page 3-34 https://www.roc.noaa.gov/wsr88d/PublicDocs/ICDS/2620001U.pdf)<pre><code>The threshold level fields are used to describe (up to) 256 levels as follows:
+ halfword 31 contains the minimum data value in m/s*10 (or dBZ*10)
+ halfword 32 contains the increment in m/s*10 (or dBZ*10)
+ halfword 33 contains the number of levels (0 - 255)
+</code></pre>
+</li>
+</ul>
+<p>According to the <a href="https://www.roc.noaa.gov/WSR88D/PublicDocs/NewTechnology/B17_2620003W_draft.pdf">ICD for the Product Specification</a>, <em>"the 256 data levels of the digital product cover a range of reflectivity between -32.0 to +94.5 dBZ, in increments of 0.5 dBZ. Level codes 0 and 1 correspond to 'Below Threshold' and 'Range Folded', respectively, while level codes 2 through 255 correspond to the reflectivity data itself"</em>.</p>
+<p>So it's really 254 color values between -32 and +94.5 dBZ.</p>
+<p>The ICD lists 16 specific color levels and directs 256-level reflectivity products to use corresponding colors, leaving it the rendering application to scale and blend between the 16 color values, and to make decisions about discrete color changes, apparently.
+<img alt="" src="http://i.imgur.com/cqphoe3.png" /></p>
+<p>For AWIPS, the National Weather Service uses a mostly-blended color scale with a discrete jump to red at reflectivity values of 50 dBZ:</p>
+<p><img alt="" src="http://i.imgur.com/o18gmio.png" /></p>
+<p>50 dBZ corresponds to the 16-level color <em>light red</em> (<strong>FF6060</strong>). Note that <code>FF6060</code> is not used in the NWS AWIPS color scale, instead RGB value is given as <code>255,0,0</code> (hex code <strong>FF0000</strong>). 60 dBZ is not quite exactly where white starts, but it makes sense that it would.  Obviously the AWIPS D2D authors took some liberties with their 256-level rendering, not adhering strictly to "dark red" for dBZ values between 60-65 (white was for 70 dBZ and above on the 16-level colormap).  For this exercise we will assume 50 dBZ should be red and 60 dBZ white, and 75 dBZ cyan.</p>
+<h3 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link"></a></h3>
+<blockquote>
+<p>pip install python-awips matplotlib cartopy metpy</p>
+</blockquote>
+<h3 id="python-script">Python Script<a class="headerlink" href="#python-script" title="Permanent link"></a></h3>
+<p>Download this script as a <a href="http://nbviewer.jupyter.org/github/Unidata/python-awips/blob/master/examples/notebooks/NEXRAD_Level_3_Plot_with_Matplotlib.ipynb">Jupyter Notebook</a>.</p>
+<pre><code class="python">from awips.dataaccess import DataAccessLayer
+from awips import ThriftClient, RadarCommon
+from dynamicserialize.dstypes.com.raytheon.uf.common.time import TimeRange
+from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.radar.request import GetRadarDataRecordRequest
+from datetime import datetime
+from datetime import timedelta
+import matplotlib.pyplot as plt
+import numpy as np
+from numpy import ma
+from metpy.plots import ctables
+import cartopy.crs as ccrs
+from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
+
+# set EDEX server and radar site definitions
+site = 'kmux'
+DataAccessLayer.changeEDEXHost('edex-cloud.unidata.ucar.edu')
+request = DataAccessLayer.newDataRequest()
+request.setDatatype('radar')
+request.setLocationNames(site)
+
+# Get latest time for site
+datatimes = DataAccessLayer.getAvailableTimes(request)
+dateTimeStr = str(datatimes[-1])
+dateTimeStr = &quot;2017-02-02 03:53:03&quot;
+buffer = 60 # seconds
+dateTime = datetime.strptime(dateTimeStr, '%Y-%m-%d %H:%M:%S')
+# Build timerange +/- buffer
+beginRange = dateTime - timedelta(0, buffer)
+endRange = dateTime + timedelta(0, buffer)
+timerange = TimeRange(beginRange, endRange)
+
+# GetRadarDataRecordRequest to query site with timerange
+client = ThriftClient.ThriftClient('edex-cloud.unidata.ucar.edu')
+request = GetRadarDataRecordRequest()
+request.setTimeRange(timerange)
+request.setRadarId(site)
+
+# Map config
+def make_map(bbox, projection=ccrs.PlateCarree()):
+    fig, ax = plt.subplots(figsize=(12, 12),
+            subplot_kw=dict(projection=projection))
+    ax.set_extent(bbox)
+    ax.coastlines(resolution='50m')
+    gl = ax.gridlines(draw_labels=True)
+    gl.xlabels_top = gl.ylabels_right = False
+    gl.xformatter = LONGITUDE_FORMATTER
+    gl.yformatter = LATITUDE_FORMATTER
+    return fig, ax
+
+# ctable defines the colortable, beginning value, data increment
+#  * For N0Q the scale is -20 to +75 dBZ in increments of 0.5 dBZ
+#  * For N0U the scale is -100 to +100 kts in increments of 1 kt
+nexrad = {}
+nexrad[&quot;N0Q&quot;] = {
+    'id': 94, 
+    'unit':'dBZ', 
+    'name':'0.5 deg Base Reflectivity', 
+    'ctable': ['NWSStormClearReflectivity',-20., 0.5], 
+    'res': 1000.,
+    'elev': '0.5'
+}
+nexrad[&quot;N0U&quot;] = {
+    'id': 99, 
+    'unit':'kts', 
+    'name':'0.5 deg Base Velocity', 
+    'ctable': ['NWS8bitVel',-100.,1.], 
+    'res': 250.,
+    'elev': '0.5'
+}
+grids = []
+for code in nexrad:
+    request.setProductCode(nexrad[code]['id'])
+    request.setPrimaryElevationAngle(nexrad[code]['elev'])
+    response = client.sendRequest(request)
+
+    if response.getData():
+        for record in response.getData():
+            # Get record hdf5 data
+            idra = record.getHdf5Data()
+            rdat,azdat,depVals,threshVals = RadarCommon.get_hdf5_data(idra)
+            dim = rdat.getDimension()
+            lat,lon = float(record.getLatitude()),float(record.getLongitude())
+            radials,rangeGates = rdat.getSizes()
+
+            # Convert raw byte to pixel value
+            rawValue=np.array(rdat.getByteData())
+            array = []
+            for rec in rawValue:
+                if rec&lt;0:
+                    rec+=256
+                array.append(rec)
+
+            if azdat:
+                azVals = azdat.getFloatData()
+                az = np.array(RadarCommon.encode_radial(azVals))
+                dattyp = RadarCommon.get_data_type(azdat)
+                az = np.append(az,az[-1])
+
+            header = RadarCommon.get_header(record, format, rangeGates, radials, azdat, 'description')
+            rng = np.linspace(0, rangeGates, rangeGates + 1)
+
+            # Convert az/range to a lat/lon
+            from pyproj import Geod
+            g = Geod(ellps='clrk66')
+            center_lat = np.ones([len(az),len(rng)])*lat   
+            center_lon = np.ones([len(az),len(rng)])*lon
+            az2D = np.ones_like(center_lat)*az[:,None]
+            rng2D = np.ones_like(center_lat)*np.transpose(rng[:,None])*nexrad[code]['res']
+            lons,lats,back=g.fwd(center_lon,center_lat,az2D,rng2D)
+            bbox = [lons.min(), lons.max(), lats.min(), lats.max()]
+
+            # Create 2d array
+            multiArray = np.reshape(array, (-1, rangeGates))
+            data = ma.array(multiArray)
+
+            # threshVals[0:2] contains halfwords 31,32,33 (min value, increment, num levels)
+            data = ma.array(threshVals[0]/10. + (multiArray)*threshVals[1]/10.)
+
+            if nexrad[code]['unit'] == 'kts':
+                data[data&lt;-63] = ma.masked
+                data *= 1.94384 # Convert to knots
+            else:
+                data[data&lt;=((threshVals[0]/10.)+threshVals[1]/10.)] = ma.masked
+
+            # Save our requested grids so we can render them multiple times
+            product = {
+                &quot;code&quot;: code,
+                &quot;bbox&quot;: bbox,
+                &quot;lats&quot;: lats,
+                &quot;lons&quot;: lons,
+                &quot;data&quot;: data
+            }
+            grids.append(product)
+
+print(&quot;Processed &quot;+str(len(grids))+&quot; grids.&quot;)
+</code></pre>
+
+<pre><code>Processed 2 grids.
+</code></pre>
+<h2 id="plot-n0q-and-n0u-with-cartopy">Plot N0Q and N0U with Cartopy<a class="headerlink" href="#plot-n0q-and-n0u-with-cartopy" title="Permanent link"></a></h2>
+<pre><code class="python">for rec in grids:
+    code = rec[&quot;code&quot;]
+    bbox = rec[&quot;bbox&quot;]
+    lats = rec[&quot;lats&quot;]
+    lons = rec[&quot;lons&quot;]
+    data = rec[&quot;data&quot;]
+    # Create figure
+    %matplotlib inline
+    fig, ax = make_map(bbox=bbox)
+    # Colortable filename, beginning value, increment
+    ctable = nexrad[code]['ctable'][0]
+    beg = nexrad[code]['ctable'][1]
+    inc = nexrad[code]['ctable'][2]
+
+    norm, cmap = ctables.registry.get_with_steps(ctable, beg, inc)
+    cs = ax.pcolormesh(lons, lats, data, norm=norm, cmap=cmap)
+    ax.set_aspect('equal', 'datalim')
+
+    cbar = plt.colorbar(cs, extend='both', shrink=0.75, orientation='horizontal')
+    cbar.set_label(site.upper()+&quot; &quot;+ str(nexrad[code]['res']/1000.) +&quot;km &quot; \
+                   +nexrad[code]['name']+&quot; (&quot;+code+&quot;) &quot; \
+                   +nexrad[code]['unit']+&quot; &quot; \
+                   +str(record.getDataTime()))
+
+    # Zoom to within +-2 deg of center
+    ax.set_xlim(lon-2., lon+2.)
+    ax.set_ylim(lat-2., lat+2.)
+
+    plt.show()
+</code></pre>
+
+<p><img alt="png" src="../../images/output_3_0.png" /></p>
+<p><img alt="png" src="../../images/output_3_1.png" /></p>
+<p>compare with the same product scan rendered in AWIPS CAVE (slightly different projections and still some color mapping differences, most noticeable in ground clutter).</p>
+<p><img alt="" src="http://i.imgur.com/q7zPRod.gif" /></p>
+<h1 id="two-panel-plot-zoomed-in">Two-panel plot, zoomed in<a class="headerlink" href="#two-panel-plot-zoomed-in" title="Permanent link"></a></h1>
+<pre><code class="python">fig, axes = plt.subplots(ncols=2,figsize=(12,9),
+             subplot_kw=dict(projection=ccrs.PlateCarree()))
+i=0
+for rec,ax in zip(grids, axes):
+
+    code = rec[&quot;code&quot;]
+    bbox = rec[&quot;bbox&quot;]
+    lats = rec[&quot;lats&quot;]
+    lons = rec[&quot;lons&quot;]
+    data = rec[&quot;data&quot;]
+
+    # Create figure
+    ax.set_extent(bbox)
+    ax.coastlines(resolution='50m')
+    gl = ax.gridlines(draw_labels=True)
+    gl.xlabels_top = gl.ylabels_right = False
+    if i&gt;0: gl.ylabels_left = False # hide right-pane left axis label
+    gl.xformatter = LONGITUDE_FORMATTER
+    gl.yformatter = LATITUDE_FORMATTER
+
+    # Colortable filename, beginning value, increment
+    colorvals=nexrad[code]['ctable']
+    ctable = nexrad[code]['ctable'][0]
+    beg = nexrad[code]['ctable'][1]
+    inc = nexrad[code]['ctable'][2]
+
+    norm, cmap = ctables.registry.get_with_steps(ctable, beg, inc)
+    cs = ax.pcolormesh(lons, lats, data, norm=norm, cmap=cmap)
+    ax.set_aspect('equal', 'datalim')
+    cbar = fig.colorbar(cs, orientation='horizontal', ax=ax)
+    cbar.set_label(site.upper()+&quot; &quot;+code+&quot; &quot;+nexrad[code]['unit']+&quot; &quot;+str(record.getDataTime()))
+    plt.tight_layout()
+
+    # Zoom
+    ax.set_xlim(lon-.1, lon+.1)
+    ax.set_ylim(lat-.1, lat+.1)
+    i+=1
+</code></pre>
+
+<p><img alt="png" src="../../images/output_6_0.png" /></p>
+<p>and again compared to CAVE</p>
+<p><img alt="" src="http://i.imgur.com/YSr7sKB.png" /></p>
+                
+                  
+                
+              
+              
+                
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../satellite-imagery/" title="Satellite Imagery" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Satellite Imagery
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../upper-air-bufr-soundings/" title="Upper air BUFR Soundings" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Upper air BUFR Soundings
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Copyright &copy; 2017 Unidata Program Center.
+          </div>
+        
+        powered by
+        <a href="http://www.mkdocs.org" title="MkDocs">MkDocs</a>
+        and
+        <a href="http://squidfunk.github.io/mkdocs-material/" title="Material for MkDocs">
+          Material for MkDocs</a>
+      </div>
+      
+        
+  <div class="md-footer-social">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
+      <a href="http://www.unidata.ucar.edu/software/awips2" class="md-footer-social__link fa fa-globe"></a>
+    
+      <a href="https://github.com/Unidata/awips2" class="md-footer-social__link fa fa-github-alt"></a>
+    
+      <a href="https://twitter.com/Unidata" class="md-footer-social__link fa fa-twitter"></a>
+    
+      <a href="https://facebook.com/Unidata" class="md-footer-social__link fa fa-facebook"></a>
+    
+  </div>
+
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../assets/javascripts/application-0b7df094bf.js"></script>
+      <script>app.initialize({url:{base:"../.."}})</script>
+      
+    
+    
+      
+    
+  </body>
+</html>
