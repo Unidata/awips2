@@ -1,4 +1,3 @@
-ok
 
 ## mapdata.airport
 

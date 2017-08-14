@@ -42,7 +42,7 @@ Unidata supports two visualization frameworks for rendering data: [CAVE](install
 |----------------|-----------------------:|
 | Linux x86_64   | [installEDEX.sh <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/software/awips2/installEDEX.sh)         |
 
-[Read full EDEX install instructions...](install/install-edex.html)
+[Read full EDEX install instructions...](install/install-edex)
 
 ---
 
