@@ -78,6 +78,7 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  *                                     return from the dialog.
  * Sep 15, 2015 4858       dgilling    Disable all features in DRT mode.
  * Nov 18, 2015 5129       dgilling    Support new IFPClient.
+ * Aug 16, 2017            mjames@ucar Remove publish to official dialog.
  * 
  * </pre>
  * 
@@ -103,15 +104,11 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
 
     private ToggleSelectList scriptsList;
 
-    private Button publishToOfficialButton;
-
     private DataManager dataManager;
 
     private DatabaseID productDB;
 
     private DatabaseID mutableDB;
-
-    private PublishDialog publishDlg;
 
     public ProductScriptsDialog(Shell parent, DataManager dataManager) {
         super(parent);
@@ -132,17 +129,6 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
             String name = scripts[i].substring(0, splitIdx).trim();
             String script = scripts[i].substring(splitIdx + 1).trim();
             scriptDict.put(name, script);
-        }
-    }
-
-    private void launchPublishToOfficial() {
-        if (publishDlg == null || publishDlg.getShell() == null
-                || publishDlg.isDisposed()) {
-            publishDlg = new PublishDialog(getParentShell(), dataManager);
-            publishDlg.setBlockOnOpen(false);
-            publishDlg.open();
-        } else {
-            publishDlg.bringToTop();
         }
     }
 
@@ -408,23 +394,8 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
             lab.setLayoutData(data);
         }
 
-        publishToOfficialButton = new Button(top, SWT.PUSH);
-        publishToOfficialButton.setText("Publish to Official...");
-        publishToOfficialButton.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                if (SimulatedTimeOperations.isTransmitAllowed()) {
-                    launchPublishToOfficial();
-                } else {
-                    SimulatedTimeOperations.displayFeatureLevelWarning(
-                            getShell(), "Publish Grids to Official");
-                }
-            }
-        });
-
         data = new GridData(GridData.FILL_HORIZONTAL);
         data.horizontalAlignment = SWT.CENTER;
-        publishToOfficialButton.setLayoutData(data);
         Label scriptsLab = new Label(top, SWT.NONE);
         scriptsLab.setText("Scripts");
         scriptsLab.setLayoutData(data);
