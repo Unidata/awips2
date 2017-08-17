@@ -63,6 +63,7 @@ pages:
     - Map Overlays: cave/d2d-map-resources.md
 - Python:
     - Python AWIPS API: python/python-awips-data-access.md
+    - Maps Database: python/maps-database.md
 - Development:
     - AWIPS Development Environment (ADE): dev/awips-development-environment.md
     - Building NSHARP for macOS: dev/build-nsharp-macos.md
