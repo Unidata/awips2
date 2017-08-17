@@ -146,9 +146,6 @@
 		<command id="com.raytheon.viz.gfe.actions.ShowLoadSampleSetDialog"
 			name="ShowLoadSampleSetDialog">
 		</command>
-		<command id="com.raytheon.viz.gfe.actions.ShowIscRequestReply"
-			name="ShowIscRequestReplyDialog">
-		</command>
 		<command id="com.raytheon.viz.gfe.actions.ShowSaveDeleteSampleSetDialog"
 			name="ShowSaveDeleteSampleSetDialog">
      <commandParameter
@@ -301,10 +298,6 @@
            name="Parm"
            optional="false">
      </commandParameter>
-  </command>
-  <command
-        id="com.raytheon.viz.gfe.iscSendEnable"
-        name="ISC Send Enable">
   </command>
   <command
         defaultHandler="com.raytheon.viz.gfe.actions.ClearPracticeVTECTable"
@@ -925,15 +918,6 @@
      </activeWhen>
   </handler>
   <handler
-        class="com.raytheon.viz.gfe.actions.IscSendEnableHandler"
-        commandId="com.raytheon.viz.gfe.iscSendEnable">
-     <activeWhen>
-        <reference
-              definitionId="com.raytheon.viz.gfe.inGFEActionSet">
-        </reference>
-     </activeWhen>
-  </handler>
-  <handler
         class="com.raytheon.viz.gfe.actions.ClearHighlightsAction"
         commandId="com.raytheon.viz.gfe.clearHighlights">
      <activeWhen>
@@ -983,15 +967,6 @@
   <handler
          class="com.raytheon.viz.gfe.export.kml.GfeKmlExportHandler"
          commandId="com.raytheon.uf.viz.kml.export.exportKML">
-     <activeWhen>
-        <reference
-              definitionId="com.raytheon.viz.gfe.inGFEActionSet">
-        </reference>
-     </activeWhen>
-  </handler>
-    <handler
-         class="com.raytheon.viz.gfe.actions.ShowIscRequestReplyDialog"
-         commandId="com.raytheon.viz.gfe.actions.ShowIscRequestReply">
      <activeWhen>
         <reference
               definitionId="com.raytheon.viz.gfe.inGFEActionSet">
@@ -1308,15 +1283,6 @@
           name="com.raytheon.viz.gfe.separator2"
           visible="true">
     </separator>
-    <command
-          commandId="com.raytheon.viz.gfe.actions.ShowSendIsc"
-          label="Send Intersite Grids" />
-    <command
-          commandId="com.raytheon.viz.gfe.actions.ShowIscRequestReply"
-          label="ISC Request/Reply" />
-	<command
-          commandId="com.raytheon.viz.gfe.iscSendEnable"
-          label="ISC Send Enable" style="toggle" />
 			</menu>
 			<menu label="Products" mnemonic="P">
 				<visibleWhen>
@@ -1501,13 +1467,13 @@
 						</reference>
 					</visibleWhen>
 				</command>
-				<command commandId="com.raytheon.viz.gfe.actions.showISCGrids"
-					icon="icons/isc0.gif" style="toggle" tooltip="Toggle Intersite Coordination Mode">
-					<visibleWhen>
-						<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
-						</reference>
-					</visibleWhen>
-				</command>
+			   <command commandId="com.raytheon.viz.gfe.actions.showISCGrids"
+			       icon="icons/isc0.gif" style="toggle" tooltip="Toggle Intersite Coordination Mode">
+			       <visibleWhen>
+			               <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+			               </reference>
+			       </visibleWhen>
+			   </command>
 				<command commandId="com.raytheon.viz.gfe.actions.ShowSaveForecastDialog"
 					icon="icons/saveFcst0.gif" tooltip="Save Forecast">
 					<visibleWhen>
@@ -1982,12 +1948,6 @@
           localizationType="CAVE_STATIC"
           name="Utilities"
           value="gfe/userPython/utilities">
-    </path>
-    <path
-          application="GFE"
-          localizationType="COMMON_STATIC"
-          name="ISC Utilities"
-          value="isc/utilities">
     </path>
     <path
           application="GFE"
