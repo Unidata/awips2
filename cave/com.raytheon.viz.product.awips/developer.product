@@ -14,7 +14,7 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-data @user.home/Library/caveData -user @user.home/Library/caveData -clean -consoleLog -component thinclient -alertviz
+      <programArgs>-data @user.home/Library/caveData -user @user.home/Library/caveData -clean -consoleLog
       </programArgs>
       <vmArgs>-Xmx4536M
 -XX:+UseG1GC
@@ -52,18 +52,15 @@
       startupForegroundColor="000000" />
    <launcher name="cave">
       <macosx icon="/com.raytheon.viz.product.awips/icons/cave-icon.icns"/>
-      <solaris/>
       <win useIco="false">
          <bmp/>
       </win>
    </launcher>
 
-
    <vm>
       <macos include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</macos>
       <windows include="true">jdk1.7.0</windows>
    </vm>
-
 
    <plugins>
    </plugins>
