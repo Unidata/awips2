@@ -139,7 +139,7 @@ class SmartScript(BaseTool.BaseTool):
         #self.__pythonGrids = []
         self.__accessTime = 0
         self.__gridLoc = self.__parmMgr.compositeGridLocation()
-        self.__gridShape = (self.__gridLoc.getNy().intValue(), self.__gridLoc.getNx().intValue())
+        self.__gridShape = (self.__gridLoc.getNy(), self.__gridLoc.getNx())
         self.__topoGrid = None
         self.__toolType = "numeric"
         self._empty = self.empty()

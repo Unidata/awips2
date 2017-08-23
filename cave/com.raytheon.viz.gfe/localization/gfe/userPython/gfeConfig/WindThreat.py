@@ -58,7 +58,8 @@ Lakes_graphicColor = 'blue'
 
 # MAP BACKGROUNDS
 #MapBackgrounds_default = ['Counties','Marine_Zones_XXX','Interstates']
-MapBackgrounds_default = ['Zones_XXX','Marine_Zones_XXX','Interstates','States','Lakes']
+MapBackgrounds_default = ['statesCounties','CWA_All', 'Lakes', 'MarineZones']
+
 XXX_mask = "XXX"
 
 DefaultSamples = ['XXXWindThreat']

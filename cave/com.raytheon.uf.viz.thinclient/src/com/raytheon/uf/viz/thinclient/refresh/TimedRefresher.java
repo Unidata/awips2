@@ -41,6 +41,7 @@ import com.raytheon.uf.viz.thinclient.Activator;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 20, 2011            mschenke     Initial creation
+ * Jul 20, 2017            mjames@ucar  Remove logging. 
  * 
  * </pre>
  * 
@@ -93,7 +94,6 @@ public class TimedRefresher implements IPropertyChangeListener {
 
                     @Override
                     protected IStatus run(IProgressMonitor monitor) {
-                    	System.out.println(refreshTask.getClass().getSimpleName() + " : " + Calendar.getInstance().getTime().toString() + " : running");
                         startOfLastRun = System.currentTimeMillis();
                         try {
                             refreshTask.run();
@@ -123,10 +123,8 @@ public class TimedRefresher implements IPropertyChangeListener {
         if (intervalInMillis > 0) {        	
             long timePassed = System.currentTimeMillis() - startOfLastRun;
             if (timePassed > intervalInMillis) {
-            	System.out.println(refreshTask.getClass().getSimpleName() + " : " + Calendar.getInstance().getTime().toString() + " : Scheduled now");
                 job.schedule();
             } else {
-            	System.out.println(refreshTask.getClass().getSimpleName() + " : " + Calendar.getInstance().getTime().toString() + " : Scheduled in " + ((intervalInMillis - timePassed)/1000/60) + " minutes");
                 job.schedule(intervalInMillis - timePassed);
             }
         }
