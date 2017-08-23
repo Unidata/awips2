@@ -152,9 +152,6 @@
 		<command id="com.raytheon.viz.gfe.actions.ShowSendIsc"
 			name="ShowSendIscGridsDialog">
 		</command>
-		<command id="com.raytheon.viz.gfe.actions.ShowIscRequestReply"
-			name="ShowIscRequestReplyDialog">
-		</command>
 		<command id="com.raytheon.viz.gfe.actions.ShowSaveDeleteSampleSetDialog"
 			name="ShowSaveDeleteSampleSetDialog">
      <commandParameter
@@ -1005,15 +1002,6 @@
     <handler
          class="com.raytheon.viz.gfe.actions.ShowSendIscGridsDialog"
          commandId="com.raytheon.viz.gfe.actions.ShowSendIsc">
-     <activeWhen>
-        <reference
-              definitionId="com.raytheon.viz.gfe.inGFEActionSet">
-        </reference>
-     </activeWhen>
-  </handler>
-    <handler
-         class="com.raytheon.viz.gfe.actions.ShowIscRequestReplyDialog"
-         commandId="com.raytheon.viz.gfe.actions.ShowIscRequestReply">
      <activeWhen>
         <reference
               definitionId="com.raytheon.viz.gfe.inGFEActionSet">
