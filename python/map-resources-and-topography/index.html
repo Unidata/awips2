@@ -84,19 +84,16 @@
       <div class="md-flex__cell md-flex__cell--stretch">
         <span class="md-flex__ellipsis md-header-nav__title">
           
+            
               
-
-                  
-                      <span class="md-header-nav__parent">
-                      Python API
-                      </span>
-                  
- 
-                  
-                      Map Resources and Topography
-                  
-
+                <span class="md-header-nav__parent">
+                  Python API
+                </span>
               
+            
+            
+              Map Resources and Topography
+            
           
         </span>
       </div>
@@ -1107,8 +1104,11 @@
                 
                   <h1>Map Resources and Topography</h1>
                 
-                <p>The python-awips package provides access to the entire AWIPS Maps Database for use in Python GIS applications.  Map objects are returned as <a href="http://toblerity.org/shapely/manual.html">Shapely</a> geometries (<em>Polygon</em>, <em>Point</em>, <em>MultiLineString</em>, etc.) and can be easily plotted by Matplotlib, Cartopy, MetPy, and other packages. </p>
-<p>Each map database table has a geometry field called <code>the_geom</code>, which can be used to spatially select map resources for any column of type geometry,</p>
+                <p>The <a href="http://python-awips.readthedocs.io"><b>python-awips</b></a> package provides access to the entire AWIPS Maps Database for use in Python GIS applications.  Map objects are returned as <a href="http://toblerity.org/shapely/manual.html"><b>Shapely</b></a> geometries (<em>Polygon</em>, <em>Point</em>, <em>MultiLineString</em>, etc.) and can be plotted by Matplotlib, Cartopy, MetPy, and other packages. </p>
+<p>Each map database table has a geometry field called <code>the_geom</code>, which can be used to spatially select map resources for any column of type geometry. </p>
+<blockquote>
+<p>See the <a href="http://unidata.github.io/awips2/python/maps-database/#mapdatacwa"><b>Maps Database Reference Page</b></a> for available database tables, column names, and types. </p>
+</blockquote>
 <h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link"></a></h2>
 <ul>
 <li>This notebook requires: <strong>python-awips, numpy, matplotplib, cartopy, shapely</strong></li>
@@ -1124,7 +1124,6 @@ request.addIdentifier('cwa', 'BOU')
 </code></pre>
 </li>
 </ul>
-<p>See the <a href="http://unidata.github.io/awips2/python/maps-database/#mapdatacwa">Maps Database Reference Page</a> for available database tables, column names, and types. </p>
 <blockquote>
 <p>Note the geometry definition of <code>the_geom</code> for each data type, which can be <strong>Point</strong>, <strong>MultiPolygon</strong>, or <strong>MultiLineString</strong>.</p>
 </blockquote>
