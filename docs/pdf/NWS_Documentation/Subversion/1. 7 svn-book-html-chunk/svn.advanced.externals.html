@@ -1,0 +1,580 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Externals Definitions</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.advanced.html" title="Chapter 3. Advanced Topics" />
+    <link rel="prev" href="svn.advanced.locking.html" title="Locking" />
+    <link rel="next" href="svn.advanced.changelists.html" title="Changelists" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">Externals Definitions</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.advanced.locking.html">Prev</a> </td>
+          <th width="60%" align="center">Chapter 3. Advanced Topics</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.advanced.changelists.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="sect1" title="Externals Definitions">
+      <div class="titlepage">
+        <div>
+          <div>
+            <h2 class="title" style="clear: both"><a id="svn.advanced.externals"></a>Externals Definitions</h2>
+          </div>
+        </div>
+      </div>
+      <p>Sometimes it is useful to construct a working copy that is
+      made out of a number of different checkouts.  For example, you
+      may want different subdirectories to come from different
+      locations in a repository or perhaps from different
+      repositories altogether.  You could certainly set up such a
+      scenario by hand—using <span class="command"><strong>svn checkout</strong></span> to
+      create the sort of nested working copy structure you are trying
+      to achieve.  But if this layout is important for everyone who
+      uses your repository, every other user will need to perform the
+      same checkout operations that you did.</p>
+      <p>Fortunately, Subversion provides support for
+      <em class="firstterm">externals definitions</em>.  An externals
+      definition is a mapping of a local directory to the
+      URL—and ideally a particular revision—of a versioned
+      directory.  In Subversion, you declare externals definitions in
+      groups using the <code class="literal">svn:externals</code> property.  You
+      can create or modify this property using <span class="command"><strong>svn
+      propset</strong></span> or <span class="command"><strong>svn propedit</strong></span> (see <a class="xref" href="svn.advanced.props.html#svn.advanced.props.manip" title="Manipulating Properties">the section called “Manipulating Properties”</a>).  It can be set on any
+      versioned directory, and its value describes both the external
+      repository location and the client-side directory to which that
+      location should be checked out.</p>
+      <p>The convenience of the <code class="literal">svn:externals</code>
+      property is that once it is set on a versioned directory,
+      everyone who checks out a working copy with that directory also
+      gets the benefit of the externals definition.  In other words,
+      once one person has made the effort to define the nested working
+      copy structure, no one else has to bother—Subversion will,
+      after checking out the original working copy, automatically also
+      check out the external working copies.</p>
+      <div class="warning" title="Warning" style="margin-left: 0.5in; margin-right: 0.5in;">
+        <table border="0" summary="Warning">
+          <tr>
+            <td rowspan="2" align="center" valign="top" width="25">
+              <img alt="[Warning]" src="images/warning.png" />
+            </td>
+            <th align="left">Warning</th>
+          </tr>
+          <tr>
+            <td align="left" valign="top">
+              <p>The relative target subdirectories of externals
+        definitions <span class="emphasis"><em>must not</em></span> already exist on
+        your or other users' systems—Subversion will create them
+        when it checks out the external working copy.</p>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <p>You also get in the externals definition design all the
+      regular benefits of Subversion properties.  The definitions are
+      versioned.  If you need to change an externals definition, you
+      can do so using the regular property modification subcommands.
+      When you commit a change to the <code class="literal">svn:externals</code>
+      property, Subversion will synchronize the checked-out items
+      against the changed externals definition when you next run
+      <strong class="userinput"><code>svn update</code></strong>.  The same thing will happen when
+      others update their working copies and receive your changes to
+      the externals definition.</p>
+      <div class="tip" title="Tip" style="margin-left: 0.5in; margin-right: 0.5in;">
+        <table border="0" summary="Tip">
+          <tr>
+            <td rowspan="2" align="center" valign="top" width="25">
+              <img alt="[Tip]" src="images/tip.png" />
+            </td>
+            <th align="left">Tip</th>
+          </tr>
+          <tr>
+            <td align="left" valign="top">
+              <p>Because the <code class="literal">svn:externals</code> property has
+        a multiline value, we strongly recommend that you use
+        <span class="command"><strong>svn propedit</strong></span> instead of <span class="command"><strong>svn
+        propset</strong></span>.</p>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <p>Subversion releases prior to 1.5 honor an externals
+      definition format that is a multiline table of subdirectories
+      (relative to the versioned directory on which the property is
+      set), optional revision flags, and fully qualified, absolute
+      Subversion repository URLs.  An example of this might look as
+      follows:</p>
+      <div class="informalexample">
+        <pre class="screen">
+$ svn propget svn:externals calc
+third-party/sounds             http://svn.example.com/repos/sounds
+third-party/skins -r148        http://svn.example.com/skinproj
+third-party/skins/toolkit -r21 http://svn.example.com/skin-maker
+</pre>
+      </div>
+      <p>When someone checks out a working copy of the
+      <code class="filename">calc</code> directory referred to in the previous
+      example, Subversion also continues to check out the items found
+      in its externals definition.</p>
+      <div class="informalexample">
+        <pre class="screen">
+$ svn checkout http://svn.example.com/repos/calc
+A    calc
+A    calc/Makefile
+A    calc/integer.c
+A    calc/button.c
+Checked out revision 148.
+
+Fetching external item into calc/third-party/sounds
+A    calc/third-party/sounds/ding.ogg
+A    calc/third-party/sounds/dong.ogg
+A    calc/third-party/sounds/clang.ogg
+…
+A    calc/third-party/sounds/bang.ogg
+A    calc/third-party/sounds/twang.ogg
+Checked out revision 14.
+
+Fetching external item into calc/third-party/skins
+…
+</pre>
+      </div>
+      <p>As of Subversion 1.5, though, a new format of the
+      <code class="literal">svn:externals</code> property is supported.
+      Externals definitions are still multiline, but the order and
+      format of the various pieces of information have changed.  The
+      new syntax more closely mimics the order of arguments you might
+      pass to <span class="command"><strong>svn checkout</strong></span>: the optional revision
+      flags come first, then the external Subversion repository URL,
+      and finally the relative local subdirectory.  Notice, though,
+      that this time we didn't say <span class="quote">“<span class="quote">fully qualified, absolute
+      Subversion repository URLs.</span>”</span> That's because the new
+      format supports relative URLs and URLs that carry peg revisions.
+      The previous example of an externals definition might, in
+      Subversion 1.5, look like the following:</p>
+      <div class="informalexample">
+        <pre class="screen">
+$ svn propget svn:externals calc
+      http://svn.example.com/repos/sounds third-party/sounds
+-r148 http://svn.example.com/skinproj third-party/skins
+-r21  http://svn.example.com/skin-maker third-party/skins/toolkit
+</pre>
+      </div>
+      <p>Or, making use of the peg revision syntax (which we describe
+      in detail in <a class="xref" href="svn.advanced.pegrevs.html" title="Peg and Operative Revisions">the section called “Peg and Operative Revisions”</a>), it might
+      appear as:</p>
+      <div class="informalexample">
+        <pre class="screen">
+$ svn propget svn:externals calc
+http://svn.example.com/repos/sounds third-party/sounds
+http://svn.example.com/skinproj@148 third-party/skins
+http://svn.example.com/skin-maker@21 third-party/skins/toolkit
+</pre>
+      </div>
+      <div class="tip" title="Tip" style="margin-left: 0.5in; margin-right: 0.5in;">
+        <table border="0" summary="Tip">
+          <tr>
+            <td rowspan="2" align="center" valign="top" width="25">
+              <img alt="[Tip]" src="images/tip.png" />
+            </td>
+            <th align="left">Tip</th>
+          </tr>
+          <tr>
+            <td align="left" valign="top">
+              <p>You should seriously consider using explicit revision
+        numbers in all of your externals definitions.  Doing so means
+        that you get to decide when to pull down a different snapshot
+        of external information, and exactly which snapshot to pull.
+        Besides avoiding the surprise of getting changes to
+        third-party repositories that you might not have any control
+        over, using explicit revision numbers also means that as you
+        backdate your working copy to a previous revision, your
+        externals definitions will also revert to the way they looked
+        in that previous revision, which in turn means that the
+        external working copies will be updated to match the way
+        <span class="emphasis"><em>they</em></span> looked back when your repository was
+        at that previous revision.  For software projects, this could
+        be the difference between a successful and a failed build of
+        an older snapshot of your complex codebase.</p>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <p>For most repositories, these three ways of formatting the
+      externals definitions have the same ultimate effect.  They all
+      bring the same benefits.  Unfortunately, they all bring the same
+      annoyances, too.  Since the definitions shown use absolute URLs,
+      moving or copying a directory to which they are attached will
+      not affect what gets checked out as an external (though the
+      relative local target subdirectory will, of course, move with the
+      renamed directory).  This can be confusing—even
+      frustrating—in certain situations.  For example, say you
+      have a top-level directory named
+      <code class="filename">my-project</code>, and you've created an externals
+      definition on one of its subdirectories
+      (<code class="filename">my-project/some-dir</code>) that tracks the
+      latest revision of another of its subdirectories
+      (<code class="filename">my-project/external-dir</code>).</p>
+      <div class="informalexample">
+        <pre class="screen">
+$ svn checkout http://svn.example.com/projects .
+A    my-project
+A    my-project/some-dir
+A    my-project/external-dir
+…
+Fetching external item into 'my-project/some-dir/subdir'
+Checked out external at revision 11.
+
+Checked out revision 11.
+$ svn propget svn:externals my-project/some-dir
+subdir http://svn.example.com/projects/my-project/external-dir
+
+$
+</pre>
+      </div>
+      <p>Now you use <span class="command"><strong>svn move</strong></span> to rename the
+      <code class="filename">my-project</code> directory.  At this point, your
+      externals definition will still refer to a path under the
+      <code class="filename">my-project</code> directory, even though that
+      directory no longer exists.</p>
+      <div class="informalexample">
+        <pre class="screen">
+$ svn move -q my-project renamed-project
+$ svn commit -m "Rename my-project to renamed-project."
+Deleting       my-project
+Adding         renamed-project
+
+Committed revision 12.
+$ svn update
+Updating '.':
+
+Fetching external item into 'renamed-project/some-dir/subdir'
+svn: Target path does not exist
+$
+</pre>
+      </div>
+      <p>Also, absolute URLs can cause problems with repositories
+      that are available via multiple URL schemes.  For example, if
+      your Subversion server is configured to allow everyone to check
+      out the repository over <code class="literal">http://</code> or
+      <code class="literal">https://</code>, but only allow commits to come in
+      via <code class="literal">https://</code>, you have an interesting problem
+      on your hands.  If your externals definitions use the
+      <code class="literal">http://</code> form of the repository URLs, you
+      won't be able to commit anything from the working copies created
+      by those externals.  On the other hand, if they use the
+      <code class="literal">https://</code> form of the URLs, anyone who might
+      be checking out via <code class="literal">http://</code> because his
+      client doesn't support <code class="literal">https://</code> will be
+      unable to fetch the external items.  Be aware, too, that if you
+      need to reparent your working copy (using <span class="command"><strong>svn
+      relocate</strong></span>), externals definitions will
+      <span class="emphasis"><em>not</em></span> also be reparented.</p>
+      <p>Subversion 1.5 takes a huge step in relieving these
+     frustrations.  As mentioned earlier, the URLs used in the new
+     externals definition format can be relative, and Subversion
+     provides syntax magic for specifying multiple flavors of URL
+     relativity.</p>
+      <div class="variablelist">
+        <a id="svn.advanced.externals.urlmagic"></a>
+        <dl>
+          <dt>
+            <span class="term">
+              <code class="literal">../</code>
+            </span>
+          </dt>
+          <dd>
+            <p>Relative to the URL of the directory on which
+          the <code class="literal">svn:externals</code> property is
+          set</p>
+          </dd>
+          <dt>
+            <span class="term">
+              <code class="literal">^/</code>
+            </span>
+          </dt>
+          <dd>
+            <p>Relative to the root of the repository in
+          which the <code class="literal">svn:externals</code> property is
+          versioned</p>
+          </dd>
+          <dt>
+            <span class="term">
+              <code class="literal">//</code>
+            </span>
+          </dt>
+          <dd>
+            <p>Relative to the scheme of the URL of the
+          directory on which the <code class="literal">svn:externals</code>
+          property is set</p>
+          </dd>
+          <dt>
+            <span class="term">
+              <code class="literal">/</code>
+            </span>
+          </dt>
+          <dd>
+            <p>Relative to the root URL of the server on
+          which the <code class="literal">svn:externals</code> property is
+          versioned</p>
+          </dd>
+        </dl>
+      </div>
+      <p>So, looking a fourth time at our previous externals
+      definition example, and making use of the new absolute URL
+      syntax in various ways, we might now see:</p>
+      <div class="informalexample">
+        <pre class="screen">
+$ svn propget svn:externals calc
+^/sounds third-party/sounds
+/skinproj@148 third-party/skins
+//svn.example.com/skin-maker@21 third-party/skins/toolkit
+$
+</pre>
+      </div>
+      <p>Subversion 1.6 brings two more improvements to externals
+      definitions.  First, it adds a quoting and escape mechanism to
+      the syntax so that the path of the external working copy may
+      contain whitespace.  This was previously problematic, of course,
+      because whitespace is used to delimit the fields in an externals
+      definition.  Now you need only wrap such a path specification in
+      double-quote (<code class="literal">"</code>) characters or
+      escape the problematic characters in the path with a backslash
+      (<code class="literal">\</code>) character.  Of course, if you have spaces
+      in the <span class="emphasis"><em>URL</em></span> portion of the external
+      definition, you should use the standard URI-encoding mechanism
+      to represent those.</p>
+      <div class="informalexample">
+        <pre class="screen">
+$ svn propget svn:externals paint
+http://svn.thirdparty.com/repos/My%20Project "My Project"
+http://svn.thirdparty.com/repos/%22Quotes%20Too%22 \"Quotes\ Too\"
+$
+</pre>
+      </div>
+      <p>Subversion 1.6 also introduces support for external
+      definitions for files.  <em class="firstterm">File externals</em>
+      are configured just like externals for directories and appear as
+      a versioned file in the working copy.</p>
+      <p>For example, let's say you had the file
+      <code class="filename">/trunk/bikeshed/blue.html</code> in your repository,
+      and you wanted this file, as it appeared in revision 40,
+      to appear in your working copy of <code class="filename">/trunk/www/</code>
+      as <code class="filename">green.html</code>.</p>
+      <p>The externals definition required to achieve this should
+      look familiar by now:</p>
+      <div class="informalexample">
+        <pre class="screen">
+$ svn propget svn:externals www/
+^/trunk/bikeshed/blue.html@40 green.html
+$ svn update
+Updating '.':
+
+Fetching external item into 'www'
+E    www/green.html
+Updated external to revision 40.
+
+Update to revision 103.
+$ svn status
+    X   www/green.html
+$
+</pre>
+      </div>
+      <p>As you can see in the previous output, Subversion denotes file
+      externals with the letter <code class="literal">E</code> when they are
+      fetched into the working copy, and with the letter
+      <code class="literal">X</code> when showing the working copy status.</p>
+      <div class="warning" title="Warning" style="margin-left: 0.5in; margin-right: 0.5in;">
+        <table border="0" summary="Warning">
+          <tr>
+            <td rowspan="2" align="center" valign="top" width="25">
+              <img alt="[Warning]" src="images/warning.png" />
+            </td>
+            <th align="left">Warning</th>
+          </tr>
+          <tr>
+            <td align="left" valign="top">
+              <p>While directory externals can place the external
+        directory at any depth, and any missing intermediate
+        directories will be created, file externals must be placed
+        into a working copy that is already checked out.</p>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <p>When examining the file external with
+      <span class="command"><strong>svn info</strong></span>, you can see the URL and revision
+      the external is coming from:</p>
+      <div class="informalexample">
+        <pre class="screen">
+$ svn info www/green.html 
+Path: www/green.html
+Name: green.html
+URL: http://svn.example.com/projects/my-project/trunk/bikeshed/blue.html
+Repository UUID: b2a368dc-7564-11de-bb2b-113435390e17
+Revision: 40
+Node kind: file
+Schedule: normal
+Last Changed Author: harry
+Last Changed Rev: 40
+Last Changed Date: 2009-07-20 20:38:20 +0100 (Mon, 20 Jul 2009)
+Text Last Updated: 2009-07-20 23:22:36 +0100 (Mon, 20 Jul 2009)
+Checksum: 01a58b04617b92492d99662c3837b33b
+$
+</pre>
+      </div>
+      <p>Because file externals appear in the working copy as
+      versioned files, they can be modified and even committed
+      if they reference a file at the HEAD revision. The committed
+      changes will then appear in the external as well as the file
+      referenced by the external. However, in our example, we pinned
+      the external to an older revision, so attempting to commit
+      the external fails:</p>
+      <div class="informalexample">
+        <pre class="screen">
+$ svn status
+M   X   www/green.html
+$ svn commit -m "change the color" www/green.html
+Sending        www/green.html
+svn: Commit failed (details follow):
+svn: File '/trunk/bikeshed/blue.html' is out of date
+$
+</pre>
+      </div>
+      <p>Keep this in mind when defining file externals.
+      If you need the external to refer to a certain revision
+      of a file you will not be able to modify the external.
+      If you want to be able to modify the external, you cannot
+      specify a revision other than the <code class="literal">HEAD</code>
+      revision, which is implied if no revision is specified.</p>
+      <p>Unfortunately, the support which exists for externals definitions
+      in Subversion remains less than ideal.  Both file and directory
+      externals have shortcomings. For either type of external, the
+      local subdirectory part of the definition cannot contain
+      <code class="literal">..</code> parent directory indicators (such as
+      <code class="filename">../../skins/myskin</code>).  File externals cannot
+      refer to files from other repositories. A file external's URL
+      must always be in the same repository as the URL that the file
+      external will be inserted into. Also, file externals cannot be
+      moved or deleted. The <code class="literal">svn:externals</code> property
+      must be modified instead. However, file externals can be copied.
+    </p>
+      <p>Perhaps most disappointingly, the working copies created via the
+      externals definition support are still disconnected from the primary
+      working copy (on whose versioned directories the
+      <code class="literal">svn:externals</code> property was actually set).
+      And Subversion still truly operates only on nondisjoint working
+      copies.  So, for example, if you want to commit changes that
+      you've made in one or more of those external working copies, you
+      must run <span class="command"><strong>svn commit</strong></span> explicitly on those
+      working copies—committing on the primary working copy will
+      not recurse into any external ones.</p>
+      <p>We've already mentioned some of the additional shortcomings
+      of the old <code class="literal">svn:externals</code> format and how the
+      newer Subversion 1.5 format improves upon it.  But be careful
+      when making use of the new format that you don't inadvertently
+      introduce new problems.  For example, while the latest clients
+      will continue to recognize and support the original externals
+      definition format, pre-1.5 clients will <span class="emphasis"><em>not</em></span>
+      be able to correctly parse the new format.  If you change all
+      your externals definitions to the newer format, you effectively
+      force everyone who uses those externals to upgrade their
+      Subversion clients to a version that can parse them.  Also, be
+      careful to avoid naively relocating
+      the <code class="literal">-r<em class="replaceable"><code>NNN</code></em></code> portion
+      of the definition—the older format uses that revision as a
+      peg revision, but the newer format uses it as an operative
+      revision (with a peg revision of <code class="literal">HEAD</code> unless
+      otherwise specified; see <a class="xref" href="svn.advanced.pegrevs.html" title="Peg and Operative Revisions">the section called “Peg and Operative Revisions”</a>
+      for a full explanation of the distinction here).</p>
+      <div class="warning" title="Warning" style="margin-left: 0.5in; margin-right: 0.5in;">
+        <table border="0" summary="Warning">
+          <tr>
+            <td rowspan="2" align="center" valign="top" width="25">
+              <img alt="[Warning]" src="images/warning.png" />
+            </td>
+            <th align="left">Warning</th>
+          </tr>
+          <tr>
+            <td align="left" valign="top">
+              <p>External working copies are still completely
+        self-sufficient working copies.  You can operate directly on
+        them as you would any other working copy.  This can be a handy
+        feature, allowing you to examine an external working copy
+        independently of any primary working copy
+        whose <code class="literal">svn:externals</code> property caused its
+        instantiation.  Be careful, though, that you don't
+        inadvertently modify your external working copy in subtle ways
+        that cause problems.  For example, while an externals
+        definition might specify that the external working copy should
+        be held at a particular revision number, if you
+        run <span class="command"><strong>svn update</strong></span> directly on the external
+        working copy, Subversion will oblige, and now your external
+        working copy is out of sync with its declaration in the
+        primary working copy.  Using <span class="command"><strong>svn switch</strong></span> to
+        directly switch the external working copy (or some portion
+        thereof) to another URL could cause similar problems if the
+        contents of the primary working copy are expecting particular
+        contents in the external content.</p>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <p>Besides the <span class="command"><strong>svn checkout</strong></span>, <span class="command"><strong>svn
+      update</strong></span>, <span class="command"><strong>svn switch</strong></span>, and
+      <span class="command"><strong>svn export</strong></span> commands which actually manage the
+      <em class="firstterm">disjoint</em> (or disconnected) subdirectories
+      into which externals are checked out, the <span class="command"><strong>svn
+      status</strong></span> command also recognizes externals definitions.
+      It displays a status code of <code class="literal">X</code> for the
+      disjoint external subdirectories, and then recurses into those
+      subdirectories to display the status of the external items
+      themselves.  You can pass the
+      <code class="option">--ignore-externals</code> option to any of these
+      subcommands to disable externals definition processing.</p>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.advanced.locking.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.advanced.html">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.advanced.changelists.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">Locking </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> Changelists</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

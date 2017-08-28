@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>svnversion</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.ref.svnversion.html" title="svnversion—Subversion Working Copy Version Info" />
+    <link rel="prev" href="svn.ref.svnversion.html" title="svnversion—Subversion Working Copy Version Info" />
+    <link rel="next" href="svn.ref.mod_dav_svn.html" title="mod_dav_svn—Subversion Apache HTTP Server Module" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">svnversion</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.ref.svnversion.html">Prev</a> </td>
+          <th width="60%" align="center">svnversion—Subversion Working Copy Version Info</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.ref.mod_dav_svn.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="refentry" title="svnversion">
+      <a id="svn.ref.svnversion.re"></a>
+      <div class="titlepage"></div>
+      <a id="idp44583968" class="indexterm"></a>
+      <div class="refnamediv">
+        <h2>Name</h2>
+        <p>svnversion — Summarize the local revision(s) of a working
+                    copy.</p>
+      </div>
+      <div class="refsect1" title="Synopsis">
+        <a id="svn.ref.svnversion.re.syn"></a>
+        <h2>Synopsis</h2>
+        <p>
+          <code class="literal">svnversion [OPTIONS] [WC_PATH [TRAIL_URL]]</code>
+        </p>
+      </div>
+      <div class="refsect1" title="Description">
+        <a id="svn.ref.svnversion.re.desc"></a>
+        <h2>Description</h2>
+        <p><span class="command"><strong>svnversion</strong></span> is a program for
+          summarizing the revision mixture of a working copy.  The
+          resultant revision number, or revision range, is written to
+          standard output.</p>
+        <p>It's common to use this output in your build process
+          when defining the version number of your program.</p>
+        <p><em class="replaceable"><code>TRAIL_URL</code></em>, if present, is the
+          trailing portion of the URL used to determine whether
+          <em class="replaceable"><code>WC_PATH</code></em> itself is switched
+          (detection of switches within
+          <em class="replaceable"><code>WC_PATH</code></em> does not rely on
+          <em class="replaceable"><code>TRAIL_URL</code></em>).</p>
+        <p>When <em class="replaceable"><code>WC_PATH</code></em> is not defined,
+          the current directory will be used as the working copy path.
+          <em class="replaceable"><code>TRAIL_URL</code></em> cannot be defined if
+          <em class="replaceable"><code>WC_PATH</code></em> is not explicitly
+          given.</p>
+      </div>
+      <div class="refsect1" title="Options">
+        <a id="svn.ref.svnversion.re.sw"></a>
+        <h2>Options</h2>
+        <p>Like <span class="command"><strong>svnserve</strong></span>,
+          <span class="command"><strong>svnversion</strong></span> has no subcommands—only
+          options:</p>
+        <div class="variablelist">
+          <dl>
+            <dt>
+              <span class="term"><code class="option">--no-newline</code> (<code class="option">-n</code>)</span>
+            </dt>
+            <dd>
+              <p>Omits the usual trailing newline from the output.</p>
+            </dd>
+            <dt>
+              <span class="term"><code class="option">--committed</code> (<code class="option">-c</code>)</span>
+            </dt>
+            <dd>
+              <p>Uses the last-changed revisions rather than the
+              current (i.e., highest locally available) revisions.</p>
+            </dd>
+            <dt>
+              <span class="term"><code class="option">--help</code> (<code class="option">-h</code>)</span>
+            </dt>
+            <dd>
+              <p>Prints a help summary.</p>
+            </dd>
+            <dt>
+              <span class="term"><code class="option">--quiet</code> (<code class="option">-q</code>)</span>
+            </dt>
+            <dd>
+              <p>Requests that the program print only essential
+                information while performing an operation.</p>
+            </dd>
+            <dt>
+              <span class="term">
+                <code class="option">--version</code>
+              </span>
+            </dt>
+            <dd>
+              <p>Prints the version of <span class="command"><strong>svnversion</strong></span>
+              and exit with no error.</p>
+            </dd>
+          </dl>
+        </div>
+      </div>
+      <div class="refsect1" title="Examples">
+        <a id="svn.ref.svnversion.re.examples"></a>
+        <h2>Examples</h2>
+        <p>If the working copy is all at the same revision (e.g.,
+          immediately after an update), then that revision is
+          printed out:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svnversion
+4168
+</pre>
+        </div>
+        <p>You can add <em class="replaceable"><code>TRAIL_URL</code></em> to make
+          sure the working copy is not switched from what you
+          expect.  Note that the <em class="replaceable"><code>WC_PATH</code></em>
+          is required in this command:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svnversion . /var/svn/trunk
+4168
+</pre>
+        </div>
+        <p>For a mixed-revision working copy, the range of
+          revisions present is printed:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svnversion
+4123:4168
+</pre>
+        </div>
+        <p>If the working copy contains modifications, a trailing
+          '<code class="literal">M</code>' is added:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svnversion
+4168M
+</pre>
+        </div>
+        <p>If the working copy is switched, a trailing
+          '<code class="literal">S</code>' is added:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svnversion
+4168S
+</pre>
+        </div>
+        <p><span class="command"><strong>svnversion</strong></span> will also inform you if
+          the target working copy is sparsely populated (see
+          <a class="xref" href="svn.advanced.sparsedirs.html" title="Sparse Directories">the section called “Sparse Directories”</a>) by attaching the
+          '<code class="literal">P</code>' code to its output:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svnversion
+4168P
+</pre>
+        </div>
+        <p>Thus, here is a mixed-revision, sparsely populated and
+          switched working copy containing some local
+          modifications:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svnversion
+4123:4168MSP
+</pre>
+        </div>
+        <p>If invoked on a directory that is not a working copy,
+          <span class="command"><strong>svnversion</strong></span> assumes it is an exported
+          working copy and prints <span class="quote">“<span class="quote">exported</span>”</span>:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svnversion
+exported
+</pre>
+        </div>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.ref.svnversion.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.ref.svnversion.html">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.ref.mod_dav_svn.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">svnversion—Subversion Working Copy Version Info </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> mod_dav_svn—Subversion Apache HTTP Server Module</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

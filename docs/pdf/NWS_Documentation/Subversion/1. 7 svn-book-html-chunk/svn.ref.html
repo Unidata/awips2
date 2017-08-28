@@ -1,0 +1,860 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Chapter 9. Subversion Complete Reference</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="prev" href="svn.developer.summary.html" title="Summary" />
+    <link rel="next" href="svn.ref.svn.html" title="svn—Subversion Command-Line Client" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">Chapter 9. Subversion Complete Reference</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.developer.summary.html">Prev</a> </td>
+          <th width="60%" align="center"> </th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.ref.svn.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="chapter" title="Chapter 9. Subversion Complete Reference">
+      <div class="titlepage">
+        <div>
+          <div>
+            <h2 class="title"><a id="svn.ref"></a>Chapter 9. Subversion Complete Reference</h2>
+          </div>
+        </div>
+      </div>
+      <div class="toc">
+        <p>
+          <b>Table of Contents</b>
+        </p>
+        <dl>
+          <dt>
+            <span class="sect1">
+              <a href="svn.ref.svn.html">svn—Subversion Command-Line Client</a>
+            </span>
+          </dt>
+          <dd>
+            <dl>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.ref.svn.html#svn.ref.svn.sw">svn Options</a>
+                </span>
+              </dt>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.ref.svn.html#svn.ref.svn.c">svn Subcommands</a>
+                </span>
+              </dt>
+              <dd>
+                <dl>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.add.html">svn add</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.blame.html">svn blame</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.cat.html">svn cat</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.changelist.html">svn changelist</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.checkout.html">svn checkout</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.cleanup.html">svn cleanup</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.commit.html">svn commit</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.copy.html">svn copy</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.delete.html">svn delete</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.diff.html">svn diff</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.export.html">svn export</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.help.html">svn help</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.import.html">svn import</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.info.html">svn info</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.list.html">svn list</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.lock.html">svn lock</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.log.html">svn log</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.merge.html">svn merge</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.mergeinfo.html">svn mergeinfo</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.mkdir.html">svn mkdir</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.move.html">svn move</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.propdel.html">svn propdel</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.propedit.html">svn propedit</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.propget.html">svn propget</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.proplist.html">svn proplist</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.propset.html">svn propset</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.relocate.html">svn relocate</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.resolve.html">svn resolve</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.resolved.html">svn resolved</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.revert.html">svn revert</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.status.html">svn status</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.switch.html">svn switch</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.unlock.html">svn unlock</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.update.html">svn update</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svn.c.upgrade.html">svn upgrade</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                </dl>
+              </dd>
+            </dl>
+          </dd>
+          <dt>
+            <span class="sect1">
+              <a href="svn.ref.svnadmin.html">svnadmin—Subversion Repository Administration</a>
+            </span>
+          </dt>
+          <dd>
+            <dl>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.ref.svnadmin.html#svn.ref.svnadmin.sw">svnadmin Options</a>
+                </span>
+              </dt>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.ref.svnadmin.html#svn.ref.svnadmin.c">svnadmin Subcommands</a>
+                </span>
+              </dt>
+              <dd>
+                <dl>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnadmin.c.crashtest.html">svnadmin crashtest</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnadmin.c.create.html">svnadmin create</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnadmin.c.deltify.html">svnadmin deltify</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnadmin.c.dump.html">svnadmin dump</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnadmin.c.help.html">svnadmin help</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnadmin.c.hotcopy.html">svnadmin hotcopy</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnadmin.c.list-dblogs.html">svnadmin list-dblogs</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnadmin.c.list-unused-dblogs.html">svnadmin list-unused-dblogs</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnadmin.c.load.html">svnadmin load</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnadmin.c.lslocks.html">svnadmin lslocks</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnadmin.c.lstxns.html">svnadmin lstxns</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnadmin.c.pack.html">svnadmin pack</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnadmin.c.recover.html">svnadmin recover</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnadmin.c.rmlocks.html">svnadmin rmlocks</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnadmin.c.rmtxns.html">svnadmin rmtxns</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnadmin.c.setlog.html">svnadmin setlog</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnadmin.c.setrevprop.html">svnadmin setrevprop</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnadmin.c.setuuid.html">svnadmin setuuid</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnadmin.c.upgrade.html">svnadmin upgrade</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnadmin.c.verify.html">svnadmin verify</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                </dl>
+              </dd>
+            </dl>
+          </dd>
+          <dt>
+            <span class="sect1">
+              <a href="svn.ref.svnlook.html">svnlook—Subversion Repository Examination</a>
+            </span>
+          </dt>
+          <dd>
+            <dl>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.ref.svnlook.html#svn.ref.svnlook.sw">svnlook Options</a>
+                </span>
+              </dt>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.ref.svnlook.html#svn.ref.svnlook.c">svnlook Subcommands</a>
+                </span>
+              </dt>
+              <dd>
+                <dl>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnlook.c.author.html">svnlook author</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnlook.c.cat.html">svnlook cat</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnlook.c.changed.html">svnlook changed</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnlook.c.date.html">svnlook date</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnlook.c.diff.html">svnlook diff</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnlook.c.dirs-changed.html">svnlook dirs-changed</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnlook.c.filesize.html">svnlook filesize</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnlook.c.help.html">svnlook help</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnlook.c.history.html">svnlook history</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnlook.c.info.html">svnlook info</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnlook.c.lock.html">svnlook lock</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnlook.c.log.html">svnlook log</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnlook.c.propget.html">svnlook propget</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnlook.c.proplist.html">svnlook proplist</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnlook.c.tree.html">svnlook tree</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnlook.c.uuid.html">svnlook uuid</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnlook.c.youngest.html">svnlook youngest</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                </dl>
+              </dd>
+            </dl>
+          </dd>
+          <dt>
+            <span class="sect1">
+              <a href="svn.ref.svnsync.html">svnsync—Subversion Repository Mirroring</a>
+            </span>
+          </dt>
+          <dd>
+            <dl>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.ref.svnsync.html#svn.ref.svnsync.sw">svnsync Options</a>
+                </span>
+              </dt>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.ref.svnsync.html#svn.ref.svnsync.c">svnsync Subcommands</a>
+                </span>
+              </dt>
+              <dd>
+                <dl>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnsync.c.copy-revprops.html">svnsync copy-revprops</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnsync.c.help.html">svnsync help</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnsync.c.info.html">svnsync info</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnsync.c.init.html">svnsync initialize</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnsync.c.sync.html">svnsync synchronize</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                </dl>
+              </dd>
+            </dl>
+          </dd>
+          <dt>
+            <span class="sect1">
+              <a href="svn.ref.svnrdump.html">svnrdump—Remote Subversion Repository Data Migration</a>
+            </span>
+          </dt>
+          <dd>
+            <dl>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.ref.svnrdump.html#svn.ref.svnrdump.sw">svnrdump Options</a>
+                </span>
+              </dt>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.ref.svnrdump.html#svn.ref.svnrdump.c">svnrdump Subcommands</a>
+                </span>
+              </dt>
+              <dd>
+                <dl>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnrdump.c.dump.html">svnrdump dump</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnrdump.c.help.html">svnrdump help</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svnrdump.c.load.html">svnrdump load</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                </dl>
+              </dd>
+            </dl>
+          </dd>
+          <dt>
+            <span class="sect1">
+              <a href="svn.ref.svnserve.html">svnserve—Custom Subversion Server</a>
+            </span>
+          </dt>
+          <dd>
+            <dl>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.ref.svnserve.html#svn.ref.svnserve.sw">svnserve Options</a>
+                </span>
+              </dt>
+            </dl>
+          </dd>
+          <dt>
+            <span class="sect1">
+              <a href="svn.ref.svndumpfilter.html">svndumpfilter—Subversion History Filtering</a>
+            </span>
+          </dt>
+          <dd>
+            <dl>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.ref.svndumpfilter.html#svn.ref.svndumpfilter.options">svndumpfilter Options</a>
+                </span>
+              </dt>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.ref.svndumpfilter.html#svn.ref.svndumpfilter.c">svndumpfilter Subcommands</a>
+                </span>
+              </dt>
+              <dd>
+                <dl>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svndumpfilter.commands.c.exclude.html">svndumpfilter exclude</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svndumpfilter.commands.c.include.html">svndumpfilter include</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                  <dt>
+                    <span class="refentrytitle">
+                      <a href="svn.ref.svndumpfilter.commands.c.help.html">svndumpfilter help</a>
+                    </span>
+                    <span class="refpurpose"></span>
+                  </dt>
+                </dl>
+              </dd>
+            </dl>
+          </dd>
+          <dt>
+            <span class="sect1">
+              <a href="svn.ref.svnversion.html">svnversion—Subversion Working Copy Version Info</a>
+            </span>
+          </dt>
+          <dd>
+            <dl>
+              <dt>
+                <span class="refentrytitle">
+                  <a href="svn.ref.svnversion.re.html">svnversion</a>
+                </span>
+                <span class="refpurpose"></span>
+              </dt>
+            </dl>
+          </dd>
+          <dt>
+            <span class="sect1">
+              <a href="svn.ref.mod_dav_svn.html">mod_dav_svn—Subversion Apache HTTP Server Module</a>
+            </span>
+          </dt>
+          <dd>
+            <dl>
+              <dt>
+                <span class="refentrytitle">
+                  <a href="svn.ref.mod_dav_svn.conf.html">mod_dav_svn Configuration Directives</a>
+                </span>
+                <span class="refpurpose"></span>
+              </dt>
+            </dl>
+          </dd>
+          <dt>
+            <span class="sect1">
+              <a href="svn.ref.mod_authz_svn.html">mod_authz_svn—Subversion Apache HTTP Authorization Module</a>
+            </span>
+          </dt>
+          <dd>
+            <dl>
+              <dt>
+                <span class="refentrytitle">
+                  <a href="svn.ref.mod_authz_svn.conf.html">mod_authz_svn Configuration Directives</a>
+                </span>
+                <span class="refpurpose"></span>
+              </dt>
+            </dl>
+          </dd>
+          <dt>
+            <span class="sect1">
+              <a href="svn.ref.properties.html">Subversion Properties</a>
+            </span>
+          </dt>
+          <dd>
+            <dl>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.ref.properties.html#svn.ref.properties.versioned-props">Versioned Properties</a>
+                </span>
+              </dt>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.ref.properties.html#svn.ref.properties.unversioned-props">Unversioned Properties</a>
+                </span>
+              </dt>
+            </dl>
+          </dd>
+          <dt>
+            <span class="sect1">
+              <a href="svn.ref.reposhooks.html">Repository Hooks</a>
+            </span>
+          </dt>
+          <dd>
+            <dl>
+              <dt>
+                <span class="refentrytitle">
+                  <a href="svn.ref.reposhooks.start-commit.html">start-commit</a>
+                </span>
+                <span class="refpurpose"></span>
+              </dt>
+              <dt>
+                <span class="refentrytitle">
+                  <a href="svn.ref.reposhooks.pre-commit.html">pre-commit</a>
+                </span>
+                <span class="refpurpose"></span>
+              </dt>
+              <dt>
+                <span class="refentrytitle">
+                  <a href="svn.ref.reposhooks.post-commit.html">post-commit</a>
+                </span>
+                <span class="refpurpose"></span>
+              </dt>
+              <dt>
+                <span class="refentrytitle">
+                  <a href="svn.ref.reposhooks.pre-revprop-change.html">pre-revprop-change</a>
+                </span>
+                <span class="refpurpose"></span>
+              </dt>
+              <dt>
+                <span class="refentrytitle">
+                  <a href="svn.ref.reposhooks.post-revprop-change.html">post-revprop-change</a>
+                </span>
+                <span class="refpurpose"></span>
+              </dt>
+              <dt>
+                <span class="refentrytitle">
+                  <a href="svn.ref.reposhooks.pre-lock.html">pre-lock</a>
+                </span>
+                <span class="refpurpose"></span>
+              </dt>
+              <dt>
+                <span class="refentrytitle">
+                  <a href="svn.ref.reposhooks.post-lock.html">post-lock</a>
+                </span>
+                <span class="refpurpose"></span>
+              </dt>
+              <dt>
+                <span class="refentrytitle">
+                  <a href="svn.ref.reposhooks.pre-unlock.html">pre-unlock</a>
+                </span>
+                <span class="refpurpose"></span>
+              </dt>
+              <dt>
+                <span class="refentrytitle">
+                  <a href="svn.ref.reposhooks.post-unlock.html">post-unlock</a>
+                </span>
+                <span class="refpurpose"></span>
+              </dt>
+            </dl>
+          </dd>
+        </dl>
+      </div>
+      <p>This chapter is intended to be a complete reference to using
+    Subversion.  It includes command summaries and examples for all
+    the command-line tools provided as part of the stock Subversion
+    distribution, configuration information for the Subversion server
+    modules, and other information that lends itself to a reference
+    format.</p>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.developer.summary.html">Prev</a> </td>
+          <td width="20%" align="center"> </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.ref.svn.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">Summary </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> svn—Subversion Command-Line Client</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

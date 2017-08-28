@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>svnadmin create</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.ref.svnadmin.html#svn.ref.svnadmin.c" title="svnadmin Subcommands" />
+    <link rel="prev" href="svn.ref.svnadmin.c.crashtest.html" title="svnadmin crashtest" />
+    <link rel="next" href="svn.ref.svnadmin.c.deltify.html" title="svnadmin deltify" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">svnadmin create</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.ref.svnadmin.c.crashtest.html">Prev</a> </td>
+          <th width="60%" align="center">svnadmin Subcommands</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.ref.svnadmin.c.deltify.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="refentry" title="svnadmin create">
+      <a id="svn.ref.svnadmin.c.create"></a>
+      <div class="titlepage"></div>
+      <a id="idp43635376" class="indexterm"></a>
+      <div class="refnamediv">
+        <h2>Name</h2>
+        <p>svnadmin create — Create a new, empty repository.</p>
+      </div>
+      <div class="refsect1" title="Synopsis">
+        <a id="idp43638464"></a>
+        <h2>Synopsis</h2>
+        <p>
+          <code class="literal">svnadmin create REPOS_PATH</code>
+        </p>
+      </div>
+      <div class="refsect1" title="Description">
+        <a id="idp43640096"></a>
+        <h2>Description</h2>
+        <p>Create a new, empty repository at the path provided.
+              If the provided directory does not exist, it will be
+              created for
+              you.<sup>[<a id="idp43641200" href="#ftn.idp43641200" class="footnote">60</a>]</sup>  As of
+              Subversion 1.2, <span class="command"><strong>svnadmin</strong></span> creates new
+              repositories with the
+              <code class="literal">FSFS</code> filesystem backend by
+              default.</p>
+        <p>While <span class="command"><strong>svnadmin create</strong></span> will create
+              the base directory for a new repository, it will not
+              create intermediate directories.  For example, if you
+              have an empty directory named
+              <code class="filename">/var/svn</code>, creating
+              <code class="filename">/var/svn/repos</code> will work, while
+              attempting to create
+              <code class="filename">/var/svn/subdirectory/repos</code> will
+              fail with an error.  Also, keep in mind that, depending
+              on where on your system you are creating your
+              repository, you might need to run <span class="command"><strong>svnadmin
+              create</strong></span> as a user with elevated privileges
+              (such as the <code class="literal">root</code> user).</p>
+      </div>
+      <div class="refsect1" title="Options">
+        <a id="idp43650416"></a>
+        <h2>Options</h2>
+        <div class="informalexample">
+          <pre class="screen">
+--bdb-log-keep
+--bdb-txn-nosync
+--config-dir DIR
+--fs-type TYPE
+--pre-1.4-compatible
+--pre-1.5-compatible
+--pre-1.6-compatible
+</pre>
+        </div>
+      </div>
+      <div class="refsect1" title="Examples">
+        <a id="idp43652400"></a>
+        <h2>Examples</h2>
+        <p>Creating a new repository is this easy:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ cd /var/svn
+$ svnadmin create repos
+$
+</pre>
+        </div>
+        <p>In Subversion 1.0, a Berkeley DB repository is always
+            created.  In Subversion 1.1, a Berkeley DB repository is
+            the default repository type, but an FSFS repository can be
+            created using the <code class="option">--fs-type</code>
+            option:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ cd /var/svn
+$ svnadmin create repos --fs-type fsfs
+$
+</pre>
+        </div>
+      </div>
+      <div class="footnotes">
+        <br />
+        <hr width="100" align="left" />
+        <div class="footnote">
+          <p><sup>[<a id="ftn.idp43641200" href="#idp43641200" class="para">60</a>] </sup>Remember, <span class="command"><strong>svnadmin</strong></span>
+              works only with local <span class="emphasis"><em>paths</em></span>, not
+              <span class="emphasis"><em>URLs</em></span>.</p>
+        </div>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.ref.svnadmin.c.crashtest.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.ref.svnadmin.html#svn.ref.svnadmin.c">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.ref.svnadmin.c.deltify.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">svnadmin crashtest </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> svnadmin deltify</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

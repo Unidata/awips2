@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>svnadmin dump</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.ref.svnadmin.html#svn.ref.svnadmin.c" title="svnadmin Subcommands" />
+    <link rel="prev" href="svn.ref.svnadmin.c.deltify.html" title="svnadmin deltify" />
+    <link rel="next" href="svn.ref.svnadmin.c.help.html" title="svnadmin help" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">svnadmin dump</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.ref.svnadmin.c.deltify.html">Prev</a> </td>
+          <th width="60%" align="center">svnadmin Subcommands</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.ref.svnadmin.c.help.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="refentry" title="svnadmin dump">
+      <a id="svn.ref.svnadmin.c.dump"></a>
+      <div class="titlepage"></div>
+      <a id="idp43669536" class="indexterm"></a>
+      <div class="refnamediv">
+        <h2>Name</h2>
+        <p>svnadmin dump — Dump the contents of the filesystem to <code class="filename">stdout</code>.</p>
+      </div>
+      <div class="refsect1" title="Synopsis">
+        <a id="idp43673328"></a>
+        <h2>Synopsis</h2>
+        <p>
+          <code class="literal">svnadmin dump REPOS_PATH [-r LOWER[:UPPER]] [--incremental] [--deltas]</code>
+        </p>
+      </div>
+      <div class="refsect1" title="Description">
+        <a id="idp43674992"></a>
+        <h2>Description</h2>
+        <p>Dump the contents of the filesystem to <code class="filename">stdout</code> in a
+            <span class="quote">“<span class="quote">dump file</span>”</span> portable format, sending feedback
+            to <code class="filename">stderr</code>.  Dump revisions
+            <em class="replaceable"><code>LOWER</code></em> rev through
+            <em class="replaceable"><code>UPPER</code></em> rev.  If no revisions are
+            given, dump all revision trees.  If only
+            <em class="replaceable"><code>LOWER</code></em> is given, dump that one
+            revision tree.  See <a class="xref" href="svn.reposadmin.maint.html#svn.reposadmin.maint.migrate" title="Migrating Repository Data Elsewhere">the section called “Migrating Repository Data Elsewhere”</a>
+            for a practical use.</p>
+        <p>By default, the Subversion dump stream contains a
+            single revision (the first revision in the requested
+            revision range) in which every file and directory in the
+            repository in that revision is presented as though that whole
+            tree was added at once, followed by other revisions (the
+            remainder of the revisions in the requested range), which
+            contain only the files and directories that were modified
+            in those revisions.  For a modified file, the complete
+            full-text representation of its contents, as well as all of
+            its properties, are presented in the dump file; for a
+            directory, all of its properties are presented.</p>
+        <p>Two useful options modify the dump file
+            generator's behavior.  The first is the
+            <code class="option">--incremental</code> option, which simply causes
+            that first revision in the dump stream to contain only
+            the files and directories modified in that revision,
+            instead of being presented as the addition of a new tree,
+            and in exactly the same way that every other revision in
+            the dump file is presented.  This is useful for generating
+            a relatively small dump file to be loaded into another
+            repository that already has the files and directories
+            that exist in the original repository.</p>
+        <p>The second useful option is <code class="option">--deltas</code>.
+            This option causes <span class="command"><strong>svnadmin dump</strong></span> to,
+            instead of emitting full-text representations of file
+            contents and property lists, emit only deltas of those
+            items against their previous versions.  This reduces (in
+            some cases, drastically) the size of the dump file that
+            <span class="command"><strong>svnadmin dump</strong></span> creates.  There are, however,
+            disadvantages to using this option—deltified
+            dump files are more CPU-intensive to create, cannot be
+            operated on by <span class="command"><strong>svndumpfilter</strong></span>, and tend
+            not to compress as well as their nondeltified counterparts
+            when using third-party tools such as <span class="command"><strong>gzip</strong></span>
+            and <span class="command"><strong>bzip2</strong></span>.</p>
+      </div>
+      <div class="refsect1" title="Options">
+        <a id="idp43688848"></a>
+        <h2>Options</h2>
+        <div class="informalexample">
+          <pre class="screen">
+--deltas
+--incremental
+--memory-cache-size
+--quiet (-q)
+--revision (-r) REV
+</pre>
+        </div>
+      </div>
+      <div class="refsect1" title="Examples">
+        <a id="idp43690688"></a>
+        <h2>Examples</h2>
+        <p>Dump your whole repository:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svnadmin dump /var/svn/repos &gt; full.dump
+* Dumped revision 0.
+* Dumped revision 1.
+* Dumped revision 2.
+…
+</pre>
+        </div>
+        <p>Incrementally dump a single transaction from your
+            repository:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svnadmin dump /var/svn/repos -r 21 --incremental &gt; incr.dump
+* Dumped revision 21.
+</pre>
+        </div>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.ref.svnadmin.c.deltify.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.ref.svnadmin.html#svn.ref.svnadmin.c">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.ref.svnadmin.c.help.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">svnadmin deltify </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> svnadmin help</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

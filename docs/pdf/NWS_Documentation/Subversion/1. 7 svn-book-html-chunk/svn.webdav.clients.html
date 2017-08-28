@@ -1,0 +1,539 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Client Interoperability</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.webdav.html" title="Appendix C. WebDAV and Autoversioning" />
+    <link rel="prev" href="svn.webdav.autoversioning.html" title="Autoversioning" />
+    <link rel="next" href="svn.copyright.html" title="Appendix D. Copyright" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">Client Interoperability</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.webdav.autoversioning.html">Prev</a> </td>
+          <th width="60%" align="center">Appendix C. WebDAV and Autoversioning</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.copyright.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="sect1" title="Client Interoperability">
+      <div class="titlepage">
+        <div>
+          <div>
+            <h2 class="title" style="clear: both"><a id="svn.webdav.clients"></a>Client Interoperability</h2>
+          </div>
+        </div>
+      </div>
+      <p>All WebDAV clients fall into one of three
+      categories—standalone applications, file-explorer
+      extensions, or filesystem implementations.  These categories
+      broadly define the types of WebDAV functionality available to
+      users.  <a class="xref" href="svn.webdav.clients.html#svn.webdav.clients.tbl-1" title="Table C.1. Common WebDAV clients">Table C.1, “Common WebDAV clients”</a> gives our
+      categorization as well as a quick description of some common pieces of
+      WebDAV-enabled software.  You can find more details about these software
+      offerings, as well as their general category, in
+      the sections that follow.</p>
+      <div class="table">
+        <a id="svn.webdav.clients.tbl-1"></a>
+        <p class="title">
+          <b>Table C.1. Common WebDAV clients</b>
+        </p>
+        <div class="table-contents">
+          <table summary="Common WebDAV clients" border="1">
+            <colgroup>
+              <col />
+              <col />
+              <col />
+              <col />
+              <col />
+              <col />
+            </colgroup>
+            <thead>
+              <tr>
+                <th>Software</th>
+                <th>Type</th>
+                <th>Windows</th>
+                <th>Mac</th>
+                <th>Linux</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Adobe Photoshop</td>
+                <td>Standalone WebDAV application</td>
+                <td>X</td>
+                <td> </td>
+                <td> </td>
+                <td>Image editing software, allowing direct opening
+              from, and writing to, WebDAV URLs</td>
+              </tr>
+              <tr>
+                <td>cadaver</td>
+                <td>Standalone WebDAV application</td>
+                <td> </td>
+                <td>X</td>
+                <td>X</td>
+                <td>Command-line WebDAV client supporting file
+              transfer, tree, and locking operations</td>
+              </tr>
+              <tr>
+                <td>DAV Explorer</td>
+                <td>Standalone WebDAV application</td>
+                <td>X</td>
+                <td>X</td>
+                <td>X</td>
+                <td>Java GUI tool for exploring WebDAV shares</td>
+              </tr>
+              <tr>
+                <td>Adobe Dreamweaver</td>
+                <td>Standalone WebDAV application</td>
+                <td>X</td>
+                <td> </td>
+                <td> </td>
+                <td>Web production software able to directly read from
+              and write to WebDAV URLs</td>
+              </tr>
+              <tr>
+                <td>Microsoft Office</td>
+                <td>Standalone WebDAV application</td>
+                <td>X</td>
+                <td> </td>
+                <td> </td>
+                <td>Office productivity suite with several components
+              able to directly read from and write to WebDAV
+              URLs</td>
+              </tr>
+              <tr>
+                <td>Microsoft Web Folders</td>
+                <td>File-explorer WebDAV extension</td>
+                <td>X</td>
+                <td> </td>
+                <td> </td>
+                <td>GUI file explorer program able to perform tree
+              operations on a WebDAV share</td>
+              </tr>
+              <tr>
+                <td>GNOME Nautilus</td>
+                <td>File-explorer WebDAV extension</td>
+                <td> </td>
+                <td> </td>
+                <td>X</td>
+                <td>GUI file explorer able to perform tree
+              operations on a WebDAV share</td>
+              </tr>
+              <tr>
+                <td>KDE Konqueror</td>
+                <td>File-explorer WebDAV extension</td>
+                <td> </td>
+                <td> </td>
+                <td>X</td>
+                <td>GUI file explorer able to perform tree
+              operations on a WebDAV share</td>
+              </tr>
+              <tr>
+                <td>Mac OS X</td>
+                <td>WebDAV filesystem implementation</td>
+                <td> </td>
+                <td>X</td>
+                <td> </td>
+                <td>Operating system that has built-in support for mounting
+              WebDAV shares.</td>
+              </tr>
+              <tr>
+                <td>Novell NetDrive</td>
+                <td>WebDAV filesystem implementation</td>
+                <td>X</td>
+                <td> </td>
+                <td> </td>
+                <td>Drive-mapping program for assigning Windows drive
+              letters to a mounted remote WebDAV share</td>
+              </tr>
+              <tr>
+                <td>SRT WebDrive</td>
+                <td>WebDAV filesystem implementation</td>
+                <td>X</td>
+                <td> </td>
+                <td> </td>
+                <td>File transfer software, which, among other things,
+              allows the assignment of Windows drive letters to a
+              mounted remote WebDAV share</td>
+              </tr>
+              <tr>
+                <td>davfs2</td>
+                <td>WebDAV filesystem implementation</td>
+                <td> </td>
+                <td> </td>
+                <td>X</td>
+                <td>Linux filesystem driver that allows you to mount a
+              WebDAV share</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <br class="table-break" />
+      <div class="sect2" title="Standalone WebDAV Applications">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.webdav.clients.standalone"></a>Standalone WebDAV Applications</h3>
+            </div>
+          </div>
+        </div>
+        <p>A WebDAV application is a program that speaks WebDAV
+        protocols with a WebDAV server.  We'll cover some of the most
+        popular programs with this kind of WebDAV support.</p>
+        <div class="sect3" title="Microsoft Office, Dreamweaver, Photoshop">
+          <div class="titlepage">
+            <div>
+              <div>
+                <h4 class="title"><a id="svn.webdav.clients.standalone.windows"></a>Microsoft Office, Dreamweaver, Photoshop</h4>
+              </div>
+            </div>
+          </div>
+          <p>On Windows, several well-known applications contain
+          integrated WebDAV client functionality, such as Microsoft's
+          Office,<sup>[<a id="idp48325632" href="#ftn.idp48325632" class="footnote">65</a>]</sup> Adobe's Photoshop and
+          Dreamweaver programs.  They're able to directly open and
+          save to URLs, and tend to make heavy use of WebDAV locks
+          when editing a file.</p>
+          <p>Note that while many of these programs also exist for
+          Mac OS X, they do not appear to support WebDAV directly
+          on that platform.  In fact, on Mac OS X, the
+          <span class="guimenu">File→Open</span> dialog box doesn't allow
+          one to type a path or URL at all.  It's likely that the
+          WebDAV features were deliberately left out of Macintosh
+          versions of these programs, since OS X already provides such
+          excellent low-level filesystem support for WebDAV.</p>
+        </div>
+        <div class="sect3" title="cadaver, DAV Explorer">
+          <div class="titlepage">
+            <div>
+              <div>
+                <h4 class="title"><a id="svn.webdav.clients.standalone.free"></a>cadaver, DAV Explorer</h4>
+              </div>
+            </div>
+          </div>
+          <p>cadaver is a bare-bones Unix command-line program for
+          browsing and changing WebDAV shares.  Like the Subversion
+          client, it uses the neon HTTP library—not
+          surprisingly, since both neon and cadaver are written by the
+          same author.  cadaver is free software (GPL license) and is
+          available at
+          <a class="ulink" href="http://www.webdav.org/cadaver/" target="_top">http://www.webdav.org/cadaver/</a>.</p>
+          <p>Using cadaver is similar to using a command-line FTP
+          program, and thus it's extremely useful for basic WebDAV
+          debugging.  It can be used to upload or download files in a
+          pinch, to examine properties, and to copy, move,
+          lock, or unlock files:</p>
+          <div class="informalexample">
+            <pre class="screen">
+$ cadaver http://host/repos
+dav:/repos/&gt; ls
+Listing collection `/repos/': succeeded.
+Coll: &gt; foobar                                 0  May 10 16:19
+      &gt; playwright.el                       2864  May  4 16:18
+      &gt; proofbypoem.txt                     1461  May  5 15:09
+      &gt; westcoast.jpg                      66737  May  5 15:09
+
+dav:/repos/&gt; put README
+Uploading README to `/repos/README':
+Progress: [=============================&gt;] 100.0% of 357 bytes succeeded.
+
+dav:/repos/&gt; get proofbypoem.txt
+Downloading `/repos/proofbypoem.txt' to proofbypoem.txt:
+Progress: [=============================&gt;] 100.0% of 1461 bytes succeeded.
+</pre>
+          </div>
+          <p>DAV Explorer is another standalone WebDAV client, written
+          in Java.  It's under a free Apache-like license and is
+          available at <a class="ulink" href="http://www.ics.uci.edu/~webdav/" target="_top">http://www.ics.uci.edu/~webdav/</a>.
+          It does everything cadaver does, but has the
+          advantages of being portable and being a more user-friendly GUI
+          application.  It's also one of the first clients to support
+          the new WebDAV Access Control Protocol (RFC 3744).</p>
+          <p>Of course, DAV Explorer's ACL support is useless in this
+          case, since <span class="command"><strong>mod_dav_svn</strong></span> doesn't support
+          it.  The fact that both cadaver and DAV Explorer support
+          some limited DeltaV commands isn't particularly useful
+          either, since they don't allow <code class="literal">MKACTIVITY</code>
+          requests.  But it's not relevant anyway; we're assuming all
+          of these clients are operating against an autoversioning
+          repository.</p>
+        </div>
+      </div>
+      <div class="sect2" title="File-Explorer WebDAV Extensions">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.webdav.clients.file-explorer-extensions"></a>File-Explorer WebDAV Extensions</h3>
+            </div>
+          </div>
+        </div>
+        <p>Some popular file explorer GUI programs support WebDAV
+        extensions that allow a user to browse a DAV share as though it
+        was just another directory on the local computer, and to
+        perform basic tree editing operations on the items in that
+        share.  For example, Windows Explorer is able to browse a
+        WebDAV server as a <span class="quote">“<span class="quote">network place.</span>”</span>  Users can
+        drag files to and from the desktop, or can rename, copy, or
+        delete files in the usual way.  But because it's only a
+        feature of the file explorer, the DAV share isn't visible to
+        ordinary applications.  All DAV interaction must happen
+        through the explorer interface.</p>
+        <div class="sect3" title="Microsoft Web Folders">
+          <div class="titlepage">
+            <div>
+              <div>
+                <h4 class="title"><a id="svn.webdav.clients.file-explorer-extensions.windows"></a>Microsoft Web Folders</h4>
+              </div>
+            </div>
+          </div>
+          <p>Microsoft was one of the original backers of the WebDAV
+          specification, and first started shipping a client in
+          Windows 98, which was known as Web Folders.  This client was
+          also shipped in Windows NT 4.0 and Windows 2000.</p>
+          <p>The original Web Folders client was an extension to
+          Explorer, the main GUI program used to browse filesystems.  It
+          works well enough.  In Windows 98, the feature might need to
+          be explicitly installed if Web Folders aren't already visible
+          inside My Computer.  In Windows 2000, simply
+          add a new <span class="quote">“<span class="quote">network place,</span>”</span> enter the URL, and the
+          WebDAV share will pop up for browsing.</p>
+          <p>With the release of Windows XP, Microsoft started shipping
+          a new implementation of Web Folders, known as the WebDAV
+          Mini-Redirector.  The new implementation is a
+          filesystem-level client, allowing WebDAV shares to be mounted
+          as drive letters.  Unfortunately, this implementation is
+          incredibly buggy.  The client usually tries to convert HTTP
+          URLs (<code class="literal">http://host/repos</code>) into UNC share
+          notation (<code class="literal">\\host\repos</code>); it also often
+          tries to use Windows Domain authentication to respond to
+          basic-auth HTTP challenges, sending usernames as
+          <code class="literal">HOST\username</code>.  These interoperability
+          problems are severe and are documented in numerous places around
+          the Web, to the frustration of many users.  Even Greg Stein,
+          the original author of Apache's WebDAV module, bluntly
+          states that XP Web Folders simply can't operate against an Apache
+          server.</p>
+          <p>Windows Vista's initial implementation of Web Folders seems to
+          be almost the same as XP's, so it has the same sort of
+          problems.  With luck, Microsoft will remedy these issues in
+          a Vista Service Pack.</p>
+          <p>However, there seem to be workarounds for both XP and
+          Vista that allow Web Folders to work against Apache.  Users
+          have mostly reported success with these techniques, so we'll
+          relay them here.</p>
+          <p>On Windows XP, you have two options.  First, search
+          Microsoft's web site for update KB907306, <span class="quote">“<span class="quote">Software
+          Update for Web Folders.</span>”</span>  This may fix all your
+          problems.  If it doesn't, it seems that the original pre-XP
+          Web Folders implementation is still buried within the
+          system.  You can unearth it by going to Network
+          Places and adding a new network place.  When prompted,
+          enter the URL of the repository, but <span class="emphasis"><em>include a
+          port number</em></span> in the URL.  For
+          example, you should enter <strong class="userinput"><code>http://host/repos</code></strong> 
+          as <strong class="userinput"><code>http://host:80/repos</code></strong> instead.
+          Respond to any authentication prompts with your Subversion
+          credentials.</p>
+          <p>On Windows Vista, the same KB907306 update may clear
+          everything up.  But there may still be other issues.  Some
+          users have reported that Vista considers
+          all <code class="literal">http://</code> connections insecure, and thus
+          will always fail any authentication challenges from Apache
+          unless the connection happens
+          over <code class="literal">https://</code>.  If you're unable to connect
+          to the Subversion repository via SSL, you can tweak the
+          system registry to turn off this behavior.  Just change the
+          value of the <code class="literal">HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters\BasicAuthLevel</code>
+          key from <strong class="userinput"><code>1</code></strong> to <strong class="userinput"><code>2</code></strong>.  A final warning:  be sure to set up the Web
+          Folder to point to the repository's root directory
+          (<code class="filename">/</code>), rather than some subdirectory
+          such as <code class="filename">/trunk</code>.  Vista Web Folders
+          seems to work only against repository roots.</p>
+          <p>In general, while these workarounds may function for
+          you, you might get a better overall experience using a
+          third-party WebDAV client such as WebDrive or NetDrive.</p>
+        </div>
+        <div class="sect3" title="Nautilus, Konqueror">
+          <div class="titlepage">
+            <div>
+              <div>
+                <h4 class="title"><a id="svn.webdav.clients.file-explorer-extensions.linux-de"></a>Nautilus, Konqueror</h4>
+              </div>
+            </div>
+          </div>
+          <p>Nautilus is the official file manager/browser for the
+          GNOME desktop (<a class="ulink" href="http://www.gnome.org" target="_top">http://www.gnome.org</a>), and
+          Konqueror is the manager/browser for the KDE desktop (<a class="ulink" href="http://www.kde.org" target="_top">http://www.kde.org</a>).  Both of these applications
+          have an explorer-level WebDAV client built in, and they
+          operate just fine against an autoversioning repository.</p>
+          <p>In GNOME's Nautilus, select the <span class="guimenuitem">File→Open
+          location</span> menu item and enter the URL in the
+          dialog box presented.  The repository should then be
+          displayed like any other filesystem.</p>
+          <p>In KDE's Konqueror, you need to use the
+          <code class="literal">webdav://</code> scheme when entering the URL in
+          the location bar.  If you enter
+          an <code class="literal">http://</code> URL, Konqueror will behave
+          like an ordinary web browser.  You'll likely see the generic
+          HTML directory listing produced
+          by <span class="command"><strong>mod_dav_svn</strong></span>.  When you enter
+          <strong class="userinput"><code>webdav://host/repos</code></strong> instead of
+          <strong class="userinput"><code>http://host/repos</code></strong>, Konqueror becomes a
+          WebDAV client and displays the repository as a
+          filesystem.</p>
+        </div>
+      </div>
+      <div class="sect2" title="WebDAV Filesystem Implementation">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.webdav.clients.fs-impl"></a>WebDAV Filesystem Implementation</h3>
+            </div>
+          </div>
+        </div>
+        <p>The WebDAV filesystem implementation is arguably the best
+        sort of WebDAV client.  It's implemented as a low-level
+        filesystem module, typically within the operating system's
+        kernel.  This means that the DAV share is mounted like any
+        other network filesystem, similar to mounting an NFS share on
+        Unix or attaching an SMB share as a drive letter in Windows.
+        As a result, this sort of client provides completely
+        transparent read/write WebDAV access to all programs.
+        Applications aren't even aware that WebDAV requests are
+        happening.</p>
+        <div class="sect3" title="WebDrive, NetDrive">
+          <div class="titlepage">
+            <div>
+              <div>
+                <h4 class="title"><a id="svn.webdav.clients.fs-impl.windows"></a>WebDrive, NetDrive</h4>
+              </div>
+            </div>
+          </div>
+          <p>Both WebDrive and NetDrive are excellent commercial
+          products that allow a WebDAV share to be attached as drive
+          letters in Windows.  As a result, you can operate on the
+          contents of these WebDAV-backed pseudodrives as easily as
+          you can against real local hard drives, and in the same
+          ways.  You can purchase WebDrive from South River
+          Technologies (<a class="ulink" href="http://www.southrivertech.com" target="_top">http://www.southrivertech.com</a>).
+          Novell's NetDrive is freely available online, but requires
+          users to have a NetWare license.</p>
+        </div>
+        <div class="sect3" title="Mac OS X">
+          <div class="titlepage">
+            <div>
+              <div>
+                <h4 class="title"><a id="svn.webdav.clients.fs-impl.macosx"></a>Mac OS X</h4>
+              </div>
+            </div>
+          </div>
+          <p>Apple's OS X operating system has an integrated
+          filesystem-level WebDAV client.  From the Finder, select the
+          <span class="guimenuitem">Go→Connect to Server</span> menu
+          item.  Enter a WebDAV URL, and it appears as a disk on the
+          desktop, just like any other mounted volume.  You can also
+          mount a WebDAV share from the Darwin terminal by using the
+          <code class="literal">webdav</code> filesystem type with the
+          <span class="command"><strong>mount</strong></span> command:</p>
+          <div class="informalexample">
+            <pre class="screen">
+$ mount -t webdav http://svn.example.com/repos/project /some/mountpoint
+$
+</pre>
+          </div>
+          <p>Note that if your <span class="command"><strong>mod_dav_svn</strong></span> is
+          older than version 1.2, OS X will refuse to mount the share
+          as read/write; it will appear as read-only.  This is because
+          OS X insists on locking support for read/write shares, and
+          the ability to lock files first appeared in Subversion
+          1.2.</p>
+          <p>Also, OS X's WebDAV client can sometimes be overly
+          sensitive to HTTP redirects.  If OS X is unable to mount the
+          repository at all, you may need to enable
+          the <code class="literal">BrowserMatch</code> directive in the Apache
+          server's <code class="filename">httpd.conf</code>:</p>
+          <div class="informalexample">
+            <pre class="programlisting">
+BrowserMatch "^WebDAVFS/1.[012]" redirect-carefully
+</pre>
+          </div>
+        </div>
+        <div class="sect3" title="Linux davfs2">
+          <div class="titlepage">
+            <div>
+              <div>
+                <h4 class="title"><a id="svn.webdav.clients.fs-impl.linux"></a>Linux davfs2</h4>
+              </div>
+            </div>
+          </div>
+          <p>Linux davfs2 is a filesystem module for the Linux
+          kernel, whose development is organized at
+          <a class="ulink" href="http://dav.sourceforge.net/" target="_top">http://dav.sourceforge.net/</a>.  Once you
+          install davfs2, you can mount a WebDAV network share using
+          the usual Linux mount command:</p>
+          <div class="informalexample">
+            <pre class="screen">
+$ mount.davfs http://host/repos /mnt/dav
+</pre>
+          </div>
+        </div>
+      </div>
+      <div class="footnotes">
+        <br />
+        <hr width="100" align="left" />
+        <div class="footnote">
+          <p><sup>[<a id="ftn.idp48325632" href="#idp48325632" class="para">65</a>] </sup>WebDAV support was removed from
+          Microsoft Access for some reason, but it exists in the rest
+          of the Office suite.</p>
+        </div>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.webdav.autoversioning.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.webdav.html">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.copyright.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">Autoversioning </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> Appendix D. Copyright</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

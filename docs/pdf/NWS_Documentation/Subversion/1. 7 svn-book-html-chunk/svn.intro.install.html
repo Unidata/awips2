@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Installing Subversion</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.intro.html" title="Appendix A. Subversion Quick-Start Guide" />
+    <link rel="prev" href="svn.intro.html" title="Appendix A. Subversion Quick-Start Guide" />
+    <link rel="next" href="svn.intro.quickstart.html" title="High-Speed Tutorial" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">Installing Subversion</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.intro.html">Prev</a> </td>
+          <th width="60%" align="center">Appendix A. Subversion Quick-Start Guide</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.intro.quickstart.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="sect1" title="Installing Subversion">
+      <div class="titlepage">
+        <div>
+          <div>
+            <h2 class="title" style="clear: both"><a id="svn.intro.install"></a>Installing Subversion</h2>
+          </div>
+        </div>
+      </div>
+      <p>Subversion is built on a portability layer called
+      APR—the Apache Portable Runtime library.  The APR library
+      provides all the interfaces that Subversion needs to function on
+      different operating systems: disk access, network access, memory
+      management, and so on.  While Subversion is able to use Apache
+      HTTP Server (or, <span class="command"><strong>httpd</strong></span>) as one of its network
+      server programs, its dependence on APR <span class="emphasis"><em>does
+      not</em></span> mean that <span class="command"><strong>httpd</strong></span> is a required
+      component.  APR is a standalone library usable by any
+      application.  It does mean, however, that Subversion clients and
+      servers run on any operating system
+      that <span class="command"><strong>httpd</strong></span> runs on: Windows, Linux, all
+      flavors of BSD, Mac OS X, NetWare, and others.</p>
+      <p>The easiest way to get Subversion is to download a binary
+      package built for your operating system.  Subversion's web site
+      (<a class="ulink" href="http://subversion.apache.org" target="_top">http://subversion.apache.org</a>) often has these
+      packages available for download, posted by volunteers.  The site
+      usually contains graphical installer packages for users of
+      Microsoft operating systems.  If you run a Unix-like operating
+      system, you can use your system's native package distribution
+      system (RPMs, DEBs, the ports tree, etc.) to get
+      Subversion.</p>
+      <p>Alternatively, you can build Subversion directly from source
+      code, though it's not always an easy task. (If you're not
+      experienced at building open source software packages, you're
+      probably better off downloading a binary distribution instead!)
+      From the Subversion web site, download the latest source code
+      release.  After unpacking it, follow the instructions in
+      the <code class="filename">INSTALL</code> file to build it.  Note that a
+      released source package may not contain everything you need to
+      build a command-line client capable of talking to a remote
+      repository.  Starting with Subversion 1.4 and later, the
+      libraries Subversion depends on (apr, apr-util, and neon) are
+      distributed in a separate source package suffixed
+      with <code class="filename">-deps</code>.  These libraries are now common
+      enough that they may already be installed on your system.  If
+      not, you'll need to unpack the dependency package into the same
+      directory where you unpacked the main Subversion source.
+      Regardless, it's possible that you may want to fetch other
+      optional dependencies such as Berkeley DB and possibly Apache
+      <span class="command"><strong>httpd</strong></span>.  If you want to do a complete build,
+      make sure you have all of the packages documented in
+      the <code class="filename">INSTALL</code> file.</p>
+      <p>If you're one of those folks that likes to use bleeding-edge
+      software, you can also get the Subversion source code from the
+      Subversion repository in which it lives.  Obviously, you'll need
+      to already have a Subversion client on hand to do this.  But
+      once you do, you can check out a working copy from
+      <a class="ulink" href="http://svn.apache.org/repos/asf/subversion" target="_top">http://svn.apache.org/repos/asf/subversion</a><sup>[<a id="idp47812240" href="#ftn.idp47812240" class="footnote">62</a>]</sup>:</p>
+      <div class="informalexample">
+        <pre class="screen">
+$ svn checkout http://svn.apache.org/repos/asf/subversion/trunk subversion
+A    subversion/HACKING
+A    subversion/INSTALL
+A    subversion/README
+A    subversion/autogen.sh
+A    subversion/build.conf
+…
+</pre>
+      </div>
+      <p>The preceding command will create a working copy of the
+      latest (unreleased) Subversion source code into a subdirectory
+      named <code class="filename">subversion</code> in your current working
+      directory.  You can adjust that last argument as you see fit.
+      Regardless of what you call the new working copy directory,
+      though, after this operation completes, you will now have the
+      Subversion source code.  Of course, you will still need to fetch
+      a few helper libraries (apr, apr-util, etc.)—see the
+      <code class="filename">INSTALL</code> file in the top level of the
+      working copy for details.</p>
+      <div class="footnotes">
+        <br />
+        <hr width="100" align="left" />
+        <div class="footnote">
+          <p><sup>[<a id="ftn.idp47812240" href="#idp47812240" class="para">62</a>] </sup>Note that the URL checked out in the example
+      ends not with <code class="literal">subversion</code>, but with a
+      subdirectory thereof called <code class="literal">trunk</code>.  See our
+      discussion of Subversion's branching and tagging model for the
+      reasoning behind this.</p>
+        </div>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.intro.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.intro.html">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.intro.quickstart.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">Appendix A. Subversion Quick-Start Guide </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> High-Speed Tutorial</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>svndumpfilter—Subversion History Filtering</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.ref.html" title="Chapter 9. Subversion Complete Reference" />
+    <link rel="prev" href="svn.ref.svnserve.html" title="svnserve—Custom Subversion Server" />
+    <link rel="next" href="svn.ref.svndumpfilter.commands.c.exclude.html" title="svndumpfilter exclude" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">svndumpfilter—Subversion History Filtering</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.ref.svnserve.html">Prev</a> </td>
+          <th width="60%" align="center">Chapter 9. Subversion Complete Reference</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.ref.svndumpfilter.commands.c.exclude.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="sect1" title="svndumpfilter—Subversion History Filtering">
+      <div class="titlepage">
+        <div>
+          <div>
+            <h2 class="title" style="clear: both"><a id="svn.ref.svndumpfilter"></a>svndumpfilter—Subversion History Filtering</h2>
+          </div>
+        </div>
+      </div>
+      <p><span class="command"><strong>svndumpfilter</strong></span> is a command-line utility
+      for removing history from a Subversion dump file by either
+      excluding or including paths beginning with one or more named
+      prefixes.  For details, see
+      <a class="xref" href="svn.reposadmin.maint.html#svn.reposadmin.maint.tk.svndumpfilter" title="svndumpfilter">the section called “svndumpfilter”</a>.</p>
+      <div class="sect2" title="svndumpfilter Options">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.ref.svndumpfilter.options"></a>svndumpfilter Options</h3>
+            </div>
+          </div>
+        </div>
+        <p>Options in <span class="command"><strong>svndumpfilter</strong></span> are global, just
+        as they are in <span class="command"><strong>svn</strong></span> and
+        <span class="command"><strong>svnadmin</strong></span>:</p>
+        <div class="variablelist">
+          <dl>
+            <dt>
+              <span class="term">
+                <code class="option">--drop-empty-revs</code>
+              </span>
+            </dt>
+            <dd>
+              <p>If filtering causes any revision to be empty (i.e.,
+              causes no change to the repository), removes these
+              revisions from the final dump file.</p>
+            </dd>
+            <dt>
+              <span class="term">
+                <code class="option">--pattern</code>
+              </span>
+            </dt>
+            <dd>
+              <p>Treat the path prefixes provided to the filtering
+              commands as file glob patterns rather than explicit path
+              substrings.</p>
+            </dd>
+            <dt>
+              <span class="term">
+                <code class="option">--renumber-revs</code>
+              </span>
+            </dt>
+            <dd>
+              <p>Renumbers revisions that remain after
+              filtering.</p>
+            </dd>
+            <dt>
+              <span class="term">
+                <code class="option">--skip-missing-merge-sources</code>
+              </span>
+            </dt>
+            <dd>
+              <p>Skips merge sources that have been removed as part of
+              the filtering.  Without this
+              option, <span class="command"><strong>svndumpfilter</strong></span> will exit with
+              an error if the merge source for a retained path is
+              removed by filtering.</p>
+            </dd>
+            <dt>
+              <span class="term">
+                <code class="option">--preserve-revprops</code>
+              </span>
+            </dt>
+            <dd>
+              <p>If all nodes in a revision are removed by filtering
+              and <code class="option">--drop-empty-revs</code> is not passed,
+              the default behavior of <span class="command"><strong>svndumpfilter</strong></span>
+              is to remove all revision properties except for the date
+              and the log message (which will merely indicate that the
+              revision is empty).  Passing this option will preserve
+              existing revision properties (which may or may not make
+              sense since the related content is no longer present in
+              the dump file).</p>
+            </dd>
+            <dt>
+              <span class="term"><code class="option">--targets</code>
+            <em class="replaceable"><code>FILENAME</code></em></span>
+            </dt>
+            <dd>
+              <p>Instructs <span class="command"><strong>svndumpfilter</strong></span> to read
+              additional path prefixes—one per line—from
+              the file located at <em class="replaceable"><code>FILENAME</code></em>.
+              This is especially useful for complex filtering
+              operations which require more prefixes than the
+              operating system allows to be specified on a single
+              command line.
+            </p>
+            </dd>
+            <dt>
+              <span class="term">
+                <code class="option">--quiet</code>
+              </span>
+            </dt>
+            <dd>
+              <p>Does not display filtering statistics.</p>
+            </dd>
+          </dl>
+        </div>
+      </div>
+      <div class="sect2" title="svndumpfilter Subcommands">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.ref.svndumpfilter.c"></a>svndumpfilter Subcommands</h3>
+            </div>
+          </div>
+        </div>
+        <p>Here are the various subcommands
+        for the <span class="command"><strong>svndumpfilter</strong></span> program.</p>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.ref.svnserve.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.ref.html">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.ref.svndumpfilter.commands.c.exclude.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">svnserve—Custom Subversion Server </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> svndumpfilter exclude</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>
