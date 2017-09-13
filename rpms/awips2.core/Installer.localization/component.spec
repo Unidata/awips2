@@ -106,9 +106,9 @@ do
    grep -rl 'LATITUDE' $CAVE_DIR | xargs sed -i 's/LATITUDE/'$lat'/g'
    grep -rl 'LONGITUDE' $CAVE_DIR | xargs sed -i 's/LONGITUDE/'$lon'/g'
    # EDEX
-   EDEX_DIR=$UTIL/edex_static/site/$site
+   EDEX_DIR=$UTIL/common_static/site/$site
    mkdir -p $EDEX_DIR
-   cp -R $BUILD_DIR/utility/edex_static/* $EDEX_DIR/
+   cp -R $BUILD_DIR/utility/siteconfig/* $EDEX_DIR/
    grep -rl 'XXX' $EDEX_DIR | xargs sed -i 's/XXX/'$site'/g'
 done
 
