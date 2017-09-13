@@ -89,7 +89,7 @@ LEGACY_SQL="/awips2/postgresql/share/contrib/postgis-2.0/legacy.sql"
 
 # Determine if PostgreSQL is running.
 I_STARTED_POSTGRESQL="NO"
-su ${DB_OWNER} -c \
+su - ${DB_OWNER} -c \
    "${PG_CTL} status -D ${AWIPS2_DATA_DIRECTORY} > /dev/null 2>&1"
 RC="$?"
 
@@ -98,7 +98,7 @@ if [ ! "${RC}" = "0" ]; then
    echo "--------------------------------------------------------------------------------"
    echo "\| Starting PostgreSQL As User - ${DB_OWNER}..."
    echo "--------------------------------------------------------------------------------"
-   su ${DB_OWNER} -c \
+   su - ${DB_OWNER} -c \
       "${POSTMASTER} -D ${AWIPS2_DATA_DIRECTORY} > /dev/null 2>&1 &"
    RC="$?"
    if [ ! "${RC}" = "0" ]; then
@@ -116,7 +116,7 @@ else
    echo "\| Found Running PostgreSQL Server..."
    echo "--------------------------------------------------------------------------------"
    # Show The User.
-   su ${DB_OWNER} -c \
+   su - ${DB_OWNER} -c \
       "${PG_CTL} status -D ${AWIPS2_DATA_DIRECTORY}"
 fi
    
@@ -125,9 +125,9 @@ echo "--------------------------------------------------------------------------
 echo "\| Creating a Directory for the ncep Tablespace..."
 echo "--------------------------------------------------------------------------------"
 if [ -d /awips2/data/ncep ]; then
-   su ${DB_OWNER} -c "rm -rf ${AWIPS2_DATA_DIRECTORY}/ncep"
+   su - ${DB_OWNER} -c "rm -rf ${AWIPS2_DATA_DIRECTORY}/ncep"
 fi
-su ${DB_OWNER} -c "mkdir -p ${AWIPS2_DATA_DIRECTORY}/ncep"
+su - ${DB_OWNER} -c "mkdir -p ${AWIPS2_DATA_DIRECTORY}/ncep"
 
 echo "--------------------------------------------------------------------------------"
 echo "\| Creating the ncep database..."
@@ -140,25 +140,25 @@ perl -p -i -e "s/%{database_files_home}%/${AWIPS2_DATA_DIRECTORY_ESCAPED}/g" \
    ${SQL_SHARE_DIR}/createNcepDb.sql
    
 
-su ${DB_OWNER} -c \
+su - ${DB_OWNER} -c \
    "${PSQL} -d postgres -U awips -q -p 5432 -f ${SQL_SHARE_DIR}/createNcepDb.sql" \
    >> ${SQL_LOG} 2>&1
-su ${DB_OWNER} -c \
+su - ${DB_OWNER} -c \
    "${PSQL} -d postgres -U awips -q -p 5432 -f ${SQL_SHARE_DIR}/createNcepSchemas.sql" \
    >> ${SQL_LOG} 2>&1
 
-su ${DB_OWNER} -c \
+su - ${DB_OWNER} -c \
    "${PSQL} -d ncep -U awips -q -p 5432 -c \"CREATE EXTENSION postgis;\"" >> ${SQL_LOG} 2>&1   
-su ${DB_OWNER} -c \
+su - ${DB_OWNER} -c \
    "${PSQL} -d ncep -U awips -q -p 5432 -c \"CREATE EXTENSION postgis_topology;\"" >> ${SQL_LOG} 2>&1
    
-su ${DB_OWNER} -c \
+su - ${DB_OWNER} -c \
    "${PSQL} -d ncep -U awips -q -p 5432 -f ${LEGACY_SQL}" \
    >> ${SQL_LOG} 2>&1
 
-su ${DB_OWNER} -c \
+su - ${DB_OWNER} -c \
    "${SQL_SHARE_DIR}/createNcepDb.sh ${PSQL_INSTALL} 5432 awips ${SQL_SHARE_DIR} ${SQL_LOG}"
-su ${DB_OWNER} -c \
+su - ${DB_OWNER} -c \
    "${SQL_SHARE_DIR}/initializeNcepDb.sh ${POSTGRESQL_INSTALL} awips 5432 ${SQL_SHARE_DIR} ${SQL_LOG}"
    
 # stop PostgreSQL if we started it.
@@ -167,7 +167,7 @@ if [ "${I_STARTED_POSTGRESQL}" = "YES" ]; then
    echo "--------------------------------------------------------------------------------"
    echo "\| Stopping PostgreSQL As User - ${DB_OWNER}..."
    echo "--------------------------------------------------------------------------------"
-   su ${DB_OWNER} -c \
+   su - ${DB_OWNER} -c \
       "${PG_CTL} stop -D /awips2/data"
    RC="$?"
    if [ ! "${RC}" = "0" ]; then
@@ -204,7 +204,7 @@ echo "--------------------------------------------------------------------------
 
 # start PostgreSQL if it is not running
 I_STARTED_POSTGRESQL="NO"
-su ${DB_OWNER} -c \
+su - ${DB_OWNER} -c \
    "${PG_CTL} status -D ${AWIPS2_DATA_DIRECTORY} > /dev/null 2>&1"
 RC="$?"
 
@@ -213,7 +213,7 @@ if [ ! "${RC}" = "0" ]; then
    echo "--------------------------------------------------------------------------------"
    echo "\| Starting PostgreSQL As User - ${DB_OWNER}..."
    echo "--------------------------------------------------------------------------------"
-   su ${DB_OWNER} -c \
+   su - ${DB_OWNER} -c \
       "${POSTMASTER} -D ${AWIPS2_DATA_DIRECTORY} > /dev/null 2>&1 &"
    RC="$?"
    if [ ! "${RC}" = "0" ]; then
@@ -228,7 +228,7 @@ else
    echo "\| Found Running PostgreSQL Server..."
    echo "--------------------------------------------------------------------------------"
    # Show The User.
-   su ${DB_OWNER} -c \
+   su - ${DB_OWNER} -c \
       "${PG_CTL} status -D ${AWIPS2_DATA_DIRECTORY}"
 fi
 
@@ -236,7 +236,7 @@ echo "--------------------------------------------------------------------------
 echo "\| Dropping ncep database..."
 echo "--------------------------------------------------------------------------------"
 
-su ${DB_OWNER} -c \
+su - ${DB_OWNER} -c \
    "${DROPDB} -U awips ncep"
 
 # Is there a ncep tablespace?
@@ -247,13 +247,13 @@ if [ ! "${NCEP_DIR}" = "" ]; then
    echo "--------------------------------------------------------------------------------"
    echo "\| Dropping ncep tablespace..."
    echo "--------------------------------------------------------------------------------"
-   su ${DB_OWNER} -c \
+   su - ${DB_OWNER} -c \
       "${PSQL} -U awips -d postgres -c \"DROP TABLESPACE ncep\""
       
    # remove the maps data directory that we created
    echo "Attempting To Remove Directory: ${NCEP_DIR}"
    if [ -d "${NCEP_DIR}" ]; then
-      su ${DB_OWNER} -c "rmdir ${NCEP_DIR}"
+      su - ${DB_OWNER} -c "rmdir ${NCEP_DIR}"
    fi
 fi
 
@@ -263,7 +263,7 @@ if [ "${I_STARTED_POSTGRESQL}" = "YES" ]; then
    echo "--------------------------------------------------------------------------------"
    echo "\| Stopping PostgreSQL As User - ${DB_OWNER}..."
    echo "--------------------------------------------------------------------------------"
-   su ${DB_OWNER} -c \
+   su - ${DB_OWNER} -c \
       "${PG_CTL} stop -D ${AWIPS2_DATA_DIRECTORY}"
    RC="$?"
    if [ ! "${RC}" = "0" ]; then
