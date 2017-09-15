@@ -33,10 +33,10 @@
                value="%caveAboutText"/>
          <property
                name="version"
-               value="%caveVersion"/>
+               value="%vizVersion"/>
          <property
                name="aboutImage"
-               value="icons/ipr.gif"/>
+               value="icons/awips.png"/>
          <property
                name="appName"
                value="CAVE">
