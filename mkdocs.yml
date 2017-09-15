@@ -61,9 +61,16 @@ pages:
     - Upper Air: cave/d2d-uair.md
     - NCEP/Hydro: cave/d2d-hydro.md
     - Map Overlays: cave/d2d-map-resources.md
-- Python:
-    - Python AWIPS API: python/python-awips-data-access.md
+- Python API:
+    - Overview: python/python-awips-data-access.md
     - Maps Database: python/maps-database.md
+    - AWIPS Grids and Cartopy: python/awips-grids-and-cartopy.md
+    - Satellite Imagery: python/satellite-imagery.md
+    - NEXRAD Level 3 Radar: python/nexrad-level-3-radar.md
+    - Upper air BUFR Soundings: python/upper-air-bufr-soundings.md
+    - Model Sounding Data: python/model-sounding-data.md
+    - Map Resources and Topography: python/map-resources-and-topography.md
+    - Surface Obs Plot with MetPy: python/surface-obs-plot-metpy.md
 - Development:
     - AWIPS Development Environment (ADE): dev/awips-development-environment.md
     - Building NSHARP for macOS: dev/build-nsharp-macos.md

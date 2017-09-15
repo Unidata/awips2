@@ -1,7 +1,9 @@
 
-The python-awips package provides access to the entire AWIPS Maps Database for use in Python GIS applications.  Map objects are returned as <a href="http://toblerity.org/shapely/manual.html">Shapely</a> geometries (*Polygon*, *Point*, *MultiLineString*, etc.) and can be easily plotted by Matplotlib, Cartopy, MetPy, and other packages. 
+The <a href="http://python-awips.readthedocs.io"><b>python-awips</b></a> package provides access to the entire AWIPS Maps Database for use in Python GIS applications.  Map objects are returned as <a href="http://toblerity.org/shapely/manual.html"><b>Shapely</b></a> geometries (*Polygon*, *Point*, *MultiLineString*, etc.) and can be plotted by Matplotlib, Cartopy, MetPy, and other packages. 
 
-Each map database table has a geometry field called `the_geom`, which can be used to spatially select map resources for any column of type geometry,
+Each map database table has a geometry field called `the_geom`, which can be used to spatially select map resources for any column of type geometry. 
+
+> See the <a href="http://unidata.github.io/awips2/python/maps-database/#mapdatacwa"><b>Maps Database Reference Page</b></a> for available database tables, column names, and types. 
 
 ## Notes
 
@@ -19,7 +21,6 @@ Each map database table has a geometry field called `the_geom`, which can be use
         request.setLocationNames('BOU')
         request.addIdentifier('cwa', 'BOU')
         
-See the <a href="http://unidata.github.io/awips2/python/maps-database/#mapdatacwa">Maps Database Reference Page</a> for available database tables, column names, and types. 
   
  > Note the geometry definition of `the_geom` for each data type, which can be **Point**, **MultiPolygon**, or **MultiLineString**.
 
