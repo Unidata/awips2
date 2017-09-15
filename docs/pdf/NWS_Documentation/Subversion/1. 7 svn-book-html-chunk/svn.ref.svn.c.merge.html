@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>svn merge</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.ref.svn.html#svn.ref.svn.c" title="svn Subcommands" />
+    <link rel="prev" href="svn.ref.svn.c.log.html" title="svn log" />
+    <link rel="next" href="svn.ref.svn.c.mergeinfo.html" title="svn mergeinfo" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">svn merge</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.ref.svn.c.log.html">Prev</a> </td>
+          <th width="60%" align="center">svn Subcommands</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.ref.svn.c.mergeinfo.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="refentry" title="svn merge">
+      <a id="svn.ref.svn.c.merge"></a>
+      <div class="titlepage"></div>
+      <a id="idp43026992" class="indexterm"></a>
+      <div class="refnamediv">
+        <h2>Name</h2>
+        <p>svn merge — Apply the differences between two sources to a
+          working copy path.</p>
+      </div>
+      <div class="refsect1" title="Synopsis">
+        <a id="idp43030112"></a>
+        <h2>Synopsis</h2>
+        <p>
+          <code class="literal">svn merge sourceURL1[@N] sourceURL2[@M] [WCPATH]</code>
+        </p>
+        <p>
+          <code class="literal">svn merge sourceWCPATH1@N sourceWCPATH2@M [WCPATH]</code>
+        </p>
+        <p>
+          <code class="literal">svn merge [[-c M]... | [-r N:M]...] [SOURCE[@REV] [WCPATH]]</code>
+        </p>
+      </div>
+      <div class="refsect1" title="Description">
+        <a id="idp43033472"></a>
+        <h2>Description</h2>
+        <p>In the first form, the source URLs are specified at
+            revisions <em class="replaceable"><code>N</code></em> and <em class="replaceable"><code>M</code></em>.
+            These are the two sources to be compared.  The revisions
+            default to <code class="literal">HEAD</code> if omitted.</p>
+        <p>In the second form, the URLs corresponding to the
+            source working copy paths define the sources to be
+            compared.  The revisions must be specified.</p>
+        <p>In the third form, <em class="replaceable"><code>SOURCE</code></em>
+            can be either a URL or a working copy path (in which case
+            its corresponding URL is used).  If not specified,
+            <em class="replaceable"><code>SOURCE</code></em> will be the same as
+            <em class="replaceable"><code>WCPATH</code></em>.
+            <em class="replaceable"><code>SOURCE</code></em> in revision
+            <em class="replaceable"><code>REV</code></em> is compared as it existed
+            between revisions <em class="replaceable"><code>N</code></em> and
+            <em class="replaceable"><code>M</code></em> for each revision range
+            provided.  If <em class="replaceable"><code>REV</code></em> is not
+            specified, <code class="literal">HEAD</code> is assumed.</p>
+        <p><code class="literal">-c M</code> is equivalent to <code class="literal">-r
+            &lt;M-1&gt;:M</code>, and <code class="literal">-c -M</code> does
+            the reverse: <code class="literal">-r M:&lt;M-1&gt;</code>.  If no
+            revision ranges are specified, the default range of
+            <code class="literal">1:HEAD</code> is used.  Multiple
+            <code class="literal">-c</code> and/or <code class="literal">-r</code>
+            instances may be specified, and mixing of forward and
+            reverse ranges is allowed—the ranges are internally
+            compacted to their minimum representation before merging
+            begins (which may result in no-op).</p>
+        <p><em class="replaceable"><code>WCPATH</code></em> is the working copy
+            path that will receive the changes.  If
+            <em class="replaceable"><code>WCPATH</code></em> is omitted, a default
+            value of <span class="quote">“<span class="quote"><code class="filename">.</code></span>”</span> is assumed,
+            unless the sources have identical basenames that match a
+            file within <span class="quote">“<span class="quote"><code class="filename">.</code></span>”</span>.  In
+            this case, the differences will be applied to that
+            file.</p>
+        <p>Subversion will internally track metadata about
+            the merge operation only if the two sources are ancestrally
+            related—if the first source is an ancestor of the
+            second or vice versa.  This is guaranteed to be the case
+            when using the third form.  Unlike <span class="command"><strong>svn
+            diff</strong></span>, the merge command takes the ancestry of a
+            file into consideration when performing a merge operation.
+            This is very important when you're merging changes from
+            one branch into another and you've renamed a file on one
+            branch but not the other.</p>
+      </div>
+      <div class="refsect1" title="Options">
+        <a id="idp43052144"></a>
+        <h2>Options</h2>
+        <div class="informalexample">
+          <pre class="screen">
+--accept ACTION
+--allow-mixed-revisions
+--change (-c) REV
+--depth ARG
+--diff3-cmd CMD
+--dry-run
+--extensions (-x) ARG
+--force
+--ignore-ancestry
+--quiet (-q)
+--record-only
+--reintegrate
+--revision (-r) REV
+</pre>
+        </div>
+      </div>
+      <div class="refsect1" title="Examples">
+        <a id="idp43054208"></a>
+        <h2>Examples</h2>
+        <p>Merge a branch back into the trunk (assuming that
+            you have an up-to-date working copy of the trunk):</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn merge --reintegrate \
+            http://svn.example.com/repos/calc/branches/my-calc-branch
+--- Merging differences between repository URLs into '.':
+U    button.c
+U    integer.c
+U    Makefile
+ U   .
+
+$ # build, test, verify, ...
+
+$ svn commit -m "Merge my-calc-branch back into trunk!"
+Sending        .
+Sending        button.c
+Sending        integer.c
+Sending        Makefile
+Transmitting file data ..
+Committed revision 391.
+</pre>
+        </div>
+        <p>To merge changes to a single file:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ cd myproj
+$ svn merge -r 30:31 thhgttg.txt 
+U  thhgttg.txt
+</pre>
+        </div>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.ref.svn.c.log.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.ref.svn.html#svn.ref.svn.c">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.ref.svn.c.mergeinfo.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">svn log </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> svn mergeinfo</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

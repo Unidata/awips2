@@ -136,9 +136,6 @@
 		<command id="com.raytheon.viz.gfe.actions.ShowDefineSamplesLatLongAction"
 			name="ShowDefineSamplesLatLongAction">
 		</command>
-		<command id="com.raytheon.viz.gfe.actions.ShowPublishToOfficialDialog"
-			name="ShowPublishToOfficialDialog">
-		</command>
 		<command
 			id="com.raytheon.viz.gfe.actions.ShowProductGenerationScriptDialog"
 			name="ShowProductGenerationScriptDialog">
@@ -148,9 +145,6 @@
 		</command>
 		<command id="com.raytheon.viz.gfe.actions.ShowLoadSampleSetDialog"
 			name="ShowLoadSampleSetDialog">
-		</command>
-		<command id="com.raytheon.viz.gfe.actions.ShowSendIsc"
-			name="ShowSendIscGridsDialog">
 		</command>
 		<command id="com.raytheon.viz.gfe.actions.ShowSaveDeleteSampleSetDialog"
 			name="ShowSaveDeleteSampleSetDialog">
@@ -304,10 +298,6 @@
            name="Parm"
            optional="false">
      </commandParameter>
-  </command>
-  <command
-        id="com.raytheon.viz.gfe.iscSendEnable"
-        name="ISC Send Enable">
   </command>
   <command
         defaultHandler="com.raytheon.viz.gfe.actions.ClearPracticeVTECTable"
@@ -553,13 +543,6 @@
 		</handler>
 		<handler class="com.raytheon.viz.gfe.actions.ShowDefineSamplesLatLongAction"
 			commandId="com.raytheon.viz.gfe.actions.ShowDefineSamplesLatLongAction">
-            <activeWhen>
-                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
-                </reference>
-            </activeWhen>
-		</handler>
-		<handler class="com.raytheon.viz.gfe.actions.ShowPublishDialog"
-			commandId="com.raytheon.viz.gfe.actions.ShowPublishToOfficialDialog">
             <activeWhen>
                 <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
                 </reference>
@@ -935,15 +918,6 @@
      </activeWhen>
   </handler>
   <handler
-        class="com.raytheon.viz.gfe.actions.IscSendEnableHandler"
-        commandId="com.raytheon.viz.gfe.iscSendEnable">
-     <activeWhen>
-        <reference
-              definitionId="com.raytheon.viz.gfe.inGFEActionSet">
-        </reference>
-     </activeWhen>
-  </handler>
-  <handler
         class="com.raytheon.viz.gfe.actions.ClearHighlightsAction"
         commandId="com.raytheon.viz.gfe.clearHighlights">
      <activeWhen>
@@ -999,15 +973,6 @@
         </reference>
      </activeWhen>
   </handler>
-    <handler
-         class="com.raytheon.viz.gfe.actions.ShowSendIscGridsDialog"
-         commandId="com.raytheon.viz.gfe.actions.ShowSendIsc">
-     <activeWhen>
-        <reference
-              definitionId="com.raytheon.viz.gfe.inGFEActionSet">
-        </reference>
-     </activeWhen>
-  </handler>
 	</extension>
 	<extension point="com.raytheon.uf.viz.core.resource">
 		<resource class="com.raytheon.viz.gfe.rsc.GFEResource" name="GFEResource"
@@ -1027,7 +992,7 @@
 			name="Grid Manager" />
 	</extension>
 	<extension point="org.eclipse.ui.menus">
-		<menuContribution locationURI="menu:org.eclipse.ui.main.menu">
+		<menuContribution locationURI="menu:org.eclipse.ui.main.menu?after=CAVE">
 			<menu id="gfe" label="GFE" mnemonic="G">
 				<visibleWhen>
 					<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
@@ -1318,24 +1283,12 @@
           name="com.raytheon.viz.gfe.separator2"
           visible="true">
     </separator>
-    <command
-          commandId="com.raytheon.viz.gfe.actions.ShowSendIsc"
-          label="Send Intersite Grids" />
-    <command
-          commandId="com.raytheon.viz.gfe.actions.ShowIscRequestReply"
-          label="ISC Request/Reply" />
-	<command
-          commandId="com.raytheon.viz.gfe.iscSendEnable"
-          label="ISC Send Enable" style="toggle" />
 			</menu>
 			<menu label="Products" mnemonic="P">
 				<visibleWhen>
 					<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
 					</reference>
 				</visibleWhen>
-				<command commandId="com.raytheon.viz.gfe.actions.ShowPublishToOfficialDialog"
-					label="Publish to Official...">
-				</command>
 				<command commandId="com.raytheon.viz.gfe.actions.FormatterlauncherAction"
 					label="Formatter Launcher...">
 				</command>
@@ -1514,13 +1467,13 @@
 						</reference>
 					</visibleWhen>
 				</command>
-				<command commandId="com.raytheon.viz.gfe.actions.showISCGrids"
-					icon="icons/isc0.gif" style="toggle" tooltip="Toggle Intersite Coordination Mode">
-					<visibleWhen>
-						<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
-						</reference>
-					</visibleWhen>
-				</command>
+			   <command commandId="com.raytheon.viz.gfe.actions.showISCGrids"
+			       icon="icons/isc0.gif" style="toggle" tooltip="Toggle Intersite Coordination Mode">
+			       <visibleWhen>
+			               <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+			               </reference>
+			       </visibleWhen>
+			   </command>
 				<command commandId="com.raytheon.viz.gfe.actions.ShowSaveForecastDialog"
 					icon="icons/saveFcst0.gif" tooltip="Save Forecast">
 					<visibleWhen>
@@ -1995,12 +1948,6 @@
           localizationType="CAVE_STATIC"
           name="Utilities"
           value="gfe/userPython/utilities">
-    </path>
-    <path
-          application="GFE"
-          localizationType="COMMON_STATIC"
-          name="ISC Utilities"
-          value="isc/utilities">
     </path>
     <path
           application="GFE"

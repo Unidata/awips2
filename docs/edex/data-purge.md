@@ -150,7 +150,6 @@ To see a list of the data plug-ins that have purge rules:
     /awips2/edex/data/utility/common_static/base/purge/awwPurgeRules.xml
     /awips2/edex/data/utility/common_static/base/purge/defaultPurgeRules.xml
     /awips2/edex/data/utility/common_static/base/purge/ldadprofilerPurgeRules.xml
-    /awips2/edex/data/utility/common_static/base/purge/bufrmosNGMPurgeRules.xml
     /awips2/edex/data/utility/common_static/base/purge/madisPurgeRules.xml
     /awips2/edex/data/utility/common_static/base/purge/convsigmetPurgeRules.xml
     /awips2/edex/data/utility/common_static/base/purge/redbookPurgeRules.xml

@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>svnlook changed</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.ref.svnlook.html#svn.ref.svnlook.c" title="svnlook Subcommands" />
+    <link rel="prev" href="svn.ref.svnlook.c.cat.html" title="svnlook cat" />
+    <link rel="next" href="svn.ref.svnlook.c.date.html" title="svnlook date" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">svnlook changed</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.ref.svnlook.c.cat.html">Prev</a> </td>
+          <th width="60%" align="center">svnlook Subcommands</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.ref.svnlook.c.date.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="refentry" title="svnlook changed">
+      <a id="svn.ref.svnlook.c.changed"></a>
+      <div class="titlepage"></div>
+      <a id="idp43978944" class="indexterm"></a>
+      <div class="refnamediv">
+        <h2>Name</h2>
+        <p>svnlook changed — Print the paths that were changed.</p>
+      </div>
+      <div class="refsect1" title="Synopsis">
+        <a id="idp43982032"></a>
+        <h2>Synopsis</h2>
+        <p>
+          <code class="literal">svnlook changed REPOS_PATH</code>
+        </p>
+      </div>
+      <div class="refsect1" title="Description">
+        <a id="idp43983664"></a>
+        <h2>Description</h2>
+        <p>Print the paths that were changed in a particular
+            revision or transaction, as well as <span class="quote">“<span class="quote">svn
+            update-style</span>”</span> status letters in the first two
+            columns:</p>
+        <div class="variablelist">
+          <dl>
+            <dt>
+              <span class="term">
+                <code class="literal">'A '</code>
+              </span>
+            </dt>
+            <dd>
+              <p>Item added to repository</p>
+            </dd>
+            <dt>
+              <span class="term">
+                <code class="literal">'D '</code>
+              </span>
+            </dt>
+            <dd>
+              <p>Item deleted from repository</p>
+            </dd>
+            <dt>
+              <span class="term">
+                <code class="literal">'U '</code>
+              </span>
+            </dt>
+            <dd>
+              <p>File contents changed</p>
+            </dd>
+            <dt>
+              <span class="term">
+                <code class="literal">'_U'</code>
+              </span>
+            </dt>
+            <dd>
+              <p>Properties of item changed; note the leading underscore</p>
+            </dd>
+            <dt>
+              <span class="term">
+                <code class="literal">'UU'</code>
+              </span>
+            </dt>
+            <dd>
+              <p>File contents and properties changed</p>
+            </dd>
+          </dl>
+        </div>
+        <p>Files and directories can be distinguished, as
+            directory paths are displayed with a
+            trailing <span class="quote">“<span class="quote"><code class="literal">/</code></span>”</span>
+            character.</p>
+      </div>
+      <div class="refsect1" title="Options">
+        <a id="idp43997248"></a>
+        <h2>Options</h2>
+        <div class="informalexample">
+          <pre class="screen">
+--copy-info
+--revision (-r) REV
+--transaction (-t) TXN
+</pre>
+        </div>
+      </div>
+      <div class="refsect1" title="Examples">
+        <a id="idp43999168"></a>
+        <h2>Examples</h2>
+        <p>This shows a list of all the changed files and
+            directories in revision 39 of a test repository.  Note
+            that the first changed item is a directory, as evidenced
+            by the trailing <code class="literal">/</code>:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svnlook changed -r 39 /var/svn/repos
+A   trunk/vendors/deli/
+A   trunk/vendors/deli/chips.txt
+A   trunk/vendors/deli/sandwich.txt
+A   trunk/vendors/deli/pickle.txt
+U   trunk/vendors/baker/bagel.txt
+_U  trunk/vendors/baker/croissant.txt
+UU  trunk/vendors/baker/pretzel.txt
+D   trunk/vendors/baker/baguette.txt
+</pre>
+        </div>
+        <p>Here's an example that shows a revision in which a
+            file was renamed:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svnlook changed -r 64 /var/svn/repos
+A   trunk/vendors/baker/toast.txt
+D   trunk/vendors/baker/bread.txt
+</pre>
+        </div>
+        <p>Unfortunately, nothing in the preceding output reveals
+            the connection between the deleted and added files.  Use
+            the <code class="option">--copy-info</code> option to make this
+            relationship more apparent:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svnlook changed -r 64 --copy-info /var/svn/repos
+A + trunk/vendors/baker/toast.txt
+    (from trunk/vendors/baker/bread.txt:r63)
+D   trunk/vendors/baker/bread.txt
+</pre>
+        </div>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.ref.svnlook.c.cat.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.ref.svnlook.html#svn.ref.svnlook.c">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.ref.svnlook.c.date.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">svnlook cat </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> svnlook date</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

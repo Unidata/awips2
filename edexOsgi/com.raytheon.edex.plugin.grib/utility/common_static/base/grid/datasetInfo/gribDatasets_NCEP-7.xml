@@ -294,10 +294,10 @@
         <dt>3</dt>
     </info>
     <info>
-		<title>NAM over the contiguous US 16X Resolution(5Km) Lambert Conformal</title>
-		<datasetId>NAM5</datasetId>
-		<dt>3</dt>
-	</info>
+	<title>NAM5</title>
+	<datasetId>NAM5</datasetId>
+	<dt>1</dt>
+    </info>
     <info>
         <title>ENPwave</title>
         <datasetId>WaveWatch-ENP</datasetId>

@@ -191,7 +191,7 @@ function prepare()
    # determine if PostgreSQL is running
    I_STARTED_POSTGRESQL="NO"
    echo "Determining if PostgreSQL is running ..." >> ${log_file}
-   su ${DB_OWNER} -c \
+   su - ${DB_OWNER} -c \
       "${a2_pg_ctl} status -D /awips2/data >> ${log_file} 2>&1"
    RC=$?
    echo "" >> ${log_file}
@@ -201,7 +201,7 @@ function prepare()
       echo "INFO: PostgreSQL is running." >> ${log_file}
    else
       echo "Starting PostgreSQL as User: ${DB_OWNER} ..." >> ${log_file}
-      su ${DB_OWNER} -c \
+      su - ${DB_OWNER} -c \
          "${a2_postmaster} -D /awips2/data >> ${log_file} 2>&1 &"
       if [ $? -ne 0 ]; then
          echo "FATAL: Failed to start PostgreSQL." >> ${log_file}
@@ -229,7 +229,7 @@ function restartPostgreSQL()
    DB_OWNER=`ls -l /awips2/ | grep -w 'data' | awk '{print $3}'`
    
    echo "Restarting PostgreSQL ..." >> ${log_file}
-   su ${DB_OWNER} -c \
+   su - ${DB_OWNER} -c \
       "${a2_pg_ctl} restart -D /awips2/data" >> ${log_file}
    sleep 20
    echo "PostgreSQL restart complete ..." >> ${log_file}
@@ -440,7 +440,7 @@ a2_pg_ctl="/awips2/postgresql/bin/pg_ctl"
 if [ "${I_STARTED_POSTGRESQL}" = "YES" ]; then
    echo "" >> ${log_file}
 
-   su ${DB_OWNER} -c \
+   su - ${DB_OWNER} -c \
       "${a2_pg_ctl} stop -D /awips2/data" >> ${log_file}
    if [ $? -ne 0 ]; then
       echo "WARNING: Failed to shutdown PostgreSQL." >> ${log_file}

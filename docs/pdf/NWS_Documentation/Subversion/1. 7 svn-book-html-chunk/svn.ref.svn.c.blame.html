@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>svn blame</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.ref.svn.html#svn.ref.svn.c" title="svn Subcommands" />
+    <link rel="prev" href="svn.ref.svn.c.add.html" title="svn add" />
+    <link rel="next" href="svn.ref.svn.c.cat.html" title="svn cat" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">svn blame</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.ref.svn.c.add.html">Prev</a> </td>
+          <th width="60%" align="center">svn Subcommands</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.ref.svn.c.cat.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="refentry" title="svn blame">
+      <a id="svn.ref.svn.c.blame"></a>
+      <div class="titlepage"></div>
+      <a id="idp42537456" class="indexterm"></a>
+      <div class="refnamediv">
+        <h2>Name</h2>
+        <p>svn blame, praise, annotate, ann — Show author and revision information inline
+            for the specified files or URLs.</p>
+      </div>
+      <div class="refsect1" title="Synopsis">
+        <a id="idp42541856"></a>
+        <h2>Synopsis</h2>
+        <p>
+          <code class="literal">svn blame TARGET[@REV]...</code>
+        </p>
+      </div>
+      <div class="refsect1" title="Description">
+        <a id="idp42543488"></a>
+        <h2>Description</h2>
+        <p>Show author and revision information inline for the
+            specified files or URLs.  Each line of text is annotated
+            at the beginning with the author (username) and the
+            revision number for the last change to that line.</p>
+      </div>
+      <div class="refsect1" title="Options">
+        <a id="idp42544928"></a>
+        <h2>Options</h2>
+        <div class="informalexample">
+          <pre class="screen">
+--extensions (-x) ARG
+--force
+--incremental
+--revision (-r) REV
+--use-merge-history (-g)
+--verbose (-v)
+--xml
+</pre>
+        </div>
+      </div>
+      <div class="refsect1" title="Examples">
+        <a id="idp42547056"></a>
+        <h2>Examples</h2>
+        <p>If you want to see blame-annotated source for
+            <code class="filename">readme.txt</code> in your test
+            repository:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn blame http://svn.red-bean.com/repos/test/readme.txt
+     3      sally This is a README file.
+     5      harry You should read this.
+</pre>
+        </div>
+        <p>Even if <span class="command"><strong>svn blame</strong></span> says that Harry
+            last modified <code class="filename">readme.txt</code> in revision
+            5, you'll have to examine exactly what the revision
+            changed to be sure that Harry changed
+            the <span class="emphasis"><em>context</em></span> of the line—he may
+            have adjusted just the whitespace.
+          </p>
+        <p>If you use the <code class="option">--xml</code> option, you can
+            get XML output describing the blame annotations, but not
+            the contents of the lines themselves:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn blame --xml http://svn.red-bean.com/repos/test/readme.txt
+&lt;?xml version="1.0"?&gt;
+&lt;blame&gt;
+&lt;target
+   path="readme.txt"&gt;
+&lt;entry
+   line-number="1"&gt;
+&lt;commit
+   revision="3"&gt;
+&lt;author&gt;sally&lt;/author&gt;
+&lt;date&gt;2008-05-25T19:12:31.428953Z&lt;/date&gt;
+&lt;/commit&gt;
+&lt;/entry&gt;
+&lt;entry
+   line-number="2"&gt;
+&lt;commit
+   revision="5"&gt;
+&lt;author&gt;harry&lt;/author&gt;
+&lt;date&gt;2008-05-29T03:26:12.293121Z&lt;/date&gt;
+&lt;/commit&gt;
+&lt;/entry&gt;
+&lt;/target&gt;
+&lt;/blame&gt;
+</pre>
+        </div>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.ref.svn.c.add.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.ref.svn.html#svn.ref.svn.c">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.ref.svn.c.cat.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">svn add </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> svn cat</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

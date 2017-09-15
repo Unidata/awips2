@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<subGridDef>
+   <modelNames>NAM5</modelNames>
+   <referenceGrid>227</referenceGrid>
+   <nx>175</nx>
+   <ny>175</ny>
+   <centerLatitude>40.0</centerLatitude>
+   <centerLongitude>-105.0</centerLongitude>
+</subGridDef>
