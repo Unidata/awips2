@@ -57,6 +57,7 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  * May 14, 2014 2536      bclement    moved WMO Header to common, removed TimeTools usage
  * Jul 23, 2014 3410      bclement    location changed to floats
  * Sep 16, 2014  3628     mapeters    Replaced static imports.
+ * Sep 13, 2017           mjames@ucar Less logging
  * 
  * </pre>
  * 
@@ -161,7 +162,6 @@ public class SSMIDataAdapter extends BUFRPointDataAdapter<SSMIScanData> {
             if (obsData != null) {
                 obsData.setWmoHeader(wmoHeader.getWmoHeader());
                 obsList = new ArrayList<SSMIScanData>();
-                logger.debug("Created master observation for scanline");
                 // Now go get the point data for this obs
                 // get the location and data sublists.
                 IBUFRDataPacket p1 = dataList.get(9);
@@ -180,7 +180,6 @@ public class SSMIDataAdapter extends BUFRPointDataAdapter<SSMIScanData> {
                     }
                 }
                 if ((locList != null) && (pointList != null)) {
-                    logger.info("Decoding " + locList.size() + " observations");
                     Iterator<IBUFRDataPacket> it = pointList.iterator();
                     for (IBUFRDataPacket p : locList) {
                         // We have the obs data that describes the scan line.
@@ -219,9 +218,6 @@ public class SSMIDataAdapter extends BUFRPointDataAdapter<SSMIScanData> {
                     IDecoderConstants.VAL_MISSING);
             int scnNo = getInt(dataList.get(SCAN_N_POS),
                     IDecoderConstants.VAL_MISSING);
-
-            logger.info("getHeaderData(" + satId + "," + orbNo + "," + scnNo
-                    + ")" + obsData.getDataTime());
 
             if (satId != IDecoderConstants.VAL_MISSING) {
                 obsData.setSatId(satId);
@@ -294,9 +290,6 @@ public class SSMIDataAdapter extends BUFRPointDataAdapter<SSMIScanData> {
 
                 PointDataContainer container = getContainer(pointData);
                 if (container != null) {
-
-                    logger.debug("Creating obs scanline obs data ");
-
                     PointDataView view = container.append();
                     //
                     view.setInt("orbitNumber", pointData.getOrbitNumber());

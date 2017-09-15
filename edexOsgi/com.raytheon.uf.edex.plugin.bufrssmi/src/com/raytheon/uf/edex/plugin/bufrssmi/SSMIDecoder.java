@@ -44,6 +44,7 @@ import com.raytheon.uf.edex.plugin.bufrssmi.decoder.SSMIDataAdapter;
  * Jan 21, 2009 1939       jkorman     Initial creation
  * May 17, 2013 1869       bsteffen    Remove DataURI column from sat plot
  *                                     types.
+ * Sep 13, 2017            mjames@ucar Less logging
  * 
  * </pre>
  * 
@@ -65,10 +66,7 @@ public class SSMIDecoder extends AbstractBUFRDecoder {
         super(name);
         try {
             pdd = PointDataDescription.fromStream(this.getClass()
-                    .getResourceAsStream("/res/pointdata/bufrssmi.xml"));
-
-            logger.info("PointDataDescription loaded");
-        
+                    .getResourceAsStream("/res/pointdata/bufrssmi.xml"));        
         } catch(Exception e) {
             logger.error("PointDataDescription failed",e);
             logger.error("Plugin set to failSafe mode");
@@ -88,10 +86,8 @@ public class SSMIDecoder extends AbstractBUFRDecoder {
             decodedData = new ArrayList<PluginDataObject>();
             SSMIDataAdapter adapter = new SSMIDataAdapter(pdd, dao, pluginName);
             
-            logger.info(traceId + " - Document size = " + document.size());
             Iterator<BUFRDataDocument> iterator = document.iterator();
             while (iterator.hasNext()) {
-                logger.info(traceId + " - Entering createDataList");
 
                 List<SSMIScanData> ssmiObs = adapter.createDataList(iterator, wmoHeader);
                 if (ssmiObs != null) {
