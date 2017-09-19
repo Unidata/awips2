@@ -21,10 +21,10 @@
 <lambertConformalGridCoverage>
     <name>NBM</name>
     <description> National Blend Grid over CONUS - (2.54 km)</description>
-    <la1>20.191999</la1>
-    <lo1>-121.554</lo1>
+    <la1>19.229000</la1>
+    <lo1>-233.723400</lo1>
     <firstGridPointCorner>LowerLeft</firstGridPointCorner>
-    <nx>2145</nx>
+    <nx>2345</nx>
     <ny>1597</ny>
     <dx>2.539703</dx>
     <dy>2.539703</dy>

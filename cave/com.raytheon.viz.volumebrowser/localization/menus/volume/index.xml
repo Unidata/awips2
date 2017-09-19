@@ -29,34 +29,6 @@
 	<substitute key="RAP13model" value="RAP13" />
 	<substitute key="RAPmodel" value="RAP40" />
 	<substitute key="SREFmodel" value="SREF212" />
-<!-- 	<substitute key="HRRRmodel" value="HRRR-CR" />
-	<substitute key="GEMNHmodel" value="Canadian-NH" />
-	<substitute key="GEMRegmodel" value="Canadian-Reg" />
-	<substitute key="ARXLAPSmodel" value="ARXLAPS" />
-	<substitute key="HRRRmodel" value="HRRR-CR" />
-	<substitute key="NAMNestmodel" value="CR-NAMNest" /> -->
-<!-- #
-# Configuration area for bundles that call radar mosaics. Replace the radar1-12 variables below
-# with radars that build your mosaic. 
-# -->
-<!-- 	<substitute key="radar1" value="karx" />
-    	<substitute key="radar2" value="kmpx"/>
-		<substitute key="radar3" value="kdlh"/>
-		<substitute key="radar4" value="kgrb"/>
-		<substitute key="radar5" value="kmkx"/>
-		<substitute key="radar6" value="kabr"/>
-		<substitute key="radar7" value="kfsd"/>
-		<substitute key="radar8" value="kdvn"/>
-		<substitute key="radar9" value="kdmx"/>
-		<substitute key="radar10" value="kabr"/>
-   	    <substitute key="radar11" value="koax"/>
-		<substitute key="radar12" value="kmvx"/> -->
-<!-- #
-# Configure the color map/table for the mosaic radar reflectivity
-# -->
-<!-- 	<substitute key="localReflectivityColorMap" value="Radar/Ref/ARX-Radar-Mosaic-clear"/> -->
-<!-- # end config section		 -->
-	
 	
     <include installTo="menu:volume?after=VolumeBundles" 
              fileName="menus/volume/baseFamilies.xml">
@@ -65,20 +37,11 @@
    <include subMenu="4-PanelFamilies" installTo="menu:volume" 
              fileName="menus/volume/baseFourPanelFamilies.xml">
     </include>
- <!--    <include subMenu="Aviation: Model Family" installTo="menu:volume" 
-             fileName="menus/volume/aviationFamily.xml">
-    </include> -->
-    
-<!--     Have placed the architecture for Comparisons, but they are not live, could not test them. db -->
-<!--     <include subMenu="Comparison Families" installTo="menu:volume" 
-             fileName="menus/volume/baseComparisonFamilies.xml">
-    </include>  -->
     
     <include subMenu="Convect Families" installTo="menu:volume" 
              fileName="menus/volume/ConvectModelFamilies.xml">
     </include>
  
-
     <include subMenu="Surface Families" installTo="menu:volume" 
              fileName="menus/volume/baseSurfaceFamilies.xml">
     </include>
