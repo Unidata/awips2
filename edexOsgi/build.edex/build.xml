@@ -79,15 +79,7 @@
 		</antcall>
 		<antcall target="build">
 			<param name="feature"
-				value="com.raytheon.uf.edex.hydro.feature" />
-		</antcall>
-		<antcall target="build">
-			<param name="feature"
 				value="com.raytheon.uf.edex.radar.feature" />
-		</antcall>
-		<antcall target="build">
-			<param name="feature"
-				value="com.raytheon.uf.edex.dat.feature" />
 		</antcall>
 		<antcall target="build">
 			<param name="feature"
@@ -105,10 +97,6 @@
         		<param name="feature"
 				value="com.raytheon.uf.edex.npp.feature" />
         	</antcall>
-        <antcall target="build">
-            <param name="feature"
-                value="com.raytheon.uf.edex.remote.script.feature" />
-        </antcall>
 		<antcall target="build">
 			<param name="feature"
 				value="com.raytheon.uf.edex.binlightning.feature" />
@@ -125,10 +113,12 @@
                 <param name="feature"
                         value="gov.nasa.msfc.sport.edex.glmdecoder.feature" />
                 </antcall>
+<!--
                 <antcall target="build">
                         <param name="feature"
                                 value="gov.nasa.msfc.sport.edex.sportlma.feature" />
                 </antcall>
+-->
                 <antcall target="build">
                         <param name="feature"
                                 value="gov.noaa.nws.crh.edex.grib.decoderpostprocessor.feature" />

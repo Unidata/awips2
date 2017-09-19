@@ -171,10 +171,6 @@ function lookupRPM()
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.gfesuite"
       return 0
    fi
-   if [ "${1}" = "awips2-hydroapps-shared" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.hydroapps"
-      return 0
-   fi
    if [ "${1}" = "-localization" ]; then
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.localization"
       return 0
@@ -189,10 +185,6 @@ function lookupRPM()
    fi
    if [ "${1}" = "awips2-pypies" ]; then
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.pypies"
-      return 0
-   fi
-   if [ "${1}" = "awips2-rcm" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.rcm"
       return 0
    fi
    if [ "${1}" = "awips2-data.hdf5-topo" ]; then

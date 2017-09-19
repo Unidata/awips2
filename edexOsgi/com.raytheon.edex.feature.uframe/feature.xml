@@ -85,15 +85,7 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.edex.hydro.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.uf.edex.radar.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.edex.dat.feature"
          version="0.0.0"/>
 
    <includes
@@ -104,10 +96,6 @@
          id="com.raytheon.uf.edex.npp.feature"
          version="0.0.0"/>
 
-   <includes
-         id="com.raytheon.uf.edex.remote.script.feature"
-         version="0.0.0"/>
-         
    <includes
          id="com.raytheon.uf.edex.config.auto.feature"
          version="0.0.0"/>

@@ -188,20 +188,6 @@ class StdWarningDecoder():
         self._productPil, self._issueTime, linePos,\
           self._completeProductPil  = self._getPilAndDTG()
          
-         # If this is a WCL - don't go any further. Run WCL procedure and exit.
-        if self._productPil[0:3] == "WCL":
-            endpoint = "WCLWatch"
-            # build a Java object for the warning
-            from com.raytheon.edex.plugin.gfe.watch import WclInfo
-            import JUtil
-            lines = JUtil.pyValToJavaObj(self._lines)
-            warning = WclInfo(long(self._issueTime * 1000),
-                              self._completeProductPil, lines, self._notifyGFE)
-            from com.raytheon.uf.edex.core import EDEXUtil
-            EDEXUtil.getMessageProducer().sendAsync(endpoint, warning)
-            LogStream.logEvent("%s forwarded to WCLWatch" % self._productPil)
-            return []
-       
         # Determine if this is a segmented product
         segmented = self._determineSegmented(linePos)
  
