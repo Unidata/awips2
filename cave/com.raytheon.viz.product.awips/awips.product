@@ -78,7 +78,6 @@
       <feature id="com.raytheon.uf.viz.dataplugin.obs.feature"/>
       <feature id="com.raytheon.uf.viz.sounding.feature"/>
       <feature id="com.raytheon.uf.viz.cots.feature"/>
-      <feature id="com.raytheon.uf.viz.registry.feature"/>
       <feature id="com.raytheon.uf.viz.common.core.feature"/>
       <feature id="com.raytheon.uf.viz.dataplugins.feature"/>
       <feature id="com.raytheon.viz.feature.awips"/>
@@ -100,7 +99,6 @@
       <feature id="com.raytheon.uf.viz.displays.feature"/>
       <feature id="com.raytheon.viz.hydro.feature"/>
       <feature id="com.raytheon.uf.viz.kml.export.feature"/>
-      <feature id="com.raytheon.uf.viz.d2d.damagepath.feature"/>
       <feature id="com.raytheon.uf.viz.d2d.xy.feature"/>
       <feature id="com.raytheon.viz.volumebrowser.feature"/>
       <feature id="com.raytheon.uf.viz.core.maps.feature"/>
@@ -109,7 +107,6 @@
       <feature id="com.raytheon.viz.text.feature"/>
       <feature id="com.raytheon.viz.warngen.feature"/>
       <feature id="com.raytheon.viz.gfe.feature"/>
-      <!-- <feature id="com.raytheon.uf.viz.dat.feature"/> -->
       <feature id="com.raytheon.uf.viz.d2d.ui.awips.feature"/>
       <feature id="com.raytheon.uf.viz.d2d.gfe.feature"/>
       <feature id="com.raytheon.uf.viz.ncep.dataplugins.feature"/>

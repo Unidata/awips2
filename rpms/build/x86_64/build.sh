@@ -172,7 +172,6 @@ if [ "${1}" = "-server" ]; then
    buildRPM "awips2-httpd-pypies"
    buildLocalizationRPMs
    buildRPM "awips2-adapt-native"
-   buildRPM "awips2-aviation-shared"
    buildRPM "awips2-cli"
    buildRPM "awips2-edex-environment"
    buildRPM "awips2-edex-shapefiles"
@@ -190,7 +189,6 @@ if [ "${1}" = "-rh6" ]; then
    buildRPM "awips2-ncep-database"
    buildRPM "awips2-ldm"
    buildRPM "awips2-common-base"
-   buildRPM "awips2-aviation-shared"
    buildRPM "awips2-data.gfe"
    buildEDEX
    buildRPM "awips2"

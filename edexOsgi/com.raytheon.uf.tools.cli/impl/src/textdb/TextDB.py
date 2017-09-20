@@ -304,7 +304,6 @@ class TextDB:
         # parse the command line
         cl = CL.CommandLine('textdb',config.flags,True)
         args = self.__correctVersionRequest(sys.argv)
-        args = self.__correctLdadRequest(args)
         cl.setArgs(args[1:])
         cl.parse()
 
@@ -489,19 +488,6 @@ class TextDB:
         else:
             return cmds
         
-    def __correctLdadRequest(self,cmds):
-        if '-pil' in cmds:
-            index = cmds.index('-pil')
-            cmds.remove('-pil')
-            cmds.insert(index,'-l')
-            return cmds
-        elif '-ldad' in cmds:
-            index = cmds.index('-ldad')
-            cmds.remove('-ldad')
-            cmds.insert(index,'-l')
-            return cmds
-        else:
-            return cmds
     # Main action method for the class. Reads and processes the command line;
     # sends the commands to the text database server; processes the return
     # message; writes results to standard output.

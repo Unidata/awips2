@@ -167,8 +167,6 @@ import com.raytheon.viz.texteditor.command.ICommand;
 import com.raytheon.viz.texteditor.command.IProductQueryCallback;
 import com.raytheon.viz.texteditor.command.ProductQueryJob;
 import com.raytheon.viz.texteditor.dialogs.LineWrapCheckConfirmationMsg.AnswerChoices;
-import com.raytheon.viz.texteditor.fax.dialogs.FaxMessageDlg;
-import com.raytheon.viz.texteditor.fax.dialogs.LdadFaxSitesDlg;
 import com.raytheon.viz.texteditor.msgs.IAfosBrowserCallback;
 import com.raytheon.viz.texteditor.msgs.IAwipsBrowserCallback;
 import com.raytheon.viz.texteditor.msgs.IRecoverEditSessionCallback;
@@ -1385,16 +1383,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /** Text character wrap dialog */
     private TextCharWrapDlg textCharWrapDlg;
-
-    /** LDAD fax sites dialog */
-    private LdadFaxSitesDlg ldadFaxSitesDlg;
-
-    /** Fax all message dialog */
-    private FaxMessageDlg faxAllMsgDlg;
-
-    /** Fax message dialog */
-    private FaxMessageDlg faxMsgDlg;
-
+    
     /*
      * enum to detemine if editor session can be closed.
      */
@@ -1682,53 +1671,6 @@ public class TextEditorDialog extends CaveSWTDialog
             @Override
             public void widgetSelected(SelectionEvent event) {
                 printSelectedText();
-            }
-        });
-
-        new MenuItem(fileMenu, SWT.SEPARATOR);
-
-        faxAllItem = new MenuItem(fileMenu, SWT.NONE);
-        faxAllItem.setText("Fax All...");
-        faxAllItem.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-
-                if (faxAllMsgDlg == null || faxAllMsgDlg.isDisposed()) {
-                    faxAllMsgDlg = new FaxMessageDlg(shell);
-                    faxAllMsgDlg.setInitialText(textEditor.getText());
-                    faxAllMsgDlg.open();
-                } else {
-                    faxAllMsgDlg.bringToTop();
-                }
-            }
-        });
-
-        faxSelectionItem = new MenuItem(fileMenu, SWT.NONE);
-        faxSelectionItem.setText("Fax Selection...");
-        faxSelectionItem.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                if (faxMsgDlg == null || faxMsgDlg.isDisposed()) {
-                    faxMsgDlg = new FaxMessageDlg(shell);
-                    faxMsgDlg.setInitialText(textEditor.getSelectionText());
-                    faxMsgDlg.open();
-                } else {
-                    faxMsgDlg.bringToTop();
-                }
-            }
-        });
-
-        configAutoFaxItem = new MenuItem(fileMenu, SWT.NONE);
-        configAutoFaxItem.setText("Configure Auto Fax...");
-        configAutoFaxItem.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                if (ldadFaxSitesDlg == null || ldadFaxSitesDlg.isDisposed()) {
-                    ldadFaxSitesDlg = new LdadFaxSitesDlg(shell);
-                    ldadFaxSitesDlg.open();
-                } else {
-                    ldadFaxSitesDlg.bringToTop();
-                }
             }
         });
 

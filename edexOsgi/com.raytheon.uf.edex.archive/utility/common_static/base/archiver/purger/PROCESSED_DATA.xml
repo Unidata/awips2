@@ -167,15 +167,6 @@
          </dataSet>
     </category>
     <category>
-        <name>Local</name>
-        <selectedRetentionHours>168</selectedRetentionHours>
-        <dataSet>
-            <dirPattern>(ldadhydro|ldadmesonet|ldadprofiler|ldad_manual|qc)/.*(\d{4})-(\d{2})-(\d{2})-(\d{2}).*</dirPattern>
-            <displayLabel>{1}</displayLabel>
-            <dateGroupIndices>2,3,4,5</dateGroupIndices>
-        </dataSet>
-    </category>
-    <category>
         <name>Model</name>
         <selectedRetentionHours>168</selectedRetentionHours>
         <dataSet>

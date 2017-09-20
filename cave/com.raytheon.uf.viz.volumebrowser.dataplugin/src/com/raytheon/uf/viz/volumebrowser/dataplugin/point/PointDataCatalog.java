@@ -76,6 +76,7 @@ import com.vividsolutions.jts.geom.LineString;
  * Sep 09, 2014  3356     njensen   Remove CommunicationException
  * Aug 03, 2015  3861     bsteffen  Move resource creation to ProductCreators
  * Oct 22, 2015  4970     bsteffen  Add ldadmesonet to supported plugins.
+ * Sep 19, 2017  ----     mjames    Remove ldadmesonet, profiler.
  * 
  * </pre>
  * 
@@ -320,14 +321,7 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
 
     @Override
     protected String[] getPlugins() {
-        return new String[] { "goessounding", "poessounding", "profiler",
-                "bufrua", "obs", "bufrmosLAMP", "ldadmesonet" };
-        // njensen removed bufrmosAVN, bufrmosETA, bufrmosGFS, bufrmosHPC,
-        // bufrmosMRF, bufrmosNGM
-        // TODO ideally this list should not be in code, and should contain all
-        // all possible plugins, and then an intersection should be done
-        // against VbSources.xml so we only request that which a user
-        // could select
+        return new String[] { "goessounding", "poessounding", "bufrua", "obs", "sfcobs", "bufrmosLAMP" };
     }
 
     /**

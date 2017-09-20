@@ -22,4 +22,3 @@ Require-Bundle: org.apache.commons.lang3;bundle-version="3.4.0",
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.message,
  org.quartz
-Export-Package: com.raytheon.uf.edex.plugin.text.subscription.fax

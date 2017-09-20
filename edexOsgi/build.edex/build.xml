@@ -55,82 +55,8 @@
 		</antcall>
 		<antcall target="build">
 			<param name="feature"
-				value="com.raytheon.uf.edex.bufr.feature" />
-		</antcall>
-		<antcall target="build">
-			<param name="feature"
-				value="com.raytheon.uf.edex.grid.feature" />
-		</antcall>
-        	<antcall target="build">
-        		<param name="feature"
-        			value="com.raytheon.uf.edex.archive.feature" />
-        	</antcall>
-		<antcall target="build">
-			<param name="feature"
-				value="com.raytheon.uf.edex.text.feature" />
-		</antcall>
-		<antcall target="build">
-			<param name="feature"
-				value="com.raytheon.uf.edex.satellite.feature" />
-		</antcall>
-		<antcall target="build">
-			<param name="feature"
-				value="com.raytheon.uf.edex.gfe.feature" />
-		</antcall>
-		<antcall target="build">
-			<param name="feature"
-				value="com.raytheon.uf.edex.radar.feature" />
-		</antcall>
-		<antcall target="build">
-			<param name="feature"
-				value="com.raytheon.uf.edex.config.auto.feature" />
-		</antcall>
-		<antcall target="build">
-			<param name="feature"
 				value="com.raytheon.uf.edex.ncep.feature" />
 		</antcall>
-		<antcall target="build">
-			<param name="feature"
-				value="com.raytheon.uf.edex.ncep.nco.feature" />
-		</antcall>
-        	<antcall target="build">
-        		<param name="feature"
-				value="com.raytheon.uf.edex.npp.feature" />
-        	</antcall>
-		<antcall target="build">
-			<param name="feature"
-				value="com.raytheon.uf.edex.binlightning.feature" />
-		</antcall>
-		<antcall target="build">
-			<param name="feature"
-				value="com.raytheon.uf.edex.ost.feature" />
-		</antcall>
-        <antcall target="build">
-                <param name="feature"
-                        value="edu.wisc.ssec.cimss.edex.convectprob.feature" />
-       </antcall>
-       <antcall target="build">
-                <param name="feature"
-                        value="gov.nasa.msfc.sport.edex.glmdecoder.feature" />
-                </antcall>
-<!--
-                <antcall target="build">
-                        <param name="feature"
-                                value="gov.nasa.msfc.sport.edex.sportlma.feature" />
-                </antcall>
--->
-                <antcall target="build">
-                        <param name="feature"
-                                value="gov.noaa.nws.crh.edex.grib.decoderpostprocessor.feature" />
-                </antcall>
-                <antcall target="build">
-                        <param name="feature"
-                                value="gov.noaa.nws.obs.edex.geodb.feature" />
-                </antcall>
-                <antcall target="build">
-                        <param name="feature"
-                                value="com.raytheon.uf.edex.goesr.feature" />
-                </antcall>
 
 	</target>
 

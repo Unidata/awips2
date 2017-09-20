@@ -3,10 +3,6 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
     http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-    <bean id="autoFaxDao" class="com.raytheon.uf.edex.plugin.text.subscription.fax.AutoFaxDao">
-       <property name="autoFaxNotifyURI" value="jms-generic:topic:autofax.notify"/>
-    </bean>
-
     <!-- define the bean that handles watch/warn script handling -->
     <bean id="textScriptRunner" class="com.raytheon.uf.edex.plugin.text.subscription.services.ScriptRunner">
         <property name="type" value="ldad" />
@@ -27,17 +23,6 @@
                <doCatch>
                     <exception>java.lang.Throwable</exception>
                     <to uri="log:subscription?level=ERROR"/>
-               </doCatch>
-           </doTry>
-        </route>
-
-        <route id="autoFaxNotify">
-           <from uri="jms-generic:topic:autofax.notify"/>
-           <doTry>
-               <bean ref="autoFaxDao" method="updateCache" />
-               <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:autoFax?level=ERROR"/>
                </doCatch>
            </doTry>
         </route>
