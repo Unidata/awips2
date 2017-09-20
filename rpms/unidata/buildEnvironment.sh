@@ -1,6 +1,6 @@
 #!/bin/bash
 export AWIPSII_VERSION="17.1.1"
-export AWIPSII_RELEASE="3"
+export AWIPSII_RELEASE="4"
 
 . /etc/profile.d/awips2.sh
 
