@@ -133,25 +133,16 @@ An example of `/awips2/edex/conf/modes/ingest-modes.xml`, with a number of unuse
 		<mode name="ingest">
 			<exclude>.*request.*</exclude>
 			<exclude>edex-security.xml</exclude>
-			<exclude>rpgenvdata.*</exclude>
 			<exclude>taf.*</exclude>
-			<exclude>ldad.*</exclude>
-			<exclude>ghcd.*</exclude>
-			<exclude>geomag.*</exclude>
-			<exclude>mping.*</exclude>
 			<exclude>modis.*</exclude>
-			<exclude>mosaic.*</exclude>
 			<exclude>shef.*</exclude>
-			<exclude>madis.*</exclude>
 			<exclude>idft.*</exclude>
 			<exclude>ffmp.*</exclude>
 			<exclude>stormtrack.*</exclude>
-			<exclude>solarimage.*</exclude>
 			<exclude>retrieval.*</exclude>
 			<exclude>regionalsat.*</exclude>
 			<exclude>pointset-netcdf.*</exclude>
 			<exclude>ncscat.*</exclude>
-			<exclude>profiler.*</exclude>
 			<exclude>bufrobs.*</exclude>
 			<exclude>bufrmthdw.*</exclude>
 			<exclude>sgwh.*</exclude>

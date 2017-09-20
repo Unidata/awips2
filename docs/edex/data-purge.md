@@ -118,8 +118,6 @@ To see a list of the data plug-ins that have purge rules:
     /awips2/edex/data/utility/common_static/base/purge/warningPurgeRules.xml
     /awips2/edex/data/utility/common_static/base/purge/satellitePurgeRules.xml
     /awips2/edex/data/utility/common_static/base/purge/sshaPurgeRules.xml
-    /awips2/edex/data/utility/common_static/base/purge/ldadhydroPurgeRules.xml
-    /awips2/edex/data/utility/common_static/base/purge/ldadmesonetPurgeRules.xml
     /awips2/edex/data/utility/common_static/base/purge/ccfpPurgeRules.xml
     /awips2/edex/data/utility/common_static/base/purge/atcfPurgeRules.xml
     /awips2/edex/data/utility/common_static/base/purge/bufrssmiPurgeRules.xml
@@ -149,8 +147,6 @@ To see a list of the data plug-ins that have purge rules:
     /awips2/edex/data/utility/common_static/base/purge/modisPurgeRules.xml
     /awips2/edex/data/utility/common_static/base/purge/awwPurgeRules.xml
     /awips2/edex/data/utility/common_static/base/purge/defaultPurgeRules.xml
-    /awips2/edex/data/utility/common_static/base/purge/ldadprofilerPurgeRules.xml
-    /awips2/edex/data/utility/common_static/base/purge/madisPurgeRules.xml
     /awips2/edex/data/utility/common_static/base/purge/convsigmetPurgeRules.xml
     /awips2/edex/data/utility/common_static/base/purge/redbookPurgeRules.xml
     /awips2/edex/data/utility/common_static/base/purge/bufrncwfPurgeRules.xml
@@ -160,9 +156,7 @@ To see a list of the data plug-ins that have purge rules:
     /awips2/edex/data/utility/common_static/base/purge/binlightningPurgeRules.xml
     /awips2/edex/data/utility/common_static/base/purge/stormTrackPurgeRules.xml
     /awips2/edex/data/utility/common_static/base/purge/ghcdPurgeRules.xml
-    /awips2/edex/data/utility/common_static/base/purge/ldadmanualPurgeRules.xml
     /awips2/edex/data/utility/common_static/base/purge/ntransPurgeRules.xml
-    /awips2/edex/data/utility/common_static/base/purge/mosaicPurgeRules.xml
     /awips2/edex/data/utility/common_static/base/purge/regionalsatPurgeRules.xml
     /awips2/edex/data/utility/common_static/base/purge/nctafPurgeRules.xml
     /awips2/edex/data/utility/common_static/base/purge/solarimagePurgeRules.xml

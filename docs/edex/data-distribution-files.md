@@ -18,24 +18,7 @@ For each plug-in, the distribution file is named `<data-type>.xml`; for example,
     airmet.xml        grib.xml           q2.xml
     atcf.xml          hpe.xml            radar.xml
     aww.xml           idft.xml           recco.xml
-    binlightning.xml  intlsigmet.xml     redbook.xml
-    bufrascat.xml     ldadhydro.xml      satellite.mcidas.xml
-    bufrhdw.xml       ldadmanual.xml     satellite.xml
-    bufrmos.xml       ldadmesonet.xml    sfcobs.xml
-    bufrmthdw.xml     ldadprofiler.xml   shef.xml
-    bufrncwf.xml      loctables.xml      svrwx.xml
-    bufrquikscat.xml  lsr.xml            taf.xml
-    bufrsgwhv.xml     mcidas.xml         tcg.xml
-    bufrsgwh.xml      modelsounding.xml  tcm.xml
-    bufrsigwx.xml     mosaic.xml         tcs.xml
-    bufrssha.xml      ncccfp.xml         textlightning.xml
-    bufrssmi.xml      ncgrib.xml         text.xml
-    bufrua.xml        ncscat.xml         uair.xml
-    ccfp.xml          nctext.xml         vaa.xml
-    convsigmet.xml    nonconvsigmet.xml  warning.xml
-    cwa.xml           obs.xml            wcp.xml
-    dhr.xml           pafm.xml
-    dpa.xml           pirep.xml
+    ...
 
 * base files are located in **/awips2/edex/data/utility/edex_static/base/distribution **
 
