@@ -70,7 +70,7 @@ fi
 
 _ldm_destination=%{_build_root}/awips2/ldm
 _ldm_destination_source=${_ldm_destination}/SOURCES
-_NATIVELIB_PROJECTS=( 'decrypt_file' 'edexBridge')
+_NATIVELIB_PROJECTS=( 'decrypt_file' )
 _RPM_directory=%{_baseline_workspace}/rpms
 _Installer_ldm=${_RPM_directory}/awips2.upc/Installer.ldm
 
@@ -216,11 +216,11 @@ if [ $? -ne 0 ]; then
    echo "FATAL: failed to untar decrypt_file.tar!"
    exit 1
 fi
-/bin/tar -xf edexBridge.tar
-if [ $? -ne 0 ]; then
-   echo "FATAL: failed to untar edexBridge.tar!"
-   exit 1
-fi
+#/bin/tar -xf edexBridge.tar
+#if [ $? -ne 0 ]; then
+#   echo "FATAL: failed to untar edexBridge.tar!"
+#   exit 1
+#fi
 /bin/rm -f *.tar
 if [ $? -ne 0 ]; then
    echo "FATAL: failed to remove decrypt_file.tar!"
@@ -240,26 +240,26 @@ if [ $? -ne 0 ]; then
    echo "FATAL: failed to move built decrypt_file to ldm decoders directory!"
    exit 1
 fi
-cd ../edexBridge
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-g++ edexBridge.cpp -I${_ldm_root_dir}/src/pqact \
-   -I${_ldm_root_dir}/include \
-   -I${_ldm_root_dir}/src \
-   -I/awips2/qpid/include \
-   -L${_ldm_root_dir}/lib \
-   -L/awips2/qpid/lib \
-   -l ldm -l xml2 -l qpidclient -l qpidmessaging -l qpidcommon -l qpidtypes -o edexBridge
-if [ $? -ne 0 ]; then
-   echo "FATAL: failed to build edexBridge!"
-   exit 1
-fi
-/bin/mv edexBridge ${_ldm_dir}/bin/edexBridge
-if [ $? -ne 0 ]; then
-   echo "FATAL: failed to move edexBridge to ldm bin directory!"
-   exit 1
-fi
+#cd ../edexBridge
+#if [ $? -ne 0 ]; then
+#   exit 1
+#fi
+#g++ edexBridge.cpp -I${_ldm_root_dir}/src/pqact \
+#   -I${_ldm_root_dir}/include \
+#   -I${_ldm_root_dir}/src \
+#   -I/awips2/qpid/include \
+#   -L${_ldm_root_dir}/lib \
+#   -L/awips2/qpid/lib \
+#   -l ldm -l xml2 -l qpidclient -l qpidmessaging -l qpidcommon -l qpidtypes -o edexBridge
+#if [ $? -ne 0 ]; then
+#   echo "FATAL: failed to build edexBridge!"
+#   exit 1
+#fi
+#/bin/mv edexBridge ${_ldm_dir}/bin/edexBridge
+#if [ $? -ne 0 ]; then
+#   echo "FATAL: failed to move edexBridge to ldm bin directory!"
+#   exit 1
+#fi
 cd ..
 
 /sbin/ldconfig

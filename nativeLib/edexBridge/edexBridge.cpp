@@ -58,7 +58,7 @@ public:
                     const std::string& username = "guest",
                     const std::string& password = "guest",
                     bool useTopic = false, bool sessionTransacted = false,
-                    int maxMessagesPerSend = 2000) 
+                    int maxMessagesPerSend = 1000) 
         {
 		this->useTopic = useTopic;
 		this->sessionTransacted = sessionTransacted;
@@ -363,7 +363,7 @@ int main(int argc, char* argv[]) {
 	// createQueue to be used in both consumer an producer.
 	//============================================================
 	bool useTopics = false;
-    int maxMessagesPerSend = 2000;
+    int maxMessagesPerSend = 1000;
     bool sessionTransacted = false;
 
 	int shmid;
