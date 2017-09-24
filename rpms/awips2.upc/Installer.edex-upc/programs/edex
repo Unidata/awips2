@@ -14,6 +14,10 @@
 #               qpidd                                                   #
 #               edex_ldm                                                #
 #                                                                       #
+# Special configurations:                                               #
+#     edex start ingest (to start qpidd, LDM, ingest/grib jvms)         #
+#     edex start database (to start postgres, pypies, request jvm)      #
+#                                                                       #
 # edex log [ingest|request|grib|text|satellite|radar|ldm]               #
 #       Monitors the current day's requested log. Defaults to ingest.   #
 #                                                                       #
@@ -126,13 +130,15 @@ edex_status() { # report back edex server on/off status
       echo ' EDEXrequest :: running :: pid '$edex_request_pid''
    fi
 
-   ldmd_ps=`ps aux | grep ldmd | grep -v "grep ldmd" | head -1 | awk '{ print $2 }'`
-        if [ -z $ldmd_ps ]; then
-                echo ' ldmadmin    :: not running'
-        else
-                ldmd_pid=`ps aux | grep ldmd | grep -v "grep ldmd" | head -1 | awk '{ print $2 }'`
-                echo ' ldmadmin    :: running :: pid '$ldmd_pid''
-        fi
+   if [ -d "/awips2/ldm" ]; then
+      ldmd_ps=`ps aux | grep ldmd | grep -v "grep ldmd" | head -1 | awk '{ print $2 }'`
+      if [ -z $ldmd_ps ]; then
+          echo ' ldmadmin    :: not running'
+      else
+          ldmd_pid=`ps aux | grep ldmd | grep -v "grep ldmd" | head -1 | awk '{ print $2 }'`
+          echo ' ldmadmin    :: running :: pid '$ldmd_pid''
+      fi
+   fi
 
    echo ''
 }
@@ -312,8 +318,10 @@ edex_setup() { # setup IP subnet and domains for EDEX, prompt user for confirm
       echo '      ** Missing '$HOSTNAME
       continue=true
    fi
-   #echo '[edit] ldm regutil...'
-   su - awips -c 'regutil -s '$HOSTNAME' /hostname'
+   if [ -d "/awips2/ldm" ]; then
+      #echo '[edit] ldm regutil...'
+      su - awips -c 'regutil -s '$HOSTNAME' /hostname'
+   fi
    echo ''
    edex_edits
    if [ $continue=true ]; then
@@ -362,23 +370,27 @@ edex_start() { # start all edex services
    if [ "${args[1]}" == 'base' ]; then
       printf "#!/bin/bash\nexport SERVICES=( 'request' ingest' 'ingestGrib' )\n" > /etc/init.d/edexServiceList
       su -c "service edex_camel start"
-   elif [ "${args[1]}" == 'decode' ]; then
+   elif [ "${args[1]}" == 'ingest' ]; then
       printf "#!/bin/bash\nexport SERVICES=( 'ingest' 'ingestGrib' )\n" > /etc/init.d/edexServiceList
       su -c "service edex_camel start"
-   elif [ "${args[1]}" == 'request' ]; then
+   elif [ "${args[1]}" == 'database' ]; then
       printf "#!/bin/bash\nexport SERVICES=( 'request' )\n" > /etc/init.d/edexServiceList
       su -c "service edex_camel start"
    elif [ "${args[1]}" != 'dev' ]; then
       printf "#!/bin/bash\nexport SERVICES=( 'request' ingest' 'ingestGrib' )\n" > /etc/init.d/edexServiceList
       su -c "service edex_camel start"
-      su -c "service edex_ldm start"
+      if [ -d "/awips2/ldm" ]; then
+         su -c "service edex_ldm start"
+      fi
    fi
 }
 
 edex_stop() { # stop all edex services
    if [ "${args[1]}" != 'dev' ]; then
       su -c "service edex_camel stop"
-      su -c "service edex_ldm stop"
+      if [ -d "/awips2/ldm" ]; then
+         su -c "service edex_ldm stop"
+      fi
    fi
    su -c "service qpidd stop"
    if [ -f "/etc/init.d/httpd-pypies" ]; then
