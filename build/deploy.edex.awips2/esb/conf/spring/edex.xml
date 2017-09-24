@@ -181,7 +181,7 @@
        class="com.raytheon.uf.edex.database.DatabasePluginRegistry"
        factory-method="getInstance"
        init-method="init"
-       depends-on="metadataTxManager">
+       depends-on="metadataTxManager, admin_metadataTxManager">
         <property name="initialListeners">
            <list>
                <!--  This causes database tables to be initialized when a db plugin is registered -->
