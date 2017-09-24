@@ -1,4 +1,4 @@
-build/* RadarServer/* edexOsgi/* cave/* localization/*
+build/* edexOsgi/* cave/* localization/*
 javaUtilities/* rpms pythonPackages nativeLib/* 
 *.pdf
 ../awips2-core/common/* 
