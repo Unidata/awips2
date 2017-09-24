@@ -23,7 +23,7 @@
     </bean>
 
     <bean id="textRegistered" factory-bean="pluginRegistry" factory-method="register"
-            depends-on="fxaTxManager,admin_fxaTxManager,fxaCommonDbRegistered">
+            depends-on="fxaTxManager,fxaCommonDbRegistered">
         <constructor-arg value="text"/>
         <constructor-arg ref="textProperties"/>
     </bean>
@@ -42,7 +42,7 @@
     <bean id="fxaSessionFactory"
         class="com.raytheon.uf.edex.database.DatabaseSessionFactoryBean">
         <property name="configLocation">
-            <value>file:///${edex.home}/conf/db/hibernateConfig/fxa/hibernate.cfg.xml</value>
+            <value>file:///${edex.home}/conf/db/hibernateConfig/fxa.hibernate.cfg.xml</value>
         </property>
         <property name="databaseSessionConfiguration" ref="fxaDbSessionConfig"/>
     </bean>
@@ -50,19 +50,6 @@
     <bean id="fxaTxManager"
         class="org.springframework.orm.hibernate4.HibernateTransactionManager">
         <property name="sessionFactory" ref="fxaSessionFactory" />
-    </bean>
-
-    <bean id="admin_fxaSessionFactory"
-        class="com.raytheon.uf.edex.database.DatabaseSessionFactoryBean">
-        <property name="configLocation">
-            <value>file:///${edex.home}/conf/db/hibernateConfig/fxa/hibernate.admin.cfg.xml</value>
-        </property>
-        <property name="databaseSessionConfiguration" ref="fxaDbSessionConfig"/>
-    </bean>
-
-    <bean id="admin_fxaTxManager"
-        class="org.springframework.orm.hibernate4.HibernateTransactionManager">
-        <property name="sessionFactory" ref="admin_fxaSessionFactory" />
     </bean>
 
     <bean factory-bean="manualProc"

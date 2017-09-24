@@ -32,7 +32,7 @@
     <bean id="metadataSessionFactory"
         class="com.raytheon.uf.edex.database.DatabaseSessionFactoryBean">
         <property name="configLocation">
-            <value>file:///${edex.home}/conf/db/hibernateConfig/metadata/hibernate.cfg.xml
+            <value>file:///${edex.home}/conf/db/hibernateConfig/metadata.hibernate.cfg.xml
             </value>
         </property>
         <!-- >property name="dataSource"><ref bean="datasourceMetadata"/></property -->
@@ -48,28 +48,11 @@
         <property name="transactionManager" ref="metadataTxManager"/>
     </bean>
 
-    <bean id="admin_metadataSessionFactory"
-        class="com.raytheon.uf.edex.database.DatabaseSessionFactoryBean">
-        <property name="configLocation">
-            <value>file:///${edex.home}/conf/db/hibernateConfig/metadata/hibernate.admin.cfg.xml</value>
-        </property>
-        <property name="databaseSessionConfiguration" ref="metadataDbSessionConfig" />
-    </bean>
-
-    <bean id="admin_metadataTxManager"
-        class="org.springframework.orm.hibernate4.HibernateTransactionManager">
-        <property name="sessionFactory" ref="admin_metadataSessionFactory" />
-    </bean>
-
-    <bean id="admin_metadataTxTemplate" class="org.springframework.transaction.support.TransactionTemplate">
-        <property name="transactionManager" ref="admin_metadataTxManager"/>
-    </bean>
-
     <bean id="mapsSessionFactory"
         class="com.raytheon.uf.edex.database.DatabaseSessionFactoryBean">
         <!-- no annotations to load, so no databaseSessionConfig -->
         <property name="configLocation">
-            <value>file:///${edex.home}/conf/db/hibernateConfig/maps/hibernate.cfg.xml
+            <value>file:///${edex.home}/conf/db/hibernateConfig/maps.hibernate.cfg.xml
             </value>
         </property>
     </bean>
@@ -79,17 +62,4 @@
         <property name="sessionFactory" ref="mapsSessionFactory" />
     </bean>
 
-    <bean id="admin_mapsSessionFactory"
-        class="com.raytheon.uf.edex.database.DatabaseSessionFactoryBean">
-        <!-- no annotations to load, so no databaseSessionConfig -->
-        <property name="configLocation">
-            <value>file:///${edex.home}/conf/db/hibernateConfig/maps/hibernate.admin.cfg.xml
-            </value>
-        </property>
-    </bean>
-
-    <bean id="admin_mapsTxManager"
-        class="org.springframework.orm.hibernate4.HibernateTransactionManager">
-        <property name="sessionFactory" ref="admin_mapsSessionFactory" />
-    </bean>
 </beans>

@@ -175,7 +175,7 @@ SYSTEM_PKI_DIR = '/etc/pki'
 DEFAULT_PKI_SUBDIR = 'a2pgca'
 VALIDITY_DAYS = 365 * 5
 ORG_DN_PREFIX = '/O=AWIPS DB Auth'
-BASELINE_DB_USERS = ('awips', 'awipsadmin', 'pguser', 'postgres')
+BASELINE_DB_USERS = ('awips', 'pguser', 'postgres')
 UNPRIVILEGED_DB_USERS = ('awips','pguser')
 TARGET_TYPE_POLICIES = {
     'edex':   Policy(java_keys=True, create_dir=True, link_awips=False),

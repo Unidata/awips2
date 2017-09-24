@@ -1,5 +1,5 @@
 output_dir=output
-db_users=(awips awipsadmin pguser postgres)
+db_users=(awips guser postgres)
 unpriv_db_users=(awips pguser)
 dn_attrs='/C=US/ST=Maryland/L=Silver Spring/O=Raytheon/OU=AWIPS'
 validity_days=$((30 * 365))

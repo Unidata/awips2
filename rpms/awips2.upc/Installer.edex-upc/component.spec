@@ -15,8 +15,7 @@ Vendor: %{_build_vendor}
 Packager: %{_build_site}
 
 AutoReq: no
-Requires: awips2-tools, awips2-edex-configuration, awips2-database
-Requires: awips2-postgresql
+Requires: awips2-tools, awips2-edex-configuration
 Requires: ksh, libstdc++(x86-32), libgfortran(x86-32)
 Obsoletes: awips2-edex-dat, awips2-edex-hydro, awips2-hydroapps-shared
 
