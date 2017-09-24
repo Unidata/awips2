@@ -38,7 +38,9 @@ DATA_PATH=${AWIPS_HOME}/data
 LOG_PATH=${EDEX_PATH}/logs
 
 # files
-PG_FILE=${DATA_PATH}/pg_hba.conf
+if [ -d "/awips2/data" ]; then
+   PG_FILE=${DATA_PATH}/pg_hba.conf
+fi
 EDEX_ENV_FILE=${EDEX_PATH}/bin/setup.env
 
 # valid options
@@ -51,9 +53,15 @@ IP=`/sbin/ifconfig $usedev | grep -v "inet6" | grep "inet" | awk '{ print $2 }' 
 
 # truncate
 IP_CIDR="${IP%.*}"
-editFiles=($PG_FILE $EDEX_ENV_FILE)
-boolFiles=(true true)
-editFuncs=(edit_pg edit_edex)
+if [ -d "/awips2/data" ]; then
+  editFiles=($PG_FILE $EDEX_ENV_FILE)
+  boolFiles=(true true)
+  editFuncs=(edit_pg edit_edex)
+else
+  editFiles=($EDEX_ENV_FILE)
+  boolFiles=(true)
+  editFuncs=(edit_edex)
+fi
 
 YMD=`date '+%Y%m%d'`
 
@@ -259,11 +267,12 @@ edex_setup() { # setup IP subnet and domains for EDEX, prompt user for confirm
       chkconfig httpd-pypies --add
       chkconfig httpd-pypies on --level 35
    fi
+
    chkconfig qpidd --add
    chkconfig qpidd on --level 35
+
    chkconfig edex_camel --add
    chkconfig edex_camel on --level 35
-
 
    echo '[edex] EDEX IP and Hostname Setup'
    # check files exist
@@ -281,17 +290,17 @@ edex_setup() { # setup IP subnet and domains for EDEX, prompt user for confirm
    continue=false
 
    # pg_hba.conf
-
-   pgGrep=`grep $IP_CIDR $PG_FILE | head -1`
-   echo -n ' Checking '$PG_FILE
-   if [[ ! -z ${pgGrep} ]]; then
-      echo ' [OK]'
-      boolFiles[0]=false
-   else
-      echo -e '\n      ** Missing '$IP_CIDR
-      continue=true
+   if [ -d "/awips2/data" ]; then
+      pgGrep=`grep $IP_CIDR $PG_FILE | head -1`
+     echo -n ' Checking '$PG_FILE
+      if [[ ! -z ${pgGrep} ]]; then
+         echo ' [OK]'
+         boolFiles[0]=false
+      else
+         echo -e '\n      ** Missing '$IP_CIDR
+         continue=true
+      fi
    fi
-
    # EDEX env
 
    envGrep=`grep $HOSTNAME $EDEX_ENV_FILE | head -1`
@@ -338,7 +347,9 @@ edex_conf_check() { # check that IP and hostname are set correctly. if not, call
 }
 
 edex_start() { # start all edex services
-   edex_conf_check
+   if [ -d "/awips2/data" ]; then
+      edex_conf_check
+   fi
    edex_cleanup
    if [ -f "/etc/init.d/edex_postgres" ]; then
       su -c "service edex_postgres start"
@@ -349,8 +360,16 @@ edex_start() { # start all edex services
    su -c "service qpidd start"
    edex_purge_reset
    if [ "${args[1]}" == 'base' ]; then
+      printf "#!/bin/bash\nexport SERVICES=( 'request' ingest' 'ingestGrib' )\n" > /etc/init.d/edexServiceList
+      su -c "service edex_camel start"
+   elif [ "${args[1]}" == 'decode' ]; then
+      printf "#!/bin/bash\nexport SERVICES=( 'ingest' 'ingestGrib' )\n" > /etc/init.d/edexServiceList
+      su -c "service edex_camel start"
+   elif [ "${args[1]}" == 'request' ]; then
+      printf "#!/bin/bash\nexport SERVICES=( 'request' )\n" > /etc/init.d/edexServiceList
       su -c "service edex_camel start"
    elif [ "${args[1]}" != 'dev' ]; then
+      printf "#!/bin/bash\nexport SERVICES=( 'request' ingest' 'ingestGrib' )\n" > /etc/init.d/edexServiceList
       su -c "service edex_camel start"
       su -c "service edex_ldm start"
    fi
