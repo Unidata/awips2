@@ -24,7 +24,7 @@ Requires: awips2-qpid-lib
 Requires: awips2-python
 Requires: compat-gcc-34-g77
 Requires: pax, gcc, libxml2-devel
-Requires: libtool, libpng-devel
+Requires: libtool, libpng-devel, boost-program-options
 Provides: awips2-ldm
 
 %description
