@@ -14,10 +14,6 @@
 #               qpidd                                                   #
 #               edex_ldm                                                #
 #                                                                       #
-# Special configurations:                                               #
-#     edex start ingest (to start qpidd, LDM, ingest/grib jvms)         #
-#     edex start database (to start postgres, pypies, request jvm)      #
-#                                                                       #
 # edex log [ingest|request|grib|text|satellite|radar|ldm]               #
 #       Monitors the current day's requested log. Defaults to ingest.   #
 #                                                                       #
@@ -48,7 +44,7 @@ fi
 EDEX_ENV_FILE=${EDEX_PATH}/bin/setup.env
 
 # valid options
-options=( 'status' 'start' 'stop' 'log' 'setup' 'purge' 'users' 'restart')
+options=( 'status' 'start' 'stop' 'log' 'setup' 'purge' 'password' 'users' 'restart')
 nopts=${options[@]}
 
 # find interface for routeable IPs
@@ -368,29 +364,26 @@ edex_start() { # start all edex services
    su -c "service qpidd start"
    edex_purge_reset
    if [ "${args[1]}" == 'base' ]; then
-      printf "#!/bin/bash\nexport SERVICES=( 'request' ingest' 'ingestGrib' )\n" > /etc/init.d/edexServiceList
+      printf "#!/bin/bash\nexport SERVICES=( 'request' 'ingest' 'ingestGrib' )\n" > /etc/init.d/edexServiceList
       su -c "service edex_camel start"
    elif [ "${args[1]}" == 'ingest' ]; then
       printf "#!/bin/bash\nexport SERVICES=( 'ingest' 'ingestGrib' )\n" > /etc/init.d/edexServiceList
       su -c "service edex_camel start"
+      su -c "service edex_ldm start"
    elif [ "${args[1]}" == 'database' ]; then
       printf "#!/bin/bash\nexport SERVICES=( 'request' )\n" > /etc/init.d/edexServiceList
       su -c "service edex_camel start"
    elif [ "${args[1]}" != 'dev' ]; then
-      printf "#!/bin/bash\nexport SERVICES=( 'request' ingest' 'ingestGrib' )\n" > /etc/init.d/edexServiceList
+      printf "#!/bin/bash\nexport SERVICES=( 'request' 'ingest' 'ingestGrib' )\n" > /etc/init.d/edexServiceList
       su -c "service edex_camel start"
-      if [ -d "/awips2/ldm" ]; then
-         su -c "service edex_ldm start"
-      fi
+      su -c "service edex_ldm start"
    fi
 }
 
 edex_stop() { # stop all edex services
    if [ "${args[1]}" != 'dev' ]; then
       su -c "service edex_camel stop"
-      if [ -d "/awips2/ldm" ]; then
-         su -c "service edex_ldm stop"
-      fi
+      su -c "service edex_ldm stop"
    fi
    su -c "service qpidd stop"
    if [ -f "/etc/init.d/httpd-pypies" ]; then
@@ -407,18 +400,27 @@ edex_restart() {
    edex_status;
 }
 
+edex_password() {
+   if [ ! -z "${args[1]}" ]; then
+      sed -i 's/<property name="connection.password">awips<\/property>/<property name="connection.password">'${args[1]}'<\/property>/' /awips2/edex/conf/db/hibernateConfig/*.hibernate.cfg.xml
+   else
+      echo "no password given - usage: edex password <newpassword>"
+      exit;
+   fi
+}
+
 edex_purge() {
-        if [ "${args[1]}" == 'reset' ]; then
+   if [ "${args[1]}" == 'reset' ]; then
       edex_purge_reset
-                echo ' EDEX purge has been reset'
-                exit;
-        else
+      echo ' EDEX purge has been reset'
+      exit;
+   else
       purgeCheck=`su - awips -c 'psql metadata -c "select plugin from purgejobs where failedcount = 3;"'`
-                if [[ ${#purgeCheck} > 26 ]]; then
-                    su - awips -c 'psql metadata -c "select plugin from purgejobs where failedcount = 3;"'
-                fi
-                exit;
-        fi
+      if [[ ${#purgeCheck} > 26 ]]; then
+          su - awips -c 'psql metadata -c "select plugin from purgejobs where failedcount = 3;"'
+      fi
+      exit;
+   fi
 }
 edex_purge_reset() {
         su - awips -c 'psql metadata -c "update purgejobs set failedcount = 0;"' >& /dev/null
