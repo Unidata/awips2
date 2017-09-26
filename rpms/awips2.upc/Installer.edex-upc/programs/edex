@@ -351,9 +351,9 @@ edex_conf_check() { # check that IP and hostname are set correctly. if not, call
 }
 
 edex_start() { # start all edex services
-   if [ -d "/awips2/data" ]; then
-      edex_conf_check
-   fi
+   #if [ -d "/awips2/data" ]; then
+   #   edex_conf_check
+   #fi
    edex_cleanup
    if [ -f "/etc/init.d/edex_postgres" ]; then
       su -c "service edex_postgres start"
