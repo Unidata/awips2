@@ -42,7 +42,7 @@
     <bean id="fxaSessionFactory"
         class="com.raytheon.uf.edex.database.DatabaseSessionFactoryBean">
         <property name="configLocation">
-            <value>file:///${edex.home}/conf/db/hibernateConfig/fxa.hibernate.cfg.xml</value>
+            <value>file:///${edex.home}/conf/db/hibernateConfig/fxa/hibernate.cfg.xml</value>
         </property>
         <property name="databaseSessionConfiguration" ref="fxaDbSessionConfig"/>
     </bean>
@@ -55,7 +55,7 @@
     <bean id="admin_fxaSessionFactory"
         class="com.raytheon.uf.edex.database.DatabaseSessionFactoryBean">
         <property name="configLocation">
-            <value>file:///${edex.home}/conf/db/hibernateConfig/fxa.hibernate.admin.cfg.xml</value>
+            <value>file:///${edex.home}/conf/db/hibernateConfig/fxa/hibernate.admin.cfg.xml</value>
         </property>
         <property name="databaseSessionConfiguration" ref="fxaDbSessionConfig"/>
     </bean>

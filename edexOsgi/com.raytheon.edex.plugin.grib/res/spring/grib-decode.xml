@@ -23,7 +23,6 @@
         <property name="targetMethod" value="register"/>
         <property name="arguments">
             <list>
-                <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.OneHrPrecipGridProcessor</value>
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.CPCoutlookGribPostProcessor</value>
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.ECMWFHiResProcessor</value>
                 <value>com.raytheon.edex.plugin.grib.decoderpostprocessors.EnsembleGridAssembler</value>

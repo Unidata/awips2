@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 
 # a2pgca - A "mini CA" script for managing certificates used for accessing
-# services in AWIPS II.
+# the database in AWIPS II.
 #
 # There are two main ways this script is used:
 #
 # At the NCF, it manages the root certificate and generates site-level CA
 # certificates.
 #
-# At sites, it manages the server and server account certificates.
+# At sites, it manages the server and database account certificates.
 #
 # Because the PostgreSQL software mandates keys not be group- or
 # other-readable it is not possible to have certs/keys in a shared location.
@@ -19,7 +19,6 @@
 # The script publicly manages the following types of objects:
 #  sites - site-level CA certificates and initialization bundles
 #  dbusers - PostgreSQL database account identity certificates
-#  jmsusers - Qpid user account identity certificates
 #  roles - lists of database accounts comprising access levels (user vs. admin)
 #  users - system users that need certs/keys; has a single role assigned
 #
@@ -32,13 +31,6 @@
 # ---------------------------------------------------------------------------
 # David Friedman      2016-12-07   DR 19611 - Initial creation
 # David Friedman      2016-12-22   DR 19637 - Support multiple DB servers.
-# David Friedman      2017-02-21   DR 19777 - Support 'oper' and 'awipsusr'.
-# Ben Steffensmeier   2017-01-30   DR 6081  - Support jms certificates
-# Ben Steffensmeier   2017-02-21   DR 6082  - Distribute nss certificate db for qpid c++ clients.
-# David Friedman      2017-05-23   DR 19970 - Support refreshing a single
-#                                  user that may be a member of a group.
-# Richard Peter       2017-06-26   DR 6340  - Fix directory ownership
-# Tom Gurney          2017-09-09   DR 6432  Upgrade state to version 5, move database SSL certs
 
 from fnmatch import fnmatch
 from getopt import GetoptError, getopt
@@ -113,15 +105,6 @@ def sanity_check_target_directory(path):
     if not isabs(path) or len(normpath(path).split('/')) < 3:
         raise Fail('unsafe destination directory: ' + path)
 
-def get_has_rax_db():
-    return environ.get('SITE_TYPE') == 'rfc'
-
-def get_most_hosts():
-    result = BASE_MOST_HOSTS
-    if get_has_rax_db():
-        result += ' ax'
-    return result
-
 sub_commands = {}
 
 def show_subcommand_usage(f):
@@ -191,7 +174,7 @@ TARGET_TYPE_POLICIES = {
 }
 JDBC_CRED_SUFFIXES = ('.crt', '.key', '.pk8')
 LIBPQ_CRED_SUFFIXES = ('.crt', '.key')
-ALL_CRED_SUFFIXES = ('.crt', '.key', '.pk8', '.db')
+ALL_CRED_SUFFIXES = JDBC_CRED_SUFFIXES
 ALL_KEY_SUFFIXES = ('.key', '.pk8')
 SERVER_ROLE = 'server'
 INTERNAL_ROLES = (SERVER_ROLE,)
@@ -200,7 +183,7 @@ BASELINE_ROLE_DB_USERS = {
     'user': ('awips', 'pguser'),
     'admin': BASELINE_DB_USERS
 }
-BASELINE_USERS = ('awips', 'awipsusr', 'fxa', 'ncf', 'oper', 'root') # @fxa *is* allowed to be removed
+BASELINE_USERS = ('awips', 'fxa', 'ncf', 'root') # @fxa *is* allowed to be removed
 DEFAULT_SITES = '''abq abr acr afc afg ajk akq alr aly ama apx arx awcn bcq
 bgm bis bmx boi bou box bro btv buf byz cae car chs cle crp ctp cys ddc dlh
 dmx dtx dvn eax ehu eka epz ewx ffc fgf fgz fsd fslc fwd fwr ggw gid gjt gld
@@ -211,7 +194,6 @@ oax ohx okx opcn opga orn osfw otx oun pah pbp pbz pdt phi pih pqr psr ptr
 pub rah rev rha riw rlx rnk rsa sew sfmg sgf sgx shv sjt sju slc spcn sto str
 swpn tae tar tbw tfx tir top tsa tua twc unr vef vhw vrh vuy wncf nwco
 nwct'''.split()
-BASE_MOST_HOSTS = '$DX_SERVERS $PX_SERVERS $LX_WORKSTATIONS $XT_WORKSTATIONS'
 
 def make_init_bundle_name(site_id):
     return 'a2pgca-init-' + site_id + '.zip'
@@ -424,20 +406,23 @@ def resolve_target_locations(target):
     If the host part of any storage location contains environment
     variable references, expand them.
 
-    Return a list of (itype, host, path).
+    Return a list of (host, path).
     """
     result = []
     specs = target.location_specs
     if target.type == 'user' and not specs:
-        specs = ['::']
-    # First loop, convert to tuple and expand host
+        specs = [':']
     for spec in specs:
-        itype, host_specs, path = spec.split(':', 2)
-        if target.type != 'user' and not path:
+        host_specs, path = spec.split(':', 1)
+        if target.type == 'user' and not path:
+            try:
+                path = getpwnam(target.name).pw_dir
+            except (KeyError, AttributeError):
+                perr('user %s: can not determine home directory' % (target.name,))
+                continue
+            path = join(path, '.postgresql')
+        if not path:
             perr("target '%s': location spec missing destination directory" % (target.get_spec()))
-            continue
-        if target.type != 'user' and not itype:
-            perr("target '%s': location spec missing identity type" % (target.get_spec()))
             continue
         if not host_specs.strip():
             host_list = ['']
@@ -472,32 +457,8 @@ def resolve_target_locations(target):
             host_list = list(hosts)
             host_list.sort()
         for host in host_list:
-            result.append((itype, host, path))
-    if target.type == 'user' and not path:
-        # second loop expand missing itype
-        specs = result
-        result = []
-        for itype, host, path in specs:
-            if not path:
-                try:
-                    path = getpwnam(target.name).pw_dir
-                except (KeyError, AttributeError):
-                    perr('user %s: can not determine home directory' % (target.name,))
-                    continue
-                if not itype:
-                    result.append(('dbuser', host, join(path, '.postgresql')))
-                    result.append(('jmsuser', host, join(path, '.qpid')))
-                elif itype == 'dbuser':
-                    result.append((itype, host, join(path, '.postgresql')))
-                elif itype == 'jmsuser':
-                    result.append((itype, host, join(path, '.qpid')))
-                else:
-                    perr('Cannot determine destination for %s' % (itype))
-                    continue
-                    
-            else:
-                result.append((itype, host, path))
-        
+            result.append((host, path))
+
     return result
 
 class Global(object):
@@ -614,7 +575,6 @@ class Global(object):
             self.state.store(self.get_state_file())
 
     def upgrade_state(self, s):
-        result = False
         if s.version == 1:
             try:
                 target = s.targets.pop('server:server')
@@ -632,73 +592,10 @@ class Global(object):
                 if exists(src_pfx + sfx):
                     safe_rename(src_pfx + sfx, dst_pfx + sfx)
             s.version = 2
-            result = True
-        if s.version == 2:
-            if s.model == 'site':
-                most_hosts = get_most_hosts()
-                if get_has_rax_db():
-                    def fix(spec):
-                        return most_hosts + ':' if spec.strip() == BASE_MOST_HOSTS + ':' else spec
-                    for target in s.get_targets():
-                        if target.type == 'user':
-                            target.location_specs = [ fix(spec)
-                                    for spec in target.location_specs ]
-                if not s.has_target('user', 'oper'):
-                    s.add_target('user', 'oper', 'admin', [])
-                if not s.has_target('user', 'awipsusr'):
-                    s.add_target('user', 'awipsusr', 'user', [most_hosts + ':'])
-            s.version = 3
-            result = True
-        if s.version == 3:
-            if s.model == 'ncf':
-                # ncf is unchanged
-                s.version = 4;
-                return True
-            add_ident_impl('server', 'cp1f', cn='cp1f')
-            s.add_target('server', 'cp1f', 'server', ['cp1f:/awips2/qpid'], owner='awips')
-            
-            for target in s.get_targets():
-                new_specs = []
-                for location_spec in target.location_specs:
-                    if target.type == 'edex':
-                        host_specs, path = location_spec.split(':')
-                        location_spec = 'dbuser:' + location_spec
-                        new_specs.append(location_spec)
-                        location_spec = 'jmsuser:' + host_specs + ':/awips2/edex/conf/jms/auth'
-                    elif target.type == 'user':
-                        if target.name == 'root' and location_spec == '$DX_SERVERS $PX_SERVERS $LX_WORKSTATIONS $XT_WORKSTATIONS:':
-                            location_spec = '$COMMS_PROCESSORS ' + location_spec
-                        host_specs, path = location_spec.split(':')
-                        if path:
-                            location_spec = 'dbuser:' + location_spec
-                        else:
-                            location_spec = ':' + host_specs + ':'
-                    else:
-                        location_spec = 'server:' + location_spec
-                    new_specs.append(location_spec)
-                target.location_specs = new_specs
-            s.add_target('user', 'ldm', 'user', ['jmsuser:$COMMS_PROCESSORS:'])
-            add_ident_impl('jmsuser','guest')
-            for role in ('user', 'admin'):
-                role_idents = [ ident.get_spec() for ident in s.get_role_idents(role) ]
-                role_idents.append('jmsuser:guest')
-                s.set_role_ident_specs(role, role_idents)
-            s.version = 4;
-            result = True
-        if s.version == 4:
-            for target in s.get_targets():
-                new_specs = []
-                for location_spec in target.location_specs:
-                    if target.type == 'server':
-                        if location_spec.endswith(':/awips2/data')
-                            location_spec = location_spec.replace(':/awips2/data', ':/awips2/database/ssl')
-                    new_specs.append(location_spec)
-                target.location_specs = new_specs
-            s.version = 5
-            result = True
-        elif not s.version or s.version < 1 or s.version > 5:
+            return True
+        elif not s.version or s.version < 1 or s.version > 2:
             pftl('Unknown CA data directory version %s' % (s.version,))
-        return result
+        return False
 
     def has_ident(self, ident):
         return ident.get_spec() in self.idents
@@ -766,7 +663,7 @@ class State(object):
     def __init__(self):
         self.roles = {}
         self.targets = {}
-        self.version = 5
+        self.version = 2
         self.model = None
         self.dn_prefix = None
         self.backups = []
@@ -950,36 +847,28 @@ def init_site(argv):
             except Exception as e:
                 raise Fail('Failed to validate site CA certificate: %s' % (e,))
 
-        has_rax_db = get_has_rax_db()
-        most_hosts = get_most_hosts()
+        has_rax_db = environ.get('SITE_TYPE') == 'rfc'
         for name in BASELINE_DB_USERS:
             add_ident_impl('dbuser', name)
-        add_ident_impl('jmsuser', 'guest')
         add_ident_impl('server', db_host_name, cn=db_host_name)
-        add_ident_impl('server', 'cp1f', cn='cp1f')
         if has_rax_db:
             add_ident_impl('server', 'ax', cn='ax')
 
         st.add_role(SERVER_ROLE, [])
 
-        st.add_role('user', ['dbuser:' + u for u in BASELINE_ROLE_DB_USERS['user']] + ['jmsuser:guest'])
-        st.add_role('admin', ['dbuser:' + u for u in BASELINE_ROLE_DB_USERS['admin']] + ['jmsuser:guest'])
-        st.add_target('server', 'dx1f', 'server', ['server:dx1f:/awips2/database/ssl'], owner='awips')
-        st.add_target('server', 'cp1f', 'server', ['server:cp1f:/awips2/qpid'], owner='awips')
+        st.add_role('user', ['dbuser:' + u for u in BASELINE_ROLE_DB_USERS['user']])
+        st.add_role('admin', ['dbuser:' + u for u in BASELINE_ROLE_DB_USERS['admin']])
+        st.add_target('server', 'dx1f', 'server', ['dx1f:/awips2/data'], owner='awips')
         if has_rax_db:
-            st.add_target('server', 'ax', 'server', ['server:ax:/awips2/database/ssl'], owner='awips')
-        edex_db_loc_spec = 'dbuser:$DX_SERVERS !dx[12]* $PX_SERVERS $COMMS_PROCESSORS:/awips2/edex/conf/db/auth'
-        edex_jms_loc_spec = 'jmsuser:$DX_SERVERS !dx[12]* $PX_SERVERS $COMMS_PROCESSORS:/awips2/edex/conf/jms/auth'
-        st.add_target('edex', 'edex', 'admin', [edex_db_loc_spec, edex_jms_loc_spec], owner='awips')
+            st.add_target('server', 'ax', 'server', ['ax:/awips2/data'], owner='awips')
+        st.add_target('edex', 'edex', 'admin', ['$DX_SERVERS !dx[12]* $PX_SERVERS $COMMS_PROCESSORS:/awips2/edex/conf/db/auth'], owner='awips')
         st.add_target('user', 'awips', 'admin', [])
-        st.add_target('user', 'oper', 'admin', [])
         st.add_target('user', 'ncfuser', 'admin', [])
         st.add_target('user', '@fxalpha', 'user', [])
-        st.add_target('user', 'root', 'admin', [': $COMMS_PROCESSORS ' + most_hosts + ':'])
-        # /awips/fxa is not on CPs.
-        st.add_target('user', 'awipsusr', 'user', [':' + most_hosts + ':'])
-        st.add_target('user', 'fxa', 'admin', [':' + most_hosts + ':'])
-        st.add_target('user', 'ldm', 'user', ['jmsuser:$COMMS_PROCESSORS:'])
+        # /awips/fxa is not on CPs.  root should not need DB access there either.
+        most_hosts = '$DX_SERVERS $PX_SERVERS $LX_WORKSTATIONS $XT_WORKSTATIONS'
+        st.add_target('user', 'root', 'admin', [most_hosts + ':'])
+        st.add_target('user', 'fxa', 'admin', [most_hosts + ':'])
 
         st.backups += [ pfx + '-' + g.get_site_id() for pfx in ('dx1', 'dx2') ]
 
@@ -1152,26 +1041,6 @@ class DBUserOps(ObjectOps):
 def dbuser_cmd(argv):
     return DBUserOps().run(argv)
 
-class JMSUserOps(ObjectOps):
-    def __init__(self):
-        super(JMSUserOps, self).__init__(model='site', type_desc='jms user')
-    def add(self, name):
-        add_ident_impl('jmsuser', name)
-    def delete(self, name):
-        if name != 'guest':
-            remove_ident_impl('jmsuser', name)
-        else:
-            raise Fail("jms user '%s' is baseline and can not be deleted" % (name,))
-    def get_list_items(self):
-        return [ ident.name for ident in g.get_idents() if ident.type == 'jmsuser' ]
-
-@subcommand('jmsuser', desc='Manage certificates for jms accounts')
-@usage('''  # [-l]                         List existing account certificates
-  # -a {jms user ID}...     Create new certificates for accounts
-  # -d {jms user ID}...     Delete account certificates''')
-def jmsuser_cmd(argv):
-    return JMSUserOps().run(argv)
-
 class UserOps(ObjectOps):
     def __init__(self):
         super(UserOps, self).__init__(model='site', type_desc='system user')
@@ -1243,23 +1112,14 @@ class RoleOps(ObjectOps):
             raise UsageError('-A/-D/-S options can only be used with modify (-m) operation')
         elif op == self.Modify and not self.item_op:
             raise UsageError('missing database user list operation (-A/-D/-S)')
-        self.dbuser_list = self.make_spec_list(args[1:])
+        self.dbuser_list = args[1:]
         return args[0:1]
-    def make_spec_list(self, user_list):
-        spec_list = []
-        for user in user_list:
-            if ':' in user:
-                # already a spec
-                spec_list.append(user)
-            else:
-                spec_list.append(make_spec('dbuser', user))
-        return spec_list
     def validate_ident_specs(self, ident_specs):
         for spec in ident_specs:
             if not g.has_ident(Identity(* spec.split(':', 1))):
                 raise Fail("unknown identity '%s'" % (spec,))
     def add(self, name):
-        new_role_idents = self.dbuser_list
+        new_role_idents = [ make_spec('dbuser', dbuser) for dbuser in self.dbuser_list ]
         self.validate_ident_specs(new_role_idents)
         g.get_state().add_role(name, new_role_idents)
     def delete(self, name):
@@ -1289,7 +1149,7 @@ class RoleOps(ObjectOps):
             if self.add_if_needed and name not in st.get_roles():
                 st.add_role(name, [])
             role_idents = [ ident.get_spec() for ident in st.get_role_idents(name) ]
-            new_role_idents = self.dbuser_list
+            new_role_idents = [ make_spec('dbuser', dbuser) for dbuser in self.dbuser_list ]
             if self.item_op == self.Add:
                 new_role_idents = role_idents + new_role_idents
             elif self.item_op == self.Delete:
@@ -1357,56 +1217,20 @@ def refresh(argv, clear_files=False):
     refresh_impl(args, dry_run=dry_run, rsync_dry_run=rsync_dry_run,
         verbose=verbose, clear_files=clear_files)
 
-
-def get_group_members():
-    """Generate a map of system group names to member names.
-
-    For each group referenced by a user target, determine the members of
-    that group.
-
-    Note that this handles primary and secondary group assignments.
-    """
-    result = {}
-    try:
-        all_users = getpwall()
-    except Exception as e:
-        perr("error retrieving system user information: %s" % (e,))
-        all_users = []
-    for target in g.get_state().get_targets():
-        if target.type == 'user' and target.name[0:1] == '@':
-            try:
-                group_name = target.name[1:]
-                gr_ent = getgrnam(group_name)
-                users_in_group = list(gr_ent.gr_mem)
-                for pw_ent in all_users:
-                    if pw_ent.pw_gid == gr_ent.gr_gid:
-                        users_in_group.append(pw_ent.pw_name)
-                result[group_name] = users_in_group
-            except Exception as e:
-                perr("error retrieving group information: %s" % (e,))
-    return result
-
-def match_group_members(ref_target, target_pattern, group_members):
-    """Generate targets for a user:xxx pattern that matches a member of a system group."""
-    result = []
-    if ref_target.type == 'user' and ref_target.name[0:1] == '@':
-        for member_name in group_members.get(ref_target.name[1:], []):
-            target = Target()
-            target.type = 'user'
-            target.name = member_name
-            target.role = ref_target.role
-            if fnmatch(target.get_spec(), target_pattern):
-                result.append(target)
-    return result
-
-def expand_user_groups(targets, group_member_targets, group_members):
+def expand_user_groups(targets):
     """Expand group targets to individual user targets.
 
     Expand any targets of the form user:@group in the list to
     individual user:username targets.  If a group member is
-    already in the list of targets, or is a registered user,
-    it is not added.
+    already in the list of targets, it is not added.
+
+    Note that this handles primary and secondary group assignments.
     """
+    try:
+        all_users = getpwall()
+    except Exception as e:
+        perr("error retrieving system user information: %s" % (e,))
+        return targets
     seen = set()
     result = []
     groups_to_expand = []
@@ -1416,16 +1240,17 @@ def expand_user_groups(targets, group_member_targets, group_members):
         else:
             result.append(target)
             seen.add(target.get_spec())
-    for target in g.get_state().get_targets():
-        if target.type == 'user' and target.name[0:1] != '@':
-            seen.add(target.get_spec())
-    for target in group_member_targets:
-        spec = target.get_spec()
-        if spec not in seen:
-            seen.add(spec)
-            result.append(target)
     for group_target in groups_to_expand:
-        for user in group_members.get(group_target.name[1:], []):
+        try:
+            gr_ent = getgrnam(group_target.name[1:])
+            users_in_group = list(gr_ent.gr_mem)
+            for pw_ent in all_users:
+                if pw_ent.pw_gid == gr_ent.gr_gid:
+                    users_in_group.append(pw_ent.pw_name)
+        except Exception as e:
+            perr("error retrieving group information: %s" % (e,))
+            continue
+        for user in users_in_group:
             target = Target()
             target.type = 'user'
             target.name = user
@@ -1462,8 +1287,6 @@ def refresh_impl(args, dry_run=False, rsync_dry_run=False,
     g.verify_model('site')
 
     st = g.get_state()
-    group_members = get_group_members()
-    group_member_targets_to_refresh = set() # lower priority than defined user targets
     if args:
         targets_to_refresh = set()
         for target_pattern in args:
@@ -1472,18 +1295,13 @@ def refresh_impl(args, dry_run=False, rsync_dry_run=False,
                 if fnmatch(target.get_spec(), target_pattern):
                     targets_to_refresh.add(target)
                     matched_one = True
-                mt = match_group_members(target, target_pattern, group_members)
-                if mt:
-                    group_member_targets_to_refresh |= set(mt)
-                    matched_one = True
             if not matched_one:
                 pwrn("pattern '%s' did not match any targets" % (target_pattern,))
         targets_to_refresh = list(targets_to_refresh)
     else:
         targets_to_refresh = st.get_targets()
 
-    targets_to_refresh = expand_user_groups(targets_to_refresh,
-            group_member_targets_to_refresh, group_members)
+    targets_to_refresh = expand_user_groups(targets_to_refresh)
 
     is_root = geteuid() == 0
     tmpdir = mkdtemp()
@@ -1523,22 +1341,11 @@ def refresh_impl(args, dry_run=False, rsync_dry_run=False,
                 if is_root:
                     chown(staging_dir, uid, gid)
 
-                if target.role != SERVER_ROLE:
-                    idents = st.get_role_idents(target.role)
-                else:
-                    idents = [ Identity('server', target.name) ]
-                if clear_files:
-                    for ident in idents:
-                        if not g.has_ident(ident) and ident not in bad_idents:
-                            bad_idents.add(ident)
-                            pwrn("invalid identity '%s'" % (ident,))
-                            continue
-                        type_dir = join(staging_dir, ident.type)
-                        if not exists(type_dir):
-                            mkdir(type_dir, PRIVATE_DIR_PERM)
-                            if is_root:
-                                chown(type_dir, uid, gid)
-                else:
+                if not clear_files:
+                    if target.role != SERVER_ROLE:
+                        idents = st.get_role_idents(target.role)
+                    else:
+                        idents = [ Identity('server', target.name) ]
                     if verbose:
                         pinf("refresh '%s' identities: '%s'" % (target, idents))
                     for ident in idents:
@@ -1546,48 +1353,25 @@ def refresh_impl(args, dry_run=False, rsync_dry_run=False,
                             bad_idents.add(ident)
                             pwrn("invalid identity '%s'" % (ident,))
                             continue
-                        type_dir = join(staging_dir, ident.type)
-                        if not exists(type_dir):
-                            mkdir(type_dir, PRIVATE_DIR_PERM)
-                            if is_root:
-                                chown(type_dir, uid, gid)
-                            dst_path = join(type_dir, 'root.crt')
-                            copyfile(g.get_root_bundle(), dst_path)
-                            if is_root:
-                                chown(dst_path, uid, gid)
-                            if ident.type == 'jmsuser':
-                                run(['certutil', '-N', '--empty-password', '-d', type_dir])
-                                run(['certutil', '-A', '-n', 'root', '-i', dst_path, '-t', 'TC,C,Tw', '-d', type_dir ]);
-                                if is_root:
-                                    chown(join(type_dir, 'cert8.db'), uid, gid)
-                                    chown(join(type_dir, 'key3.db'), uid, gid)
-                                    chown(join(type_dir, 'secmod.db'), uid, gid)
                         name = ident.name
                         abs_src_pfx = join(g.get_ident_dir(), ident.type, name)
                         dst_name = name if ident.type != 'server' else 'server'
                         for sfx in policy.java_keys and JDBC_CRED_SUFFIXES or LIBPQ_CRED_SUFFIXES:
-                            dst_path = join(type_dir, dst_name + sfx)
+                            dst_path = join(staging_dir, dst_name + sfx)
                             copyfile(abs_src_pfx + sfx, dst_path)
                             if sfx in ALL_KEY_SUFFIXES:
                                 chmod(dst_path, PRIVATE_FILE_PERM)
                             if is_root:
                                 chown(dst_path, uid, gid)
-                            if ident.type == 'jmsuser' and sfx == '.crt':
-                                run(['certutil', '-A', '-n', dst_name, '-i', dst_path, '-t', 'TC,C,Tw', '-d', type_dir ]);
-                            elif ident.type == 'jmsuser' and sfx == '.key':
-                                cert_path = join(type_dir, dst_name + '.crt')
-                                p12_path = join(type_dir, dst_name + '.p12')
-                                root_path = join(type_dir, 'root.crt')
-                                run(['openssl', 'pkcs12', '-export', '-out', p12_path, '-inkey', dst_path, 
-                                     '-in', cert_path, '-certfile', root_path, '-password', 'pass:'])
-                                run(['pk12util', '-i', p12_path, '-d', type_dir, '-W', '']);
-                                safe_remove(p12_path)
                             if policy.link_awips and ident.type == 'dbuser' and ident.name == 'awips':
-                                symlink('awips' + sfx, join(type_dir, 'postgresql' + sfx))
-                            if policy.link_awips and ident.type == 'jmsuser' and ident.name == 'guest':
-                                symlink('guest' + sfx, join(type_dir, 'client' + sfx))
+                                symlink('awips' + sfx, join(staging_dir, 'postgresql' + sfx))
 
-                for itype, host, path in resolve_target_locations(target):
+                    dst_path = join(staging_dir, 'root.crt')
+                    copyfile(g.get_root_bundle(), dst_path)
+                    if is_root:
+                        chown(dst_path, uid, gid)
+
+                for host, path in resolve_target_locations(target):
                     try:
                         if host not in paths_by_host:
                             paths_by_host[host] = set()
@@ -1599,10 +1383,6 @@ def refresh_impl(args, dry_run=False, rsync_dry_run=False,
                         if target.type == 'user' and not host and not isdir(parent_dir):
                             pwrn("target '%s': directory %s does not exist" % (target, parent_dir))
                             continue
-                        type_dir = join(staging_dir, itype)
-                        if not exists(type_dir):
-                            pwrn("target '%s': no identities with type %s" % (target, itype))
-                            continue 
                         if verbose:
                             pinf("refresh '%s' destination: '%s:%s'" % (target, host, path))
 
@@ -1610,7 +1390,7 @@ def refresh_impl(args, dry_run=False, rsync_dry_run=False,
                         # will always create the destination directory.
                         sanity_check_target_directory(path)
                         rsync_dest = (host and (host + ':') or '') + path + '/'
-                        cmd = rsync_template + [type_dir + '/', rsync_dest]
+                        cmd = rsync_template + [staging_dir + '/', rsync_dest]
                         if not dry_run:
                             run(cmd, echo_stdout=verbose, echo_stderr_filtered=True)
                         else:
@@ -1711,6 +1491,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-

@@ -32,7 +32,7 @@
     <bean id="metadataSessionFactory"
         class="com.raytheon.uf.edex.database.DatabaseSessionFactoryBean">
         <property name="configLocation">
-            <value>file:///${edex.home}/conf/db/hibernateConfig/metadata.hibernate.cfg.xml
+            <value>file:///${edex.home}/conf/db/hibernateConfig/metadata/hibernate.cfg.xml
             </value>
         </property>
         <!-- >property name="dataSource"><ref bean="datasourceMetadata"/></property -->
@@ -51,7 +51,7 @@
     <bean id="admin_metadataSessionFactory"
         class="com.raytheon.uf.edex.database.DatabaseSessionFactoryBean">
         <property name="configLocation">
-            <value>file:///${edex.home}/conf/db/hibernateConfig/metadata.hibernate.admin.cfg.xml</value>
+            <value>file:///${edex.home}/conf/db/hibernateConfig/metadata/hibernate.admin.cfg.xml</value>
         </property>
         <property name="databaseSessionConfiguration" ref="metadataDbSessionConfig" />
     </bean>
@@ -69,7 +69,7 @@
         class="com.raytheon.uf.edex.database.DatabaseSessionFactoryBean">
         <!-- no annotations to load, so no databaseSessionConfig -->
         <property name="configLocation">
-            <value>file:///${edex.home}/conf/db/hibernateConfig/maps.hibernate.cfg.xml
+            <value>file:///${edex.home}/conf/db/hibernateConfig/maps/hibernate.cfg.xml
             </value>
         </property>
     </bean>
@@ -83,7 +83,7 @@
         class="com.raytheon.uf.edex.database.DatabaseSessionFactoryBean">
         <!-- no annotations to load, so no databaseSessionConfig -->
         <property name="configLocation">
-            <value>file:///${edex.home}/conf/db/hibernateConfig/maps.hibernate.admin.cfg.xml
+            <value>file:///${edex.home}/conf/db/hibernateConfig/maps/hibernate.admin.cfg.xml
             </value>
         </property>
     </bean>
