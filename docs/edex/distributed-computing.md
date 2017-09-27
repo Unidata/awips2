@@ -6,6 +6,8 @@ AWIPS makes use of service-oriented architecture to request, process, and serve 
 
 This walkthrough will install different EDEX components on two machines in the XSEDE Jetstream Cloud, the first is used to **ingest and decode** while the second is used to **store and serve** data.
 
+![](/images/awips2_distributed.png)
+
 ---
 
 ## Database/Request Server
@@ -204,7 +206,5 @@ Watch the edex JVM log with the command
 * Be mindful of what IP address and hostnames are used in `/awips2/edex/bin/setup.env` and `/awips2/data/pg_hba.conf`, and that they are resolvable from the command line.  Consult or edit `/etc/hosts` as needed.
 	* If after `edex start database`
 * You can install multiple `awips2-ingest` servers, each decoding a different dataset or feed, all pointing to the same Database/Request server (`DB_ADDR` and `PYPIES_SERVER` in `/awips2/edex/bin/setup.env`):
-
-![](/images/awips2_distributed.png)
 
 * Every EDEX Ingest IP address must be allowed in both **iptables** and **pg_hba.conf** as [shown above](#2-iptables-config).
