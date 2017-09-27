@@ -1,10 +1,10 @@
 
 
-AWIPS makes use of service-oriented architecture to request, process, and serve real-time meteorological data. While originally developed for use on internal NWS forecast office networks, where operational installations of AWIPS can consist of a dozen servers or more, because the AWIPS source code was hard-coded with the NWS network configuration, the early Unidata releases were stripped of operation-specific configurations and plugins, and released specifically for standalone installation. This made sense given that a single EDEX instance with a Solid State Drive could handle most of the entire NOAAport data volume. However, with GOES-R(16) coming online, and more gridded forecast models being created at finer temporal and spatial resolutions, there was now a need to distribute EDEX data decoding in order to handle this firehose of data.
+AWIPS makes use of service-oriented architecture to request, process, and serve real-time meteorological data. While originally developed for use on internal NWS forecast office networks, where operational installations of AWIPS could consist of a dozen servers or more, the early Unidata releases were stripped of operations-specific configurations and plugins, and released as a standalone server. This worked, since (at the time) a single EDEX instance with an attached SSD could handle most of NOAAport. However, with GOES-R(16) coming online in 2017, and more gridded forecast models being created at finer temporal and spatial resolutions, there is now a need to distribute the data decoding across multiple machine to handle this firehose of data.
 
 ---
 
-This walkthrough will install different EDEX components on two ma`chines in the XSEDE Jetstream Cloud, the first is used to **ingest and decode** while the second is used to **store and serve** data.
+This walkthrough will install different EDEX components on two machines in the XSEDE Jetstream Cloud, the first is used to **ingest and decode** while the second is used to **store and serve** data.
 
 ---
 
@@ -93,6 +93,40 @@ In the file `/awips2/data/pg_hba.conf` you define remote connections for all pos
 
 This will start PostgreSQL, httpd-pypies, Qpid, and the EDEX Request JVM (and will not start the LDM or the EDEX Ingest and IngestGrib JVMs)
 
+### 5. Monitor Services
+
+The command `edex` will show which services are running, and for a Database/Request server, will not include the LDM, EDEXingest, or EDEXgrib:
+
+	edex
+
+	[edex status]
+	postgres    :: running :: pid 571
+	pypies      :: running :: pid 639
+	qpid        :: running :: pid 674
+	EDEXingest  :: not running
+	EDEXgrib    :: not running
+	EDEXrequest :: running :: pid 987 1029 23792
+
+
+Since this Database/Request server is not running the main *edexIngest* JVM, we won't see anything from `edex log`, instead watch the Request Server with the command
+
+	edex log reqeust
+
+!!! warning "Confirm that EDEX Request connects to PostgreSQL!"
+    With the above `edex log request`, ensure that the log progresses **past this point**:
+
+   		Spring-enabled Plugins:
+		-----------------------
+		acars-common, acars-common-dataaccess, acarssounding-common, activetable-common,
+		activetable-request, airep-common, airep-common-dataaccess, airmet-common, 
+		atcf-common, atcf-request, auth-request, awipstools-request, aww-common...
+	
+		JAXB context for PersistencePathKeySet inited in: 5ms
+		INFO 20:21:09,134 5584 [EDEXMain] Reflections: Reflections took 436 ms to scan 258 urls, producing 31 keys and 3637 values
+		Found 499 db classes in 720 ms
+
+    If the log stops at the **Found db classes...** line, that means EDEX is not connecting to PostgreSQL - double-check `DB_ADDR` in `/awips2/edex/bin/setup.env`
+
 ---
 
 ## Ingest/Decode Server
@@ -135,11 +169,41 @@ Notice that `EDEX_SERVER` and `BROKER_ADDR` (qpid) should remain defined as the 
 
 This will start Qpid and the EDEX Ingest and IngestGrib JVMs (and not start PostgreSQL, httpd-pypies, or the EDEX Request JVM)
 
+### 4. Monitor Services
+
+Watch the edex JVM log with the command
+
+	edex log
+
+!!! warning "Confirm that EDEX connects to PostgreSQL!"
+    With the above `edex log`, ensure that the log progresses **past this point**:
+
+   		Spring-enabled Plugins:
+		-----------------------
+		acars-common, acars-common-dataaccess, acarssounding-common, activetable-common,
+		activetable-ingest, airep-common, airep-common-dataaccess, airmet-common, 
+		atcf-common, atcf-ingest, aww-common...
+	
+		JAXB context for PersistencePathKeySet inited in: 5ms
+		INFO 20:21:09,134 5584 [EDEXMain] Reflections: Reflections took 436 ms to scan 258 urls, producing 31 keys and 3637 values
+		Found 499 db classes in 720 ms
+
+    If the log stops at the **Found db classes...** line, that means EDEX is not connecting to the *remote PostgreSQL instance* - double-check `DB_ADDR` in `/awips2/edex/bin/setup.env`
+
+    You can **manually check remote PostgreSQL connectivity** on any EDEX Ingest server from the command line:
+
+		su - awips
+		psql -U awips -h <remote IP address> -p 5432 metadata
+
+    Where the default passwd is *awips* and is defined in files in `/awips2/edex/conf/db/hibernateConfig/`
+
 ---
 
 ## Additional Notes
 
-* Install more than one `awips2-ingest` servers, with all pointing to the same `DB_ADDR` and `PYPIES_SERVER` Database/Request Server (10.0.0.9 below) and each decoding a different data set:
+* Be mindful of what IP address and hostnames are used in `/awips2/edex/bin/setup.env` and `/awips2/data/pg_hba.conf`, and that they are resolvable from the command line.  Consult or edit `/etc/hosts` as needed.
+	* If after `edex start database`
+* You can install multiple `awips2-ingest` servers, each decoding a different dataset or feed, all pointing to the same Database/Request server (`DB_ADDR` and `PYPIES_SERVER` in `/awips2/edex/bin/setup.env`):
 
 ![](/images/awips2_distributed.png)
 
