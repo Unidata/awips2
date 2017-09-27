@@ -6,5 +6,5 @@ dependencies:
   - python=2.7
   - pip
   - pip:
-    - mkdocs-unidata
+    - mkdocs-unidata==1.5.7
     - fontawesome_markdown
