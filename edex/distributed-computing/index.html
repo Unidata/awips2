@@ -1188,6 +1188,7 @@
                 <p>AWIPS makes use of service-oriented architecture to request, process, and serve real-time meteorological data. While originally developed for use on internal NWS forecast office networks, where operational installations of AWIPS could consist of a dozen servers or more, the early Unidata releases were stripped of operations-specific configurations and plugins, and released as a standalone server. This worked, since (at the time) a single EDEX instance with an attached SSD could handle most of NOAAport. However, with GOES-R(16) coming online in 2017, and more gridded forecast models being created at finer temporal and spatial resolutions, there is now a need to distribute the data decoding across multiple machine to handle this firehose of data.</p>
 <hr />
 <p>This walkthrough will install different EDEX components on two machines in the XSEDE Jetstream Cloud, the first is used to <strong>ingest and decode</strong> while the second is used to <strong>store and serve</strong> data.</p>
+<p><img alt="" src="../../images/awips2_distributed.png" /></p>
 <hr />
 <h2 id="databaserequest-server">Database/Request Server<a class="headerlink" href="#databaserequest-server" title="Permanent link"></a></h2>
 <div class="admonition note">
@@ -1366,11 +1367,12 @@ psql -U awips -h &lt;remote IP address&gt; -p 5432 metadata
 <li>If after <code>edex start database</code></li>
 </ul>
 </li>
-<li>You can install multiple <code>awips2-ingest</code> servers, each decoding a different dataset or feed, all pointing to the same Database/Request server (<code>DB_ADDR</code> and <code>PYPIES_SERVER</code> in <code>/awips2/edex/bin/setup.env</code>):</li>
-</ul>
-<p><img alt="" src="../../images/awips2_distributed.png" /></p>
-<ul>
-<li>Every EDEX Ingest IP address must be allowed in both <strong>iptables</strong> and <strong>pg_hba.conf</strong> as <a href="#2-iptables-config">shown above</a>.</li>
+<li>
+<p>You can install multiple <code>awips2-ingest</code> servers, each decoding a different dataset or feed, all pointing to the same Database/Request server (<code>DB_ADDR</code> and <code>PYPIES_SERVER</code> in <code>/awips2/edex/bin/setup.env</code>):</p>
+</li>
+<li>
+<p>Every EDEX Ingest IP address must be allowed in both <strong>iptables</strong> and <strong>pg_hba.conf</strong> as <a href="#2-iptables-config">shown above</a>.</p>
+</li>
 </ul>
                 
                   
