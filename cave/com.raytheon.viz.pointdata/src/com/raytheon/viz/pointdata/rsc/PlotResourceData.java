@@ -65,6 +65,7 @@ import com.raytheon.viz.pointdata.rsc.retrieve.PointDataPlotInfoRetriever;
  * Jan 19, 2016  5253     tgurney   Remove svrwx dependency on dataURI
  * Jan 28, 2016  5286     tgurney   Remove tcg dependency on dataURI
  * Feb 09, 2016  5283     nabowle   Remove NGM MOS support.
+ * Sep 19, 2017  ----     mjames    Remove profiler, ldadmesonet
  *
  * </pre>
  *
@@ -148,7 +149,6 @@ public class PlotResourceData extends AbstractRequestableResourceData {
          * little unique we can get rid of this
          */
         pluginProps.put("radar", new PluginPlotProperties(false));
-        pluginProps.put("ldadhydro", new PluginPlotProperties(false));
         pluginProps.put("textPoints", new PluginPlotProperties(false));
 
         /*
@@ -173,14 +173,11 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         pluginProps.put("bufrmosHPC", new PluginPlotProperties());
         pluginProps.put("bufrmosLAMP", new PluginPlotProperties());
         pluginProps.put("bufrmosMRF", new PluginPlotProperties());
-        pluginProps.put("ldadmesonet", new PluginPlotProperties());
         pluginProps.put("qc", new PluginPlotProperties());
         pluginProps.put("bufrascat", new PluginPlotProperties());
         pluginProps.put("bufrhdw", new PluginPlotProperties());
         pluginProps.put("bufrmthdw", new PluginPlotProperties());
         pluginProps.put("bufrssmi", new PluginPlotProperties());
-        pluginProps.put("madis", new PluginPlotProperties());
-        pluginProps.put("pirep", new PluginPlotProperties());
         pluginProps.put("airep", new PluginPlotProperties());
         pluginProps.put("acars", new PluginPlotProperties());
         pluginProps.put("lsr", new PluginPlotProperties());

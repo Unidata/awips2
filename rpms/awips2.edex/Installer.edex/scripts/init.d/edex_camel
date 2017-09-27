@@ -24,7 +24,12 @@ prog="start.sh"
 MEM=( `free -g | grep "Mem:"` )
 TOTAL_MEM=${MEM[1]}
 
-SERVICES=( 'request' 'ingest' 'ingestGrib')
+# determine services to load
+if [ -f /etc/rc.d/init.d/edexServiceList ]; then
+    . /etc/rc.d/init.d/edexServiceList
+else
+    SERVICES=( 'request' 'ingest' 'ingestGrib' )
+fi
 
 # Who to run EDEX server as, usually "awips".  (NOT "root")
 export EDEXUSER=awips

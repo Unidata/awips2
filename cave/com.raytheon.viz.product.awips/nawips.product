@@ -91,9 +91,7 @@
       <feature id="com.raytheon.uf.viz.grid.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.thinclient.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.viz.text.feature" version="1.0.0.qualifier"/>
-      <feature id="com.raytheon.uf.viz.d2d.damagepath.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.viz.gfe.feature" version="1.0.0.qualifier"/>
-      <feature id="com.raytheon.uf.viz.registry.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.aviation.advisory.feature" version="1.14.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.useradmin.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.ncep.dataplugins.feature" version="1.0.0.qualifier"/>

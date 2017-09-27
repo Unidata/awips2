@@ -9,22 +9,4 @@
         </constructor-arg>
     </bean>
 
-    <bean id="sendFaxRequestHandler" class="com.raytheon.uf.edex.plugin.text.subscription.handler.SendFaxRequestHandler" />
-    <bean factory-bean="handlerRegistry" factory-method="register">
-        <constructor-arg value="com.raytheon.uf.common.dataplugin.text.subscription.request.SendFaxRequest"/>
-        <constructor-arg ref="sendFaxRequestHandler"/>
-    </bean>
-
-    <bean id="autoFaxRequestHandler" class="com.raytheon.uf.edex.plugin.text.subscription.handler.AutoFaxRequestHandler" />
-    <bean factory-bean="handlerRegistry" factory-method="register">
-        <constructor-arg value="com.raytheon.uf.common.dataplugin.text.subscription.request.AutoFaxRequest"/>
-        <constructor-arg ref="autoFaxRequestHandler"/>
-    </bean>
-
-    <bean id="getAutoFaxRecordsRequestHandler" class="com.raytheon.uf.edex.plugin.text.subscription.handler.GetAutoFaxRecordsRequestHandler" />
-    <bean factory-bean="handlerRegistry" factory-method="register">
-        <constructor-arg value="com.raytheon.uf.common.dataplugin.text.subscription.request.GetAutoFaxRecordsRequest"/>
-        <constructor-arg ref="getAutoFaxRecordsRequestHandler"/>
-    </bean>
-
 </beans>

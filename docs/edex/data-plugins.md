@@ -48,22 +48,14 @@ td:first-child { font-weight: bold }
 |  grid  |  Binary gridded data grib1/grib2  |
 |  idft  |  Ice Drift Forecasts  |
 |  intlsigmet  |  International Significant Meteorological Information for Aviation  |
-|  ldad  |  Local Data Acquisition and Dissemination  |
-|  ldadhydro  |  Local Data Acquisition and Dissemination Hydro data files  |
-|  ldadmanual  |  Local Data Acquisition and Dissemination Manual Ingest  |
-|  ldadmesonet  |  Local Data Acquisition and Dissemination Mesonet data files  |
-|  ldadprofiler  |  Local Data Acquisition and Dissemination Profiler data files  |
 |  lma  |  Lightning Mapping Array  |
 |  loctables  |  Location Tables Ingest  |
 |  lsr  |  Local Storm Reports  |
-|  madis  |  Meteorological Assimilation Data Ingest System  |
 |  manualIngest  |  Manual data ingest plugin  |
 |  mcidas  |  NCEP decoder for McIDAS AREA files  |
 |  metartohmdb  |  Adds metar records to the Verification and Climate database  |
 |  modelsounding  |  Individual grid point soundings from the GFS and NAM models  |
 |  modis  |  NASA Moderate-resolution Imaging Spectroradiometer  |
-|  mosaic  |  NCEP Radar mosaic data files  |
-|  mping  |  mPING Crowdsourced weather reports (http://mping.nssl.noaa.gov/)  |
 |  ncpafm  |  NCEP Point/Area Forecast Matrices data  |
 |  ncscat  |  NCEP ASCAT/Quikscat records  |
 |  nctaf  |  NCEP Terminal Aerodrome Forecasts  |

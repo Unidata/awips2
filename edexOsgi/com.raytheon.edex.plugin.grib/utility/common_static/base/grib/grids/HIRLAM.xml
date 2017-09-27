@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<latLonGridCoverage>
+    <name>HIRLAM</name>
+    <description>Latitude/Longitude Equidistant_Cylindrical</description>
+    <la1>25.647661</la1>
+    <lo1>224.973654</lo1>
+    <firstGridPointCorner>LowerLeft</firstGridPointCorner>
+    <nx>4633</nx>
+    <ny>947</ny>
+    <dx>0.068009</dx>
+    <dy>0.068025</dy>
+    <spacingUnit>degree</spacingUnit>
+</latLonGridCoverage>

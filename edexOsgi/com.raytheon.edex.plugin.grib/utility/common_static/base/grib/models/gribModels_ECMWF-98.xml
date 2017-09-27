@@ -10,6 +10,15 @@
 
 <gribModelSet>
 
+    <model>
+       <name>HIRLAM</name>
+       <center>98</center>
+       <subcenter>0</subcenter>
+       <grid>HIRLAM</grid>
+       <process>
+          <id>128</id>
+       </process>
+    </model>
 	<!-- SUBCENTER 0 -->
     <model>
        <name>ECMWF-wave-guidance</name>

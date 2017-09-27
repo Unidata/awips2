@@ -18,19 +18,11 @@
         <constructor-arg value="true" /> <!-- require valid distribution file for startup -->
 	</bean>
 	
-	<bean id="radarRadarServerDistRegistry" factory-bean="radarserverDistributionSrv"
-		factory-method="register">
-		<constructor-arg value="radar" />
-		<constructor-arg value="jms-durable:queue:Ingest.RadarRadarServer" />
-	</bean>
-
 	<camelContext id="radar-camel"
 		xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler">
 		
         <endpoint id="radarJmsEndpoint" uri="jms-durable:queue:Ingest.Radar?concurrentConsumers=${radar-decode.sbn.threads}"/>
-
-        <endpoint id="radarRadarServerJmsEndpoint" uri="jms-durable:queue:Ingest.RadarRadarServer?concurrentConsumers=${radar-decode.local.threads}"/>
 
 		<!-- Begin Radar routes -->
 		<route id="radarIngestRoute">
@@ -41,14 +33,6 @@
 			<to uri="direct:radarcommon" />
 		</route>
 		
-		<route id="radarRadarServerIngestRoute">
-			<from ref="radarRadarServerJmsEndpoint"/>
-			<setHeader headerName="dataType">
-				<constant>radar-local</constant>
-			</setHeader>
-			<to uri="direct:radarcommon" />
-		</route>
-
 		<route id="radarCommonIngestRoute">
 			<from uri="direct:radarcommon" />
 			<setHeader headerName="pluginName">
@@ -76,12 +60,4 @@
 		</route>
 	</camelContext>
 	
-	<bean id="radarServerConnectionHandler"
-		class="com.raytheon.edex.rpgenvdata.RadarServerConnectionHandler" />
-	<bean factory-bean="handlerRegistry" factory-method="register">
-		<constructor-arg
-			value="com.raytheon.uf.common.dataplugin.radar.request.RadarServerConnectionRequest" />
-		<constructor-arg ref="radarServerConnectionHandler" />
-	</bean>
-
 </beans>

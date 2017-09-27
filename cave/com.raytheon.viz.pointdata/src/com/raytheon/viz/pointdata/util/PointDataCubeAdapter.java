@@ -77,12 +77,10 @@ public class PointDataCubeAdapter extends DefaultDataCubeAdapter {
 
     public static String PLUGIN_NAME = PointDataInventory.PLUGIN_NAME;
 
-    private static String[] supportedPlugins = { "obs", "madis",
-            "modelsounding", "bufrssmi", "lsr", "sfcobs", "goessounding",
-            "bufrascat", "poessounding", "profiler", "bufrua", "ldadmesonet",
-            "ldadhydro", "qc", "fssobs", "bufrmosAVN", "bufrmosETA",
-            "bufrmosGFS", "bufrmosHPC", "bufrmosLAMP", "bufrmosMRF", "airep",
-            "pirep", "nctaf" };
+    private static String[] supportedPlugins = { "obs", "modelsounding", 
+    		"bufrssmi", "lsr", "sfcobs", "goessounding", "bufrascat", 
+    		"poessounding", "bufrua", "qc", "fssobs", "bufrmosAVN", 
+    		"bufrmosETA", "bufrmosGFS", "bufrmosHPC", "bufrmosLAMP", "bufrmosMRF", "airep", "pirep", "nctaf" };
 
     protected AbstractPointDataInventory inventory;
 

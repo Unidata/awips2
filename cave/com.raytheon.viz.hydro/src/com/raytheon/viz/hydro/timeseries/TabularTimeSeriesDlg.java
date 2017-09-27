@@ -69,9 +69,6 @@ import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.dataplugin.shef.tables.Fcstheight;
 import com.raytheon.uf.common.dataplugin.shef.tables.FcstheightId;
-import com.raytheon.uf.common.dissemination.OUPRequest;
-import com.raytheon.uf.common.dissemination.OUPResponse;
-import com.raytheon.uf.common.dissemination.OfficialUserProduct;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -374,11 +371,6 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
      * Review Send Script button.
      */
     private Button reviewSendScriptBtn;
-
-    /**
-     * Send Product button.
-     */
-    private Button sendProductBtn;
 
     /**
      * Send Table to Printer button.
@@ -1040,17 +1032,6 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                     sendConfigDlg.bringToTop();
                 }
 
-            }
-        });
-
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        sendProductBtn = new Button(leftComp, SWT.PUSH);
-        sendProductBtn.setText("Send Product");
-        sendProductBtn.setLayoutData(gd);
-        sendProductBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                sendProduct();
             }
         });
 
@@ -3206,136 +3187,6 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                                 + getPid());
             }
         }
-    }
-
-    /**
-     * Broadcast the SHEF product.
-     */
-    private void sendProduct() {
-        // Check for DTR and don't transmit if in DRT
-        if (!SimulatedTimeOperations.isTransmitAllowed()) {
-            SimulatedTimeOperations.displayFeatureLevelWarning(this.shell,
-                    "Transmission of SHEF products");
-            return;
-        }
-
-        if (sendConfirmation()) {
-            // check shef issue configuration
-            ShefIssueMgr sim = ShefIssueMgr.getInstance();
-
-            ShefIssueXML xml = sim.getShefIssueXml();
-
-            try {
-                if (xml.isDirCopy()) {
-                    ArrayList<String> directories = xml.getInternalDirectory()
-                            .getDirectories();
-                    if (directories != null) {
-                        for (String dir : directories) {
-                            FileUtil.copyFile(new File(shefFileName),
-                                    new File(dir + "/" + SHEF_FILE_NAME + "."
-                                            + getPid()));
-                        }
-                    }
-                }
-
-                if (xml.isDistributeProduct()) {
-                    String text = getFileText();
-
-                    OUPRequest req = new OUPRequest();
-                    OfficialUserProduct oup = new OfficialUserProduct();
-                    String awipsWanPil = productTF.getText();
-                    oup.setAwipsWanPil(awipsWanPil);
-                    oup.setSource("Time Series");
-                    oup.setAddress("DEFAULTNCF");
-                    oup.setNeedsWmoHeader(true);
-                    oup.setFilename(SHEF_FILE_NAME + "." + getPid());
-                    oup.setProductText(text);
-                    req.setUser(UserController.getUserObject());
-
-                    req.setCheckBBB(true);
-                    req.setProduct(oup);
-
-                    OUPResponse response = (OUPResponse) ThriftClient
-                            .sendRequest(req);
-                    boolean success = response.isSendLocalSuccess();
-                    if (response.hasFailure()) {
-                        Priority p = Priority.EVENTA;
-                        if (!response.isAttempted()) {
-                            // if was never attempted to send or store even
-                            // locally
-                            p = Priority.CRITICAL;
-                        } else if (!response.isSendLocalSuccess()) {
-                            // if send/store locally failed
-                            p = Priority.CRITICAL;
-                        } else if (!response.isSendWANSuccess()) {
-                            // if send to WAN failed
-                            if (response.getNeedAcknowledgment()) {
-                                // if ack was needed, if it never sent then no
-                                // ack was recieved
-                                p = Priority.CRITICAL;
-                            } else {
-                                // if no ack was needed
-                                p = Priority.EVENTA;
-                            }
-                        } else if (response.getNeedAcknowledgment()
-                                && !response.isAcknowledged()) {
-                            // if sent but not acknowledged when acknowledgement
-                            // is needed
-                            p = Priority.CRITICAL;
-                        }
-
-                        statusHandler.handle(p, response.getMessage());
-                    }
-
-                    if (success) {
-                        showMessage(shell, SWT.OK, "Distribution Successful",
-                                "Product successfully distributed via HandleOUP");
-                    }
-                }
-            } catch (VizException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error transmitting text product", e);
-
-            } catch (IOException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error transmitting text product", e);
-            }
-        }
-    }
-
-    /**
-     * Get confirmation from the user and verify the product id is valid.
-     * 
-     * @return True if ok to send, false otherwise
-     */
-    private boolean sendConfirmation() {
-        boolean retVal = false;
-
-        /* Verify the product id is not invalid */
-        String productId = productTF.getText();
-        if (productId == null || productId.length() == 0) {
-            showMessage(shell, SWT.ERROR, INVALID_PRODUCT_ID,
-                    "Product Id cannot be blank.");
-            // Apparently CCCCNNNXXX is valid so we'll accept it
-            // } else if (productId.equals("CCCCNNNXXX")) {
-            // showMessage(shell, SWT.ERROR, INVALID_PRODUCT_ID,
-            // INVALID_PRODUCT_ID + ": CCCCNNNXXX");
-        } else {
-            retVal = true;
-        }
-
-        /* Get send confirmation from the user */
-        if (retVal == true) {
-            int choice = showMessage(shell, SWT.OK | SWT.CANCEL,
-                    "SHEF Send Confirmation", "Do you wish to send product "
-                            + productId + "?");
-
-            if (choice == SWT.CANCEL) {
-                retVal = false;
-            }
-        }
-
-        return retVal;
     }
 
     /**

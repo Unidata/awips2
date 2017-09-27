@@ -37,7 +37,6 @@ Export-Package: com.raytheon.viz.texteditor,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.comm,
  com.raytheon.uf.common.dataplugin.warning.util,
- com.raytheon.uf.common.dissemination,
  com.raytheon.uf.common.message,
  com.raytheon.uf.common.wmo,
  com.raytheon.uf.viz.ui.menus

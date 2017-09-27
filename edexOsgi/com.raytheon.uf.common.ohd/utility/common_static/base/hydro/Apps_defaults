@@ -531,11 +531,6 @@ xnav_arc      :   $(xnav_dir)/bin/ARCHIVE
 xdat_arc      :   $(xdat_dir)/bin/ARCHIVE
 #  = = = = = = = = = = = = = = = = = = = = = = end of other "ds_" tokens = = = =
 
-# LDAD shefencode tokens
-ldad_data_dir        :  /awips/ldad/data          # the LDAD internal data dir
-shefenc_pe_table     : $(ldad_data_dir)/ShefEncoder_PE.tbl 
-shefenc_units_table  : $(ldad_data_dir)/ShefEncoder_Units.tbl
-
 # NWSRFS tokens
 
 rfs_dir         : $(apps_dir)/rfc/nwsrfs   # Top-level rfs mt.

@@ -36,7 +36,7 @@
                value="%vizVersion"/>
          <property
                name="aboutImage"
-               value="icons/awips.png"/>
+               value="icons/ipr.gif"/>
          <property
                name="appName"
                value="CAVE">

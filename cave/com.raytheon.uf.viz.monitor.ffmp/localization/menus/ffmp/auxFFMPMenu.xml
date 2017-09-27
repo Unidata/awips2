@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<contribute xsi:type="command" id="FFTI" commandId="com.raytheon.uf.viz.monitor.ffmp.openFFTI"
-               menuText="FFTI">
-    </contribute>
-    <contribute xsi:type="command" id="FFFG" commandId="com.raytheon.uf.viz.monitor.ffmp.openFFFG"
-               menuText="FFFG">
-    </contribute>
-</menuTemplate>  

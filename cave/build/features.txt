@@ -2,7 +2,6 @@ com.raytheon.uf.common.base.feature
 com.raytheon.uf.viz.dataplugin.obs.feature
 com.raytheon.uf.viz.sounding.feature
 com.raytheon.uf.viz.cots.feature
-com.raytheon.uf.viz.registry.feature
 com.raytheon.uf.viz.common.core.feature
 com.raytheon.uf.viz.dataplugins.feature
 com.raytheon.viz.feature.awips
@@ -18,12 +17,10 @@ com.raytheon.uf.viz.ncep.core.feature
 com.raytheon.uf.viz.aviation.advisory.feature
 com.raytheon.uf.viz.d2d.core.feature
 com.raytheon.viz.radar.feature
-com.raytheon.uf.viz.radarapps.feature
 com.raytheon.uf.viz.grid.feature
 com.raytheon.uf.viz.displays.feature
 com.raytheon.viz.hydro.feature
 com.raytheon.uf.viz.kml.export.feature
-com.raytheon.uf.viz.d2d.damagepath.feature
 com.raytheon.uf.viz.d2d.xy.feature
 com.raytheon.viz.volumebrowser.feature
 com.raytheon.uf.viz.core.maps.feature
