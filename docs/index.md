@@ -50,10 +50,18 @@ Unidata supports two visualization frameworks for rendering data: [CAVE](install
 
 Unidata AWIPS source code and binaries (RPMs) are considered to be in the public domain, meaning there are no restrictions on any download, modification, or distribution in any form (original or modified).  Unidata AWIPS contains no proprietery content and is therefore not subject to export controls as stated in the [Master Rights](https://github.com/Unidata/awips2/blob/unidata_16.2.2/rpms/legal/Master_Rights_File.pdf) licensing file. 
 
-<img style="float:right;width:450px;" src="http://www.unidata.ucar.edu/software/awips2/images/awips2_coms.png">
+---
+
+
+## Distributed Computing
+
+AWIPS makes use of service-oriented architecture to request, process, and serve real-time meteorological data.  While originally developed for use on internal NWS forecast office networks, where operational installations of AWIPS can consist of a dozen servers or more, because the AWIPS source code was hard-coded with the NWS network configuration, the early Unidata releases were stripped of operation-specific configurations and plugins, and released specifically for standalone installation. This made sense given that a single EDEX instance with a Solid State Drive could handle most of the entire NOAAport data volume.  However, with GOES-R(16) coming online, and more gridded forecast models being created at finer temporal and spatial resolutions, there was now a need to distribute EDEX data decoding in order to handle this firehose of data.
+
+* Read More: [Distributed EDEX](edex/distributed-computing)
 
 ---
 
+<img style="float:right;width:450px;" src="http://www.unidata.ucar.edu/software/awips2/images/awips2_coms.png">
 ## Software Components
 
 * [EDEX](#edex)
@@ -64,11 +72,6 @@ Unidata AWIPS source code and binaries (RPMs) are considered to be in the public
 * [PostgreSQL](#postgresql)
 * [HDF5](#hdf5)
 * [PyPIES](#pypies)
-
-
-The primary AWIPS application for data ingest, processing, and storage is the Environmental Data EXchange (**EDEX**) server; the primary AWIPS application for visualization/data manipulation is the Common AWIPS Visualization Environment (**CAVE**) client, which is typically installed on a workstation separate from other AWIPS components.  
-
-In addition to programs developed specifically for AWIPS, AWIPS uses several commercial off-the-shelf (COTS) and Free or Open Source software (FOSS) products to assist in its operation. The following components, working together and communicating, compose the entire AWIPS system.
 
 ### EDEX
 
@@ -116,5 +119,5 @@ edexBridge, invoked in the LDM configuration file `/awips2/ldm/etc/ldmd.conf`, i
 
 **PyPIES**, Python Process Isolated Enhanced Storage, was created for AWIPS to isolate the management of HDF5 Processed Data Storage from the EDEX processes.  PyPIES manages access, i.e., reads and writes, of data in the HDF5 files.  In a sense, PyPIES provides functionality similar to a DBMS (i.e PostgreSQL for metadata); all data being written to an HDF5 file is sent to PyPIES, and requests for data stored in HDF5 are processed by PyPIES.
 
-PyPIES is implemented in two parts: 1. The PyPIES manager is a Python application that runs as part of an Apache HTTP server, and handles requests to store and retrieve data. 2. The PyPIES logger is a Python process that coordinates logging. PyPIES is started and stopped by `edex start` and `edex stop`, and is controlled by the system script `/etc/rc.d/init.d/https-pypies` 
+PyPIES is implemented in two parts: 1. The PyPIES manager is a Python application that runs as part of an Apache HTTP server, and handles requests to store and retrieve data. 2. The PyPIES logger is a Python process that coordinates logging. PyPIES is started and stopped by `edex start` and `edex stop`, and is controlled by the system script `/etc/rc.d/init.d/httpd-pypies` 
 

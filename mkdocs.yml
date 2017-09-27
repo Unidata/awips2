@@ -46,6 +46,7 @@ pages:
     - Editing Menus: cave/d2d-edit-menus.md
     - Change Localization: cave/cave-localization.md
 - EDEX User Manual:
+    - Distributed EDEX: edex/distributed-computing.md
     - EDEX Start and Stop: install/start-edex.md
     - LDM Feeds: edex/ldm.md
     - Data Distribution Files: edex/data-distribution-files.md
