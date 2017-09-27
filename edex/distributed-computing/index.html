@@ -1363,10 +1363,7 @@ psql -U awips -h &lt;remote IP address&gt; -p 5432 metadata
 <hr />
 <h2 id="additional-notes">Additional Notes<a class="headerlink" href="#additional-notes" title="Permanent link"></a></h2>
 <ul>
-<li>Be mindful of what IP address and hostnames are used in <code>/awips2/edex/bin/setup.env</code> and <code>/awips2/data/pg_hba.conf</code>, and that they are resolvable from the command line.  Consult or edit <code>/etc/hosts</code> as needed.<ul>
-<li>If after <code>edex start database</code></li>
-</ul>
-</li>
+<li>Be mindful of what IP address and hostnames are used in <code>/awips2/edex/bin/setup.env</code> and <code>/awips2/data/pg_hba.conf</code>, and that they are resolvable from the command line.  Consult or edit <code>/etc/hosts</code> as needed.</li>
 <li>
 <p>You can install multiple <code>awips2-ingest</code> servers, each decoding a different dataset or feed, all pointing to the same Database/Request server (<code>DB_ADDR</code> and <code>PYPIES_SERVER</code> in <code>/awips2/edex/bin/setup.env</code>):</p>
 </li>
