@@ -204,7 +204,6 @@ Watch the edex JVM log with the command
 ## Additional Notes
 
 * Be mindful of what IP address and hostnames are used in `/awips2/edex/bin/setup.env` and `/awips2/data/pg_hba.conf`, and that they are resolvable from the command line.  Consult or edit `/etc/hosts` as needed.
-	* If after `edex start database`
 * You can install multiple `awips2-ingest` servers, each decoding a different dataset or feed, all pointing to the same Database/Request server (`DB_ADDR` and `PYPIES_SERVER` in `/awips2/edex/bin/setup.env`):
 
 * Every EDEX Ingest IP address must be allowed in both **iptables** and **pg_hba.conf** as [shown above](#2-iptables-config).
