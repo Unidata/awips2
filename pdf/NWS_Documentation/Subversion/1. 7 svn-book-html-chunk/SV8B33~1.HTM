@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>File Portability</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.advanced.html" title="Chapter 3. Advanced Topics" />
+    <link rel="prev" href="svn.advanced.props.html" title="Properties" />
+    <link rel="next" href="svn.advanced.props.special.ignore.html" title="Ignoring Unversioned Items" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">File Portability</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.advanced.props.html">Prev</a> </td>
+          <th width="60%" align="center">Chapter 3. Advanced Topics</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.advanced.props.special.ignore.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="sect1" title="File Portability">
+      <div class="titlepage">
+        <div>
+          <div>
+            <h2 class="title" style="clear: both"><a id="svn.advanced.props.file-portability"></a>File Portability</h2>
+          </div>
+        </div>
+      </div>
+      <p>Fortunately for Subversion users who routinely find
+      themselves on different computers with different operating
+      systems, Subversion's command-line program behaves almost
+      identically on all those systems.  If you know how to wield
+      <span class="command"><strong>svn</strong></span> on one platform, you know how to wield it
+      everywhere.</p>
+      <p>However, the same is not always true of other general classes
+      of software or of the actual files you keep in Subversion.  For
+      example, on a Windows machine, the definition of a <span class="quote">“<span class="quote">text
+      file</span>”</span> would be similar to that used on a Linux box, but
+      with a key difference—the character sequences used to mark
+      the ends of the lines of those files.  There are other
+      differences, too.  Unix platforms have (and Subversion supports)
+      symbolic links; Windows does not.  Unix platforms use filesystem
+      permission to determine executability; Windows uses filename
+      extensions.</p>
+      <p>Because Subversion is in no position to unite the whole
+      world in common definitions and implementations of all of these
+      things, the best it can do is to try to help make your life
+      simpler when you need to work with your versioned files and
+      directories on multiple computers and operating systems.  This
+      section describes some of the ways Subversion does this.</p>
+      <div class="sect2" title="File Content Type">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.advanced.props.special.mime-type"></a>File Content Type</h3>
+            </div>
+          </div>
+        </div>
+        <p>Subversion joins the ranks of the many applications that
+        recognize and make use of Multipurpose Internet Mail
+        Extensions (MIME) content types.  Besides being a
+        general-purpose storage location for a file's content type,
+        the value of the <code class="literal">svn:mime-type</code> file
+        property determines some behavioral characteristics of
+        Subversion itself.</p>
+        <div class="sidebar" title="Identifying File Types">
+          <p class="title">
+            <b>Identifying File Types</b>
+          </p>
+          <p>Various programs on most modern operating systems make
+          assumptions about the type and format of the contents of a
+          file by the file's name, specifically its file extension.
+          For example, files whose names end in
+          <code class="filename">.txt</code> are generally assumed to be
+          human-readable; that is, able to be understood by simple perusal
+          rather than requiring complex processing to decipher.  Files
+          whose names end in <code class="filename">.png</code>, on the other
+          hand, are assumed to be of the Portable Network Graphics
+          type—not human-readable at all, and sensible only when
+          interpreted by software that understands the PNG format and
+          can render the information in that format as a raster
+          image.</p>
+          <p>Unfortunately, some of those extensions have changed
+          their meanings over time.  When personal computers first appeared,
+          a file named <code class="filename">README.DOC</code> would have
+          almost certainly been a plain-text file, just like today's
+          <code class="filename">.txt</code> files.  But by the mid-1990s, you
+          could almost bet that a file of that name would not be a
+          plain-text file at all, but instead a Microsoft Word
+          document in a proprietary, non-human-readable format.  But
+          this change didn't occur overnight—there was certainly
+          a period of confusion for computer users over what exactly
+          they had in hand when they saw a <code class="filename">.DOC</code>
+          file.<sup>[<a id="idp34224464" href="#ftn.idp34224464" class="footnote">14</a>]</sup></p>
+          <p>The popularity of computer networking cast still more
+          doubt on the mapping between a file's name and its content.
+          With information being served across networks and generated
+          dynamically by server-side scripts, there was often no real
+          file per se, and therefore no filename.  Web
+          servers, for example, needed some other way to tell browsers
+          what they were downloading so that the browser could do something
+          intelligent with that information, whether that was to
+          display the data using a program registered to handle that
+          datatype or to prompt the user for where on the client
+          machine to store the downloaded data.</p>
+          <p>Eventually, a standard emerged for, among other things,
+          describing the contents of a data stream.  In 1996, RFC 2045
+          was published.  It was the first of five RFCs describing
+          MIME.  It describes the concept of media types and subtypes
+          and recommends a syntax for the representation of those
+          types.  Today, MIME media types—or <span class="quote">“<span class="quote">MIME
+          types</span>”</span>—are used almost universally across
+          email applications, web servers, and other software as the
+          de facto mechanism for clearing up the file content
+          confusion.</p>
+        </div>
+        <p>For example, one of the benefits that Subversion typically
+        provides is contextual, line-based merging of changes received
+        from the server during an update into your working file.  But
+        for files containing nontextual data, there is often no
+        concept of a <span class="quote">“<span class="quote">line.</span>”</span>  So, for versioned files
+        whose <code class="literal">svn:mime-type</code> property is set to a
+        nontextual MIME type (generally, something that doesn't begin
+        with <code class="literal">text/</code>, though there are exceptions),
+        Subversion does not attempt to perform contextual merges
+        during updates.  Instead, any time you have locally modified a
+        binary working copy file that is also being updated, your file
+        is left untouched and Subversion creates two new files.  One
+        file has a <code class="filename">.oldrev</code> extension and contains
+        the BASE revision of the file.  The other file has a
+        <code class="filename">.newrev</code> extension and contains the
+        contents of the updated revision of the file.  This behavior
+        is really for the protection of the user against failed
+        attempts at performing contextual merges on files that simply
+        cannot be contextually merged.</p>
+        <div class="warning" title="Warning" style="margin-left: 0.5in; margin-right: 0.5in;">
+          <table border="0" summary="Warning">
+            <tr>
+              <td rowspan="2" align="center" valign="top" width="25">
+                <img alt="[Warning]" src="images/warning.png" />
+              </td>
+              <th align="left">Warning</th>
+            </tr>
+            <tr>
+              <td align="left" valign="top">
+                <p>The <code class="literal">svn:mime-type</code> property, when set
+          to a value that does not indicate textual file contents, can
+          cause some unexpected behaviors with respect to other
+          properties.  For example, since the idea of line endings
+          (and therefore, line-ending conversion) makes no sense when
+          applied to nontextual files, Subversion will prevent you
+          from setting the <code class="literal">svn:eol-style</code> property
+          on such files.  This is obvious when attempted on a single
+          file target—<span class="command"><strong>svn propset</strong></span> will error
+          out.  But it might not be as clear if you perform a
+          recursive property set, where Subversion will silently skip
+          over files that it deems unsuitable for a given
+          property.</p>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <p>Subversion provides a number of mechanisms by which to
+        automatically set the <code class="literal">svn:mime-type</code>
+        property on a versioned file.  See
+        <a class="xref" href="svn.advanced.props.html#svn.advanced.props.auto" title="Automatic Property Setting">the section called “Automatic Property Setting”</a> for details.</p>
+        <p>Also, if the <code class="literal">svn:mime-type</code> property is
+        set, then the Subversion Apache module will use its value to
+        populate the <code class="literal">Content-type:</code> HTTP header when
+        responding to GET requests.  This gives your web browser a
+        crucial clue about how to display a file when you use it to
+        peruse your Subversion repository's contents.</p>
+      </div>
+      <div class="sect2" title="File Executability">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.advanced.props.special.executable"></a>File Executability</h3>
+            </div>
+          </div>
+        </div>
+        <p>On many operating systems, the ability to execute a file
+        as a command is governed by the presence of an execute
+        permission bit.  This bit usually defaults to being disabled,
+        and must be explicitly enabled by the user for each file that
+        needs it.  But it would be a monumental hassle to have to
+        remember exactly which files in a freshly checked-out working
+        copy were supposed to have their executable bits toggled on,
+        and then to have to do that toggling.  So, Subversion provides
+        the <code class="literal">svn:executable</code> property as a way to
+        specify that the executable bit for the file on which that
+        property is set should be enabled, and Subversion honors that
+        request when populating working copies with such files.</p>
+        <p>This property has no effect on filesystems that have no
+        concept of an executable permission bit, such as FAT32 and
+        NTFS.<sup>[<a id="idp34244944" href="#ftn.idp34244944" class="footnote">15</a>]</sup>  Also, although it has no defined
+        values, Subversion will force its value
+        to <code class="literal">*</code> when setting this property.  Finally,
+        this property is valid only on files, not on
+        directories.</p>
+      </div>
+      <div class="sect2" title="End-of-Line Character Sequences">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.advanced.props.special.eol-style"></a>End-of-Line Character Sequences</h3>
+            </div>
+          </div>
+        </div>
+        <p>Unless otherwise noted using a versioned file's
+        <code class="literal">svn:mime-type</code> property, Subversion
+        assumes the file contains human-readable data.  Generally
+        speaking, Subversion uses this knowledge only to determine
+        whether contextual difference reports for that file are
+        possible.  Otherwise, to Subversion, bytes are bytes.</p>
+        <p>This means that by default, Subversion doesn't pay any
+        attention to the type of <em class="firstterm">end-of-line (EOL)
+        markers</em> used in your files.  Unfortunately,
+        different operating systems have different conventions about
+        which character sequences represent the end of a line of text
+        in a file.  For example, the usual line-ending token used by
+        software on the Windows platform is a pair of ASCII control
+        characters—a carriage return (<code class="literal">CR</code>)
+        followed by a line feed (<code class="literal">LF</code>).  Unix
+        software, however, just uses the <code class="literal">LF</code>
+        character to denote the end of a line.</p>
+        <p>Not all of the various tools on these operating systems
+        understand files that contain line endings in a format that
+        differs from the <em class="firstterm">native line-ending
+        style</em> of the operating system on which they are
+        running.  So, typically, Unix programs treat the
+        <code class="literal">CR</code> character present in Windows files as a
+        regular character (usually rendered as <code class="literal">^M</code>),
+        and Windows programs combine all of the lines of a Unix file
+        into one giant line because no carriage return-linefeed (or
+        <code class="literal">CRLF</code>) character combination was found to
+        denote the ends of the lines.</p>
+        <p>This sensitivity to foreign EOL markers can be
+        frustrating for folks who share a file across different
+        operating systems.  For example, consider a source code
+        file, and developers that edit this file on both Windows and
+        Unix systems.  If all the developers always use tools that
+        preserve the line-ending style of the file, no problems
+        occur.</p>
+        <p>But in practice, many common tools either fail to
+        properly read a file with foreign EOL markers, or
+        convert the file's line endings to the native style when the
+        file is saved.  If the former is true for a developer, he
+        has to use an external conversion utility (such as
+        <span class="command"><strong>dos2unix</strong></span> or its companion,
+        <span class="command"><strong>unix2dos</strong></span>) to prepare the file for
+        editing.  The latter case requires no extra preparation.
+        But both cases result in a file that differs from the
+        original quite literally on every line!  Prior to committing
+        his changes, the user has two choices.  Either he can use a
+        conversion utility to restore the modified file to the same
+        line-ending style that it was in before his edits were made,
+        or he can simply commit the file—new EOL markers and
+        all.</p>
+        <p>The result of scenarios like these include wasted time
+        and unnecessary modifications to committed files.  Wasted
+        time is painful enough.  But when commits change every line
+        in a file, this complicates the job of determining which of
+        those lines were changed in a nontrivial way.  Where was
+        that bug really fixed?  On what line was a syntax error
+        introduced?</p>
+        <p>The solution to this problem is the
+        <code class="literal">svn:eol-style</code> property.  When this
+        property is set to a valid value, Subversion uses it to
+        determine what special processing to perform on the file so
+        that the file's line-ending style isn't flip-flopping with
+        every commit that comes from a different operating
+        system.  The valid values are:</p>
+        <div class="variablelist">
+          <dl>
+            <dt>
+              <span class="term">
+                <code class="literal">native</code>
+              </span>
+            </dt>
+            <dd>
+              <p>This causes the file to contain the EOL markers
+              that are native to the operating system on which
+              Subversion was run.  In other words, if a user on a
+              Windows machine checks out a working copy that
+              contains a file with an
+              <code class="literal">svn:eol-style</code> property set to
+              <code class="literal">native</code>, that file will contain
+              <code class="literal">CRLF</code> EOL markers.  A Unix user
+              checking out a working copy that contains the same
+              file will see <code class="literal">LF</code> EOL markers in his
+              copy of the file.</p>
+              <p>Note that Subversion will actually store the file
+              in the repository using normalized
+              <code class="literal">LF</code> EOL markers regardless of the
+              operating system.  This is basically transparent to
+              the user, though.</p>
+            </dd>
+            <dt>
+              <span class="term">
+                <code class="literal">CRLF</code>
+              </span>
+            </dt>
+            <dd>
+              <p>This causes the file to contain
+              <code class="literal">CRLF</code> sequences for EOL markers,
+              regardless of the operating system in use.</p>
+            </dd>
+            <dt>
+              <span class="term">
+                <code class="literal">LF</code>
+              </span>
+            </dt>
+            <dd>
+              <p>This causes the file to contain
+              <code class="literal">LF</code> characters for EOL markers,
+              regardless of the operating system in use.</p>
+            </dd>
+            <dt>
+              <span class="term">
+                <code class="literal">CR</code>
+              </span>
+            </dt>
+            <dd>
+              <p>This causes the file to contain
+              <code class="literal">CR</code> characters for EOL markers,
+              regardless of the operating system in use.  This
+              line-ending style is not very common.</p>
+            </dd>
+          </dl>
+        </div>
+      </div>
+      <div class="footnotes">
+        <br />
+        <hr width="100" align="left" />
+        <div class="footnote">
+          <p><sup>[<a id="ftn.idp34224464" href="#idp34224464" class="para">14</a>] </sup>You think that was rough?  During that
+          same era, WordPerfect also used <code class="filename">.DOC</code>
+          for their proprietary file format's preferred
+          extension!</p>
+        </div>
+        <div class="footnote">
+          <p><sup>[<a id="ftn.idp34244944" href="#idp34244944" class="para">15</a>] </sup>The Windows filesystems use file
+        extensions (such
+        as <code class="filename">.EXE</code>, <code class="filename">.BAT</code>, and
+        <code class="filename">.COM</code>) to denote executable
+        files.</p>
+        </div>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.advanced.props.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.advanced.html">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.advanced.props.special.ignore.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">Properties </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> Ignoring Unversioned Items</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

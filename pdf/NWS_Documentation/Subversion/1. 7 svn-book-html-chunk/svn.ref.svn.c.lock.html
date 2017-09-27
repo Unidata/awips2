@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>svn lock</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.ref.svn.html#svn.ref.svn.c" title="svn Subcommands" />
+    <link rel="prev" href="svn.ref.svn.c.list.html" title="svn list" />
+    <link rel="next" href="svn.ref.svn.c.log.html" title="svn log" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">svn lock</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.ref.svn.c.list.html">Prev</a> </td>
+          <th width="60%" align="center">svn Subcommands</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.ref.svn.c.log.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="refentry" title="svn lock">
+      <a id="svn.ref.svn.c.lock"></a>
+      <div class="titlepage"></div>
+      <a id="idp42939760" class="indexterm"></a>
+      <div class="refnamediv">
+        <h2>Name</h2>
+        <p>svn lock — Lock working copy paths or URLs in the
+              repository so that no other user can commit changes to
+              them.</p>
+      </div>
+      <div class="refsect1" title="Synopsis">
+        <a id="idp42942928"></a>
+        <h2>Synopsis</h2>
+        <p>
+          <code class="literal">svn lock TARGET...</code>
+        </p>
+      </div>
+      <div class="refsect1" title="Description">
+        <a id="idp42944544"></a>
+        <h2>Description</h2>
+        <p>Lock each <em class="replaceable"><code>TARGET</code></em>.  If any
+            <em class="replaceable"><code>TARGET</code></em> is already locked by
+            another user, print a warning and continue locking the
+            rest of the <em class="replaceable"><code>TARGET</code></em>s.  Use
+            <code class="option">--force</code> to steal a lock from another user
+            or working copy.</p>
+      </div>
+      <div class="refsect1" title="Options">
+        <a id="idp42947696"></a>
+        <h2>Options</h2>
+        <div class="informalexample">
+          <pre class="screen">
+--encoding ENC
+--file (-F) FILENAME
+--force
+--force-log
+--message (-m) MESSAGE
+--targets FILENAME
+</pre>
+        </div>
+      </div>
+      <div class="refsect1" title="Examples">
+        <a id="idp42949648"></a>
+        <h2>Examples</h2>
+        <p>Lock two files in your working copy:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn lock tree.jpg house.jpg
+'tree.jpg' locked by user 'harry'.
+'house.jpg' locked by user 'harry'.
+</pre>
+        </div>
+        <p>Lock a file in your working copy that is currently
+            locked by another user:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn lock tree.jpg
+svn: warning: Path '/tree.jpg is already locked by user 'sally in \
+     filesystem '/var/svn/repos/db'
+
+$ svn lock --force tree.jpg
+'tree.jpg' locked by user 'harry'.
+</pre>
+        </div>
+        <p>Lock a file without a working copy:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn lock http://svn.red-bean.com/repos/test/tree.jpg
+'tree.jpg' locked by user 'harry'.
+</pre>
+        </div>
+        <p>For further details, see <a class="xref" href="svn.advanced.locking.html" title="Locking">the section called “Locking”</a>.</p>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.ref.svn.c.list.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.ref.svn.html#svn.ref.svn.c">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.ref.svn.c.log.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">svn list </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> svn log</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

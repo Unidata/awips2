@@ -84,12 +84,15 @@
       <div class="md-flex__cell md-flex__cell--stretch">
         <span class="md-flex__ellipsis md-header-nav__title">
           
-            
               
-            
-            
-              Unidata AWIPS User Manual
-            
+
+                  
+ 
+                  
+                      Unidata AWIPS User Manual
+                  
+
+              
           
         </span>
       </div>
@@ -239,6 +242,13 @@
         <li class="md-nav__item">
   <a href="#license" title="License" class="md-nav__link">
     License
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#distributed-computing" title="Distributed Computing" class="md-nav__link">
+    Distributed Computing
   </a>
   
 </li>
@@ -567,6 +577,18 @@
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
         
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="edex/distributed-computing/" title="Distributed EDEX" class="md-nav__link">
+      Distributed EDEX
+    </a>
+  </li>
+
         
           
           
@@ -1071,6 +1093,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#distributed-computing" title="Distributed Computing" class="md-nav__link">
+    Distributed Computing
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#software-components" title="Software Components" class="md-nav__link">
     Software Components
   </a>
@@ -1177,7 +1206,7 @@
 </tr>
 <tr>
 <td>macOS</td>
-<td align="right">Download and install both<br><a href="http://www.unidata.ucar.edu/downloads/awips2/awips2-cave-17.1.1-3.dmg">awips2-cave-17.1.1-3.dmg <i class="fa fa-download"></i></a><br><a href="http://www.unidata.ucar.edu/downloads/awips2/awips-python-17.1.1-3.pkg">awips-python-17.1.1-3.pkg <i class="fa fa-download"></i></a></td>
+<td align="right">Download and install both<br><a href="http://www.unidata.ucar.edu/downloads/awips2/awips2-cave-17.1.1.dmg">awips2-cave-17.1.1.dmg <i class="fa fa-download"></i></a><br><a href="http://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg">awips-python.pkg <i class="fa fa-download"></i></a></td>
 </tr>
 <tr>
 <td>32-bit Windows</td>
@@ -1209,8 +1238,14 @@
 <hr />
 <h2 id="license">License<a class="headerlink" href="#license" title="Permanent link"></a></h2>
 <p>Unidata AWIPS source code and binaries (RPMs) are considered to be in the public domain, meaning there are no restrictions on any download, modification, or distribution in any form (original or modified).  Unidata AWIPS contains no proprietery content and is therefore not subject to export controls as stated in the <a href="https://github.com/Unidata/awips2/blob/unidata_16.2.2/rpms/legal/Master_Rights_File.pdf">Master Rights</a> licensing file. </p>
-<p><img style="float:right;width:450px;" src="http://www.unidata.ucar.edu/software/awips2/images/awips2_coms.png"></p>
 <hr />
+<h2 id="distributed-computing">Distributed Computing<a class="headerlink" href="#distributed-computing" title="Permanent link"></a></h2>
+<p>AWIPS makes use of service-oriented architecture to request, process, and serve real-time meteorological data.  While originally developed for use on internal NWS forecast office networks, where operational installations of AWIPS can consist of a dozen servers or more, because the AWIPS source code was hard-coded with the NWS network configuration, the early Unidata releases were stripped of operation-specific configurations and plugins, and released specifically for standalone installation. This made sense given that a single EDEX instance with a Solid State Drive could handle most of the entire NOAAport data volume.  However, with GOES-R(16) coming online, and more gridded forecast models being created at finer temporal and spatial resolutions, there was now a need to distribute EDEX data decoding in order to handle this firehose of data.</p>
+<ul>
+<li>Read More: <a href="./edex/distributed-computing">Distributed EDEX</a></li>
+</ul>
+<hr />
+<p><img style="float:right;width:450px;" src="http://www.unidata.ucar.edu/software/awips2/images/awips2_coms.png"></p>
 <h2 id="software-components">Software Components<a class="headerlink" href="#software-components" title="Permanent link"></a></h2>
 <ul>
 <li><a href="#edex">EDEX</a></li>
@@ -1222,8 +1257,6 @@
 <li><a href="#hdf5">HDF5</a></li>
 <li><a href="#pypies">PyPIES</a></li>
 </ul>
-<p>The primary AWIPS application for data ingest, processing, and storage is the Environmental Data EXchange (<strong>EDEX</strong>) server; the primary AWIPS application for visualization/data manipulation is the Common AWIPS Visualization Environment (<strong>CAVE</strong>) client, which is typically installed on a workstation separate from other AWIPS components.  </p>
-<p>In addition to programs developed specifically for AWIPS, AWIPS uses several commercial off-the-shelf (COTS) and Free or Open Source software (FOSS) products to assist in its operation. The following components, working together and communicating, compose the entire AWIPS system.</p>
 <h3 id="edex">EDEX<a class="headerlink" href="#edex" title="Permanent link"></a></h3>
 <p>The main server for AWIPS.  Qpid sends alerts to EDEX when data stored by the LDM is ready for processing.  These Qpid messages include file header information which allows EDEX to determine the appropriate data decoder to use.  The default ingest server (simply named ingest) handles all data ingest other than grib messages, which are processed by a separate ingestGrib server.  After decoding, EDEX writes metadata to the database via Postgres and saves the processed data in HDF5 via PyPIES.   A third EDEX server, request, feeds requested data to CAVE clients. EDEX ingest and request servers are started and stopped with the commands <code>edex start</code> and <code>edex stop</code>, which runs the system script <code>/etc/rc.d/init.d/edex_camel</code></p>
 <ul>
@@ -1251,7 +1284,7 @@
 <p><a href="http://www.hdfgroup.org/HDF5/"><strong>Hierarchical Data Format (v.5)</strong></a> is the primary data storage format used by AWIPS for processed grids, satellite and radar imagery and other products.   Similar to netCDF, developed and supported by Unidata, HDF5 supports multiple types of data within a single file.  For example, a single HDF5 file of radar data may contain multiple volume scans of base reflectivity and base velocity as well as derived products such as composite reflectivity.  The file may also contain data from multiple radars. HDF5 is stored in <code>/awips2/edex/data/hdf5/</code></p>
 <h3 id="pypies-httpd-pypies">PyPIES (httpd-pypies)<a class="headerlink" href="#pypies-httpd-pypies" title="Permanent link"></a></h3>
 <p><strong>PyPIES</strong>, Python Process Isolated Enhanced Storage, was created for AWIPS to isolate the management of HDF5 Processed Data Storage from the EDEX processes.  PyPIES manages access, i.e., reads and writes, of data in the HDF5 files.  In a sense, PyPIES provides functionality similar to a DBMS (i.e PostgreSQL for metadata); all data being written to an HDF5 file is sent to PyPIES, and requests for data stored in HDF5 are processed by PyPIES.</p>
-<p>PyPIES is implemented in two parts: 1. The PyPIES manager is a Python application that runs as part of an Apache HTTP server, and handles requests to store and retrieve data. 2. The PyPIES logger is a Python process that coordinates logging. PyPIES is started and stopped by <code>edex start</code> and <code>edex stop</code>, and is controlled by the system script <code>/etc/rc.d/init.d/https-pypies</code> </p>
+<p>PyPIES is implemented in two parts: 1. The PyPIES manager is a Python application that runs as part of an Apache HTTP server, and handles requests to store and retrieve data. 2. The PyPIES logger is a Python process that coordinates logging. PyPIES is started and stopped by <code>edex start</code> and <code>edex stop</code>, and is controlled by the system script <code>/etc/rc.d/init.d/httpd-pypies</code> </p>
                 
                   
                 

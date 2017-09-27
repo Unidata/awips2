@@ -84,16 +84,19 @@
       <div class="md-flex__cell md-flex__cell--stretch">
         <span class="md-flex__ellipsis md-header-nav__title">
           
-            
               
-                <span class="md-header-nav__parent">
-                  Development
-                </span>
+
+                  
+                      <span class="md-header-nav__parent">
+                      Development
+                      </span>
+                  
+ 
+                  
+                      AWIPS Development Environment (ADE)
+                  
+
               
-            
-            
-              AWIPS Development Environment (ADE)
-            
           
         </span>
       </div>
@@ -452,6 +455,18 @@
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
         
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../edex/distributed-computing/" title="Distributed EDEX" class="md-nav__link">
+      Distributed EDEX
+    </a>
+  </li>
+
         
           
           
@@ -999,12 +1014,10 @@ git clone https://github.com/Unidata/awips2-cimss.git
 <li>
 <p>File &gt; Import &gt; General &gt; Existing Projects Into Workspace</p>
 <p>Import all of the git cloned project folders <strong>EXCEPT</strong> for the main (first) <strong>github.com/Unidata/awips2.git</strong> directory (which should be <strong>~/awips2</strong>).</p>
-<p>You'll want to import <strong>~/awips2</strong> in three parts to ensure a clean and error-free Eclipse build:</p>
+<p>You'll want to import <strong>~/awips2</strong> in two parts to ensure a clean and error-free Eclipse build:</p>
 <ol>
 <li>Import <strong>awips2/cave</strong> &gt; Select All Projects &gt; Finish</li>
 <li>Import <strong>awips2/edexOsgi</strong> &gt; Select All Projects &gt; Finish</li>
-<li>Import <strong>awips2/Radar</strong> &gt; Select All Projects &gt; Finish
-    &gt; The <strong>Radar</strong> folder contains the EDEX Radar Server plugins. Though the Unidata release does not build or use the radar server, the common libraries are required for other AWIPS radar processing and visualization plugins.</li>
 </ol>
 <p>Now import all other repositories fully: </p>
 <p>Select <strong>awips2-core</strong>, <strong>awips2-core-foss</strong>, <strong>awips2-foss</strong>, <strong>awips2-ncep</strong>, etc. &gt; Select All Projects &gt; Finish </p>

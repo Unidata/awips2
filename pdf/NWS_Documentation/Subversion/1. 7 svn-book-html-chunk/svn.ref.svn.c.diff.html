@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>svn diff</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.ref.svn.html#svn.ref.svn.c" title="svn Subcommands" />
+    <link rel="prev" href="svn.ref.svn.c.delete.html" title="svn delete" />
+    <link rel="next" href="svn.ref.svn.c.export.html" title="svn export" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">svn diff</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.ref.svn.c.delete.html">Prev</a> </td>
+          <th width="60%" align="center">svn Subcommands</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.ref.svn.c.export.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="refentry" title="svn diff">
+      <a id="svn.ref.svn.c.diff"></a>
+      <div class="titlepage"></div>
+      <a id="idp42728368" class="indexterm"></a>
+      <div class="refnamediv">
+        <h2>Name</h2>
+        <p>svn diff, di — This displays the differences between two revisions or paths.</p>
+      </div>
+      <div class="refsect1" title="Synopsis">
+        <a id="idp42731904"></a>
+        <h2>Synopsis</h2>
+        <p>
+          <code class="literal">diff [-c M | -r N[:M]] [TARGET[@REV]...]</code>
+        </p>
+        <p>
+          <code class="literal">diff [-r N[:M]] --old=OLD-TGT[@OLDREV] [--new=NEW-TGT[@NEWREV]] [PATH...]</code>
+        </p>
+        <p>
+          <code class="literal">diff OLD-URL[@OLDREV] NEW-URL[@NEWREV]</code>
+        </p>
+      </div>
+      <div class="refsect1" title="Description">
+        <a id="idp42735264"></a>
+        <h2>Description</h2>
+        <div class="itemizedlist">
+          <ul class="itemizedlist" type="disc">
+            <li class="listitem">
+              <p>Display the differences between two paths.  You can
+              use <span class="command"><strong>svn diff</strong></span> in the following ways:</p>
+            </li>
+            <li class="listitem">
+              <p>Use just <span class="command"><strong>svn diff</strong></span> to display local
+                modifications in a working copy.</p>
+            </li>
+            <li class="listitem">
+              <p>Display the changes made to
+                <em class="replaceable"><code>TARGET</code></em>s as they are seen in
+                <em class="replaceable"><code>REV</code></em> between two revisions.
+                <em class="replaceable"><code>TARGET</code></em>s may be all working copy
+                paths or all <em class="replaceable"><code>URL</code></em>s.  If
+                <em class="replaceable"><code>TARGET</code></em>s are working copy paths,
+                <em class="replaceable"><code>N</code></em> defaults to
+                <code class="literal">BASE</code> and <em class="replaceable"><code>M</code></em>
+                to the working copy; if <em class="replaceable"><code>TARGET</code></em>s
+                are <em class="replaceable"><code>URL</code></em>s,
+                <em class="replaceable"><code>N</code></em> must be specified and
+                <em class="replaceable"><code>M</code></em> defaults to
+                <code class="literal">HEAD</code>.  The <code class="literal">-c M</code> option
+                is equivalent to <code class="literal">-r N:M</code> where <code class="literal">N =
+                M-1</code>.  Using <code class="literal">-c -M</code> does the
+                reverse: <code class="literal">-r M:N</code> where <code class="literal">N =
+                M-1</code>.</p>
+            </li>
+            <li class="listitem">
+              <p>Display the differences between
+                <em class="replaceable"><code>OLD-TGT</code></em> as it was seen in
+                <em class="replaceable"><code>OLDREV</code></em> and
+                <em class="replaceable"><code>NEW-TGT</code></em> as it was seen in
+                <em class="replaceable"><code>NEWREV</code></em>.
+                <em class="replaceable"><code>PATH</code></em>s, if given, are relative
+                to <em class="replaceable"><code>OLD-TGT</code></em> and
+                <em class="replaceable"><code>NEW-TGT</code></em> and restrict the output
+                to differences for those paths.
+                <em class="replaceable"><code>OLD-TGT</code></em> and
+                <em class="replaceable"><code>NEW-TGT</code></em> may be working copy
+                paths or <em class="replaceable"><code>URL[@REV]</code></em>.
+                <em class="replaceable"><code>NEW-TGT</code></em> defaults to
+                <em class="replaceable"><code>OLD-TGT</code></em> if not specified.
+                <code class="literal">-r N</code>
+                makes <em class="replaceable"><code>OLDREV</code></em> default to
+                <code class="literal">N</code>; <code class="literal">-r N:M</code>
+                makes <em class="replaceable"><code>OLDREV</code></em> default to
+                <em class="replaceable"><code>N</code></em> and
+                <em class="replaceable"><code>NEWREV</code></em> default to
+                <em class="replaceable"><code>M</code></em>.</p>
+            </li>
+          </ul>
+        </div>
+        <p><strong class="userinput"><code>svn diff OLD-URL[@OLDREV]
+            NEW-URL[@NEWREV]</code></strong> is shorthand for <strong class="userinput"><code>svn
+            diff --old=OLD-URL[@OLDREV]
+            --new=NEW-URL[@NEWREV].</code></strong></p>
+        <p><strong class="userinput"><code>svn diff -r N:M URL</code></strong> is shorthand
+            for <strong class="userinput"><code>svn diff -r N:M --old=URL
+            --new=URL</code></strong>.</p>
+        <p><strong class="userinput"><code>svn diff [-r N[:M]] URL1[@N]
+            URL2[@M]</code></strong> is shorthand for <strong class="userinput"><code>svn diff [-r
+            N[:M]] --old=URL1 --new=URL2</code></strong>.</p>
+        <p>If <em class="replaceable"><code>TARGET</code></em> is a URL, then
+            revs <code class="literal">N</code> and <code class="literal">M</code> can be
+            given either via the
+            <code class="option">--revision</code> (<code class="option">-r</code>) option
+            or by using the
+            <span class="quote">“<span class="quote">@</span>”</span> notation as described earlier.</p>
+        <p>If <em class="replaceable"><code>TARGET</code></em> is a working copy
+            path, the default behavior (when no
+            <code class="option">--revision</code> (<code class="option">-r</code>) option
+            is provided) is to display the differences between the
+            base and working copies
+            of <em class="replaceable"><code>TARGET</code></em>.  If a
+            <code class="option">--revision</code> (<code class="option">-r</code>) option
+            is specified in this scenario, though, it means:</p>
+        <div class="variablelist">
+          <dl>
+            <dt>
+              <span class="term">
+                <code class="option">--revision N:M</code>
+              </span>
+            </dt>
+            <dd>
+              <p>The server compares <em class="replaceable"><code>TARGET@N</code></em>
+                  and <em class="replaceable"><code>TARGET@M</code></em>.</p>
+            </dd>
+            <dt>
+              <span class="term">
+                <code class="option">--revision N</code>
+              </span>
+            </dt>
+            <dd>
+              <p>The client compares
+                  <em class="replaceable"><code>TARGET@N</code></em>
+                  against the working copy.</p>
+            </dd>
+          </dl>
+        </div>
+        <p>If the alternate syntax is used, the server compares
+            <em class="replaceable"><code>URL1</code></em> and
+            <em class="replaceable"><code>URL2</code></em> at revisions
+            <em class="replaceable"><code>N</code></em> and
+            <em class="replaceable"><code>M</code></em>, respectively.  If either
+            <em class="replaceable"><code>N</code></em> or
+            <em class="replaceable"><code>M</code></em> is omitted, a value of
+            <code class="literal">HEAD</code> is assumed.</p>
+        <p>By default, <span class="command"><strong>svn diff</strong></span> ignores the
+            ancestry of files and merely compares the contents of the
+            two files being compared.  If you use
+            <code class="option">--notice-ancestry</code>, the ancestry of the
+            paths in question will be taken into consideration when
+            comparing revisions (i.e., if you run <span class="command"><strong>svn
+            diff</strong></span> on two files with identical contents but
+            different ancestry, you will see the entire contents of
+            the file as having been removed and added again).</p>
+      </div>
+      <div class="refsect1" title="Options">
+        <a id="idp42785472"></a>
+        <h2>Options</h2>
+        <div class="informalexample">
+          <pre class="screen">
+--change (-c) ARG
+--changelist ARG
+--depth ARG
+--diff-cmd CMD
+--extensions (-x) ARG
+--force
+--git
+--internal-diff
+--new ARG
+--no-diff-deleted
+--notice-ancestry
+--old ARG
+--revision (-r) ARG
+--show-copies-as-adds
+--summarize
+--xml
+</pre>
+        </div>
+      </div>
+      <div class="refsect1" title="Examples">
+        <a id="idp42787552"></a>
+        <h2>Examples</h2>
+        <p>Compare <code class="literal">BASE</code> and your working copy
+            (one of the most popular uses of <span class="command"><strong>svn
+            diff</strong></span>):</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn diff COMMITTERS 
+Index: COMMITTERS
+===================================================================
+--- COMMITTERS	(revision 4404)
++++ COMMITTERS	(working copy)
+…
+</pre>
+        </div>
+        <p>See what changed in the file
+            <code class="filename">COMMITTERS</code> revision 9115:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn diff -c 9115 COMMITTERS 
+Index: COMMITTERS
+===================================================================
+--- COMMITTERS	(revision 3900)
++++ COMMITTERS	(working copy)
+…
+</pre>
+        </div>
+        <p>See how your working copy's modifications compare
+            against an older revision:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn diff -r 3900 COMMITTERS 
+Index: COMMITTERS
+===================================================================
+--- COMMITTERS	(revision 3900)
++++ COMMITTERS	(working copy)
+…
+</pre>
+        </div>
+        <p>Compare revision 3000 to revision 3500 using <span class="quote">“<span class="quote">@</span>”</span>
+            syntax:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn diff http://svn.collab.net/repos/svn/trunk/COMMITTERS@3000 \
+           http://svn.collab.net/repos/svn/trunk/COMMITTERS@3500
+Index: COMMITTERS
+===================================================================
+--- COMMITTERS	(revision 3000)
++++ COMMITTERS	(revision 3500)
+…
+</pre>
+        </div>
+        <p>Compare revision 3000 to revision 3500 using range
+            notation (pass only the one URL in this
+            case):</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn diff -r 3000:3500 http://svn.collab.net/repos/svn/trunk/COMMITTERS
+Index: COMMITTERS
+===================================================================
+--- COMMITTERS	(revision 3000)
++++ COMMITTERS	(revision 3500)
+…
+</pre>
+        </div>
+        <p>Compare revision 3000 to revision 3500 of all the files in
+            <code class="filename">trunk</code> using range notation:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn diff -r 3000:3500 http://svn.collab.net/repos/svn/trunk
+          </pre>
+        </div>
+        <p>Compare revision 3000 to revision 3500 of only three
+            files in <code class="filename">trunk</code> using range
+            notation:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn diff -r 3000:3500 --old http://svn.collab.net/repos/svn/trunk \
+           COMMITTERS README HACKING
+          </pre>
+        </div>
+        <p>If you have a working copy, you can obtain the
+            differences without typing in the long URLs:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn diff -r 3000:3500 COMMITTERS 
+Index: COMMITTERS
+===================================================================
+--- COMMITTERS	(revision 3000)
++++ COMMITTERS	(revision 3500)
+…
+</pre>
+        </div>
+        <p>Use <code class="option">--diff-cmd</code>
+            <em class="replaceable"><code>CMD</code></em> <code class="option">--extensions</code>
+            (<code class="option">-x</code>) to pass arguments directly to the
+            external diff program:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn diff --diff-cmd /usr/bin/diff -x "-i -b" COMMITTERS 
+Index: COMMITTERS
+===================================================================
+0a1,2
+&gt; This is a test
+&gt; 
+$
+</pre>
+        </div>
+        <p>Lastly, you can use the <code class="option">--xml</code> option
+            along with the <code class="option">--summarize</code> option to view
+            XML describing the changes that occurred between
+            revisions, but not the contents of the diff itself:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn diff --summarize --xml http://svn.red-bean.com/repos/test@r2 \
+           http://svn.red-bean.com/repos/test
+&lt;?xml version="1.0"?&gt;
+&lt;diff&gt;
+&lt;paths&gt;
+&lt;path
+   props="none"
+   kind="file"
+   item="modified"&gt;http://svn.red-bean.com/repos/test/sandwich.txt&lt;/path&gt;
+&lt;path
+   props="none"
+   kind="file"
+   item="deleted"&gt;http://svn.red-bean.com/repos/test/burrito.txt&lt;/path&gt;
+&lt;path
+   props="none"
+   kind="dir"
+   item="added"&gt;http://svn.red-bean.com/repos/test/snacks&lt;/path&gt;
+&lt;/paths&gt;
+&lt;/diff&gt;
+</pre>
+        </div>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.ref.svn.c.delete.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.ref.svn.html#svn.ref.svn.c">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.ref.svn.c.export.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">svn delete </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> svn export</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

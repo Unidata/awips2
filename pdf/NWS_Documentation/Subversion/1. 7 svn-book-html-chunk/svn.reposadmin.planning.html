@@ -1,0 +1,710 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Strategies for Repository Deployment</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.reposadmin.html" title="Chapter 5. Repository Administration" />
+    <link rel="prev" href="svn.reposadmin.basics.html" title="The Subversion Repository, Defined" />
+    <link rel="next" href="svn.reposadmin.create.html" title="Creating and Configuring Your Repository" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">Strategies for Repository Deployment</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.reposadmin.basics.html">Prev</a> </td>
+          <th width="60%" align="center">Chapter 5. Repository Administration</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.reposadmin.create.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="sect1" title="Strategies for Repository Deployment">
+      <div class="titlepage">
+        <div>
+          <div>
+            <h2 class="title" style="clear: both"><a id="svn.reposadmin.planning"></a>Strategies for Repository Deployment</h2>
+          </div>
+        </div>
+      </div>
+      <p>Due largely to the simplicity of the overall design of the
+      Subversion repository and the technologies on which it relies,
+      creating and configuring a repository are fairly straightforward
+      tasks.  There are a few preliminary decisions you'll want to
+      make, but the actual work involved in any given setup of a
+      Subversion repository is pretty basic, tending toward
+      mindless repetition if you find yourself setting up multiples of
+      these things.</p>
+      <p>Some things you'll want to consider beforehand, though, are:</p>
+      <div class="itemizedlist">
+        <ul class="itemizedlist" type="disc">
+          <li class="listitem">
+            <p>What data do you expect to live in your repository (or
+          repositories), and how will that data be organized?</p>
+          </li>
+          <li class="listitem">
+            <p>Where will your repository live, and how will it be
+          accessed?</p>
+          </li>
+          <li class="listitem">
+            <p>What types of access control and repository event
+          reporting do you need?</p>
+          </li>
+          <li class="listitem">
+            <p>Which of the available types of data store do you want
+          to use?</p>
+          </li>
+        </ul>
+      </div>
+      <p>In this section, we'll try to help you answer those
+      questions.</p>
+      <div class="sect2" title="Planning Your Repository Organization">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.reposadmin.projects.chooselayout"></a>Planning Your Repository Organization</h3>
+            </div>
+          </div>
+        </div>
+        <p>While Subversion allows you to move around versioned files
+        and directories without any loss of information, and even
+        provides ways of moving whole sets of versioned history from
+        one repository to another, doing so can greatly disrupt the
+        workflow of those who access the repository often and come to
+        expect things to be at certain locations.  So before creating
+        a new repository, try to peer into the future a bit; plan
+        ahead before placing your data under version control.  By
+        conscientiously <span class="quote">“<span class="quote">laying out</span>”</span> your repository or
+        repositories and their versioned contents ahead of time, you
+        can prevent many future headaches.</p>
+        <p>Let's assume that as repository administrator, you will be
+        responsible for supporting the version control system for
+        several projects.  Your first decision is whether to use a
+        single repository for multiple projects, or to give each
+        project its own repository, or some compromise of these
+        two.</p>
+        <p>There are benefits to using a single repository for
+        multiple projects, most obviously the lack of duplicated
+        maintenance.  A single repository means that there is one set
+        of hook programs, one thing to routinely back up, one thing to
+        dump and load if Subversion releases an incompatible new
+        version, and so on.  Also, you can move data between projects
+        easily, without losing any historical versioning
+        information.</p>
+        <p>The downside of using a single repository is that
+        different projects may have different requirements in terms of
+        the repository event triggers, such as needing to send commit
+        notification emails to different mailing lists, or having
+        different definitions about what does and does not constitute
+        a legitimate commit.  These aren't insurmountable problems, of
+        course—it just means that all of your hook scripts have
+        to be sensitive to the layout of your repository rather than
+        assuming that the whole repository is associated with a single
+        group of people.  Also, remember that Subversion uses
+        repository-global revision numbers.  While those numbers don't
+        have any particular magical powers, some folks still don't
+        like the fact that even though no changes have been made to
+        their project lately, the youngest revision number for the
+        repository keeps climbing because other projects are actively
+        adding new revisions.<sup>[<a id="idp37525568" href="#ftn.idp37525568" class="footnote">31</a>]</sup></p>
+        <p>A middle-ground approach can be taken, too.  For example,
+        projects can be grouped by how well they relate to each other.
+        You might have a few repositories with a handful of projects
+        in each repository.  That way, projects that are likely to
+        want to share data can do so easily, and as new revisions are
+        added to the repository, at least the developers know that
+        those new revisions are at least remotely related to everyone
+        who uses that repository.</p>
+        <p>
+        <a id="idp37492944" class="indexterm"></a>
+
+        After deciding how to organize your projects with respect
+        to repositories, you'll probably want to think about directory
+        hierarchies within the repositories themselves.  Because
+        Subversion uses regular directory copies for branching and
+        tagging (see <a class="xref" href="svn.branchmerge.html" title="Chapter 4. Branching and Merging">Chapter 4, <i>Branching and Merging</i></a>), the
+        Subversion community recommends that you choose a repository
+        location for each project
+        root—the <span class="quote">“<span class="quote">topmost</span>”</span> directory
+        that contains data related to that project—and then
+        create three subdirectories beneath that root:
+        <code class="filename">trunk</code>, meaning the directory under which
+        the main project development occurs;
+        <code class="filename">branches</code>, which is a directory in which
+        to create various named branches of the main development line;
+        and <code class="filename">tags</code>, which is a collection of tree
+        snapshots that are created, and perhaps destroyed, but never
+        changed.<sup>[<a id="idp37498032" href="#ftn.idp37498032" class="footnote">32</a>]</sup></p>
+        <p>For example, your repository might look like this:</p>
+        <div class="informalexample">
+          <pre class="screen">
+/
+   calc/
+      trunk/
+      tags/
+      branches/
+   calendar/
+      trunk/
+      tags/
+      branches/
+   spreadsheet/
+      trunk/
+      tags/
+      branches/
+   …
+</pre>
+        </div>
+        <p>Note that it doesn't matter where in your repository each
+        project root is.  If you have only one project per repository,
+        the logical place to put each project root is at the root of
+        that project's respective repository.  If you have multiple
+        projects, you might want to arrange them in groups inside the
+        repository, perhaps putting projects with similar goals or
+        shared code in the same subdirectory, or maybe just grouping
+        them alphabetically.  Such an arrangement might look
+        like this:</p>
+        <div class="informalexample">
+          <pre class="screen">
+/
+   utils/
+      calc/
+         trunk/
+         tags/
+         branches/
+      calendar/
+         trunk/
+         tags/
+         branches/
+      …
+   office/
+      spreadsheet/
+         trunk/
+         tags/
+         branches/
+      …
+</pre>
+        </div>
+        <p>Lay out your repository in whatever way you see fit.
+        Subversion does not expect or enforce a particular layout—in
+        its eyes, a directory is a directory is a directory.
+        Ultimately, you should choose the repository arrangement that
+        meets the needs of the people who work on the projects that
+        live there.</p>
+        <p>In the name of full disclosure, though, we'll mention
+        another very common layout.  In this layout, the
+        <code class="filename">trunk</code>, <code class="filename">tags</code>, and
+        <code class="filename">branches</code> directories live in the root
+        directory of your repository, and your projects are in
+        subdirectories beneath those, like so:</p>
+        <div class="informalexample">
+          <pre class="screen">
+/
+   trunk/
+      calc/
+      calendar/
+      spreadsheet/
+      …
+   tags/
+      calc/
+      calendar/
+      spreadsheet/
+      …
+   branches/
+      calc/
+      calendar/
+      spreadsheet/
+      …
+</pre>
+        </div>
+        <p>There's nothing particularly incorrect about such a
+        layout, but it may or may not seem as intuitive for your
+        users.  Especially in large, multiproject situations with
+        many users, those users may tend to be familiar with only one
+        or two of the projects in the repository.  But the
+        projects-as-branch-siblings approach tends to deemphasize project
+        individuality and focus on the entire set of projects as a
+        single entity.  That's a social issue, though.  We like our
+        originally suggested arrangement for purely practical
+        reasons—it's easier to ask about (or modify, or migrate
+        elsewhere) the entire history of a single project when there's
+        a single repository path that holds the entire
+        history—past, present, tagged, and branched—for
+        that project and that project alone.</p>
+      </div>
+      <div class="sect2" title="Deciding Where and How to Host Your Repository">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.reposadmin.basics.hosting"></a>Deciding Where and How to Host Your Repository</h3>
+            </div>
+          </div>
+        </div>
+        <p>Before creating your Subversion repository, an obvious
+        question you'll need to answer is where the thing is going to
+        live.  This is strongly connected to myriad other
+        questions involving how the repository will be accessed (via a
+        Subversion server or directly), by whom (users behind your
+        corporate firewall or the whole world out on the open
+        Internet), what other services you'll be providing around
+        Subversion (repository browsing interfaces, email-based
+        commit notification, etc.), your data backup strategy, and so
+        on.</p>
+        <p>We cover server choice and configuration in <a class="xref" href="svn.serverconfig.html" title="Chapter 6. Server Configuration">Chapter 6, <i>Server Configuration</i></a>, but the point we'd like to
+        briefly make here is simply that the answers to some of these
+        other questions might have implications that force your hand
+        when deciding where your repository will live.  For example,
+        certain deployment scenarios might require accessing the
+        repository via a remote filesystem from multiple computers, in
+        which case (as you'll read in the next section) your choice of
+        a repository backend data store turns out not to be a choice
+        at all because only one of the available backends will work
+        in this scenario.</p>
+        <p>Addressing each possible way to deploy
+        Subversion is both impossible and outside the scope of this
+        book.  We simply encourage you to evaluate your options using
+        these pages and other sources as your reference material and to
+        plan ahead.</p>
+      </div>
+      <div class="sect2" title="Choosing a Data Store">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.reposadmin.basics.backends"></a>Choosing a Data Store</h3>
+            </div>
+          </div>
+        </div>
+        <p>Subversion provides two options for the
+        type of underlying data store—often referred to as
+        <span class="quote">“<span class="quote">the backend</span>”</span> or, somewhat confusingly,
+        <span class="quote">“<span class="quote">the (versioned) filesystem</span>”</span>—that each
+        repository uses.  One type of data store keeps everything in a
+        Berkeley DB (or BDB) database environment; repositories that
+        use this type are often referred to as being
+        <span class="quote">“<span class="quote">BDB-backed.</span>”</span> The other type stores data in
+        ordinary flat files, using a custom format.  Subversion
+        developers have adopted the habit of referring to this latter
+        data storage mechanism
+        as <em class="firstterm">FSFS</em><sup>[<a id="idp37577968" href="#ftn.idp37577968" class="footnote">33</a>]</sup>—a
+        versioned filesystem implementation that uses the native OS
+        filesystem directly—rather than via a database library
+        or some other abstraction layer—to store data.</p>
+        <p><a class="xref" href="svn.reposadmin.planning.html#svn.reposadmin.basics.backends.tbl-1" title="Table 5.1. Repository data store comparison">Table 5.1, “Repository data store comparison”</a>
+        gives a comparative overview of Berkeley DB and FSFS
+        repositories.</p>
+        <div class="table">
+          <a id="svn.reposadmin.basics.backends.tbl-1"></a>
+          <p class="title">
+            <b>Table 5.1. Repository data store comparison</b>
+          </p>
+          <div class="table-contents">
+            <table summary="Repository data store comparison" border="1">
+              <colgroup>
+                <col />
+                <col />
+                <col />
+                <col />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Feature</th>
+                  <th>Berkeley DB</th>
+                  <th>FSFS</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td rowspan="2">Reliability</td>
+                  <td>Data integrity</td>
+                  <td>When properly deployed, extremely reliable;
+                Berkeley DB 4.4 brings auto-recovery</td>
+                  <td>Older versions had some rarely demonstrated, but
+                data-destroying bugs</td>
+                </tr>
+                <tr>
+                  <td>Sensitivity to interruptions</td>
+                  <td>Very; crashes and permission problems can leave the
+                database <span class="quote">“<span class="quote">wedged,</span>”</span> requiring journaled
+                recovery procedures</td>
+                  <td>Quite insensitive</td>
+                </tr>
+                <tr>
+                  <td rowspan="4">Accessibility</td>
+                  <td>Usable from a read-only mount</td>
+                  <td>No</td>
+                  <td>Yes</td>
+                </tr>
+                <tr>
+                  <td>Platform-independent storage</td>
+                  <td>No</td>
+                  <td>Yes</td>
+                </tr>
+                <tr>
+                  <td>Usable over network filesystems</td>
+                  <td>Generally, no</td>
+                  <td>Yes</td>
+                </tr>
+                <tr>
+                  <td>Group permissions handling</td>
+                  <td>Sensitive to user umask problems; best if accessed
+                by only one user</td>
+                  <td>Works around umask problems</td>
+                </tr>
+                <tr>
+                  <td rowspan="3">Scalability</td>
+                  <td>Repository disk usage</td>
+                  <td>Larger (especially if logfiles aren't purged)</td>
+                  <td>Smaller</td>
+                </tr>
+                <tr>
+                  <td>Number of revision trees</td>
+                  <td>Database; no problems</td>
+                  <td>Some older native filesystems don't scale well with
+                thousands of entries in a single directory</td>
+                </tr>
+                <tr>
+                  <td>Directories with many files</td>
+                  <td>Slower</td>
+                  <td>Faster</td>
+                </tr>
+                <tr>
+                  <td rowspan="2">Performance</td>
+                  <td>Checking out latest revision</td>
+                  <td>No meaningful difference</td>
+                  <td>No meaningful difference</td>
+                </tr>
+                <tr>
+                  <td>Large commits</td>
+                  <td>Slower overall, but cost is amortized across the
+                lifetime of the commit</td>
+                  <td>Faster overall, but finalization delay may cause 
+                client timeouts</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <br class="table-break" />
+        <p>There are advantages and disadvantages to each of these
+        two backend types.  Neither of them is more
+        <span class="quote">“<span class="quote">official</span>”</span> than the other, though the newer FSFS
+        is the default data store as of Subversion 1.2.  Both are
+        reliable enough to trust with your versioned data.  But as you
+        can see in <a class="xref" href="svn.reposadmin.planning.html#svn.reposadmin.basics.backends.tbl-1" title="Table 5.1. Repository data store comparison">Table 5.1, “Repository data store comparison”</a>, the FSFS
+        backend provides quite a bit more flexibility in terms of its
+        supported deployment scenarios.  More flexibility means you
+        have to work a little harder to find ways to deploy it
+        incorrectly.  Those reasons—plus the fact that not using
+        Berkeley DB means there's one fewer component in the
+        system—largely explain why today almost everyone uses
+        the FSFS backend when creating new repositories.</p>
+        <p>Fortunately, most programs that access Subversion
+        repositories are blissfully ignorant of which backend data
+        store is in use.  And you aren't even necessarily stuck with
+        your first choice of a data store—in the event that you
+        change your mind later, Subversion provides ways of migrating
+        your repository's data into another repository that uses a
+        different backend data store.  We talk more about that later
+        in this chapter.</p>
+        <p>The following subsections provide a more detailed look at
+        the available backend data store types.</p>
+        <div class="sect3" title="Berkeley DB">
+          <div class="titlepage">
+            <div>
+              <div>
+                <h4 class="title"><a id="svn.reposadmin.basics.backends.bdb"></a>Berkeley DB</h4>
+              </div>
+            </div>
+          </div>
+          <p>When the initial design phase of Subversion was in
+          progress, the developers decided to use Berkeley DB for a
+          variety of reasons, including its open source license,
+          transaction support, reliability, performance, API
+          simplicity, thread safety, support for cursors, and so
+          on.</p>
+          <p>Berkeley DB provides real transaction
+          support—perhaps its most powerful feature.  Multiple
+          processes accessing your Subversion repositories don't have
+          to worry about accidentally clobbering each other's data.
+          The isolation provided by the transaction system is such
+          that for any given operation, the Subversion repository code
+          sees a static view of the database—not a database that
+          is constantly changing at the hand of some other
+          process—and can make decisions based on that view.  If
+          the decision made happens to conflict with what another
+          process is doing, the entire operation is rolled back as though
+          it never happened, and Subversion gracefully retries the
+          operation against a new, updated (and yet still static) view
+          of the database.</p>
+          <p>Another great feature of Berkeley DB is <em class="firstterm">hot
+          backups</em>—the ability to back up the
+          database environment without taking it
+          <span class="quote">“<span class="quote">offline.</span>”</span> We'll discuss how to back up your
+          repository later in this chapter (in <a class="xref" href="svn.reposadmin.maint.html#svn.reposadmin.maint.backup" title="Repository Backup">the section called “Repository Backup”</a>), but the benefits
+          of being able to make fully functional copies of your
+          repositories without any downtime should be obvious.</p>
+          <p>Berkeley DB is also a very reliable database system when
+          properly used.  Subversion uses Berkeley DB's logging
+          facilities, which means that the database first writes to
+          on-disk logfiles a description of any modifications it is
+          about to make, and then makes the modification itself.  This
+          is to ensure that if anything goes wrong, the database
+          system can back up to a previous
+          <em class="firstterm">checkpoint</em>—a location in the
+          logfiles known not to be corrupt—and replay
+          transactions until the data is restored to a usable state.
+          See <a class="xref" href="svn.reposadmin.maint.html#svn.reposadmin.maint.diskspace" title="Managing Disk Space">the section called “Managing Disk Space”</a> later
+          in this chapter for more about Berkeley DB logfiles.</p>
+          <p>But every rose has its thorn, and so we must note some
+          known limitations of Berkeley DB.  First, Berkeley DB
+          environments are not portable.  You cannot simply copy a
+          Subversion repository that was created on a Unix system onto
+          a Windows system and expect it to work.  While much of the
+          Berkeley DB database format is architecture-independent,
+          other aspects of the environment are not.
+          Second, Subversion uses Berkeley DB in a way that will not
+          operate on Windows 95/98 systems—if you need to house
+          a BDB-backed repository on a Windows machine, stick with
+          Windows 2000 or later.</p>
+          <p>While Berkeley DB promises to behave correctly on
+          network shares that meet a particular set of
+          specifications,<sup>[<a id="idp37619904" href="#ftn.idp37619904" class="footnote">34</a>]</sup> most
+          networked filesystem types and appliances do
+          <span class="emphasis"><em>not</em></span> actually meet those requirements.
+          And in no case can you allow a BDB-backed repository that
+          resides on a network share to be accessed by multiple
+          clients of that share at once (which quite often is the
+          whole point of having the repository live on a network share
+          in the first place).</p>
+          <div class="warning" title="Warning" style="margin-left: 0.5in; margin-right: 0.5in;">
+            <table border="0" summary="Warning">
+              <tr>
+                <td rowspan="2" align="center" valign="top" width="25">
+                  <img alt="[Warning]" src="images/warning.png" />
+                </td>
+                <th align="left">Warning</th>
+              </tr>
+              <tr>
+                <td align="left" valign="top">
+                  <p>If you attempt to use Berkeley DB on a noncompliant
+            remote filesystem, the results are unpredictable—you
+            may see mysterious errors right away, or it may be months
+            before you discover that your repository database is
+            subtly corrupted.  You should strongly consider using the
+            FSFS data store for repositories that need to live on a
+            network share.</p>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <p>Finally, because Berkeley DB is a library linked
+          directly into Subversion, it's more sensitive to
+          interruptions than a typical relational database system.
+          Most SQL systems, for example, have a dedicated server
+          process that mediates all access to tables.  If a program
+          accessing the database crashes for some reason, the database
+          daemon notices the lost connection and cleans up any mess
+          left behind.  And because the database daemon is the only
+          process accessing the tables, applications don't need to
+          worry about permission conflicts.  These things are not the
+          case with Berkeley DB, however.  Subversion (and programs
+          using Subversion libraries) access the database tables
+          directly, which means that a program crash can leave the
+          database in a temporarily inconsistent, inaccessible state.
+          When this happens, an administrator needs to ask Berkeley DB
+          to restore to a checkpoint, which is a bit of an annoyance.
+          Other things can cause a repository to <span class="quote">“<span class="quote">wedge</span>”</span>
+          besides crashed processes, such as programs conflicting over
+          ownership and permissions on the database files.</p>
+          <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;">
+            <table border="0" summary="Note">
+              <tr>
+                <td rowspan="2" align="center" valign="top" width="25">
+                  <img alt="[Note]" src="images/note.png" />
+                </td>
+                <th align="left">Note</th>
+              </tr>
+              <tr>
+                <td align="left" valign="top">
+                  <p>Berkeley DB 4.4 brings (to Subversion 1.4 and later)
+            the ability for Subversion to automatically and
+            transparently recover Berkeley DB environments in need of
+            such recovery.  When a Subversion process attaches to a
+            repository's Berkeley DB environment, it uses some process
+            accounting mechanisms to detect any unclean disconnections
+            by previous processes, performs any necessary recovery,
+            and then continues on as though nothing happened.  This
+            doesn't completely eliminate instances of repository
+            wedging, but it does drastically reduce the amount of
+            human interaction required to recover from them.</p>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <p>So while a Berkeley DB repository is quite fast and
+          scalable, it's best used by a single server process running
+          as one user—such as Apache's <span class="command"><strong>httpd</strong></span>
+          or <span class="command"><strong>svnserve</strong></span> (see <a class="xref" href="svn.serverconfig.html" title="Chapter 6. Server Configuration">Chapter 6, <i>Server Configuration</i></a>)—rather than accessing it
+          as many different users via <code class="literal">file://</code> or
+          <code class="literal">svn+ssh://</code> URLs.  If you're accessing a Berkeley
+          DB repository directly as multiple users, be sure to read
+          <a class="xref" href="svn.serverconfig.multimethod.html" title="Supporting Multiple Repository Access Methods">the section called “Supporting Multiple Repository Access Methods”</a> later in this
+          chapter.</p>
+        </div>
+        <div class="sect3" title="FSFS">
+          <div class="titlepage">
+            <div>
+              <div>
+                <h4 class="title"><a id="svn.reposadmin.basics.backends.fsfs"></a>FSFS</h4>
+              </div>
+            </div>
+          </div>
+          <p>In mid-2004, a second type of repository storage
+          system—one that doesn't use a database at
+          all—came into being.  An FSFS repository stores the
+          changes associated with a revision in a single file, and so
+          all of a repository's revisions can be found in a single
+          subdirectory full of numbered files.  Transactions are
+          created in separate subdirectories as individual files.
+          When complete, the transaction file is renamed and moved
+          into the revisions directory, thus guaranteeing that commits
+          are atomic.  And because a revision file is permanent and
+          unchanging, the repository also can be backed up while
+          <span class="quote">“<span class="quote">hot,</span>”</span> just like a BDB-backed
+          repository.</p>
+          <div class="sidebar" title="Revision files and shards">
+            <a id="svn.reposadmin.basics.backends.fsfs.revfiles"></a>
+            <p class="title">
+              <b>Revision files and shards</b>
+            </p>
+            <p>FSFS repositories contain files that describe the
+            changes made in a single revision, and files that contain
+            the revision properties associated with a single revision.
+            Repositories created in versions of Subversion prior to
+            1.5 keep these files in two directories—one for each
+            type of file.  As new revisions are committed to the
+            repository, Subversion drops more files into these two
+            directories—over time, the number of these files in
+            each directory can grow to be quite large.  This has been
+            observed to cause performance problems on certain
+            network-based filesystems.</p>
+            <p>Subversion 1.5 creates FSFS-backed repositories using
+            a slightly modified layout in which the contents of these
+            two directories are <em class="firstterm">sharded</em>, or
+            scattered across several subdirectories.  This can greatly
+            reduce the time it takes the system to locate any one of
+            these files, and therefore increases the overall
+            performance of Subversion when reading from the
+            repository.</p>
+            <p>Subversion 1.6 takes the sharded layout one step
+            further, allowing administrators to
+            optionally <em class="firstterm">pack</em> each of their
+            repository shards up into a single multi-revision file.
+            This can have both performance and disk usage benefits.
+            See
+            <a class="xref" href="svn.reposadmin.maint.html#svn.reposadmin.maint.diskspace.fsfspacking" title="Packing FSFS filesystems">the section called “Packing FSFS filesystems”</a>
+            for more information.</p>
+          </div>
+          <p>The FSFS revision files describe a revision's
+          directory structure, file contents, and deltas against files
+          in other revision trees.  Unlike a Berkeley DB database,
+          this storage format is portable across different operating
+          systems and isn't sensitive to CPU architecture.  Because
+          no journaling or shared-memory files are being used, the
+          repository can be safely accessed over a network filesystem
+          and examined in a read-only environment.  The lack of
+          database overhead also means the overall repository
+          size is a bit smaller.</p>
+          <p>FSFS has different performance characteristics, too.
+          When committing a directory with a huge number of files,
+          FSFS is able to more quickly append directory entries.  On
+          the other hand, FSFS has a longer delay when finalizing a
+          commit while it performs tasks that the BDB backend
+          amortizes across the lifetime of the commit, which could in
+          extreme cases cause clients to time out while waiting for a
+          response.</p>
+          <p>The most important distinction, however, is FSFS's
+          imperviousness to wedging when something goes wrong.  If a
+          process using a Berkeley DB database runs into a permissions
+          problem or suddenly crashes, the database can be left in an
+          unusable state until an administrator recovers it.  If the
+          same scenarios happen to a process using an FSFS repository,
+          the repository isn't affected at all.  At worst, some
+          transaction data is left behind.</p>
+        </div>
+      </div>
+      <div class="footnotes">
+        <br />
+        <hr width="100" align="left" />
+        <div class="footnote">
+          <p><sup>[<a id="ftn.idp37525568" href="#idp37525568" class="para">31</a>] </sup>Whether founded in
+        ignorance or in poorly considered concepts about how to derive
+        legitimate software development metrics, global revision
+        numbers are a silly thing to fear,
+        and <span class="emphasis"><em>not</em></span> the kind of thing you should
+        weigh when deciding how to arrange your projects and
+        repositories.</p>
+        </div>
+        <div class="footnote">
+          <p><sup>[<a id="ftn.idp37498032" href="#idp37498032" class="para">32</a>] </sup>The <code class="filename">trunk</code>,
+        <code class="filename">tags</code>, and <code class="filename">branches</code>
+        trio is sometimes referred to as <span class="quote">“<span class="quote">the TTB
+        directories.</span>”</span></p>
+        </div>
+        <div class="footnote">
+          <p><sup>[<a id="ftn.idp37577968" href="#idp37577968" class="para">33</a>] </sup>Often
+        pronounced <span class="quote">“<span class="quote">fuzz-fuzz,</span>”</span> if Jack Repenning has
+        anything to say about it.  (This book, however, assumes that
+        the reader is
+        thinking <span class="quote">“<span class="quote">eff-ess-eff-ess.</span>”</span>)</p>
+        </div>
+        <div class="footnote">
+          <p><sup>[<a id="ftn.idp37619904" href="#idp37619904" class="para">34</a>] </sup>Berkeley DB requires that the
+          underlying filesystem implement strict POSIX locking
+          semantics, and more importantly, the ability to map files
+          directly into process memory.</p>
+        </div>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.reposadmin.basics.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.reposadmin.html">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.reposadmin.create.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">The Subversion Repository, Defined </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> Creating and Configuring Your Repository</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

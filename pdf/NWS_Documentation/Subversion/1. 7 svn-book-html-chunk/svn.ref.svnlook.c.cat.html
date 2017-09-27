@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>svnlook cat</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.ref.svnlook.html#svn.ref.svnlook.c" title="svnlook Subcommands" />
+    <link rel="prev" href="svn.ref.svnlook.c.author.html" title="svnlook author" />
+    <link rel="next" href="svn.ref.svnlook.c.changed.html" title="svnlook changed" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">svnlook cat</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.ref.svnlook.c.author.html">Prev</a> </td>
+          <th width="60%" align="center">svnlook Subcommands</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.ref.svnlook.c.changed.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="refentry" title="svnlook cat">
+      <a id="svn.ref.svnlook.c.cat"></a>
+      <div class="titlepage"></div>
+      <a id="idp43965808" class="indexterm"></a>
+      <div class="refnamediv">
+        <h2>Name</h2>
+        <p>svnlook cat — Print the contents of a file.</p>
+      </div>
+      <div class="refsect1" title="Synopsis">
+        <a id="idp43968880"></a>
+        <h2>Synopsis</h2>
+        <p>
+          <code class="literal">svnlook cat REPOS_PATH PATH_IN_REPOS</code>
+        </p>
+      </div>
+      <div class="refsect1" title="Description">
+        <a id="idp43970512"></a>
+        <h2>Description</h2>
+        <p>Print the contents of a file.</p>
+      </div>
+      <div class="refsect1" title="Options">
+        <a id="idp43971744"></a>
+        <h2>Options</h2>
+        <div class="informalexample">
+          <pre class="screen">
+--revision (-r) REV
+--transaction (-t) TXN
+</pre>
+        </div>
+      </div>
+      <div class="refsect1" title="Examples">
+        <a id="idp43973648"></a>
+        <h2>Examples</h2>
+        <p>This shows the contents of a file in transaction
+            <code class="literal">ax8</code>, located at 
+            <code class="filename">/trunk/README</code>:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svnlook cat -t ax8 /var/svn/repos /trunk/README
+
+               Subversion, a version control system.
+               =====================================
+
+$LastChangedDate: 2003-07-17 10:45:25 -0500 (Thu, 17 Jul 2003) $
+
+Contents:
+
+     I. A FEW POINTERS
+    II. DOCUMENTATION
+   III. PARTICIPATING IN THE SUBVERSION COMMUNITY
+…
+</pre>
+        </div>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.ref.svnlook.c.author.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.ref.svnlook.html#svn.ref.svnlook.c">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.ref.svnlook.c.changed.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">svnlook author </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> svnlook changed</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

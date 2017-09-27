@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Revision Numbers Are Different Now</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.forcvs.html" title="Appendix B. Subversion for CVS Users" />
+    <link rel="prev" href="svn.forcvs.html" title="Appendix B. Subversion for CVS Users" />
+    <link rel="next" href="svn.forcvs.directories.html" title="Directory Versions" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">Revision Numbers Are Different Now</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.forcvs.html">Prev</a> </td>
+          <th width="60%" align="center">Appendix B. Subversion for CVS Users</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.forcvs.directories.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="sect1" title="Revision Numbers Are Different Now">
+      <div class="titlepage">
+        <div>
+          <div>
+            <h2 class="title" style="clear: both"><a id="svn.forcvs.revnums"></a>Revision Numbers Are Different Now</h2>
+          </div>
+        </div>
+      </div>
+      <p>In CVS, revision numbers are per file.  This is because CVS
+      stores its data in RCS files; each file has a corresponding RCS
+      file in the repository, and the repository is roughly laid out
+      according to the structure of your project tree.</p>
+      <p>In Subversion, the repository looks like a single
+      filesystem.  Each commit results in an entirely new filesystem
+      tree; in essence, the repository is an array of trees.  Each of
+      these trees is labeled with a single revision number.  When
+      someone talks about <span class="quote">“<span class="quote">revision 54</span>”</span>, he's talking
+      about a particular tree (and indirectly, the way the filesystem
+      looked after the 54th commit).</p>
+      <p>Technically, it's not valid to talk about <span class="quote">“<span class="quote">revision 5
+      of <code class="filename">foo.c</code>.</span>”</span>  Instead, one would say
+      <span class="quote">“<span class="quote"><code class="filename">foo.c</code> as it appears in revision
+      5.</span>”</span>  Also, be careful when making assumptions about the
+      evolution of a file.  In CVS, revisions 5 and 6 of
+      <code class="filename">foo.c</code> are always different.  In Subversion,
+      it's most likely that <code class="filename">foo.c</code> did
+      <span class="emphasis"><em>not</em></span> change between revisions 5 and
+      6.</p>
+      <p>Similarly, in CVS, a tag or branch is an annotation on the
+      file or on the version information for that individual file,
+      whereas in Subversion, a tag or branch is a copy of an entire
+      tree (by convention, into the <code class="filename">/branches</code>
+      or <code class="filename">/tags</code> directories that appear at the top
+      level of the repository, beside <code class="filename">/trunk</code>).  In
+      the repository as a whole, many versions of each file may be
+      visible: the latest version on each branch, every tagged
+      version, and of course the latest version on the trunk
+      itself.  So, to refine the terms even further, one would often
+      say <span class="quote">“<span class="quote"><code class="filename">foo.c</code> as it appears in
+      <code class="filename">/branches/REL1</code> in revision
+      5.</span>”</span></p>
+      <p>For more details on this topic, see <a class="xref" href="svn.basic.in-action.html#svn.basic.in-action.revs" title="Revisions">the section called “Revisions”</a>.</p>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.forcvs.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.forcvs.html">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.forcvs.directories.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">Appendix B. Subversion for CVS Users </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> Directory Versions</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>
