@@ -25,8 +25,8 @@ Provides: awips2-static-user
 Requires: libpng, awips2
 Requires: awips2-postgresql
 Requires: awips2-psql
-Requires: netcdf = 4.1.2
-Requires: netcdf-devel = 4.1.2
+Requires: netcdf >= 3.0.0
+Requires: netcdf-devel >= 3.0.0
 
 
 %description

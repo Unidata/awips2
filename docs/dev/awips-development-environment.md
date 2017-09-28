@@ -25,7 +25,6 @@ Quick instructions on how to deploy CAVE from Eclipse.
         git clone https://github.com/Unidata/awips2-core-foss.git
         git clone https://github.com/Unidata/awips2-foss.git
         git clone https://github.com/Unidata/awips2-ncep.git
-        git clone https://github.com/Unidata/awips2-goesr.git
         git clone https://github.com/Unidata/awips2-nws.git
         git clone https://github.com/Unidata/awips2-gsd.git
         git clone https://github.com/Unidata/awips2-drawing.git

@@ -23,8 +23,8 @@ Packager: %{_build_site}
 AutoReq: no
 Provides: awips2-common-base
 Requires: awips2-base
-Requires: netcdf = 4.1.2
-Requires: netcdf-devel = 4.1.2
+Requires: netcdf >= 3.0.0
+Requires: netcdf-devel >= 3.0.0
 
 BuildRequires: awips2-ant
 BuildRequires: awips2-java
