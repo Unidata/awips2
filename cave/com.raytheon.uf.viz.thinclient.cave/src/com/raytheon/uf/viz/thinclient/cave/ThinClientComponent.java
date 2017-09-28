@@ -144,8 +144,7 @@ public class ThinClientComponent extends CAVE implements IThinClientComponent {
                 new MapQueryCachePersistence());
         cacheManager.restoreCaches();
         try {
-            new ThinClientLocalizationInitializer(!isNonUIComponent(),
-                    !LocalizationManager.internalAlertServer).run();
+            new ThinClientLocalizationInitializer(!isNonUIComponent()).run();
         } catch (Exception e1) {
             e1.printStackTrace();
             statusHandler.handle(Priority.CRITICAL,

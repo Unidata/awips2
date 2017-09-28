@@ -198,8 +198,7 @@ public abstract class AbstractAWIPSComponent extends CAVEApplication {
      */
     @Override
     protected void initializeLocalization() throws Exception {
-        initializeLocalization(!isNonUIComponent(),
-                !LocalizationManager.internalAlertServer);
+        initializeLocalization(!isNonUIComponent());
     }
 
     /*
