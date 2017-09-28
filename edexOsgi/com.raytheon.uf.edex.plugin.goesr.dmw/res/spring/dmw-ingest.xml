@@ -1,0 +1,68 @@
+    <!-- TOWRdocs Header
+        Configuration file handling the more Spring XML instantiations of Java Classes, as well
+        as the ingest of DMW products into EDEX
+    -->
+    <!-- TOWRdocs Description
+        This configuration file handles the definition and instantiation of instances of 
+        DMW Plugin Java objects. It also sets up the ingest route that DMW products will take upon being
+        ingested into EDEX (starting at the "route" tag). 
+    -->
+    <!-- TOWRdocs Status
+        This file is a baseline file for the GOES-R Derived Motion Winds (DMW) plugin.
+    -->
+    <!-- TOWRdocs POC
+        Matt Comerford.
+    -->
+
+<beans xmlns="http://www.springframework.org/schema/beans" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd 
+    http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean class="com.raytheon.uf.common.logback.appender.ThreadBasedAppender"
+        factory-method="registerThreadPattern">
+        <constructor-arg value="satellite" />
+        <constructor-arg value="Ingest.dmw.*" />
+    </bean>
+
+    <!-- Set the path manager to handle descriptions files -->
+    <bean id="dmwPathManager" class="com.raytheon.uf.common.localization.PathManagerFactory"
+        factory-method="getPathManager" />
+
+    <!-- Edited to include the newly-added "PathManager" to handler description files. -->
+    <bean id="dmwDecoder" class="com.raytheon.uf.edex.plugin.goesr.dmw.decoder.DMWDecoder">
+        <property name="pathManager" ref="dmwPathManager" />
+    </bean>
+
+    <bean id="dmwDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg value="dmw" />
+        <constructor-arg value="jms-durable:queue:Ingest.dmw" />
+    </bean>
+
+    <!-- Defining the Camel Context and ingest route of DMW Products through EDEX -->
+    <camelContext id="dmw-camel"
+        xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+
+        <route id="dmwIngestRoute">
+            <from uri="jms-durable:queue:Ingest.dmw"/>
+            <setHeader headerName="pluginName">
+                <constant>dmw</constant>
+            </setHeader>
+            <doTry>
+                <pipeline>
+                    <bean ref="stringToFile" />
+                    <bean ref="getFileWithoutWmoHeader" />
+                    <bean ref="dmwDecoder" method="decode" />
+                    <to uri="direct-vm:persistIndexAlert" />
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:dmw?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+    </camelContext>
+
+</beans>

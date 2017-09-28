@@ -40,7 +40,6 @@ Through a grant provided by [Jetstream](https://jetstream-cloud.org/), Unidata i
 * [awips2-core-foss](https://github.com/Unidata/awips2-core-foss)
 * [awips2-foss](https://github.com/Unidata/awips2-foss)
 * [awips2-ncep](https://github.com/Unidata/awips2-ncep)
-* [awips2-goesr](https://github.com/Unidata/awips2-goesr)
 * [awips2-rpm](https://github.com/Unidata/awips2-rpmbuild)
 
 
@@ -71,7 +70,6 @@ Instructions on how to deploy CAVE from Eclipse.
         git clone https://github.com/Unidata/awips2-core-foss.git
         git clone https://github.com/Unidata/awips2-foss.git
         git clone https://github.com/Unidata/awips2-ncep.git
-        git clone https://github.com/Unidata/awips2-goesr.git
         git clone https://github.com/Unidata/awips2-rpm.git
 
     Optional repositories:

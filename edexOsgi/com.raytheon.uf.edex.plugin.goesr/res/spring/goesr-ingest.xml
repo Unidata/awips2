@@ -1,0 +1,70 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+  <bean class="com.raytheon.uf.common.logback.appender.ThreadBasedAppender"
+    factory-method="registerThreadPattern">
+    <constructor-arg value="satellite" />
+    <constructor-arg value="Ingest.GOESR.*" />
+  </bean>
+
+  <bean id="goesrPluginName" class="java.lang.String">
+    <constructor-arg type="java.lang.String" value="goesr" />
+  </bean>
+
+  <bean id="goesrDistRegistry" factory-bean="distributionSrv"
+    factory-method="register">
+    <constructor-arg ref="goesrPluginName" />
+    <constructor-arg value="jms-durable:queue:Ingest.GOESR" />
+  </bean>
+
+  <bean id="goesrPathManager" class="com.raytheon.uf.common.localization.PathManagerFactory" factory-method="getPathManager"/>
+
+  <bean id="goesrProjectionFactory"
+    class="com.raytheon.uf.edex.plugin.goesr.geospatial.GoesrProjectionFactory" />
+
+  <bean id="goesrDecoder" class="com.raytheon.uf.edex.plugin.goesr.GoesrNetcdfDecoder">
+    <constructor-arg ref="goesrProjectionFactory" />
+    <constructor-arg ref="goesrPathManager" />
+  </bean>
+
+  <camelContext id="goesr-camel" xmlns="http://camel.apache.org/schema/spring"
+    errorHandlerRef="errorHandler">
+
+    <endpoint id="goesrJmsEndpoint" uri="jms-durable:queue:Ingest.GOESR?concurrentConsumers=${goesr-decode.threads}" />
+
+    <route id="goesrIngestRoute">
+      <from ref="goesrJmsEndpoint" />
+      <setHeader headerName="pluginName">
+        <constant>satellite</constant>
+      </setHeader>
+      <setHeader headerName="dataType">
+        <constant>goes-r</constant>
+      </setHeader>
+      <doTry>
+        <pipeline>
+          <bean ref="stringToFile" />
+          <bean ref="getFileWithoutWmoHeader" />
+          <split streaming="true">
+              <method bean="goesrDecoder" method="split"/>
+              <doTry>
+                  <pipeline>
+                      <bean ref="goesrDecoder" method="decode" />
+                      <to uri="direct-vm:persistIndexAlert" />
+                  </pipeline>
+                  <doCatch>
+                      <exception>java.lang.Throwable</exception>
+                      <to uri="log:goesr?level=ERROR" />
+                  </doCatch>
+              </doTry>
+          </split>
+        </pipeline>
+        <doCatch>
+          <exception>java.lang.Throwable</exception>
+          <to uri="log:goesr?level=ERROR" />
+        </doCatch>
+      </doTry>
+    </route>
+  </camelContext>
+</beans>

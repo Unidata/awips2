@@ -1,6 +1,6 @@
 
 
-AWIPS ingest and display of GOES-16 (GOES-R) products is handled by contributions from the **[awips2-goesr](https://github.com/Unidata/awips2-goesr)** plugin repository. As of Unidata AWIPS 17.1.1, the GOES-R decoder supports the ingest and display of NOAAport provisional products (currently on the NOTHER feed), as well as Level 2b netCDF files.  A GOES-R Geostationary Lightning Mapper (GLM) decoder is also provided to handle sensor lightning observations.
+As of Unidata AWIPS 17.1.1, the GOES-R decoder supports the ingest and display of NOAAport provisional products (currently on the NOTHER feed), as well as Level 2b netCDF files.  A GOES-R Geostationary Lightning Mapper (GLM) decoder is also provided to handle sensor lightning observations.
 
 GOES-R products are accessible in the menu **Satellite** > **GOES-16 Provisional Products**
 
