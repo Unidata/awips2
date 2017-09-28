@@ -114,10 +114,6 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.viz.ncep.perspective.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.uf.viz.nwsauth.feature"
          version="0.0.0"/>
 
