@@ -17,7 +17,6 @@
 # edex log [ingest|request|grib|text|satellite|radar|ldm]               #
 #       Monitors the current day's requested log. Defaults to ingest.   #
 #                                                                       #
-#                                                                       #
 # edex setup                                                            #
 #   Adds server IP and hostname to EDEX config files if they don't      #
 #   contain the correct setting already (requires user prompt)          #
@@ -29,18 +28,14 @@
 # 11/2015 M.James/Unidata	Added CAVE user count as "edex users"	#
 # 10/2016 M.James/Unidata	No longer need to edit ldmd.conf	#
 # 06/2017 M.James/Unidata       Restart					#
+# 09/2017 M.James/Unidata       Rudimentary remote db password control, #
+#                               remove pg_hba.conf edits                #
 #-----------------------------------------------------------------------#
 . /etc/profile.d/awips2.sh
 # directories definitions
-AWIPS_HOME=/awips2
-EDEX_PATH=${AWIPS_HOME}/edex
-DATA_PATH=${AWIPS_HOME}/data
+EDEX_PATH=/awips2/edex
+DATA_PATH=/awips2/data
 LOG_PATH=${EDEX_PATH}/logs
-
-# files
-if [ -d "/awips2/data" ]; then
-   PG_FILE=${DATA_PATH}/pg_hba.conf
-fi
 EDEX_ENV_FILE=${EDEX_PATH}/bin/setup.env
 
 # valid options
@@ -53,15 +48,9 @@ IP=`/sbin/ifconfig $usedev | grep -v "inet6" | grep "inet" | awk '{ print $2 }' 
 
 # truncate
 IP_CIDR="${IP%.*}"
-if [ -d "/awips2/data" ]; then
-  editFiles=($PG_FILE $EDEX_ENV_FILE)
-  boolFiles=(true true)
-  editFuncs=(edit_pg edit_edex)
-else
-  editFiles=($EDEX_ENV_FILE)
-  boolFiles=(true)
-  editFuncs=(edit_edex)
-fi
+editFiles=($EDEX_ENV_FILE)
+boolFiles=(true)
+editFuncs=(edit_setup)
 
 YMD=`date '+%Y%m%d'`
 
@@ -156,7 +145,7 @@ edex_log() { # display todays log, default to ingest
    echo ''
    # LDM log
    if [ "${args[1]}" == 'ldm' ]; then
-      LOG_FILE=${AWIPS_HOME}/ldm/logs/ldmd.log
+      LOG_FILE=/awips2/ldm/logs/ldmd.log
       tail_log
       exit;
    fi
@@ -217,16 +206,9 @@ edex_log() { # display todays log, default to ingest
    fi
 }
 
-edit_pg() { # edex pg_hba.conf
-   schStr=`grep "\/24" $PG_FILE | head -1 | awk '{ print $4 }' | cut -d/ -f1`
-   subStr=$IP_CIDR'.0'
-   sed -i.setup_$YMD 's/'$schStr'/'$subStr'/g' $PG_FILE
-   echo '[edit] '$subStr' added to '$PG_FILE
-   echo '       File backed up to '$PG_FILE'.setup_'$YMD
-}
-
-edit_edex() { # setup.env automatic edit
-   sed -i.setup_$YMD 's/localhost/'$HOSTNAME'/g' $EDEX_ENV_FILE
+# See /awips2/edex/bin/setup.env
+edit_setup() {
+   sed -i.setup_$YMD 's/external/'$HOSTNAME'/g' $EDEX_ENV_FILE
    echo '[edit] '$HOSTNAME' added to '$EDEX_ENV_FILE
    echo '       File backed up to '$EDEX_ENV_FILE'.setup_'$YMD
 }
@@ -252,9 +234,6 @@ edex_ipexit() { # abandon ip editing, post msg to guide manual edits
    echo -e ' You may need to MANUALLY EDIT the following files'
    echo -e '\n'$editCom
    echo -e ' for EDEX to work properly. \n'
-   echo -e ' Special notes:'
-   echo -e ' '$PG_FILE' *must* contain your subdomain.'
-   echo ''
 }
 
 edex_setup() { # setup IP subnet and domains for EDEX, prompt user for confirm
@@ -291,29 +270,7 @@ edex_setup() { # setup IP subnet and domains for EDEX, prompt user for confirm
    fi
    continue=false
 
-   # pg_hba.conf
-   if [ -d "/awips2/data" ]; then
-      pgGrep=`grep $IP_CIDR $PG_FILE | head -1`
-     echo -n ' Checking '$PG_FILE
-      if [[ ! -z ${pgGrep} ]]; then
-         echo ' [OK]'
-         boolFiles[0]=false
-      else
-         echo -e '\n      ** Missing '$IP_CIDR
-         continue=true
-      fi
-   fi
-   # EDEX env
-
-   envGrep=`grep $HOSTNAME $EDEX_ENV_FILE | head -1`
-   echo -n ' Checking '$EDEX_ENV_FILE
-   if [[ ! -z ${envGrep} ]]; then
-      echo ' [OK]'
-      boolFiles[1]=false
-   else 
-      echo '      ** Missing '$HOSTNAME
-      continue=true
-   fi
+   # ldm regutil
    if [ -d "/awips2/ldm" ]; then
       #echo '[edit] ldm regutil...'
       su - awips -c 'regutil -s '$HOSTNAME' /hostname'
@@ -326,34 +283,7 @@ edex_setup() { # setup IP subnet and domains for EDEX, prompt user for confirm
    echo ''
 }
 
-
-edex_conf_check() { # check that IP and hostname are set correctly. if not, call setup
-   if [[ -z `grep $IP_CIDR $PG_FILE` ]]; then
-      echo '[WARN] *** File ['$PG_FILE'] contains incorrect IP addresses'
-      while true; do
-                   echo ''
-                   read -p "Run setup now? [y/n]" eyn
-                   case $eyn in
-                                [Yy]* ) edex_setup; break;;
-                                [Nn]* ) echo 'exiting'; exit;;
-                                * ) echo "Please answer yes or no.";;
-                        esac
-                   echo ''
-                done
-      echo '        Run "edex setup" to configure'
-      exit
-   fi
-   #if [[ -z `grep $HOSTNAME $EDEX_ENV_FILE` ]]; then
-   #   echo '[WARN] *** File ['$EDEX_ENV_FILE'] contains localhost'
-   #   echo '       *** Run "edex setup" to configure'
-   #   exit
-   #fi
-}
-
 edex_start() { # start all edex services
-   #if [ -d "/awips2/data" ]; then
-   #   edex_conf_check
-   #fi
    edex_cleanup
    if [ -f "/etc/init.d/edex_postgres" ]; then
       su -c "service edex_postgres start"
