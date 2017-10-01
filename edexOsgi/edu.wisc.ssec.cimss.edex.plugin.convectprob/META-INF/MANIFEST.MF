@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: NOAA/CIMSS Prob Severe (plugin.convectprob)
+Bundle-SymbolicName: edu.wisc.ssec.cimss.edex.plugin.convectprob
+Bundle-Version: 1.14.4.qualifier
+Bundle-Vendor: CIMSS/SSEC
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
+ javax.persistence,
+ com.raytheon.uf.common.status;bundle-version="1.12.1174"
+Import-Package: com.raytheon.uf.common.datastorage,
+ com.raytheon.uf.common.datastorage.records,
+ com.raytheon.uf.edex.database.plugin,
+ edu.wisc.ssec.cimss.common.dataplugin.convectprob,
+ edu.wisc.ssec.cimss.common.dataplugin.convectprob.impl
+
