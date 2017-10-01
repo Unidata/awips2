@@ -1,46 +1,204 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-    <!--
-        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
-        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
-        
-        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
-        This_software_product_contains_export-restricted_data_whose
-        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
-        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
-        an_export_license_or_other_authorization.
-        
-        Contractor_Name:________Raytheon_Company
-        Contractor_Address:_____6825_Pine_Street,_Suite_340
-        ________________________Mail_Stop_B8
-        ________________________Omaha,_NE_68106
-        ________________________402.291.0100
-        
-        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
-        further_licensing_information.
-    -->
+
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="subinclude" subMenu="EFD" fileName="menus/satellite/goesr/goesrLevel2FullDisk.xml" >
-      <substitute key="sector" value="EFD" />
+
+	<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Aerosol Detection" id="goesr-adp">
+        <substitute key="entity" value="GOES-16" />
+        <substitute key="element" value="ADP"/>
+        <substitute key="colormap" value="Sat/GOESR-L2/ADP"/>
+        <substitute key="sector" value="TCONUS" />
     </contribute>
-    <contribute xsi:type="subinclude" subMenu="WFD" fileName="menus/satellite/goesr/goesrLevel2FullDisk.xml" >
-      <substitute key="sector" value="WFD" />
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Aerosol Optical Depth" id="goesr-aod">
+        <substitute key="entity" value="GOES-16" />
+        <substitute key="element" value="AOD"/>
+        <substitute key="colormap" value="Sat/GOESR-L2/VTRSB"/>
+        <substitute key="sector" value="TCONUS" />
     </contribute>
-    <contribute xsi:type="subinclude" subMenu="ECONUS" fileName="menus/satellite/goesr/goesrLevel2Conus.xml" >
-      <substitute key="sector" value="ECONUS" />
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Clear Sky Mask" id="goesr-csm">
+        <substitute key="entity" value="GOES-16" />
+        <substitute key="element" value="CSM"/>
+        <substitute key="colormap" value="Sat/GOESR-L2/CSM"/>
+        <substitute key="sector" value="TCONUS" />
     </contribute>
-    <contribute xsi:type="subinclude" subMenu="WCONUS" fileName="menus/satellite/goesr/goesrLevel2Conus.xml" >
-      <substitute key="sector" value="WCONUS" />
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Cloud Optical Depth" id="goesr-cod">
+        <substitute key="entity" value="GOES-16" />
+        <substitute key="element" value="COD"/>
+        <substitute key="colormap" value="Sat/GOESR-L2/VTRSB"/>
+        <substitute key="sector" value="TCONUS" />
     </contribute>
-    <contribute xsi:type="subinclude" subMenu="EMESO-1" fileName="menus/satellite/goesr/goesrLevel2Meso.xml" >
-      <substitute key="sector" value="EMESO-1" />
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Cloud Particle Size" id="goesr-cth">
+        <substitute key="entity" value="GOES-16" />
+        <substitute key="element" value="CPSD"/>
+        <substitute key="colormap" value="Sat/GOESR-L2/VTRSB"/>
+        <substitute key="sector" value="TCONUS" />
     </contribute>
-    <contribute xsi:type="subinclude" subMenu="EMESO-2" fileName="menus/satellite/goesr/goesrLevel2Meso.xml" >
-      <substitute key="sector" value="EMESO-2" />
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Cloud Top Height" id="goesr-cth">
+        <substitute key="entity" value="GOES-16" />
+        <substitute key="element" value="CTH"/>
+        <substitute key="colormap" value="Sat/GOESR-L2/VTRSB"/>
+        <substitute key="sector" value="TCONUS" />
     </contribute>
-    <contribute xsi:type="subinclude" subMenu="WMESO-1" fileName="menus/satellite/goesr/goesrLevel2Meso.xml" >
-      <substitute key="sector" value="WMESO-1" />
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Cloud Top Phase" id="goesr-actp">
+        <substitute key="entity" value="GOES-16" />
+        <substitute key="element" value="ACTP"/>
+        <substitute key="colormap" value="Sat/GOESR-L2/ACTP"/>
+        <substitute key="sector" value="TCONUS" />
     </contribute>
-    <contribute xsi:type="subinclude" subMenu="WMESO-2" fileName="menus/satellite/goesr/goesrLevel2Meso.xml" >
-      <substitute key="sector" value="WMESO-2" />
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Cloud Top Pressure" id="goesr-ctp">
+        <substitute key="entity" value="GOES-16" />
+        <substitute key="element" value="CTP"/>
+        <substitute key="colormap" value="Sat/GOESR-L2/VTRSB"/>
+        <substitute key="sector" value="TCONUS" />
+    </contribute>
+   
+    <contribute xsi:type="separator" id="id"/>
+
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Derived CAPE" id="goesr-cape">
+        <substitute key="entity" value="GOES-16" />
+        <substitute key="element" value="CAPE"/>
+        <substitute key="colormap" value="Sat/GOESR-L2/VTRSB"/>
+        <substitute key="sector" value="TCONUS" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Derived K-Index" id="goesr-ki">
+        <substitute key="entity" value="GOES-16" />
+        <substitute key="element" value="KI"/>
+        <substitute key="colormap" value="Sat/GOESR-L2/VTRSB"/>
+        <substitute key="sector" value="TCONUS" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Derived Lifted Index" id="goer-li">
+        <substitute key="entity" value="GOES-16" />
+        <substitute key="element" value="LI"/>
+        <substitute key="colormap" value="Sat/GOESR-L2/VTRSB"/>
+        <substitute key="sector" value="TCONUS" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Derived Showalter Index" id="goer-si">
+        <substitute key="entity" value="GOES-16" />
+        <substitute key="element" value="SI"/>
+        <substitute key="colormap" value="Sat/GOESR-L2/VTRSB"/>
+        <substitute key="sector" value="TCONUS" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Derived Total Totals" id="goer-tt">
+        <substitute key="entity" value="GOES-16" />
+        <substitute key="element" value="TT"/>
+        <substitute key="colormap" value="Sat/GOESR-L2/VTRSB"/>
+        <substitute key="sector" value="TCONUS" />
+    </contribute>
+    
+    <contribute xsi:type="separator" id="id"/>
+    
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Fire Area" id="goesr-fdc-area">
+        <substitute key="entity" value="GOES-16" />
+        <substitute key="element" value="FDC Area"/>
+        <substitute key="colormap" value="Sat/GOESR-L2/VTRSB"/>
+        <substitute key="sector" value="TCONUS" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Fire Power" id="goesr-fdc-power">
+        <substitute key="entity" value="GOES-16" />
+        <substitute key="element" value="FDC Power"/>
+        <substitute key="colormap" value="Sat/GOESR-L2/VTRSB"/>
+        <substitute key="sector" value="TCONUS" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Fire Temperature" id="goesr-fdc-temp">
+        <substitute key="entity" value="GOES-16" />
+        <substitute key="element" value="FDC Temp"/>
+        <substitute key="colormap" value="Sat/GOESR-L2/VTRSB"/>
+        <substitute key="sector" value="TCONUS" />
+    </contribute>
+    
+    <contribute xsi:type="separator" id="id"/>
+    
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Land Skin Temp" id="goesr-lst">
+        <substitute key="entity" value="GOES-16" />
+        <substitute key="element" value="LST"/>
+        <substitute key="colormap" value="Sat/GOESR-L2/VTRSB"/>
+        <substitute key="sector" value="TCONUS" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Snow Cover" id="goesr-fsc">
+        <substitute key="entity" value="GOES-16" />
+        <substitute key="element" value="FSC"/>
+        <substitute key="colormap" value="Sat/GOESR-L2/FSC"/>
+        <substitute key="sector" value="TCONUS" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Total Precip Water" id="goesr-tpw">
+        <substitute key="entity" value="GOES-16" />
+        <substitute key="element" value="TPW"/>
+        <substitute key="colormap" value="Sat/Precip Water/Precip Water - New CIMSS Table"/>
+        <substitute key="sector" value="TCONUS" />
+    </contribute>
+    
+    <contribute xsi:type="separator" id="id"/>
+    
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Moisture(11.2-12.3 u)" id="goesr-moisture">
+        <substitute key="element" value="satMoisture"/>
+        <substitute key="colormap" value="Grid/gridded data"/>
+        <substitute key="sector" value="TCONUS" />
+        <substitute key="entity" value="GOES-16" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Cloud Phase(8.5-11.2 u)" id="goesr-cloud-phase">
+        <substitute key="element" value="satCloudPhase"/>
+        <substitute key="colormap" value="Grid/gridded data"/>
+        <substitute key="sector" value="TCONUS" />
+        <substitute key="entity" value="GOES-16" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Fog (3.9-11.2 u)" id="goesr-fog">
+        <substitute key="element" value="satFog"/>
+        <substitute key="colormap" value="Grid/gridded data"/>
+        <substitute key="sector" value="TCONUS" />
+        <substitute key="entity" value="GOES-16" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Snow (0.64-1.61 u)" id="goesr-snow">
+        <substitute key="element" value="satSnow"/>
+        <substitute key="colormap" value="Grid/gridded data"/>
+        <substitute key="sector" value="TCONUS" />
+        <substitute key="entity" value="GOES-16" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Vegetation (0.64-0.87 u)" id="goesr-vegetation">
+        <substitute key="element" value="satVegetation"/>
+        <substitute key="colormap" value="Grid/gridded data"/>
+        <substitute key="sector" value="TCONUS" />
+        <substitute key="entity" value="GOES-16" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Upper Level Info(11.2-6.19 u)" id="goesr-upper-level-info">
+        <substitute key="element" value="satUpperLevelInfo"/>
+        <substitute key="colormap" value="Grid/gridded data"/>
+        <substitute key="sector" value="TCONUS" />
+        <substitute key="entity" value="GOES-16" />
+    </contribute>
+    
+    <contribute xsi:type="separator" id="id"/>
+
+    <contribute xsi:type="subinclude" subMenu="Full Disk" fileName="menus/satellite/goesr/goesrLevel2FullDisk.xml" >
+      <substitute key="sector" value="TFD" />
+    </contribute>
+    <contribute xsi:type="subinclude" subMenu="Mesoscale Sector 1" fileName="menus/satellite/goesr/goesrLevel2Meso.xml" >
+      <substitute key="sector" value="TMESO-1" />
+    </contribute>
+    <contribute xsi:type="subinclude" subMenu="Mesoscale Sector 2" fileName="menus/satellite/goesr/goesrLevel2Meso.xml" >
+      <substitute key="sector" value="TMESO-2" />
     </contribute>
 </menuTemplate>

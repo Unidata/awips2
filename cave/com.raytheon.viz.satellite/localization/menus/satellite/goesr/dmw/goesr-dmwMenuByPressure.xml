@@ -1,26 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-
-   <!-- TOWRdocs Header
-        GOES-R DMW sub-menu items file (sorted by pressure values).
-    -->
-    <!-- TOWRdocs Description
-        This file adds a DMW bundle item  to the GOES-R menu in AWIPS II CAVE. 
-
-            - "menuText" references the text that will appear in the menu.
-            - "file" references the corresponding bundle (in the localization hierarchy)
-                    to load when selecting the menu item.
-            - "substitute" entities create key-value pairs. Referencing each key inside 
-                    subsequent files (i.e. "file" and any nested files underneath) will instead 
-                    replace that entry with the corresponding value (e.g. "&#36;{keyname}" = "value").
-    -->
-    <!-- TOWRdocs Status
-        File is a modification to the existing base menu file /menus/satellite/goesr/dmwByChannel.xml
-        New File not currently found in the baseline.
-    -->
-    <!-- TOWRdocs POC
-        Matt Comerford
-    -->
-
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
     <!-- 100mb -->

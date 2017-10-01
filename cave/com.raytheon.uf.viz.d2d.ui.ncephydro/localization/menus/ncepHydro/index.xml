@@ -31,6 +31,4 @@
              fileName="menus/ncepHydro/cpc/baseCPC.xml"/>
     <include installTo="menu:ncepHydro?before=AWC" 
              fileName="menus/ncepHydro/awc/baseAWC.xml"/>
-    <include installTo="menu:ncepHydro?before=STQ" 
-             fileName="menus/ncepHydro/stq/baseSTQ.xml"/>
 </menuContributionFile>
