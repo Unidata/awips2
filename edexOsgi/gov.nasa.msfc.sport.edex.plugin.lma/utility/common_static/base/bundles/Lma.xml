@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<bundle>
+    <displayList>
+        <displays xsi:type="d2DMapRenderableDisplay"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <descriptor xsi:type="mapDescriptor">
+                <resource>
+                            <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
+                                <resourceType>PLAN_VIEW</resourceType>
+                                <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="true"/>
+                                <capabilities>
+                                    <capability xsi:type="colorableCapability" colorAsString="green"/>
+                                    <capability xsi:type="colorMapCapability">
+                                        <colorMapParameters colorMapName="${colorMapName}">
+                                            <persisted/>
+                                        </colorMapParameters>
+                                    </capability>
+                                    <capability xsi:type="displayTypeCapability" displayType="IMAGE"/>
+                                    <capability xsi:type="imagingCapability" contrast="1.0" brightness="1.0" interpolationState="true" alpha="1.0"/>
+                                </capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isHoverOn="false" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="IMAGE_WORLD">
+                                <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="gridResourceData" sampling="true" spatial="false" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
+                                <metadataMap>
+                                    <mapping key="info.level.levelonevalue">
+                                        <constraint constraintType="EQUALS" constraintValue="${level}"/>
+                                    </mapping>
+                                    <mapping key="info.level.masterLevel.name">
+                                        <constraint constraintType="EQUALS" constraintValue="${levelType}"/>
+                                    </mapping>
+                                    <mapping key="info.parameter.abbreviation">
+                                        <constraint constraintType="EQUALS" constraintValue="${productType}"/>
+                                    </mapping>
+                                    <mapping key="info.datasetId">
+                                        <constraint constraintType="EQUALS" constraintValue="${network}"/>
+                                    </mapping>
+                                    <mapping key="info.level.leveltwovalue">
+                                        <constraint constraintType="EQUALS" constraintValue="-999999.0"/>
+                                    </mapping>
+                                    <mapping key="pluginName">
+                                        <constraint constraintType="EQUALS" constraintValue="grid"/>
+                                    </mapping>
+                                </metadataMap>
+                                <alertParser xsi:type="gribDataCubeAlertMessageParser"/>
+                            </resourceData>
+                        </resource>
+            </descriptor>
+        </displays>
+    </displayList>
+</bundle>
