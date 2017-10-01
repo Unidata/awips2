@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.handlers">    
+      <handler
+      		class="gov.noaa.nws.mdl.viz.boundaryTool.ui.action.BoundaryEditorAction"
+      		commandId="gov.noaa.nws.mdl.viz.boundaryTool.boundaryeditor">
+      </handler>            
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+     <command
+          id="gov.noaa.nws.mdl.viz.boundaryTool.boundaryeditor"
+          name="Boundary Editor">
+    </command>                
+   </extension>
+   <extension point="org.eclipse.ui.menus">
+        <menuContribution
+          locationURI="menu:tools?after=tools.Ti">
+          <command commandId="gov.noaa.nws.mdl.viz.boundaryTool.boundaryeditor"
+                   label="Boundary Tool..."
+                   style="push">
+            <visibleWhen>
+              <reference definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+              </reference>
+            </visibleWhen>
+          </command>
+        </menuContribution>
+   </extension>
+</plugin>
