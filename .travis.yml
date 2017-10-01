@@ -1,0 +1,27 @@
+sudo: required
+
+branches:
+ - unidata_17.1.1
+
+language: ruby
+
+services:
+  - docker
+
+env:
+  matrix:
+  - OS_TYPE=centos OS_VERSION=centos6 
+#  - OS_TYPE=centos OS_VERSION=centos7
+#  - OS_TYPE=fedora OS_VERSION=latest
+#  - OS_TYPE=ubuntu OS_VERSION=latest
+#  - OS_TYPE=centos OS_VERSION=container # run this manually to create new dockerhub image
+
+before_install:
+  - sudo apt-get update
+  - echo 'DOCKER_OPTS="-H tcp://127.0.0.1:2375 -H unix:///var/run/docker.sock -s devicemapper"' | sudo tee /etc/default/docker > /dev/null
+  - sudo service docker restart
+  - sleep 5
+  - sudo docker pull ${OS_TYPE}:${OS_VERSION}
+
+script:
+  - build/setup.sh ${OS_TYPE} ${OS_VERSION}
