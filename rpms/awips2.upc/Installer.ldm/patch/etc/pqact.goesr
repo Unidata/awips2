@@ -1,0 +1,37 @@
+#
+# GOES-16(R) experimental/provisional products - large-scale non-mesoscale sectors
+#
+NOTHER	^(TIR[CU]..) (KNES) (......) (...)
+	FILE	-close -edex
+	/awips2/data_store/satellite/goes16/\1_\2_\3_\4_(seq).gini
+# P=Puerto Rico, A=Alaska (inactive), H=Hawaii (inactive)
+NOTHER	^(TIR[AHP]..) (KNES) (......) (...)
+	FILE	-close -edex
+	/awips2/data_store/satellite/goes16/\1_\2_\3_\4_(seq).gini
+#
+# GOES-16(R) experimental/provisional products - mesoscale sectors
+#
+NOTHER	^(TIS...) (KNES) (......) (...)
+	FILE	-close -edex
+	/awips2/data_store/satellite/goes16/\1_\2_\3_\4_(seq).gini
+#
+# GOES-16(R) Derived
+# See http://www.nws.noaa.gov/os/notification/scn17-61goes1_3.htm
+#
+HDS	^(IXT[ABDGINOHJK]99) KNES (......)
+	FILE	-close -edex
+	/awips2/data_store/goesr-derived/KNES_\1_\2-(seq)
+#  Product                         WMO Header    Regions
+#  ---------------                 ----------    -------
+#  Aerosol Detection (Smoke+Dust)  IXTA99 KNES   F,C,M
+#  Aerosol Optical Depth           IXTB99 KNES   F,C
+#  Cloud Top Phase                 IXTD99 KNES   F,C,M
+#  Cloud Top Height                IXTG99 KNES   F,C,M
+#  Cloud Top Pressure              IXTX01 KNES   F,C
+#  Cloud Top Temperature           IXTI99 KNES   F,M
+#  Derived Stability Indices       IXTN99 KNES   F,C,M
+#  Total Precipitable Water        IXTO99 KNES   F,C,M
+#  Clear Sky Mask                  IXTH99 KNES   F,C,M
+#  Fire/Hot Spot Characterization  IXTJ99 KNES   F,C
+#  Land Surface (Skin) Temperature IXTK99 KNES   F,C,M
+#
