@@ -19,10 +19,11 @@
 ##
 
 from __future__ import print_function
-from awips.dataaccess import DataAccessLayer as DAL
+from ufpy.dataaccess import DataAccessLayer as DAL
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataquery.requests import RequestConstraint
 
 import baseDafTestCase
+import params
 import unittest
 
 #
@@ -38,6 +39,8 @@ import unittest
 #    06/09/16        5587          bsteffen       Add getIdentifierValues tests
 #    06/13/16        5574          tgurney        Add advanced query tests
 #    06/30/16        5725          tgurney        Add test for NOT IN
+#    12/07/16        5981          tgurney        Parameterize
+#    12/20/16        5981          tgurney        Add envelope test
 #
 #
 
@@ -57,14 +60,22 @@ class ObsTestCase(baseDafTestCase.DafTestCase):
 
     def testGetAvailableTimes(self):
         req = DAL.newDataRequest(self.datatype)
-        req.setLocationNames("KOMA")
+        req.setLocationNames(params.OBS_STATION)
         self.runTimesTest(req)
 
     def testGetGeometryData(self):
         req = DAL.newDataRequest(self.datatype)
-        req.setLocationNames("KOMA")
+        req.setLocationNames(params.OBS_STATION)
         req.setParameters("temperature", "seaLevelPress", "dewpoint")
-        self.runGeometryDataTest(req)
+        data = self.runGeometryDataTest(req)
+
+    def testGetGeometryDataWithEnvelope(self):
+        req = DAL.newDataRequest(self.datatype)
+        req.setEnvelope(params.ENVELOPE)
+        req.setParameters("temperature", "seaLevelPress", "dewpoint")
+        data = self.runGeometryDataTest(req)
+        for item in data:
+            self.assertTrue(params.ENVELOPE.contains(item.getGeometry()))
 
     def testGetIdentifierValues(self):
         req = DAL.newDataRequest(self.datatype)
@@ -81,7 +92,7 @@ class ObsTestCase(baseDafTestCase.DafTestCase):
         req = DAL.newDataRequest(self.datatype)
         constraint = RequestConstraint.new(operator, value)
         req.setParameters("temperature", "reportType")
-        req.setLocationNames("KOMA")
+        req.setLocationNames(params.OBS_STATION)
         req.addIdentifier(key, constraint)
         return self.runGeometryDataTest(req)
 

@@ -28,7 +28,9 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    06/03/13         #2023        dgilling      Initial Creation.
+#    10/13/16         #5916        bsteffen      Correct grid shape, allow lat/lon
 #    11/10/16         #5900        bsteffen      Correct grid shape
+#                                                to be requested by a delegate
 #    
 #
 
@@ -36,8 +38,8 @@
 import numpy
 import warnings
 
-from awips.dataaccess import IGridData
-from awips.dataaccess import PyData
+from ufpy.dataaccess import IGridData
+from ufpy.dataaccess import PyData
 
 NO_UNIT_CONVERT_WARNING = """
 The ability to unit convert grid data is not currently available in this version of the Data Access Framework.
@@ -46,7 +48,7 @@ The ability to unit convert grid data is not currently available in this version
 
 class PyGridData(IGridData, PyData.PyData):
     
-    def __init__(self, gridDataRecord, nx, ny, latLonGrid):
+    def __init__(self, gridDataRecord, nx, ny, latLonGrid = None, latLonDelegate = None):
         PyData.PyData.__init__(self, gridDataRecord)
         nx = nx
         ny = ny
@@ -54,6 +56,8 @@ class PyGridData(IGridData, PyData.PyData):
         self.__unit = gridDataRecord.getUnit()
         self.__gridData = numpy.reshape(numpy.array(gridDataRecord.getGridData()), (ny, nx))
         self.__latLonGrid = latLonGrid
+        self.__latLonDelegate = latLonDelegate
+
     
     def getParameter(self):
         return self.__parameter
@@ -70,4 +74,8 @@ class PyGridData(IGridData, PyData.PyData):
         return self.__gridData
     
     def getLatLonCoords(self):
+        if self.__latLonGrid is not None:
+            return self.__latLonGrid
+        elif self.__latLonDelegate is not None:
+            return self.__latLonDelegate()
         return self.__latLonGrid

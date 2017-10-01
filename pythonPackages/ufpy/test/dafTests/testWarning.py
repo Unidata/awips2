@@ -19,7 +19,7 @@
 ##
 
 from __future__ import print_function
-from awips.dataaccess import DataAccessLayer as DAL
+from ufpy.dataaccess import DataAccessLayer as DAL
 
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataquery.requests import RequestConstraint
 import baseDafTestCase
@@ -42,6 +42,7 @@ import unittest
 #    06/13/16        5574          tgurney        Fix checks for None
 #    06/21/16        5548          tgurney        Skip tests that cause errors
 #    06/30/16        5725          tgurney        Add test for NOT IN
+#    12/12/16        5981          tgurney        Improve test performance
 #
 #
 
@@ -81,22 +82,19 @@ class WarningTestCase(baseDafTestCase.DafTestCase):
         self.runGeometryDataTest(req)
 
     def testFilterOnLocationName(self):
-        allRecordsCount = len(self._getAllRecords())
         allLocationNames = self._getLocationNames()
-        if allRecordsCount == 0:
+        if len(allLocationNames) == 0:
             errmsg = "No {0} data exists on {1}. Try again with {0} data."
             raise unittest.SkipTest(errmsg.format(self.datatype, DAL.THRIFT_HOST))
-        if len(allLocationNames) != 1:
-            testCount = 3  # number of different location names to test
-            for locationName in allLocationNames[:testCount]:
-                req = DAL.newDataRequest()
-                req.setDatatype(self.datatype)
-                req.setParameters('id')
-                req.setLocationNames(locationName)
-                geomData = DAL.getGeometryData(req)
-                self.assertLess(len(geomData), allRecordsCount)
-                for geom in geomData:
-                    self.assertEqual(geom.getLocationName(), locationName)
+        testCount = 3  # number of different location names to test
+        for locationName in allLocationNames[:testCount]:
+            req = DAL.newDataRequest()
+            req.setDatatype(self.datatype)
+            req.setParameters('id')
+            req.setLocationNames(locationName)
+            geomData = DAL.getGeometryData(req)
+            for geom in geomData:
+                self.assertEqual(geom.getLocationName(), locationName)
 
     def testFilterOnNonexistentLocationReturnsEmpty(self):
         req = DAL.newDataRequest()

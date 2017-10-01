@@ -22,10 +22,11 @@ from __future__ import print_function
 import datetime
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataquery.requests import RequestConstraint
 from dynamicserialize.dstypes.com.raytheon.uf.common.time import TimeRange
-from awips.dataaccess import DataAccessLayer as DAL
-from awips.ThriftClient import ThriftRequestException
+from ufpy.dataaccess import DataAccessLayer as DAL
+from ufpy.ThriftClient import ThriftRequestException
 
 import baseDafTestCase
+import params
 import unittest
 
 #
@@ -44,6 +45,8 @@ import unittest
 #    06/21/16        5548          tgurney        Skip tests that cause errors
 #    06/30/16        5725          tgurney        Add test for NOT IN
 #    10/06/16        5926          dgilling       Add additional time and location tests.
+#    12/07/16        5981          tgurney        Parameterize
+#    12/20/16        5981          tgurney        Add envelope test
 #
 #
 
@@ -52,6 +55,7 @@ class ClimateTestCase(baseDafTestCase.DafTestCase):
     """Test DAF support for climate data"""
 
     datatype = 'climate'
+    obsStation = params.OBS_STATION
 
     def testGetAvailableParameters(self):
         req = DAL.newDataRequest(self.datatype)
@@ -104,7 +108,7 @@ class ClimateTestCase(baseDafTestCase.DafTestCase):
         """
         req = DAL.newDataRequest(self.datatype)
         req.addIdentifier('table', 'public.cli_asos_monthly')
-        req.setLocationNames('KOMA', 'KABR', 'KDMO')
+        req.setLocationNames(self.obsStation, 'KABR', 'KDMO')
         req.setParameters('maxtemp_mon', 'min_sea_press')
         self.runTimesTest(req)
         
@@ -115,7 +119,7 @@ class ClimateTestCase(baseDafTestCase.DafTestCase):
         """
         req = DAL.newDataRequest(self.datatype)
         req.addIdentifier('table', 'public.cli_asos_daily')
-        req.setLocationNames('KOMA', 'KABR', 'KDMO')
+        req.setLocationNames(self.obsStation, 'KABR', 'KDMO')
         req.setParameters('maxtemp_cal', 'min_press')
         self.runTimesTest(req)
 
@@ -126,7 +130,7 @@ class ClimateTestCase(baseDafTestCase.DafTestCase):
         """
         req = DAL.newDataRequest(self.datatype)
         req.addIdentifier('table', 'public.cli_mon_season_yr')
-        req.setLocationNames('KOMA', 'KABR', 'KDMO')
+        req.setLocationNames(self.obsStation, 'KABR', 'KDMO')
         req.setParameters('max_temp', 'precip_total')
         self.runTimesTest(req)
 
@@ -137,7 +141,7 @@ class ClimateTestCase(baseDafTestCase.DafTestCase):
         """
         req = DAL.newDataRequest(self.datatype)
         req.addIdentifier('table', 'public.daily_climate')
-        req.setLocationNames('KOMA', 'KABR', 'KDMO')
+        req.setLocationNames(self.obsStation, 'KABR', 'KDMO')
         req.setParameters('max_temp', 'precip', 'avg_wind_speed')
         self.runTimesTest(req)
 
@@ -154,6 +158,15 @@ class ClimateTestCase(baseDafTestCase.DafTestCase):
         req.setLocationNames('KFNB')
         req.setParameters('maxtemp_mon', 'min_sea_press')
         self.runGeometryDataTest(req)
+
+    def testGetGeometryDataWithEnvelopeThrowsException(self):
+        # Envelope is not used
+        req = DAL.newDataRequest(self.datatype)
+        req.addIdentifier('table', 'public.cli_asos_monthly')
+        req.setParameters('maxtemp_mon', 'min_sea_press')
+        req.setEnvelope(params.ENVELOPE)
+        with self.assertRaises(Exception):
+            data = self.runGeometryDataTest(req)
 
     def testGetGeometryDataForYearAndDayOfYearTable(self):
         """
@@ -243,14 +256,14 @@ class ClimateTestCase(baseDafTestCase.DafTestCase):
         return self.runGeometryDataTest(req)
 
     def testGetDataWithEqualsString(self):
-        geometryData = self._runConstraintTest('station_code', '=', 'KOMA')
+        geometryData = self._runConstraintTest('station_code', '=', self.obsStation)
         for record in geometryData:
-            self.assertEqual(record.getString('station_code'), 'KOMA')
+            self.assertEqual(record.getString('station_code'), self.obsStation)
 
     def testGetDataWithEqualsUnicode(self):
-        geometryData = self._runConstraintTest('station_code', '=', u'KOMA')
+        geometryData = self._runConstraintTest('station_code', '=', unicode(self.obsStation))
         for record in geometryData:
-            self.assertEqual(record.getString('station_code'), 'KOMA')
+            self.assertEqual(record.getString('station_code'), self.obsStation)
 
     def testGetDataWithEqualsInt(self):
         geometryData = self._runConstraintTest('avg_daily_max', '=', 70)
@@ -272,9 +285,9 @@ class ClimateTestCase(baseDafTestCase.DafTestCase):
         self.assertEqual(len(geometryData), 0)
 
     def testGetDataWithNotEquals(self):
-        geometryData = self._runConstraintTest('station_code', '!=', 'KOMA')
+        geometryData = self._runConstraintTest('station_code', '!=', self.obsStation)
         for record in geometryData:
-            self.assertNotEqual(record.getString('station_code'), 'KOMA')
+            self.assertNotEqual(record.getString('station_code'), self.obsStation)
 
     def testGetDataWithNotEqualsNone(self):
         geometryData = self._runConstraintTest('station_code', '!=', None)
@@ -302,19 +315,19 @@ class ClimateTestCase(baseDafTestCase.DafTestCase):
             self.assertLessEqual(record.getNumber('avg_daily_max'), 70)
 
     def testGetDataWithInTuple(self):
-        collection = ('KOMA', 'KABR')
+        collection = (self.obsStation, 'KABR')
         geometryData = self._runConstraintTest('station_code', 'in', collection)
         for record in geometryData:
             self.assertIn(record.getString('station_code'), collection)
 
     def testGetDataWithInList(self):
-        collection = ['KOMA', 'KABR']
+        collection = [self.obsStation, 'KABR']
         geometryData = self._runConstraintTest('station_code', 'in', collection)
         for record in geometryData:
             self.assertIn(record.getString('station_code'), collection)
 
     def testGetDataWithInGenerator(self):
-        collection = ('KOMA', 'KABR')
+        collection = (self.obsStation, 'KABR')
         generator = (item for item in collection)
         geometryData = self._runConstraintTest('station_code', 'in', generator)
         for record in geometryData:
@@ -328,7 +341,7 @@ class ClimateTestCase(baseDafTestCase.DafTestCase):
 
     def testGetDataWithInvalidConstraintTypeThrowsException(self):
         with self.assertRaises(ValueError):
-            self._runConstraintTest('station_code', 'junk', 'KOMA')
+            self._runConstraintTest('station_code', 'junk', self.obsStation)
 
     def testGetDataWithInvalidConstraintValueThrowsException(self):
         with self.assertRaises(TypeError):
@@ -417,4 +430,3 @@ class ClimateTestCase(baseDafTestCase.DafTestCase):
         endTime = datetime.datetime(2009, 3, 31)
         tr = TimeRange(startTime, endTime)
         self.runGeometryDataTestWithTimeRange(req, tr)
-

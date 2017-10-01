@@ -20,7 +20,7 @@
 
 
 #
-# __init__.py for awips.gfe package
+# __init__.py for ufpy.gfe package
 #  
 #    
 #     SOFTWARE HISTORY

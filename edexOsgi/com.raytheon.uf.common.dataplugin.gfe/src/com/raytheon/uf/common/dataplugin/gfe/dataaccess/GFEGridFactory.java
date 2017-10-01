@@ -62,11 +62,11 @@ import com.raytheon.uf.common.util.StringUtil;
 /**
  * A data factory for getting gfe data from the metadata database. There are
  * currently not any required identifiers.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------------------------
  * Feb 04, 2013           bsteffen  Initial creation
@@ -88,9 +88,12 @@ import com.raytheon.uf.common.util.StringUtil;
  *                                  IDataRequest
  * Jun 13, 2016  5574     mapeters  Add advanced query support
  * Aug 01, 2016  2416     tgurney   Add dataURI as optional identifier
+ * Dec 15, 2016  6040     tgurney   Add dbType as optional identifier
+ * Mar 06, 2017  6142     bsteffen  Remove dataURI as optional identifier
  * 
+ *
  * </pre>
- * 
+ *
  * @author bsteffen
  */
 
@@ -109,7 +112,7 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory {
     private static final String[] OPTIONAL_IDENTIFIERS = {
             GFEDataAccessUtil.MODEL_NAME, GFEDataAccessUtil.MODEL_TIME,
             GFEDataAccessUtil.SITE_ID, MODEL_NAME, MODEL_TIME, SITE_ID,
-            PluginDataObject.DATAURI_ID };
+            GFEDataAccessUtil.DB_TYPE };
 
     @Override
     public String[] getOptionalIdentifiers(IDataRequest request) {
@@ -240,7 +243,7 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory {
      * Estimates the subgrid memory size using the grid geometry's size because
      * {@link #getDataSource(PluginDataObject, SubGridGeometryCalculator)} uses
      * an {@link OffsetDataSource} that holds the full grid data in memory.
-     * 
+     *
      * @param gridGeom
      * @param subGrid
      * @return
@@ -339,10 +342,10 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory {
     @Override
     public String[] getIdentifierValues(IDataRequest request,
             String identifierKey) {
-        if (!Arrays.asList(getRequiredIdentifiers(request)).contains(
-                identifierKey)
-                && !Arrays.asList(getOptionalIdentifiers(request)).contains(
-                        identifierKey)) {
+        if (!Arrays.asList(getRequiredIdentifiers(request))
+                .contains(identifierKey)
+                && !Arrays.asList(getOptionalIdentifiers(request))
+                        .contains(identifierKey)) {
             throw new InvalidIdentifiersException(request.getDatatype(), null,
                     Arrays.asList(new String[] { identifierKey }));
         }

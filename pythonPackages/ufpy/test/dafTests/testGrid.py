@@ -21,10 +21,11 @@
 from __future__ import print_function
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataquery.requests import RequestConstraint
 from shapely.geometry import box, Point
-from awips.dataaccess import DataAccessLayer as DAL
-from awips.ThriftClient import ThriftRequestException
+from ufpy.dataaccess import DataAccessLayer as DAL
+from ufpy.ThriftClient import ThriftRequestException
 
 import baseDafTestCase
+import params
 import unittest
 
 #
@@ -44,6 +45,9 @@ import unittest
 #    10/13/16        5942          bsteffen       Test envelopes
 #    11/08/16        5985          tgurney        Skip certain tests when no
 #                                                 data is available
+#    12/07/16        5981          tgurney        Parameterize
+#    01/06/17        5981          tgurney        Skip envelope test when no
+#                                                 data is available
 #
 
 
@@ -53,8 +57,6 @@ class GridTestCase(baseDafTestCase.DafTestCase):
     datatype = 'grid'
 
     model = 'GFS160'
-
-    envelope = box(-97.0, 41.0, -96.0, 42.0)
 
     def testGetAvailableParameters(self):
         req = DAL.newDataRequest(self.datatype)
@@ -110,18 +112,18 @@ class GridTestCase(baseDafTestCase.DafTestCase):
         req.addIdentifier('info.datasetId', self.model)
         req.setLevels('2FHAG')
         req.setParameters('T')
-        req.setEnvelope(self.envelope)
+        req.setEnvelope(params.ENVELOPE)
         gridData = self.runGridDataTest(req)
-        if not gridData:
-            raise unittest.SkipTest('no data available')
+        if len(gridData) == 0:
+            raise unittest.SkipTest("No data available")
         lons, lats = gridData[0].getLatLonCoords()
         lons = lons.reshape(-1)
         lats = lats.reshape(-1)
         
         # Ensure all points are within one degree of the original box
         # to allow slight margin of error for reprojection distortion.
-        testEnv = box(self.envelope.bounds[0] - 1, self.envelope.bounds[1] - 1,
-                      self.envelope.bounds[2] + 1, self.envelope.bounds[3] + 1 )
+        testEnv = box(params.ENVELOPE.bounds[0] - 1, params.ENVELOPE.bounds[1] - 1,
+                      params.ENVELOPE.bounds[2] + 1, params.ENVELOPE.bounds[3] + 1 )
         
         for i in range(len(lons)):
             self.assertTrue(testEnv.contains(Point(lons[i], lats[i])))

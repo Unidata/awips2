@@ -59,8 +59,12 @@
 #    ....
 #    06/13/2013      DR 16242      D. Friedman    Add Qpid authentication info
 #    03/06/2014      DR 17907      D. Friedman    Workaround for issue QPID-5569
+#    02/16/2017      DR 6084       bsteffen       Support ssl connections
 #
 #===============================================================================   
+
+import os
+import os.path
 
 import qpid
 from qpid.util import connect
@@ -71,17 +75,31 @@ QPID_USERNAME = 'guest'
 QPID_PASSWORD = 'guest'
 
 class IngestViaQPID:
-    def __init__(self, host='localhost', port=5672):
+    def __init__(self, host='localhost', port=5672, ssl=None):
         '''
         Connect to QPID and make bindings to route message to external.dropbox queue
         @param host: string hostname of computer running EDEX and QPID (default localhost)
         @param port: integer port used to connect to QPID (default 5672)
+        @param ssl: boolean to determine whether ssl is used, default value of None will use ssl only if a client certificate is found.
         '''
         
         try:
             #
-            self.socket = connect(host, port)
-            self.connection = Connection (sock=self.socket, username=QPID_USERNAME, password=QPID_PASSWORD)
+            socket = connect(host, port)
+            if "QPID_SSL_CERT_DB" in os.environ:
+                certdb = os.environ["QPID_SSL_CERT_DB"]
+            else:
+                certdb = os.path.expanduser("~/.qpid/")
+            if "QPID_SSL_CERT_NAME" in os.environ:
+                certname = os.environ["QPID_SSL_CERT_NAME"]
+            else:
+                certname = QPID_USERNAME
+            certfile = os.path.join(certdb, certname + ".crt")
+            if ssl or (ssl is None and os.path.exists(certfile)):
+                keyfile = os.path.join(certdb, certname + ".key")
+                trustfile = os.path.join(certdb, "root.crt")
+                socket = qpid.util.ssl(socket, keyfile=keyfile, certfile=certfile, ca_certs=trustfile)
+            self.connection = Connection (sock=socket, username=QPID_USERNAME, password=QPID_PASSWORD)
             self.connection.start()
             self.session = self.connection.session(str(uuid4()))
             self.session.exchange_bind(exchange='amq.direct', queue='external.dropbox', binding_key='external.dropbox')

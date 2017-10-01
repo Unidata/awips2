@@ -20,7 +20,7 @@
 
 
 #
-# Published interface for awips.dataaccess package
+# Published interface for ufpy.dataaccess package
 #
 #
 #     SOFTWARE HISTORY
@@ -40,7 +40,7 @@
 #    Jun 01, 2016    5587          tgurney        Add new signatures for
 #                                                 getRequiredIdentifiers() and
 #                                                 getOptionalIdentifiers()
-#
+#    Oct 18, 2016    5916          bsteffen       Add setLazyLoadGridLatLon
 #
 #
 
@@ -64,7 +64,7 @@ if sys.modules.has_key('jep'):
     import JepRouter
     router = JepRouter
 else:
-    from awips.dataaccess import ThriftClientRouter
+    from ufpy.dataaccess import ThriftClientRouter
     router = ThriftClientRouter.ThriftClientRouter(THRIFT_HOST)
     USING_NATIVE_THRIFT = True
 
@@ -251,3 +251,26 @@ def changeEDEXHost(newHostName):
         router = ThriftClientRouter.ThriftClientRouter(THRIFT_HOST)
     else:
         raise TypeError("Cannot call changeEDEXHost when using JepRouter.")
+
+def setLazyLoadGridLatLon(lazyLoadGridLatLon):
+    """
+    Provide a hint to the Data Access Framework indicating whether to load the
+    lat/lon data for a grid immediately or wait until it is needed. This is
+    provided as a performance tuning hint and should not affect the way the
+    Data Access Framework is used. Depending on the internal implementation of
+    the Data Access Framework this hint might be ignored. Examples of when this
+    should be set to True are when the lat/lon information is not used or when
+    it is used only if certain conditions within the data are met. It could be
+    set to False if it is guaranteed that all lat/lon information is needed and
+    it would be better to get any performance overhead for generating the
+    lat/lon data out of the way during the initial request.
+    
+
+    Args:
+            lazyLoadGridLatLon: Boolean value indicating whether to lazy load.
+    """
+    try:
+        router.setLazyLoadGridLatLon(lazyLoadGridLatLon)
+    except AttributeError:
+        # The router is not required to support this capability.
+        pass

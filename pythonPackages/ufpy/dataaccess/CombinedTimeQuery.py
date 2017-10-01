@@ -31,7 +31,7 @@
 #    06/22/16         #5591        bsteffen       Initial Creation.
 #
 
-from awips.dataaccess import DataAccessLayer
+from ufpy.dataaccess import DataAccessLayer
 
 def getAvailableTimes(request, refTimeOnly=False):
     return __getAvailableTimesForEachParameter(request, refTimeOnly)

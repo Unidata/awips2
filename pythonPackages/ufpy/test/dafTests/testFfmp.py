@@ -20,9 +20,10 @@
 
 from __future__ import print_function
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataquery.requests import RequestConstraint
-from awips.dataaccess import DataAccessLayer as DAL
+from ufpy.dataaccess import DataAccessLayer as DAL
 
 import baseDafTestCase
+import params
 import unittest
 
 #
@@ -46,6 +47,8 @@ import unittest
 #                                                 PRTM parameter since it isn't
 #                                                 configured for ec-oma
 #    11/08/16        5985          tgurney        Do not check data times
+#    12/07/16        5981          tgurney        Parameterize
+#    12/20/16        5981          tgurney        Do not check data times
 #
 #
 
@@ -54,10 +57,11 @@ class FfmpTestCase(baseDafTestCase.DafTestCase):
     """Test DAF support for ffmp data"""
 
     datatype = 'ffmp'
+    location = params.RADAR.lower()
 
     @staticmethod
     def addIdentifiers(req):
-        req.addIdentifier('wfo', 'OAX')
+        req.addIdentifier('wfo', params.SITE_ID)
         req.addIdentifier('siteKey', 'hpe')
         req.addIdentifier('dataKey', 'hpe')
         req.addIdentifier('huc', 'ALL')
@@ -99,8 +103,8 @@ class FfmpTestCase(baseDafTestCase.DafTestCase):
             req = DAL.newDataRequest(self.datatype)
             if id == 'accumHrs':
                 req.setParameters('ARI6H2YR')
-                req.addIdentifier('wfo', 'OAX')
-                req.addIdentifier('siteKey', 'koax')
+                req.addIdentifier('wfo', params.SITE_ID)
+                req.addIdentifier('siteKey', self.location)
                 req.addIdentifier('huc', 'ALL')
             idValues = DAL.getIdentifierValues(req, id)
             self.assertTrue(hasattr(idValues, '__iter__'))
@@ -116,20 +120,20 @@ class FfmpTestCase(baseDafTestCase.DafTestCase):
         req = DAL.newDataRequest(self.datatype)
         constraint = RequestConstraint.new(operator, value)
         req.addIdentifier(key, constraint)
-        req.addIdentifier('wfo', 'OAX')
+        req.addIdentifier('wfo', params.SITE_ID)
         req.addIdentifier('huc', 'ALL')
         req.setParameters('QPFSCAN')
         return self.runGeometryDataTest(req, checkDataTimes=False)
 
     def testGetDataWithEqualsString(self):
-        geometryData = self._runConstraintTest('siteKey', '=', 'koax')
+        geometryData = self._runConstraintTest('siteKey', '=', self.location)
         for record in geometryData:
-            self.assertEqual(record.getAttribute('siteKey'), 'koax')
+            self.assertEqual(record.getAttribute('siteKey'), self.location)
 
     def testGetDataWithEqualsUnicode(self):
-        geometryData = self._runConstraintTest('siteKey', '=', u'koax')
+        geometryData = self._runConstraintTest('siteKey', '=', unicode(self.location))
         for record in geometryData:
-            self.assertEqual(record.getAttribute('siteKey'), 'koax')
+            self.assertEqual(record.getAttribute('siteKey'), self.location)
 
     # No numeric tests since no numeric identifiers are available that support
     # RequestConstraints.
@@ -140,9 +144,9 @@ class FfmpTestCase(baseDafTestCase.DafTestCase):
             self.assertIsNone(record.getAttribute('siteKey'))
 
     def testGetDataWithNotEquals(self):
-        geometryData = self._runConstraintTest('siteKey', '!=', 'koax')
+        geometryData = self._runConstraintTest('siteKey', '!=', self.location)
         for record in geometryData:
-            self.assertNotEqual(record.getAttribute('siteKey'), 'koax')
+            self.assertNotEqual(record.getAttribute('siteKey'), self.location)
 
     def testGetDataWithNotEqualsNone(self):
         geometryData = self._runConstraintTest('siteKey', '!=', None)
@@ -150,40 +154,40 @@ class FfmpTestCase(baseDafTestCase.DafTestCase):
             self.assertIsNotNone(record.getAttribute('siteKey'))
 
     def testGetDataWithGreaterThan(self):
-        geometryData = self._runConstraintTest('siteKey', '>', 'koax')
+        geometryData = self._runConstraintTest('siteKey', '>', self.location)
         for record in geometryData:
-            self.assertGreater(record.getAttribute('siteKey'), 'koax')
+            self.assertGreater(record.getAttribute('siteKey'), self.location)
 
     def testGetDataWithLessThan(self):
-        geometryData = self._runConstraintTest('siteKey', '<', 'koax')
+        geometryData = self._runConstraintTest('siteKey', '<', self.location)
         for record in geometryData:
-            self.assertLess(record.getAttribute('siteKey'), 'koax')
+            self.assertLess(record.getAttribute('siteKey'), self.location)
 
     def testGetDataWithGreaterThanEquals(self):
-        geometryData = self._runConstraintTest('siteKey', '>=', 'koax')
+        geometryData = self._runConstraintTest('siteKey', '>=', self.location)
         for record in geometryData:
-            self.assertGreaterEqual(record.getAttribute('siteKey'), 'koax')
+            self.assertGreaterEqual(record.getAttribute('siteKey'), self.location)
 
     def testGetDataWithLessThanEquals(self):
-        geometryData = self._runConstraintTest('siteKey', '<=', 'koax')
+        geometryData = self._runConstraintTest('siteKey', '<=', self.location)
         for record in geometryData:
-            self.assertLessEqual(record.getAttribute('siteKey'), 'koax')
+            self.assertLessEqual(record.getAttribute('siteKey'), self.location)
 
     def testGetDataWithInList(self):
-        collection = ['koax', 'kuex']
+        collection = [self.location, 'kuex']
         geometryData = self._runConstraintTest('siteKey', 'in', collection)
         for record in geometryData:
             self.assertIn(record.getAttribute('siteKey'), collection)
 
     def testGetDataWithNotInList(self):
-        collection = ['koax', 'kuex']
+        collection = [self.location, 'kuex']
         geometryData = self._runConstraintTest('siteKey', 'not in', collection)
         for record in geometryData:
             self.assertNotIn(record.getAttribute('siteKey'), collection)
 
     def testGetDataWithInvalidConstraintTypeThrowsException(self):
         with self.assertRaises(ValueError):
-            self._runConstraintTest('siteKey', 'junk', 'koax')
+            self._runConstraintTest('siteKey', 'junk', self.location)
 
     def testGetDataWithInvalidConstraintValueThrowsException(self):
         with self.assertRaises(TypeError):
@@ -194,11 +198,11 @@ class FfmpTestCase(baseDafTestCase.DafTestCase):
             self._runConstraintTest('siteKey', 'in', [])
 
     def testGetDataWithSiteKeyAndDataKeyConstraints(self):
-        siteKeys = ['koax', 'hpe']
+        siteKeys = [self.location, 'hpe']
         dataKeys = ['kuex', 'kdmx']
 
         req = DAL.newDataRequest(self.datatype)
-        req.addIdentifier('wfo', 'OAX')
+        req.addIdentifier('wfo', params.SITE_ID)
         req.addIdentifier('huc', 'ALL')
 
         siteKeysConstraint = RequestConstraint.new('in', siteKeys)
@@ -217,8 +221,8 @@ class FfmpTestCase(baseDafTestCase.DafTestCase):
     def testGetGuidanceDataWithoutAccumHrsIdentifierSet(self):
         # Test that accumHrs identifier is not required for guidance data
         req = DAL.newDataRequest(self.datatype)
-        req.addIdentifier('wfo', 'OAX')
-        req.addIdentifier('siteKey', 'koax')
+        req.addIdentifier('wfo', params.SITE_ID)
+        req.addIdentifier('siteKey', self.location)
         req.addIdentifier('huc', 'ALL')
         req.setParameters('FFG0124hr')
         self.runGeometryDataTest(req, checkDataTimes=False)

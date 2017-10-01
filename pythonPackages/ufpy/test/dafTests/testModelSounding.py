@@ -19,10 +19,11 @@
 ##
 
 from __future__ import print_function
-from awips.dataaccess import DataAccessLayer as DAL
+from ufpy.dataaccess import DataAccessLayer as DAL
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataquery.requests import RequestConstraint
 
 import baseDafTestCase
+import params
 import unittest
 
 #
@@ -40,6 +41,9 @@ import unittest
 #    06/30/16        5725          tgurney        Add test for NOT IN
 #    11/10/16        5985          tgurney        Mark expected failures prior
 #                                                 to 17.3.1
+#    12/07/16        5981          tgurney        Parameterize
+#    12/19/16        5981          tgurney        Remove pre-17.3 expected fails
+#    12/20/16        5981          tgurney        Add envelope test
 #
 #
 
@@ -51,31 +55,25 @@ class ModelSoundingTestCase(baseDafTestCase.DafTestCase):
 
     def testGetAvailableParameters(self):
         req = DAL.newDataRequest(self.datatype)
-
         self.runParametersTest(req)
 
     def testGetAvailableLocations(self):
         req = DAL.newDataRequest(self.datatype)
         req.addIdentifier("reportType", "ETA")
-
         self.runLocationsTest(req)
 
     def testGetAvailableTimes(self):
         req = DAL.newDataRequest(self.datatype)
         req.addIdentifier("reportType", "ETA")
-        req.setLocationNames("KOMA")
-
+        req.setLocationNames(params.OBS_STATION)
         self.runTimesTest(req)
 
-    @unittest.expectedFailure
     def testGetGeometryData(self):
         req = DAL.newDataRequest(self.datatype)
         req.addIdentifier("reportType", "ETA")
-        req.setLocationNames("KOMA")
+        req.setLocationNames(params.OBS_STATION)
         req.setParameters("temperature", "pressure", "specHum", "sfcPress", "temp2", "q2")
-
         print("Testing getGeometryData()")
-
         geomData = DAL.getGeometryData(req)
         print("Number of geometry records: " + str(len(geomData)))
         print("Sample geometry data:")
@@ -84,17 +82,31 @@ class ModelSoundingTestCase(baseDafTestCase.DafTestCase):
             # One dimensional parameters are reported on the 0.0UNKNOWN level.
             # 2D parameters are reported on MB levels from pressure.
             if record.getLevel() == "0.0UNKNOWN":
-                print(" sfcPress=" + record.getString("sfcPress") + record.getUnit("sfcPress"), end="")
-                print(" temp2=" + record.getString("temp2") + record.getUnit("temp2"), end="")
-                print(" q2=" + record.getString("q2") + record.getUnit("q2"), end="")
-
+                print(" sfcPress=" + record.getString("sfcPress") +
+                      record.getUnit("sfcPress"), end="")
+                print(" temp2=" + record.getString("temp2") +
+                      record.getUnit("temp2"), end="")
+                print(" q2=" + record.getString("q2") +
+                      record.getUnit("q2"), end="")
             else:
-                print(" pressure=" + record.getString("pressure") + record.getUnit("pressure"), end="")
-                print(" temperature=" + record.getString("temperature") + record.getUnit("temperature"), end="")
-                print(" specHum=" + record.getString("specHum") + record.getUnit("specHum"), end="")
+                print(" pressure=" + record.getString("pressure") +
+                      record.getUnit("pressure"), end="")
+                print(" temperature=" + record.getString("temperature") +
+                      record.getUnit("temperature"), end="")
+                print(" specHum=" + record.getString("specHum") +
+                      record.getUnit("specHum"), end="")
             print(" geometry=" + str(record.getGeometry()))
-
         print("getGeometryData() complete\n\n")
+
+    def testGetGeometryDataWithEnvelope(self):
+        req = DAL.newDataRequest(self.datatype)
+        req.addIdentifier("reportType", "ETA")
+        req.setEnvelope(params.ENVELOPE)
+        req.setParameters("temperature", "pressure", "specHum", "sfcPress", "temp2", "q2")
+        print("Testing getGeometryData()")
+        data = DAL.getGeometryData(req)
+        for item in data:
+            self.assertTrue(params.ENVELOPE.contains(item.getGeometry()))
 
     def testGetIdentifierValues(self):
         req = DAL.newDataRequest(self.datatype)
@@ -111,7 +123,7 @@ class ModelSoundingTestCase(baseDafTestCase.DafTestCase):
         req = DAL.newDataRequest(self.datatype)
         constraint = RequestConstraint.new(operator, value)
         req.setParameters('dataURI')
-        req.setLocationNames('KOMA', 'KORD', 'KOFK', 'KLNK')
+        req.setLocationNames(params.OBS_STATION, 'KORD', 'KOFK', 'KLNK')
         req.addIdentifier(key, constraint)
         return self.runGeometryDataTest(req)
 
@@ -123,13 +135,11 @@ class ModelSoundingTestCase(baseDafTestCase.DafTestCase):
     #
     # Can also eyeball the number of returned records.
 
-    @unittest.expectedFailure
     def testGetDataWithEqualsString(self):
         geometryData = self._runConstraintTest('reportType', '=', 'ETA')
         for record in geometryData:
             self.assertIn('/ETA/', record.getString('dataURI'))
 
-    @unittest.expectedFailure
     def testGetDataWithEqualsUnicode(self):
         geometryData = self._runConstraintTest('reportType', '=', u'ETA')
         for record in geometryData:
@@ -137,37 +147,29 @@ class ModelSoundingTestCase(baseDafTestCase.DafTestCase):
 
     # No numeric tests since no numeric identifiers are available.
 
-    @unittest.expectedFailure
     def testGetDataWithEqualsNone(self):
         geometryData = self._runConstraintTest('reportType', '=', None)
 
-    @unittest.expectedFailure
     def testGetDataWithNotEquals(self):
         geometryData = self._runConstraintTest('reportType', '!=', 'ETA')
         for record in geometryData:
             self.assertNotIn('/ETA/', record.getString('dataURI'))
 
-    @unittest.expectedFailure
     def testGetDataWithNotEqualsNone(self):
         geometryData = self._runConstraintTest('reportType', '!=', None)
 
-    @unittest.expectedFailure
     def testGetDataWithGreaterThan(self):
         geometryData = self._runConstraintTest('reportType', '>', 'ETA')
 
-    @unittest.expectedFailure
     def testGetDataWithLessThan(self):
         geometryData = self._runConstraintTest('reportType', '<', 'ETA')
 
-    @unittest.expectedFailure
     def testGetDataWithGreaterThanEquals(self):
         geometryData = self._runConstraintTest('reportType', '>=', 'ETA')
 
-    @unittest.expectedFailure
     def testGetDataWithLessThanEquals(self):
         geometryData = self._runConstraintTest('reportType', '<=', 'ETA')
 
-    @unittest.expectedFailure
     def testGetDataWithInTuple(self):
         collection = ('ETA', 'GFS')
         geometryData = self._runConstraintTest('reportType', 'in', collection)
@@ -175,7 +177,6 @@ class ModelSoundingTestCase(baseDafTestCase.DafTestCase):
             dataURI = record.getString('dataURI')
             self.assertTrue('/ETA/' in dataURI or '/GFS/' in dataURI)
 
-    @unittest.expectedFailure
     def testGetDataWithInList(self):
         collection = ['ETA', 'GFS']
         geometryData = self._runConstraintTest('reportType', 'in', collection)
@@ -183,7 +184,6 @@ class ModelSoundingTestCase(baseDafTestCase.DafTestCase):
             dataURI = record.getString('dataURI')
             self.assertTrue('/ETA/' in dataURI or '/GFS/' in dataURI)
 
-    @unittest.expectedFailure
     def testGetDataWithInGenerator(self):
         collection = ('ETA', 'GFS')
         generator = (item for item in collection)

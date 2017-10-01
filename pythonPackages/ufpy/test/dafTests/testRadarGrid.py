@@ -18,44 +18,44 @@
 # further licensing information.
 ##
 
-from __future__ import print_function
 from ufpy.dataaccess import DataAccessLayer as DAL
+from dynamicserialize.dstypes.com.raytheon.uf.common.dataquery.requests import RequestConstraint
 
-import baseDafTestCase
+import baseRadarTestCase
+import params
 import unittest
 
 #
-# Test DAF support for ACARS data
+# Test DAF support for radar grid data
 #
 #     SOFTWARE HISTORY
 #
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    01/19/16        4795          mapeters       Initial Creation.
-#    04/11/16        5548          tgurney        Cleanup
-#    04/18/16        5548          tgurney        More cleanup
+#    08/25/16        2671          tgurney        Initial creation
 #
 #
 
 
-class AcarsTestCase(baseDafTestCase.DafTestCase):
-    """Test DAF support for ACARS data"""
+class RadarTestCase(baseRadarTestCase.BaseRadarTestCase):
+    """Test DAF support for radar data"""
 
-    datatype = "acars"
+    datatype = 'radar'
 
-    def testGetAvailableParameters(self):
+    parameterList = ['94']
+
+    def runConstraintTest(self, key, operator, value):
         req = DAL.newDataRequest(self.datatype)
-        self.runParametersTest(req)
+        constraint = RequestConstraint.new(operator, value)
+        req.addIdentifier(key, constraint)
+        req.setParameters(*self.parameterList)
+        # Don't test shapes since they may differ.
+        return self.runGridDataTest(req, testSameShape=False)
 
-    def testGetAvailableLocations(self):
+    def testGetGridData(self):
         req = DAL.newDataRequest(self.datatype)
-        self.runLocationsTest(req)
-
-    def testGetAvailableTimes(self):
-        req = DAL.newDataRequest(self.datatype)
-        self.runTimesTest(req)
-
-    def testGetGeometryData(self):
-        req = DAL.newDataRequest(self.datatype)
-        req.setParameters("flightLevel", "tailNumber")
-        self.runGeometryDataTest(req)
+        req.setEnvelope(params.ENVELOPE)
+        req.setLocationNames(self.radarLoc)
+        req.setParameters(*self.parameterList)
+        # Don't test shapes since they may differ.
+        self.runGridDataTest(req, testSameShape=False)

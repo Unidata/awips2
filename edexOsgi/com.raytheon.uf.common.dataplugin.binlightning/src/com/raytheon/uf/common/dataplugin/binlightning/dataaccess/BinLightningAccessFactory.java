@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,15 +31,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.exception.IncompatibleRequestException;
+import com.raytheon.uf.common.dataaccess.exception.TimeAgnosticDataException;
 import com.raytheon.uf.common.dataaccess.geom.IGeometryData;
 import com.raytheon.uf.common.dataaccess.geom.IGeometryData.Type;
 import com.raytheon.uf.common.dataaccess.impl.AbstractDataPluginFactory;
 import com.raytheon.uf.common.dataaccess.impl.DefaultGeometryData;
 import com.raytheon.uf.common.dataaccess.util.PDOUtil;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.dataplugin.binlightning.LightningConstants;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
@@ -54,6 +56,7 @@ import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
 import com.raytheon.uf.common.datastorage.records.LongDataRecord;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -61,15 +64,15 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
  * Data access framework factory for bin lightning
- * 
+ *
  * Envelopes requests cannot be handled efficiently using metadata so all data
  * is retrieved and filtered within the factory. For very large requests this
  * may result in suboptimal performance.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------------------------
  * Jan 21, 2014  2667     bclement  Initial creation
@@ -83,9 +86,12 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Jun 07, 2016  5587     tgurney   Change get*Identifiers() to take
  *                                  IDataRequest
  * Aug 01, 2016  2416     tgurney   Add dataURI as optional identifier
- * 
+ * Nov 30, 2016  6018     tgurney   Filter out keep-alive records from available
+ *                                  times
+ * Mar 06, 2017  6142     bsteffen  Remove dataURI as optional identifier
+ *
  * </pre>
- * 
+ *
  * @author bclement
  */
 public class BinLightningAccessFactory extends AbstractDataPluginFactory {
@@ -105,7 +111,7 @@ public class BinLightningAccessFactory extends AbstractDataPluginFactory {
 
     private static final String[] requiredKeys = { timeKey, latKey, lonKey };
 
-    public static final String[] AVAILABLE_PARAMETERS = {
+    protected static final String[] AVAILABLE_PARAMETERS = {
             LightningConstants.INTENSITY_DATASET,
             LightningConstants.MSG_TYPE_DATASET,
             LightningConstants.STRIKE_TYPE_DATASET,
@@ -116,8 +122,8 @@ public class BinLightningAccessFactory extends AbstractDataPluginFactory {
 
     @Override
     public String[] getAvailableLocationNames(IDataRequest request) {
-        throw new IncompatibleRequestException(this.getClass()
-                + " does not support location names");
+        throw new IncompatibleRequestException(
+                this.getClass() + " does not support location names");
     }
 
     @Override
@@ -128,11 +134,6 @@ public class BinLightningAccessFactory extends AbstractDataPluginFactory {
     @Override
     public String[] getRequiredIdentifiers(IDataRequest request) {
         return new String[] { sourceKey };
-    }
-
-    @Override
-    public String[] getOptionalIdentifiers(IDataRequest request) {
-        return new String[] { PluginDataObject.DATAURI_ID };
     }
 
     @Override
@@ -158,7 +159,8 @@ public class BinLightningAccessFactory extends AbstractDataPluginFactory {
     @Override
     protected IGeometryData[] getGeometryData(IDataRequest request,
             DbQueryResponse dbQueryResponse) {
-        Map<File, List<BinLightningRecord>> results = unpackResults(dbQueryResponse);
+        Map<File, List<BinLightningRecord>> results = unpackResults(
+                dbQueryResponse);
 
         List<IGeometryData> rval = new ArrayList<>();
         for (Entry<File, List<BinLightningRecord>> resultEntry : results
@@ -177,7 +179,7 @@ public class BinLightningAccessFactory extends AbstractDataPluginFactory {
 
     /**
      * Add geometry data elements to dataList from data store
-     * 
+     *
      * @param dataList
      *            target result list
      * @param ds
@@ -224,9 +226,8 @@ public class BinLightningAccessFactory extends AbstractDataPluginFactory {
                         .getFloatData();
 
                 for (int i = 0; i < timeData.length; i++) {
-                    if (envelope != null
-                            && !envelope.contains(longitudeData[i],
-                                    latitudeData[i])) {
+                    if (envelope != null && !envelope.contains(longitudeData[i],
+                            latitudeData[i])) {
                         /* Skip any data the user doesn't want */
                         continue;
                     }
@@ -234,8 +235,8 @@ public class BinLightningAccessFactory extends AbstractDataPluginFactory {
                     DefaultGeometryData data = new DefaultGeometryData();
                     data.setDataTime(dt);
                     data.addAttribute(sourceKey, source);
-                    data.setGeometry(geomFactory.createPoint(new Coordinate(
-                            longitudeData[i], latitudeData[i])));
+                    data.setGeometry(geomFactory.createPoint(
+                            new Coordinate(longitudeData[i], latitudeData[i])));
                     // add the optional parameter records
                     addParameterData(data, recordMap, k, i);
                     dataList.add(data);
@@ -251,7 +252,7 @@ public class BinLightningAccessFactory extends AbstractDataPluginFactory {
 
     /**
      * Add parameters from record map to data
-     * 
+     *
      * @param data
      *            target geometry data
      * @param recordMap
@@ -268,7 +269,8 @@ public class BinLightningAccessFactory extends AbstractDataPluginFactory {
             String parameterName = entry.getKey();
             IDataRecord record = entry.getValue().get(recordIndex);
             if (record instanceof IntegerDataRecord) {
-                int value = ((IntegerDataRecord) record).getIntData()[valueIndex];
+                int value = ((IntegerDataRecord) record)
+                        .getIntData()[valueIndex];
                 data.addData(parameterName, value, Type.INT);
             } else if (record instanceof ByteDataRecord) {
                 int value = ((ByteDataRecord) record).getByteData()[valueIndex];
@@ -285,7 +287,7 @@ public class BinLightningAccessFactory extends AbstractDataPluginFactory {
 
     /**
      * Return mapping of lightning data source to list of datasets
-     * 
+     *
      * @param recList
      * @return
      */
@@ -311,7 +313,7 @@ public class BinLightningAccessFactory extends AbstractDataPluginFactory {
 
     /**
      * Get a list of HDF5 datasets to request
-     * 
+     *
      * @param request
      * @return
      */
@@ -323,8 +325,8 @@ public class BinLightningAccessFactory extends AbstractDataPluginFactory {
             if (availableParams.contains(param)) {
                 included.add(param);
             } else {
-                throw new IncompatibleRequestException(param
-                        + " is not a valid parameter for this request");
+                throw new IncompatibleRequestException(
+                        param + " is not a valid parameter for this request");
             }
         }
         return new ArrayList<>(included);
@@ -332,7 +334,7 @@ public class BinLightningAccessFactory extends AbstractDataPluginFactory {
 
     /**
      * Unpack records from response and group by HDF5 file
-     * 
+     *
      * @param dbQueryResponse
      * @return
      */
@@ -363,6 +365,21 @@ public class BinLightningAccessFactory extends AbstractDataPluginFactory {
     public String[] getIdentifierValues(IDataRequest request,
             String identifierKey) {
         return getAvailableValues(request, identifierKey, String.class);
+    }
+
+    private boolean isKeepAlive(DataTime t) {
+        Calendar cal = t.getRefTimeAsCalendar();
+        return t.getValidPeriod().getStart().equals(t.getValidPeriod().getEnd())
+                && cal.get(Calendar.SECOND) == 0
+                && cal.get(Calendar.MILLISECOND) == 0;
+    }
+
+    @Override
+    public DataTime[] getAvailableTimes(IDataRequest request,
+            BinOffset binOffset) throws TimeAgnosticDataException {
+        DataTime[] times = super.getAvailableTimes(request, binOffset);
+        return Arrays.stream(times).filter(t -> !isKeepAlive(t))
+                .collect(Collectors.toList()).toArray(new DataTime[0]);
     }
 
 }

@@ -36,6 +36,7 @@ import java.util.List;
  *                                      dependency
  * Apr 14, 2016 DR18800    jdynina      Removed alerting
  * Apr 15, 2016 DR18796    jdynina      Added SCC
+ * Mar 03, 2017 DR19848    jdynina      Changed SCC to SCL to prevent conflicts
  * 
  * </pre>
  * 
@@ -80,7 +81,7 @@ public class RadarTextProductUtil {
             put(150, "WSRUSW");
             put(151, "WSRUSD");
             put(171, "WSRSTA");
-            put(202, "WSRSCC");
+            put(202, "WSRSCL");
         }
     };
 

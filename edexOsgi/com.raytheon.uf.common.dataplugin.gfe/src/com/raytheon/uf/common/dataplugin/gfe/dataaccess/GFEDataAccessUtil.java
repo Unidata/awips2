@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -33,13 +33,13 @@ import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
 import com.raytheon.uf.common.serialization.comm.RequestRouter;
 
 /**
- * 
+ *
  * Some utility methods for querying and retrieving GFE data.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 9, 2011            bsteffen     Initial creation
@@ -47,11 +47,11 @@ import com.raytheon.uf.common.serialization.comm.RequestRouter;
  *                                     Browser, Volume Browser, and Data Access
  *                                     Framework.
  * Jul 01, 2014 3149      randerso     Changed to use updated GetGridRequest
- * 
+ * Dec 15, 2016 6040      tgurney      Added DB_TYPE constant
+ *
  * </pre>
- * 
+ *
  * @author bsteffen
- * @version 1.0
  */
 public class GFEDataAccessUtil {
 
@@ -71,9 +71,11 @@ public class GFEDataAccessUtil {
 
     public static final String PARM_LEVEL = PARM_ID + ".parmLevel";
 
+    public static final String DB_TYPE = DB_ID + ".dbType";
+
     /**
      * Retrieve the GridParmInfo for a ParmID
-     * 
+     *
      * @param parmId
      * @return
      * @throws Exception
@@ -91,7 +93,7 @@ public class GFEDataAccessUtil {
     /**
      * Send a GetGridDataRequest through the requestRouter to grab a single
      * slice of grid data.
-     * 
+     *
      * @param gfeRecord
      * @return
      * @throws Exception

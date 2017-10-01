@@ -105,6 +105,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  *                                  IDataRequest
  * Jul 06, 2016  5728     mapeters  Add advanced query support
  * Aug 01, 2016  2416     tgurney   Add dataURI as optional identifier
+ * Mar 06, 2017  6142     bsteffen  Remove dataURI as optional identifier
  * 
  * </pre>
  * 
@@ -114,14 +115,18 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory {
 
     public static final String NAMESPACE = "namespace";
 
-    public static final String[] VALID_IDENTIFIERS = {
+    protected static final String[] VALID_IDENTIFIERS = {
             GridConstants.DATASET_ID, GridConstants.SECONDARY_ID,
             GridConstants.ENSEMBLE_ID, NAMESPACE,
             GridConstants.MASTER_LEVEL_NAME, GridConstants.LEVEL_ONE,
-            GridConstants.LEVEL_TWO, PluginDataObject.DATAURI_ID };
+            GridConstants.LEVEL_TWO };
 
     @Override
     public String[] getOptionalIdentifiers(IDataRequest request) {
+        return getGridOptionalIdentifiers();
+    }
+
+    public static String[] getGridOptionalIdentifiers() {
         return VALID_IDENTIFIERS;
     }
 
@@ -140,8 +145,8 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory {
             DAFGridQueryAssembler assembler = new DAFGridQueryAssembler();
 
             if (identifiers != null && identifiers.containsKey(NAMESPACE)) {
-                assembler.setNamespace(getStringIdentifier(identifiers,
-                        NAMESPACE));
+                assembler.setNamespace(
+                        getStringIdentifier(identifiers, NAMESPACE));
             }
 
             if (request.getParameters() != null) {
@@ -157,10 +162,10 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory {
                 checkForLevelConflict(request.getLevels(), identifiers);
 
                 for (Level level : request.getLevels()) {
-                    assembler.setMasterLevelName(level.getMasterLevel()
-                            .getName());
-                    assembler.setLevelUnits(level.getMasterLevel()
-                            .getUnitString());
+                    assembler.setMasterLevelName(
+                            level.getMasterLevel().getName());
+                    assembler.setLevelUnits(
+                            level.getMasterLevel().getUnitString());
                     assembler.setLevelOneValue(level.getLevelonevalue());
                     assembler.setLevelTwoValue(level.getLeveltwovalue());
                     // TODO Theoretically merging these could end badly if there
@@ -200,9 +205,8 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory {
                             identifiers, GridConstants.SECONDARY_ID));
                 }
                 if (identifiers.containsKey(GridConstants.MASTER_LEVEL_NAME)) {
-                    assembler
-                            .setMasterLevelNameConstraint(getIdentifierConstraint(
-                                    identifiers,
+                    assembler.setMasterLevelNameConstraint(
+                            getIdentifierConstraint(identifiers,
                                     GridConstants.MASTER_LEVEL_NAME));
                 }
                 if (identifiers.containsKey(GridConstants.LEVEL_ONE)) {
@@ -256,7 +260,8 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory {
             return (String) value;
         } else {
             throw new IncompatibleRequestException(
-                    "Only string identifier values are valid for '" + key + "'");
+                    "Only string identifier values are valid for '" + key
+                            + "'");
         }
     }
 
@@ -275,11 +280,10 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory {
      */
     private static void checkForLevelConflict(Level[] levels,
             Map<String, Object> identifiers) {
-        if (levels.length > 0
-                && identifiers != null
+        if (levels.length > 0 && identifiers != null
                 && (identifiers.containsKey(GridConstants.MASTER_LEVEL_NAME)
-                        || identifiers.containsKey(GridConstants.LEVEL_ONE) || identifiers
-                            .containsKey(GridConstants.LEVEL_TWO))) {
+                        || identifiers.containsKey(GridConstants.LEVEL_ONE)
+                        || identifiers.containsKey(GridConstants.LEVEL_TWO))) {
             throw new DataRetrievalException(
                     "Conflict between the request levels and request "
                             + "identifiers. Please set the levels either as"
@@ -300,8 +304,8 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory {
         for (Entry<String, RequestConstraint> sourceEntry : source.entrySet()) {
             String key = sourceEntry.getKey();
             RequestConstraint sourceConstraint = sourceEntry.getValue();
-            RequestConstraint targetConstraint = target.get(sourceEntry
-                    .getKey());
+            RequestConstraint targetConstraint = target
+                    .get(sourceEntry.getKey());
             if (targetConstraint == null) {
                 target.put(key, sourceConstraint);
             } else if (!sourceConstraint.equals(targetConstraint)) {
@@ -309,8 +313,8 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory {
                 // TODO we don't necessarily want to always add. This could
                 // result in something like IN MB,FHAG,MB,MB,MB, but we also
                 // don't want to parse the in list all the time.
-                targetConstraint.addToConstraintValueList(sourceConstraint
-                        .getConstraintValue());
+                targetConstraint.addToConstraintValueList(
+                        sourceConstraint.getConstraintValue());
             }
         }
     }
@@ -319,13 +323,13 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory {
     protected IGridData constructGridDataResponse(IDataRequest request,
             PluginDataObject pdo, GridGeometry2D gridGeometry,
             DataSource dataSource) {
-        if (pdo instanceof GridRecord == false) {
-            throw new DataRetrievalException(this.getClass().getSimpleName()
-                    + " cannot handle " + pdo.getClass().getSimpleName());
+        if (pdo instanceof GridRecord) {
+            GridRecord gridRecord = (GridRecord) pdo;
+            return constructGridDataResponse(request, gridRecord, gridGeometry,
+                    dataSource);
         }
-        GridRecord gridRecord = (GridRecord) pdo;
-        return constructGridDataResponse(request, gridRecord, gridGeometry,
-                dataSource);
+        throw new DataRetrievalException(this.getClass().getSimpleName()
+                + " cannot handle " + pdo.getClass().getSimpleName());
     }
 
     public static IGridData constructGridDataResponse(IDataRequest request,
@@ -341,17 +345,16 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory {
             // perform reverse mappings so the parameters and levels that are
             // returned match exactly what was requested.
             String namespace = getStringIdentifier(identifiers, NAMESPACE);
-            List<String> requestParameters = Arrays.asList(request
-                    .getParameters());
+            List<String> requestParameters = Arrays
+                    .asList(request.getParameters());
             parameter = reverseResolveMapping(ParameterMapper.getInstance(),
                     parameter, namespace, requestParameters);
 
             if (identifiers.containsKey(GridConstants.DATASET_ID)) {
                 RequestConstraint requestedDatasetsConstraint = getIdentifierConstraint(
                         identifiers, GridConstants.DATASET_ID);
-                datasetId = reverseResolveMapping(
-                        DatasetIdMapper.getInstance(), datasetId, namespace,
-                        requestedDatasetsConstraint);
+                datasetId = reverseResolveMapping(DatasetIdMapper.getInstance(),
+                        datasetId, namespace, requestedDatasetsConstraint);
             }
             if (identifiers.containsKey(GridConstants.MASTER_LEVEL_NAME)) {
                 RequestConstraint requestedMasterLevelConstraint = getIdentifierConstraint(
@@ -448,8 +451,8 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory {
      */
     @Override
     public String[] getAvailableParameters(IDataRequest request) {
-        return getAvailableValues(request,
-                GridConstants.PARAMETER_ABBREVIATION, String.class);
+        return getAvailableValues(request, GridConstants.PARAMETER_ABBREVIATION,
+                String.class);
     }
 
     /**
@@ -478,8 +481,8 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory {
                 dbQueryResponse.getNumResults());
         for (Entry<GridGeometryKey, Set<GridRecord>> entry : sortedRecords
                 .entrySet()) {
-            result.addAll(getGeometryData(request, entry.getKey(),
-                    entry.getValue()));
+            result.addAll(
+                    getGeometryData(request, entry.getKey(), entry.getValue()));
 
         }
         return result.toArray(new IGeometryData[0]);
@@ -519,10 +522,10 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory {
         DefaultGeometryData data = key.toGeometryData();
         DirectPosition2D llPoint = findResponsePoint(key.getGridGeometry(),
                 point.x, point.y);
-        data.setGeometry(new GeometryFactory().createPoint(new Coordinate(
-                llPoint.x, llPoint.y)));
-        data.setLocationName(data.getLocationName() + "-" + point.x + ","
-                + point.y);
+        data.setGeometry(new GeometryFactory()
+                .createPoint(new Coordinate(llPoint.x, llPoint.y)));
+        data.setLocationName(
+                data.getLocationName() + "-" + point.x + "," + point.y);
         Request request = Request.buildPointRequest(point);
         populateGeometryData(records, request,
                 new DefaultGeometryData[] { data });
@@ -542,15 +545,17 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory {
                 .getWidth() * gridRange.getHeight())];
         GeometryFactory geometryFactory = new GeometryFactory();
         int index = 0;
-        for (int y = (int) gridRange.getMinY(); y < gridRange.getMaxY(); y += 1) {
-            for (int x = (int) gridRange.getMinX(); x < gridRange.getMaxX(); x += 1) {
+        for (int y = (int) gridRange.getMinY(); y < gridRange
+                .getMaxY(); y += 1) {
+            for (int x = (int) gridRange.getMinX(); x < gridRange
+                    .getMaxX(); x += 1) {
                 data[index] = key.toGeometryData();
                 DirectPosition2D llPoint = findResponsePoint(
                         key.getGridGeometry(), x, y);
                 data[index].setGeometry(geometryFactory
                         .createPoint(new Coordinate(llPoint.x, llPoint.y)));
-                data[index].setLocationName(data[index].getLocationName() + "-"
-                        + x + "," + y);
+                data[index].setLocationName(
+                        data[index].getLocationName() + "-" + x + "," + y);
                 index += 1;
             }
         }
@@ -563,10 +568,10 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory {
     @Override
     public String[] getIdentifierValues(IDataRequest request,
             String identifierKey) {
-        if (!Arrays.asList(getRequiredIdentifiers(request)).contains(
-                identifierKey)
-                && !Arrays.asList(getOptionalIdentifiers(request)).contains(
-                        identifierKey)) {
+        if (!Arrays.asList(getRequiredIdentifiers(request))
+                .contains(identifierKey)
+                && !Arrays.asList(getOptionalIdentifiers(request))
+                        .contains(identifierKey)) {
             throw new InvalidIdentifiersException(request.getDatatype(), null,
                     Arrays.asList(identifierKey));
         }
@@ -602,25 +607,26 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory {
                             .getFloatData();
                     if (rawArray.length != data.length) {
                         throw new DataRetrievalException(
-                                "Unexpected response of size "
-                                        + rawArray.length
+                                "Unexpected response of size " + rawArray.length
                                         + " when expected size is "
-                                        + data.length + " for record " + record);
+                                        + data.length + " for record "
+                                        + record);
                     }
                     for (int i = 0; i < data.length; i += 1) {
                         data[i].addData(parameter.getAbbreviation(),
                                 rawArray[i], parameter.getUnit());
                     }
                 } else {
-                    String type = dataRecord == null ? "null" : dataRecord
-                            .getClass().getSimpleName();
+                    String type = dataRecord == null ? "null"
+                            : dataRecord.getClass().getSimpleName();
                     throw new DataRetrievalException("Unexpected record type("
                             + type + ") for " + record);
                 }
             } catch (Exception e) {
                 throw new DataRetrievalException(
                         "Failed to retrieve the IDataRecord for GridRecord: "
-                                + record.toString(), e);
+                                + record.toString(),
+                        e);
             }
         }
     }
@@ -669,7 +675,8 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory {
             int maxX = (int) Math.round(testPoints[2]);
             int maxY = (int) Math.round(testPoints[3]);
             GridEnvelope2D gridRange = gridGeometry.getGridRange2D();
-            if (minX == maxX && minY == maxY && gridRange.contains(minX, minY)) {
+            if (minX == maxX && minY == maxY
+                    && gridRange.contains(minX, minY)) {
                 return new Point(minX, minY);
             } else {
                 return null;
@@ -696,8 +703,8 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory {
 
         private final int hashCode;
 
-        public GridGeometryKey(Level level, DataTime dataTime,
-                String datasetId, GridGeometry2D gridGeometry) {
+        public GridGeometryKey(Level level, DataTime dataTime, String datasetId,
+                GridGeometry2D gridGeometry) {
             this.level = level;
             this.dataTime = dataTime;
             this.datasetId = datasetId;
@@ -716,9 +723,8 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory {
         }
 
         public GridGeometryKey(GridRecord record) {
-            this(record.getLevel(), record.getDataTime(),
-                    record.getDatasetId(), record.getLocation()
-                            .getGridGeometry());
+            this(record.getLevel(), record.getDataTime(), record.getDatasetId(),
+                    record.getLocation().getGridGeometry());
 
         }
 

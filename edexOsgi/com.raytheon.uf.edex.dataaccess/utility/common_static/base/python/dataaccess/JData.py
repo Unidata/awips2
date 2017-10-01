@@ -18,7 +18,6 @@
 # further licensing information.
 ##
 
-
 #
 # Implements IData and wraps around a Java IData
 #  
@@ -31,6 +30,12 @@
 #    06/03/13          #2023       dgilling      Implement getAttributes().
 # 
 #
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
+
 
 from awips.dataaccess import IData
 import JUtil, DataTime

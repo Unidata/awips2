@@ -29,7 +29,7 @@
 #    06/03/16        2416          rjpeter       Initial Creation.
 #
 
-from awips.dataaccess.PyNotification import PyNotification
+from ufpy.dataaccess.PyNotification import PyNotification
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataquery.requests import RequestConstraint
 
 class PyGridNotification(PyNotification):

@@ -18,7 +18,7 @@
 # further licensing information.
 ##
 
-from awips import ThriftClient
+from ufpy import ThriftClient
 
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.db.objects import DatabaseID
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.db.objects import ParmID

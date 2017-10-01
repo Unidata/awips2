@@ -19,9 +19,10 @@
 ##
 
 from __future__ import print_function
-from awips.dataaccess import DataAccessLayer as DAL
+from ufpy.dataaccess import DataAccessLayer as DAL
 
 import baseDafTestCase
+import params
 import unittest
 
 #
@@ -34,6 +35,8 @@ import unittest
 #    01/19/16        4795          mapeters       Initial Creation.
 #    04/11/16        5548          tgurney        Cleanup
 #    04/18/16        5548          tgurney        More cleanup
+#    12/07/16        5981          tgurney        Parameterize
+#    12/20/16        5981          tgurney        Add envelope test
 #
 #
 
@@ -53,16 +56,14 @@ class PirepTestCase(baseDafTestCase.DafTestCase):
 
     def testGetAvailableTimes(self):
         req = DAL.newDataRequest(self.datatype)
-        req.setLocationNames('OMA')
+        req.setLocationNames(params.AIRPORT)
         self.runTimesTest(req)
 
     def testGetGeometryData(self):
         req = DAL.newDataRequest(self.datatype)
-        req.setLocationNames('OMA')
+        req.setLocationNames(params.AIRPORT)
         req.setParameters("temperature", "windSpeed", "hazardType", "turbType")
-
         print("Testing getGeometryData()")
-
         geomData = DAL.getGeometryData(req)
         self.assertIsNotNone(geomData)
         print("Number of geometry records: " + str(len(geomData)))
@@ -78,6 +79,13 @@ class PirepTestCase(baseDafTestCase.DafTestCase):
                 print(" hazardType=" + record.getString("hazardType"), end="")
                 print(" turbType=" + record.getString("turbType"), end="")
             print(" geometry=", record.getGeometry())
-
         print("getGeometryData() complete\n")
 
+    def testGetGeometryDataWithEnvelope(self):
+        req = DAL.newDataRequest(self.datatype)
+        req.setParameters("temperature", "windSpeed", "hazardType", "turbType")
+        req.setEnvelope(params.ENVELOPE)
+        print("Testing getGeometryData()")
+        data = DAL.getGeometryData(req)
+        for item in data:
+            self.assertTrue(params.ENVELOPE.contains(item.getGeometry()))

@@ -18,7 +18,6 @@
 # further licensing information.
 ##
 
-
 #
 # Implements IGeometryData and wraps around a Java IGeometryData.
 #  
@@ -33,6 +32,12 @@
 #    08/06/14          3185        njensen        Only import shapely when necessary
 #
 #
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
+
 
 from awips.dataaccess import IGeometryData
 import JData

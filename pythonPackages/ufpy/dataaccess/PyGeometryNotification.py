@@ -29,7 +29,7 @@
 #    07/22/16        2416          tgurney        Initial creation
 #
 
-from awips.dataaccess.PyNotification import PyNotification
+from ufpy.dataaccess.PyNotification import PyNotification
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataquery.requests import RequestConstraint
 
 class PyGeometryNotification(PyNotification):

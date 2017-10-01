@@ -19,10 +19,11 @@
 # #
 
 from __future__ import print_function
-from awips.dataaccess import DataAccessLayer as DAL
+from ufpy.dataaccess import DataAccessLayer as DAL
 
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataquery.requests import RequestConstraint
 import baseDafTestCase
+import params
 import unittest
 
 #
@@ -38,6 +39,8 @@ import unittest
 #    06/09/16        5587          bsteffen       Add getIdentifierValues tests
 #    06/13/16        5574          tgurney        Add advanced query tests
 #    06/30/16        5725          tgurney        Add test for NOT IN
+#    12/07/16        5981          tgurney        Parameterize
+#    12/15/16        5981          tgurney        Add envelope test
 #
 #
 
@@ -47,8 +50,7 @@ class BufrUaTestCase(baseDafTestCase.DafTestCase):
 
     datatype = "bufrua"
 
-    location = "72558"
-    """stationid corresponding to KOAX"""
+    location = params.STATION_ID
 
     def testGetAvailableParameters(self):
         req = DAL.newDataRequest(self.datatype)
@@ -91,6 +93,14 @@ class BufrUaTestCase(baseDafTestCase.DafTestCase):
 
         print("getGeometryData() complete\n\n")
 
+    def testGetGeometryDataWithEnvelope(self):
+        req = DAL.newDataRequest(self.datatype)
+        req.setParameters("staName", "rptType")
+        req.setEnvelope(params.ENVELOPE)
+        data = self.runGeometryDataTest(req)
+        for item in data:
+            self.assertTrue(params.ENVELOPE.contains(item.getGeometry()))
+
     def testGetIdentifierValues(self):
         req = DAL.newDataRequest(self.datatype)
         optionalIds = set(DAL.getOptionalIdentifiers(req))
@@ -132,7 +142,6 @@ class BufrUaTestCase(baseDafTestCase.DafTestCase):
             self.assertEqual(record.getString('rptType'), '2022')
 
     # No float test because no float identifiers are available
-
 
     def testGetDataWithEqualsNone(self):
         geometryData = self._runConstraintTest('reportType', '=', None)

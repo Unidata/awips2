@@ -20,7 +20,7 @@
 
 
 #
-# __init__.py for awips.dataaccess package
+# __init__.py for ufpy.dataaccess package
 #
 #
 #     SOFTWARE HISTORY

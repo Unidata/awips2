@@ -20,10 +20,11 @@
 
 from __future__ import print_function
 from shapely.geometry import box
-from awips.dataaccess import DataAccessLayer as DAL
+from ufpy.dataaccess import DataAccessLayer as DAL
 
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataquery.requests import RequestConstraint
 import baseDafTestCase
+import params
 import unittest
 
 #
@@ -41,6 +42,8 @@ import unittest
 #                                                 superclass
 #    06/13/16        5574          tgurney        Add advanced query tests
 #    06/30/16        5725          tgurney        Add test for NOT IN
+#    12/07/16        5981          tgurney        Parameterize
+#    01/06/17        5981          tgurney        Do not check data times
 #
 #
 
@@ -50,14 +53,9 @@ class RadarSpatialTestCase(baseDafTestCase.DafTestCase):
 
     datatype = "radar_spatial"
 
-    envelope = box(-97.0, 41.0, -96.0, 42.0)
-    """
-    Default request area (box around KOAX)
-    """
-
     def testGetAvailableLocations(self):
         req = DAL.newDataRequest(self.datatype)
-        req.setEnvelope(self.envelope)
+        req.setEnvelope(params.ENVELOPE)
         self.runLocationsTest(req)
 
     def testGetAvailableParameters(self):
@@ -71,7 +69,7 @@ class RadarSpatialTestCase(baseDafTestCase.DafTestCase):
         req = DAL.newDataRequest(self.datatype)
         req.setLocationNames("TORD", "TMDW")
         req.setParameters("wfo_id", "name", "elevmeter")
-        self.runGeometryDataTest(req)
+        self.runGeometryDataTest(req, checkDataTimes=False)
 
     def testRequestingTimesThrowsTimeAgnosticDataException(self):
         req = DAL.newDataRequest(self.datatype)
@@ -82,17 +80,17 @@ class RadarSpatialTestCase(baseDafTestCase.DafTestCase):
         constraint = RequestConstraint.new(operator, value)
         req.addIdentifier(key, constraint)
         req.setParameters('elevmeter', 'eqp_elv', 'wfo_id', 'immutablex')
-        return self.runGeometryDataTest(req)
+        return self.runGeometryDataTest(req, checkDataTimes=False)
 
     def testGetDataWithEqualsString(self):
-        geometryData = self._runConstraintTest('wfo_id', '=', 'OAX')
+        geometryData = self._runConstraintTest('wfo_id', '=', params.SITE_ID)
         for record in geometryData:
-            self.assertEqual(record.getString('wfo_id'), 'OAX')
+            self.assertEqual(record.getString('wfo_id'), params.SITE_ID)
 
     def testGetDataWithEqualsUnicode(self):
-        geometryData = self._runConstraintTest('wfo_id', '=', u'OAX')
+        geometryData = self._runConstraintTest('wfo_id', '=', unicode(params.SITE_ID))
         for record in geometryData:
-            self.assertEqual(record.getString('wfo_id'), 'OAX')
+            self.assertEqual(record.getString('wfo_id'), params.SITE_ID)
 
     def testGetDataWithEqualsInt(self):
         geometryData = self._runConstraintTest('immutablex', '=', 57)
@@ -115,9 +113,9 @@ class RadarSpatialTestCase(baseDafTestCase.DafTestCase):
             self.assertEqual(record.getType('wfo_id'), 'NULL')
 
     def testGetDataWithNotEquals(self):
-        geometryData = self._runConstraintTest('wfo_id', '!=', 'OAX')
+        geometryData = self._runConstraintTest('wfo_id', '!=', params.SITE_ID)
         for record in geometryData:
-            self.assertNotEquals(record.getString('wfo_id'), 'OAX')
+            self.assertNotEquals(record.getString('wfo_id'), params.SITE_ID)
 
     def testGetDataWithNotEqualsNone(self):
         geometryData = self._runConstraintTest('wfo_id', '!=', None)
@@ -145,33 +143,33 @@ class RadarSpatialTestCase(baseDafTestCase.DafTestCase):
             self.assertLessEqual(record.getNumber('eqp_elv'), 138)
 
     def testGetDataWithInTuple(self):
-        collection = ('OAX', 'GID')
+        collection = (params.SITE_ID, 'GID')
         geometryData = self._runConstraintTest('wfo_id', 'in', collection)
         for record in geometryData:
             self.assertIn(record.getString('wfo_id'), collection)
 
     def testGetDataWithInList(self):
-        collection = ['OAX', 'GID']
+        collection = [params.SITE_ID, 'GID']
         geometryData = self._runConstraintTest('wfo_id', 'in', collection)
         for record in geometryData:
             self.assertIn(record.getString('wfo_id'), collection)
 
     def testGetDataWithInGenerator(self):
-        collection = ('OAX', 'GID')
+        collection = (params.SITE_ID, 'GID')
         generator = (item for item in collection)
         geometryData = self._runConstraintTest('wfo_id', 'in', generator)
         for record in geometryData:
             self.assertIn(record.getString('wfo_id'), collection)
 
     def testGetDataWithNotInList(self):
-        collection = ['OAX', 'GID']
+        collection = [params.SITE_ID, 'GID']
         geometryData = self._runConstraintTest('wfo_id', 'not in', collection)
         for record in geometryData:
             self.assertNotIn(record.getString('wfo_id'), collection)
 
     def testGetDataWithInvalidConstraintTypeThrowsException(self):
         with self.assertRaises(ValueError):
-            self._runConstraintTest('wfo_id', 'junk', 'OAX')
+            self._runConstraintTest('wfo_id', 'junk', params.SITE_ID)
 
     def testGetDataWithInvalidConstraintValueThrowsException(self):
         with self.assertRaises(TypeError):

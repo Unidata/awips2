@@ -37,10 +37,10 @@ import time
 import traceback
 
 import dynamicserialize
-from awips.dataaccess import DataAccessLayer
-from awips.dataaccess import INotificationSubscriber
-from awips.QpidSubscriber import QpidSubscriber
-from awips.ThriftClient import ThriftRequestException
+from ufpy.dataaccess import DataAccessLayer
+from ufpy.dataaccess import INotificationSubscriber
+from ufpy.QpidSubscriber import QpidSubscriber
+from ufpy.ThriftClient import ThriftRequestException
 from dynamicserialize.dstypes.com.raytheon.uf.common.time import DataTime
 
 
