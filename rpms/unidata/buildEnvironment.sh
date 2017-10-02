@@ -2,8 +2,6 @@
 export AWIPSII_VERSION="17.1.1"
 export AWIPSII_RELEASE="4"
 
-. /etc/profile.d/awips2.sh
-
 # User-configurable environment parameters that are used during the build.
 
 # The baseline parameter is specific to non-Jenkins / non-Hudson builds
