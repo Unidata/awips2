@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <!--
         This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
         pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
@@ -20,24 +20,24 @@
     -->
 
     <!--
-        This is an incremental override file, indicating that the files at
-        different localization levels will be combined. Since all the files in
-        the directory are read, for most custom additions a unique file should
-        be added to the directory instead of overriding a specific file.
+        This is an absolute override file, indicating that a higher priority
+        version of the file will completely replace a lower priority version
+        of the file.
     -->
-<gribModelSet>
-
-  <!-- SUBCENTER 8 -->
-
-  <model>
-    <name>RCM</name>
-    <center>8</center>
-    <subcenter>0</subcenter>
-    <grid>301</grid>
-    <process>
-      <id>0</id>
-    </process>
-  </model>
-
-  <!-- END SUBCENTER 8 -->
-</gribModelSet>
+<lambertConformalGridCoverage>
+    <name>NBMv3</name>
+    <description>National Blend(version 3) Grid over CONUS - (2.54 km)</description>
+    <la1>19.229</la1>
+    <lo1>-126.2766</lo1>
+    <firstGridPointCorner>LowerLeft</firstGridPointCorner>
+    <nx>2345</nx>
+    <ny>1597</ny>
+    <dx>2.539703</dx>
+    <dy>2.539703</dy>
+    <spacingUnit>km</spacingUnit>
+    <minorAxis>6371200.0</minorAxis>
+    <majorAxis>6371200.0</majorAxis>
+    <lov>-95.0</lov>
+    <latin1>25.0</latin1>
+    <latin2>25.0</latin2>
+</lambertConformalGridCoverage>

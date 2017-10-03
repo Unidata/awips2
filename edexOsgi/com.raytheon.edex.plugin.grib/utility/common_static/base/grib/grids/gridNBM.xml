@@ -18,13 +18,19 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+
+    <!--
+        This is an absolute override file, indicating that a higher priority
+        version of the file will completely replace a lower priority version
+        of the file.
+    -->
 <lambertConformalGridCoverage>
     <name>NBM</name>
     <description> National Blend Grid over CONUS - (2.54 km)</description>
-    <la1>19.229000</la1>
-    <lo1>-233.723400</lo1>
+    <la1>20.191999</la1>
+    <lo1>-121.554</lo1>
     <firstGridPointCorner>LowerLeft</firstGridPointCorner>
-    <nx>2345</nx>
+    <nx>2145</nx>
     <ny>1597</ny>
     <dx>2.539703</dx>
     <dy>2.539703</dy>
