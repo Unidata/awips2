@@ -108,6 +108,14 @@ if [ "${1}" = "-viz" ]; then
    exit 0
 fi
 
+if [ "${1}" = "-qpid" ]; then
+   buildRPM "awips2-python-qpid"
+   buildRPM "awips2-qpid-lib"
+   buildRPM "awips2-qpid-java"
+   buildRPM "awips2-qpid-java-broker"
+   exit 0
+fi
+
 if [ "${1}" = "-python" ]; then
    #noarch
    buildRPM "awips2-python-nose"

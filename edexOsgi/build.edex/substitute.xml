@@ -107,12 +107,6 @@
 		<isset property="installer"/>
 	</condition>
 	
-	<!-- Set the rcm server name for the copy filter -->
-    <property name="def.radar.server" value="localhost" />
-    <condition property="radar.server" value="$radarServer" else="${def.radar.server}">
-        <isset property="installer"/>
-    </condition>
-    
     <!-- Set the mcast_port for the copy filter -->
     <condition property="mcast.port" value="%cacheMcastPort" else="${mcast.port}">
         <isset property="installer"/>
@@ -178,7 +172,6 @@
 		<filter token="DB_MACHINE_P" value="${db.machine.name.p}" />
 		<filter token="EDEX_SERVER" value="${edex.server}" />
 		<filter token="EDEX_SERVER_P" value="${edex.server.p}" />
-		<filter token="RADAR_SERVER" value="${radar.server}" />
 		<filter token="DATA_ARCH_LOC" value="${data.arch.loc}"/>
 		<filter token="DC_DB_NAME" value="${dc.db.name}" />
 		<filter token="FXA_DB_NAME" value="${fxa.db.name}" />

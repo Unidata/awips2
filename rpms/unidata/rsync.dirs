@@ -7,6 +7,8 @@ javaUtilities/* rpms pythonPackages nativeLib/*
 ../awips2-core/viz/*
 ../awips2-core-foss/lib/*
 ../awips2-foss/lib/*
+../awips2-rpm/foss
+../awips2-rpm/installers
 ../awips2-nws/common/* 
 ../awips2-nws/viz/* 
 ../awips2-nws/features/* 
