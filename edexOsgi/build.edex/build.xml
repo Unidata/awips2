@@ -55,6 +55,10 @@
 		</antcall>
 		<antcall target="build">
 			<param name="feature"
+				value="com.raytheon.uf.edex.gfe.feature" />
+		</antcall>
+		<antcall target="build">
+			<param name="feature"
 				value="com.raytheon.uf.edex.ncep.feature" />
 		</antcall>
 
