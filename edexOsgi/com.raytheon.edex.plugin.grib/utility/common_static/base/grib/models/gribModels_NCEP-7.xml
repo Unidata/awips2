@@ -355,6 +355,16 @@
     </model>
 
     <model>
+        <name>NAM3</name>
+        <center>7</center>
+        <subcenter>0</subcenter>
+        <grid>17991059001</grid>
+        <process>
+            <id>84</id>
+        </process>
+    </model>
+
+    <model>
         <name>NAM5</name>
         <center>7</center>
         <subcenter>0</subcenter>
@@ -2438,9 +2448,44 @@
         <name>NationalBlend</name>
         <center>7</center>
         <subcenter>14</subcenter>
-        <grid>NBM</grid>
+        <grids>
+            <id>NBM</id>
+            <id>NBMv3</id>
+        </grids>
         <process>
             <id>104</id>
+        </process>
+    </model>
+
+    <!-- 
+                 ThP3hr is not really blended, it is simply a repackaged version from
+        SPC based off the SREF model so the grib file still indicates SREF.
+    -->
+    <model>
+        <name>NationalBlend</name>
+        <center>7</center>
+        <subcenter>14</subcenter>
+        <grids>
+            <id>NBMv3</id>
+        </grids>
+        <process>
+            <id>113</id>
+        </process>
+    </model>
+
+    <!-- 
+                 ThP6hr is not really blended, it is simply a repackaged version of the
+        GFS Gridded MOS so the grib file still indicates GFS.
+    -->
+    <model>
+        <name>NationalBlend</name>
+        <center>7</center>
+        <subcenter>14</subcenter>
+        <grids>
+            <id>NBMv3</id>
+        </grids>
+        <process>
+            <id>96</id>
         </process>
     </model>
 
@@ -2476,7 +2521,7 @@
             <id>104</id>
         </process>
     </model>
-    
+
         <!--Oceanic-->
     <model>
         <name>NationalBlendOC</name>

@@ -142,7 +142,6 @@ if [ -f "${SETUP_ENV_NEW}" ]; then
    updateSetupEnv "${HTTP_SERVER}" "HTTP_SERVER" \
       "http://localhost:9581/services"
    updateSetupEnv "${JMS_SERVER}" "JMS_SERVER" "tcp://localhost:5672"
-   updateSetupEnv "${RADAR_SERVER}" "RADAR_SERVER" "tcp://localhost:8813"
    updateSetupEnv "${SHARE_DIR}" "SHARE_DIR" "/awips2/edex/data/share"
    updateSetupEnv "${LDAD_EXTERNAL_HOME}" "LDAD_EXTERNAL_HOME" \
       "/ldad"
@@ -163,8 +162,8 @@ rm -rf ${RPM_BUILD_ROOT}
 %defattr(644,awips,fxalpha,755)
 %dir /awips2
 %dir /awips2/edex
-%dir /awips2/edex/bin/*
 %dir /awips2/edex/conf
+/awips2/edex/bin/scriptLauncher
 /awips2/edex/conf/*
 %dir /awips2/edex/data
 /awips2/edex/data/*

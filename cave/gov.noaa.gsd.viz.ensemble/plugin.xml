@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="gov.noaa.gsd.viz.ensemble.start.tool"
+            name="Ensemble Tool">
+      </command>
+      <command
+            id="gov.noaa.gsd.viz.ensemble.matrix.navigation.controls"
+            name="Matrix Navigation Controls">
+         <commandParameter
+               id="operation"
+               name="operation"
+               optional="true">
+         </commandParameter>
+      </command>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="gov.noaa.gsd.viz.ensemble.action.EnsembleToolAction"
+            commandId="gov.noaa.gsd.viz.ensemble.start.tool">
+
+      </handler>
+      <handler
+            class="gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.matrix.MatrixNavigationTool"
+            commandId="gov.noaa.gsd.viz.ensemble.matrix.navigation.controls">
+         <activeWhen>
+            <with
+                  variable="activeEditor">
+               <instanceof
+                     value="gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.matrix.VizMatrixEditor">
+               </instanceof>
+            </with>
+         </activeWhen>
+      </handler>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.menus">
+
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:models?after=ensemble">
+         <command
+               commandId="gov.noaa.gsd.viz.ensemble.start.tool"
+               style="push">
+         </command>
+      </menuContribution>
+         
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.matrix.VizMatrixEditor"
+            default="true"
+            icon="icons/delta-map.gif"  
+            id="gov.noaa.gsd.viz.ensemble.ui.map.MatrixEditor"
+            name="Matrix">
+      </editor>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            allowMultiple="false"
+            class="gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.EnsembleToolViewer"
+            fastViewWidthRatio=".33"
+            icon="icons/ensemble-tool-view-icon.gif"
+            id="gov.noaa.gsd.viz.ensemble.tool.viewer"
+            name="Ensemble Tool"
+            restorable="false">
+      </view>
+   </extension>
+   <extension
+         point="com.raytheon.viz.ui.displayCustomizer">
+      <displayCustomizer
+            customizer="gov.noaa.gsd.viz.ensemble.control.EnsembleToolDisplayCustomizer"
+            perspective="D2D">
+      </displayCustomizer>
+   </extension>
+
+<!--
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.common.EnsembleToolPreferencesPage"
+            id="gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.common.EnsembleToolPreferencesPage"
+            name="Ensemble Tool">
+      </page>
+   </extension>
+-->
+
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="gov.noaa.gsd.viz.ensemble.matrix.navigation.controls"
+            contextId="gov.noaa.gsd.viz.ensemble.matrix.navigator.context"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="ARROW_UP">
+         <parameter
+               id="operation"
+               value="UP_MODEL_SOURCE">
+         </parameter>
+      </key>
+      <key
+            commandId="gov.noaa.gsd.viz.ensemble.matrix.navigation.controls"
+            contextId="gov.noaa.gsd.viz.ensemble.matrix.navigator.context"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="ARROW_DOWN">
+         <parameter
+               id="operation"
+               value="DOWN_MODEL_SOURCE">
+         </parameter>
+      </key>
+      <key
+            commandId="gov.noaa.gsd.viz.ensemble.matrix.navigation.controls"
+            contextId="gov.noaa.gsd.viz.ensemble.matrix.navigator.context"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="ARROW_LEFT">
+         <parameter
+               id="operation"
+               value="LEFT_FRAME">
+         </parameter>
+      </key>
+      <key
+            commandId="gov.noaa.gsd.viz.ensemble.matrix.navigation.controls"
+            contextId="gov.noaa.gsd.viz.ensemble.matrix.navigator.context"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="ARROW_RIGHT">
+         <parameter
+               id="operation"
+               value="RIGHT_FRAME">
+         </parameter>
+      </key>
+   </extension>
+   <extension
+         point="org.eclipse.ui.contexts">
+      <context
+            id="gov.noaa.gsd.viz.ensemble.matrix.navigator.context"
+            name="EnsembleTool_MatrixNavigator"
+            parentId="com.raytheon.viz.ui.loopContext">
+      </context>
+   </extension>
+      <extension
+          point="com.raytheon.uf.viz.core.classContext">
+          <classContext
+            class="gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.matrix.VizMatrixEditor">
+              <contextId
+                  id="gov.noaa.gsd.viz.ensemble.matrix.navigator.context">
+              </contextId>
+          </classContext>
+   </extension>
+
+</plugin>
