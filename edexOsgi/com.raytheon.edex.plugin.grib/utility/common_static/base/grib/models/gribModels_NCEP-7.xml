@@ -232,7 +232,7 @@
     </model>
 
     <model>
-        <name>GFS-EastPacific-40km</name>
+        <name>GFS40-Pacific</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>254</grid>
@@ -268,7 +268,7 @@
 
     <!-- ak 20KM -->
     <model>
-        <name>AK-GFS20</name>
+        <name>GFS20-Alaska</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>GFS-AK-20KM</grid>
@@ -280,7 +280,7 @@
 
     <!-- pac 20KM -->
     <model>
-        <name>GFS20-PAC</name>
+        <name>GFS20-Pacific</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>GFS-PAC-20KM</grid>
@@ -292,7 +292,7 @@
 
     <!-- prico 20KM -->
     <model>
-        <name>PR-GFS</name>
+        <name>GFS20-PuertoRico</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>GFS-PRICO-20KM</grid>
