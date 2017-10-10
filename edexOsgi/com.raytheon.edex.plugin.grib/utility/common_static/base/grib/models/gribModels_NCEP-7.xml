@@ -1010,23 +1010,36 @@
             <id>255</id>
         </process>
     </model>
-
     <model>
-        <name>${REGION}-NamDNG5</name>
+        <name>NamDNG5-Alaska</name>
         <center>7</center>
         <subcenter>0</subcenter>
-        <grids>
-            <id>198</id>
-            <id>196</id>
-            <id>195</id>
-        </grids>
+        <grid>198</grid>
+        <process>
+            <id>89</id>
+        </process>
+    </model>
+    <model>
+        <name>NamDNG5-Hawaii</name>
+        <center>7</center>
+        <subcenter>0</subcenter>
+        <grid>196</grid>
+        <process>
+            <id>89</id>
+        </process>
+    </model>
+    <model>
+        <name>NamDNG5-PuertoRico</name>
+        <center>7</center>
+        <subcenter>0</subcenter>
+        <grid>195</grid>
         <process>
             <id>89</id>
         </process>
     </model>
 
     <model>
-        <name>${REGION}-NamDNG3</name>
+        <name>NamDNG3-${REGION}</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>1023</grid>
@@ -1985,7 +1998,7 @@
     </model>
 
     <model>
-        <name>estofsEP</name>
+        <name>ESTOFS-Pacific</name>
         <center>7</center>
         <subcenter>4</subcenter>
         <grid>184</grid>
