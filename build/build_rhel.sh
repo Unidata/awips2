@@ -23,11 +23,12 @@ git clone https://github.com/Unidata/awips2-ncep.git --branch unidata_${AWIPSII_
 git clone https://github.com/Unidata/awips2-core.git --branch unidata_${AWIPSII_VERSION} --single-branch
 git clone https://github.com/Unidata/awips2-core-foss.git --branch unidata_${AWIPSII_VERSION} --single-branch
 git clone https://github.com/Unidata/awips2-foss.git --branch unidata_${AWIPSII_VERSION} --single-branch
-#git clone https://github.com/Unidata/awips2-rpmbuild.git --branch unidata_${AWIPSII_VERSION} --single-branch
+git clone https://github.com/Unidata/awips2-rpmbuild.git --branch unidata_${AWIPSII_VERSION} --single-branch
 git clone https://github.com/Unidata/awips2-nws.git --branch unidata_${AWIPSII_VERSION} --single-branch
 
 cd /awips2/repo/awips2-builds/rpms/unidata/
 
+/bin/bash build.sh -qpid
 /bin/bash build.sh -b buildEDEX
 
 find /awips2/jenkins/build/rpms/awips2_${AWIPSII_VERSION}/
