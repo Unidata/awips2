@@ -10,7 +10,7 @@
 	<include installTo="menu:models" 
              fileName="menus/grid/allFamilies.xml">
              <substitute key="modelName" value="GFS" />
-             <substitute key="menuName" value="GFS Global" />
+             <substitute key="menuName" value="GFS 0.25° Global" />
              <substitute key="frameCount" value="180" />
              <substitute key="TP" value="TP"/>
     </include>
@@ -27,6 +27,13 @@
              <substitute key="menuName" value="HRRR" />
              <substitute key="frameCount" value="19" />
              <substitute key="TP" value="TP"/>
+    </include>
+	<include installTo="menu:models" 
+             fileName="menus/grid/allFamilies.xml">
+             <substitute key="modelName" value="NAM3" />
+             <substitute key="menuName" value="NAM 3km" />
+             <substitute key="frameCount" value="60" />
+             <substitute key="TP" value="TP1hr"/>
     </include>
 	<include installTo="menu:models" 
              fileName="menus/grid/allFamilies.xml">
