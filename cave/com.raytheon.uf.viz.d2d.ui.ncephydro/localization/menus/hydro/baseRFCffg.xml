@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <contribute xsi:type="titleItem" titleText="------ RFC Flash Flood Guidance ------" />
+  	<contribute xsi:type="bundleItem" file="bundles/hydro/FFGLmosaic.xml"
+		menuText="1 hour FFG Mosaic" id="1hrFFG">
+		<substitute key="timespan" value="FFG0124hr"/>
+	    <substitute key="type" value="FFG-"/>
+	    <substitute key="name" value="RFC 1hr FFG Mosaic"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/hydro/FFGLmosaic.xml"
+		menuText="3 hour FFG Mosaic" id="3hrFFG">
+		<substitute key="timespan" value="FFG0324hr"/>
+	    <substitute key="type" value="FFG-"/>
+	    <substitute key="name" value="RFC 3hr FFG Mosaic"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/hydro/FFGLmosaic.xml"
+		menuText="6 hour FFG Mosaic" id="6hrFFG">
+		<substitute key="timespan" value="FFG0624hr"/>
+	    <substitute key="type" value="FFG-"/>
+	    <substitute key="name" value="RFC 6hr FFG Mosaic"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/hydro/FFGLmosaic.xml"
+		menuText="12 hour FFG Mosaic" id="12hrFFG">
+		<substitute key="timespan" value="FFG1224hr"/>
+	    <substitute key="type" value="FFG-"/>
+	    <substitute key="name" value="RFC 12hr FFG Mosaic"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/hydro/FFGLmosaic.xml"
+		menuText="24 hour FFG Mosaic" id="24hrFFG">
+		<substitute key="timespan" value="FFG2424hr"/>
+	    <substitute key="type" value="FFG-"/>
+	    <substitute key="name" value="RFC 24hr FFG Mosaic"/>
+	</contribute>
+</menuTemplate>

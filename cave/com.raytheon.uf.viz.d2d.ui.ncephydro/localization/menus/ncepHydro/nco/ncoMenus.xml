@@ -88,9 +88,4 @@
             <substitute value="PYWA32" key="wmo"/>
         </contribute>
     </contribute>
-    <contribute xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="subMenu" menuText="National Centers model" id="ncepHydro.nco.nationalCentersModel">
-        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="UKMO MSLP" timeQuery="true" id="ncepHydro.nco.UKMOMSLP">
-            <substitute value="PPZA50,PPZM50,PPZO50,PPZQ50" key="wmo"/>
-        </contribute>
-    </contribute>
 </menuTemplate>

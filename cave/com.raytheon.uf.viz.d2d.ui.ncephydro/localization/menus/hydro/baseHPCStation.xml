@@ -20,16 +20,16 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<contribute xsi:type="bundleItem" file="bundles/BufrMosPlot.xml" 
-		 menuText="HPC Station MaxT/MinT" id="HPCmaxTminT" >
+		 menuText="WPC Station MaxT/MinT" id="HPCmaxTminT" >
         	<substitute key="model" value="HPC"/>
     		<substitute key="plotModel" value="bufrmos/maxmin.svg"/>
-    		<substitute key="title" value="HPC MaxT/MinT ( F )"/>
+    		<substitute key="title" value="WPC MaxT/MinT ( F )"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/BufrMosPlot.xml" 
-		 menuText="HPC Station POP 24hr" id="HPCpop24hr" >
+		 menuText="WPC Station POP 24hr" id="HPCpop24hr" >
         	<substitute key="model" value="HPC"/>
     		<substitute key="plotModel" value="bufrmos/pop24hr.svg"/>
-    		<substitute key="title" value="HPC POP 24hr"/>
+    		<substitute key="title" value="WPC POP 24hr"/>
     </contribute>
 	<contribute xsi:type="subMenu" menuText="0-3 Hour Radar-based QPF">
 		<contribute xsi:type="bundleItem" file="bundles/hydro/zeroToThreeHourRadarQPF.xml"

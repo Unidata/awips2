@@ -19,22 +19,6 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<contribute xsi:type="bundleItem" file="bundles/grib/gribImageBundle.xml"
-		menuText="6hr Mosaic" id="6hrQPF">
-		<substitute key="param" value="tpHPC"/>
-		<substitute key="modelName" value="RFCqpf"/>
-		<substitute key="resourceData" value="dataMappedGridResourceData"/>
-	</contribute>
-	
-	<!-- Although text says 72hr Mosaic, the data is actually
-         TP6hr (TP_HPC), TP6hr is aliased to tpHPC for using different style rules
-         In A1, data is converted into byte data -->
-	<contribute xsi:type="bundleItem" file="bundles/grib/gribVectorBundle.xml"
-		menuText="72hr Mosaic" id="72HrMosaic">
-		<substitute key="param" value="TP6hr"/>
-		<substitute key="modelName" value="RFCqpf"/>
-	</contribute>
-    
     <!-- Although text says 24hr AKRFC QPF, the data is actually
          TP6hr (TP_RFC) In A1, data is just every 24 hours -->
 	<contribute xsi:type="bundleItem" file="bundles/grib/gribVectorBundle.xml"
