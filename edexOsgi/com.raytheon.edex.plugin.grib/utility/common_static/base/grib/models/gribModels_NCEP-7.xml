@@ -208,7 +208,7 @@
 
     
     <model>
-        <name>PR-GFS</name>
+        <name>GFS161-PR</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>161</grid>
@@ -292,7 +292,7 @@
 
     <!-- prico 20KM -->
     <model>
-        <name>GFS20-PuertoRico</name>
+        <name>GFS20-PR</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>GFS-PRICO-20KM</grid>
@@ -447,7 +447,7 @@
     </model>
 
     <model>
-        <name>PR-NAM</name>
+        <name>NAM32-PR</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>237</grid>
@@ -2338,13 +2338,22 @@
     </model>
 
     <model>
-        <name>MOSGuide-${REGION}</name>
+        <name>MOSGuide-AK</name>
         <center>7</center>
         <subcenter>14</subcenter>
-        <grids>
-            <id>1023</id>
-            <id>625561001</id>
-        </grids>
+        <grid>1023</grid>
+        <process>
+            <id>96</id>
+            <id>0</id>
+        </process>
+    </model>
+
+
+    <model>
+        <name>MOSGuide-HI</name>
+        <center>7</center>
+        <subcenter>14</subcenter>
+        <grid>625561001</grid>
         <process>
             <id>96</id>
         </process>

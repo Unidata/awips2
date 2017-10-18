@@ -2,6 +2,6 @@
 #192-254 Reserved for local use
 192:192:Probability of Freezing Precipitation:%:PFREZPREC
 193:193:Probability of Frozen Precipitation:%:PFROZPREC
-194:194:Probability of precipitation exceeding flash flood guidance values:%:PPFFG
+194:194:Probability of precip exceeding FFG values:%:PPFFG
 255:255:Missing
 
