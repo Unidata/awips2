@@ -1118,7 +1118,7 @@ in|.0394|.0| 4 | |f5.2|@.|8000F0FF| |13|\
      <displayUnits>%</displayUnits>    
      <displayFlags>NoPlane</displayFlags>
      <contourLabeling>
-        <increment>10</increment>
+        <increment>1</increment>
      </contourLabeling>
   </contourStyle>
 </styleRule>

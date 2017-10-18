@@ -61,6 +61,7 @@ rm -rf ${RPM_BUILD_ROOT}/*
 
 %files
 %attr(755,awips,fxalpha) /awips2/tools/bin/edex
+%attr(755,awips,fxalpha) /awips2/tools/bin/qpidNotify.py
 %attr(755,awips,fxalpha) /awips2/tools/bin/arinfo
 %attr(755,awips,fxalpha) /awips2/tools/bin/areas
 %attr(755,awips,fxalpha) /awips2/tools/bin/wgrib

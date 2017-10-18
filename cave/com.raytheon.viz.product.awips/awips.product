@@ -115,7 +115,6 @@
       <feature id="com.raytheon.uf.viz.ncep.nsharp.feature"/>
       <feature id="com.raytheon.uf.viz.d2d.nsharp.feature"/>
       <feature id="com.raytheon.uf.viz.acarssounding.feature"/>
-      <feature id="com.raytheon.viz.avnfps.feature"/>
       <feature id="com.raytheon.uf.viz.npp.sounding.feature"/>
       <feature id="com.raytheon.uf.viz.ncep.npp.feature"/>
       <feature id="com.raytheon.uf.viz.ncep.perspective.feature"/>

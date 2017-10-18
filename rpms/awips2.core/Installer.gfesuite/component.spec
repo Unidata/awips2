@@ -16,7 +16,6 @@ Packager: %{_build_site}
 
 AutoReq: no
 Provides: awips2-gfesuite
-Requires: numpy
 Requires: awips2-python
 Requires: awips2-java
 Obsoletes: awips2-gfesuite-server, awips2-gfesuite-client
