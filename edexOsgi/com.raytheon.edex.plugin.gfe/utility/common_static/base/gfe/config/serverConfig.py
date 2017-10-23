@@ -2823,8 +2823,8 @@ D2DAccumulativeElements= {
 #---------------------------------------------------------------------------
 # base urls for the ISC Routing Table
 ISC_ROUTING_TABLE_ADDRESS = {
-    "ANCF" : "http://svcbu-ancf.er.awips.noaa.gov:8080/irt",
-    "BNCF" : "http://svcbu-bncf.er.awips.noaa.gov:8080/irt"
+    "ANCF" : "http://localhost:8080/irt",
+    "BNCF" : "http://localhost:8080/irt"
     }
 
 
