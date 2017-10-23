@@ -5,7 +5,7 @@ OS_VERSION=$2
 yum -y clean all
 yum -y clean expire-cache
 yum groupinstall "Development tools" -y >& /dev/null
-yum install wget cmake ruby boost-devel uuid-devel -y
+yum install wget cmake ruby boost-devel libuuid-devel -y
 wget -O /etc/yum.repos.d/awips2.repo http://www.unidata.ucar.edu/software/awips2/doc/awips2.repo
 yum -y clean all
 yum groupinstall awips2-ade -y >& /dev/null
