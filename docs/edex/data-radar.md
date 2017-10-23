@@ -12,9 +12,8 @@
 ### FNEXRAD Composites
 
     FNEXRAD ^rad/NEXRCOMP/(...)/(...)_(........)_(....)
-            PIPE    -close -edex -log
-            pngg2gini -vl logs/pngg2gini.log
-            /awips2/data_store/ingest/nexrcomp_\1_\4_\3_\2_(seq).rad
+            FILE    -close -edex
+            /awips2/data_store/sat/nexrcomp_\3\4_\2.gini.png
     
 ## WSR-88D Localizations
 
