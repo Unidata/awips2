@@ -16,6 +16,7 @@ yum install git -y >& /dev/null
 mkdir -p /awips2/jenkins/buildspace/workspace/AWIPS2-UPC_build/baseline
 mkdir -p /awips2/jenkins/buildspace/workspace/tmp
 mkdir -p /awips2/jenkins/build/rpms/awips2_${AWIPSII_VERSION}/x86_64/
+mkdir -p /awips2/jenkins/build/rpms/awips2_${AWIPSII_VERSION}/noarch/
 
 pushd /awips2/repo
 
