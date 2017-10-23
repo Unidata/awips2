@@ -49,7 +49,6 @@ td:first-child { font-weight: bold }
 |  modis  |  NASA Moderate-resolution Imaging Spectroradiometer  |
 |  ncpafm  |  NCEP Point/Area Forecast Matrices data  |
 |  ncscat  |  NCEP ASCAT/Quikscat records  |
-|  nctaf  |  NCEP Terminal Aerodrome Forecasts  |
 |  nctext  |  NCEP Text decoders  |
 |  ncuair  |  NCEP Upper Air decoder  |
 |  ndm  |  National Dataset Maintenance ingester  |
