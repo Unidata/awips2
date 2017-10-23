@@ -20,9 +20,11 @@
 
 package com.raytheon.uf.edex.plugin.satellite.gini;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.util.Calendar;
@@ -32,6 +34,8 @@ import java.util.regex.Matcher;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
+import ar.com.hjg.pngj.ImageLineByte;
+import ar.com.hjg.pngj.PngReaderByte;
 import com.raytheon.edex.plugin.satellite.SatelliteDecoderException;
 import com.raytheon.edex.util.satellite.SatSpatialFactory;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -97,7 +101,9 @@ import com.raytheon.uf.edex.plugin.satellite.gini.lookup.NumericLookupTable;
  *                                      replaced database lookups with in memory tables
  * Apr 15, 2014  4388     bsteffen    Set Fill Value.
  * Feb 18, 2016  4838     skorolev    Corrected image rotation for scanMode = 3.
- * Jun 23, 2016           mjames@ucar Handle UCAR FNEXRAD GINI composite imagery.
+ * Jun 23, 2016           mjames@ucar Handle pngg2gini'd FNEXRAD gini files.
+ * Oct 20, 2017           mjames@ucar Decode Unidata PNG-compressed imagery.
+ *
  * 
  * </pre>
  * 
@@ -251,34 +257,45 @@ public class GiniSatelliteDecoder {
 
                 record = new SatelliteRecord();
 
-                if (isCompressed(byteBuffer)) {
+                if (isZlibCompressed(byteBuffer)) {
                     /*
-                     * If the data is compressed, we assume it came from the SBN
-                     * and will have a reasonable size such that we can have two
-                     * copies of the data in memory at the same time. Ideally,
-                     * SBN decompression should be performed upstream from EDEX
-                     * and this code would be removed.
+                     * Two copies in memory here
                      */
                     byte[] data = new byte[(int) file.length()
                             - byteBuffer.position()];
                     f.seek(byteBuffer.position());
                     f.readFully(data);
-                    byte[][] retVal = decompressSatellite(data);
+
+                    byte[][] retVal = decompressZlibSatellite(data);
+
                     byteBuffer = ByteBuffer.wrap(retVal[0]);
                     tempBytes = retVal[1];
+
                 } else {
                     /*
                      * The code bellow performs absolute gets on the buffer, so
                      * it needs to be compacted.
                      */
+
                     byteBuffer.compact();
                     byteBuffer.flip();
+
+                    int compressionFlag = byteBuffer.get(42);
+                    // Unidata PNG compression flag
+                    if (compressionFlag == -128) { 
+
+                        byte[] pngdata = new byte[(int) file.length() - offsetOfDataInFile];
+                        f.seek(offsetOfDataInFile);
+                        f.readFully(pngdata);
+
+                        tempBytes = decompressPngSatellite(pngdata);
+
+                    }
                 }
 
                 // get the scanning mode
                 int scanMode = byteBuffer.get(37);
 
-                
                 // read the creating entity
                 byte entityByte = byteBuffer.get(1);
                 String entity = creatingEntityTable.lookup(entityByte);
@@ -333,6 +350,7 @@ public class GiniSatelliteDecoder {
 
                 // read the century
                 intValue = 1900 + byteBuffer.get(8);
+                // TODO: update this with png inflate
                 // correction for pngg2gini
                 if (entityByte == UCAR && byteBuffer.get(8) < 100)
                 	intValue = 2000 +  byteBuffer.get(8);
@@ -372,11 +390,6 @@ public class GiniSatelliteDecoder {
 
                 // get the image resolution
                 // imageResolution = (int) byteBuffer.get(41);
-
-                // get the data compression
-                // if (byteBuffer.get(42) == 0) {
-                // compression = false;
-                // }
 
                 // get the version number
                 // int pdbVersion = (int) byteBuffer.get(43);
@@ -435,13 +448,13 @@ public class GiniSatelliteDecoder {
                 int ny = byteBuffer.getShort(18);
 
                 /*
-                 * If input was SBN-compressed, we already have the data loaded.
+                 * If input was compressed (zlib or PNG) we already have the data loaded.
                  * If not, load it now.
                  */
                 if (tempBytes == null) {
-                    tempBytes = new byte[nx * ny];
-                    f.seek(offsetOfDataInFile);
-                    f.readFully(tempBytes, 0, tempBytes.length);
+			tempBytes = new byte[nx * ny];
+			f.seek(offsetOfDataInFile);
+			f.readFully(tempBytes, 0, tempBytes.length);
                 }
 
                 /*
@@ -616,19 +629,19 @@ public class GiniSatelliteDecoder {
     }
 
     /**
-     * Checks to see if the current satellite product is compressed.
+     * Checks to see if the current satellite product is zlib compressed.
      * 
      * Assumes messageData is a byte[]-backed ByteBuffer.
      * 
      * @return A boolean indicating if the file is compressed or not
      */
-    private boolean isCompressed(ByteBuffer messageData) {
+    private boolean isZlibCompressed(ByteBuffer messageData) {
         boolean compressed = true;
         byte[] placeholder = new byte[10];
         Inflater decompressor = new Inflater();
         try {
             decompressor.setInput(messageData.array(), messageData.position(),
-                    messageData.remaining());
+		messageData.remaining());
             decompressor.inflate(placeholder);
         } catch (DataFormatException e) {
             compressed = false;
@@ -639,13 +652,40 @@ public class GiniSatelliteDecoder {
     }
 
     /**
-     * Method to handle compressed satellite data.
+     * Method to handle Unidata PNG compressed satellite data.
+     *
+     * @param messageData
+     * @return
+     * @throws DecoderException
+     */
+    private byte[] decompressPngSatellite(byte[] messageData)
+            throws SatelliteDecoderException {
+
+        InputStream stream = new ByteArrayInputStream(messageData);
+        PngReaderByte png = new PngReaderByte(stream);
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream(MAX_IMAGE_SIZE);
+        byte[] inflated = null;
+
+        for (int row=0;row< png.getImgInfo().rows;row++){
+		ImageLineByte line = png.readRowByte();
+		byte [] buf = line.getScanlineByte();
+		bos.write(buf, 0, buf.length);
+        }
+
+        inflated = bos.toByteArray();
+        bos = null;
+        return inflated;
+    }
+
+	/**
+     * Method to handle zlib compressed satellite data.
      * 
      * @param messageData
      * @return
      * @throws DecoderException
      */
-    private byte[][] decompressSatellite(byte[] messageData)
+    private byte[][] decompressZlibSatellite(byte[] messageData)
             throws SatelliteDecoderException {
         byte[] retVal = null;
 

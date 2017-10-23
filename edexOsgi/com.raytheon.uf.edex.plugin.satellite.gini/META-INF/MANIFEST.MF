@@ -15,6 +15,7 @@ Require-Bundle: com.raytheon.edex.plugin.satellite;bundle-version="1.14.1",
  com.raytheon.uf.common.util;bundle-version="1.14.1",
  com.raytheon.uf.edex.core;bundle-version="1.14.1",
  com.raytheon.uf.common.datastorage;bundle-version="1.14.0",
- com.raytheon.uf.common.geospatial;bundle-version="1.15.1"
+ com.raytheon.uf.common.geospatial;bundle-version="1.15.1",
+ ar.com.hjg.pngj;bundle-version="2.1.1"
 Export-Package: com.raytheon.uf.edex.plugin.satellite.gini,
  com.raytheon.uf.edex.plugin.satellite.gini.lookup
