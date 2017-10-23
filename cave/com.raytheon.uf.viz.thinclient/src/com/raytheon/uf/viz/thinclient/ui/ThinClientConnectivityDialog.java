@@ -92,8 +92,8 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
 
     private String proxyAddress;
 
-    public ThinClientConnectivityDialog() {
-        super("Unidata AWIPS");
+    public ThinClientConnectivityDialog(boolean checkAlertViz) {
+        super(checkAlertViz, "Unidata AWIPS");
         IPreferenceStore store = Activator.getDefault().getPreferenceStore();
         dataRefreshMethod = store
                 .getString(ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD);

@@ -80,8 +80,9 @@ public class ThinClientLocalizationInitializer extends LocalizationInitializer {
      * @param promptUI
      * @param checkAlertViz
      */
-    public ThinClientLocalizationInitializer(boolean promptUI) {
-        super(promptUI);
+    public ThinClientLocalizationInitializer(boolean promptUI,
+            boolean checkAlertViz) {
+        super(promptUI, checkAlertViz);
     }
 
     @Override
@@ -92,7 +93,8 @@ public class ThinClientLocalizationInitializer extends LocalizationInitializer {
         confBuilder.setGzipEnabled(true);
         HttpClient.configureGlobalInstance(confBuilder.build());
         if (promptUI) {
-            ThinClientConnectivityDialog dlg = new ThinClientConnectivityDialog();
+            ThinClientConnectivityDialog dlg = new ThinClientConnectivityDialog(
+                    checkAlertviz);
             if (dlg.open() == true) {
                 System.exit(0);
             }

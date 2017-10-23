@@ -89,7 +89,7 @@ public class ThinAlertVizComponent extends AlertVizApplication implements
         cacheManager = new ThinClientCacheManager(
                 new LocalizationCachePersistence());
         cacheManager.restoreCaches();
-        new ThinClientLocalizationInitializer(true).run();
+        new ThinClientLocalizationInitializer(true, false).run();
     }
 
     @Override

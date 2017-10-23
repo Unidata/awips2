@@ -220,7 +220,7 @@ public class AlertVizApplication implements IStandaloneComponent {
 
     protected void initializeLocalization() throws Exception {
         PathManagerFactory.setAdapter(new CAVELocalizationAdapter());
-        new LocalizationInitializer(true).run();
+        new LocalizationInitializer(true, false).run();
         AlertVizLocalizationConfigurer.registerExtraLevels();
     }
 
