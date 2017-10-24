@@ -19,9 +19,13 @@
  **/
 package com.raytheon.uf.edex.plugin.satellite.mcidas;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
@@ -29,8 +33,12 @@ import java.util.TimeZone;
 import org.apache.commons.codec.binary.Base64;
 import org.opengis.referencing.crs.ProjectedCRS;
 
+import ar.com.hjg.pngj.ImageLineByte;
+import ar.com.hjg.pngj.PngReaderByte;
+
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
+import com.raytheon.edex.plugin.satellite.SatelliteDecoderException;
 import com.raytheon.edex.util.satellite.SatSpatialFactory;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
@@ -79,6 +87,7 @@ import com.raytheon.uf.edex.plugin.satellite.mcidas.util.McidasSatelliteLookups.
  * 05/19/2015	----        mjames@ucar Added decoding of GVAR native projection products
  * 07/12/2015	----        mjames@ucar Account for GOES E and W UNIWISC AREA file numbers
  * 01/21/2016   ----        mjames@ucar Cleanup
+ * 10/24/2017   ----        mjames@ucar Native support for PNG-compressed AREA files.
  * </pre>
  * 
  * @author
@@ -99,6 +108,10 @@ public class McidasSatelliteDecoder {
 
     final int SIZE_OF_AREA = 256;
     
+    final int PNG_HEADER_LENGTH = 240;
+
+    private final byte[] PNG_HDR = { -119, 80, 78, 71 };
+
     private static final double HALFPI = Math.PI / 2.;
 
     private static final double RTD = 180. / Math.PI;
@@ -144,7 +157,6 @@ public class McidasSatelliteDecoder {
      */
     private PluginDataObject[] decodeMcidasArea(byte[] data) throws Exception {
        
-        
         byte[] area = null;
         byte[] nonAreaBlock = new byte[data.length - SIZE_OF_AREA];
         area = new byte[SIZE_OF_AREA];
@@ -230,21 +242,13 @@ public class McidasSatelliteDecoder {
         	navsize = calibrationOffset - navBlockOffset;
         }
         byte[] navigation = new byte[navsize];
+        byte[] nonNavBlock = new byte[nonAreaBlock.length - navsize];
         System.arraycopy(nonAreaBlock, 0, navigation, 0, navsize);
-        
-        /* mjames@ucar
-         * bandMap1to32 is a 32-bit filter band map for multichannel images.
-         * if a bit is set, data exists for the band; band 1 is the least 
-         * significant byte (rightmost)
-         * 
-         * Example: for GVAR GEWCOMP UNIWISC image,
-         * 		bandMap1to32 = 4
-         * 		bandMap33to64 = -1, so 
-         * nBands = 1
-         * bandBitsCount = 33
-         * 
-         * this is a problem...
-         */
+        System.arraycopy(nonAreaBlock, navsize, nonNavBlock, 0, nonNavBlock.length);
+
+        byte[] pngBlock = new byte[nonNavBlock.length - PNG_HEADER_LENGTH];
+        System.arraycopy(nonNavBlock, PNG_HEADER_LENGTH, pngBlock, 0, pngBlock.length);
+
         long bandBits = ((long) bandMap33to64 << 32) | bandMap1to32;
         long bandBitsCount =  Long.bitCount(bandBits);
         if (nBands != bandBitsCount && nBands > 1) {
@@ -281,11 +285,16 @@ public class McidasSatelliteDecoder {
             // TODO: Line pad if not a multiple of four bytes
             if ((linePrefixLength == 0) && (nBytesPerElement == 1)
                     && (nBands == 1)) {
-                byte[] imageBytes = new byte[nLines * nElementsPerLine];
-                buf.position(dataBlockOffset);
-                buf.get(imageBytes);
 
-                rec.setMessageData(imageBytes);
+                if (isPngCompressed(pngBlock)) {
+			byte[] pngBytes = decompressPngSatellite(pngBlock);
+			rec.setMessageData(pngBytes);
+		} else {
+			byte[] imageBytes = new byte[nLines * nElementsPerLine];
+			buf.position(dataBlockOffset);
+			buf.get(imageBytes);
+			rec.setMessageData(imageBytes);
+		}
 
             } else if (nBytesPerElement == 1) {
                 byte[] imageBytes = new byte[nLines * nElementsPerLine];
@@ -326,6 +335,47 @@ public class McidasSatelliteDecoder {
         }
 
         return result;
+    }
+
+    /**
+     * Method to check if file is PNG-compressed.
+     *
+     * @param messageData
+     * @return
+     */
+    private boolean isPngCompressed(byte[] messageData) {
+	byte[] buffer = new byte[4];
+	System.arraycopy(messageData, 0, buffer, 0, buffer.length);
+	boolean compressed = Arrays.equals(buffer, PNG_HDR);
+	return compressed;
+    }
+
+    /**
+     * Method to handle Unidata PNG compressed satellite data.
+     *
+     * @param messageData
+     * @return
+     * @throws DecoderException
+     */
+    private byte[] decompressPngSatellite(byte[] messageData)
+            throws SatelliteDecoderException {
+
+        InputStream stream = new ByteArrayInputStream(messageData);
+        PngReaderByte png = new PngReaderByte(stream);
+
+        int MAX_IMAGE_SIZE = 30000000;
+        ByteArrayOutputStream bos = new ByteArrayOutputStream(MAX_IMAGE_SIZE);
+        byte[] inflated = null;
+
+        for (int row=0;row< png.getImgInfo().rows;row++){
+		    ImageLineByte line = png.readRowByte();
+		    byte [] buf = line.getScanlineByte();
+		    bos.write(buf, 0, buf.length);
+        }
+
+        inflated = bos.toByteArray();
+        bos = null;
+        return inflated;
     }
 
     /**
