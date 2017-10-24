@@ -32,6 +32,7 @@
                 <resource>
                     <loadProperties loadWithoutData="true">
                         <capabilities>
+                            <capability xsi:type="colorableCapability" colorAsString="white"/>
                             <capability xsi:type="colorMapCapability">
                                 <colorMapParameters colorMapName="Radar/DHR"/>
                             </capability>
