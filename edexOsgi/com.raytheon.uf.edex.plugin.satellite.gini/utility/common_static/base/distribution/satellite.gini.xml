@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <requestPatterns xmlns:ns2="group">
-    <!-- 
-    This pattern excludes the current "prototype" WMO headers for future GOES-R data.
-     -->
     <regex>TI[CGT]... ....</regex>
+    <regex>rad/NEXRCOMP</regex>
+    <regex>.*.gini.*</regex>
     <regex>.*.gini</regex>
-    <regex>.*.gini.png</regex>
 </requestPatterns>

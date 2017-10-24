@@ -158,6 +158,5 @@ To see a list of the data plug-ins that have purge rules:
     /awips2/edex/data/utility/common_static/base/purge/ghcdPurgeRules.xml
     /awips2/edex/data/utility/common_static/base/purge/ntransPurgeRules.xml
     /awips2/edex/data/utility/common_static/base/purge/regionalsatPurgeRules.xml
-    /awips2/edex/data/utility/common_static/base/purge/nctafPurgeRules.xml
     /awips2/edex/data/utility/common_static/base/purge/solarimagePurgeRules.xml
     /awips2/edex/data/utility/common_static/site/AFC/purge/regionalsatPurgeRules.xml
