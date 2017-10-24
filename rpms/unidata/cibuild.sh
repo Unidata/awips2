@@ -1,4 +1,4 @@
-#!/bin/bash -v
+#!/bin/bash
 set -xe
 if  [[ ${2} = "buildCAVE" ]]; then
   rm -rf /awips2/jenkins/buildspace/workspace/AWIPS2-UPC_build/baseline/

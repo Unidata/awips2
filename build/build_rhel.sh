@@ -29,7 +29,7 @@ git clone https://github.com/Unidata/awips2-nws.git --branch unidata_${AWIPSII_V
 
 cd /awips2/repo/awips2-builds/rpms/unidata/
 
-/bin/bash cibuild.sh -qpid
-/bin/bash cibuild.sh -b buildEDEX
+/bin/bash cibuild.sh -qpid 
+/bin/bash cibuild.sh -b buildEDEX >& /dev/null
 
 find /awips2/jenkins/build/rpms/awips2_${AWIPSII_VERSION}/
