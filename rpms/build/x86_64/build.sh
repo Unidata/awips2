@@ -163,7 +163,7 @@ fi
 
 
 if [ "${1}" = "-localization" ]; then
-  buildLocalizationRPMs
+  buildLocalization
 fi
 
 if [ "${1}" = "-server" ]; then
@@ -178,7 +178,7 @@ if [ "${1}" = "-server" ]; then
    #buildRPM "awips2-notification"
    buildRPM "awips2-common-base"
    buildRPM "awips2-httpd-pypies"
-   buildLocalizationRPMs
+   buildLocalization
    buildRPM "awips2-adapt-native"
    buildRPM "awips2-cli"
    buildRPM "awips2-edex-environment"
@@ -211,7 +211,7 @@ if [ "${1}" = "-rh6" ]; then
    buildRPM "awips2-qpid-java"
    buildRPM "awips2-qpid-java-broker"
    buildRPM "awips2-postgresql"
-   buildLocalizationRPMs
+   buildLocalization
    buildRPM "awips2-adapt-native"
    buildRPM "awips2-cli"
    buildRPM "awips2-edex-environment"
