@@ -1,6 +1,6 @@
 # Case Study Server Configuration
 
-This document covers what is necessary to install and run AWIPS EDEX as an archive and case study server (no purging or data).
+This document covers what is necessary to install and run AWIPS EDEX as an archive and case study server (no purging of data).
 
 ## Quick Install
 
