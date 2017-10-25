@@ -1,4 +1,4 @@
-#!python
+#!/awips2/python/bin/python
 # simple wrapper to the qpidNotify Python module
 from awips.qpidingest import *
 import sys
