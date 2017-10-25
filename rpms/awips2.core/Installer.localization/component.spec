@@ -145,15 +145,7 @@ fi
 %pre
 
 %post
-# only import the shapefiles and/or hydro databases, if we are on 
-# the same machine as the db.
 # verify the following exists:
-#   1) /awips2/data/maps
-#   2) /awips2/postgresql/bin/postmaster
-#   3) /awips2/postgresql/bin/pg_ctl
-#   4) /awips2/psql/bin/psql
-#   5) /awips2/database/sqlScripts/share/sql/maps/importShapeFile.sh
-#   6) /awips2/postgresql/bin/pg_restore
 if [ ! -d /awips2/data/maps ] ||
    [ ! -f /awips2/postgresql/bin/postmaster ] ||
    [ ! -f /awips2/postgresql/bin/pg_ctl ] ||
@@ -164,8 +156,7 @@ if [ ! -d /awips2/data/maps ] ||
    exit 0
 fi
 
-localization_db_log="localization_db.log"
-log_file="/awips2/database/sqlScripts/share/sql/${localization_db_log}"
+log_file="/awips2/database/sqlScripts/share/sql/localization_db.log"
 if [ -f ${log_file} ]; then
    /bin/rm -f ${log_file}
 fi
@@ -181,22 +172,15 @@ function prepare()
    if [ "${POSTGRESQL_RUNNING}" = "YES" ]; then
       return 0
    fi
-   
    local a2_postmaster="/awips2/postgresql/bin/postmaster"
    local a2_pg_ctl="/awips2/postgresql/bin/pg_ctl"
-   
-   # retrieve the owner of the database
    DB_OWNER=`ls -l /awips2/ | grep -w 'data' | awk '{print $3}'`
-   
-   # determine if PostgreSQL is running
    I_STARTED_POSTGRESQL="NO"
    echo "Determining if PostgreSQL is running ..." >> ${log_file}
    su - ${DB_OWNER} -c \
       "${a2_pg_ctl} status -D /awips2/data >> ${log_file} 2>&1"
    RC=$?
    echo "" >> ${log_file}
-   
-   # start PostgreSQL if it is not running as the user that owns data
    if [ ${RC} -eq 0 ]; then
       echo "INFO: PostgreSQL is running." >> ${log_file}
    else
@@ -207,13 +191,11 @@ function prepare()
          echo "FATAL: Failed to start PostgreSQL." >> ${log_file}
          return 0
       fi
-   
       # give PostgreSQL time to start.
       /bin/sleep 10
       I_STARTED_POSTGRESQL="YES"
    fi
    POSTGRESQL_RUNNING="YES"
-   
    return 0  
 }
 
@@ -222,12 +204,8 @@ function restartPostgreSQL()
    if [ "${POSTGRESQL_RUNNING}" = "NO" ]; then
       return 0
    fi
-   
    local a2_pg_ctl="/awips2/postgresql/bin/pg_ctl"
-   
-   # retrieve the owner of the database
    DB_OWNER=`ls -l /awips2/ | grep -w 'data' | awk '{print $3}'`
-   
    echo "Restarting PostgreSQL ..." >> ${log_file}
    su - ${DB_OWNER} -c \
       "${a2_pg_ctl} restart -D /awips2/data" >> ${log_file}
@@ -238,46 +216,25 @@ function restartPostgreSQL()
 function importShapefiles()
 {   
    local site_directory="${edex_utility}/common_static/site/OAX"
-   
-   # determine if we include ffmp shapefiles
    local ffmp_shp_directory="${site_directory}/shapefiles/FFMP"
-   
-   # if we do not, halt
    if [ ! -d ${ffmp_shp_directory} ]; then
       return 0
    fi
-   
-   # shapefiles exist
-   
    prepare
-   
-   # verify the both the basins and streams shapefile are present.
    if [ ! -f ${ffmp_shp_directory}/FFMP_aggr_basins.shp ] ||
       [ ! -f ${ffmp_shp_directory}/FFMP_ref_sl.shp ]; then
-      # if they are not, exit
       return 0
    fi
-   
-   # verify that the files the streams and basins shapefile depend on
-   # are present.
    if [ ! -f ${ffmp_shp_directory}/FFMP_aggr_basins.dbf ] ||
       [ ! -f ${ffmp_shp_directory}/FFMP_aggr_basins.shx ] ||
       [ ! -f ${ffmp_shp_directory}/FFMP_ref_sl.dbf ] ||
       [ ! -f ${ffmp_shp_directory}/FFMP_ref_sl.shx ]; then
-      # if they are not, exit
       return 0
    fi
-   
    local a2_shp_script="/awips2/database/sqlScripts/share/sql/maps/importShapeFile.sh"
-   
    echo "Importing the FFMP Shapefiles ... Please Wait."
-   /bin/date >> ${log_file}
    echo "Preparing to import the FFMP shapefiles ..." >> ${log_file}   
-   
-   echo "" >> ${log_file}
-   # import the shapefiles; log the output
-   
-   # import the ffmp basins
+
    /bin/bash ${a2_shp_script} \
       ${ffmp_shp_directory}/FFMP_aggr_basins.shp \
       mapdata ffmp_basins 0.064,0.016,0.004,0.001 \
@@ -287,7 +244,6 @@ function importShapefiles()
       return 0
    fi
    
-   # import the ffmp streams
    /bin/bash ${a2_shp_script} \
       ${ffmp_shp_directory}/FFMP_ref_sl.shp \
       mapdata ffmp_streams 0.064,0.016,0.004,0.001 \
@@ -296,17 +252,26 @@ function importShapefiles()
       echo "FATAL: failed to import the FFMP streams." >> ${log_file}
       return 0
    fi
-   
-   # indicate success
    echo "INFO: The FFMP shapefiles were successfully imported." >> ${log_file}
-   return 0
+
+   static_shp_directory="${edex_utility}/edex_static/base/shapefiles"
+   /bin/bash ${a2_shp_script} \
+      ${static_shp_directory}/NHAdomain/NHAdomain.shp mapdata nhadomain >> ${log_file} 2>&1
+   if [ $? -ne 0 ]; then
+      echo "FATAL: failed to import NHAdomain." >> ${log_file}
+   fi
+   /bin/bash ${a2_shp_script} \
+      ${static_shp_directory}/StormSurgeWW/StormSurgeWW.shp mapdata stormsurgeww >> ${log_file} 2>&1
+   if [ $? -ne 0 ]; then
+      echo "FATAL: failed to import StormSurgeWW." >> ${log_file}
+   fi
+   echo "INFO: NHAdomain and StormSurgeWW shapefiles were successfully imported." >> ${log_file}
+
 }
 
 function removeHydroDbDirectory()
 {
-   # remove the hydro db directory since it is not officially part
-   # of the localization.
-
+   # remove the hydro db directory since it is not officially part of the localization.
    local site_directory="${edex_utility}/common_static/site/OAX"
    local hydro_db_directory="${site_directory}/hydro/db"
    
@@ -398,8 +363,6 @@ function restoreHydroDb()
    # the restoration may cause the return code to indicate a failure even
    # though the database was successfully restored.
    
-   echo "" >> ${log_file} 
-   
    echo "Restoring Database ${IHFS_DATABASE} ..." >> ${log_file}
    ${a2_pg_restore} -U awips -C -d postgres ${hydro_db_directory}/${IHFS_DATABASE} \
       >> ${log_file} 2>&1
@@ -412,24 +375,9 @@ function restoreHydroDb()
 }
 
 importShapefiles
-restoreHydroDb
-removeHydroDbDirectory
 
-
-
-static_shp_directory="${edex_utility}/edex_static/base/shapefiles"
-a2_shp_script="/awips2/database/sqlScripts/share/sql/maps/importShapeFile.sh"
-/bin/bash ${a2_shp_script} \
-   ${static_shp_directory}/NHAdomain/NHAdomain.shp mapdata nhadomain >> ${log_file} 2>&1
-if [ $? -ne 0 ]; then
-   echo "FATAL: failed to import NHAdomain." >> ${log_file}
-fi
-/bin/bash ${a2_shp_script} \
-   ${static_shp_directory}/StormSurgeWW/StormSurgeWW.shp mapdata stormsurgeww >> ${log_file} 2>&1
-if [ $? -ne 0 ]; then
-   echo "FATAL: failed to import StormSurgeWW." >> ${log_file}
-fi
-echo "INFO: NHAdomain and StormSurgeWW shapefiles were successfully imported." >> ${log_file}
+#restoreHydroDb
+#removeHydroDbDirectory
 
 #PSQL="/awips2/psql/bin/psql"
 #echo "Adding KLGX to metadata.radar_spatial from common_static/base/radar/radar_add_klgx.sql"
@@ -439,7 +387,6 @@ a2_pg_ctl="/awips2/postgresql/bin/pg_ctl"
 # if we started PostgreSQL, shutdown PostgreSQL
 if [ "${I_STARTED_POSTGRESQL}" = "YES" ]; then
    echo "" >> ${log_file}
-
    su - ${DB_OWNER} -c \
       "${a2_pg_ctl} stop -D /awips2/data" >> ${log_file}
    if [ $? -ne 0 ]; then
@@ -450,7 +397,6 @@ if [ "${I_STARTED_POSTGRESQL}" = "YES" ]; then
       /bin/sleep 10
    fi
 fi
-
 exit 0
 
 %preun
