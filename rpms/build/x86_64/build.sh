@@ -146,18 +146,18 @@ if [ "${1}" = "-python" ]; then
 fi
 
 if [ "${1}" = "-database" ]; then
-   #buildRPM "awips2-database"
-   #buildRPM "awips2-postgresql"
+   buildRPM "awips2-database"
+   buildRPM "awips2-postgresql"
    buildRPM "awips2-maps-database"
    buildRPM "awips2-ncep-database"
-   #buildRPM "awips2-data.hdf5-topo"
-   #buildRPM "awips2-data.gfe"
+   buildRPM "awips2-edex-shapefiles"
+   buildRPM "awips2-data.hdf5-topo"
+   buildRPM "awips2-data.gfe"
 fi
 
 if [ "${1}" = "-edex" ]; then
    buildEDEX
    buildRPM "awips2-edex-environment"
-   buildRPM "awips2-edex-shapefiles"
    buildRPM "awips2-edex-upc"
 fi
 
