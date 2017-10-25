@@ -54,6 +54,7 @@ pages:
     - Purging and Retention: edex/data-purge.md
     - Monitor Users: edex/edex-users.md
     - Data Plugins: edex/data-plugins.md
+    - Archive Case Studies: edex/case-studies.md
 - Supported Data Types:
     - Gridded Model Display: cave/d2d-grids.md
     - Surface Obs: cave/d2d-pointdata-surface-obs.md
