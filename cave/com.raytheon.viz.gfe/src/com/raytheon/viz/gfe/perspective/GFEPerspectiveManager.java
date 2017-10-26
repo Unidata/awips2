@@ -64,7 +64,6 @@ import com.raytheon.viz.gfe.core.GFEMapRenderableDisplay;
 import com.raytheon.viz.gfe.core.ISpatialDisplayManager;
 import com.raytheon.viz.gfe.core.internal.GFESpatialDisplayManager;
 import com.raytheon.viz.gfe.rsc.GFELegendResourceData;
-import com.raytheon.viz.gfe.statusline.ISCSendEnable;
 import com.raytheon.viz.gfe.tasks.TaskManager;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.cmenu.ZoomMenuAction;
@@ -96,6 +95,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * Aug 24, 2015      4749   dgilling    Shutdown TaskManager on perspective close.
  * Sep 21, 2015      4858   dgilling    Display warning message when DRT mode is enabled.
  * Jan 25, 2015      5256   njensen     Add bindings to existing BindingManager and BindingService
+ * Jul 19, 2017      ----   mjames@ucar Remove ISCSendEnable.
  * 
  * </pre>
  * 
@@ -267,7 +267,6 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager
     @Override
     protected List<ContributionItem> getStatusLineItems() {
         List<ContributionItem> items = super.getStatusLineItems();
-        items.add(new ISCSendEnable());
         return items;
     }
 

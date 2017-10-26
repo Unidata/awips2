@@ -1,38 +1,40 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<!-- This_software_was_developed_and_/_or_modified_by_Raytheon_Company, pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government. 
-	U.S._EXPORT_CONTROLLED_TECHNICAL_DATA This_software_product_contains_export-restricted_data_whose 
-	export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires 
-	an_export_license_or_other_authorization. Contractor_Name:________Raytheon_Company 
-	Contractor_Address:_____6825_Pine_Street,_Suite_340 ________________________Mail_Stop_B8 
-	________________________Omaha,_NE_68106 ________________________402.291.0100 
-	See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for further_licensing_information. -->
 <bundle>
 	<displayList>
 		<displays xsi:type="d2DMapRenderableDisplay"
 			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 			<descriptor xsi:type="mapDescriptor">
 				<resource>
-					<loadProperties xsi:type="gridLoadProperties"
-						displayType="CONTOUR" loadWithoutData="false">
-						<capabilities>
-							<capability xsi:type="outlineCapability" lineStyle="SOLID"
-								outlineOn="true" outlineWidth="1" />
-						</capabilities>
-					</loadProperties>
-					<properties renderingOrderId="CONTOUR" isSystemResource="false"
-						isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
-						<pdProps maxDisplayWidth="100000000" minDisplayWidth="0" />
-					</properties>
-					<resourceData xsi:type="gridResourceData"
-						retrieveData="true" isUpdatingOnMetadataOnly="false"
-						isRequeryNecessaryOnTimeMatch="true">
+					<loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
+                                <resourceType>PLAN_VIEW</resourceType>
+                                <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="true"/>
+                                <capabilities>
+                                    <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
+                                    <capability xsi:type="displayTypeCapability" displayType="IMAGE"/>
+                                    <capability xsi:type="imagingCapability" contrast="1.0" brightness="0.8" interpolationState="false" alpha="1.0"/>
+                                    <capability xsi:type="densityCapability" density="1.0"/>
+                                    <capability xsi:type="colorableCapability" colorAsString="white"/>
+                                    <capability xsi:type="colorMapCapability">
+                                        <colorMapParameters colorMapName="Grid/Probability of Excessive Rainfall">
+                                            <persisted>
+                                                <colorMapMin>0.0</colorMapMin>
+                                                <colorMapMax>21.0</colorMapMax>
+                                            </persisted>
+                                        </colorMapParameters>
+                                    </capability>
+                                    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+                                </capabilities>
+                            </loadProperties>
+					<properties renderingOrderId="IMAGE_WORLD" isSystemResource="false"
+						isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true" />
+					<resourceData xsi:type="gridResourceData" sampling="true" spatial="false" 
+						isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
 						<metadataMap>
 							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="PPFFG" constraintType="IN" />
+								<constraint constraintValue="${param}" constraintType="IN" />
 							</mapping>
 							<mapping key="info.datasetId">
-								<constraint constraintValue="HPCqpfNDFD"
-									constraintType="EQUALS" />
+								<constraint constraintValue="HPCqpfNDFD" constraintType="EQUALS" />
 							</mapping>
 							<mapping key="info.level.leveltwovalue">
 								<constraint constraintValue="-999999" constraintType="EQUALS" />
@@ -45,7 +47,31 @@
 						<alertParser xsi:type="dataCubeAlertMessageParser" />
 					</resourceData>
 				</resource>
-
+				<resource>
+                    <loadProperties loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="false"/>
+                        <capabilities>
+                            <capability xsi:type="colorableCapability" colorAsString="white"/>
+                            <capability xsi:type="magnificationCapability" magnification="1.25"/>
+                            <capability xsi:type="outlineCapability" outlineWidth="3" outlineOn="true" lineStyle="DEFAULT"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties isVisible="true" isHoverOn="false" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="PLOT">
+                        <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                    </properties>
+                    <resourceData xsi:type="redbookResourceData" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
+                        <metadataMap>
+                            <mapping key="wmoTTAAii">
+                                <constraint constraintType="EQUALS" constraintValue="PEI745"/>
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintType="EQUALS" constraintValue="redbook"/>
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+			<numberOfFrames>${frameCount}</numberOfFrames>
 			</descriptor>
 		</displays>
 	</displayList>

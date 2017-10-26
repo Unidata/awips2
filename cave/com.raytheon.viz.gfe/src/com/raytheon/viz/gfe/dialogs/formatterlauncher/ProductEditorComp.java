@@ -1207,14 +1207,6 @@ public class ProductEditorComp extends Composite implements
                     pid = "kkkknnnxxx";
                 }
             }
-
-            // The dialog being opened is modal to the parent dialog. This will
-            // prevent the launching of another dialog until the modal dialog is
-            // closed.
-            StoreTransmitDlg storeDlg = new StoreTransmitDlg(parent.getShell(),
-                    showStore, this, transmissionCB, pid, !textComp.isCorMode()
-                            && (action == Action.TRANSMIT));
-            storeDlg.open();
         }
     }
 

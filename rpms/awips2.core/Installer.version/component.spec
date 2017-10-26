@@ -105,20 +105,6 @@ function updateEDEXVersion()
       >> ${EDEX_BANNER_TXT}
 }
 
-function updateAlertVizVersion() {
-   # Note: alertviz does not include any of the branding information that CAVE does.
-   # So, we will only be utilizing the version override.
-   AWIPS_VERSION_TXT=/awips2/alertviz/awipsVersion.txt
-
-   echo "--launcher.appendVmargs" > ${AWIPS_VERSION_TXT}
-   echo "-vmargs" >> ${AWIPS_VERSION_TXT}
-   echo "-DvizVersion=%{_component_version}-%{_component_release}" >> ${AWIPS_VERSION_TXT}
-}
-
-if [ -d /awips2/alertviz ]; then
-   updateAlertVizVersion
-fi
-
 EDEX_BANNER_TXT="/awips2/edex/conf/banner.txt"
 # does banner.txt exist?
 if [ -f ${EDEX_BANNER_TXT} ]; then

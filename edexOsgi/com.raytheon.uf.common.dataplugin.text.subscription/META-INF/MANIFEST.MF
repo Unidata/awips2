@@ -14,7 +14,6 @@ Import-Package:
  com.raytheon.uf.common.message,
  com.raytheon.uf.common.serialization.comm,
  javax.persistence
-Export-Package: com.raytheon.uf.common.dataplugin.text.subscription,
- com.raytheon.uf.common.dataplugin.text.subscription.db,
+Export-Package: com.raytheon.uf.common.dataplugin.text.subscription.db,
  com.raytheon.uf.common.dataplugin.text.subscription.request
 

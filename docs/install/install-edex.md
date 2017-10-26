@@ -17,6 +17,8 @@ EDEX **can scale to any system**, either by adjusting the incoming data feeds, o
 
 **64-bit CentOS/RHEL 6 and 7** are the only supported Linux operating systems. You may have luck with Fedora Core 12 to 14 and Scientific Linux. EDEX is not developed, tested, or supported on Debian, Ubuntu, SUSE, Solaris, OS X, or Windows.
 
+> ### [Read More: Distributed EDEX, Installing Across Multiple Machines](/edex/distributed-computing/)
+
 ---
 
 ## Linux One-Time Setup

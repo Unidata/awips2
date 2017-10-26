@@ -152,7 +152,7 @@
 
 apps_dir           : $(SHARE_DIR)/hydroapps   # Hydrologic applications directory
 
-data_archive_root  : /data_store  # root directory of the data archive
+data_archive_root  : /awips2/data_store  # root directory of the data archive
 
 mcp3_icp_iface     :  $(HOME)/mcp3_ntrfc
 #mcp3_icp_iface    :  /tmp/$(LOGNAME)/mcp3_ntrfc
@@ -530,11 +530,6 @@ xsets_arc     :   $(xsets_dir)/bin/ARCHIVE
 xnav_arc      :   $(xnav_dir)/bin/ARCHIVE
 xdat_arc      :   $(xdat_dir)/bin/ARCHIVE
 #  = = = = = = = = = = = = = = = = = = = = = = end of other "ds_" tokens = = = =
-
-# LDAD shefencode tokens
-ldad_data_dir        :  /awips/ldad/data          # the LDAD internal data dir
-shefenc_pe_table     : $(ldad_data_dir)/ShefEncoder_PE.tbl 
-shefenc_units_table  : $(ldad_data_dir)/ShefEncoder_Units.tbl
 
 # NWSRFS tokens
 

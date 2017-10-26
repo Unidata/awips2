@@ -47,7 +47,7 @@ int HydroBriefDLT::openDatabase()
      
      else
      {
-          printf("Unable to open database %s\n", databaseName); 
+          printf("HydroBriefDLT: Unable to open database %s\n", databaseName); 
 	  isDbOpen = 0;
 	  exit(-4);
      }

@@ -38,7 +38,6 @@ import com.raytheon.viz.gfe.core.msgs.IParmInventoryChangedListener;
 import com.raytheon.viz.gfe.core.msgs.IParmListChangedListener;
 import com.raytheon.viz.gfe.core.msgs.ISystemTimeRangeChangedListener;
 import com.raytheon.viz.gfe.core.parm.Parm;
-import com.raytheon.viz.gfe.core.parm.vcparm.VCModuleJobPool;
 
 /**
  * Placeholder for ParmManager interface
@@ -52,6 +51,7 @@ import com.raytheon.viz.gfe.core.parm.vcparm.VCModuleJobPool;
  * 08/20/2012    #1082     randerso    Moved calcStepTimes to AbstractParmManager for
  *                                     use in PngWriter
  * Aug 13, 2015  4749      njensen     Extends DisposableManager                                    
+ * Jul 19, 2017  ----      mjames@ucar Remove VCModuleJobPool.
  * 
  * </pre>
  * 
@@ -544,6 +544,4 @@ public interface IParmManager extends IParmInventoryChangedListener,
     public ParmID fromExpression(String parmName);
 
     public JobPool getNotificationPool();
-
-    public VCModuleJobPool getVCModulePool();
 }

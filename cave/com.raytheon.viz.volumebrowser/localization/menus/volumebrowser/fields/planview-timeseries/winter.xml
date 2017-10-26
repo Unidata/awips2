@@ -29,8 +29,8 @@
             <contribute xsi:type="menuItem" menuText="GFS Ratio" key="s2H2O_GFS" indentText="false" />
             <contribute xsi:type="menuItem" menuText="NAM Density" key="SDENNAM" indentText="false" />
             <contribute xsi:type="menuItem" menuText="NAM Ratio" key="s2H2O_NAM" indentText="false" />
-            <contribute xsi:type="menuItem" menuText="HPC Mean Density" key="SDENMEAN" indentText="false" />
-            <contribute xsi:type="menuItem" menuText="HPC Mean Ratio" key="s2H2O_MEAN" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="WPC Mean Density" key="SDENMEAN" indentText="false" />
+            <contribute xsi:type="menuItem" menuText="WPC Mean Ratio" key="s2H2O_MEAN" indentText="false" />
         </contribute>
         <contribute xsi:type="subinclude"
             fileName="menus/volumebrowser/fields/planview-timeseries/sfc2d/pwpf.xml" />

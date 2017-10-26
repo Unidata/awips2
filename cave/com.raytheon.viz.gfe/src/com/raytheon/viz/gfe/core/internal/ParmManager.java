@@ -95,7 +95,6 @@ import com.raytheon.viz.gfe.core.parm.ParmDisplayAttributes.VisMode;
 import com.raytheon.viz.gfe.core.parm.VCParm;
 import com.raytheon.viz.gfe.core.parm.VParm;
 import com.raytheon.viz.gfe.core.parm.vcparm.VCModule;
-import com.raytheon.viz.gfe.core.parm.vcparm.VCModuleJobPool;
 import com.raytheon.viz.gfe.types.MutableInteger;
 
 /**
@@ -152,6 +151,7 @@ import com.raytheon.viz.gfe.types.MutableInteger;
  * 03/12/2015    #4246     randerso    Changes to support VCModules at base, site, and user levels
  * 11/17/2015    #5129     dgilling    Changes to support new IFPClient
  * 02/05/2016    #5242     dgilling    Remove calls to deprecated Localization APIs.
+ * Jul 19, 2017  ----      mjames@ucar Remove VCModuleJobPool.
  * </pre>
  * 
  * @author chammack
@@ -287,7 +287,6 @@ public class ParmManager implements IParmManager, IMessageClient {
 
     private JobPool notificationPool;
 
-    private VCModuleJobPool vcModulePool;
 
     private final GridLocation gloc;
 
@@ -327,8 +326,6 @@ public class ParmManager implements IParmManager, IMessageClient {
 
         // Get virtual parm definitions
         vcModules = initVirtualCalcParmDefinitions();
-        vcModulePool = new VCModuleJobPool("GFE Virtual ISC Python executor",
-                this.dataManager, vcModules.size() + 2, Boolean.TRUE);
 
         PythonPreferenceStore prefs = Activator.getDefault()
                 .getPreferenceStore();
@@ -517,7 +514,6 @@ public class ParmManager implements IParmManager, IMessageClient {
 
         notificationPool.cancel();
 
-        vcModulePool.cancel();
         for (VCModule module : vcModules) {
             module.dispose();
         }
@@ -3185,11 +3181,6 @@ public class ParmManager implements IParmManager, IMessageClient {
     @Override
     public JobPool getNotificationPool() {
         return notificationPool;
-    }
-
-    @Override
-    public VCModuleJobPool getVCModulePool() {
-        return vcModulePool;
     }
 
     @Override

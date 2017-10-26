@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Using Branches</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.branchmerge.html" title="Chapter 4. Branching and Merging" />
+    <link rel="prev" href="svn.branchmerge.whatis.html" title="What's a Branch?" />
+    <link rel="next" href="svn.branchmerge.basicmerging.html" title="Basic Merging" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">Using Branches</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.branchmerge.whatis.html">Prev</a> </td>
+          <th width="60%" align="center">Chapter 4. Branching and Merging</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.branchmerge.basicmerging.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="sect1" title="Using Branches">
+      <div class="titlepage">
+        <div>
+          <div>
+            <h2 class="title" style="clear: both"><a id="svn.branchmerge.using"></a>Using Branches</h2>
+          </div>
+        </div>
+      </div>
+      <p>At this point, you should understand how each commit creates
+      a new state of the filesystem tree (called a <span class="quote">“<span class="quote">revision</span>”</span>)
+      in the repository.  If you don't, go back and read about revisions in
+      <a class="xref" href="svn.basic.in-action.html#svn.basic.in-action.revs" title="Revisions">the section called “Revisions”</a>.</p>
+      <p>For this chapter, we'll go back to the same example from
+      <a class="xref" href="svn.basic.html" title="Chapter 1. Fundamental Concepts">Chapter 1, <i>Fundamental Concepts</i></a>.  Remember that you and your
+      collaborator, Sally, are sharing a repository that contains two
+      projects, <code class="filename">paint</code> and
+      <code class="filename">calc</code>.  Notice that in <a class="xref" href="svn.branchmerge.using.html#svn.branchmerge.using.dia-1" title="Figure 4.2. Starting repository layout">Figure 4.2, “Starting repository layout”</a>, however, each project
+      directory now contains subdirectories named
+      <code class="filename">trunk</code> and <code class="filename">branches</code>.
+      The reason for this will soon become clear.</p>
+      <div class="figure">
+        <a id="svn.branchmerge.using.dia-1"></a>
+        <p class="title">
+          <b>Figure 4.2. Starting repository layout</b>
+        </p>
+        <div class="figure-contents">
+          <div>
+            <img src="images/ch04dia2.png" alt="Starting repository layout" />
+          </div>
+        </div>
+      </div>
+      <br class="figure-break" />
+      <p>As before, assume that Sally and you both have working
+      copies of the <span class="quote">“<span class="quote">calc</span>”</span> project.  Specifically, you
+      each have a working copy of <code class="filename">/calc/trunk</code>.
+      All the files for the project are in this subdirectory rather
+      than in <code class="filename">/calc</code> itself, because your team has
+      decided that <code class="filename">/calc/trunk</code> is where the
+      <span class="quote">“<span class="quote">main line</span>”</span> of development is going to take
+      place.</p>
+      <p>Let's say that you've been given the task of implementing a
+      large software feature.  It will take a long time to write, and
+      will affect all the files in the project.  The immediate problem
+      is that you don't want to interfere with Sally, who is in the
+      process of fixing small bugs here and there.  She's depending on
+      the fact that the latest version of the project (in
+      <code class="filename">/calc/trunk</code>) is always usable.  If you
+      start committing your changes bit by bit, you'll surely break
+      things for Sally (and other team members as well).</p>
+      <p>One strategy is to crawl into a hole: you and Sally can stop
+      sharing information for a week or two.  That is, start gutting
+      and reorganizing all the files in your working copy, but don't
+      commit or update until you're completely finished with the task.
+      There are a number of problems with this, though.  First, it's
+      not very safe.  Most people like to save their work to the
+      repository frequently, should something bad accidentally happen
+      to their working copy.  Second, it's not very flexible.  If you
+      do your work on different computers (perhaps you have a working
+      copy of <code class="filename">/calc/trunk</code> on two different
+      machines), you'll need to manually copy your changes back and
+      forth or just do all the work on a single computer.  By that
+      same token, it's difficult to share your changes in progress
+      with anyone else.  A common software development <span class="quote">“<span class="quote">best
+      practice</span>”</span> is to allow your peers to review your work as
+      you go.  If nobody sees your intermediate commits, you lose
+      potential feedback and may end up going down the wrong path for
+      weeks before another person on your team notices.  Finally, when
+      you're finished with all your changes, you might find it very
+      difficult to remerge your final work with the rest of the
+      company's main body of code.  Sally (or others) may have made
+      many other changes in the repository that are difficult to
+      incorporate into your working copy—especially if you
+      run <span class="command"><strong>svn update</strong></span> after weeks of
+      isolation.</p>
+      <p>The better solution is to create your own branch, or line of
+      development, in the repository.  This allows you to save your
+      half-broken work frequently without interfering with others, yet
+      you can still selectively share information with your
+      collaborators.  You'll see exactly how this works as we go.
+      </p>
+      <div class="sect2" title="Creating a Branch">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.branchmerge.using.create"></a>Creating a Branch</h3>
+            </div>
+          </div>
+        </div>
+        <p>Creating a branch is very simple—you make a copy of
+        the project in the repository using the <span class="command"><strong>svn
+        copy</strong></span> command.  Subversion is able to copy not only 
+        single files, but whole directories as well.  In this case,
+        you want to make a copy of the
+        <code class="filename">/calc/trunk</code> directory.  Where should the
+        new copy live?  Wherever you wish—it's a matter of
+        project policy.  Let's say that your team has a policy of
+        creating branches in the <code class="filename">/calc/branches</code>
+        area of the repository, and you want to name your branch
+        <code class="literal">my-calc-branch</code>.  You'll want to create a
+        new directory,
+        <code class="filename">/calc/branches/my-calc-branch</code>, which
+        begins its life as a copy of
+        <code class="filename">/calc/trunk</code>.</p>
+        <p>You may already have seen <span class="command"><strong>svn copy</strong></span> used
+        to copy one file to another within a working copy.  But it can
+        also be used to do a <span class="quote">“<span class="quote">remote</span>”</span> copy entirely
+        within the repository.  Just copy one URL to another:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn copy http://svn.example.com/repos/calc/trunk \
+           http://svn.example.com/repos/calc/branches/my-calc-branch \
+      -m "Creating a private branch of /calc/trunk."
+
+Committed revision 341.
+</pre>
+        </div>
+        <p>This command causes a near-instantaneous commit in the
+        repository, creating a new directory in revision 341.  The new
+        directory is a copy of <code class="filename">/calc/trunk</code>.  This
+        is shown in <a class="xref" href="svn.branchmerge.using.html#svn.branchmerge.using.create.dia-1" title="Figure 4.3. Repository with new copy">Figure 4.3, “Repository with new copy”</a>.<sup>[<a id="idp35935552" href="#ftn.idp35935552" class="footnote">23</a>]</sup>  While
+        it's also possible to create a branch by using <span class="command"><strong>svn
+        copy</strong></span> to duplicate a directory within the working
+        copy, this technique isn't recommended.  It can be quite slow,
+        in fact!  Copying a directory on the client side is a
+        linear-time operation, in that it actually has to duplicate
+        every file and subdirectory within that working copy directory
+        on the local disk.  Copying a directory on the server,
+        however, is a constant-time operation, and it's the way most
+        people create branches.</p>
+        <div class="figure">
+          <a id="svn.branchmerge.using.create.dia-1"></a>
+          <p class="title">
+            <b>Figure 4.3. Repository with new copy</b>
+          </p>
+          <div class="figure-contents">
+            <div>
+              <img src="images/ch04dia3.png" alt="Repository with new copy" />
+            </div>
+          </div>
+        </div>
+        <br class="figure-break" />
+        <div class="sidebar" title="Cheap Copies">
+          <p class="title">
+            <b>Cheap Copies</b>
+          </p>
+          <p>Subversion's repository has a special design.  When you
+          copy a directory, you don't need to worry about the
+          repository growing huge—Subversion doesn't actually
+          duplicate any data.  Instead, it creates a new directory
+          entry that points to an <span class="emphasis"><em>existing</em></span> tree.
+          If you're an experienced Unix user, you'll recognize this as
+          the same concept behind a hard link.  As further changes are
+          made to files and directories beneath the copied directory,
+          Subversion continues to employ this hard link concept where
+          it can.  It duplicates data only when it is necessary to
+          disambiguate different versions of objects.</p>
+          <p>This is why you'll often hear Subversion users talk
+          about <span class="quote">“<span class="quote">cheap copies.</span>”</span>  It doesn't matter how
+          large the directory is—it takes a very tiny, constant
+          amount of time and space to make a copy of it.  In fact,
+          this feature is the basis of how commits work in Subversion:
+          each revision is a <span class="quote">“<span class="quote">cheap copy</span>”</span> of the previous
+          revision, with a few items lazily changed within.  (To read
+          more about this, visit Subversion's web site and read about
+          the <span class="quote">“<span class="quote">bubble up</span>”</span> method in Subversion's design
+          documents.)</p>
+          <p>Of course, these internal mechanics of copying and
+          sharing data are hidden from the user, who simply sees
+          copies of trees.  The main point here is that copies are
+          cheap, both in time and in space.  If you create a branch
+          entirely within the repository (by running <strong class="userinput"><code>svn copy
+          <em class="replaceable"><code>URL1</code></em> <em class="replaceable"><code>URL2</code></em></code></strong>),
+          it's a quick, constant-time operation.  Make branches as
+          often as you want.</p>
+        </div>
+      </div>
+      <div class="sect2" title="Working with Your Branch">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.branchmerge.using.work"></a>Working with Your Branch</h3>
+            </div>
+          </div>
+        </div>
+        <p>Now that you've created a branch of the project, you can
+        check out a new working copy to start using it:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn checkout http://svn.example.com/repos/calc/branches/my-calc-branch
+A  my-calc-branch/Makefile
+A  my-calc-branch/integer.c
+A  my-calc-branch/button.c
+Checked out revision 341.
+$
+</pre>
+        </div>
+        <p>There's nothing special about this working copy; it simply
+        mirrors a different directory in the repository.  When you
+        commit changes, however, Sally won't see them when she
+        updates, because her working copy is of
+        <code class="filename">/calc/trunk</code>.  (Be sure to read <a class="xref" href="svn.branchmerge.switchwc.html" title="Traversing Branches">the section called “Traversing Branches”</a> later in this chapter: the
+        <span class="command"><strong>svn switch</strong></span> command is an alternative way of
+        creating a working copy of a branch.)</p>
+        <p>Let's pretend that a week goes by, and the following
+        commits happen:</p>
+        <div class="itemizedlist">
+          <ul class="itemizedlist" type="disc">
+            <li class="listitem">
+              <p>You make a change to
+            <code class="filename">/calc/branches/my-calc-branch/button.c</code>,
+            which creates revision 342.</p>
+            </li>
+            <li class="listitem">
+              <p>You make a change to
+            <code class="filename">/calc/branches/my-calc-branch/integer.c</code>,
+            which creates revision 343.</p>
+            </li>
+            <li class="listitem">
+              <p>Sally makes a change to
+            <code class="filename">/calc/trunk/integer.c</code>, which creates
+            revision 344.</p>
+            </li>
+          </ul>
+        </div>
+        <p>Now two independent lines of development (shown
+        in <a class="xref" href="svn.branchmerge.using.html#svn.branchmerge.using.work.dia-1" title="Figure 4.4. The branching of one file's history">Figure 4.4, “The branching of one file's history”</a>) are happening on
+        <code class="filename">integer.c</code>.</p>
+        <div class="figure">
+          <a id="svn.branchmerge.using.work.dia-1"></a>
+          <p class="title">
+            <b>Figure 4.4. The branching of one file's history</b>
+          </p>
+          <div class="figure-contents">
+            <div>
+              <img src="images/ch04dia4.png" alt="The branching of one file's history" />
+            </div>
+          </div>
+        </div>
+        <br class="figure-break" />
+        <p>Things get interesting when you look at the history of
+        changes made to your copy of <code class="filename">integer.c</code>:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ pwd
+/home/user/my-calc-branch
+
+$ svn log -v integer.c
+------------------------------------------------------------------------
+r343 | user | 2002-11-07 15:27:56 -0600 (Thu, 07 Nov 2002) | 2 lines
+Changed paths:
+   M /calc/branches/my-calc-branch/integer.c
+
+* integer.c:  frozzled the wazjub.
+
+------------------------------------------------------------------------
+r341 | user | 2002-11-03 15:27:56 -0600 (Thu, 07 Nov 2002) | 2 lines
+Changed paths:
+   A /calc/branches/my-calc-branch (from /calc/trunk:340)
+
+Creating a private branch of /calc/trunk.
+
+------------------------------------------------------------------------
+r303 | sally | 2002-10-29 21:14:35 -0600 (Tue, 29 Oct 2002) | 2 lines
+Changed paths:
+   M /calc/trunk/integer.c
+
+* integer.c:  changed a docstring.
+
+------------------------------------------------------------------------
+r98 | sally | 2002-02-22 15:35:29 -0600 (Fri, 22 Feb 2002) | 2 lines
+Changed paths:
+   A /calc/trunk/integer.c
+
+* integer.c:  adding this file to the project.
+
+------------------------------------------------------------------------
+</pre>
+        </div>
+        <p>Notice that Subversion is tracing the history of your
+        branch's <code class="filename">integer.c</code> all the way back
+        through time, even traversing the point where it was copied.
+        It shows the creation of the branch as an event in the
+        history, because <code class="filename">integer.c</code> was implicitly
+        copied when all of <code class="filename">/calc/trunk/</code> was
+        copied.  Now look at what happens when Sally runs the same
+        command on her copy of the file:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ pwd
+/home/sally/calc
+
+$ svn log -v integer.c
+------------------------------------------------------------------------
+r344 | sally | 2002-11-07 15:27:56 -0600 (Thu, 07 Nov 2002) | 2 lines
+Changed paths:
+   M /calc/trunk/integer.c
+
+* integer.c:  fix a bunch of spelling errors.
+
+------------------------------------------------------------------------
+r303 | sally | 2002-10-29 21:14:35 -0600 (Tue, 29 Oct 2002) | 2 lines
+Changed paths:
+   M /calc/trunk/integer.c
+
+* integer.c:  changed a docstring.
+
+------------------------------------------------------------------------
+r98 | sally | 2002-02-22 15:35:29 -0600 (Fri, 22 Feb 2002) | 2 lines
+Changed paths:
+   A /calc/trunk/integer.c
+
+* integer.c:  adding this file to the project.
+
+------------------------------------------------------------------------
+</pre>
+        </div>
+        <p>Sally sees her own revision 344 change, but not the change
+        you made in revision 343.  As far as Subversion is concerned,
+        these two commits affected different files in different
+        repository locations.  However, Subversion
+        <span class="emphasis"><em>does</em></span> show that the two files share a
+        common history.  Before the branch copy was made in revision
+        341, the files used to be the same file.  That's why you and
+        Sally both see the changes made in revisions 303 and
+        98.</p>
+      </div>
+      <div class="sect2" title="The Key Concepts Behind Branching">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.branchmerge.using.concepts"></a>The Key Concepts Behind Branching</h3>
+            </div>
+          </div>
+        </div>
+        <p>You should remember two important lessons
+        from this section.  First, Subversion has no internal concept
+        of a branch—it knows only how to make copies.  When you
+        copy a directory, the resultant directory is only
+        a <span class="quote">“<span class="quote">branch</span>”</span> because <span class="emphasis"><em>you</em></span>
+        attach that meaning to it.  You may think of the directory
+        differently, or treat it differently, but to Subversion it's
+        just an ordinary directory that happens to carry some extra
+        historical information.</p>
+        <p>Second, because of this copy mechanism, Subversion's
+        branches exist as <span class="emphasis"><em>normal filesystem
+        directories</em></span> in the repository.  This is different
+        from other version control systems, where branches are
+        typically defined by adding
+        extra-dimensional <span class="quote">“<span class="quote">labels</span>”</span> to collections of
+        files.  The location of your branch directory doesn't matter
+        to Subversion.  Most teams follow a convention of putting all
+        branches into a <code class="filename">/branches</code> directory, but
+        you're free to invent any policy you wish.</p>
+      </div>
+      <div class="footnotes">
+        <br />
+        <hr width="100" align="left" />
+        <div class="footnote">
+          <p><sup>[<a id="ftn.idp35935552" href="#idp35935552" class="para">23</a>] </sup>Subversion does not support copying between
+        different repositories.  When using URLs with <span class="command"><strong>svn
+        copy</strong></span> or <span class="command"><strong>svn move</strong></span>, you can only
+        copy items within the same repository.</p>
+        </div>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.branchmerge.whatis.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.branchmerge.html">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.branchmerge.basicmerging.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">What's a Branch? </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> Basic Merging</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

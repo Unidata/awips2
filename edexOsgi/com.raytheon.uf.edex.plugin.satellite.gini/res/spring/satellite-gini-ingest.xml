@@ -13,7 +13,7 @@
 	<bean id="giniDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="satellite.gini" />
-		<constructor-arg value="jms-durable:queue:Ingest.Gini" />
+		<constructor-arg value="jms-durable:queue:Ingest.Gini?concurrentConsumers=2" />
         <constructor-arg value="true" /> <!-- require valid distribution file for startup -->
 	</bean>
 
@@ -23,7 +23,7 @@
 
 		<!-- Begin Gini routes -->
 		<route id="giniIngestRoute">
-			<from uri="jms-durable:queue:Ingest.Gini"/>
+			<from uri="jms-durable:queue:Ingest.Gini?concurrentConsumers=2"/>
 			<setHeader headerName="pluginName">
 				<constant>satellite</constant>
 			</setHeader>

@@ -22,11 +22,11 @@ Packager: %{_build_site}
 AutoReq: no
 Provides: awips2-database
 Provides: awips2-static-user
-Requires: libpng
+Requires: libpng, awips2
 Requires: awips2-postgresql
 Requires: awips2-psql
-Requires: netcdf
-Requires: netcdf-devel
+Requires: netcdf >= 3.0.0
+Requires: netcdf-devel >= 3.0.0
 
 
 %description
@@ -50,18 +50,18 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-PROJECT_DIR="Installer.database"
-CONFIGURATION_DIR="rpms/awips2.core/${PROJECT_DIR}/configuration"
-CONF_FILE="postgresql.conf"
-
-cp %{_baseline_workspace}/${CONFIGURATION_DIR}/${CONF_FILE} \
-   ${RPM_BUILD_ROOT}/awips2/data
-
-
-mkdir -p ${RPM_BUILD_ROOT}/awips2/database
+mkdir -p ${RPM_BUILD_ROOT}/awips2/database/ssl
 if [ $? -ne 0 ]; then
    exit 1
 fi
+CONFIGURATION_DIR="rpms/awips2.core/Installer.database/configuration"
+CONF_FILE="postgresql.conf"
+
+cp -p %{_baseline_workspace}/${CONFIGURATION_DIR}/*.{key,crt} \
+   ${RPM_BUILD_ROOT}/awips2/database/ssl
+
+cp %{_baseline_workspace}/${CONFIGURATION_DIR}/${CONF_FILE} \
+   ${RPM_BUILD_ROOT}/awips2/data
 
 PATH_TO_DDL="build.edex/opt/db/ddl"
 PATH_TO_REPLICATION="build.edex/opt/db/replication"
@@ -153,7 +153,6 @@ MAPS=${AWIPS2_DATA_DIRECTORY}/maps
 DAMCAT=${AWIPS2_DATA_DIRECTORY}/damcat
 HMDB=${AWIPS2_DATA_DIRECTORY}/hmdb
 EBXML=${AWIPS2_DATA_DIRECTORY}/ebxml
-
 # Add The PostgreSQL Libraries And The PSQL Libraries To LD_LIBRARY_PATH.
 export LD_LIBRARY_PATH=${POSTGRESQL_INSTALL}/lib:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=${PSQL_INSTALL}/lib:$LD_LIBRARY_PATH
@@ -189,14 +188,22 @@ function init_db()
    if [ -f /awips2/data/postgresql.conf ]; then
       mv /awips2/data/postgresql.conf /awips2/
    fi
+
+   # move certificates/keys in /awips2/data to a temporary location. (aren't they in /awips2/database/ssl ??)
+   rm -rf /awips2/.a2pgdbsec
+   mkdir -m 700 /awips2/.a2pgdbsec
+   mv /awips2/database/ssl/*.{crt,key} /awips2/.a2pgdbsec
    
-   su ${AWIPS_DEFAULT_USER} -c \
+   su - ${AWIPS_DEFAULT_USER} -c \
       "${POSTGRESQL_INSTALL}/bin/initdb --auth=trust --locale=en_US.UTF-8 --pgdata=${AWIPS2_DATA_DIRECTORY} --lc-collate=en_US.UTF-8 --lc-ctype=en_US.UTF-8"
    RC=$?   
       
    if [ -f /awips2/postgresql.conf ]; then
       mv /awips2/postgresql.conf /awips2/data
    fi
+
+   mv /awips2/.a2pgdbsec/*.{crt,key} /awips2/database/ssl/
+   rm -rf /awips2/.a2pgdbsec
    
    return ${RC}
 }
@@ -204,7 +211,7 @@ function init_db()
 function control_pg_ctl()
 {
    # $1 == pg_ctl command
-   su ${AWIPS_DEFAULT_USER} -c \
+   su - ${AWIPS_DEFAULT_USER} -c \
       "${POSTGRESQL_INSTALL}/bin/pg_ctl ${1} -D ${AWIPS2_DATA_DIRECTORY} -o \"-p ${AWIPS_DEFAULT_PORT}\" -w"
    
 }
@@ -221,7 +228,7 @@ function execute_initial_sql_script()
       ${1}
 
    # $1 == script to execute
-   su ${AWIPS_DEFAULT_USER} -c \
+   su - ${AWIPS_DEFAULT_USER} -c \
       "${PSQL_INSTALL}/bin/psql -d postgres -U ${AWIPS_DEFAULT_USER} -q -p ${AWIPS_DEFAULT_PORT} -f ${1}" \
       > ${SQL_LOG} 2>&1
 }
@@ -249,7 +256,7 @@ function execute_psql_sql_script()
    # $1 == script to execute
    # $2 == database
    
-   su ${AWIPS_DEFAULT_USER} -c \
+   su - ${AWIPS_DEFAULT_USER} -c \
       "${PSQL_INSTALL}/bin/psql -d ${2} -U ${AWIPS_DEFAULT_DB_ADMIN} -q -p ${AWIPS_DEFAULT_PORT} -f ${1}" \
       >> ${SQL_LOG} 2>&1
 }
@@ -284,24 +291,18 @@ execute_initial_sql_script ${SQL_SHARE_DIR}/initial_setup_server.sql
 
 /awips2/psql/bin/psql -U awips -d metadata -c "CREATE EXTENSION postgis;"
 /awips2/psql/bin/psql -U awips -d metadata -c "CREATE EXTENSION postgis_topology;"
-execute_psql_sql_script /awips2/postgresql/share/contrib/postgis-2.0/legacy.sql metadata
+execute_psql_sql_script /awips2/postgresql/share/contrib/postgis-2.2/legacy.sql metadata
 execute_psql_sql_script ${SQL_SHARE_DIR}/permissions.sql metadata
 execute_psql_sql_script ${SQL_SHARE_DIR}/fxatext.sql metadata
 
 # create the events schema
 execute_psql_sql_script ${SQL_SHARE_DIR}/createEventsSchema.sql metadata
-
 update_createHMDB
-su ${AWIPS_DEFAULT_USER} -c \
+su - ${AWIPS_DEFAULT_USER} -c \
    "${SQL_SHARE_DIR}/createHMDB.sh ${PSQL_INSTALL} ${AWIPS_DEFAULT_PORT} ${AWIPS_DEFAULT_DB_ADMIN} ${SQL_SHARE_DIR} ${SQL_LOG}"
-   
 update_createEbxml
 execute_psql_sql_script ${SQL_SHARE_DIR}/createEbxml.sql metadata
-
-execute_psql_sql_script  ${SQL_SHARE_DIR}/alter_database_roles_and_permissions.sh
-
 control_pg_ctl "stop"
-
 copy_addl_config
 
 %preun
@@ -312,9 +313,13 @@ copy_addl_config
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
+%defattr(600,awips,fxalpha,700)
+/awips2/database/ssl
+%config(noreplace) /awips2/database/ssl/server.crt
+%config(noreplace) /awips2/database/ssl/root.crt
+%config(noreplace) /awips2/database/ssl/server.key
 %defattr(644,awips,fxalpha,700)
 %dir /awips2/data
-
 %defattr(644,awips,fxalpha,755)
 %dir /awips2/database
 %dir /awips2/database/sqlScripts
@@ -330,3 +335,4 @@ rm -rf ${RPM_BUILD_ROOT}
 /awips2/database/sqlScripts/share/sql/*.sql
 /awips2/database/sqlScripts/share/sql/*.sh
 /awips2/database/replication/setup-standby.sh
+/awips2/database/replication/replication-config.sh

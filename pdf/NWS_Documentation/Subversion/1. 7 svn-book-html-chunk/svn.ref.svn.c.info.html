@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>svn info</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.ref.svn.html#svn.ref.svn.c" title="svn Subcommands" />
+    <link rel="prev" href="svn.ref.svn.c.import.html" title="svn import" />
+    <link rel="next" href="svn.ref.svn.c.list.html" title="svn list" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">svn info</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.ref.svn.c.import.html">Prev</a> </td>
+          <th width="60%" align="center">svn Subcommands</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.ref.svn.c.list.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="refentry" title="svn info">
+      <a id="svn.ref.svn.c.info"></a>
+      <div class="titlepage"></div>
+      <a id="idp42871456" class="indexterm"></a>
+      <div class="refnamediv">
+        <h2>Name</h2>
+        <p>svn info — Display information about a local or remote 
+            item.</p>
+      </div>
+      <div class="refsect1" title="Synopsis">
+        <a id="idp42874560"></a>
+        <h2>Synopsis</h2>
+        <p>
+          <code class="literal">svn info [TARGET[@REV]...]</code>
+        </p>
+      </div>
+      <div class="refsect1" title="Description">
+        <a id="idp42876192"></a>
+        <h2>Description</h2>
+        <p>Print information about the working copy paths or
+           URLs specified.  The information shown for both may
+           include:</p>
+        <div class="itemizedlist">
+          <ul class="itemizedlist" type="disc">
+            <li class="listitem">
+              <p>Path</p>
+            </li>
+            <li class="listitem">
+              <p>Name</p>
+            </li>
+            <li class="listitem">
+              <p>URL</p>
+            </li>
+            <li class="listitem">
+              <p>Repository root</p>
+            </li>
+            <li class="listitem">
+              <p>Repository UUID</p>
+            </li>
+            <li class="listitem">
+              <p>Revision</p>
+            </li>
+            <li class="listitem">
+              <p>Node kind</p>
+            </li>
+            <li class="listitem">
+              <p>Last changed author</p>
+            </li>
+            <li class="listitem">
+              <p>Last changed revision</p>
+            </li>
+            <li class="listitem">
+              <p>Last changed date</p>
+            </li>
+            <li class="listitem">
+              <p>Lock token</p>
+            </li>
+            <li class="listitem">
+              <p>Lock owner</p>
+            </li>
+            <li class="listitem">
+              <p>Lock created (date)</p>
+            </li>
+            <li class="listitem">
+              <p>Lock expires (date)</p>
+            </li>
+          </ul>
+        </div>
+        <p>Additional kinds of information available only for
+            working copy paths are:</p>
+        <div class="itemizedlist">
+          <ul class="itemizedlist" type="disc">
+            <li class="listitem">
+              <p>Schedule</p>
+            </li>
+            <li class="listitem">
+              <p>Copied from URL</p>
+            </li>
+            <li class="listitem">
+              <p>Copied from rev</p>
+            </li>
+            <li class="listitem">
+              <p>Text last updated</p>
+            </li>
+            <li class="listitem">
+              <p>Properties last updated</p>
+            </li>
+            <li class="listitem">
+              <p>Checksum</p>
+            </li>
+            <li class="listitem">
+              <p>Conflict previous base file</p>
+            </li>
+            <li class="listitem">
+              <p>Conflict previous working file</p>
+            </li>
+            <li class="listitem">
+              <p>Conflict current base file</p>
+            </li>
+            <li class="listitem">
+              <p>Conflict properties file</p>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="refsect1" title="Options">
+        <a id="idp42891856"></a>
+        <h2>Options</h2>
+        <div class="informalexample">
+          <pre class="screen">
+--changelist ARG
+--depth ARG
+--incremental
+--recursive (-R)
+--revision (-r) REV
+--targets FILENAME
+--xml
+</pre>
+        </div>
+      </div>
+      <div class="refsect1" title="Examples">
+        <a id="idp42893824"></a>
+        <h2>Examples</h2>
+        <p><span class="command"><strong>svn info</strong></span> will show you all the
+            useful information that it has for items in your working
+            copy.  It will show information for files:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn info foo.c
+Path: foo.c
+Name: foo.c
+URL: http://svn.red-bean.com/repos/test/foo.c
+Repository Root: http://svn.red-bean.com/repos/test
+Repository UUID: 5e7d134a-54fb-0310-bd04-b611643e5c25
+Revision: 4417
+Node Kind: file
+Schedule: normal
+Last Changed Author: sally
+Last Changed Rev: 20
+Last Changed Date: 2003-01-13 16:43:13 -0600 (Mon, 13 Jan 2003)
+Text Last Updated: 2003-01-16 21:18:16 -0600 (Thu, 16 Jan 2003)
+Properties Last Updated: 2003-01-13 21:50:19 -0600 (Mon, 13 Jan 2003)
+Checksum: d6aeb60b0662ccceb6bce4bac344cb66
+</pre>
+        </div>
+        <p>It will also show information for directories:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn info vendors
+Path: vendors
+URL: http://svn.red-bean.com/repos/test/vendors
+Repository Root: http://svn.red-bean.com/repos/test
+Repository UUID: 5e7d134a-54fb-0310-bd04-b611643e5c25
+Revision: 19
+Node Kind: directory
+Schedule: normal
+Last Changed Author: harry
+Last Changed Rev: 19
+Last Changed Date: 2003-01-16 23:21:19 -0600 (Thu, 16 Jan 2003)
+Properties Last Updated: 2003-01-16 23:39:02 -0600 (Thu, 16 Jan 2003)
+</pre>
+        </div>
+        <p><span class="command"><strong>svn info</strong></span> also acts on URLs (also
+             note that the file <code class="filename">readme.doc</code> in
+             this example is locked, so lock information is also
+             provided):</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn info http://svn.red-bean.com/repos/test/readme.doc
+Path: readme.doc
+Name: readme.doc
+URL: http://svn.red-bean.com/repos/test/readme.doc
+Repository Root: http://svn.red-bean.com/repos/test
+Repository UUID: 5e7d134a-54fb-0310-bd04-b611643e5c25
+Revision: 1
+Node Kind: file
+Schedule: normal
+Last Changed Author: sally
+Last Changed Rev: 42
+Last Changed Date: 2003-01-14 23:21:19 -0600 (Tue, 14 Jan 2003)
+Lock Token: opaquelocktoken:14011d4b-54fb-0310-8541-dbd16bd471b2
+Lock Owner: harry
+Lock Created: 2003-01-15 17:35:12 -0600 (Wed, 15 Jan 2003)
+Lock Comment (1 line):
+My test lock comment
+</pre>
+        </div>
+        <p>Lastly, <span class="command"><strong>svn info</strong></span> output is
+             available in XML format by passing
+             the <code class="option">--xml</code> option:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn info --xml http://svn.red-bean.com/repos/test
+&lt;?xml version="1.0"?&gt;
+&lt;info&gt;
+&lt;entry
+   kind="dir"
+   path="."
+   revision="1"&gt;
+&lt;url&gt;http://svn.red-bean.com/repos/test&lt;/url&gt;
+&lt;repository&gt;
+&lt;root&gt;http://svn.red-bean.com/repos/test&lt;/root&gt;
+&lt;uuid&gt;5e7d134a-54fb-0310-bd04-b611643e5c25&lt;/uuid&gt;
+&lt;/repository&gt;
+&lt;wc-info&gt;
+&lt;schedule&gt;normal&lt;/schedule&gt;
+&lt;depth&gt;infinity&lt;/depth&gt;
+&lt;/wc-info&gt;
+&lt;commit
+   revision="1"&gt;
+&lt;author&gt;sally&lt;/author&gt;
+&lt;date&gt;2003-01-15T23:35:12.847647Z&lt;/date&gt;
+&lt;/commit&gt;
+&lt;/entry&gt;
+&lt;/info&gt;
+</pre>
+        </div>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.ref.svn.c.import.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.ref.svn.html#svn.ref.svn.c">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.ref.svn.c.list.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">svn import </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> svn list</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

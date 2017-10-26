@@ -2398,9 +2398,7 @@ elif SID in groups['CONUS_EAST_SITES']:
                  'HRRR',
                  'HWRF',
                  ('MRF', 'gfsLR'),
-                 ('RAP13', 'RAP13'),
                  ('RUC', 'RAP40'),
-                 ('NAM40', 'NAM40'),
                  ('NAM20', 'NAM20'),
                  'MSAS',
                  'LAPS',
@@ -2523,9 +2521,7 @@ else:   #######DCS3501 WEST_CONUS
                  ('AVN211', 'GFS80'),
                  ('ETA', 'NAM80'),
                  ('MRF', 'gfsLR'),
-                 ('RAP13', 'RAP13'),
                  ('RUC', 'RAP40'),
-                 ('NAM40', 'NAM40'),
                  ('NAM20', 'NAM20'),
                  'MSAS',
                  'LAPS',
@@ -2768,7 +2764,6 @@ else:
 
 #initialization skip certain model runs
 INITSKIPS = {
-    "RAP13" : [1,2,4,5,7,8,10,11,13,14,16,17,19,20,22,23],
     "RAP40" : [1,2,4,5,7,8,10,11,13,14,16,17,19,20,22,23]
     }
 
@@ -2791,10 +2786,8 @@ D2DAccumulativeElements= {
     "HWRF":  ["tp", "cp"],
     "NAM95": ["tp", "cp"],
     "NAM80": ["tp", "cp"],
-    "NAM40": ["tp", "cp"],
     "NAM20": ["tp", "cp"],
     "gfsLR": ["tp", "cp"],
-    "RAP13": ["tp", "cp"],
     "RAP40": ["tp", "cp"],
     "MSAS": ["tp", "cp"],
     "LAPS": ["pc"],
@@ -2830,8 +2823,8 @@ D2DAccumulativeElements= {
 #---------------------------------------------------------------------------
 # base urls for the ISC Routing Table
 ISC_ROUTING_TABLE_ADDRESS = {
-    "ANCF" : "http://svcbu-ancf.er.awips.noaa.gov:8080/irt",
-    "BNCF" : "http://svcbu-bncf.er.awips.noaa.gov:8080/irt"
+    "ANCF" : "http://localhost:8080/irt",
+    "BNCF" : "http://localhost:8080/irt"
     }
 
 

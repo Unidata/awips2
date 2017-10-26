@@ -74,6 +74,7 @@ import com.raytheon.viz.gfe.core.parm.Parm;
  * Jan 22, 2013  #1515     dgilling     Fix ClassCastException in 
  *                                      getMethodArgs().
  * Mar 12, 2015  #4246     randerso     Changes to support VCModules at base, site, and user levels
+ * Jul 19, 2017  ----      mjames@ucar  Remove VCModuleJobPool.
  * 
  * </pre>
  * 
@@ -189,7 +190,6 @@ public class VCModule {
         Map<String, Object> args = new HashMap<String, Object>();
         args.put(PyConstants.METHOD_NAME, method);
         VCModuleRequest req = new VCModuleRequest(id, "getMethodArgs", args);
-        parmMgr.getVCModulePool().enqueue(req);
 
         Object result = req.getResult();
         @SuppressWarnings("unchecked")
@@ -339,7 +339,6 @@ public class VCModule {
             }
 
             VCModuleRequest req = new VCModuleRequest(id, "getInventory", cargs);
-            parmMgr.getVCModulePool().enqueue(req);
             Object reqResult = req.getResult();
 
             // what's returned from the script here is a list of tuples.
@@ -453,7 +452,6 @@ public class VCModule {
             }
 
             VCModuleRequest req = new VCModuleRequest(id, "calcHistory", cargs);
-            parmMgr.getVCModulePool().enqueue(req);
             Object reqResult = req.getResult();
 
             List<String> result = (List<String>) reqResult;
@@ -511,7 +509,6 @@ public class VCModule {
 
             VCModuleRequest req = new VCModuleRequest(id, "calcGrid", cargs,
                     getGpi().getGridType());
-            parmMgr.getVCModulePool().enqueue(req);
             Object reqResult = req.getResult();
 
             return decodeGD(reqResult, invEntry);
@@ -532,7 +529,6 @@ public class VCModule {
 
         try {
             VCModuleRequest req = new VCModuleRequest(id, "getWEInfo", null);
-            parmMgr.getVCModulePool().enqueue(req);
             Object reqResult = req.getResult();
 
             List<List<Object>> result = (List<List<Object>>) reqResult;

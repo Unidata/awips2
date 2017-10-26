@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema elementFormDefault="qualified"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+ <xsd:element name="Boundaries">
+  <xsd:complexType>
+   <xsd:sequence>
+    <xsd:element name="UserName" type="xsd:string"
+     maxOccurs="1" minOccurs="1">
+    </xsd:element>
+    <xsd:element name="TimeInfo" maxOccurs="1" minOccurs="1">
+     <xsd:complexType>
+      <xsd:sequence>
+       <xsd:element name="FileCreationTime" type="xsd:dateTime"
+        maxOccurs="1" minOccurs="1">
+       </xsd:element>
+       <xsd:element name="FileCreationUtime" type="xsd:long"
+        maxOccurs="1" minOccurs="1">
+       </xsd:element>
+      </xsd:sequence>
+     </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="Boundary" maxOccurs="unbounded"
+     minOccurs="0">
+     <xsd:complexType>
+      <xsd:sequence>
+       <xsd:element name="BoundaryId" type="xsd:int"
+        maxOccurs="1" minOccurs="0">
+       </xsd:element>
+       <xsd:element name="BoundaryType" type="xsd:string"
+        maxOccurs="1" minOccurs="0">
+       </xsd:element>
+       <xsd:element name="BoundaryMode" type="xsd:string"
+        maxOccurs="1" minOccurs="0">
+       </xsd:element>
+       <xsd:element name="BoundaryLifeSpan" type="xsd:int"
+        maxOccurs="1" minOccurs="0">
+       </xsd:element>
+       <xsd:element name="BoundaryCreationTime" type="xsd:dateTime"
+        maxOccurs="1" minOccurs="0">
+       </xsd:element>
+       <xsd:element name="BoundaryCreationUtime" type="xsd:long"
+        maxOccurs="1" minOccurs="0">
+       </xsd:element>
+       <xsd:element name="BoundaryEditedTime" type="xsd:dateTime"
+        maxOccurs="1" minOccurs="0">
+       </xsd:element>
+       <xsd:element name="BoundaryEditedUtime" type="xsd:long"
+        maxOccurs="1" minOccurs="0">
+       </xsd:element>
+       <xsd:element name="BoundaryExpirationTime" type="xsd:dateTime"
+        maxOccurs="1" minOccurs="0">
+       </xsd:element>
+       <xsd:element name="BoundaryExpirationUtime" type="xsd:long"
+        maxOccurs="1" minOccurs="0">
+       </xsd:element>
+       <xsd:element name="NumberOfVertices" type="xsd:int"
+        maxOccurs="1" minOccurs="0">
+       </xsd:element>
+       <xsd:element name="Vertex" maxOccurs="unbounded"
+        minOccurs="0">
+        <xsd:complexType>
+         <xsd:sequence>
+          <xsd:element name="Latitude" type="xsd:float"
+           maxOccurs="1" minOccurs="0">
+          </xsd:element>
+          <xsd:element name="Longitude" type="xsd:float"
+           maxOccurs="1" minOccurs="0">
+          </xsd:element>
+          <xsd:element name="Azimuth" type="xsd:float"
+           maxOccurs="1" minOccurs="0">
+          </xsd:element>
+          <xsd:element name="Speed" type="xsd:float"
+           maxOccurs="1" minOccurs="0">
+          </xsd:element>
+          <xsd:element name="U" type="xsd:float" maxOccurs="1"
+           minOccurs="0">
+          </xsd:element>
+          <xsd:element name="V" type="xsd:float" maxOccurs="1"
+           minOccurs="0">
+          </xsd:element>
+         </xsd:sequence>
+        </xsd:complexType>
+       </xsd:element>
+      </xsd:sequence>
+
+     </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="ForbiddenBoundaryIds" maxOccurs="unbounded"
+     minOccurs="0">
+     <xsd:complexType>
+      <xsd:sequence>
+       <xsd:element name="ForbiddenId" type="xsd:string"
+        maxOccurs="unbounded" minOccurs="0">
+       </xsd:element>
+      </xsd:sequence>
+     </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="Log" maxOccurs="unbounded" minOccurs="0">
+     <xsd:complexType>
+      <xsd:sequence>
+       <xsd:element name="Comment" type="xsd:string"
+        maxOccurs="unbounded" minOccurs="0">
+       </xsd:element>
+      </xsd:sequence>
+     </xsd:complexType>
+    </xsd:element>
+   </xsd:sequence>
+  </xsd:complexType>
+ </xsd:element>
+
+</xsd:schema>

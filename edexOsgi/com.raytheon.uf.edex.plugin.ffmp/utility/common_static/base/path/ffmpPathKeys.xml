@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<pathKeySet>
-    <!-- This pathKey corresponds to the source name listed in the FFMPSourceConfig.xml
-    this key must exist for FFMP to properly purge source data from postgres and HDF5 -->
-    <pathKey>
-        <key>sourceName</key>
-        <order>0</order>
-    </pathKey>
-</pathKeySet>

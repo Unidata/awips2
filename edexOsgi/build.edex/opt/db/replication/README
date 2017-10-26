@@ -11,9 +11,9 @@ SETUP - ALL SERVERS
 On each server you must add lines to pg_hba.conf to allow remote replication
 connections:
 
-    host replication replication 127.12.34.0/24 md5
+    host replication replication 12.34.56.0/24 cert clientcert=1
 
-Replace "127.12.34.0/24" with the standby server IP address (or block).
+Replace "12.34.56.0/24" with the standby server IP address (or block).
 Every server should have one line for every server in the replication setup,
 including itself--thus all servers should have the same lines. This enables
 quickly changing which server is the master without extra configuration.

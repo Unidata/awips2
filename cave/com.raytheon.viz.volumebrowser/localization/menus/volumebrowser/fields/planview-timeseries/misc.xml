@@ -40,7 +40,7 @@
             fileName="menus/volumebrowser/fields/planview-timeseries/sfc2d/GFSLAMPGridded.xml" />
     </contribute>
     
-     <contribute xsi:type="toolbarSubMenu" menuText="HPC Guidance">
+     <contribute xsi:type="toolbarSubMenu" menuText="WPC Guidance">
         <contribute xsi:type="subinclude"
             fileName="menus/volumebrowser/fields/planview-timeseries/sfc2d/HPCGuidance.xml" />
     </contribute>   

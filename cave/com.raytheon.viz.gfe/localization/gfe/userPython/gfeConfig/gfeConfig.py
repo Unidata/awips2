@@ -1,23 +1,3 @@
-##
-# This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
-# This software product contains export-restricted data whose
-# export/transfer/disclosure is restricted by U.S. law. Dissemination
-# to non-U.S. persons whether in the United States or abroad requires
-# an export license or other authorization.
-# 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
-# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
-# further licensing information.
-##
-# -*-python-*-
 # NOTE: THIS FILE SHOULD NOT BE MODIFIED BY THE USER.  INSTEAD, REFER TO
 # THE BASE,SITE,USER and GFE CONFIGURATION DOCUMENTATION ON HOW TO
 # OVERRIDE ENTRIES IN THIS FILE.
@@ -222,7 +202,7 @@ PublishTimes = ['Today', 'Tonight', 'Tomorrow', 'Tomorrow Night', 'Day 3',
 # Defines the initial loaded set of map backgrounds.  The name of each
 # background should match the name (without ".xml") of a map file in the 
 # CAVE/Bundles/maps directory under the Localization perspective.
-MapBackgrounds_default = ['States','CWA']
+MapBackgrounds_default = ['statesCounties','CWA_All']
 
 # Specific Colors for a map background
 # The user may specify a specific color to be used for a map background,
@@ -372,7 +352,7 @@ OfficeDomain_expandBottom = 10
 # Initial layout up of Grid Manager/Temporal Editor:
 # Values:  "OnTop" (default)
 #          "OnLeft"
-#GM_TE_Layout = "OnTop"
+GM_TE_Layout = "OnLeft"
 
 # Default setting for temporal editor weather elements. Choices are
 # ALL for all weather elements are displayed in the temporal

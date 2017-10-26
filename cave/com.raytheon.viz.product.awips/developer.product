@@ -37,7 +37,8 @@
 -XX:G1MixedGCLiveThresholdPercent=25
 -XX:G1OldCSetRegionThresholdPercent=25
 -XX:G1HeapWastePercent=5
--DvizVersion=DEVELOPMENT
+-DvizVersion=17.1.1-3
+-DbuildSystem=macOS/Eclipse
       </vmArgs>
       <vmArgsWin>-Dfile.encoding=UTF-8
       </vmArgsWin>

@@ -46,6 +46,7 @@ pages:
     - Editing Menus: cave/d2d-edit-menus.md
     - Change Localization: cave/cave-localization.md
 - EDEX User Manual:
+    - Distributed EDEX: edex/distributed-computing.md
     - EDEX Start and Stop: install/start-edex.md
     - LDM Feeds: edex/ldm.md
     - Data Distribution Files: edex/data-distribution-files.md
@@ -53,6 +54,7 @@ pages:
     - Purging and Retention: edex/data-purge.md
     - Monitor Users: edex/edex-users.md
     - Data Plugins: edex/data-plugins.md
+    - Archive Case Studies: edex/case-studies.md
 - Supported Data Types:
     - Gridded Model Display: cave/d2d-grids.md
     - Surface Obs: cave/d2d-pointdata-surface-obs.md
@@ -61,9 +63,16 @@ pages:
     - Upper Air: cave/d2d-uair.md
     - NCEP/Hydro: cave/d2d-hydro.md
     - Map Overlays: cave/d2d-map-resources.md
-- Python:
-    - Derived Parameters: python/derived-parameters.md
-    - Python AWIPS API: python/python-awips-data-access.md
+- Python API:
+    - Overview: python/python-awips-data-access.md
+    - Maps Database: python/maps-database.md
+    - AWIPS Grids and Cartopy: python/awips-grids-and-cartopy.md
+    - Satellite Imagery: python/satellite-imagery.md
+    - NEXRAD Level 3 Radar: python/nexrad-level-3-radar.md
+    - Upper air BUFR Soundings: python/upper-air-bufr-soundings.md
+    - Model Sounding Data: python/model-sounding-data.md
+    - Map Resources and Topography: python/map-resources-and-topography.md
+    - Surface Obs Plot with MetPy: python/surface-obs-plot-metpy.md
 - Development:
     - AWIPS Development Environment (ADE): dev/awips-development-environment.md
     - Building NSHARP for macOS: dev/build-nsharp-macos.md

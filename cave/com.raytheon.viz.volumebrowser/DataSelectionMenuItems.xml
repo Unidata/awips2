@@ -7,7 +7,6 @@
 	________________________Omaha,_NE_68106 ________________________402.291.0100 
 	See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for further_licensing_information. -->
 <Product-Selection-MenuItems>
-	<Source-Grid>ENPwave</Source-Grid>
 	<Source-Grid>GFS</Source-Grid>
 	<Source-Grid>GFS20</Source-Grid>
 	<Source-Grid>GFSensemble</Source-Grid>
@@ -16,11 +15,8 @@
 	<Source-Grid>GWW</Source-Grid>
 	<Source-Grid>HPCGuide</Source-Grid>
 	<Source-Grid>LAMP</Source-Grid>
-	<Source-Grid>MSAS</Source-Grid>
 	<Source-Grid>NAM12</Source-Grid>
 	<Source-Grid>NAM40</Source-Grid>
-	<Source-Grid>NAM80</Source-Grid>
-	<Source-Grid>NAMWX</Source-Grid>
 	<Source-Grid>NICIE</Source-Grid>
 	<Source-Grid>TPC-HurWind</Source-Grid>
 	<Source-Grid>TPCWindProb</Source-Grid>
@@ -29,12 +25,10 @@
 	<Source-Other>DMD</Source-Other>
 	<Source-Other>GFSBufr</Source-Other>
 	<Source-Other>GoesBufr</Source-Other>
-	<Source-Other>Ldad</Source-Other>
 	<Source-Other>MDCRS</Source-Other>
 	<Source-Other>Metar</Source-Other>
 	<Source-Other>NAM Bufr</Source-Other>
 	<Source-Other>PoesBufr</Source-Other>
-	<Source-Other>Profiler</Source-Other>
 	<Source-Other>Raob</Source-Other>
 	<Source-Other>VWP</Source-Other>
 	<Field-Basic>Height</Field-Basic>

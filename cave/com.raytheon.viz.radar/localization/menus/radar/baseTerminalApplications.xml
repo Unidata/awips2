@@ -22,20 +22,8 @@
 	<contribute xsi:type="titleItem" titleText="------ Applications ------"
 		id="${icao}TerminalApplications" />
 	<contribute xsi:type="command"
-		commandId="com.raytheon.uf.viz.radarapps.otr.oneTimeRequest" 
-		menuText="One Time Request..." id="${icao}OneTimeRequest" />
-	<contribute xsi:type="command" 
-		commandId="com.raytheon.uf.viz.radarapps.rmr.radarMultipleRequest"
-		menuText="Radar Multiple Request..." id="${icao}RadarMultipleRequest" />
-	<contribute xsi:type="command"
-		commandId="com.raytheon.uf.viz.radarapps.config.configurator"
-		menuText="Radar Server Configuration..." id="${icao}RadarServerConfiguration" />
-	<contribute xsi:type="command"
 		commandId="com.raytheon.viz.radar.ui.RadarDisplayControls" menuText="Radar Display Controls..."
 		id="${icao}ApplicationsRadarDisplayControls" />
-	<contribute xsi:type="command"
-		commandId="com.raytheon.uf.viz.radarapps.rps.rpsListEditor" menuText="RPS List Editor..."
-		id="${icao}RPSListEditor" />
 	<contribute xsi:type="command" commandId="com.raytheon.viz.awipstools.vrshear"
 		menuText="VR - Shear" id="${icao}VRShear" />
 </menuTemplate>

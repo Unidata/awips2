@@ -1,5 +1,5 @@
 <launcher title="HydroGenBless" >
 	<application runDir="/awips/hydroapps/HydroGen/bin" 
-	             path="/awips/hydroapps/HydroGen/bin"
+	             path="/awips2/edex/data/share/hydroapps/HydroGen/bin"
 	             name="start_hg_bless" />
 </launcher>

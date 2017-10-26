@@ -34,7 +34,6 @@
     <vbSource key="MOSGuide" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="MOSGuideExtended" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="HPCqpfNDFD" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-    <vbSource key="WaveWatch" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="WaveWatch-WNA" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="WaveWatch-AK" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="WaveWatch-ENP" category="SfcGrid" views="PLANVIEW TIMESERIES" />
@@ -42,14 +41,13 @@
     <vbSource key="HPE" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="MPE-Local" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="NamDNG" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-    <vbSource key="NAM4" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="NAM5" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="NAM12" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="NAM40" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="RFCqpf" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="RTGSST" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="RTGSSTHR" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="RTMA" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-    <vbSource key="RTMA5" category="SfcGrid" views="PLANVIEW TIMESERIES" />
     <vbSource key="RTOFS-GulfMexico" category="SfcGrid/RTOFS/forecast"
         subCategory="Atlantic" views="PLANVIEW TIMESERIES" />
     <vbSource key="RTOFS-GulfStream" category="SfcGrid/RTOFS/forecast"

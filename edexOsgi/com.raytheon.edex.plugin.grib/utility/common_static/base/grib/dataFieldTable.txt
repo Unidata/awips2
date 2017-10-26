@@ -261,7 +261,7 @@ MnT12hr | mnt12hr   ||     | 12-hour Minimum Temperature
 TP_ECMWF  |tp_ecmwf ||     | ECMWF Total Precipitation
 TP_ECMWF12hr  |     ||     | ECMWF 12-hr Total Precipitation
 TP120hr |tp120hr    ||     | 120-hr Total Precipitation
-PPFFG   | ppffg     ||     | Probability of excessive rain
+PPFFG   | ppffg     ||     | Probability of precip exceeding FFG values
 SHerranl | sherranl ||     | RTMA Alaska specific humidity error analysis
 Perranl  | perranl  ||     | RTMA Alaska pressure error analysis
 TiltAng  |           ||    | Tilt angle of a radar PPI

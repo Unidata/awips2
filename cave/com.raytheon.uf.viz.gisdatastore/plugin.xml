@@ -63,12 +63,4 @@
             sortID="450">
       </contextualMenu>
    </extension>
-   <extension
-         point="org.eclipse.ui.preferencePages">
-      <page
-            class="com.raytheon.uf.viz.gisdatastore.ui.GisViewerPreferencePage"
-            id="com.raytheon.uf.viz.gisdatastore.ui.GisViewerPreferencePage"
-            name="GIS Viewer">
-      </page>
-   </extension>
 </plugin>

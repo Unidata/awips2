@@ -1,0 +1,806 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Properties</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.advanced.html" title="Chapter 3. Advanced Topics" />
+    <link rel="prev" href="svn.advanced.pegrevs.html" title="Peg and Operative Revisions" />
+    <link rel="next" href="svn.advanced.props.file-portability.html" title="File Portability" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">Properties</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.advanced.pegrevs.html">Prev</a> </td>
+          <th width="60%" align="center">Chapter 3. Advanced Topics</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.advanced.props.file-portability.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="sect1" title="Properties">
+      <div class="titlepage">
+        <div>
+          <div>
+            <h2 class="title" style="clear: both"><a id="svn.advanced.props"></a>Properties</h2>
+          </div>
+        </div>
+      </div>
+      <a id="idp34064432" class="indexterm"></a>
+      <p>We've already covered in detail how Subversion stores and
+      retrieves various versions of files and directories in its
+      repository.  Whole chapters have been devoted to this most
+      fundamental piece of functionality provided by the tool.  And
+      if the versioning support stopped there, Subversion would still
+      be complete from a version control perspective.</p>
+      <p>But it doesn't stop there.</p>
+      <p>In addition to versioning your directories and files,
+      Subversion provides interfaces for adding, modifying, and
+      removing versioned metadata on each of your versioned
+      directories and files.  We refer to this metadata as
+      <em class="firstterm">properties</em>, and they can be thought of as
+      two-column tables that map property names to arbitrary values
+      attached to each item in your working copy.  Generally speaking,
+      the names and values of the properties can be whatever you want
+      them to be, with the constraint that the names must contain only
+      ASCII characters.  And the best part about these properties is
+      that they, too, are versioned, just like the textual contents of
+      your files.  You can modify, commit, and revert property changes
+      as easily as you can file content changes.  And the sending and
+      receiving of property changes occurs as part of your typical
+      commit and update operations—you don't have to change your
+      basic processes to accommodate them.</p>
+      <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;">
+        <table border="0" summary="Note">
+          <tr>
+            <td rowspan="2" align="center" valign="top" width="25">
+              <img alt="[Note]" src="images/note.png" />
+            </td>
+            <th align="left">Note</th>
+          </tr>
+          <tr>
+            <td align="left" valign="top">
+              <p>Subversion has reserved the set of properties whose names
+        begin with <code class="literal">svn:</code> as its own.  While there
+        are only a handful of such properties in use today, you should
+        avoid creating custom properties for your own needs whose names
+        begin with this prefix.  Otherwise, you run the risk that a
+        future release of Subversion will grow support for a feature
+        or behavior driven by a property of the same name but with
+        perhaps an entirely different interpretation.</p>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <p>Properties show up elsewhere in Subversion, too.  Just as
+      files and directories may have arbitrary property names and
+      values attached to them, each revision as a whole may have
+      arbitrary properties attached to it.  The same constraints
+      apply—human-readable names and anything-you-want binary
+      values.  The main difference is that revision properties are not
+      versioned.  In other words, if you change the value of, or
+      delete, a revision property, there's no way, within the scope of
+      Subversion's functionality, to recover the previous value.</p>
+      <p>Subversion has no particular policy regarding the use of
+      properties.  It asks only that you do not use property names that
+      begin with the prefix <code class="literal">svn:</code>.  That's the
+      namespace that it sets aside for its own use.  And Subversion
+      does, in fact, use properties—both the versioned and
+      unversioned variety.  Certain versioned properties have special
+      meaning or effects when found on files and directories, or they
+      house a particular bit of information about the revisions on
+      which they are found.  Certain revision properties are
+      automatically attached to revisions by Subversion's commit
+      process, and they carry information about the revision.  Most of
+      these properties are mentioned elsewhere in this or other
+      chapters as part of the more general topics to which they are
+      related.  For an exhaustive list of Subversion's predefined
+      properties, see <a class="xref" href="svn.ref.properties.html" title="Subversion Properties">the section called “Subversion Properties”</a>.</p>
+      <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;">
+        <table border="0" summary="Note">
+          <tr>
+            <td rowspan="2" align="center" valign="top" width="25">
+              <img alt="[Note]" src="images/note.png" />
+            </td>
+            <th align="left">Note</th>
+          </tr>
+          <tr>
+            <td align="left" valign="top">
+              <p>While Subversion automatically attaches properties
+        (<code class="literal">svn:date</code>, <code class="literal">svn:author</code>,
+        <code class="literal">svn:log</code>, and so on) to revisions, it does
+        <span class="emphasis"><em>not</em></span> presume thereafter the existence of
+        those properties, and neither should you or the tools you use to
+        interact with your repository.  Revision properties can be
+        deleted programmatically or via the client (if allowed by the
+        repository hooks) without damaging Subversion's ability to
+        function.  So, when writing scripts which operate on your
+        Subversion repository data, do not make the mistake of
+        assuming that any particular revision property exists on a
+        revision.</p>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <p>In this section, we will examine the utility—both to
+      users of Subversion and to Subversion itself—of property
+      support.  You'll learn about the property-related
+      <span class="command"><strong>svn</strong></span> subcommands and how property
+      modifications affect your normal Subversion workflow.</p>
+      <div class="sect2" title="Why Properties?">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.advanced.props.why"></a>Why Properties?</h3>
+            </div>
+          </div>
+        </div>
+        <p>Just as Subversion uses properties to store extra
+        information about the files, directories, and revisions that
+        it contains, you might also find properties to be of similar
+        use.  You might find it useful to have a place
+        close to your versioned data to hang custom metadata about
+        that data.</p>
+        <p>Say you wish to design a web site that houses many digital
+        photos and displays them with captions and a datestamp.  Now,
+        your set of photos is constantly changing, so you'd like to
+        have as much of this site automated as possible.  These photos
+        can be quite large, so as is common with sites of this nature,
+        you want to provide smaller thumbnail images to your site
+        visitors.</p>
+        <p>Now, you can get this functionality using traditional
+        files.  That is, you can have your
+        <code class="filename">image123.jpg</code> and an
+        <code class="filename">image123-thumbnail.jpg</code> side by side in a
+        directory.  Or if you want to keep the filenames the same, you
+        might have your thumbnails in a different directory, such as
+        <code class="filename">thumbnails/image123.jpg</code>.  You can also
+        store your captions and datestamps in a similar fashion, again
+        separated from the original image file.  But the problem here
+        is that your collection of files multiplies with each new
+        photo added to the site.</p>
+        <p>Now consider the same web site deployed in a way that
+        makes use of Subversion's file properties.  Imagine having a
+        single image file, <code class="filename">image123.jpg</code>, with
+        properties set on that file that are named
+        <code class="literal">caption</code>, <code class="literal">datestamp</code>, and
+        even <code class="literal">thumbnail</code>.  Now your working copy
+        directory looks much more manageable—in fact, it looks
+        to the casual browser like there are nothing but image files
+        in it.  But your automation scripts know better.  They know
+        that they can use <span class="command"><strong>svn</strong></span> (or better yet, they
+        can use the Subversion language bindings—see <a class="xref" href="svn.developer.usingapi.html" title="Using the APIs">the section called “Using the APIs”</a>) to dig out the extra
+        information that your site needs to display without having to
+        read an index file or play path manipulation games.</p>
+        <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;">
+          <table border="0" summary="Note">
+            <tr>
+              <td rowspan="2" align="center" valign="top" width="25">
+                <img alt="[Note]" src="images/note.png" />
+              </td>
+              <th align="left">Note</th>
+            </tr>
+            <tr>
+              <td align="left" valign="top">
+                <p>While Subversion places few restrictions on the names
+          and values you use for properties, it has not been designed
+          to optimally carry large property values or large sets of
+          properties on a given file or directory.  Subversion
+          commonly holds all the property names and values associated
+          with a single item in memory at the same time, which can
+          cause detrimental performance or failed operations when
+          extremely large property sets are used.</p>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <p>Custom revision properties are also frequently used.  One
+        common such use is a property whose value contains an issue
+        tracker ID with which the revision is associated, perhaps
+        because the change made in that revision fixes a bug filed in
+        the tracker issue with that ID.  Other uses include hanging
+        more friendly names on the revision—it might be hard to
+        remember that revision 1935 was a fully tested revision.  But
+        if there's, say, a <code class="literal">test-results</code> property on
+        that revision with the value <code class="literal">all passing</code>,
+        that's meaningful information to have.  And Subversion allow
+        you to easily do this via the <code class="option">--with-revprop</code>
+        option of the <span class="command"><strong>svn commit</strong></span> command:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn commit -m "Fix up the last remaining known regression bug." \
+      --with-revprop "test-results=all passing"
+Sending        lib/crit_bits.c
+Transmitting file data .
+Committed revision 912.
+$
+</pre>
+        </div>
+        <div class="sidebar" title="Searchability (or, Why Not Properties)">
+          <p class="title">
+            <b>Searchability (or, Why <span class="emphasis"><em>Not</em></span>
+          Properties)</b>
+          </p>
+          <p>For all their utility, Subversion properties—or,
+          more accurately, the available interfaces to them—have
+          a major shortcoming: while it is a simple matter to
+          <span class="emphasis"><em>set</em></span> a custom property,
+          <span class="emphasis"><em>finding</em></span> that property later is a whole
+          different ball of wax.</p>
+          <p>Trying to locate a custom revision property generally
+          involves performing a linear walk across all the revisions
+          of the repository, asking of each revision, <span class="quote">“<span class="quote">Do you
+          have the property I'm looking for?</span>”</span>  Use
+          the <code class="option">--with-all-revprops</code> option with
+          the <span class="command"><strong>svn log</strong></span> command's XML output mode to
+          facilitate this search.  Notice the presence of the custom
+          revision property <code class="literal">testresults</code> in the
+          following output:</p>
+          <div class="informalexample">
+            <pre class="screen">
+$ svn log --with-all-revprops --xml lib/crit_bits.c
+&lt;?xml version="1.0"?&gt;
+&lt;log&gt;
+&lt;logentry
+   revision="912"&gt;
+&lt;author&gt;harry&lt;/author&gt;
+&lt;date&gt;2011-07-29T14:47:41.169894Z&lt;/date&gt;
+&lt;msg&gt;Fix up the last remaining known regression bug.&lt;/msg&gt;
+&lt;revprops&gt;
+&lt;property
+   name="testresults"&gt;all passing&lt;/property&gt;
+&lt;/revprops&gt;
+&lt;/logentry&gt;
+…
+$
+</pre>
+          </div>
+          <p>Trying to find a custom versioned property is painful,
+          too, and often involves a recursive <span class="command"><strong>svn
+          propget</strong></span> across an entire working copy.  In your
+          situation, that might not be as bad as a linear walk across
+          all revisions.  But it certainly leaves much to be desired
+          in terms of both performance and likelihood of success,
+          especially if the scope of your search would require a
+          working copy from the root of your repository.</p>
+          <p>For this reason, you might choose—especially in
+          the revision property use case—to simply add your
+          metadata to the revision's log message using some
+          policy-driven (and perhaps programmatically enforced)
+          formatting that is designed to be quickly parsed from the
+          output of <span class="command"><strong>svn log</strong></span>.  It is quite common to
+          see the following in Subversion log messages:</p>
+          <div class="informalexample">
+            <pre class="programlisting">
+Issue(s): IZ2376, IZ1919
+Reviewed by:  sally
+
+This fixes a nasty segfault in the wort frabbing process
+…
+</pre>
+          </div>
+          <p>But here again lies some misfortune.  Subversion doesn't
+          yet provide a log message templating mechanism, which would
+          go a long way toward helping users be consistent with the
+          formatting of their log-embedded revision metadata.</p>
+        </div>
+      </div>
+      <div class="sect2" title="Manipulating Properties">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.advanced.props.manip"></a>Manipulating Properties</h3>
+            </div>
+          </div>
+        </div>
+        <p>The <span class="command"><strong>svn</strong></span> program affords a few ways to
+        add or modify file and directory properties.  For properties
+        with short, human-readable values, perhaps the simplest way to
+        add a new property is to specify the property name and value
+        on the command line of the <span class="command"><strong>svn propset</strong></span>
+        subcommand:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn propset copyright '(c) 2006 Red-Bean Software' calc/button.c
+property 'copyright' set on 'calc/button.c'
+$
+</pre>
+        </div>
+        <p>But we've been touting the flexibility that Subversion
+        offers for your property values.  And if you are planning to
+        have a multiline textual, or even binary, property value, you
+        probably do not want to supply that value on the command line.
+        So the <span class="command"><strong>svn propset</strong></span> subcommand takes a
+        <code class="option">--file</code> (<code class="option">-F</code>) option for
+        specifying the name of a file that contains the new property
+        value.</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn propset license -F /path/to/LICENSE calc/button.c
+property 'license' set on 'calc/button.c'
+$
+</pre>
+        </div>
+        <p>There are some restrictions on the names you can use for
+        properties.  A property name must start with a letter, a colon
+        (<code class="literal">:</code>), or an underscore
+        (<code class="literal">_</code>); after that, you can also use digits,
+        hyphens (<code class="literal">-</code>), and periods
+        (<code class="literal">.</code>).<sup>[<a id="idp34120848" href="#ftn.idp34120848" class="footnote">11</a>]</sup></p>
+        <p>In addition to the <span class="command"><strong>propset</strong></span> command, the
+        <span class="command"><strong>svn</strong></span> program supplies the
+        <span class="command"><strong>propedit</strong></span> command.  This command uses the
+        configured editor program (see <a class="xref" href="svn.advanced.confarea.html#svn.advanced.confarea.opts.config" title="Config">the section called “Config”</a>) to add or
+        modify properties.  When you run the command,
+        <span class="command"><strong>svn</strong></span> invokes your editor program on a
+        temporary file that contains the current value of the property
+        (or that is empty, if you are adding a new property).  Then,
+        you just modify that value in your editor program until it
+        represents the new value you wish to store for the property,
+        save the temporary file, and then exit the editor program.  If
+        Subversion detects that you've actually changed the existing
+        value of the property, it will accept that as the new property
+        value.  If you exit your editor without making any changes, no
+        property modification will occur:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn propedit copyright calc/button.c  ### exit the editor without changes
+No changes to property 'copyright' on 'calc/button.c'
+$
+</pre>
+        </div>
+        <p>We should note that, as with other <span class="command"><strong>svn</strong></span>
+        subcommands, those related to properties can act on multiple
+        paths at once.  This enables you to modify properties on whole
+        sets of files with a single command.  For example, we could
+        have done the following:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn propset copyright '(c) 2006 Red-Bean Software' calc/*
+property 'copyright' set on 'calc/Makefile'
+property 'copyright' set on 'calc/button.c'
+property 'copyright' set on 'calc/integer.c'
+…
+$
+</pre>
+        </div>
+        <p>All of this property adding and editing isn't really very
+        useful if you can't easily get the stored property value.  So
+        the <span class="command"><strong>svn</strong></span> program supplies two subcommands
+        for displaying the names and values of properties stored on
+        files and directories.  The <span class="command"><strong>svn proplist</strong></span>
+        command will list the names of properties that exist on a
+        path.  Once you know the names of the properties on the node,
+        you can request their values individually using <span class="command"><strong>svn
+        propget</strong></span>.  This command will, given a property name
+        and a path (or set of paths), print the value of the property
+        to the standard output stream.</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn proplist calc/button.c
+Properties on 'calc/button.c':
+  copyright
+  license
+$ svn propget copyright calc/button.c
+(c) 2006 Red-Bean Software
+</pre>
+        </div>
+        <p>There's even a variation of the
+        <span class="command"><strong>proplist</strong></span> command that will list both the
+        name and the value for all of the properties.  Simply supply the
+        <code class="option">--verbose</code> (<code class="option">-v</code>) option.</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn proplist -v calc/button.c
+Properties on 'calc/button.c':
+  copyright
+    (c) 2006 Red-Bean Software
+  license
+    ================================================================
+    Copyright (c) 2006 Red-Bean Software.  All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions 
+    are met:
+
+    1. Redistributions of source code must retain the above copyright
+    notice, this list of conditions, and the recipe for Fitz's famous
+    red-beans-and-rice.
+    …
+</pre>
+        </div>
+        <p>The last property-related subcommand is
+        <span class="command"><strong>propdel</strong></span>.  Since Subversion allows you to
+        store properties with empty values, you can't remove a
+        property altogether using <span class="command"><strong>svn propedit</strong></span> or
+        <span class="command"><strong>svn propset</strong></span>.  For example, this command will
+        <span class="emphasis"><em>not</em></span> yield the desired effect:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn propset license "" calc/button.c
+property 'license' set on 'calc/button.c'
+$ svn proplist -v calc/button.c
+Properties on 'calc/button.c':
+  copyright
+    (c) 2006 Red-Bean Software
+  license
+    
+$
+</pre>
+        </div>
+        <p>You need to use the <span class="command"><strong>propdel</strong></span> subcommand
+        to delete properties altogether.  The syntax is similar to the
+        other property commands:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn propdel license calc/button.c
+property 'license' deleted from 'calc/button.c'.
+$ svn proplist -v calc/button.c
+Properties on 'calc/button.c':
+  copyright
+    (c) 2006 Red-Bean Software
+$
+</pre>
+        </div>
+        <p>Remember those unversioned revision properties?  You can
+        modify those, too, using the same <span class="command"><strong>svn</strong></span>
+        subcommands that we just described.  Simply add the
+        <code class="option">--revprop</code> command-line parameter and specify
+        the revision whose property you wish to modify.  Since
+        revisions are global, you don't need to specify a target path
+        to these property-related commands so long as you are
+        positioned in a working copy of the repository whose revision
+        property you wish to modify.  Otherwise, you can simply
+        provide the URL of any path in the repository of interest
+        (including the repository's root URL).  For example, you might
+        want to replace the commit log message of an existing
+        revision.<sup>[<a id="idp34147504" href="#ftn.idp34147504" class="footnote">12</a>]</sup>  If
+        your current working directory is part of a working copy of
+        your repository, you can simply run the
+        <span class="command"><strong>svn propset</strong></span> command with no target path:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn propset svn:log "* button.c: Fix a compiler warning." -r11 --revprop
+property 'svn:log' set on repository revision '11'
+$
+</pre>
+        </div>
+        <p>But even if you haven't checked out a working copy from
+        that repository, you can still effect the property change by
+        providing the repository's root URL:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn propset svn:log "* button.c: Fix a compiler warning." -r11 --revprop \
+              http://svn.example.com/repos/project
+property 'svn:log' set on repository revision '11'
+$
+</pre>
+        </div>
+        <p>Note that the ability to modify these unversioned
+        properties must be explicitly added by the repository
+        administrator (see <a class="xref" href="svn.reposadmin.maint.html#svn.reposadmin.maint.setlog" title="Commit Log Message Correction">the section called “Commit Log Message Correction”</a>).
+        That's because the properties aren't versioned, so you run the risk of
+        losing information if you aren't careful with your edits.
+        The repository administrator can set up methods to protect
+        against this loss, and by default, modification of
+        unversioned properties is disabled.</p>
+        <div class="tip" title="Tip" style="margin-left: 0.5in; margin-right: 0.5in;">
+          <table border="0" summary="Tip">
+            <tr>
+              <td rowspan="2" align="center" valign="top" width="25">
+                <img alt="[Tip]" src="images/tip.png" />
+              </td>
+              <th align="left">Tip</th>
+            </tr>
+            <tr>
+              <td align="left" valign="top">
+                <p>Users should, where possible, use <span class="command"><strong>svn
+          propedit</strong></span> instead of <span class="command"><strong>svn
+          propset</strong></span>.  While the end result of the commands is
+          identical, the former will allow them to see the current
+          value of the property that they are about to change, which helps
+          them to verify that they are, in fact, making the change
+          they think they are making.  This is especially true when
+          modifying unversioned revision properties.  Also, it is
+          significantly easier to modify multiline property values in
+          a text editor than at the command line.</p>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div class="sect2" title="Properties and the Subversion Workflow">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.advanced.props.workflow"></a>Properties and the Subversion Workflow</h3>
+            </div>
+          </div>
+        </div>
+        <p>Now that you are familiar with all of the
+        property-related <span class="command"><strong>svn</strong></span> subcommands, let's see
+        how property modifications affect the usual Subversion
+        workflow.  As we mentioned earlier, file and directory
+        properties are versioned, just like your file contents.  As a
+        result, Subversion provides the same opportunities for
+        merging—cleanly or with conflicts—someone
+        else's modifications into your own.</p>
+        <p>As with file contents, your property changes are local
+        modifications, made permanent only when you commit them to the
+        repository with <span class="command"><strong>svn commit</strong></span>.  Your property
+        changes can be easily unmade, too—the <span class="command"><strong>svn
+        revert</strong></span> command will restore your files and
+        directories to their unedited states—contents, properties,
+        and all.  Also, you can receive interesting information about
+        the state of your file and directory properties by using the
+        <span class="command"><strong>svn status</strong></span> and <span class="command"><strong>svn diff</strong></span>
+        commands.</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn status calc/button.c
+ M      calc/button.c
+$ svn diff calc/button.c
+Property changes on: calc/button.c
+___________________________________________________________________
+Name: copyright
+   + (c) 2006 Red-Bean Software
+
+$
+</pre>
+        </div>
+        <p>Notice how the <span class="command"><strong>status</strong></span> subcommand
+        displays <code class="literal">M</code> in the second column instead of
+        the first.  That is because we have modified the properties on
+        <code class="filename">calc/button.c</code>, but not its textual
+        contents.  Had we changed both, we would have seen
+        <code class="literal">M</code> in the first column, too.  (We cover
+        <span class="command"><strong>svn status</strong></span> in <a class="xref" href="svn.tour.cycle.html#svn.tour.cycle.examine.status" title="See an overview of your changes">the section called “See an overview of your changes”</a>).</p>
+        <div class="sidebar" title="Property Conflicts">
+          <p class="title">
+            <b>Property Conflicts</b>
+          </p>
+          <p>As with file contents, local property modifications can
+          conflict with changes committed by someone else.  If you
+          update your working copy directory and receive property
+          changes on a versioned object that clash with your own,
+          Subversion will report that the object is in a conflicted
+          state.</p>
+          <div class="informalexample">
+            <pre class="screen">
+$ svn update calc
+Updating 'calc':
+M  calc/Makefile.in
+Conflict for property 'linecount' discovered on 'calc/button.c'.
+Select: (p) postpone, (df) diff-full, (e) edit,
+        (s) show all options: p
+ C calc/button.c
+Updated to revision 143.
+Summary of conflicts:
+  Property conflicts: 1
+$ 
+</pre>
+          </div>
+          <p>Subversion will also create, in the same directory as
+          the conflicted object, a file with a
+          <code class="filename">.prej</code> extension that contains the
+          details of the conflict.  You should examine the contents of
+          this file so you can decide how to resolve the conflict.
+          Until the conflict is resolved, you will see a
+          <code class="literal">C</code> in the second column of <span class="command"><strong>svn
+          status</strong></span> output for that object, and attempts to
+          commit your local modifications will fail.</p>
+          <div class="informalexample">
+            <pre class="screen">
+$ svn status calc
+ C      calc/button.c
+?       calc/button.c.prej
+$ cat calc/button.c.prej 
+Trying to change property 'linecount' from '1267' to '1301',
+but property has been locally changed from '1267' to '1256'.
+$
+</pre>
+          </div>
+          <p>To resolve property conflicts, simply ensure that the
+          conflicting properties contain the values that they should,
+          and then use the <span class="command"><strong>svn resolved</strong></span> command to
+          alert Subversion that you have manually resolved the
+          problem.</p>
+        </div>
+        <p>You might also have noticed the nonstandard way that
+        Subversion currently displays property differences.  You can
+        still use <span class="command"><strong>svn diff</strong></span> and redirect its output
+        to create a usable patch file.  The <span class="command"><strong>patch</strong></span>
+        program will ignore property patches—as a rule, it
+        ignores any noise it can't understand.  This does,
+        unfortunately, mean that to fully apply a patch generated by
+        <span class="command"><strong>svn diff</strong></span>, any property modifications will
+        need to be applied by hand.</p>
+      </div>
+      <div class="sect2" title="Automatic Property Setting">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.advanced.props.auto"></a>Automatic Property Setting</h3>
+            </div>
+          </div>
+        </div>
+        <p>Properties are a powerful feature of Subversion, acting as
+        key components of many Subversion features discussed elsewhere
+        in this and other chapters—textual diff and merge
+        support, keyword substitution, newline translation, and so on.  But
+        to get the full benefit of properties, they must be set on the
+        right files and directories.  Unfortunately, that
+        step can be easily forgotten in the routine of things, especially
+        since failing to set a property doesn't usually result in an
+        obvious error (at least compared to, say, failing to
+        add a file to version control).  To help your properties get
+        applied to the places that need them, Subversion provides a
+        couple of simple but useful features.</p>
+        <p>Whenever you introduce a file to version control using the
+        <span class="command"><strong>svn add</strong></span> or <span class="command"><strong>svn import</strong></span>
+        commands, Subversion tries to assist by setting some common
+        file properties automatically.  First, on operating systems
+        whose filesystems support an execute permission bit,
+        Subversion will automatically set the
+        <code class="literal">svn:executable</code> property on newly added or
+        imported files whose execute bit is enabled.  (See <a class="xref" href="svn.advanced.props.file-portability.html#svn.advanced.props.special.executable" title="File Executability">the section called “File Executability”</a> later in
+        this chapter for more about this property.)</p>
+        <p>Second, Subversion tries to determine the file's MIME
+        type.  If you've configured a
+        <code class="literal">mime-types-files</code> runtime configuration
+        parameter, Subversion will try to find a MIME type mapping in
+        that file for your file's extension.  If it finds such a
+        mapping, it will set your file's
+        <code class="literal">svn:mime-type</code> property to the MIME type it
+        found.  If no mapping file is configured, or no mapping for
+        your file's extension could be found, Subversion will fall
+        back to heuristic algorithms to determine the file's MIME
+        type.  Depending on how it is built, Subversion 1.7 can make
+        use of file scanning libraries<sup>[<a id="idp34190912" href="#ftn.idp34190912" class="footnote">13</a>]</sup> to detect a file's type based on its
+        content.  Failing all else, Subversion will employ its own
+        very basic heuristic to determine whether the file contains
+        nontextual content.  If so, it automatically sets the
+        <code class="literal">svn:mime-type</code> property on that file to
+        <code class="literal">application/octet-stream</code> (the generic
+        <span class="quote">“<span class="quote">this is a collection of bytes</span>”</span> MIME type).  Of
+        course, if Subversion guesses incorrectly, or if you wish to
+        set the <code class="literal">svn:mime-type</code> property to something
+        more precise—perhaps <code class="literal">image/png</code> or
+        <code class="literal">application/x-shockwave-flash</code>—you can
+        always remove or edit that property.  (For more on
+        Subversion's use of MIME types, see <a class="xref" href="svn.advanced.props.file-portability.html#svn.advanced.props.special.mime-type" title="File Content Type">the section called “File Content Type”</a> later in
+        this chapter.)</p>
+        <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;">
+          <table border="0" summary="Note">
+            <tr>
+              <td rowspan="2" align="center" valign="top" width="25">
+                <img alt="[Note]" src="images/note.png" />
+              </td>
+              <th align="left">Note</th>
+            </tr>
+            <tr>
+              <td align="left" valign="top">
+                <p>UTF-16 is commonly used to encode files whose semantic
+          content is textual in nature, but the encoding itself makes
+          heavy use of bytes which our outside the typical ASCII
+          character byte range.  As such, Subversion will tend to
+          classify such files as binary files, much to the chagrin of
+          users who desire line-based differencing and merging,
+          keyword substitution, and other behaviors for those
+          files.</p>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <p>Subversion also provides, via its runtime configuration
+        system (see <a class="xref" href="svn.advanced.confarea.html" title="Runtime Configuration Area">the section called “Runtime Configuration Area”</a>), a more
+        flexible automatic property setting feature that allows you
+        to create mappings of filename patterns to property names and
+        values.  Once again, these mappings affect adds and imports,
+        and can not only override the default MIME type decision made
+        by Subversion during those operations, but can also set
+        additional Subversion or custom properties, too.  For example,
+        you might create a mapping that says that anytime you add
+        JPEG files—ones whose names match the pattern
+        <code class="literal">*.jpg</code>—Subversion should automatically
+        set the <code class="literal">svn:mime-type</code> property on those
+        files to <code class="literal">image/jpeg</code>.  Or perhaps any files
+        that match <code class="literal">*.cpp</code> should have
+        <code class="literal">svn:eol-style</code> set to
+        <code class="literal">native</code>, and <code class="literal">svn:keywords</code>
+        set to <code class="literal">Id</code>.  Automatic property support is
+        perhaps the handiest property-related tool in the Subversion
+        toolbox.  See <a class="xref" href="svn.advanced.confarea.html#svn.advanced.confarea.opts.config" title="Config">the section called “Config”</a> for more about
+        configuring that support.</p>
+        <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;">
+          <table border="0" summary="Note">
+            <tr>
+              <td rowspan="2" align="center" valign="top" width="25">
+                <img alt="[Note]" src="images/note.png" />
+              </td>
+              <th align="left">Note</th>
+            </tr>
+            <tr>
+              <td align="left" valign="top">
+                <p>Subversion administrators commonly ask if it is possible
+          to configure, on the server side, a set of property
+          definitions which all connecting clients will automatically
+          consider when operating on working copies checked out from
+          that server.  Unfortunately, Subversion doesn't offer this
+          feature.  Administrators can use hook scripts to validate
+          that the properties added to and modified on files and
+          directories match the administrator's preferred policies,
+          rejecting commits which are non-compliant in this fashion.
+          (See <a class="xref" href="svn.reposadmin.create.html#svn.reposadmin.create.hooks" title="Implementing Repository Hooks">the section called “Implementing Repository Hooks”</a> for more
+          about hook scripts.)  But there's no way to automatically
+          dictate those preferences to Subversion clients
+          beforehand.</p>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div class="footnotes">
+        <br />
+        <hr width="100" align="left" />
+        <div class="footnote">
+          <p><sup>[<a id="ftn.idp34120848" href="#idp34120848" class="para">11</a>] </sup>If you're familiar with
+        XML, this is pretty much the ASCII subset of the syntax for
+        XML <span class="quote">“<span class="quote">Name</span>”</span>.</p>
+        </div>
+        <div class="footnote">
+          <p><sup>[<a id="ftn.idp34147504" href="#idp34147504" class="para">12</a>] </sup>Fixing spelling errors, grammatical
+        gotchas, and <span class="quote">“<span class="quote">just-plain-wrongness</span>”</span> in commit log
+        messages is perhaps the most common use case for
+        the <code class="option">--revprop</code> option.</p>
+        </div>
+        <div class="footnote">
+          <p><sup>[<a id="ftn.idp34190912" href="#idp34190912" class="para">13</a>] </sup>Currently,
+        libmagic is the support library used to accomplish
+        this.</p>
+        </div>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.advanced.pegrevs.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.advanced.html">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.advanced.props.file-portability.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">Peg and Operative Revisions </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> File Portability</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

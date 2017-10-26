@@ -71,7 +71,7 @@ static void get_lineseg_options(const	int argc,
 		    ret = OpenDbms(dbms);
 		    if (ret != 0)
 		    {
-			 fprintf(stderr, "Unable to open database: %s\n",
+			 fprintf(stderr, "lineseg_main: Unable to open database: %s\n",
 				 dbms);
 			 exit(-2);
 		    }

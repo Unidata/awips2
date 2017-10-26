@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+  GOES-16 Product                 WMO Header    Regions
+  Aerosol Detection (Smoke+Dust)  IXTA99 KNES   F,C,M
+  Aerosol Optical Depth           IXTB99 KNES   F,C
+  Cloud Top Phase                 IXTD99 KNES   F,C,M
+  Cloud Top Height                IXTG99 KNES   F,C,M
+  Cloud Top Pressure              IXTX01 KNES   F,C
+  Cloud Top Temperature           IXTI99 KNES   F,M
+  Derived Stability Indices       IXTN99 KNES   F,C,M
+  Total Precipitable Water        IXTO99 KNES   F,C,M
+  Clear Sky Mask                  IXTH99 KNES   F,C,M
+  Fire/Hot Spot Characterization  IXTJ99 KNES   F,C
+  Land Surface (Skin) Temperature IXTK99 KNES   F,C,M
+-->
+<requestPatterns xmlns:ns2="group">
+    <regex>^TI[SR]</regex>
+    <regex>^IXT[ABDGINOHJK]99</regex>
+    <!-- This pattern is intended to match standardized Level 2 filenames, it will not be used over LDM -->
+    <regex>^OR_ABI-L2-\w{3,5}(C|F|M1|M2)-M[34]_G\d\d_s\d{14}_e\d{14}_c\d{14}.nc$</regex>
+</requestPatterns>

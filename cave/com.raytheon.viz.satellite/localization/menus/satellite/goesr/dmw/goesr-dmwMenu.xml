@@ -44,23 +44,26 @@
     
     <!-- The menu title item -->
     <contribute xsi:type="titleItem" titleText="------ Derived Motion Winds ------" />
-    
-    <!-- GOES-East -->
-    <contribute xsi:type="subinclude" subMenu="GOES-East"
-        fileName="menus/satellite/goesr/dmw/goesr-dmwMenuByScene.xml" id="DMWGoesEast">
-         <substitute key="orbitalSlot" value="GOES-East"/>
+
+    <!-- Full Disk -->
+    <contribute xsi:type="subinclude" subMenu="Full Disk"
+        fileName="menus/satellite/goesr/dmw/goesr-dmwMenuByFilter.xml" >
+        <substitute key="orbitalSlot" value="GOES-Test"/>
+        <substitute key="scene" value="Full Disk" />
     </contribute>
 
-    <!-- GOES-West -->
-    <contribute xsi:type="subinclude" subMenu="GOES-West"
-        fileName="menus/satellite/goesr/dmw/goesr-dmwMenuByScene.xml" id="DMWGoesWest">
-         <substitute key="orbitalSlot" value="GOES-West"/>
+    <!-- CONUS -->
+    <contribute xsi:type="subinclude" subMenu="CONUS"
+        fileName="menus/satellite/goesr/dmw/goesr-dmwMenuByFilter.xml" >
+        <substitute key="orbitalSlot" value="GOES-Test"/>
+        <substitute key="scene" value="CONUS" />
     </contribute>
-    
-    <!-- GOES-Test -->
-    <contribute xsi:type="subinclude" subMenu="GOES-Test"
-        fileName="menus/satellite/goesr/dmw/goesr-dmwMenuByScene.xml" id="DMWGoesTest">
-         <substitute key="orbitalSlot" value="GOES-Test"/>
+
+    <!-- Mesoscale -->
+    <contribute xsi:type="subinclude" subMenu="Mesoscale"
+        fileName="menus/satellite/goesr/dmw/goesr-dmwMenuByFilter.xml" >
+        <substitute key="orbitalSlot" value="GOES-Test"/>
+        <substitute key="scene" value="Mesoscale" />
     </contribute>
    
 </menuTemplate>

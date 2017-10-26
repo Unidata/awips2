@@ -30,7 +30,7 @@
 	<include installTo="menu:models" 
              fileName="menus/grid/allFamilies.xml">
              <substitute key="modelName" value="GFS" />
-             <substitute key="menuName" value="GFS Global" />
+             <substitute key="menuName" value="GFS 0.25° Global" />
              <substitute key="frameCount" value="180" />
              <substitute key="TP" value="TP"/>
     </include>
@@ -57,6 +57,13 @@
     </include>
 	<include installTo="menu:models" 
              fileName="menus/grid/allFamilies.xml">
+             <substitute key="modelName" value="NAM3" />
+             <substitute key="menuName" value="NAM 3km" />
+             <substitute key="frameCount" value="60" />
+             <substitute key="TP" value="TP1hr"/>
+    </include>
+	<include installTo="menu:models" 
+             fileName="menus/grid/allFamilies.xml">
              <substitute key="modelName" value="NAM12" />
              <substitute key="menuName" value="NAM 12km" />
              <substitute key="frameCount" value="41" />
@@ -74,6 +81,13 @@
              <substitute key="modelName" value="NamDNG" />
              <substitute key="menuName" value="NamDNG 2.5km" />
              <substitute key="frameCount" value="41" />
+             <substitute key="TP" value="TP3hr"/>
+    </include>
+	<include installTo="menu:models" 
+             fileName="menus/grid/allFamilies.xml">
+             <substitute key="modelName" value="NationalBlend" />
+             <substitute key="menuName" value="National Blend" />
+             <substitute key="frameCount" value="75" />
              <substitute key="TP" value="TP3hr"/>
     </include>
     <include installTo="menu:models" 

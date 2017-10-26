@@ -36,7 +36,7 @@
             </property>
             <property
                   name="aboutImage"
-                  value="platform:/plugin/com.raytheon.viz.product.awips/icons/ipr.gif">
+                  value="platform:/plugin/com.raytheon.viz.product.awips/icons/awips.png">
             </property>
             <property
                   name="appName"
@@ -44,7 +44,7 @@
             </property>
             <property
                name="version"
-               value="%caveVersion"/>
+               value="%vizVersion"/>
          </product>
       </extension>
       

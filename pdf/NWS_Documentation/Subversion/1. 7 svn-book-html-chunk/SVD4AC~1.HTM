@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>post-revprop-change</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.ref.reposhooks.html" title="Repository Hooks" />
+    <link rel="prev" href="svn.ref.reposhooks.pre-revprop-change.html" title="pre-revprop-change" />
+    <link rel="next" href="svn.ref.reposhooks.pre-lock.html" title="pre-lock" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">post-revprop-change</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.ref.reposhooks.pre-revprop-change.html">Prev</a> </td>
+          <th width="60%" align="center">Repository Hooks</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.ref.reposhooks.pre-lock.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="refentry" title="post-revprop-change">
+      <a id="svn.ref.reposhooks.post-revprop-change"></a>
+      <div class="titlepage"></div>
+      <a id="idp44886176" class="indexterm"></a>
+      <div class="refnamediv">
+        <h2>Name</h2>
+        <p>post-revprop-change — Notification of a successful revision property 
+          change.</p>
+      </div>
+      <div class="refsect1" title="Description">
+        <a id="idp44889264"></a>
+        <h2>Description</h2>
+        <p>The <code class="literal">post-revprop-change</code> hook is run
+          immediately after the modification of a revision property
+          when performed outside the scope of a normal commit.  As you can
+          derive from the description of its counterpart, the
+          <code class="literal">pre-revprop-change</code> hook, this hook will
+          not run at all unless
+          the <code class="literal">pre-revprop-change</code> hook is
+          implemented.  It is typically used to send email
+          notification of the property change.</p>
+        <p>If the <code class="literal">post-revprop-change</code> hook returns a
+          nonzero exit status, the change <span class="emphasis"><em>will
+          not</em></span> be aborted since it has already
+          completed.  However, anything that the hook printed
+          to <code class="filename">stderr</code> will be marshalled back to the
+          client, making it easier to diagnose hook failures.</p>
+      </div>
+      <div class="refsect1" title="Input parameter(s)">
+        <a id="idp44895520"></a>
+        <h2>Input parameter(s)</h2>
+        <p>The command-line arguments passed to the hook program,
+          in order, are:</p>
+        <div class="orderedlist">
+          <ol class="orderedlist" type="1">
+            <li class="listitem">
+              <p>Repository path</p>
+            </li>
+            <li class="listitem">
+              <p>Revision whose property was modified</p>
+            </li>
+            <li class="listitem">
+              <p>Authenticated username of the person making the change</p>
+            </li>
+            <li class="listitem">
+              <p>Name of the property changed</p>
+            </li>
+            <li class="listitem">
+              <p>Change description: <code class="literal">A</code> (added),
+              <code class="literal">D</code> (deleted), or <code class="literal">M</code>
+              (modified)</p>
+            </li>
+          </ol>
+        </div>
+        <p>Additionally, Subversion passes to the hook program, via
+          standard input, the previous value of the property.</p>
+      </div>
+      <div class="refsect1" title="Common uses">
+        <a id="idp44904352"></a>
+        <h2>Common uses</h2>
+        <p>Property change notification</p>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.ref.reposhooks.pre-revprop-change.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.ref.reposhooks.html">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.ref.reposhooks.pre-lock.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">pre-revprop-change </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> pre-lock</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

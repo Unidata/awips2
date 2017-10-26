@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    <!-- TOWRdocs Header
+         GOES-R Center/Test Position Sectors description file for Level2 products.
+    -->
+    <!-- TOWRdocs Description
+         This file specifies descriptions for the Center/Test position sectors.
+         Description files are used to decode the GOES-R
+         netcdf imagery and Level2 products. When there are new products a description file
+         must be added. This file specifies products for the Test/Center location. When description
+         files are added or modified, edex must be restarted for the changes to be reflected.
+    -->
+    <!-- TOWRdocs Status
+         This is a new file not included in the current baseline. The baseline does not contain 
+         Center/Test position Level2 descriptions. This file is similar to the baseline 
+         GOES-East-Sectors.xml and GOES-West-Sectors.xml files.
+    -->
+    <!-- TOWRdocs POC
+         Lee Byerle
+    -->
+<goesrProductDescriptions>
+  <default>
+    <matches>
+        <match pattern="GOES-Test">
+            <attribute name="orbital_slot" />
+        </match>
+    </matches>
+  </default>
+
+    <description>
+    <matches>
+        <match  pattern="CONUS">
+            <attribute name="scene_id" />
+        </match>
+    </matches>
+    <sectorID>
+        <value value="TCONUS" />
+    </sectorID>
+  </description>
+  
+  <description>
+    <matches>
+        <match  pattern="Full Disk">
+            <attribute name="scene_id" />
+        </match>
+    </matches>
+    <sectorID>
+        <value value="TFD" />
+    </sectorID>
+  </description>
+  
+  <description>
+    <matches>
+      <match pattern="OR_ABI-L2-\w{3,5}M1-M[34]_G\d\d_s\d{14}_e\d{14}_c\d{14}.nc">
+        <attribute name="dataset_name" />
+      </match>
+      <match pattern="Mesoscale">
+        <attribute name="scene_id" />
+      </match>
+    </matches>
+    <sectorID>
+        <value value="TMESO-1" />
+    </sectorID>
+  </description>
+
+  <description>
+    <matches>
+      <match pattern="OR_ABI-L2-\w{3,5}M2-M[34]_G\d\d_s\d{14}_e\d{14}_c\d{14}.nc">
+        <attribute name="dataset_name" />
+      </match>
+      <match  pattern="Mesoscale">
+          <attribute name="scene_id" />
+      </match>
+    </matches>
+    <sectorID>
+        <value value="TMESO-2" />
+    </sectorID>
+  </description>
+</goesrProductDescriptions>

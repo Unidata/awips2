@@ -21,7 +21,6 @@ function lookupRPM()
    export RPM_SPECIFICATION=
    export RPM_PROJECT_DIR=
 
-   awips2_ade_dir="${rpms_dir}/awips2.ade"
    awips2_cave_dir="${rpms_dir}/awips2.cave"
    awips2_edex_dir="${rpms_dir}/awips2.edex"
    awips2_core_dir="${rpms_dir}/awips2.core"
@@ -32,10 +31,7 @@ function lookupRPM()
    installer_dir="${rpms_dir}/../installers/RPMs"
 
    # lookup the rpm.
-   if [ "${1}" = "awips2-edex-shapefiles" ]; then
-      export RPM_SPECIFICATION="${awips2_edex_dir}/Installer.edex-shapefiles"
-      return 0
-   fi
+
    # foss rpms -> python rpms.
    if [ "${1}" = "awips2-maven" ]; then
       export RPM_SPECIFICATION="${installer_dir}/maven/"
@@ -45,6 +41,14 @@ function lookupRPM()
       export RPM_SPECIFICATION="${installer_dir}/python/"
       return 0
    fi
+   if [ "${1}" = "awips2-python-cherrypy" ]; then
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.cherrypy"
+      return 0
+   fi
+   #if [ "${1}" = "awips2-python-dynamicserialize" ]; then
+   #   export RPM_SPECIFICATION="${python_site__dir}/Installer.dynamicserialize"
+   #   return 0
+   #fi
    if [ "${1}" = "awips2-python-h5py" ]; then
       export RPM_SPECIFICATION="${installer_dir}/h5py/"
       return 0
@@ -105,30 +109,22 @@ function lookupRPM()
       export RPM_SPECIFICATION="${installer_dir}/scipy/"
       return 0
    fi
-   if [ "${1}" = "awips2-python-cython" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.cython"
-      return 0
-   fi
-   if [ "${1}" = "awips2-python-cycler" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.cycler"
-      return 0
-   fi
-   if [ "${1}" = "awips2-python-gfe" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.gfe"
-      return 0
-   fi
    if [ "${1}" = "awips2-python-tables" ]; then
       export RPM_SPECIFICATION="${installer_dir}/tables/"
       return 0
    fi
+   #if [ "${1}" = "awips2-python-thrift" ]; then
+   #   export RPM_SPECIFICATION="${python_site__dir}/Installer.thrift"
+   #   return 0
+   #fi
    if [ "${1}" = "awips2-python-tpg" ]; then
       export RPM_SPECIFICATION="${python_site__dir}/Installer.tpg"
       return 0
    fi
-   if [ "${1}" = "awips2-python-awips" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.python-awips"
-      return 0
-   fi
+   #if [ "${1}" = "awips2-python-ufpy" ]; then
+   #   export RPM_SPECIFICATION="${python_site__dir}/Installer.ufpy"
+   #   return 0
+   #fi
    if [ "${1}" = "awips2-python-werkzeug" ]; then
       export RPM_SPECIFICATION="${python_site__dir}/Installer.werkzeug"
       return 0
@@ -143,10 +139,6 @@ function lookupRPM()
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.ncep-database"
       return 0
    fi
-   if [ "${1}" = "awips2-adapt-native" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.adapt-native"
-      return 0
-   fi
    if [ "${1}" = "awips2-aviation-shared" ]; then
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.aviation"
       return 0
@@ -159,40 +151,16 @@ function lookupRPM()
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.database"
       return 0
    fi
-   if [ "${1}" = "awips2-database-server-configuration" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.database-server-configuration"
-      return 0
-   fi
-   if [ "${1}" = "awips2-database-standalone-configuration" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.database-standalone-configuration"
-      return 0
-   fi
    if [ "${1}" = "awips2-gfesuite" ]; then
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.gfesuite"
-      return 0
-   fi
-   if [ "${1}" = "awips2-hydroapps-shared" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.hydroapps"
-      return 0
-   fi
-   if [ "${1}" = "-localization" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.localization"
       return 0
    fi
    if [ "${1}" = "awips2-maps-database" ]; then
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.maps-database"
       return 0
    fi
-   if [ "${1}" = "awips2-notification" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.notification"
-      return 0
-   fi
    if [ "${1}" = "awips2-pypies" ]; then
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.pypies"
-      return 0
-   fi
-   if [ "${1}" = "awips2-rcm" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.rcm"
       return 0
    fi
    if [ "${1}" = "awips2-data.hdf5-topo" ]; then
@@ -209,6 +177,10 @@ function lookupRPM()
    fi
    if [ "${1}" = "awips2-common-base" ]; then
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.common-base"
+      return 0
+   fi
+   if [ "${1}" = "awips2-rehost-support-postgresql" ]; then
+      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.rehost-support"
       return 0
    fi
 
@@ -241,16 +213,12 @@ function lookupRPM()
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.groovy"
       return 0
    fi
-   if [ "${1}" = "awips2-ldm" ]; then
-      export RPM_SPECIFICATION="${awips2_upc_dir}/Installer.ldm"
-      return 0
-   fi
-   if [ "${1}" = "awips2-edex-upc" ]; then
-      export RPM_SPECIFICATION="${awips2_upc_dir}/Installer.edex-upc"
-      return 0
-   fi
    if [ "${1}" = "awips2-postgresql" ]; then
       export RPM_SPECIFICATION="${installer_dir}/postgresql"
+      return 0
+   fi
+   if [ "${1}" = "awips2-pgadmin3" ]; then
+      export RPM_SPECIFICATION="${installer_dir}/pgadmin3"
       return 0
    fi
    if [ "${1}" = "awips2-tools" ]; then
@@ -283,6 +251,39 @@ function lookupRPM()
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.edex-environment/edex"
       return 0
    fi
+   if [ "${1}" = "awips2-edex-shapefiles" ]; then
+      export RPM_SPECIFICATION="${awips2_edex_dir}/Installer.edex-shapefiles"
+      return 0
+   fi
 
+   # Unidata additions
+   if [ "${1}" = "awips2-ldm" ]; then
+      export RPM_SPECIFICATION="${awips2_upc_dir}/Installer.ldm"
+      return 0
+   fi
+   if [ "${1}" = "awips2-edex-upc" ]; then
+      export RPM_SPECIFICATION="${awips2_upc_dir}/Installer.edex-upc"
+      return 0
+   fi
+   if [ "${1}" = "awips2-localization" ]; then
+      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.localization"
+      return 0
+   fi
+   if [ "${1}" = "awips2-python-awips" ]; then
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.python-awips"
+      return 0
+   fi
+   if [ "${1}" = "awips2-python-cython" ]; then
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.cython"
+      return 0
+   fi
+   if [ "${1}" = "awips2-python-cycler" ]; then
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.cycler"
+      return 0
+   fi
+   if [ "${1}" = "awips2-python-gfe" ]; then
+      export RPM_SPECIFICATION="${python_site__dir}/Installer.gfe"
+      return 0
+   fi
    return 1
 }

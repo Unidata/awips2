@@ -18,8 +18,7 @@
    </license>
 
    <requires>
-      <import feature="com.raytheon.uf.edex.text.feature" version="1.0.0.qualifier"/>
-      <import feature="com.raytheon.uf.edex.satellite.feature" version="1.0.0.qualifier"/>
+      <import feature="com.raytheon.uf.edex.dataplugins.feature" version="1.0.0.qualifier"/>
    </requires>
 
    <plugin

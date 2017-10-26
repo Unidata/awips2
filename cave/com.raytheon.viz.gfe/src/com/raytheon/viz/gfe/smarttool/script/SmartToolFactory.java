@@ -38,10 +38,11 @@ import com.raytheon.viz.gfe.core.DataManager;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * Mar 21, 2008             njensen     Initial creation
- * Jul 9, 2009    2454      ryu         Put user and site's python scripts on path for import
+ * Jul 09, 2009   2454      ryu         Put user and site's python scripts on path for import
  * May 20, 2015   4509      njensen     Added time and dataaccess to include path
  * Jul 23, 2015   4263      dgilling    Refactored to support changes to SmartToolController.
  * Dec 14, 2015   4816      dgilling    Support refactored PythonJobCoordinator API.
+ * Jul 19, 2017   ----      mjames@ucar Add common python include path.
  * 
  * </pre>
  * 
@@ -69,6 +70,7 @@ public abstract class SmartToolFactory<C extends SmartToolController>
 
     protected static String getIncludePath() {
         return PyUtil.buildJepIncludePath(PythonIncludePathUtil
+                .getCommonPythonIncludePath(), PythonIncludePathUtil
                 .getCommonPythonIncludePath("time", "dataaccess"),
                 GfePyIncludeUtil.getVtecIncludePath(), GfePyIncludeUtil
                         .getCommonGfeIncludePath(), GfePyIncludeUtil

@@ -122,10 +122,6 @@ import com.raytheon.uf.common.dataplugin.text.request.RemoteRetrievalRequest;
 import com.raytheon.uf.common.dataplugin.text.request.StdTextProductServerRequest;
 import com.raytheon.uf.common.dataplugin.text.request.TextProductInfoCreateRequest;
 import com.raytheon.uf.common.dataplugin.text.util.AFOSParser;
-import com.raytheon.uf.common.dissemination.OUPRequest;
-import com.raytheon.uf.common.dissemination.OUPResponse;
-import com.raytheon.uf.common.dissemination.OUPTestRequest;
-import com.raytheon.uf.common.dissemination.OfficialUserProduct;
 import com.raytheon.uf.common.jms.notification.INotificationObserver;
 import com.raytheon.uf.common.jms.notification.NotificationException;
 import com.raytheon.uf.common.jms.notification.NotificationMessage;
@@ -167,8 +163,6 @@ import com.raytheon.viz.texteditor.command.ICommand;
 import com.raytheon.viz.texteditor.command.IProductQueryCallback;
 import com.raytheon.viz.texteditor.command.ProductQueryJob;
 import com.raytheon.viz.texteditor.dialogs.LineWrapCheckConfirmationMsg.AnswerChoices;
-import com.raytheon.viz.texteditor.fax.dialogs.FaxMessageDlg;
-import com.raytheon.viz.texteditor.fax.dialogs.LdadFaxSitesDlg;
 import com.raytheon.viz.texteditor.msgs.IAfosBrowserCallback;
 import com.raytheon.viz.texteditor.msgs.IAwipsBrowserCallback;
 import com.raytheon.viz.texteditor.msgs.IRecoverEditSessionCallback;
@@ -1385,16 +1379,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /** Text character wrap dialog */
     private TextCharWrapDlg textCharWrapDlg;
-
-    /** LDAD fax sites dialog */
-    private LdadFaxSitesDlg ldadFaxSitesDlg;
-
-    /** Fax all message dialog */
-    private FaxMessageDlg faxAllMsgDlg;
-
-    /** Fax message dialog */
-    private FaxMessageDlg faxMsgDlg;
-
+    
     /*
      * enum to detemine if editor session can be closed.
      */
@@ -1682,53 +1667,6 @@ public class TextEditorDialog extends CaveSWTDialog
             @Override
             public void widgetSelected(SelectionEvent event) {
                 printSelectedText();
-            }
-        });
-
-        new MenuItem(fileMenu, SWT.SEPARATOR);
-
-        faxAllItem = new MenuItem(fileMenu, SWT.NONE);
-        faxAllItem.setText("Fax All...");
-        faxAllItem.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-
-                if (faxAllMsgDlg == null || faxAllMsgDlg.isDisposed()) {
-                    faxAllMsgDlg = new FaxMessageDlg(shell);
-                    faxAllMsgDlg.setInitialText(textEditor.getText());
-                    faxAllMsgDlg.open();
-                } else {
-                    faxAllMsgDlg.bringToTop();
-                }
-            }
-        });
-
-        faxSelectionItem = new MenuItem(fileMenu, SWT.NONE);
-        faxSelectionItem.setText("Fax Selection...");
-        faxSelectionItem.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                if (faxMsgDlg == null || faxMsgDlg.isDisposed()) {
-                    faxMsgDlg = new FaxMessageDlg(shell);
-                    faxMsgDlg.setInitialText(textEditor.getSelectionText());
-                    faxMsgDlg.open();
-                } else {
-                    faxMsgDlg.bringToTop();
-                }
-            }
-        });
-
-        configAutoFaxItem = new MenuItem(fileMenu, SWT.NONE);
-        configAutoFaxItem.setText("Configure Auto Fax...");
-        configAutoFaxItem.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                if (ldadFaxSitesDlg == null || ldadFaxSitesDlg.isDisposed()) {
-                    ldadFaxSitesDlg = new LdadFaxSitesDlg(shell);
-                    ldadFaxSitesDlg.open();
-                } else {
-                    ldadFaxSitesDlg.bringToTop();
-                }
             }
         });
 
@@ -5157,27 +5095,6 @@ public class TextEditorDialog extends CaveSWTDialog
                     inEditMode = false;
                 }
                 if (!resend) {
-                    OUPTestRequest testReq = new OUPTestRequest();
-                    testReq.setOupRequest(
-                            createOUPRequest(prod, prod.getProduct()));
-                    try {
-                        OUPResponse checkResponse = (OUPResponse) ThriftClient
-                                .sendRequest(testReq);
-                        if (checkResponse.hasFailure()) {
-                            statusHandler.handle(Priority.PROBLEM,
-                                    "Error during text product transmission check: "
-                                            + checkResponse.getMessage());
-                            inEditMode = true;
-                            return;
-                        }
-                    } catch (VizException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                "Error during text product transmission check",
-                                e);
-                        inEditMode = true;
-                        return;
-                    }
-
                     /*
                      * Update the vtec string in the message. It looks wrong to
                      * do this after saveEditedProduct, but it works because for
@@ -5198,14 +5115,13 @@ public class TextEditorDialog extends CaveSWTDialog
                 }
 
                 String product = prod.getProduct();
-                OUPRequest req = createOUPRequest(prod, product);
 
                 if (notify != null) {
                     notify.add(product);
                 }
 
                 // Code in Run statement goes here!
-                new Thread(new ThriftClientRunnable(req)).start();
+                //new Thread(new ThriftClientRunnable(req)).start();
                 logInfo("Autowrap char size = " + charWrapCol);
                 logInfo("Sent product:\n" + product);
             } catch (VizException e) {
@@ -5302,36 +5218,6 @@ public class TextEditorDialog extends CaveSWTDialog
         return result;
     }
 
-    private OUPRequest createOUPRequest(StdTextProduct prod, String text) {
-        OUPRequest req = new OUPRequest();
-        OfficialUserProduct oup = new OfficialUserProduct();
-        String awipsWanPil = prod.getSite() + prod.getNnnid() + prod.getXxxid();
-        String awipsID = prod.getNnnid() + prod.getXxxid();
-
-        oup.setAwipsWanPil(awipsWanPil);
-        oup.setNeedsWmoHeader(false);
-        oup.setProductText(text);
-        oup.setSource("TextWS");
-        oup.setWmoType(fixNOR(prod.getBbbid()));
-        oup.setUserDateTimeStamp(prod.getHdrtime());
-        StringBuilder fileName = new StringBuilder();
-
-        // The .wan extension followed by the 10 digit epoch seconds
-        // of simulated time is used in EDEX's WarningDecoder to
-        // determine the base time.
-        fileName.append(awipsID).append(".wan")
-                .append(TimeUtil.getUnixTime(TimeUtil.newDate()));
-        oup.setFilename(fileName.toString());
-        oup.setAddress(addressee);
-        if (attachedFile != null && attachedFilename != null) {
-            oup.setAttachedFile(attachedFile);
-            oup.setAttachedFilename(attachedFilename);
-        }
-        req.setCheckBBB(true);
-        req.setProduct(oup);
-        req.setUser(UserController.getUserObject());
-        return req;
-    }
 
     /**
      * Recreates the original message by combining the header and the body from
@@ -7884,57 +7770,9 @@ public class TextEditorDialog extends CaveSWTDialog
      */
     private class ThriftClientRunnable implements Runnable {
 
-        private final OUPRequest request;
-
-        public ThriftClientRunnable(OUPRequest request) {
-            this.request = request;
-        }
-
         @Override
         public void run() {
-            try {
-                final OUPResponse response = (OUPResponse) ThriftClient
-                        .sendRequest(request);
-
-                // if (response.isAcknowledged()) {
-                if (response.hasFailure()) {
-                    Priority p = Priority.EVENTA;
-                    if (!response.isAttempted()) {
-                        // if was never attempted to send or store even locally
-                        p = Priority.CRITICAL;
-                    } else if (!response.isSendLocalSuccess()) {
-                        // if send/store locally failed
-                        p = Priority.CRITICAL;
-                    } else if (!response.isSendWANSuccess()) {
-                        // if send to WAN failed
-                        if (response.getNeedAcknowledgment()) {
-                            // if ack was needed, if it never sent then no ack
-                            // was recieved
-                            p = Priority.CRITICAL;
-                        } else {
-                            // if no ack was needed
-                            p = Priority.EVENTA;
-                        }
-                    } else if (response.getNeedAcknowledgment()
-                            && !response.isAcknowledged()) {
-                        // if sent but not acknowledged when acknowledgement is
-                        // needed
-                        p = Priority.CRITICAL;
-                    }
-
-                    statusHandler.handle(p, response.getMessage());
-                } else {
-                    // no failure
-                    // As of DR 15418, nothing is done with
-                    // response.getChangedBBB()
-                }
-
-                Thread.interrupted();
-            } catch (VizException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error transmitting text product", e);
-
-            }
+           
         }
     }
 

@@ -70,7 +70,7 @@ public class AppLauncherHandler extends AbstractHandler {
 
     private static final String HYDRO_APPS_DIR = "HYDRO_APPS_DIR";
 
-    private static final String HYDRO_APPS_DIR_LOC = "/awips/hydroapps";
+    private static final String HYDRO_APPS_DIR_LOC = "/awips2/edex/data/share/hydroapps";
 
     private static final String PGSQL_DRIVER = "PGSQL_DRIVER_DIR";
 

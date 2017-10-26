@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Chapter 2. Basic Usage</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="prev" href="svn.basic.summary.html" title="Summary" />
+    <link rel="next" href="svn.tour.help.html" title="Help!" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">Chapter 2. Basic Usage</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.basic.summary.html">Prev</a> </td>
+          <th width="60%" align="center"> </th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.tour.help.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="chapter" title="Chapter 2. Basic Usage">
+      <div class="titlepage">
+        <div>
+          <div>
+            <h2 class="title"><a id="svn.tour"></a>Chapter 2. Basic Usage</h2>
+          </div>
+        </div>
+      </div>
+      <div class="toc">
+        <p>
+          <b>Table of Contents</b>
+        </p>
+        <dl>
+          <dt>
+            <span class="sect1">
+              <a href="svn.tour.help.html">Help!</a>
+            </span>
+          </dt>
+          <dt>
+            <span class="sect1">
+              <a href="svn.tour.importing.html">Getting Data into Your Repository</a>
+            </span>
+          </dt>
+          <dd>
+            <dl>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.tour.importing.html#svn.tour.importing.import">Importing Files and Directories</a>
+                </span>
+              </dt>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.tour.importing.html#svn.tour.importing.layout">Recommended Repository Layout</a>
+                </span>
+              </dt>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.tour.importing.html#svn.tour.importing.naming">What's In a Name?</a>
+                </span>
+              </dt>
+            </dl>
+          </dd>
+          <dt>
+            <span class="sect1">
+              <a href="svn.tour.initial.html">Creating a Working Copy</a>
+            </span>
+          </dt>
+          <dt>
+            <span class="sect1">
+              <a href="svn.tour.cycle.html">Basic Work Cycle</a>
+            </span>
+          </dt>
+          <dd>
+            <dl>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.tour.cycle.html#svn.tour.cycle.update">Update Your Working Copy</a>
+                </span>
+              </dt>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.tour.cycle.html#svn.tour.cycle.edit">Make Your Changes </a>
+                </span>
+              </dt>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.tour.cycle.html#svn.tour.cycle.examine">Review Your Changes</a>
+                </span>
+              </dt>
+              <dd>
+                <dl>
+                  <dt>
+                    <span class="sect3">
+                      <a href="svn.tour.cycle.html#svn.tour.cycle.examine.status">See an overview of your changes</a>
+                    </span>
+                  </dt>
+                  <dt>
+                    <span class="sect3">
+                      <a href="svn.tour.cycle.html#svn.tour.cycle.examine.diff">Examine the details of your local modifications</a>
+                    </span>
+                  </dt>
+                </dl>
+              </dd>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.tour.cycle.html#svn.tour.cycle.revert">Fix Your Mistakes</a>
+                </span>
+              </dt>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.tour.cycle.html#svn.tour.cycle.resolve">Resolve Any Conflicts</a>
+                </span>
+              </dt>
+              <dd>
+                <dl>
+                  <dt>
+                    <span class="sect3">
+                      <a href="svn.tour.cycle.html#svn.tour.cycle.resolve.diff">Viewing conflict differences interactively</a>
+                    </span>
+                  </dt>
+                  <dt>
+                    <span class="sect3">
+                      <a href="svn.tour.cycle.html#svn.tour.cycle.resolve.resolve">Resolving conflict differences interactively</a>
+                    </span>
+                  </dt>
+                  <dt>
+                    <span class="sect3">
+                      <a href="svn.tour.cycle.html#svn.tour.cycle.resolve.pending">Postponing conflict resolution</a>
+                    </span>
+                  </dt>
+                  <dt>
+                    <span class="sect3">
+                      <a href="svn.tour.cycle.html#svn.tour.cycle.resolve.byhand">Merging conflicts by hand</a>
+                    </span>
+                  </dt>
+                  <dt>
+                    <span class="sect3">
+                      <a href="svn.tour.cycle.html#svn.tour.cycle.resolve.theirsfull">Discarding your changes in favor of a newly fetched
+          revision</a>
+                    </span>
+                  </dt>
+                  <dt>
+                    <span class="sect3">
+                      <a href="svn.tour.cycle.html#svn.tour.cycle.resolve.revert">Punting: using svn revert</a>
+                    </span>
+                  </dt>
+                </dl>
+              </dd>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.tour.cycle.html#svn.tour.cycle.commit">Commit Your Changes</a>
+                </span>
+              </dt>
+            </dl>
+          </dd>
+          <dt>
+            <span class="sect1">
+              <a href="svn.tour.history.html">Examining History</a>
+            </span>
+          </dt>
+          <dd>
+            <dl>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.tour.history.html#svn.tour.history.diff">Examining the Details of Historical Changes</a>
+                </span>
+              </dt>
+              <dd>
+                <dl>
+                  <dt>
+                    <span class="sect3">
+                      <a href="svn.tour.history.html#svn.tour.history.diff.local">Examining local changes</a>
+                    </span>
+                  </dt>
+                  <dt>
+                    <span class="sect3">
+                      <a href="svn.tour.history.html#svn.tour.history.diff.wcrepos">Comparing working copy to repository</a>
+                    </span>
+                  </dt>
+                  <dt>
+                    <span class="sect3">
+                      <a href="svn.tour.history.html#svn.tour.history.diff.reposrepos">Comparing repository revisions</a>
+                    </span>
+                  </dt>
+                </dl>
+              </dd>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.tour.history.html#svn.tour.history.log">Generating a List of Historical Changes</a>
+                </span>
+              </dt>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.tour.history.html#svn.tour.history.browsing">Browsing the Repository</a>
+                </span>
+              </dt>
+              <dd>
+                <dl>
+                  <dt>
+                    <span class="sect3">
+                      <a href="svn.tour.history.html#svn.tour.history.browsing.cat">svn cat</a>
+                    </span>
+                  </dt>
+                  <dt>
+                    <span class="sect3">
+                      <a href="svn.tour.history.html#svn.tour.history.browsing.list">svn list</a>
+                    </span>
+                  </dt>
+                </dl>
+              </dd>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.tour.history.html#svn.tour.history.snapshots">Fetching Older Repository Snapshots</a>
+                </span>
+              </dt>
+            </dl>
+          </dd>
+          <dt>
+            <span class="sect1">
+              <a href="svn.tour.cleanup.html">Sometimes You Just Need to Clean Up</a>
+            </span>
+          </dt>
+          <dd>
+            <dl>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.tour.cleanup.html#svn.tour.cleanup.disposal">Disposing of a Working Copy</a>
+                </span>
+              </dt>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.tour.cleanup.html#svn.tour.cleanup.interruption">Recovering from an Interruption</a>
+                </span>
+              </dt>
+            </dl>
+          </dd>
+          <dt>
+            <span class="sect1">
+              <a href="svn.tour.treeconflicts.html">Dealing with Structural Conflicts</a>
+            </span>
+          </dt>
+          <dd>
+            <dl>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.tour.treeconflicts.html#svn.tour.treeconflicts.example">An Example Tree Conflict</a>
+                </span>
+              </dt>
+            </dl>
+          </dd>
+          <dt>
+            <span class="sect1">
+              <a href="svn.tour.summary.html">Summary</a>
+            </span>
+          </dt>
+        </dl>
+      </div>
+      <p>Theory is useful, but its application is just plain fun.
+    Let's move now into the details of using Subversion.  By the time
+    you reach the end of this chapter, you will be able to perform all
+    the tasks you need to use Subversion in a normal day's work.
+    You'll start with getting your files into Subversion, followed by
+    an initial checkout of your code.  We'll then walk you through
+    making changes and examining those changes.  You'll also see how
+    to bring changes made by others into your working copy, examine
+    them, and work through any conflicts that might arise.</p>
+      <p>This chapter will not provide exhaustive coverage
+    of all of Subversion's commands—rather, it's a conversational
+    introduction to the most common Subversion tasks that you'll
+    encounter.  This chapter assumes that you've read and understood
+    <a class="xref" href="svn.basic.html" title="Chapter 1. Fundamental Concepts">Chapter 1, <i>Fundamental Concepts</i></a> and are familiar with the general
+    model of Subversion.  For a complete reference of all commands,
+    see <a class="xref" href="svn.ref.html" title="Chapter 9. Subversion Complete Reference">Chapter 9, <i>Subversion Complete Reference</i></a>.</p>
+      <p>Also, this chapter assumes that the reader is seeking
+    information about how to interact in a basic fashion with an
+    existing Subversion repository.  No repository means no working
+    copy; no working copy means not much of interest in this chapter.
+    There are many Internet sites which offer free or inexpensive
+    Subversion repository hosting services.  Or, if you'd prefer to
+    set up and administer your own repositories, check out
+    <a class="xref" href="svn.reposadmin.html" title="Chapter 5. Repository Administration">Chapter 5, <i>Repository Administration</i></a>.  But don't expect the
+    examples in this chapter to work without the user having access
+    to a Subversion repository.</p>
+      <p>Finally, any Subversion operation that contacts the repository
+    over a network may potentially require that the user authenticate.
+    For the sake of simplicity, our examples throughout this chapter
+    avoid demonstrating and discussing authentication.  Be aware that
+    if you hope to apply the knowledge herein to an existing,
+    real-world Subversion instance, you'll probably be forced to
+    provide at least a username and password to the server.  See
+    <a class="xref" href="svn.serverconfig.netmodel.html#svn.serverconfig.netmodel.creds" title="Client Credentials">the section called “Client Credentials”</a> for a detailed
+    description of Subversion's handling of authentication and client
+    credentials.</p>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.basic.summary.html">Prev</a> </td>
+          <td width="20%" align="center"> </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.tour.help.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">Summary </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> Help!</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

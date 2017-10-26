@@ -949,12 +949,11 @@
 | POP | Probability of 0.01 inches of precipitation | % |
 | POP | Probability of 0.01 inch of precipitation (POP) | % |
 | PROCON | Probability of Convection | % |
-| PPFFG | Probability of Excessive Rain | % |
 | CPOZP | Probability of Freezing Precipitation | % |
 | PFREZPREC | Probability of Freezing Precipitation | % |
 | CPOFP | Probability of Frozen Precipitation | % |
 | PFROZPREC | Probability of Frozen Precipitation | % |
-| PPFFG | Probability of precipitation exceeding flash flood guidance values | % |
+| PPFFG | Probability of precip exceeding FFG values | % |
 | POSH | Probability of Severe Hail (POSH) | % |
 | WarmRainProbability | Probability of Warm Rain | % |
 | CWR | Probability of Wetting Rain, exceeding in 0.10" in a given time period | % |
