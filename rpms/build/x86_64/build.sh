@@ -96,27 +96,16 @@ if [ "${1}" = "-b" -a -n "${2}" ]; then
    exit 0
 fi
 
-if [ "${1}" = "-WA" ]; then
-   WA_rpm_build
-   exit 0
-fi
-
-
-if [ "${1}" = "-viz" ]; then
-   buildCAVE
-   #buildRPM "awips2-alertviz"
-   exit 0
-fi
-
-if [ "${1}" = "-qpid" ]; then
+# 
+# build groups
+# 
+function build_qpid() {
    buildRPM "awips2-python-qpid"
    buildRPM "awips2-qpid-lib"
    buildRPM "awips2-qpid-java"
    buildRPM "awips2-qpid-java-broker"
-   exit 0
-fi
-
-if [ "${1}" = "-python" ]; then
+}
+function build_python() {
    #noarch
    buildRPM "awips2-python-nose"
    buildRPM "awips2-python-pupynere"
@@ -143,9 +132,8 @@ if [ "${1}" = "-python" ]; then
    buildRPM "awips2-python-shapely"
    buildRPM "awips2-python-six"
    buildRPM "awips2-python-tables"
-fi
-
-if [ "${1}" = "-database" ]; then
+}
+function build_database() {
    buildRPM "awips2-database"
    buildRPM "awips2-postgresql"
    buildRPM "awips2-maps-database"
@@ -153,90 +141,48 @@ if [ "${1}" = "-database" ]; then
    buildRPM "awips2-edex-shapefiles"
    buildRPM "awips2-data.hdf5-topo"
    buildRPM "awips2-data.gfe"
-fi
-
-if [ "${1}" = "-edex" ]; then
-   buildEDEX
-   buildRPM "awips2-edex-environment"
-   buildRPM "awips2-edex-upc"
-fi
-
-
-if [ "${1}" = "-localization" ]; then
-  buildLocalization
-fi
-
-if [ "${1}" = "-server" ]; then
-   #buildEDEX
+}
+function build_server() {
+   # edex components
    buildRPM "awips2"
    buildRPM "awips2-java"
-   buildRPM "awips2-pypies"
-   buildRPM "awips2-python-awips"
-   buildRPM "awips2-python-gfe"
    buildRPM "awips2-ldm"
    buildRPM "awips2-tools"
-   #buildRPM "awips2-notification"
-   buildRPM "awips2-common-base"
-   buildRPM "awips2-httpd-pypies"
-   buildLocalization
-   buildRPM "awips2-adapt-native"
-   buildRPM "awips2-cli"
-   buildRPM "awips2-edex-environment"
-   buildRPM "awips2-edex-shapefiles"
-   buildRPM "awips2-edex-upc"
-   buildRPM "awips2-data.gfe"
-   buildRPM "awips2-gfesuite"
-   buildRPM "awips2-data.hdf5-topo"
-   buildRPM "awips2-yajsw"
-fi
-if [ "${1}" = "-rh6" ]; then
-   buildRPM "awips2-database"
-   buildRPM "awips2-gfesuite"
-   buildRPM "awips2-data.hdf5-topo"
-   buildRPM "awips2-maps-database"
-   buildRPM "awips2-ncep-database"
-   buildRPM "awips2-ldm"
-   buildRPM "awips2-common-base"
-   buildRPM "awips2-data.gfe"
-   buildEDEX
-   buildRPM "awips2"
-   buildRPM "awips2-java"
+   buildRPM "aiwps2-httpd-pypies"
    buildRPM "awips2-pypies"
-   buildRPM "awips2-python-awips"
-   buildRPM "awips2-python-jep"
-   buildRPM "awips2-tools"
    buildRPM "awips2-notification"
-   buildRPM "awips2-httpd-pypies"
-   buildRPM "awips2-qpid-lib"
-   buildRPM "awips2-qpid-java"
-   buildRPM "awips2-qpid-java-broker"
-   buildRPM "awips2-postgresql"
-   buildLocalization
+   buildRPM "awips2-common-base"
    buildRPM "awips2-adapt-native"
    buildRPM "awips2-cli"
    buildRPM "awips2-edex-environment"
-   buildRPM "awips2-edex-shapefiles"
    buildRPM "awips2-edex-upc"
+   buildLocalization
+}
+function build_dev(){
+   buildRPM "awips2-ant"
+   buildRPM "awips2-maven"
+   buildRPM "awips2-eclipse"
    buildRPM "awips2-groovy"
-   buildRPM "awips2-yajsw"
+}
+
+if [ "${1}" = "-cave" ]; then buildCAVE && exit 0; fi
+if [ "${1}" = "-qpid" ]; then build_qpid && exit 0; fi
+if [ "${1}" = "-python" ]; then build_python && exit 0; fi
+if [ "${1}" = "-database" ]; then build_database && exit 0; fi
+if [ "${1}" = "-edex" ]; then buildEDEX && exit 0; fi
+if [ "${1}" = "-server" ]; then build_server && exit 0; fi
+if [ "${1}" = "-localization" ]; then buildLocalization && exit 0; fi
+if [ "${1}" = "-dev" ]; then build_dev && exit 0; fi
+if [ "${1}" = "-WA" ]; then WA_rpm_build && exit 0; fi
+if [ "${1}" = "-all" ]; then
+   build_qpid
+   build_python
+   build_server
+   build_database
+   build_dev
+   buildEDEX
+   buildCAVE
    exit 0
 fi
-
-if [ "${1}" = "-dev" ]; then
-
-        if [ ! $#  -eq 2 ]; then
-        usage
-        exit 1;
-        fi
-
-        echo -e "\n*** Executing $2  ***"
-        $2
-        if [ $? -ne 0 ]; then
-           exit 1
-        fi
-        echo -e "*** $2 Complete ***\n"
-        exit 0
-fi
-
 usage
 exit 0

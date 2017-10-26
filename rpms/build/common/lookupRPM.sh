@@ -21,7 +21,6 @@ function lookupRPM()
    export RPM_SPECIFICATION=
    export RPM_PROJECT_DIR=
 
-   awips2_ade_dir="${rpms_dir}/awips2.ade"
    awips2_cave_dir="${rpms_dir}/awips2.cave"
    awips2_edex_dir="${rpms_dir}/awips2.edex"
    awips2_core_dir="${rpms_dir}/awips2.core"
