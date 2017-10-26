@@ -1,6 +1,6 @@
 # Unidata AWIPS
 
-[![GitHub release](https://img.shields.io/github/release/Unidata/awips2.svg)]() [![Travis Badge](https://travis-ci.org/Unidata/awips2.svg?branch=unidata_17.1.1)](https://travis-ci.org/Unidata/awips2)
+[![GitHub release](https://img.shields.io/github/release/Unidata/awips2/all.svg)]() [![Travis Badge](https://travis-ci.org/Unidata/awips2.svg?branch=unidata_17.1.1)](https://travis-ci.org/Unidata/awips2)
 
 AWIPS (formerly know as AWIPS II or AWIPS2) is a weather forecasting display and analysis package developed by the [National Weather Service](http://www.nws.noaa.gov/ost/SEC/AE/) and [Raytheon](http://www.raytheon.com/capabilities/products/awips/). AWIPS is a Java application consisting of a data-rendering client ([CAVE](http://unidata.github.io/awips2/install/install-cave/), which runs on Red Hat/CentOS Linux, macOS, and Windows), and a backend data server ([EDEX](http://unidata.github.io/awips2/install/install-edex), which runs on x86_64 Red Hat/CentOS 6 and 7).
 
