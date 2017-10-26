@@ -64,13 +64,13 @@ for example
 
 	qpidNotify.py /awips2/data_store/radar/FTG_N0Q_20171015_1815 Level3
 
-# Viewing Archive Data in CAVE
+## Viewing Archive Data in CAVE
 
 Because we are installing and configuring a standalone EDEX archive server without real-time LDM data ingest (and with purge disabled), any case study data that is ingested will be the "latest available" to CAVE, and you will see CAVE product menu time fill in with the latest of all data ingested.
 
 However, to display specific time-based data (in case you ingest more than one case study), there are two options:
 
-## 1. Load Mode &gt; Inventory
+### 1. Load Mode &gt; Inventory
 
 In the top-left toolbar change **Valid time seq** to **Inventory**.
 
@@ -80,7 +80,7 @@ Now any data product selected from the menus or the Product Browser will prompt 
 
 ![](/images/load_mode_inventory2.png)
 
-## 2. Set Data Display Time in CAVE
+### 2. Set Data Display Time in CAVE
 
 At the bottom of the CAVE application, double-click the **Time:** entry to bring up a dialog window where you can set CAVE to a previous time, and choose the option of freezing CAVE at that time or allowing CAVE to "move forward in time" from that position as if it were real-time.
 
