@@ -616,6 +616,33 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#viewing-archive-data-in-cave" title="Viewing Archive Data in CAVE" class="md-nav__link">
+    Viewing Archive Data in CAVE
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-load-mode-inventory" title="1. Load Mode &gt; Inventory" class="md-nav__link">
+    1. Load Mode &gt; Inventory
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-set-data-display-time-in-cave" title="2. Set Data Display Time in CAVE" class="md-nav__link">
+    2. Set Data Display Time in CAVE
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
       
       
     </ul>
@@ -1050,6 +1077,33 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#viewing-archive-data-in-cave" title="Viewing Archive Data in CAVE" class="md-nav__link">
+    Viewing Archive Data in CAVE
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-load-mode-inventory" title="1. Load Mode &gt; Inventory" class="md-nav__link">
+    1. Load Mode &gt; Inventory
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-set-data-display-time-in-cave" title="2. Set Data Display Time in CAVE" class="md-nav__link">
+    2. Set Data Display Time in CAVE
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
       
       
     </ul>
@@ -1119,15 +1173,15 @@ qpidNotify.py /awips2/data_store/grid/NAM12/conduit/NAM_CONUS_12km_conduit_20171
 
 qpidNotify.py /awips2/data_store/radar/FTG_N0Q_20171015_1815 Level3
 </code></pre>
-<h1 id="viewing-archive-data-in-cave">Viewing Archive Data in CAVE<a class="headerlink" href="#viewing-archive-data-in-cave" title="Permanent link"></a></h1>
+<h2 id="viewing-archive-data-in-cave">Viewing Archive Data in CAVE<a class="headerlink" href="#viewing-archive-data-in-cave" title="Permanent link"></a></h2>
 <p>Because we are installing and configuring a standalone EDEX archive server without real-time LDM data ingest (and with purge disabled), any case study data that is ingested will be the "latest available" to CAVE, and you will see CAVE product menu time fill in with the latest of all data ingested.</p>
 <p>However, to display specific time-based data (in case you ingest more than one case study), there are two options:</p>
-<h2 id="1-load-mode-inventory">1. Load Mode &gt; Inventory<a class="headerlink" href="#1-load-mode-inventory" title="Permanent link"></a></h2>
+<h3 id="1-load-mode-inventory">1. Load Mode &gt; Inventory<a class="headerlink" href="#1-load-mode-inventory" title="Permanent link"></a></h3>
 <p>In the top-left toolbar change <strong>Valid time seq</strong> to <strong>Inventory</strong>.</p>
 <p><img alt="" src="../../images/load_mode_inventory1.png" /></p>
 <p>Now any data product selected from the menus or the Product Browser will prompt you to select the exact time.</p>
 <p><img alt="" src="../../images/load_mode_inventory2.png" /></p>
-<h2 id="2-set-data-display-time-in-cave">2. Set Data Display Time in CAVE<a class="headerlink" href="#2-set-data-display-time-in-cave" title="Permanent link"></a></h2>
+<h3 id="2-set-data-display-time-in-cave">2. Set Data Display Time in CAVE<a class="headerlink" href="#2-set-data-display-time-in-cave" title="Permanent link"></a></h3>
 <p>At the bottom of the CAVE application, double-click the <strong>Time:</strong> entry to bring up a dialog window where you can set CAVE to a previous time, and choose the option of freezing CAVE at that time or allowing CAVE to "move forward in time" from that position as if it were real-time.</p>
 <p><img alt="" src="../../images/cave_set_time.png" /></p>
                 
