@@ -21,4 +21,4 @@ before_install:
   - sleep 5
   - sudo docker pull ${OS_TYPE}:${OS_VERSION}
 
-script: build/setup.sh ${OS_TYPE}:${OS_VERSION}
+script: build/setup.sh ${OS_TYPE} ${OS_VERSION}
