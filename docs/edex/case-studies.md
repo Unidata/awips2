@@ -4,7 +4,7 @@ This document covers what is necessary to install and run AWIPS EDEX as an archi
 
 ## Quick Install
 
-Follow the [EDEX Install Instrutions](../install-edex/) including iptables config and an SSD mount (for large data volumes)
+Follow the [EDEX Install Instructions](../install-edex/) including iptables config and an optional SSD mount (for large data volumes)
 
 	groupadd fxalpha && useradd -G fxalpha awips
 	mkdir -p /awips2/data_store
@@ -14,7 +14,7 @@ Follow the [EDEX Install Instrutions](../install-edex/) including iptables confi
 
 ## Disable Data Purging
 
-The easiest way to disable data purging is to add an **&lt;exclude&gt;purge.*&lt;/exclude&gt;** entry in **/awips2/edex/conf/modes/ingest-modes.xml** so that the purge plugin is not loaded when the EDEX JVMs are run:
+The easiest way to disable data purging is to add an **&lt;exclude&gt;purge.*&lt;/exclude&gt;** entry in **/awips2/edex/conf/modes/ingest-modes.xml** so that the purge plugin is not loaded when the EDEX ingest JVM is started:
 
 	vi /awips2/edex/conf/modes/ingest-modes.xml 
 
@@ -66,9 +66,9 @@ for example
 
 # Viewing Archive Data in CAVE
 
-Because we are installing and confiruging a standalone EDEX archive server with no real-time LDM data ingest, and with purge rules disabled, any archive data that is ingested will be the "latest available" to CAVE, and you will see CAVE product menu time fill in with the latest of all data ingested.
+Because we are installing and configuring a standalone EDEX archive server without real-time LDM data ingest (and with purge disabled), any case study data that is ingested will be the "latest available" to CAVE, and you will see CAVE product menu time fill in with the latest of all data ingested.
 
-However, to display specific time-based data (in case you ingest more than one archive case study), there are two options:
+However, to display specific time-based data (in case you ingest more than one case study), there are two options:
 
 ## 1. Load Mode &gt; Inventory
 
@@ -82,7 +82,7 @@ Now any data product selected from the menus or the Product Browser will prompt 
 
 ## 2. Set Data Display Time in CAVE
 
-At the bottom of the CAVE application, double-click the **Time:** entry to bring up a dialog window.  
+At the bottom of the CAVE application, double-click the **Time:** entry to bring up a dialog window where you can set CAVE to a previous time, and choose the option of freezing CAVE at that time or allowing CAVE to "move forward in time" from that position as if it were real-time.
 
 ![](/images/cave_set_time.png)
 
