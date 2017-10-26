@@ -1,7 +1,6 @@
 #!/bin/sh -xe
 OS_TYPE=$1
 OS_VERSION=$2
-
 if [ $OS_VERSION == "centos7" ]; then
     REPO_EXT="-el7" 
 fi
@@ -16,8 +15,7 @@ yum -y clean all
 yum groupinstall awips2-ade -y
 
 su - awips
-
-. /awips2/repo/awips2-builds/rpms/unidata/buildEnvironment.sh
+. /awips2/repo/awips2-src/rpms/unidata/buildEnvironment.sh
 
 mkdir -p /awips2/jenkins/buildspace/workspace/AWIPS2-UPC_build/baseline
 mkdir -p /awips2/jenkins/buildspace/workspace/tmp
@@ -25,6 +23,7 @@ mkdir -p /awips2/jenkins/build/rpms/awips2_${AWIPSII_VERSION}/{x86_64,noarch}/
 
 pushd /awips2/repo
 
+git clone https://github.com/Unidata/awips2.git --branch unidata_${AWIPSII_VERSION}${REPO_EXT} --single-branch awips2-builds
 git clone https://github.com/Unidata/awips2-ncep.git --branch unidata_${AWIPSII_VERSION} --single-branch 
 git clone https://github.com/Unidata/awips2-core.git --branch unidata_${AWIPSII_VERSION} --single-branch
 git clone https://github.com/Unidata/awips2-core-foss.git --branch unidata_${AWIPSII_VERSION} --single-branch
@@ -43,4 +42,4 @@ cd /awips2/repo/awips2-builds/rpms/unidata/
 /bin/bash cibuild.sh -b buildEDEX >& /dev/null
 /bin/bash cibuild.sh -b buildCAVE >& /dev/null
 
-tar -cf /awips2/jenkins/build/rpms/awips2_${AWIPSII_VERSION}/ /awips2/repo/awips2-builds/dist/awips2_${AWIPSII_VERSION}_${OS_TYPE}-${OS_VERSION}.tar
+tar -cf /awips2/jenkins/build/rpms/awips2_${AWIPSII_VERSION}/ /awips2/repo/awips2-src/dist/awips2_${AWIPSII_VERSION}_${OS_TYPE}-${OS_VERSION}.tar
