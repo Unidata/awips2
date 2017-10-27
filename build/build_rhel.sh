@@ -17,7 +17,6 @@ wget -O /etc/yum.repos.d/awips2.repo http://www.unidata.ucar.edu/software/awips2
 yum -y clean all
 yum groupinstall awips2-ade -y
 
-su - awips
 . /awips2/repo/awips2-src/rpms/unidata/buildEnvironment.sh
 
 mkdir -p /awips2/jenkins/buildspace/workspace/AWIPS2-UPC_build/baseline
