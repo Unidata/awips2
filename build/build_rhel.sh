@@ -12,7 +12,7 @@ groupadd fxalpha && useradd -G fxalpha awips
 yum -y clean all
 yum -y clean expire-cache
 yum groupinstall "Development tools" -y >& /dev/null
-yum install wget qt-devel cmake gcc gcc-c++ ruby boost-devel libuuid-devel tk-devel tcl-devel rsync git net-tools rpm-build netcdf-devel -y
+yum install wget qt-devel cmake gcc gcc-c++ ruby boost-devel libuuid-devel tk-devel tcl-devel rsync git net-tools rpm-build netcdf-devel libpng-devel -y
 wget -O /etc/yum.repos.d/awips2.repo http://www.unidata.ucar.edu/software/awips2/doc/${repo_name}
 yum -y clean all
 yum groupinstall awips2-ade -y
