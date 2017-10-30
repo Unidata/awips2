@@ -26,75 +26,59 @@ function lookupRPM()
    awips2_core_dir="${rpms_dir}/awips2.core"
    awips2_qpid_dir="${rpms_dir}/awips2.qpid"
    awips2_upc_dir="${rpms_dir}/awips2.upc"
-   python_site__dir="${rpms_dir}/python.site-packages"
-
    installer_dir="${rpms_dir}/../installers/RPMs"
-
-   # lookup the rpm.
 
    # foss rpms -> python rpms.
    if [ "${1}" = "awips2-maven" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/maven/"
+      export RPM_SPECIFICATION="${installer_dir}/maven"
       return 0
    fi
    if [ "${1}" = "awips2-python" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/python/"
+      export RPM_SPECIFICATION="${installer_dir}/python"
       return 0
    fi
-   if [ "${1}" = "awips2-python-cherrypy" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.cherrypy"
-      return 0
-   fi
-   #if [ "${1}" = "awips2-python-dynamicserialize" ]; then
-   #   export RPM_SPECIFICATION="${python_site__dir}/Installer.dynamicserialize"
-   #   return 0
-   #fi
    if [ "${1}" = "awips2-python-h5py" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/h5py/"
+      export RPM_SPECIFICATION="${installer_dir}/h5py"
       return 0
    fi
    if [ "${1}" = "awips2-python-setuptools" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/setuptools/"
+      export RPM_SPECIFICATION="${installer_dir}/setuptools"
       return 0
    fi
    if [ "${1}" = "awips2-python-matplotlib" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/matplotlib/"
+      export RPM_SPECIFICATION="${installer_dir}/matplotlib"
       return 0
    fi
    if [ "${1}" = "awips2-python-dateutil" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/python-dateutil/"
+      export RPM_SPECIFICATION="${installer_dir}/python-dateutil"
       return 0
    fi
    if [ "${1}" = "awips2-python-pytz" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/pytz/"
+      export RPM_SPECIFICATION="${installer_dir}/pytz"
       return 0
    fi
    if [ "${1}" = "awips2-python-six" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/six/"
+      export RPM_SPECIFICATION="${installer_dir}/six"
       return 0
    fi
    if [ "${1}" = "awips2-python-pyparsing" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/pyparsing/"
-      return 0
-   fi
-   if [ "${1}" = "awips2-python-nose" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.nose"
+      export RPM_SPECIFICATION="${installer_dir}/pyparsing"
       return 0
    fi
    if [ "${1}" = "awips2-python-numpy" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/numpy/"
+      export RPM_SPECIFICATION="${installer_dir}/numpy"
       return 0
    fi
    if [ "${1}" = "awips2-python-jep" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/jep/"
+      export RPM_SPECIFICATION="${installer_dir}/jep"
       return 0
    fi
-   if [ "${1}" = "awips2-python-pmw" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.pmw"
+   if [ "${1}" = "awips2-python-numexpr" ]; then
+      export RPM_SPECIFICATION="${installer_dir}/numexpr"
       return 0
    fi
    if [ "${1}" = "awips2-python-pupynere" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.pupynere"
+      export RPM_SPECIFICATION="${installer_dir}/pupynere"
       return 0
    fi
    if [ "${1}" = "awips2-python-qpid" ]; then
@@ -106,27 +90,15 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-python-scipy" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/scipy/"
+      export RPM_SPECIFICATION="${installer_dir}/scipy"
       return 0
    fi
    if [ "${1}" = "awips2-python-tables" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/tables/"
+      export RPM_SPECIFICATION="${installer_dir}/tables"
       return 0
    fi
-   #if [ "${1}" = "awips2-python-thrift" ]; then
-   #   export RPM_SPECIFICATION="${python_site__dir}/Installer.thrift"
-   #   return 0
-   #fi
-   if [ "${1}" = "awips2-python-tpg" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.tpg"
-      return 0
-   fi
-   #if [ "${1}" = "awips2-python-ufpy" ]; then
-   #   export RPM_SPECIFICATION="${python_site__dir}/Installer.ufpy"
-   #   return 0
-   #fi
    if [ "${1}" = "awips2-python-werkzeug" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.werkzeug"
+      export RPM_SPECIFICATION="${installer_dir}/werkzeug"
       return 0
    fi
    if [ "${1}" = "awips2-python-shapely" ]; then
@@ -266,23 +238,23 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-localization" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.localization"
+      export RPM_SPECIFICATION="${awips2_core_dir}/localization"
       return 0
    fi
    if [ "${1}" = "awips2-python-awips" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.python-awips"
+      export RPM_SPECIFICATION="${installer_dir}/python-awips"
       return 0
    fi
    if [ "${1}" = "awips2-python-cython" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.cython"
+      export RPM_SPECIFICATION="${installer_dir}/cython"
       return 0
    fi
    if [ "${1}" = "awips2-python-cycler" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.cycler"
+      export RPM_SPECIFICATION="${installer_dir}/cycler"
       return 0
    fi
    if [ "${1}" = "awips2-python-gfe" ]; then
-      export RPM_SPECIFICATION="${python_site__dir}/Installer.gfe"
+      export RPM_SPECIFICATION="${awips2_upc_dir}/Installer.gfe"
       return 0
    fi
    return 1
