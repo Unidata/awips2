@@ -1,6 +1,7 @@
 #!/bin/bash
+source /awips2/repo/awips2-builds/rpms/unidata/buildEnvironment.sh
 
-BUILD_DIR=/home/mjames/awips2-builds/rpms/awips2.core/Installer.localization/
+BUILD_DIR=$REPO/awips2-builds/rpms/awips2.core/Installer.localization/
 CAVE_DIR=$BUILD_DIR/utility/cave_static/bundles/scales/radar/
 mkdir -p $CAVE_DIR
 rm -rf $CAVE_DIR/*
@@ -18,7 +19,6 @@ do
    maxx=$(cat $file  |grep $site | cut -d"," -f9  | tr -d '[[:space:]]')
    miny=$(cat $file  |grep $site | cut -d"," -f10 | tr -d '[[:space:]]')
    maxy=$(cat $file  |grep $site | cut -d"," -f11 | tr -d '[[:space:]]')
-
    sitell=$(echo $site | tr '[:upper:]' '[:lower:]')
    cp -R $BUILD_DIR/RadarTwoPanel.xml $CAVE_DIR/Radar_$sitell.xml
    grep -rl 'LOWX'  $CAVE_DIR/Radar_$sitell.xml | xargs sed -i 's/LOWX/'$lowx'/g'
@@ -33,18 +33,10 @@ do
    grep -rl 'xxx'   $CAVE_DIR/Radar_$sitell.xml | xargs sed -i 's/xxx/'$sitell'/g'
    grep -rl 'LATITUDE'  $CAVE_DIR/Radar_$sitell.xml | xargs sed -i 's/LATITUDE/'$lat'/g'
    grep -rl 'LONGITUDE' $CAVE_DIR/Radar_$sitell.xml | xargs sed -i 's/LONGITUDE/'$lon'/g'
-   
-   cp $CAVE_DIR/Radar_$sitell.xml /home/mjames/awips2-core/viz/com.raytheon.uf.viz.core.maps/localization/bundles/scales/WSR88D/
-
+   cp $CAVE_DIR/Radar_$sitell.xml $REPO/awips2-core/viz/com.raytheon.uf.viz.core.maps/localization/bundles/scales/WSR88D/
 done
 
-
-cp $CAVE_DIR/* /home/mjames/awips2-builds/cave/com.raytheon.viz.radar/localization/bundles/site/
-rm -rf /home/mjames/awips2-builds/cave/com.raytheon.viz.radar/localization/bundles/site/Radar_comp.xml
-rm -rf /home/mjames/awips2-builds/cave/com.raytheon.viz.radar/localization/bundles/site/Radar_info.xml
-rm -rf /home/mjames/awips2-builds/cave/com.raytheon.viz.radar/localization/bundles/site/Radar_proc.xml
-
-#	com.raytheon.viz.radar/localization/bundles/site/Radar_comp.xml
-#	com.raytheon.viz.radar/localization/bundles/site/Radar_info.xml
-#	com.raytheon.viz.radar/localization/bundles/site/Radar_proc.xml
-
+cp $CAVE_DIR/* $REPO/awips2-builds/cave/com.raytheon.viz.radar/localization/bundles/site/
+rm -rf $REPO/awips2-builds/cave/com.raytheon.viz.radar/localization/bundles/site/Radar_comp.xml
+rm -rf $REPO/awips2-builds/cave/com.raytheon.viz.radar/localization/bundles/site/Radar_info.xml
+rm -rf $REPO/awips2-builds/cave/com.raytheon.viz.radar/localization/bundles/site/Radar_proc.xml

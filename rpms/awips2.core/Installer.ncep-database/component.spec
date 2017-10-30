@@ -41,7 +41,7 @@ mkdir -p ${RPM_BUILD_ROOT}/awips2/database
 
 %install
 PATH_TO_DDL="build.edex/opt/db/ddl/ncep"
-#PATH_TO_SHP_FILES="awips2-static/db/ddl/ncep"
+#PATH_TO_SHP_FILES="%{_static_files}/db/ddl/ncep"
 
 # Create A Temporary Directory For The SQL Scripts That The Database
 # RPM Will Need.
