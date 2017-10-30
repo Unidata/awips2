@@ -107,10 +107,8 @@ function build_qpid() {
 }
 function build_python() {
    #noarch
-   buildRPM "awips2-python-nose"
    buildRPM "awips2-python-pupynere"
    buildRPM "awips2-python-qpid"
-   buildRPM "awips2-python-tpg"
    buildRPM "awips2-python-werkzeug"
    #x86_64
    buildRPM "awips2-python"
@@ -122,12 +120,11 @@ function build_python() {
    buildRPM "awips2-python-h5py"
    buildRPM "awips2-python-jep"
    buildRPM "awips2-python-matplotlib"
+   buildRPM "awips2-python-numexpr"
    buildRPM "awips2-python-numpy"
-   buildRPM "awips2-python-pmw"
    buildRPM "awips2-python-pyparsing"
    buildRPM "awips2-python-pytz"
    buildRPM "awips2-python-scientific"
-   buildRPM "awips2-python-scipy"
    buildRPM "awips2-python-setuptools"
    buildRPM "awips2-python-shapely"
    buildRPM "awips2-python-six"
@@ -148,13 +145,9 @@ function build_server() {
    buildRPM "awips2-java"
    buildRPM "awips2-ldm"
    buildRPM "awips2-tools"
-   buildRPM "aiwps2-httpd-pypies"
+   buildRPM "awips2-httpd-pypies"
    buildRPM "awips2-pypies"
-   buildRPM "awips2-notification"
-   buildRPM "awips2-common-base"
-   buildRPM "awips2-adapt-native"
    buildRPM "awips2-cli"
-   buildRPM "awips2-edex-environment"
    buildRPM "awips2-edex-upc"
    buildLocalization
 }

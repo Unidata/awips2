@@ -1,61 +1,39 @@
-#!/bin/bash
+#!/bin/bash -v
 set -xe
-if  [[ ${2} = "buildCAVE" ]]; then
-  rm -rf /awips2/jenkins/buildspace/workspace/AWIPS2-UPC_build/baseline/
-  rm -rf /awips2/jenkins/buildspace/workspace/tmp/mjames/
-fi
-export JENKINS_WORKSPACE=/awips2/repo/awips2-builds
 
-# determine where we are ...
+# Determine where we are
 path_to_script=`readlink -f $0`
 dir=$(dirname $path_to_script)
+source ${dir}/buildEnvironment.sh
 
 export _script_dir=${dir}
 echo "Running build.sh from ${_script_dir}"
 echo "   JENKINS_WORKSPACE = ${JENKINS_WORKSPACE}"
-#/bin/bash ${_script_dir}/build2.sh
-#echo "Entering the build2.sh script"
-
+cd ${dir}
 
 START_TIME=`date "+%s"`
 timestamp=`date +%Y_%m_%d_%H:%M:%S`
 
-# set all awips2 components into the path.
-#export PATH=/awips2/java/bin:/awips2/python/bin:/awips2/ant/bin:/usr/local/heroku/bin:/home/mjames/util:/awips2/eclipse:/usr/lib64/qt-3.3/bin:/bin:/usr/local/bin:/bin:/usr/bin:/usr/ccs/bin
-#export LD_LIBRARY_PATH=/awips2/java/lib:/awips2/python/lib:${LD_LIBRARY_PATH}
-export JAVA_HOME=/awips2/java
-export ANT_HOME=/awips2/ant
-
-# determine where we are ...
-path_to_script=`readlink -f $0`
-dir=$(dirname $path_to_script)
-cd ${dir}
-logdir=${dir}/../logs
-
-# prepare the build environment (since we are manually executed)
-source ${dir}/buildEnvironment.sh
+# Cleanup before building CAVE rpms
+if  [[ ${2} = "buildCAVE" ]]; then
+  rm -rf ${JENKINS_HOME}/buildspace/workspace/AWIPS2-UPC_build/baseline/
+  rm -rf ${JENKINS_HOME}/buildspace/workspace/tmp/${USER}/
+fi
 
 echo "BUILD_DIR = $BUILD_DIR"
 echo "BUILD_WORKSPACE = $BUILD_WORKSPACE"
 echo "BASELINE = $BASELINE"
+echo "WORKSPACE = $WORKSPACE"
 echo "AWIPSII_VERSION = $AWIPSII_VERSION"
 echo "AWIPSII_RELEASE = $AWIPSII_RELEASE"
 echo "AWIPSII_TOP_DIR = $AWIPSII_TOP_DIR"
-echo "WORKSPACE = $WORKSPACE"
 echo "UFRAME_ECLIPSE = $UFRAME_ECLIPSE"
 echo "AWIPSII_STATIC_FILES = $AWIPSII_STATIC_FILES"
 echo "AWIPSII_BUILD_ROOT = $AWIPSII_BUILD_ROOT"
 
-# prepare the rpm build directory structure
-mkdir -p ${AWIPSII_TOP_DIR}/BUILD
-mkdir -p ${AWIPSII_TOP_DIR}/RPMS
-mkdir -p ${AWIPSII_TOP_DIR}/SOURCES
-mkdir -p ${AWIPSII_TOP_DIR}/SPECS
-mkdir -p ${AWIPSII_TOP_DIR}/SRPMS
-echo BASELINE is ${BASELINE}
-echo WORKSPACE is ${WORKSPACE}
+# Prepare the rpm build directory structure
+mkdir -p ${AWIPSII_TOP_DIR}/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
 
-# prepare the baseline
 pushd . > /dev/null 2>&1
 cd ${BASELINE}
 mkdir -p ${WORKSPACE}
@@ -73,32 +51,17 @@ pushd . > /dev/null 2>&1
 cd ${_build_sh_directory}
 cp -v ${dir}/buildEnvironment.sh .
 
-#Usage: build.sh OPTION [-nobinlightning]
-#   -delta    perform a build of only the rpms that are likely to change.
-#   -full     perform a full build of all the rpms.
-#   -ade      build all rpms that are packaged in the ade.
-#   -viz      only build the Viz rpms (CAVE & AlertViz).
-#   -edex     only build the EDEX rpms.
-#   -qpid     build only the QPID rpms.
-#   -ldm      build the awips2-ldm rpm; requires root privileges.
-#   -package  create a yum repository tar file with the rpms that were just built.
-#   --help    display this message and exit.
-#
-# check rpms/build/x86_64/build.sh for these groups
-#
-pwd
-
-/bin/bash ${_build_sh_directory}/build.sh ${1} ${2}
+/bin/bash ${_build_sh_directory}/build.sh ${1} ${2} 
 
 popd > /dev/null 2>&1
 
 export rpm_end_dir="${AWIPSII_VERSION}-${AWIPSII_RELEASE}"
 
 if [ "$(ls -A ${AWIPSII_TOP_DIR}/RPMS/x86_64/)" ]; then
-   mv ${AWIPSII_TOP_DIR}/RPMS/x86_64/* /awips2/jenkins/build/rpms/awips2_${AWIPSII_VERSION}/x86_64/
+   mv ${AWIPSII_TOP_DIR}/RPMS/x86_64/* ${JENKINS_HOME}/build/rpms/awips2_${AWIPSII_VERSION}/x86_64/
 fi
 if [ "$(ls -A ${AWIPSII_TOP_DIR}/RPMS/noarch/)" ]; then
-   mv ${AWIPSII_TOP_DIR}/RPMS/noarch/* /awips2/jenkins/build/rpms/awips2_${AWIPSII_VERSION}/noarch/
+   mv ${AWIPSII_TOP_DIR}/RPMS/noarch/* ${JENKINS_HOME}/build/rpms/awips2_${AWIPSII_VERSION}/noarch/
 fi
 
 END_TIME=`date "+%s"`

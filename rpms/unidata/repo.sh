@@ -8,7 +8,7 @@ repomanage -k1 --old . | xargs rm -f
 createrepo -g ./comps.xml .
 unset LD_LIBRARY_PATH
 #. /etc/profile.d/awips2.sh
-rsync --archive --delete $RPMDIR js-17-218.jetstream-cloud.org:/awips2/repo/awips2_17.1.1
+#rsync --archive --delete $RPMDIR js-17-218.jetstream-cloud.org:/awips2/repo/awips2_17.1.1
 
 cd ..
 #rm -rf awips2_${AWIPSII_VERSION}.tar
