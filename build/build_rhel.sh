@@ -12,7 +12,16 @@ groupadd fxalpha && useradd -G fxalpha awips
 yum -y clean all
 yum -y clean expire-cache
 yum groupinstall "Development tools" -y >& /dev/null
-yum install wget qt-devel cmake gcc gcc-c++ ruby boost-devel libuuid-devel tk-devel tcl-devel rsync git net-tools rpm-build netcdf-devel libpng-devel -y
+
+# all package BuildRequires
+yum install wget cmake gcc gcc-c++ ruby rsync git net-tools rpm-build  -y
+yum install qt-devel boost-devel libuuid-devel tk-devel tcl-devel netcdf-devel libpng-devel -y
+yum install geos hdf5-devel lzo-devel bzip2-devel atlas-devel -y
+# to build awips2-httpd-pypies
+yum install apr-util-devel apr-devel lua-devel libxml2-devel -y
+# to build database RPMs
+yum install readline-devel -y
+
 wget -O /etc/yum.repos.d/awips2.repo http://www.unidata.ucar.edu/software/awips2/doc/${repo_name}
 yum -y clean all
 yum groupinstall awips2-ade -y
@@ -32,6 +41,11 @@ git clone https://github.com/Unidata/awips2-core-foss.git --branch unidata_${AWI
 git clone https://github.com/Unidata/awips2-foss.git --branch unidata_${AWIPSII_VERSION} --single-branch
 git clone https://github.com/Unidata/awips2-rpmbuild.git awips2-rpm --branch unidata_${AWIPSII_VERSION} --single-branch
 git clone https://github.com/Unidata/awips2-nws.git --branch unidata_${AWIPSII_VERSION} --single-branch
+mkdir awips2-static
+cd awips2-static
+wget http://www.unidata.ucar.edu/downloads/awips2/static.tar
+tar -xvf static.tar
+rm -rf static.tar
 
 cd /awips2/repo/awips2-builds/rpms/unidata/
 
