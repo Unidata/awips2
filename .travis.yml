@@ -7,8 +7,8 @@ language: ruby
 
 env:
   matrix:
-  - OS_TYPE=centos OS_VERSION=centos6
-  - OS_TYPE=centos OS_VERSION=centos7
+  - OS_VERSION=el6
+  - OS_VERSION=el7
 
 services:
   - docker
@@ -18,6 +18,6 @@ before_install:
   - echo 'DOCKER_OPTS="-H tcp://127.0.0.1:2375 -H unix:///var/run/docker.sock -s devicemapper"' | sudo tee /etc/default/docker > /dev/null
   - sudo service docker restart
   - sleep 5
-  - sudo docker pull ${OS_TYPE}:${OS_VERSION}
+  - sudo docker pull unidata/awips-ade:${OS_VERSION}
 
-script: build/setup.sh ${OS_TYPE} ${OS_VERSION}
+script: build/setup.sh ${OS_VERSION}
