@@ -16,7 +16,7 @@ Packager: %{_build_site}
 
 AutoReq: no
 Provides: %{_component_name}
-Requires: awips2-edex, awips2-edex-upc
+Requires: awips2-edex
 Requires: awips2-edex-shapefiles
 Obsoletes: awips2-localization-OAX < 16.1.4
 
@@ -82,7 +82,7 @@ do
    grep -rl 'MINY'  $CAVE_DIR/bundles/scales/WFO.xml | xargs sed -i 's/MINY/'$miny'/g'
    grep -rl 'MAXY'  $CAVE_DIR/bundles/scales/WFO.xml | xargs sed -i 's/MAXY/'$maxy'/g'
 
-   cp $CAVE_DIR/bundles/scales/WFO.xml ~/awips2-core/viz/com.raytheon.uf.viz.core.maps/localization/bundles/scales/WFO/$site.xml
+   #cp $CAVE_DIR/bundles/scales/WFO.xml ~/awips2-core/viz/com.raytheon.uf.viz.core.maps/localization/bundles/scales/WFO/$site.xml
 
    lowx=$(cat $regional  |grep $site | cut -d"," -f4  | tr -d '[[:space:]]')
    highx=$(cat $regional |grep $site | cut -d"," -f5  | tr -d '[[:space:]]')
@@ -115,8 +115,8 @@ done
 # Copy existing (default) OAX and TBW map scales
 cp -R %{_baseline_workspace}/localization.OAX/utility/cave_static/site/* %{_baseline_workspace}/localization/utility/cave_static/site/
 cp -R %{_baseline_workspace}/localization.TBW/utility/cave_static/site/* %{_baseline_workspace}/localization/utility/cave_static/site/
-cp %{_baseline_workspace}/localization.TBW/utility/cave_static/site/TBW/bundles/scales/WFO.xml ~/awips2-core/viz/com.raytheon.uf.viz.core.maps/localization/bundles/scales/WFO/TBW.xml
-cp %{_baseline_workspace}/localization.OAX/utility/cave_static/site/OAX/bundles/scales/WFO.xml ~/awips2-core/viz/com.raytheon.uf.viz.core.maps/localization/bundles/scales/WFO/OAX.xml
+#cp %{_baseline_workspace}/localization.TBW/utility/cave_static/site/TBW/bundles/scales/WFO.xml ~/awips2-core/viz/com.raytheon.uf.viz.core.maps/localization/bundles/scales/WFO/TBW.xml
+#cp %{_baseline_workspace}/localization.OAX/utility/cave_static/site/OAX/bundles/scales/WFO.xml ~/awips2-core/viz/com.raytheon.uf.viz.core.maps/localization/bundles/scales/WFO/OAX.xml
 
 # COMMON
 COMMON_DIR=$UTIL/common_static
