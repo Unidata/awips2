@@ -2,7 +2,7 @@
 
 function usage()
 {
-   echo "Usage: $0 OPTION [-nobinlightning]"
+   echo "Usage: $0 OPTION"
    echo "   -b preform a build of an rpm."
    echo "   -WA       perform a build of all work assignments."
    echo "   -rh6      perform a full build of all the rpms."
@@ -75,12 +75,6 @@ if [ $RTN -ne 0 ]; then
    exit 1
 fi
 
-export LIGHTNING=true
-# Determine if the optional '-nobinlightning' argument has been specified.
-if [ "${2}" = "-nobinlightning" ]; then
-   LIGHTNING=false
-fi
-
 if [ "${1}" = "-b" -a -n "${2}" ]; then
    echo "Building RPM: ${2}"
    # also allow buildCAVE, buildEDEX, buildRPM args
@@ -96,39 +90,24 @@ if [ "${1}" = "-b" -a -n "${2}" ]; then
    exit 0
 fi
 
-# 
-# build groups
-# 
+# BUILD GROUPS
+
 function build_qpid() {
-   buildRPM "awips2-python-qpid"
-   buildRPM "awips2-qpid-lib"
-   buildRPM "awips2-qpid-java"
+   buildRPM "awips2-qpid-java-client"
    buildRPM "awips2-qpid-java-broker"
 }
 function build_python() {
-   #noarch
-   buildRPM "awips2-python-pupynere"
-   buildRPM "awips2-python-qpid"
-   buildRPM "awips2-python-werkzeug"
-   #x86_64
-   buildRPM "awips2-python"
-   buildRPM "awips2-python-awips"
-   buildRPM "awips2-python-cython"
-   buildRPM "awips2-python-cycler"
-   buildRPM "awips2-python-dateutil"
-   buildRPM "awips2-python-gfe"
    buildRPM "awips2-python-h5py"
    buildRPM "awips2-python-jep"
-   buildRPM "awips2-python-matplotlib"
-   buildRPM "awips2-python-numexpr"
-   buildRPM "awips2-python-numpy"
-   buildRPM "awips2-python-pyparsing"
-   buildRPM "awips2-python-pytz"
-   buildRPM "awips2-python-scientific"
-   buildRPM "awips2-python-setuptools"
-   buildRPM "awips2-python-shapely"
-   buildRPM "awips2-python-six"
    buildRPM "awips2-python-tables"
+   buildRPM "awips2-python-matplotlib"
+   buildRPM "awips2-python-shapely"
+   buildRPM "awips2-python-scientific"
+   buildRPM "awips2-python-qpid"
+   buildRPM "awips2-python-werkzeug"
+   buildRPM "awips2-python-cycler"
+   buildRPM "awips2-python-gfe"
+   buildRPM "awips2-python-awips"
 }
 function build_database() {
    buildRPM "awips2-database"
@@ -136,43 +115,59 @@ function build_database() {
    buildRPM "awips2-maps-database"
    buildRPM "awips2-ncep-database"
    buildRPM "awips2-edex-shapefiles"
-   buildRPM "awips2-data.hdf5-topo"
+   #buildRPM "awips2-data.hdf5-topo" # too big right now
    buildRPM "awips2-data.gfe"
 }
+function build_pypies() {
+   buildRPM "awips2-pypies"
+   buildRPM "awips2-httpd-pypies"
+}
 function build_server() {
-   # edex components
    buildRPM "awips2"
-   buildRPM "awips2-java"
    buildRPM "awips2-ldm"
    buildRPM "awips2-tools"
-   buildRPM "awips2-httpd-pypies"
-   buildRPM "awips2-pypies"
+   build_pypies
    buildRPM "awips2-cli"
-   buildRPM "awips2-edex-upc"
+   buildRPM "awips2-data.gfe"
    buildLocalization
 }
-function build_dev(){
-   buildRPM "awips2-ant"
-   buildRPM "awips2-maven"
+function build_ade() {
+   buildRPM "awips2"
+   buildRPM "awips2-java"
    buildRPM "awips2-eclipse"
+   buildRPM "awips2-ant"
    buildRPM "awips2-groovy"
+   buildRPM "awips2-yajsw"
+   buildRPM "awips2-python"
+   buildRPM "awips2-python-dateutil"
+   buildRPM "awips2-python-numpy"
+   buildRPM "awips2-python-pyparsing"
+   buildRPM "awips2-python-pytz"
+   buildRPM "awips2-python-setuptools"
+   buildRPM "awips2-python-six"
+   buildRPM "awips2-python-pytz"
+   buildRPM "awips2-qpid-lib"
 }
 
-if [ "${1}" = "-cave" ]; then buildCAVE && exit 0; fi
-if [ "${1}" = "-qpid" ]; then build_qpid && exit 0; fi
+if [ "${1}" = "-ade" ]; then build_ade && exit 0; fi
 if [ "${1}" = "-python" ]; then build_python && exit 0; fi
+if [ "${1}" = "-qpid" ]; then build_qpid && exit 0; fi
+if [ "${1}" = "-server" ]; then build_server && exit 0; fi
+if [ "${1}" = "-pypies" ]; then build_pypies && exit 0; fi
+if [ "${1}" = "-localization" ]; then buildLocalization && exit 0; fi
 if [ "${1}" = "-database" ]; then build_database && exit 0; fi
 if [ "${1}" = "-edex" ]; then buildEDEX && exit 0; fi
-if [ "${1}" = "-server" ]; then build_server && exit 0; fi
-if [ "${1}" = "-localization" ]; then buildLocalization && exit 0; fi
-if [ "${1}" = "-dev" ]; then build_dev && exit 0; fi
+if [ "${1}" = "-cave" ]; then buildCAVE && exit 0; fi
 if [ "${1}" = "-WA" ]; then WA_rpm_build && exit 0; fi
+
+# BUILD ALL PACKAGES
+
 if [ "${1}" = "-all" ]; then
-   build_qpid
+   build_ade
    build_python
+   build_qpid
    build_server
    build_database
-   build_dev
    buildEDEX
    buildCAVE
    exit 0

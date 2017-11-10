@@ -10,28 +10,22 @@
          <packagereq type="default">awips2-java</packagereq>
          <packagereq type="default">awips2-eclipse</packagereq>
          <packagereq type="default">awips2-ant</packagereq>
-         <packagereq type="default">awips2-maven</packagereq>
          <packagereq type="default">awips2-groovy</packagereq>
+         <packagereq type="default">awips2-yajsw</packagereq>
          <packagereq type="default">awips2-python</packagereq>
-         <packagereq type="default">awips2-python-awips</packagereq>
          <packagereq type="default">awips2-python-cython</packagereq>
          <packagereq type="default">awips2-python-dateutil</packagereq>
-         <packagereq type="default">awips2-python-gfe</packagereq>
-         <packagereq type="default">awips2-python-h5py</packagereq>
-         <packagereq type="default">awips2-python-jep</packagereq>
-         <packagereq type="default">awips2-python-matplotlib</packagereq>
          <packagereq type="default">awips2-python-numpy</packagereq>
-         <packagereq type="default">awips2-python-numexpr</packagereq>
-         <packagereq type="default">awips2-python-pupynere</packagereq>
          <packagereq type="default">awips2-python-pyparsing</packagereq>
          <packagereq type="default">awips2-python-pytz</packagereq>
-         <packagereq type="default">awips2-python-qpid</packagereq>
-         <packagereq type="default">awips2-python-scientific</packagereq>
          <packagereq type="default">awips2-python-setuptools</packagereq>
-         <packagereq type="default">awips2-python-shapely</packagereq>
          <packagereq type="default">awips2-python-six</packagereq>
-         <packagereq type="default">awips2-python-tables</packagereq>
-         <packagereq type="default">awips2-python-werkzeug</packagereq>
+         <packagereq type="default">awips2-qpid-lib</packagereq>
+<!--
+awips2.core/Installer.tools/component.spec:BuildRequires: awips2-python
+awips2.core/Installer.tools/component.spec:BuildRequires: awips2-python-h5py # h5py requires it be built on same numpy as it's run with
+awips2.upc/Installer.ldm/component.spec:BuildRequires: awips2-qpid-lib, awips2-python
+-->
       </packagelist>
    </group>
    <group>
@@ -44,7 +38,6 @@
          <packagereq type="default">awips2</packagereq>
          <packagereq type="default">awips2-eclipse</packagereq>
          <packagereq type="default">awips2-ant</packagereq>
-         <packagereq type="default">awips2-maven</packagereq>
          <packagereq type="default">awips2-java</packagereq>
          <packagereq type="default">awips2-groovy</packagereq>
          <packagereq type="default">awips2-postgresql</packagereq>
@@ -52,12 +45,10 @@
          <packagereq type="default">awips2-database</packagereq>
          <packagereq type="default">awips2-httpd-pypies</packagereq>
          <packagereq type="default">awips2-qpid-java-client</packagereq>
-         <packagereq type="default">awips2-qpid-java-common</packagereq>
          <packagereq type="default">awips2-qpid-java-broker</packagereq>
          <packagereq type="default">awips2-qpid-lib</packagereq>
          <packagereq type="default">awips2-localization</packagereq>
          <packagereq type="default">awips2-ldm</packagereq>
-         <packagereq type="default">awips2-edex-upc</packagereq>
          <packagereq type="default">awips2-tools</packagereq>
          <packagereq type="default">awips2-maps-database</packagereq>
          <packagereq type="default">awips2-data.hdf5-topo</packagereq>
@@ -71,8 +62,6 @@
          <packagereq type="default">awips2-python-jep</packagereq>
          <packagereq type="default">awips2-python-matplotlib</packagereq>
          <packagereq type="default">awips2-python-numpy</packagereq>
-         <packagereq type="default">awips2-python-numexpr</packagereq>
-         <packagereq type="default">awips2-python-pupynere</packagereq>
          <packagereq type="default">awips2-python-pyparsing</packagereq>
          <packagereq type="default">awips2-python-pytz</packagereq>
          <packagereq type="default">awips2-python-qpid</packagereq>
@@ -97,12 +86,10 @@
          <packagereq type="default">awips2-edex</packagereq>
          <packagereq type="default">awips2-edex-base</packagereq>
          <packagereq type="default">awips2-edex-common-core</packagereq>
-         <packagereq type="default">awips2-edex-configuration</packagereq>
          <packagereq type="default">awips2-edex-core</packagereq>
          <packagereq type="default">awips2-edex-cots</packagereq>
          <packagereq type="default">awips2-edex-dataplugins</packagereq>
          <packagereq type="default">awips2-edex-ncep</packagereq>
-         <packagereq type="default">awips2-edex-upc</packagereq>
          <packagereq type="default">awips2-java</packagereq>
          <packagereq type="default">awips2-ldm</packagereq>
          <packagereq type="default">awips2-python</packagereq>
@@ -114,8 +101,6 @@
          <packagereq type="default">awips2-python-jep</packagereq>
          <packagereq type="default">awips2-python-matplotlib</packagereq>
          <packagereq type="default">awips2-python-numpy</packagereq>
-         <packagereq type="default">awips2-python-numexpr</packagereq>
-         <packagereq type="default">awips2-python-pupynere</packagereq>
          <packagereq type="default">awips2-python-pyparsing</packagereq>
          <packagereq type="default">awips2-python-pytz</packagereq>
          <packagereq type="default">awips2-python-qpid</packagereq>
@@ -123,10 +108,10 @@
          <packagereq type="default">awips2-python-setuptools</packagereq>
          <packagereq type="default">awips2-python-shapely</packagereq>
          <packagereq type="default">awips2-python-six</packagereq>
+         <packagereq type="default">awips2-python-tables</packagereq>
          <packagereq type="default">awips2-python-werkzeug</packagereq>
          <packagereq type="default">awips2-qpid-java-broker</packagereq>
          <packagereq type="default">awips2-qpid-java-client</packagereq>
-         <packagereq type="default">awips2-qpid-java-common</packagereq>
          <packagereq type="default">awips2-qpid-lib</packagereq>
          <packagereq type="default">awips2-tools</packagereq>
          <packagereq type="default">awips2-yajsw</packagereq>
@@ -148,7 +133,6 @@
          <packagereq type="default">awips2-edex</packagereq>
          <packagereq type="default">awips2-edex-base</packagereq>
          <packagereq type="default">awips2-edex-common-core</packagereq>
-         <packagereq type="default">awips2-edex-configuration</packagereq>
          <packagereq type="default">awips2-edex-core</packagereq>
          <packagereq type="default">awips2-edex-cots</packagereq>
          <packagereq type="default">awips2-edex-dataplugins</packagereq>
@@ -156,7 +140,6 @@
          <packagereq type="default">awips2-gfesuite</packagereq>
          <packagereq type="default">awips2-edex-ncep</packagereq>
          <packagereq type="default">awips2-edex-shapefiles</packagereq>
-         <packagereq type="default">awips2-edex-upc</packagereq>
          <packagereq type="default">awips2-edex-request</packagereq>
          <packagereq type="default">awips2-httpd-pypies</packagereq>
          <packagereq type="default">awips2-java</packagereq>
@@ -174,8 +157,6 @@
          <packagereq type="default">awips2-python-jep</packagereq>
          <packagereq type="default">awips2-python-matplotlib</packagereq>
          <packagereq type="default">awips2-python-numpy</packagereq>
-         <packagereq type="default">awips2-python-numexpr</packagereq>
-         <packagereq type="default">awips2-python-pupynere</packagereq>
          <packagereq type="default">awips2-python-pyparsing</packagereq>
          <packagereq type="default">awips2-python-pytz</packagereq>
          <packagereq type="default">awips2-python-qpid</packagereq>
@@ -183,10 +164,10 @@
          <packagereq type="default">awips2-python-setuptools</packagereq>
          <packagereq type="default">awips2-python-shapely</packagereq>
          <packagereq type="default">awips2-python-six</packagereq>
+         <packagereq type="default">awips2-python-tables</packagereq>
          <packagereq type="default">awips2-python-werkzeug</packagereq>
          <packagereq type="default">awips2-qpid-java-broker</packagereq>
          <packagereq type="default">awips2-qpid-java-client</packagereq>
-         <packagereq type="default">awips2-qpid-java-common</packagereq>
          <packagereq type="default">awips2-qpid-lib</packagereq>
          <packagereq type="default">awips2-tools</packagereq>
          <packagereq type="default">awips2-localization</packagereq>
@@ -210,7 +191,6 @@
          <packagereq type="default">awips2-edex</packagereq>
          <packagereq type="default">awips2-edex-base</packagereq>
          <packagereq type="default">awips2-edex-common-core</packagereq>
-         <packagereq type="default">awips2-edex-configuration</packagereq>
          <packagereq type="default">awips2-edex-core</packagereq>
          <packagereq type="default">awips2-edex-cots</packagereq>
          <packagereq type="default">awips2-edex-dataplugins</packagereq>
@@ -218,8 +198,8 @@
          <packagereq type="default">awips2-gfesuite</packagereq>
          <packagereq type="default">awips2-edex-ncep</packagereq>
          <packagereq type="default">awips2-edex-shapefiles</packagereq>
-         <packagereq type="default">awips2-edex-upc</packagereq>
          <packagereq type="default">awips2-httpd-pypies</packagereq>
+         <packagereq type="default">awips2-httpd-pypies-tools</packagereq>
          <packagereq type="default">awips2-java</packagereq>
          <packagereq type="default">awips2-ldm</packagereq>
          <packagereq type="default">awips2-maps-database</packagereq>
@@ -236,8 +216,6 @@
          <packagereq type="default">awips2-python-jep</packagereq>
          <packagereq type="default">awips2-python-matplotlib</packagereq>
          <packagereq type="default">awips2-python-numpy</packagereq>
-         <packagereq type="default">awips2-python-numexpr</packagereq>
-         <packagereq type="default">awips2-python-pupynere</packagereq>
          <packagereq type="default">awips2-python-pyparsing</packagereq>
          <packagereq type="default">awips2-python-pytz</packagereq>
          <packagereq type="default">awips2-python-qpid</packagereq>
@@ -245,10 +223,10 @@
          <packagereq type="default">awips2-python-setuptools</packagereq>
          <packagereq type="default">awips2-python-shapely</packagereq>
          <packagereq type="default">awips2-python-six</packagereq>
+         <packagereq type="default">awips2-python-tables</packagereq>
          <packagereq type="default">awips2-python-werkzeug</packagereq>
          <packagereq type="default">awips2-qpid-java-broker</packagereq>
          <packagereq type="default">awips2-qpid-java-client</packagereq>
-         <packagereq type="default">awips2-qpid-java-common</packagereq>
          <packagereq type="default">awips2-qpid-lib</packagereq>
          <packagereq type="default">awips2-tools</packagereq>
          <packagereq type="default">awips2-localization</packagereq>
@@ -274,8 +252,6 @@
          <packagereq type="default">awips2-python-jep</packagereq>
          <packagereq type="default">awips2-python-matplotlib</packagereq>
          <packagereq type="default">awips2-python-numpy</packagereq>
-         <packagereq type="default">awips2-python-numexpr</packagereq>
-         <packagereq type="default">awips2-python-pupynere</packagereq>
          <packagereq type="default">awips2-python-pyparsing</packagereq>
          <packagereq type="default">awips2-python-pytz</packagereq>
          <packagereq type="default">awips2-python-scientific</packagereq>
