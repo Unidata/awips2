@@ -41,7 +41,7 @@ else
     PSQLBINDIR=/awips2/psql/bin/
 fi
 
-echo "  Importing `basename ${SHAPEFILE}` into ${SCHEMA}.${TABLE} ..."
+#echo "  Importing `basename ${SHAPEFILE}` into ${SCHEMA}.${TABLE} ..."
 if [ -n "$LOGFILE" ] ; then
     ${PSQLBINDIR}psql -d ncep -U ${PGUSER} -q -p ${PGPORT} -c "
         DELETE FROM public.geometry_columns WHERE f_table_schema = '${SCHEMA}' AND f_table_name = '${TABLE}';
@@ -67,10 +67,10 @@ else
 fi 
 
 if [ -n "$SIMPLEVS" ] ; then
-    echo "  Creating simplification levels ${SIMPLEVS}..."
+    #echo "  Creating simplification levels ${SIMPLEVS}..."
     IFS=",	 "
     for LEV in $SIMPLEVS ; do
-	    echo "    Creating simplified geometry level $LEV ..."
+	#echo "    Creating simplified geometry level $LEV ..."
         IFS="."
         SUFFIX=
         for x in $LEV ; do SUFFIX=${SUFFIX}_${x} ; done
