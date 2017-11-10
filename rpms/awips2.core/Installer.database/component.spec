@@ -123,17 +123,12 @@ if [ "${1}" = "2" ]; then
    exit 0
 fi
 
-function printFailureMessage()
-{
-   echo -e "\e[1;31m--------------------------------------------------------------------------------\e[m"
+function printFailureMessage() {
    echo -e "\e[1;31m\| AWIPS II Database Installation - FAILED\e[m"
-   echo -e "\e[1;31m--------------------------------------------------------------------------------\e[m"
    echo -e "\e[1;31m Check the installation log: /awips2/database/sqlScripts/share/sql/sql_install.log\e[m"
-   echo ""
    if [ -f /awips2/database/sqlScripts/share/sql/sql_install.log ]; then
       tail -n 6 /awips2/database/sqlScripts/share/sql/sql_install.log
    fi
-   
    exit 1
 }
 
@@ -143,22 +138,19 @@ AWIPS_DEFAULT_DB_ADMIN="awips"
 AWIPS_DEFAULT_GROUP="fxalpha"
 AWIPS_DEFAULT_PORT="5432"
 
-# This Is The Log File That We Will Use To Log All SQL Interactions.
 SQL_LOG=${SQL_SHARE_DIR}/sql_install.log
-
-# SQL Data Directories
 METADATA=${AWIPS2_DATA_DIRECTORY}/metadata
 IFHS=${AWIPS2_DATA_DIRECTORY}/pgdata_ihfs
 MAPS=${AWIPS2_DATA_DIRECTORY}/maps
 DAMCAT=${AWIPS2_DATA_DIRECTORY}/damcat
 HMDB=${AWIPS2_DATA_DIRECTORY}/hmdb
 EBXML=${AWIPS2_DATA_DIRECTORY}/ebxml
+
 # Add The PostgreSQL Libraries And The PSQL Libraries To LD_LIBRARY_PATH.
 export LD_LIBRARY_PATH=${POSTGRESQL_INSTALL}/lib:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=${PSQL_INSTALL}/lib:$LD_LIBRARY_PATH
 
-function is_postgresql_running()
-{
+function is_postgresql_running() {
    NUM_PGSQL_COUNT=`/bin/netstat -l | /bin/grep -c "PGSQL.${AWIPS_DEFAULT_PORT}"`
    if [ ${NUM_PGSQL_COUNT} -gt 0 ]; then
       echo "PostgreSQL is already running or PostgreSQL lock files exist!" > \
@@ -167,23 +159,20 @@ function is_postgresql_running()
    fi
 }
 
-function create_sql_element()
-{
+function create_sql_element() {
    # $1 == element
    
    mkdir -p ${1}
    update_owner ${1}
 }
 
-function update_owner()
-{
+function update_owner() {
    # $1 == element
    chown ${AWIPS_DEFAULT_OWNER} ${1}
    chgrp ${AWIPS_DEFAULT_GROUP} ${1}
 }
 
-function init_db()
-{
+function init_db() {
    # move postgresql.conf in /awips2/data to a temporary location.
    if [ -f /awips2/data/postgresql.conf ]; then
       mv /awips2/data/postgresql.conf /awips2/
@@ -208,24 +197,20 @@ function init_db()
    return ${RC}
 }
 
-function control_pg_ctl()
-{
+function control_pg_ctl() {
    # $1 == pg_ctl command
    su - ${AWIPS_DEFAULT_USER} -c \
       "${POSTGRESQL_INSTALL}/bin/pg_ctl ${1} -D ${AWIPS2_DATA_DIRECTORY} -o \"-p ${AWIPS_DEFAULT_PORT}\" -w"
-   
 }
 
-function execute_initial_sql_script()
-{
+function execute_initial_sql_script() {
    # Make The Necessary Replacements In The Script.
    perl -p -i -e "s/%{databaseUsername}/${AWIPS_DEFAULT_OWNER}/g" \
       ${1}
    echo ${AWIPS2_DATA_DIRECTORY} | sed 's/\//\\\//g' > .awips2_escape.tmp
    AWIPS2_DATA_DIRECTORY_ESCAPED=`cat .awips2_escape.tmp`
    rm -f .awips2_escape.tmp
-   perl -p -i -e "s/%{database_files_home}/${AWIPS2_DATA_DIRECTORY_ESCAPED}/g" \
-      ${1}
+   perl -p -i -e "s/%{database_files_home}/${AWIPS2_DATA_DIRECTORY_ESCAPED}/g" ${1}
 
    # $1 == script to execute
    su - ${AWIPS_DEFAULT_USER} -c \
@@ -233,8 +218,7 @@ function execute_initial_sql_script()
       > ${SQL_LOG} 2>&1
 }
 
-function update_createEbxml()
-{
+function update_createEbxml() {
    echo ${AWIPS2_DATA_DIRECTORY} | sed 's/\//\\\//g' > .awips2_escape.tmp
    AWIPS2_DATA_DIRECTORY_ESCAPED=`cat .awips2_escape.tmp`
    rm -f .awips2_escape.tmp
@@ -242,8 +226,7 @@ function update_createEbxml()
       ${SQL_SHARE_DIR}/createEbxml.sql
 }
 
-function update_createHMDB()
-{
+function update_createHMDB() {
    echo ${AWIPS2_DATA_DIRECTORY} | sed 's/\//\\\//g' > .awips2_escape.tmp
    AWIPS2_DATA_DIRECTORY_ESCAPED=`cat .awips2_escape.tmp`
    rm -f .awips2_escape.tmp
@@ -251,26 +234,23 @@ function update_createHMDB()
       ${SQL_SHARE_DIR}/createHMDB.sql
 }
 
-function execute_psql_sql_script()
-{
+function execute_psql_sql_script() {
    # $1 == script to execute
    # $2 == database
-   
    su - ${AWIPS_DEFAULT_USER} -c \
       "${PSQL_INSTALL}/bin/psql -d ${2} -U ${AWIPS_DEFAULT_DB_ADMIN} -q -p ${AWIPS_DEFAULT_PORT} -f ${1}" \
       >> ${SQL_LOG} 2>&1
 }
 
-function copy_addl_config()
-{
+function copy_addl_config() {
    rm -f ${AWIPS2_DATA_DIRECTORY}/pg_hba.conf
    cp ${SQL_SHARE_DIR}/pg_hba.conf ${AWIPS2_DATA_DIRECTORY}/pg_hba.conf
    update_owner ${AWIPS2_DATA_DIRECTORY}/pg_hba.conf
 }
 
 is_postgresql_running
-
 init_db
+
 RC="$?"
 if [ ! "${RC}" = "0" ]; then
    printFailureMessage 
@@ -281,7 +261,9 @@ create_sql_element ${IFHS}
 create_sql_element ${DAMCAT}
 create_sql_element ${HMDB}
 create_sql_element ${EBXML}
+
 control_pg_ctl "start"
+
 # Ensure that the database started.
 if [ $? -ne 0 ]; then
    printFailureMessage   
@@ -308,6 +290,7 @@ copy_addl_config
 %preun
 
 %postun
+rm -rf /awips2/data
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}

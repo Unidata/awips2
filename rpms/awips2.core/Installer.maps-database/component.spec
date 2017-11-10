@@ -81,10 +81,8 @@ if [ "${1}" = "2" ]; then
 fi
 function printFailureMessage()
 {
-   echo -e "\e[1;31m--------------------------------------------------------------------------------\e[m"
-   echo -e "\e[1;31m\| AWIPS II Maps Database Installation - FAILED\e[m"
-   echo -e "\e[1;31m--------------------------------------------------------------------------------\e[m"
-   echo -e "\e[1;31m Check the installation log: /awips2/database/sqlScripts/share/sql/maps/maps.log\e[m"
+   echo -e "ERROR: AWIPS II Maps Database Installation - FAILED"
+   echo -e "Check the installation log: /awips2/database/sqlScripts/share/sql/maps/maps.log"
    echo ""
    if [ -f /awips2/database/sqlScripts/share/sql/maps/maps.log ]; then
       tail -n 6 /awips2/database/sqlScripts/share/sql/maps/maps.log

@@ -41,7 +41,7 @@ mkdir -p ${RPM_BUILD_ROOT}/awips2/database
 
 %install
 PATH_TO_DDL="build.edex/opt/db/ddl/ncep"
-#PATH_TO_SHP_FILES="%{_static_files}/db/ddl/ncep"
+PATH_TO_SHP_FILES="%{_static_files}/ncep/shapefiles"
 
 # Create A Temporary Directory For The SQL Scripts That The Database
 # RPM Will Need.
@@ -50,10 +50,10 @@ mkdir -p ${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share/sql/ncep
 # Copy the ncep sql scripts into the rpm.
 cp -r %{_baseline_workspace}/${PATH_TO_DDL}/* \
    ${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share/sql/ncep
-   
+
 # Copy the ncep shapefiles into the rpm.
-#cp -r %{_awipscm_share}/${PATH_TO_SHP_FILES}/* \
-#   ${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share/sql/ncep
+cp -r ${PATH_TO_SHP_FILES} \
+   ${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share/sql/ncep
    
 # Create our installation log file.
 touch ${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share/sql/ncep/ncep_sql_install.log
@@ -62,9 +62,6 @@ touch ${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share/sql/ncep/ncep_sql_insta
 if [ "${1}" = "2" ]; then
    exit 0
 fi
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| Creating the AWIPS II ncep Database...\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
 
 %post
 if [ "${1}" = "2" ]; then
@@ -95,43 +92,28 @@ RC="$?"
 
 # Start PostgreSQL if it is not running.
 if [ ! "${RC}" = "0" ]; then
-   echo "--------------------------------------------------------------------------------"
-   echo "\| Starting PostgreSQL As User - ${DB_OWNER}..."
-   echo "--------------------------------------------------------------------------------"
    su - ${DB_OWNER} -c \
       "${POSTMASTER} -D ${AWIPS2_DATA_DIRECTORY} > /dev/null 2>&1 &"
    RC="$?"
    if [ ! "${RC}" = "0" ]; then
-      echo ""
-      echo "--------------------------------------------------------------------------------"
-      echo "\| Error - failed to start the PostgreSQL Server."
-      echo "--------------------------------------------------------------------------------"
+      echo "Error - failed to start the PostgreSQL Server."
       printFailureMessage
    fi
    # Give PostgreSQL Time To Start.
    sleep 10
    I_STARTED_POSTGRESQL="YES"
 else
-   echo "--------------------------------------------------------------------------------"
-   echo "\| Found Running PostgreSQL Server..."
-   echo "--------------------------------------------------------------------------------"
    # Show The User.
    su - ${DB_OWNER} -c \
       "${PG_CTL} status -D ${AWIPS2_DATA_DIRECTORY}"
 fi
    
 # Create the ncep directory; remove any existing directories.
-echo "--------------------------------------------------------------------------------"
-echo "\| Creating a Directory for the ncep Tablespace..."
-echo "--------------------------------------------------------------------------------"
 if [ -d /awips2/data/ncep ]; then
    su - ${DB_OWNER} -c "rm -rf ${AWIPS2_DATA_DIRECTORY}/ncep"
 fi
 su - ${DB_OWNER} -c "mkdir -p ${AWIPS2_DATA_DIRECTORY}/ncep"
 
-echo "--------------------------------------------------------------------------------"
-echo "\| Creating the ncep database..."
-echo "--------------------------------------------------------------------------------"
 # Update createNcepDb.sql
 echo ${AWIPS2_DATA_DIRECTORY} | sed 's/\//\\\//g' > .awips2_escape.tmp
 AWIPS2_DATA_DIRECTORY_ESCAPED=`cat .awips2_escape.tmp`
@@ -163,10 +145,6 @@ su - ${DB_OWNER} -c \
    
 # stop PostgreSQL if we started it.
 if [ "${I_STARTED_POSTGRESQL}" = "YES" ]; then
-   echo ""
-   echo "--------------------------------------------------------------------------------"
-   echo "\| Stopping PostgreSQL As User - ${DB_OWNER}..."
-   echo "--------------------------------------------------------------------------------"
    su - ${DB_OWNER} -c \
       "${PG_CTL} stop -D /awips2/data"
    RC="$?"
@@ -176,10 +154,6 @@ if [ "${I_STARTED_POSTGRESQL}" = "YES" ]; then
    sleep 10
 fi
    
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| AWIPS II ncep Database Creation ~ SUCCESSFUL...\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-
 %preun
 if [ "${1}" = "1" ]; then
    exit 0
@@ -197,11 +171,6 @@ PSQL="${PSQL_INSTALL}/bin/psql"
 # Determine who owns the PostgreSQL Installation
 DB_OWNER=`ls -ld ${AWIPS2_DATA_DIRECTORY} | grep -w 'data' | awk '{print $3}'`
 
-echo "--------------------------------------------------------------------------------"
-echo "\| Preparing to drop the ncep tablespace and database..."
-echo "--------------------------------------------------------------------------------"
-# Drop the ncep database and tablespace.
-
 # start PostgreSQL if it is not running
 I_STARTED_POSTGRESQL="NO"
 su - ${DB_OWNER} -c \
@@ -210,9 +179,6 @@ RC="$?"
 
 # Start PostgreSQL if it is not running.
 if [ ! "${RC}" = "0" ]; then
-   echo "--------------------------------------------------------------------------------"
-   echo "\| Starting PostgreSQL As User - ${DB_OWNER}..."
-   echo "--------------------------------------------------------------------------------"
    su - ${DB_OWNER} -c \
       "${POSTMASTER} -D ${AWIPS2_DATA_DIRECTORY} > /dev/null 2>&1 &"
    RC="$?"
@@ -224,17 +190,10 @@ if [ ! "${RC}" = "0" ]; then
    sleep 10
    I_STARTED_POSTGRESQL="YES"
 else
-   echo "--------------------------------------------------------------------------------"
-   echo "\| Found Running PostgreSQL Server..."
-   echo "--------------------------------------------------------------------------------"
    # Show The User.
    su - ${DB_OWNER} -c \
       "${PG_CTL} status -D ${AWIPS2_DATA_DIRECTORY}"
 fi
-
-echo "--------------------------------------------------------------------------------"
-echo "\| Dropping ncep database..."
-echo "--------------------------------------------------------------------------------"
 
 su - ${DB_OWNER} -c \
    "${DROPDB} -U awips ncep"
@@ -244,14 +203,10 @@ su - ${DB_OWNER} -c \
 NCEP_DIR=`${PSQL} -U awips -d postgres -c "\db" | grep ncep | awk '{print $5}'`
 
 if [ ! "${NCEP_DIR}" = "" ]; then
-   echo "--------------------------------------------------------------------------------"
-   echo "\| Dropping ncep tablespace..."
-   echo "--------------------------------------------------------------------------------"
    su - ${DB_OWNER} -c \
       "${PSQL} -U awips -d postgres -c \"DROP TABLESPACE ncep\""
       
    # remove the maps data directory that we created
-   echo "Attempting To Remove Directory: ${NCEP_DIR}"
    if [ -d "${NCEP_DIR}" ]; then
       su - ${DB_OWNER} -c "rmdir ${NCEP_DIR}"
    fi
@@ -259,10 +214,6 @@ fi
 
 # stop PostgreSQL if we started it.
 if [ "${I_STARTED_POSTGRESQL}" = "YES" ]; then
-   echo ""
-   echo "--------------------------------------------------------------------------------"
-   echo "\| Stopping PostgreSQL As User - ${DB_OWNER}..."
-   echo "--------------------------------------------------------------------------------"
    su - ${DB_OWNER} -c \
       "${PG_CTL} stop -D ${AWIPS2_DATA_DIRECTORY}"
    RC="$?"
@@ -272,9 +223,6 @@ if [ "${I_STARTED_POSTGRESQL}" = "YES" ]; then
    sleep 10
 fi
 
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| AWIPS II ncep Database Removal ~ SUCCESSFUL...\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
 exit 0
 
 %postun
