@@ -12,7 +12,7 @@ Version: %{_component_version}
 Release: %{_ldm_version}.%{_component_release}%{?dist}
 Group: AWIPSII
 BuildRoot: /tmp
-BuildArch: noarch
+BuildArch: %{_build_arch}
 URL: N/A
 License: N/A
 Distribution: N/A
@@ -25,7 +25,7 @@ Requires: awips2-python
 Requires: pax, gcc, libxml2-devel, boost-devel
 Requires: libtool, libpng-devel
 Provides: awips2-ldm
-BuildRequires: awips2-qpid-lib, awips2-python
+BuildRequires: awips2-python
 
 %description
 AWIPS LDM Distribution
@@ -79,6 +79,15 @@ _Installer_ldm=${_RPM_directory}/awips2.upc/Installer.ldm
 if [ $? -ne 0 ]; then
    exit 1
 fi
+
+# Copy correct edexBridge binary
+mkdir -p ${_ldm_destination}/bin
+/bin/cp ${_Installer_ldm}/bin/edexBridge.el%{rhel} ${_ldm_destination}/bin/edexBridge
+if [ $? -ne 0 ]; then
+   echo "FATAL: failed to move edexBridge to ldm bin directory!"
+   exit 1
+fi
+
 # package nativelib projects
 cd %{_baseline_workspace}
 if [ $? -ne 0 ]; then
@@ -163,10 +172,6 @@ gunzip -c %{_ldm_src_tar} | pax -r '-s:/:/src/:'
 if [ $? -ne 0 ]; then
    exit 1
 fi
-rm -f %{_ldm_src_tar}
-if [ $? -ne 0 ]; then
-   exit 1
-fi
 
 # build ldm
 . /etc/profile.d/awips2.sh
@@ -203,19 +208,11 @@ do
    if [ $? -ne 0 ]; then
       exit 1
    fi
-   /bin/rm -f ${patchDir}.tar
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
 done
 _PATCH_DIRS=( 'bin' )
 for patchDir in ${_PATCH_DIRS[*]};
 do
    /bin/tar -xf ${patchDir}.tar -C ${_ldm_dir}/ldm-%{_ldm_version}/
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-   /bin/rm -f ${patchDir}.tar
    if [ $? -ne 0 ]; then
       exit 1
    fi
@@ -227,16 +224,6 @@ cd ${_ldm_dir}/SOURCES
 /bin/tar -xf decrypt_file.tar
 if [ $? -ne 0 ]; then
    echo "FATAL: failed to untar decrypt_file.tar!"
-   exit 1
-fi
-#/bin/tar -xf edexBridge.tar
-#if [ $? -ne 0 ]; then
-#   echo "FATAL: failed to untar edexBridge.tar!"
-#   exit 1
-#fi
-/bin/rm -f *.tar
-if [ $? -ne 0 ]; then
-   echo "FATAL: failed to remove decrypt_file.tar!"
    exit 1
 fi
 cd decrypt_file
@@ -253,34 +240,9 @@ if [ $? -ne 0 ]; then
    echo "FATAL: failed to move built decrypt_file to ldm decoders directory!"
    exit 1
 fi
-#cd ../edexBridge
-#if [ $? -ne 0 ]; then
-#   exit 1
-#fi
-#g++ edexBridge.cpp -I${_ldm_root_dir}/src/pqact \
-#   -I${_ldm_root_dir}/include \
-#   -I${_ldm_root_dir}/src \
-#   -I/awips2/qpid/include \
-#   -L${_ldm_root_dir}/lib \
-#   -L/awips2/qpid/lib \
-#   -l ldm -l xml2 -l qpidclient -l qpidmessaging -l qpidcommon -l qpidtypes -o edexBridge
-#if [ $? -ne 0 ]; then
-#   echo "FATAL: failed to build edexBridge!"
-#   exit 1
-#fi
-#/bin/mv edexBridge ${_ldm_dir}/bin/edexBridge
-#if [ $? -ne 0 ]; then
-#   echo "FATAL: failed to move edexBridge to ldm bin directory!"
-#   exit 1
-#fi
 cd ..
 
-/sbin/ldconfig
-
-/bin/rm -rf ${_ldm_dir}/SOURCES
-if [ $? -ne 0 ]; then
-   exit 1
-fi
+/sbin/ldconfig > /dev/null 2>&1
 
 if [ ! -h /awips2/ldm/logs ]; then
   ln -s /awips2/ldm/var/logs /awips2/ldm/
@@ -289,9 +251,9 @@ if [ ! -h /awips2/ldm/data ]; then
   ln -s /awips2/ldm/var/data /awips2/ldm/
 fi
 if getent passwd awips &>/dev/null; then
-  /bin/chown -R awips:fxalpha ${_ldm_dir}
+  /bin/chown -R awips:fxalpha ${_ldm_dir} > /dev/null 2>&1
   cd /awips2/ldm/src/
-  make install_setuids
+  make install_setuids > /dev/null 2>&1
 else
   echo "--- Warning: group fxalpha does not exist"
   echo "--- you will need to check owner/group/permissions for /awips2/ldm"
@@ -307,7 +269,7 @@ fi
 
 %preun
 %postun
-/sbin/ldconfig
+/sbin/ldconfig > /dev/null 2>&1
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
@@ -318,6 +280,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/ldm/SOURCES
 /awips2/ldm/SOURCES/*
 %attr(755,root,root) /etc/init.d/edex_ldm
+%attr(755,awips,fxalpha) /awips2/ldm/bin/edexBridge
 %attr(600,awips,fxalpha) /var/spool/cron/awips
 %attr(755,root,root) /etc/ld.so.conf.d/awips2-ldm.conf
 %attr(755,root,root) /etc/logrotate.d/ldm.log
