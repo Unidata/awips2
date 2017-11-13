@@ -176,16 +176,13 @@ function prepare()
    local a2_pg_ctl="/awips2/postgresql/bin/pg_ctl"
    DB_OWNER=`ls -l /awips2/ | grep -w 'data' | awk '{print $3}'`
    I_STARTED_POSTGRESQL="NO"
-   echo "Determining if PostgreSQL is running ..." 
    su - ${DB_OWNER} -c \
-      "${a2_pg_ctl} status -D /awips2/data &"
+      "${a2_pg_ctl} status -D /awips2/data &" > /dev/null 2>&1
    RC=$?
-   if [ ${RC} -eq 0 ]; then
-      echo "INFO: PostgreSQL is running."
-   else
+   if [ ${RC} -ne 0 ]; then
       echo "Starting PostgreSQL as user: ${DB_OWNER} ..."
       su - ${DB_OWNER} -c \
-         "${a2_postmaster} -D /awips2/data &"
+         "${a2_postmaster} -D /awips2/data &" > /dev/null 2>&1
       if [ $? -ne 0 ]; then
          echo "FATAL: Failed to start PostgreSQL."
          return 0

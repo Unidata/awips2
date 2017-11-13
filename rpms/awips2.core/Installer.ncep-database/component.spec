@@ -158,7 +158,7 @@ fi
 if [ "${1}" = "1" ]; then
    exit 0
 fi
-
+ 
 POSTGRESQL_INSTALL="/awips2/postgresql"
 PSQL_INSTALL="/awips2/psql"
 
@@ -174,13 +174,13 @@ DB_OWNER=`ls -ld ${AWIPS2_DATA_DIRECTORY} | grep -w 'data' | awk '{print $3}'`
 # start PostgreSQL if it is not running
 I_STARTED_POSTGRESQL="NO"
 su - ${DB_OWNER} -c \
-   "${PG_CTL} status -D ${AWIPS2_DATA_DIRECTORY} > /dev/null 2>&1"
+   "${PG_CTL} status -D ${AWIPS2_DATA_DIRECTORY} &"  > /dev/null 2>&1
 RC="$?"
 
 # Start PostgreSQL if it is not running.
 if [ ! "${RC}" = "0" ]; then
    su - ${DB_OWNER} -c \
-      "${POSTMASTER} -D ${AWIPS2_DATA_DIRECTORY} > /dev/null 2>&1 &"
+      "${POSTMASTER} -D ${AWIPS2_DATA_DIRECTORY} &"  > /dev/null 2>&1
    RC="$?"
    if [ ! "${RC}" = "0" ]; then
       echo "Failed To Start The PostgreSQL Server."
@@ -196,7 +196,7 @@ else
 fi
 
 su - ${DB_OWNER} -c \
-   "${DROPDB} -U awips ncep"
+   "${DROPDB} -U awips ncep &" > /dev/null 2>&1
 
 # Is there a ncep tablespace?
 # ask psql where the ncep tablespace is ...
@@ -204,18 +204,18 @@ NCEP_DIR=`${PSQL} -U awips -d postgres -c "\db" | grep ncep | awk '{print $5}'`
 
 if [ ! "${NCEP_DIR}" = "" ]; then
    su - ${DB_OWNER} -c \
-      "${PSQL} -U awips -d postgres -c \"DROP TABLESPACE ncep\""
+      "${PSQL} -U awips -d postgres -c \"DROP TABLESPACE ncep\" &"  > /dev/null 2>&1
       
    # remove the maps data directory that we created
    if [ -d "${NCEP_DIR}" ]; then
-      su - ${DB_OWNER} -c "rmdir ${NCEP_DIR}"
+      su - ${DB_OWNER} -c "rmdir ${NCEP_DIR} &"  > /dev/null 2>&1
    fi
 fi
 
 # stop PostgreSQL if we started it.
 if [ "${I_STARTED_POSTGRESQL}" = "YES" ]; then
    su - ${DB_OWNER} -c \
-      "${PG_CTL} stop -D ${AWIPS2_DATA_DIRECTORY}"
+      "${PG_CTL} stop -D ${AWIPS2_DATA_DIRECTORY} &" > /dev/null 2>&1
    RC="$?"
    if [ ! "${RC}" = "0" ]; then
       echo "Warning: Failed to shutdown PostgreSQL."

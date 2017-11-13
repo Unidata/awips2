@@ -117,20 +117,6 @@ fi
 # Set ipaddress in setup.env and run chkconfig for init.d services
 /awips2/edex/bin/edex setup > /dev/null 2>&1
 
-# We need to create a link to the python shared library if it does not exist.
-#pushd . > /dev/null 2>&1
-#if [ -d /awips2/python/lib ]; then
-#   cd /awips2/python/lib
-#   if [ -L libpython.so ]; then
-#      # Ensure that we are pointing to the correct shared library.
-#      rm -f libpython.so
-#   fi
-#   if [ -f libpython2.7.so.1.0 ]; then
-#      ln -s libpython2.7.so.1.0 libpython.so
-#   fi
-#fi
-#popd > /dev/null 2>&1
-
 if [ -f /etc/init.d/edex_camel ]; then
    /sbin/chkconfig --add edex_camel
 fi
@@ -140,51 +126,8 @@ fi
 if [ -d /awips2/.edex ]; then
    # copy the common-base contributions to the EDEX installation
    cp -r /awips2/.edex/* /awips2/edex
-   
    # cleanup
    rm -rf /awips2/.edex
-fi
-
-SETUP_ENV="/awips2/edex/bin/setup.env"
-SETUP_ENV_NEW="/awips2/edex/bin/setup.env.rpmnew"
-
-function updateSetupEnv() {
-   # args
-   # 1 value of the variable to change
-   # 2 name of the variable to change
-   # 3 default value of the variable
-   local VALUE="${1}"
-   local VARIABLE="${2}"
-   local DEFAULT="${3}"   
-   echo "${VALUE}" | sed 's/\//\\\//g' > .awips2_escape.tmp
-   VALUE=`cat .awips2_escape.tmp`
-   rm -f .awips2_escape.tmp
-   echo "${DEFAULT}" | sed 's/\//\\\//g' > .awips2_escape.tmp
-   DEFAULT=`cat .awips2_escape.tmp`
-   rm -f .awips2_escape.tmp
-   perl -p -i -e "s/export ${VARIABLE}=${DEFAULT}/export ${VARIABLE}=${VALUE}/g" \
-      ${SETUP_ENV_NEW}
-}
-
-if [ -f "${SETUP_ENV_NEW}" ]; then
-   # rewrite the new setup.env with the existing configuration
-   source ${SETUP_ENV}
-   # update when a variable is added to or removed from setup.env.
-   updateSetupEnv "${AW_SITE_IDENTIFIER}" "AW_SITE_IDENTIFIER" "OAX"
-   updateSetupEnv "${DC_DB_NAME}" "DC_DB_NAME" "dc_ob7oax"
-   updateSetupEnv "${FXA_DB_NAME}" "FXA_DB_NAME" "fxatext"
-   updateSetupEnv "${HM_DB_NAME}" "HM_DB_NAME" "hmdb"
-   updateSetupEnv "${IH_DB_NAME}" "IH_DB_NAME" "hd_ob92oax"
-   updateSetupEnv "${DATA_ARCHIVE_ROOT}" "DATA_ARCHIVE_ROOT" "/tmp/sbn"
-   updateSetupEnv "${DB_ADDR}" "DB_ADDR" "localhost"
-   updateSetupEnv "${DB_PORT}" "DB_PORT" "5432"
-   updateSetupEnv "${BROKER_ADDR}" "BROKER_ADDR" "localhost"
-   updateSetupEnv "${PYPIES_SERVER}" "PYPIES_SERVER" "http://localhost:9582"
-   updateSetupEnv "${HTTP_SERVER}" "HTTP_SERVER" "http://localhost:9581/services"
-   updateSetupEnv "${JMS_SERVER}" "JMS_SERVER" "tcp://localhost:5672"
-   updateSetupEnv "${SHARE_DIR}" "SHARE_DIR" "/awips2/edex/data/share"
-   updateSetupEnv "${LDAD_EXTERNAL_HOME}" "LDAD_EXTERNAL_HOME" "/ldad"
-   updateSetupEnv "${LDAD_EXTERNAL_PUBLIC}" "LDAD_EXTERNAL_PUBLIC" "/data/ldad/public"
 fi
 
 %preun
