@@ -31,6 +31,7 @@
 #include <signal.h>
 #include <sys/time.h>
 #include <list>
+#include <unistd.h>
 
 using namespace qpid::messaging;
 using namespace std;
