@@ -180,14 +180,12 @@ if [ -f "${SETUP_ENV_NEW}" ]; then
    updateSetupEnv "${DB_PORT}" "DB_PORT" "5432"
    updateSetupEnv "${BROKER_ADDR}" "BROKER_ADDR" "localhost"
    updateSetupEnv "${PYPIES_SERVER}" "PYPIES_SERVER" "http://localhost:9582"
-   updateSetupEnv "${HTTP_SERVER}" "HTTP_SERVER" \
-      "http://localhost:9581/services"
+   updateSetupEnv "${HTTP_SERVER}" "HTTP_SERVER" "http://localhost:9581/services"
    updateSetupEnv "${JMS_SERVER}" "JMS_SERVER" "tcp://localhost:5672"
    updateSetupEnv "${SHARE_DIR}" "SHARE_DIR" "/awips2/edex/data/share"
-   updateSetupEnv "${LDAD_EXTERNAL_HOME}" "LDAD_EXTERNAL_HOME" \
-      "/ldad"
-   updateSetupEnv "${LDAD_EXTERNAL_PUBLIC}" "LDAD_EXTERNAL_PUBLIC" \
-      "/data/ldad/public"
+   updateSetupEnv "${LDAD_EXTERNAL_HOME}" "LDAD_EXTERNAL_HOME" "/ldad"
+   updateSetupEnv "${LDAD_EXTERNAL_PUBLIC}" "LDAD_EXTERNAL_PUBLIC" "/data/ldad/public"
+fi
 
 %preun
 if [ "${1}" = "1" ]; then
