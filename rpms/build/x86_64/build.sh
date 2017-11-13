@@ -115,7 +115,7 @@ function build_database() {
    buildRPM "awips2-maps-database"
    buildRPM "awips2-ncep-database"
    buildRPM "awips2-edex-shapefiles"
-   #buildRPM "awips2-data.hdf5-topo" # too big right now
+   buildRPM "awips2-data.hdf5-topo"
    buildRPM "awips2-data.gfe"
 }
 function build_pypies() {

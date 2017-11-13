@@ -21,11 +21,6 @@
          <packagereq type="default">awips2-python-setuptools</packagereq>
          <packagereq type="default">awips2-python-six</packagereq>
          <packagereq type="default">awips2-qpid-lib</packagereq>
-<!--
-awips2.core/Installer.tools/component.spec:BuildRequires: awips2-python
-awips2.core/Installer.tools/component.spec:BuildRequires: awips2-python-h5py # h5py requires it be built on same numpy as it's run with
-awips2.upc/Installer.ldm/component.spec:BuildRequires: awips2-qpid-lib, awips2-python
--->
       </packagelist>
    </group>
    <group>

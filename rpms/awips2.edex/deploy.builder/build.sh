@@ -71,29 +71,28 @@ function buildRPM() {
 
 prepareBuildEnvironment
 
-#pushd ${WORKSPACE}/build.edex
-#if [ $? -ne 0 ]; then
-#   exit 1
-#fi
-#/awips2/ant/bin/ant -f build.xml -Dlightning=true \
-#   -Duframe.eclipse=${UFRAME_ECLIPSE}
-#RC=$?
-#if [ ${RC} -ne 0 ]; then
-#   exit 1
-#fi
-#popd
+pushd ${WORKSPACE}/build.edex
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+/awips2/ant/bin/ant -f build.xml -Dlightning=true \
+   -Duframe.eclipse=${UFRAME_ECLIPSE}
+RC=$?
+if [ ${RC} -ne 0 ]; then
+   exit 1
+fi
+popd
 
 # Adjust Our Execution Position.
 cd ../
 
 buildRPM "Installer.edex"
 
-#DIST="${WORKSPACE}/build.edex/edex/dist"
-#for edex_zip in `cd ${DIST}; ls -1;`;
-#do
-#   edex_component=`python -c "zipFile='${edex_zip}'; componentName=zipFile.replace('.zip',''); print componentName;"`
-#   export COMPONENT_NAME="${edex_component}"
-#   buildRPM "Installer.edex-component"
-#   unset COMPONENT_NAME
-#done
-
+DIST="${WORKSPACE}/build.edex/edex/dist"
+for edex_zip in `cd ${DIST}; ls -1;`;
+do
+   edex_component=`python -c "zipFile='${edex_zip}'; componentName=zipFile.replace('.zip',''); print componentName;"`
+   export COMPONENT_NAME="${edex_component}"
+   buildRPM "Installer.edex-component"
+   unset COMPONENT_NAME
+done

@@ -13,6 +13,8 @@ RUN yum groupinstall "Development tools" -y
 RUN yum install epel-release -y
 RUN yum clean all -y
 
+#RUN yum install wget rsync git net-tools bc -y
+
 ENV systemDeps="wget rsync git net-tools bc"
 ENV rpmDeps="gcc gcc-c++ rpm-build readline-devel createrepo"
 ENV qpidDeps="boost-devel cmake make ruby libuuid-devel"
@@ -22,7 +24,7 @@ ENV httpDeps="autoconf findutils libselinux-devel libxml2-devel lua-devel openld
 
 RUN yum install $systemDeps $rpmDeps $qpidDeps $pythonDeps $awipsDeps $httpDeps -y
 
-RUN wget -O /etc/yum.repos.d/awips2.repo http://www.unidata.ucar.edu/software/awips2/doc/awips-dev.repo
+RUN wget -O /etc/yum.repos.d/awips2.repo http://www.unidata.ucar.edu/software/awips2/doc/el6.repo
 RUN yum -y clean all
 RUN yum groupinstall awips2-ade -y
 

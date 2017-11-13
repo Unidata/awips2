@@ -28,4 +28,6 @@ sudo docker rm -v $dockerID
 if [[ $USER == "mjames" ]]; then # local build
   sudo chown -R mjames:ustaff dist/$os_version
   createrepo -g ../../rpms/unidata/comps.xml dist/$os_version
+  rsync --archive --delete dist/el7 tomcat@www:/web/content/repos/yum/el7-dev/
+  rsync --archive --delete dist/el6 tomcat@www:/web/content/repos/yum/el6/
 fi
