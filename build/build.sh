@@ -10,7 +10,11 @@ export _script_dir=${dir}
 echo "Running build.sh from ${_script_dir}"
 echo "   JENKINS_WORKSPACE = ${JENKINS_WORKSPACE}"
 cd ${dir}
-logdir=${dir}/../logs
+logdir=${dir}/logs
+
+if [ ! -d $logdir ]; then
+  mkdir -p $logdir
+fi
 
 START_TIME=`date "+%s"`
 timestamp=`date +%Y_%m_%d_%H:%M:%S`
@@ -54,9 +58,9 @@ cp -v ${dir}/buildEnvironment.sh .
 
 # check rpms/build/x86_64/build.sh for build groups
 
-build_log=${dir}/build${1}-${timestamp}.log
+build_log=${logdir}/build${1}-${timestamp}.log
 if [ "${1}" = "-b" -a -n "${2}" ]; then
-   build_log=${dir}/build-${2}-${timestamp}.log
+   build_log=${logdir}/build-${2}-${timestamp}.log
 fi
 
 /bin/bash ${_build_sh_directory}/build.sh ${1} ${2} > ${build_log}

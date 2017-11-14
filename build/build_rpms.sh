@@ -7,8 +7,8 @@ if [ -z "$type" ]; then
   exit
 fi
 
-. /awips2/repo/awips2-builds/rpms/unidata/buildEnvironment.sh
-buildsh=$REPO/awips2-builds/rpms/unidata/cibuild.sh
+. /awips2/repo/awips2-builds/build/buildEnvironment.sh
+buildsh=$REPO/awips2-builds/build/cibuild.sh
 pushd $REPO
 
 # if not mounted to docker container, clone from github
@@ -27,16 +27,19 @@ if [ ! -d awips2-static ]; then
 fi
 
 # Test build procedure on a quick rpm
-#su - awips -c "/bin/bash $buildsh -b awips2-ldm"
+#su - awips -c "/bin/bash $buildsh -b awips2"
+#su - awips -c "/bin/bash $buildsh -b awips2-maps-database"
+su - awips -c "/bin/bash $buildsh -b awips2-database"
+#su - awips -c "/bin/bash $buildsh -b awips2-ncep-database"
 
 # Build all groups (in this order)
-su - awips -c "/bin/bash $buildsh -ade"
-su - awips -c "/bin/bash $buildsh -python"
-su - awips -c "/bin/bash $buildsh -qpid"
-su - awips -c "/bin/bash $buildsh -server"
-su - awips -c "/bin/bash $buildsh -edex"
-su - awips -c "/bin/bash $buildsh -database"
-su - awips -c "/bin/bash $buildsh -cave"
+#su - awips -c "/bin/bash $buildsh -ade"
+#su - awips -c "/bin/bash $buildsh -python"
+#su - awips -c "/bin/bash $buildsh -qpid"
+#su - awips -c "/bin/bash $buildsh -server"
+#su - awips -c "/bin/bash $buildsh -edex"
+#su - awips -c "/bin/bash $buildsh -database"
+#su - awips -c "/bin/bash $buildsh -cave"
 
 # Manage RPMs
 if [ "$(ls -A ${JENKINS_HOME}/build/rpms/awips2_${AWIPSII_VERSION}/x86_64/)" ]; then

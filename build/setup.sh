@@ -27,6 +27,7 @@ sudo docker rm -v $dockerID
 
 if [[ $USER == "mjames" ]]; then # local build
   sudo chown -R mjames:ustaff dist/${os_version}-dev
-  createrepo -g ../../rpms/unidata/comps.xml dist/${os_version}-dev
+  repomanage -k1 --old dist/${os_version}-dev | xargs rm -f
+  createrepo -g ../../build/comps.xml dist/${os_version}-dev
   rsync --archive --delete dist/${os_version}-dev tomcat@www:/web/content/repos/yum/
 fi
