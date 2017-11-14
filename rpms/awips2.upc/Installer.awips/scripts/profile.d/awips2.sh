@@ -20,7 +20,7 @@ if [[ ${USER} = "root" ]]; then
     alias ldmadmin='service edex_ldm'
   fi
   # to avoid python mismatch with yum
-  unset LD_LIBRARY_PATH
+  export LD_LIBRARY_PATH=/usr/lib64
   return
 fi
 
