@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 # start_hydroview
 
 # This allows this script to be run from outside of ./standard/bin

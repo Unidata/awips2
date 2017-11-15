@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 RUN_FROM_DIR=`dirname $0`
 . $RUN_FROM_DIR/../../set_hydro_env
 

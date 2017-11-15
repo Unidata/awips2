@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 
 #Author: Varalakshmi Rajaram
 #Date : May 10th 2006

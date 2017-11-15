@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 # run_db_purge
 # April 20, 2005
 

@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 # run_create_gage_file
 
 # This allows this script to be run from outside of ./precip_proc/bin

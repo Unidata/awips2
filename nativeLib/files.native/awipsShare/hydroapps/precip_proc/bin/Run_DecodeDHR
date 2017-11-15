@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 #
 #  This script retrieves Digital Hybrid Reflectivity (DHR) 
 #  radar products from the temporary data gathering directory

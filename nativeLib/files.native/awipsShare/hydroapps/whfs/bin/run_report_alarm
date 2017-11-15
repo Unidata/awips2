@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 # run_report_alarm
 #
 # script to review the current alert/alarm values and report them in

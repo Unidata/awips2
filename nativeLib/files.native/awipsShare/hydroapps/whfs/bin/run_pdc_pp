@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 
 # File name: run_pdc_pp
 # This allows you to run this script from outside of ./bin

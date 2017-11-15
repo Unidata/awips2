@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 # run_mpe_fieldgen
 
 # This allows you to call this script from outside of ./precip_proc/bin

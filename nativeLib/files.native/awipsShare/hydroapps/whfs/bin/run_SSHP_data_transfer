@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 # file name: run_SSHP_data_transfer
 # Created: 12/15/2003
 

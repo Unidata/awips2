@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 #
 #  This script gathers the lightning data from the file in netcdf format and
 #  inserts them in the "lightning" table.

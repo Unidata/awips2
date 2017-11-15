@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 # process_hpe grib_files
 
 # This script is called to create grib format files for the

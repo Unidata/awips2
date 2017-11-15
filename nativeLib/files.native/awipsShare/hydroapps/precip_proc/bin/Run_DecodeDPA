@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 #
 #  the decodedpa executable decodes the products
 #

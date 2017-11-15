@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 # file name: run_IHFS_RAX_Sync_batch
 # Created: 05/24/2007
 # Edited : 08/03/2007 - Added unix remove command to delete log files

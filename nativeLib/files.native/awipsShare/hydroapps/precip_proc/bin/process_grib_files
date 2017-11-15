@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 # process_grib_files
 
 # This script is called from MPE to create grib format files.  If the 

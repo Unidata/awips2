@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 # run_hpe_fieldgen
 # 
 # This script calls the High-resolution Precipitation Estimator (HPE)

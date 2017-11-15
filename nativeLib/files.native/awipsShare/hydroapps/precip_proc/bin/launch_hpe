@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 
 RUN_FROM_DIR=`dirname $0`
 
