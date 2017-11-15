@@ -19,9 +19,10 @@
 #        qpid-lib ruby
 #          python tk-devel
 #          python tcl-devel
+#          python libgfortran
 #           numpy atlas-devel
-#           numpy compat-libf2c-34(x86-64)
-#           numpy libgfortran(x86-64
+#           numpy compat-libf2c-34
+#           numpy libgfortran
 #            h5py awips2-python-numpy
 #            h5py awips2-python-cython
 #      scientific netcdf
@@ -45,9 +46,6 @@
 #           awips wget
 #           awips unzip
 #           awips bc
-#           awips ksh
-#           awips libstdc++(x86-32)
-#           awips libgfortran(x86-32)
 #             ldm pax
 #             ldm gcc
 #             ldm libxml2-devel
@@ -65,4 +63,5 @@
 #      postgresql netcdf, geos
 #       qpid-java log4j >= 1.2.12
 #      scientific netcdf
+#        qpid-lib libstdc++
 

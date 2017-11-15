@@ -11,7 +11,6 @@
          <packagereq type="default">awips2-eclipse</packagereq>
          <packagereq type="default">awips2-ant</packagereq>
          <packagereq type="default">awips2-groovy</packagereq>
-         <packagereq type="default">awips2-yajsw</packagereq>
          <packagereq type="default">awips2-python</packagereq>
          <packagereq type="default">awips2-python-cython</packagereq>
          <packagereq type="default">awips2-python-dateutil</packagereq>

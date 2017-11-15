@@ -25,7 +25,6 @@ Packager: %{_build_site}
 AutoReq: no
 provides: %{_component_name}
 Requires: wget unzip bc
-Requires: ksh, libstdc++(x86-32), libgfortran(x86-32)
 Obsoletes: awips2-edex-upc
 
 %description
