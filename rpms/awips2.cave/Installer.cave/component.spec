@@ -32,15 +32,16 @@ Vendor: %{_build_vendor}
 Packager: %{_build_site}
 
 AutoReq: no
-provides: awips2-cave
-provides: awips2-base-component
-provides: awips2-base
-requires: awips2-java
-requires: awips2-python
-requires: openmotif
-requires: libMrm.so.4()(64bit)
-requires: libXp.so.6()(64bit)
-requires: libg2c.so.0()(64bit)
+Provides: awips2-cave
+Provides: awips2-base-component
+Provides: awips2-base
+Requires: awips2-java
+Requires: awips2-python
+Requires: openmotif
+Requires: tk, tcl
+Requires: libMrm.so.4()(64bit)
+Requires: libXp.so.6()(64bit)
+Requires: libg2c.so.0()(64bit)
 
 Obsoletes: awips2-cave-viz-acarssounding
 Obsoletes: awips2-cave-viz-archive
