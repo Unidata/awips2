@@ -26,20 +26,23 @@ if [ ! -d awips2-static ]; then
    rm -rf static.tar
 fi
 
-# Test build procedure on a quick rpm
-#su - awips -c "/bin/bash $buildsh -b awips2"
-#su - awips -c "/bin/bash $buildsh -b awips2-maps-database"
-su - awips -c "/bin/bash $buildsh -b awips2-database"
-#su - awips -c "/bin/bash $buildsh -b awips2-ncep-database"
+# to test the dockerized build procedure on a quick rpm
+#su - awips -c "/bin/bash $buildsh -b awips2-ldm"
 
-# Build all groups (in this order)
-#su - awips -c "/bin/bash $buildsh -ade"
-#su - awips -c "/bin/bash $buildsh -python"
-#su - awips -c "/bin/bash $buildsh -qpid"
-#su - awips -c "/bin/bash $buildsh -server"
-#su - awips -c "/bin/bash $buildsh -edex"
-#su - awips -c "/bin/bash $buildsh -database"
-#su - awips -c "/bin/bash $buildsh -cave"
+# provides rpm name as arg (ex: ./build/setup.sh el7 awips2-python-jep)
+prog=$2
+if [ ! -z "$prog" ]; then
+  su - awips -c "/bin/bash $buildsh -b $prog"
+else
+  # Build all groups (in this order)
+  #su - awips -c "/bin/bash $buildsh -ade"
+  #su - awips -c "/bin/bash $buildsh -python"
+  #su - awips -c "/bin/bash $buildsh -qpid"
+  #su - awips -c "/bin/bash $buildsh -server"
+  su - awips -c "/bin/bash $buildsh -edex"
+  #su - awips -c "/bin/bash $buildsh -database"
+  #su - awips -c "/bin/bash $buildsh -cave"
+fi
 
 # Manage RPMs
 if [ "$(ls -A ${JENKINS_HOME}/build/rpms/awips2_${AWIPSII_VERSION}/x86_64/)" ]; then

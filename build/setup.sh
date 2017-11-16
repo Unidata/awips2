@@ -21,7 +21,7 @@ dirs=$builds_dir$static_dir$rpm_dir$core_dir$corefoss_dir$foss_dir$nws_dir$ncep_
 sudo docker run --entrypoint=/bin/bash --privileged -d -ti -e "container=docker" $dirs unidata/awips-ade:17.1.1-$os_version
 dockerID=$(sudo docker ps | grep awips-ade | awk '{print $1}' | head -1 )
 sudo docker logs $dockerID
-sudo docker exec -ti $dockerID /bin/bash -xec "/awips2/repo/awips2-builds/build/build_rpms.sh $os_version";
+sudo docker exec -ti $dockerID /bin/bash -xec "/awips2/repo/awips2-builds/build/build_rpms.sh $os_version $2";
 sudo docker stop $dockerID
 sudo docker rm -v $dockerID
 
