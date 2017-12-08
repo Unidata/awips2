@@ -17,7 +17,7 @@ if [ ! -d awips2-core ]; then		git clone https://github.com/Unidata/awips2-core.
 if [ ! -d awips2-core-foss ]; then	git clone https://github.com/Unidata/awips2-core-foss.git --branch unidata_${AWIPSII_VERSION} --single-branch 	;fi
 if [ ! -d awips2-foss ]; then		git clone https://github.com/Unidata/awips2-foss.git --branch unidata_${AWIPSII_VERSION} --single-branch 	;fi
 if [ ! -d awips2-nws ]; then		git clone https://github.com/Unidata/awips2-nws.git --branch unidata_${AWIPSII_VERSION} --single-branch 	;fi
-if [ ! -d awips2-rpm ]; then		git clone https://github.com/Unidata/awips2-rpmbuild.git awips2-rpm --branch el7_rpm --single-branch		;fi
+if [ ! -d awips2-rpm ]; then		git clone https://github.com/Unidata/awips2-rpm.git --branch unidata_${AWIPSII_VERSION} --single-branch		;fi
 if [ ! -d awips2-static ]; then
    mkdir awips2-static
    cd awips2-static
