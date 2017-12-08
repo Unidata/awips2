@@ -520,7 +520,7 @@ public class GiniSatelliteDecoder {
                      */
                     if ((mapProjection == SatSpatialFactory.PROJ_LAMBERT)
                             && (record.getPhysicalElement()
-                                    .equalsIgnoreCase("Imager 13 micron (IR)"))
+                                    .equalsIgnoreCase("Imager 13 micron IR"))
                             && (record.getSectorID()
                                     .equalsIgnoreCase("West CONUS"))) {
                         nx = 1100;

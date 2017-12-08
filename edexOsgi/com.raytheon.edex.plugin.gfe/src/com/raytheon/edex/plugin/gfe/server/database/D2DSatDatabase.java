@@ -101,7 +101,7 @@ public class D2DSatDatabase extends VGridDatabase {
      * <pre>
      * "East CONUS/Imager Visible"
      * "East CONUS/Imager 11 micron IR"
-     * "East CONUS/Imager 13 micron (IR)"
+     * "East CONUS/Imager 13 micron IR"
      * "East CONUS/Imager 3.9 micron IR"
      * </pre>
      * 

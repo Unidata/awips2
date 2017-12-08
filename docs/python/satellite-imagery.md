@@ -51,7 +51,7 @@ Available sectors and products
     - Imager Visible
 * East CONUS:
     - Imager 11 micron IR
-    - Imager 13 micron (IR)
+    - Imager 13 micron IR
     - Imager 3.9 micron IR
     - Imager 6.7-6.5 micron IR (WV)
     - Imager Visible
@@ -104,7 +104,7 @@ Available sectors and products
     - Sounder Visible imagery
 * Hawaii Regional:
     - Imager 11 micron IR
-    - Imager 13 micron (IR)
+    - Imager 13 micron IR
     - Imager 3.9 micron IR
     - Imager 6.7-6.5 micron IR (WV)
     - Imager Visible
@@ -136,7 +136,7 @@ Available sectors and products
     - Sounder Based Derived Precipitable Water (PW)
 * Puerto Rico Regional:
     - Imager 11 micron IR
-    - Imager 13 micron (IR)
+    - Imager 13 micron IR
     - Imager 3.9 micron IR
     - Imager 6.7-6.5 micron IR (WV)
     - Imager Visible
@@ -153,7 +153,7 @@ Available sectors and products
     - Sounder Based Derived Surface Skin Temp (SFC Skin)
 * West CONUS:
     - Imager 11 micron IR
-    - Imager 13 micron (IR)
+    - Imager 13 micron IR
     - Imager 3.9 micron IR
     - Imager 6.7-6.5 micron IR (WV)
     - Imager Visible
