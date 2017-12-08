@@ -145,7 +145,6 @@ MAPS=${AWIPS2_DATA_DIRECTORY}/maps
 DAMCAT=${AWIPS2_DATA_DIRECTORY}/damcat
 HMDB=${AWIPS2_DATA_DIRECTORY}/hmdb
 EBXML=${AWIPS2_DATA_DIRECTORY}/ebxml
-
 # Add The PostgreSQL Libraries And The PSQL Libraries To LD_LIBRARY_PATH.
 export LD_LIBRARY_PATH=${POSTGRESQL_INSTALL}/lib:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=${PSQL_INSTALL}/lib:$LD_LIBRARY_PATH
@@ -153,15 +152,13 @@ export LD_LIBRARY_PATH=${PSQL_INSTALL}/lib:$LD_LIBRARY_PATH
 function is_postgresql_running() {
    NUM_PGSQL_COUNT=`/bin/netstat -l | /bin/grep -c "PGSQL.${AWIPS_DEFAULT_PORT}"`
    if [ ${NUM_PGSQL_COUNT} -gt 0 ]; then
-      echo "PostgreSQL is already running or PostgreSQL lock files exist!" > \
-         /awips2/database/sqlScripts/share/sql/sql_install.log
+      echo "PostgreSQL is already running or PostgreSQL lock files exist!" >> ${SQL_LOG}
       printFailureMessage   
    fi
 }
 
 function create_sql_element() {
    # $1 == element
-   
    mkdir -p ${1}
    update_owner ${1}
 }
@@ -184,7 +181,7 @@ function init_db() {
    mv /awips2/database/ssl/*.{crt,key} /awips2/.a2pgdbsec
    
    su - ${AWIPS_DEFAULT_USER} -c \
-      "${POSTGRESQL_INSTALL}/bin/initdb --auth=trust --locale=en_US.UTF-8 --pgdata=${AWIPS2_DATA_DIRECTORY} --lc-collate=en_US.UTF-8 --lc-ctype=en_US.UTF-8"
+      "${POSTGRESQL_INSTALL}/bin/initdb --auth=trust --locale=en_US.UTF-8 --pgdata=${AWIPS2_DATA_DIRECTORY} --lc-collate=en_US.UTF-8 --lc-ctype=en_US.UTF-8" > /dev/null 2>&1
    RC=$?   
       
    if [ -f /awips2/postgresql.conf ]; then
@@ -200,7 +197,7 @@ function init_db() {
 function control_pg_ctl() {
    # $1 == pg_ctl command
    su - ${AWIPS_DEFAULT_USER} -c \
-      "${POSTGRESQL_INSTALL}/bin/pg_ctl ${1} -D ${AWIPS2_DATA_DIRECTORY} -o \"-p ${AWIPS_DEFAULT_PORT}\" -w"
+      "${POSTGRESQL_INSTALL}/bin/pg_ctl ${1} -D ${AWIPS2_DATA_DIRECTORY} -o \"-p ${AWIPS_DEFAULT_PORT}\" -w" > /dev/null 2>&1
 }
 
 function execute_initial_sql_script() {
@@ -215,7 +212,7 @@ function execute_initial_sql_script() {
    # $1 == script to execute
    su - ${AWIPS_DEFAULT_USER} -c \
       "${PSQL_INSTALL}/bin/psql -d postgres -U ${AWIPS_DEFAULT_USER} -q -p ${AWIPS_DEFAULT_PORT} -f ${1}" \
-      > ${SQL_LOG} 2>&1
+      >> ${SQL_LOG} 2>&1
 }
 
 function update_createEbxml() {
@@ -223,7 +220,7 @@ function update_createEbxml() {
    AWIPS2_DATA_DIRECTORY_ESCAPED=`cat .awips2_escape.tmp`
    rm -f .awips2_escape.tmp
    perl -p -i -e "s/%{database_files_home}%/${AWIPS2_DATA_DIRECTORY_ESCAPED}/g" \
-      ${SQL_SHARE_DIR}/createEbxml.sql
+      ${SQL_SHARE_DIR}/createEbxml.sql > /dev/null 2>&1
 }
 
 function update_createHMDB() {
@@ -231,7 +228,7 @@ function update_createHMDB() {
    AWIPS2_DATA_DIRECTORY_ESCAPED=`cat .awips2_escape.tmp`
    rm -f .awips2_escape.tmp
    perl -p -i -e "s/%{database_files_home}%/${AWIPS2_DATA_DIRECTORY_ESCAPED}/g" \
-      ${SQL_SHARE_DIR}/createHMDB.sql
+      ${SQL_SHARE_DIR}/createHMDB.sql > /dev/null 2>&1
 }
 
 function execute_psql_sql_script() {
@@ -269,28 +266,30 @@ if [ $? -ne 0 ]; then
    printFailureMessage   
 fi
 
-execute_initial_sql_script ${SQL_SHARE_DIR}/initial_setup_server.sql
+execute_initial_sql_script ${SQL_SHARE_DIR}/initial_setup_server.sql > /dev/null 2>&1
 
-/awips2/psql/bin/psql -U awips -d metadata -c "CREATE EXTENSION postgis;"
-/awips2/psql/bin/psql -U awips -d metadata -c "CREATE EXTENSION postgis_topology;"
-execute_psql_sql_script /awips2/postgresql/share/contrib/postgis-2.2/legacy.sql metadata
-execute_psql_sql_script ${SQL_SHARE_DIR}/permissions.sql metadata
-execute_psql_sql_script ${SQL_SHARE_DIR}/fxatext.sql metadata
+/awips2/psql/bin/psql -U awips -d metadata -c "CREATE EXTENSION postgis;" > /dev/null 2>&1
+/awips2/psql/bin/psql -U awips -d metadata -c "CREATE EXTENSION postgis_topology;" > /dev/null 2>&1
+execute_psql_sql_script /awips2/postgresql/share/contrib/postgis-2.2/legacy.sql metadata > /dev/null 2>&1
+execute_psql_sql_script ${SQL_SHARE_DIR}/permissions.sql metadata > /dev/null 2>&1
+execute_psql_sql_script ${SQL_SHARE_DIR}/fxatext.sql metadata > /dev/null 2>&1
 
 # create the events schema
-execute_psql_sql_script ${SQL_SHARE_DIR}/createEventsSchema.sql metadata
-update_createHMDB
+execute_psql_sql_script ${SQL_SHARE_DIR}/createEventsSchema.sql metadata > /dev/null 2>&1
+update_createHMDB > /dev/null 2>&1
 su - ${AWIPS_DEFAULT_USER} -c \
    "${SQL_SHARE_DIR}/createHMDB.sh ${PSQL_INSTALL} ${AWIPS_DEFAULT_PORT} ${AWIPS_DEFAULT_DB_ADMIN} ${SQL_SHARE_DIR} ${SQL_LOG}"
-update_createEbxml
-execute_psql_sql_script ${SQL_SHARE_DIR}/createEbxml.sql metadata
-control_pg_ctl "stop"
-copy_addl_config
+update_createEbxml > /dev/null 2>&1
+execute_psql_sql_script ${SQL_SHARE_DIR}/createEbxml.sql metadata > /dev/null 2>&1
+control_pg_ctl "stop" > /dev/null 2>&1
+copy_addl_config > /dev/null 2>&1
 
 %preun
 
 %postun
-rm -rf /awips2/data
+if [ -d /awips2/data ]; then
+   rm -rf /awips2/data
+fi
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}

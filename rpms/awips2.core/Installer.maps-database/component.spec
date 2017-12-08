@@ -60,6 +60,7 @@ if [ ${RC} -ne 0 ]; then
 fi
    
 SQL_LOG="${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share/sql/maps/maps.log"
+# So that it will automatically be removed when the rpm is removed.
 touch ${SQL_LOG}
    
 %pre
@@ -80,8 +81,10 @@ if [ "${1}" = "2" ]; then
 fi
 function printFailureMessage()
 {
-   echo -e "ERROR: AWIPS II Maps Database Installation - FAILED"
-   echo -e "Check the installation log: /awips2/database/sqlScripts/share/sql/maps/maps.log"
+   echo -e "\e[1;31m--------------------------------------------------------------------------------\e[m"
+   echo -e "\e[1;31m\| AWIPS II Maps Database Installation - FAILED\e[m"
+   echo -e "\e[1;31m--------------------------------------------------------------------------------\e[m"
+   echo -e "\e[1;31m Check the installation log: /awips2/database/sqlScripts/share/sql/maps/maps.log\e[m"
    echo ""
    if [ -f /awips2/database/sqlScripts/share/sql/maps/maps.log ]; then
       tail -n 6 /awips2/database/sqlScripts/share/sql/maps/maps.log
@@ -98,20 +101,21 @@ DROPDB="${POSTGRESQL_INSTALL}/bin/dropdb"
 PG_RESTORE="${POSTGRESQL_INSTALL}/bin/pg_restore"
 PSQL="${PSQL_INSTALL}/bin/psql"
 
-# Determine who owns the PostgreSQL Installation (awips)
+# Determine who owns the PostgreSQL Installation
 DB_OWNER=`ls -l /awips2/ | grep -w 'data' | awk '{print $3}'`
+# Our log file
 SQL_LOG="/awips2/database/sqlScripts/share/sql/maps/maps.log"
 
 # Determine if PostgreSQL is running.
 I_STARTED_POSTGRESQL="NO"
 su - ${DB_OWNER} -c \
-   "${PG_CTL} status -D /awips2/data &" > /dev/null 2>&1 
+   "${PG_CTL} status -D /awips2/data > /dev/null 2>&1"
 RC="$?"
 
 # Start PostgreSQL if it is not running.
 if [ ! "${RC}" = "0" ]; then
    su - ${DB_OWNER} -c \
-      "${POSTMASTER} -D /awips2/data &" > /dev/null 2>&1
+      "${POSTMASTER} -D /awips2/data > /dev/null 2>&1 &"
    RC="$?"
    if [ ! "${RC}" = "0" ]; then
       printFailureMessage
@@ -186,7 +190,7 @@ fi
 # stop PostgreSQL if we started it.
 if [ "${I_STARTED_POSTGRESQL}" = "YES" ]; then
    su - ${DB_OWNER} -c \
-      "${PG_CTL} stop -D /awips2/data" >> ${SQL_LOG} 2>&1
+      "${PG_CTL} stop -D /awips2/data"
    RC="$?"
    if [ ! "${RC}" = "0" ]; then
       echo "Warning: Failed to shutdown PostgreSQL."
@@ -232,22 +236,19 @@ SQL_LOG="/awips2/database/sqlScripts/share/sql/maps/maps.log"
 # start PostgreSQL if it is not running
 I_STARTED_POSTGRESQL="NO"
 su - ${DB_OWNER} -c \
-   "${PG_CTL} status -D /awips2/data &" >> ${SQL_LOG} 2>&1
+   "${PG_CTL} status -D /awips2/data > /dev/null 2>&1"
 RC="$?"
-if [ ! "${RC}" = "0" ]; then
-   echo "Failed To Start The PostgreSQL Server."
-   exit 1
-fi
 
 # Start PostgreSQL if it is not running.
 if [ ! "${RC}" = "0" ]; then
    su - ${DB_OWNER} -c \
-      "${POSTMASTER} -D /awips2/data &" >> ${SQL_LOG} 2>&1
+      "${POSTMASTER} -D /awips2/data > /dev/null 2>&1 &"
    RC="$?"
    if [ ! "${RC}" = "0" ]; then
       echo "Failed To Start The PostgreSQL Server."
       exit 1
    fi
+   # Give PostgreSQL Time To Start.
    sleep 10
    I_STARTED_POSTGRESQL="YES"
 else
@@ -262,7 +263,7 @@ MAPS_DB=`${PSQL} -U awips -l | grep maps | awk '{print $1}'`
 if [ "${MAPS_DB}" = "maps" ]; then
    # drop the maps database
    su - ${DB_OWNER} -c \
-      "${DROPDB} -U awips maps" >> ${SQL_LOG} 2>&1
+      "${DROPDB} -U awips maps" >> ${SQL_LOG}
 fi
 
 # Is there a maps tablespace?
@@ -272,18 +273,19 @@ MAPS_DIR=`${PSQL} -U awips -d postgres -c "\db" | grep maps | awk '{print $5}'`
 if [ ! "${MAPS_DIR}" = "" ]; then
    # drop the maps tablespace
    su - ${DB_OWNER} -c \
-      "${PSQL} -U awips -d postgres -c \"DROP TABLESPACE maps\"" >> ${SQL_LOG} 2>&1
+      "${PSQL} -U awips -d postgres -c \"DROP TABLESPACE maps\"" >> ${SQL_LOG}
    
    # remove the maps data directory that we created
+   echo "Attempting To Removing Directory: ${MAPS_DIR}"
    if [ -d "${MAPS_DIR}" ]; then
-      su - ${DB_OWNER} -c "rmdir ${MAPS_DIR}" >> ${SQL_LOG} 2>&1
+      su - ${DB_OWNER} -c "rmdir ${MAPS_DIR}"
    fi
 fi
 
 # stop PostgreSQL if we started it
 if [ "${I_STARTED_POSTGRESQL}" = "YES" ]; then
    su - ${DB_OWNER} -c \
-      "${PG_CTL} stop -D /awips2/data" >> ${SQL_LOG} 2>&1
+      "${PG_CTL} stop -D /awips2/data"
    sleep 2
 fi
 
