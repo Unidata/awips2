@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 # run_alarm_whfs
 #
 # script to call the scheduled alarm component of the whfs

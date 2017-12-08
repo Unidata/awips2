@@ -135,7 +135,7 @@
 		<!-- PUERTO RICO REGIONAL -->
 		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Puerto Rico Regional 13 micron IR" id="irWindow">
-	        <substitute key="element" value="Imager 13 micron (IR)"/>
+	        <substitute key="element" value="Imager 13 micron IR"/>
 	        <substitute key="sector" value="Puerto Rico Regional"/>
 			<substitute key="entity" value="GOES-13(N)" /> 
 	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>

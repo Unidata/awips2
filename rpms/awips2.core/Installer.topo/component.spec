@@ -50,12 +50,11 @@ TOPO_TO_COPY=\
    'defaultTopo.h5' \
    'akTopo.dat.gz' \
    'caribTopo.dat.gz' \
-   'modelStaticTopo.h5' \
    'pacTopo.dat.gz' \
    'staticTopo.h5' \
+   'modelStaticTopo.h5' \
    'usTopo.dat.gz' \
    'worldTopo.dat.gz' \
-   'gmted2010.h5' \
 )
 # !!!!! WARNING - THIS WILL TAKE A LONG TIME !!!!!
 
@@ -70,6 +69,7 @@ done
 
 %pre
 %post
+chown -R awips:fxalpha -R /awips2/edex/data/hdf5
 %preun
 %postun
 
@@ -78,10 +78,6 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %files
 %defattr(664,awips,fxalpha,775)
-%dir /awips2
-%dir /awips2/edex
-%dir /awips2/edex/data
-%dir /awips2/edex/data/hdf5
 %dir /awips2/edex/data/hdf5/topo
 /awips2/edex/data/hdf5/topo/*
 %docdir /awips2/edex/data/hdf5/topo/licenses

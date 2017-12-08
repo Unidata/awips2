@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 
 #
 #   script for allowing the restart of the HPE crons

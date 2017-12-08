@@ -44,7 +44,7 @@
     </contribute>
     <contribute xsi:type="satBundleItem" file="bundles/DefaultCONUSSatellite.xml" 
                 menuText="13u" id="13u">
-        <substitute key="element" value="Imager 13 micron (IR)"/>
+        <substitute key="element" value="Imager 13 micron IR"/>
         <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
     </contribute>
     <contribute xsi:type="satBundleItem" file="bundles/DerivedCONUSSatellite.xml" 

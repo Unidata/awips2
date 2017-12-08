@@ -44,7 +44,7 @@ Through a grant provided by [Jetstream](https://jetstream-cloud.org/), Unidata i
 * [awips2-core-foss](https://github.com/Unidata/awips2-core-foss)
 * [awips2-foss](https://github.com/Unidata/awips2-foss)
 * [awips2-ncep](https://github.com/Unidata/awips2-ncep)
-* [awips2-rpm](https://github.com/Unidata/awips2-rpmbuild)
+* [awips2-rpm](https://github.com/Unidata/awips2-rpm)
 
 
 # Setting up the AWIPS Development Environment (ADE)

@@ -16,7 +16,7 @@ Packager: %{_build_site}
 
 AutoReq: no
 Provides: %{_component_name}
-Requires: awips2-edex, awips2-edex-upc
+Requires: awips2-edex
 Requires: awips2-edex-shapefiles
 Obsoletes: awips2-localization-OAX < 16.1.4
 
@@ -82,7 +82,7 @@ do
    grep -rl 'MINY'  $CAVE_DIR/bundles/scales/WFO.xml | xargs sed -i 's/MINY/'$miny'/g'
    grep -rl 'MAXY'  $CAVE_DIR/bundles/scales/WFO.xml | xargs sed -i 's/MAXY/'$maxy'/g'
 
-   cp $CAVE_DIR/bundles/scales/WFO.xml ~/awips2-core/viz/com.raytheon.uf.viz.core.maps/localization/bundles/scales/WFO/$site.xml
+   #cp $CAVE_DIR/bundles/scales/WFO.xml ~/awips2-core/viz/com.raytheon.uf.viz.core.maps/localization/bundles/scales/WFO/$site.xml
 
    lowx=$(cat $regional  |grep $site | cut -d"," -f4  | tr -d '[[:space:]]')
    highx=$(cat $regional |grep $site | cut -d"," -f5  | tr -d '[[:space:]]')
@@ -115,8 +115,8 @@ done
 # Copy existing (default) OAX and TBW map scales
 cp -R %{_baseline_workspace}/localization.OAX/utility/cave_static/site/* %{_baseline_workspace}/localization/utility/cave_static/site/
 cp -R %{_baseline_workspace}/localization.TBW/utility/cave_static/site/* %{_baseline_workspace}/localization/utility/cave_static/site/
-cp %{_baseline_workspace}/localization.TBW/utility/cave_static/site/TBW/bundles/scales/WFO.xml ~/awips2-core/viz/com.raytheon.uf.viz.core.maps/localization/bundles/scales/WFO/TBW.xml
-cp %{_baseline_workspace}/localization.OAX/utility/cave_static/site/OAX/bundles/scales/WFO.xml ~/awips2-core/viz/com.raytheon.uf.viz.core.maps/localization/bundles/scales/WFO/OAX.xml
+#cp %{_baseline_workspace}/localization.TBW/utility/cave_static/site/TBW/bundles/scales/WFO.xml ~/awips2-core/viz/com.raytheon.uf.viz.core.maps/localization/bundles/scales/WFO/TBW.xml
+#cp %{_baseline_workspace}/localization.OAX/utility/cave_static/site/OAX/bundles/scales/WFO.xml ~/awips2-core/viz/com.raytheon.uf.viz.core.maps/localization/bundles/scales/WFO/OAX.xml
 
 # COMMON
 COMMON_DIR=$UTIL/common_static
@@ -176,16 +176,13 @@ function prepare()
    local a2_pg_ctl="/awips2/postgresql/bin/pg_ctl"
    DB_OWNER=`ls -l /awips2/ | grep -w 'data' | awk '{print $3}'`
    I_STARTED_POSTGRESQL="NO"
-   echo "Determining if PostgreSQL is running ..." 
    su - ${DB_OWNER} -c \
-      "${a2_pg_ctl} status -D /awips2/data &"
+      "${a2_pg_ctl} status -D /awips2/data &" > /dev/null 2>&1
    RC=$?
-   if [ ${RC} -eq 0 ]; then
-      echo "INFO: PostgreSQL is running."
-   else
+   if [ ${RC} -ne 0 ]; then
       echo "Starting PostgreSQL as user: ${DB_OWNER} ..."
       su - ${DB_OWNER} -c \
-         "${a2_postmaster} -D /awips2/data &"
+         "${a2_postmaster} -D /awips2/data &" > /dev/null 2>&1
       if [ $? -ne 0 ]; then
          echo "FATAL: Failed to start PostgreSQL."
          return 0
@@ -397,8 +394,5 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %files
 %defattr(755,awips,fxalpha,755)
-%dir /awips2
-%dir /awips2/edex
-%dir /awips2/edex/data
 %dir /awips2/edex/data/utility
 /awips2/edex/data/utility/*

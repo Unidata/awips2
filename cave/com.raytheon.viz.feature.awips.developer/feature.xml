@@ -188,11 +188,11 @@
    <includes
          id="gov.noaa.nws.mdl.viz.awipsref.feature"
          version="0.0.0"/>
-
+<!--
    <includes
          id="gov.noaa.nws.mdl.viz.boundaryTool.common.feature"
          version="0.0.0"/>
-
+-->
    <includes
          id="com.raytheon.uf.viz.aviation.advisory.feature"
          version="0.0.0"/>

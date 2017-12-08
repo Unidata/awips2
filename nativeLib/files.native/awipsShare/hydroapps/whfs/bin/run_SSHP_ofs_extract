@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 # run_sshp_ofs_extract
 
 # This allows you to run this script from outside of ./standard/bin

@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 # 
 # run script for metar2shef (metar to shef)
 ##

@@ -36,7 +36,7 @@
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/HfoGoes.xml"  
                 menuText="13u" id="13u">
-	        <substitute key="element" value="Imager 13 micron (IR)"/>
+	        <substitute key="element" value="Imager 13 micron IR"/>
 	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
 	    </contribute>
 	    <contribute xsi:type="placeholder" menuText="11-3.76u" id="11-3.76u" />

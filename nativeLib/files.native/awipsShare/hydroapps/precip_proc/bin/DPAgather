@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 #
 #
 #   script for gathering DPA products from fxa directories

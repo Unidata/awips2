@@ -21,6 +21,6 @@
 <DerivedParameter unit="GenericPixel" name="11u-13u Satellite" abbreviation="satDif11u13uIR" xmlns:ns2="group">
     <Method name="satDifference">
         <Field abbreviation="Imager 11 micron IR" unit="IRPixel"/>
-        <Field abbreviation="Imager 13 micron (IR)" unit="IRPixel"/>
+        <Field abbreviation="Imager 13 micron IR" unit="IRPixel"/>
     </Method>
 </DerivedParameter>

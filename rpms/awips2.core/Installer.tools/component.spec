@@ -8,7 +8,7 @@
 Name: awips2-tools
 Summary: AWIPS II Tools Distribution
 Version: %{_component_version}
-Release: 1%{?dist}
+Release: %{_component_release}%{?dist}
 Group: AWIPSII
 BuildRoot: %{_build_root}
 BuildArch: %{_build_arch}
@@ -21,8 +21,8 @@ Packager: %{_build_site}
 AutoReq: no
 Provides: awips2-tools
 
+Requires: awips2-python-h5py
 BuildRequires: awips2-python
-BuildRequires: awips2-python-h5py
 
 %description
 AWIPS II Python Distribution - Contains the AWIPS II Tool-Set. Presently,
@@ -140,6 +140,9 @@ function copyLegal()
 }
 
 copyLegal "awips2/tools"
+
+# wgrib programs
+/bin/cp -r %{_baseline_workspace}/rpms/awips2.core/Installer.tools/programs/* ${RPM_BUILD_ROOT}/awips2/tools/bin/
 
 %pre
 %post

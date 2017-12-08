@@ -221,9 +221,6 @@
 			<param name="feature" value="com.raytheon.uf.viz.ncep.dataplugins.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
-			<param name="feature" value="com.raytheon.viz.hydro.feature" />
-		</antcall>
-		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.d2d.xy.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
@@ -298,9 +295,11 @@
 		<antcall target="p2.build.repo">
 			<param name="feature" value="gov.noaa.nws.obs.viz.geodata.feature" />
 		</antcall>
+	<!--
 		<antcall target="p2.build.repo">
 			<param name="feature" value="gov.noaa.nws.ocp.uf.viz.gisdatastore.feature" />
 		</antcall>
+	-->
 		<antcall target="cleanup.features" />
 	</target>
 

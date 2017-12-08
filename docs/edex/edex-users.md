@@ -20,7 +20,7 @@ Create a short script to run once daily at 20 minutes after 00 UTC, appending ea
 1. `vi ~/edexUsers.sh`
 
         #!/bin/bash
-        /awips2/tools/bin/edex users >> /home/awips/edex-users.log
+        /awips2/edex/bin/edex users >> /home/awips/edex-users.log
         
 2. `crontab -e`
     

@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 # file name: run_obsfcst_monitor
 # Created: August 2005 Author : Varalakshmi Rajaram
 

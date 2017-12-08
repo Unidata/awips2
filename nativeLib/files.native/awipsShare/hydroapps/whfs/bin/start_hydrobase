@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 # start_hydrobase
 
 # This allows you to run this script from outside of ./standard/bin

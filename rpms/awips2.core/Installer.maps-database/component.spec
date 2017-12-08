@@ -299,11 +299,6 @@ rm -rf ${RPM_BUILD_ROOT}
    
 %files
 %defattr(666,awips,fxalpha,775)
-%dir /awips2
-%dir /awips2/database
-%dir /awips2/database/sqlScripts
-%dir /awips2/database/sqlScripts/share
-%dir /awips2/database/sqlScripts/share/sql
 %dir /awips2/database/sqlScripts/share/sql/maps
 /awips2/database/sqlScripts/share/sql/maps/maps.log
 
