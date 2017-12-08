@@ -22,12 +22,11 @@ Packager: %{_build_site}
 AutoReq: no
 Requires: awips2-qpid-lib
 Requires: awips2-python
-Requires: pax, gcc, libxml2
-Requires: libtool, libpng
+Requires: pax, gcc, libtool
+Requires: libxml2-devel, libpng-devel, boost-program-options
 Provides: awips2-ldm
 BuildRequires: awips2-python
-BuildRequires: awips2-qpid-lib
-BuildRequires: libxml2-devel, libpng-devel, boost-devel
+BuildRequires: awips2-qpid-lib, boost-program-options
 
 %description
 AWIPS LDM Distribution
@@ -45,7 +44,6 @@ if [ -d %{_build_root} ]; then
 fi
 
 %build
-
 %install
 
 # create the ldm directory
@@ -73,8 +71,31 @@ fi
 _ldm_destination=%{_build_root}/awips2/ldm
 _ldm_destination_source=${_ldm_destination}/SOURCES
 _NATIVELIB_PROJECTS=( 'decrypt_file' )
-_RPM_directory=%{_baseline_workspace}/rpms
-_Installer_ldm=${_RPM_directory}/awips2.upc/Installer.ldm
+_Installer_ldm=%{_baseline_workspace}/rpms/awips2.upc/Installer.ldm
+_ldm_root_dir=/awips2/ldm
+
+_ldm_build_bin=%{_build_root}/awips2/ldm/bin
+_edex_bin=%{_build_root}/awips2/edex/bin
+/bin/mkdir -p ${_ldm_build_bin}
+/bin/mkdir -p ${_edex_bin}
+
+cd  ${_Installer_ldm}/src
+#g++ edexBridge.cpp -I${_ldm_root_dir}/src/pqact \
+#   -I${_ldm_root_dir}/include \
+#   -I${_ldm_root_dir}/src \
+#   -I/awips2/qpid/include \
+#   -L${_ldm_root_dir}/lib \
+#   -L/awips2/qpid/lib \
+#   -l ldm -l xml2 -l qpidclient -l qpidmessaging -l qpidcommon -l qpidtypes -o edexBridge
+#if [ $? -ne 0 ]; then
+#   echo "FATAL: failed to build edexBridge"
+#   exit 1
+#fi
+#/bin/mv edexBridge ${_ldm_build_bin}/edexBridge
+#if [ $? -ne 0 ]; then
+#   echo "FATAL: failed to move edexBridge to ldm bin directory"
+#   exit 1
+#fi
 
 # copy the ldm source to the destination directory.
 /bin/cp ${_Installer_ldm}/src/%{_ldm_src_tar} ${_ldm_destination_source}
@@ -100,6 +121,13 @@ do
       exit 1
    fi
 done
+
+#
+if [[ $(uname -r |grep el6) ]];then
+  cp ${_Installer_ldm}/edexBridge.el6 ${_edex_bin}/edexBridge
+elif [[ $(uname -r |grep el7) ]];then
+  cp ${_Installer_ldm}/edexBridge.el7 ${_edex_bin}/edexBridge
+fi
 
 # Create patch tar files
 cd ${_Installer_ldm}/patch
@@ -255,7 +283,7 @@ fi
 #fi
 cd ..
 
-/sbin/ldconfig
+/sbin/ldconfig > /dev/null 2>&1
 
 if [ ! -h /awips2/ldm/logs ]; then
   ln -s /awips2/ldm/var/logs /awips2/ldm/
@@ -282,7 +310,7 @@ fi
 
 %preun
 %postun
-/sbin/ldconfig
+/sbin/ldconfig > /dev/null 2>&1
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
@@ -294,5 +322,6 @@ rm -rf ${RPM_BUILD_ROOT}
 /awips2/ldm/SOURCES/*
 %attr(755,root,root) /etc/init.d/edex_ldm
 %attr(600,awips,fxalpha) /var/spool/cron/awips
+%attr(755,awips,fxalpha) /awips2/edex/bin/edexBridge
 %attr(755,root,root) /etc/ld.so.conf.d/awips2-ldm.conf
 %attr(755,root,root) /etc/logrotate.d/ldm.log
