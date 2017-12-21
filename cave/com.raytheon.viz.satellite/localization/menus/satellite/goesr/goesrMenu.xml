@@ -19,7 +19,7 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="subMenu" menuText="GOES-16(R) Provisional Products" id="goesr">
+    <contribute xsi:type="subMenu" menuText="GOES East (GOES 16)" id="goesr">
         <contribute xsi:type="titleItem" titleText="------ CONUS ------" id="goesrBestRes"/>
         <contribute xsi:type="subinclude" fileName="menus/satellite/goesr/goesrBestResConusByChannel.xml"/>
         <contribute xsi:type="subMenu" menuText="Full Disk Imagery" id="goesrFullDisk">
@@ -29,22 +29,22 @@
         <contribute xsi:type="titleItem" titleText="------ RGB Composites ------" id="goesrRGBComposites"/>
 	    <contribute xsi:type="subinclude" subMenu="CONUS"
 	        fileName="menus/satellite/goesr/goesrRGBComposites.xml">
-	        <substitute key="sector" value="TCONUS" />
+	        <substitute key="sector" value="ECONUS" />
 	        <substitute key="entity" value="GOES-16" />
 	    </contribute>
 	    <contribute xsi:type="subinclude" subMenu="Full Disk"
 	        fileName="menus/satellite/goesr/goesrRGBComposites.xml">
-	        <substitute key="sector" value="TFD" />
+	        <substitute key="sector" value="EFD" />
 	        <substitute key="entity" value="GOES-16" />
 	    </contribute>
 	    <contribute xsi:type="subinclude" subMenu="Mesoscale 1"
 	        fileName="menus/satellite/goesr/goesrRGBComposites.xml">
-	        <substitute key="sector" value="TMESO-1" />
+	        <substitute key="sector" value="EMESO-1" />
 	        <substitute key="entity" value="GOES-16" />
 	    </contribute>
 	    <contribute xsi:type="subinclude" subMenu="Mesoscale 2"
 	        fileName="menus/satellite/goesr/goesrRGBComposites.xml">
-	        <substitute key="sector" value="TMESO-2" />
+	        <substitute key="sector" value="EMESO-2" />
 	        <substitute key="entity" value="GOES-16" />
 	    </contribute>
 	        

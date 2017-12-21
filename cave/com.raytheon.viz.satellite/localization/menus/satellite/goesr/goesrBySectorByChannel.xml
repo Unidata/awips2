@@ -18,18 +18,6 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-    <!-- TOWRdocs Header
-         Sector by channel xml menu file.
-                      -->
-    <!-- TOWRdocs Description
-         This updated menu file includes the Test/Center Position sectors.
-                      -->
-    <!-- TOWRdocs Status
-         Modification of the baseline menu file, which does not include the Test/Center position for channel selection.
-   -->
-    <!-- TOWRdocs POC
-         Lee Byerle
-   -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <contribute xsi:type="subinclude" subMenu="Puerto Rico"
         fileName="menus/satellite/goesr/goesrByChannel.xml">
@@ -38,22 +26,22 @@
     </contribute>
     <contribute xsi:type="subinclude" subMenu="CONUS"
         fileName="menus/satellite/goesr/goesrByChannel.xml">
-        <substitute key="sector" value="TCONUS" />
+        <substitute key="sector" value="ECONUS" />
         <substitute key="entity" value="GOES-16" />
     </contribute>
     <contribute xsi:type="subinclude" subMenu="Full Disk"
         fileName="menus/satellite/goesr/goesrByChannel.xml">
-        <substitute key="sector" value="TFD" />
+        <substitute key="sector" value="EFD" />
         <substitute key="entity" value="GOES-16" />
     </contribute>
     <contribute xsi:type="subinclude" subMenu="Mesoscale 1"
         fileName="menus/satellite/goesr/goesrByChannel.xml">
-        <substitute key="sector" value="TMESO-1" />
+        <substitute key="sector" value="EMESO-1" />
         <substitute key="entity" value="GOES-16" />
     </contribute>
     <contribute xsi:type="subinclude" subMenu="Mesoscale 2"
         fileName="menus/satellite/goesr/goesrByChannel.xml">
-        <substitute key="sector" value="TMESO-2" />
+        <substitute key="sector" value="EMESO-2" />
         <substitute key="entity" value="GOES-16" />
     </contribute>
 </menuTemplate>

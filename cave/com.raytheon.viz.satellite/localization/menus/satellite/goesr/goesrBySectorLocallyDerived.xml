@@ -38,22 +38,22 @@
     </contribute>
     <contribute xsi:type="subinclude" subMenu="CONUS"
         fileName="menus/satellite/goesr/goesrLocallyDerived.xml">
-        <substitute key="sector" value="TCONUS" />
+        <substitute key="sector" value="ECONUS" />
         <substitute key="entity" value="GOES-16" />
     </contribute>
     <contribute xsi:type="subinclude" subMenu="Full Disk"
         fileName="menus/satellite/goesr/goesrLocallyDerived.xml">
-        <substitute key="sector" value="TFD" />
+        <substitute key="sector" value="EFD" />
         <substitute key="entity" value="GOES-16" />
     </contribute>
     <contribute xsi:type="subinclude" subMenu="Mesoscale 1"
         fileName="menus/satellite/goesr/goesrLocallyDerived.xml">
-        <substitute key="sector" value="TMESO-1" />
+        <substitute key="sector" value="EMESO-1" />
         <substitute key="entity" value="GOES-16" />
     </contribute>
     <contribute xsi:type="subinclude" subMenu="Mesoscale 2"
         fileName="menus/satellite/goesr/goesrLocallyDerived.xml">
-        <substitute key="sector" value="TMESO-2" />
+        <substitute key="sector" value="EMESO-2" />
         <substitute key="entity" value="GOES-16" />
     </contribute>
 </menuTemplate>

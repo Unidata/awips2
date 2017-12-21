@@ -36,7 +36,7 @@
 									constraintType="EQUALS" />
 							</mapping>
 							<mapping key="sectorID">
-								<constraint constraintValue="TCONUS"
+								<constraint constraintValue="ECONUS"
 									constraintType="EQUALS" />
 							</mapping>
 							<mapping key="creatingEntity">
