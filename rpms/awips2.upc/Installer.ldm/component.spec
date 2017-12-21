@@ -20,6 +20,7 @@ Vendor: %{_build_vendor}
 Packager: %{_build_site}
 
 AutoReq: no
+Requires: awips2
 Requires: awips2-qpid-lib
 Requires: awips2-python
 Requires: pax, gcc, libtool
