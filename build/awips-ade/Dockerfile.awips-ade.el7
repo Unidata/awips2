@@ -22,7 +22,7 @@ ENV httpDeps="autoconf findutils libselinux-devel libxml2-devel lua-devel openld
 
 RUN yum install $systemDeps $rpmDeps $qpidDeps $pythonDeps $awipsDeps $httpDeps -y
 
-RUN wget -O /etc/yum.repos.d/awips2.repo http://www.unidata.ucar.edu/software/awips2/doc/el7-dev.repo
+RUN wget -O /etc/yum.repos.d/awips2.repo https://www.unidata.ucar.edu/software/awips2/doc/el7-dev.repo
 RUN yum -y clean all
 RUN yum groupinstall awips2-ade -y
 
