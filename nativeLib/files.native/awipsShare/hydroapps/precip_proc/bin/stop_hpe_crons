@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 
 #
 #   script for bypassing the HPE radar gather crons

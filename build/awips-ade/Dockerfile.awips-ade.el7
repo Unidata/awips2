@@ -1,0 +1,33 @@
+FROM centos:7
+ENV VERSION 17.1.1
+ENV RELEASE 4
+MAINTAINER Michael James <mjames@ucar.edu>
+
+USER root
+
+RUN yum update yum
+
+RUN groupadd fxalpha && useradd -G fxalpha awips
+
+RUN yum groupinstall "Development tools" -y
+RUN yum install epel-release -y
+RUN yum clean all -y
+
+ENV systemDeps="wget rsync git net-tools"
+ENV rpmDeps="gcc gcc-c++ rpm-build readline-devel createrepo"
+ENV qpidDeps="boost-devel cmake make ruby libuuid-devel"
+ENV pythonDeps="tk-devel tcl-devel atlas-devel compat-libf2c-34 libgfortran geos libpng-devel freetype"
+ENV awipsDeps="netcdf netcdf-devel hdf5-devel lzo-devel bzip2-devel qt-devel"
+ENV httpDeps="autoconf findutils libselinux-devel libxml2-devel lua-devel openldap-devel openssl-devel pcre-devel pkgconfig perl zlib-devel apr-util-devel apr-devel"
+
+RUN yum install $systemDeps $rpmDeps $qpidDeps $pythonDeps $awipsDeps $httpDeps -y
+
+RUN wget -O /etc/yum.repos.d/awips2.repo https://www.unidata.ucar.edu/software/awips2/doc/el7-dev.repo
+RUN yum -y clean all
+RUN yum groupinstall awips2-ade -y
+
+RUN mkdir -p /awips2/jenkins/buildspace/workspace/AWIPS2-UPC_build/baseline && mkdir -p /awips2/jenkins/buildspace/workspace/tmp
+RUN mkdir -p /awips2/jenkins/build/rpms/awips2_${VERSION}/{x86_64,noarch}/
+RUN chown -R awips:fxalpha /awips2/jenkins/
+
+ENTRYPOINT ["/bin/bash"]

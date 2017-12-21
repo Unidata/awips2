@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 # run_floodseq_interactive
 # job for running the flood sequencer via HydroBase
 #

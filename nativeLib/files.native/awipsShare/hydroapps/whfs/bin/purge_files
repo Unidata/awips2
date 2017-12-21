@@ -1,4 +1,4 @@
-#! /bin/ksh
+#! /bin/bash
 # purge_files
 #
 # This script purges WHFS UNIX files

@@ -1,4 +1,4 @@
-#! /bin/ksh
+#! /bin/bash
 # whfs_editor - Launches a standalone editor from an application.
 #
 # The "dtpad" editor is invoked from the "HP" operating system.

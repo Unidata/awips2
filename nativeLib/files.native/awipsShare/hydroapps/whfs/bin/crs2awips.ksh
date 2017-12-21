@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 #
 # crs2awips.ksh
 #

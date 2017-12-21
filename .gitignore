@@ -6,6 +6,7 @@ testbin/
 testBin/
 bin-test/
 bin
+.idea
 *.swp
 *.class
 *.pyo

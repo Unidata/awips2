@@ -41,6 +41,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 03/04/2013   DCS51      zwang       Handle GFM product
  * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
  * 03/04/2014   2870       njensen     Log product ID when no class found for generic packet
+ * 12/11/2017   ----       mjames@ucar Remove INFO-level logging.
  * 
  * </pre>
  * 
@@ -67,10 +68,6 @@ public class PacketFactory {
     public synchronized Class<? extends SymbologyPacket> registerPacketType(
             Class<? extends SymbologyPacket> packetClass, int... packetIds) {
         for (int packetId : packetIds) {
-            if (handler.isPriorityEnabled(Priority.INFO)) {
-                handler.handle(Priority.INFO, "Registering packet ID: "
-                        + packetId + " with class " + packetClass.getName());
-            }
             classMap.put(packetId, packetClass);
         }
         return packetClass;
@@ -79,10 +76,6 @@ public class PacketFactory {
     public synchronized Class<? extends SymbologyPacket> registerGenericPacketType(
             Class<? extends SymbologyPacket> packetClass, int... productIds) {
         for (int productId : productIds) {
-            if (handler.isPriorityEnabled(Priority.INFO)) {
-                handler.handle(Priority.INFO, "Registering product ID: "
-                        + productId + " with class " + packetClass.getName());
-            }
             genericClassMap.put(productId, packetClass);
         }
         return packetClass;

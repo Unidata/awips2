@@ -1,4 +1,4 @@
-#!/usr/bin/ksh
+#!/usr/bin/bash
 
 # This allows you to call this script from outside of ./precip_proc/bin
 RUN_FROM_DIR=`dirname $0`

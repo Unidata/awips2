@@ -59,7 +59,7 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
 public class CheckPermissions {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(ServiceBackupDlg.class);
+            .getHandler(CheckPermissions.class);
 
     /**
      * A private constructor so that Java does not attempt to create one for us.

@@ -1,4 +1,4 @@
-#! /bin/ksh
+#! /bin/bash
 # purge_hpe_files
 # This script purges HPE (High-resolution Precipitation Estimator) files
 # according to retention period requirements. 

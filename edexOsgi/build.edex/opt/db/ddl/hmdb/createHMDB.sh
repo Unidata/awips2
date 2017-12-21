@@ -1,23 +1,4 @@
 #!/bin/bash
-##
-# This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
-# This software product contains export-restricted data whose
-# export/transfer/disclosure is restricted by U.S. law. Dissemination
-# to non-U.S. persons whether in the United States or abroad requires
-# an export license or other authorization.
-# 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
-# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
-# further licensing information.
-##
 # -----------------------------------------------------------------
 # ! script to create the HBDB database
 # !
@@ -28,15 +9,10 @@
 # ! $5 = log file path
 # !
 # -----------------------------------------------------------------
-echo ""
-echo "--------------------------------------------------------------------------------"
-echo "\| Creating HMDB Database and Tables..."
-echo "--------------------------------------------------------------------------------"
+# Creating HMDB Database and Tables
 ${1}/bin/psql -d postgres -U ${3} -q -p ${2} -f ${4}/createHMDB.sql >> ${5} 2>&1
 ${1}/bin/psql -d hmdb -U ${3} -q -p ${2} -f ${4}/createTables.sql >> ${5} 2>&1
-echo "--------------------------------------------------------------------------------"
-echo "\| Populating HMDB Database Tables"
-echo "--------------------------------------------------------------------------------"
+# Populating HMDB Database Tables
 ${1}/bin/psql -d hmdb -U ${3} -q -p ${2} -f ${4}/load_boolean_values.sql >> ${5} 2>&1
 ${1}/bin/psql -d hmdb -U ${3} -q -p ${2} -f ${4}/load_bufr_identifier.sql >> ${5} 2>&1
 ${1}/bin/psql -d hmdb -U ${3} -q -p ${2} -f ${4}/load_cat_values.sql >> ${5} 2>&1
@@ -93,7 +69,5 @@ ${1}/bin/psql -d hmdb -U ${3} -q -p ${2} -f ${4}/load_units_system.sql >> ${5} 2
 ${1}/bin/psql -d hmdb -U ${3} -q -p ${2} -f ${4}/load_units_translations.sql >> ${5} 2>&1
 ${1}/bin/psql -d hmdb -U ${3} -q -p ${2} -f ${4}/load_weather_category.sql >> ${5} 2>&1
 ${1}/bin/psql -d hmdb -U ${3} -q -p ${2} -f ${4}/load_wmo_state_region.sql >> ${5} 2>&1
-echo "--------------------------------------------------------------------------------"
-echo "\| Creating HMDB Database Constraints..."
-echo "--------------------------------------------------------------------------------"
+# Creating HMDB Database Constraints
 ${1}/bin/psql -d hmdb -U ${3} -q -p ${2} -f ${4}/createConstraints.sql >> ${5} 2>&1

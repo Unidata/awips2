@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 # filename: start_ldv
 
 # This allows you to call this script from outside of ./standard/bin

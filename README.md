@@ -1,8 +1,10 @@
 # Unidata AWIPS
 
-[![GitHub release](https://img.shields.io/github/release/Unidata/awips2.svg)]() [![Travis Badge](https://travis-ci.org/Unidata/awips2.svg?branch=unidata_17.1.1)](https://travis-ci.org/Unidata/awips2)
+[http://www.unidata.ucar.edu/software/awips/](http://www.unidata.ucar.edu/software/awips/)
 
-AWIPS (formerly know as AWIPS II or AWIPS2) is a weather forecasting display and analysis package developed by the [National Weather Service](http://www.nws.noaa.gov/ost/SEC/AE/) and [Raytheon](http://www.raytheon.com/capabilities/products/awips/). AWIPS is a Java application consisting of a data-rendering client ([CAVE](http://unidata.github.io/awips2/install/install-cave/), which runs on Red Hat/CentOS Linux, macOS, and Windows), and a backend data server ([EDEX](http://unidata.github.io/awips2/install/install-edex), which runs on x86_64 Red Hat/CentOS 6 and 7).
+[![GitHub release](https://img.shields.io/github/release/Unidata/awips2/all.svg)]() [![Travis Badge](https://travis-ci.org/Unidata/awips2.svg?branch=unidata_17.1.1)](https://travis-ci.org/Unidata/awips2)
+
+AWIPS (formerly know as AWIPS II or AWIPS2) is a meteorological display and analysis package developed by the [National Weather Service](http://www.nws.noaa.gov/ost/SEC/AE/) and [Raytheon](http://www.raytheon.com/capabilities/products/awips/) for operational forecasting.  AWIPS is a Java application consisting of a data-rendering client ([CAVE](http://unidata.github.io/awips2/install/install-cave/), which runs on Red Hat/CentOS Linux, macOS, and Windows), and a backend data server ([EDEX](http://unidata.github.io/awips2/install/install-edex), which runs on x86_64 Red Hat/CentOS 6 and 7).
 
 AWIPS takes a unified approach to data ingest, and most data types follow a standard path through the system, starting with an [LDM](http://www.unidata.ucar.edu/software/ldm/) client requesting data from Unidata's [IDD](http://www.unidata.ucar.edu/projects/#idd), which are then decoded and stored as HDF5 and PostgreSQL/PostGIS metadata. Unidata supports two visualization frameworks for rendering AWIPS data:
 
@@ -42,7 +44,7 @@ Through a grant provided by [Jetstream](https://jetstream-cloud.org/), Unidata i
 * [awips2-core-foss](https://github.com/Unidata/awips2-core-foss)
 * [awips2-foss](https://github.com/Unidata/awips2-foss)
 * [awips2-ncep](https://github.com/Unidata/awips2-ncep)
-* [awips2-rpm](https://github.com/Unidata/awips2-rpmbuild)
+* [awips2-rpm](https://github.com/Unidata/awips2-rpm)
 
 
 # Setting up the AWIPS Development Environment (ADE)
@@ -53,7 +55,7 @@ Instructions on how to deploy CAVE from Eclipse.
 
         [awips2repo]
         name=AWIPS II Repository
-        baseurl=http://www.unidata.ucar.edu/repos/yum/awips2-dev/
+        baseurl=https://www.unidata.ucar.edu/repos/yum/awips2-dev/
         enabled=1
         protect=0
         gpgcheck=0

@@ -1,4 +1,4 @@
-#!/bin/ksh 
+#!/bin/bash 
 #
 #   Script to generate a list of stations and related information for 
 #   (1) 1 hr precip stations for hourly MPE

@@ -1,8 +1,0 @@
-pupynere.py
-setup.py
-pupynere.egg-info/PKG-INFO
-pupynere.egg-info/SOURCES.txt
-pupynere.egg-info/dependency_links.txt
-pupynere.egg-info/requires.txt
-pupynere.egg-info/top_level.txt
-pupynere.egg-info/zip-safe

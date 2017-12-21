@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 # file name: run_SSHP_data_decoder
 # Created: 12/15/2003
 # Last Modified: 04/01/2004

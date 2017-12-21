@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 # rerun_mpe_fieldgen
 # updated July 11, 2007 to remove
 # call to build_hourly.

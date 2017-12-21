@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 
 # run_mpe_whfs
 # run script for set of programs to complete mpe analysis

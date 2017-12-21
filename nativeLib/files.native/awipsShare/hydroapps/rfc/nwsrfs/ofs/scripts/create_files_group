@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 #==========================================================================
 #  Create file directories for an OFS files group
 #

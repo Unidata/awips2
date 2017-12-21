@@ -33,7 +33,7 @@
     </contribute>
     <contribute xsi:type="satBundleItem" file="bundles/satellite/goesr/goesrConusLegacyBlend.xml" 
                 menuText="13u" id="13u">
-        <substitute key="element" value="CH-16-13.30um,Imager 13 micron (IR)"/>
+        <substitute key="element" value="CH-16-13.30um,Imager 13 micron IR"/>
         <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
         <substitute key="entity" value="GOES-16"/>
     </contribute>

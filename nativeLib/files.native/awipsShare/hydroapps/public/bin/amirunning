@@ -15,7 +15,7 @@
 #  cmt: MUST BE RUN WITH THE DOT COMMAND.
 #  cmt: SCRIPT NAME MUST BE UNIQUE TO 14 PLACES.
 #  cmt:    (ps -e only gets 14 char names)
-#  cmt: THE CALLING SCRIPT MUST HAVE "#!/bin/ksh" AS THE TOP LINE
+#  cmt: THE CALLING SCRIPT MUST HAVE "#!/bin/bash" AS THE TOP LINE
 #
 #  cmt:   Add blank in front of lines comming from "ps -e".
 #

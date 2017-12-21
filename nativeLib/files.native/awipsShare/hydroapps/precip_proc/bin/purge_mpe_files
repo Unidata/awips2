@@ -1,4 +1,4 @@
-#! /bin/ksh
+#! /bin/bash
 # purge_mpe_files
 # This script purges mpe (Multi-sensor-Precipitation Estimator)files
 #          April 2014   - add purge dualpol products

@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 #
 #  This script retrieves Digital Storm total Precipitation 
 #  (DSP) radar products from the temporary data gathering directory

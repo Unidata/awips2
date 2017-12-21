@@ -2685,7 +2685,7 @@ else:   #######DCS3501 WEST_CONUS
 #
 #   "East CONUS/Imager Visible"
 #   "East CONUS/Imager 11 micron IR"
-#   "East CONUS/Imager 13 micron (IR)"
+#   "East CONUS/Imager 13 micron IR"
 #   "East CONUS/Imager 3.9 micron IR"
 #
 
@@ -2701,7 +2701,7 @@ elif SID == "HFO":
 elif SID == "SJU":
     SATDATA = [("East CONUS/Imager Visible", "visibleEast"),
                ("East CONUS/Imager 11 micron IR", "ir11East"),
-               ("East CONUS/Imager 13 micron (IR)", "ir13East"),
+               ("East CONUS/Imager 13 micron IR", "ir13East"),
                ("East CONUS/Imager 3.9 micron IR", "ir39East"),
                ("East CONUS/Imager 6.7-6.5 micron IR (WV)", "waterVaporEast")]
 
@@ -2713,12 +2713,12 @@ elif SID == "GUM":
 else:
     SATDATA = [("West CONUS/Imager Visible", "visibleWest"),
                ("West CONUS/Imager 11 micron IR", "ir11West"),
-               ("West CONUS/Imager 13 micron (IR)", "ir13West"),
+               ("West CONUS/Imager 13 micron IR", "ir13West"),
                ("West CONUS/Imager 3.9 micron IR", "ir39West"),
                ("West CONUS/Imager 6.7-6.5 micron IR (WV)", "waterVaporWest"),
                ("East CONUS/Imager Visible", "visibleEast"),
                ("East CONUS/Imager 11 micron IR", "ir11East"),
-               ("East CONUS/Imager 13 micron (IR)", "ir13East"),
+               ("East CONUS/Imager 13 micron IR", "ir13East"),
                ("East CONUS/Imager 3.9 micron IR", "ir39East"),
                ("East CONUS/Imager 6.7-6.5 micron IR (WV)", "waterVaporEast")]
 

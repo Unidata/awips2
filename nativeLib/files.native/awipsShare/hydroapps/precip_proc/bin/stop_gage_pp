@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 # ============================================================
 #   stop_gage_pp - script to stop the gage_pp process
 #

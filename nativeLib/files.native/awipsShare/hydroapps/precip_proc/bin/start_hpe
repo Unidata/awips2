@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 #
 # This script is normally started by or stopped from the DHRgather script
 # which runs via cron at set user time to check what precipitation cat

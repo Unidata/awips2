@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 # run_dqc_preprocessor
 #
 # Usage:  run_dqc_preprocessor [-d num_days] [-t run_date] [-a sub_areas] [-z]

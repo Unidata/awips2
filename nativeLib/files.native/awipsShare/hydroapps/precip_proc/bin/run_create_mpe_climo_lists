@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 # run_create_mpe_climo_lists
 #
 # Usage: run_create_mpe_climo_lists 

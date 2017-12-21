@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 #
 # given awipsid, find afos id
 # the input file contains 3 fields:

@@ -5,7 +5,7 @@ Quick instructions on how to deploy CAVE from Eclipse.
 
         [awips2repo]
         name=AWIPS II Repository
-        baseurl=http://www.unidata.ucar.edu/repos/yum/awips2-dev/
+        baseurl=https://www.unidata.ucar.edu/repos/yum/awips2-dev/
         enabled=1
         protect=0
         gpgcheck=0

@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 # run_create_gage_file
 
 # This script is called from Build_Station_List.

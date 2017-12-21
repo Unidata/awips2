@@ -1,12 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
     <!--
-          nx | ny | dx  | dy  | majoraxis | minoraxis | la1 | lo1 | lov | latin1 | latin2 
-----+----+-----+-----+-----------+-----------+-----+-----+-----+--------+--------
- 81 | 60 | 1.5 | 1.5 |           |           |  90 | 120 |     |        |       
-
-GribModel:98:0:148
-
-
         This is an incremental override file, indicating that the files at
         different localization levels will be combined. Since all the files in
         the directory are read, for most custom additions a unique file should
