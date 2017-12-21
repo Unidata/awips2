@@ -78,6 +78,7 @@ import com.raytheon.uf.edex.site.notify.SendSiteActivationNotifications;
  * Feb 25, 2015  #4128    dgilling     Simplify activation of active table sharing.
  * Mar 11, 2015  #4128    dgilling     Refactor activation and management of ISC services.
  * Dec 22, 2015  #4262    dgilling     Implement EdexAsyncStartupBean.
+ * Dec 21, 2017           mjames@ucar  Cleaner activation messages.
  * 
  * </pre>
  * 
@@ -297,11 +298,9 @@ public class GFESiteActivation implements ISiteActivationListener,
         IFPServerConfig config = null;
 
         try {
-            statusHandler.info("Activating " + siteID + "...");
-
-            statusHandler.info("IFPServerConfigManager initializing...");
+            statusHandler.info("Initializing IFPServerConfigManager for " + siteID);
             config = IFPServerConfigManager.initializeSite(siteID);
-            statusHandler.info("Activating IFPServer...");
+            statusHandler.info("Activating IFPServer for " + siteID);
             IFPServer.activateServer(siteID, config);
         } finally {
             statusHandler
