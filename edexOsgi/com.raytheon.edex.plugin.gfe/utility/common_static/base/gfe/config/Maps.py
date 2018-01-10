@@ -299,18 +299,6 @@ rfc.name = "RFC"
 rfc.editAreaName = ['ISC','site_id']
 rfc.groupName = 'ISC'
 
-#  NHA ISC area
-domain = ShapeTable('nhadomain')
-domain.name = "TropicalISC"
-domain.groupName = "ISC"
-domain.editAreaName = "ISC_NHA"
-
-#    Storm Surge Watch/Warning Area
-stormsurgeww = ShapeTable('stormsurgeww')
-stormsurgeww.name = "StormSurgeWW"
-stormsurgeww.groupName = "SurgeCollab"
-stormsurgeww.editAreaName = "StormSurgeWW_EditArea"
-
 # Offshore Marine Zones - unfiltered
 offshore = ShapeTable('offshore')
 offshore.name = "Offshore_Marine_Zones"
