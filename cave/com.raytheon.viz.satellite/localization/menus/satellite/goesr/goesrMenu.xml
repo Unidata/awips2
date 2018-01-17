@@ -25,29 +25,7 @@
         <contribute xsi:type="subMenu" menuText="Full Disk Imagery" id="goesrFullDisk">
         	<contribute xsi:type="subinclude" fileName="menus/satellite/goesr/goesrFullDiskByChannel.xml"/>
         </contribute>
-        
-        <contribute xsi:type="titleItem" titleText="------ RGB Composites ------" id="goesrRGBComposites"/>
-	    <contribute xsi:type="subinclude" subMenu="CONUS"
-	        fileName="menus/satellite/goesr/goesrRGBComposites.xml">
-	        <substitute key="sector" value="ECONUS" />
-	        <substitute key="entity" value="GOES-16" />
-	    </contribute>
-	    <contribute xsi:type="subinclude" subMenu="Full Disk"
-	        fileName="menus/satellite/goesr/goesrRGBComposites.xml">
-	        <substitute key="sector" value="EFD" />
-	        <substitute key="entity" value="GOES-16" />
-	    </contribute>
-	    <contribute xsi:type="subinclude" subMenu="Mesoscale 1"
-	        fileName="menus/satellite/goesr/goesrRGBComposites.xml">
-	        <substitute key="sector" value="EMESO-1" />
-	        <substitute key="entity" value="GOES-16" />
-	    </contribute>
-	    <contribute xsi:type="subinclude" subMenu="Mesoscale 2"
-	        fileName="menus/satellite/goesr/goesrRGBComposites.xml">
-	        <substitute key="sector" value="EMESO-2" />
-	        <substitute key="entity" value="GOES-16" />
-	    </contribute>
-	        
+       
         <contribute xsi:type="titleItem" titleText="------ By Sector ------" id="goesrBySector"/>
         <contribute xsi:type="subinclude" subMenu="All Channels" fileName="menus/satellite/goesr/goesrBySectorByChannel.xml" />
         <contribute xsi:type="subinclude" subMenu="Level 2 Products" fileName="menus/satellite/goesr/goesrLevel2.xml" />

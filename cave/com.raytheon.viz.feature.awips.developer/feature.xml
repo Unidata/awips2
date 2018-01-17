@@ -114,10 +114,6 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.viz.nwsauth.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.uf.viz.thinclient.feature"
          version="0.0.0"/>
 
@@ -154,10 +150,6 @@
          version="0.0.0"/>
 
    <includes
-         id="edu.wisc.ssec.cimss.viz.convectprob.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.uf.viz.ncep.npp.feature"
          version="0.0.0"/>
 
@@ -174,35 +166,7 @@
          version="0.0.0"/>
 
    <includes
-         id="gov.noaa.nws.obs.viz.geodata.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="gov.noaa.nws.ocp.uf.viz.gisdatastore.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="gov.noaa.nws.mdl.viz.awipsref.feature"
-         version="0.0.0"/>
-<!--
-   <includes
-         id="gov.noaa.nws.mdl.viz.boundaryTool.common.feature"
-         version="0.0.0"/>
--->
-   <includes
          id="com.raytheon.uf.viz.aviation.advisory.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.d2d.gfe.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.viz.gfe.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.ncep.perspective.feature"
          version="0.0.0"/>
 
    <requires>

@@ -8,7 +8,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.swt;bundle-version="3.8.1",
  com.raytheon.uf.viz.core;bundle-version="1.14.2",
- com.raytheon.uf.common.dataplugin.gfe;bundle-version="1.15.0",
  com.raytheon.uf.viz.core.grid;bundle-version="1.15.0",
  com.raytheon.uf.common.colormap,
  com.raytheon.uf.common.dataplugin,
@@ -20,7 +19,8 @@ Require-Bundle: org.eclipse.swt;bundle-version="3.8.1",
  com.raytheon.uf.viz.productbrowser,
  com.raytheon.viz.volumebrowser;bundle-version="1.15.0",
  javax.measure,
- com.raytheon.uf.viz.core.maps;bundle-version="1.14.1"
+ com.raytheon.uf.viz.core.maps;bundle-version="1.14.1",
+ com.raytheon.uf.common.dataplugin.gfe;bundle-version="1.15.0"
 Export-Package: com.raytheon.uf.viz.d2d.gfe.browser,
  com.raytheon.uf.viz.d2d.gfe.rsc,
  com.raytheon.uf.viz.d2d.gfe.xy

@@ -38,7 +38,6 @@ import org.eclipse.ui.IWorkbenchWindow;
 import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.activetable.ActiveTableRecord;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
-import com.raytheon.uf.common.dataplugin.gfe.request.GetIscSendStatusRequest.IscSendStatus;
 import com.raytheon.uf.common.dataplugin.gfe.request.IscRequestQueryRequest.IscQueryResponse;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.gfe.ifpclient.IFPClient;
@@ -283,25 +282,8 @@ public class DataManager implements ISimulatedTimeChangeListener {
         iscInitJob.setSystem(true);
         iscInitJob.schedule();
 
-        // get the ISC states
-        ServerResponse<IscSendStatus> sr2 = client.iscSendStatus();
-        IscSendStatus iscSendStatus = sr2.getPayload();
-        this.sendISConSave = iscSendStatus.isSendISConSave();
-        this.sendISConPublish = iscSendStatus.isSendISConPublish();
-        this.requestISC = iscSendStatus.isRequestISC();
-
         // set the ISC send state, which initially sends the message
         new ISCSendStatusChangedMsg(false).send(); // initial state
-        if (CAVEMode.getMode().equals(CAVEMode.OPERATIONAL)
-                && ((SimulatedTime.getSystemTime().isRealTime()))
-                || (SimulatedTimeOperations.isTransmitAllowedinSimulatedTime())) {
-            try {
-                enableISCsend(true);
-            } catch (SimulatedTimeProhibitedOpException e) {
-                statusHandler.error(e.getLocalizedMessage(), e);
-            }
-        }
-        // this.queryString = "siteID='" + this.getSiteID() + "'";
         this.router.start();
 
         this.parmOp = new ParmOp(this);

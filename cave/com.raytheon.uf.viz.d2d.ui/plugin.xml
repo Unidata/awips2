@@ -122,11 +122,6 @@
                    visible="true">
              </separator>
              <command
-                   commandId="com.raytheon.uf.viz.image.export.save"
-                   label="Save Image"
-                   style="push">
-             </command>
-             <command
                    commandId="com.raytheon.uf.viz.kml.export.exportKML"
                    label="Save KML"
                    style="push">
