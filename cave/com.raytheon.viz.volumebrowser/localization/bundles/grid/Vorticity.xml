@@ -50,7 +50,7 @@
                             
                             
                             <capability xsi:type="colorMapCapability">
-                                <colorMapParameters colorMapName="Grid/ndfdMaxMinT">
+                                <colorMapParameters colorMapName="Grid/NDFD Min Max Temp">
                                 </colorMapParameters>
                             </capability>
                             

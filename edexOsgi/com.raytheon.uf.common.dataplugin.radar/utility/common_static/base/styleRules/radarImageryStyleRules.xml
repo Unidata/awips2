@@ -700,7 +700,7 @@
 				<formatString>2</formatString>
 			</samplePrefs>
 			<displayUnits>in</displayUnits>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<dataMapping>
 				<entry displayValue='-5.0' pixelValue='2' />
 				<entry displayValue='-2.5' pixelValue='16' />

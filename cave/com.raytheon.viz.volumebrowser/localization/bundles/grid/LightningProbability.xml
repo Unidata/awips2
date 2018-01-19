@@ -11,7 +11,7 @@
                             <capability xsi:type="colorableCapability" colorAsString="white"/>
                             <capability xsi:type="densityCapability" density="1.0"/>
                             <capability xsi:type="colorMapCapability">
-                                <colorMapParameters colorMapName="Grid/truncated warm to cold">
+                                <colorMapParameters colorMapName="Grid/Warm to Cold Truncated">
                                     <persisted>
                                         <colorMapMin>0.0</colorMapMin>
                                         <colorMapMax>100.0</colorMapMax>

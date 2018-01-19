@@ -143,7 +143,7 @@
                         <capabilities>
                             
                             <capability xsi:type="colorMapCapability">
-                                <colorMapParameters colorMapName="Grid/gridded data"/>
+                                <colorMapParameters colorMapName="Grid/Gridded Data"/>
                             </capability>
                             <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="false" brightness="0.5" contrast="1.0"/>
                         </capabilities>
@@ -181,7 +181,7 @@
                         <capabilities>
                             
                             <capability xsi:type="colorMapCapability">
-                                <colorMapParameters colorMapName="Grid/gridded data"/>
+                                <colorMapParameters colorMapName="Grid/Gridded Data"/>
                             </capability>
                             <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="false" brightness="0.5" contrast="1.0"/>
                         </capabilities>

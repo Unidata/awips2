@@ -33,7 +33,7 @@
         <minValue>0</minValue>
         <maxValue>75</maxValue>
       </range>
-      <defaultColormap>Grid/gridded data</defaultColormap>
+      <defaultColormap>Grid/Gridded Data</defaultColormap>
       <colorbarLabeling>
         <increment>10</increment>
       </colorbarLabeling>
@@ -65,7 +65,7 @@
         <minValue>-210</minValue>
         <maxValue>0</maxValue>
       </range>
-      <defaultColormap>Grid/gridded data</defaultColormap>
+      <defaultColormap>Grid/Gridded Data</defaultColormap>
       <colorbarLabeling>
         <increment>50</increment>
       </colorbarLabeling>

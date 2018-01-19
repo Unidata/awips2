@@ -11,7 +11,7 @@
                             <capability xsi:type="colorableCapability" colorAsString="white"/>
                             <capability xsi:type="densityCapability" density="1.0"/>
                             <capability xsi:type="colorMapCapability">
-                                <colorMapParameters colorMapName="Grid/gridded data">
+                                <colorMapParameters colorMapName="Grid/Gridded Data">
                                     <persisted>
                                         <colorMapMin>0.0</colorMapMin>
                                         <colorMapMax>10.0</colorMapMax>

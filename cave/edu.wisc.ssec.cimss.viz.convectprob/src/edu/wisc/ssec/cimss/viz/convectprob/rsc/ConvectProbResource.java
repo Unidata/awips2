@@ -148,7 +148,7 @@ AbstractVizResource<ConvectProbResourceData, MapDescriptor> {
         if (colorMapParams == null) {
             colorMapParams = new ColorMapParameters();
         }
-        String name = "Grid/gridded data";
+        String name = "Grid/Gridded Data";
         if (colorMapParams.getColorMap() == null) {
             if (colorMapParams.getColorMapName() != null)
                 name = colorMapParams.getColorMapName();
