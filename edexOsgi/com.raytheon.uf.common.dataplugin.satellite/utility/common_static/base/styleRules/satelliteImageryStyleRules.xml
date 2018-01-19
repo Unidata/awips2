@@ -134,7 +134,7 @@
         <minValue>-20</minValue>
         <maxValue>25</maxValue>
      </range>
-      <defaultColormap>Grid/sat gridded data</defaultColormap>
+      <defaultColormap>Grid/Default</defaultColormap>
       <colorbarLabeling> 
  	     <values>-20 0 20</values> 
  	  </colorbarLabeling>
@@ -150,7 +150,7 @@
         <minValue>-25</minValue>
         <maxValue>25</maxValue>
      </range>
-      <defaultColormap>Grid/gridded data</defaultColormap>
+      <defaultColormap>Grid/Gridded Data</defaultColormap>
       <colorbarLabeling> 
  	     <values>-20 0 20</values> 
  	  </colorbarLabeling>
@@ -187,7 +187,7 @@
      <entry pixelValue="36" displayValue="36" label="6000" />
      <entry pixelValue="45" displayValue="45" label="Clouds" />
      </dataMapping>
-	 <defaultColormap>Grid/gridded data</defaultColormap>
+	 <defaultColormap>Grid/Gridded Data</defaultColormap>
   </imageStyle>
 </styleRule>
 <styleRule>

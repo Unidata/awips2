@@ -229,7 +229,7 @@ public class TimeHeightImageResource extends AbstractTimeHeightResource
             needsColorMapInit = false;
             String colorMap = colorMapParams.getColorMapName();
             if (colorMap == null) {
-                colorMap = "Grid/gridded data";
+                colorMap = "Grid/Gridded Data";
             }
 
             try {

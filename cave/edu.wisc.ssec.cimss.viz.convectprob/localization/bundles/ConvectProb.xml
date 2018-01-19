@@ -12,7 +12,7 @@
                     <loadProperties loadWithoutData="false">
                         <capabilities>
                             <capability xsi:type="colorMapCapability">
-                                <colorMapParameters colorMapName="prob_severe"/>
+                                <colorMapParameters colorMapName="Probability of Severe Weather"/>
                             </capability>
                             <capability xsi:type="colorableCapability" colorAsString="#FFFFFF"/>
                         </capabilities>

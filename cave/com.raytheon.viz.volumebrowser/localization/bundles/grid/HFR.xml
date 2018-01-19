@@ -9,7 +9,7 @@
                         <capabilities>
                             <capability xsi:type="densityCapability" density="1.0"/>
                             <capability xsi:type="colorMapCapability">
-                                <colorMapParameters colorMapName="Grid/HFR Ocean Current Speed">
+                                <colorMapParameters colorMapName="Grid/Ocean Current Speed">
                                     <persisted>
                                         <colorMapMin>0</colorMapMin>
                                         <colorMapMax>2</colorMapMax>
@@ -95,7 +95,7 @@
                         <capabilities>
                             <capability xsi:type="densityCapability" density="1.0"/>
                             <capability xsi:type="colorMapCapability">
-                                <colorMapParameters colorMapName="Grid/HFR Ocean Current Speed">
+                                <colorMapParameters colorMapName="Grid/Ocean Current Speed">
                                     <persisted>
                                         <colorMapMin>0</colorMapMin>
                                         <colorMapMax>2</colorMapMax>
@@ -182,7 +182,7 @@
                         <capabilities>
                             <capability xsi:type="densityCapability" density="1.0"/>
                             <capability xsi:type="colorMapCapability">
-                                <colorMapParameters colorMapName="Grid/HFR Ocean Current Speed">
+                                <colorMapParameters colorMapName="Grid/Ocean Current Speed">
                                     <persisted>
                                         <colorMapMin>0</colorMapMin>
                                         <colorMapMax>2</colorMapMax>
@@ -269,7 +269,7 @@
                         <capabilities>
                             <capability xsi:type="densityCapability" density="1.0"/>
                             <capability xsi:type="colorMapCapability">
-                                <colorMapParameters colorMapName="Grid/HFR Ocean Current Speed">
+                                <colorMapParameters colorMapName="Grid/Ocean Current Speed">
                                     <persisted>
                                         <colorMapMin>0</colorMapMin>
                                         <colorMapMax>2</colorMapMax>

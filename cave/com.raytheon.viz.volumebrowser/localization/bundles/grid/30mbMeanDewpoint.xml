@@ -10,7 +10,7 @@
                                     <capability xsi:type="densityCapability" density="1.0"/>
                                     <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
                                     <capability xsi:type="colorMapCapability">
-                                        <colorMapParameters colorMapName="Grid/gridded data">
+                                        <colorMapParameters colorMapName="Grid/Gridded Data">
                                             <persisted>
                                                 <colorMapMin>227.37984</colorMapMin>
                                                 <colorMapMax>312.55786</colorMapMax>

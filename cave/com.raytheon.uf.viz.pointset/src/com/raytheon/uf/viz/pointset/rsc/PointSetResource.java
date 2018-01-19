@@ -315,7 +315,7 @@ public class PointSetResource extends
             ColorMapParameters colorMapParameters = createColorMapParameters(frames
                     .values().iterator().next().getRecord());
             if (colorMapParameters.getColorMapName() == null) {
-                colorMapParameters.setColorMapName("Grid/gridded data");
+                colorMapParameters.setColorMapName("Grid/Gridded Data");
             }
             try {
                 colorMapParameters.setColorMap(ColorMapLoader

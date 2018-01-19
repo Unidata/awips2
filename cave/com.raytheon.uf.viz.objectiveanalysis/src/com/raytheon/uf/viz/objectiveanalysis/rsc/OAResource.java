@@ -382,7 +382,7 @@ public class OAResource extends
                         .toString();
 
                 if (cmapParams.getColorMapName() == null) {
-                    cmapParams.setColorMapName("Grid/gridded data");
+                    cmapParams.setColorMapName("Grid/Gridded Data");
                 }
 
                 if (mapToUse != null) {

@@ -195,7 +195,7 @@ public class CrossSectionImageResource extends AbstractCrossSectionResource {
 
             String colorMap = colorMapParams.getColorMapName();
             if (colorMap == null) {
-                colorMap = "Grid/gridded data";
+                colorMap = "Grid/Gridded Data";
             }
             try {
                 colorMapParams.setColorMap(ColorMapLoader

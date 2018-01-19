@@ -9,7 +9,7 @@
                                 <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="true"/>
                                 <capabilities>
                                     <capability xsi:type="colorMapCapability">
-                                        <colorMapParameters colorMapName="Grid/gridded data">
+                                        <colorMapParameters colorMapName="Grid/Gridded Data">
                                             <persisted/>
                                         </colorMapParameters>
                                     </capability>
@@ -52,7 +52,7 @@
                                 <capabilities>
                                     <capability xsi:type="outlineCapability" outlineWidth="2" outlineOn="true" lineStyle="DEFAULT"/>
                                     <capability xsi:type="colorMapCapability">
-                                        <colorMapParameters colorMapName="Grid/gridded data">
+                                        <colorMapParameters colorMapName="Grid/Gridded Data">
                                             <persisted/>
                                         </colorMapParameters>
                                     </capability>

@@ -9,7 +9,7 @@
                         <capabilities>
                             <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
                             <capability xsi:type="colorMapCapability">
-                                <colorMapParameters colorMapName="topo">
+                                <colorMapParameters colorMapName="Topography">
                                     <persisted/>
                                 </colorMapParameters>
                             </capability>

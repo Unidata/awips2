@@ -6,7 +6,7 @@
                     <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
 						<capabilities>
                             <capability xsi:type="colorMapCapability">
-                                <colorMapParameters colorMapName="mrms/mrmsPOSH">
+                                <colorMapParameters colorMapName="MRMS/Probability of Severe Hail">
                                     <persisted>
                                         <colorMapMin>9.2</colorMapMin>
                                         <colorMapMax>70.1</colorMapMax>

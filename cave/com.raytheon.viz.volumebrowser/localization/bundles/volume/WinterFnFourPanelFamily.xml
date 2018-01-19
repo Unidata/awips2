@@ -9,7 +9,7 @@
                         <perspectiveProperty xsi:type="d2dLoadProperties" timeMatchBasis="true" loadMode="VALID_TIME_SEQ"/>
                         <capabilities>
                             <capability xsi:type="colorMapCapability">
-<colorMapParameters colorMapName="Grid/gridded data">
+<colorMapParameters colorMapName="Grid/Gridded Data">
     <persisted/>
 </colorMapParameters>
                             </capability>
@@ -393,7 +393,7 @@
                         <perspectiveProperty xsi:type="d2dLoadProperties" timeMatchBasis="true" loadMode="VALID_TIME_SEQ"/>
                         <capabilities>
                             <capability xsi:type="colorMapCapability">
-<colorMapParameters colorMapName="Grid/gridded data">
+<colorMapParameters colorMapName="Grid/Gridded Data">
     <persisted/>
 </colorMapParameters>
                             </capability>
@@ -738,7 +738,7 @@
                         <perspectiveProperty xsi:type="d2dLoadProperties" timeMatchBasis="true" loadMode="VALID_TIME_SEQ"/>
                         <capabilities>
                             <capability xsi:type="colorMapCapability">
-<colorMapParameters colorMapName="Grid/gridded data">
+<colorMapParameters colorMapName="Grid/Gridded Data">
     <persisted/>
 </colorMapParameters>
                             </capability>
@@ -1083,7 +1083,7 @@
                         <perspectiveProperty xsi:type="d2dLoadProperties" timeMatchBasis="true" loadMode="VALID_TIME_SEQ"/>
                         <capabilities>
                             <capability xsi:type="colorMapCapability">
-<colorMapParameters colorMapName="Grid/gridded data">
+<colorMapParameters colorMapName="Grid/Gridded Data">
     <persisted/>
 </colorMapParameters>
                             </capability>

@@ -14,7 +14,7 @@
                <minValue>0</minValue>
                <maxValue>600</maxValue>
            </range>
-           <defaultColormap>Grid/gridded data</defaultColormap>
+           <defaultColormap>Grid/Gridded Data</defaultColormap>
             <colorbarLabeling>
                 <increment>50</increment>
             </colorbarLabeling>
@@ -39,7 +39,7 @@
   </paramLevelMatches>
   <imageStyle>
     <displayUnits>kts</displayUnits>
-    <defaultColormap>Grid/gridded data</defaultColormap>
+    <defaultColormap>Grid/Gridded Data</defaultColormap>
   </imageStyle>
 </styleRule>
 <styleRule>
@@ -54,7 +54,7 @@
       <minValue>-50</minValue>
       <maxValue>100</maxValue>
     </range>
-    <defaultColormap>Grid/gridded data</defaultColormap>
+    <defaultColormap>Grid/Gridded Data</defaultColormap>
     <dataMapping>
       <entry pixelValue="-50.0" operator="=" label="" />
       <entry pixelValue="0" operator="&gt;" displayValue='0.0' />
@@ -78,7 +78,7 @@
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>ft</displayUnits>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<range scale="LINEAR">
 				<minValue>0</minValue>
 				<maxValue>4000</maxValue>
@@ -99,7 +99,7 @@
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>ft</displayUnits>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 		</imageStyle>
 	</styleRule>
 	<!--
@@ -124,7 +124,7 @@
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>dam</displayUnits>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 		</imageStyle>
 	</styleRule>
 	<styleRule>
@@ -137,7 +137,7 @@
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>m</displayUnits>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>100</increment>
 			</colorbarLabeling>
@@ -163,7 +163,7 @@
 				<minValue>450</minValue>
 				<maxValue>590</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>30</increment>
 			</colorbarLabeling>
@@ -186,7 +186,7 @@
 				<minValue>335</minValue>
 				<maxValue>475</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>30</increment>
 			</colorbarLabeling>
@@ -209,7 +209,7 @@
 				<minValue>100</minValue>
 				<maxValue>150</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -232,7 +232,7 @@
 				<minValue>120</minValue>
 				<maxValue>175</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -255,7 +255,7 @@
 				<minValue>220</minValue>
 				<maxValue>275</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -278,7 +278,7 @@
 				<minValue>320</minValue>
 				<maxValue>400</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>20</increment>
 			</colorbarLabeling>
@@ -301,7 +301,7 @@
 				<minValue>240</minValue>
 				<maxValue>300</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>20</increment>
 			</colorbarLabeling>
@@ -323,7 +323,7 @@
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>C</displayUnits>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 		</imageStyle>
 	</styleRule>
 	<!--
@@ -348,7 +348,7 @@
 				<minValue>-100</minValue>
 				<maxValue>115</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>20</increment>
 			</colorbarLabeling>
@@ -376,7 +376,7 @@
 				<maxValue>45</maxValue>
 				<maxValue2>5</maxValue2>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -404,7 +404,7 @@
 				<maxValue>5</maxValue>
 				<maxValue2>-35</maxValue2>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -432,7 +432,7 @@
 				<maxValue>-35</maxValue>
 				<maxValue2>-40</maxValue2>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -458,7 +458,7 @@
 				<minValue>-60</minValue>
 				<maxValue>90</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>20</increment>
 			</colorbarLabeling>
@@ -485,7 +485,7 @@
 				<maxValue>35</maxValue>
 				<maxValue2>5</maxValue2>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -512,7 +512,7 @@
 				<maxValue>5</maxValue>
 				<maxValue2>-40</maxValue2>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -537,7 +537,7 @@
 				<minValue>-100</minValue>
 				<maxValue>-40</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -559,7 +559,7 @@
 				<minValue>-2</minValue>
 				<maxValue>40</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>5</increment>
 			</colorbarLabeling>
@@ -586,7 +586,7 @@
 				<minValue>-4</minValue>
 				<maxValue>60</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -607,7 +607,7 @@
 				<minValue>-4</minValue>
 				<maxValue>20</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>2</increment>
 			</colorbarLabeling>
@@ -627,7 +627,7 @@
 				<minValue>-60</minValue>
 				<maxValue>125</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>20</increment>
 			</colorbarLabeling>
@@ -645,7 +645,7 @@
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>K</displayUnits>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 		</imageStyle>
 	</styleRule>
 	<!--
@@ -667,7 +667,7 @@
 				<minValue>233</minValue>
 				<maxValue>318</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -693,7 +693,7 @@
 				<maxValue>318</maxValue>
 				<maxValue2>348</maxValue2>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -718,7 +718,7 @@
 				<minValue>233</minValue>
 				<maxValue>375</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -744,7 +744,7 @@
 				<maxValue>375</maxValue>
 				<maxValue2>348</maxValue2>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -771,7 +771,7 @@
 				<maxValue>318</maxValue>
 				<maxValue2>358</maxValue2>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -798,7 +798,7 @@
 				<maxValue>358</maxValue>
 				<maxValue2>450</maxValue2>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -818,7 +818,7 @@
 				<minValue>-20</minValue>
 				<maxValue>380</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>30</increment>
 			</colorbarLabeling>
@@ -838,7 +838,7 @@
 				<minValue>0</minValue>
 				<maxValue>20</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>0.5</increment>
 			</colorbarLabeling>
@@ -859,7 +859,7 @@
 				<minValue>0</minValue>
 				<maxValue>10</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>1</increment>
 			</colorbarLabeling>
@@ -878,7 +878,7 @@
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>kts</displayUnits>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 		</imageStyle>
 	</styleRule>
 	<!--
@@ -902,7 +902,7 @@
 				<maxValue>75</maxValue>
 				<maxValue2>200</maxValue2>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>20</increment>
 			</colorbarLabeling>
@@ -933,7 +933,7 @@
 				<minValue>0</minValue>
 				<maxValue>75</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -953,7 +953,7 @@
 				<minValue>-100</minValue>
 				<maxValue>100</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>40</increment>
 			</colorbarLabeling>
@@ -979,7 +979,7 @@
 				<maxValue>50</maxValue>
 				<maxValue2>35</maxValue2>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -1002,7 +1002,7 @@
 				<minValue>0</minValue>
 				<maxValue>50</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -1028,7 +1028,7 @@
 				<minValue>-16</minValue>
 				<maxValue>16</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>5</increment>
 			</colorbarLabeling>
@@ -1054,7 +1054,7 @@
 				<maxValue>27</maxValue>
 				<maxValue2>35</maxValue2>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>5</increment>
 			</colorbarLabeling>
@@ -1077,7 +1077,7 @@
 				<minValue>-26</minValue>
 				<maxValue>26</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>5</increment>
 			</colorbarLabeling>
@@ -1102,7 +1102,7 @@
 				<minValue>-5</minValue>
 				<maxValue>105</maxValue>
 			</range>
-			<defaultColormap>Grid/warm to cold</defaultColormap>
+			<defaultColormap>Grid/Warm to Cold</defaultColormap>
 			<colorbarLabeling>
 				<increment>20</increment>
 			</colorbarLabeling>
@@ -1123,7 +1123,7 @@
 				<minValue>0.5</minValue>
 				<maxValue>30</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>0 1 2 5 10 20</values>
 			</colorbarLabeling>
@@ -1144,7 +1144,7 @@
 				<minValue>1</minValue>
 				<maxValue>120</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>0 2 5 10 20 50 100</values>
 			</colorbarLabeling>
@@ -1164,7 +1164,7 @@
 				<minValue>0.5</minValue>
 				<maxValue>30</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>.01 .02 .05 .1 .2 .5 1 2 5 10</values>
 			</colorbarLabeling>
@@ -1191,7 +1191,7 @@
 				<minValue>0.005</minValue>
 				<maxValue>12</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>0.01 0.03 0.1 0.3 1 3 10</values>
 			</colorbarLabeling>
@@ -1222,7 +1222,7 @@
 				<minValue>0.005</minValue>
 				<maxValue>12</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>0.01 0.03 0.1 0.3 1 3 10</values>
 			</colorbarLabeling>
@@ -1245,7 +1245,7 @@
 				<minValue>0.005</minValue>
 				<maxValue>12</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>0.01 0.03 0.1 0.3 1 3 10</values>
 			</colorbarLabeling>
@@ -1263,7 +1263,7 @@
 			<!-- filterLow="true" -->
 			<displayUnits>in</displayUnits>
 			<range scale="LOG" />
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 		</imageStyle>
 	</styleRule>
 	<!--
@@ -1281,7 +1281,7 @@
 				<minValue>0.0</minValue>
 				<maxValue>3.5</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>0.5</increment>
 			</colorbarLabeling>
@@ -1303,7 +1303,7 @@
 				<minValue>0.1</minValue>
 				<maxValue>30</maxValue>
 			</range>
-			<defaultColormap>Grid/warm to cold</defaultColormap>
+			<defaultColormap>Grid/Warm to Cold</defaultColormap>
 			<colorbarLabeling>
 				<values>.2 .5 1 2 5 10 20</values>
 			</colorbarLabeling>
@@ -1328,7 +1328,7 @@
 				<minValue>950</minValue>
 				<maxValue>1050</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -1370,7 +1370,7 @@
 				<minValue>-15</minValue>
 				<maxValue>15</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>5</increment>
 			</colorbarLabeling>
@@ -1390,7 +1390,7 @@
 				<minValue>-30</minValue>
 				<maxValue>30</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>5</increment>
 			</colorbarLabeling>
@@ -1409,7 +1409,7 @@
 		<imageStyle>
 			<displayUnits label="/1e9s">/s*1.0E9</displayUnits>
 			<range scale="LOG" mirror="true" adaptive="true" />
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 		</imageStyle>
 	</styleRule>
 	<!--
@@ -1426,7 +1426,7 @@
 				<minValue>-20</minValue>
 				<maxValue>20</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>5</increment>
 			</colorbarLabeling>
@@ -1446,7 +1446,7 @@
 				<minValue>-100</minValue>
 				<maxValue>100</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>25</increment>
 			</colorbarLabeling>
@@ -1467,7 +1467,7 @@
 				<minValue>-20</minValue>
 				<maxValue>20</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>5</increment>
 			</colorbarLabeling>
@@ -1484,7 +1484,7 @@
 		<imageStyle>
 			<displayUnits label="g/kg/12hr">(g/kg)/h*12</displayUnits>
 			<range mirror="true" />
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 		</imageStyle>
 	</styleRule>
 	<!--
@@ -1498,7 +1498,7 @@
 		<imageStyle>
 			<displayUnits label="g/kg/12hr">(g/kg)/h*12</displayUnits>
 			<range mirror="true" />
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 		</imageStyle>
 	</styleRule>
 	<!--
@@ -1514,7 +1514,7 @@
 		<imageStyle>
 			<displayUnits label="g/kg/12hr">((g/kg)/h*12)</displayUnits>
 			<range mirror="true" />
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 		</imageStyle>
 	</styleRule>
 	<!--
@@ -1533,7 +1533,7 @@
 				<minValue>500</minValue>
 				<maxValue>1100</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>100</increment>
 			</colorbarLabeling>
@@ -1558,7 +1558,7 @@
 				<minValue>50</minValue>
 				<maxValue>550</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>100</increment>
 			</colorbarLabeling>
@@ -1585,7 +1585,7 @@
 				<maxValue>1100</maxValue>
 				<maxValue2>750</maxValue2>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>100</increment>
 			</colorbarLabeling>
@@ -1611,7 +1611,7 @@
 				<maxValue>750</maxValue>
 				<maxValue2>325</maxValue2>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>50</increment>
 			</colorbarLabeling>
@@ -1637,7 +1637,7 @@
 				<maxValue>325</maxValue>
 				<maxValue2>110</maxValue2>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>20</increment>
 			</colorbarLabeling>
@@ -1656,7 +1656,7 @@
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>mb</displayUnits>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 		</imageStyle>
 	</styleRule>
 	<!--
@@ -1670,7 +1670,7 @@
 		<imageStyle>
 			<displayUnits>mb</displayUnits>
 			<range scale="LOG" />
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 		</imageStyle>
 	</styleRule>
 	<!-- XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX -->
@@ -1689,7 +1689,7 @@
 				<minValue>0.8</minValue>
 				<maxValue>19</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>1 1.5 2 5 10 15</values>
 			</colorbarLabeling>
@@ -1709,7 +1709,7 @@
 		<imageStyle>
 			<displayUnits label="PVU">K/hPa/s*1.0E-5</displayUnits>
 			<range scale="LOG" mirror="true" adaptive="true" />
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 		</imageStyle>
 	</styleRule>
 	<!--
@@ -1728,7 +1728,7 @@
                 <minValue>-15</minValue>
                 <maxValue>15</maxValue>
             </range>
-            <defaultColormap>Grid/gridded data</defaultColormap>
+            <defaultColormap>Grid/Gridded Data</defaultColormap>
             <colorbarLabeling>
                 <increment>4</increment>
             </colorbarLabeling>
@@ -1749,7 +1749,7 @@
 				<minValue>-15</minValue>
 				<maxValue>15</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>4</increment>
 			</colorbarLabeling>
@@ -1769,7 +1769,7 @@
 				<minValue>-15</minValue>
 				<maxValue>15</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>4</increment>
 			</colorbarLabeling>
@@ -1789,7 +1789,7 @@
 				<minValue>-5</minValue>
 				<maxValue>10</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>1</increment>
 			</colorbarLabeling>
@@ -1809,7 +1809,7 @@
 				<minValue>-20</minValue>
 				<maxValue>5</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>2</increment>
 			</colorbarLabeling>
@@ -1831,7 +1831,7 @@
 				<minValue>1</minValue>
 				<maxValue>75</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>2 5 10 20 50</values>
 			</colorbarLabeling>
@@ -1851,7 +1851,7 @@
         <minValue>0.5</minValue>
         <maxValue>35</maxValue>
       </range>
-      <defaultColormap>Grid/gridded data</defaultColormap>
+      <defaultColormap>Grid/Gridded Data</defaultColormap>
       <colorbarLabeling>
         <values>1 2 5 10 20</values>
       </colorbarLabeling>
@@ -1872,7 +1872,7 @@
 				<minValue>-12</minValue>
 				<maxValue>12</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>3</increment>
 			</colorbarLabeling>
@@ -1892,7 +1892,7 @@
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>km</displayUnits>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 		</imageStyle>
 	</styleRule>
 	<!--
@@ -1910,7 +1910,7 @@
 				<minValue>0.5</minValue>
 				<maxValue>120</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>1 2 5 10 20 50 100</values>
 			</colorbarLabeling>
@@ -1930,7 +1930,7 @@
 			<!-- filterHigh="true" -->
 			<displayUnits>mi</displayUnits>
 			<range scale="LOG" />
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 		</imageStyle>
 	</styleRule>
 	<!-- The "* CloudBase, CloudCeiling, zAGL" rule must come first in AWIPS 2 -->
@@ -1951,7 +1951,7 @@
 				<minValue>1</minValue>
 				<maxValue>120</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>2 6 10 20 30 50 100</values>
 			</colorbarLabeling>
@@ -1979,7 +1979,7 @@
 				<minValue>0</minValue>
 				<maxValue>50</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>5</increment>
 			</colorbarLabeling>
@@ -2084,7 +2084,7 @@
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>kts</displayUnits>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 		</imageStyle>
 	</styleRule>
 	<!--
@@ -2106,7 +2106,7 @@
 				<minValue>10</minValue>
 				<maxValue>4500</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>1000</increment>
 			</colorbarLabeling>
@@ -2128,7 +2128,7 @@
 				<minValue>-1000</minValue>
 				<maxValue>-1</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>100</increment>
 			</colorbarLabeling>
@@ -2158,7 +2158,7 @@
 				<minValue>-1000</minValue>
 				<maxValue>-1</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>100</increment>
 			</colorbarLabeling>
@@ -2182,7 +2182,7 @@
 				<minValue>.05</minValue>
 				<maxValue>50</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>0.1 0.3 1 3 10 30</values>
 			</colorbarLabeling>
@@ -2206,7 +2206,7 @@
 				<minValue>.05</minValue>
 				<maxValue>50</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>0.1 0.3 1 3 10 30</values>
 			</colorbarLabeling>
@@ -2234,7 +2234,7 @@
 				<minValue>.05</minValue>
 				<maxValue>50</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>0.1 0.3 1 3 10 30</values>
 			</colorbarLabeling>
@@ -2251,7 +2251,7 @@
 				<minValue>.05</minValue>
 				<maxValue>50</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>0.1 0.3 1 3 10 30</values>
 			</colorbarLabeling>
@@ -2274,7 +2274,7 @@
 				<minValue>5</minValue>
 				<maxValue>50</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>0.1 0.3 1 3 10 30</values>
 			</colorbarLabeling>
@@ -2296,7 +2296,7 @@
 				<minValue>.05</minValue>
 				<maxValue>5</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>.1 .2 .3 .5 .7 1 2 3 4</values>
 			</colorbarLabeling>
@@ -2323,7 +2323,7 @@
 				<minValue>1e-6</minValue>
 				<maxValue>5</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>1 2 3 4</values>
 			</colorbarLabeling>
@@ -2344,7 +2344,7 @@
 				<minValue>5</minValue>
 				<maxValue>105</maxValue>
 			</range>
-			<defaultColormap>Grid/warm to cold</defaultColormap>
+			<defaultColormap>Grid/Warm to Cold</defaultColormap>
 			<colorbarLabeling>
 				<increment>20</increment>
 			</colorbarLabeling>
@@ -2368,7 +2368,7 @@
 				<minValue>950</minValue>
 				<maxValue>1050</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -2389,7 +2389,7 @@
 				<minValue>-50</minValue>
 				<maxValue>50</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -2409,7 +2409,7 @@
 				<minValue>0.5</minValue>
 				<maxValue>400</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>0 1 3 10 30 100 300</values>
 			</colorbarLabeling>
@@ -2429,7 +2429,7 @@
 				<minValue>0.5</minValue>
 				<maxValue>400</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>0 1 3 10 30 100 300</values>
 			</colorbarLabeling>
@@ -2456,7 +2456,7 @@
 				<minValue>0.005</minValue>
 				<maxValue>12</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>0.01 0.03 0.1 0.3 1 3 10</values>
 			</colorbarLabeling>
@@ -2483,7 +2483,7 @@
 				<minValue>0.005</minValue>
 				<maxValue>12</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>0.01 0.03 0.1 0.3 1 3 10</values>
 			</colorbarLabeling>
@@ -2506,7 +2506,7 @@
 				<minValue>-12</minValue>
 				<maxValue>12</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>3</increment>
 			</colorbarLabeling>
@@ -2527,7 +2527,7 @@
 				<minValue>0</minValue>
 				<maxValue>70</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -2548,7 +2548,7 @@
 				<minValue>0.1</minValue>
 				<maxValue>40</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -2569,7 +2569,7 @@
 				<minValue>0</minValue>
 				<maxValue>70</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -2589,7 +2589,7 @@
 				<minValue>0</minValue>
 				<maxValue>70</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -2610,7 +2610,7 @@
 				<minValue>0</minValue>
 				<maxValue>200</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>20</increment>
 			</colorbarLabeling>
@@ -2631,7 +2631,7 @@
 				<minValue>0</minValue>
 				<maxValue>150</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -2652,7 +2652,7 @@
 				<minValue>1</minValue>
 				<maxValue>7</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>2.5 3.5 4.5 5.5</values>
 			</colorbarLabeling>
@@ -2673,7 +2673,7 @@
 				<minValue>0</minValue>
 				<maxValue>50</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>5</increment>
 			</colorbarLabeling>
@@ -2694,7 +2694,7 @@
 				<minValue>0</minValue>
 				<maxValue>100</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -2715,7 +2715,7 @@
 				<minValue>0</minValue>
 				<maxValue>150</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>20</increment>
 			</colorbarLabeling>
@@ -2736,7 +2736,7 @@
 				<minValue>0</minValue>
 				<maxValue>100</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -2757,7 +2757,7 @@
 				<minValue>0</minValue>
 				<maxValue>0.5</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>0.05</increment>
 			</colorbarLabeling>
@@ -2778,7 +2778,7 @@
 				<minValue>0</minValue>
 				<maxValue>8</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>0.5</increment>
 			</colorbarLabeling>
@@ -2794,7 +2794,7 @@
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>C</displayUnits>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 		</imageStyle>
 	</styleRule>
 	<!--
@@ -2812,7 +2812,7 @@
 				<minValue>0</minValue>
 				<maxValue>300</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>50</increment>
 			</colorbarLabeling>
@@ -2833,7 +2833,7 @@
 				<minValue>0</minValue>
 				<maxValue>400</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>100</increment>
 			</colorbarLabeling>
@@ -2854,7 +2854,7 @@
 				<minValue>0</minValue>
 				<maxValue>5</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>0.5</increment>
 			</colorbarLabeling>
@@ -2875,7 +2875,7 @@
 				<minValue>-15.</minValue>
 				<maxValue>15.</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>5</increment>
 			</colorbarLabeling>
@@ -2891,7 +2891,7 @@
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>dam</displayUnits>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 		</imageStyle>
 	</styleRule>
 	<!--
@@ -2908,7 +2908,7 @@
 				<minValue>-5</minValue>
 				<maxValue>105</maxValue>
 			</range>
-			<defaultColormap>Grid/warm to cold</defaultColormap>
+			<defaultColormap>Grid/Warm to Cold</defaultColormap>
 			<colorbarLabeling>
 				<increment>20</increment>
 			</colorbarLabeling>
@@ -2930,7 +2930,7 @@
 				<minValue>0.005</minValue>
 				<maxValue>12</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>0.01 0.03 0.1 0.3 1 3 10</values>
 			</colorbarLabeling>
@@ -2952,7 +2952,7 @@
 				<minValue>0.005</minValue>
 				<maxValue>12</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>0.01 0.03 0.1 0.3 1 3 10</values>
 			</colorbarLabeling>
@@ -2968,7 +2968,7 @@
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>C</displayUnits>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 		</imageStyle>
 	</styleRule>
 	<!--
@@ -2981,7 +2981,7 @@
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits label="C">K</displayUnits>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 		</imageStyle>
 	</styleRule>
 	<!--
@@ -3013,7 +3013,7 @@
 				<minValue>-40</minValue>
 				<maxValue>115</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>20</increment>
 			</colorbarLabeling>
@@ -3032,7 +3032,7 @@
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits label="F">°R</displayUnits>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 		</imageStyle>
 	</styleRule>
 	<!--
@@ -3049,7 +3049,7 @@
 				<minValue>950</minValue>
 				<maxValue>1050</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -3066,7 +3066,7 @@
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>kts</displayUnits>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 		</imageStyle>
 	</styleRule>
 	<!--
@@ -3101,7 +3101,7 @@
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits label="K/m/1e14s^2">K/m/s^2*1.0E-14</displayUnits>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 		</imageStyle>
 	</styleRule>
 	<!--
@@ -3120,7 +3120,7 @@
 				<minValue>33</minValue>
 				<maxValue>100</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>35 40 50 60 70 80 90</values>
 			</colorbarLabeling>
@@ -3142,7 +3142,7 @@
 				<minValue>33</minValue>
 				<maxValue>100</maxValue>
 			</range>
-			<defaultColormap>Grid/warm to cold</defaultColormap>
+			<defaultColormap>Grid/Warm to Cold</defaultColormap>
 			<colorbarLabeling>
 				<values>35 40 50 60 70 80 90</values>
 			</colorbarLabeling>
@@ -3164,7 +3164,7 @@
 				<minValue>33</minValue>
 				<maxValue>100</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>35 40 50 60 70 80 90</values>
 			</colorbarLabeling>
@@ -3180,7 +3180,7 @@
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>km</displayUnits>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 		</imageStyle>
 	</styleRule>
 	<!--
@@ -3197,7 +3197,7 @@
 				<minValue>-0.2</minValue>
 				<maxValue>4.2</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>0.4</increment>
 			</colorbarLabeling>
@@ -3218,7 +3218,7 @@
 				<minValue>0.005</minValue>
 				<maxValue>12</maxValue>
 			</range>
-			<defaultColormap>Grid/truncated gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>0.01 0.03 0.1 0.3 1 3 10</values>
 			</colorbarLabeling>
@@ -3242,7 +3242,7 @@
 				<minValue>5</minValue>
 				<maxValue>105</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -3269,7 +3269,7 @@
 				<minValue>5</minValue>
 				<maxValue>105</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -3289,7 +3289,7 @@
 				<minValue>950</minValue>
 				<maxValue>1050</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -3309,7 +3309,7 @@
 				<minValue>0</minValue>
 				<maxValue>15</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>2</increment>
 			</colorbarLabeling>
@@ -3326,7 +3326,7 @@
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>C</displayUnits>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 		</imageStyle>
 	</styleRule>
 	<!--
@@ -3345,7 +3345,7 @@
 				<minValue>-40</minValue>
 				<maxValue>115</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>20</increment>
 			</colorbarLabeling>
@@ -3375,7 +3375,7 @@
 				<minValue>0.005</minValue>
 				<maxValue>12</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>0.01 0.03 0.1 0.3 1 3 10</values>
 			</colorbarLabeling>
@@ -3397,7 +3397,7 @@
 			<!-- filterLow="true" -->
 			<displayUnits>in</displayUnits>
 			<range scale="LOG" />
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 		</imageStyle>
 	</styleRule>
 	<!--
@@ -3413,7 +3413,7 @@
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>kts</displayUnits>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 		</imageStyle>
 	</styleRule>
 	<!--
@@ -3438,7 +3438,7 @@
 				<minValue>5</minValue>
 				<maxValue>105</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -3466,7 +3466,7 @@
 				<minValue>5</minValue>
 				<maxValue>105</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -3494,7 +3494,7 @@
 				<minValue>5</minValue>
 				<maxValue>105</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -3522,7 +3522,7 @@
 				<minValue>5</minValue>
 				<maxValue>105</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -3552,7 +3552,7 @@
 				<minValue>5</minValue>
 				<maxValue>105</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -3585,7 +3585,7 @@
 				<minValue>5</minValue>
 				<maxValue>105</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -3610,7 +3610,7 @@
 				<minValue>5</minValue>
 				<maxValue>105</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -3632,7 +3632,7 @@
 				<minValue>5</minValue>
 				<maxValue>105</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -3655,7 +3655,7 @@
 				<minValue>5</minValue>
 				<maxValue>105</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -3679,7 +3679,7 @@
 				<minValue>5</minValue>
 				<maxValue>105</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -3832,7 +3832,7 @@
 				<minValue>5</minValue>
 				<maxValue>105</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -3854,7 +3854,7 @@
 				<minValue>0</minValue>
 				<maxValue>1</maxValue>
 			</range>
-			<defaultColormap>LAMP/CTSTM Best Category</defaultColormap>
+			<defaultColormap>GFE/CTSTM Best Category</defaultColormap>
 			<colorbarLabeling>
 				<increment>1</increment>
 			</colorbarLabeling>
@@ -3885,7 +3885,7 @@
 				<minValue>0</minValue>
 				<maxValue>50</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>5</increment>
 			</colorbarLabeling>
@@ -3923,7 +3923,7 @@
 				<minValue>0.005</minValue>
 				<maxValue>12</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>0.01 0.03 0.1 0.3 1 3 10</values>
 			</colorbarLabeling>
@@ -3943,7 +3943,7 @@
 		<imageStyle>
 			<!- - filterLow="true" - ->
 			<displayUnits>J/kg</displayUnits>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 		</imageStyle>
 	</styleRule>
 	-->
@@ -4025,7 +4025,7 @@
 				<minValue>0</minValue>
 				<maxValue>50</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>4</increment>
 			</colorbarLabeling>
@@ -4045,7 +4045,7 @@
 				<minValue>-4</minValue>
 				<maxValue>8</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>1</increment>
 			</colorbarLabeling>
@@ -4065,7 +4065,7 @@
 				<minValue>-2</minValue>
 				<maxValue>10</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>1</increment>
 			</colorbarLabeling>
@@ -4085,7 +4085,7 @@
 				<minValue>0</minValue>
 				<maxValue>1.05</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>0.1</increment>
 			</colorbarLabeling>
@@ -4117,7 +4117,7 @@
 				<minValue>-5</minValue>
 				<maxValue>35</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>-5 -3 0 3 5 7 9 11 13 15 17 19 21 23 25 27 29 31 33 35
 				</values>
@@ -4201,7 +4201,7 @@
 				<minValue>0</minValue>
 				<maxValue>100</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>5 10 20 30 40 50 60 70 80 90 100</values>
 			</colorbarLabeling>
@@ -4224,7 +4224,7 @@
 				<minValue>5</minValue>
 				<maxValue>105</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -4243,7 +4243,7 @@
                 <minValue>-0.1</minValue>
                 <maxValue>100.05</maxValue>
             </range>
-            <defaultColormap>Grid/gridded data</defaultColormap>
+            <defaultColormap>Grid/Gridded Data</defaultColormap>
             <colorbarLabeling>
                 <increment>10</increment>
             </colorbarLabeling>
@@ -4260,7 +4260,7 @@
 				<minValue>5</minValue>
 				<maxValue>105</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -4279,7 +4279,7 @@
 				<minValue>0</minValue>
 				<maxValue>1</maxValue>
 			</range>
-			<defaultColormap>Grid/clear_air_turb</defaultColormap>
+			<defaultColormap>Grid/Clear Air Turbulence</defaultColormap>
             <dataMapping>
             	<entry pixelValue="0.0" operator="&gt;" label="NO DATA" />
                 <entry pixelValue="0.17" operator="&gt;" displayValue='0.170'  label="Light" />
@@ -4299,7 +4299,7 @@
 				<minValue>0</minValue>
 				<maxValue>1</maxValue>
 			</range>
-			<defaultColormap>Grid/clear_air_turb</defaultColormap>
+			<defaultColormap>Grid/Clear Air Turbulence</defaultColormap>
             <dataMapping>
                 <entry pixelValue="0.0" operator="&gt;" label="NO DATA" />
                 <entry pixelValue="0.17" operator="&gt;" displayValue='0.170'  label="Light" />
@@ -4323,7 +4323,7 @@
                 <minValue>0</minValue>
                 <maxValue>5</maxValue>
 			</range>
-			<defaultColormap>Grid/icing_severity</defaultColormap>
+			<defaultColormap>Grid/Icing Severity</defaultColormap>
             <dataMapping>
             	<entry pixelValue="0.0" operator="&gt;" label="NO DATA" />
                 <entry pixelValue="0.9398" operator="&gt;" displayValue='1.00' label="Trace" />
@@ -4345,7 +4345,7 @@
                 <minValue>0</minValue>
                 <maxValue>1</maxValue>
 			</range>
-			<defaultColormap>Grid/icing_sld</defaultColormap>
+			<defaultColormap>Grid/Icing SLD</defaultColormap>
             <dataMapping> 
             	<entry pixelValue="0.0" operator="&gt;" label="NO DATA" />
                 <entry pixelValue="0.047" operator="&gt;" displayValue='0.10' label="SLD" />
@@ -4381,7 +4381,7 @@
 				<minValue>5</minValue>
 				<maxValue>70</maxValue>
 			</range>
-			<defaultColormap>Grid/warm to cold</defaultColormap>
+			<defaultColormap>Grid/Warm to Cold</defaultColormap>
 			<colorbarLabeling>
 				<values>5 10 20 30 40 50 60 70</values>
 			</colorbarLabeling>
@@ -4412,7 +4412,7 @@
 		<imageStyle>
 			<displayUnits label="g/kg/12hr">((g/kg)/(h*12))*-0.001</displayUnits>
 			<range mirror="true" />
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 		</imageStyle>
 	</styleRule>
 	<!--
@@ -4432,7 +4432,7 @@
 				<minValue>.05</minValue>
 				<maxValue>50</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<values>0.001 0.01 0.1 0.3 1 3 10 30</values>
 			</colorbarLabeling>
@@ -4454,7 +4454,7 @@
 				<minValue>1</minValue>
 				<maxValue>105</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>10</increment>
 			</colorbarLabeling>
@@ -4541,7 +4541,7 @@
 				<minValue>0.0</minValue>
  				<maxValue>16</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>2</increment>
 			</colorbarLabeling>
@@ -4572,7 +4572,7 @@
 			<singleLevel units="SURFACE" />
 		</paramLevelMatches>
 		<imageStyle>
-		<defaultColormap>Grid/gridded data</defaultColormap>
+		<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<displayUnits>kft</displayUnits>
 			<range scale="LINEAR">
 			</range>
@@ -4591,7 +4591,7 @@
 			<singleLevel units="SURFACE" />
 		</paramLevelMatches>
 		<imageStyle>
-		<defaultColormap>Grid/truncated warm to cold</defaultColormap>
+		<defaultColormap>Grid/Warm to Cold Truncated</defaultColormap>
 			<displayUnits>in</displayUnits>
 			<range scale="LINEAR">
 			</range>
@@ -4621,7 +4621,7 @@
             <creatingEntity>HPCqpf</creatingEntity>
         </paramLevelMatches>
         <imageStyle>
-            <defaultColormap>Grid/gridded data</defaultColormap>
+            <defaultColormap>Grid/Gridded Data</defaultColormap>
             <displayUnits>in</displayUnits>
             <range scale="LOG">
                 <minValue>0.005</minValue>
@@ -4640,7 +4640,7 @@
 			<singleLevel units="SURFACE" />
 		</paramLevelMatches>
 		<imageStyle>
-		<defaultColormap>Grid/gridded data</defaultColormap>
+		<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<displayUnits>in</displayUnits>
 			<range scale="LINEAR">
 			</range>
@@ -4674,7 +4674,7 @@
 			<creatingEntity>QPF-TIR</creatingEntity>
 		</paramLevelMatches>
 		<imageStyle>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<displayUnits>in</displayUnits>
 			<range scale="LOG">
 				<minValue>0.005</minValue>
@@ -4742,7 +4742,7 @@
             </range>
             <displayUnits>ft</displayUnits>
             <interpolate>false</interpolate>
-            <defaultColormap>Grid/warm to cold</defaultColormap>
+            <defaultColormap>Grid/Warm to Cold</defaultColormap>
             <dataMapping>
                 <entry pixelValue="0.0" operator="&lt;" label="NONE" />
                 <entry pixelValue="30" operator="&gt;" displayValue='100.0' label="100" />
@@ -4790,7 +4790,7 @@
                 <minValue>10</minValue>
                 <maxValue>350</maxValue>
             </range>
-            <defaultColormap>Grid/gridded data</defaultColormap>
+            <defaultColormap>Grid/Gridded Data</defaultColormap>
             <colorbarLabeling>
                 <values>0 10 25 50 100 200 300</values>
             </colorbarLabeling>
@@ -4839,7 +4839,7 @@
                 <minValue>25</minValue>
                 <maxValue>100</maxValue>
             </range>
-            <defaultColormap>Grid/gridded data</defaultColormap>
+            <defaultColormap>Grid/Gridded Data</defaultColormap>
             <colorbarLabeling>
                 <values>32 40 50 60 70 80 90</values>
             </colorbarLabeling>
@@ -4854,7 +4854,7 @@
                 <minValue>0</minValue>
                 <maxValue>17</maxValue>
             </range>
-            <defaultColormap>Grid/gridded data</defaultColormap>
+            <defaultColormap>Grid/Gridded Data</defaultColormap>
             <colorbarLabeling>
                 <values>1 3 5 7 9 11 13 15 17</values>
             </colorbarLabeling>
@@ -4884,7 +4884,7 @@
         <minValue>0</minValue>
         <maxValue>20000</maxValue>
       </range>
-      <defaultColormap>Grid/gridded data</defaultColormap>
+      <defaultColormap>Grid/Gridded Data</defaultColormap>
       <colorbarLabeling>
         <increment>5000</increment>
       </colorbarLabeling>
@@ -4905,7 +4905,7 @@
 			<minValue>0</minValue>
 			<maxValue>70</maxValue>
 		</range>
-		<defaultColormap>mrms/mrmsEchoTops</defaultColormap>
+		<defaultColormap>MRMS/Echo Tops</defaultColormap>
 		<dataMapping>
 			<entry pixelValue="0" operator="&lt;" label="" />
 			<entry pixelValue="0.0015" operator="&gt;" displayValue='0.005' />
@@ -4932,7 +4932,7 @@
 			<minValue>0</minValue>
 			<maxValue>70</maxValue>
 		</range>
-		<defaultColormap>mrms/mrmsEchoTops</defaultColormap>
+		<defaultColormap>MRMS/Echo Tops</defaultColormap>
 		<dataMapping>
 			<entry pixelValue="0" operator="&lt;" label="" />
 			<entry pixelValue="1.5" operator="&gt;" displayValue='0.005' />
@@ -4962,7 +4962,7 @@
 			<minValue>-20</minValue>
 			<maxValue>35</maxValue>
 		</range>
-		<defaultColormap>mrms/mrmsThickness</defaultColormap>
+		<defaultColormap>MRMS/Thickness</defaultColormap>
 		<dataMapping>
 			<entry pixelValue="-6.095" operator="&lt;" displayValue='-20' />
 			<entry pixelValue="-4.572" operator="&lt;" displayValue='-15' />
@@ -4995,7 +4995,7 @@
 			<minValue>-0.19</minValue>
 			<maxValue>50</maxValue>
 		</range>
-		<defaultColormap>mrms/mrmsLightning</defaultColormap>
+		<defaultColormap>MRMS/Lightning</defaultColormap>
 		<dataMapping>
 			<entry pixelValue="-0.19" operator="&lt;" label="" />
 			<entry pixelValue="0" operator="&gt;" displayValue='0' />
@@ -5031,7 +5031,7 @@
 			<minValue>0</minValue>
 			<maxValue>100</maxValue>
 		</range>
-		<defaultColormap>mrms/mrmsPOSH</defaultColormap>
+		<defaultColormap>MRMS/Probability of Severe Hail</defaultColormap>
 		<dataMapping>
 			<entry pixelValue="0" operator="&lt;" displayValue='0' label="" />
 			<entry pixelValue="10" operator="&gt;" displayValue='10' />
@@ -5065,7 +5065,7 @@
 			<minValue>0</minValue>
 			<maxValue>4.0</maxValue>
 		</range>
-		<defaultColormap>mrms/mrmsHail</defaultColormap>
+		<defaultColormap>MRMS/Hail</defaultColormap>
 		<dataMapping>
 			<entry pixelValue="0" operator="&lt;" label="" />
 			<entry pixelValue="0.126" operator="&gt;" displayValue='0.005'/>
@@ -5109,7 +5109,7 @@
 			<minValue>0</minValue>
 			<maxValue>0.025</maxValue>
 		</range>
-		<defaultColormap>mrms/mrmsRotation</defaultColormap>
+		<defaultColormap>MRMS/Rotation</defaultColormap>
 		<dataMapping>
 			<entry pixelValue="0" operator="&lt;" label="" />
 			<entry pixelValue="1" operator="&gt;" displayValue='0.001' />
@@ -5141,7 +5141,7 @@
 			<minValue>0</minValue>
 			<maxValue>100</maxValue>
 		</range>
-		<defaultColormap>mrms/mrmsPrecipType</defaultColormap>
+		<defaultColormap>MRMS/Precip Type</defaultColormap>
 		<dataMapping>
 			<entry pixelValue="0.00" operator="&lt;" label="No Data" />
 			<entry pixelValue="1.00" operator="=" displayValue='1.00' label="Warm Stratiform" />
@@ -5167,7 +5167,7 @@
 			<maxValue>12.0</maxValue>
 		</range>
 		
-		<defaultColormap>mrms/mrmsSPRDP</defaultColormap>
+		<defaultColormap>MRMS/Surface Precipitation Rate</defaultColormap>
 		<dataMapping>
 			<entry pixelValue="-1" operator="&lt;" label="" />
 			<entry pixelValue="1" operator="&gt;" displayValue='0.01' />
@@ -5196,7 +5196,7 @@
 			<minValue>0</minValue>
 			<maxValue>1</maxValue>
 		</range>
-		<defaultColormap>mrms/mrmsRQI</defaultColormap>
+		<defaultColormap>MRMS/Radar Quality Index</defaultColormap>
 		<dataMapping>
 			<entry pixelValue="0" operator="&lt;" displayValue='0' label="" />
 			<entry pixelValue="0.1" operator="&gt;" displayValue='0.1' />
@@ -5234,7 +5234,7 @@
 			<minValue>-34</minValue>
 			<maxValue>82</maxValue>
 		</range>
-		<defaultColormap>mrms/mrmsReflectivity</defaultColormap>
+		<defaultColormap>MRMS/Reflectivity</defaultColormap>
 		<dataMapping>
 			<entry pixelValue="-20" operator="&gt;" displayValue='-20' />
 			<entry pixelValue="-10" operator="&gt;" displayValue='-10' />
@@ -5290,7 +5290,7 @@
 			<minValue>-0.05</minValue>
 			<maxValue>12.0</maxValue>
 		</range>
-		<defaultColormap>mrms/mrmsQPEDP</defaultColormap> 
+		<defaultColormap>MRMS/QPE Dual Pol</defaultColormap> 
 		<dataMapping>
 			<entry pixelValue="0" operator="&lt;" label="" />
 			<entry pixelValue="18.75" operator="&gt;" displayValue='0' />
@@ -5325,7 +5325,7 @@
 			<minValue>0</minValue>
 			<maxValue>100</maxValue>
 		</range>
-		<defaultColormap>mrms/mrmsPOSH</defaultColormap>
+		<defaultColormap>MRMS/Probability of Severe Hail</defaultColormap>
 		<dataMapping>
 			<entry pixelValue="0" operator="&lt;" displayValue='0' label="" />
 			<entry pixelValue="10" operator="&gt;" displayValue='10' />
@@ -5353,7 +5353,7 @@
 			<minValue>-1</minValue>
 			<maxValue>450</maxValue>
 		</range>
-		<defaultColormap>mrms/mrmsSHI</defaultColormap>
+		<defaultColormap>MRMS/Severe Hail Index</defaultColormap>
 		<dataMapping>
 			<entry pixelValue="-1.00" operator="=" label="" />
 			<entry pixelValue="0" operator="&gt;" displayValue='0' />
@@ -5388,7 +5388,7 @@
 			<minValue>-1</minValue>
 			<maxValue>40</maxValue>
 		</range>
-		<defaultColormap>mrms/mrmsVII</defaultColormap>
+		<defaultColormap>MRMS/Vertically Integrated Ice</defaultColormap>
 		<dataMapping>
 			<entry pixelValue="-1.00" operator="&lt;" label="" />
 			<entry pixelValue="0" operator="&gt;" displayValue='0' />
@@ -5415,7 +5415,7 @@
 			<minValue>-34.00</minValue>
 			<maxValue>82.00</maxValue>
 		</range>
-		<defaultColormap>mrms/mrmsVIL</defaultColormap>
+		<defaultColormap>MRMS/Vertically Integrated Liquid</defaultColormap>
 		<dataMapping>
 			<entry pixelValue="-34.00" operator="&gt;" label="" />
 			<entry pixelValue="0" operator="&gt;" displayValue='0' />
@@ -5461,7 +5461,7 @@
         <minValue>0</minValue>
         <maxValue>50000</maxValue>
       </range>
-      <defaultColormap>Grid/gridded data</defaultColormap>
+      <defaultColormap>Grid/Gridded Data</defaultColormap>
       <colorbarLabeling>
         <increment>10000</increment>
       </colorbarLabeling>
@@ -5518,7 +5518,7 @@
         <minValue>0</minValue>
         <maxValue>6000</maxValue>
       </range>
-      <defaultColormap>Grid/gridded data</defaultColormap>
+      <defaultColormap>Grid/Gridded Data</defaultColormap>
       <colorbarLabeling>
         <increment>2000</increment>
       </colorbarLabeling>
@@ -5548,7 +5548,7 @@
         </paramLevelMatches>
         <imageStyle>
             <displayUnits>C</displayUnits>
-            <defaultColormap>Grid/gridded data</defaultColormap>
+            <defaultColormap>Grid/Gridded Data</defaultColormap>
         </imageStyle>
     </styleRule>
     
@@ -5617,7 +5617,7 @@
           <minValue>-21</minValue>
           <maxValue>-12</maxValue>
         </range>
-        <defaultColormap>NPP/VIIRS/ZA (Vis Default)</defaultColormap>
+        <defaultColormap>Sat/VIIRS/ZA (Vis Default)</defaultColormap>
         <colorbarLabeling>
           <increment>1</increment>
         </colorbarLabeling>
@@ -5633,7 +5633,7 @@
           <minValue>-18</minValue>
           <maxValue>0</maxValue>
         </range>
-        <defaultColormap>Grid/gridded data</defaultColormap>
+        <defaultColormap>Grid/Gridded Data</defaultColormap>
         <colorbarLabeling>
           <values>-18 -15 -12 -5 0</values>
         </colorbarLabeling>
@@ -5649,7 +5649,7 @@
           <minValue>-15</minValue>
           <maxValue>-4</maxValue>
         </range>
-        <defaultColormap>NPP/VIIRS/IR BrightTemps</defaultColormap>
+        <defaultColormap>Sat/VIIRS/IR BrightTemps</defaultColormap>
         <colorbarLabeling>
           <increment>1</increment>
         </colorbarLabeling>
@@ -5699,7 +5699,7 @@
             <colorbarLabeling>
                 <increment>2</increment>
             </colorbarLabeling>
-            <defaultColormap>Grid/pwpf_snow</defaultColormap>
+            <defaultColormap>Grid/WPC Probabilistic Snow</defaultColormap>
             <interpolate>false</interpolate>
         </imageStyle>
     </styleRule>
@@ -5746,7 +5746,7 @@
             <colorbarLabeling>
                 <increment>1</increment>
             </colorbarLabeling>
-            <defaultColormap>Grid/pwpf_frzr</defaultColormap>
+            <defaultColormap>Grid/WPC Probabilistic Freezing Rain</defaultColormap>
             <interpolate>false</interpolate>
         </imageStyle>
     </styleRule>
@@ -5815,7 +5815,7 @@
             <colorbarLabeling>
                 <increment>10</increment>
             </colorbarLabeling>
-            <defaultColormap>Grid/pwpf_prob</defaultColormap>
+            <defaultColormap>Grid/WPC Probabilistic Rain</defaultColormap>
             <interpolate>false</interpolate>
         </imageStyle>
     </styleRule>

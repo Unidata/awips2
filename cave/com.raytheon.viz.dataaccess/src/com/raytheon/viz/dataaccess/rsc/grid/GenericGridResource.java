@@ -72,7 +72,7 @@ import com.raytheon.viz.dataaccess.rsc.AbstractDataAccessResource;
 public class GenericGridResource extends
         AbstractDataAccessResource<GenericGridResourceData> {
 
-    private static final String GRID_COLORMAP = "Grid/gridded data";
+    private static final String GRID_COLORMAP = "Grid/Gridded Data";
 
     private static final String GENERIC_LEGEND_TEXT = "Generic Grid ";
 
@@ -86,7 +86,7 @@ public class GenericGridResource extends
     /**
      * Initializes the data buffer, the geometry, and prepares the color map.
      * Since this is generic grid data, the color map will always be set to
-     * "Grid/gridded data"
+     * "Grid/Gridded Data"
      * 
      * @throws VizException
      */

@@ -27,7 +27,7 @@
                         <capabilities>
                             <capability xsi:type="colorableCapability" colorAsString="#00ff00"/>
                             <capability xsi:type="colorMapCapability">
-                                <colorMapParameters colorMapName="Grid/gridded data"/>
+                                <colorMapParameters colorMapName="Grid/Gridded Data"/>
                             </capability>
                             <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="false" brightness="0.8" contrast="1.0"/>
                         </capabilities>

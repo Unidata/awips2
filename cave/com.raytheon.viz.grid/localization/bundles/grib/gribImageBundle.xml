@@ -30,7 +30,7 @@
                     <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
                         <capabilities>
                             <capability xsi:type="colorMapCapability">
-                                <colorMapParameters colorMapName="Grid/gridded data"/>
+                                <colorMapParameters colorMapName="Grid/Gridded Data"/>
                             </capability>
                             <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="${interpolate;false}" brightness=".75" contrast="1.0"/>
                         </capabilities>

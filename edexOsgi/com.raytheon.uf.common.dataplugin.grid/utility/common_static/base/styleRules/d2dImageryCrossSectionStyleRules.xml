@@ -28,7 +28,7 @@
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>kts</displayUnits>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 		</imageStyle>
 	</styleRule>
 	<styleRule>
@@ -42,7 +42,7 @@
 				<minValue>0</minValue>
 				<maxValue>200</maxValue>
 			</range>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<colorbarLabeling>
 				<increment>20</increment>
 			</colorbarLabeling>
