@@ -84,6 +84,12 @@
     
     <contribute xsi:type="separator" id="id"/>
     
+    <contribute xsi:type="subinclude" subMenu="Derived Products" 
+    		fileName="menus/satellite/goesr/goesrLevel2.xml">
+    </contribute>
+    
+    <contribute xsi:type="separator" id="id"/>
+    
     <contribute xsi:type="titleItem" titleText="------ RGB Composites ------" id="goesrRGBComposites"/>
         <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrRGBComposite.xml" 
                 menuText="Icing(1.61,0.87,0.64)" id="goesr-icing">
