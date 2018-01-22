@@ -1,23 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-	<!--
-		This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
-		pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
-
-		U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
-		This_software_product_contains_export-restricted_data_whose
-		export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
-		to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
-		an_export_license_or_other_authorization.
-
-		Contractor_Name:________Raytheon_Company
-		Contractor_Address:_____6825_Pine_Street,_Suite_340
-		________________________Mail_Stop_B8
-		________________________Omaha,_NE_68106
-		________________________402.291.0100
-
-		See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
-		further_licensing_information.
-	-->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	 <contribute xsi:type="bundleItem" file="bundles/Scatterometer.xml" 
            menuText="ASCAT Winds 25 km" id="ASCATWinds">
@@ -27,6 +8,7 @@
         <substitute key="posOffset" value="5400"/>
         <substitute key="negOffset" value="5400"/>
     </contribute>
+    
 	<contribute xsi:type="subMenu" menuText="SSM/I Point Data">
 		<contribute xsi:type="titleItem" 
 				titleText="------ SSM/I Data ------" id="SSMIDataLine"/>
@@ -53,6 +35,7 @@
 	        <substitute key="offset" value="1800"/>
 	    </contribute>
 	</contribute>
+	
 	<contribute xsi:type="subMenu" menuText="GOES High Density Winds">
 		<contribute xsi:type="titleItem"
 			titleText="------ Satellite-Derived Winds  ------" id="SatDerivedWindLine" />
@@ -240,42 +223,6 @@
 			<substitute key="legend" value="1050mb-900mb" />
 			<substitute key="between" value="90100--105000" />
 		</contribute>
-	</contribute>
-	<contribute xsi:type="subMenu" menuText="Scatterometer Winds">
-	    <contribute xsi:type="bundleItem" file="bundles/Scatterometer.xml" 
-               menuText="ASCAT Winds 25 km" id="ASCATWinds">
-	        <substitute key="legend" value="ASCAT"/>
-	        <substitute key="svg" value="ascatPlotDesign.svg"/>
-	        <substitute key="plugin" value="bufrascat"/>
-	        <substitute key="posOffset" value="2650"/>
-	        <substitute key="negOffset" value="2650"/>
-	    </contribute>
-	</contribute>
-	<contribute xsi:type="subMenu" menuText="SSM/I Point Data">
-		<contribute xsi:type="titleItem" 
-				titleText="------ SSM/I Data ------" id="SSMIDataLine"/>
-		<contribute xsi:type="bundleItem" file="bundles/SSMIWindPlot.xml" 
-               menuText="SSM/I Wind Speeds" id="SSMIWindSpeeds">
-	        <substitute key="svg" value="ssmiWindPlotDesign.svg"/>
-	    </contribute>
-		<contribute xsi:type="bundleItem" file="bundles/SSMIPlot.xml" 
-               menuText="SSM/I Precip. Water" id="SSMIPrecipWater">
-	        <substitute key="svg" value="ssmiPWPlotDesign.svg"/>
-	        <substitute key="legend" value="SSM/I Precipitable Water (kg/m**2)"/>
-	        <substitute key="offset" value="1800"/>
-	    </contribute>
-		<contribute xsi:type="bundleItem" file="bundles/SSMIPlot.xml" 
-               menuText="SSM/I Sea Temperature" id="SSMISeaTemp">
-	        <substitute key="svg" value="ssmiSTPlotDesign.svg"/>
-	        <substitute key="legend" value="SSM/I Sea Temperature (C)"/>
-	        <substitute key="offset" value="1800"/>
-	    </contribute>
-		<contribute xsi:type="bundleItem" file="bundles/SSMIPlot.xml" 
-               menuText="SSM/I VIL" id="SSMIVIL">
-	        <substitute key="svg" value="ssmiVILPlotDesign.svg"/>
-	        <substitute key="legend" value="SSM/I Vert. Integ. Water (kg/(m**2))"/>
-	        <substitute key="offset" value="1800"/>
-	    </contribute>
 	</contribute>
        <contribute xsi:type="bundleItem" file="bundles/SoundingAvailability.xml" 
                menuText="GOES Sounding Availability" id="goesSoundingAvailability">

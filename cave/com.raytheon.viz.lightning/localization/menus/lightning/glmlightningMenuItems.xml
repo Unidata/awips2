@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+	<contribute xsi:type="subinclude"
+		fileName="menus/lightning/nldnLightningBundleItems.xml">
+		<substitute key="source" value="GLMfl" />
+		<substitute key="name" value="GLM Flash" />
+	</contribute>
+	<contribute xsi:type="subMenu" menuText="GLM Flash Grid" id="glmGridSubmenu">
+		<contribute xsi:type="subinclude"
+			fileName="menus/lightning/gridLightningMenuItems.xml">
+			<substitute key="source" value="GLMfl" />
+		</contribute>
+	</contribute>
+	
+	<contribute xsi:type="separator" id="MySeparatorId"/>
+	
+	<contribute xsi:type="subinclude"
+		fileName="menus/lightning/nldnLightningBundleItems.xml">
+		<substitute key="source" value="GLMev" />
+		<substitute key="name" value="GLM Event" />
+	</contribute>
+	
+	<contribute xsi:type="subMenu" menuText="GLM Event Grid" id="glmGridSubmenu">
+		<contribute xsi:type="subinclude"
+			fileName="menus/lightning/gridLightningMenuItems.xml">
+			<substitute key="source" value="GLMev" />
+		</contribute>
+	</contribute>
+	
+	<contribute xsi:type="separator" id="MySeparatorId"/>
+	
+	<contribute xsi:type="subinclude"
+		fileName="menus/lightning/nldnLightningBundleItems.xml">
+		<substitute key="source" value="GLMgr" />
+		<substitute key="name" value="GLM Group" />
+	</contribute>
+		
+	<contribute xsi:type="subMenu" menuText="GLM Group Grid" id="glmGridSubmenu">
+		<contribute xsi:type="subinclude"
+			fileName="menus/lightning/gridLightningMenuItems.xml">
+			<substitute key="source" value="GLMgr" />
+		</contribute>
+	</contribute>
+	
+</menuTemplate>
