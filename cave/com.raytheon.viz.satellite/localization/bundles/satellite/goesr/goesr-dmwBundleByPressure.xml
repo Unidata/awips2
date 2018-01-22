@@ -1,29 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-
-    <!-- TOWRdocs Header
-        GOES-R Derived Motion Winds (DMW) bundle (query by "filter" DB column)
-    -->
-    <!-- TOWRdocs Description
-        File defines contains the custom query mappings and contraints used to query the Postgres database to return
-        corresponding DMW records. 
-
-        The queries are created in with each "mapping" entity:
-
-            key - The corresponding database column/entry to query against
-            contstraintValue - The constraint values to place on the query
-            constraint - The Postgres constraint to place on the query (i.e. >, <, =, etc.)
-
-        Note: Here we can see where previously-defined "substitute" entities come into play. A key-value substitution is taking 
-        place anywhere we see an "&#36;{key}" entry. While these substitutions may be useful, they are not necessary, as can
-        be seen with the "windSpd" mappings.
-    -->
-    <!-- TOWRdocs Status
-        New file not in the baseline. It was modeled after the baseline 16.2.2 file /bundles/satellite/goesr/DerivedMotionWinds.xml, with slight modifications made to the queries and query constraints.
-    -->
-    <!-- TOWRdocs POC
-        Matt Comerford
-    -->
-
 <bundle>
     <displayList>
         <displays xsi:type="d2DMapRenderableDisplay"
