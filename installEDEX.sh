@@ -87,4 +87,6 @@ fi
 echo ""
 echo "Done..."
 echo ""
+
+PATH=$PATH:/awips2/edex/bin/
 exit
