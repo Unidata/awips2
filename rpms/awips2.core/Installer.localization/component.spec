@@ -249,20 +249,6 @@ function importShapefiles()
       return 0
    fi
    echo "INFO: The FFMP shapefiles were successfully imported." 
-
-   static_shp_directory="${edex_utility}/edex_static/base/shapefiles"
-   /bin/bash ${a2_shp_script} \
-      ${static_shp_directory}/NHAdomain/NHAdomain.shp mapdata nhadomain 
-   if [ $? -ne 0 ]; then
-      echo "FATAL: failed to import NHAdomain." 
-   fi
-   /bin/bash ${a2_shp_script} \
-      ${static_shp_directory}/StormSurgeWW/StormSurgeWW.shp mapdata stormsurgeww 
-   if [ $? -ne 0 ]; then
-      echo "FATAL: failed to import StormSurgeWW."
-   fi
-   echo "INFO: NHAdomain and StormSurgeWW shapefiles were successfully imported." 
-
 }
 
 function removeHydroDbDirectory()

@@ -9,12 +9,25 @@
     		fileName="menus/satellite/goesr/goesrLevel2.xml">
         <substitute key="sector" value="ECONUS" />
     </contribute>
+<<<<<<< HEAD
+=======
+    
+    <contribute xsi:type="subinclude" subMenu="Derived Motion Winds" 
+    		fileName="menus/satellite/goesr/dmw/goesr-dmwMenuByFilter.xml">
+    	<substitute key="orbitalSlot" value="GOES-East"/>
+        <substitute key="scene" value="CONUS" />
+        <substitute key="plugin" value="dmw" />
+    </contribute>
+>>>>>>> unidata/unidata_17.1.1
 
     <contribute xsi:type="subinclude" subMenu="Geostationary Lightning Mapper (GLM)" 
     		fileName="menus/lightning/glmlightningMenuItems.xml">
     </contribute>
     
+<<<<<<< HEAD
     
+=======
+>>>>>>> unidata/unidata_17.1.1
     <contribute xsi:type="separator" id="MySeparatorId"/>
 
     <contribute xsi:type="subinclude" subMenu="GOES East - Full Disk"
@@ -77,6 +90,7 @@
 	    </contribute>
 	</contribute>
 	
+<<<<<<< HEAD
 		<contribute xsi:type="separator" id="MySeparatorId"/>
 	<!-- REGIONAL -->
 	<contribute xsi:type="subMenu" menuText="Regional Imagery">
@@ -307,4 +321,8 @@
 	    </contribute>
 	</contribute>
 	
+=======
+    <contribute xsi:type="separator" id="MySeparatorId"/>
+    
+>>>>>>> unidata/unidata_17.1.1
 </menuTemplate>

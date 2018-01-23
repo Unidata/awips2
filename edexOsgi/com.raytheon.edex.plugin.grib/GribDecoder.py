@@ -277,8 +277,10 @@ class GribDecoder():
                 data = numpy.where(data == secondaryFill, F32_GRID_FILL_VALUE, data)
              
         gridCoverage = gribDict['coverage']
-        nx = gridCoverage.getNx().intValue()
-        ny = gridCoverage.getNy().intValue()
+        #nx = gridCoverage.getNx().intValue()
+        #ny = gridCoverage.getNy().intValue()
+        nx = gridCoverage.getNx()
+        ny = gridCoverage.getNy()
 
         # Correct the data according to the scan mode found in the gds section.
         scanMode = gribDict['scanMode']

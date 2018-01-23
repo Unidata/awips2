@@ -41,7 +41,6 @@ function clean_ldm() {
 case $1 in
 
 'start')
-	if ! clean_ldm; then exit 1 ; fi
         su ${LDM_USER} -lc "ldmadmin start"
 	;;
 

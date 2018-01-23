@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<<<<<<< HEAD
   
+=======
+>>>>>>> unidata/unidata_17.1.1
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     
     <contribute xsi:type="titleItem" titleText="------ By Channel ------" />
@@ -52,6 +55,7 @@
         <substitute key="plugin" value="dmw" />
     </contribute> 
 
+<<<<<<< HEAD
     <contribute xsi:type="titleItem" titleText="------ By Pressure ------" />
     <!-- 100mb -->
     <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
@@ -122,9 +126,15 @@
         <substitute key="legend" value="800mb All Ch DMW"/>
         <substitute key="pressureConstraint" value="BETWEEN" />
         <substitute key="pressure" value="750--850" />
+=======
+    <contribute xsi:type="titleItem" titleText="------ By Pressure Level ------" />
+
+    <contribute xsi:type="subinclude" fileName="menus/satellite/goesr/dmw/goesr-dmwMenuByPressure.xml">
+        <substitute key="legend1" value="All Ch DMW" />
+>>>>>>> unidata/unidata_17.1.1
         <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
-        <substitute key="plugin" value="dmw" />
     </contribute>
+<<<<<<< HEAD
     <!-- 900 mb -->
     <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
            menuText="900mb (850-950mb)" id="goesr-DMW-Pressure-900mb">
@@ -237,8 +247,14 @@
         <substitute key="legend" value="1000mb All Ch DMW"/>
         <substitute key="pressureConstraint" value="BETWEEN" />
         <substitute key="pressure" value="950--1050" />
+=======
+
+    <contribute xsi:type="titleItem" titleText="------ By Channel ------" />
+
+    <contribute xsi:type="subinclude" fileName="menus/satellite/goesr/dmw/goesr-dmwMenuByChannel.xml">
+        <substitute key="legend1" value="DMW (Ch" />
+>>>>>>> unidata/unidata_17.1.1
         <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
-        <substitute key="plugin" value="dmw" />
     </contribute>
     
 </menuTemplate>

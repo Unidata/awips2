@@ -32,8 +32,8 @@ echo ''
 #
 if [[ $(rpm -qa | grep awips2-cave) ]]; then
   echo "found CAVE installed. Checking version..."
-  caveVersion=$(rpm -qa | grep awips2-cave-1| cut -d"-" -f3 )
-  versionMajor=$(rpm -qa | grep awips2-cave-1| cut -d"-" -f3 | cut -c -2)
+  caveVersion=$(rpm -qa | grep awips2-cave | head -1 | cut -d"-" -f3 )
+  versionMajor=$(rpm -qa | grep awips2-cave | head -1 | cut -d"-" -f3 | cut -c -2)
   if [[ ${versionMajor} -lt 16 ]]; then
     echo "CAVE ${caveVersion} installed. Removing to update..."
     yum groupremove awips2-cave -y

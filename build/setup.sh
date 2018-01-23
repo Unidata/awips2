@@ -14,8 +14,9 @@ if [ -d /awips2/repo/awips2-core-foss ]; then	corefoss_dir=" -v /awips2/repo/awi
 if [ -d /awips2/repo/awips2-foss ]; then	foss_dir="     -v /awips2/repo/awips2-foss:/awips2/repo/awips2-foss "		;fi
 if [ -d /awips2/repo/awips2-nws ]; then		nws_dir="      -v /awips2/repo/awips2-nws:/awips2/repo/awips2-nws "		;fi
 if [ -d /awips2/repo/awips2-ncep ]; then	ncep_dir="     -v /awips2/repo/awips2-ncep:/awips2/repo/awips2-ncep "		;fi
+if [ -d /awips2/repo/awips2-goesr ]; then	goesr_dir="    -v /awips2/repo/awips2-goesr:/awips2/repo/awips2-goesr "		;fi
 if [ -d /awips2/repo/python-awips ]; then	python_dir="   -v /awips2/repo/python-awips:/awips2/repo/python-awips "		;fi
-dirs=$builds_dir$static_dir$rpm_dir$core_dir$corefoss_dir$foss_dir$nws_dir$ncep_dir$python_dir
+dirs=$builds_dir$static_dir$rpm_dir$core_dir$corefoss_dir$foss_dir$nws_dir$ncep_dir$goesr_dir$python_dir
 
 # run
 sudo docker run --entrypoint=/bin/bash --privileged -d -ti -e "container=docker" $dirs unidata/awips-ade:17.1.1-$os_version

@@ -377,14 +377,7 @@
                 </reference>
              </visibleWhen>
                <separator name="MENUSTART" visible="false"/>
-               <separator name="GROUP1" visible="true"/>
-               <separator name="GROUP2" visible="true"/>
-               <separator name="GROUP3" visible="true"/>
-               <separator name="GROUP4" visible="true"/>
-               <separator name="GROUP5" visible="true"/>
-               <separator name="GROUP6" visible="true"/>
-               <separator name="GROUP7" visible="true"/>
-               <separator name="MENUEND" visible="false"/>
+               <separator name="GOESR" visible="true"/>
          </menu>
          <menu
                id="radar"
