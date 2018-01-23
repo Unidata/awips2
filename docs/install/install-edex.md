@@ -1,21 +1,18 @@
 # <i class="fa fa-linux"></i> EDEX for Linux 
 
-[installEDEX.sh <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/software/awips2/installEDEX.sh) 
-
-Installs to subdirectories in **/awips2**
-
 !!! note "System Requirements"
 
-	* **64-bit** CentOS/RHEL 6 or 7
-	* **8 CPU** cores (16 recommended) 
-	* **16GB** RAM (32+GB recommended for full IDD processing)
-	* **500GB** disk space, more if you build a data archive.
+	* **64-bit CentOS/RHEL 6 or 7**
+	* **16+ CPU** cores (each CPU core is one more decoder which can run in parallel) 
+	* **24GB+** RAM
+	* **500GB+** disk space
+	* A **Solid State Drive (SSD)** is highly recommended
 
-An **SSD is an especially good idea**, mounted to **/awips2/edex/data/hdf5**  to contain the decoded data files, or mounted to **/awips2** to contain the entire AWIPS software system.
- 
-EDEX **can scale to any system**, either by adjusting the incoming data feeds, or the resources allocated to each data type, but when selecting a server, **more is always better**.
+An **SSD** should be mounted either to `/awips2` (to contain the entire EDEX system) or to `/awips2/edex/data/hdf5` (to contain the large files in the decoded data store). EDEX can scale to any system by adjusting the incoming LDM data feeds or adjusting the resources (CPU threads) allocated to each data type.
 
-**64-bit CentOS/RHEL 6 and 7** are the only supported Linux operating systems. You may have luck with Fedora Core 12 to 14 and Scientific Linux. EDEX is not developed, tested, or supported on Debian, Ubuntu, SUSE, Solaris, OS X, or Windows.
+**64-bit CentOS/RHEL 6 and 7** are the only supported operating systems for EDEX. You may have luck with Fedora Core 12 to 14 and Scientific Linux. 
+
+EDEX is not supported on Debian, Ubuntu, SUSE, Solaris, OS X, or Windows.
 
 > ### [Read More: Distributed EDEX, Installing Across Multiple Machines](/edex/distributed-computing/)
 
@@ -23,11 +20,11 @@ EDEX **can scale to any system**, either by adjusting the incoming data feeds, o
 
 ## Linux One-Time Setup
 
-All of these command should be run as **root**!
+All of these command should be run as **root**
 
-### Users and Groups
+### 1. Create AWIPS User
 
-Create user and group awips:fxalpha
+Create user awips and group fxalpha
 
 	groupadd fxalpha && useradd -G fxalpha awips
 
@@ -35,11 +32,45 @@ or if the awips account already exists:
 
 	groupadd fxalpha && usermod -G fxalpha awips
 
----
+### 2. Install EDEX
 
-### iptables
 
-Configure iptables to allow TCP connections on ports 5672, 9581 and 9582
+Download and run [installEDEX.sh <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/software/awips2/installEDEX.sh)
+ 
+ 	wget http://www.unidata.ucar.edu/software/awips2/installEDEX.sh
+ 	chmod 755 ./installEDEX.sh
+ 	./installEDEX.sh
+ 	
+**installEDEX.sh** will perform the following steps (it's always a good idea to review downloaded shell scripts):
+
+1. Saves the appropriate Yum repo file to `/etc/yum.repos.d/awips2.repo`
+2. Increases process and file limits for the the *awips* account in `/etc/security/limits.conf`
+3. Creates `/awips2/data_store` if it does not exist already
+4. Runs `yum groupinstall awips2-server`
+5. Attempts to configure the EDEX hostname defined in `/awips2/edex/bin/setup.env`
+6. Alerts the user if the *awips* account does not exist (the RPMs will still install)
+
+### 3. Check `/etc/hosts` against `/awips2/edex/bin/setup.env`
+
+EDEX Server Administrators should check that the addresses and names defined in `/awips2/edex/bin/setup.env` are resolvable from both inside and outside the server, and make appropriate edits to `/etc/hosts` 
+
+For example, in the XSEDE Jetstream cloud, the fully-qualified domain name defined in `/awips2/edex/bin/setup.env`
+
+    export EXT_ADDR=js-196-132.jetstream-cloud.org
+    export DB_ADDR=localhost
+    export DB_PORT=5432
+    export BROKER_ADDR=localhost
+    export PYPIES_SERVER=http://${EXT_ADDR}:9582
+
+is directed within to localhost in `/etc/hosts`
+
+    127.0.0.1   localhost localhost.localdomain js-196-132.jetstream-cloud.org
+
+
+
+### 4. Configure iptables
+
+Configure iptables to allow TCP connections on ports 9581 and 9582 if you want to serve data to CAVE clients and the Python API.
 
 - **To open ports to all connections**
     
@@ -53,7 +84,6 @@ Configure iptables to allow TCP connections on ports 5672, 9581 and 9582
 		-A INPUT -p icmp -j ACCEPT
 		-A INPUT -i lo -j ACCEPT
 		-A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
-		-A INPUT -m state --state NEW -m tcp -p tcp --dport 5672 -j ACCEPT
 		-A INPUT -m state --state NEW -m tcp -p tcp --dport 9581 -j ACCEPT
 		-A INPUT -m state --state NEW -m tcp -p tcp --dport 9582 -j ACCEPT
 		-A INPUT -j REJECT --reject-with icmp-host-prohibited
@@ -99,9 +129,8 @@ The solution is:
 	systemctl enable iptables
 	service iptables restart
 
----
 
-### Disable SELinux
+### 5. Ensure SELinux is Disabled
 
 	vi /etc/sysconfig/selinux
 
@@ -122,6 +151,8 @@ The solution is:
 
 ---
 
+## Additional Steps
+
 ### SSD Mount
 
 Though a Solid State Drive is not required, it is *strongly encouraged* in order to handle the amount of disk IO for real-time IDD feeds.  
@@ -137,22 +168,6 @@ If you want to increase EDEX data retention you should mount a large disk to **/
         tmpfs            28G     0   28G   0% /dev/shm
         /dev/sdc1       788G   81G  667G  11% /awips2
         /dev/sdb1       788G   41G  708G  10% /awips2/edex/data/hdf5
-
----
-
-### yum install
-
-Download the script [installEDEX.sh](http://www.unidata.ucar.edu/software/awips2/installEDEX.sh) to setup and run yum to install AWIPS packages:
-
-	wget http://www.unidata.ucar.edu/software/awips2/installEDEX.sh
-	chmod 755 ./installEDEX.sh
-	./installEDEX.sh
-
-!!! info "What does [installEDEX.sh](http://www.unidata.ucar.edu/software/awips2/installEDEX.sh) do?"
-
-	1. Downloads [awips2.repo](http://www.unidata.ucar.edu/software/awips2/doc/awips2.repo) or [el7.repo](http://www.unidata.ucar.edu/software/awips2/doc/el7.repo) to **/etc/yum.repos.d/awips2.repo**
-	2. Runs **yum clean all**
-	3. Runs **yum groupinstall awips2-server**
 
 ---
 
@@ -265,3 +280,9 @@ To restart EDEX
 * `/awips2/ldm/logs` - LDM logs.
 * `/awips2/data_store` - Raw data store.
 * `/awips2/data_store/ingest` - Manual data ingest endpoint.
+
+---
+
+## What Version is my EDEX?
+
+    rpm -qa | grep awips2-edex
