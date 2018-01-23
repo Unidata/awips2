@@ -15,7 +15,7 @@ If a plugin has no XML file, the default rule of 1 day (24 hours) is used, from 
         </defaultRule>
     </purgeRuleSet>
 
-Time-based purging uses the *reference time* of the data, and dtermination of the reference time is decoder based. 
+Time-based purging uses the *reference time* of the data, and determination of the reference time is decoder-based. 
 
 
 ## 30-day NEXRAD3 Example
