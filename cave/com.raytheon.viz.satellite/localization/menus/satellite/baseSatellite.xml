@@ -1,39 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-<<<<<<< HEAD
-    <contribute xsi:type="separator" id="MySeparatorId"/>
-
-	<contribute xsi:type="titleItem"
-			titleText="------ Composite Imagery  ------" id="CompositeImagery" />
-			
-	<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-                menuText="Global Rectilinear 20km WV" id="waterVapor">
-        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
-		<substitute key="sector" value="Global"/>
-    	<substitute key="entity" value="GOES-13(N)"/>
-        <substitute key="colormap" value="Sat/WV/RAMSDIS WV"/>
-    </contribute>
-	<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-                menuText="Global Mollweide 30km IR" id="waterVapor">
-        <substitute key="element" value="Imager 11 micron IR"/>
-		<substitute key="sector" value="Mollweide"/>
-    	<substitute key="entity" value="GOES-13(N)"/>
-        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-    </contribute>
-	<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-                menuText="Global Mollweide 30km WV" id="waterVapor">
-        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
-		<substitute key="sector" value="Mollweide"/>
-    	<substitute key="entity" value="GOES-13(N)"/>
-        <substitute key="colormap" value="Sat/WV/RAMSDIS WV"/>
-    </contribute>
-    
-    
-	<contribute xsi:type="subMenu" menuText="GOES-East/West 10km Composite">
-		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-	                menuText="Imager Visible" id="visible">
-=======
     <!--
     
 	<contribute xsi:type="subMenu" menuText="Regional Imagery">
@@ -191,7 +158,6 @@
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
 	                menuText="Puerto Rico Regional Visible" id="visible">
->>>>>>> unidata/unidata_17.1.1
 	        <substitute key="element" value="Imager Visible"/>
 	        <substitute key="sector" value="Puerto Rico Regional"/>
 			<substitute key="entity" value="GOES-13(N)" /> 
@@ -226,12 +192,6 @@
 	        <substitute key="entity" value="COMP" /> 
 	        <substitute key="colormap" value="Sat/WV/RAMSDIS WV"/>
 	    </contribute>
-<<<<<<< HEAD
-	</contribute>
-
-	<!-- Northern Hemisphere Composite -->
-	<contribute xsi:type="subMenu" menuText="National Composite 24km">
-=======
 	    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
 	                menuText="Arctic Visible" id="visible">
 	        <substitute key="element" value="Imager Visible"/>
@@ -247,7 +207,6 @@
 	        <substitute key="entity" value="COMP" /> 
 	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
 	    </contribute>
->>>>>>> unidata/unidata_17.1.1
 		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
 	        menuText="Antarctica Visible" id="Arctic-Vis">
 	        <substitute key="element" value="Imager Visible"/>
@@ -379,11 +338,6 @@
 	    
 
 	</contribute>
-<<<<<<< HEAD
-	
-	<!-- NH Composite - Meteosat-GOES E-GOES W-GMS -->
-	<contribute xsi:type="subMenu" menuText="NH Composite 24km">
-=======
 
     <contribute xsi:type="subMenu" menuText="Sounder Imagery">
 		<!-- GOES Supernational -->
@@ -403,7 +357,6 @@
 			<substitute key="colormap" value="Sat/Low Cloud Base" />
 		</contribute>
 		<!-- SOUNDER/Miscellaneous -->
->>>>>>> unidata/unidata_17.1.1
 		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Blended Total Precip Water" id="blendedTotalPrecipWater">
 	    	<substitute key="element" value="Sounder Based Derived Precipitable Water (PW)"/>
@@ -948,14 +901,5 @@
 			</contribute>
 		</contribute>
 	</contribute>
-<<<<<<< HEAD
-    
-
-
-
-
-	<contribute xsi:type="separator" id="MySeparatorId"/>
-=======
 	
->>>>>>> unidata/unidata_17.1.1
 </menuTemplate>

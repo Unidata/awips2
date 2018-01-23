@@ -1,285 +1,66 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <!-- Full Disk -->
     <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+
+   <!-- TOWRdocs Header
+        GOES-R DMW sub-menu items file (ordering by scene)
+    -->
+    <!-- TOWRdocs Description
+        This file adds a DMW sub-menu item  to the GOES-R menu in AWIPS II CAVE. This sets up the menu
+        structure that opens after selecting a menu item contained in the "- Derived Motion Winds -" section. 
+
+            - "subMenu" references the text that will appear in the menu.
+            - "fileName" references the file (in the localization hierarchy) that will load when clicking the menu item. 
+            - "substitute" entities create key-value pairs. Referencing each key in subsequent files
+            (i.e. "fileName" and any nested files underneath) will instead replace that entry with the
+            corresponding value e.g. "&#36;{keyname}" = "value". 
+
+        Each bundle loaded from this file will have a "scene" value equal to the value defined below.
+    -->
+    <!-- TOWRdocs Status
+        This file is a modification to the baseline file ../base/menus/satellite/goesr/dmwByScene. 
+        It takes out the redundant "legend1" declaration, as well as handles the enhancements
+        made to DMW plugin and database table.
+    -->
+    <!-- TOWRdocs POC
+        Matt Comerford
+    -->
+
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <!-- Full Disk -->
     <contribute xsi:type="subinclude" subMenu="Full Disk"
         fileName="menus/satellite/goesr/dmw/goesr-dmwMenuByFilter.xml" >
         <substitute key="scene" value="Full Disk" />
     </contribute>
-    -->
+
     <!-- CONUS -->
-    <!--
     <contribute xsi:type="subinclude" subMenu="CONUS"
         fileName="menus/satellite/goesr/dmw/goesr-dmwMenuByFilter.xml" >
         <substitute key="scene" value="CONUS" />
     </contribute>
-    -->
-     
-    <contribute xsi:type="titleItem" titleText="------ By Channel ------" />
-	<!-- Ch 02 -->
-    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByChannel.xml" 
-           menuText="0.64 μm Red Visible (Ch 02 Daytime 1000-700mb)" id="goesr-DMW-Channel-03">
-        <substitute key="channel" value="2"/>
-        <substitute key="legend" value="DMW (Ch 02)" />
-        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
-        <substitute key="plugin" value="dmw" />
-        <substitute key="scene" value="CONUS" />
-    </contribute>
-    <!-- Ch 07 -->
-    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByChannel.xml" 
-           menuText="3.90μm Shortwave IR (Ch 07 Nighttime 1000-700mb)" id="goesr-DMW-Channel-07">
-        <substitute key="channel" value="7"/>
-        <substitute key="legend" value="DMW (Ch 07)" />
-        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
-        <substitute key="plugin" value="dmw" />
-        <substitute key="scene" value="CONUS" />
-    </contribute>
-    <!-- Ch 08 -->
-    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByChannel.xml" 
-           menuText="6.19μm Upper-level Water Vapor IR (Ch 08)" id="goesr-DMW-Channel-08">
-        <substitute key="channel" value="8"/>
-        <substitute key="legend" value="DMW (Ch 08)" />
-        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
-        <substitute key="plugin" value="dmw" />
-        <substitute key="scene" value="CONUS" />
-    </contribute>
-    <!-- Ch 09 -->
-    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByChannel.xml" 
-           menuText="6.93μm Mid-level Water Vapor IR (Ch 09)" id="goesr-DMW-Channel-09">  
-        <substitute key="channel" value="9"/>
-        <substitute key="legend" value="DMW (Ch 09)" />
-        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
-        <substitute key="plugin" value="dmw" />
-        <substitute key="scene" value="CONUS" />
-    </contribute>
-    <!-- Ch 10 -->
-    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByChannel.xml" 
-           menuText="7.34μm Low-level Water Vapor IR (Ch 10)" id="goesr-DMW-Channel-10">
-        <substitute key="channel" value="10"/>
-        <substitute key="legend" value="DMW (Ch 10)" />
-        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
-        <substitute key="plugin" value="dmw" />
-        <substitute key="scene" value="CONUS" />
-    </contribute>
-    <!-- Ch 14 -->
-    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByChannel.xml" 
-           menuText="11.21μm Legacy Window IR (Ch 14)" id="goesr-DMW-Channel-14">
-        <substitute key="channel" value="14"/>
-        <substitute key="legend" value="DMW (Ch 14)" />
-        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
-        <substitute key="plugin" value="dmw" />
-        <substitute key="scene" value="CONUS" />
-    </contribute> 
-	<contribute xsi:type="separator" id="id"/>
-    <contribute xsi:type="titleItem" titleText="------ By Pressure ------" />
-    <!-- 100mb -->
-    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
-           menuText="100mb (0-150mb)" id="goesr-DMW-Pressure-100mb">
-        <substitute key="legend" value="100mb All Ch DMW"/>
-        <substitute key="pressureConstraint" value="BETWEEN" />
-        <substitute key="pressure" value="0--150" />
-        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
-        <substitute key="plugin" value="dmw" />
-        <substitute key="scene" value="CONUS" />
-    </contribute>
-    <!-- 200 mb -->
-    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
-           menuText="200mb (150-250mb)" id="goesr-DMW-Pressure-200mb">
-        <substitute key="legend" value="200 mb All Ch DMW"/>
-        <substitute key="pressureConstraint" value="BETWEEN" />
-        <substitute key="pressure" value="150--250" />
-        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
-        <substitute key="plugin" value="dmw" />
-        <substitute key="scene" value="CONUS" />
-    </contribute>  
-    <!-- 300 mb -->
-    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
-           menuText="300mb (250-350mb)" id="goesr-DMW-Pressure-300mb">
-        <substitute key="legend" value="300 mb All Ch DMW"/>
-        <substitute key="pressureConstraint" value="BETWEEN" />
-        <substitute key="pressure" value="250--350" />
-        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
-        <substitute key="plugin" value="dmw" />
-        <substitute key="scene" value="CONUS" />
-    </contribute>
-    <!-- 400 mb -->
-    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
-           menuText="400mb (350-450mb)" id="goesr-DMW-Pressure-400mb">
-        <substitute key="legend" value="400mb All Ch DMW"/>
-        <substitute key="pressureConstraint" value="BETWEEN" />
-        <substitute key="pressure" value="350--450" />
-        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
-        <substitute key="plugin" value="dmw" />
-        <substitute key="scene" value="CONUS" />
-    </contribute>
-    <!-- 500 mb -->
-    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
-           menuText="500mb (450-550mb)" id="goesr-DMW-Pressure-500mb">
-        <substitute key="legend" value="500 mb All Ch DMW"/>
-        <substitute key="pressureConstraint" value="BETWEEN" />
-        <substitute key="pressure" value="450--550" />
-        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
-        <substitute key="plugin" value="dmw" />
-        <substitute key="scene" value="CONUS" />
-    </contribute>
-    <!-- 600 mb -->
-    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
-           menuText="600mb (550-650mb)" id="goesr-DMW-Pressure-600mb">
-        <substitute key="legend" value="600 mb All Ch DMW"/>
-        <substitute key="pressureConstraint" value="BETWEEN" />
-        <substitute key="pressure" value="550--650" />
-        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
-        <substitute key="plugin" value="dmw" />
-        <substitute key="scene" value="CONUS" />
-    </contribute>
-    <!-- 700 mb -->
-    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
-           menuText="700mb (650-750mb)" id="goesr-DMW-Pressure-700mb">
-        <substitute key="legend" value="700mb All Ch DMW"/>
-        <substitute key="pressureConstraint" value="BETWEEN" />
-        <substitute key="pressure" value="650--750" />
-        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
-        <substitute key="plugin" value="dmw" />
-        <substitute key="scene" value="CONUS" />
-    </contribute>
-    <!-- 800 mb -->
-    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
-           menuText="800mb (750-850mb)" id="goesr-DMW-Pressure-800mb">
-        <substitute key="legend" value="800mb All Ch DMW"/>
-        <substitute key="pressureConstraint" value="BETWEEN" />
-        <substitute key="pressure" value="750--850" />
-        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
-        <substitute key="plugin" value="dmw" />
-        <substitute key="scene" value="CONUS" />
-    </contribute>
-    <!-- 900 mb -->
-    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
-           menuText="900mb (850-950mb)" id="goesr-DMW-Pressure-900mb">
-        <substitute key="legend" value="900mb All Ch DMW"/>
-        <substitute key="pressureConstraint" value="BETWEEN" />
-        <substitute key="pressure" value="850--950" />
-        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
-        <substitute key="plugin" value="dmw" />
-        <substitute key="scene" value="CONUS" />
-    </contribute>
-    <!-- 1000 mb -->
-    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
-           menuText="1000mb (>950mb)" id="goesr-DMW-Pressure-1000mb">
-        <substitute key="legend" value="1000mb All Ch DMW"/>
-        <substitute key="pressureConstraint" value="GREATER_THAN" />
-        <substitute key="pressure" value="950" />
-        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
-        <substitute key="plugin" value="dmw" />
-        <substitute key="scene" value="CONUS" />
-    </contribute>
-    
-    <contribute xsi:type="separator" id="id"/>
-    <contribute xsi:type="titleItem" titleText="------ By Mandatory Levels ------" />
-	<!-- 150 mb -->
-    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
-           menuText="150mb (100-200mb)" id="goesr-DMW-ManWinds-150mb">
-        <substitute key="legend" value="150mb All Ch DMW"/>
-        <substitute key="pressureConstraint" value="BETWEEN" />
-        <substitute key="pressure" value="100--200" />
-        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
-        <substitute key="plugin" value="dmw" />
-        <substitute key="scene" value="CONUS" />
-    </contribute>
-    <!-- 200 mb -->
-    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
-           menuText="200mb (150-250mb)" id="goesr-DMW-ManWinds-200mb">
-        <substitute key="legend" value="200mb All Ch DMW"/>
-        <substitute key="pressureConstraint" value="BETWEEN" />
-        <substitute key="pressure" value="150--250" />
-        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
-        <substitute key="plugin" value="dmw" />
-        <substitute key="scene" value="CONUS" />
-    </contribute> 
-    <!-- 250 mb -->
-    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
-           menuText="250mb (200-300mb)" id="goesr-DMW-ManWinds-250mb">
-        <substitute key="legend" value="250mb All Ch DMW"/>
-        <substitute key="pressureConstraint" value="BETWEEN" />
-        <substitute key="pressure" value="200--300" />
-        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
-        <substitute key="plugin" value="dmw" />
-        <substitute key="scene" value="CONUS" />
-    </contribute>
-    <!-- 300 mb -->
-    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
-           menuText="300mb (250-300mb)" id="goesr-DMW-ManWinds-300mb">
-        <substitute key="legend" value="300mb All Ch DMW"/>
-        <substitute key="pressureConstraint" value="BETWEEN" />
-        <substitute key="pressure" value="250--350" />
-        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
-        <substitute key="plugin" value="dmw" />
-        <substitute key="scene" value="CONUS" />
-    </contribute>
-    <!-- 400 mb -->
-    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
-           menuText="400mb (350-450mb)" id="goesr-DMW-ManWinds-400mb">
-        <substitute key="legend" value="400mb All Ch DMW"/>
-        <substitute key="pressureConstraint" value="BETWEEN" />
-        <substitute key="pressure" value="350--450" />
-        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
-        <substitute key="plugin" value="dmw" />
-        <substitute key="scene" value="CONUS" />
-    </contribute>
-    <!-- 500 mb -->
-    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
-           menuText="500mb (450-500mb)" id="goesr-DMW-ManWinds-500mb">
-        <substitute key="legend" value="500mb All Ch DMW"/>
-        <substitute key="pressureConstraint" value="BETWEEN" />
-        <substitute key="pressure" value="450--550" />
-        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
-        <substitute key="plugin" value="dmw" />
-        <substitute key="scene" value="CONUS" />
-    </contribute>
-    <!-- 700 mb -->
-    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
-           menuText="700mb (650-700mb)" id="goesr-DMW-ManWinds-700mb">
-        <substitute key="legend" value="700mb All Ch DMW"/>
-        <substitute key="pressureConstraint" value="BETWEEN" />
-        <substitute key="pressure" value="650--750" />
-        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
-        <substitute key="plugin" value="dmw" />
-        <substitute key="scene" value="CONUS" />
-    </contribute>
-    <!-- 850 mb -->
-    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
-           menuText="850mb (800-900mb)" id="goesr-DMW-ManWinds-850mb">
-        <substitute key="legend" value="850mb All Ch DMW"/>
-        <substitute key="pressureConstraint" value="BETWEEN" />
-        <substitute key="pressure" value="800--900" />
-        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
-        <substitute key="plugin" value="dmw" />
-        <substitute key="scene" value="CONUS" />
-    </contribute>
-    <!-- 925 mb -->
-    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
-           menuText="925mb (875-975mb)" id="goesr-DMW-ManWinds-925mb">
-        <substitute key="legend" value="925mb All Ch DMW"/>
-        <substitute key="pressureConstraint" value="BETWEEN" />
-        <substitute key="pressure" value="875--975" />
-        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
-        <substitute key="plugin" value="dmw" />
-        <substitute key="scene" value="CONUS" />
-    </contribute>
-    <!-- 1000 mb -->
-    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByPressure.xml" 
-           menuText="1000mb (950-1050mb)" id="goesr-DMW-ManWinds-1000mb">
-        <substitute key="legend" value="1000mb All Ch DMW"/>
-        <substitute key="pressureConstraint" value="BETWEEN" />
-        <substitute key="pressure" value="950--1050" />
-        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
-        <substitute key="plugin" value="dmw" />
-        <substitute key="scene" value="CONUS" />
-    </contribute>
-    
-    <contribute xsi:type="separator" id="id"/>
+
     <!-- Mesoscale -->
     <contribute xsi:type="subinclude" subMenu="Mesoscale"
         fileName="menus/satellite/goesr/dmw/goesr-dmwMenuByFilter.xml" >
         <substitute key="scene" value="Mesoscale" />
     </contribute>
+
 </menuTemplate>

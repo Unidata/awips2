@@ -1,34 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-<<<<<<< HEAD
-    <!-- Full Disk -->
-    <!--
-=======
     
->>>>>>> unidata/unidata_17.1.1
     <contribute xsi:type="subinclude" subMenu="Full Disk"
         fileName="menus/satellite/goesr/dmw/goesr-dmwMenuByFilter.xml" >
         <substitute key="orbitalSlot" value="GOES-East"/>
         <substitute key="scene" value="Full Disk" />
         <substitute key="plugin" value="dmw" />
     </contribute>
-<<<<<<< HEAD
-	-->
-    <!-- CONUS -->
-    <!-- 
-=======
 
->>>>>>> unidata/unidata_17.1.1
     <contribute xsi:type="subinclude" subMenu="CONUS"
         fileName="menus/satellite/goesr/dmw/goesr-dmwMenuByFilter.xml" >
         <substitute key="orbitalSlot" value="GOES-East"/>
         <substitute key="scene" value="CONUS" />
         <substitute key="plugin" value="dmw" />
     </contribute>
-<<<<<<< HEAD
-    -->
-    
-=======
 
     <contribute xsi:type="subinclude" subMenu="Mesoscale"
         fileName="menus/satellite/goesr/dmw/goesr-dmwMenuByFilter.xml" >
@@ -36,6 +21,5 @@
         <substitute key="scene" value="Mesoscale" />
         <substitute key="plugin" value="dmw" />
     </contribute>
->>>>>>> unidata/unidata_17.1.1
    
 </menuTemplate>

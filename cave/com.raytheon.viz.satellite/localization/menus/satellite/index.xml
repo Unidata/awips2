@@ -1,23 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <menuContributionFile>
-<<<<<<< HEAD
-	<include installTo="menu:satellite?before=GROUP1" 
-             fileName="menus/satellite/goesr/goesrMenu.xml">
-    </include>
-	<include installTo="menu:satellite?after=GROUP1"
-		fileName="menus/satellite/baseSatellite.xml">
-	</include>
-    <include installTo="menu:satellite?before=GROUP3" 
-             fileName="menus/satellite/baseSounderImagery.xml">
-    </include>
-    <include installTo="menu:satellite?before=GROUP4" 
-             fileName="menus/satellite/baseDerivedProductPlots.xml"/>    
-=======
 	<include installTo="menu:satellite?before=GOESR" 
              fileName="menus/satellite/goesr/goesrMenu.xml">
     </include>
 	<include installTo="menu:satellite?after=GOESR"
 		fileName="menus/satellite/baseSatellite.xml">
 	</include> 
->>>>>>> unidata/unidata_17.1.1
 </menuContributionFile>

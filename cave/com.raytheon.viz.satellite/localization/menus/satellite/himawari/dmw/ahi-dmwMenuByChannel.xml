@@ -45,13 +45,13 @@
 
     <!-- Ch 03 -->
     <contribute xsi:type="bundleItem" file="bundles/satellite/himawari/ahi-dmwBundleByChannel.xml" 
-           menuText="0.64μm Red Visible (Ch 03 Daytime 1000-700mb)" id="ahi-DMW-Channel-03">
+           menuText="0.64μm Red Visible (Ch 03 - Daytime - 1000-700mb)" id="ahi-DMW-Channel-03">
         <substitute key="channel" value="3"/>
     </contribute>
 
     <!-- Ch 07 -->
     <contribute xsi:type="bundleItem" file="bundles/satellite/himawari/ahi-dmwBundleByChannel.xml" 
-           menuText="3.89μm Shortwave IR (Ch 07 Nighttime 1000-700mb)" id="ahi-DMW-Channel-07">
+           menuText="3.89μm Shortwave Window IR (Ch 07 - Nighttime - 1000-700mb)" id="ahi-DMW-Channel-07">
         <substitute key="channel" value="7"/>
     </contribute>
     

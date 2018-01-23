@@ -4,22 +4,14 @@
 
     <!-- Ch 02 -->
     <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByChannel.xml" 
-<<<<<<< HEAD
-           menuText="0.64 μm Red Visible (Ch 02 Daytime 1000-700mb)" id="goesr-DMW-Channel-03">
-=======
            menuText="0.64 μm Red Visible (Ch 02 Daytime)" id="goesr-DMW-Channel-03">
->>>>>>> unidata/unidata_17.1.1
         <substitute key="channel" value="2"/>
         <substitute key="legend" value="${legend1} 02)" />
     </contribute>
 
     <!-- Ch 07 -->
     <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesr-dmwBundleByChannel.xml" 
-<<<<<<< HEAD
-           menuText="3.90μm Shortwave IR (Ch 07 Nighttime 1000-700mb)" id="goesr-DMW-Channel-07">
-=======
            menuText="3.90μm Shortwave IR (Ch 07 Nighttime)" id="goesr-DMW-Channel-07">
->>>>>>> unidata/unidata_17.1.1
         <substitute key="channel" value="7"/>
         <substitute key="legend" value="${legend1} 07)" />
     </contribute>
