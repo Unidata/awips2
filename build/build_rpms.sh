@@ -13,6 +13,7 @@ pushd $REPO
 
 # if not mounted to docker container, clone from github
 if [ ! -d awips2-ncep ]; then		git clone https://github.com/Unidata/awips2-ncep.git --branch unidata_${AWIPSII_VERSION} --single-branch 	;fi
+if [ ! -d awips2-goesr ]; then		git clone https://github.com/Unidata/awips2-goesr.git --branch unidata_${AWIPSII_VERSION} --single-branch 	;fi
 if [ ! -d awips2-core ]; then		git clone https://github.com/Unidata/awips2-core.git --branch unidata_${AWIPSII_VERSION} --single-branch 	;fi
 if [ ! -d awips2-core-foss ]; then	git clone https://github.com/Unidata/awips2-core-foss.git --branch unidata_${AWIPSII_VERSION} --single-branch 	;fi
 if [ ! -d awips2-foss ]; then		git clone https://github.com/Unidata/awips2-foss.git --branch unidata_${AWIPSII_VERSION} --single-branch 	;fi
@@ -35,13 +36,13 @@ if [ ! -z "$prog" ]; then
   su - awips -c "/bin/bash $buildsh -b $prog"
 else
   # Build all groups (in this order)
-  #su - awips -c "/bin/bash $buildsh -ade"
-  #su - awips -c "/bin/bash $buildsh -python"
-  #su - awips -c "/bin/bash $buildsh -qpid"
-  #su - awips -c "/bin/bash $buildsh -server"
+  su - awips -c "/bin/bash $buildsh -ade"
+  su - awips -c "/bin/bash $buildsh -python"
+  su - awips -c "/bin/bash $buildsh -qpid"
+  su - awips -c "/bin/bash $buildsh -server"
   su - awips -c "/bin/bash $buildsh -edex"
-  #su - awips -c "/bin/bash $buildsh -database"
-  #su - awips -c "/bin/bash $buildsh -cave"
+  su - awips -c "/bin/bash $buildsh -database"
+  su - awips -c "/bin/bash $buildsh -cave"
 fi
 
 # Manage RPMs
