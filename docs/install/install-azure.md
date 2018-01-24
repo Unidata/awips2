@@ -60,9 +60,8 @@ and after install
 
 2. **/etc/sysconfig/iptables**
 
-    To serve data from an EDEX server, iptables must allow TCP connections on ports **5672**, **9581** and **9582**. The following lines added to `/etc/sysconfig/iptables`, followed by the command `service iptables restart`, will configure iptables for EDEX.
+    To serve data from an EDEX server, iptables must allow TCP connections on ports **9581** and **9582**. The following lines added to `/etc/sysconfig/iptables`, followed by the command `service iptables restart`, will configure iptables for EDEX.
     
-        -A INPUT -p tcp -m tcp --dport 5672 -j ACCEPT
         -A INPUT -p tcp -m tcp --dport 9581 -j ACCEPT
         -A INPUT -p tcp -m tcp --dport 9582 -j ACCEPT
 
