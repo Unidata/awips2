@@ -60,7 +60,10 @@ service qpidd stop
 if [ ! -d /awips2/data_store ]; then
   mkdir -p /awips2/data_store
 fi
-chown -R awips:fxalpha /awips2/data_store
+if [ ! -d /awips2/tmp ]; then
+  mkdir -p /awips2/tmp
+fi
+chown -R awips:fxalpha /awips2/data_store /awips2/tmp
 
 if [[ $1 -eq "reinstall" ]]; then
   echo ''
@@ -87,4 +90,6 @@ fi
 echo ""
 echo "Done..."
 echo ""
+
+PATH=$PATH:/awips2/edex/bin/
 exit

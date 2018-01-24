@@ -314,7 +314,7 @@ offshoreCWA.groupName = 'OffShoreMZones_' + CWA
 
 # this is a complete listing of all maps
 maps = [ CWAcounties, FIPS, Counties, CWAzones, Zones, FWCWAzones, FWZones, cwas, isc, 
-         fwaor, CWAmzones, Mzones, States, rfc, domain, stormsurgeww, offshore, offshoreCWA ]
+         fwaor, CWAmzones, Mzones, States, rfc, offshore, offshoreCWA ]
 
 # import the local maps file
 if not BASELINE:

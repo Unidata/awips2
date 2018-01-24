@@ -121,7 +121,7 @@
         <name>Observation</name>
         <selectedRetentionHours>168</selectedRetentionHours>
         <dataSet>
-           <dirPattern>(acars|airep|airmet|taf)</dirPattern>
+           <dirPattern>(acars|airmet|taf)</dirPattern>
            <dirPattern>(bufrsigwx|sfcobs)/.*</dirPattern>
            <displayLabel>{1}</displayLabel>
            <timeType>Date</timeType>
@@ -129,7 +129,7 @@
            <filePattern>.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
         </dataSet>
      </category>
-     The first <dirPattern> looks for files matching the <filePattern> in the directories acars, airep, airmet or taf.
+     The first <dirPattern> looks for files matching the <filePattern> in the directories acars, airmet or taf.
      The second <dirPattern> expects to find the files in subdirectories of bufrsigwx or sfcobs such as bufrsigwx/SWH.
      
      Here the display will only show, redbook. The directory looked at will be <rootPath>/redbook/. The <dateGroupIndices> all
@@ -147,7 +147,7 @@
         <name>Decision Assistance</name>
          <selectedRetentionHours>168</selectedRetentionHours>
          <dataSet>
-            <dirPattern>(cwat|fog|ffmp|fssobs|preciprate|qpf|scan|vil)/.*(\d{4})-(\d{2})-(\d{2})-(\d{2}).*</dirPattern>
+            <dirPattern>(cwat|fog|ffmp|preciprate|qpf|scan|vil)/.*(\d{4})-(\d{2})-(\d{2})-(\d{2}).*</dirPattern>
             <displayLabel>{1}</displayLabel>
             <dateGroupIndices>2,3,4,5</dateGroupIndices>
         </dataSet>
@@ -195,7 +195,7 @@
         <name>Observation</name>
         <selectedRetentionHours>168</selectedRetentionHours>
         <dataSet>
-            <dirPattern>(acars|airep|binlightning|bufrascat|bufrhdw|bufrmthdw|bufrssmi|idft|lsr|obs|pirep|recco|svrwx)/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
+            <dirPattern>(acars|binlightning|bufrascat|bufrhdw|bufrmthdw|bufrssmi|idft|lsr|obs|recco|svrwx)/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
             <dirPattern>(sfcobs)/.*/.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})</dirPattern>
             <displayLabel>{1}</displayLabel>
             <dateGroupIndices>2,3,4,5</dateGroupIndices>
