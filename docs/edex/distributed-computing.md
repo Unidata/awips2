@@ -42,7 +42,6 @@ It is required that ports 5432 and 5672 be open for the specific IP addresses of
 	-A INPUT -p icmp --icmp-type any -j ACCEPT
 	-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 	-A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
-	-A INPUT -m state --state NEW -m tcp -p tcp --dport 5672 -j ACCEPT
 	-A INPUT -m state --state NEW -m tcp -p tcp --dport 9581 -j ACCEPT
 	-A INPUT -m state --state NEW -m tcp -p tcp --dport 9582 -j ACCEPT
 	-A INPUT -s 10.0.0.7 -j EDEX
@@ -55,7 +54,7 @@ It is required that ports 5432 and 5672 be open for the specific IP addresses of
 
 Note the line **`-A INPUT -s 10.0.0.7 -j EDEX`** as well as the following **`-A EDEX ...`** rules for ports 5432 (PostgreSQL) and 5672 (PyPIES/HDF5).  
 
-!!! Note "The three ports left open to all connections (5672,9581,9582) in addition to default port 22 are for outside CAVE client connections"
+!!! Note "The two ports left open to all connections (9581,9582) in addition to default port 22 are for outside CAVE client connections"
 
 ### 3. Database Config
 

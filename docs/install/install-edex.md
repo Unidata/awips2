@@ -108,7 +108,6 @@ Configure iptables to allow TCP connections on ports 9581 and 9582 if you want t
 		-A INPUT -j EXTERNAL
 		-A EXTERNAL -j REJECT
 		-A EDEX -m state --state NEW -p tcp --dport 22 -j ACCEPT
-		-A EDEX -m state --state NEW -p tcp --dport 5672 -j ACCEPT
 		-A EDEX -m state --state NEW -p tcp --dport 9581 -j ACCEPT
 		-A EDEX -m state --state NEW -p tcp --dport 9582 -j ACCEPT
 		-A EDEX -j REJECT
