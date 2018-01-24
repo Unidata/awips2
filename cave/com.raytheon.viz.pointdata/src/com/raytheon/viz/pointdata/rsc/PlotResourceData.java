@@ -165,7 +165,7 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         pluginProps.put("bufrua", new PluginPlotProperties());
         pluginProps.put("sfcobs", new PluginPlotProperties());
         pluginProps.put("profiler", new PluginPlotProperties());
-        pluginProps.put("fssobs", new PluginPlotProperties());
+        //pluginProps.put("fssobs", new PluginPlotProperties());
         pluginProps.put("modelsounding", new PluginPlotProperties());
         pluginProps.put("bufrmosAVN", new PluginPlotProperties());
         pluginProps.put("bufrmosETA", new PluginPlotProperties());
@@ -178,7 +178,7 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         pluginProps.put("bufrhdw", new PluginPlotProperties());
         pluginProps.put("bufrmthdw", new PluginPlotProperties());
         pluginProps.put("bufrssmi", new PluginPlotProperties());
-        pluginProps.put("airep", new PluginPlotProperties());
+        //pluginProps.put("airep", new PluginPlotProperties());
         pluginProps.put("acars", new PluginPlotProperties());
         pluginProps.put("lsr", new PluginPlotProperties());
     }
