@@ -1,14 +1,49 @@
 
 
-As of Unidata AWIPS 17.1.1, the GOES-R decoder supports the ingest and display of NOAAport provisional products (currently on the NOTHER feed), as well as Level 2b netCDF files.  A GOES-R Geostationary Lightning Mapper (GLM) decoder is also provided to handle sensor lightning observations.
+GOES-16 is now operational as GOES East, and products are available on Unidata's `edex-cloud.unidata.ucar.edu` server, including 16 channels of ABI imagery and various derived products.
 
-GOES-R products are accessible in the menu **Satellite** > **GOES-16 Provisional Products**
+The NASA Short-term Prediction Research and Transition ([SPoRT](https://weather.msfc.nasa.gov/sport/)) center has developed decoding and visualization plugins for global Geostationary Lightning Mapper (GLM) observations and Derived Wind Motion vectors, available in the [latest Unidata CAVE release](../install/install-cave) for Linux and macOS.
+
+GOES East products are accessible in the **Satellite**  menu:
 
 ![](../images/goes_16_menu.png)
 
 ---
 
-## NOAAport Provisional Products
+## RGB Composites
+
+**Multi-Channel Icing Composite**
+
+Channels 5,3,2 (1.61u, 0.87u, 0.64u)
+
+![](../images/goes_16_comp1.png)
+
+**Multi-Channel Daytime 1 Composite **
+
+Channels 2,5,14 (0.64u, 1.61u, 11.20u)
+
+![](../images/goes_16_comp2.png)
+
+**Multi-Channel Daytime 2 Composite**
+
+Channels 2,3,2 (0.64u, 0.87u, 0.64u)
+
+![](../images/goes_16_comp3.png)
+
+!!! warning "GOES-16 Composite Imagery NOT SUPPORTED on macOS"
+
+	OpenGL Shading Language limitations prevent multi-channel imagery from displaying correctly on Mac.
+
+---
+
+## Derived Products 
+
+
+## GLM
+
+
+## Derived Motion Winds
+
 
 ### LDM Pattern Action
 
@@ -37,33 +72,10 @@ Two floating mesoscale sectors (will vary from image shown)
           
 
 
-### Icing Composite
 
-Channels 5,3,2 (1.61u, 0.87u, 0.64u)
-
-![](../images/goes_16_comp1.png)
-
-### Daytime Composite 1
-
-Channels 2,5,14 (0.64u, 1.61u, 11.20u)
-
-![](../images/goes_16_comp2.png)
-
-### Daytime Composite 2
-
-Channels 2,3,2 (0.64u, 0.87u, 0.64u)
-
-![](../images/goes_16_comp3.png)
 
   
 
-!!! warning "GOES-16 Composite Imagery NOT SUPPORTED on macOS"
-
-	OpenGL Shading Language limitations prevent multi-channel imagery from displaying correctly on Mac:
-	
-	  * Icing (1.61, 0.87, 0.64)
-	  * Daytime Composite (0.64, 1.61, 11.20)
-	  * Daytime Composite (0.64, 0.87, 0.64)  
 
 To display multi-channel composites requires CAVE for Linux or Windows.
 
