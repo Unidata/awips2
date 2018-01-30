@@ -14,7 +14,7 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-data @user.home/caveData -user @user.home/caveData -clean -consoleLog -component thinclient -alertviz
+      <programArgs>-data @user.home/caveData -user @user.home/caveData -clean -consoleLog
       </programArgs>
       <vmArgs>-Xmx4536M
 -XX:+UseG1GC

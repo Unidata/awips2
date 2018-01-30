@@ -25,7 +25,7 @@ if [[ ${USER} = "root" ]]; then
 fi
 
 # CAVE alias
-alias cave='/awips2/cave/run.sh -alertviz -component thinclient'
+alias cave='/awips2/cave/run.sh'
 if [ -d /awips2/cave ]; then
   export TMCP_HOME=/awips2/cave/caveEnvironment
   export FXA_HOME=/awips2/cave/caveEnvironment
