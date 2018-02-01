@@ -21,8 +21,8 @@
 from __future__ import print_function
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataquery.requests import RequestConstraint
 from shapely.geometry import box
-from awips.dataaccess import DataAccessLayer as DAL
-from awips.ThriftClient import ThriftRequestException
+from ufpy.dataaccess import DataAccessLayer as DAL
+from ufpy.ThriftClient import ThriftRequestException
 
 import baseDafTestCase
 import unittest

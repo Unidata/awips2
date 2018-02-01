@@ -20,7 +20,7 @@
 
 
 #
-# __init__.py for awips.test.dafTests package
+# __init__.py for ufpy.test.dafTests package
 #
 #
 #     SOFTWARE HISTORY

@@ -1,11 +1,5 @@
 
 # File auto-generated against equivalent DynamicSerialize Java class
-# 
-#      SOFTWARE HISTORY
-# 
-#     Date            Ticket#       Engineer       Description
-#     ------------    ----------    -----------    --------------------------
-#     Sep 16, 2016                  pmoyer         Generated
 
 class GetStationsRequest(object):
 
@@ -17,4 +11,3 @@ class GetStationsRequest(object):
 
     def setPluginName(self, pluginName):
         self.pluginName = pluginName
-

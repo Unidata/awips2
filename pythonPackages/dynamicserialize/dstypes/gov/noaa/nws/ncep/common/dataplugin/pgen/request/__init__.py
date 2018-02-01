@@ -4,12 +4,10 @@
 __all__ = [
             'RetrieveAllProductsRequest',
             'StoreActivityRequest',
-            'StoreDerivedProductRequest',
-            'RetrieveActivityMapRequest'
+            'StoreDerivedProductRequest'
           ]
 
 from RetrieveAllProductsRequest import RetrieveAllProductsRequest
 from StoreActivityRequest import StoreActivityRequest
 from StoreDerivedProductRequest import StoreDerivedProductRequest
-from RetrieveActivityMapRequest import RetrieveActivityMapRequest
 

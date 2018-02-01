@@ -22,8 +22,8 @@ from __future__ import print_function
 import datetime
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataquery.requests import RequestConstraint
 from dynamicserialize.dstypes.com.raytheon.uf.common.time import TimeRange
-from awips.dataaccess import DataAccessLayer as DAL
-from awips.ThriftClient import ThriftRequestException
+from ufpy.dataaccess import DataAccessLayer as DAL
+from ufpy.ThriftClient import ThriftRequestException
 
 import baseDafTestCase
 import unittest
