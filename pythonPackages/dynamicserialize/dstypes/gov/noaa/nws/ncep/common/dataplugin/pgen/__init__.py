@@ -5,8 +5,7 @@ __all__ = [
             'ActivityInfo',
             'DerivedProduct',
             'ResponseMessageValidate',
-            'request',
-            'response'
+            'request'
           ]
 
 from ActivityInfo import ActivityInfo

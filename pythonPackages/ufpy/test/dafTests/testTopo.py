@@ -19,8 +19,8 @@
 ##
 
 from __future__ import print_function
-from awips.dataaccess import DataAccessLayer as DAL
-from awips.ThriftClient import ThriftRequestException
+from ufpy.dataaccess import DataAccessLayer as DAL
+from ufpy.ThriftClient import ThriftRequestException
 
 import baseDafTestCase
 import shapely.geometry

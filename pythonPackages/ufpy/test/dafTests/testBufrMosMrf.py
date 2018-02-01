@@ -19,7 +19,7 @@
 ##
 
 from __future__ import print_function
-from awips.dataaccess import DataAccessLayer as DAL
+from ufpy.dataaccess import DataAccessLayer as DAL
 
 import baseBufrMosTestCase
 import unittest

@@ -20,7 +20,7 @@
 
 from __future__ import print_function
 from shapely.geometry import Polygon
-from awips.dataaccess import DataAccessLayer as DAL
+from ufpy.dataaccess import DataAccessLayer as DAL
 
 import baseDafTestCase
 import unittest

@@ -20,7 +20,7 @@
 
 from __future__ import print_function
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataquery.requests import RequestConstraint
-from awips.dataaccess import DataAccessLayer as DAL
+from ufpy.dataaccess import DataAccessLayer as DAL
 
 import baseDafTestCase
 import unittest
