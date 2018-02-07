@@ -102,6 +102,13 @@
          unpack="false"/>
 
    <plugin
+         id="com.raytheon.edex.plugin.profiler"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
          id="com.raytheon.uf.edex.plugin.redbook"
          download-size="0"
          install-size="0"
@@ -180,6 +187,13 @@
 
    <plugin
          id="com.raytheon.uf.common.dataplugin.obs"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.dataplugin.profiler"
          download-size="0"
          install-size="0"
          version="0.0.0"

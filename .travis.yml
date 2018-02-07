@@ -20,4 +20,4 @@ before_install:
   - sleep 5
   - sudo docker pull unidata/awips-ade:${OS_VERSION}
 
-script: build/setup.sh ${OS_VERSION}
+script: build/setup.sh ${OS_VERSION} buildEDEX

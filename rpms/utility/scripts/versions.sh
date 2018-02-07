@@ -36,7 +36,7 @@ do
 
 		"edex")	EDEX=("${EDEX[@]}" "$file")
 			;;
-		"cave"|"alertviz") CAVE=("${CAVE[@]}" "$file")
+		"cave") CAVE=("${CAVE[@]}" "$file")
 			;;
 		"psql"|"postgresql") POSTGRESQL=("${POSTGRESQL[@]}" "$file")
 			;;

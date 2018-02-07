@@ -30,6 +30,7 @@
 # 06/2017 M.James/Unidata       Restart					#
 # 09/2017 M.James/Unidata       Rudimentary remote db password control, #
 #                               remove pg_hba.conf edits                #
+# 01/2018 M.James/Unidata       Added qpid-stat wrapper as edex qpid    #
 #-----------------------------------------------------------------------#
 . /etc/profile.d/awips2.sh
 # directories definitions
@@ -39,7 +40,7 @@ LOG_PATH=${EDEX_PATH}/logs
 EDEX_ENV_FILE=${EDEX_PATH}/bin/setup.env
 
 # valid options
-options=( 'status' 'start' 'stop' 'log' 'setup' 'purge' 'password' 'users' 'restart')
+options=( 'status' 'start' 'stop' 'log' 'setup' 'purge' 'password' 'users' 'qpid' 'restart')
 nopts=${options[@]}
 
 # find interface for routeable IPs
@@ -287,8 +288,12 @@ edex_start() { # start all edex services
    edex_cleanup
    if [ ! -d /awips2/tmp ]; then
       mkdir -p /awips2/tmp
+      chown -R awips:fxalpha /awips2/tmp
    fi
-   chown -R awips:fxalpha /awips2/data_store /awips2/tmp
+   if [ ! -d /awips2/data_store ]; then
+      mkdir -p /awips2/data_store
+      chown -R awips:fxalpha /awips2/data_store
+   fi
 
    if [ -f "/etc/init.d/edex_postgres" ]; then
       su -c "service edex_postgres start"
@@ -360,6 +365,9 @@ edex_purge() {
 edex_purge_reset() {
         su - awips -c 'psql metadata -c "update purgejobs set failedcount = 0;"' >& /dev/null
 }
+edex_qpid() {
+   su - awips -c "qpid-stat -q -S msgIn"
+}
 edex_cleanup() {
    rm -rf /awips2/qpid/edexMessageStore/edex/
 }
@@ -376,7 +384,7 @@ edex_users(){
 
 edex_options() { # print out options for this programs
    echo ''
-   echo '     edex (status|start|stop|setup|log|purge|users)'
+   echo '     edex (status|start|stop|setup|log|purge|qpid|users)'
    echo ''
 }
 

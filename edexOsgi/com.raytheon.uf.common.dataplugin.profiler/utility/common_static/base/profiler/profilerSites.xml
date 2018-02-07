@@ -1,27 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-    <!--
-        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
-        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
-        
-        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
-        This_software_product_contains_export-restricted_data_whose
-        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
-        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
-        an_export_license_or_other_authorization.
-        
-        Contractor_Name:________Raytheon_Company
-        Contractor_Address:_____6825_Pine_Street,_Suite_340
-        ________________________Mail_Stop_B8
-        ________________________Omaha,_NE_68106
-        ________________________402.291.0100
-        
-        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
-        further_licensing_information.
-    -->
 <profilers>
   <!--
      url reference = http://www.profiler.noaa.gov/npn/npnSiteLocationsAsText.jsp
   -->
+  <site stationId="74997" profilerId="ASTC1" latitude="46.16" longitude="-123.88" elevation="3"    profilerName="Astoria OR" /> 
+  <site stationId="74996" profilerId="BGDC1" latitude="38.32" longitude="-123.07" elevation="13"   profilerName="Bodega Bay CA" /> 
+  <site stationId="74995" profilerId="FKSC1" latitude="47.97" longitude="-124.40" elevation="92"   profilerName="Forks WA" /> 
+  <site stationId="74998" profilerId="ACVC1" latitude="40.97" longitude="-124.11" elevation="56"   profilerName="McKinleyville CA" /> 
+  <site stationId="74994" profilerId="OTHC1" latitude="43.42" longitude="-124.24" elevation="5"    profilerName="North Bend OR" /> 
+  <site stationId="74993" profilerId="PTSC1" latitude="36.30" longitude="-121.89" elevation="11"   profilerName="Point Sur CA" /> 
+  <site stationId="74992" profilerId="SBAC1" latitude="34.43" longitude="-119.85" elevation="4"    profilerName="Santa Barbara CA" />
+  <site stationId="74991" profilerId="PVLC1" latitude="40.18" longitude="-104.73" elevation="1503" profilerName="Platteville CO" />
+  <site stationId="74990" profilerId="TDEC1" latitude="45.55" longitude="-122.39" elevation="12"   profilerName="Troutdale OR" />
+  <site stationId="74989" profilerId="CCOC1" latitude="39.70" longitude="-121.91" elevation="42"   profilerName="Chico CA" />
   <site stationId="74630" profilerId="AZCN5" latitude="36.84" longitude="-107.91" elevation="1902" profilerName="Aztec NM" />
   <site stationId="74662" profilerId="BLMM7" latitude="36.88" longitude="-89.97"  elevation="130"  profilerName="Bloomfield MO" />
   <site stationId="74357" profilerId="BLRW3" latitude="43.22" longitude="-90.53"  elevation="226"  profilerName="Blue River WI" />
