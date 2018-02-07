@@ -19,6 +19,79 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+            <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml"
+                        menuText="Astoria OR (ASTC1)" id="profAstoria_OR"
+                        editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+                <substitute key="wmoid" value="74997"/>
+                <substitute key="productURI" value="/profiler/%/3000/74997/%"/>
+            </contribute>
+
+            <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml"
+                        menuText="Bodega Bay CA (BGDC1)" id="profBodegaBay_CA"
+                        editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+                <substitute key="wmoid" value="74996"/>
+                <substitute key="productURI" value="/profiler/%/3000/74996/%"/>
+            </contribute>
+
+            <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml"
+                        menuText="Chico CA (CCOC1)" id="profChico_CA"
+                        editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+                <substitute key="wmoid" value="74989"/>
+                <substitute key="productURI" value="/profiler/%/3000/74989/%"/>
+            </contribute>
+
+            <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml"
+                        menuText="Forks WA (FKSC1)" id="profForks_WA"
+                        editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+                <substitute key="wmoid" value="74995"/>
+                <substitute key="productURI" value="/profiler/%/3000/74995/%"/>
+            </contribute>
+
+            <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml"
+                        menuText="McKinleyville CA (ACVC1)" id="profMcKinleyville_CA"
+                        editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+                <substitute key="wmoid" value="74998"/>
+                <substitute key="productURI" value="/profiler/%/3000/74998/%"/>
+            </contribute>
+
+	        <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml"
+                        menuText="North Bend OR (OTHC1)" id="profNorthBend_OR"
+                        editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+                <substitute key="wmoid" value="74994"/>
+                <substitute key="productURI" value="/profiler/%/3000/74994/%"/>
+            </contribute>
+
+            <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml"
+                        menuText="Platteville CO (PVLC1)" id="profPlatteville_CO"
+                        editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+                <substitute key="wmoid" value="74991"/>
+                <substitute key="productURI" value="/profiler/%/3000/74991/%"/>
+            </contribute>
+
+            <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml"
+                        menuText="Point Sur CA (PTSC1)" id="profPointSur_CA"
+                        editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+                <substitute key="wmoid" value="74993"/>
+                <substitute key="productURI" value="/profiler/%/3000/74993/%"/>
+            </contribute>
+
+            <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml"
+                        menuText="Santa Barbara CA (SBAC1)" id="profSantaBarbara_CA"
+                        editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+                <substitute key="wmoid" value="74992"/>
+                <substitute key="productURI" value="/profiler/%/3000/74992/%"/>
+            </contribute>
+
+            <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml"
+                        menuText="Troutdale OR (TDEC1)" id="profTroutdale_OR"
+                        editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
+                <substitute key="wmoid" value="74990"/>
+                <substitute key="productURI" value="/profiler/%/3000/74990/%"/>
+            </contribute>
+            
+
+
 		<contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
 	                menuText="Aztec NM (AZCN5)" id="profAztec_NM"
 	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">

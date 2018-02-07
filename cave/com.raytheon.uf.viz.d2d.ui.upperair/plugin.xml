@@ -39,21 +39,11 @@
                    label="NSHARP Soundings"
                    style="push">
              </command>
-
-             <command
-                   commandId="com.raytheon.viz.ui.actions.titleAction"
-                   label="------ Radar ------" id="RADAR">
-                
-             </command>
-             <command
-                   commandId="com.raytheon.viz.ui.actions.titleAction"
-                   label="------ Aircraft ------" id="AIRCRAFT">
-             </command>
+             <command commandId="com.raytheon.viz.ui.actions.titleAction" label="------ Radar ------" id="RADAR" />
+             <command commandId="com.raytheon.viz.ui.actions.titleAction" label="------ Aircraft ------" id="AIRCRAFT" />
              <separator name="AircraftMenuEnd" visible="false"/> 
-             <command
-                   commandId="com.raytheon.viz.ui.actions.titleAction"
-                   label="------ RAOB ------" id="RAOB">
-             </command>
+             <command commandId="com.raytheon.viz.ui.actions.titleAction" label="------ Profiler ------" id="PROFILER" />
+             <command commandId="com.raytheon.viz.ui.actions.titleAction" label="------ RAOB ------" id="RAOB" />
              <separator name="RAOBMenuMiddle" visible="false"/>  
              <separator name="RAOBMenuEnd" visible="false"/>          
           </menu>
