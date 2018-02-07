@@ -787,4 +787,355 @@
          version="0.0.0"
          unpack="false"/>
 
+   <!-- NCEP -->
+
+   <plugin
+         id="edu.wisc.ssec.mcidas"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.dataplugin.airmet"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.edex.plugin.airmet"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.dataplugin.atcf"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+         
+   <plugin
+         id="gov.noaa.nws.ncep.common.dataplugin.aww"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.dataplugin.convsigmet"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.dataplugin.ffg"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.dataplugin.idft"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.dataplugin.intlsigmet"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.dataplugin.ncscat"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.dataplugin.nonconvsigmet"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.dataplugin.tcm"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.dataplugin.wcp"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.log"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.edex.plugin.atcf"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+         
+   <plugin
+         id="gov.noaa.nws.ncep.edex.plugin.convsigmet"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.edex.plugin.intlsigmet"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.edex.plugin.nonconvsigmet"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.edex.plugin.tcm"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.edex.plugin.wcp"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.dataplugin.mcidas"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.dataplugin.ncpafm"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.dataplugin.ncuair"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.dataplugin.sgwh"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.dataplugin.sgwhv"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.dataplugin.ssha"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.dataplugin.stormtrack"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.edex.common"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.edex.plugin.sgwh"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.edex.plugin.sgwhv"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.edex.plugin.ssha"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.edex.plugin.stormtrack"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.log4j.config"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.dataplugin.ntrans"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.dataplugin.pgen"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.edex.plugin.pgen"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.dataplugin.gpd"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.edex.plugin.gpd"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.dataplugin.gempak"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.edex.plugin.gempak"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.dataplugin.modis"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.edex.plugin.modis"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+         
+   <plugin
+         id="gov.nasa.gsfc.fits"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.edex.plugin.soundingrequest"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.dataplugin.soundingrequest"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.edex.plugin.aww"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.edex.plugin.nctext"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.edex.plugin.ncpafm"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.edex.plugin.ncuair"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
 </feature>
