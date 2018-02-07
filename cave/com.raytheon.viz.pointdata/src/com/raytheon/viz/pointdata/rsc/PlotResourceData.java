@@ -173,7 +173,7 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         pluginProps.put("bufrmosHPC", new PluginPlotProperties());
         pluginProps.put("bufrmosLAMP", new PluginPlotProperties());
         pluginProps.put("bufrmosMRF", new PluginPlotProperties());
-        pluginProps.put("qc", new PluginPlotProperties());
+        //pluginProps.put("qc", new PluginPlotProperties());
         pluginProps.put("bufrascat", new PluginPlotProperties());
         pluginProps.put("bufrhdw", new PluginPlotProperties());
         pluginProps.put("bufrmthdw", new PluginPlotProperties());
