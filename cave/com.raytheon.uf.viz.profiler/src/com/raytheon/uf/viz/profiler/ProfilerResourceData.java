@@ -88,8 +88,7 @@ public class ProfilerResourceData extends AbstractRequestableResourceData {
         for (DataTime time : loadSet) {
             dataTimes.add(time.toString());
         }
-        Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>(
-                getMetadataMap());
+        Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>(getMetadataMap());
         constraints.put(PluginDataObject.DATATIME_ID, new RequestConstraint(
                 dataTimes));
         PointDataContainer pdc;

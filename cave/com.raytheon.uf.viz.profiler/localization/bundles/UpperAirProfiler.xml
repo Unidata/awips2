@@ -38,7 +38,7 @@
 					<resourceData xsi:type="profilerResourceData">
 						<metadataMap>
 							<mapping key="dataURI">
-								<constraint constraintValue="${productURI}" constraintType="LIKE" />
+								<constraint constraintValue="/profiler/%/3000/${wmoid}/%" constraintType="LIKE" />
 							</mapping>
 							<mapping key="pluginName">
 								<constraint constraintValue="profiler" constraintType="EQUALS" />
