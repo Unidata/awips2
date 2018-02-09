@@ -74,6 +74,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
  * Dec 03, 2013  2537     bsteffen    Remove IDecoderGettable
  * Jul 27, 2015  4360     rferrel     Named unique constraint. Made reportType non-nullable.
+ * Feb 09, 2018           mjames@ucar Added stationId as request constraint. 
  * 
  * </pre>
  * 
@@ -82,7 +83,9 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "profilerseq")
-@Table(name = ProfilerObs.PLUGIN_NAME, uniqueConstraints = { @UniqueConstraint(name = "uk_profiler_datauri_fields", columnNames = { "dataURI" }) })
+@Table(name = ProfilerObs.PLUGIN_NAME, uniqueConstraints = { @UniqueConstraint(name = "uk_profiler_datauri_fields", columnNames = { 
+		"dataURI", "stationId" 
+		}) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.

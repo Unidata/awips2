@@ -27,7 +27,7 @@
          default="true"  
          icon="icons/profiler.png" 
          id="com.raytheon.uf.viz.profiler.ui.ProfilerEditor"
-         name="Profiler Plot">
+         name="Profiler">
       </editor>
    </extension>
    <extension
