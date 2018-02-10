@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<contribute xsi:type="bundleItem" file="bundles/profilerAvailability.xml"
-			menuText="Profiler Display" id="ProfilerDisplay">
+			menuText="ESRL/PSD Profiler Map" id="ProfilerDisplay">
 	</contribute>
 </menuTemplate>
