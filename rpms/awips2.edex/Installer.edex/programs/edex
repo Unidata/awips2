@@ -286,15 +286,12 @@ edex_setup() { # setup IP subnet and domains for EDEX, prompt user for confirm
 
 edex_start() { # start all edex services
    edex_cleanup
-   if [ ! -d /awips2/tmp ]; then
-      mkdir -p /awips2/tmp
-      chown -R awips:fxalpha /awips2/tmp
-   fi
-   if [ ! -d /awips2/data_store ]; then
-      mkdir -p /awips2/data_store
-      chown -R awips:fxalpha /awips2/data_store
-   fi
-
+   for dir in /awips2/tmp /awips2/data_store ; do
+      if [ ! -d $dir ]; then
+         mkdir -p $dir
+         chown -R awips:fxalpha $dir
+      fi
+   done
    if [ -f "/etc/init.d/edex_postgres" ]; then
       su -c "service edex_postgres start"
    fi
