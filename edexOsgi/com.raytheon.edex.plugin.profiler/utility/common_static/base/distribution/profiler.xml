@@ -20,7 +20,9 @@
     -->
 <requestPatterns xmlns:ns2="group">
     <regex>^IUPT0[1-4]</regex>
+    <regex>^/PSD/BUFR/WwWind</regex>
     <regex>^IUPT40</regex>
+    <regex>^IUAK01 PANC</regex>
     <!-- EUROPE -->
     <regex>^IU[PQ][AD][3-7][0-9]</regex>
 </requestPatterns>
