@@ -80,7 +80,7 @@ public class PointDataCubeAdapter extends DefaultDataCubeAdapter {
     private static String[] supportedPlugins = { "obs", "modelsounding", 
     		"bufrssmi", "lsr", "sfcobs", "goessounding", "bufrascat", 
     		"poessounding", "bufrua", "bufrmosAVN", "bufrmosETA", "bufrmosGFS",
-    		"bufrmosHPC", "bufrmosLAMP", "bufrmosMRF" };
+    		"bufrmosHPC", "bufrmosLAMP", "bufrmosMRF", "profiler" };
 
     protected AbstractPointDataInventory inventory;
 
