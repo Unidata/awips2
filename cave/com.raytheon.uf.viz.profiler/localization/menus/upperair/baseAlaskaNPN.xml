@@ -23,19 +23,16 @@
 	                menuText="Central AK (CENA2)" id="profCentral_AK"
 	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
 	        <substitute key="wmoid" value="70197"/>
-        	<substitute key="productURI" value="/profiler/%/3000/70197/%"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
 	                menuText="Glennallen AK (GNAA2)" id="profGlennallen_AK"
 	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
 	        <substitute key="wmoid" value="70268"/>
-        	<substitute key="productURI" value="/profiler/%/3000/70268/%"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
 	                menuText="Talkeetna AK (TLKA2)" id="profTalkeetna_AK"
 	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
 	        <substitute key="wmoid" value="70252"/>
-        	<substitute key="productURI" value="/profiler/%/3000/70252/%"/>
 	    </contribute>
 	 
 </menuTemplate>
