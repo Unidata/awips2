@@ -25,22 +25,22 @@ Unidata supports two visualization frameworks for rendering data: [CAVE](install
 
 ---
 
-## Install CAVE 17.1.1
+## Install CAVE Viz Client
 
 |                |                        |
 |----------------|-----------------------:|
-| Linux x86_64   | [install.sh <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/software/awips2/install.sh)         |
+| Linux x86_64   | [install.sh --cave <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/software/awips2/install.sh)         |
 | macOS	         | Download and install both<br>[awips2-cave-17.1.1.dmg <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips2-cave-17.1.1.dmg)<br>[awips-python.pkg <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg)|
 | 32-bit Windows | [awips-cave.msi <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi)        |
 | 64-bit Windows | [awips-cave.amd64.msi <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips-cave.amd64.msi)  |
 
 ---
 
-## EDEX Data Server 17.1.1
+## Install EDEX Data Server
 
 |                |                        |
 |----------------|-----------------------:|
-| Linux x86_64   | [install.sh <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/software/awips2/install.sh)         |
+| Linux x86_64   | [install.sh --edex<i class="fa fa-download"></i>](https://www.unidata.ucar.edu/software/awips2/install.sh)         |
 
 [Read full EDEX install instructions...](install/install-edex)
 
