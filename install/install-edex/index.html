@@ -1253,12 +1253,12 @@
 <pre><code>groupadd fxalpha &amp;&amp; usermod -G fxalpha awips
 </code></pre>
 <h3 id="2-install-edex">2. Install EDEX<a class="headerlink" href="#2-install-edex" title="Permanent link"></a></h3>
-<p>Download and run <a href="http://www.unidata.ucar.edu/software/awips2/installEDEX.sh">installEDEX.sh <i class="fa fa-download"></i></a></p>
-<pre><code>wget http://www.unidata.ucar.edu/software/awips2/installEDEX.sh
-chmod 755 ./installEDEX.sh
-./installEDEX.sh
+<p>Download and run <a href="https://www.unidata.ucar.edu/software/awips2/install.sh">install.sh --edex <i class="fa fa-download"></i></a></p>
+<pre><code>wget https://www.unidata.ucar.edu/software/awips2/install.sh
+chmod 755 install.sh
+sudo ./install.sh --edex
 </code></pre>
-<p><strong>installEDEX.sh</strong> will perform the following steps (it's always a good idea to review downloaded shell scripts):</p>
+<p><code>install.sh --edex</code> will perform the following steps (it's always a good idea to review downloaded shell scripts):</p>
 <ol>
 <li>Saves the appropriate Yum repo file to <code>/etc/yum.repos.d/awips2.repo</code></li>
 <li>Increases process and file limits for the the <em>awips</em> account in <code>/etc/security/limits.conf</code></li>
@@ -1387,7 +1387,7 @@ EXEC    "edexBridge -s localhost"
 </code></pre>
 </li>
 <li>
-<p><strong>/etc/security/limits.conf</strong> defines the number of user processes and files (this step is automatically performed by <strong>installEDEX.sh</strong>). Without these definitions, Qpid is known to crash during periods of high ingest.</p>
+<p><strong>/etc/security/limits.conf</strong> defines the number of user processes and files (this step is automatically performed by <code>install.sh --edex</code>). Without these definitions, Qpid is known to crash during periods of high ingest.</p>
 <pre><code>awips soft nproc 65536
 awips soft nofile 65536
 </code></pre>
@@ -1553,7 +1553,7 @@ service edex_camel start
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     
-      <a href="http://www.unidata.ucar.edu/software/awips2" class="md-footer-social__link fa fa-globe"></a>
+      <a href="https://www.unidata.ucar.edu/software/awips2" class="md-footer-social__link fa fa-globe"></a>
     
       <a href="https://github.com/Unidata/awips2" class="md-footer-social__link fa fa-github-alt"></a>
     

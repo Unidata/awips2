@@ -1088,31 +1088,32 @@
 <tbody>
 <tr>
 <td>Linux x86_64</td>
-<td align="right"><a href="http://www.unidata.ucar.edu/software/awips2/installCAVE.sh">installCAVE.sh <i class="fa fa-download"></i></a></td>
+<td align="right"><a href="https://www.unidata.ucar.edu/software/awips2/install.sh">install.sh <i class="fa fa-download"></i></a></td>
 </tr>
 <tr>
 <td>macOS</td>
-<td align="right">Download and install both<br><a href="http://www.unidata.ucar.edu/downloads/awips2/awips2-cave-17.1.1.dmg">awips2-cave-17.1.1.dmg <i class="fa fa-download"></i></a><br><a href="http://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg">awips-python.pkg <i class="fa fa-download"></i></a></td>
+<td align="right">Download and install both<br><a href="https://www.unidata.ucar.edu/downloads/awips2/awips2-cave-17.1.1.dmg">awips2-cave-17.1.1.dmg <i class="fa fa-download"></i></a><br><a href="https://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg">awips-python.pkg <i class="fa fa-download"></i></a></td>
 </tr>
 <tr>
 <td>32-bit Windows</td>
-<td align="right"><a href="http://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi">awips-cave.msi <i class="fa fa-download"></i></a></td>
+<td align="right"><a href="https://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi">awips-cave.msi <i class="fa fa-download"></i></a></td>
 </tr>
 <tr>
 <td>64-bit Windows</td>
-<td align="right"><a href="http://www.unidata.ucar.edu/downloads/awips2/awips-cave.amd64.msi">awips-cave.amd64.msi <i class="fa fa-download"></i></a></td>
+<td align="right"><a href="https://www.unidata.ucar.edu/downloads/awips2/awips-cave.amd64.msi">awips-cave.amd64.msi <i class="fa fa-download"></i></a></td>
 </tr>
 </tbody>
 </table>
 <hr />
 <h2 id="linux"><i class="fa fa-linux"></i> Linux<a class="headerlink" href="#linux" title="Permanent link"></a></h2>
 <ul>
-<li><a href="http://www.unidata.ucar.edu/software/awips2/installCAVE.sh">installCAVE.sh <i class="fa fa-download"></i></a></li>
+<li><a href="https://www.unidata.ucar.edu/software/awips2/install.sh">install.sh <i class="fa fa-download"></i></a></li>
 </ul>
 <p>For CentOS/Red Hat 6 and 7. Installs to <strong>/awips2/cave</strong> and writes files to <strong>~/caveData</strong>.</p>
-<p>Install as root (all package dependencies should be resolved by yum)</p>
-<pre><code>chmod 755 ./installCAVE.sh
-./installCAVE.sh
+<p>Install CAVE for Linux</p>
+<pre><code>wget https://www.unidata.ucar.edu/software/awips2/install.sh
+chmod 755 install.sh
+sudo ./install.sh --cave
 </code></pre>
 <p>Run CAVE from the menu <strong>Applications</strong> &gt; <strong>Internet</strong> &gt; <strong>AWIPS CAVE</strong>, or from the command line as simply <code>cave</code>.</p>
 <p><img alt="" src="../../images/cave_linux_menu.png" /></p>
@@ -1128,12 +1129,12 @@
 </div>
 <hr />
 <h2 id="macos"><i class="fa fa-apple"></i> macOS<a class="headerlink" href="#macos" title="Permanent link"></a></h2>
-<p>CAVE for macOS requires the <strong><a href="http://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg">awips-python.pkg</a></strong> package be installed in order for <strong>derived parameters</strong> to work.</p>
+<p>CAVE for macOS requires the <strong><a href="https://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg">awips-python.pkg</a></strong> package be installed in order for <strong>derived parameters</strong> to work.</p>
 <ul>
-<li><a href="http://www.unidata.ucar.edu/downloads/awips2/awips2-cave-17.1.1.dmg">awips2-cave-17.1.1.dmg <i class="fa fa-download"></i></a></li>
-<li><a href="http://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg">awips-python.pkg <i class="fa fa-download"></i></a></li>
+<li><a href="https://www.unidata.ucar.edu/downloads/awips2/awips2-cave-17.1.1.dmg">awips2-cave-17.1.1.dmg <i class="fa fa-download"></i></a></li>
+<li><a href="https://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg">awips-python.pkg <i class="fa fa-download"></i></a></li>
 </ul>
-<p><em>awips-python.pkg</em> is not a prerequisite, and CAVE will still run and display data without it, but to use any derived parameter functions such as wind barbs/arrows and grid parameters on various vertical coordinates, <a href="https://github.com/mrj0/jep/">jep</a> must be installed in some way (it is assumed in <code>/Library/Python/2.7/site-packages/jep/</code>).  You are free to install jep yourself but should know that simply to install via source code or pip requires the Oracle JDK and Xcode and its Command Line Tools.  The <strong><a href="http://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg">awips-python.pkg</a></strong> package is provided as a workaround for this.</p>
+<p><em>awips-python.pkg</em> is not a prerequisite, and CAVE will still run and display data without it, but to use any derived parameter functions such as wind barbs/arrows and grid parameters on various vertical coordinates, <a href="https://github.com/mrj0/jep/">jep</a> must be installed in some way (it is assumed in <code>/Library/Python/2.7/site-packages/jep/</code>).  You are free to install jep yourself but should know that simply to install via source code or pip requires the Oracle JDK and Xcode and its Command Line Tools.  The <strong><a href="https://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg">awips-python.pkg</a></strong> package is provided as a workaround for this.</p>
 <div class="admonition info">
 <p class="admonition-title">CAVE for macOS writes and syncs files to ~/Library/caveData</p>
 </div>
@@ -1141,8 +1142,8 @@
 <h2 id="windows"><i class="fa fa-windows"></i> Windows<a class="headerlink" href="#windows" title="Permanent link"></a></h2>
 <p>Windows clients are still based on the CAVE 16.2.2 code base and provided in lieu of no 17.1.1 client.</p>
 <ul>
-<li><a href="http://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi">awips-cave.msi <i class="fa fa-download"></i></a></li>
-<li><a href="http://www.unidata.ucar.edu/downloads/awips2/awips-cave.amd64.msi">awips-cave.amd64.msi <i class="fa fa-download"></i></a></li>
+<li><a href="https://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi">awips-cave.msi <i class="fa fa-download"></i></a></li>
+<li><a href="https://www.unidata.ucar.edu/downloads/awips2/awips-cave.amd64.msi">awips-cave.amd64.msi <i class="fa fa-download"></i></a></li>
 </ul>
 <p>Writes files to <strong>caveData</strong> in the user's home directory.</p>
 <div class="admonition warning">
@@ -1229,7 +1230,7 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     
-      <a href="http://www.unidata.ucar.edu/software/awips2" class="md-footer-social__link fa fa-globe"></a>
+      <a href="https://www.unidata.ucar.edu/software/awips2" class="md-footer-social__link fa fa-globe"></a>
     
       <a href="https://github.com/Unidata/awips2" class="md-footer-social__link fa fa-github-alt"></a>
     
