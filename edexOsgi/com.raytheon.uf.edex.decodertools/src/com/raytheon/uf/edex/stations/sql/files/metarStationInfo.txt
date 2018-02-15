@@ -5,7 +5,7 @@
 # Good sources of station information include
 # NWS/O0S:  http://www.nws.noaa.gov/tg/siteloc.shtml
 # FAA ASOS: http://www.faa.gov/asos/asos.htm
-# Unidata:  http://www.unidata.ucar.edu/staff/chiz/stations/stations.shtml
+# Unidata:  https://www.unidata.ucar.edu/staff/chiz/stations/stations.shtml
 # AFWA:     ftp://ncardata.ucar.edu/datasets/ds900.0/data_1999.01
 # AirNav, linked to the Unidata site, is excellent for U.S. sites.
 # AES Canada has provided metadata on their stations. As much as possible,

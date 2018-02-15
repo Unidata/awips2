@@ -1,7 +1,7 @@
 
 # NEXRAD Radar Display
 
-The Unidata D2D Perspective features a selectable NEXRAD station display over a loop of the [FNEXRAD](http://www.unidata.ucar.edu/data/radar.html#fnexrad) Digital Hybrid Reflectivity product. Selecting any station will open a two-panel reflectivity and velocity view for the selected station.
+The Unidata D2D Perspective features a selectable NEXRAD station display over a loop of the [FNEXRAD](https://www.unidata.ucar.edu/data/radar.html#fnexrad) Digital Hybrid Reflectivity product. Selecting any station will open a two-panel reflectivity and velocity view for the selected station.
 
 ![image](../images/nexrad-display.png)
 

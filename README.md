@@ -1,12 +1,12 @@
 # Unidata AWIPS
 
-[http://www.unidata.ucar.edu/software/awips/](http://www.unidata.ucar.edu/software/awips/)
+[https://www.unidata.ucar.edu/software/awips/](https://www.unidata.ucar.edu/software/awips/)
 
 [![GitHub release](https://img.shields.io/github/release/Unidata/awips2/all.svg)]() [![Travis Badge](https://travis-ci.org/Unidata/awips2.svg?branch=unidata_17.1.1)](https://travis-ci.org/Unidata/awips2)
 
 AWIPS (formerly know as AWIPS II or AWIPS2) is a meteorological display and analysis package developed by the [National Weather Service](http://www.nws.noaa.gov/ost/SEC/AE/) and [Raytheon](http://www.raytheon.com/capabilities/products/awips/) for operational forecasting.  AWIPS is a Java application consisting of a data-rendering client ([CAVE](http://unidata.github.io/awips2/install/install-cave/), which runs on Red Hat/CentOS Linux, macOS, and Windows), and a backend data server ([EDEX](http://unidata.github.io/awips2/install/install-edex), which runs on x86_64 Red Hat/CentOS 6 and 7).
 
-AWIPS takes a unified approach to data ingest, and most data types follow a standard path through the system, starting with an [LDM](http://www.unidata.ucar.edu/software/ldm/) client requesting data from Unidata's [IDD](http://www.unidata.ucar.edu/projects/#idd), which are then decoded and stored as HDF5 and PostgreSQL/PostGIS metadata. Unidata supports two visualization frameworks for rendering AWIPS data:
+AWIPS takes a unified approach to data ingest, and most data types follow a standard path through the system, starting with an [LDM](https://www.unidata.ucar.edu/software/ldm/) client requesting data from Unidata's [IDD](https://www.unidata.ucar.edu/projects/#idd), which are then decoded and stored as HDF5 and PostgreSQL/PostGIS metadata. Unidata supports two visualization frameworks for rendering AWIPS data:
 
 * [CAVE](http://unidata.github.io/awips2/install/install-cave) - the **C**ommon **A**WIPS **V**isualization **E**nvironment
 * [python-awips](https://github.com/Unidata/python-awips) - a Python data access framework for requesting Numpy data arrays and Shapely geometries.
@@ -31,7 +31,7 @@ Through a grant provided by [Jetstream](https://jetstream-cloud.org/), Unidata i
 * [The NCP Perspective](http://unidata.github.io/awips2/cave/ncp-perspective)
 * [The Localization Perspective](http://unidata.github.io/awips2/cave/localization-perspective)
 * [python-awips Data Access Framework](http://python-awips.readthedocs.io/)
-* [awips2-users Mailing List Archives](http://www.unidata.ucar.edu/mailing_lists/archives/awips2-users/)
+* [awips2-users Mailing List Archives](https://www.unidata.ucar.edu/mailing_lists/archives/awips2-users/)
 
 	* [(click to subscribe)](mailto:awips2-users-join@unidata.ucar.edu)
 

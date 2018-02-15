@@ -98,7 +98,7 @@ In the [Azure portal](https://portal.azure.com):
 
 13. Finally, install the EDEX server 
 
-	`wget http://www.unidata.ucar.edu/software/awips2/install.sh`
+	`wget https://www.unidata.ucar.edu/software/awips2/install.sh`
 
 	`chmod 755 ./install.sh`
 
@@ -117,7 +117,7 @@ In the [Azure portal](https://portal.azure.com):
 	* **DS2_V2 Standard** (2 cores, 7 GB)
 2. Start the VM, log in and `sudo su -` to root, then run
 
-	* `wget -O /etc/yum.repos.d/awips2.repo http://www.unidata.ucar.edu/software/awips2/doc/el7.repo`
+	* `wget -O /etc/yum.repos.d/awips2.repo https://www.unidata.ucar.edu/software/awips2/doc/el7.repo`
 
 	* `yum clean all`
 
