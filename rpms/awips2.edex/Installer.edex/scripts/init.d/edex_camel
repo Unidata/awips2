@@ -33,6 +33,7 @@ fi
 
 # Who to run EDEX server as, usually "awips".  (NOT "root")
 export EDEXUSER=awips
+mkdir -p /home/$EDEXUSER
 
 # Todays date in format of YYYYMMDD.
 export TODAY=`/bin/date +%Y%m%d`

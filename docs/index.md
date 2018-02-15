@@ -2,10 +2,10 @@
 
 ---
 
-[ldm]: http://www.unidata.ucar.edu/software/ldm/
-[idd]: http://www.unidata.ucar.edu/projects/#idd
-[gempak]: http://www.unidata.ucar.edu/software/gempak/
-[awips2]: http://www.unidata.ucar.edu/software/awips2/
+[ldm]: https://www.unidata.ucar.edu/software/ldm/
+[idd]: https://www.unidata.ucar.edu/projects/#idd
+[gempak]: https://www.unidata.ucar.edu/software/gempak/
+[awips2]: https://www.unidata.ucar.edu/software/awips2/
 [ncep]: http://www.ncep.noaa.gov
 [apache]: http://httpd.apache.org
 [postgres]: www.postgresql.org
@@ -17,9 +17,9 @@
 [qpid]: http://qpid.apache.org 
 
 
-[Unidata AWIPS](http://www.unidata.ucar.edu/software/awips2/) is a meteorological display and analysis package originally developed by the [National Weather Service](http://www.nws.noaa.gov/ost/SEC/AE/) and [Raytheon](http://www.raytheon.com/capabilities/products/awips/), repackaged by Unidata to support non-operational use in research and education by [UCAR member institutions](http://president.ucar.edu/governance/members/universities-representatives).
+[Unidata AWIPS](https://www.unidata.ucar.edu/software/awips2/) is a meteorological display and analysis package originally developed by the [National Weather Service](http://www.nws.noaa.gov/ost/SEC/AE/) and [Raytheon](http://www.raytheon.com/capabilities/products/awips/), repackaged by Unidata to support non-operational use in research and education by [UCAR member institutions](http://president.ucar.edu/governance/members/universities-representatives).
 
-AWIPS takes a unified approach to data ingest, and most data types follow a path through the system starting with an [LDM](#ldm) client requesting data from the [Unidata IDD](http://www.unidata.ucar.edu/projects/#idd). These data files are then decoded and stored as HDF5 and Postgres metadata by [EDEX](install/install-edex). 
+AWIPS takes a unified approach to data ingest, and most data types follow a path through the system starting with an [LDM](#ldm) client requesting data from the [Unidata IDD](https://www.unidata.ucar.edu/projects/#idd). These data files are then decoded and stored as HDF5 and Postgres metadata by [EDEX](install/install-edex). 
 
 Unidata supports two visualization frameworks for rendering data: [CAVE](install/install-cave), and the Python Data Access Framework ([python-awips](http://python-awips.readthedocs.io)).
 
@@ -29,10 +29,10 @@ Unidata supports two visualization frameworks for rendering data: [CAVE](install
 
 |                |                        |
 |----------------|-----------------------:|
-| Linux x86_64   | [installCAVE.sh <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/software/awips2/installCAVE.sh)         |
-| macOS	         | Download and install both<br>[awips2-cave-17.1.1.dmg <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/downloads/awips2/awips2-cave-17.1.1.dmg)<br>[awips-python.pkg <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg)|
-| 32-bit Windows | [awips-cave.msi <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi)        |
-| 64-bit Windows | [awips-cave.amd64.msi <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/downloads/awips2/awips-cave.amd64.msi)  |
+| Linux x86_64   | [install.sh <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/software/awips2/install.sh)         |
+| macOS	         | Download and install both<br>[awips2-cave-17.1.1.dmg <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips2-cave-17.1.1.dmg)<br>[awips-python.pkg <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg)|
+| 32-bit Windows | [awips-cave.msi <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi)        |
+| 64-bit Windows | [awips-cave.amd64.msi <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips-cave.amd64.msi)  |
 
 ---
 
@@ -40,7 +40,7 @@ Unidata supports two visualization frameworks for rendering data: [CAVE](install
 
 |                |                        |
 |----------------|-----------------------:|
-| Linux x86_64   | [installEDEX.sh <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/software/awips2/installEDEX.sh)         |
+| Linux x86_64   | [install.sh <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/software/awips2/install.sh)         |
 
 [Read full EDEX install instructions...](install/install-edex)
 
@@ -61,7 +61,7 @@ AWIPS makes use of service-oriented architecture to request, process, and serve 
 
 ---
 
-<img style="float:right;width:450px;" src="http://www.unidata.ucar.edu/software/awips2/images/awips2_coms.png">
+<img style="float:right;width:450px;" src="https://www.unidata.ucar.edu/software/awips2/images/awips2_coms.png">
 ## Software Components
 
 * [EDEX](#edex)
@@ -85,11 +85,11 @@ Common AWIPS Visualization Environment. The data rendering and visualization too
 
 * [Read More: How to Install CAVE](install/install-cave)
 
-![CAVE](http://www.unidata.ucar.edu/software/awips2/images/Unidata_AWIPS2_CAVE.png)
+![CAVE](https://www.unidata.ucar.edu/software/awips2/images/Unidata_AWIPS2_CAVE.png)
 
 ### LDM
 
-[http://www.unidata.ucar.edu/software/ldm/](http://www.unidata.ucar.edu/software/ldm/)
+[https://www.unidata.ucar.edu/software/ldm/](https://www.unidata.ucar.edu/software/ldm/)
 
 The **LDM** (Local Data Manager), developed and supported by Unidata, is a suite of client and server programs designed for data distribution, and is the fundamental component comprising the Unidata Internet Data Distribution (IDD) system. In AWIPS, the LDM provides data feeds for grids, surface observations, upper-air profiles, satellite and radar imagery and various other meteorological datasets.   The LDM writes data directly to file and alerts EDEX via Qpid when a file is available for processing.  The LDM is started and stopped with the commands `edex start` and `edex stop`, which runs the commands `service edex_ldm start` and `service edex_ldm stop`
 

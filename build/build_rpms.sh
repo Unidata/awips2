@@ -8,7 +8,7 @@ if [ -z "$type" ]; then
 fi
 
 . /awips2/repo/awips2-builds/build/buildEnvironment.sh
-buildsh=$REPO/awips2-builds/build/cibuild.sh
+buildsh=$REPO/awips2-builds/build/build.sh
 pushd $REPO
 
 # if not mounted to docker container, clone from github
@@ -22,7 +22,7 @@ if [ ! -d awips2-rpm ]; then		git clone https://github.com/Unidata/awips2-rpm.gi
 if [ ! -d awips2-static ]; then
    mkdir awips2-static
    cd awips2-static
-   wget http://www.unidata.ucar.edu/downloads/awips2/static.tar
+   wget https://www.unidata.ucar.edu/downloads/awips2/static.tar
    tar -xvf static.tar
    rm -rf static.tar
 fi
@@ -36,13 +36,16 @@ if [ ! -z "$prog" ]; then
   su - awips -c "/bin/bash $buildsh -b $prog"
 else
   # Build all groups (in this order)
-  su - awips -c "/bin/bash $buildsh -ade"
-  su - awips -c "/bin/bash $buildsh -python"
-  su - awips -c "/bin/bash $buildsh -qpid"
-  su - awips -c "/bin/bash $buildsh -server"
+  #su - awips -c "/bin/bash $buildsh -ade"
+  #su - awips -c "/bin/bash $buildsh -python"
+  #su - awips -c "/bin/bash $buildsh -qpid"
+  #su - awips -c "/bin/bash $buildsh -server"
+  #su - awips -c "/bin/bash $buildsh -database"
+  #su - awips -c "/bin/bash $buildsh -b awips2-ldm"
   su - awips -c "/bin/bash $buildsh -edex"
-  su - awips -c "/bin/bash $buildsh -database"
-  su - awips -c "/bin/bash $buildsh -cave"
+  #su - awips -c "/bin/bash $buildsh -httpd"
+  #su - awips -c "/bin/bash $buildsh -cave"
+  ls -al
 fi
 
 # Manage RPMs

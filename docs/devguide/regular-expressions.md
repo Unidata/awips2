@@ -7,7 +7,7 @@ AWIPS uses regular expressions for data filtering at two steps in the ingest pro
         NEXRAD3        ^(SDUS[23578].) .... (......) /p(...)(...)
                FILE    -overwrite -close -edex /awips2/data_store/radar/\4/\3/\1_\4_\3_\2_(seq).rad
 
-      The `FILE` option determines the actions on the product, in this case the name of the file (using `\n` numeration) as determined by the values captured inside of parentheses ([read more about LDM pattern actions...](http://www.unidata.ucar.edu/software/ldm/ldm-current/basics/pqact.conf.html))
+      The `FILE` option determines the actions on the product, in this case the name of the file (using `\n` numeration) as determined by the values captured inside of parentheses ([read more about LDM pattern actions...](https://www.unidata.ucar.edu/software/ldm/ldm-current/basics/pqact.conf.html))
       
       
 2. EDEX Ingest uses regular expressions to determine routing of raw data to decoder plug-ins based on WMO header and file name ([Read more about WMO headers...](http://www.nws.noaa.gov/tg/table.html)). 

@@ -153,13 +153,11 @@ tcp        0      0 *:9581                      *:*                         LIST
 
 awips    13410  0.0  0.0 106100  1212 pts/8    S+   10:18   0:00 /bin/bash ./dev centralRegistry
 awips    13411  0.0  0.0 106104  1312 pts/8    S+   10:18   0:00 /bin/bash /awips2/edex/bin/start.sh -b centralRegistry
-awips    13423  0.3  0.1 2028300 57628 pts/8   Sl+  10:18   0:05 java -Xmx32m -XX:MaxPermSize=12m -XX:ReservedCodeCacheSize=4m -Djava.io.tmpdir=/awips2/tmp -jar /awips2/yajs
 awips    13445  7.3  2.5 8121576 821904 ?      SNsl 10:18   1:59 /awips2/java/bin/java -Dedex.run.mode=centralRegistry -Daw.site.identifier=OAX -Dedex.home=/awips2/edex -XX:
 
 awips    19546  0.0  0.0 106100  1212 pts/8    S+   10:58   0:00 /bin/bash ./dev centralRegistry
 awips    19547  0.0  0.0 106104  1312 pts/8    S+   10:58   0:00 /bin/bash /awips2/edex/bin/start.sh -b centralRegistry
-awips    19580 24.5  2.4 8136208 795500 ?      SNsl 10:58   1:23 /awips2/java/bin/java -Dedex.run.mode=centralRegistry -Daw.site.identifier=OAX -Dedex.home=/awips2/edex -XX:MaxPermSize=192m -Dorg.apache.camel.jmx.disabled=true -Duser.timezone=GMT -Djava.io.tmpdir=/awips2/tmp -XX:+UseConcMarkSweepGC -XX:+CMSIncrementalMode -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/data/fxa/cave/senne/ -XX:SoftRefLRUPolicyMSPerMB=50 -Dqpid.dest_syntax=BURL -Ddb.addr=localhost -Ddb.port=5432 -Ddc.db.name=dc_ob7oax -Dfxa.db.name=fxatext -Dhm.db.name=hmdb -Dih.db.name=hd_ob92oax -Ddb.metadata.pool.max=50 -Ddb.metadata.pool.timeout=60 -Ddata.archive.root=/awips2/data_store -Djava.util.logging.config.file=/awips2/edex/conf/logging.properties -Dthrift.stream.maxsize=200  -Xms512m -Xmx3072m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5011 -DMAX_PERM_SIZE=192m -DHM_DB_NAME=hmdb -DMAX_MEM=3072 -DJAVA_HOME=/awips2/java -DAW_SITE_IDENTIFIER=OAX -DSHORT_HOSTNAME=senne -DDATA_ARCHIVE_ROOT=/awips2/data_store -DIH_DB_NAME=hd_ob92oax -DDB_ADDR=localhost -DHOSTNAME=senne -DEDEX_HOME=/awips2/edex -DPROFILER_PARAM_1= -DINIT_MEM=512 -DFXA_DB_NAME=fxatext -DDC_DB_NAME=dc_ob7oax -DMETADATA_POOL_TIMEOUT=60 -DLOG_CONF=logback-registry.xml -DMETADATA_POOL_MAX=50 -DHOME=/home/awips -DSOFT_REF_LRU_POLICY_MS_PER_MB=50 -DAWIPS2_TEMP=/awips2/tmp -DDB_PORT=5432 -DWRAPPER_ON_EXIT_ACTION=RESTART -DCONSOLE_LOGLEVEL=DEBUG -classpath ...
-awips    20819  0.0  0.0 103256   876 pts/15   S+   11:04   0:00 grep centralReg
+
 [awips@senne awips2-data-delivery]$ netstat -l -p|grep 19580
 (Not all processes could be identified, non-owned process info
  will not be shown, you would have to be root to see it all.)

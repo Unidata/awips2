@@ -11,7 +11,7 @@ To add support for a new grid, two edits must be made:
 
 1. Download an example grib1 file and rename to a `*.grib` extension, then copy to the manual ingest point `/awips2/data_store/ingest/` 
 
-        wget http://www.unidata.ucar.edu/staff/mjames/14102318_nmm_d01.GrbF00600 -O wrf.grib
+        wget https://www.unidata.ucar.edu/staff/mjames/14102318_nmm_d01.GrbF00600 -O wrf.grib
     
         cp wrf.grib /awips2/data_store/ingest/
     

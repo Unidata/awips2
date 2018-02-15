@@ -18,7 +18,7 @@ extra:
     tabs: false
   social:
     - type: globe
-      link: http://www.unidata.ucar.edu/software/awips2
+      link: https://www.unidata.ucar.edu/software/awips2
     - type: github-alt
       link: https://github.com/Unidata/awips2
     - type: twitter

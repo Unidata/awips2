@@ -22,7 +22,7 @@ This walkthrough will install different EDEX components on two machines in the X
 
 	groupadd fxalpha && useradd -G fxalpha awips
 	mkdir /awips2
-	wget -O /etc/yum.repos.d/awips2.repo http://www.unidata.ucar.edu/software/awips2/doc/awips2.repo
+	wget -O /etc/yum.repos.d/awips2.repo https://www.unidata.ucar.edu/software/awips2/doc/awips2.repo
 	yum clean all
 	yum groupinstall awips2-database
 
@@ -140,7 +140,7 @@ Since this Database/Request server is not running the main *edexIngest* JVM, we 
 ### 1. Install
 
 	groupadd fxalpha && useradd -G fxalpha awips
-	wget -O /etc/yum.repos.d/awips2.repo http://www.unidata.ucar.edu/software/awips2/doc/awips2.repo
+	wget -O /etc/yum.repos.d/awips2.repo https://www.unidata.ucar.edu/software/awips2/doc/awips2.repo
 	yum clean all
 	yum groupinstall awips2-ingest
 

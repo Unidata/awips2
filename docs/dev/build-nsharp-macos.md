@@ -1,6 +1,6 @@
 A little known fact in the world of AWIPS(II) is just how dependent the system still is on NAWIPS-GEMPAK.  The entire National Centers Perspective is dependent on pre-built shared object files for 64-bit Linux, which means that all of the D2D plugins which extend NSHARP (for bufr obs, NPP profiles, forecast models, etc.) also depend on these libraries.
 
-This dependency has prevented use of the NSHARP plugin in the first release (15.1.1) of the [OS X CAVE client](http://www.unidata.ucar.edu/downloads/awips2/awips2-cave.dmg).  These are the steps taken to build NSHARP and GEMPAK libraries for OS X AWIPS 16.2.2.
+This dependency has prevented use of the NSHARP plugin in the first release (15.1.1) of the [OS X CAVE client](https://www.unidata.ucar.edu/downloads/awips2/awips2-cave.dmg).  These are the steps taken to build NSHARP and GEMPAK libraries for OS X AWIPS 16.2.2.
 
 You will need the [https://github.com/Unidata/awips2-gemlibs](https://github.com/Unidata/awips2-gemlibs) repository on your Mac, as well as gcc and gfortran (from XCode).  Pay attention to any version-specific include path or linked files, such as `/usr/local/Cellar/gcc/4.9.2_1/lib/gcc/4.9/`, always account for the correct versions and locations on your own system.
 
