@@ -1,20 +1,15 @@
 #!/bin/bash -f
 #
-# installCAVE.sh - a short script to manage the yum repo setup and install
-#                  of AWIPS II CAVE
+# installCAVE
+# author: Michael James <mjames@ucar.edu>
 #
-# 10/15         mjames@ucar.edu         Creation
-# 05/16         mjames@ucar.edu         Will now remove and install
-#
+# run as "sudo ./installCAVE.sh"
 
-#
-#  Download awips2.repo from the Unidata web server
-# 
-
+# Download awips2.repo from the Unidata web server
 if [ ! -f /etc/yum.repos.d/awips2.repo ]; then
-  echo ''
+  echo
   echo 'Downloading awips2repo yum file to /etc/yum.repos.d/awips2.repo'
-  echo ''
+  echo
   if [[ $(grep "release 7" /etc/redhat-release) ]]; then
     wget -O /etc/yum.repos.d/awips2.repo http://www.unidata.ucar.edu/software/awips2/doc/el7.repo
   else
@@ -24,7 +19,7 @@ fi
 
 echo "Running 'yum clean all'"
 yum clean all
-echo ''
+echo
 
 #
 # If CAVE is not installed them make sure /awips2/cave is removed before installing
@@ -44,23 +39,23 @@ if [[ $(rpm -qa | grep awips2-cave) ]]; then
   fi
 fi
 
-echo ''
+echo
 echo "Running 'yum groupinstall awips2-cave'"
-echo ''
+echo
 yum groupinstall awips2-cave -y 2>&1 | tee -a /tmp/cave-install.log
 
 if getent passwd awips &>/dev/null; then
-  echo ''
+  echo
   echo "Setting permissions to user awips:fxalpha"
   /bin/chown -R awips:fxalpha /awips2/cave 
 else
-  echo ''
+  echo
   echo "--- user awips does not exist"
   echo "--- you should set owner/group permissions for /awips2/cave:"
   echo "tried to run 'chown -R awips:fxalpha /awips2/cave'"
 fi
 
-echo ""
+echo
 echo "Done..."
 echo ""
 echo "  to run cave:"

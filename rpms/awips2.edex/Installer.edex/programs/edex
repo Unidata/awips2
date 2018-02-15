@@ -289,7 +289,7 @@ edex_start() { # start all edex services
    for dir in /awips2/tmp /awips2/data_store ; do
       if [ ! -d $dir ]; then
          mkdir -p $dir
-         chown -R awips:fxalpha $dir
+         chown awips:fxalpha $dir
       fi
    done
    if [ -f "/etc/init.d/edex_postgres" ]; then
@@ -417,8 +417,4 @@ check_input() { # check input against accepted options
 # check input - first/only program run
 #
 check_input
-
 exit;
-
-
-
