@@ -34,14 +34,13 @@ or if the awips account already exists:
 
 ### 2. Install EDEX
 
-
-Download and run [installEDEX.sh <i class="fa fa-download"></i>](http://www.unidata.ucar.edu/software/awips2/installEDEX.sh)
+Download and run [install.sh --edex <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/software/awips2/install.sh)
  
- 	wget http://www.unidata.ucar.edu/software/awips2/installEDEX.sh
- 	chmod 755 ./installEDEX.sh
- 	./installEDEX.sh
+ 	wget https://www.unidata.ucar.edu/software/awips2/install.sh
+ 	chmod 755 install.sh
+ 	sudo ./install.sh --edex
  	
-**installEDEX.sh** will perform the following steps (it's always a good idea to review downloaded shell scripts):
+`install.sh --edex` will perform the following steps (it's always a good idea to review downloaded shell scripts):
 
 1. Saves the appropriate Yum repo file to `/etc/yum.repos.d/awips2.repo`
 2. Increases process and file limits for the the *awips* account in `/etc/security/limits.conf`
@@ -184,7 +183,7 @@ The command **edex setup** attempts to add the domain name of your server.
         EXEC    "pqact -e"
         EXEC    "edexBridge -s localhost"
 
-- **/etc/security/limits.conf** defines the number of user processes and files (this step is automatically performed by **installEDEX.sh**). Without these definitions, Qpid is known to crash during periods of high ingest.
+- **/etc/security/limits.conf** defines the number of user processes and files (this step is automatically performed by `install.sh --edex`). Without these definitions, Qpid is known to crash during periods of high ingest.
     
         awips soft nproc 65536
         awips soft nofile 65536

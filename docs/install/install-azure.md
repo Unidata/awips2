@@ -7,7 +7,7 @@
 * iptables
 
 
-> All of these commands are issued as root user!
+> All of these commands require root or sudo!
 
 Create user **awips** and group **fxalpha** and create AWIPS directories.
 
@@ -67,15 +67,15 @@ and after install
 
 # Linux Download
 
-For 64-bit RHEL/CentOS 5 and 6, download and run the script [installEDEX.sh](http://www.unidata.ucar.edu/software/awips2/installEDEX.sh):
+For 64-bit RHEL/CentOS 6 and 7, download and run the script [install.sh --edex](http://www.unidata.ucar.edu/software/awips2/install.sh):
 
-    wget http://www.unidata.ucar.edu/software/awips2/installEDEX.sh
-    chmod 755 ./installEDEX.sh
-    ./installEDEX.sh
+    wget http://www.unidata.ucar.edu/software/awips2/install.sh
+    chmod 755 ./install.sh
+    sudo ./install.sh --edex
 
 This will install to `/awips2/edex`, `/awips2/data` and other directories.
 
-> CentOS/RHEL 5 and 6 are the only supported operating systems for EDEX (Though you may have luck with Fedora Core 12 to 14 and Scientific Linux). Not supported for EDEX: Debian, Ubuntu, SUSE, Solaris, OS X, Fedora 15+, CentOS/RHEL 7, Windows
+> CentOS/RHEL 6 and 7 are the only supported operating systems for EDEX (Though you may have luck with Fedora Core 12 to 14 and Scientific Linux). Not supported for EDEX: Debian, Ubuntu, SUSE, Solaris, OS X, Fedora 15+, Windows
 
 ## Be Aware...
 
@@ -83,7 +83,7 @@ This will install to `/awips2/edex`, `/awips2/data` and other directories.
     
 - Security Limits - **/etc/security/limits.conf**
  
-    Qpid is known to crash on systems without a high security limit for user processes and files. The file `/etc/security/limits.conf` defines the number of each for the awips user (This is automatically configured by the `installEDEX.sh` script).
+    Qpid is known to crash on systems without a high security limit for user processes and files. The file `/etc/security/limits.conf` defines the number of each for the awips user (This is automatically configured by the `install.sh --edex` script).
     
         awips soft nproc 65536
         awips soft nofile 65536
@@ -97,7 +97,7 @@ LDM config
     ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6 edex-cloud.westus.cloudapp.azure.com
 
 
-# What does installEDEX.sh do?
+# What does `install.sh --edex` do?
 
 1. Downloads [http://www.unidata.ucar.edu/software/awips2/doc/awips2.repo](http://www.unidata.ucar.edu/software/awips2/doc/awips2.repo) to `/etc/yum.repos.d/awips2.repo`
 2. Runs `yum clean all`

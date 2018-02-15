@@ -98,11 +98,11 @@ In the [Azure portal](https://portal.azure.com):
 
 13. Finally, install the EDEX server 
 
-	`wget http://www.unidata.ucar.edu/software/awips2/installEDEX.sh`
+	`wget http://www.unidata.ucar.edu/software/awips2/install.sh`
 
-	`chmod 755 ./installEDEX.sh`
+	`chmod 755 ./install.sh`
 
-	`./installEDEX.sh`
+	`sudo ./install.sh --edex`
 
 ---
 
