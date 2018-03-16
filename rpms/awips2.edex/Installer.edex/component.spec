@@ -57,8 +57,7 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-# Unidata programs 'edex' and 'qpidNotify.py'
-/bin/cp -r %{_baseline_workspace}/rpms/awips2.edex/Installer.edex/programs/* ${RPM_BUILD_ROOT}/awips2/edex/bin/
+/bin/cp -r %{_baseline_workspace}/rpms/awips2.edex/Installer.edex/programs/qpidNotify.py ${RPM_BUILD_ROOT}/awips2/edex/bin/
 
 DEPLOY_SCRIPT="deploy.edex.awips2/deploy/deploy-esb-configuration.xml"
 # use deploy-install to deploy edex-configuration.
@@ -159,6 +158,5 @@ rm -rf ${RPM_BUILD_ROOT}
 %defattr(755,awips,fxalpha,755)
 %dir /awips2/edex/bin
 /awips2/edex/bin/*.sh
-%attr(755,awips,fxalpha) /awips2/edex/bin/edex
 %attr(755,awips,fxalpha) /awips2/edex/bin/qpidNotify.py
 %attr(744,root,root) /etc/init.d/*
