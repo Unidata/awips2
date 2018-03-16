@@ -5,7 +5,7 @@ MAINTAINER Michael James <mjames@ucar.edu>
 
 USER root
 
-RUN yum update yum
+RUN yum update yum -y
 
 RUN groupadd fxalpha && useradd -G fxalpha awips
 

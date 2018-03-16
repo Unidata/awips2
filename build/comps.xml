@@ -16,6 +16,7 @@
          <packagereq type="default">awips2-python-cython</packagereq>
          <packagereq type="default">awips2-python-dateutil</packagereq>
          <packagereq type="default">awips2-python-numpy</packagereq>
+         <packagereq type="default">awips2-python-jep</packagereq>
          <packagereq type="default">awips2-python-pyparsing</packagereq>
          <packagereq type="default">awips2-python-pytz</packagereq>
          <packagereq type="default">awips2-python-setuptools</packagereq>

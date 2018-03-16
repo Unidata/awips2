@@ -1,11 +1,11 @@
 FROM centos:7
 ENV VERSION 17.1.1
-ENV RELEASE 4
+ENV RELEASE 6
 MAINTAINER Michael James <mjames@ucar.edu>
 
 USER root
 
-RUN yum update yum
+RUN yum update yum -y
 
 RUN groupadd fxalpha && useradd -G fxalpha awips
 
