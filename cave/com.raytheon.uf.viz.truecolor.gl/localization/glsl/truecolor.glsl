@@ -29,7 +29,7 @@ int toBitMask(float alpha) {
 }
 
 float fromBitMask(int bitMask) {
-	return bitMask / maskMultiplier;
+	return float(bitMask) / maskMultiplier;
 }
 
 vec4 getFinalColor() {
@@ -68,8 +68,6 @@ vec4 applyColorBand(int colorband) {
 		float cmapValue = dataToColorMapValue(dataValue, dataMappingDataValues, dataMappingColorValues, dataMappingValues);
 		float index = pow(getColorMappingIndex(cmapValue, colorMapping), gamma);
 		
-		int currentMask = toBitMask(a);
-		int bitValue = (1 << band);
 		if (colorband == RED_BAND && index > r) {
 			r = index;
 		} else if (colorband == GREEN_BAND && index > g) {
@@ -77,11 +75,13 @@ vec4 applyColorBand(int colorband) {
 		} else if (colorband == BLUE_BAND && index > b) {
 			b = index;
 		}
-
-		if ((currentMask & bitValue) == 0) {
-			// alpha does not contain this bit yet!
-			a = fromBitMask(currentMask | bitValue);
+		int bitValue = int(pow(2.0,float(band)));
+		int currentMask = toBitMask(a);
+		if ((currentMask - (bitValue * int(floor(float(currentMask/bitValue))))) == 0) {
+			a = fromBitMask(bitValue);
 		}
+		// a mod n = a - (n * Fix(a/n))
+		// currentMask & bitValue = currentMask - (bitValue * (currentMask/bitValue))
 	}
 
 	return vec4(r, g, b, a);
