@@ -98,14 +98,6 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.viz.ncep.displays.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.ncep.nsharp.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.uf.viz.d2d.nsharp.feature"
          version="0.0.0"/>
 
@@ -150,10 +142,6 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.viz.ncep.npp.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.uf.viz.alertview.feature"
          version="0.0.0"/>
 
@@ -167,6 +155,10 @@
 
    <includes
          id="com.raytheon.uf.viz.aviation.advisory.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="edu.ucar.unidata.uf.viz.feature"
          version="0.0.0"/>
 
    <requires>
