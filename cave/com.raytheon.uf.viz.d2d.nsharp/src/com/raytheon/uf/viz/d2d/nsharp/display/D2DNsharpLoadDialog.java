@@ -179,7 +179,6 @@ public class D2DNsharpLoadDialog extends Dialog {
 
     public D2DNsharpLoadDialog(Shell parentShell) throws VizException {
         super(parentShell);
-        // set modeless so mouse button can be used by others
         this.setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE
                 | SWT.SHELL_TRIM);
         activeLoadSoundingType = OBSER_SND;
@@ -227,7 +226,6 @@ public class D2DNsharpLoadDialog extends Dialog {
         mainLayout.marginHeight = 3;
         mainLayout.marginWidth = 3;
         createLoadContents(top);
-        // shell.setSize(DIALOG_WIDTH, DIALOG_HEIGHT);
         if (waitCursor == null)
             waitCursor = new Cursor(top.getDisplay(), SWT.CURSOR_WAIT);
         return top;
@@ -247,12 +245,8 @@ public class D2DNsharpLoadDialog extends Dialog {
 
     @Override
     public boolean close() {
-//        D2DNsharpMapResource nsharpMapResource = D2DNsharpMapResource.getMapRsc();
-//        if (nsharpMapResource != null)
-//            nsharpMapResource.setPoints(null);
         cleanSelf();
         cleanupDialog(activeLoadSoundingType);
-        // INSTANCE = null;
         if (waitCursor != null)
             waitCursor.dispose();
         waitCursor = null;
@@ -265,7 +259,6 @@ public class D2DNsharpLoadDialog extends Dialog {
         return (super.close());
     }
 
-    // Only use Cancel button but NOT ok button
     @Override
     public void createButtonsForButtonBar(Composite parent) {
         createButton(parent, IDialogConstants.CANCEL_ID,

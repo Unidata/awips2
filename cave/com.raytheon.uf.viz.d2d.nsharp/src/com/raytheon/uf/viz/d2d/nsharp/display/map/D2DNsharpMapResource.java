@@ -1,3 +1,40 @@
+package com.raytheon.uf.viz.d2d.nsharp.display.map;
+
+import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
+import gov.noaa.nws.ncep.ui.nsharp.NsharpStationInfo;
+
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PlatformUI;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+
+import com.raytheon.uf.viz.core.DrawableCircle;
+import com.raytheon.uf.viz.core.DrawableString;
+import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.PixelExtent;
+import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.map.IMapDescriptor;
+import com.raytheon.uf.viz.core.map.MapDescriptor;
+import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.IInputHandler;
+import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
+import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
+import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
+import com.raytheon.viz.ui.EditorUtil;
+import com.raytheon.viz.ui.editor.AbstractEditor;
+import com.raytheon.viz.ui.input.EditableManager;
+import com.vividsolutions.jts.geom.Coordinate;
+
 /**
  * 
  * com.raytheon.uf.viz.d2d.nsharp.display.map.D2DNsharpMapResource
@@ -19,41 +56,6 @@
  * @author Chin Chen
  * @version 1.0
  */
-package com.raytheon.uf.viz.d2d.nsharp.display.map;
-
-import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
-import gov.noaa.nws.ncep.ui.nsharp.NsharpStationInfo;
-import gov.noaa.nws.ncep.ui.pgen.display.DisplayElementFactory;
-import gov.noaa.nws.ncep.ui.pgen.display.IDisplayable;
-import gov.noaa.nws.ncep.ui.pgen.elements.SymbolLocationSet;
-
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Cursor;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.PlatformUI;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
-import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.PixelExtent;
-import com.raytheon.uf.viz.core.drawables.PaintProperties;
-import com.raytheon.uf.viz.core.drawables.ResourcePair;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.map.IMapDescriptor;
-import com.raytheon.uf.viz.core.map.MapDescriptor;
-import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
-import com.raytheon.uf.viz.core.rsc.IInputHandler;
-import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
-import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
-import com.raytheon.viz.ui.EditorUtil;
-import com.raytheon.viz.ui.editor.AbstractEditor;
-import com.raytheon.viz.ui.input.EditableManager;
-import com.vividsolutions.jts.geom.Coordinate;
 
 public class D2DNsharpMapResource extends
         AbstractVizResource<D2DNsharpMapResourceData, MapDescriptor> implements
@@ -84,9 +86,7 @@ public class D2DNsharpMapResource extends
                         .getActivePage().bringToTop(mapEditor);
                 mapEditor.refresh();
             }
-        } catch (Exception e) {
-        }
-
+        } catch (Exception e) {}
     }
 
     public static AbstractEditor getMapEditor() {
@@ -100,10 +100,12 @@ public class D2DNsharpMapResource extends
     private D2DNsharpMapResourceData nsharpMapResourceData;
 
     /** The set of symbols with similar attributes across many locations */
-    private SymbolLocationSet symbolSet = null;
+    private List<DrawableCircle> symbolSet = null;
+    
+    private List<DrawableString> symbolText = null;
 
-    private SymbolLocationSet symbolToMark = null;
-
+    private DrawableCircle symbolToMark = null;
+    
     private List<NsharpStationInfo> points = new ArrayList<NsharpStationInfo>();
 
     private List<NsharpStationInfo> pickedPoint = new ArrayList<NsharpStationInfo>();
@@ -137,12 +139,8 @@ public class D2DNsharpMapResource extends
     protected D2DNsharpMapResource(D2DNsharpMapResourceData d2dNsharpMapResourceData,
             LoadProperties loadProperties) {
         super(d2dNsharpMapResourceData, loadProperties);
-
-        // set the editable capability
         getCapability(EditableCapability.class).setEditable(true);
-
         this.nsharpMapResourceData = d2dNsharpMapResourceData;
-
     }
 
     public static void startWaitCursor() {
@@ -162,8 +160,10 @@ public class D2DNsharpMapResource extends
         }
     }
 
+    /**
+     * 
+     */
     private static void createMapEditor() {
-        // create an editor MapEditor
         try {
         	mapEditor = (AbstractEditor) EditorUtil.getActiveEditor();
         } catch (Exception ve) {
@@ -231,7 +231,6 @@ public class D2DNsharpMapResource extends
     }
 
     public static void deleteNsharpMapResource() {
-        // System.out.println("D2DNsharpMapResource:deleteNsharpMapResource ");
         if (mapRsc != null) {
             mapRsc.dispose();
             mapRsc = null;
@@ -245,24 +244,11 @@ public class D2DNsharpMapResource extends
      */
     @Override
     public void disposeInternal() {
-        // System.out.println("D2DNsharpMapResource:disposeInternal "+
-        // this.toString());
 
         if (mapEditor != null) {
             mapEditor.unregisterMouseHandler(mouseHandler);
             mouseHandler = null;
-            // close editor
-            /*
-             * if((PlatformUI.getWorkbench()!=
-             * null)&&(PlatformUI.getWorkbench().getActiveWorkbenchWindow()!=
-             * null) &&
-             * (PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage
-             * ()!=null))
-             * PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage
-             * ().closeEditor(mapEditor, false);
-             */
             mapEditor = null;
-
         }
         pickedPoint = null;
         points = null;
@@ -283,112 +269,116 @@ public class D2DNsharpMapResource extends
      * com.raytheon.viz.core.rsc.IVizResource#getCoordinateReferenceSystem()
      */
     public CoordinateReferenceSystem getCoordinateReferenceSystem() {
-
         if (descriptor == null)
             return null;
-
         return descriptor.getCRS();
-
     }
 
-    /*
-     * (non-Javadoc)
+    /**
      * 
      * @see com.raytheon.viz.core.rsc.IVizResource#getName()
      */
     @Override
     public String getName() {
-
-        return "NSHARP Resource";
-
+        return "NSHARP Display";
     }
 
-    /*
-     * (non-Javadoc)
+    /**
      * 
      * @see com.raytheon.viz.core.rsc.IVizResource#init(com.raytheon.viz.core.
      * IGraphicsTarget)
      */
     @Override
     public void initInternal(IGraphicsTarget target) throws VizException {
-        // System.out.println("D2DNsharpMapResource:initInternal called");
-        // mapfont = target.initializeFont("Monospace",
-        // (float) (12 *
-        // nsharpMapResourceData.getMarkerTextSize().getSoftwareSize()), null);
-
-        // make the nsharp map resource editable
         EditableManager.makeEditable(this,
                 getCapability(EditableCapability.class).isEditable());
     }
 
-    /*
-     * (non-Javadoc)
+    /**
      * 
      * @see
      * com.raytheon.viz.core.rsc.IVizResource#isApplicable(com.raytheon.viz.
      * core.PixelExtent)
      */
     public boolean isApplicable(PixelExtent extent) {
-
         return true;
-
     }
 
+    /**
+     * 
+     */
     private void generateSymbolForDrawing() {
-        String type;
-        float lineWidth = nsharpMapResourceData.getMarkerWidth();
-        Boolean clear = false;
+        String type = null;
 
-        String category = new String("Marker");
-        double sizeScale = nsharpMapResourceData.getMarkerSize();
+        symbolText = new ArrayList<DrawableString>(mapRsc.getPoints().size());
+        symbolSet = new ArrayList<DrawableCircle>(mapRsc.getPoints().size());
 
         if (points.isEmpty() == true) {
             symbolSet = null;
         } else {
-            // SymbolLocationSet constructor requires a positive-length array of
-            // Coordinate
             Coordinate[] locations = new Coordinate[points.size()];
-            Color[] colors = new Color[] { new Color(
-                    NsharpConstants.color_green.red,
-                    NsharpConstants.color_green.green,
-                    NsharpConstants.color_green.blue) };
-            // System.out.println( "generateSymbolSet: size ="+ points.size());
             int i = 0;
+            type = nsharpMapResourceData.getMarkerType().toString();
             for (NsharpStationInfo p : points) {
                 double lon, lat;
                 lon = p.getLongitude();
                 lat = p.getLatitude();
                 locations[i++] = new Coordinate(lon, lat);
+                
+                DrawableCircle circle = new DrawableCircle();
+                double[] pixel = descriptor.worldToPixel(new double[] { lon, lat });
+                circle.setCoordinates(pixel[0], pixel[1]);
+                circle.lineWidth = nsharpMapResourceData.getMarkerWidth();
+                circle.screenRadius = getRadius()*1.4;
+                circle.basics.color = NsharpConstants.color_green;
+                circle.filled = false;
+                symbolSet.add(circle);
+                
+                DrawableString drawString = new DrawableString(p.getStnId());
+                drawString.basics.color =  NsharpConstants.color_white;
+                drawString.setCoordinates(pixel[0], pixel[1]);
+                drawString.setText(p.getStnId(), NsharpConstants.color_white);
+                symbolText.add(drawString);
             }
-            type = nsharpMapResourceData.getMarkerType().toString();
-            // System.out.println( "generateSymbolSet done size ="+ i);
-            symbolSet = new SymbolLocationSet(null, colors, lineWidth,
-                    sizeScale, clear, locations, category, type);
-
         }
+        
         // generate symbol for picked stn to mark X
         if (pickedPoint != null && pickedPoint.size() > 0) {
             Coordinate[] locations = new Coordinate[pickedPoint.size()];
+            type = nsharpMapResourceData.getStnMarkerType().toString();
+            
             int i = 0;
             for (NsharpStationInfo p : pickedPoint) {
                 double lon, lat;
                 lon = p.getLongitude();
                 lat = p.getLatitude();
                 locations[i++] = new Coordinate(lon, lat);
+                
+                DrawableCircle circle = new DrawableCircle();
+                double[] pixel = descriptor.worldToPixel(new double[] { lon, lat });
+                circle.setCoordinates(pixel[0], pixel[1]);
+                circle.lineWidth = nsharpMapResourceData.getMarkerWidth();
+                circle.screenRadius = getRadius()*1.4;
+                circle.basics.color = NsharpConstants.color_red;
+                circle.filled = false;
+                symbolSet.add(circle);
+                
             }
-            type = nsharpMapResourceData.getStnMarkerType().toString();
-            Color[] colors = new Color[] { new Color(
-                    NsharpConstants.color_red.red,
-                    NsharpConstants.color_red.green,
-                    NsharpConstants.color_red.blue) };
-            symbolToMark = new SymbolLocationSet(null, colors, lineWidth,
-                    sizeScale * 2, clear, locations, category, type);
-        } else
+        } else {
             symbolToMark = null;
+        }
+    }
+    
+    /**
+     * 
+     * @return
+     */
+    protected double getRadius() {
+        return 5 * getCapability(MagnificationCapability.class)
+                .getMagnification();
     }
 
-    /*
-     * (non-Javadoc)
+    /**
      * 
      * @see
      * com.raytheon.viz.core.drawables.IRenderable#paint(com.raytheon.viz.core
@@ -397,41 +387,23 @@ public class D2DNsharpMapResource extends
     @Override
     public void paintInternal(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
-        // System.out.println("paintInternal called!");
-        // IFont font = target.initializeFont("Monospace",
-        // (float) (12 *
-        // nsharpMapResourceData.getMarkerTextSize().getSoftwareSize()), null);
 
-        generateSymbolForDrawing();
-        DisplayElementFactory df = new DisplayElementFactory(target,
-                this.descriptor);
-        if (symbolSet != null) {
-            ArrayList<IDisplayable> elements = df.createDisplayElements(
-                    symbolSet, paintProps);
-            for (IDisplayable each : elements) {
-                try {
-                    each.draw(target, paintProps);
-                    each.dispose();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    // System.out.println("paintInternal caught draw exception!");
-                }
-            }
-        }
-        if (symbolToMark != null) {
-            ArrayList<IDisplayable> elements = df.createDisplayElements(
-                    symbolToMark, paintProps);
-            for (IDisplayable each : elements) {
-                try {
-                    each.draw(target, paintProps);
-                    each.dispose();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    // System.out.println("paintInternal caught draw exception!");
-                }
-            }
-        }
-        // font.dispose();
+        		generateSymbolForDrawing();
+        		if (symbolSet != null) {
+        			target.drawCircle(symbolSet.toArray(new DrawableCircle[0]));
+            		target.drawStrings(symbolText);
+        		}
+        		
+//	        if (symbolToMark != null) {
+//	            ArrayList<IDisplayable> elements = df.createDisplayElements(
+//	                    symbolToMark, paintProps);
+//	            for (IDisplayable each : elements) {
+//	                try {
+//	                    each.draw(target, paintProps);
+//	                    each.dispose();
+//	                } catch (Exception e) {e.printStackTrace();}
+//	            }
+//	        }
     }
 
     /*

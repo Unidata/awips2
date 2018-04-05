@@ -618,19 +618,6 @@
 			         </reference>
 			      </visibleWhen>
             </command>
-		   <command
-           commandId="gov.noaa.nws.ncep.ui.pgen.palette"
-           icon="icons/edit.png"
-           label="Pgen"
-           mode="FORCE_TEXT"
-           style="push"
-           tooltip="Pgen">
-        <visibleWhen>
-           <reference
-                 definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
-           </reference>
-        </visibleWhen>
-		   </command>
          </toolbar>
          </menuContribution>
          <menuContribution
