@@ -32,6 +32,13 @@ import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.input.EditableManager;
 
+/**
+ * NEXRAD Display Map Resource
+ * 
+ * @author mjames
+ *
+ */
+
 public class RadarMapResource extends
 		AbstractVizResource<RadarMapResourceData, MapDescriptor> implements
 		RemoveListener {
@@ -129,10 +136,13 @@ public class RadarMapResource extends
         }
     }
     
+    /**
+     * 
+     */
     private static void createMapEditor() {
-    	deleteRadarMapResource();
+    		deleteRadarMapResource();
         try {
-        	mapEditor = (AbstractEditor) EditorUtil.getActiveEditor();
+        		mapEditor = (AbstractEditor) EditorUtil.getActiveEditor();
         } catch (Exception ve) {
             System.out
                     .println("RadarMapResource Could not load initial editor: "
@@ -198,8 +208,12 @@ public class RadarMapResource extends
        return mapRsc;
    }
    
+   /**
+    * 
+    */
    private static void createRadarMapMarkers() {
-       String query = "SELECT lat, lon, rda_id FROM radar_spatial where rda_id like 'K%' ;";
+	   
+       String query = "SELECT lat, lon, rda_id FROM radar_spatial where (rda_id not like 'T%' and rda_id <> 'KCRI');";
        List<Object[]> rows = null;
        try {
     	   rows = DirectDbQuery.executeQuery(query, "metadata",
@@ -208,18 +222,21 @@ public class RadarMapResource extends
            e.printStackTrace();
            rows = new ArrayList<Object[]>();
        }
-      
+       
        for (int i = 0; i < rows.size(); i++) {
-    	   RadarStation pnt = new RadarStation();
-    	   Object[] pntObject = rows.get(i);
-    	   pnt.setLat((Float) pntObject[0]);
-    	   pnt.setLon((Float) pntObject[1]);
-    	   pnt.setName((String) pntObject[2]);
-    	   pnt.setRdaId((String) pntObject[2]);
-    	   mapRsc.addPoint(pnt);
+	    	   RadarStation pnt = new RadarStation();
+	    	   Object[] pntObject = rows.get(i);
+	    	   pnt.setLat((Float) pntObject[0]);
+	    	   pnt.setLon((Float) pntObject[1]);
+	    	   pnt.setName((String) pntObject[2]);
+	    	   pnt.setRdaId((String) pntObject[2]);
+	    	   mapRsc.addPoint(pnt);
        }
    }
    
+   /**
+    * 
+    */
    public static void deleteRadarMapResource() {
 	   System.out.println("RadarMapResource:deleteRadarMapResource ");
        if (mapRsc != null) {
@@ -293,18 +310,8 @@ public class RadarMapResource extends
                circle.basics.color = color;
                circle.filled = false;
                circles.add(circle);
-           }
-           
+           }   
        }
-
-       /*
-       // generate symbol for picked stn to mark X       
-       if (this.pickedPoint.getLon() != null) {
-           double lon, lat;
-           lon = this.pickedPoint.getLon();
-           lat = this.pickedPoint.getLat();
-       } 
-       */
    }
    
    protected double getRadius() {
@@ -329,7 +336,7 @@ public class RadarMapResource extends
    
    @Override
    public void project(CoordinateReferenceSystem mapData) throws VizException {
-       // System.out.println("RadarMapResource: project ");
+	   // TODO Auto-generated method stub
    }
    
    private static RadarMapMouseHandler getMouseHandler() {

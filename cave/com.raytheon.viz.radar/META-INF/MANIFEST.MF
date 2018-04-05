@@ -6,7 +6,7 @@ Bundle-Version: 1.16.0.qualifier
 Bundle-Activator: com.raytheon.viz.radar.Activator
 Bundle-Vendor: Raytheon
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: com.raytheon.viz.radar,
  com.raytheon.viz.radar.interrogators,
  com.raytheon.viz.radar.rsc,
