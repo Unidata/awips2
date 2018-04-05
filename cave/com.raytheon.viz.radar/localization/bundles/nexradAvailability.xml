@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-
 <bundle xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <displayList>
         <displays xsi:type="d2DMapRenderableDisplay"
@@ -25,8 +24,8 @@
                         <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
                     </properties>
                     <resourceData xsi:type="lpiResourceData">
-                        <filename>88D.lpi</filename>
-                        <mapName>WSR-88D Station Locs</mapName>
+                        <filename>NEXRAD.lpi</filename>
+                        <mapName>NEXRAD Stations</mapName>
                     </resourceData>
                 </resource>
                 <resource>
