@@ -1,3 +1,14 @@
+package com.raytheon.uf.viz.d2d.nsharp.display.map;
+
+import gov.noaa.nws.ncep.viz.common.ui.Markers.MarkerState;
+import gov.noaa.nws.ncep.viz.common.ui.Markers.MarkerTextSize;
+import gov.noaa.nws.ncep.viz.common.ui.Markers.MarkerType;
+
+import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
+import com.raytheon.uf.viz.core.rsc.LoadProperties;
+
 /**
  * 
  * com.raytheon.uf.viz.d2d.nsharp.display.map.D2DNsharpMapResourceData
@@ -17,16 +28,6 @@
  * @author Chin Chen
  * @version 1.0
  */
-package com.raytheon.uf.viz.d2d.nsharp.display.map;
-
-import gov.noaa.nws.ncep.viz.common.ui.Markers.MarkerState;
-import gov.noaa.nws.ncep.viz.common.ui.Markers.MarkerTextSize;
-import gov.noaa.nws.ncep.viz.common.ui.Markers.MarkerType;
-
-import com.raytheon.uf.viz.core.drawables.IDescriptor;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
-import com.raytheon.uf.viz.core.rsc.LoadProperties;
 
 public class D2DNsharpMapResourceData extends AbstractResourceData {
 

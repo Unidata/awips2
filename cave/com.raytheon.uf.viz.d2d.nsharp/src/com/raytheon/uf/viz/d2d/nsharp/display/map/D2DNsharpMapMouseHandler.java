@@ -216,12 +216,7 @@ public class D2DNsharpMapMouseHandler extends InputHandlerDefaultImpl {
                         minDistance = dist;
                         thePoint = point;
                     }
-                } catch (Exception e) {
-                    statusHandler
-                            .handle(Priority.ERROR,
-                                    "D2DNsharpMapMouseHandler: getOrthodromicDistance exception happened!",
-                                    e);
-                }
+                } catch (Exception e) {}
             }
             // Chin, there may be more than one point for a selected stn. As
             // user may selected more than one data time,
