@@ -23,7 +23,11 @@
 		<displays xsi:type="mapRenderableDisplay" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 			<descriptor xsi:type="mapDescriptor">
 				<resource>
-				    <loadProperties/>
+				    <loadProperties loadWithoutData="true">
+                        <capabilities>
+                            <capability xsi:type="colorableCapability" colorAsString="#ffffff"/>
+                        </capabilities>
+               		</loadProperties>
 	                <resourceData xsi:type="genericToolsResourceData">
 	                    <name>Home Location</name>
 	                    <classT>com.raytheon.viz.awipstools.ui.layer.HomeToolLayer</classT>
