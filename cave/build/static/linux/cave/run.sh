@@ -147,12 +147,7 @@ if [[ -z $IGNORE_NUM_CAVES ]]; then
       memMsg="$_numPids CAVE applications already running with a combined max memory of ${_totalRunningMem}MB. "
       memMsg+="The requested application has a max memory requirement of ${memOfLaunchingCave}MB. "
       memMsg+="Starting may impact system performance and stability.\n\nProceed?"
-      zenity --question --title "Low Available Memory for Application"  --text "$memMsg"
-      cancel="$?"
-
-      if [[ "$cancel" == "1" ]]; then
-         exit
-      fi
+      echo "$memMsg"
    fi
 fi
 

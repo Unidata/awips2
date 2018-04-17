@@ -41,6 +41,13 @@ function check_limits {
   fi
 }
 
+function check_epel {
+  if [[ ! $(rpm -qa | grep epel-release) ]]; then
+    yum install epel-release -y
+    yum clean all
+  fi
+}
+
 function check_netcdf {
   if [[ $(rpm -qa | grep netcdf-AWIPS) ]]; then
     # replaced by epel netcdf(-devel) pkgs in 17.1.1-5 so force remove
@@ -73,7 +80,14 @@ function check_edex {
   fi
 }
 
+function check_users {
+  if ! id "awips" >/dev/null 2>&1; then
+    groupadd fxalpha && useradd -G fxalpha awips
+  fi
+}
+
 function server_prep {
+  check_users
   check_yumfile
   stop_edex_services
   check_limits
@@ -81,6 +95,12 @@ function server_prep {
   check_edex
 }
 
+function cave_prep {
+  check_users
+  check_yumfile
+  check_netcdf
+  check_epel
+}
 
 if [ $# -eq 0 ]; then
   key="-h"
@@ -89,7 +109,7 @@ else
 fi
 case $key in
     --cave)
-        check_yumfile
+        cave_prep
         yum groupinstall awips2-cave -y 2>&1 | tee -a /tmp/awips-install.log
         ;;
     --server|--edex)

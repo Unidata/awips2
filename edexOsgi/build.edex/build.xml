@@ -51,6 +51,10 @@
 		</antcall>
 		<antcall target="build">
 			<param name="feature"
+				value="edu.ucar.unidata.uf.edex.unidata.feature" />
+		</antcall>
+		<antcall target="build">
+			<param name="feature"
 				value="com.raytheon.uf.edex.dataplugins.feature" />
 		</antcall>
 		<antcall target="build">

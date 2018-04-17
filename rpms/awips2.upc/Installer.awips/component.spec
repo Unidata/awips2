@@ -42,11 +42,17 @@ fi
 %build
 
 %install
+mkdir -p %{_build_root}/usr/bin
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
 mkdir -p ${RPM_BUILD_ROOT}/etc/profile.d
 if [ $? -ne 0 ]; then
    exit 1
 fi
 
+/bin/cp -r %{_baseline_workspace}/rpms/awips2.upc/Installer.awips/programs/edex ${RPM_BUILD_ROOT}/usr/bin/
 /bin/cp %{_baseline_workspace}/rpms/awips2.upc/Installer.awips/scripts/profile.d/* ${RPM_BUILD_ROOT}/etc/profile.d
 
 
@@ -60,5 +66,6 @@ fi
 rm -rf ${RPM_BUILD_ROOT}/*
 
 %files
+%attr(755,awips,fxalpha) /usr/bin/edex
 %attr(755,root,root) /etc/profile.d/awips2.csh
 %attr(755,root,root) /etc/profile.d/awips2.sh

@@ -14,6 +14,7 @@ pushd $REPO
 # if not mounted to docker container, clone from github
 if [ ! -d awips2-ncep ]; then		git clone https://github.com/Unidata/awips2-ncep.git --branch unidata_${AWIPSII_VERSION} --single-branch 	;fi
 if [ ! -d awips2-goesr ]; then		git clone https://github.com/Unidata/awips2-goesr.git --branch unidata_${AWIPSII_VERSION} --single-branch 	;fi
+if [ ! -d awips2-unidata ]; then	git clone https://github.com/Unidata/awips2-unidata.git --branch unidata_${AWIPSII_VERSION} --single-branch 	;fi
 if [ ! -d awips2-core ]; then		git clone https://github.com/Unidata/awips2-core.git --branch unidata_${AWIPSII_VERSION} --single-branch 	;fi
 if [ ! -d awips2-core-foss ]; then	git clone https://github.com/Unidata/awips2-core-foss.git --branch unidata_${AWIPSII_VERSION} --single-branch 	;fi
 if [ ! -d awips2-foss ]; then		git clone https://github.com/Unidata/awips2-foss.git --branch unidata_${AWIPSII_VERSION} --single-branch 	;fi
@@ -33,7 +34,12 @@ fi
 # provides rpm name as arg (ex: ./build/setup.sh el7 awips2-python-jep)
 prog=$2
 if [ ! -z "$prog" ]; then
-  su - awips -c "/bin/bash $buildsh -b $prog"
+  frst="$(echo $prog | head -c 1)"
+  if [[ "$frst" = "-" ]]; then
+    su - awips -c "/bin/bash $buildsh $prog"
+  else
+    su - awips -c "/bin/bash $buildsh -b $prog"
+  fi
 else
   # Build all groups (in this order)
   #su - awips -c "/bin/bash $buildsh -ade"
