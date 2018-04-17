@@ -34,7 +34,12 @@ fi
 # provides rpm name as arg (ex: ./build/setup.sh el7 awips2-python-jep)
 prog=$2
 if [ ! -z "$prog" ]; then
-  su - awips -c "/bin/bash $buildsh -b $prog"
+  frst="$(echo $prog | head -c 1)"
+  if [[ "$frst" = "-" ]]; then
+    su - awips -c "/bin/bash $buildsh $prog"
+  else
+    su - awips -c "/bin/bash $buildsh -b $prog"
+  fi
 else
   # Build all groups (in this order)
   #su - awips -c "/bin/bash $buildsh -ade"
