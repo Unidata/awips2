@@ -27,7 +27,7 @@ sudo docker exec -ti $dockerID /bin/bash -xec "/awips2/repo/awips2-builds/build/
 sudo docker stop $dockerID
 sudo docker rm -v $dockerID
 
-if [[ $USER == "mjames" ]]; then # local build
+if [[ $(whoami) == "mjames" ]]; then # local build
   sudo chown -R mjames:ustaff dist/${os_version}-dev
   repomanage -k1 --old dist/${os_version}-dev | xargs rm -f
   createrepo -g ../../build/comps.xml dist/${os_version}-dev

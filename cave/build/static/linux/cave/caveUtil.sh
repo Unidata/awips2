@@ -45,6 +45,7 @@
 # May 27, 2016  ASM#18971 dfriedman   Fix local variable usage in deleteOldEclipseConfigurationDirs
 # Aug 09, 2016  ASM#18911 D. Friedman Add minimum purge period of 24 hours.  Use a lock file to prevent
 #                                     simultaneous purges.  Allow override of days to keep.
+# Apr 17, 2018            M. James    Cleanup for containerization
 ########################
 
 source /awips2/cave/iniLookup.sh
@@ -431,7 +432,7 @@ function deleteOldEclipseConfigurationDirs()
     local save_IFS=$IFS
     IFS=$'\n'
     # Find directories that are owned by the user and  older than one hour
-    local old_dirs=( $(find "$tmp_dir" -mindepth 1 -maxdepth 1 -type d -user "$USER" -mmin +60) )
+    local old_dirs=( $(find "$tmp_dir" -mindepth 1 -maxdepth 1 -type d -user "$(whoami)" -mmin +60) )
     IFS=$save_IFS
     if (( ${#old_dirs[@]} < 1 )); then
         return

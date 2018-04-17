@@ -119,7 +119,7 @@ function deleteOldEclipseConfigurationDirs()
     save_IFS=$IFS
     IFS=$'\n'
     # Find directories that are owned by the user and  older than one hour
-    local old_dirs=( $(find "$tmp_dir" -mindepth 1 -maxdepth 1 -type d -user "$USER" -mmin +60) )
+    local old_dirs=( $(find "$tmp_dir" -mindepth 1 -maxdepth 1 -type d -user "$(whoami)" -mmin +60) )
     IFS=$save_IFS
     if (( ${#old_dirs[@]} < 1 )); then
         return
