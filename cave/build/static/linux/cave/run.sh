@@ -144,10 +144,6 @@ if [[ -z $IGNORE_NUM_CAVES ]]; then
       memOfLaunchingCave=$(($memOfLaunchingCave / $BYTES_IN_MB))
       _totalRunningMem=$(($_totalRunningMem / $BYTES_IN_MB))
       getPidsOfMyRunningCaves
-      memMsg="$_numPids CAVE applications already running with a combined max memory of ${_totalRunningMem}MB. "
-      memMsg+="The requested application has a max memory requirement of ${memOfLaunchingCave}MB. "
-      memMsg+="Starting may impact system performance and stability.\n\nProceed?"
-      echo "$memMsg"
    fi
 fi
 

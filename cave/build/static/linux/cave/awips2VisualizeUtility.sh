@@ -45,7 +45,7 @@ date >> /tmp/vizUtility.log
 function findAlertvizProcesses {
 # Find all the alertviz processes.
 echo "Searching for alertviz processes." >> /tmp/vizUtility.log
-zpid=` ps u -u $USER | grep '[a]lertviz' | awk '{print $2}' `
+zpid=` ps u -u $(whoami)| grep '[a]lertviz' | awk '{print $2}' `
 npid=` echo $zpid | wc -w `
 if [ $npid -le 0 ]
 then
@@ -57,7 +57,7 @@ fi
 function findAlertvizShProcesses {
 # Find all the alertviz.sh processes.
 echo "Searching for alertviz.sh processes." >> /tmp/vizUtility.log
-zpid=` ps u -u $USER | grep '[a]lertviz.sh' | awk '{print $2}'  `
+zpid=` ps u -u $(whoami) | grep '[a]lertviz.sh' | awk '{print $2}'  `
 npid=` echo $zpid | wc -w `
 if [ $npid -le 0 ]
 then
@@ -69,7 +69,7 @@ fi
 function findCaveProcesses {
 # Find all the Cave processes.
 echo "Searching for cave processes." >> /tmp/vizUtility.log
-zpid=` ps u -u $USER | grep '[c]ave' | awk '{print $2}' `
+zpid=` ps u -u $(whoami) | grep '[c]ave' | awk '{print $2}' `
 npid=` echo $zpid | wc -w `
 if [ $npid -le 0 ]
 then

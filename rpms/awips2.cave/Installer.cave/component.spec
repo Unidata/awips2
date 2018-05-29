@@ -38,7 +38,7 @@ Provides: awips2-base
 Requires: awips2-java
 Requires: awips2-python
 Requires: openmotif
-Requires: tk, tcl
+Requires: tk, tcl, gtk2, mesa-libGLU
 Requires: libMrm.so.4()(64bit)
 Requires: libXp.so.6()(64bit)
 Requires: libg2c.so.0()(64bit)
