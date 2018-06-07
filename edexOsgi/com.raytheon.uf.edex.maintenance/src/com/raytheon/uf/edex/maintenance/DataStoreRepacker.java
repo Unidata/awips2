@@ -82,13 +82,9 @@ public class DataStoreRepacker extends
 
             IDataStore ds = DataStoreFactory.getDataStore(new File(plugin));
             try {
-                statusHandler.info("Starting repack of " + plugin
-                        + " datastore");
                 long time = TimeUtil.currentTimeMillis();
                 ds.repack(compression);
                 long etime = TimeUtil.currentTimeMillis();
-                statusHandler.info("Completed repack of " + plugin
-                        + " datastore. Took: " + (etime - time) + " ms");
             } catch (StorageException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Failed to repack datastore for plugin " + plugin, e);
