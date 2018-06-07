@@ -64,13 +64,10 @@ import com.raytheon.uf.common.dataplugin.radar.util.TiltAngleBin;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.wmo.AFOSProductId;
 import com.raytheon.uf.common.wmo.WMOHeader;
@@ -151,9 +148,6 @@ public class RadarDecoder {
 
     private final String RADAR = "RADAR";
 
-    private final IPerformanceStatusHandler perfLog = PerformanceStatus
-            .getHandler("Radar:");
-
     public RadarDecoder() throws DecoderException {
 
         String dir = "";
@@ -193,9 +187,6 @@ public class RadarDecoder {
         // decode the product
         String arch = new String(messageData, 0, 4);
 
-        ITimer timer = TimeUtil.getTimer();
-
-        timer.start();
         // for level2 data, this does not happen very often
         if (LEVEL_TWO_IDENTS.contains(arch)) {
             decodeLevelTwoData(messageData, recordList);
@@ -408,10 +399,6 @@ public class RadarDecoder {
             }
 
             finalizeRecord(record);
-
-            timer.stop();
-            perfLog.logDuration("Time to Decode", timer.getElapsedTime());
-
             recordList.add(record);
         }
 
