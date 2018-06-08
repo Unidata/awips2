@@ -87,11 +87,12 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.maps.MapManager;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
-import com.raytheon.uf.viz.d2d.ui.map.SideView;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.DisplayType;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.Mode;
 import com.raytheon.viz.core.mode.CAVEMode;
-import com.raytheon.viz.texteditor.msgs.IWarngenObserver;
+import com.raytheon.viz.texteditor.TextWorkstationConstants;
+import com.raytheon.viz.texteditor.dialogs.TextEditorDialog;
+import com.raytheon.viz.texteditor.util.SiteAbbreviationUtil;
 import com.raytheon.viz.texteditor.util.VtecUtil;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
@@ -100,7 +101,6 @@ import com.raytheon.viz.ui.input.EditableManager;
 import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
 import com.raytheon.viz.warngen.Activator;
 import com.raytheon.viz.warngen.WarngenConstants;
-import com.raytheon.viz.warngen.comm.WarningSender;
 import com.raytheon.viz.warngen.gis.PolygonUtil;
 import com.raytheon.viz.warngen.template.TemplateRunner;
 import com.raytheon.viz.warngen.util.CurrentWarnings;
@@ -189,6 +189,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Feb 16, 2016 DR 17531    Qinglu Lin  Added overloaded setTrackLocked(boolean, boolean), updated expSelected().
  *  Jul 07, 2016 DR 5665     Jon Schmid  Corrected WarngenLayer duration save and restore when selecting new TrackType. 
  *  Jun 25, 2017             mjames@ucar Simple dialog.
+ *  Jun 07, 2018             mjames@ucar Bypass JMS messaging and send directly to a textWS window.
  * </pre>
  * 
  * @author chammack
@@ -213,6 +214,8 @@ public class WarngenDialog extends CaveSWTDialog implements
     private static final int BULLET_HEIGHT = 230;
 
     private static final int FONT_HEIGHT = 9;
+
+    private static Pattern PATTERN = Pattern.compile("(\\d{1,1})");
 
     private class TemplateRunnerInitJob extends Job {
         private final String site;
@@ -339,7 +342,7 @@ public class WarngenDialog extends CaveSWTDialog implements
 
     private boolean invalidFollowUpAction = false;
 
-    private final IWarngenObserver wed = new WarningSender();
+    private TextEditorDialog wgDlg;
 
     /** Bullet list font. */
     private Font bulletListFont = null;
@@ -1264,7 +1267,7 @@ public class WarngenDialog extends CaveSWTDialog implements
                     try {
                         String result = resultContainer[0];
                         if (result != null) {
-                            wed.setTextWarngenDisplay(result, true);
+                            setTextWarngenDisplay(result);
                             updateWarngenUIState(result);
                         } else {
                             statusHandler.handle(Priority.PROBLEM,
@@ -1290,7 +1293,35 @@ public class WarngenDialog extends CaveSWTDialog implements
         }
     }
 
-    private boolean checkDamSelection() {
+    protected void setTextWarngenDisplay(String warning) {
+        String number = "0";
+        String host = TextWorkstationConstants.getId();
+        String siteNode = SiteAbbreviationUtil.getSiteNode(LocalizationManager
+                .getInstance().getCurrentSite());
+        if (host == null) {
+            statusHandler.handle(Priority.ERROR,
+                    "Text Workstation host not set in preferences.");
+        } else {
+            Matcher m = PATTERN.matcher(host);
+            if (m.find()) {
+                number = m.group();
+            }
+        }
+        String id = siteNode + "WRKWG" + number;
+        try {
+            String product = id + ":" + warning;
+            if (wgDlg == null) {
+                wgDlg = new TextEditorDialog(getShell(), "Text Warngen", false,
+                        "9", true);
+            }
+            wgDlg.showWarngenProduct(product, null);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error trying to send product [" + id + "] to Text Workstation: ", e);
+        }
+	}
+
+	private boolean checkDamSelection() {
         if (bulletListManager.isDamNameSeletcted()
                 && (bulletListManager.isDamCauseSelected() == false)) {
             /*
