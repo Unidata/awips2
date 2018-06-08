@@ -33,12 +33,6 @@
          version="0.0.0"/>
 
    <plugin
-         id="gov.noaa.nws.ncep.ui.nsharp"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="gov.noaa.nws.ncep.viz.soundingrequest"
          download-size="0"
          install-size="0"
@@ -51,6 +45,26 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.viz.resources"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.viz.gempak"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.ui.nsharp"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
 
    <plugin
          id="gov.noaa.nws.ncep.viz.overlays"
@@ -67,7 +81,7 @@
          unpack="false"/>
 
    <plugin
-         id="gov.noaa.nws.ncep.viz.resources"
+         id="gov.noaa.nws.ncep.ui.pgen"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -75,20 +89,6 @@
 
    <plugin
          id="gov.noaa.nws.ncep.viz.rsc.pgen"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="gov.noaa.nws.ncep.viz.gempak"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="gov.noaa.nws.ncep.ui.pgen"
          download-size="0"
          install-size="0"
          version="0.0.0"
