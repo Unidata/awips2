@@ -38,7 +38,7 @@ package com.raytheon.viz.warngen;
 
 public class WarngenConstants {
 
-    public static final int INSTRUCTIONS_HEIGHT = 40;
+    public static final int INSTRUCTIONS_HEIGHT = 20;
 
     public static final String INSTRUCTION_DRAG_STORM = "Move Centroid to Storm in any Frame";
 
