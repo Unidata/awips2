@@ -71,10 +71,6 @@
           id="com.raytheon.viz.awipstools.home"
           name="Home">
     </command>
-    <command
-          id="com.raytheon.viz.awipstools.lapstools"
-          name="LAPS tools">
-    </command>
      <command
           id="com.raytheon.viz.awipstools.unitscalculator"
           name="Units">
@@ -141,10 +137,6 @@
       <handler
             class="com.raytheon.viz.awipstools.ui.action.HomeToolAction"
             commandId="com.raytheon.viz.awipstools.home">
-      </handler>
-      <handler
-            class="com.raytheon.viz.awipstools.ui.action.LapsToolsAction"
-            commandId="com.raytheon.viz.awipstools.lapstools">
       </handler>
       <handler
             class="com.raytheon.viz.awipstools.ui.action.UnitsCalculatorAction"
