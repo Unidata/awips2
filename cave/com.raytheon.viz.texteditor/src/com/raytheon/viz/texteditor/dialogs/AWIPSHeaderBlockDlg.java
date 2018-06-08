@@ -708,13 +708,10 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
             if (response == SWT.NO || parentEditor.isDisposed()) {
                 return;
             }
-            parentEditor.enableSend(false);
             sendEnabled = false;
             if (isAfosPilComplete()) {
                 unOfficialProd = true;
             }
-        } else {
-            parentEditor.enableSend(true);
         }
 
         // call the set methods

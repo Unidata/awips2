@@ -95,29 +95,6 @@ public class WarngenAction extends AbstractGenericToolAction<WarngenLayer> {
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-    	
-    	if ((textWorkstationDlg == null) || textWorkstationDlg.isDisposed()) {
-            textWorkstationDlg = new TextWorkstationDlg(Display.getCurrent());
-            textWorkstationDlg.setCloseCallback(new ICloseCallback() {
-
-                @Override
-                public void dialogClosed(Object returnValue) {
-                    textWorkstationDlg = null;
-                }
-            });
-            textWorkstationDlg.open();
-        } else {
-            textWorkstationDlg.bringToTop();
-        }
-    	
-        if (!SimulatedTimeOperations.isTransmitAllowed()) {
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
-            SimulatedTimeOperations
-                    .displayFeatureLevelWarning(shell, "WarnGen");
-            return null;
-        }
-
         return super.execute(arg0);
     }
 }

@@ -85,7 +85,6 @@ import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
-import com.raytheon.uf.viz.core.maps.MapManager;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.DisplayType;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.Mode;
@@ -96,7 +95,6 @@ import com.raytheon.viz.texteditor.util.SiteAbbreviationUtil;
 import com.raytheon.viz.texteditor.util.VtecUtil;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
-import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.input.EditableManager;
 import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
 import com.raytheon.viz.warngen.Activator;
@@ -239,15 +237,6 @@ public class WarngenDialog extends CaveSWTDialog implements
 
     private static String UPDATELISTTEXT = "UPDATE LIST                                 ";
 
-    /** "OK" button text */
-    private static final String OK_BTN_LABEL = "Create Text";
-
-    /** "Restart" button text */
-    private static final String RS_BTN_LABEL = "Reset";
-
-    /** "Cancel" button text */
-    private static final String CLOSE_BUTTON_LABEL = "Close";
-
     private static final double MIN_LATLON_DIFF = 1.0E-5;
 
     private static final double MIN_DIFF = 1.0E-8;
@@ -257,8 +246,6 @@ public class WarngenDialog extends CaveSWTDialog implements
     private Map<String, String> otherProducts;
 
     final DateFormat df = new SimpleDateFormat("HH:mm EEE d-MMM");
-
-    private final java.util.List<String> mapsLoaded = new ArrayList<String>();
 
     private Button okButton;
 
@@ -292,8 +279,6 @@ public class WarngenDialog extends CaveSWTDialog implements
 
     private Button fromTrack;
 
-    private Button warnedAreaVisible;
-
     private Button[] mainProductBtns;
 
     private Button other;
@@ -307,10 +292,6 @@ public class WarngenDialog extends CaveSWTDialog implements
     public Button box;
 
     private Button track;
-
-    private Button changeBtn;
-
-    private ValidPeriodDialog validPeriodDlg;
 
     private boolean boxEditable = true;
 
@@ -332,9 +313,9 @@ public class WarngenDialog extends CaveSWTDialog implements
 
     private Button restartBtn;
 
-    private Text start;
-
-    private Text end;
+    private Label validPeriod;
+    
+    private static String SEP = "  to  ";
 
     private Text instructionsBox;
 
@@ -487,18 +468,48 @@ public class WarngenDialog extends CaveSWTDialog implements
 
     /**
      * @param mainComposite
+     * 
+     * 
+     * 
+    private void createRedrawBoxGroup(Composite mainComposite) {
+        
+        Group redrawBox = new Group(mainComposite, SWT.NONE);
+        
+        GridLayout gl = new GridLayout(1, false);
+        gl.verticalSpacing = 2;
+        gl.marginHeight = 1;
+        redrawBox.setLayout(gl);
+        redrawBox.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1,
+                1));
+
+        Composite redrawFrom = new Composite(redrawBox, SWT.NONE);
+        int columns = debug ? 4 : 3;
+        redrawFrom.setLayout(new GridLayout(columns, false));
+        redrawFrom.setLayoutData(new GridData(SWT.DEFAULT, SWT.FILL, false,
+                true));
+
+        createRedrawFromControls(redrawFrom);
+    }
+     * 
      */
     private void createTimeRangeGroup(Composite mainComposite) {
+    	
         Group timeRange = new Group(mainComposite, SWT.NONE);
-        timeRange.setText("Time Range");
-        timeRange.setLayout(new GridLayout(6, false));
-
-        Label dur = new Label(timeRange, SWT.BOLD);
-        dur.setText("Duration:");
-
+        GridLayout gl = new GridLayout(1, false);
+        gl.verticalSpacing = 2;
+        gl.marginHeight = 1;
+        timeRange.setLayout(gl);
+        timeRange.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1,
+                1));
+        
+        Composite timeRangeComp = new Composite(timeRange, SWT.NONE);
+        timeRangeComp.setLayout(new GridLayout(3, false));
+        timeRangeComp.setLayoutData(new GridData(SWT.DEFAULT, SWT.FILL, false,
+                true));
+        
         GridData gd = new GridData();
-        gd.horizontalSpan = 3;
-        durationList = new Combo(timeRange, SWT.READ_ONLY);
+        gd.horizontalSpan = 1;
+        durationList = new Combo(timeRangeComp, SWT.READ_ONLY);
         WarngenConfiguration config = warngenLayer.getConfiguration();
         if (config.getDefaultDuration() != 0) {
             setDefaultDuration(config.getDefaultDuration());
@@ -507,7 +518,7 @@ public class WarngenDialog extends CaveSWTDialog implements
         }
         setDurations(config.getDurations());
         durationList.setText(defaultDuration.displayString);
-        durationList.setLayoutData(gd);
+        //durationList.setLayoutData(gd);
         durationList.setEnabled(config.isEnableDuration());
 
         startTime = TimeUtil.newCalendar();
@@ -515,26 +526,12 @@ public class WarngenDialog extends CaveSWTDialog implements
                 defaultDuration.minutes);
 
         gd = new GridData();
-        gd.horizontalSpan = 3;
-        start = new Text(timeRange, SWT.BORDER | SWT.READ_ONLY);
-        start.setLayoutData(gd);
-        start.setText(df.format(this.startTime.getTime()));
-
-        new Label(timeRange, SWT.NONE).setText(" to ");
-
-        end = new Text(timeRange, SWT.BORDER | SWT.READ_ONLY);
-        end.setText(df.format(this.endTime.getTime()));
-
-        changeBtn = new Button(timeRange, SWT.PUSH);
-        changeBtn.setText("Change...");
-        changeBtn.setEnabled(!config.isEnableDuration());
-        changeBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                changeSelected();
-            }
-        });
-
+        gd.horizontalSpan = 2;
+        validPeriod = new Label(timeRangeComp, SWT.FILL);
+        //validPeriod.setLayoutData(gd);
+        validPeriod.setText( df.format(this.startTime.getTime()) 
+        		+ SEP + df.format(this.endTime.getTime()));
+        
         durationList.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -545,7 +542,6 @@ public class WarngenDialog extends CaveSWTDialog implements
 
     private void createProductTypeGroup(Composite mainComposite) {
         productType = new Group(mainComposite, SWT.NONE);
-        productType.setText("Product type");
         GridLayout gl = new GridLayout(2, false);
         gl.verticalSpacing = 2;
         gl.marginHeight = 1;
@@ -563,12 +559,10 @@ public class WarngenDialog extends CaveSWTDialog implements
             other.setText("Other:");
             other.setEnabled(true);
             other.addSelectionListener(new SelectionAdapter() {
-
                 @Override
                 public void widgetSelected(SelectionEvent arg0) {
                     otherSelected();
                 }
-
             });
 
             otherProductListCbo = new Combo(productType, SWT.READ_ONLY
@@ -683,26 +677,15 @@ public class WarngenDialog extends CaveSWTDialog implements
     }
 
     private void createRedrawBoxGroup(Composite mainComposite) {
+        
         Group redrawBox = new Group(mainComposite, SWT.NONE);
+        
         GridLayout gl = new GridLayout(1, false);
         gl.verticalSpacing = 2;
         gl.marginHeight = 1;
         redrawBox.setLayout(gl);
-        redrawBox.setText("Redraw Box on Screen from:");
         redrawBox.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1,
                 1));
-
-        warnedAreaVisible = new Button(redrawBox, SWT.CHECK);
-        warnedAreaVisible.setText("Warned Area Visible");
-        warnedAreaVisible.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, true,
-                true, 1, 1));
-        warnedAreaVisible.setSelection(true);
-        warnedAreaVisible.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                warnedAreaVisibleToggled();
-            }
-        });
 
         Composite redrawFrom = new Composite(redrawBox, SWT.NONE);
         int columns = debug ? 4 : 3;
@@ -721,9 +704,7 @@ public class WarngenDialog extends CaveSWTDialog implements
             public void widgetSelected(SelectionEvent e) {
                 redrawFromTrack();
             }
-
         });
-
         fromWarned = new Button(redrawFrom, SWT.PUSH);
         fromWarned.setText("Warned/Hatched Area");
         fromWarned.setEnabled(true);
@@ -732,9 +713,7 @@ public class WarngenDialog extends CaveSWTDialog implements
             public void widgetSelected(SelectionEvent e) {
                 redrawFromWarned();
             }
-
         });
-
         damBreakThreatArea = new Button(redrawFrom, SWT.PUSH);
         damBreakThreatArea.setText("Dam Break Threat Area");
         damBreakThreatArea.setEnabled(false);
@@ -769,24 +748,16 @@ public class WarngenDialog extends CaveSWTDialog implements
 
     private void createBackupTrackEditGroups(Composite mainComposite) {
         Composite backupTrackEditComp = new Composite(mainComposite, SWT.NONE);
+
         backupTrackEditComp.setLayout(new GridLayout(3, false));
         backupTrackEditComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
                 true, true, 1, 1));
+        
+        backupTrackEditComp.setBackground(Display.
+        		getCurrent().getSystemColor(SWT.COLOR_TRANSPARENT));
 
-        createReset(backupTrackEditComp);
-        createTrackGroup(backupTrackEditComp);
-        createEditGroup(backupTrackEditComp);
-
-    }
-
-    /**
-     * Create the reset button
-     * 
-     * @param backupTrackEditComp
-     */
-    private void createReset(Composite backupTrackEditComp) {
         restartBtn = new Button(backupTrackEditComp, SWT.PUSH);
-        restartBtn.setText(RS_BTN_LABEL);
+        restartBtn.setText("Reset");
         GridData gd = new GridData(SWT.CENTER, SWT.CENTER, true, true);
         gd.widthHint = 100;
         restartBtn.setLayoutData(gd);
@@ -796,9 +767,10 @@ public class WarngenDialog extends CaveSWTDialog implements
                 resetPressed();
             }
         });
+        createTrackGroup(backupTrackEditComp);
+        createEditGroup(backupTrackEditComp);
 
     }
-
 
     private void createTrackGroup(Composite backupTrackEditComp) {
         Group trackGroup = new Group(backupTrackEditComp, SWT.NONE);
@@ -806,12 +778,16 @@ public class WarngenDialog extends CaveSWTDialog implements
         gl.verticalSpacing = 2;
         gl.marginHeight = 1;
         trackGroup.setLayout(gl);
-        trackGroup.setText("Track type");
         trackGroup.setLayoutData(new GridData(SWT.DEFAULT, SWT.FILL, false,
                 true));
-
+        trackGroup.setBackgroundMode(SWT.INHERIT_NONE);
+        /*
+        trackGroup.setBackground(Display.
+        		getCurrent().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
+		*/
+        
         oneStorm = new Button(trackGroup, SWT.RADIO);
-        oneStorm.setText("One Storm");
+        oneStorm.setText("Single Storm");
         oneStorm.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent arg0) {
@@ -850,7 +826,6 @@ public class WarngenDialog extends CaveSWTDialog implements
         gl.verticalSpacing = 2;
         gl.marginHeight = 1;
         editGroup.setLayout(gl);
-        editGroup.setText("Edit");
         editGroup
                 .setLayoutData(new GridData(SWT.DEFAULT, SWT.FILL, false, true));
 
@@ -899,7 +874,7 @@ public class WarngenDialog extends CaveSWTDialog implements
                 true));
 
         okButton = new Button(buttonComp, SWT.PUSH);
-        okButton.setText(OK_BTN_LABEL);
+        okButton.setText("Create Text");
         GridData gd = new GridData(SWT.CENTER, SWT.CENTER, true, true);
         gd.widthHint = 100;
         okButton.setLayoutData(gd);
@@ -917,7 +892,7 @@ public class WarngenDialog extends CaveSWTDialog implements
         });
 
         Button btn = new Button(buttonComp, SWT.PUSH);
-        btn.setText(CLOSE_BUTTON_LABEL);
+        btn.setText("Close");
         gd = new GridData(SWT.CENTER, SWT.CENTER, true, true);
         gd.widthHint = 100;
         btn.setLayoutData(gd);
@@ -1533,14 +1508,6 @@ public class WarngenDialog extends CaveSWTDialog implements
     }
 
     /**
-     * Whether to warn area visible was toggled
-     */
-    private void warnedAreaVisibleToggled() {
-        warngenLayer.setShouldDrawShaded(warnedAreaVisible.getSelection());
-        warngenLayer.issueRefresh();
-    }
-
-    /**
      * Responsible for drawing a pre-defined warning polygon (coords) on the
      * WarnGen layer.
      * 
@@ -1672,7 +1639,6 @@ public class WarngenDialog extends CaveSWTDialog implements
         boolean enableDuration = warngenLayer.getConfiguration()
                 .isEnableDuration();
         durationList.setEnabled(enableDuration);
-        changeBtn.setEnabled(!enableDuration);
         recreateDurations(durationList);
 
         // Current selection doesn't matter anymore
@@ -1731,7 +1697,8 @@ public class WarngenDialog extends CaveSWTDialog implements
         durList.setText(defaultDuration.displayString);
         if (warngenLayer.getConfiguration().isEnableDuration()) {
             endTime = DurationUtil.calcEndTime(startTime, defaultDuration.minutes);
-            end.setText(df.format(endTime.getTime()));
+            validPeriod.setText( df.format(startTime.getTime()) 
+            		+ SEP + df.format(endTime.getTime()));
         }
 
         warngenLayer.getStormTrackState().newDuration = defaultDuration.minutes;
@@ -1947,39 +1914,6 @@ public class WarngenDialog extends CaveSWTDialog implements
         // TODO : this pack/layout maybe causing the issue
     }
 
-    private void changeSelected() {
-        statusHandler.debug("changeSelected");
-        if ((validPeriodDlg == null) || validPeriodDlg.isDisposed()) {
-            validPeriodDlg = new ValidPeriodDialog(shell, (Calendar) startTime.clone(), (Calendar) endTime.clone());
-            validPeriodDlg.setCloseCallback(new ICloseCallback() {
-
-                @Override
-                public void dialogClosed(Object returnValue) {
-                    int duration = (Integer) returnValue;
-                    statusHandler.debug("changeSelected.dialogClosed: "
-                            + duration);
-                    if (duration != -1) {
-                        durationList.setEnabled(false);
-                        if (warngenLayer.getConfiguration().isEnableDuration()) {
-                            endTime.add(Calendar.MINUTE, duration);
-                        } else {
-                            endTime = (Calendar) validPeriodDlg.getEndTime().clone();
-                        }
-                        end.setText(df.format(endTime.getTime()));
-                        warngenLayer.getStormTrackState().newDuration = duration;
-                        warngenLayer.getStormTrackState().geomChanged = true;
-                        warngenLayer.issueRefresh();
-                        changeStartEndTimes();
-                    }
-                    validPeriodDlg = null;
-                }
-            });
-            validPeriodDlg.open();
-        } else {
-            validPeriodDlg.bringToTop();
-        }
-    }
-
     /**
      * 
      */
@@ -1990,7 +1924,8 @@ public class WarngenDialog extends CaveSWTDialog implements
         endTime = DurationUtil.calcEndTime(extEndTime != null ? extEndTime
                 : startTime,
                 ((DurationData) durationList.getData(selection)).minutes);
-        end.setText(df.format(endTime.getTime()));
+        validPeriod.setText( df.format(startTime.getTime()) 
+        		+ SEP + df.format(endTime.getTime()));
 
         warngenLayer.getStormTrackState().newDuration = ((DurationData) durationList
                 .getData(selection)).minutes;
@@ -2016,38 +1951,6 @@ public class WarngenDialog extends CaveSWTDialog implements
         // A follow on ticket will be written to fix the existing broken
         // functionality of loading/unloading maps
         // updateMaps(bulletListManager.getMapsToLoad());
-    }
-
-    private void updateMaps(ArrayList<String> mapsToLoad) {
-        /* Load maps */
-        for (String str : mapsToLoad) {
-            if (!mapsLoaded.contains(str)) {
-                MapManager.getInstance(warngenLayer.getDescriptor())
-                        .loadMapByName(str);
-                mapsLoaded.add(str);
-            }
-        }
-        /* Unload maps */
-        ArrayList<String> mapsToUnload = new ArrayList<String>();
-        for (String str : mapsLoaded) {
-            if (!mapsToLoad.contains(str)) {
-                MapManager.getInstance(warngenLayer.getDescriptor()).unloadMap(
-                        str);
-                mapsToUnload.add(str);
-            }
-        }
-        for (String str : mapsToUnload) {
-            mapsLoaded.remove(str);
-        }
-
-        /* Load maps */
-        for (String str : mapsToLoad) {
-            if (!mapsLoaded.contains(str)) {
-                MapManager.getInstance(warngenLayer.getDescriptor())
-                        .loadMapByName(str);
-                mapsLoaded.add(str);
-            }
-        }
     }
 
     /**
@@ -2127,7 +2030,7 @@ public class WarngenDialog extends CaveSWTDialog implements
                     .getData(updateListCbo.getItem(updateListCbo
                             .getSelectionIndex()));
             startTime = TimeUtil.newCalendar();
-            start.setText(df.format(startTime.getTime()));
+            
             if ((fd == null)
                     || (WarningAction.valueOf(fd.getAct()) == WarningAction.NEW)) {
                 endTime = DurationUtil.calcEndTime(startTime, duration);
@@ -2136,7 +2039,8 @@ public class WarngenDialog extends CaveSWTDialog implements
                     endTime = DurationUtil.calcEndTime(extEndTime, duration);
                 }
             }
-            end.setText(df.format(endTime.getTime()));
+            validPeriod.setText( df.format(startTime.getTime()) 
+            		+ SEP + df.format(endTime.getTime()));
         }
     }
 
@@ -2344,7 +2248,6 @@ public class WarngenDialog extends CaveSWTDialog implements
         boolean enableDuration = warngenLayer.getConfiguration()
                 .isEnableDuration();
         durationList.setEnabled(enableDuration);
-        changeBtn.setEnabled(!enableDuration);
 
         AbstractWarningRecord newWarn = CurrentWarnings.getInstance(
                 warngenLayer.getLocalizedSite()).getNewestByTracking(
@@ -2374,18 +2277,18 @@ public class WarngenDialog extends CaveSWTDialog implements
 
     private void setTimesFromFollowup(Date startDate, Date endDate) {
         // Sets the Time Range start and end times on dialog
-        start.setText(df.format(startDate));
         startTime.setTime(startDate);
-        end.setText(df.format(endDate));
         endTime.setTime(endDate);
         endTime.add(Calendar.MILLISECOND, 1);
 
+        validPeriod.setText( df.format(startTime.getTime()) 
+        		+ SEP + df.format(endTime.getTime()));
+        
         // Sets the duration value on the dialog
         int durationInMinutes = (int) (endDate.getTime() - startDate.getTime())
                 / (60 * 1000);
         durationList.setText(String.valueOf(durationInMinutes));
         durationList.setEnabled(false);
-        changeBtn.setEnabled(false);
 
         warngenLayer.getStormTrackState().endTime = endTime;
     }
