@@ -25,7 +25,6 @@ import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpStationInfo;
 import gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor;
 import gov.noaa.nws.ncep.ui.nsharp.display.map.NsharpObservedSoundingQuery;
-import gov.noaa.nws.ncep.ui.pgen.tools.InputHandlerDefaultImpl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,13 +40,13 @@ import org.geotools.referencing.GeodeticCalculator;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.d2d.nsharp.display.D2DNsharpLoadDialog;
 import com.raytheon.viz.ui.editor.AbstractEditor;
+import com.raytheon.viz.ui.input.InputAdapter;
 import com.vividsolutions.jts.geom.Coordinate;
 
-public class D2DNsharpMapMouseHandler extends InputHandlerDefaultImpl {
+public class D2DNsharpMapMouseHandler extends InputAdapter {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(D2DNsharpMapMouseHandler.class);
 
