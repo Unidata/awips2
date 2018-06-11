@@ -466,32 +466,6 @@ public class WarngenDialog extends CaveSWTDialog implements
         startTimeTimer();
     }
 
-    /**
-     * @param mainComposite
-     * 
-     * 
-     * 
-    private void createRedrawBoxGroup(Composite mainComposite) {
-        
-        Group redrawBox = new Group(mainComposite, SWT.NONE);
-        
-        GridLayout gl = new GridLayout(1, false);
-        gl.verticalSpacing = 2;
-        gl.marginHeight = 1;
-        redrawBox.setLayout(gl);
-        redrawBox.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1,
-                1));
-
-        Composite redrawFrom = new Composite(redrawBox, SWT.NONE);
-        int columns = debug ? 4 : 3;
-        redrawFrom.setLayout(new GridLayout(columns, false));
-        redrawFrom.setLayoutData(new GridData(SWT.DEFAULT, SWT.FILL, false,
-                true));
-
-        createRedrawFromControls(redrawFrom);
-    }
-     * 
-     */
     private void createTimeRangeGroup(Composite mainComposite) {
     	
         Group timeRange = new Group(mainComposite, SWT.NONE);
@@ -675,7 +649,11 @@ public class WarngenDialog extends CaveSWTDialog implements
             });
         }
     }
-
+    
+    /**
+     * 
+     * @param mainComposite
+     */
     private void createRedrawBoxGroup(Composite mainComposite) {
         
         Group redrawBox = new Group(mainComposite, SWT.NONE);
@@ -696,6 +674,10 @@ public class WarngenDialog extends CaveSWTDialog implements
         createRedrawFromControls(redrawFrom);
     }
 
+    /**
+     * 
+     * @param redrawFrom
+     */
     private void createRedrawFromControls(Composite redrawFrom) {
         fromTrack = new Button(redrawFrom, SWT.PUSH);
         fromTrack.setText("Track");
@@ -752,9 +734,6 @@ public class WarngenDialog extends CaveSWTDialog implements
         backupTrackEditComp.setLayout(new GridLayout(3, false));
         backupTrackEditComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
                 true, true, 1, 1));
-        
-        backupTrackEditComp.setBackground(Display.
-        		getCurrent().getSystemColor(SWT.COLOR_TRANSPARENT));
 
         restartBtn = new Button(backupTrackEditComp, SWT.PUSH);
         restartBtn.setText("Reset");
@@ -781,10 +760,6 @@ public class WarngenDialog extends CaveSWTDialog implements
         trackGroup.setLayoutData(new GridData(SWT.DEFAULT, SWT.FILL, false,
                 true));
         trackGroup.setBackgroundMode(SWT.INHERIT_NONE);
-        /*
-        trackGroup.setBackground(Display.
-        		getCurrent().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
-		*/
         
         oneStorm = new Button(trackGroup, SWT.RADIO);
         oneStorm.setText("Single Storm");
