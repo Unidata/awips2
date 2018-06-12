@@ -17,7 +17,7 @@
       
         <link rel="shortcut icon" href="../../images/favicon.ico">
       
-      <meta name="generator" content="mkdocs-0.17.0, mkdocs-unidata-1.5.4">
+      <meta name="generator" content="mkdocs-0.16.3, mkdocs-unidata-1.5.4">
     
     
       
@@ -240,8 +240,8 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#centosrhel" title=" CentOS/RHEL" class="md-nav__link">
-     CentOS/RHEL
+  <a href="#linux" title=" Linux" class="md-nav__link">
+     Linux
   </a>
   
 </li>
@@ -1024,8 +1024,8 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#centosrhel" title=" CentOS/RHEL" class="md-nav__link">
-     CentOS/RHEL
+  <a href="#linux" title=" Linux" class="md-nav__link">
+     Linux
   </a>
   
 </li>
@@ -1072,7 +1072,7 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/edit/unidata_17.1.1/docs/install/install-cave.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
+                  <a href="https://github.com/Unidata/awips2/edit/unidata_17.1.1/docs/install/install-cave.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
                 <h1 id="download-and-install-cave">Download and Install CAVE<a class="headerlink" href="#download-and-install-cave" title="Permanent link"></a></h1>
@@ -1082,34 +1082,39 @@
 <thead>
 <tr>
 <th></th>
-<th align="right">current release 17.1.1-5</th>
+<th align="right">current release 17.1.1</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Linux x86_64</td>
-<td align="right"><a href="https://www.unidata.ucar.edu/software/awips2/install.sh">./install.sh --cave&nbsp; <i class="fa fa-download"></i></a></td>
+<td align="right"><a href="https://www.unidata.ucar.edu/software/awips2/install.sh">install.sh <i class="fa fa-download"></i></a></td>
 </tr>
 <tr>
 <td>macOS</td>
-<td align="right">Download and install both<br><a href="https://www.unidata.ucar.edu/downloads/awips2/awips2-cave-17.1.1.dmg">awips2-cave-17.1.1.dmg &nbsp;<i class="fa fa-download"></i></a><br><a href="https://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg">awips-python.pkg &nbsp;<i class="fa fa-download"></i></a></td>
+<td align="right">Download and install both<br><a href="https://www.unidata.ucar.edu/downloads/awips2/awips2-cave-17.1.1.dmg">awips2-cave-17.1.1.dmg <i class="fa fa-download"></i></a><br><a href="https://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg">awips-python.pkg <i class="fa fa-download"></i></a></td>
 </tr>
 <tr>
 <td>32-bit Windows</td>
-<td align="right"><a href="https://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi">awips-cave.msi &nbsp;<i class="fa fa-download"></i></a></td>
+<td align="right"><a href="https://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi">awips-cave.msi <i class="fa fa-download"></i></a></td>
 </tr>
 <tr>
 <td>64-bit Windows</td>
-<td align="right"><a href="https://www.unidata.ucar.edu/downloads/awips2/awips-cave.amd64.msi">awips-cave.amd64.msi &nbsp;<i class="fa fa-download"></i></a></td>
+<td align="right"><a href="https://www.unidata.ucar.edu/downloads/awips2/awips-cave.amd64.msi">awips-cave.amd64.msi <i class="fa fa-download"></i></a></td>
 </tr>
 </tbody>
 </table>
 <hr />
-<h2 id="centosrhel"><i class="fa fa-linux"></i> CentOS/RHEL<a class="headerlink" href="#centosrhel" title="Permanent link"></a></h2>
-<p>Download <a href="https://www.unidata.ucar.edu/software/awips2/install.sh">install.sh <i class="fa fa-download"></i></a> and run</p>
-<pre><code>sudo /bin/bash install.sh --cave
+<h2 id="linux"><i class="fa fa-linux"></i> Linux<a class="headerlink" href="#linux" title="Permanent link"></a></h2>
+<ul>
+<li><a href="https://www.unidata.ucar.edu/software/awips2/install.sh">install.sh <i class="fa fa-download"></i></a></li>
+</ul>
+<p>For CentOS/Red Hat 6 and 7. Installs to <strong>/awips2/cave</strong> and writes files to <strong>~/caveData</strong>.</p>
+<p>Install CAVE for Linux</p>
+<pre><code>wget https://www.unidata.ucar.edu/software/awips2/install.sh
+chmod 755 install.sh
+sudo ./install.sh --cave
 </code></pre>
-<p>to install Unidata AWIPS CAVE for CentOS/Red Hat 6 and 7 (all software will install to the directories <strong>/awips2</strong> and <strong>/awips2/cave</strong> and writes files to <strong>~/caveData</strong>)</p>
 <p>Run CAVE from the menu <strong>Applications</strong> &gt; <strong>Internet</strong> &gt; <strong>AWIPS CAVE</strong>, or from the command line as simply <code>cave</code>.</p>
 <p><img alt="" src="../../images/cave_linux_menu.png" /></p>
 <div class="admonition note">
@@ -1143,7 +1148,7 @@
 <p>Writes files to <strong>caveData</strong> in the user's home directory.</p>
 <div class="admonition warning">
 <p class="admonition-title">Beta status</p>
-<p>Client-side Python scripts (including Derived Parameters) do not work on Windows, and GOES-16/R products are not available in CAVE menus.</p>
+<p>Client-side Python scripts (including Derived Parameters) do not work on Windows</p>
 </div>
 <hr />
 <h2 id="awips-data-in-the-cloud">AWIPS Data in the Cloud<a class="headerlink" href="#awips-data-in-the-cloud" title="Permanent link"></a></h2>
@@ -1244,10 +1249,6 @@
     
       <script src="../../assets/javascripts/application-0b7df094bf.js"></script>
       <script>app.initialize({url:{base:"../.."}})</script>
-      
-        <script src="../../search/require.js"></script>
-      
-        <script src="../../search/search.js"></script>
       
     
     
