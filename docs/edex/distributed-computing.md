@@ -133,7 +133,7 @@ Since this Database/Request server is not running the main *edexIngest* JVM, we 
 ## Ingest/Decode Server
 
 !!! note "Specs"
-    * IP address **10.0.0.9**
+    * IP address **10.0.0.7**
     * CentOS 6.9
     * m1.xxlarge (CPU: 44, Mem: 120 GB)
 
