@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Profiler Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.profiler
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: com.raytheon.uf.common.dataplugin.profiler,
+ com.raytheon.uf.common.dataplugin.profiler.dao
+Require-Bundle: com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.common.datastorage,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.dataaccess,
+ javax.measure

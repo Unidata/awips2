@@ -1,0 +1,5 @@
+#Product Discipline 209 - Multi-Radar/Multi-Sensor, Parameter Category 11: Composite Reflectivity Products 
+0:0:Merged Base Reflectivity:dBZ:MergedBaseReflectivityQC
+1:1:Raw Composite Reflectivity Mosaic:dBZ:MergedReflectivityComposite
+2:2:Composite Reflectivity Mosaic:dBZ:MergedReflectivityQComposite
+3:3:Raw Merged Base Reflectivity:dBZ:MergedBaseReflectivity

@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: FSS Obs
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.fssobs
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: com.raytheon.uf.common.dataplugin.fssobs
+Require-Bundle: com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.serialization,
+ org.hibernate;bundle-version="1.0.0"
+Import-Package: com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.common.pointdata.spatial,
+ javax.persistence

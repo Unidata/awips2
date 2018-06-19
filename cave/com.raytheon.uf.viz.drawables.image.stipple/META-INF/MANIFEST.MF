@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Stippled Colormapped Images
+Bundle-SymbolicName: com.raytheon.uf.viz.drawables.image.stipple;singleton:=true
+Bundle-Version: 1.16.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.16.0",
+ com.raytheon.uf.common.colormap;bundle-version="1.15.1",
+ javax.measure;bundle-version="1.0.0"
+Export-Package: com.raytheon.uf.viz.drawables.image.stipple

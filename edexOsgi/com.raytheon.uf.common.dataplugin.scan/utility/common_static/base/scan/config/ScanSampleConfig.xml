@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
+<ScanSampleConfig>
+    <cellSampleConfig>
+        <parameter name="Storm Id" key="ident" display="true" />
+        <parameter name="rank" key="rank" display="true" />
+        <parameter name="TVS" key="tvs" display="true" />
+        <parameter name="mdaSR" key="mdaSR" display="true" />
+        <parameter name="POSH" key="posh" display="true" />
+        <parameter name="POH" key="poh" display="true" />
+        <parameter name="POLH" key="polh" display="true" />
+        <parameter name="Hail Size" key="hsize" display="true" />
+        <parameter name="dbz" key="dbz" display="true" />
+        <parameter name="dbzHt" key="dbzHt" display="true" />
+        <parameter name="top" key="top" display="true" />
+        <parameter name="azm15" key="azm15" display="true" />
+        <parameter name="rng15" key="rng15" display="true" />
+        <parameter name="azm30" key="azm30" display="true" />
+        <parameter name="rng30" key="rng30" display="true" />
+        <parameter name="asm45" key="azm45" display="true" />
+        <parameter name="rng45" key="rng45" display="true" />
+        <parameter name="azm60" key="azm60" display="true" />
+        <parameter name="rng60" key="rng60" display="true" />
+        <parameter name="mvtErr" key="mvtErr" display="true" />
+        <parameter name="mvtMn" key="mvtMn" display="true" />
+        <parameter name="svrwx" key="svrwx" display="true" />
+        <parameter name="hvyPr" key="heavyPr" display="true" />
+        <parameter name="%Pos" key="pPos" display="true" />
+        <parameter name="cgRate" key="cgRate" display="true" />
+        <parameter name="VCP" key="vcp" display="false" />
+        <parameter name="CAPE" key="cape" display="false" />
+        <parameter name="SREH" key="sreh" display="false" />
+    </cellSampleConfig>
+    <dmdSampleConfig>
+        <parameter name="ident" key="ident" display="true"
+            line="1" />
+        <parameter name="Storm ID" key="strmID" display="true"
+            line="1" />
+        <parameter name="status" key="status" display="true"
+            line="2" />
+        <parameter name="base" key="base" display="true" line="3" />
+        <parameter name="depth" key="depth" display="true"
+            line="3" />
+        <parameter name="stRank" key="rank" display="true"
+            line="4" />
+        <parameter name="msi" key="msi" display="true" line="4" />
+        <parameter name="llVr" key="llVr" display="true" />
+        <parameter name="llgtg" key="llgtg" display="true" />
+        <parameter name="llConv" key="llConv" display="true" />
+        <parameter name="llShear" key="llShear" display="true" />
+        <parameter name="mlConv" key="mlConv" display="true" />
+        <parameter name="llDiam" key="llDiam" display="false" />
+        <parameter name="relDepth" key="relDepth" display="false" />
+        <parameter name="maxVr" key="maxVr" display="false" />
+        <parameter name="htMxVr" key="htMxVr" display="false" />
+        <parameter name="TVS" key="tvs" display="false" />
+        <parameter name="msi" key="msi" display="false" />
+        <parameter name="age" key="age" display="false" />
+        <parameter name="elev0" key="elev0" display="false" />
+        <parameter name="status" key="status" display="false" />
+        <parameter name="rankType" key="rankType" display="false" />
+    </dmdSampleConfig>
+</ScanSampleConfig>

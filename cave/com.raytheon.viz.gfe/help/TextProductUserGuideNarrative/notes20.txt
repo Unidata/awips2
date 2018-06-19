@@ -1,0 +1,2 @@
+...and at the phrase level.  Every phrase MUST have a "setUpMethod" called first and a "wordMethod" called last at the sub-phrase level to produce words for one sub-phrase.  Optional "phraseMethods" and "subPhraseMethods" are called in between.
+

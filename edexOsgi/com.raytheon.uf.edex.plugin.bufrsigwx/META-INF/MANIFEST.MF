@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bufrsigwx Plug-in
+Bundle-SymbolicName: com.raytheon.uf.edex.plugin.bufrsigwx
+Bundle-Version: 1.15.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: com.raytheon.uf.common.dataplugin.bufrsigwx,
+ com.raytheon.uf.edex.decodertools,
+ com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.edex.pointdata,
+ org.geotools,
+ javax.persistence,
+ javax.measure,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.edex.database,
+ com.raytheon.uf.common.serialization,
+ org.slf4j;bundle-version="1.7.12"
+Import-Package: com.raytheon.uf.common.datastorage,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.wmo,
+ com.raytheon.uf.edex.bufrtools,
+ com.raytheon.uf.edex.bufrtools.descriptors,
+ com.raytheon.uf.edex.bufrtools.packets,
+ com.raytheon.uf.edex.core

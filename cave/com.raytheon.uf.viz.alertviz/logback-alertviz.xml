@@ -1,0 +1,83 @@
+<configuration debug="false" scan="false">
+   <!-- Only define when not wanting to use the UF Standard.
+   <property scope="context" name="log.message.pattern" value="%-5p %d [%t] %c{0}: %m%n"/>
+   -->
+   <timestamp key="startTime" datePattern="yyyyMMdd_HHmmss" />
+   <define name="adminLogFile" class="com.raytheon.uf.common.logback.LogFilePropertyDefiner" >
+       <directory>${user.home}/${LOGDIR}</directory>
+       <name>alertviz_${startTime}_admin.log</name>
+   </define>
+   <define name="consoleLogFile" class="com.raytheon.uf.common.logback.LogFilePropertyDefiner" >
+       <directory>${user.home}/${LOGDIR}</directory>
+       <name>alertviz_${startTime}_console.log</name>
+   </define>
+   
+   <!-- general application log --> 
+   <appender name="console" class="ch.qos.logback.core.ConsoleAppender"> 
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
+      <!-- In eclipse InvertedThresholdFilter allows different color display for console and errConsole.  -->
+      <filter class="com.raytheon.uf.common.logback.filter.InvertedThresholdFilter">
+         <level>INFO</level>         
+      </filter>
+   </appender>
+
+   <appender name="errConsole" class="ch.qos.logback.core.ConsoleAppender">
+      <target>System.err</target> 
+      <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+        <level>WARN</level>
+      </filter> 
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
+   </appender>
+   
+   <appender name="consoleLog" class="com.raytheon.uf.common.logback.appender.ConsoleFileAppender">
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
+      <file>${consoleLogFile}</file> 
+      <filter class="com.raytheon.uf.common.logback.filter.InvertedThresholdFilter">
+         <level>INFO</level>         
+      </filter>
+   </appender>
+   
+   <appender name="AlertVizAdminLogAppender" class="ch.qos.logback.core.FileAppender">
+      <file>${adminLogFile}</file>
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
+   </appender> 
+   
+   <logger name="AlertVizAdminLogger" additivity="false">
+      <level value="ALL"/>
+      <appender-ref ref="AlertVizAdminLogAppender"/>
+   </logger>
+
+   <logger name="com.raytheon">
+      <level value="INFO"/>
+   </logger>
+
+   <logger name="mx4j">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="org.apache">
+      <level value="INFO"/>
+   </logger>
+   <logger name="org.apache.commons.beanutils">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.apache.qpid">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.geotools">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.apache.xbean.spring">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.springframework">
+      <level value="ERROR"/>
+   </logger>
+
+   <!-- default logging --> 
+   <root> 
+      <level value="INFO"/> 
+      <appender-ref ref="console"/> 
+      <appender-ref ref="errConsole"/>
+      <appender-ref ref="consoleLog"/>
+    </root> 
+</configuration> 

@@ -1,0 +1,2 @@
+These methods give you access to the attributes of a node.  The "get" command returns the value of the given attribute.  If this attribute has not been set, it returns None.  The "set" command sets the given attribute (e.g. "descriptor") to the given value (e.g. "winds").   Finally, the "setWords" method sets the words for the given node to the given value (e.g. "2 inches") and returns the special value, self.DONE() indicating that this method has completed processing.
+

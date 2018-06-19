@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Ldadmesonet Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.ldadmesonet
+Bundle-Version: 1.15.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.serialization.annotations,
+ com.vividsolutions.jts.geom
+Export-Package: com.raytheon.uf.common.dataplugin.ldadmesonet
+Require-Bundle: javax.persistence,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.common.dataaccess

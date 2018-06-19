@@ -1,0 +1,11 @@
+Site Text Product -- Gathers all the overrides for the site's
+       version of the product
+    Inherits from:
+      Standard Text Product 
+      Patch Overrides -- Only one file for all the products.  
+            Contains FSL-issued patches.
+      Region Overrides -- Regional method overrides and      
+            product-specific  definitions
+      Site Overrides -- Site method overrides  
+    Imports:
+      Site Definitions -- Site Product-specific definitions

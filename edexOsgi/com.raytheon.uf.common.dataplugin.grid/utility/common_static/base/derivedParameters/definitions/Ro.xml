@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<!--  
+AWIPS 1 format
+Ro    |1| |Rossby Number Vag/Vg | |CONTOUR,IMAGE,OTHER||      *Divide|ageoWM|geoWM 
+
+abbreviation: |Ro| 
+Notused1: |1| 
+Notused2: | | 
+name: |Rossby Number Vag/Vg | 
+FIELD: || 
+FIELD: |CONTOUR,IMAGE,OTHER| 
+-->
+<DerivedParameter name="Rossby Number Vag/Vg " abbreviation="Ro">
+    <Method name="Divide">
+        <Field abbreviation="ageoWM" />
+        <Field abbreviation="geoWM" />
+    </Method>
+</DerivedParameter>

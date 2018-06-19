@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Loctables Plug-in
+Bundle-SymbolicName: com.raytheon.uf.edex.plugin.loctables
+Bundle-Version: 1.15.1.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: com.raytheon.edex.common,
+ com.raytheon.uf.edex.pointdata,
+ com.raytheon.uf.common.localization,
+ javax.measure,
+ org.geotools,
+ javax.persistence,
+ com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
+ com.raytheon.uf.common.site;bundle-version="1.12.1174",
+ com.raytheon.uf.edex.site;bundle-version="1.0.0",
+ com.raytheon.uf.edex.ndm;bundle-version="1.0.0",
+ org.slf4j;bundle-version="1.7.12"

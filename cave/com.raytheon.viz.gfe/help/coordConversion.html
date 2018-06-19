@@ -1,0 +1,227 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-34smp i686) [Netscape]">
+  <title>coordinate conversion routine</title>
+</head>
+<body bgcolor="#ffffff">
+<h1 class="1Heading">
+Coordinate Conversion routine</h1>
+<div class="1Heading">March 7, 2003
+<br>
+
+<h3><a name="TableOfContents"></a>Table Of Contents</h3>
+<a href="#Overview">Overview</a>
+<br>
+<a href="#RunningcoordConversion">Running coordConversion</a>
+<br>
+<a href="#Restrictions">Restrictions</a>
+<p></p>
+<hr width="100%">
+<h2><a name="Overview"></a>Overview</h2>
+The coordinate conversion routine is intended as an aid to system
+administrators
+for setting up the correct domain coordinates in <a
+ href="serverConfig.html">serverConfig</a>
+or <a href="localConfig.html">localConfig</a>.&nbsp; Basically the
+coordConversion
+program accepts either latitude/longitude, AWIPS world coordinates, or
+grid coordinates, and converts the input to the other two coordinate
+systems.
+The ifpServer must be running in order to run coordConversion.
+<p></p>
+<hr width="100%">
+<h2><a name="RunningcoordConversion"></a>Running coordConversion</h2>
+<p><br>
+Start the program from the "bin" directory.&nbsp; Refer to directory
+structure information for <a href="directoryLayout.html">GFESuite</a>
+</p>
+<p>The command line is shown below:<br>
+</p>
+<p>coordConversion -h serverhost -p serverport<br>
+</p>
+<table cellpadding="2" cellspacing="2" border="1"
+ style="text-align: left; width: 100%;">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top; font-weight: bold;">Command Line
+Switch<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Mandatory/Optional<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Description<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-h serverhost<br>
+      </td>
+      <td style="vertical-align: top;">Mandatory (see Note)<br>
+      </td>
+      <td style="vertical-align: top;">Specifies the host running the
+ifpServer.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-p serverport<br>
+      </td>
+      <td style="vertical-align: top;">Mandatory (see Note)<br>
+      </td>
+      <td style="vertical-align: top;">Specifies the port for the
+ifpServer.</td>
+    </tr>
+  </tbody>
+</table>
+<font color="#3366ff">Note: The -h and -p switches are predefined to
+match your GFESuite installation, such that they will point to the
+ifpServer
+specified on installation.&nbsp; Thus the -h and -p switches are not
+necessary
+for normal running of this program.&nbsp; However, if you wish to
+connect
+to a different server, then you will need to specify the -h and -p
+switches.&nbsp; If environment variables ${CDSHOST} or ${CDSPORT} are
+defined, then the default server and port will be determined from the
+environment variables, unless overridden with the user specified -h and
+-p switches.<br>
+</font>
+<p>An example of starting the program is:
+</p>
+<p><tt>coordConversion -h localhost -p 98000000</tt>
+</p>
+<p>The program will prompt you for the projection you wish to
+use.&nbsp;
+The default is shown.&nbsp; If you elect to do a conversion on a
+different
+projection, a list of projections is provided.
+</p>
+<p><tt>Database Projection currently: Grid211</tt>
+<br>
+<tt>Do you want to use this projection? 0=no, 1=yes</tt>
+<br>
+<b>0</b>
+<br>
+<tt>Choose Projection:</tt>
+<br>
+<tt>0 - exit</tt>
+<br>
+<tt>1 - Grid216</tt>
+<br>
+<tt>2 - Grid212</tt>
+<br>
+<tt>3 - Grid214AK</tt>
+<br>
+<tt>4 - Grid203</tt>
+<br>
+<tt>5 - Grid226</tt>
+<br>
+<tt>....</tt>
+</p>
+<p>After selection of the projection, the program offers three choices:
+</p>
+<p><tt>Enter type of transfer.&nbsp; Choose one of the options</tt>
+<br>
+<tt>0 - exit</tt>
+<br>
+<tt>1 - LatLon to AWIPS and Grid Coordinate</tt>
+<br>
+<tt>2 - AWIPS Coordinate to Grid Coordinate and LatLon</tt>
+<br>
+<tt>3 - Grid Coordinate to LatLon and AWIPS Coordinate</tt>
+<br>
+&nbsp;
+</p>
+<p><u>Example of LatLon to AWIPS and Grid Coordinate</u>
+</p>
+<p><i><tt>LatLon to AWIPS and GridCoord,&nbsp; [enter 999 to exit]</tt></i>
+<br>
+<i><tt>Latitude? 40.5</tt></i>
+<br>
+<i><tt>Longitude? -105.21</tt></i>
+<br>
+<i><tt>Awips coordinate is: x=41.9675 y=33.1418</tt></i>
+<br>
+<i><tt>Grid coordinate is: x=63 y=98 InGrid=1</tt></i><i><tt></tt></i>
+</p>
+<p><i><tt>LatLon to AWIPS and GridCoord,&nbsp; [enter 999 to exit]</tt></i>
+<br>
+<i><tt>Latitude? 40.75</tt></i>
+<br>
+<i><tt>Longitude? -105.44</tt></i>
+<br>
+<i><tt>Awips coordinate is: x=41.7468 y=33.5155</tt></i>
+<br>
+<i><tt>Grid coordinate is: x=60 y=104 InGrid=1</tt></i><i><tt></tt></i>
+</p>
+<p><i><tt>LatLon to AWIPS and GridCoord,&nbsp; [enter 999 to exit]</tt></i>
+<br>
+<i><tt>Latitude?</tt></i>
+<br>
+<tt></tt>&nbsp;
+</p>
+<p><u>Example of AWIPS Coordinate to Grid Coordinate and Lat/Lon</u>
+</p>
+<p><tt>AWIPS to lat/lon and grid cell [enter 999 to exit]</tt>
+<br>
+<tt>AWIPS x coordinate? 30</tt>
+<br>
+<tt>AWIPS y coordinate? 40</tt>
+<br>
+<tt>Lat: 44.2482 Lon: -117.175</tt>
+<br>
+<tt>Grid coordinate is: x=-128 y=208 InGrid=0</tt><tt></tt>
+</p>
+<p><tt>AWIPS to lat/lon and grid cell [enter 999 to exit]</tt>
+<br>
+<tt>AWIPS x coordinate? 31</tt>
+<br>
+<tt>AWIPS y coordinate? 41</tt>
+<br>
+<tt>Lat: 45.0347 Lon: -116.378</tt>
+<br>
+<tt>Grid coordinate is: x=-112 y=224 InGrid=0</tt><tt></tt>
+</p>
+<p><tt>AWIPS to lat/lon and grid cell [enter 999 to exit]</tt>
+<br>
+<tt>AWIPS x coordinate?</tt>
+<br>
+<tt></tt>&nbsp;
+</p>
+<p><u>Example of Grid Coordinate to AWIPS Coordinate and Lat/Lon</u>
+</p>
+<p><tt>Grid Cell to AWIPS and lat/lon&nbsp; [Enter 999 to exit]</tt>
+<br>
+<tt>Grid x coordinate? 0</tt>
+<br>
+<tt>Grid y coordinate? 0</tt>
+<br>
+<tt>Awips coordinate is: x=38 y=27</tt>
+<br>
+<tt>Lat: 35.9079 Lon: -108.304</tt><tt></tt>
+</p>
+<p><tt>Grid Cell to AWIPS and lat/lon&nbsp; [Enter 999 to exit]</tt>
+<br>
+<tt>Grid x coordinate? 50</tt>
+<br>
+<tt>Grid y coordinate? 50</tt>
+<br>
+<tt>Awips coordinate is: x=41.125 y=30.125</tt>
+<br>
+<tt>Lat: 38.328 Lon: -105.765</tt><tt></tt>
+</p>
+<p><tt>Grid Cell to AWIPS and lat/lon&nbsp; [Enter 999 to exit]</tt>
+<br>
+<tt>Grid x coordinate?</tt>
+<br>
+<tt></tt>&nbsp;
+</p>
+<p></p>
+<hr width="100%">
+<h2><a name="Restrictions"></a>Restrictions</h2>
+<p><br>
+coordConversion requires an active ifpServer in order to work</p>
+</div>
+</body>
+</html>

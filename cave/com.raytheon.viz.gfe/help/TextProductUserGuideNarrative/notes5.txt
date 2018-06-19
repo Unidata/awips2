@@ -1,0 +1,1 @@
+We can include any product, tabular or narrative, within another product by using the "generateProduct" command.  This is analogous to the "callSmartTool" command used in Procedures.  It takes a product name corresponding to the product definition, an editArea object and a timeRange object.  It returns a text string representing the forecast for that edit area and time range.

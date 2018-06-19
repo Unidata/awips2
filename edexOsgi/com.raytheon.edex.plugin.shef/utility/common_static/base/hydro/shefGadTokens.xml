@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+
+    <!--
+        This is an absolute override file, indicating that a higher priority
+        version of the file will completely replace a lower priority version
+        of the file.
+    -->
+<SHEFGadTokens>
+  <token>db_name</token>
+  <token>whfs_local_data_dir</token>
+  <token>dupmess</token>
+  <token>shef_post_unk</token>
+  <token>shef_duplicate</token>
+  <token>shef_alertalarm</token>
+  <token>locmess</token>
+  <token>shef_winpast</token>
+  <token>shef_winfuture</token>
+  <token>shef_post_link</token>
+  <token>shef_post_latest</token>
+  <token>shef_load_maxfcst</token>
+  <token>shef_post_baddata</token>
+  <token>basis_hours_filter</token>
+  <token>elgmess</token>
+  <token>shef_load_ingest</token>
+  <token>ingest_mess</token>
+  <token>shef_procobs</token>
+  <token>shef_data_log</token>
+  <token>shef_perflog</token>
+  <token>shef_storetext</token>
+  <token>gage_pp_enable</token>
+  <token>gage_pp_data</token>
+  <token>gage_pp_log</token>
+  <token>gage_pp_sleep</token>
+</SHEFGadTokens>

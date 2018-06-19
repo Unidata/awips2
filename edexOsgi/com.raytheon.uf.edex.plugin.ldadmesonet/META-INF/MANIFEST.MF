@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Ldadmesonet Plug-in
+Bundle-SymbolicName: com.raytheon.uf.edex.plugin.ldadmesonet
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: com.raytheon.uf.common.dataplugin.ldadmesonet;bundle-version="1.0.0",
+ com.raytheon.edex.common,
+ javax.measure,
+ com.raytheon.edex.plugin.ldad;bundle-version="1.0.0",
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.edex.pointdata
+Import-Package: com.raytheon.uf.common.status

@@ -1,0 +1,2 @@
+Here is a table listing edit areas down the rows and weather elements across the columns.  However, there is no constantVariable as three time periods are reported for each weather element.  Thus, this table cannot be created using the Simple Tabular definition.  Using a Smart Text Product, we gain the flexibility to format the product in any way we wish.
+

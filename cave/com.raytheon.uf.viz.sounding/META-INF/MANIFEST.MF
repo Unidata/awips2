@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Sounding Plug-in
+Bundle-SymbolicName: com.raytheon.uf.viz.sounding;singleton:=true
+Bundle-Version: 1.14.0.qualifier
+Bundle-Activator: com.raytheon.uf.viz.sounding.Activator
+Bundle-Vendor: RAYTHEON
+Require-Bundle: org.eclipse.core.runtime,
+ com.raytheon.uf.common.sounding;bundle-version="1.12.1174";visibility:=reexport,
+ com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
+ com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
+ com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
+ com.raytheon.uf.common.datastorage;bundle-version="1.12.1174",
+ com.raytheon.uf.common.dataplugin.grid;bundle-version="1.0.0",
+ com.raytheon.uf.common.dataplugin.bufrua;bundle-version="1.12.1174",
+ com.raytheon.uf.viz.core;bundle-version="1.12.1174",
+ com.raytheon.viz.core;bundle-version="1.12.1174"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.uf.viz.sounding,
+ com.raytheon.uf.viz.sounding.providers
+Import-Package: com.raytheon.uf.common.inventory.exception,
+ com.raytheon.uf.viz.datacube

@@ -1,0 +1,298 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.78 [en] (X11; U; Linux 2.4.9-31smp i686) [Netscape]">
+  <title>Daily Forecast Critique User's Manual</title>
+</head>
+<body bgcolor="#ffffff">
+<h1 class="1Heading">
+Daily Forecast Critique User's Guide</h1>
+<div class="1Heading">July 23, 2003<br>
+
+<h2>Table of Contents</h2>
+<h3>
+<a href="#Overview">Overview</a></h3>
+<h3>
+<a href="#Starting_DFC">Starting DFC</a></h3>
+<h3>
+<a href="#The_DFC_Interface">The DFC Interface</a></h3>
+<h3>
+<a href="#Data_Sources">&nbsp;Data Sources</a></h3>
+<h3>
+<a href="#Weather_Element">Weather Element</a></h3>
+<h3>
+<a href="#Stations">Stations</a></h3>
+<h3>
+<a href="#Plot_Button">Plot Button</a></h3>
+<h3>
+<a href="#Combine_Button">Combine Button</a></h3>
+<b><font color="#3333ff"><font size="+1"><a href="#StatusMessage">Status
+Message</a></font></font></b>
+<br>
+&nbsp;</p>
+</div>
+<h2 class="1Heading">
+<a name="Overview"></a>Overview</h2>
+<div class="1Heading">The Daily Forecast Critique (DFC) is a suite of
+programs
+that allows forecasters to compare forecasts (Official or model
+forecasts)
+to observations.&nbsp; With this&nbsp; first release, DFC only compare
+point observations with point forecasts extracted from the&nbsp;
+various
+forecast grids.&nbsp; Future versions will allow forecasters to compare
+gridded forecasts with gridded analyses, calculate statistics for use
+in
+a Smart Tool (to correct for any bias, for example), and provide a
+flexible
+framework within which forecasters can write tools to calculate their
+own
+statistics and summaries.</div>
+<div class="1Heading">&nbsp;</div>
+<div class="1Heading">DFC comprises three different programs: a
+programs
+that archives point observations, a second that archives the extracts
+point
+forecasts from the various forecast grids, and a third that provides a
+user interface that lets forecasters compare the observations to a
+variety
+of forecasts.&nbsp; The diagram below illustrates the relationship
+between
+these programs and the data that they generate or display.</div>
+<div class="1Heading"><img src="images/DFC.gif"
+ alt="overview of DFC processes" height="226" width="524">
+<br>
+&nbsp;</div>
+<div class="1Heading">The archiveObs process is launched automatically
+from the ifpServer.&nbsp; It reads local observations from the AWIPS
+surface
+observations database and stores them in the observations
+archive.&nbsp;
+The archivePointFcst process is also launched from&nbsp; the
+ifpServer.&nbsp;
+It reads grids from the ifpServer, extracts the values at locations for
+which we have observations and stores the point forecast in the
+archive.&nbsp;
+Since the archive processes archive local data only, you can configure
+DFC to store data as far back in time as you like, provided you have
+the
+enough disk space.&nbsp; If DFC relied purely on the existing AWIPS
+real-time
+databases, you would be allow to view data that is only 1-2 days
+old.&nbsp;
+These archive processes and database allow you to extend that to
+several
+weeks.&nbsp; For more information on how to configure DFC, refer to the
+<a href="dfcConfig.html">DFC Configuration Guide</a>.
+<br>
+<hr width="100%" size="2" align="left">
+<p>The ifpDFC main program allows you to plot observations and
+forecasts
+extracted at a point on the same display.&nbsp; This allows you to
+assess
+the quality of not only your forecast, but forecasts objectively
+derived
+from models via ifpInit.&nbsp; This section show you how to start the
+DFC
+display program.
+</p>
+<h2><a name="Starting_DFC"></a>Starting DFC</h2>
+You can start ifpDFC two different ways.&nbsp; The first way is to open
+a terminal window and "cd' to the bin directory.
+<p><font color="#3366ff">cd /awips/GFESuite/primary/bin</font>
+</p>
+<p>Your directory may be in a different location, depending on how your
+office set up the directory structure at installation time. From this
+directory
+type:
+</p>
+<p><font color="#3366ff">ifpDFC</font>
+</p>
+<p>The other way to start the main DFC display is to select from the
+main
+menu bar in the GFE <b>Verify-&gt;Daily Forecast Critique</b>. This
+menu item
+is located just to the right if the Edit Areas menu item as in the
+figure
+below.
+</p>
+<p><img src="images/DFCMenuSelector.gif"
+ alt="Picture of GFE main menu bar" height="78" width="338"><br>
+</p>
+<p><br>
+The complete command line is shown below:<br>
+</p>
+<p>ifpDFC -h serverhost -p serverport<br>
+</p>
+<table cellpadding="2" cellspacing="2" border="1"
+ style="text-align: left; width: 100%;">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top; font-weight: bold;">Command Line
+Switch<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Mandatory/Optional<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Description<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-h serverhost<br>
+      </td>
+      <td style="vertical-align: top;">Mandatory (see Note)<br>
+      </td>
+      <td style="vertical-align: top;">Specifies the host running the
+ifpServer.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-p serverport<br>
+      </td>
+      <td style="vertical-align: top;">Mandatory (see Note)<br>
+      </td>
+      <td style="vertical-align: top;">Specifies the port for the
+ifpServer.</td>
+    </tr>
+  </tbody>
+</table>
+<font color="#3366ff">Note: The -h and -p switches are predefined to
+match your GFESuite installation, such that they will point to the
+ifpServer
+specified on installation.&nbsp; Thus the -h and -p switches are not
+necessary
+for normal running of this program.&nbsp; However, if you wish to
+connect
+to a different server, then you will need to specify the -h and -p
+switches.&nbsp;</font><font color="#3366ff">&nbsp; If environment
+variables ${CDSHOST} or
+${CDSPORT} are defined, then the default server and port will be
+determined from the environment variables, unless overridden with the
+user specified -h and -p switches.</font>
+<p></p>
+<hr width="100%" size="2" align="left">
+<h2><a name="The_DFC_Interface"></a>The DFC Interface</h2>
+Once you successfully start ifpDFC, the DFC display will appear.&nbsp;
+It should look something like this.
+<p><img src="images/DFCInterface.gif"
+ alt="Snaphopt image of DFC interface" height="321" width="606"><br>
+&nbsp;
+</p>
+<p>Note that the interface is divided into four sections: Weather
+Element,
+Stations, Data Sources, and ValidTime.&nbsp; Using the DFC interface,
+you
+may select these options to produce a plot of just the data you
+want.&nbsp;
+A description of each of these sections follows.
+<br>
+</p>
+<hr width="100%" size="2" align="left">
+<h2><a name="Weather_Element"></a>Weather Element</h2>
+Selecting one of the Weather Element buttons will eventually cause a
+time
+series weather element to be displayed.&nbsp; At this early stage in
+the
+DFC development there are only four weather elements supported:
+temperature,
+dew point, wind speed and wind direction.&nbsp; Future versions will
+hopefully
+support more weather elements.
+<br>
+<hr width="100%" size="2" align="left">
+<h2><a name="Stations"></a>Stations</h2>
+The next section, as you go left to right, is the Stations
+listbox.&nbsp;
+This widget allows you to select the station at which you want a time
+series
+display.&nbsp; You may only select one station at a time, but you can
+combine
+any time series with any other using the "Combine" button.
+<br>
+<hr width="100%" size="2" align="left">
+<h2><a name="Data_Sources"></a>Data Sources</h2>
+The Data Sources section allows you to specify the source of the point
+data.&nbsp; The first entry is always "Observations".&nbsp; These
+correspond
+to surface observations such as METAR, mesonet, or RAWS sites.&nbsp;
+Selecting
+"Observations" will eventually generate a time series plot of observed
+values vs. time.
+<p>Selecting either the observations or any of the models (either
+numerical
+models, MOS, or the Official) will generate a time series that shows
+the
+value of the weather element extracted from a point in the specified
+IFP
+model database.&nbsp; Note that these values are from the IFP database
+not the D2D database.&nbsp; IFPInit must generate an IFP database
+before
+any model data can be displayed in DFC.
+<br>
+</p>
+<hr width="100%" size="2" align="left">
+<h2><a name="Model_Times"></a>Model Times</h2>
+If you select a model as your data source, the Model Times&nbsp;
+section
+will display a list of possible model times times to choose from.&nbsp;
+These times are listed in mmDD_HHMM format, where mm is the numeric
+month,
+DD is the day of the month, HH is the hour and MM&nbsp;is the
+minute.&nbsp;
+This list is sorted so that the most recent models are on top. You may
+select as many model times as you want to see displayed in the DFC
+viewer.
+Once you select the Plot or Combine button, you will see as many model
+time series plots as you have selected in this column.
+<br>
+<hr width="100%" size="2" align="left">
+<h2><a name="Plot_Button"></a>Plot Button</h2>
+Once you have selected the data source, weather element, station, and
+valid
+time, you are ready to make a plot.&nbsp; To generate a plot,&nbsp;
+simply
+click on the button near the bottom of the interface labelled
+"Plot".&nbsp;
+Once you do this you should see a window appear that contains the time
+series that you specified.&nbsp; Each time you click "Plot", a new
+window
+with the specified time series will appear.
+<p>To remove the window, just click on the icon in the window's title
+bar
+that is labelled with an "X".&nbsp; Since your window manager may vary,
+this icon may be labelled differently or this action may be available
+from
+a pop-up menu invoked elsewhere on the window.
+<br>
+</p>
+<hr width="100%" size="2" align="left">
+<h2><a name="Combine_Button"></a>Combine Button</h2>
+The "Combine" button works just like the "Plot" button except that the
+new plot will appear in a new window overlaid with the data you plotted
+previously.&nbsp; This allows you to overlay a model time series on top
+of a plot of observations, or compare two models for the same station.
+<p>Note that if you change the Weather Element and then select
+"Combine"
+a new window will be automatically created, since plotting weather
+elements
+with different units would require more than one vertical data scale.
+<br>
+</p>
+<hr width="100%" size="2" align="left">
+<h2><a name="StatusMessage"></a>Status Message</h2>
+At the very bottom if ther interface is the area where status messages
+are displayed.&nbsp; Occasionally, you may forget to select a model
+time
+or data migh not be available.&nbsp; When events like these occur, a
+message
+is displayed to give you a hint about what&nbsp; to do next.
+<br>
+<hr width="100%" size="2" align="left"></div>
+<br>
+&nbsp;
+<br>
+&nbsp;
+</body>
+</html>

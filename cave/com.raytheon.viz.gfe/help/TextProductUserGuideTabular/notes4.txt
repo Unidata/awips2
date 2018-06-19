@@ -1,0 +1,1 @@
+Unlike Smart Text Products, the Simple Tabular Products do not use the inheritance hierarchy and do not have a Local or Overrides Files. They are composed instead of a single file in which there is a Definition Python dictionary that specifies the format and contents of the table. This Definition is interpreted by the ForecastTable Python module which cannot be overridden.

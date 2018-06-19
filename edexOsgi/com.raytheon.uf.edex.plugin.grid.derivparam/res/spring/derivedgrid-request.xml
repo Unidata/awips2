@@ -1,0 +1,50 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://camel.apache.org/schema/spring
+    http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="derivedGridDataAccessFactory"
+        class="com.raytheon.uf.common.dataplugin.grid.derivparam.daf.DerivedGridDataAccessFactory"
+        depends-on="gridTreeHandlerRegistered registeredPythonDerParFunctionAdapter levelFactoryInitialized" />
+    <!-- Registers after the standard grid factory so it can override all
+        functionality. -->
+
+    <bean factory-bean="dataAccessRegistry" factory-method="register"
+        depends-on="gridDataAccessFactoryRegistered">
+        <constructor-arg value="grid" />
+        <constructor-arg ref="derivedGridDataAccessFactory" />
+    </bean>
+
+    <bean id="gridCacheUpdater"
+        class="com.raytheon.uf.common.dataplugin.grid.derivparam.cache.GridCacheUpdater"
+        factory-method="getInstance" />
+
+    <bean id="derivedGridContextProcessor"
+        class="com.raytheon.uf.edex.plugin.grid.derivparam.DerivedGridContextStateProcessor">
+        <constructor-arg ref="gridCacheUpdater" />
+    </bean>
+
+    <camelContext id="derivedgrid-update"
+        xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+
+        <route id="derivedgridIngestNotification">
+            <from uri="jms-durable:topic:derivedgridDataURINotification" />
+            <doTry>
+                <bean ref="serializationUtil" method="transformFromThrift" />
+                <bean ref="gridCacheUpdater" method="handleDataURINotificationMessage" />
+
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:derivedgrid?level=ERROR" />
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="derivedgrid-update" />
+        <constructor-arg ref="derivedGridContextProcessor" />
+    </bean>
+</beans>

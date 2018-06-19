@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Xmrg
+Bundle-SymbolicName: com.raytheon.uf.common.xmrg
+Bundle-Version: 1.16.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: com.raytheon.uf.common.geospatial;bundle-version="1.15.1",
+ com.raytheon.uf.common.util;bundle-version="1.15.0",
+ com.raytheon.uf.common.ohd;bundle-version="1.16.0"
+Export-Package: com.raytheon.uf.common.xmrg,
+ com.raytheon.uf.common.xmrg.hrap

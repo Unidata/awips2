@@ -1,0 +1,2 @@
+In this presentation we will first discuss Simple Tabular Products which can be used to set up tables with relatively simple requirements.  For more complex products, we can use Smart Text Products.  We will learn about Smart Tabular Products and the helper methods in the Infrastructure for creating them.
+

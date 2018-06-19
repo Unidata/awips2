@@ -1,0 +1,64 @@
+<html>
+<title>Smart Script Class - Error Handling</title>
+<body>
+<h1><a name="Error"></a>Error Handling</h1>
+<br>
+<a href="#abort">abort</a>
+<br>
+<a href="#noData">noData</a>
+<br>
+<a href="#cancel">cancel</a>
+<br>
+<a href="#errorReturn">errorReturn</a>
+<br>
+<a href="#statusBarMsg">statusBarMsg</a>
+<!-- Leave this comment for formatting purposes -->
+<hr width="100%">
+
+
+
+<h2>
+<a name="abort"></a>abort</h2>
+def abort(self, info):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # This call will send the info to
+AlertViz,
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # put up a dialog with the given info,
+and abort the
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # smart tool or procedure.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Example:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # self.abort("Error processing my tool")
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<h2><a name="noData"></a>noData</h2>
+def noData(self, info="Insufficient Data to run Tool"):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #Raise the NoData exception error
+<h2><a name="cancel"></a>cancel</h2>
+def cancel(self):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Cancels a smart tool without
+displaying
+an error message
+<h2><a name="errorReturn"></a>errorReturn</h2>
+def errorReturn(self, noDataError, message):
+<h2><a name="statusBarMsg"></a>statusBarMsg</h2>
+def statusBarMsg(self, message, status, category="GFE"):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Sends the text message to AlertViz
+with the
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # given status code: "R" (regular),
+"S" (significant), or "U" (urgent)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Example:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # self.statusBarMsg("Running Smart
+Tool",
+"R")
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #

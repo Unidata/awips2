@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="gisDataStore" name="gisDataStore" schema="schema/gisDataStore.exsd"/>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="com.raytheon.uf.viz.gisdatastore.actions.ImportGis"
+            name="Import GIS">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="com.raytheon.uf.viz.gisdatastore.actions.ImportGisAction"
+            commandId="com.raytheon.uf.viz.gisdatastore.actions.ImportGis">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:import">
+         <command
+               commandId="com.raytheon.uf.viz.gisdatastore.actions.ImportGis"
+               label="GIS Data..."
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="com.raytheon.uf.viz.core.resource">
+      <resource
+            class="com.raytheon.uf.viz.gisdatastore.rsc.DataStoreResource"
+            name="dataStoreResource"
+            renderingOrderId="MAP_OUTLINE">
+      </resource>
+   </extension>
+   <extension
+         point="com.raytheon.viz.ui.contextualMenu">
+      <contextualMenu
+            actionClass="com.raytheon.uf.viz.gisdatastore.actions.DisplayAttributes"
+            capabilityInterface="com.raytheon.uf.viz.gisdatastore.rsc.DataStoreResource"
+            name="com.raytheon.uf.viz.gisdatastore.actions.DisplayAttributes"
+            sortID="410">
+      </contextualMenu>
+      <contextualMenu
+            actionClass="com.raytheon.uf.viz.gisdatastore.actions.RenameAction"
+            capabilityInterface="com.raytheon.uf.viz.gisdatastore.rsc.DataStoreResource"
+            name="com.raytheon.uf.viz.gisdatastore.actions.RenameAction"
+            sortID="430">
+      </contextualMenu>
+      <contextualMenu
+            actionClass="com.raytheon.uf.viz.gisdatastore.actions.CropAction"
+            capabilityInterface="com.raytheon.uf.viz.gisdatastore.rsc.DataStoreResource"
+            name="com.raytheon.uf.viz.gisdatastore.actions.CropAction"
+            sortID="440">
+      </contextualMenu>
+      <contextualMenu
+            actionClass="com.raytheon.uf.viz.gisdatastore.actions.SetSampleAttributeAction"
+            capabilityInterface="com.raytheon.uf.viz.gisdatastore.rsc.DataStoreResource"
+            name="com.raytheon.uf.viz.gisdatastore.actions.SetSampleAttributeAction"
+            sortID="450">
+      </contextualMenu>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.raytheon.uf.viz.gisdatastore.ui.GisViewerPreferencePage"
+            id="com.raytheon.uf.viz.gisdatastore.ui.GisViewerPreferencePage"
+            name="GIS Viewer">
+      </page>
+   </extension>
+</plugin>

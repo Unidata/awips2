@@ -1,0 +1,64 @@
+<html>
+<title>GFESuite Documentation - Behavior of GFE in ISC Mode</title>
+<body>
+
+<h1 align=center><a name="ISC"></a>Behavior of the GFE when in ISC Mode</h1>
+<hr width="100%">
+<p>When the&nbsp;<img nosave="" src="images/toggleISC.jpg"> button
+is pressed, the GFE is put into the ISC (intersite coordination)
+mode.
+The data viewed in the spatial editor will be the composite of your
+forecast
+data and the adjacent received site's data.&nbsp; Certain edit tools,
+such
+as Pencil, also work different in ISC mode.&nbsp; The data values are
+picked
+up may be either from your forecast grid or from the intersite
+coordination
+grid depending upon the location on the grid.
+<p>Try placing the GFE into ISC mode and observe how the display
+changes.&nbsp;
+You may have observed that the entire grid is no longer pictured.&nbsp;
+If so, this means that data is not available from all of your
+surrounding
+sites.&nbsp; Note also that your forecast grid is clipped to your CWA.
+Use the Sample Tool and note that when you sample outside your area
+that
+the samples will now shown an update time and site identifier from the
+ISC sites (if those features are enabled).
+</p>
+<p>Try using the Pencil Tool and Move/Copy tool to change some
+data.&nbsp;
+Note that it uses the values from the composite grid for its operation,
+but you may not see the entire data change.&nbsp; Since only a portion
+of your forecast grid is shown (just those parts within your CWA),
+changes
+you make to portions of your grid outside your CWA will not be seen
+while
+in ISC mode.&nbsp; Toggle off ISC mode to see your entire forecast
+grid.
+</p>
+<p>Markers (similar to samples) may appear, which represent one
+location
+per adjacent grid.&nbsp; The markers may be set up to display the last
+grid update time, the WFO identifier, and whether the ISC data was
+published
+or is the working grid.<br>
+</p>
+<p>While most of the weather elements simply are masked so that you see
+your Fcst database within your CWA, and the ISC data outside your CWA,
+some ISC elements are calculated on-the-fly.&nbsp; For example, the QFP
+weather element for ISC is a virtual, as shown with the VISC label in
+the spatial editor legend.&nbsp; There is a QPF ISC element, and a
+virtual QPF ISC element.&nbsp; The virtual element is the summation of
+all of the "precipitation rates" and is valid the same time period as
+the Forecast grid.<br>
+</p>
+<p>Refer to the <a href="ISC.html">Intersite Coordination Guide</a>
+for
+more details.
+<br>
+</p>
+
+</body>
+</html>

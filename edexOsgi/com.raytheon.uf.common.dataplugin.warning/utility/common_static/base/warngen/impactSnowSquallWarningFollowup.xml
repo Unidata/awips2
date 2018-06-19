@@ -1,0 +1,192 @@
+<!-- Snow Squall Warning Follow-up configuration -->
+<!-- PRODUCT HISTORY:
+     TOMALAK/DANGELO/BOOKBINDER 1-31-2017 First Go Around; DCS20066
+-->
+<!--
+    Velocity Variables:
+        followup: Complete String as displayed in WarnGen Dialog
+                    EX: CON.KOAX.SV.W.0001 Exp in 25 min
+        action: The action of the product
+                    EX: CON
+        officeid: The office the product was issued for
+                    EX: KOAX
+        phen:   The product's phenomena
+                    EX: SV
+        sig:    The product's significance
+                    EX: W
+        etn:    The product's ETN
+                    EX: 0001
+-->
+<warngenConfig>
+
+<!-- INCLUDE ALL GEOSPTATIAL INFORMATION FOR THIS PRODUCT
+ANY pointSource/areaSource/pathcastConfig OVERRIDES TO THAT FILE CAN BE
+PLACED IN FULL BELOW THE INCLUDE LINE BELOW. -->
+<include file="geospatialConfig_COUNTY.xml"/>
+
+<!-- Include Various geospatial XML files to create their objects. These are *NOT*
+turned on unless the corresponding .vm file is turned on in a given template's .vm file
+-->  
+
+<include file="dssEvents.xml"/>
+<!-- To enable, make sure dssEvents.vm is added/uncommented in the impactSnowSquallWarning.vm file -->
+<include file="mileMarkers.xml"/>
+<!-- To enable, make sure mileMarkers.vm is added/uncommented in the impactSnowSquallWarning.vm file -->
+<include file="pointMarkers.xml"/>
+<!-- To enable, make sure pointMarkers.vm is added/uncommented in the impactSnowSquallWarning.vm file -->
+
+ <!-- Config distance/speed units -->
+ <unitDistance>mi</unitDistance>
+ <unitSpeed>mph</unitSpeed>
+
+ <!-- Maps to load on template selection. Refer to 'Maps' menu in CAVE. 
+ 	The various menu items are also the different maps
+ 	that can be loaded with each template. -->
+ <maps>
+  <map>County Names</map>
+  <map>County Warning Areas</map>
+ </maps>
+
+ <!-- Followups: VTEC actions of allowable followups when this template is selected -->
+ <followups>
+  <followup>COR</followup>
+  <followup>CON</followup>
+  <followup>CAN</followup>
+  <followup>EXP</followup>
+ </followups>
+ 
+ <!-- Product ID: nnn id of the product -->
+ <productId>SQW</productId>
+
+ <!-- Phensigs: The list of phenomena and significance combinations that this template applies to -->
+ <phensigs>
+   <phensig>SQ.W</phensig>
+ </phensigs>
+ 
+ <!-- Enables/disables user from selecting the Restart button the GUI -->
+ <enableRestart>false</enableRestart>
+
+  <!-- Enable/disables the system to lock text based on various patterns -->
+ <autoLockText>true</autoLockText>
+ 
+ <!-- durations: the list of possible durations of the followup -->
+ <!-- THIS REALLY SERVES NO PURPOSE BUT WILL CRASH WARNGEN IF REMVOED -->
+ <defaultDuration>30</defaultDuration>
+ <durations>
+  <duration>30</duration>
+ </durations>
+ 
+ <!-- bullets: User specified text generation options 
+          - bulletName: an id that is passed to the template when a bullet
+                      is selected. This should be unique
+          - bulletText: the text presented to the user in the selection list
+          - bulletType: "title" makes the bullet unselectable
+          				"basin" correlates the item to a Geometry in the customlocations table
+          - bulletGroup: Only one bullet can be selected per bulletGroup 
+          - parseString: this string must MATCH a unique phrase in the associated bulletText. 
+          	This will be used to highlight the appropriate bullet on a follow up-->
+<bulletActionGroups>
+<bulletActionGroup>
+ <bullets>
+  <bullet bulletText="Please Select a Warning to" bulletType="title"/>
+  <bullet bulletText="Follow-up from the Pull-Down Menu" bulletType="title"/>
+ </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="CAN" phen="SQ" sig="W">
+ <bullets>
+  <bullet bulletText="********* CANCELLATION INFO (CHOOSE 1) ********" bulletType="title"/>
+  <bullet bulletName="weakened" bulletText="Squall Weakened" bulletGroup="canexp1"/>
+  <bullet bulletName="movedout" bulletText="Squall moved out of warned area" bulletGroup="canexp1"/>
+  <bullet bulletName="wkndandmoved" bulletText="Squall weakened and moved out of warned area" bulletGroup="canexp1"/>
+    <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******* END OF WARNING REMARKS ********" bulletType="title"/>
+  <bullet bulletText="**** (OPTIONAL - CHOOSE 1 OR MORE) ****" bulletType="title"/>
+  <bullet bulletName="stillsnowcovered" bulletText="Snow covered roads still a threat"/>
+  <bullet bulletName="stillicy" bulletText="Icy roads a threat"/>
+  <bullet bulletName="stillblowingsnow" bulletText="Blowing snow still a threat"/>
+ </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="EXP" phen="SQ" sig="W">
+ <bullets>
+  <bullet bulletText="********* END OF WARNING INFO (CHOOSE 1) ********" bulletType="title"/>
+  <bullet bulletName="weakened" bulletText="Squall Weakened" bulletGroup="canexp1"/>
+  <bullet bulletName="movedout" bulletText="Squall moved out of warned area" bulletGroup="canexp1"/>
+  <bullet bulletName="wkndandmoved" bulletText="Squall weakened and moved out of warned area" bulletGroup="canexp1"/>
+    <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******* END OF WARNING REMARKS ********" bulletType="title"/>
+  <bullet bulletText="**** (OPTIONAL - CHOOSE 1 OR MORE) ****" bulletType="title"/>
+  <bullet bulletName="stillsnowcovered" bulletText="Snow covered roads still a threat"/>
+  <bullet bulletName="stillicy" bulletText="Icy roads a threat"/>
+  <bullet bulletName="stillblowingsnow" bulletText="Blowing snow still a threat"/>
+ </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="CON" phen="SQ" sig="W">
+ <bullets>
+  <bullet bulletText="*********** SOURCE FOR WARNING (CHOOSE 1) **********" bulletType="title"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar" bulletGroup="basis" parseString="SOURCE...RADAR INDICATED."/>
+  <bullet bulletName="dopplerwebcams" bulletText="Doppler radar and webcams" bulletGroup="basis" parseString="SOURCE...RADAR AND WEBCAMS."/>
+  <bullet bulletName="lawEnforcement" bulletText="Law Enforcement" bulletGroup="basis" parseString="SOURCE...LAW ENFORCEMENT."/>
+  <bullet bulletName="emergencyMgmt" bulletText="Emergency Management" bulletGroup="basis" parseString="SOURCE...EMERGENCY MANAGEMENT."/>
+  <bullet bulletName="public" bulletText="Public" bulletGroup="basis" parseString="SOURCE...PUBLIC."/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******* HAZARDS (CHOOSE UP TO 1 EACH SNOW/GUSTS/VIZ) ******" bulletType="title"/>
+  <bullet bulletName="snow" bulletText="Snow" bulletGroup="snowlevel" parseString="&quot;-HEAVY SNOW&quot;,&quot;SNOW&quot;"/>
+  <bullet bulletName="heavySnow" bulletText="Heavy Snow" bulletGroup="snowlevel" parseString="HEAVY SNOW"/>
+  <bullet bulletName="20G" bulletText="Gusts up to 20 mph" bulletGroup="windz" parseString="UP TO 20 MPH"/>
+  <bullet bulletName="30G" bulletText="Gusts up to 30 mph" bulletGroup="windz" parseString="UP TO 30 MPH"/>
+  <bullet bulletName="35G" bulletText="Gusts greater than 30 mph" bulletGroup="windz" parseString="GREATER THAN 30 MPH"/>
+  <bullet bulletName="PoorV" bulletText="Poor Visibility" bulletGroup="viz" parseString="&quot;-EXTREMELY&quot;,&quot;POOR VISIBILITY&quot;"/>
+  <bullet bulletName="ExtremelyPoorV" bulletText="Extremely Poor Visibility" bulletGroup="viz" parseString="EXTREMELY POOR VISIBILITY"/>
+  <bullet bulletName="WhiteoutV" bulletText="Whiteout" bulletGroup="viz" parseString="WHITEOUT CONDITIONS. ZERO VISIBILITY"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="************ LOCATIONS IMPACTED  **************" bulletType="title"/>
+  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="places" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="places" parseString="LOCATIONS IMPACTED INCLUDE..."/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******** CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>  
+  <bullet bulletName="avoidOrDelayTravelCTA" bulletText="Avoid or Delay Travel" parseString="CONSIDER AVOIDING OR DELAYING"/>
+  <bullet bulletName="reduceSpeedCTA" bulletText="Reduce Speed &amp; Dangers" parseString="REDUCE YOUR SPEED AND"/>
+  <bullet bulletName="exitRoadwayCTA" bulletText="Find Nearest Exit" parseString="IF TRAVELING ON A HIGHWAY"/>
+  <bullet bulletName="dangerousTravelCTA" bulletText="Highway Not Safe" parseString="THERE IS NO SAFE PLACE"/>
+  <bullet bulletName="pileupSafetyCTA" bulletText="Pileup Safety" parseString="SERIOUS INJURIES"/>
+  <bullet bulletName="slowDownCTA" bulletText="Generic - Slow Down" parseString="SLOW DOWN! RAPID CHANGES"/>
+  <bullet bulletName="flashFreezeCTA" bulletText="Flash Freeze, Black Ice" parseString="WET ROADWAYS WILL QUICKLY FREEZE."/>
+  <bullet bulletText="" bulletType=""/>
+ </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="COR" phen="SQ" sig="W">
+ <bullets>
+   <bullet bulletName="doppler" bulletText="Doppler radar" bulletGroup="basis" parseString="SOURCE...RADAR INDICATED."/>
+  <bullet bulletName="dopplerwebcams" bulletText="Doppler radar and webcams" bulletGroup="basis" parseString="SOURCE...RADAR AND WEBCAMS."/>
+  <bullet bulletName="lawEnforcement" bulletText="Law Enforcement" bulletGroup="basis" parseString="SOURCE...LAW ENFORCEMENT."/>
+  <bullet bulletName="emergencyMgmt" bulletText="Emergency Management" bulletGroup="basis" parseString="SOURCE...EMERGENCY MANAGEMENT."/>
+  <bullet bulletName="public" bulletText="Public" bulletGroup="basis" parseString="SOURCE...PUBLIC."/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******* HAZARDS (CHOOSE UP TO 1 EACH SNOW/GUSTS/VIZ) ******" bulletType="title"/>
+  <bullet bulletName="snow" bulletText="Snow" bulletGroup="snowlevel" parseString="&quot;-HEAVY SNOW&quot;,&quot;SNOW&quot;"/>
+  <bullet bulletName="heavySnow" bulletText="Heavy Snow" bulletGroup="snowlevel" parseString="HEAVY SNOW"/>
+  <bullet bulletName="20G" bulletText="Gusts up to 20 mph" bulletGroup="windz" parseString="UP TO 20 MPH"/>
+  <bullet bulletName="30G" bulletText="Gusts up to 30 mph" bulletGroup="windz" parseString="UP TO 30 MPH"/>
+  <bullet bulletName="35G" bulletText="Gusts greater than 30 mph" bulletGroup="windz" parseString="GREATER THAN 30 MPH"/>
+  <bullet bulletName="PoorV" bulletText="Poor Visibility" bulletGroup="viz" parseString="&quot;-EXTREMELY&quot;,&quot;POOR VISIBILITY&quot;"/>
+  <bullet bulletName="ExtremelyPoorV" bulletText="Extremely Poor Visibility" bulletGroup="viz" parseString="EXTREMELY POOR VISIBILITY"/>
+  <bullet bulletName="WhiteoutV" bulletText="Whiteout" bulletGroup="viz" parseString="WHITEOUT CONDITIONS. ZERO VISIBILITY"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="************ LOCATIONS IMPACTED  **************" bulletType="title"/>
+  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="places" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="places" parseString="LOCATIONS IMPACTED INCLUDE..."/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******** CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>  
+  <bullet bulletName="avoidOrDelayTravelCTA" bulletText="Avoid or Delay Travel" parseString="CONSIDER AVOIDING OR DELAYING"/>
+  <bullet bulletName="reduceSpeedCTA" bulletText="Reduce Speed &amp; Dangers" parseString="REDUCE YOUR SPEED AND"/>
+  <bullet bulletName="exitRoadwayCTA" bulletText="Find Nearest Exit" parseString="IF TRAVELING ON A HIGHWAY"/>
+  <bullet bulletName="dangerousTravelCTA" bulletText="Highway Not Safe" parseString="THERE IS NO SAFE PLACE"/>
+  <bullet bulletName="pileupSafetyCTA" bulletText="Pileup Safety" parseString="SERIOUS INJURIES"/>
+  <bullet bulletName="slowDownCTA" bulletText="Generic - Slow Down" parseString="SLOW DOWN! RAPID CHANGES"/>
+  <bullet bulletName="flashFreezeCTA" bulletText="Flash Freeze, Black Ice" parseString="WET ROADWAYS WILL QUICKLY FREEZE."/>
+  <bullet bulletText="" bulletType=""/>
+ </bullets>
+</bulletActionGroup>
+</bulletActionGroups>
+
+</warngenConfig>

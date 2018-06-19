@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="com.raytheon.viz.volumebrowser.datacatalog">
+      <dataCatalog
+            catalogClass="com.raytheon.uf.viz.acarssounding.AcarsSoundingVbDataCatalog">
+      </dataCatalog>
+   </extension>
+   <extension
+         point="com.raytheon.viz.volumebrowser.productcreator">
+      <productCreator
+            creatorClass="com.raytheon.uf.viz.acarssounding.AcarsSoundingProductCreator"
+            plugins="acarssounding"
+            resourceType="sounding">
+      </productCreator>
+      <productCreator
+            creatorClass="com.raytheon.viz.volumebrowser.loader.VarHeightProductCreator"
+            plugins="acarssounding"
+            resourceType="var_height">
+      </productCreator>
+      <productCreator
+            creatorClass="com.raytheon.viz.volumebrowser.loader.TimeSeriesProductCreator"
+            plugins="acarssounding"
+            resourceType="time_series">
+      </productCreator>
+      <productCreator
+            creatorClass="com.raytheon.uf.viz.volumebrowser.dataplugin.point.PointTimeHeightProductCreator"
+            plugins="acarssounding"
+            resourceType="time_height">
+      </productCreator>
+      <productCreator
+            creatorClass="com.raytheon.uf.viz.volumebrowser.dataplugin.point.PointCrossSectionProductCreator"
+            plugins="acarssounding"
+            resourceType="cross_section">
+      </productCreator>
+   </extension>
+      <extension
+         point="com.raytheon.uf.viz.xy.crosssection.crosssectionadapter">
+      <crossSectionAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.crosssection.PointCSAdapter"
+            class="com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingRecord"
+            name="Acars Sounding Cross Section Adapter">
+      </crossSectionAdapter>
+   </extension>
+   <extension
+         point="com.raytheon.uf.viz.xy.timeseries.timeseriesadapter">
+      <timeSeriesAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.timeseries.PointDataTimeSeriesAdapter"
+            class="com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingRecord"
+            name="Acars Sounding Time Series Adapter">
+      </timeSeriesAdapter>
+   </extension>
+   <extension
+         point="com.raytheon.uf.viz.xy.varheight.varheightadapter">
+      <varHeightAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.varheight.PointDataVarHeightAdapter"
+            class="com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingRecord"
+            name="AcarsSounding Var Height Adapter">
+      </varHeightAdapter>
+   </extension>
+</plugin>

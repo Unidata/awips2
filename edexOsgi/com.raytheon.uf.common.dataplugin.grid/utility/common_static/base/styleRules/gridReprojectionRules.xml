@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<!--
+
+  The <gridReprojectionRules> element consists of a sequence of
+  <rule> elements with he following attributes, all of which are
+  optional.
+
+  Only the highest priority localization level of this file will
+  be used.  The first rule in the file that matches is used.
+
+  Attribute Name        Value                 Purpose
+  ===================== ===================== =======================
+  modelName             Regular expression    Matches grid model name
+  displayType           "                     Matches display type (IMAGE, CONTOUR, STREAMLINE,
+                                              BARB, ARROW, ICON, DUALARROW)
+  srcProjection         "                     Matches grid model's projection name
+  dstProjection         "                     Matches display projection name
+  reproject             ALWAYS|NEVER|TEST     Controls re-projection.  Default behavior (TEST)
+                                              is to test if the mapping is not too distorted.
+
+  To prevent lat/lon grids from being re-projected, use the following rule.
+
+      <rule srcProjection="Equidistant_Cylindrical" reproject="NEVER" />
+
+  To prevent images from being re-projected, use the following rule.
+
+      <rule displayType="IMAGE" reproject="NEVER" />
+
+  Grid model projection names can be found examining the metadata
+  database.  Example:
+
+      select substring(crs from 'PROJECTION.*?,') from grid_info, gridcoverage
+        where datasetid = 'GlobalWave' and grid_info.location_id = gridcoverage.id limit 1;
+
+  Display projection names can be found by examining scale bundle or procedure XML files.
+
+-->
+<gridReprojectionRules>
+    <rule reproject="NEVER" />
+</gridReprojectionRules>

@@ -1,0 +1,2 @@
+As we prepare to create a row entry for an edit area in the SmartElementTable, we use the "getStatList" method to provide us with a list of statistics dictionaries, one for each time period. This information can then be passed to sub-methods that format each weather element in turn.  Again we take advantage of the "exec" statement to report the variable weather elements listed in the elementList. 
+

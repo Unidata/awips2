@@ -1,0 +1,222 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]">
+  <meta name="Author" content="Mark Mathewson">
+  <title>Map Background Configuration</title>
+</head>
+<body bgcolor="#ffffff">
+<h1 class="3Heading">
+<a name="Top"></a>localMaps.py - Map Background Configuration Override
+File</h1>
+<div class="3Heading">September 25, 2012<br>
+</div>
+<h2><a name="Organization"></a>Organization</h2>
+<a href="#Overview">Overview</a>
+<br>
+<a href="#Format">localMaps.py Format</a>
+<br>
+&nbsp;&nbsp;&nbsp; <a href="#Header">Header</a>
+<br>
+&nbsp;&nbsp;&nbsp; <a href="#Adding">Adding new edit areas</a>
+<br>
+&nbsp;&nbsp;&nbsp; <a href="#Removing">Removing edit areas defined in
+Maps.py</a>
+<br>
+&nbsp;&nbsp;&nbsp; <a href="#Modifying">Modifying the characteristics
+of existing edit areas</a>
+<br>
+<a href="#Placement">Placement of the localMaps.py file</a>
+<br>
+<a href="#Updating">Updating Map Shapefiles</a>
+<br>
+<hr width="100%">
+<h2><a name="Overview"></a>Overview</h2>
+The localMaps.py file provides a mechanism for a site to override entries
+in the supplied <a href="mapConfig.html">Maps.py</a> file. New edit areas
+may be added, edit areas may be removed from the list, and existing edit area
+attributes may be changed. 
+Refer to the <a href="mapConfig.html">Maps.py</a>
+for the definition of the edit area attributes and how they are used.
+This document will explain how to add, remove, and modify edit areas.
+<p><b><font color="#ff0000">See the <a
+ href="serverConfiguration.html#ServerDatabaseConfigurationModificationOptions">server
+configuration overview</a> for information on how to make changes that
+are supported to the map backgrounds.</font></b>
+</p>
+<p></p>
+<hr width="100%">
+<h2><a name="Format"></a>localMaps.py Format</h2>
+<a href="EXAMPLElocalMaps.py">Example localMaps.py configuration file</a>
+<h3><a name="Header"></a>Header</h3>
+The localMaps.py file must begin with the following line. This line
+instructs the software to import all symbols from the primary Maps.py.
+Failure to include this line will result in your modifications not being
+recognized by the software:
+<p><tt>from Maps import *</tt>
+<br>
+&nbsp;
+</p>
+<h3><a name="Adding"></a>Adding New Edit Areas</h3>
+New edit areas can be added through localMaps.py. Refer to
+the syntax requirements of defining a map in the <a
+ href="mapConfig.html">Maps.py</a>
+document. There is one additional line that is very important to
+add (i.e., the append line) in order for the system to recognize the
+new
+edit areas. It is also important NOT to duplicate the Python variable
+name
+(i.e., the name left of the equals ("=") sign) of any Python variable
+in
+the <a href="mapConfig.html">Maps.py</a> file. For example, if a
+map is defined as "CWAzones = ..." in <a href="mapConfig.html">Maps.py</a>,
+do not create a variable that says "CWAzones = ..." in the localMaps.py
+file. Note that this restriction is for adding new edit areas. If you
+are overriding the characteristics of edit areas that are already
+defined in Maps.py, then you will need to use the same Python variable
+name.
+<p>Here is an example of including a set of automatic edit areas for counties in Wyoming in group
+WYCounties):
+</p>
+<PRE>
+WYcounties = ShapeTable('County')
+WYcounties.name = 'WYCounties'
+WYcounties.filter(lambda x : x['state'] == "WY") 
+WYcounties.editAreaName = ['state','countyname'] 
+WYcounties.groupName = 'WYCounties' 
+maps.append(WYcounties)
+</PRE> 
+<p>In the above example, edit areas will be generated for
+all counties where attribute STATE equals "WY". The generated edit areas will have names of the form 
+STATE_COUNTYNAME
+and will be part of the WYCounties edit area group. The very last
+line appends this new definition to the list of edit areas to be
+generated.
+</p>
+<p>Note that if your new map background is using a new shapefile, you
+will also need to import the shape file into the maps database. 
+Refer to section <a href="MapFiles.html">Map Files - Map Background Shapefile Handling</a>
+</p>
+<p><a href="EXAMPLElocalMapsAdd.py">Example localMaps.py configuration
+file</a>
+</p>
+<h3><a name="Removing"></a>Removing edit areas defined in Maps.py</h3>
+Removing a map that is defined in <a href="mapConfig.html">Maps.py</a>,
+but not desired is easy. Find the Python variable name of the map
+you wish to remove by examining <a href="mapConfig.html">Maps.py</a>.&nbsp;
+The python variable name is the name to the left of the "equals" ('=')
+sign.
+<p>For example, if you did not want to generate the marine
+zones,
+find the marine zones definition in <a href="mapConfig.html">Maps.py</a>.&nbsp;
+There are actually two maps generated. The identifiers are CWAmzones
+and
+Mzones. The following text would be included within localMaps.py:
+</p>
+<p><tt>maps.remove(CWAmzones)</tt>
+<br>
+<tt>maps.remove(Mzones)</tt>
+</p>
+<p><a href="EXAMPLElocalMapsRemove.py">Example localMaps.py
+configuration
+file</a>
+</p>
+<h3><a name="Modifying"></a>Modifying the characteristics of
+existing edit areas</h3>
+You can modify the following characteristics of the map definition:
+<ul>
+  <li>name of the database table (ShapeTable parameter)</li>
+  <li>name of the map background (.name line)</li>
+  <li>filtering (.filter line)</li>
+  <li>generation of edit areas (.editAreaName line)</li>
+  <li>group name of generated edit areas (.groupName)</li>
+</ul>
+<h4>
+Database Table Name</h4>
+<p>If you want to change the name of the database table used for edit area generation, you will
+need to remove the existing definition and <a href="#Adding">create a completely new map definition</a>.<br>
+</p>
+<h4>Name of the Map Background</h4>
+The format of the line is identical to that found in Maps.py.&nbsp;
+Simply repeat the line you want to change and then put the new map name.
+For example, if you want to change the CWAzones map name to MyCWAZones,
+you would add the following line to localMaps.py:
+<pre>
+CWAzones.name = "MyCWAZones"
+</pre>
+Note: this name is only used in text formatter definitions in the mapNameForCombinations setting.
+<h4>Filter Changes</h4>
+The format of the line is identical to that found in Maps.py.&nbsp;
+Simply repeat the line you want to change and then put in the new filter string.&nbsp;
+For example, if you want to change the CWAzones filter from all zones for
+the CWA to all zones for the state of Ohio, you would add the following
+line to localMaps.py:
+<p><tt>CWAzones.filter(lambda x : x['state'] == "OH")</tt>
+</p>
+<p>You can also use any of the alternate methods of specifying the filter
+as described in <a href="mapConfig.html#FilteredMap">Maps.py</a>. This
+shows much more complex types of filters than this file.
+</p>
+<p>If you want to turn filtering off completely for a map, you will need
+to remove the existing definition and <a href="#Adding">create a completely new map definition</a>.<br>
+</p>
+<p>Attribute names in the database are all stored in lower case.&nbsp;
+<br>
+</p>
+<h4>Generation of Edit Area Changes</h4>
+<h5>
+Name Changes</h5>
+<p>
+The format of the line is identical to that found in Maps.py.
+Simply repeat the line you want to change and then put in the new editAreaName definition.
+For example if you want the edit areas to be named using the contents of the 'cwa' attribute
+of the database record you would add the following line ot localMaps.py:
+<pre>
+CWAzones.editAreaName = 'cwa'
+</pre>
+</p>
+<p>
+For detailed examples of editAreaName configuration refer to <a href="mapConfig.html">Maps.py</a>.
+</p>
+<p>
+<b>Note:</b> if the generated edit area names are not unique undesirable results may occur.
+</p>
+<h5>
+Group Name for the Edit Areas</h5>
+<p>
+To have the generated edit areas included in an edit area group simply supply the group name as a string.<br>
+<pre>CWAzones.groupName = 'MyZones'</pre>
+</p>
+<p>
+If you don't want the edit areas to be included in a group supply an empty string:
+<pre>CWAzones.groupName = ''</pre>
+</p>
+<p><a href="EXAMPLElocalMapsMod.py">Example localMaps.py configuration
+file</a>
+<br>
+</p>
+<hr width="100%">
+<h2><a name="Placement"></a>Placement of the localMaps.py file</h2>
+The localMaps.py file should always be placed in the /awips2/edex/data/utility/edex_static/site/OAX/config/gfe/
+directory on dx3/dx4
+as explained <a href="serverConfiguration.html#LocationofFiles">here</a>.
+<p>
+</p>
+<hr width="100%">
+<h2><a name="Updating"></a>Updating Map Shapefiles</h2>
+Map shape file updates must be imported into the maps database using the importShapeFile.sh script on dx1.
+Refer to section <a href="MapFiles.html">Map Files - Map Background Shapefile Handling</a><br>
+&nbsp;
+<p></p>
+<hr width="100%"><br>
+&nbsp;
+<br>
+&nbsp;
+<div class="Body">&nbsp;<a href="#Top">Back To Top</a>
+<br>
+&nbsp;<a href="GFESuite.html#TableOfContents">Back To TOC</a></div>
+</body>
+</html>

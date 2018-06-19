@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: LegacyLightningDecoder
+Bundle-SymbolicName: com.raytheon.edex.plugin.binlightning.legacy
+Bundle-Version: 1.16.0
+Bundle-Vendor: RAYTHEON
+Fragment-Host: com.raytheon.edex.plugin.binlightning;bundle-version="1.14.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7

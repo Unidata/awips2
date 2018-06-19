@@ -1,0 +1,39 @@
+submenu: "Precip & Stability"
+ productButton: 5056 # PEWA31 Daily Precipitation
+ productButton: 5057 # PEWA32 Snow Cover Plot
+
+ submenu: "Snow images"
+  title: "NOHRSC"
+  productButton: 25500 # Snow Cover
+  productButton: 25501 # Snow Cover elev
+  productButton: 25502 # Snow Water Equiv
+  productButton: 25503 # Snow Water % normal
+ endSubmenu
+ 
+ productButton: 5013 # PAWO82 Radar Summary
+ productButton: 5014 # PAWO83 Radar Legends
+ productButton: 5058 # PEWA33 Precip H20 Plot
+ productButton: 5059 # PEWA34 Precip H20 Analysis
+ productButton: 5134 # PRWA51 Surface-500mb RH Plot
+ productButton: 5147 # PXWA50 Lifted-K Index Plot
+endSubmenu
+
+submenu: "Temps & Weather"
+ productButton: 5140 # PTWA31 Observed Max/Min Temps
+ separator
+ productButton: 5142 # PTWA94 LOA freezing level plot
+ productButton: 5145 # PTWA93 LOF freezing level analysis
+ productButton: 5136 # PTIC94 Freezing Level/Turb Fcst
+ separator
+ productButton: 5064 # PGWA31 Wx Depiction Plot
+ productButton: 5065 # PGWA32 Wx Depiction Analysis
+ productButton: 5062 # PGIC42 Wx Depiction Fcst
+ separator
+ productButton: 5154 # PYWA31 Sfc Geostrophic Wind
+ productButton: 5155 # PYWA32 Sfc Geo Relative Vort
+endSubmenu
+
+submenu: "National Centers models"
+ productButton: 5118 # PPZ*50 UKMO MSL Pressure
+endSubmenu
+

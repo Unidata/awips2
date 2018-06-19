@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Subscription
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.text.subscription
+Bundle-Version: 1.16.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: com.raytheon.uf.common.serialization,
+ org.hibernate,
+ com.raytheon.uf.common.localization,
+ org.apache.commons.lang3;bundle-version="3.4.0"
+Import-Package: 
+ com.raytheon.uf.common.dataplugin.persist,
+ com.raytheon.uf.common.message,
+ com.raytheon.uf.common.serialization.comm,
+ javax.persistence
+Export-Package: com.raytheon.uf.common.dataplugin.text.subscription,
+ com.raytheon.uf.common.dataplugin.text.subscription.db,
+ com.raytheon.uf.common.dataplugin.text.subscription.request
+

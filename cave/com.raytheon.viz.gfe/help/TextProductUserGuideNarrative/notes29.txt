@@ -1,0 +1,2 @@
+Note that when we structure the narrative product into a tree, the order of processing is not straight-forward.  There are dependencies that govern this processing order.  For example, we must create the sub-phrase words before we can assemble the sub-phrases.  We must assemble the phrases before we can assemble the component. And we must set up the sub-phrases and consolidate them before we create sub-phrase words.
+

@@ -1,0 +1,25 @@
+# ----------------------------------------------------------------------------
+# This software is in the public domain, furnished "as is", without technical
+# support, and with no warranty, express or implied, as to its usefulness for
+# any purpose.
+#
+# $itemName
+#
+# Author: $author
+# ----------------------------------------------------------------------------
+from Init import *
+
+# ----------------------------------------------------------------------------
+# Please see the Configuration Guides->Smart Initialization Configuration
+# section of the GFE Online Help for guidance on creating a new smart init 
+# ----------------------------------------------------------------------------
+
+class ${itemName}Forecaster(Forecaster):
+    def __init__(self):
+        Forecaster.__init__(self, "${itemName}", "${itemName}")
+
+#    def calc???(self, ???):
+#        pass
+
+def main():
+    ${itemName}Forecaster().run()

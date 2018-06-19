@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Sfcobs Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.sfcobs
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.dataaccess,
+ javax.measure
+Export-Package: com.raytheon.uf.common.dataplugin.sfcobs

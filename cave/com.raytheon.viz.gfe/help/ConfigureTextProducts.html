@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-34smp i686) [Netscape]">
+  <title>configureTextProducts User's Guide</title>
+</head>
+<body bgcolor="#ffffff">
+<h1 class="1Heading">
+configureTextProducts User's Guide</h1>
+<div class="1Heading">February 14, 2012<br>
+</div>
+<h2 class="1Heading">
+<a name="TableofContents"></a>Table of Contents</h2>
+<h4 class="1Heading">
+<a href="#Overview">Overview</a></h4>
+<h4 class="1Heading">
+<a href="#Running">Running the configureTextProducts Program</a></h4>
+<h4 class="1Heading">
+<a href="#ExampleData">Example Output</a></h4>
+<div class="1Heading">
+<hr width="100%"></div>
+<h2 class="1Heading">
+<a name="Overview"></a>Overview</h2>
+<div class="1Heading">The configureTextProducts program is a utility
+that
+is automatically run during installation and each time EDEX is started.
+<span style="font-weight: bold; color: rgb(255, 0, 0);">Normally it is not
+needed to be run manually.</span> The program automatically configures
+the GFESuite set
+of formatters based on the afos2awips.txt PIL/WMOID table. There are
+other options available with configureTextProducts as well. You can run
+it to delete the templated formatters, list the pil/wmoid information
+for
+your site, or list the pil/wmoid information for all sites.
+The information output is sent to stdout and may be rerouted to a file
+if desired. The create and delete modes also modify files on disk.<br>
+<br>
+The configureTextProducts program can be used to specify an alternate
+afos2awips.txt file rather than the official file. This
+capability is normally only used for testing.<br>
+</div>
+<div class="1Heading">
+<hr width="100%"></div>
+<h3 class="1Heading">
+<a name="Running"></a>Running the configureTextProducts Program</h3>
+<div class="1Heading">This program is run from the GFESuite bin
+directory. The command line syntax is:</div>
+<br>
+<div class="1Heading"><tt>configureTextProducts -m MODE [--template=alterateA2AFile]
+[--help] [--host]<br>
+</tt></div>
+<br>
+<div class="1Heading">A sample command line is:</div>
+<br>
+<div class="1Heading"><tt>configureTextProducts -m CREATE</tt></div>
+<br>
+<table nosave="" style="width: 100%;" border="1">
+  <tbody>
+    <tr>
+      <td style="width: 300px;"><b>Option Syntax</b></td>
+      <td><b>Description</b></td>
+    </tr>
+    <tr>
+      <td style="width: 300px;">configureTextProducts -m CREATE</td>
+      <td>Creates the formatter templates based on pil/wmoid
+information in the afos2awips.txt table.</td>
+    </tr>
+    <tr>
+      <td style="width: 300px;">configureTextProducts -m DELETE</td>
+      <td>Deletes the formatter templates based on pil/wmoid
+information in the afos2awips.txt table. This is normally used when
+changing site identifiers (for purposes of service backup) to clean out
+irrelevant products.</td>
+    </tr>
+    <tr>
+      <td style="width: 300px;">configureTextProducts -m INFO</td>
+      <td>Displays the PIL/WMOID table for each GFE product for the
+configured site.</td>
+    </tr>
+    <tr>
+      <td style="width: 300px;">configureTextProducts -m ALLINFO</td>
+      <td>Displays the PIL/WMOID table for each GFE product for ALL
+known sites.</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">configureTextProducts -m mode --template
+a2aFile<br>
+      </td>
+      <td style="vertical-align: top;">Performs the "mode" indicated,
+and uses the alternate afos2awips.txt file identified as "a2aFile".<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<br>
+</body>
+</html>

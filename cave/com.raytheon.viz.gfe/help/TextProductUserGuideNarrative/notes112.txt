@@ -1,0 +1,2 @@
+Here is a hierarchy of methods that perform this task.  The "combineChildren" method loops through the children of a node (in this case, the sub-phrases) and tries to combine them according to rules supplied by the "combineStats" method.   This method, in turn, checks the dataType of the first element of the phrase and uses that as a criteria for combining.
+

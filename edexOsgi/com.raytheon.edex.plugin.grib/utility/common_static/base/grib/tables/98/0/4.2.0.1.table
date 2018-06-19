@@ -1,0 +1,19 @@
+ # Product Discipline 0: Meteorological products, Parameter Category 1: Moisture
+192:192:Categorical Rain:non-dim:CRAIN
+193:193:Categorical Freezing Rain:non-dim:CFRZR
+194:194:Categorical Ice Pellets:non-dim:CICEP
+195:195:Categorical Snow:non-dim:CSNOW
+196:196:Convective Precipitation Rate:kg*m^-2*s^-1:CPRAT
+197:197:Horizontal Moisture Divergence:kg*kg^-1*s^-1:MCONV
+198:198
+199:199:Potential Evaporation:mm:PEVAP
+200:200:Potential Evaporation Rage:W/m^2:PEVPR
+201:201:Snow Cover:%:SNOWC
+202:202:Rain Fraction of Total Liquid Water:non-dim:FRAIN
+203:203:Rime Factor:non-dim:RIME
+204:204:Total Column Integrated Rain:mm:TCOLR
+205:205:Total Column Integrated Snow:mm:TCOLS
+206:206:Total Icing Potential Diagnostic:non-dim:TIPD
+207:207:Number concentration for ice particles:non-dim:NCIP
+208:208:Snow Temperature:K:SNOT
+255:255:Missing

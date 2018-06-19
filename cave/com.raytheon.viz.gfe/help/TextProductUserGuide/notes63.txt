@@ -1,0 +1,1 @@
+This is a temporal coverage threshold copied from the SampleAnalysis class.  For a grid to be included in the analysis, it must cover this percentage of the time range of  interest OR be completely included within the time range.   

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Products xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Product name="Default" type="Default" forecaster="Default" center="Default" onOff="true" useFile="true" filePath="./" fileName="/usr1/mlaryukhin/to11dr11/eclipse/ncep/base/resources/obs_and_analysis_rscs/PGEN/Local/gfa60_Default.xml">
+        <Layer name="Default" onOff="true" monoColor="false" filled="false">
+            <Color red="255" green="255" blue="0" alpha="255"/>
+            <DrawableElement>
+                <Gfa pgenCategory="MET" pgenType="GFA" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="true" filled="false" fillPattern="SOLID" lonText="-110.87599816675262" latText="40.857307197483514" hazard="IFR" fcstHr="12" tag="1" desk="W" issueType="NRML" cycleDay="2" cycleHour="20" type="CIG BLW 010">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="40.042976399881574" Lon="-108.01939281219236"/>
+                    <Point Lat="38.22076283609482" Lon="-107.32222097412279"/>
+                    <Point Lat="39.6867936956034" Lon="-103.1400225975259"/>
+                    <Point Lat="40.763630052802654" Lon="-105.1600492440452"/>
+                </Gfa>
+            </DrawableElement>
+        </Layer>
+    </Product>
+</Products>

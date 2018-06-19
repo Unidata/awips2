@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="com.raytheon.uf.viz.productbrowser.dataDefinition">
+         <dataDefinition
+         	name="gfeProductBrowserDataDefinition"
+         	class="com.raytheon.uf.viz.d2d.gfe.browser.GFEDataDefinition" >
+         </dataDefinition>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.raytheon.uf.viz.productbrowser.DataTypePreferencePage"
+            id="com.raytheon.uf.viz.productbrowser.productbrowserdatapreferencepage"
+            name="GFE"
+            category="com.raytheon.uf.viz.productbrowser.productbrowserpreferencespage"/>
+   </extension>
+<extension
+         point="com.raytheon.uf.viz.xy.timeseries.timeseriesadapter">
+      <timeSeriesAdapter
+            adapter="com.raytheon.uf.viz.d2d.gfe.xy.GfeTimeSeriesAdapter"
+            class="com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord"
+            name="GFE Time Series Adapter">
+      </timeSeriesAdapter>
+   </extension>
+<extension
+      point="com.raytheon.viz.volumebrowser.datacatalog">
+   <dataCatalog
+         catalogClass="com.raytheon.uf.viz.d2d.gfe.browser.GFEVbDataCatalog">
+   </dataCatalog>
+</extension>
+<extension
+      point="com.raytheon.viz.volumebrowser.productcreator">
+   <productCreator
+         creatorClass="com.raytheon.uf.viz.d2d.gfe.browser.GfeMapProductCreator"
+         plugins="gfe"
+         resourceType="plan_view">
+   </productCreator>
+   <productCreator
+         creatorClass="com.raytheon.viz.volumebrowser.loader.TimeSeriesProductCreator"
+         plugins="gfe"
+         resourceType="time_series">
+   </productCreator>
+</extension>
+</plugin>

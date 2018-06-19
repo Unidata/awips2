@@ -1,0 +1,3 @@
+The temporal resolution of the grids can lead to more complexity with many different weather scenarios in a 12-hour period.  The formatters have to be able to consolidate this digital information and produce concise yet accurate phrases.  Beyond that, we needed to account for local effects and report differences between areas such as the "coast" versus "inland" or "mountains" versus "valleys". 
+
+

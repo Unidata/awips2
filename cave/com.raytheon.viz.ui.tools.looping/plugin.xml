@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         id="com.raytheon.viz.ui.commandContribution"
+         point="org.eclipse.ui.commands">
+      <category
+         id="com.raytheon.uf.viz.looping"
+         name="Looping" description="Command category for Looping">
+	  </category>
+      <command
+            id="com.raytheon.viz.ui.tools.looping.fasterLoop"
+            categoryId="com.raytheon.uf.viz.looping"
+            description="Increases the looping speed"
+            name="Faster Loop"/>
+      <command
+            id="com.raytheon.viz.ui.tools.looping.slowerLoop"
+            categoryId="com.raytheon.uf.viz.looping"
+            description="Decreases the looping speed"
+            name="Slower Loop"/>
+      <command
+            id="com.raytheon.viz.ui.tools.looping.loop"
+            categoryId="com.raytheon.uf.viz.looping"
+            description="Toggles looping on/off"
+            name="Toggle Loop Status">
+      </command>
+      <command
+            id="com.raytheon.viz.ui.tools.looping.loopProperties"
+            categoryId="com.raytheon.uf.viz.looping"
+            description="Opens the loop properties dialog"
+            name="Loop Properties">
+      </command>
+      <command
+            id="com.raytheon.viz.ui.tools.looping.frameTool"
+            name="Generic Frame Change Tool">
+         <commandParameter
+               id="mode"
+               name="mode"
+               optional="false">
+         </commandParameter>
+         <commandParameter
+               id="operation"
+               name="operation"
+               optional="false">
+         </commandParameter>
+      </command>
+   </extension>
+   
+      <extension
+            point="org.eclipse.ui.handlers">
+         <handler
+               class="com.raytheon.viz.ui.tools.looping.CombinedFrameTool"
+               commandId="com.raytheon.viz.ui.tools.looping.frameTool">
+               <activeWhen>
+               		<with variable="activeEditor">
+       					<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+    				</with>
+               </activeWhen>
+         </handler>
+         <handler
+               class="com.raytheon.viz.ui.tools.looping.LoopTool"
+               commandId="com.raytheon.viz.ui.tools.looping.loop">
+               <activeWhen>
+               		<with variable="activeEditor">
+       					<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+    				</with>
+               </activeWhen>
+         </handler>
+         <handler
+               class="com.raytheon.viz.ui.tools.looping.LoopPropertiesTool"
+               commandId="com.raytheon.viz.ui.tools.looping.loopProperties">
+               <activeWhen>
+               		<with variable="activeEditor">
+       					<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+    				</with>
+               </activeWhen>
+         </handler>
+         <handler
+               class="com.raytheon.viz.ui.tools.looping.FasterLoopSpeedTool"
+               commandId="com.raytheon.viz.ui.tools.looping.fasterLoop">
+               <activeWhen>
+               		<with variable="activeEditor">
+       					<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+    				</with>
+               </activeWhen>
+         </handler>
+         <handler
+               class="com.raytheon.viz.ui.tools.looping.SlowerLoopSpeedTool"
+               commandId="com.raytheon.viz.ui.tools.looping.slowerLoop">
+               <activeWhen>
+               		<with variable="activeEditor">
+       					<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+    				</with>
+               </activeWhen>
+         </handler>
+      </extension>
+      
+      <extension point="org.eclipse.ui.contexts">
+            <context
+                description="The Looping Context"
+                id="com.raytheon.viz.ui.loopContext"
+                name="LoopContext">
+            </context>   
+            <context
+                description="Space Looping Context"
+                id="com.raytheon.viz.ui.loop.space"
+                name="Space Loop Context">
+            </context>
+      </extension>
+      
+      <extension
+         id="com.raytheon.viz.ui.loop.bindings"
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+            contextId="com.raytheon.viz.ui.loopContext"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="ARROW_LEFT">
+            <parameter
+                  id="mode"
+                  value="TIME_ONLY">
+            </parameter>
+            <parameter
+                  id="operation"
+                  value="PREVIOUS">
+            </parameter>
+      </key>
+      <key
+            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+            contextId="com.raytheon.viz.ui.loopContext"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="ARROW_RIGHT">
+            <parameter
+                  id="mode"
+                  value="TIME_ONLY">
+            </parameter>
+            <parameter
+                  id="operation"
+                  value="NEXT">
+            </parameter>
+      </key>
+      <key
+            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+            contextId="com.raytheon.viz.ui.loop.space"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="M1+ARROW_LEFT">
+            <parameter
+                  id="mode"
+                  value="TIME_AND_SPACE">
+            </parameter>
+            <parameter
+                  id="operation"
+                  value="FIRST">
+            </parameter>
+      </key>
+      <key
+            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+            contextId="com.raytheon.viz.ui.loop.space"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="M1+ARROW_RIGHT">
+            <parameter
+                  id="mode"
+                  value="TIME_AND_SPACE">
+            </parameter>
+            <parameter
+                  id="operation"
+                  value="LAST">
+            </parameter>
+      </key>
+      <key
+            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+            contextId="com.raytheon.viz.ui.loop.space"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="ARROW_DOWN">
+         <parameter
+               id="mode"
+               value="SPACE_ONLY">
+         </parameter>
+         <parameter
+               id="operation"
+               value="PREVIOUS">
+         </parameter>
+      </key>
+      <key
+            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+            contextId="com.raytheon.viz.ui.loop.space"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="ARROW_UP">
+         <parameter
+               id="mode"
+               value="SPACE_ONLY">
+         </parameter>
+         <parameter
+               id="operation"
+               value="NEXT">
+         </parameter>
+      </key>
+            <key
+            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+            contextId="com.raytheon.viz.ui.loop.space"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="M1+ARROW_DOWN">
+            <parameter
+                  id="mode"
+                  value="SPACE_ONLY">
+            </parameter>
+            <parameter
+                  id="operation"
+                  value="FIRST">
+            </parameter>
+      </key>
+      <key
+            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+            contextId="com.raytheon.viz.ui.loop.space"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="M1+ARROW_UP">
+            <parameter
+                  id="mode"
+                  value="SPACE_ONLY">
+            </parameter>
+            <parameter
+                  id="operation"
+                  value="LAST">
+            </parameter>
+      </key>
+      <key
+            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+            contextId="com.raytheon.viz.ui.loop.space"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="SHIFT+ARROW_LEFT">
+            <parameter
+                  id="mode"
+                  value="TIME_AND_SPACE">
+            </parameter>
+            <parameter
+                  id="operation"
+                  value="PREVIOUS">
+            </parameter>
+      </key>
+      <key
+            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+            contextId="com.raytheon.viz.ui.loop.space"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="SHIFT+ARROW_RIGHT">
+            <parameter
+                  id="mode"
+                  value="TIME_AND_SPACE">
+            </parameter>
+            <parameter
+                  id="operation"
+                  value="NEXT">
+            </parameter>
+      </key>
+      <key
+            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+            contextId="com.raytheon.viz.ui.loop.space"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="SHIFT+M1+ARROW_DOWN">
+            <parameter
+                  id="mode"
+                  value="SPACE_AND_TIME">
+            </parameter>
+            <parameter
+                  id="operation"
+                  value="FIRST">
+            </parameter>
+      </key>
+      <key
+            commandId="com.raytheon.viz.ui.tools.looping.frameTool"
+            contextId="com.raytheon.viz.ui.loop.space"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="SHIFT+M1+ARROW_UP">
+            <parameter
+                  id="mode"
+                  value="SPACE_AND_TIME">
+            </parameter>
+            <parameter
+                  id="operation"
+                  value="LAST">
+            </parameter>
+      </key>
+      <key
+            commandId="com.raytheon.viz.ui.tools.looping.fasterLoop"
+            contextId="com.raytheon.viz.ui.loopContext"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="PAGE_UP"/>
+      <key
+            commandId="com.raytheon.viz.ui.tools.looping.slowerLoop"
+            contextId="com.raytheon.viz.ui.loopContext"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
+            sequence="PAGE_DOWN"/>         
+   </extension>
+   
+</plugin>

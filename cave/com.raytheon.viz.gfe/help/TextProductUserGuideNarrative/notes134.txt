@@ -1,0 +1,1 @@
+Finally, we have the "postProcessPhrase" method to clean up loose ends often resorting to brute force string replace commands. It's Trigger Condition is that all sub-phrases have the "words" attribute set.  
