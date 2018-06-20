@@ -1,0 +1,7 @@
+In the left-hand window, you will see many Text Product files already installed at the BASE level. Many of the files are read-only and you do not need to know much about them. You will however be concerned with the Standard files that appear in this window.
+
+The right-hand window is the Text Utilities window.  Here you will see several types of files:
+Utility classes that make up the Text Product Infrastructure 
+Site Definition Files
+Site Override Files
+Region Override Files 

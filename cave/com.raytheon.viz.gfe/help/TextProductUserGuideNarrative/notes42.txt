@@ -1,0 +1,2 @@
+We have seen the non-linear threshold in an earlier session.   To review, any threshold with the "nlValue" suffix can be expressed as a simple numeric value, a method for calculating the value, or a dictionary with a (lowVal, highVal) kesy and corresponding threshold values. 
+

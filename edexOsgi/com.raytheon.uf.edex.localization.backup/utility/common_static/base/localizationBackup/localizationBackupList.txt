@@ -1,0 +1,18 @@
+# This file lists all localization paths that will be sent to backup sites
+# when a file at any path changes. The SITE version of this file adds to the
+# BASE version, and all other levels are ignored.
+#
+# A line that starts with '#' is treated as a comment, and any other line is a
+# localization level and path:
+# localization_level:localization_type/subpath/to/file
+#
+# A simple example would be 
+# SITE:common_static/textdb/textCategoryClass.txt
+#
+# You can use * to match any level, type, or any part of a path. For example,
+# to match all SITE afos2awips files:
+# SITE:common_static/afos2awips/*
+#
+# REGION:*
+# SITE:*
+# CONFIGURED:*

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<geoTimeSet>
+    <geoTime fileName="County_-535034791.bin" areaSourceTime="1433783721720" timeZoneSourceTime="1433783701500" parentSourceTime="1433787093168">
+        <metaData areaSource="County" areaFields="gid COUNTYNAME FE_AREA LON LAT TIME_ZONE FIPS STATE" parentAreaSource="States" areaNotationField="STATE" parentAreaField="NAME" timeZoneSource="TIMEZONES" timeZoneField="TIME_ZONE"/>
+    </geoTime>
+    <geoTime fileName="Zone_1241015285.bin" areaSourceTime="1433784088847" timeZoneSourceTime="1433783701500" parentSourceTime="1433787093168">
+        <metaData areaSource="Zone" areaFields="gid NAME FE_AREA LON LAT TIME_ZONE STATE_ZONE STATE" parentAreaSource="States" areaNotationField="STATE" parentAreaField="NAME" timeZoneSource="TIMEZONES" timeZoneField="TIME_ZONE"/>
+    </geoTime>
+    <geoTime fileName="COUNTY_-19404679.bin" areaSourceTime="1433783721720" timeZoneSourceTime="1433783701500" parentSourceTime="1433787093168">
+        <metaData areaSource="COUNTY" areaFields="gid COUNTYNAME FE_AREA LON LAT TIME_ZONE FIPS STATE" parentAreaSource="States" areaNotationField="STATE" parentAreaField="NAME" timeZoneSource="TIMEZONES" timeZoneField="TIME_ZONE"/>
+    </geoTime>
+</geoTimeSet>

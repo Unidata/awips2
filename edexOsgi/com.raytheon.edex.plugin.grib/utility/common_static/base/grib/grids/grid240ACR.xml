@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<polarStereoGridCoverage>
+    <name>240151</name>
+    <description>HRAP Grid for ACR (Alaska RFC Anchorage AK)</description>
+    <la1>45.818</la1>
+    <lo1>-148.0</lo1>
+    <firstGridPointCorner>LowerLeft</firstGridPointCorner>
+    <nx>460</nx>
+    <ny>530</ny>
+    <dx>4.763</dx>
+    <dy>4.763</dy>
+    <spacingUnit>km</spacingUnit>
+    <minorAxis>6356775.0</minorAxis>
+    <majorAxis>6378160.0</majorAxis>
+    <lov>-105.0</lov>
+</polarStereoGridCoverage>

@@ -1,0 +1,210 @@
+########################################################################
+#
+# ${itemName}.py
+#
+# Author: $author
+#
+#-------------------------------------------------------------------------
+# Description:
+#-------------------------------------------------------------------------
+# Copying:
+# This software is in the public domain, furnished "as is", without technical
+# support, and with no warranty, express or implied, as to its usefulness for
+# any purpose.
+#-------------------------------------------------------------------------
+# Standard and Local file names and Locations:
+# GLF, GLF_Local
+#-------------------------------------------------------------------------
+# User Configurable Variables:
+#-------------------------------------------------------------------------
+# Weather Elements Needed:
+#-------------------------------------------------------------------------
+# Edit Areas Needed:
+#-------------------------------------------------------------------------
+# Associated Utilities Files e.g. Combinations file:
+#-------------------------------------------------------------------------
+# Component Products:
+#-------------------------------------------------------------------------
+# Programmers and Support including product team leader's email:
+#-------------------------------------------------------------------------
+# Development tasks that are identified and in progress:
+#-------------------------------------------------------------------------
+# Additional Information:
+#-------------------------------------------------------------------------
+#  Example Output:
+# <Put example output here>
+##
+
+import TextRules
+import SampleAnalysis
+import ForecastNarrative
+import time, string, re
+import ProcessVariableList
+
+class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
+    VariableList = []
+    Definition =  {
+        "type": "smart",
+        "displayName": "None",
+        "defaultEditAreas" : []
+        # Product-specific variables:
+        }
+
+    def __init__(self):
+        TextRules.TextRules.__init__(self)
+        SampleAnalysis.SampleAnalysis.__init__(self)
+
+    def generateForecast(self, argDict):
+        # Generate Text Phrases for a list of edit areas
+
+        # Get variables
+        error = self._getVariables(argDict)
+        if error is not None:
+            return error
+
+        # Get the areaList -- derived from defaultEditAreas and
+        # may be solicited at run-time from user if desired
+        self._areaList = self.getAreaList(argDict)
+        if len(self._areaList) == 0:
+            return "WARNING -- No Edit Areas Specified to Generate Product."
+
+        error = self._determineTimeRanges(argDict)
+        if error is not None:
+            return error
+            
+        # Sample the data
+        error = self._sampleData(argDict)
+        if error is not None:
+            return error
+
+        # Initialize the output string
+        fcst = self._preProcessProduct("", argDict)
+
+        # Generate the product for each edit area in the list
+        for editArea, areaLabel in self._areaList:
+            fcst = self._preProcessArea(fcst, editArea, areaLabel,argDict)
+            fcst = self._makeProduct(fcst, editArea, areaLabel, argDict)
+            fcst = self._postProcessArea(fcst, editArea, areaLabel,argDict)
+        fcst = self._postProcessProduct(fcst, argDict)
+        return fcst
+
+    def _getVariables(self, argDict):
+        varDict = argDict["varDict"]
+        # Extract variables from varDict
+        # Set up product-specific variables
+        return
+
+    def _determineTimeRanges(self, argDict):
+        # Determine the time ranges which need to be sampled
+        pass
+
+    def _sampleData(self, argDict):
+        # Get sampler data
+        pass
+
+    def _preProcessProduct(self, fcst, argDict):
+        # Add product headers
+        return fcst
+
+    def _preProcessArea(self, fcst, editArea, areaLabel, argDict):
+        # Add editArea headers
+        return fcst
+
+    def _makeProduct(self, fcst, editArea, areaLabel, argDict):
+        # Return a text string representing the product
+        # for the given edit area
+        return fcst
+
+    def _postProcessArea(self, fcst, editArea, areaLabel, argDict):
+        return fcst
+
+    def _postProcessProduct(self, fcst, argDict):
+        return fcst
+
+##    def _processVariableList(self, definition):
+##        # IF present, this method will be called prior to
+##        # running the product.
+##        # It will used INSTEAD OF VariableList and _issuance_list
+##        # to display the user input dialog. 
+##        # Return the resulting "varDict" OR None to Cancel
+##        
+##        # NOTE:
+##        # If your product uses an _issuance_list, you must
+##        # still include it for setting up the Narrative product,
+##        # AND you must explicitly set up the user input dialog
+##        # to include the "productIssuance" options.
+
+##        # Below is an example.
+##        # 
+##        # Get Definition variables
+##        for key in definition.keys():
+##            exec "self._" + key + "= definition[key]"
+##
+##        # Display User Dialog
+##        varList = [
+##           (("Product Issuance", "productIssuance"), "Morning", "radio",
+##            ["Morning","Afternoon"]),        
+##           (("Issuance Type", "issuanceType") , "ROUTINE", "radio",
+##             ["ROUTINE", "UPDATE", "CORRECTED ROUTINE", "CORRECTED UPDATE"]),
+##           ]
+##        processVarList = ProcessVariableList.ProcessVariableList(
+##            name, varList, varDict={})
+##        self._selectionStatus = processVarList.status()
+##        if not self._selectionStatus == "Ok":
+##            return None   # User Cancelled
+##        varDict = processVarList.varDict()
+##        return varDict
+            
+    ########################################################################
+    # PRODUCT-SPECIFIC METHODS
+    ########################################################################
+
+    def _getAnalysisList(self):
+        return[]
+
+    ########################################################################
+    # OVERRIDING THRESHOLDS, VARIABLES, and METHODS
+    ########################################################################
+    # Examine the Forecast, TextRules and SampleAnalysis Text Utilities
+    # for the definitions and documentation of the thresholds and variables
+    # which can be overridden.
+
+    ########################################################################
+    # COMPONENT PRODUCT DEFINITIONS
+    ########################################################################
+    
+    def ComponentProduct(self):
+        return {}
+
+## Here is a template for prod_Smart_Local
+### ----------------------------------------------------------------------------
+### This software is in the public domain, furnished "as is", without technical
+### support, and with no warranty, express or implied, as to its usefulness for
+### any purpose.
+###
+### prod_Smart_Local
+###  Local customizations for prod_Smart as Base class
+###
+### Author:
+### ----------------------------------------------------------------------------
+
+##import prod_Smart
+##import TextRules
+##import string, time, re, os, types, copy, AFPS
+
+##class TextProduct(prod_Smart.TextProduct):
+##    # You can override the VariableList in the Base Class if desired
+##    #VariableList = []
+##    Definition = copy.deepcopy(prod_Smart.TextProduct.Definition)
+##    Definition['displayName'] = "None"
+##    #Definition['displayName'] = "prod_Smart"
+##    #Definition["outputFile"] = "Myprod_Smart.txt"
+##
+##    def __init__(self):
+##        prod_Smart.TextProduct.__init__(self)
+
+##    # REQUIRED OVERRIDES
+
+##    # OPTIONAL OVERRIDES
+
+##    # PATCHES:  To be removed with each new release

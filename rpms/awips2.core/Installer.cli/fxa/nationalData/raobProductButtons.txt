@@ -1,0 +1,350 @@
+# Release 
+#  raobProductButtons.txt
+#
+#  Data Valid as of 091713
+#
+#  This table describes the product buttons associated with the Skew-T depict keys.
+#  It is brought into productButtonInfo.txt through an include mechanism.  See the
+#  header of productButtonInfo.txt for more usage info.
+#
+ 9002     |   9002, 9002, 9002, 9002, 9002, 9002           |Kotzebue, AK (PAOT)                                     |PAOT Skewt          |  0
+ 9005     |   9005, 9005, 9005, 9005, 9005, 9005           |Nome, AK (PAOM)                                         |PAOM Skewt          |  0
+ 9006     |   9006, 9006, 9006, 9006, 9006, 9006           |Bethel, AK (PABE)                                       |PABE Skewt          |  0
+ 9008     |   9008, 9008, 9008, 9008, 9008, 9008           |McGrath, AK (PAMC)                                      |PAMC Skewt          |  0
+ 9009     |   9009, 9009, 9009, 9009, 9009, 9009           |Fairbanks, AK (PAFA)                                    |PAFA Skewt          |  0
+ 9014     |   9014, 9014, 9014, 9014, 9014, 9014           |Anchorage, AK (PAFC)                                    |PAFC Skewt          |  0
+ 9016     |   9016, 9016, 9016, 9016, 9016, 9016           |St. Paul Island, AK (PASN)                              |PASN Skewt          |  0
+ 9017     |   9017, 9017, 9017, 9017, 9017, 9017           |Cold Bay, AK (PACD)                                     |PACD Skewt          |  0
+ 9018     |   9018, 9018, 9018, 9018, 9018, 9018           |King Salmon, AK (PAKN)                                  |PAKN Skewt          |  0
+ 9019     |   9019, 9019, 9019, 9019, 9019, 9019           |Kodiak, AK (PADQ)                                       |PADQ Skewt          |  0
+ 9020     |   9020, 9020, 9020, 9020, 9020, 9020           |Yakutat, AK (PAYA)                                      |PAYA Skewt          |  0
+ 9021     |   9021, 9021, 9021, 9021, 9021, 9021           |Annette Is, AK (PANT)                                   |PANT Skewt          |  0
+ 9022     |   9022, 9022, 9022, 9022, 9022, 9022           |Shemya AFB, AK (PASY)                                   |PASY Skewt          |  0
+ 9024     |   9024, 9024, 9024, 9024, 9024, 9024           |Norman Wells, NW (CYVQ)                                 |CYVQ Skewt          |  0
+ 9029     |   9029, 9029, 9029, 9029, 9029, 9029           |Hall Beach, NU (CYUX)                                   |CYUX Skewt          |  0
+ 9030     |   9030, 9030, 9030, 9030, 9030, 9030           |Alert, NU (CYLT)                                        |CYLT Skewt          |  0
+ 9034     |   9034, 9034, 9034, 9034, 9034, 9034           |Edmonton/Stony Plain, AB (CWSE)                         |CWSE Skewt          |  0
+ 9035     |   9035, 9035, 9035, 9035, 9035, 9035           |Cold Lake, AB (CYOD)                                    |CYOD Skewt          |  0
+ 9043     |   9043, 9043, 9043, 9043, 9043, 9043           |Sable Island, NS (CYSA)                                 |CYSA Skewt          |  0
+ 9044     |   9044, 9044, 9044, 9044, 9044, 9044           |Yarmouth, NS (CYQI)                                     |CYQI Skewt          |  0
+ 9050     |   9050, 9050, 9050, 9050, 9050, 9050           |Gagetown, NB (CYCX)                                     |CYCX Skewt          |  0
+ 9056     |   9056, 9056, 9056, 9056, 9056, 9056           |Maniwaki, QC (CWMW)                                     |CWMW Skewt          |  0
+ #9060     |   9060, 9060, 9060, 9060, 9060, 9060           |St. Johns/Torbay, NF (CYYT)                             |CYYT Skewt          |  0
+ 9060     |   9060, 9060, 9060, 9060, 9060, 9060           |Saint John's West, NF (CAYT)                            |CAYT Skewt          |  0
+ 9064     |   9064, 9064, 9064, 9064, 9064, 9064           |Sept-Iles, QC (CYZV)                                    |CYZV Skewt          |  0
+ 9065     |   9065, 9065, 9065, 9065, 9065, 9065           |Stephenville, NF (CYJT)                                 |CYJT Skewt          |  0
+ 9066     |   9066, 9066, 9066, 9066, 9066, 9066           |Goose Bay, NF (CYYR)                                    |CYYR Skewt          |  0
+ 9067     |   9067, 9067, 9067, 9067, 9067, 9067           |La Grande IV, QC (CYAH)                                 |CYAH Skewt          |  0
+ 9071     |   9071, 9071, 9071, 9071, 9071, 9071           |Moosonee, ON (CWZC)                                     |CWZC Skewt          |  0
+ 9072     |   9072, 9072, 9072, 9072, 9072, 9072           |Pickle Lake, ON (CYPL)                                  |CYPL Skewt          |  0
+ 9076     |   9076, 9076, 9076, 9076, 9076, 9076           |Shilo, MB (CWLO)                                        |CWLO Skewt          |  0
+ 9081     |   9081, 9081, 9081, 9081, 9081, 9081           |The Pas, MB (CYQD)                                      |CYQD Skewt          |  0
+ 9090     |   9090, 9090, 9090, 9090, 9090, 9090           |Prince George, BC (CWXS)                                |CWXS Skewt          |  0
+ 9091     |   9091, 9091, 9091, 9091, 9091, 9091           |Kuujjuak, QC (CYVP)                                     |CYVP Skewt          |  0
+ 9092     |   9092, 9092, 9092, 9092, 9092, 9092           |Inukjuaq, QC (CYPH)                                     |CYPH Skewt          |  0
+ 9093     |   9093, 9093, 9093, 9093, 9093, 9093           |Iqaluit, NU (CYFB)                                      |CYFB Skewt          |  0
+ 9094     |   9094, 9094, 9094, 9094, 9094, 9094           |Churchill, MB (CYYQ)                                    |CYYQ Skewt          |  0
+ 9095     |   9095, 9095, 9095, 9095, 9095, 9095           |Coral Harbour, NU (CYZS)                                |CYZS Skewt          |  0
+ 9096     |   9096, 9096, 9096, 9096, 9096, 9096           |Eureka, NU (CWEU)                                       |CWEU Skewt          |  0
+ 9097     |   9097, 9097, 9097, 9097, 9097, 9097           |Resolute Bay, NU (CYRB)                                 |CYRB Skewt          |  0
+ 9098     |   9098, 9098, 9098, 9098, 9098, 9098           |Cambridge Bay, NU (CYCB)                                |CYCB Skewt          |  0
+ 9099     |   9099, 9099, 9099, 9099, 9099, 9099           |Baker Lake, NU (CYBK)                                   |CYBK Skewt          |  0
+ 9102     |   9102, 9102, 9102, 9102, 9102, 9102           |Fort Smith, NW (CYSM)                                   |CYSM Skewt          |  0
+ 9104     |   9104, 9104, 9104, 9104, 9104, 9104           |Fort Nelson, BC (CYYE)                                  |CYYE Skewt          |  0
+ 9106     |   9106, 9106, 9106, 9106, 9106, 9106           |Inuvik, NW (CYEV)                                       |CYEV Skewt          |  0
+ 9107     |   9107, 9107, 9107, 9107, 9107, 9107           |Whitehorse, YT (CYXY)                                   |CYXY Skewt          |  0
+ 9108     |   9108, 9108, 9108, 9108, 9108, 9108           |Key West, FL (KKEY)                                     |KKEY Skewt          |  0
+ 9110     |   9110, 9110, 9110, 9110, 9110, 9110           |Charleston, SC (KCHS)                                   |KCHS Skewt          |  0
+ 9112     |   9112, 9112, 9112, 9112, 9112, 9112           |Tampa Bay, FL (KTBW)                                    |KTBW Skewt          |  0
+ 9114     |   9114, 9114, 9114, 9114, 9114, 9114           |Tallahassee, FL (KTAE)                                  |KTAE Skewt          |  0
+ 9115     |   9115, 9115, 9115, 9115, 9115, 9115           |Atlanta, GA (KFFC)                                      |KFFC Skewt          |  0
+ 9117     |   9117, 9117, 9117, 9117, 9117, 9117           |Valparaiso/Eglin, FL (KVPS)                             |KVPS Skewt          |  0
+ 9123     |   9123, 9123, 9123, 9123, 9123, 9123           |Birmingham, AL (KBMX)                                   |KBMX Skewt          |  0
+ 9126     |   9126, 9126, 9126, 9126, 9126, 9126           |Jackson, MS (KJAN)                                      |KJAN Skewt          |  0
+ 9128     |   9128, 9128, 9128, 9128, 9128, 9128           |Lake Charles, LA (KLCH)                                 |KLCH Skewt          |  0
+ 9131     |   9131, 9131, 9131, 9131, 9131, 9131           |Fort Worth, TX (KFWD)                                   |KFWD Skewt          |  0
+ 9132     |   9132, 9132, 9132, 9132, 9132, 9132           |Brownsville, TX (KBRO)                                  |KBRO Skewt          |  0
+ 9133     |   9133, 9133, 9133, 9133, 9133, 9133           |Corpus Christi, TX (KCRP)                               |KCRP Skewt          |  0
+ 9137     |   9137, 9137, 9137, 9137, 9137, 9137           |Del Rio, TX (KDRT)                                      |KDRT Skewt          |  0
+ 9138     |   9138, 9138, 9138, 9138, 9138, 9138           |Midland, TX (KMAF)                                      |KMAF Skewt          |  0
+ 9141     |   9141, 9141, 9141, 9141, 9141, 9141           |White Sands, NM (KWSD)                                  |KWSD Skewt          |  0
+ 9144     |   9144, 9144, 9144, 9144, 9144, 9144           |Tucson, AZ (KTWC)                                       |KTWC Skewt          |  0
+ 9145     |   9145, 9145, 9145, 9145, 9145, 9145           |Yuma PG, AZ (K1Y7)                                      |K1Y7 Skewt          |  0
+ 9146     |   9146, 9146, 9146, 9146, 9146, 9146           |Yuma PG Site 2, AZ (K1Y8)                               |K1Y8 Skewt          |  0
+ 9147     |   9147, 9147, 9147, 9147, 9147, 9147           |Yuma PG Site 3, AZ (K1Y9)                               |K1Y9 Skewt          |  0
+ 9149     |   9149, 9149, 9149, 9149, 9149, 9149           |San Diego, CA (KNKX)                                    |KNKX Skewt          |  0
+ 9153     |   9153, 9153, 9153, 9153, 9153, 9153           |Morehead City, NC (KMHX)                                |KMHX Skewt          |  0
+ 9156     |   9156, 9156, 9156, 9156, 9156, 9156           |Greensboro, NC (KGSO)                                   |KGSO Skewt          |  0
+ 9157     |   9157, 9157, 9157, 9157, 9157, 9157           |Nashville, TN (KOHX)                                    |KOHX Skewt          |  0
+ 9158     |   9158, 9158, 9158, 9158, 9158, 9158           |Little Rock, AR (KLZK)                                  |KLZK Skewt          |  0
+ 9165     |   9165, 9165, 9165, 9165, 9165, 9165           |Oklahoma City, OK (KOUN)                                |KOUN Skewt          |  0
+ 9166     |   9166, 9166, 9166, 9166, 9166, 9166           |Amarillo, TX (KAMA)                                     |KAMA Skewt          |  0
+ 9167     |   9167, 9167, 9167, 9167, 9167, 9167           |Albuquerque, NM (KABQ)                                  |KABQ Skewt          |  0
+ 9169     |   9169, 9169, 9169, 9169, 9169, 9169           |Edwards AFB, CA (KEDW)                                  |KEDW Skewt          |  0
+ 9175     |   9175, 9175, 9175, 9175, 9175, 9175           |Vandenberg AFB, CA (KVBG)                               |KVBG Skewt          |  0
+ 9177     |   9177, 9177, 9177, 9177, 9177, 9177           |Wallops Island, VA (KWAL)                               |KWAL Skewt          |  0
+ 9188     |   9188, 9188, 9188, 9188, 9188, 9188           |Washington, D.C. (KIAD)                                 |KIAD Skewt          |  0
+ 9202     |   9202, 9202, 9202, 9202, 9202, 9202           |Dodge City, KS (KDDC)                                   |KDDC Skewt          |  0
+ 9204     |   9204, 9204, 9204, 9204, 9204, 9204           |Topeka, KS (KTOP)                                       |KTOP Skewt          |  0
+ 9206     |   9206, 9206, 9206, 9206, 9206, 9206           |Denver, CO (KDNR)                                       |KDNR Skewt          |  0
+ 9207     |   9207, 9207, 9207, 9207, 9207, 9207           |Grand Junction, CO (KGJT)                               |KGJT Skewt          |  0
+ 9212     |   9212, 9212, 9212, 9212, 9212, 9212           |Reno, NV (KREV)                                         |KREV Skewt          |  0
+ 9213     |   9213, 9213, 9213, 9213, 9213, 9213           |Oakland, CA (KOAK)                                      |KOAK Skewt          |  0
+ 9215     |   9215, 9215, 9215, 9215, 9215, 9215           |Upton, NY (KOKX)                                        |KOKX Skewt          |  0
+ 9219     |   9219, 9219, 9219, 9219, 9219, 9219           |Albany, NY (KALY)                                       |KALY Skewt          |  0
+ 9221     |   9221, 9221, 9221, 9221, 9221, 9221           |Pittsburgh, PA (KPBZ)                                   |KPBZ Skewt          |  0
+ 9223     |   9223, 9223, 9223, 9223, 9223, 9223           |Buffalo, NY (KBUF)                                      |KBUF Skewt          |  0
+ 9231     |   9231, 9231, 9231, 9231, 9231, 9231           |Omaha, NE (KOAX)                                        |KOAX Skewt          |  0
+ 9233     |   9233, 9233, 9233, 9233, 9233, 9233           |North Platte, NE (KLBF)                                 |KLBF Skewt          |  0
+ 9235     |   9235, 9235, 9235, 9235, 9235, 9235           |Salt Lake City, UT (KSLC)                               |KSLC Skewt          |  0
+ 9240     |   9240, 9240, 9240, 9240, 9240, 9240           |Medford, OR (KMFR)                                      |KMFR Skewt          |  0
+ 9242     |   9242, 9242, 9242, 9242, 9242, 9242           |Detroit, MI (KDTX)                                      |KDTX Skewt          |  0
+ 9244     |   9244, 9244, 9244, 9244, 9244, 9244           |Green Bay, WI (KGRB)                                    |KGRB Skewt          |  0
+ 9247     |   9247, 9247, 9247, 9247, 9247, 9247           |Aberdeen, SD (KABR)                                     |KABR Skewt          |  0
+ 9248     |   9248, 9248, 9248, 9248, 9248, 9248           |Rapid City, SD (KUNR)                                   |KUNR Skewt          |  0
+ 9249     |   9249, 9249, 9249, 9249, 9249, 9249           |Boise, ID (KBOI)                                        |KBOI Skewt          |  0
+ 9250     |   9250, 9250, 9250, 9250, 9250, 9250           |Salem, OR (KSLE)                                        |KSLE Skewt          |  0
+ 9253     |   9253, 9253, 9253, 9253, 9253, 9253           |International Falls, MN (KINL)                          |KINL Skewt          |  0
+ 9254     |   9254, 9254, 9254, 9254, 9254, 9254           |Bismarck, ND (KBIS)                                     |KBIS Skewt          |  0
+ 9256     |   9256, 9256, 9256, 9256, 9256, 9256           |Glasgow, MT (KGGW)                                      |KGGW Skewt          |  0
+ 9258     |   9258, 9258, 9258, 9258, 9258, 9258           |Great Falls, MT (KTFX)                                  |KTFX Skewt          |  0
+ 9259     |   9259, 9259, 9259, 9259, 9259, 9259           |Spokane, WA (KOTX)                                      |KOTX Skewt          |  0
+ 9261     |   9261, 9261, 9261, 9261, 9261, 9261           |Quillayute, WA (KUIL)                                   |KUIL Skewt          |  0
+ 9264     |   9264, 9264, 9264, 9264, 9264, 9264           |Portland, ME (KGYX)                                     |KGYX Skewt          |  0
+ 9266     |   9266, 9266, 9266, 9266, 9266, 9266           |Chatham, MA (KCHH)                                      |KCHH Skewt          |  0
+ 9268     |   9268, 9268, 9268, 9268, 9268, 9268           |Lincoln, IL (KILX)                                      |KILX Skewt          |  0
+ 9274     |   9274, 9274, 9274, 9274, 9274, 9274           |Cape Canaveral, FL (KXMR)                               |KXMR Skewt          |  0
+ 9276     |   9276, 9276, 9276, 9276, 9276, 9276           |Chihuahua, MX (MMCU)                                    |MMCU Skewt          |  0
+ 9282     |   9282, 9282, 9282, 9282, 9282, 9282           |Monterrey, MX (MMMY)                                    |MMMY Skewt          |  0
+ 9284     |   9284, 9284, 9284, 9284, 9284, 9284           |Mazatlan, MX (MMMZ)                                     |MMMZ Skewt          |  0
+ 9290     |   9290, 9290, 9290, 9290, 9290, 9290           |Nassau (MYNN)                                           |MYNN Skewt          |  0
+ 9300     |   9300, 9300, 9300, 9300, 9300, 9300           |Barrow, AK (PABR)                                       |PABR Skewt          |  0
+ 9302     |   9302, 9302, 9302, 9302, 9302, 9302           |Minneapolis, MN (KMPX)                                  |KMPX Skewt          |  0
+ 9303     |   9303, 9303, 9303, 9303, 9303, 9303           |Springfield, MO (KSGF)                                  |KSGF Skewt          |  0
+ 9304     |   9304, 9304, 9304, 9304, 9304, 9304           |Riverton, WY (KRIW)                                     |KRIW Skewt          |  0
+ 9305     |   9305, 9305, 9305, 9305, 9305, 9305           |Elko, NV (KLKN)                                         |KLKN Skewt          |  0
+ 9306     |   9306, 9306, 9306, 9306, 9306, 9306           |Flagstaff, AZ (KFGZ)                                    |KFGZ Skewt          |  0
+ 9307     |   9307, 9307, 9307, 9307, 9307, 9307           |Cincinnati, OH (KILN)                                   |KILN Skewt          |  0
+ 9309     |   9309, 9309, 9309, 9309, 9309, 9309           |El Paso, TX (KEPZ)                                      |KEPZ Skewt          |  0
+ 9310     |   9310, 9310, 9310, 9310, 9310, 9310           |Roanoke, VA (KRNK)                                      |KRNK Skewt          |  0
+ 9311     |   9311, 9311, 9311, 9311, 9311, 9311           |Gaylord, MI (KAPX)                                      |KAPX Skewt          |  0
+ 9312     |   9312, 9312, 9312, 9312, 9312, 9312           |Port Hardy, BC (CYZT)                                   |CYZT Skewt          |  0
+ 9313     |   9313, 9313, 9313, 9313, 9313, 9313           |Jacksonville, FL (KJAX)                                 |KJAX Skewt          |  0
+ 9314     |   9314, 9314, 9314, 9314, 9314, 9314           |Miami, FL (KMFL)                                        |KMFL Skewt          |  0
+ 9318     |   9318, 9318, 9318, 9318, 9318, 9318           |Quad Cities, IL (KDVN)                                  |KDVN Skewt          |  0
+ 9319     |   9319, 9319, 9319, 9319, 9319, 9319           |Shreveport, LA (KSHV)                                   |KSHV Skewt          |  0
+ 9320     |   9320, 9320, 9320, 9320, 9320, 9320           |Fukuoka (47807)                                          |47807 Skewt          |  0
+ 9321     |   9321, 9321, 9321, 9321, 9321, 9321           |Pacific V (99027)                                        |99027 Skewt          |  0
+ 9322     |   9322, 9322, 9322, 9322, 9322, 9322           |Ship C7T/Tango (99025)                                   |99025 Skewt          |  0
+ 9323     |   9323, 9323, 9323, 9323, 9323, 9323           |Clark AFB (RPMK)                                        |RPMK Skewt          |  0
+ 9324     |   9324, 9324, 9324, 9324, 9324, 9324           |Norfolk Island Arpt (YSNF)                              |YSNF Skewt          |  0
+ 9325     |   9325, 9325, 9325, 9325, 9325, 9325           |Lord Howe Island (ASLH)                                 |ASLH Skewt          |  0
+ 9326     |   9326, 9326, 9326, 9326, 9326, 9326           |Coffs Harbour Arpt (YSCH)                               |YSCH Skewt          |  0
+ 9327     |   9327, 9327, 9327, 9327, 9327, 9327           |Williamtown Aerodrome (YSWM)                            |YSWM Skewt          |  0
+ 9328     |   9328, 9328, 9328, 9328, 9328, 9328           |Sydney Arpt (YSSY)                                      |YSSY Skewt          |  0
+ 9329     |   9329, 9329, 9329, 9329, 9329, 9329           |Nowra (YSNW)                                            |YSNW Skewt          |  0
+ 9330     |   9330, 9330, 9330, 9330, 9330, 9330           |Caribou, ME (KCAR)                                      |KCAR Skewt          |  0
+ 9331     |   9331, 9331, 9331, 9331, 9331, 9331           |Cobar M.O. (94711)                                       |94711 Skewt          |  0
+ 9332     |   9332, 9332, 9332, 9332, 9332, 9332           |Mildura (YMMI)                                          |YMMI Skewt          |  0
+ 9333     |   9333, 9333, 9333, 9333, 9333, 9333           |Adelaide Arpt (YPAD)                                    |YPAD Skewt          |  0
+ 9334     |   9334, 9334, 9334, 9334, 9334, 9334           |Woomera (YPWR)                                          |YPWR Skewt          |  0
+ 9335     |   9335, 9335, 9335, 9335, 9335, 9335           |Ceduna (YPCD)                                           |YPCD Skewt          |  0
+ 9336     |   9336, 9336, 9336, 9336, 9336, 9336           |Desert Rock, NV (KDRA)                                  |KDRA Skewt          |  0
+ 9337     |   9337, 9337, 9337, 9337, 9337, 9337           |Forrest (YPFT)                                          |YPFT Skewt          |  0
+ 9338     |   9338, 9338, 9338, 9338, 9338, 9338           |Esperance M.O. (94638)                                   |94638 Skewt          |  0
+ 9339     |   9339, 9339, 9339, 9339, 9339, 9339           |Kalgoorlie (YPKG)                                       |YPKG Skewt          |  0
+ 9340     |   9340, 9340, 9340, 9340, 9340, 9340           |Brisbane Airport (YBBN)                                 |YBBN Skewt          |  0
+ 9341     |   9341, 9341, 9341, 9341, 9341, 9341           |Moree (94527)                                            |94527 Skewt          |  0
+ 9342     |   9342, 9342, 9342, 9342, 9342, 9342           |Charleville (YBCV)                                      |YBCV Skewt          |  0
+ 9343     |   9343, 9343, 9343, 9343, 9343, 9343           |Giles (94461)                                            |94461 Skewt          |  0
+ 9344     |   9344, 9344, 9344, 9344, 9344, 9344           |Gladstone (YBGL)                                        |YBGL Skewt          |  0
+ 9345     |   9345, 9345, 9345, 9345, 9345, 9345           |Mackay M.O. (YBMK)                                      |YBMK Skewt          |  0
+ 9346     |   9346, 9346, 9346, 9346, 9346, 9346           |Longreach M.O. (YBLR)                                   |YBLR Skewt          |  0
+ 9347     |   9347, 9347, 9347, 9347, 9347, 9347           |Cloncurry (94335)                                        |94335 Skewt          |  0
+ 9348     |   9348, 9348, 9348, 9348, 9348, 9348           |Mt Isa Arpt (YBMA)                                      |YBMA Skewt          |  0
+ 9349     |   9349, 9349, 9349, 9349, 9349, 9349           |Alice Springs (YBAS)                                    |YBAS Skewt          |  0
+ 9350     |   9350, 9350, 9350, 9350, 9350, 9350           |Willis Island (94299)                                    |94299 Skewt          |  0
+ 9351     |   9351, 9351, 9351, 9351, 9351, 9351           |Townsville (YBTL)                                       |YBTL Skewt          |  0
+ 9352     |   9352, 9352, 9352, 9352, 9352, 9352           |Cairns M.O. (YBCS)                                      |YBCS Skewt          |  0
+ 9353     |   9353, 9353, 9353, 9353, 9353, 9353           |Tennant Creek (YDTC)                                    |YDTC Skewt          |  0
+ 9354     |   9354, 9354, 9354, 9354, 9354, 9354           |Halls Creek (AHHC)                                      |AHHC Skewt          |  0
+ 9355     |   9355, 9355, 9355, 9355, 9355, 9355           |Broome M.O. (YPBR)                                      |YPBR Skewt          |  0
+ 9356     |   9356, 9356, 9356, 9356, 9356, 9356           |Darwin Airport (YPDN)                                   |YPDN Skewt          |  0
+ 9357     |   9357, 9357, 9357, 9357, 9357, 9357           |New Orleans, LA (KLIX)                                  |KLIX Skewt          |  0
+ 9358     |   9358, 9358, 9358, 9358, 9358, 9358           |Port Moresby (AYPY)                                     |AYPY Skewt          |  0
+ 9359     |   9359, 9359, 9359, 9359, 9359, 9359           |Lae (AYLA)                                              |AYLA Skewt          |  0
+ 9360     |   9360, 9360, 9360, 9360, 9360, 9360           |Nandi (NFFN)                                            |NFFN Skewt          |  0
+ 9361     |   9361, 9361, 9361, 9361, 9361, 9361           |Tarawa (NGTA)                                           |NGTA Skewt          |  0
+ 9362     |   9362, 9362, 9362, 9362, 9362, 9362           |Noumea (NWWN)                                           |NWWN Skewt          |  0
+ 9363     |   9363, 9363, 9363, 9363, 9363, 9363           |Vila (Efate) (NHHH)                                     |NHHH Skewt          |  0
+ 9364     |   9364, 9364, 9364, 9364, 9364, 9364           |Honiara (AGGH)                                          |AGGH Skewt          |  0
+ 9365     |   9365, 9365, 9365, 9365, 9365, 9365           |Eniwetok (PKMA)                                         |PKMA Skewt          |  0
+ 9366     |   9366, 9366, 9366, 9366, 9366, 9366           |Guam/Anderson AFB, GU (PGUA)                            |PGUA Skewt          |  0
+ 9367     |   9367, 9367, 9367, 9367, 9367, 9367           |Guam/Taguac, GU (PGAC)                                  |PGAC Skewt          |  0
+ 9371     |   9371, 9371, 9371, 9371, 9371, 9371           |Dachen Island (58666)                                    |58666 Skewt          |  0
+ 9372     |   9372, 9372, 9372, 9372, 9372, 9372           |Hangchou (ZSHC)                                         |ZSHC Skewt          |  0
+ 9373     |   9373, 9373, 9373, 9373, 9373, 9373           |Shanghai (ZSSS)                                         |ZSSS Skewt          |  0
+ 9374     |   9374, 9374, 9374, 9374, 9374, 9374           |Sheyang (58150)                                          |58150 Skewt          |  0
+ 9375     |   9375, 9375, 9375, 9375, 9375, 9375           |Qingdao (ZSQD)                                          |ZSQD Skewt          |  0
+ 9376     |   9376, 9376, 9376, 9376, 9376, 9376           |Chengshantou (54776)                                     |54776 Skewt          |  0
+ 9377     |   9377, 9377, 9377, 9377, 9377, 9377           |Dalian (ZYTL)                                           |ZYTL Skewt          |  0
+ 9378     |   9378, 9378, 9378, 9378, 9378, 9378           |Dandong (54497)                                          |54497 Skewt          |  0
+ 9379     |   9379, 9379, 9379, 9379, 9379, 9379           |San Juan, PR (TJSJ)                                     |TJSJ Skewt          |  0
+ 9380     |   9380, 9380, 9380, 9380, 9380, 9380           |Linjiang (54374)                                         |54374 Skewt          |  0
+ 9381     |   9381, 9381, 9381, 9381, 9381, 9381           |Shenyang (ZYYY)                                         |ZYYY Skewt          |  0
+ 9382     |   9382, 9382, 9382, 9382, 9382, 9382           |Jinzhou (54337)                                          |54337 Skewt          |  0
+ 9383     |   9383, 9383, 9383, 9383, 9383, 9383           |Yanji (54292)                                            |54292 Skewt          |  0
+ 9384     |   9384, 9384, 9384, 9384, 9384, 9384           |Changchun (ZYCC)                                        |ZYCC Skewt          |  0
+ 9385     |   9385, 9385, 9385, 9385, 9385, 9385           |Tongliao (54135)                                         |54135 Skewt          |  0
+ 9386     |   9386, 9386, 9386, 9386, 9386, 9386           |Mudanjiang (54094)                                       |54094 Skewt          |  0
+ 9387     |   9387, 9387, 9387, 9387, 9387, 9387           |Harbin (ZYHB)                                           |ZYHB Skewt          |  0
+ 9388     |   9388, 9388, 9388, 9388, 9388, 9388           |Yichun (50774)                                           |50774 Skewt          |  0
+ 9389     |   9389, 9389, 9389, 9389, 9389, 9389           |Qiqihar (ZYQQ)                                          |ZYQQ Skewt          |  0
+ 9390     |   9390, 9390, 9390, 9390, 9390, 9390           |Curacao (MACC)                                          |MACC Skewt          |  0
+ 9391     |   9391, 9391, 9391, 9391, 9391, 9391           |St. Maarten (TNCM)                                      |TNCM Skewt          |  0
+ 9392     |   9392, 9392, 9392, 9392, 9392, 9392           |San Andres Island (SKSP)                                |SKSP Skewt          |  0
+ 9393     |   9393, 9393, 9393, 9393, 9393, 9393           |Santo Domingo, DR (MDSD)                                |MDSD Skewt          |  0
+ 9394     |   9394, 9394, 9394, 9394, 9394, 9394           |Grand Cayman, Cayman Is (MWCR)                          |MWCR Skewt          |  0
+ 9395     |   9395, 9395, 9395, 9395, 9395, 9395           |Kingston, Jamaica (MKJP)                                |MKJP Skewt          |  0
+ 9396     |   9396, 9396, 9396, 9396, 9396, 9396           |Barbados (TBPB)                                         |TBPB Skewt          |  0
+ 9397     |   9397, 9397, 9397, 9397, 9397, 9397           |Trinidad (TTPP)                                         |TTPP Skewt          |  0
+ 9398     |   9398, 9398, 9398, 9398, 9398, 9398           |Nenjiang (50557)                                         |50557 Skewt          |  0
+ 9400     |   9400, 9400, 9400, 9400, 9400, 9400           |Merida, MX (MMMD)                                       |MMMD Skewt          |  0
+ 9401     |   9401, 9401, 9401, 9401, 9401, 9401           |Minamitorishima (RJAM)                                  |RJAM Skewt          |  0
+ 9402     |   9402, 9402, 9402, 9402, 9402, 9402           |Iwo Jima (RJAW)                                         |RJAW Skewt          |  0
+ 9403     |   9403, 9403, 9403, 9403, 9403, 9403           |Chichijima (RJAO)                                       |RJAO Skewt          |  0
+ 9404     |   9404, 9404, 9404, 9404, 9404, 9404           |Belize City, Belize (MZBZ)                              |MZBZ Skewt          |  0
+ 9405     |   9405, 9405, 9405, 9405, 9405, 9405           |Pago Pago, American Samoa (NSTU)                        |NSTU Skewt          |  0
+ 9406     |   9406, 9406, 9406, 9406, 9406, 9406           |Khabarovsk (RUHB)                                       |RUHB Skewt          |  0
+ 9407     |   9407, 9407, 9407, 9407, 9407, 9407           |Minamidaitojima (ROMD)                                  |ROMD Skewt          |  0
+ 9408     |   9408, 9408, 9408, 9408, 9408, 9408           |Sapporo (RJCO)                                          |RJCO Skewt          |  0
+ 9409     |   9409, 9409, 9409, 9409, 9409, 9409           |Wakkanai (RJCW)                                         |RJCW Skewt          |  0
+ 9410     |   9410, 9410, 9410, 9410, 9410, 9410           |Cheju Do/Mosulpo (RKPM)                                 |RKPM Skewt          |  0
+ 9411     |   9411, 9411, 9411, 9411, 9411, 9411           |Kwangju (KOR-AFB) (RKJJ)                                |RKJJ Skewt          |  0
+ 9412     |   9412, 9412, 9412, 9412, 9412, 9412           |Pohang (RKTH)                                           |RKTH Skewt          |  0
+ 9413     |   9413, 9413, 9413, 9413, 9413, 9413           |Osan (RKSO)                                             |RKSO Skewt          |  0
+ 9414     |   9414, 9414, 9414, 9414, 9414, 9414           |Seoul/Kimpo Intl. (RKSS)                                |RKSS Skewt          |  0
+ 9415     |   9415, 9415, 9415, 9415, 9415, 9415           |Blagoveshchensk (31510)                                  |31510 Skewt          |  0
+ 9416     |   9416, 9416, 9416, 9416, 9416, 9416           |Nikolayevsk-na Amur (31369)                              |31369 Skewt          |  0
+ 9417     |   9417, 9417, 9417, 9417, 9417, 9417           |Pyongyang (ZKKK)                                        |ZKKK Skewt          |  0
+ 9418     |   9418, 9418, 9418, 9418, 9418, 9418           |Tungchiang (595530) (RCMJ)                              |RCMJ Skewt          |  0
+ 9419     |   9419, 9419, 9419, 9419, 9419, 9419           |Guam, GU (PGUM)                                         |PGUM Skewt          |  0
+ 9420     |   9420, 9420, 9420, 9420, 9420, 9420           |Lihue, HI (PHLI)                                        |PHLI Skewt          |  0
+ 9422     |   9422, 9422, 9422, 9422, 9422, 9422           |Hilo, HI (PHTO)                                         |PHTO Skewt          |  0
+ 9423     |   9423, 9423, 9423, 9423, 9423, 9423           |Majuro, Marshall Islands (PKMR)                         |PKMR Skewt          |  0
+ 9424     |   9424, 9424, 9424, 9424, 9424, 9424           |Chuuk, East Caroline Is (PTKK)                          |PTKK Skewt          |  0
+ 9425     |   9425, 9425, 9425, 9425, 9425, 9425           |Ponape, East Caroline Is (PTPN)                         |PTPN Skewt          |  0
+ 9426     |   9426, 9426, 9426, 9426, 9426, 9426           |Koror, Palau Islands (PTRO)                             |PTRO Skewt          |  0
+ 9427     |   9427, 9427, 9427, 9427, 9427, 9427           |Yap, West Caroline Is (PTYA)                            |PTYA Skewt          |  0
+ 9428     |   9428, 9428, 9428, 9428, 9428, 9428           |Wake Island (PWAK)                                      |PWAK Skewt          |  0
+ 9429     |   9429, 9429, 9429, 9429, 9429, 9429           |Taoyuan (RCGM)                                          |RCGM Skewt          |  0
+ 9430     |   9430, 9430, 9430, 9430, 9430, 9430           |Naha/Kagamizu (ROAH)                                    |ROAH Skewt          |  0
+ 9431     |   9431, 9431, 9431, 9431, 9431, 9431           |Fort Hood, TX (KHLR)                                    |KHLR Skewt          |  0
+ 9432     |   9432, 9432, 9432, 9432, 9432, 9432           |Kadena AB (RODN)                                        |RODN Skewt          |  0
+ 9433     |   9433, 9433, 9433, 9433, 9433, 9433           |San Nicolas Island, CA (KNSI)                           |KNSI Skewt          |  0
+ 9434     |   9434, 9434, 9434, 9434, 9434, 9434           |Ishigakijima (ROIG)                                     |ROIG Skewt          |  0
+ 9435     |   9435, 9435, 9435, 9435, 9435, 9435           |Pt Mugu NAWS, CA (KNTD)                                 |KNTD Skewt          |  0
+ 9436     |   9436, 9436, 9436, 9436, 9436, 9436           |Naze/Funchatogere (47909)                                |47909 Skewt          |  0
+ 9437     |   9437, 9437, 9437, 9437, 9437, 9437           |Tokushima AB (RJOS)                                     |RJOS Skewt          |  0
+ 9438     |   9438, 9438, 9438, 9438, 9438, 9438           |Kagoshima/Yoshino (RJFK)                                |RJFK Skewt          |  0
+ 9439     |   9439, 9439, 9439, 9439, 9439, 9439           |Fukuoka/Itazuke AB (RJFF)                               |RJFF Skewt          |  0
+ 9440     |   9440, 9440, 9440, 9440, 9440, 9440           |Guantanamo Bay, CU (MUGM)                               |MUGM Skewt          |  0
+ 9441     |   9441, 9441, 9441, 9441, 9441, 9441           |Howard AFB, PM (MPHO)                                   |MPHO Skewt          |  0
+ 9442     |   9442, 9442, 9442, 9442, 9442, 9442           |Diego Garcia Is. (DJDG)                                 |DJDG Skewt          |  0
+ 9443     |   9443, 9443, 9443, 9443, 9443, 9443           |Wide Awake Field (FHAW)                                 |FHAW Skewt          |  0
+ 9444     |   9444, 9444, 9444, 9444, 9444, 9444           |Thule AB, Greenland (BGTL)                              |BGTL Skewt          |  0
+ 9445     |   9445, 9445, 9445, 9445, 9445, 9445           |Keajalein Atoll (PKWA)                                  |PKWA Skewt          |  0
+ 9446     |   9446, 9446, 9446, 9446, 9446, 9446           |Taipei (589680) (RCSS)                                  |RCSS Skewt          |  0
+ 9447     |   9447, 9447, 9447, 9447, 9447, 9447           |Nikol'skoye (32618)                                      |32618 Skewt          |  0
+ 9448     |   9448, 9448, 9448, 9448, 9448, 9448           |Petropavlovsk (UHPP)                                    |UHPP Skewt          |  0
+ 9449     |   9449, 9449, 9449, 9449, 9449, 9449           |Misawa (RJSM)                                           |RJSM Skewt          |  0
+ 9450     |   9450, 9450, 9450, 9450, 9450, 9450           |Sobolevo (32477)                                         |32477 Skewt          |  0
+ 9451     |   9451, 9451, 9451, 9451, 9451, 9451           |Klyuchi (32389)                                          |32389 Skewt          |  0
+ 9452     |   9452, 9452, 9452, 9452, 9452, 9452           |Severo-Kuril'SK (32217)                                  |32217 Skewt          |  0
+ 9453     |   9453, 9453, 9453, 9453, 9453, 9453           |Urup (32186)                                             |32186 Skewt          |  0
+ 9454     |   9454, 9454, 9454, 9454, 9454, 9454           |Yuzhno-Kuril'SK (32165)                                  |32165 Skewt          |  0
+ 9455     |   9455, 9455, 9455, 9455, 9455, 9455           |Yuzhno-Sahalinsk (RUSH)                                 |RUSH Skewt          |  0
+ 9457     |   9457, 9457, 9457, 9457, 9457, 9457           |Susuman (24790)                                          |24790 Skewt          |  0
+ 9459     |   9459, 9459, 9459, 9459, 9459, 9459           |Poronajsk (32098)                                        |32098 Skewt          |  0
+ 9460     |   9460, 9460, 9460, 9460, 9460, 9460           |Aleksandrovsk-Sakh. (32061)                              |32061 Skewt          |  0
+ 9461     |   9461, 9461, 9461, 9461, 9461, 9461           |Vladivostok (UHWW)                                      |UHWW Skewt          |  0
+ 9462     |   9462, 9462, 9462, 9462, 9462, 9462           |Terney (31909)                                           |31909 Skewt          |  0
+ 9463     |   9463, 9463, 9463, 9463, 9463, 9463           |Dalnerechensk (31873)                                    |31873 Skewt          |  0
+ 9464     |   9464, 9464, 9464, 9464, 9464, 9464           |Sovetskaya Gavan (31770)                                 |31770 Skewt          |  0
+ 9465     |   9465, 9465, 9465, 9465, 9465, 9465           |Verkhoyansk (24266)                                      |24266 Skewt          |  0
+ 9466     |   9466, 9466, 9466, 9466, 9466, 9466           |Yekaterino-nikolsk (31707)                               |31707 Skewt          |  0
+ 9467     |   9467, 9467, 9467, 9467, 9467, 9467           |Komsomol'sk (31561)                                      |31561 Skewt          |  0
+ 9468     |   9468, 9468, 9468, 9468, 9468, 9468           |Sutur (31538)                                            |31538 Skewt          |  0
+ 9469     |   9469, 9469, 9469, 9469, 9469, 9469           |Hamamatsu AB (RJNH)                                     |RJNH Skewt          |  0
+ 9470     |   9470, 9470, 9470, 9470, 9470, 9470           |Yonago (47744)                                           |47744 Skewt          |  0
+ 9471     |   9471, 9471, 9471, 9471, 9471, 9471           |Ekimchan (UHPB)                                         |UHPB Skewt          |  0
+ 9472     |   9472, 9472, 9472, 9472, 9472, 9472           |Zeya (31300)                                             |31300 Skewt          |  0
+ 9473     |   9473, 9473, 9473, 9473, 9473, 9473           |Ayan (31168)                                             |31168 Skewt          |  0
+ 9474     |   9474, 9474, 9474, 9474, 9474, 9474           |Okhotsk (31088)                                          |31088 Skewt          |  0
+ 9475     |   9475, 9475, 9475, 9475, 9475, 9475           |Aldan (31004)                                            |31004 Skewt          |  0
+ 9476     |   9476, 9476, 9476, 9476, 9476, 9476           |Skovorodino (30692)                                      |30692 Skewt          |  0
+ 9477     |   9477, 9477, 9477, 9477, 9477, 9477           |Korf (25954)                                             |25954 Skewt          |  0
+ 9478     |   9478, 9478, 9478, 9478, 9478, 9478           |Magadan (UHMM)                                          |UHMM Skewt          |  0
+ 9479     |   9479, 9479, 9479, 9479, 9479, 9479           |Giziga (25822)                                           |25822 Skewt          |  0
+ 9480     |   9480, 9480, 9480, 9480, 9480, 9480           |Sejmcan (25703)                                          |25703 Skewt          |  0
+ 9481     |   9481, 9481, 9481, 9481, 9481, 9481           |Anadyr' (UHMA)                                          |UHMA Skewt          |  0
+ 9482     |   9482, 9482, 9482, 9482, 9482, 9482           |Markovo (25551)                                          |25551 Skewt          |  0
+ 9484     |   9484, 9484, 9484, 9484, 9484, 9484           |Omolon (25428)                                           |25428 Skewt          |  0
+ 9485     |   9485, 9485, 9485, 9485, 9485, 9485           |Zyryanka (25400)                                         |25400 Skewt          |  0
+ 9486     |   9486, 9486, 9486, 9486, 9486, 9486           |Cherskiy (25123)                                         |25123 Skewt          |  0
+ 9487     |   9487, 9487, 9487, 9487, 9487, 9487           |O Ayon (25042)                                           |25042 Skewt          |  0
+ 9488     |   9488, 9488, 9488, 9488, 9488, 9488           |Yakutsk (24959)                                          |24959 Skewt          |  0
+ 9489     |   9489, 9489, 9489, 9489, 9489, 9489           |Olekminsk (24944)                                        |24944 Skewt          |  0
+ 9491     |   9491, 9491, 9491, 9491, 9491, 9491           |Oymyakon (24688)                                         |24688 Skewt          |  0
+ 9492     |   9492, 9492, 9492, 9492, 9492, 9492           |Nemuro (47420)                                           |47420 Skewt          |  0
+ 9493     |   9493, 9493, 9493, 9493, 9493, 9493           |Shionomisaki (47778)                                     |47778 Skewt          |  0
+ 9495     |   9495, 9495, 9495, 9495, 9495, 9495           |Chokurdakh (21946)                                       |21946 Skewt          |  0
+ 9496     |   9496, 9496, 9496, 9496, 9496, 9496           |O. Chetyrekhstolbovoy (21965)                            |21965 Skewt          |  0
+ 9497     |   9497, 9497, 9497, 9497, 9497, 9497           |Hachijojima/Omure (RJTH)                                |RJTH Skewt          |  0
+ 9498     |   9498, 9498, 9498, 9498, 9498, 9498           |Tateno (47646)                                           |47646 Skewt          |  0
+ 9499     |   9499, 9499, 9499, 9499, 9499, 9499           |Wajima (47600)                                           |47600 Skewt          |  0
+ 9500     |   9500, 9500, 9500, 9500, 9500, 9500           |Sendai (RJSS)                                           |RJSS Skewt          |  0
+ 9501     |   9501, 9501, 9501, 9501, 9501, 9501           |Akita (RJSK)                                            |RJSK Skewt          |  0
+ 9502     |   9502, 9502, 9502, 9502, 9502, 9502           |O. Vrangelya (21982)                                     |21982 Skewt          |  0
+ 9503     |   9503, 9503, 9503, 9503, 9503, 9503           |Mys Uzlen (25399)                                        |25399 Skewt          |  0
+ 9504     |   9504, 9504, 9504, 9504, 9504, 9504           |Bukhta Provideniya (UHMD)                               |UHMD Skewt          |  0
+ 9505     |   9505, 9505, 9505, 9505, 9505, 9505           |Rarotonga (NCRG)                                        |NCRG Skewt          |  0
+ 9506     |   9506, 9506, 9506, 9506, 9506, 9506           |Vilyuysk (24641)                                         |24641 Skewt          |  0
+ 9508     |   9508, 9508, 9508, 9508, 9508, 9508           |Tatoosh Island, WA (72798)                               |72798 Skewt          |  0
+ 9509     |   9509, 9509, 9509, 9509, 9509, 9509           |Zigansk (24343)                                          |24343 Skewt          |  0
+ 9510     |   9510, 9510, 9510, 9510, 9510, 9510           |Midway Island (Navy) (PMDY)                             |PMDY Skewt          |  0
+ 9511     |   9511, 9511, 9511, 9511, 9511, 9511           |Johnston Is. (USWB) (PJON)                              |PJON Skewt          |  0
+ 9512     |   9512, 9512, 9512, 9512, 9512, 9512           |Canton Is (Jopham Arpt) (PCIS)                          |PCIS Skewt          |  0
+ 9513     |   9513, 9513, 9513, 9513, 9513, 9513           |Atuona (NTMN)                                           |NTMN Skewt          |  0
+ 9514     |   9514, 9514, 9514, 9514, 9514, 9514           |Papeete/Tahiti (NTTT)                                   |NTTT Skewt          |  0
+ 9515     |   9515, 9515, 9515, 9515, 9515, 9515           |Hao (NTTO)                                              |NTTO Skewt          |  0
+ 9516     |   9516, 9516, 9516, 9516, 9516, 9516           |Rikitea (91948)                                          |91948 Skewt          |  0
+ 9517     |   9517, 9517, 9517, 9517, 9517, 9517           |Rapa (91958)                                             |91958 Skewt          |  0
+ 9518     |   9518, 9518, 9518, 9518, 9518, 9518           |Raoul Is/Kermadec (NZRN)                                |NZRN Skewt          |  0
+ 9519     |   9519, 9519, 9519, 9519, 9519, 9519           |Tiksi (RUTS)                                            |RUTS Skewt          |  0
+ 9520     |   9520, 9520, 9520, 9520, 9520, 9520           |Kelowna, BC (CWLW)                                      |CWLW Skewt          |  0
+ 9522     |   9522, 9522, 9522, 9522, 9522, 9522           |Tapachula, MX (MTAP)                                    |MTAP Skewt          |  0
+ 9525     |   9525, 9525, 9525, 9525, 9525, 9525           |Acapulco, MX (MACA)                                     |MACA Skewt          |  0
+ 9527     |   9527, 9527, 9527, 9527, 9527, 9527           |Isla Socorro, MX (MISC)                                 |MISC Skewt          |  0
+ 9528     |   9528, 9528, 9528, 9528, 9528, 9528           |Veracruz, MX (MMVR)                                     |MMVR Skewt          |  0
+ 9530     |   9530, 9530, 9530, 9530, 9530, 9530           |Mexico City, MX (MMMX)                                  |MMMX Skewt          |  0
+ 9532     |   9532, 9532, 9532, 9532, 9532, 9532           |Manzanillo, MX (MMZO)                                   |MMZO Skewt          |  0
+ 9537     |   9537, 9537, 9537, 9537, 9537, 9537           |La Paz, MX (MLAP)                                       |MLAP Skewt          |  0
+ 9541     |   9541, 9541, 9541, 9541, 9541, 9541           |Phoenix, AZ (KPSR)                                      |KPSR Skewt          |  0
+ 9542     |   9542, 9542, 9542, 9542, 9542, 9542           |Empalme, MX (MMGM)                                      |MMGM Skewt          |  0
+ 9543     |   9543, 9543, 9543, 9543, 9543, 9543           |Guadalajara, MX (MMGL)                                  |MMGL Skewt          |  0
+ 9544     |   9544, 9544, 9544, 9544, 9544, 9544           |South Vandenberg AFB (74606)                             |74606 Skewt          |  0
+ 9545     |   9545, 9545, 9545, 9545, 9545, 9545           |Yuma (Marine), AZ (KYUM)                                |KYUM Skewt          |  0
+ 9546     |   9546, 9546, 9546, 9546, 9546, 9546           |Bermuda (TXKF)                                          |TXKF Skewt          |  0
+ 9547     |   9547, 9547, 9547, 9547, 9547, 9547           |Phillips AAF, Aberdeen, MD (KAPG)                       |KAPG Skewt          |  0
+ 9548     |   9548, 9548, 9548, 9548, 9548, 9548           |Funafuti (NGFU)                                         |NGFU Skewt          |  0
+ 9549     |   9549, 9549, 9549, 9549, 9549, 9549           |Cayenne, French Guiana (SOCA)                           |SOCA Skewt          |  0
+ 9550     |   9550, 9550, 9550, 9550, 9550, 9550           |Le Raiset, Guadeloupe (TFFR)                            |TFFR Skewt          |  0
+ 9551     |   9551, 9551, 9551, 9551, 9551, 9551           |Dakar, Senegal (GOOY)                                   |GOOY Skewt          |  0
+ 9552     |   9552, 9552, 9552, 9552, 9552, 9552           |Sal, Cape Verde (GVAC)                                  |GVAC Skewt          |  0
+ 9553     |   9553, 9553, 9553, 9553, 9553, 9553           |Riohacha, Colombia (SKRH)                               |SKRH Skewt          |  0
+ 9554     |   9554, 9554, 9554, 9554, 9554, 9554           |Albrook, Panama (MABK)                                  |MABK Skewt          |  0
+ 9555     |   9555, 9555, 9555, 9555, 9555, 9555           |Las Vegas, NV (KVEF)                                    |KVEF Skewt          |  0
+ 9556     |   9556, 9556, 9556, 9556, 9556, 9556           |Cancun, MX (76596)                                       |76596 Skewt          |  0
+ 9557     |   9557, 9557, 9557, 9557, 9557, 9557           |Villahermosa, MX (76743)                                 |76743 Skewt          |  0
+ 9558     |   9558, 9558, 9558, 9558, 9558, 9558           |Zacatecas, MX (76526)                                    |76526 Skewt          |  0

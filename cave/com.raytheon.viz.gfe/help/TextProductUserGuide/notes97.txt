@@ -1,0 +1,1 @@
+In general, the “moderatedMinMax” yields smaller reported ranges as illustrated here.

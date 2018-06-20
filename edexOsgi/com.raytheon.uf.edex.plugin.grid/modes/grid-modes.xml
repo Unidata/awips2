@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- Refer to edex/modes/README.txt for documentation --> 
+<edexModes>
+	<mode name="ingest">
+		<exclude>grib-decode.xml</exclude>
+		<exclude>grid-staticdata-process.xml</exclude>
+	</mode>
+	<mode name="ingestGrib">
+        	<include>time-common.xml</include>
+        	<include>auth-common.xml</include>
+        	<include>python-common.xml</include>
+        	<include>grib-decode.xml</include>
+        	<include>grid-staticdata-process.xml</include>
+        	<include>level-common.xml</include>
+        	<include>levelhandler-common.xml</include>        
+        	<include>grid-common.xml</include>
+        	<include>gridcoverage-common.xml</include>
+        	<include>parameter-common.xml</include>	 	
+        	<include>persist-ingest.xml</include>
+        	<include>management-common.xml</include>
+        	<include>database-common.xml</include>
+        	<include>event-ingest.xml</include>
+        	<includeMode>statsTemplate</includeMode>
+	</mode>
+</edexModes>

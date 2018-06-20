@@ -1,0 +1,22 @@
+#!/bin/bash
+# DR #5659 - Update database tables for ebxml query improved performance
+host=dx1
+echo "Running DB improvements against DB host: $host"
+echo "To edit host value.  edit this script."
+echo "Adding indexes to ebxml.value string value."
+psql -d metadata -U awips -h $host -c "CREATE INDEX stringvalue_index ON ebxml.value USING hash (stringvalue COLLATE pg_catalog."default") WHERE stringvalue IS NOT NULL;"
+echo "Adding indexes to ebxml.value float value."
+psql -d metadata -U awips -h $host -c "CREATE INDEX floatvalue_index ON ebxml.value USING btree (floatvalue) WHERE floatvalue IS NOT NULL;"
+echo "Adding indexes to ebxml.value integer value."
+psql -d metadata -U awips -h $host -c "CREATE INDEX integervalue_index ON ebxml.value USING btree (integervalue) WHERE integervalue IS NOT NULL;"
+echo "Adding indexes to ebxml.value duration value."
+psql -d metadata -U awips -h $host -c "CREATE INDEX durationvalue_index ON ebxml.value USING btree (durationvalue) WHERE durationvalue IS NOT NULL;"
+echo "Adding indexes to ebxml.value datetime value."
+psql -d metadata -U awips -h $host -c "CREATE INDEX datetimevalue_index ON ebxml.value USING btree (datetimevalue) WHERE datetimevalue IS NOT NULL;"
+echo "Adding indexes to ebxml.value any value."  
+psql -d metadata -U awips -h $host -c "CREATE INDEX anyvalue_index ON ebxml.value USING hash (anyvalue COLLATE pg_catalog."default") WHERE anyvalue IS NOT NULL;"
+echo "Adding indexes to ebxml.value boolean value."   
+psql -d metadata -U awips -h $host -c "CREATE INDEX booleanvalue_index ON ebxml.value USING btree (booleanvalue) WHERE booleanvalue IS NOT NULL;"
+echo "Adding indexes to ebxml.slot for name and value_id."   
+psql -d metadata -U awips -h $host -c "CREATE INDEX value_idx ON ebxml.slot USING btree (name COLLATE pg_catalog."default", value_id) WHERE name IS NOT NULL AND value_id is NOT NULL;"
+echo "Done with ebxml value indexes."

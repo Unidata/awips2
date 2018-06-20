@@ -1,0 +1,6 @@
+8:8:Total precipitation:mm:TP:PC
+19:19:Precipitation type:(Code table 4.201):PTYPE:SPT
+29:29:Total snowfall:m:TOTSN:S1HR
+42:42:Snow cover:%:SNOWC:SCP
+74:74:Total Column Integrate Graupel:kg/m^2:TCOLG
+242:242:Relative Humidity with Respect to Precipitable Water:%:RHPW

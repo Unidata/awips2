@@ -1,0 +1,23 @@
+<configuration debug="true" scan="true">
+   <!-- 
+      This is the default logging configuration file for all non-operational and
+      development EDEX modes. This file will not be present on an operational system. 
+      An instance specific logback configuration file will need to be created for 
+      any new operational EDEX modes. If an operational instance-specific logback 
+      configuration file is not created, everything will be logged for that EDEX 
+      instance when it is deployed operationally as though there was no logging 
+      configuration.
+   -->
+
+   <include file="${edex.home}/conf/logback-edex-properties.xml"/>
+   <include file="${edex.home}/conf/logback-edex-appenders.xml" />
+   
+   <include file="${edex.home}/conf/logback-edex-loggers.xml" />
+   <include file="${edex.home}/conf/logback-edex-hibernate-logger.xml" />
+   
+   <!-- default logging --> 
+   <root> 
+      <level value="INFO"/>
+      <appender-ref ref="asyncConsole"/>
+    </root> 
+</configuration>

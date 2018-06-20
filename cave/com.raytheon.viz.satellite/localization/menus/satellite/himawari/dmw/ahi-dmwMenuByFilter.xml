@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+    <!-- TOWRdocs Header
+        Himawari Derived Motion Winds (DMW) product menu file.
+    -->
+    <!-- TOWRdocs Description
+        This file adds a DMW menu item to the Himawari menu in AWIPS II CAVE. "subMenu" references the text
+        that will appear in the menu, while "fileName" references the file (in the localization hierarchy) that will
+        load when clicking the menu item. The "substitute" entities create key-value pairs. Referencing each key
+        inside subsequent files (i.e. "file" and any nested files underneath) will instead replace that entry with
+        the corresponding value e.g."&#36;{keyname}" = "value".
+    -->
+    <!-- TOWRdocs Status
+        This is a new file not in the AWIPS II Baseline.
+    -->
+    <!-- TOWRdocs POC
+        Matt Comerford
+    -->
+
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    
+    <!-- The menu title item -->
+    <contribute xsi:type="titleItem" titleText="------ Derived Motion Winds ------" />
+
+    <!-- By Filter -->
+    <contribute xsi:type="subinclude" subMenu="By Pressure" fileName="menus/satellite/himawari/dmw/ahi-dmwMenuByPressure.xml">
+        <substitute key="legend1" value="All Ch DMW" />
+        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
+        <substitute key="plugin" value="dmw" />
+        <substitute key="scene" value="Himawari" />
+    </contribute>
+
+    <!-- By Mandatory Channel -->
+    <contribute xsi:type="subinclude" subMenu="By Mandatory Levels" fileName="menus/satellite/himawari/dmw/ahi-dmwMenuByMandatoryLevels.xml">
+        <substitute key="legend1" value="All Ch DMW" />
+        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
+        <substitute key="plugin" value="dmw" />
+        <substitute key="scene" value="Himawari" />
+    </contribute>
+    
+    <!-- By Channel -->
+    <contribute xsi:type="subinclude" subMenu="By Channel" fileName="menus/satellite/himawari/dmw/ahi-dmwMenuByChannel.xml">
+        <substitute key="legend" value="DMW (Ch" />
+        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
+        <substitute key="plugin" value="dmw" />
+        <substitute key="scene" value="Himawari" />
+    </contribute>
+
+</menuTemplate>

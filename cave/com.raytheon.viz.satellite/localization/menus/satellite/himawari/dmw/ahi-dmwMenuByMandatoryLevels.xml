@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+   <!-- TOWRdocs Header
+        Himawari DMW sub-menu items file (sorted by Mandatory Winds pressure values)
+    -->
+    <!-- TOWRdocs Description
+        This file adds a DMW sub-menu item to the Himawari menu in AWIPS II CAVE. 
+
+            - "menuText" references the text that will appear in the menu. 
+            - "file" references the corresponding bundle (in the localization hierarchy) to load 
+                when selecting the menu item.
+            - "substitute" entities create key-value pairs. Referencing each key inside subsequent 
+                files (i.e. "file" and any nested files underneath) will instead replace that entry with
+                the corresponding value (e.g. "&#36;{keyname}" = "value").
+    -->
+    <!-- TOWRdocs Status
+        New File not currently in the baseline that allows the loading of subsequent sub-menu items.
+        The file is modeled after the existing GOES-R base menu file /menus/satellite/goesr/dmwByChannel.xml
+    -->
+    <!-- TOWRdocs POC
+        Matt Comerford
+    -->
+
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  
+    <!-- 150 mb -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/himawari/ahi-dmwBundleByPressure.xml" 
+           menuText="150mb (100-200mb)" id="ahi-DMW-ManWinds-150mb">
+        <substitute key="legend" value="150mb ${legend1}"/>
+        <substitute key="pressureConstraint" value="BETWEEN" />
+        <substitute key="pressure" value="100--200" />
+    </contribute>
+
+    <!-- 200 mb -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/himawari/ahi-dmwBundleByPressure.xml" 
+           menuText="200mb (150-250mb)" id="ahi-DMW-ManWinds-200mb">
+        <substitute key="legend" value="200mb ${legend1}"/>
+        <substitute key="pressureConstraint" value="BETWEEN" />
+        <substitute key="pressure" value="150--250" />
+    </contribute> 
+
+    <!-- 250 mb -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/himawari/ahi-dmwBundleByPressure.xml" 
+           menuText="250mb (200-300mb)" id="ahi-DMW-ManWinds-250mb">
+        <substitute key="legend" value="250mb ${legend1}"/>
+        <substitute key="pressureConstraint" value="BETWEEN" />
+        <substitute key="pressure" value="200--300" />
+    </contribute>
+
+    <!-- 300 mb -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/himawari/ahi-dmwBundleByPressure.xml" 
+           menuText="300mb (250-350mb)" id="ahi-DMW-ManWinds-300mb">
+        <substitute key="legend" value="300mb ${legend1}"/>
+        <substitute key="pressureConstraint" value="BETWEEN" />
+        <substitute key="pressure" value="250--350" />
+    </contribute>
+
+    <!-- 400 mb -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/himawari/ahi-dmwBundleByPressure.xml" 
+           menuText="400mb (350-450mb)" id="ahi-DMW-ManWinds-400mb">
+        <substitute key="legend" value="400mb ${legend1}"/>
+        <substitute key="pressureConstraint" value="BETWEEN" />
+        <substitute key="pressure" value="350--450" />
+    </contribute>
+
+    <!-- 500 mb -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/himawari/ahi-dmwBundleByPressure.xml" 
+           menuText="500mb (450-550mb)" id="ahi-DMW-ManWinds-500mb">
+        <substitute key="legend" value="500mb ${legend1}"/>
+        <substitute key="pressureConstraint" value="BETWEEN" />
+        <substitute key="pressure" value="450--550" />
+    </contribute>
+
+    <!-- 700 mb -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/himawari/ahi-dmwBundleByPressure.xml" 
+           menuText="700mb (650-750mb)" id="ahi-DMW-ManWinds-700mb">
+        <substitute key="legend" value="700mb ${legend1}"/>
+        <substitute key="pressureConstraint" value="BETWEEN" />
+        <substitute key="pressure" value="650--750" />
+    </contribute>
+
+    <!-- 850 mb -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/himawari/ahi-dmwBundleByPressure.xml" 
+           menuText="850mb (800-900mb)" id="ahi-DMW-ManWinds-850mb">
+        <substitute key="legend" value="850mb ${legend1}"/>
+        <substitute key="pressureConstraint" value="BETWEEN" />
+        <substitute key="pressure" value="800--900" />
+    </contribute>
+
+    <!-- 925 mb -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/himawari/ahi-dmwBundleByPressure.xml" 
+           menuText="925mb (875-975mb)" id="ahi-DMW-ManWinds-925mb">
+        <substitute key="legend" value="925mb ${legend1}"/>
+        <substitute key="pressureConstraint" value="BETWEEN" />
+        <substitute key="pressure" value="875--975" />
+    </contribute>
+
+    <!-- 1000 mb -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/himawari/ahi-dmwBundleByPressure.xml" 
+           menuText="1000mb (950-1050mb)" id="ahi-DMW-ManWinds-1000mb">
+        <substitute key="legend" value="1000mb ${legend1}"/>
+        <substitute key="pressureConstraint" value="BETWEEN" />
+        <substitute key="pressure" value="950--1050" />
+    </contribute>
+      
+</menuTemplate>

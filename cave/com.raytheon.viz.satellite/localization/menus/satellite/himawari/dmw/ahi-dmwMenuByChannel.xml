@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+
+    <!-- TOWRdocs Header
+        Himawari DMW sub-menu items file (sorted by channel number)
+    -->
+    <!-- TOWRdocs Description
+        This file adds a DMW sub-menu item to the Himawari menu in AWIPS II CAVE. 
+        The menu items defined by this file correspond to the DMW-producing channels of Himawari (3, 7, 8, 9, 10, and 14). 
+
+            - "menuText" references the text that will appear in the menu. 
+            - "file" references the corresponding bundle (in the localization hierarchy) to load 
+                when selecting the menu item.
+            - "substitute" entities create key-value pairs. Referencing each key inside subsequent 
+                files (i.e. "file" and any nested files underneath) will instead replace that entry with
+                the corresponding value (e.g. "&#36;{keyname}" = "value").
+    -->
+    <!-- TOWRdocs Status
+        New File not currently in the baseline that allows the loading of subsequent sub-menu items.
+        The file is modeled after the existing GOES-R base menu file /menus/satellite/goesr/dmwByChannel.xml
+    -->
+    <!-- TOWRdocs POC
+        Matt Comerford
+    -->
+
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <!-- Ch 03 -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/himawari/ahi-dmwBundleByChannel.xml" 
+           menuText="0.64μm Red Visible (Ch 03 - Daytime - 1000-700mb)" id="ahi-DMW-Channel-03">
+        <substitute key="channel" value="3"/>
+    </contribute>
+
+    <!-- Ch 07 -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/himawari/ahi-dmwBundleByChannel.xml" 
+           menuText="3.89μm Shortwave Window IR (Ch 07 - Nighttime - 1000-700mb)" id="ahi-DMW-Channel-07">
+        <substitute key="channel" value="7"/>
+    </contribute>
+    
+    <!-- Ch 08 -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/himawari/ahi-dmwBundleByChannel.xml" 
+           menuText="6.24μm Upper-level Water Vapor IR (Ch 08)" id="ahi-DMW-Channel-08">
+        <substitute key="channel" value="8"/>
+    </contribute>
+
+    <!-- Ch 09 -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/himawari/ahi-dmwBundleByChannel.xml" 
+           menuText="6.94μm Mid-level Water Vapor IR (Ch 09)" id="ahi-DMW-Channel-09">
+        <substitute key="channel" value="9"/>
+    </contribute>
+
+    <!-- Ch 10 -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/himawari/ahi-dmwBundleByChannel.xml" 
+           menuText="7.35μm Low-level Water Vapor IR (Ch 10)" id="ahi-DMW-Channel-10">
+        <substitute key="channel" value="10"/>
+    </contribute>
+
+    <!-- Ch 14 -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/himawari/ahi-dmwBundleByChannel.xml" 
+           menuText="11.24μm Legacy Window IR (Ch 14)" id="ahi-DMW-Channel-14">
+        <substitute key="channel" value="14"/>
+    </contribute>    
+
+</menuTemplate>

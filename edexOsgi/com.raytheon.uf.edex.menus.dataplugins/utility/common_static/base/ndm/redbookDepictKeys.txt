@@ -1,0 +1,131 @@
+ 5013 |33|5013| |0     |1 |Radar Summary           |Radar Summary    |1 |0 |1 |
+ 5014 |33|5014| |0     |1 |Radar Legends           |Radar Legends    |1 |0 |1 |
+ 5021 |33|5021| |0     |1 |Redbook graphic PDKI59  |PDKI59           |1 |0 |1 |
+ 5046 |33|5046| |0     |1 |Day 1 Excessive Rainfall|Day 1 Exssv Rain |1 |0 |1 |
+ 5047 |33|5200,5047,5049,5201,5202,5304,5305,5306,5307,5308,5309,5310,5311| |0|1 |Precip Fcst - 6hr accum |6h QPF           |1 |0 |1 |
+ 5050 |33|5050,5053,5293| |0|1 |Precip Fcst - 24hr accum|24h QPF               |1 |0 |1 |
+ 5048 |33|5048,5051,5052,5054| |0|1 |Instantaneous Precip    |Inst Precip      |1 |0 |1 |
+ 5055 |33|5055| |0     |1 |5 Day Total Precip      |5-day QPF        |1 |0 |1 |
+ 5439 |33|5439| |0     |1 |7 Day Total Precip      |7-day QPF        |1 |0 |1 |
+ 5056 |33|5056| |0     |1 |Daily Precipitation     |Obs Precip       |1 |0 |1 |
+ 5057 |33|5057| |0     |1 |Snow Cover Plot         |Snow Cover       |1 |0 |1 |
+ 5058 |33|5058| |0     |1 |Precip H20 Plot         |Precip H2O Plot  |1 |0 |1 |
+ 5059 |33|5059| |0     |1 |Precip H20 Analysis     |Precip H2O Anal  |1 |0 |1 |
+ 5062 |33|5062,5063| |0|1 |Wx Depiction Fcst       |Wx Depict Fcst   |1 |0 |1 |
+ 5064 |33|5064| |0     |1 |Wx Depiction plot       |Wx Depict Plot   |1 |0 |1 |
+ 5065 |33|5065| |0     |1 |Wx Depiction analysis   |Wx Depict Anal   |1 |0 |1 |
+ 5066 |33|5066| |0     |1 |Wx Depiction plot       |Wx Depict Plot   |1 |0 |1 |
+ 5069 |33|5069| |0     |1 |Day One Convectv Outlook|Conv Otlk Day1   |1 |0 |1 |
+ 5072 |33|5072| |0     |1 |Day Two Convectv Outlook|Conv Otlk Day2   |1 |0 |1 |
+ 5101 |33|5215,5101,5216| |0     |1 |UKMO 500 Height         |UKMO 500 Hgt     |1 |0 |1 |
+ 5102 |33|5102| |0     |1 |Redbook graphic PLQI51  |PLQI51           |1 |0 |1 |
+ 5104 |33|5104| |0     |1 |Redbook graphic PNWA68  |PNWA68           |1 |0 |1 |
+ 5107 |33|5107| |0     |1 |Redbook graphic POWA31  |POWA31           |1 |0 |1 |
+ 5108 |33|5108,5109,5110,5338,5339| |0     |1 |Fronts/Pressure         |Fronts/Pres |1 |0 |1 |
+ 5111 |33|5061,5111,5112,5113,5114| |0     |1 |Fronts/Pressure         |Fronts/Pres |1 |0 |1 |
+ 5204 |33|5204| |0     |1 |Sfc Frontal Analysis    |Sfc Fronts       |1 |0 |1 |
+ 5243 |33|5243| |0     |1 |Sfc Frontal Analysis    |NA Sfc Fronts    |1 |0 |1 |
+ 5115 |33|5115| |0     |1 |MSL Pressure Analysis   |MSLP Anal        |1 |0 |1 |
+ 5244 |33|5244| |0     |1 |MSL Pressure Analysis   |NA MSLP Anal     |1 |0 |1 |
+ 5118 |33|5227,5118,5288| |0     |1 |UKMO MSL Pressure       |UKMO MSLP        |1 |0 |1 |
+ 5134 |33|5134| |0     |1 |Surface-500mb RH Plot   |Sfc-500 RH plot  |1 |0 |1 |
+ 5136 |33|5136,5137| |0     |1 |Freezing Level Fcst     |Fzlvl Fcst  |1 |0 |1 |
+ 5138 |33|5138| |0     |1 |5-day Max Temp Anom     |5-day Max T Anom |1 |0 |1 |
+ 5139 |33|5139| |0     |1 |5-day Min Temp Anom     |5-day Min T Anom |1 |0 |1 |
+ 5140 |33|5140,5141| |0     |1 |Max/Min Temperatures    |Max/Min Temps    |1 |0 |1 |
+ 5141 |33|5141| |0     |1 |Min Temperatures        |Min Temps        |1 |0 |1 |
+ 5142 |33|5142| |0     |1 |Freezing Level Plot     |Fzlvl Plot       |1 |0 |1 |
+ 5145 |33|5145| |0     |1 |Freezing Level Analysis |Fzlvl Analysis   |1 |0 |1 |
+ 5146 |33|5146| |0     |1 |Redbook graphic PXVA01  |PXVA01           |1 |0 |1 |
+ 5147 |33|5147| |0     |1 |Lifted-K Index Plot     |LI/KI Plot       |1 |0 |1 |
+ 5154 |33|5154| |0     |1 |Sfc Geostrophic Wind    |Sfc Geo Wind     |1 |0 |1 |
+ 5155 |33|5155| |0     |1 |Sfc Geo Relative Vort   |Sfc Geo Vort     |1 |0 |1 |
+ 5159 |33|5159,5161,5162,5340,5341| |0     |1 |Max/Min/PoP Prog        |Max/Min/PoP Prog |1 |0 |1 |
+ 5160 |33|5160| |0     |1 |Redbook graphic PYWK62  |PYWK62           |1 |0 |1 |
+ 5163 |33|5163| |0     |1 |Redbook graphic PZKY51  |PZKY51           |1 |0 |1 |
+ 5164 |33|5164,5372| |0|1 |6-10, 8-14 Day Precip Anom|6-10,8-14 pcp anom|1 |0 |1 |
+ 5169 |33|5169,5373| |0|1 |6-10, 8-14 Day Temp Anom  |6-10,8-14 tmp anom|1 |0 |1 |
+ 5172 |33|5172| |0     |1 |6-10 Day Mean 500 Hgt   |6-10 500 hgt     |1 |0 |1 |
+ 5245 |33|5245,5246| |0     |1 |WATL wind/wave     |WATL wind/wave  |1 |0 |1 |
+ 5248 |33|5248,5249| |0     |1 |EPAC wind/wave     |EPAC wind/wave  |1 |0 |1 |
+# 5289 |33|5289| |0|1 |3-10 Day Threat Assess Precip     |Precip Threat        |1 |0 |1 |
+# 5290 |33|5290| |0|1 |3-10 Day Threat Assess Temp/Wind  |Temp/Wind Threat     |1 |0 |1 |
+# 5291 |33|5291| |0|1 |3-10 Day Threat Assess Soil/Wildfire|Soil/Wildfire Threat|1 |0 |1 |
+ 5432 |33|5432| |0|1 |3-7 Day Precip Hazards            |Precip Hazards       |1 |0 |1 |
+ 5433 |33|5433| |0|1 |8-14 Day Precip Hazards           |Precip Hazards       |1 |0 |1 |
+ 5434 |33|5434| |0|1 |3-7 Day Temp/Wind Hazards         |Temp/Wind Hazards    |1 |0 |1 |
+ 5435 |33|5435| |0|1 |8-14 Day Temp/Wind Hazards        |Temp/Wind Hazards    |1 |0 |1 |
+ 5436 |33|5436| |0|1 |3-7 Day Soil/Wildfire Hazards     |Soil/Wildfire Hazards |1 |0 |1 |
+ 5437 |33|5437| |0|1 |8-14 Day Soil/Wildfire Hazards    |Soil/Wildfire Hazards |1 |0 |1 |
+ 5381 |33|5381| |0|1 |Day 3 Heat Index Probabilities    |Day 3 Heat Index %   |1 |0 |1 |
+ 5386 |33|5386| |0|1 |Day 4 Heat Index Probabilities    |Day 4 Heat Index %   |1 |0 |1 |
+ 5387 |33|5387| |0|1 |Day 5 Heat Index Probabilities    |Day 5 Heat Index %   |1 |0 |1 |
+ 5382 |33|5382| |0|1 |Day 6 Heat Index Probabilities    |Day 6 Heat Index %   |1 |0 |1 |
+ 5388 |33|5388| |0|1 |Day 7 Heat Index Probabilities    |Day 7 Heat Index %   |1 |0 |1 |
+ 5298 |33|5298| |0|1 |6-10 Day Heat Index >=85F         |6-10Day Temp 85F     |1 |0 |1 |
+ 5299 |33|5299| |0|1 |6-10 Day Heat Index >=90F         |6-10Day Temp 90F     |1 |0 |1 |
+ 5300 |33|5300| |0|1 |6-10 Day Heat Index >=95F         |6-10Day Temp 95F     |1 |0 |1 |
+ 5301 |33|5301| |0|1 |8-14 Day Heat Index >=85F         |8-14Day Temp 85F     |1 |0 |1 |
+ 5302 |33|5302| |0|1 |8-14 Day Heat Index >=90F         |8-14Day Temp 90F     |1 |0 |1 |
+ 5303 |33|5303| |0|1 |8-14 Day Heat Index >=95F         |8-14Day Temp 95F     |1 |0 |1 |
+ 5383 |33|5383| |0|1 |6-10 Day Maximum Heat Index Outlook|6-10Day Max HI Outlk |1 |0 |1 |
+ 5247 |33|5247| |0|1 |8-14 Day Maximum Heat Index Outlook|8-14Day Max HI Outlk |1 |0 |1 |
+ 5312 |33|5312| |0|1 |Tropical Surface Analysis         |Trop Sfc Anal        |1 |0 |1 |
+ 5313 |33|5313| |0|1 |Atl 850MB Strmlines/Wind Anal     |Atl 850MB            |1 |0 |1 |
+ 5314 |33|5314| |0|1 |Atl 200MB Strmlines/Wind Anal     |Atl 200MB            |1 |0 |1 |
+ 5315 |33|5315| |0|1 |Atl Deep Layer Mean Circulation   |Atl Deep Layer       |1 |0 |1 |
+ 5316 |33|5316| |0|1 |Atl 850-200MB Winds/Shear Analy   |Atl 850-200MB        |1 |0 |1 |
+ 5317 |33|5317| |0|1 |Eastern Pacific Winds/Seas        |E Pac Winds/Seas     |1 |0 |1 |
+ 5318 |33|5318| |0|1 |Pac Deep Layer Mean Circulation   |Pac Deep Layer       |1 |0 |1 |
+ 5319 |33|5319| |0|1 |Pac 850-200MB Winds/Shear Analy   |Pac 850-200MB        |1 |0 |1 |
+ 5320 |33|5320,5321,5322,5323| |0|1 |Caribbean Wind/Seas|Carib Wind/Seas      |1 |0 |1 |
+ 5324 |33|5324| |0|1 |N Atlantic Surface Anal           |N Atl Sfc Anal       |1 |0 |1 |
+ 5325 |33|5325,5326| |0|1 |N Atlantic Sig Wave/Winds    |N Atl Sig Wave/Winds |1 |0 |1 |
+ 5327 |33|5327| |0|1 |W Atlantic Fronts/Press Fcst      |W Atl Fronts/Press   |1 |0 |1 |
+ 5328 |33|5328,5329| |0|1 |N Atl Fronts/Press/Winds     |N Atl Frnt/Pres/Winds|1 |0 |1 |
+ 5330 |33|5330| |0|1 |N Pacific Surface Anal            |N Pac Sfc Anal       |1 |0 |1 |
+ 5331 |33|5331,5332| |0|1 |N Pacific Sig Wave/Winds     |N Pac Sig Wave/Winds |1 |0 |1 |
+ 5333 |33|5333| |0|1 |E Pacific Fronts/Press Fcst       |E Pac Fronts/Press   |1 |0 |1 |
+ 5334 |33|5334,5335| |0|1 |N Pac Fronts/Press/Winds     |N Pac Frnt/Pres/Winds|1 |0 |1 |
+ 5336 |33|5336| |0|1 |24 Hour Marine Dense Fog          |24h Marine Dense Fog |1 |0 |1 |
+ 5337 |33|5337| |0|1 |24 Hour Marine Freezing Spray     |24h Marine Frz Spray |1 |0 |1 |
+ 5342 |33|5342| |0|1 |30 Day Precip Anomaly             |30 Day Precip Anom   |1 |0 |1 |
+ 5343 |33|5343,5344,5345,5346,5347,5348,5349,5350,5351,5352,5353,5354,5355| |0|1 |90 Day Seasonal Precip Outlook|90 Day Season Precip Outlk|1 |0 |1 |
+ 5404 |33|5404,5405,5406,5407,5408,5409,5410,5411,5412,5413,5414,5415,5416| |0|1 |50% POE Precip Outlook|50% POE Precip Outlk|1 |0 |1 |
+ 5356 |33|5356| |0|1 |30 Day Temp Anomaly               |30 Day Temp Anom     |1 |0 |1 |
+ 5357 |33|5357,5358,5359,5360,5361,5362,5363,5364,5365,5366,5367,5368,5369| |0|1 |90 Day Seasonal Temp Outlook|90 Day Season Temp Outlk|1 |0 |1 |
+ 5417 |33|5417,5418,5419,5420,5421,5422,5423,5424,5425,5426,5427,5428,5429| |0|1 |50% POE Temp Outlook|50% POE Temp Outlk|1 |0 |1 |
+ 5370 |33|5370| |0|1 |SPC Fire Weather Outlook - Day 1  |Day 1 Fire Wx Otlk   |1 |0 |1 |
+ 5371 |33|5371| |0|1 |SPC Fire Weather Outlook - Day 2  |Day 2 Fire Wx Otlk   |1 |0 |1 |
+ 5431 |33|5431| |0|1 |SPC Fire Weather Outlook - Day 3-8|Day 3-8 Fire Wx Outlk|1 |0 |1 |
+ 5374 |33|5374| |0|1 |8-14 day Mean 500 Height          |8-14 day Mean 500 ht |1 |0 |1 |
+ 5375 |33|5375| |0|1 |8-14 day Mean 500 Height Anom     |8-14 day 500 ht Anom |1 |0 |1 |
+ 5376 |33|5376| |0|1 |Day 1 Hail Outlook                |Day 1 Hail Outlook   |1 |0 |1 |
+ 5377 |33|5377| |0|1 |Day 1 Convective wind outlook     |Day 1 Wind Outlook   |1 |0 |1 |
+ 5378 |33|5378| |0|1 |Day 1 Tornado outlook             |Day 1 Tornado outlook|1 |0 |1 |
+ 5379 |33|5379| |0|1 |Day 2 Combined Severe Outlook     |Day 2 Combined severe|1 |0 |1 |
+ 5380 |33|5380| |0|1 |6-10 day 500 Hgt Anomaly          |6-10 day 500 Hgt Anom|1 |0 |1 |
+ 5384 |33|5384| |0|1 |Day 3 Combined Severe Outlook     |Day 3 Combined severe|1 |0 |1 |
+ 5385 |33|5385| |0|1 |Day 3 Convective Outlook          |Day 3 Convect Outlook|1 |0 |1 |
+# 5430 |33|5430| |0|1 |Day 4-8 Composite Severe Outlook  |Day 4-8 Comp Severe  |1 |0 |1 |
+ 5389 |33|5389| |0|1 |Sig River Flood Outlook           |Sig Riv Flood Outlook|1 |0 |1 |
+ 5390 |33|5390| |0|1 |Active Mesoscale Disc Summary     |Active Meso Disc Sum |1 |0 |1 |
+ 5438 |33|5438| |0|1 |Mesoscale Precipitation Discussion|Mesoscale Precip Disc|1 |0 |1 |
+ 5391 |33|5391                   | |0     |1 |Day 1 Prob 4+" Snow   |4+" snow prob |1 |0 |1 |
+ 5392 |33|5392                   | |0     |1 |Day 1 Prob 8+" Snow   |8+" snow prob |1 |0 |1 |
+ 5393 |33|5393                   | |0     |1 |Day 1 Prob 12+" Snow  |12+" snow prob|1 |0 |1 |
+ 5394 |33|5394                   | |0     |1 |Day 1 Prob .25+" Ice  |.25+" ice prob|1 |0 |1 |
+ 5395 |33|5395                   | |0     |1 |Day 2 Prob 4+" Snow   |4+" snow prob |1 |0 |1 |
+ 5396 |33|5396                   | |0     |1 |Day 2 Prob 8+" Snow   |8+" snow prob |1 |0 |1 |
+ 5397 |33|5397                   | |0     |1 |Day 2 Prob 12+" Snow  |12+" snow prob|1 |0 |1 |
+ 5398 |33|5398                   | |0     |1 |Day 2 Prob .25+" Ice  |.25+" ice     |1 |0 |1 |
+ 5399 |33|5399                   | |0     |1 |Day 3 Prob 4+" Snow   |4+" snow prob  |1 |0 |1 |
+ 5400 |33|5400                   | |0     |1 |Day 3 Prob 8+" Snow   |8+" snow  prob |1 |0 |1 |
+ 5401 |33|5401                   | |0     |1 |Day 3 Prob 12+" Snow  |12+" snow prob |1 |0 |1 |
+ 5402 |33|5402                   | |0     |1 |Day 3 Prob .25+" Ice  |.25+" ice prob |1 |0 |1 |
+ 5403 |33|5403                   | |0     |1 |3-Day Sig Winter Low Tracks  |Low tracks    |1 |0 |1 |
+ 5440 |33|5440                   | |0     |1 |Day 4 Severe Outlook  |Day 4 Convect Outlook|1 |0 |1 |
+ 5441 |33|5441                   | |0     |1 |Day 5 Severe Outlook  |Day 5 Convect Outlook|1 |0 |1 |
+ 5442 |33|5442                   | |0     |1 |Day 6 Severe Outlook  |Day 6 Convect Outlook|1 |0 |1 |
+ 5443 |33|5443                   | |0     |1 |Day 7 Severe Outlook  |Day 7 Convect Outlook|1 |0 |1 |
+ 5444 |33|5444                   | |0     |1 |Day 8 Severe Outlook  |Day 8 Convect Outlook|1 |0 |1 |

@@ -1,0 +1,6 @@
+ # Product Discipline 0: Meteorological products, Parameter Category 1: Moisture
+#192-254 Reserved for local use
+220:220:SnowRatio::SNOWRATIO
+242:242:Probability of Cloud Ice Present:%:PRBCLDICE
+243:243:Precipitation Potential Index (PPI):%:PPI
+255:255:Missing

@@ -1,0 +1,2 @@
+Recall that in the SmartElementTable, our row consists of weather element entries for multiple peirods.  For example, we list the Temperature for three consecutive periods.  The "getStatList" method returns a list of statistics dictionaries, one for each of a list of time ranges.  So we, again, provide the HistoSampler information, an edit area, and analysis list.  For this method, instead of one time range, we give it a list and it returns a list of statistics dictionaries, one for each time range.
+

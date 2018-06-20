@@ -1,0 +1,32 @@
+
+# Low res test domain for MFL
+# NOTE: This template is for testing only
+
+export SITEID="MXX"
+export REGIONID="SR"
+export NELAT="27.70"
+export NELON="-78.41"
+export SWLAT="24.10"
+export SWLON="-83.54"
+export RES="8.5"
+export TSTEP="3"
+
+# Specta points defined as space delimited list of:
+#
+#   "name1:lat:lon name2:lat:lon name3:lat:lon name4:lat:lon name5:lat:lon"
+#
+## export SPECPOINTS=""
+
+# Hanson plot locations defined as space delimited list of:
+#
+#   "name1:lat:lon name2:lat:lon name3:lat:lon name4:lat:lon name5:lat:lon"
+#
+## export HANSONPOINTS=""
+
+# Wave partitions defined as space delimited list of
+#
+# type:y (to enable) or type:n (to disable)
+#
+# Comment out line to disable patitioning
+#
+## export PATITIONS="SigHeight:y PeakPer:y MeanDir:y WaveLeng:y DirSpread:y WindseaFrac:y WaveSteep:y"

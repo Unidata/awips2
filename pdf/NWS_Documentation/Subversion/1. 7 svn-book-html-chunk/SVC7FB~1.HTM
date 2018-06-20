@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Distinction Between Status and Update</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.forcvs.html" title="Appendix B. Subversion for CVS Users" />
+    <link rel="prev" href="svn.forcvs.disconnected.html" title="More Disconnected Operations" />
+    <link rel="next" href="svn.forcvs.branches-and-tags.html" title="Branches and Tags" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">Distinction Between Status and Update</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.forcvs.disconnected.html">Prev</a> </td>
+          <th width="60%" align="center">Appendix B. Subversion for CVS Users</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.forcvs.branches-and-tags.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="sect1" title="Distinction Between Status and Update">
+      <div class="titlepage">
+        <div>
+          <div>
+            <h2 class="title" style="clear: both"><a id="svn.forcvs.status-vs-update"></a>Distinction Between Status and Update</h2>
+          </div>
+        </div>
+      </div>
+      <p>Subversion attempts to erase a lot of the confusion
+      between the <span class="command"><strong>cvs status</strong></span> and
+      <span class="command"><strong>cvs update</strong></span> commands.</p>
+      <p>The <span class="command"><strong>cvs status</strong></span> command has two purposes:
+      first, to show the user any local modifications in the working
+      copy, and second, to show the user which files are out of date.
+      Unfortunately, because of CVS's hard-to-read status output, many
+      CVS users don't take advantage of this command at all.  Instead,
+      they've developed a habit of running <strong class="userinput"><code>cvs
+      update</code></strong> or <strong class="userinput"><code>cvs -n update</code></strong> to quickly
+      see their changes.  If users forget to use
+      the <code class="option">-n</code> option, this has the side effect of
+      merging repository changes they may not be ready to deal
+      with.</p>
+      <p>Subversion removes this muddle by making the output of
+      <span class="command"><strong>svn status</strong></span> easy to read for both humans and
+      parsers.  Also, <span class="command"><strong>svn update</strong></span> prints only
+      information about files that are updated,
+      <span class="emphasis"><em>not</em></span> local modifications.</p>
+      <div class="sect2" title="Status">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.forcvs.status-vs-update.status"></a>Status</h3>
+            </div>
+          </div>
+        </div>
+        <p><span class="command"><strong>svn status</strong></span> prints all files that have
+        local modifications.  By default, the repository is not
+        contacted.  While this subcommand accepts a fair number of
+        options, the following are the most commonly used ones:</p>
+        <div class="variablelist">
+          <dl>
+            <dt>
+              <span class="term">
+                <code class="option">-u</code>
+              </span>
+            </dt>
+            <dd>
+              <p>Contact the repository to determine, and then display,
+              out-of-dateness information.</p>
+            </dd>
+            <dt>
+              <span class="term">
+                <code class="option">-v</code>
+              </span>
+            </dt>
+            <dd>
+              <p>Show <span class="emphasis"><em>all</em></span> entries under
+              version control.</p>
+            </dd>
+            <dt>
+              <span class="term">
+                <code class="option">-N</code>
+              </span>
+            </dt>
+            <dd>
+              <p>Run nonrecursively (do not descend into
+              subdirectories).</p>
+            </dd>
+          </dl>
+        </div>
+        <p>The <span class="command"><strong>svn status</strong></span> command has two output
+        formats.  In the default <span class="quote">“<span class="quote">short</span>”</span> format, local
+        modifications look like this:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn status
+M       foo.c
+M       bar/baz.c
+</pre>
+        </div>
+        <p>If you specify the <code class="option">--show-updates</code>
+        (<code class="option">-u</code>) option, a longer output format is
+        used:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn status -u
+M             1047   foo.c
+        *     1045   faces.html
+        *            bloo.png
+M             1050   bar/baz.c
+Status against revision:   1066
+</pre>
+        </div>
+        <p>In this case, two new columns appear.  The second column
+        contains an asterisk if the file or directory is out of date.
+        The third column shows the working copy's revision number of the
+        item.  In the previous example, the asterisk indicates that
+        <code class="filename">faces.html</code> would be patched if we updated,
+        and that <code class="filename">bloo.png</code> is a newly added file in
+        the repository.  (The absence of any revision number next to
+        <code class="filename">bloo.png</code> means that it doesn't yet exist in
+        the working copy.)</p>
+        <p>For a more detailed discussion of <span class="command"><strong>svn
+        status</strong></span>, including an explanation of the status codes
+        shown in the previous example, see
+        <a class="xref" href="svn.tour.cycle.html#svn.tour.cycle.examine.status" title="See an overview of your changes">the section called “See an overview of your changes”</a>.</p>
+      </div>
+      <div class="sect2" title="Update">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.forcvs.status-vs-update.update"></a>Update</h3>
+            </div>
+          </div>
+        </div>
+        <p><span class="command"><strong>svn update</strong></span> updates your working copy,
+        and prints only information about files that it updates.</p>
+        <p>Subversion has combined CVS's <code class="literal">P</code> and
+        <code class="literal">U</code> codes into just <code class="literal">U</code>.  When
+        a merge or conflict occurs, Subversion simply prints
+        <code class="literal">G</code> or <code class="literal">C</code>, rather than a
+        whole sentence about it.</p>
+        <p>For a more detailed discussion of <span class="command"><strong>svn
+        update</strong></span>, see <a class="xref" href="svn.tour.cycle.html#svn.tour.cycle.update" title="Update Your Working Copy">the section called “Update Your Working Copy”</a>.</p>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.forcvs.disconnected.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.forcvs.html">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.forcvs.branches-and-tags.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">More Disconnected Operations </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> Branches and Tags</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

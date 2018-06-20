@@ -1,0 +1,312 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+Package com.raytheon.messaging.mhs
+</head>
+<body>
+<p>
+Provides classes for creating and sending messages with the AWIPS Message 
+Handling System (MHS). The main class is {@link com.raytheon.messaging.mhs.MhsMessage}. To use, an 
+application must use the public methods to provide the application-specific 
+parameters required for the particular type of message being sent. Each message 
+must have an action code and at least one addressee. All other parameters are 
+optional. Once all parameters have been provided, the <code>send</code> method 
+is used to submit the message to MHS for validation and transmission.</p>
+<p>
+Message information is passed to the MHS system via a well-known socket 
+interface.  The host name for the MHS system is determined by the environment 
+variable <code>CO_MQR_SERVER_HOST</code>.  If this variable is not set, the 
+local host is used.  The well-known socket is configured in the /etc/services 
+file (see services (4)) via the msgreq_svr service entry.</p>
+<p>
+<h4>Message Parameters</h4>
+The table below describes all of the message parameters that can be set using
+methods in  the <code>MhsMessage</code> class.
+<br/>
+</p>
+<table cellpadding="2" cellspacing="0" border="2" valign="top" frame="border">
+<tr>
+<th width="10%" align="left" valign="top">Name</td>
+<th width="70%" align="justify" valign="top">Description</td>
+<th width="10%" align="left" valign="top">Method</td>
+<th width="10%" align="center" valign="top">Default</td>
+</tr>
+<tr>
+<td align="left" valign="top">Code</td>
+<td align="left" valign="top">Specify the code (or class) that is matched against message receive table entries to 
+determine the appropriate handling routine at the receiving site.</td>
+<td align="left" valign="top">setActionCode</td>
+<td align="center" valign="top">0</td>
+</tr>
+<tr>
+<td align="left" valign="top">Subject</td>
+<td align="left" valign="top">Specify the subject of the message. The subject is a String of up to 129 ASCII characters.</td>
+<td align="left" valign="top">setSubject</td>
+<td align="center" valign="top">(none)</td>
+</tr>
+<tr>
+<td align="left" valign="top">Addressees</td>
+<td align="left" valign="top">Specify all recipients of the message using one of two methods. The only difference between 
+them is that <code>addAckAddressee</code> will request an acknowledgment from the specified recipient. Multiple recipients must be 
+specified with multiple calls to the appropriate method. See the Message Addressing section below.</td>
+<td align="left" valign="top">addAddressee addAckAddressee</td>
+<td align="center" valign="top">(none)</td>
+</tr>
+<tr>
+<td align="left" valign="top">Priority</td>
+<td align="left" valign="top">Specify the priority of the message using an enum from the <code>MhsMessagePriority</code> class. 
+Supported values are:
+<ul>
+<li>Default</li>
+<li>Medium</li>
+<li>High</li>
+</ul>
+</td>
+<td align="left" valign="top">setPriority</td>
+<td align="center" valign="top">Default</td>
+</tr>
+<tr>
+<td align="left" valign="top">Type</td>
+<td align="left" valign="top">Specify the type of the message using an enum from the <code>MhsMessageType</code> class. 
+Supported Message Types are:
+<ul>
+<li>Routine</li>
+<li>Request</li>
+<li>Acknowledgment</li>
+<li>Reply</li>
+<li>Supplement</li>
+<li>Amendment</li>
+<li>Correction</li>
+<li>Status</li>
+<li>Test</li>
+<li>Timing</li>
+<li>Command</li>
+<li>Inhibit</li>
+<li>Clear</li>
+<li>Warning Received</li>
+<li>Special</li>
+<li>Administrative</li>
+<li>Routine Transmission Delayed</li>
+<li>File Transfer</li>
+<li>Retransmit Request</li>
+<li>Retransmit Reply</li>
+<li>NACK</li>
+</ul>
+</td>
+<td align="left" valign="top">setType</td>
+<td align="center" valign="top">Routine</td>
+</tr>
+<tr>
+<td align="left" valign="top">Enclosures</td>
+<td align="left" valign="top">Specify the fully-qualified file name for each enclosure. Each MHS message can contain an 
+arbitrary number of enclosures, or none at all. A separate call to the <code>addEnclosure</code> method is required for each enclosure.
+Absolute paths must be provided.</td>
+<td align="left" valign="top">addEnclosure</td>
+<td align="center" valign="top">(none)</td>
+</tr>
+<tr>
+<td align="left" valign="top">Body File</td>
+<td align="left" valign="top">Specify the full-qualified file name for the body of the message. The path to the file must be absolute. 
+The file must be readable by the caller.  The file may not contain any non-text characters, where text characters are defined as the 
+set of all printable and space characters excluding the '$' character.  See isprint(3C) and isspace(3C).</td>
+<td align="left" valign="top">setBodyFile</td>
+<td align="center" valign="top">(none)</td>
+</tr>
+<tr>
+<td align="left" valign="top">Product ID</td>
+<td align="left" valign="top">Specify the product ID of the product enclosed in the message. The product ID is used for default addressing. 
+If a product ID is not supplied, the first enclosure is scanned for a WMO header. See the default addressing section below.</td>
+<td align="left" valign="top">setProducId</td>
+<td align="center" valign="top">(none)</td>
+</tr>
+<tr>
+<td align="left" valign="top">Discard Time</td>
+<td align="left" valign="top">Specify the valid time for the product. The valid time is the time after which the product may be discarded 
+by the MHS if it has not yet been delivered. There are two overloaded methods: one for absolute time and one for relative time.</td>
+<td align="left" valign="top">setValidTime</td>
+<td align="center" valign="top">(none)</td>
+</tr>
+<tr>
+<td align="left" valign="top">Time-out Time</td>
+<td align="left" valign="top">Specify the time-out time for the message. The time-out time is the time when the MHS gives up on a message.
+If an acknowledgment was requested for the message and it has not been received by the time-out time, a NACK message is generated by the MHS.
+The time-out time is also the time after which no more retries will be attempted. There are two overloaded methods: one for absolute time and 
+one for relative time.</td>
+<td align="left" valign="top">setTimeoutTime</td>
+<td align="center" valign="top">none</td>
+</tr>
+<tr>
+<td align="left" valign="top">Retry Count</td>
+<td align="left" valign="top">Specify the number of retries. If a NACK message is returned for the message and the time-out time has not 
+been reached, the NACK message is absorbed by the MHS and the message is retried up to this number of times.</td>
+<td align="left" valign="top">setRetryCount</td>
+<td align="center" valign="top">0</td>
+</tr>
+<tr>
+<td align="left" valign="top">User ID</td>
+<td align="left" valign="top">Registers a mailbox user ID for addressees. This is used only when changing the gateway and it applies to 
+all message addressees. The user ID should not be changed unless is a really good reason for doing so. Calling this method with an empty 
+string ("") will remove a previously set user Id.</td>
+<td align="left" valign="top">setUserId</td>
+<td align="center" valign="top">awipsmhs</td>
+</tr>
+</table>
+<p>
+Two additional boolean parameters can be set by directly modifying the public fields:
+<dl>
+	<dt>showTrace</dt><dd>When set, detailed debugging information will be written to standard output for this message only.</dd>
+	<dt>verifyAddressees</dt><dd>When the message is submitted, the addressee list will be checked without actually sending the message.  
+	The DEFAULT addressee is expanded based on the product ID and all distribution lists are expanded.  The processed addressee list 
+	is returned by the send method.</dd>
+</dl>
+ 
+</p>
+<h4>Message Addressing</h4>
+<p>
+Recipients of messages are sites.  The name of the site is the same as the name 
+of the MTA, which is also the same as the three or four letter site identifier. 
+For example, to send a message to the Pittsburgh site, the addressee is set to 
+<code>"PBZ"</code>.  The MHS is case insensitive with respect to addressees, <code>"pbz"</code> is 
+equivalent to <code>"PBZ"</code> and <code>"Pbz"</code>.</p>
+<p>
+Additional addressees may be supplied.  If an addressee is duplicated, only one 
+copy of the message is sent to the duplicated site.  The product identifier of 
+the enclosed product determines the default addressee list.</p>
+<h4>Special Adresses</h4>
+<p>The following addresses will result in special processing at the NCF.</p>
+
+<table cellpadding="2" cellspacing="0" border="2" valign="top" frame="border">
+<tr><td>DEFAULTNCF</td><td>Product will be routed to the currently active NCF
+facility and will be disseminated to various interfaces determined by address 
+expansion using the product ID. For instance, WWAs are disseminated via MHS to 
+all WFOs and RFC, Weather Wire, NWSTG, and over the SBN. Configuration file 
+is <code>default_addr.data</code>. This is usually the address used by sites when they wish 
+to have this message disseminated widely.</td></tr>
+<tr><td>DEFAULT</td><td>Defers message addressing to the site-configurable 
+default.</td></tr>
+<tr><td>SBN</td><td>Product will be sent to the SBN over the NMC channel.
+Radar products will be compressed prior to uplinking. Configuration file
+is <code>dfltaddr.sbn_dist</code>.</td></tr>
+<tr><td>NWSTG</td><td>Product will be sent to the NWSTG over an interface
+determined by WMO header. Configuration file is <code>dfltaddr.nwstg_dist</code>.</td></tr>
+<tr><td>NWWS</td><td>Product will be disseminated over the Weather Wire Service. 
+Configuration file is <code>dfltaddr.nwws_dist</code>.</td></tr>
+<tr><td>ALLNCF</td><td>Product will be disseminated to all WFOs and RFCs via
+MHS from the NCF. Configuration file is all_sites.data.</td></tr>
+<tr><td>INET</td><td>Product will be sent to the Radar interface at the NWSTG.
+Configuration file is <code>dfltaddr.inet_dist</code>.</td></tr>
+<tr><td>NDFD</td><td>Product will be sent to the National Digital Forecast Database
+interface. Configuration file is <code>dfltaddr.ndfd_dist</code>.</td></tr>
+<tr><td>RETRANS</td><td>This is a retransmission request message that will be
+sent to one of the SBN uplink servers at the NCF.</td></tr>
+<tr><td>ARCHIVE</td><td>This is a request to retrieve an archived text product
+from the NCF archive server.</td></tr>
+</table> 
+<p>
+Default addressing assumes that the product identifier is the WMO header. 
+However, other headers such as the PIL or GRIB may be included in place of or 
+in addition to the WMO header.  If the product identifier is not specified via 
+the <code>setProductId</code> method, the product is scanned for a WMO Header. 
+Therefore, if headers other than the WMO headers are used for default addressing, 
+the product identifier must be specified via the <code>setProductId</code> option. </p>
+<p>
+The Default Address Table Configuration File <code>/awips/ops/data/mhs/default_addr.data</code> 
+specifies the default address list for a product identifier.  Wildcard characters 
+such as <code>'*'</code> and <code>'?'</code> are permitted in the product 
+identifier column. The table is searched linearly and in the case of overlapping 
+match sets, the first match is used.  If match sets do overlap, the more exact 
+product identifier match strings should be listed ahead of more general product 
+identifier match strings, else the more general product identifier will always 
+be used.  The Default Address Table Configuration File must contain the identifier 
+string <code>"DEFAULT_ADDRESS_LISTS"</code> on its own line, followed by default 
+address entries.  The format of the default address entries is 
+<code>&lt;prodID&gt;|&lt;site1&gt;,&lt;site2&gt;,...&lt;siteN&gt;</code>. An 
+example of a default address configuration file is shown below.</p>
+
+<pre>
+DEFAULT_ADDRESS_LISTS
+
+NOUS42 *|TUA,TSA,OUN,AMA,DDC,ICT
+NOUS43 *|TUA,TSA,OUN,AMA,DDC,ICT
+NOUS45 *|TSA,OUN,AMA,DDC,ICT
+NOUS*|TUA
+</pre>
+<p>
+In the example, products with a WMO beginning with <code>"NOUS42"</code> or 
+<code>"NOUS43"</code> are sent to sites TUA, TSA, OUN, AMA, DDC, and ICT. 
+Products with a WMO beginning with <code>"NOUS45"</code> are sent to sites 
+TSA, OUN, AMA, DDC, and ICT.  Products with a WMO beginning with <code>"NOUS"</code> 
+but not <code>"NOUS42"</code> nor <code>"NOUS43"</code> are sent to the TUA.</p>
+<p>
+Distribution lists may be used to send messages to a set of designated sites. 
+As with the default address, additional addressees may be supplied.  If an 
+addressee is duplicated, only one copy of the message is sent to the duplicated 
+site.</p>
+<p>
+Distribution list entries may be added to the Default Address Table Configuration 
+File following the identifier string <code>"DISTRIBUTION_LISTS"</code>.  Note 
+that the identifier strings are used to determine all entries that follow up to 
+the next identifier strings.  Therefore distribution lists and default address 
+lists could be intermingled in the Default Address Table Configuration File, so 
+long as each type of entry followed the proper identifier string.  However, to 
+keep things organized, it is suggested that the default address entries and 
+distribution lists be listed in separate groupings as in the following example.</p>
+
+<pre>
+DEFAULT_ADDRESS_LISTS
+
+NOUS42 *|RFC,NWFOS
+NOUS43 *|RFC,NWSFOS
+NOUS45 *|NWFOS
+NOUS*|RFC
+
+DISTRIBUTION_LISTS
+
+NWFOS|TSA,OUN,AMA,DDC,ICT
+RFC|TUA
+</pre>
+
+<h4>Return Values</h4>
+<p>
+Upon successful message creation and submission, the <code>send</code> method 
+returns the unique message ID. The message ID is also available by calling the
+<code>getMessageId</code> method.  The format of the message ID is 
+<code>&lt;sitename&gt;-&lt;sequence#&gt;</code>.  This message ID can be used to 
+correlate acknowledgment with their original messages.</p>
+<p>
+If the <code>MhsMessage</code> object's public field <code>verifyAddressees</code>
+is set to <code>true</code> then the specified addressees will be validated, but
+no message will be sent. A string containing a comma-separated list of addressees
+will be returned.</p> 
+<p>
+If the message creation or submission fails, an <code>MhsSubmitException</code> 
+exception will be thrown. The <code>String</code> containing the reason for the 
+failure can be displayed by call the <code>toString</code> method. Exceptions
+will be thrown for any of the following reasons:</p> 
+
+<ul>
+<li>Invalid message type</li>
+<li>Message creation failure</li>
+<li>Invalid addressee</li>
+<li>Invalid enclosure</li>
+<li>Invalid subject</li>
+<li>Invalid priority</li>
+<li>Invalid message body</li>
+<li>Message submission failure (client/server request error)</li>
+<li>Message ID failure (client/server reply error)</li>
+<li>Invalid message valid time</li>
+<li>Invalid message code</li>
+<li>Invalid product ID</li>
+<li>Invalid retry count</li>
+<li>Invalid time-out time</li>
+<li>Invalid user ID</li>
+<li>JNI runtime error</li> 
+</ul>
+
+<p>
+<h4>Requirements</h4>
+NCF-COMMS OB9.2 or later must be installed and configured. The AWIPS
+operating environment must also be properly configured for MHS.
+</p>
+</body>
+</html>

@@ -1,0 +1,27 @@
+submenu: "Marine Guidance"
+ productButton: 5312 # PYNA98 Tropical Sfc Analysis
+ productButton: 5336 # PGNE88 Dense Fog Fcst
+ productButton: 5337 # PGNE98 Freezing Spray Fcst
+ title: "West Atlantic"
+ productButton: 5313 # PWAA85 Atl 850MB Wind Anal
+ productButton: 5314 # PWAA20 Atl 200MB Wind Anal
+ productButton: 5315 # PWAA00 Atl Deep Layer Mean Cir
+ productButton: 5316 # PWAA65 Atl Winds/Shear Anal
+ productButton: 5245 # PWIA98,PWIE98 Wind/Wave
+ productButton: 5327 # PPAE89 Fronts/Press Fcst
+ productButton: 5320 # PWE* Caribbean Wind/Seas Fcst
+ title: "North Atlantic"
+ productButton: 5324 # PYAA89 Surface Analysis
+ productButton: 5328 # PPAI89,PPAM89 Fronts/Press/Winds Fcst
+ productButton: 5325 # PJAA88,PJAI88 Sig/Wind/Wave
+ title: "East Pacific"
+ productButton: 5317 # PWBA88 Eastern Pac Wind/Seas
+ productButton: 5318 # PWDA00 Pac Deep Layer Mean Cir
+ productButton: 5319 # PWDA65 Pac Winds/Shear Anal
+ productButton: 5248 # PWIA97,PWIE97 Wind/Wave
+ productButton: 5333 # PPBE89 Fronts/Press Fcst
+ title: "North Pacific"
+ productButton: 5330 # PYBA89 Surface Analysis
+ productButton: 5334 # PPBI89,PPBM89 Fronts/Press/Winds Fcst
+ productButton: 5331 # PJBA88,PJBI88 Sig/Wind/Wave
+endSubmenu

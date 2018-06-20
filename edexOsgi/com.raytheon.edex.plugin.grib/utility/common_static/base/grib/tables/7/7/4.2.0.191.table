@@ -1,0 +1,10 @@
+# Product Discipline 0: Meteorological products, Parameter Category 191: Miscellaneous
+# 192-254 Reserved for local use
+192:192:Latitude (-90 to +90):degrees:NLAT
+193:193:East Longitude (0 - 360):degrees:ELON
+194:194:Seconds prior to initial reference time:s:TSEC
+195:195:Model Layer number (From bottom up)::MLYNO
+196:196:Latitude (nearest neighbor) (-90 to +90):degrees:NLATN
+197:197:East Longitude (nearest neighbor) (0 - 360):degrees:ELONN
+255:255:Missing
+

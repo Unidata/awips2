@@ -1,0 +1,10 @@
+include("SatelliteRequest.js");
+var dataRequest = new SatelliteRequest();
+dataRequest.requestImage(1);
+dataRequest.setCount(%COUNT%);
+dataRequest.setColormap("Grid/Gridded Data");
+dataRequest.reprojectImage(0);
+dataRequest.addParameter("physicalElement", "%ELEMENT%");
+dataRequest.addParameter("sectorID", "%SECTOR%");
+dataRequest.setFormat("png");
+dataRequest.execute();

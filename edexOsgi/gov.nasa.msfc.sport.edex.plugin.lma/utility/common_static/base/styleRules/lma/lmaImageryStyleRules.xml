@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<styleRuleset>
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>lmasd</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+		<colorbarLabeling>
+                <values>50.0 100.0 150.0 200.0</values>
+        </colorbarLabeling>
+			<defaultColormap>LMA/LMA_default</defaultColormap>
+			<range scale="LINEAR">
+				<minValue>0.0</minValue>
+				<maxValue>500.0</maxValue>
+			</range>
+		</imageStyle>
+	</styleRule>
+	
+	
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>lmafed</parameter>
+			<parameter>lmafid</parameter>
+			<parameter>lmamfd</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+		<colorbarLabeling>
+                <values>10.0 20.0 30.0</values>
+        </colorbarLabeling>
+			<defaultColormap>LMA/LMA_default</defaultColormap>
+			<range scale="LINEAR">
+				<minValue>0.0</minValue>
+				<maxValue>110.0</maxValue>
+			</range>
+		</imageStyle>
+	</styleRule>
+	
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>lmaroc</parameter>
+			<creatingEntity>NALMA</creatingEntity>
+		</paramLevelMatches>
+		<imageStyle>
+		<colorbarLabeling>
+                <values>-1.0 0.0 1.0</values>
+        </colorbarLabeling>
+			<defaultColormap>LMA/LMA_default</defaultColormap>
+			<range scale="LINEAR">
+				<minValue>-3.0</minValue>
+				<maxValue>3.0</maxValue>
+			</range>
+		</imageStyle>
+	</styleRule>
+	<styleRule>
+        <paramLevelMatches>
+            <parameter>lmasum</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+        <colorbarLabeling>
+                <values>50.0 100.0 150.0 200.0</values>
+        </colorbarLabeling>
+            <defaultColormap>LMA/LMA_default</defaultColormap>
+            <range scale="LINEAR">
+                <minValue>0.0</minValue>
+                <maxValue>400.0</maxValue>
+            </range>
+        </imageStyle>
+    </styleRule>
+	
+	
+</styleRuleset>

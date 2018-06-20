@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bufrssmi Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.bufrssmi
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: com.raytheon.uf.common.dataplugin.bufrssmi
+Require-Bundle: com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.pointdata,
+ javax.persistence,
+ javax.measure,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.dataplugin
+Import-Package: com.raytheon.uf.common.dataplugin.bufrssmi,
+ com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.common.status

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<bundle xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
+	<displayList>
+		<displays xsi:type="d2DMapRenderableDisplay"
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			<descriptor xsi:type="mapDescriptor">
+				<resource>
+					<loadProperties loadWithoutData="true">
+						<capabilities>
+							<capability xsi:type="colorableCapability"
+								colorAsString="white" />
+						</capabilities>
+					</loadProperties>
+					<resourceData xsi:type="trueColorResourceGroupData">
+						<groupName>${productName}</groupName>
+						<channelResource channelName="${redElement}">
+							<channel>RED</channel>
+							<resourceData xsi:type="satResourceData">
+								<metadataMap>
+									<mapping key="creatingEntity">
+										<constraint constraintValue="${entity}" constraintType="LIKE" />
+									</mapping>
+									<mapping key="physicalElement">
+										<constraint constraintValue="${redElement}" constraintType="EQUALS" />
+									</mapping>
+									<mapping key="sectorID">
+										<constraint constraintValue="${sector}" constraintType="EQUALS" />
+									</mapping>
+									<mapping key="pluginName">
+										<constraint constraintValue="satellite" constraintType="EQUALS" />
+									</mapping>
+								</metadataMap>
+							</resourceData>
+						</channelResource>
+						<channelResource channelName="${greenElement}">
+							<channel>GREEN</channel>
+							<resourceData xsi:type="satResourceData">
+								<metadataMap>
+									<mapping key="creatingEntity">
+										<constraint constraintValue="${entity}" constraintType="LIKE" />
+									</mapping>
+									<mapping key="physicalElement">
+										<constraint constraintValue="${greenElement}" constraintType="EQUALS" />
+									</mapping>
+									<mapping key="sectorID">
+										<constraint constraintValue="${sector}" constraintType="EQUALS" />
+									</mapping>
+									<mapping key="pluginName">
+										<constraint constraintValue="satellite" constraintType="EQUALS" />
+									</mapping>
+								</metadataMap>
+							</resourceData>
+						</channelResource>
+						<channelResource channelName="${blueElement}">
+							<channel>BLUE</channel>
+							<resourceData xsi:type="satResourceData">
+								<metadataMap>
+									<mapping key="creatingEntity">
+										<constraint constraintValue="${entity}" constraintType="LIKE" />
+									</mapping>
+									<mapping key="physicalElement">
+										<constraint constraintValue="${blueElement}" constraintType="EQUALS" />
+									</mapping>
+									<mapping key="sectorID">
+										<constraint constraintValue="${sector}" constraintType="EQUALS" />
+									</mapping>
+									<mapping key="pluginName">
+										<constraint constraintValue="satellite" constraintType="EQUALS" />
+									</mapping>
+								</metadataMap>
+							</resourceData>
+						</channelResource>
+					</resourceData>
+				</resource>
+			</descriptor>
+		</displays>
+	</displayList>
+</bundle>

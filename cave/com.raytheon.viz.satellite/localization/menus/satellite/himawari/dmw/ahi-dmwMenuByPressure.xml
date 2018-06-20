@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+
+    <!-- TOWRdocs Header
+        Himawari DMW sub-menu items file (sorted by pressure values).
+    -->
+    <!-- TOWRdocs Description
+        This file adds a DMW sub-menu item to the Himawari menu in AWIPS II CAVE. 
+
+            - "menuText" references the text that will appear in the menu. 
+            - "file" references the corresponding bundle (in the localization hierarchy) to load 
+                when selecting the menu item.
+            - "substitute" entities create key-value pairs. Referencing each key inside subsequent 
+                files (i.e. "file" and any nested files underneath) will instead replace that entry with
+                the corresponding value (e.g. "&#36;{keyname}" = "value").
+    -->
+    <!-- TOWRdocs Status
+        New File not currently in the baseline that allows the loading of subsequent sub-menu items.
+        The file is modeled after the existing GOES-R base menu file /menus/satellite/goesr/dmwByChannel.xml
+    -->
+    <!-- TOWRdocs POC
+        Matt Comerford
+    -->
+
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <!-- 100 mb -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/himawari/ahi-dmwBundleByPressure.xml" 
+           menuText="100mb (0-150mb)" id="ahi-DMW-Pressure-100mb">
+        <substitute key="legend" value="100mb ${legend1}"/>
+        <!-- Constraint type placed on the "filter" query -->
+        <substitute key="pressureConstraint" value="BETWEEN" />
+        <!-- Constraint value placed on the "filter" query -->
+        <substitute key="pressure" value="0--150" />
+    </contribute>
+
+    <!-- 200 mb -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/himawari/ahi-dmwBundleByPressure.xml" 
+           menuText="200mb (150-250mb)" id="ahi-DMW-Pressure-200mb">
+        <substitute key="legend" value="200mb ${legend1}"/>
+        <substitute key="pressureConstraint" value="BETWEEN" />
+        <substitute key="pressure" value="150--250" />
+    </contribute>  
+
+    <!-- 300 mb -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/himawari/ahi-dmwBundleByPressure.xml" 
+           menuText="300mb (250-350mb)" id="ahi-DMW-Pressure-300mb">
+        <substitute key="legend" value="300mb ${legend1}"/>
+        <substitute key="pressureConstraint" value="BETWEEN" />
+        <substitute key="pressure" value="250--350" />
+    </contribute>
+
+    <!-- 400 mb -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/himawari/ahi-dmwBundleByPressure.xml" 
+           menuText="400mb (350-450mb)" id="ahi-DMW-Pressure-400mb">
+        <substitute key="legend" value="400mb ${legend1}"/>
+        <substitute key="pressureConstraint" value="BETWEEN" />
+        <substitute key="pressure" value="350--450" />
+    </contribute>
+
+    <!-- 500 mb -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/himawari/ahi-dmwBundleByPressure.xml" 
+           menuText="500mb (450-550mb)" id="ahi-DMW-Pressure-500mb">
+        <substitute key="legend" value="500mb ${legend1}"/>
+        <substitute key="pressureConstraint" value="BETWEEN" />
+        <substitute key="pressure" value="450--550" />
+    </contribute>
+
+    <!-- 600 mb -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/himawari/ahi-dmwBundleByPressure.xml" 
+           menuText="600mb (550-650mb)" id="ahi-DMW-Pressure-600mb">
+        <substitute key="legend" value="600mb ${legend1}"/>
+        <substitute key="pressureConstraint" value="BETWEEN" />
+        <substitute key="pressure" value="550--650" />
+    </contribute>
+
+    <!-- 700 mb -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/himawari/ahi-dmwBundleByPressure.xml" 
+           menuText="700mb (650-750mb)" id="ahi-DMW-Pressure-700mb">
+        <substitute key="legend" value="700mb ${legend1}"/>
+        <substitute key="pressureConstraint" value="BETWEEN" />
+        <substitute key="pressure" value="650--750" />
+    </contribute>
+
+    <!-- 800 mb -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/himawari/ahi-dmwBundleByPressure.xml" 
+           menuText="800mb (750-850mb)" id="ahi-DMW-Pressure-800mb">
+        <substitute key="legend" value="800mb ${legend1}"/>
+        <substitute key="pressureConstraint" value="BETWEEN" />
+        <substitute key="pressure" value="750--850" />
+    </contribute>
+
+    <!-- 900 mb -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/himawari/ahi-dmwBundleByPressure.xml" 
+           menuText="900mb (850-950mb)" id="ahi-DMW-Pressure-900mb">
+        <substitute key="legend" value="900mb ${legend1}"/>
+        <substitute key="pressureConstraint" value="BETWEEN" />
+        <substitute key="pressure" value="850--950" />
+    </contribute>
+
+    <!-- 1000 mb -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/himawari/ahi-dmwBundleByPressure.xml" 
+           menuText="1000mb (>950mb)" id="ahi-DMW-Pressure-1000mb">
+        <substitute key="legend" value="1000mb ${legend1}"/>
+        <substitute key="pressureConstraint" value="GREATER_THAN" />
+        <substitute key="pressure" value="950" />
+    </contribute>
+    
+</menuTemplate>

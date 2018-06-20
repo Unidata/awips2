@@ -1,0 +1,6 @@
+0 * * * * /awips2/ldm/bin/ldmadmin scour >> /awips2/ldm/logs/scour.log 2>&1
+# rotate logs
+0 17 * * * /awips2/ldm/bin/ldmadmin newlog
+# nex2gini for daa and dta (lower case)
+#0,5,10,15,17,20,25,30,35,40,45,50,55 * * * * /awips2/ldm/bin/gini daa >& /dev/null 2>&1
+#0,5,10,15,17,20,25,30,35,40,45,50,55 * * * * /awips2/ldm/bin/gini dta >& /dev/null 2>&1

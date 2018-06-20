@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Productsrv Plug-in
+Bundle-SymbolicName: com.raytheon.edex.productsrv
+Bundle-Version: 1.16.0.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: com.raytheon.edex.common,
+ com.raytheon.edex.uengine,
+ org.jep,
+ com.raytheon.uf.common.localization,
+ org.slf4j;bundle-version="1.7.12"
+Export-Package: com.raytheon.edex.services
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: com.raytheon.uf.common.message,
+ com.raytheon.uf.common.message.response,
+ com.raytheon.uf.common.python,
+ com.raytheon.uf.common.status

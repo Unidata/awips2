@@ -1,0 +1,378 @@
+<!-- Flash Flood Warning configuration -->
+<warngenConfig>
+
+ <!-- Maps to load on template selection. Refer to 'Maps' menu in CAVE. 
+ 	The various menu items are also the different maps
+ 	that can be loaded with each template. -->
+ <maps>
+ <!--	<map></map> -->
+ </maps>
+ 
+ <!-- Followups: VTEC actions of allowable followups when this template is selected 
+	Each followup will become available when the appropriate time range permits.
+ -->
+ <followups>
+  <followup>NEW</followup>
+  <followup>COR</followup>
+  <followup>EXT</followup>
+ </followups>
+ 
+ <!-- Phensigs: The list of phenomena and significance combinations that this template applies to -->
+ <phensigs>
+   <phensig>FF.W</phensig>
+ </phensigs>
+
+ <!-- Enables/disables user from selecting the Restart button the GUI -->
+ <enableRestart>true</enableRestart>
+ 
+<!-- Enables/disables the 'Dam Break Threat Area' button -->
+<enableDamBreakThreat>true</enableDamBreakThreat>
+
+ <!-- Enable/disables the system to lock text based on various patterns -->
+ <autoLockText>true</autoLockText>
+
+ <!-- durations: the list of possible durations -->
+ <defaultDuration>60</defaultDuration>
+ <durations>
+  <duration>10</duration>
+  <duration>15</duration>
+  <duration>20</duration>
+  <duration>25</duration>
+  <duration>30</duration>
+  <duration>40</duration>
+  <duration>45</duration>
+  <duration>50</duration>
+  <duration>60</duration>
+  <duration>90</duration>
+  <duration>120</duration>
+  <duration>180</duration>
+  <duration>240</duration>
+  <duration>360</duration>
+ </durations>
+ 
+<bulletActionGroups>
+<bulletActionGroup action="NEW" phen="FA" sig="W">
+ <bullets>
+  <bullet bulletName="sev1" bulletText="minor flood" bulletGroup="floodSeverity" floodSeverity="1"/>
+  <bullet bulletName="sev2" bulletText="moderate flood" bulletGroup="floodSeverity" floodSeverity="2"/>
+  <bullet bulletName="sev3" bulletText="major flood" bulletGroup="floodSeverity" floodSeverity="3"/>
+  <bullet bulletName="ffwEmergency" bulletText="**FLASH FLOOD EMERGENCY**" parseString="FLASH FLOOD EMERGENCY"/>
+  <bullet bulletText="******** PRIMARY CAUSE (choose 1) *******" bulletType="title"/>
+  <bullet bulletName="levee" bulletText="levee failure" bulletGroup="group1" bulletDefault="true" parseString="FOR A LEVEE FAILURE"/>
+  <bullet bulletName="floodgate" bulletText="floodgate opening" bulletGroup="group1" parseString="FOR A FLOODGATE OPENING"/>
+  <bullet bulletName="glacier" bulletText="glacial lake dam outburst" bulletGroup="group1" parseString="FOR A GLACIAL LAKE DAM OUTBURST"/>
+  <bullet bulletName="icejam" bulletText="ice jam break" bulletGroup="group1" parseString="FOR AN ICE JAM BREAK"/>
+  <bullet bulletName="rain" bulletText="rapid rain induced snow melt" bulletGroup="group1" parseString="FOR RAPID RAIN INDUCED SNOW MELT"/>
+  <bullet bulletName="volcano" bulletText="volcano induced snow melt" bulletGroup="group1" parseString="FOR VOLCANO INDUCED SNOW MELT"/>
+  <bullet bulletName="dam" bulletText="dam failure - generic" bulletGroup="group1" parseString="FOR A DAM BREAK"/>
+  <bullet bulletName="siteimminent" bulletText="dam break - site specific (pick below) - imminent failure" bulletGroup="group1"/>
+  <bullet bulletName="sitefailed" bulletText="dam break - site specific (pick below) - failure has occurred" bulletGroup="group1"/>
+  <bullet bulletText="************************************************************" bulletType="title"/>
+  <bullet bulletText="* The next two sections apply only if one of the dam break *"/>
+  <bullet bulletText="* causes was selected. Choose one reporter, one dam, and *"/>
+  <bullet bulletText="* optionally one associated scenario and the rule of thumb. *"/>
+  <bullet bulletText="****** DAM FAILURE REPORTED BY (choose 1) ******" bulletType="title"/>
+  <bullet bulletName="county" bulletText="county dispatch" bulletGroup="group2" bulletDefault="true" parseString="COUNTY DISPATCH ENFORCEMENT REPORTED"/>
+  <bullet bulletName="law" bulletText="law enforcement" bulletGroup="group2" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
+  <bullet bulletName="corps" bulletText="corps of engineers" bulletGroup="group2" parseString="CORPS OF ENGINEERS REPORTED"/>
+  <bullet bulletName="damop" bulletText="dam operator" bulletGroup="group2" parseString="DAM OPERATORS REPORTED"/>
+  <bullet bulletName="bureau" bulletText="bureau of reclamation" bulletGroup="group2" parseString="BUREAU OF RECLAMATION REPORTED"/>
+  <bullet bulletName="public" bulletText="the public" bulletGroup="group2" parseString="THE PUBLIC REPORTED"/>
+  <bullet bulletText="****** CALLS TO ACTION (choose 1 or more) ******" bulletType="title"/>
+  <bullet bulletName="drainages" bulletText="automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES"/>
+  <bullet bulletName="floodMovingCTA" bulletText="Flooding is occurring in a particular stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
+  <bullet bulletName="taddCTA" bulletText="Turn around...dont drown" parseString="MOST FLOOD DEATHS OCCUR IN AUTOMOBILES"/>
+  <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding" parseString="BE ESPECIALLY CAUTIOUS AT NIGHT WHEN"/>
+  <bullet bulletName="vehicleCTA" bulletText="Do not drive into water" parseString="DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY"/>
+  <bullet bulletName="warningMeansCTA" bulletText="A Flash Flood Warning means" parseString="A FLASH FLOOD WARNING MEANS FLASH FLOODING"/>
+  <bullet bulletName="powerFloodCTA" bulletText="Power of flood waters/vehicles" parseString="DO NOT UNDERESTIMATE THE POWER OF FLOOD WATERS"/>
+  <bullet bulletName="reportCTA" bulletText="Report flooding to local law enforcement" parseString="HAVE THE NEAREST LAW ENFORCEMENT AGENCY RELAY YOUR REPORT"/>
+  <bullet bulletText="****** DAM and DAM BREAK SCENARIOS (choose 1) ******" bulletType="title"/>
+ </bullets>
+ <damInfoBullets>
+  <damInfoBullet bulletName="branchedOakDam" bulletText="Branched Oak dam (Lancaster county)" bulletGroup="dam" coords="LAT...LON 4096 9686 4094 9680 4089 9679 4089 9681 4087 9681 4086 9679 4081 9678 4082 9674 4077 9672 4082 9671 4084 9668 4085 9670 4084 9676 4093 9676 4100 9679 4096 9679 4098 9685"/>  
+  <damInfoBullet bulletName="branchedOakDam - scen1" bulletText="    Branched Oak high fast" bulletGroup="scenario"/>
+  <damInfoBullet bulletName="branchedOakDam - scen2" bulletText="    Branched Oak medium fast" bulletGroup="scenario"/>
+  <damInfoBullet bulletName="pawneeDam" bulletText="Pawnee dam (Lancaster county)" bulletGroup="dam" coords="LAT...LON 4081 9679 4081 9676 4081 9674 4084 9670 4084 9669 4081 9672 4080 9671 4077 9671 4077 9673 4079 9674 4079 9680 4082 9685 4081 9687 4082 9687 4083 9688 4085 9685"/>
+  <damInfoBullet bulletName="pawneeDam - scen1" bulletText="    Pawnee Dam high fast" bulletGroup="scenario"/>
+  <damInfoBullet bulletName="pawneeDam - scen2" bulletText="    Pawnee Dam high normal" bulletGroup="scenario"/>
+  <damInfoBullet bulletName="pawneeDam - scen3" bulletText="    Pawnee Dam medium fast" bulletGroup="scenario"/>
+  <damInfoBullet bulletName="pawneeDam - scen4" bulletText="    Pawnee Dam medium normal" bulletGroup="scenario"/>
+ </damInfoBullets>
+ </bulletActionGroup>
+ <bulletActionGroup action="COR" phen="FA" sig="W">
+ <bullets>
+  <bullet bulletName="sev1" bulletText="minor flood" bulletGroup="floodSeverity" floodSeverity="1"/>
+  <bullet bulletName="sev2" bulletText="moderate flood" bulletGroup="floodSeverity" floodSeverity="2"/>
+  <bullet bulletName="sev3" bulletText="major flood" bulletGroup="floodSeverity" floodSeverity="3"/>
+  <bullet bulletName="ffwEmergency" bulletText="**FLASH FLOOD EMERGENCY**" parseString="FLASH FLOOD EMERGENCY"/>
+  <bullet bulletText="******** PRIMARY CAUSE (choose 1) *******" bulletType="title"/>
+  <bullet bulletName="levee" bulletText="levee failure" bulletGroup="group1" bulletDefault="true" parseString="FOR A LEVEE FAILURE"/>
+  <bullet bulletName="floodgate" bulletText="floodgate opening" bulletGroup="group1" parseString="FOR A FLOODGATE OPENING"/>
+  <bullet bulletName="glacier" bulletText="glacial lake dam outburst" bulletGroup="group1" parseString="FOR A GLACIAL LAKE DAM OUTBURST"/>
+  <bullet bulletName="icejam" bulletText="ice jam break" bulletGroup="group1" parseString="FOR AN ICE JAM BREAK"/>
+  <bullet bulletName="rain" bulletText="rapid rain induced snow melt" bulletGroup="group1" parseString="FOR RAPID RAIN INDUCED SNOW MELT"/>
+  <bullet bulletName="volcano" bulletText="volcano induced snow melt" bulletGroup="group1" parseString="FOR VOLCANO INDUCED SNOW MELT"/>
+  <bullet bulletName="dam" bulletText="dam failure - generic" bulletGroup="group1" parseString="FOR A DAM BREAK"/>
+  <bullet bulletName="siteimminent" bulletText="dam break - site specific (pick below) - imminent failure" bulletGroup="group1"/>
+  <bullet bulletName="sitefailed" bulletText="dam break - site specific (pick below) - failure has occurred" bulletGroup="group1"/>
+  <bullet bulletText="************************************************************" bulletType="title"/>
+  <bullet bulletText="* The next two sections apply only if one of the dam break *"/>
+  <bullet bulletText="* causes was selected. Choose one reporter, one dam, and *"/>
+  <bullet bulletText="* optionally one associated scenario and the rule of thumb. *"/>
+  <bullet bulletText="****** DAM FAILURE REPORTED BY (choose 1) ******" bulletType="title"/>
+  <bullet bulletName="county" bulletText="county dispatch" bulletGroup="group2" bulletDefault="true" parseString="COUNTY DISPATCH ENFORCEMENT REPORTED"/>
+  <bullet bulletName="law" bulletText="law enforcement" bulletGroup="group2" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
+  <bullet bulletName="corps" bulletText="corps of engineers" bulletGroup="group2" parseString="CORPS OF ENGINEERS REPORTED"/>
+  <bullet bulletName="damop" bulletText="dam operator" bulletGroup="group2" parseString="DAM OPERATORS REPORTED"/>
+  <bullet bulletName="bureau" bulletText="bureau of reclamation" bulletGroup="group2" parseString="BUREAU OF RECLAMATION REPORTED"/>
+  <bullet bulletName="public" bulletText="the public" bulletGroup="group2" parseString="THE PUBLIC REPORTED"/>
+  <bullet bulletText="****** CALLS TO ACTION (choose 1 or more) ******" bulletType="title"/>
+  <bullet bulletName="drainages" bulletText="automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES"/>
+  <bullet bulletName="floodMovingCTA" bulletText="Flooding is occurring in a particular stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
+  <bullet bulletName="taddCTA" bulletText="Turn around...dont drown" parseString="MOST FLOOD DEATHS OCCUR IN AUTOMOBILES"/>
+  <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding" parseString="BE ESPECIALLY CAUTIOUS AT NIGHT WHEN"/>
+  <bullet bulletName="vehicleCTA" bulletText="Do not drive into water" parseString="DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY"/>
+  <bullet bulletName="warningMeansCTA" bulletText="A Flash Flood Warning means" parseString="A FLASH FLOOD WARNING MEANS FLASH FLOODING"/>
+  <bullet bulletName="powerFloodCTA" bulletText="Power of flood waters/vehicles" parseString="DO NOT UNDERESTIMATE THE POWER OF FLOOD WATERS"/>
+  <bullet bulletName="reportCTA" bulletText="Report flooding to local law enforcement" parseString="HAVE THE NEAREST LAW ENFORCEMENT AGENCY RELAY YOUR REPORT"/>
+  <bullet bulletText="****** DAM and DAM BREAK SCENARIOS (choose 1) ******" bulletType="title"/>
+ </bullets>
+ <damInfoBullets>
+  <damInfoBullet bulletName="branchedOakDam" bulletText="Branched Oak dam (Lancaster county)" bulletGroup="dam" coords="LAT...LON 4096 9686 4094 9680 4089 9679 4089 9681 4087 9681 4086 9679 4081 9678 4082 9674 4077 9672 4082 9671 4084 9668 4085 9670 4084 9676 4093 9676 4100 9679 4096 9679 4098 9685"/>  
+  <damInfoBullet bulletName="branchedOakDam - scen1" bulletText="    Branched Oak high fast" bulletGroup="scenario"/>
+  <damInfoBullet bulletName="branchedOakDam - scen2" bulletText="    Branched Oak medium fast" bulletGroup="scenario"/>
+  <damInfoBullet bulletName="pawneeDam" bulletText="Pawnee dam (Lancaster county)" bulletGroup="dam" coords="LAT...LON 4081 9679 4081 9676 4081 9674 4084 9670 4084 9669 4081 9672 4080 9671 4077 9671 4077 9673 4079 9674 4079 9680 4082 9685 4081 9687 4082 9687 4083 9688 4085 9685"/>
+  <damInfoBullet bulletName="pawneeDam - scen1" bulletText="    Pawnee Dam high fast" bulletGroup="scenario"/>
+  <damInfoBullet bulletName="pawneeDam - scen2" bulletText="    Pawnee Dam high normal" bulletGroup="scenario"/>
+  <damInfoBullet bulletName="pawneeDam - scen3" bulletText="    Pawnee Dam medium fast" bulletGroup="scenario"/>
+  <damInfoBullet bulletName="pawneeDam - scen4" bulletText="    Pawnee Dam medium normal" bulletGroup="scenario"/>
+ </damInfoBullets>
+ </bulletActionGroup>
+ <bulletActionGroup action="EXT" phen="FA" sig="W">
+ <bullets>
+  <bullet bulletName="sev1" bulletText="minor flood" bulletGroup="floodSeverity" floodSeverity="1"/>
+  <bullet bulletName="sev2" bulletText="moderate flood" bulletGroup="floodSeverity" floodSeverity="2"/>
+  <bullet bulletName="sev3" bulletText="major flood" bulletGroup="floodSeverity" floodSeverity="3"/>
+  <bullet bulletName="ffwEmergency" bulletText="**FLASH FLOOD EMERGENCY**" parseString="FLASH FLOOD EMERGENCY"/>
+  <bullet bulletText="******** PRIMARY CAUSE (choose 1) *******" bulletType="title"/>
+  <bullet bulletName="levee" bulletText="levee failure" bulletGroup="group1" bulletDefault="true" parseString="FOR A LEVEE FAILURE"/>
+  <bullet bulletName="floodgate" bulletText="floodgate opening" bulletGroup="group1" parseString="FOR A FLOODGATE OPENING"/>
+  <bullet bulletName="glacier" bulletText="glacial lake dam outburst" bulletGroup="group1" parseString="FOR A GLACIAL LAKE DAM OUTBURST"/>
+  <bullet bulletName="icejam" bulletText="ice jam break" bulletGroup="group1" parseString="FOR AN ICE JAM BREAK"/>
+  <bullet bulletName="rain" bulletText="rapid rain induced snow melt" bulletGroup="group1" parseString="FOR RAPID RAIN INDUCED SNOW MELT"/>
+  <bullet bulletName="volcano" bulletText="volcano induced snow melt" bulletGroup="group1" parseString="FOR VOLCANO INDUCED SNOW MELT"/>
+  <bullet bulletName="dam" bulletText="dam failure - generic" bulletGroup="group1" parseString="FOR A DAM BREAK"/>
+  <bullet bulletName="siteimminent" bulletText="dam break - site specific (pick below) - imminent failure" bulletGroup="group1"/>
+  <bullet bulletName="sitefailed" bulletText="dam break - site specific (pick below) - failure has occurred" bulletGroup="group1"/>
+  <bullet bulletText="************************************************************" bulletType="title"/>
+  <bullet bulletText="* The next two sections apply only if one of the dam break *"/>
+  <bullet bulletText="* causes was selected. Choose one reporter, one dam, and *"/>
+  <bullet bulletText="* optionally one associated scenario and the rule of thumb. *"/>
+  <bullet bulletText="****** DAM FAILURE REPORTED BY (choose 1) ******" bulletType="title"/>
+  <bullet bulletName="county" bulletText="county dispatch" bulletGroup="group2" bulletDefault="true" parseString="COUNTY DISPATCH ENFORCEMENT REPORTED"/>
+  <bullet bulletName="law" bulletText="law enforcement" bulletGroup="group2" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
+  <bullet bulletName="corps" bulletText="corps of engineers" bulletGroup="group2" parseString="CORPS OF ENGINEERS REPORTED"/>
+  <bullet bulletName="damop" bulletText="dam operator" bulletGroup="group2" parseString="DAM OPERATORS REPORTED"/>
+  <bullet bulletName="bureau" bulletText="bureau of reclamation" bulletGroup="group2" parseString="BUREAU OF RECLAMATION REPORTED"/>
+  <bullet bulletName="public" bulletText="the public" bulletGroup="group2" parseString="THE PUBLIC REPORTED"/>
+  <bullet bulletText="****** CALLS TO ACTION (choose 1 or more) ******" bulletType="title"/>
+  <bullet bulletName="drainages" bulletText="automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES"/>
+  <bullet bulletName="floodMovingCTA" bulletText="Flooding is occurring in a particular stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
+  <bullet bulletName="taddCTA" bulletText="Turn around...dont drown" parseString="MOST FLOOD DEATHS OCCUR IN AUTOMOBILES"/>
+  <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding" parseString="BE ESPECIALLY CAUTIOUS AT NIGHT WHEN"/>
+  <bullet bulletName="vehicleCTA" bulletText="Do not drive into water" parseString="DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY"/>
+  <bullet bulletName="warningMeansCTA" bulletText="A Flash Flood Warning means" parseString="A FLASH FLOOD WARNING MEANS FLASH FLOODING"/>
+  <bullet bulletName="powerFloodCTA" bulletText="Power of flood waters/vehicles" parseString="DO NOT UNDERESTIMATE THE POWER OF FLOOD WATERS"/>
+  <bullet bulletName="reportCTA" bulletText="Report flooding to local law enforcement" parseString="HAVE THE NEAREST LAW ENFORCEMENT AGENCY RELAY YOUR REPORT"/>
+  <bullet bulletText="****** DAM and DAM BREAK SCENARIOS (choose 1) ******" bulletType="title"/>
+ </bullets>
+ <damInfoBullets>
+  <damInfoBullet bulletName="branchedOakDam" bulletText="Branched Oak dam (Lancaster county)" bulletGroup="dam" coords="LAT...LON 4096 9686 4094 9680 4089 9679 4089 9681 4087 9681 4086 9679 4081 9678 4082 9674 4077 9672 4082 9671 4084 9668 4085 9670 4084 9676 4093 9676 4100 9679 4096 9679 4098 9685"/>  
+  <damInfoBullet bulletName="branchedOakDam - scen1" bulletText="    Branched Oak high fast" bulletGroup="scenario"/>
+  <damInfoBullet bulletName="branchedOakDam - scen2" bulletText="    Branched Oak medium fast" bulletGroup="scenario"/>
+  <damInfoBullet bulletName="pawneeDam" bulletText="Pawnee dam (Lancaster county)" bulletGroup="dam" coords="LAT...LON 4081 9679 4081 9676 4081 9674 4084 9670 4084 9669 4081 9672 4080 9671 4077 9671 4077 9673 4079 9674 4079 9680 4082 9685 4081 9687 4082 9687 4083 9688 4085 9685"/>
+  <damInfoBullet bulletName="pawneeDam - scen1" bulletText="    Pawnee Dam high fast" bulletGroup="scenario"/>
+  <damInfoBullet bulletName="pawneeDam - scen2" bulletText="    Pawnee Dam high normal" bulletGroup="scenario"/>
+  <damInfoBullet bulletName="pawneeDam - scen3" bulletText="    Pawnee Dam medium fast" bulletGroup="scenario"/>
+  <damInfoBullet bulletName="pawneeDam - scen4" bulletText="    Pawnee Dam medium normal" bulletGroup="scenario"/>
+ </damInfoBullets>
+ </bulletActionGroup>
+ </bulletActionGroups>
+
+  <!-- areaConfig: specifies how the area portion of the warning is generated; Mainly used
+ 	for determining the impacting counties in the 1st bullet
+    	- inclusionPercent: If an area greater than this percentage of area is covered, include it in the warning
+    	- inclusionArea: If an area greater than this is covered, include it in the warning (Square Kilometers)
+	- inclusionAndOr: AND - both inclusionPercent and inclusionArea must pass in
+		order to be included. OR - either inclusionPercent or inclusionArea
+		can pass pass to be included.
+        	- pointField: the column name in the pointSource that contains the name of the point
+        	- sortBy: Can sort by 'name','parent','size',
+	- pointFilter: Controls which point (i.e. cities) to include in the 1st bullet based on 
+        		the 'WARNGENLEV' of the point. WARNGENLEV is a value from 1 to 3.
+        		key: WARNGENLEV (Column name in the pointSource)
+        		value: 1,2,or 3 (Can only be a single value), 0 does nothing
+        		type: INCLUSIVE - include only points that match the value
+        		      EXCLUSIVE - exclude only points that match the value
+        		      For example: INCLUSIVE 1,will only include points that are WARNGENLEV 1,
+        		      	         EXCLUSIVE 3, will only include points that are WARNGENLEV 1 and 2
+  	- fipsField: the name of the attribute that retrieves the fips
+
+	- areaNotationField: The column in the areaSource table that contains the key 
+        		used to map to the correct areaNotation. Look at countTypes.txt
+	- areaNotationTranslationFile: TranslationFile to look up an area 
+          	notation located in /edex/data/utility/common_static/base/warngen
+	- includedWatchAreaBuffer: The number of MILES the warning polygon will be increased to include nearby watches
+
+	- otherPoints: this configures the otherPoints object for the fourth bullet. It
+		uses the same pointSource as the areaConfig
+		- includeAreaPoints: true/false, don't add name if already available for 1st bullet
+		- includeClosePoints: true/false, don't add name if already available for 3rd bullet
+		- sortBy - Can sort the path cast by 'distance', 'name', 'population','warngenlev','lat','lon',
+    
+  -->
+ <areaConfig>
+  <inclusionPercent>0.00</inclusionPercent>
+  <inclusionAndOr>AND</inclusionAndOr>
+  <inclusionArea>10</inclusionArea>
+  <areaField>COUNTYNAME</areaField>
+  <parentAreaField>NAME</parentAreaField>
+  <areaNotationField>STATE</areaNotationField>
+  <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+  <fipsField>FIPS</fipsField>
+  <pointField>NAME</pointField>
+  <sortBy>
+  	<sort>parent</sort>
+  </sortBy>
+  <pointFilter>
+  	<key>WARNGENLEV</key>
+  	<value>1</value>
+  	<type>INCLUSIVE</type>
+  </pointFilter>
+  <includedWatchAreaBuffer>25</includedWatchAreaBuffer>
+  <otherPoints>
+  	<maxCount>50</maxCount>
+  	<includeAreaPoints>true</includeAreaPoints>
+  	<includeClosestPoints>true</includeClosestPoints>
+  	<sortBy>
+  		<sort>warngenlev</sort>
+  		<sort>population</sort>
+  	</sortBy>
+  </otherPoints>
+ </areaConfig>
+
+ <!-- closestPointsConfig: determines how the closest points to the storm
+         are generated. This configuration is usually applied to the 3rd bullet.
+        - numberOfPoints: number of closest points to generate
+        - pointField: The field out of the area field that is used for naming
+	  the point 
+        - pointFilter: Controls which point (i.e. cities) to include in the 1st bullet based on 
+        		the 'WARNGENLEV' of the point. WARNGENLEV is a value from 1 to 3.
+        		key: WARNGENLEV (Column name in the pointSource)
+        		value: 1,2,or 3 (Can only be a single value), 0 does nothing
+        		type: INCLUSIVE - include only points that match the value
+        		      EXCLUSIVE - exclude only points that match the value
+        		      For example: INCLUSIVE 1,will only include points that are WARNGENLEV 1,
+        		      	         EXCLUSIVE 3, will only include points that are WARNGENLEV 1 and 2
+         - sortBy - Can sort the path cast by 'name', 'population','warngenlev' 
+  -->
+ <closestPointsConfig>
+  <numberOfPoints>2</numberOfPoints>
+  <unitDistance>mi</unitDistance>
+  <unitSpeed>mph</unitSpeed>
+  <pointField>NAME</pointField>
+  <pointFilter>
+  	<key>WARNGENLEV</key>
+   	<value>0</value>
+   	<type>EXCLUSIVE</type>
+  </pointFilter>
+  <sortBy>
+  	<sort>warngenlev</sort>
+  </sortBy>
+ </closestPointsConfig>
+ 
+ <!-- pathcastConfig: If present, this indicates a track product is generated
+          to determine the areas the storm will pass under. This is mainly for the
+          4th bullet and used if type 1 is selected. Refer to VM_global_library.vm for details.
+          
+        - enabled: 0 to disable pathCast, 1 to enable pathCast
+        - defaultSpeedKt: Default speed in knots  
+        - defaultDirection: Default Direction (0 degrees is South)
+        - nearThreshold: Specifies a distance in Miles that indicates how close
+          	a storm can be to a location to be included in the path cast;
+        - maxCount: max number of points can be included in each group
+        - pointField: the column name in the pointSource that contains the name of the point
+        - pointFilter: Controls which point to include based on the 'WARNGENLEV' of the point.
+        		WARNGENLEV is a value from 1 to 3.
+        		key: WARNGENLEV (Column name in the pointSource)
+        		value: 1,2,or 3 (Can only be a single value), 0 does nothing
+        		type: INCLUSIVE - include only points that match the value
+        		      EXCLUSIVE - exclude only points that match the value
+        		      For example: INCLUSIVE 1,will only include points that are WARNGENLEV 1,
+        		      	         EXCLUSIVE 3, will only include points that are WARNGENLEV 1 and 2
+        - areaField: the column name in the areaSource table that contains the name of the area
+        - parentAreaField: the column name in the area Source that contains the parent of the area (i.e. State)
+        - areaNotationField: The column in the areaSource table that contains the key 
+        		used to map to the correct areaNotation. Look at countTypes.txt
+        - areaNotationTranslationFile: TranslationFile to look up an area 
+          	notation located in /edex/data/utility/common_static/base/warngen
+        - sortBy: Can sort the path cast by 'distance', 'name', 'population','warngenlev','areaSource','parentSource'
+  --> 
+ <pathcastConfig>
+  <enabled>0</enabled>
+  <defaultSpeedKt>20</defaultSpeedKt>
+  <defaultDirection>45</defaultDirection>
+  <nearThreshold>8.0</nearThreshold>
+  <interval>5</interval>
+  <maxCount>4</maxCount>
+  <maxGroup>8</maxGroup>
+  <pointField>Name</pointField>
+  <pointFilter>
+  	<key>WARNGENLEV</key>
+  	<value>0</value>
+  	<type>EXCLUSIVE</type>
+  </pointFilter>
+  <areaField>COUNTYNAME</areaField>
+  <parentAreaField>STATE</parentAreaField>
+  <areaNotationField>STATE</areaNotationField>
+  <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+  <sortBy>
+  	<sort>distance</sort>
+  </sortBy>
+ </pathcastConfig>
+
+ <!-- geospatialConfig: The geospatial configuration
+         	- pointSource: the name of the table that reads the points from (i.e. City, MarineSites)
+          - areaSource: the name of the table that reads the areas from (i.e. County)
+          - timezoneSource: the name of the table that reads the time zones from
+        	- timezoneField: the column name of the table that contains the name of the time zone
+ 	- maskSource: Table name of the CWAs
+ 	- maskFilter: Upon initialization will gather all the areas that have a WFO
+ 		that matches what CAVE is localized to
+ -->
+ <geospatialConfig>
+  <pointSource>City</pointSource>
+  <areaSource>County</areaSource>
+  <parentAreaSource>States</parentAreaSource>
+  <timezoneSource>TIMEZONES</timezoneSource>
+  <timezoneField>TIME_ZONE</timezoneField>
+  <maskSource>CWA</maskSource>
+  <maskFilter>
+    <key>WFO</key>
+    <value>$warngenCWAFilter</value>
+    <type>INCLUSIVE</type>
+  </maskFilter>
+ </geospatialConfig>
+ 
+ <!-- riverBasinConfig: The River Drainage Basin configuration -->
+ <riverBasinConfig>
+   <basinSource>basins</basinSource>
+   <nameField>name</nameField>
+   <maskFilter>
+     <key>cwa</key>
+     <value>$warngenCWAFilter</value>
+     <type>INCLUSIVE</type>
+   </maskFilter>
+ </riverBasinConfig>
+</warngenConfig>

@@ -1,0 +1,4 @@
+# Product Discipline 0: Meteorological products, Parameter Category 2: Momentum
+# 192-254 Reserved for local use
+220:220:Hourly Maximum of Upward Vertical Vorticity in the lowest 400hPa:m/s:MAXUVV
+221:221:Hourly Maximum of Downward Vertical Vorticity in the lowest 400hPa:m/s:MAXDVV

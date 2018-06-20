@@ -1,0 +1,2 @@
+Many tabular products report weather element values for multiple time periods. The "getPeriods" method creates a list of Time Range objects and associated labels.  We can specify the number of hours between periods, the duration of each period, and the total number of periods starting with a beginning tme range.
+

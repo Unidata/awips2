@@ -1,0 +1,55 @@
+<configuration debug="false" scan="true">
+   <include file="${edex.home}/conf/logback-edex-properties.xml"/>
+   <include file="${edex.home}/conf/logback-edex-appenders.xml" />
+   
+   <include file="${edex.home}/conf/logback-edex-loggers.xml" />
+   <include file="${edex.home}/conf/logback-edex-hibernate-logger.xml" />
+
+   <!-- Purge log --> 
+   <appender name="purge" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
+         <name>purge</name>
+      </rollingPolicy>
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
+   </appender> 
+   
+   <!-- RouteFailedLog log --> 
+   <appender name="RouteFailedLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
+         <name>unrecognized-files</name>
+      </rollingPolicy>
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
+   </appender> 
+
+   <appender name="ThreadBasedLog" class="com.raytheon.uf.common.logback.appender.ThreadBasedAppender">
+      <defaultAppenderName>asyncConsole</defaultAppenderName>
+      <appender-ref ref="asyncConsole"/>
+      <appender-ref ref="purge"/>
+   </appender>
+
+   <logger name="com.raytheon.uf.edex.purgesrv" additivity="false">
+      <level value="INFO"/>
+      <appender-ref ref="purge"/>
+   </logger>
+   
+   <logger name="com.raytheon.uf.edex.database.purge" additivity="false">
+      <level value="INFO"/>
+      <appender-ref ref="purge"/>
+   </logger>
+   
+   <logger name="com.raytheon.edex.db.purge.DataPurgeRegistry" additivity="false">
+      <level value="INFO"/>
+      <appender-ref ref="purge"/>
+   </logger>
+   
+   <logger name="RouteFailedLog" additivity="false">
+      <level value="WARN"/>
+      <appender-ref ref="RouteFailedLog"/>
+   </logger>
+
+   <!-- default logging --> 
+   <root> 
+      <level value="INFO"/>
+      <appender-ref ref="ThreadBasedLog"/>
+    </root> 
+</configuration> 

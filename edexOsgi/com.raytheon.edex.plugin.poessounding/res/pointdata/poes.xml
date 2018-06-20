@@ -1,0 +1,23 @@
+<pointDataDescription>
+  <dimension name="maxLevels" length="50"/>
+  
+  <parameter name="satelliteID" numDims="1" type="INT" />
+  <parameter name="satProc" numDims="1" type="INT" />
+  
+  <parameter name="terrain" numDims="1" type="INT" />
+  <parameter name="dayNight" numDims="1" type="INT" />
+  <parameter name="landSea" numDims="1" type="INT" />
+  <parameter name="zenithAngle" numDims="1" type="FLOAT" unit="degrees" />
+  <parameter name="solarElev" numDims="1" type="FLOAT" unit="m" />
+
+  <parameter name="superAdiabatic" numDims="1" type="INT" />
+  <parameter name="skinTemp" numDims="1" type="FLOAT" unit="K" />
+  <parameter name="seaTemp" numDims="1" type="FLOAT" unit="K" />
+  <parameter name="cloudAmt" numDims="1" type="FLOAT" unit="percent" />
+  <parameter name="precipWater" numDims="1" type="FLOAT" unit="kg/kg" />
+  <parameter name="ozone" numDims="1" type="FLOAT" unit="dobson" />
+  <parameter name="numLevels" numDims="1" type="INT" />
+  <parameter name="pressure" numDims="2" type="FLOAT" unit="Pa" dimension="maxLevels"/>
+  <parameter name="temperature" numDims="2" type="FLOAT" unit="K" dimension="maxLevels"/>
+  <parameter name="mixingRatio" numDims="2" type="FLOAT" unit="kg/kg" dimension="maxLevels"/>
+</pointDataDescription>

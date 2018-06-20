@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Changelists</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.advanced.html" title="Chapter 3. Advanced Topics" />
+    <link rel="prev" href="svn.advanced.externals.html" title="Externals Definitions" />
+    <link rel="next" href="svn.serverconfig.netmodel.html" title="Network Model" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">Changelists</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.advanced.externals.html">Prev</a> </td>
+          <th width="60%" align="center">Chapter 3. Advanced Topics</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.serverconfig.netmodel.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="sect1" title="Changelists">
+      <div class="titlepage">
+        <div>
+          <div>
+            <h2 class="title" style="clear: both"><a id="svn.advanced.changelists"></a>Changelists</h2>
+          </div>
+        </div>
+      </div>
+      <p>It is commonplace for a developer to find himself working at
+      any given time on multiple different, distinct changes to a
+      particular bit of source code.  This isn't necessarily due to
+      poor planning or some form of digital masochism.  A software
+      engineer often spots bugs in his peripheral vision while working
+      on some nearby chunk of source code.  Or perhaps he's halfway
+      through some large change when he realizes the solution he's
+      working on is best committed as several smaller logical units.
+      Often, these logical units aren't nicely contained in some
+      module, safely separated from other changes.  The units might
+      overlap, modifying different files in the same module, or even
+      modifying different lines in the same file.</p>
+      <p>Developers can employ various work methodologies
+      to keep these logical changes organized.  Some use
+      separate working copies of the same repository to hold each
+      individual change in progress.  Others might choose to create
+      short-lived feature branches in the repository and use a single
+      working copy that is constantly switched to point to one such
+      branch or another.  Still others use <span class="command"><strong>diff</strong></span> and
+      <span class="command"><strong>patch</strong></span> tools to back up and restore uncommitted
+      changes to and from patch files associated with each change.
+      Each of these methods has its pros and cons, and to a large
+      degree, the details of the changes being made heavily influence
+      the methodology used to distinguish them.</p>
+      <p>Subversion provides a <em class="firstterm">changelists</em>
+      feature that adds yet another method to the mix.  Changelists
+      are basically arbitrary labels (currently at most one per file)
+      applied to working copy files for the express purpose of
+      associating multiple files together.  Users of many of Google's
+      software offerings are familiar with this concept already.  For
+      example, <a class="ulink" href="http://mail.google.com/" target="_top">Gmail</a>
+      doesn't provide the traditional folders-based email organization
+      mechanism.  In Gmail, you apply arbitrary labels to emails, and
+      multiple emails can be said to be part of the same group if they
+      happen to share a particular label.  Viewing only a group of
+      similarly labeled emails then becomes a simple user interface
+      trick.  Many other Web 2.0 sites have similar
+      mechanisms—consider the <span class="quote">“<span class="quote">tags</span>”</span> used by sites
+      such as <a class="ulink" href="http://www.youtube.com/" target="_top">YouTube</a> and
+      <a class="ulink" href="http://www.flickr.com/" target="_top">Flickr</a>,
+      <span class="quote">“<span class="quote">categories</span>”</span> applied to blog posts, and so on.
+      Folks understand today that organization of data is critical,
+      but that how that data is organized needs to be a flexible
+      concept.  The old files-and-folders paradigm is too rigid for
+      some applications.</p>
+      <p>Subversion's changelist support allows you to create
+      changelists by applying labels to files you want to be
+      associated with that changelist, remove those labels, and limit
+      the scope of the files on which its subcommands operate to only
+      those bearing a particular label.  In this section, we'll look
+      in detail at how to do these things.</p>
+      <div class="sect2" title="Creating and Modifying Changelists">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.advanced.changelists.creating"></a>Creating and Modifying Changelists</h3>
+            </div>
+          </div>
+        </div>
+        <p>You can create, modify, and delete changelists using the
+        <span class="command"><strong>svn changelist</strong></span> command.  More accurately,
+        you use this command to set or unset the changelist
+        association of a particular working copy file.  A changelist
+        is effectively created the first time you label a file with
+        that changelist; it is deleted when you remove that label from
+        the last file that had it.  Let's examine a usage scenario
+        that demonstrates these concepts.</p>
+        <p>Harry is fixing some bugs in the calculator application's
+        mathematics logic.  His work leads him to change a couple of
+        files:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn status
+M       integer.c
+M       mathops.c
+$
+</pre>
+        </div>
+        <p>While testing his bug fix, Harry notices that his changes
+        bring to light a tangentially related bug in the user
+        interface logic found in <code class="filename">button.c</code>.  Harry
+        decides that he'll go ahead and fix that bug, too, as a
+        separate commit from his math fixes.  Now, in a small working
+        copy with only a handful of files and few logical changes,
+        Harry can probably keep his two logical change groupings
+        mentally organized without any problem.  But today he's going
+        to use Subversion's changelists feature as a special favor to
+        the authors of this book.</p>
+        <p>Harry first creates a changelist and associates with it
+        the two files he's already changed.  He does this by using the
+        <span class="command"><strong>svn changelist</strong></span> command to assign the same
+        arbitrary changelist name to those files:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn changelist math-fixes integer.c mathops.c
+A [math-fixes] integer.c
+A [math-fixes] mathops.c
+$ svn status
+
+--- Changelist 'math-fixes':
+M       integer.c
+M       mathops.c
+$
+</pre>
+        </div>
+        <p>As you can see, the output of <span class="command"><strong>svn
+        status</strong></span> reflects this new grouping.</p>
+        <p>Harry now sets off to fix the secondary UI problem.  Since
+        he knows which file he'll be changing, he assigns that path to
+        a changelist, too.  Unfortunately, Harry carelessly assigns this
+        third file to the same changelist as the previous two files:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn changelist math-fixes button.c
+A [math-fixes] button.c
+$ svn status
+
+--- Changelist 'math-fixes':
+        button.c
+M       integer.c
+M       mathops.c
+$
+</pre>
+        </div>
+        <p>Fortunately, Harry catches his mistake.  At this point, he
+        has two options.  He can remove the changelist association
+        from <code class="filename">button.c</code>, and then assign a
+        different changelist name:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn changelist --remove button.c
+D [math-fixes] button.c
+$ svn changelist ui-fix button.c
+A [ui-fix] button.c
+$
+</pre>
+        </div>
+        <p>Or, he can skip the removal and just assign a new
+        changelist name.  In this case, Subversion will first warn
+        Harry that <code class="filename">button.c</code> is being removed from
+        the first changelist:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn changelist ui-fix button.c
+D [math-fixes] button.c
+A [ui-fix] button.c
+$ svn status
+
+--- Changelist 'ui-fix':
+        button.c
+
+--- Changelist 'math-fixes':
+M       integer.c
+M       mathops.c
+$
+</pre>
+        </div>
+        <p>Harry now has two distinct changelists present in his
+        working copy, and <span class="command"><strong>svn status</strong></span> will group its
+        output according to these changelist determinations.  Notice
+        that even though Harry hasn't yet modified
+        <code class="filename">button.c</code>, it still shows up in the output
+        of <span class="command"><strong>svn status</strong></span> as interesting because it has
+        a changelist assignment.  Changelists can be added to and
+        removed from files at any time, regardless of whether they
+        contain local modifications.</p>
+        <p>Harry now fixes the user interface problem in
+        <code class="filename">button.c</code>.</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn status
+
+--- Changelist 'ui-fix':
+M       button.c
+
+--- Changelist 'math-fixes':
+M       integer.c
+M       mathops.c
+$
+</pre>
+        </div>
+      </div>
+      <div class="sect2" title="Changelists As Operation Filters">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.advanced.changelists.asfilters"></a>Changelists As Operation Filters</h3>
+            </div>
+          </div>
+        </div>
+        <p>The visual grouping that Harry sees in the output of
+        <span class="command"><strong>svn status</strong></span> as shown in our previous section
+        is nice, but not entirely useful.  The
+        <span class="command"><strong>status</strong></span> command is but one of many
+        operations that he might wish to perform on his working copy.
+        Fortunately, many of Subversion's other operations understand
+        how to operate on changelists via the use of the
+        <code class="option">--changelist</code> option.</p>
+        <p>When provided with a <code class="option">--changelist</code> option,
+        Subversion commands will limit the scope of their operation to
+        only those files to which a particular changelist name is
+        assigned.  If Harry now wants to see the actual changes he's
+        made to the files in his <code class="literal">math-fixes</code>
+        changelist, he <span class="emphasis"><em>could</em></span> explicitly list only
+        the files that make up that changelist on the <span class="command"><strong>svn
+        diff</strong></span> command line.</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn diff integer.c mathops.c
+Index: integer.c
+===================================================================
+--- integer.c	(revision 1157)
++++ integer.c	(working copy)
+…
+Index: mathops.c
+===================================================================
+--- mathops.c	(revision 1157)
++++ mathops.c	(working copy)
+…
+$
+</pre>
+        </div>
+        <p>That works okay for a few files, but what if Harry's
+        change touched 20 or 30 files?  That would be an annoyingly
+        long list of explicitly named files.  Now that he's using
+        changelists, though, Harry can avoid explicitly listing the
+        set of files in his changelist from now on, and instead
+        provide just the changelist name:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn diff --changelist math-fixes
+Index: integer.c
+===================================================================
+--- integer.c	(revision 1157)
++++ integer.c	(working copy)
+…
+Index: mathops.c
+===================================================================
+--- mathops.c	(revision 1157)
++++ mathops.c	(working copy)
+…
+$
+</pre>
+        </div>
+        <p>And when it's time to commit, Harry can again use the
+        <code class="option">--changelist</code> option to limit the scope of the
+        commit to files in a certain changelist.  He might commit his
+        user interface fix by doing the following:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn commit -m "Fix a UI bug found while working on math logic." \
+      --changelist ui-fix
+Sending        button.c
+Transmitting file data .
+Committed revision 1158.
+$
+</pre>
+        </div>
+        <p>In fact, the <span class="command"><strong>svn commit</strong></span> command
+        provides a second changelists-related option:
+        <code class="option">--keep-changelists</code>.  Normally, changelist
+        assignments are removed from files after they are committed.
+        But if <code class="option">--keep-changelists</code> is provided,
+        Subversion will leave the changelist assignment on the
+        committed (and now unmodified) files.  In any case, committing
+        files assigned to one changelist leaves other changelists
+        undisturbed.</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn status
+
+--- Changelist 'math-fixes':
+M       integer.c
+M       mathops.c
+$
+</pre>
+        </div>
+        <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;">
+          <table border="0" summary="Note">
+            <tr>
+              <td rowspan="2" align="center" valign="top" width="25">
+                <img alt="[Note]" src="images/note.png" />
+              </td>
+              <th align="left">Note</th>
+            </tr>
+            <tr>
+              <td align="left" valign="top">
+                <p>The <code class="option">--changelist</code> option acts only as a
+          filter for Subversion command targets, and will not add
+          targets to an operation.  For example, on a commit operation
+          specified as <strong class="userinput"><code>svn commit /path/to/dir</code></strong>, the
+          target is the directory <code class="filename">/path/to/dir</code>
+          and its children (to infinite depth).  If you then add a
+          changelist specifier to that command, only those files in
+          and under <code class="filename">/path/to/dir</code> that are
+          assigned that changelist name will be considered as targets
+          of the commit—the commit will not include files
+          located elsewhere (such as in
+          <code class="filename">/path/to/another-dir</code>), regardless of
+          their changelist assignment, even if they are part of the
+          same working copy as the operation's target(s).</p>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <p>Even the <span class="command"><strong>svn changelist</strong></span> command accepts
+        the <code class="option">--changelist</code> option.  This allows you to
+        quickly and easily rename or remove a changelist:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn changelist math-bugs --changelist math-fixes --depth infinity .
+D [math-fixes] integer.c
+A [math-bugs] integer.c
+D [math-fixes] mathops.c
+A [math-bugs] mathops.c
+$ svn changelist --remove --changelist math-bugs --depth infinity .
+D [math-bugs] integer.c
+D [math-bugs] mathops.c
+$
+</pre>
+        </div>
+        <p>Finally, you can specify multiple instances of the
+        <code class="option">--changelist</code> option on a single command
+        line.  Doing so limits the operation you are performing to
+        files found in any of the specified changesets.</p>
+      </div>
+      <div class="sect2" title="Changelist Limitations">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.advanced.changelists.limitations"></a>Changelist Limitations</h3>
+            </div>
+          </div>
+        </div>
+        <p>Subversion's changelist feature is a handy tool for
+        grouping working copy files, but it does have a few limitations.
+        Changelists are artifacts of a particular working copy, which
+        means that changelist assignments cannot be propagated to the
+        repository or otherwise shared with other users.  Changelists
+        can be assigned only to files—Subversion doesn't
+        currently support the use of changelists with directories.
+        Finally, you can have at most one changelist assignment on a
+        given working copy file.  Here is where the blog post category
+        and photo service tag analogies break down—if you find
+        yourself needing to assign a file to multiple changelists,
+        you're out of luck.</p>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.advanced.externals.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.advanced.html">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.serverconfig.netmodel.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">Externals Definitions </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> Network Model</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

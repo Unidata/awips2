@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+#
+# Configuration file for nwps
+#
+########################################################################
+# Regional LDM setup
+########################################################################
+#
+# Uncomment the appropriate lines for your region to configure REGION, LDMSEND,
+# LDMSERVER1 and LDMSERVER2 variables.  These are the same ldm 
+# servers you can reach from your ldad. If you do not know this info 
+# contact your regional folks. This is how the input files for NWPS run 
+# requests will be routed to NCO/WCOSS when that option is chosen from 
+# the GUI.
+#
+# Also, if you are in SR, you have two options for LDMSEND. If SR has
+# installed in your ldad the ldmsend_nws version use that then. It 
+# has the capability of testing if the wind file was successfully sent
+# to WCOSS through SR including a message about that in the WRKNWP
+# message sent back to the forecaster via the text workstations. 
+# Otherwise use the baseline ldmsend. You can
+# find out if ldmsend_nws is installed in your ldad by checking in 
+# your ldad or following up with Doug Gaer or Paul Kirkwood at SR.
+# 
+########################################################################
+# SOUTHERN REGION
+########################################################################
+#REGION="SR"
+#LDMSEND="/usr/local/ldm/util/ldmsend_nws"
+#LDMSEND="/usr/local/ldm/bin/ldmsend"
+#LDMSERVER1="216.38.81.28"
+#LDMSERVER2="216.38.81.29"
+########################################################################
+# EASTERN REGION
+########################################################################
+#REGION="ER"
+#LDMSEND="/usr/local/ldm/bin/ldmsend"
+#LDMSERVER1="198.206.32.98"
+#LDMSERVER2="198.206.32.99"
+########################################################################
+# CENTRAL REGION
+########################################################################
+#REGION="CR"
+#LDMSEND="/usr/local/ldm/bin/ldmsend"
+#LDMSERVER1=""
+#LDMSERVER2=""
+########################################################################
+# WESTERN REGION
+########################################################################
+#REGION="WR"
+#LDMSEND="/usr/local/ldm/bin/ldmsend"
+#LDMSERVER1=""
+#LDMSERVER2=""
+########################################################################
+# ALASKA REGION
+########################################################################
+#REGION="AR"
+#LDMSEND="/usr/local/ldm/bin/ldmsend"
+#LDMSERVER1=""
+#LDMSERVER2=""
+########################################################################
+# PACIFIC REGION
+########################################################################
+#REGION="PR"
+#LDMSEND="/usr/local/ldm/bin/ldmsend"
+#LDMSERVER1=""
+#LDMSERVER2=""
+########################################################################
+# NATIONAL CENTERS
+########################################################################
+#REGION="NCEP"
+#LDMSEND="/usr/local/ldm/bin/ldmsend"
+#LDMSERVER1=""
+#LDMSERVER2=""
+########################################################################
+# MULTISITE 
+#
+# If you are runnning the model in a local workstation also and your model 
+# version is 2.0.X or earlier set MULTISITE="No". Otherwise set it to Yes.
+#
+MULTISITE="No"
+#
+# DIR - If MULTISITE = No this means you are still using ldad scripts to 
+# pull in runs through ldad from model box running locallty.
+# Depending on how you set up those scripts you will need to define this 
+# directory. If you followed standard configuration, then the
+# Default below should do. This is where the script will push out the 
+# wind file to run the model locally if you are using that option.
+# In the multisite worstation version, the file is pushed to the workstation 
+# through ldad using ldm. old ldad scripts no longer used.
+#
+DIR="/data/ldad/nwps/input"
+#
+# If running model in a local workstation also outside AWIPS, Make sure the WORKSTATION VARIABLE NAME BELOW MATCHES HOSTNAME OF YOUR 
+# LOCAL MODELING BOX. The arfument passed for the variable comes from the runManualNWPS_OutsideAWIPS.sh script
+#
+WORKSTATION="${1}-lw-swan"
+#
+########################################################################
+########################################################################
+# DO NOT EDIT BELOW HERE
+########################################################################
+########################################################################

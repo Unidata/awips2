@@ -1,0 +1,165 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+    <bean class="com.raytheon.uf.common.logback.appender.ThreadBasedAppender" factory-method="registerThreadPattern">
+        <constructor-arg value="shef" />
+        <constructor-arg value="Ingest.Shef.*" />
+    </bean>
+
+	<bean id="shefDecoder" class="com.raytheon.edex.plugin.shef.ShefDecoder">
+		<constructor-arg value="shef" />
+	</bean>
+
+	<bean id="shefSeparator" class="com.raytheon.edex.plugin.shef.ShefSeparator" />
+
+	<bean id="metarToShef" class="com.raytheon.edex.transform.shef.MetarToShefTransformer">
+		<constructor-arg type="java.lang.String"
+			value=" -a -b -p1 -p6 -p24 -round -w -strip " />
+	</bean>
+
+	<bean id="metarToShefFilter"
+		class="com.raytheon.edex.transform.shef.MetarToShefFilter">
+		<constructor-arg type="java.lang.String" value="metarToShefFilter.xml" />
+		<constructor-arg type="java.lang.String" value="SITE" />
+	</bean>
+
+	<bean id="synopticToShef" class="com.raytheon.edex.transform.shef.SMToShefTransformer">
+		<constructor-arg type="java.lang.String"
+			value=" -a -v -b -p1 -p6 -p24 -round -w -strip " />
+	</bean>
+
+	<bean id="synopticToShefFilter"
+		class="com.raytheon.edex.transform.shef.SynopticToShefFilter">
+		<constructor-arg type="java.lang.String" value="synopticToShefFilter.xml" />
+		<constructor-arg type="java.lang.String" value="SITE" />
+	</bean>
+
+	<bean id="shefDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="shef" />
+		<constructor-arg
+			value="jms-durable:queue:Ingest.Shef"/>
+	</bean>
+
+    <bean id="shefHandleoupDistRegistry" factory-bean="handleoupDistributionSrv"
+        factory-method="register">
+        <constructor-arg value="shef" />
+        <constructor-arg value="jms-durable:queue:Ingest.Shef"/>
+    </bean>
+
+    <!-- Start add for manual input -->
+
+    <bean id="shefFileChangedStrategy"
+        class="com.raytheon.uf.edex.esb.camel.FileChangedExclusiveReadLockStrategy" />
+
+    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
+        <constructor-arg ref="clusteredShefManualProc" />
+    </bean>
+
+    <camelContext id="clusteredShefManualProc" xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+        <endpoint id="shefManualFileEndpoint"
+            uri="file:${edex.home}/data/share/hydroapps/shefdecode/input?delete=true&amp;maxMessagesPerPoll=1000&amp;delay=15000&amp;exclusiveReadLockStrategy=#shefFileChangedStrategy" />
+            
+        <route id="shefManualFileScan">
+            <from ref="shefManualFileEndpoint" />
+            <bean ref="manualProc" method="copyFileToArchive" />
+            <bean ref="manualProc" />
+            <to
+                uri="jms-durable:queue:Ingest.ShefManual"/>
+        </route>
+    </camelContext>
+
+    <!-- End add for manual input -->
+
+	<camelContext id="shef-camel" xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+
+		<!-- Begin shef routes -->
+		<route id="shefIngestRoute">
+			<from
+				uri="jms-durable:queue:Ingest.Shef"/>
+			<setHeader headerName="pluginName">
+				<constant>shef</constant>
+			</setHeader>
+			<pipeline>
+				<bean ref="stringToFile" />
+				<to uri="direct-vm:shefProcessing" />
+			</pipeline>
+		</route>
+		<route id="shefStagedRoute">
+			<from
+				uri="jms-durable:queue:Ingest.ShefStaged"/>
+			<setHeader headerName="pluginName">
+				<constant>shef</constant>
+			</setHeader>
+			<to uri="direct-vm:shefProcessing" />
+		</route>
+
+		<!-- direct-vm will be run under original thread, should this be moved to 
+			a queue?? but will cause message to be serialized to the jms queue... -->
+		<route id="synopticToShefRoute">
+			<from uri="direct-vm:synopticToShef" />
+			<bean ref="synopticToShefFilter" method="filter" />
+			<pipeline>
+				<split streaming="true">
+					<method bean="synopticToShef" method="iterate" />
+					<bean ref="synopticToShef" method="transform" />
+					<to uri="jms-durable:queue:Ingest.ShefStaged" />
+				</split>
+			</pipeline>
+		</route>
+
+		<!-- direct-vm will be run under original thread, should this be moved to 
+			a queue?? but will cause message to be serialized to the jms queue... -->
+		<route id="metarToShefRoute">
+			<from uri="direct-vm:metarToShef" />
+			<bean ref="metarToShefFilter" method="filter" />
+			<pipeline>
+				<split streaming="true">
+					<method bean="metarToShef" method="iterate" />
+					<bean ref="metarToShef" method="transformMetar" />
+					<to
+						uri="jms-durable:queue:Ingest.ShefStaged"/>
+				</split>
+			</pipeline>
+		</route>
+
+		<route id="shefProcessingRoute">
+			<from uri="direct-vm:shefProcessing" />
+			<doTry>
+				<pipeline>
+					<bean ref="shefDecoder" method="decode" />
+					<bean ref="processUtil" method="log"/>
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to
+						uri="log:shef?level=ERROR" />
+				</doCatch>
+			</doTry>
+		</route>
+
+		<route id="shefManualIngestRoute">
+			<from
+				uri="jms-durable:queue:Ingest.ShefManual"/>
+			<setHeader headerName="pluginName">
+				<constant>shef</constant>
+			</setHeader>
+			<doTry>
+				<pipeline>
+                    <bean ref="stringToFile" />
+					<bean ref="shefDecoder" method="decode" />
+					<bean ref="processUtil" method="log"/>
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to
+						uri="log:shef?level=ERROR" />
+				</doCatch>
+			</doTry>
+		</route>
+
+	</camelContext>
+</beans>

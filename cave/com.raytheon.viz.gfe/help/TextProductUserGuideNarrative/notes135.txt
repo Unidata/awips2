@@ -1,0 +1,2 @@
+All of these building blocks work together to create a phrase.  Note that every method has access to the complete tree plus the current node or position in the tree.  This is how we simulate a "holographic" model in which every part is potentially dependent on and consistent with the whole.
+

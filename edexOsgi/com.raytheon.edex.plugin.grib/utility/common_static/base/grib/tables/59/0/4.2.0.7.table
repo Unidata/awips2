@@ -1,0 +1,6 @@
+# Product Discipline 0: Meteorological products, Parameter Category 7: Thermodynamic Stability Indices
+#192-254 Reserved for local use
+193:193:Best (4 layer) Lifted Index:K:4LFTX:BLI
+197:197:Updraft Helicity in Layer 2-5 km AGL:m^2/s^2:UPHL
+199:199:Hourly Maximum of Updraft Helicity over Layer 2-5 km AGL:m^2/s^2:MXUPHL
+

@@ -1,0 +1,239 @@
+5000 |        |  |   |  |        |  |redbook                 |KWBC.       |  |Redbook graphic master key
+5013 |        |  |   |  |1|3600,2100|redbook/sfc/radar       |PAWO82KWBC. |  |PAWO82 Radar Summary
+5014 |        |  |   |  |1|3600,2100|redbook/sfc/radar       |PAWO83KWBC. |  |PAWO83 Radar Legend
+5015 |        |  |   |  |        |  |redbook/misc            |PAW883KWBC. |  |PAW883 redbook graphic
+5021 |        |  |   |  |        |  |redbook/misc            |PDKI59KWBC. |  |PDKI59 redbook graphic
+5238 |        |  | 72|  |        |  |redbook/models/MRF/MSLP |PPKK01KWNO. |  |PPKK01 gfs  72hr MSLP *
+5239 |        |  | 96|  |        |  |redbook/models/MRF/MSLP |PPKM01KWNO. |  |PPKM01 gfs  96hr MSLP *
+5240 |        |  |120|  |        |  |redbook/models/MRF/MSLP |PPKO01KWNO. |  |PPKO01 gfs 120hr MSLP *
+5241 |        |  |144|  |        |  |redbook/models/MRF/MSLP |PPKQ01KWNO. |  |PPKQ01 gfs 144hr MSLP *
+5046 |        |  |   |  |   |21600  |redbook/sfc/pcp/excrain |PEI745KWBC. |  |PEI745 day 1 excessive rainfall
+5200 |        |  | 6 |  |   |21600  |redbook/sfc/pcp/QPF     |PEIB40KWNO. |  |PEIB40 0-6HR QPF
+5047 |        |  |12 |  |   |21600  |redbook/sfc/pcp/QPF     |PEIC43KWBC. |  |PEIC43 6-12HR QPF
+5049 |        |  |18 |  |   |21600  |redbook/sfc/pcp/QPF     |PEID44KWBC. |  |PEID44 12-18HR QPF
+5201 |        |  |24 |  |   |21600  |redbook/sfc/pcp/QPF     |PEIE40KWNO. |  |PEIE40 18-24HR QPF
+5202 |        |  |30 |  |   |21600  |redbook/sfc/pcp/QPF     |PEIF40KWNO. |  |PEIF40 24-30HR QPF
+5050 |        |  |24 |  |   |21600  |redbook/sfc/pcp/QPF     |PEIE41KWBC. |  |PEIE41 24hr qpf over 24hr
+5053 |        |  |48 |  |        |  |redbook/sfc/pcp/QPF     |PEII42KWBC. |  |PEII42 48hr qpf over 24hr
+5048 |        |  |12 |  |   |21600  |redbook/sfc/pcp/QPF     |PEIC61KWBC. |  |PEIC61 12hr inst prcp
+5051 |        |  |24 |  |   |21600  |redbook/sfc/pcp/QPF     |PEIE62KWBC. |  |PEIE62 24hr inst prcp
+5052 |        |  |36 |  |        |  |redbook/sfc/pcp/QPF     |PEIG63KWBC. |  |PEIG63 36hr clds/precip
+5054 |        |  |48 |  |        |  |redbook/sfc/pcp/QPF     |PEII64KWBC. |  |PEII64 48hr clds/precip
+5055 |        |  |60| |1|86400,86400|redbook/sfc/pcp/total   |PEIO46KWBC. |  |PEIO46 5 dy total precip
+# estimating freq for 5439
+5439|        |  |168|  | |43200,43200|redbook/sfc/pcp/total  |PEIS46KWBC. |  |PEIS46 7 dy total precip
+5056 |        |  |   |  |        |  |redbook/sfc/pcp/daily   |PEWA31KWBC. |  |PEWA31 Daily Precipitation
+5057 |        |  |   |  |        |  |redbook/sfc/pcp/snow    |PEWA32KWBC. |  |PEWA32 Snow Cover Plot
+5058 |        |  |   |  |        |  |redbook/sfc/pcp/h2o     |PEWA33KWBC. |  |PEWA33 pcp h20 plot
+5059 |        |  |   |  |        |  |redbook/sfc/pcp/h2o     |PEWA34KWBC. |  |PEWA34 pcp h20 anal
+5062 |        |  |12 |  |   |21600  |redbook/sfc/wxdepict    |PGIC42KWBC. |  |PGIC42 Wx Depiction
+5063 |        |  |24 |  |   |21600  |redbook/sfc/wxdepict    |PGIE43KWBC. |  |PGIE43 Wx Depiction
+5064 |        |  |   |  |    |3600  |redbook/sfc/wxdepict    |PGWA31KWBC. |  |PGWA31 Wx Depiction plot
+5065 |        |  |   |  |    |3600  |redbook/sfc/wxdepict    |PGWA32KWBC. |  |PGWA32 Wx Depiction analysis
+5066 |        |  |   |  |    |3600  |redbook/sfc/wxdepict    |PGWA39KWBC. |  |PGWA39 Wx Depiction plot
+5067 |        |  |6  |  |   |10800  |redbook/sfc/tstm/prob   |PJMB44KWBC. |  |PJMB44 tstm prob\ 2-6hr
+5068 |        |  |6  |  |   |10800  |redbook/sfc/tstm/prob   |PJMB45KWBC. |  |PJMB45 svr wx prob\ 2-6hr
+5069 |        |  |   |  |    |3600  |redbook/sfc/tstm/outlook|PGWE46KWNS. |  |PGWE46 day 1 conv outlook
+5072 |        |  |48 |  |    |3600  |redbook/sfc/tstm/outlook|PGWI47KWNS. |  |PGWI47 day 2 conv outlook
+5215 |        |  | 96|  |      |     |redbook/models/UKMO    |PHZM50KWNO. |  |PHZM50 96 ukmo 500 hgt
+5101 |        |  |120|  |      |     |redbook/models/UKMO    |PHZO50KWNO. |  |PHZO50 120 ukmo 500 hgt
+5216 |        |  |144|  |      |     |redbook/models/UKMO    |PHZQ50KWNO. |  |PHZQ50 144 ukmo 500 hgt
+5102 |        |  |   |  |        |  |redbook/misc            |PLQI51KWBC. |  |PLQI51 redbook graphic
+5104 |        |  |   |  |        |  |redbook/misc            |PNWA68KWBC. |  |PNWA68 redbook graphic
+5107 |        |  |   |  |        |  |redbook/misc            |POWA31KWBC. |  |POWA31 redbook graphic
+5108 |        |  |72 |  |1|86400,43200|redbook/sfc/fronts    |PPHK01KWBC. |  |PPHK01 day 3 frnt/pres
+5109 |        |  |96 |  |1|86400,43200|redbook/sfc/fronts    |PPHM01KWBC. |  |PPHM01 day 4 frnt/pres
+5110 |        |  |120|  |1|86400,43200|redbook/sfc/fronts    |PPHO01KWBC. |  |PPHO01 day 5 frnt/pres
+5204 |        |  |0  |  |   |10800  |redbook/sfc/fronts      |PYAA98KWNO. |  |PYAA98 frontal analysis
+5243 |        |  |0  |  |   |21600  |redbook/sfc/fronts      |PYBA98KWNO. |  |PYBA98 NA frontal analysis
+5111 |        |  |12 |  |   |21600  |redbook/sfc/fronts      |PPIC01KWBC. |  |PPIC01 12hr frnt/pres
+5112 |        |  |24 |  |   |21600  |redbook/sfc/fronts      |PPIE01KWBC. |  |PPIE01 24hr frnt/pres
+5113 |        |  |36 |  |        |  |redbook/sfc/fronts      |PPIG01KWBC. |  |PPIG01 36hr frnt/pres
+5114 |        |  |48 |  |        |  |redbook/sfc/fronts      |PPII01KWBC. |  |PPII01 48hr frnt/pres
+5115 |        |  |   |  |   |10800  |redbook/sfc/MSLP        |PPAA89KWNO. |  |PPAA89 mslp anal
+5244 |        |  |   |  |   |21600  |redbook/sfc/MSLP        |PPBA89KWNO. |  |PPBA89 NA mslp anal
+5227 |        |  | 96|  |      |    |redbook/models/UKMO     |PPZM50KWNO. |  |PPZM50 ukmo  96 mslp
+5118 |        |  |120|  |      |    |redbook/models/UKMO     |PPZO50KWNO. |  |PPZO50 ukmo 120 mslp
+5288 |        |  |144|  |      |    |redbook/models/UKMO     |PPZQ50KWNO. |  |PPZQ50 ukmo 144 mslp
+5134 |        |  |   |  |        |  |redbook/sfc/rh          |PRWA51KWBC. |  |PRWA51 sfc-500 rh plot
+5136 |        |  |12 |  |   |21600  |redbook/sfc/temp/frzglvl|PTIC94KWBC. |  |PTIC94 12hr frz lvl anal *
+5137 |        |  |24 |  |   |21600  |redbook/sfc/temp/frzglvl|PTIE94KWBC. |  |PTIE94 24hr frz lvl anal *
+5138 |        |  |60 |  |        |  |redbook/sfc/temp/anomaly|PTIO52KWBC. |  |PTIO52 5dy max temp anom
+5139 |        |  |60 |  |        |  |redbook/sfc/temp/anomaly|PTIO53KWBC. |  |PTIO53 5dy min temp anom
+5140 |        |  |   |  |        |  |redbook/sfc/temp/maxmin |PTWA31KWBC. |  |PTWA31 Max Temperatures
+5141 |        |  |   |  |        |  |redbook/sfc/temp/maxmin |PTWA32KWBC. |  |PTWA32 Min Temperatures
+5142 |        |  |   |  |        |  |redbook/sfc/temp/frzglvl|PTWA94KWBC. |  |PTWA94 freezing level plot
+5145 |        |  |   |  |        |  |redbook/sfc/temp/frzglvl|PTWA93KWBC. |  |PTWA93 freezing level analysis
+5146 |        |  |   |  |        |  |redbook/misc            |PXVA01KWBC. |  |PXVA01 redbook graphic
+5147 |        |  |   |  |        |  |redbook/sfc/LI-KI       |PXWA50KWBC. |  |PXWA50 lifted-K plot
+5148 |d2_national| | |  |        |  |redbook/upperair        |PYMA20KWBC. |  |PYMA20 200mb plot
+5149 |d2_national| | |  |        |  |redbook/upperair        |PYMA25KWBC. |  |PYMA25 250mb plot
+5150 |d2_national| | |  |        |  |redbook/upperair        |PYMA30KWBC. |  |PYMA30 300mb plot
+5151 |d2_national| | |  |        |  |redbook/upperair        |PYMA50KWBC. |  |PYMA50 500mb plot
+5152 |d2_national| | |  |        |  |redbook/upperair        |PYMA70KWBC. |  |PYMA70 700mb plot
+5153 |d2_national| | |  |        |  |redbook/upperair        |PYMA85KWBC. |  |PYMA85 850mb plot
+5154 |        |  |   |  |   |10800  |redbook/sfc/geostroph   |PYWA31KWBC. |  |PYWA31 sfc geo wind
+5155 |        |  |   |  |   |10800  |redbook/sfc/geostroph   |PYWA32KWBC. |  |PYWA32 sfc geo rel vort
+5159 |        |  |72 |  |        |  |redbook/sfc/temp/pop    |PYWK43KWBC. |  |PYWK43 day 3 temp/pop
+5160 |        |  |   |  |        |  |redbook/misc            |PYWK62KWBC. |  |PYWK62 redbook graphic
+5161 |        |  |96 |  |        |  |redbook/sfc/temp/pop    |PYWM44KWBC. |  |PYWM44 day 4 temp/pop
+5162 |        |  |120|  |        |  |redbook/sfc/temp/pop    |PYWO45KWBC. |  |PYWO45 day 5 temp/pop
+5163 |        |  |   |  |        |  |redbook/misc            |PZKY51KWBC. |  |PZKY51 redbook graphic
+5164 |        |  |180|  |1|86400,86400|redbook/sfc/pcp/total |PEIY47KWBC. |  |PEIY47 6-10 day Total Pcp
+5169 |        |  |180|  |        |  |redbook/sfc/temp/anomaly|PTIY51KWBC. |  |PTIY51 6-10 day Temp Anomaly
+5172 |        |  |180|  |        |  |redbook/misc            |PHBV50KWBC. |  |PHBV50 6-10 day mean 500 Height
+5245 |        |  |0  |  |        |10800  |redbook/marine     |PWIA98KWNM. |  |PWIA98 WATL wind/wave anal
+5246 |        |  |24 |  |        |  |redbook/marine          |PWIE98KWNM. |  |PWIE98 WATL wind/wave 24hr
+5248 |        |  |0  |  |        |10800  |redbook/marine     |PWIA97KWNM. |  |PWIA97 EPAC wind/wave anal
+5249 |        |  |24 |  |        |  |redbook/marine          |PWIE97KWNM. |  |PWIE97 EPAC wind/wave 24hr
+#5289 |        |  |-10|  |  |86400,43200|redbook/sfc/drought  |PEIY50KWNC. |  |PEIY50 3-10 Day Threats Assessment: Precip FCST
+#5290 |        |  |-10|  |  |86400,43200|redbook/sfc/drought  |PTIY98KWNC. |  |PTIY98 3-10 Day Threats Assessment: Temp/Wind FCST
+#5291 |        |  |-10|  |  |86400,43200|redbook/sfc/drought  |PYIY88KWNC. |  |PYIY88 3-10 Day Threats Assessment: Soil/Wildfire FCST
+5432 |        |  |-7 |  |  |86400,43200|redbook/sfc/drought  |PEIY97KWNC.|   |PEIY97 Precip Hazards 3-7 Days Outlook
+5433 |        |  |-14|  |  |86400,43200|redbook/sfc/drought  |PEIY96KWNC.|   |PEIY96 Precip Hazards 8-14 Days Outlook
+5434 |        |  |-7 |  |  |86400,43200|redbook/sfc/drought  |PTIY97KWNC. |  |PTIY97 Temp/Wind Hazards 3-7 Days Outlook
+5435 |        |  |-14|  |  |86400,43200|redbook/sfc/drought  |PTIY96KWNC. |  |PTIY96 Temp/Wind Hazards 8-14 Days Outlook
+5436 |        |  |-7 |  |  |86400,43200|redbook/sfc/drought  |PYIY97KWNC. |  |PYIY97 Soil/Wildfire Hazards 3-7 Days Outlook
+5437 |        |  |-14|  |  |86400,43200|redbook/sfc/drought  |PYIY96KWNC. |  |PYIY96 Soil/Wildfire Hazards 8-14 Days Outlook
+5293 |        |  |72 |  |  |           |redbook/sfc/pcp/QPF  |PEIK98KWNH. |  |PEIK98 Day 3 QPF - Time Proj 60-72Hrs
+5381 |        |  |72 |  |  |86400,43200|redbook/sfc/drought  |PTNK98KWNH. |  |PTNK98 Day 3 Heat Index Prob >=85F
+5386 |        |  |96 |  |  |86400,43200|redbook/sfc/drought  |PTNM98KWNH. |  |PTNM98 Day 4 Heat Index Prob >=85F
+5387 |        |  |120|  |  |86400,43200|redbook/sfc/drought  |PTNO98KWNH. |  |PTNO98 Day 5 Heat Index Prob >=85F
+5382 |        |  |144|  |  |86400,43200|redbook/sfc/drought  |PTNQ98KWNH. |  |PTNQ98 Day 6 Heat Index Prob >=85F
+5383 |        |  |-10|  |  |86400,43200|redbook/sfc/drought  |PTNR98KWNC. |  |PTNR98 6-10 Day Max Heat Index Outlook
+5247 |        |  |-14|  |  |86400,43200|redbook/sfc/drought  |PTNT98KWNC. |  |PTNT98 8-14 Day Max Heat Index Outlook
+5388 |        |  |168|  |  |86400,43200|redbook/sfc/drought  |PTNS98KWNH. |  |PTNS98 Day 7 Heat Index Prob >=85F
+5298 |        |  |-10|  |  |86400,43200|redbook/sfc/drought  |PTAS90KWNC. |  |PTAS90 6-10 Day FCST - Heat Index >=85F for 3+ Days
+5299 |        |  |-10|  |  |86400,43200|redbook/sfc/drought  |PTAS95KWNC. |  |PTAS95 6-10 Day FCST - Heat Index >=90F for 2+ Days
+5300 |        |  |-10|  |  |86400,43200|redbook/sfc/drought  |PTAS00KWNC. |  |PTAS00 6-10 Day FCST - Heat Index >=95F for 1+ Day
+5301 |        |  |-14|  |  |86400,43200|redbook/sfc/drought  |PTAT90KWNC. |  |PTAT90 8-14 Day FCST - Heat Index >=85F for 3+ Days
+5302 |        |  |-14|  |  |86400,43200|redbook/sfc/drought  |PTAT95KWNC. |  |PTAT95 8-14 Day FCST - Heat Index >=90F for 2+ Days
+5303 |        |  |-14|  |  |86400,43200|redbook/sfc/drought  |PTAT00KWNC. |  |PTAT00 8-14 Day FCST - Heat Index >=95F for 1+ Day
+5304 |        |  |36 |  |  |21600      |redbook/sfc/pcp/QPF  |PEBF98KWNH. |  |PEBF98 6Hr QPF - Time Proj 30-36Hrs
+5305 |        |  |42 |  |  |21600      |redbook/sfc/pcp/QPF  |PEBG98KWNH. |  |PEBG98 6Hr QPF - Time Proj 36-42Hrs
+5306 |        |  |48 |  |  |21600      |redbook/sfc/pcp/QPF  |PEBH98KWNH. |  |PEBH98 6Hr QPF - Time Proj 42-48Hrs
+5307 |        |  |54 |  |  |21600      |redbook/sfc/pcp/QPF  |PEBI88KWNH. |  |PEBI88 6Hr QPF - Time Proj 48-54Hrs
+5308 |        |  |60 |  |  |21600      |redbook/sfc/pcp/QPF  |PEBI98KWNH. |  |PEBI98 6Hr QPF - Time Proj 54-60Hrs
+5309 |        |  |66 |  |  |21600      |redbook/sfc/pcp/QPF  |PEBJ88KWNH. |  |PEBJ88 6Hr QPF - Time Proj 60-66Hrs
+5310 |        |  |72 |  |  |21600      |redbook/sfc/pcp/QPF  |PEBJ98KWNH. |  |PEBJ98 6Hr QPF - Time Proj 66-72Hrs
+5311 |        |  |78 |  |  |21600      |redbook/sfc/pcp/QPF  |PEBK98KWNH. |  |PEBK98 6Hr QPF - Time Proj 72-78Hrs
+5312 |b_TSA   |  |   |  |  |21600      |redbook/sfc/fronts   |PYNA98KNHC. |  |PYNA98 Tropical Surface Analysis
+5313 |b05     |  |   |  |  |           |redbook/upperair     |PWAA85KNHC. |  |PWAA85 Atlantic 850MB StreamLines and Wind Analysis
+5314 |b05     |  |   |  |  |           |redbook/upperair     |PWAA20KNHC. |  |PWAA20 Atlantic 200MB StreamLines and Wind Analysis
+5315 |b05     |  |   |  |  |           |redbook/upperair     |PWAA00KNHC. |  |PWAA00 Atlantic Deep Layer Mean Circulation 1000-100MB
+5316 |b05     |  |   |  |  |           |redbook/upperair     |PWAA65KNHC. |  |PWAA65 Atlantic 850-200MB Wind Shear/Wind Analysis
+5317 |b06     |  |   |  |  |           |redbook/marine       |PWBA88KNHC. |  |PWBA88 Eastern Pacific Winds/Seas Analysis
+5318 |b07     |  |   |  |  |           |redbook/upperair     |PWDA00KNHC. |  |PWDA00 Pacific Deep Layer Mean Circulation 1000-100MB
+5319 |b07     |  |   |  |  |           |redbook/upperair     |PWDA65KNHC. |  |PWDA65 Pacific 850-200MB Wind Shear/Wind Analysis
+5320 |b08     |  |00 |  |  |21600      |redbook/marine       |PWEA88KNHC. |  |PWEA88 Caribbean Wind/Seas (ft) 00Hr FCST
+5321 |b08     |  |12 |  |  |21600      |redbook/marine       |PWEC88KNHC. |  |PWEC88 Caribbean Wind/Seas (ft) 12Hr FCST
+5322 |b08     |  |24 |  |  |           |redbook/marine       |PWEE88KNHC. |  |PWEE88 Caribbean Wind/Seas (ft) 24Hr FCST
+5323 |b08     |  |36 |  |  |           |redbook/marine       |PWEG88KNHC. |  |PWEG88 Caribbean Wind/Seas (ft) 36Hr FCST
+5324 |        |  |   |  |  |21600      |redbook/sfc/fronts   |PYAA89KWNM. |  |PYAA89 Northern Atlantic Hemispheric Surface Analysis
+5325 |        |  |   |  |  |86400,43200|redbook/marine       |PJAA88KWNM. |  |PJAA88 Northern Atlantic Sig Wave Analysis
+5326 |        |  |48 |  |  |           |redbook/marine       |PJAI88KWNM. |  |PJAI88 48Hr North Atlantic Sig Wave/Winds FCST
+5327 |        |  |24 |  |  |           |redbook/sfc/fronts   |PPAE89KWNM. |  |PPAE89 24Hr Western Atlantic Fronts/Pressure FCST
+5328 |        |  |48 |  |  |           |redbook/sfc/fronts   |PPAI89KWNM. |  |PPAI89 48Hr North Atlantic Fronts/Pressure/Winds FCST
+5329 |        |  |96 |  |  |86400      |redbook/sfc/fronts   |PPAM89KWNM. |  |PPAM89 96Hr North Atlantic Fronts/Pressure/Winds FCST
+5330 |        |  |   |  |  |21600      |redbook/sfc/fronts   |PYBA89KWNM. |  |PYBA89 Northern Pacific Hemispheric Surface Analysis
+5331 |        |  |   |  |  |86400      |redbook/marine       |PJBA88KWNM. |  |PJBA88 North Pacific Sig Wave Analysis
+5332 |        |  |48 |  |  |           |redbook/marine       |PJBI88KWNM. |  |PJBI88 48Hr North Pacific Sig Wave/Winds/FCST
+5333 |        |  |24 |  |  |           |redbook/sfc/fronts   |PPBE89KWNM. |  |PPBE89 24Hr Eastern Pacific Fronts/Pressure FCST
+5334 |        |  |48 |  |  |           |redbook/sfc/fronts   |PPBI89KWNM. |  |PPBI89 48Hr North Pacific Fronts/Pressure/Winds FCST
+5335 |        |  |96 |  |  |86400      |redbook/sfc/fronts   |PPBM89KWNM. |  |PPBM89 96Hr North Pacific Fronts/Pressure/Winds FCST
+5336 |        |  |24 |  |  |           |redbook/marine       |PGNE88KWNM. |  |PGNE88 24Hr Marine Dense Fog FCST
+5337 |        |  |24 |  |  |           |redbook/marine       |PGNE98KWNM. |  |PGNE98 24Hr Marine Freezing Spray FCST
+5338 |        |  |144|  |  |86400,43200|redbook/sfc/fronts   |PPTG98KWNO. |  |PPTG98 Day 6 Frontal Position FCST
+5339 |        |  |168|  |  |86400,43200|redbook/sfc/fronts   |PPTR98KWNO. |  |PPTR98 Day 7 Frontal Position FCST
+5340 |        |  |144|  |  |86400,43200|redbook/sfc/temp/pop |PYWQ46KWNO. |  |PYWQ46 Day 6 Temp and POP FCST
+5341 |        |  |168|  |  |86400,43200|redbook/sfc/temp/pop |PYWS98KWNO. |  |PYWS98 Day 7 Temp and POP FCST
+5342 |        |  |-45|  |  |           |redbook/sfc/pcp/total|PEIV98KWNC. |  |PEIV98 30 Day Precip Anom
+5343 |        |  |-105| |  |           |redbook/sfc/pcp/total|PEIW01KWNC. |  |PEIW01 0.5 Mo (15-105 day) Precip Outlook
+5344 |        |  |-135| |  |           |redbook/sfc/pcp/total|PEIW02KWNC. |  |PEIW02 1.5 Mo (45-135 day) Precip Outlook
+5345 |        |  |-165| |  |           |redbook/sfc/pcp/total|PEIW03KWNC. |  |PEIW03 2.5 Mo (75-165 day) Precip Outlook
+5346 |        |  |-195| |  |           |redbook/sfc/pcp/total|PEIW04KWNC. |  |PEIW04 3.5 Mo (105-195 day) Precip Outlook
+5347 |        |  |-225| |  |           |redbook/sfc/pcp/total|PEIW05KWNC. |  |PEIW05 4.5 Mo (135-225 day) Precip Outlook
+5348 |        |  |-255| |  |           |redbook/sfc/pcp/total|PEIW06KWNC. |  |PEIW06 5.5 Mo (165-255 day) Precip Outlook
+5349 |        |  |-285| |  |           |redbook/sfc/pcp/total|PEIW07KWNC. |  |PEIW07 6.5 Mo (195-285 day) Precip Outlook
+5350 |        |  |-315| |  |           |redbook/sfc/pcp/total|PEIW08KWNC. |  |PEIW08 7.5 Mo (225-315 day) Precip Outlook
+5351 |        |  |-345| |  |           |redbook/sfc/pcp/total|PEIW09KWNC. |  |PEIW09 8.5 Mo (255-345 day) Precip Outlook
+5352 |        |  |-375| |  |           |redbook/sfc/pcp/total|PEIW10KWNC. |  |PEIW10 9.5 Mo (285-375 day) Precip Outlook
+5353 |        |  |-405| |  |           |redbook/sfc/pcp/total|PEIW11KWNC. |  |PEIW11 10.5 Mo (315-405 day) Precip Outlook
+5354 |        |  |-435| |  |           |redbook/sfc/pcp/total|PEIW12KWNC. |  |PEIW12 11.5 Mo (345-435 day) Precip Outlook
+5355 |        |  |-465| |  |           |redbook/sfc/pcp/total|PEIW13KWNC. |  |PEIW13 12.5 Mo (375-465 day) Precip Outlook
+5356 |        |  |-45 | |  |           |redbook/sfc/temp/anomaly|PTIV98KWNC. |  |PTIV98 30 Day Temp Anom
+5357 |        |  |-105| |  |           |redbook/sfc/temp/norm|PTIW01KWNC. |  |PTIW01 0.5 Mo (15-105 day) Temp Outlook
+5358 |        |  |-135| |  |           |redbook/sfc/temp/norm|PTIW02KWNC. |  |PTIW02 1.5 Mo (45-135 day) Temp Outlook
+5359 |        |  |-165| |  |           |redbook/sfc/temp/norm|PTIW03KWNC. |  |PTIW03 2.5 Mo (75-165 day) Temp Outlook
+5360 |        |  |-195| |  |           |redbook/sfc/temp/norm|PTIW04KWNC. |  |PTIW04 3.5 Mo (105-195 day) Temp Outlook
+5361 |        |  |-225| |  |           |redbook/sfc/temp/norm|PTIW05KWNC. |  |PTIW05 4.5 Mo (135-225 day) Temp Outlook
+5362 |        |  |-255| |  |           |redbook/sfc/temp/norm|PTIW06KWNC. |  |PTIW06 5.5 Mo (165-255 day) Temp Outlook
+5363 |        |  |-285| |  |           |redbook/sfc/temp/norm|PTIW07KWNC. |  |PTIW07 6.5 Mo (195-285 day) Temp Outlook
+5364 |        |  |-315| |  |           |redbook/sfc/temp/norm|PTIW08KWNC. |  |PTIW08 7.5 Mo (225-315 day) Temp Outlook
+5365 |        |  |-345| |  |           |redbook/sfc/temp/norm|PTIW09KWNC. |  |PTIW09 8.5 Mo (255-345 day) Temp Outlook
+5366 |        |  |-375| |  |           |redbook/sfc/temp/norm|PTIW10KWNC. |  |PTIW10 9.5 Mo (285-375 day) Temp Outlook
+5367 |        |  |-405| |  |           |redbook/sfc/temp/norm|PTIW11KWNC. |  |PTIW11 10.5 Mo (315-405 day) Temp Outlook
+5368 |        |  |-435| |  |           |redbook/sfc/temp/norm|PTIW12KWNC. |  |PTIW12 11.5 Mo (345-435 day) Temp Outlook
+5369 |        |  |-465| |  |           |redbook/sfc/temp/norm|PTIW13KWNC. |  |PTIW13 12.5 Mo (375-465 day) Temp Outlook
+5370 |        |  |  12| |  |           |redbook/sfc/firewx   |PMWE98KWNS. |  |PMWE98 Day 1 Fire Wx Outlook
+5371 |        |  |  36| |  |           |redbook/sfc/firewx   |PMWI98KWNS. |  |PMWI98 Day 2 Fire Wx Outlook
+5372 |        |  |-11 | |  |           |redbook/sfc/pcp/total|PETT00KWNC. |  |PETT00 8-14 day precip prob
+5373 |        |  |-11 | |  |           |redbook/sfc/temp/norm|PTTU98KWNC. |  |PTTU98 8-14 day temp prob
+5374 |        |  |-11 | |  |           |redbook/misc         |PHTT50KWNC. |  |PHTT50 8-14 day mean 500 ht
+5375 |        |  |-11 | |  |           |redbook/misc         |PHTT51KWNC. |  |PHTT51 8-14 day mean 500 ht anomaly
+5376 |        |  |24  | |  |           |redbook/sfc/tstm/outlook|PENE00KWNS.|  |PENE00 Day 1 Hail outlook
+5377 |        |  |24  | |  |           |redbook/sfc/tstm/outlook|PWNE00KWNS.|  |PWNE00 Day 1 Wind outlook
+5378 |        |  |24  | |  |           |redbook/sfc/tstm/outlook|PGNE00KWNS.|  |PGNE00 Day 1 Tornado outlook
+5379 |        |  |48  | |  |           |redbook/sfc/tstm/outlook|PGNI00KWNS.|  |PGNI00 Day 2 Combined Severe Outlook
+5380 |        |  |180 | |  |           |redbook/misc            |PHNT50KWNC.|  |PHNT50 6-10 day 500 Hgt Anomaly
+5384 |        |  |72  | |  |           |redbook/sfc/tstm/outlook|PZNK00KWNS.|  |PZNK00 Day 3 Combined Severe Outlook
+5385 |        |  |72  | |  |           |redbook/sfc/tstm/outlook|PGWK48KWNS.|  |PGWK48 Day 3 Convective Outlook
+5389 |        |  |24  | |  |           |redbook/sfc/pcp/excrain |PENJ88KWNH.|  |PENJ88 Sig River Flood Outlook
+5390 |        |  |    | |  |60         |redbook/sfc/tstm/outlook|PGNA00KWNS.|  |PGNA00 Active Mesoscale Disc Summary
+5391 |        |  |24 |  |  |           |redbook/sfc/pcp/snow |PSBB04KWNH. |  |PSBB04 Day 1 Prob 4+" Snow
+5392 |        |  |24 |  |  |           |redbook/sfc/pcp/snow |PSBB08KWNH. |  |PSBB08 Day 1 Prob 8+" Snow
+5393 |        |  |24 |  |  |           |redbook/sfc/pcp/snow |PSBB12KWNH. |  |PSBB12 Day 1 Prob 12+" Snow
+5394 |        |  |24 |  |  |           |redbook/sfc/pcp/snow |PSBB25KWNH. |  |PSBB25 Day 1 Prob .25+" Ice
+5395 |        |  |48 |  |  |           |redbook/sfc/pcp/snow |PSBC04KWNH. |  |PSBC04 Day 2 Prob 4+" Snow
+5396 |        |  |48 |  |  |           |redbook/sfc/pcp/snow |PSBC08KWNH. |  |PSBC08 Day 2 Prob 8+" Snow
+5397 |        |  |48 |  |  |           |redbook/sfc/pcp/snow |PSBC12KWNH. |  |PSBC12 Day 2 Prob 12+" Snow
+5398 |        |  |48 |  |  |           |redbook/sfc/pcp/snow |PSBC25KWNH. |  |PSBC25 Day 2 Prob .25+" Ice
+5399 |        |  |72 |  |  |           |redbook/sfc/pcp/snow |PSBD04KWNH. |  |PSBD04 Day 3 Prob 4+" Snow
+5400 |        |  |72 |  |  |           |redbook/sfc/pcp/snow |PSBD08KWNH. |  |PSBD08 Day 3 Prob 8+" Snow
+5401 |        |  |72 |  |  |           |redbook/sfc/pcp/snow |PSBD12KWNH. |  |PSBD12 Day 3 Prob 12+" Snow
+5402 |        |  |72 |  |  |           |redbook/sfc/pcp/snow |PSBD25KWNH. |  |PSBD25 Day 3 Prob .25+" Ice
+5403 |        |  |72 |  |  |           |redbook/sfc/fronts   |PSAO72KWNH. |  |PSAO72 3-Day Sig Winter Low Tracks
+5404 |        |  |-105| |  |           |redbook/sfc/pcp/total|PENV01KWNC. |  |PENV01 0.5 Mo (15-105 day) 50% POE Precip Outlook
+5405 |        |  |-135| |  |           |redbook/sfc/pcp/total|PENV02KWNC. |  |PENV02 1.5 Mo (45-135 day) 50% POE Precip Outlook
+5406 |        |  |-165| |  |           |redbook/sfc/pcp/total|PENV03KWNC. |  |PENV03 2.5 Mo (75-165 day) 50% POE Precip Outlook
+5407 |        |  |-195| |  |           |redbook/sfc/pcp/total|PENV04KWNC. |  |PENV04 3.5 Mo (105-195 day) 50% POE Precip Outlook
+5408 |        |  |-225| |  |           |redbook/sfc/pcp/total|PENV05KWNC. |  |PENV05 4.5 Mo (135-225 day) 50% POE Precip Outlook
+5409 |        |  |-255| |  |           |redbook/sfc/pcp/total|PENV06KWNC. |  |PENV06 5.5 Mo (165-255 day) 50% POE Precip Outlook
+5410 |        |  |-285| |  |           |redbook/sfc/pcp/total|PENV07KWNC. |  |PENV07 6.5 Mo (195-285 day) 50% POE Precip Outlook
+5411 |        |  |-315| |  |           |redbook/sfc/pcp/total|PENV08KWNC. |  |PENV08 7.5 Mo (225-315 day) 50% POE Precip Outlook
+5412 |        |  |-345| |  |           |redbook/sfc/pcp/total|PENV09KWNC. |  |PENV09 8.5 Mo (255-345 day) 50% POE Precip Outlook
+5413 |        |  |-375| |  |           |redbook/sfc/pcp/total|PENV10KWNC. |  |PENV10 9.5 Mo (285-375 day) 50% POE Precip Outlook
+5414 |        |  |-405| |  |           |redbook/sfc/pcp/total|PENV11KWNC. |  |PENV11 10.5 Mo (315-405 day) 50% POE Precip Outlook
+5415 |        |  |-435| |  |           |redbook/sfc/pcp/total|PENV12KWNC. |  |PENV12 11.5 Mo (345-435 day) 50% POE Precip Outlook
+5416 |        |  |-465| |  |           |redbook/sfc/pcp/total|PENV13KWNC. |  |PENV13 12.5 Mo (375-465 day) 50% POE Precip Outlook
+5417 |        |  |-105| |  |           |redbook/sfc/temp/norm|PTNV01KWNC. |  |PTNV01 0.5 Mo (15-105 day) 50% POE Temp Outlook
+5418 |        |  |-135| |  |           |redbook/sfc/temp/norm|PTNV02KWNC. |  |PTNV02 1.5 Mo (45-135 day) 50% POE Temp Outlook
+5419 |        |  |-165| |  |           |redbook/sfc/temp/norm|PTNV03KWNC. |  |PTNV03 2.5 Mo (75-165 day) 50% POE Temp Outlook
+5420 |        |  |-195| |  |           |redbook/sfc/temp/norm|PTNV04KWNC. |  |PTNV04 3.5 Mo (105-195 day) 50% POE Temp Outlook
+5421 |        |  |-225| |  |           |redbook/sfc/temp/norm|PTNV05KWNC. |  |PTNV05 4.5 Mo (135-225 day) 50% POE Temp Outlook
+5422 |        |  |-255| |  |           |redbook/sfc/temp/norm|PTNV06KWNC. |  |PTNV06 5.5 Mo (165-255 day) 50% POE Temp Outlook
+5423 |        |  |-285| |  |           |redbook/sfc/temp/norm|PTNV07KWNC. |  |PTNV07 6.5 Mo (195-285 day) 50% POE Temp Outlook
+5424 |        |  |-315| |  |           |redbook/sfc/temp/norm|PTNV08KWNC. |  |PTNV08 7.5 Mo (225-315 day) 50% POE Temp Outlook
+5425 |        |  |-345| |  |           |redbook/sfc/temp/norm|PTNV09KWNC. |  |PTNV09 8.5 Mo (255-345 day) 50% POE Temp Outlook
+5426 |        |  |-375| |  |           |redbook/sfc/temp/norm|PTNV10KWNC. |  |PTNV10 9.5 Mo (285-375 day) 50% POE Temp Outlook
+5427 |        |  |-405| |  |           |redbook/sfc/temp/norm|PTNV11KWNC. |  |PTNV11 10.5 Mo (315-405 day) 50% POE Temp Outlook
+5428 |        |  |-435| |  |           |redbook/sfc/temp/norm|PTNV12KWNC. |  |PTNV12 11.5 Mo (345-435 day) 50% POE Temp Outlook
+5429 |        |  |-465| |  |           |redbook/sfc/temp/norm|PTNV13KWNC. |  |PTNV13 12.5 Mo (375-465 day) 50% POE Temp Outlook
+# 5430 |        |  |192 | |  |86400,43200|redbook/sfc/tstm/outlook|PGNM98KWNS.|  |PGNM98 Day 4-8 Composite Severe Outlook
+5431 |        |  |192 | |  |86400,43200|redbook/sfc/firewx      |PGNO98KWNS.|  |PGNO98 Day 3-8 Composite Fire Wx Outlook
+5438 |        |  |    | |  |           |redbook/sfc/pcp/excrain |PENA01KWNH.|  |PENA01 Mesoscale Precip
+5440 |        |  |-4  | |  |86400,43200|redbook/sfc/tstm/outlook|PGNW49KWNS.|  |PGNW49 Day 4 Severe Outlook
+5441 |        |  |120 | |  |86400,43200|redbook/sfc/tstm/outlook|PGNW50KWNS.|  |PGNW50 Day 5 Severe Outlook
+5442 |        |  |-6  | |  |86400,43200|redbook/sfc/tstm/outlook|PGNW51KWNS.|  |PGNW51 Day 6 Severe Outlook
+5443 |        |  |-7  | |  |86400,43200|redbook/sfc/tstm/outlook|PGNW52KWNS.|  |PGNW52 Day 7 Severe Outlook
+5444 |        |  |-8  | |  |86400,43200|redbook/sfc/tstm/outlook|PGNW53KWNS.|  |PGNW53 Day 8 Severe Outlook

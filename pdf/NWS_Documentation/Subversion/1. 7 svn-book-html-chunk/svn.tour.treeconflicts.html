@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Dealing with Structural Conflicts</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.tour.html" title="Chapter 2. Basic Usage" />
+    <link rel="prev" href="svn.tour.cleanup.html" title="Sometimes You Just Need to Clean Up" />
+    <link rel="next" href="svn.tour.summary.html" title="Summary" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">Dealing with Structural Conflicts</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.tour.cleanup.html">Prev</a> </td>
+          <th width="60%" align="center">Chapter 2. Basic Usage</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.tour.summary.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="sect1" title="Dealing with Structural Conflicts">
+      <div class="titlepage">
+        <div>
+          <div>
+            <h2 class="title" style="clear: both"><a id="svn.tour.treeconflicts"></a>Dealing with Structural Conflicts</h2>
+          </div>
+        </div>
+      </div>
+      <p>So far, we have only talked about conflicts at the level of
+      file content.  When you and your collaborators make overlapping
+      changes within the same file, Subversion forces you to merge
+      those changes before you can commit.<sup>[<a id="idp33222432" href="#ftn.idp33222432" class="footnote">8</a>]</sup></p>
+      <p>But what happens if your collaborators move or delete a file
+      that you are still working on?  Maybe there was a
+      miscommunication, and one person thinks the file should be
+      deleted, while another person still wants to commit changes to
+      the file.  Or maybe your collaborators did some refactoring,
+      renaming files and moving around directories in the process.  If
+      you were still working on these files, those modifications may
+      need to be applied to the files at their new location.  Such
+      conflicts manifest themselves at the directory tree structure
+      level rather than at the file content level, and are known
+      as <em class="firstterm">tree conflicts</em>.</p>
+      <div class="sidebar" title="Tree conflicts prior to Subversion 1.6">
+        <p class="title">
+          <b>Tree conflicts prior to Subversion 1.6</b>
+        </p>
+        <p>Prior to Subversion 1.6, tree conflicts could yield rather
+        unexpected results.  For example, if a file was locally
+        modified, but had been renamed in the repository,
+        running <span class="command"><strong>svn update</strong></span> would make Subversion
+        carry out the following steps:</p>
+        <div class="itemizedlist">
+          <ul class="itemizedlist" type="disc">
+            <li class="listitem">
+              <p>Check the file to be renamed for local
+          modifications.</p>
+            </li>
+            <li class="listitem">
+              <p>Delete the file at its old location, and if it
+          had local modifications, keep an on-disk copy of the file at
+          the old location.  This on-disk copy now appears as an
+          unversioned file in the working copy.</p>
+            </li>
+            <li class="listitem">
+              <p>Add the file, as it exists in the repository,
+          at its new location.</p>
+            </li>
+          </ul>
+        </div>
+        <p>When this situation arises, there is the possibility that
+        the user makes a commit without realizing that local
+        modifications have been left in a now-unversioned file in the
+        working copy, and have not reached the repository.  This gets
+        more and more likely (and tedious) if the number of files
+        affected by this problem is large.</p>
+        <p>Since Subversion 1.6, this and other similar situations
+        are flagged as conflicts in the working copy.</p>
+      </div>
+      <p>As with textual conflicts, tree conflicts prevent a commit
+      from being made from the conflicted state, giving the user the
+      opportunity to examine the state of the working copy for
+      potential problems arising from the tree conflict, and resolving
+      any such problems before committing.</p>
+      <div class="sect2" title="An Example Tree Conflict">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.tour.treeconflicts.example"></a>An Example Tree Conflict</h3>
+            </div>
+          </div>
+        </div>
+        <p>Suppose a software project you were working on currently
+        looked like this:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn list -Rv svn://svn.example.com/trunk/
+      4 harry                 Feb 06 14:34 ./
+      4 harry              23 Feb 06 14:34 COPYING
+      4 harry              41 Feb 06 14:34 Makefile
+      4 harry              33 Feb 06 14:34 README
+      4 harry                 Feb 06 14:34 code/
+      4 harry              51 Feb 06 14:34 code/bar.c
+      4 harry             124 Feb 06 14:34 code/foo.c
+</pre>
+        </div>
+        <p>Your collaborator Harry has renamed the file
+        <code class="filename">bar.c</code> to <code class="filename">baz.c</code>.  You
+        are still working on <code class="filename">bar.c</code> in your
+        working copy, but you don't know yet that the file has been
+        renamed in the repository.</p>
+        <p>The log message to Harry's commit looked like this:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn log -r5 svn://svn.example.com/trunk
+------------------------------------------------------------------------
+r5 | harry | 2009-02-06 14:42:59 +0000 (Fri, 06 Feb 2009) | 2 lines
+Changed paths:
+   M /trunk/Makefile
+   D /trunk/code/bar.c
+   A /trunk/code/baz.c (from /trunk/code/bar.c:4)
+
+Rename bar.c to baz.c, and adjust Makefile accordingly.
+</pre>
+        </div>
+        <p>The local changes you have made look like this:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn diff
+Index: code/foo.c
+===================================================================
+--- code/foo.c  (revision 4)
++++ code/foo.c  (working copy)
+@@ -3,5 +3,5 @@
+ int main(int argc, char *argv[])
+ {
+        printf("I don't like being moved around!\n%s", bar());
+-       return 0;
++       return 1;
+ }
+Index: code/bar.c
+===================================================================
+--- code/bar.c  (revision 4)
++++ code/bar.c  (working copy)
+@@ -1,4 +1,4 @@
+ const char *bar(void)
+ {
+-       return "Me neither!\n";
++       return "Well, I do like being moved around!\n";
+ }
+</pre>
+        </div>
+        <p>Your changes are all based on revision 4.  They cannot be
+        committed because Harry has already checked in revision 5:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn commit -m "Small fixes"
+Sending        code/bar.c
+Sending        code/foo.c
+Transmitting file data ..
+svn: Commit failed (details follow):
+svn: File not found: transaction '5-5', path '/trunk/code/bar.c'
+</pre>
+        </div>
+        <p>At this point, you need to run <span class="command"><strong>svn update</strong></span>.
+        Besides bringing our working copy up to date so that you can
+        see Harry's changes, this also flags a tree conflict so you
+        have the opportunity to evaluate and properly resolve it.</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn update
+Updating '.':
+   C code/bar.c
+A    code/baz.c
+U    Makefile
+Updated to revision 5.
+Summary of conflicts:
+  Tree conflicts: 1
+</pre>
+        </div>
+        <p>In its output, <span class="command"><strong>svn update</strong></span> signifies tree
+        conflicts using a capital C in the fourth output column.
+        <span class="command"><strong>svn status</strong></span> reveals additional details of the
+        conflict:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn status
+M       code/foo.c
+A  +  C code/bar.c
+      &gt;   local edit, incoming delete upon update
+M       code/baz.c
+</pre>
+        </div>
+        <p>Note how bar.c is automatically scheduled for re-addition
+        in your working copy, which simplifies things in case you want
+        to keep the file.</p>
+        <p>Because a move in Subversion is implemented as a copy operation
+        followed by a delete operation, and these two operations cannot
+        be easily related to one another during an update, all Subversion
+        can warn you about is an incoming delete operation on a locally
+        modified file.
+        This delete operation <span class="emphasis"><em>may</em></span> be part of a move,
+        or it could be a genuine delete operation.  Talking to your
+        collaborators, or, as a last resort, <span class="command"><strong>svn log</strong></span>,
+        is a good way to find out what has actually happened.</p>
+        <p>Both <code class="filename">foo.c</code> and <code class="filename">baz.c</code>
+        are reported as locally modified in the output of
+        <span class="command"><strong>svn status</strong></span>.  You made the changes to
+        <code class="filename">foo.c</code> yourself, so this should not be
+        surprising.  But why is <code class="filename">baz.c</code> reported as
+        locally modified?</p>
+        <p>The answer is that despite the limitations of the move
+        implementation, Subversion was smart enough to transfer your
+        local edits in <code class="filename">bar.c</code>
+        into <code class="filename">baz.c</code>:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn diff code/baz.c
+Index: code/baz.c
+===================================================================
+--- code/baz.c  (revision 5)
++++ code/baz.c  (working copy)
+@@ -1,4 +1,4 @@
+ const char *bar(void)
+ {
+-       return "Me neither!\n";
++       return "Well, I do like being moved around!\n";
+ }
+</pre>
+        </div>
+        <div class="warning" title="Warning" style="margin-left: 0.5in; margin-right: 0.5in;">
+          <table border="0" summary="Warning">
+            <tr>
+              <td rowspan="2" align="center" valign="top" width="25">
+                <img alt="[Warning]" src="images/warning.png" />
+              </td>
+              <th align="left">Warning</th>
+            </tr>
+            <tr>
+              <td align="left" valign="top">
+                <p>Local edits to the file <code class="filename">bar.c</code>, which is
+          renamed during an update to <code class="filename">baz.c</code>, will
+          only be applied to <code class="filename">bar.c</code> if your working
+          copy of <code class="filename">bar.c</code> is based on the revision in
+          which it was last modified before being moved in the repository.
+          Otherwise, Subversion will resort to retreiving
+          <code class="filename">baz.c</code> from the repository, and will not
+          try to transfer your local modifications to it.  You will have
+          to do so manually.</p>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <p><span class="command"><strong>svn info</strong></span> shows the URLs of the items
+        involved in the conflict. The <span class="emphasis"><em>left</em></span> URL
+        shows the source of the local side of the conflict, while
+        the <span class="emphasis"><em>right</em></span> URL shows the source of the
+        incoming side of the conflict. These URLs indicate where you
+        should start searching the repository's history for the change
+        which conflicts with your local change.</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn info code/bar.c | tail -n 4 
+Tree conflict: local edit, incoming delete upon update
+  Source  left: (file) ^/trunk/code/bar.c@4
+  Source right: (none) ^/trunk/code/bar.c@5
+</pre>
+        </div>
+        <p><code class="filename">bar.c</code> is now said to be the
+        <em class="firstterm">victim</em> of a tree conflict.
+        It cannot be committed until the conflict is resolved:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn commit -m "Small fixes" 
+svn: Commit failed (details follow):
+svn: Aborting commit: 'code/bar.c' remains in conflict
+</pre>
+        </div>
+        <p>So how can this conflict be resolved?  You can either agree
+        or disagree with the move Harry made.  In case you agree, you can
+        delete <code class="filename">bar.c</code> and mark the tree conflict as
+        resolved:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn delete --force code/bar.c
+D         code/bar.c
+$ svn resolve --accept=working code/bar.c
+Resolved conflicted state of 'code/bar.c'
+$ svn status
+M       code/foo.c
+M       code/baz.c
+$ svn diff
+Index: code/foo.c
+===================================================================
+--- code/foo.c  (revision 5)
++++ code/foo.c  (working copy)
+@@ -3,5 +3,5 @@
+ int main(int argc, char *argv[])
+ {
+        printf("I don't like being moved around!\n%s", bar());
+-       return 0;
++       return 1;
+ }
+Index: code/baz.c
+===================================================================
+--- code/baz.c  (revision 5)
++++ code/baz.c  (working copy)
+@@ -1,4 +1,4 @@
+ const char *bar(void)
+ {
+-       return "Me neither!\n";
++       return "Well, I do like being moved around!\n";
+ }
+</pre>
+        </div>
+        <p>If you do not agree with the move, you can delete
+        <code class="filename">baz.c</code> instead, after making sure any
+        changes made to it after it was renamed are either preserved
+        or not worth keeping.  Do not forget to revert the changes
+        Harry made to the <code class="filename">Makefile</code>.
+        Since <code class="filename">bar.c</code> is already scheduled for
+        re-addition, there is nothing else left to do, and the conflict
+        can be marked resolved:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn delete --force code/baz.c
+D         code/baz.c
+$ svn resolve --accept=working code/bar.c
+Resolved conflicted state of 'code/bar.c'
+$ svn status
+M       code/foo.c
+A  +    code/bar.c
+D       code/baz.c
+M       Makefile
+$ svn diff
+Index: code/foo.c
+===================================================================
+--- code/foo.c	(revision 5)
++++ code/foo.c	(working copy)
+@@ -3,5 +3,5 @@
+ int main(int argc, char *argv[])
+ {
+ 	printf("I don't like being moved around!\n%s", bar());
+-	return 0;
++	return 1;
+ }
+Index: code/bar.c
+===================================================================
+--- code/bar.c	(revision 5)
++++ code/bar.c	(working copy)
+@@ -1,4 +1,4 @@
+ const char *bar(void)
+ {
+-	return "Me neither!\n";
++	return "Well, I do like being moved around!\n";
+ }
+Index: code/baz.c
+===================================================================
+--- code/baz.c	(revision 5)
++++ code/baz.c	(working copy)
+@@ -1,4 +0,0 @@
+-const char *bar(void)
+-{
+-	return "Me neither!\n";
+-}
+Index: Makefile
+===================================================================
+--- Makefile	(revision 5)
++++ Makefile	(working copy)
+@@ -1,2 +1,2 @@
+ foo: 
+-	$(CC) -o $@ code/foo.c code/baz.c
++	$(CC) -o $@ code/foo.c code/bar.c
+</pre>
+        </div>
+        <p>In either case, you have now resolved your first tree
+        conflict!  You can commit your changes and tell Harry during
+        tea break about all the extra work he caused for you.</p>
+      </div>
+      <div class="footnotes">
+        <br />
+        <hr width="100" align="left" />
+        <div class="footnote">
+          <p><sup>[<a id="ftn.idp33222432" href="#idp33222432" class="para">8</a>] </sup>Well,
+      you <span class="emphasis"><em>could</em></span> mark files containing conflict
+      markers as resolved and commit them, if you really wanted to.
+      But this is rarely done in practice.</p>
+        </div>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.tour.cleanup.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.tour.html">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.tour.summary.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">Sometimes You Just Need to Clean Up </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> Summary</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

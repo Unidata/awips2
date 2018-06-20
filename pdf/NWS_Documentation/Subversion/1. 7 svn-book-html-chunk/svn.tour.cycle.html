@@ -1,0 +1,1557 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Basic Work Cycle</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.tour.html" title="Chapter 2. Basic Usage" />
+    <link rel="prev" href="svn.tour.initial.html" title="Creating a Working Copy" />
+    <link rel="next" href="svn.tour.history.html" title="Examining History" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">Basic Work Cycle</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.tour.initial.html">Prev</a> </td>
+          <th width="60%" align="center">Chapter 2. Basic Usage</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.tour.history.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="sect1" title="Basic Work Cycle">
+      <div class="titlepage">
+        <div>
+          <div>
+            <h2 class="title" style="clear: both"><a id="svn.tour.cycle"></a>Basic Work Cycle</h2>
+          </div>
+        </div>
+      </div>
+      <p>Subversion has numerous features, options, bells, and
+      whistles, but on a day-to-day basis, odds are that you will use
+      only a few of them.  In this section, we'll run through the most
+      common things that you might find yourself doing with Subversion
+      in the course of a day's work.</p>
+      <p>The typical work cycle looks like this:</p>
+      <div class="orderedlist">
+        <ol class="orderedlist" type="1">
+          <li class="listitem">
+            <p><span class="emphasis"><em>Update your working copy.</em></span> This
+          involves the use of the <span class="command"><strong>svn update</strong></span>
+          command.</p>
+          </li>
+          <li class="listitem">
+            <p><span class="emphasis"><em>Make your changes.</em></span> The most common
+          changes that you'll make are edits to the contents of your
+          existing files.  But sometimes you need to add, remove, copy
+          and move files and directories—the <span class="command"><strong>svn
+          add</strong></span>, <span class="command"><strong>svn delete</strong></span>, <span class="command"><strong>svn
+          copy</strong></span>, and <span class="command"><strong>svn move</strong></span> commands
+          handle those sorts of structural changes within the working
+          copy.</p>
+          </li>
+          <li class="listitem">
+            <p><span class="emphasis"><em>Review your changes.</em></span>
+          The <span class="command"><strong>svn status</strong></span> and <span class="command"><strong>svn
+          diff</strong></span> commands are critical to reviewing the
+          changes you've made in your working copy.</p>
+          </li>
+          <li class="listitem">
+            <p><span class="emphasis"><em>Fix your mistakes.</em></span>  Nobody's
+          perfect, so as you review your changes, you may spot
+          something that's not quite right.  Sometimes the easiest way
+          to fix a mistake is start all over again from scratch.
+          The <span class="command"><strong>svn revert</strong></span> command restores a file
+          or directory to its unmodified state.</p>
+          </li>
+          <li class="listitem">
+            <p><span class="emphasis"><em>Resolve any conflicts (merge others'
+          changes).</em></span>  In the time it takes you to make and
+          review your changes, others might have made and published
+          changes, too.  You'll want to integrate their changes into
+          your working copy to avoid the potential out-of-dateness
+          scenarios when you attempt to publish your own.  Again,
+          the <span class="command"><strong>svn update</strong></span> command is the way to do
+          this.  If this results in local conflicts, you'll need to
+          resolve those using the <span class="command"><strong>svn resolve</strong></span>
+          command.</p>
+          </li>
+          <li class="listitem">
+            <p><span class="emphasis"><em>Publish (commit) your changes.</em></span>
+          The <span class="command"><strong>svn commit</strong></span> command transmits your
+          changes to the repository where, if they are accepted, they
+          create the newest versions of all the things you modified.
+          Now others can see your work, too!</p>
+          </li>
+        </ol>
+      </div>
+      <div class="sect2" title="Update Your Working Copy">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.tour.cycle.update"></a>Update Your Working Copy</h3>
+            </div>
+          </div>
+        </div>
+        <a id="idp32765616" class="indexterm"></a>
+        <p>When working on a project that is being modified via
+        multiple working copies, you'll want to update your working
+        copy to receive any changes committed from other working
+        copies since your last update.  These might be changes that
+        other members of your project team have made, or they might
+        simply be changes you've made yourself from a different
+        computer.  To protect your data, Subversion won't
+        allow you commit new changes to out-of-date files and
+        directories, so it's best to have the latest versions
+        of all your project's files and directories before making new
+        changes of your own.</p>
+        <p>Use <span class="command"><strong>svn update</strong></span> to bring your working
+        copy into sync with the latest revision in the
+        repository:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn update
+Updating '.':
+U    foo.c
+U    bar.c
+Updated to revision 2.
+$
+</pre>
+        </div>
+        <p>In this case, it appears that someone checked in
+        modifications to both <code class="filename">foo.c</code>
+        and <code class="filename">bar.c</code> since the last time you
+        updated, and Subversion has updated your working copy to
+        include those changes.</p>
+        <p>When the server sends changes to your working copy via
+        <span class="command"><strong>svn update</strong></span>, a letter code is displayed next
+        to each item to let you know what actions Subversion performed
+        to bring your working copy up to date.  To find out what these
+        letters mean, run <strong class="userinput"><code>svn help update</code></strong> or
+        see <a class="xref" href="svn.ref.svn.c.update.html" title="svn update">svn update, </a>.</p>
+      </div>
+      <div class="sect2" title="Make Your Changes">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.tour.cycle.edit"></a>Make Your Changes </h3>
+            </div>
+          </div>
+        </div>
+        <p>Now you can get to work and make changes in your working
+        copy.  You can make two kinds of changes to your working
+        copy: <em class="firstterm">file changes</em> and <em class="firstterm">tree
+        changes</em>.  You don't need to tell Subversion that
+        you intend to change a file; just make your changes using your
+        text editor, word processor, graphics program, or whatever
+        tool you would normally use.  Subversion automatically detects
+        which files have been changed, and in addition, it handles
+        binary files just as easily as it handles text files—and
+        just as efficiently, too.  Tree changes are different, and
+        involve changes to a directory's structure.  Such changes
+        include adding and removing files, renaming files or
+        directories, and copying files or directories to new
+        locations.  For tree changes, you use Subversion operations
+        to <span class="quote">“<span class="quote">schedule</span>”</span> files and directories for removal,
+        addition, copying, or moving.  These changes may take place
+        immediately in your working copy, but no additions or removals
+        will happen in the repository until you commit them.</p>
+        <div class="sidebar" title="Versioning Symbolic Links">
+          <p class="title">
+            <b>Versioning Symbolic Links</b>
+          </p>
+          <p>On non-Windows platforms, Subversion is able to version
+          files of the special type <em class="firstterm">symbolic
+          link</em> (or <span class="quote">“<span class="quote">symlink</span>”</span>).  A symlink is
+          a file that acts as a sort of transparent reference to some
+          other object in the filesystem, allowing programs to read
+          and write to those objects indirectly by performing
+          operations on the symlink itself.</p>
+          <p>When a symlink is committed into a Subversion
+          repository, Subversion remembers that the file was in fact a
+          symlink, as well as the object to which the symlink
+          <span class="quote">“<span class="quote">points.</span>”</span>  When that symlink is checked out to
+          another working copy on a non-Windows system, Subversion
+          reconstructs a real filesystem-level symbolic link from the
+          versioned symlink.  But that doesn't in any way limit the
+          usability of working copies on systems such as Windows that
+          do not support symlinks.  On such systems, Subversion simply
+          creates a regular text file whose contents are the path to
+          which the original symlink pointed.  While that file
+          can't be used as a symlink on a Windows system, it also
+          won't prevent Windows users from performing their other
+          Subversion-related activities.</p>
+        </div>
+        <p>Here is an overview of the five Subversion subcommands
+        that you'll use most often to make tree changes:</p>
+        <div class="variablelist">
+          <dl>
+            <dt>
+              <span class="term">
+                <strong class="userinput">
+                  <code>svn add FOO</code>
+                </strong>
+              </span>
+            </dt>
+            <dd>
+              <a id="idp32785056" class="indexterm"></a>
+              <p>Use this to schedule the file, directory, or
+              symbolic link <code class="filename">FOO</code> to be added to
+              the repository.  When you next
+              commit, <code class="filename">FOO</code> will become a child of
+              its parent directory.  Note that if
+              <code class="filename">FOO</code> is a directory, everything
+              underneath <code class="filename">FOO</code> will be scheduled
+              for addition.  If you want only to add
+              <code class="filename">FOO</code> itself, pass the
+              <code class="option">--depth=empty</code> option.</p>
+            </dd>
+            <dt>
+              <span class="term">
+                <strong class="userinput">
+                  <code>svn delete FOO</code>
+                </strong>
+              </span>
+            </dt>
+            <dd>
+              <a id="idp32792640" class="indexterm"></a>
+              <p>Use this to schedule the file, directory, or
+              symbolic link <code class="filename">FOO</code> to be deleted
+              from the repository.  If <code class="filename">FOO</code> is a
+              file or link, it is immediately deleted from your
+              working copy.  If <code class="filename">FOO</code> is a
+              directory, it is not deleted, but Subversion schedules
+              it for deletion.  When you commit your
+              changes, <code class="filename">FOO</code> will be entirely
+              removed from your working copy and the
+              repository.<sup>[<a id="idp32797648" href="#ftn.idp32797648" class="footnote">5</a>]</sup></p>
+            </dd>
+            <dt>
+              <span class="term">
+                <strong class="userinput">
+                  <code>svn copy FOO BAR</code>
+                </strong>
+              </span>
+            </dt>
+            <dd>
+              <a id="idp32802032" class="indexterm"></a>
+              <p>Create a new item <code class="filename">BAR</code> as a
+              duplicate of <code class="filename">FOO</code> and automatically
+              schedule <code class="filename">BAR</code> for addition.  When
+              <code class="filename">BAR</code> is added to the repository on
+              the next commit, its copy history is recorded (as having
+              originally come from <code class="filename">FOO</code>).
+              <span class="command"><strong>svn copy</strong></span> does not create intermediate
+              directories unless you pass the
+              <code class="option">--parents</code> option.</p>
+            </dd>
+            <dt>
+              <span class="term">
+                <strong class="userinput">
+                  <code>svn move FOO BAR</code>
+                </strong>
+              </span>
+            </dt>
+            <dd>
+              <a id="idp32810112" class="indexterm"></a>
+              <p>This command is exactly the same as running
+              <strong class="userinput"><code>svn copy FOO BAR; svn delete FOO</code></strong>.
+              That is, <code class="filename">BAR</code> is scheduled for
+              addition as a copy of <code class="filename">FOO</code>, and
+              <code class="filename">FOO</code> is scheduled for removal.
+              <span class="command"><strong>svn move</strong></span> does not create intermediate
+              directories unless you pass the
+              <code class="option">--parents</code> option.</p>
+            </dd>
+            <dt>
+              <span class="term">
+                <strong class="userinput">
+                  <code>svn mkdir FOO</code>
+                </strong>
+              </span>
+            </dt>
+            <dd>
+              <a id="idp32817408" class="indexterm"></a>
+              <p>This command is exactly the same as running
+              <strong class="userinput"><code>mkdir FOO; svn add FOO</code></strong>.  That is,
+              a new directory named <code class="filename">FOO</code> is
+              created and scheduled for addition.</p>
+            </dd>
+          </dl>
+        </div>
+        <div class="sidebar" title="Changing the Repository Without a Working Copy">
+          <p class="title">
+            <b>Changing the Repository Without a Working Copy</b>
+          </p>
+          <p>Subversion <span class="emphasis"><em>does</em></span> offer ways to
+          immediately commit tree changes to the repository without an
+          explicit commit action.  In particular, specific uses
+          of <span class="command"><strong>svn mkdir</strong></span>, <span class="command"><strong>svn
+          copy</strong></span>, <span class="command"><strong>svn move</strong></span>, and
+          <span class="command"><strong>svn delete</strong></span> can operate directly on
+          repository URLs as well as on working copy paths.  Of
+          course, as previously mentioned, <span class="command"><strong>svn
+          import</strong></span> always makes direct changes to the
+          repository.</p>
+          <p>There are pros and cons to performing URL-based
+          operations.  One obvious advantage to doing so is speed:
+          sometimes, checking out a working copy that you don't
+          already have solely to perform some seemingly simple action
+          is an overbearing cost.  A disadvantage is that you are
+          generally limited to a single, or single type of, operation
+          at a time when operating directly on URLs.  Finally, the
+          primary advantage of a working copy is in its utility as a
+          sort of <span class="quote">“<span class="quote">staging area</span>”</span> for changes.  You can
+          make sure that the changes you are about to commit make
+          sense in the larger scope of your project before committing
+          them.  And, of course, these staged changes can be as
+          complex or as a simple as they need to be, yet result in but
+          a single new revision when committed.</p>
+        </div>
+      </div>
+      <div class="sect2" title="Review Your Changes">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.tour.cycle.examine"></a>Review Your Changes</h3>
+            </div>
+          </div>
+        </div>
+        <a id="idp32829440" class="indexterm"></a>
+        <p>Once you've finished making changes, you need to commit
+        them to the repository, but before you do so, it's usually a
+        good idea to take a look at exactly what you've changed.  By
+        examining your changes before you commit, you can compose a
+        more accurate <em class="firstterm">log message</em> (a
+        human-readable description of the committed changes stored
+        alongside those changes in the repository).  You may also
+        discover that you've inadvertently changed a file, and that
+        you need to undo that change before committing.  Additionally,
+        this is a good opportunity to review and scrutinize changes
+        before publishing them.  You can see an overview of the
+        changes you've made by using the <span class="command"><strong>svn status</strong></span>
+        command, and you can dig into the details of those changes by
+        using the <span class="command"><strong>svn diff</strong></span> command.</p>
+        <div class="sidebar" title="Look Ma! No Network!">
+          <p class="title">
+            <b>Look Ma! No Network!</b>
+          </p>
+          <p>You can use the commands <span class="command"><strong>svn status</strong></span>,
+          <span class="command"><strong>svn diff</strong></span>, and <span class="command"><strong>svn
+          revert</strong></span> without any network access even if your
+          repository <span class="emphasis"><em>is</em></span> across the network.  This
+          makes it easy to manage and review your changes-in-progress
+          when you are working offline or are otherwise unable to
+          contact your repository over the network.</p>
+          <a id="idp32655664" class="indexterm"></a>
+          <a id="idp32656736" class="indexterm"></a>
+          <p>Subversion does this by keeping private caches of
+          pristine, unmodified versions of each versioned file inside
+          its working copy administrative areas.  This allows
+          Subversion to report—and revert—local
+          modifications to those files <span class="emphasis"><em>without network
+          access</em></span>.  This cache (called the
+          <em class="firstterm">text-base</em>) also allows Subversion to
+          send the user's local modifications during a commit to the
+          server as a compressed <em class="firstterm">delta</em> (or
+          <span class="quote">“<span class="quote">difference</span>”</span>) against the pristine version.
+          Having this cache is a tremendous benefit—even if you
+          have a fast Internet connection, it's generally much faster
+          to send only a file's changes rather than the whole file to
+          the server.</p>
+        </div>
+        <div class="sect3" title="See an overview of your changes">
+          <div class="titlepage">
+            <div>
+              <div>
+                <h4 class="title"><a id="svn.tour.cycle.examine.status"></a>See an overview of your changes</h4>
+              </div>
+            </div>
+          </div>
+          <a id="idp32851760" class="indexterm"></a>
+          <p>To get an overview of your changes, use the
+          <span class="command"><strong>svn status</strong></span> command.  You'll probably use
+          <span class="command"><strong>svn status</strong></span> more than any other Subversion
+          command.</p>
+          <div class="tip" title="Tip" style="margin-left: 0.5in; margin-right: 0.5in;">
+            <table border="0" summary="Tip">
+              <tr>
+                <td rowspan="2" align="center" valign="top" width="25">
+                  <img alt="[Tip]" src="images/tip.png" />
+                </td>
+                <th align="left">Tip</th>
+              </tr>
+              <tr>
+                <td align="left" valign="top">
+                  <p>Because the <span class="command"><strong>cvs status</strong></span> command's
+            output was so noisy, and because <span class="command"><strong>cvs
+            update</strong></span> not only performs an update, but also
+            reports the status of your local changes, most CVS users
+            have grown accustomed to using <span class="command"><strong>cvs
+            update</strong></span> to report their changes.  In Subversion,
+            the update and status reporting facilities are completely
+            separate.  See
+            <a class="xref" href="svn.forcvs.status-vs-update.html" title="Distinction Between Status and Update">the section called “Distinction Between Status and Update”</a> for more
+            details.</p>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <p>If you run <strong class="userinput"><code>svn status</code></strong> at the top
+          of your working copy with no additional arguments, it will
+          detect and report all file and tree changes you've
+          made.</p>
+          <div class="informalexample">
+            <pre class="screen">
+$ svn status
+?       scratch.c
+A       stuff/loot
+A       stuff/loot/new.c
+D       stuff/old.c
+M       bar.c
+$
+</pre>
+          </div>
+          <p>In its default output mode, <span class="command"><strong>svn
+          status</strong></span> prints seven columns of characters,
+          followed by several whitespace characters, followed by a
+          file or directory name.  The first column tells the status
+          of a file or directory and/or its contents.  Some of the
+          most common codes that <span class="command"><strong>svn status</strong></span>
+          displays are:</p>
+          <div class="variablelist">
+            <dl>
+              <dt>
+                <span class="term">
+                  <code class="computeroutput">?      item</code>
+                </span>
+              </dt>
+              <dd>
+                <p>The file, directory, or symbolic link
+                <code class="filename">item</code> is not under version
+                control.</p>
+              </dd>
+              <dt>
+                <span class="term">
+                  <code class="computeroutput">A      item</code>
+                </span>
+              </dt>
+              <dd>
+                <p>The file, directory, or symbolic link
+                <code class="filename">item</code> has been scheduled for
+                addition into the repository.</p>
+              </dd>
+              <dt>
+                <span class="term">
+                  <code class="computeroutput">C      item</code>
+                </span>
+              </dt>
+              <dd>
+                <p>The file <code class="filename">item</code> is in a state
+                of conflict.  That is, changes received from the
+                server during an update overlap with local changes
+                that you have in your working copy (and weren't
+                resolved during the update).  You must resolve this
+                conflict before committing your changes to the
+                repository.</p>
+              </dd>
+              <dt>
+                <span class="term">
+                  <code class="computeroutput">D      item</code>
+                </span>
+              </dt>
+              <dd>
+                <p>The file, directory, or symbolic link
+                <code class="filename">item</code> has been scheduled for
+                deletion from the repository.</p>
+              </dd>
+              <dt>
+                <span class="term">
+                  <code class="computeroutput">M      item</code>
+                </span>
+              </dt>
+              <dd>
+                <p>The contents of the file <code class="filename">item</code>
+                have been modified.</p>
+              </dd>
+            </dl>
+          </div>
+          <p>If you pass a specific path to <span class="command"><strong>svn
+          status</strong></span>, you get information about that item
+          alone:</p>
+          <div class="informalexample">
+            <pre class="screen">
+$ svn status stuff/fish.c
+D       stuff/fish.c
+</pre>
+          </div>
+          <p><span class="command"><strong>svn status</strong></span> also has a
+          <code class="option">--verbose</code> (<code class="option">-v</code>) option,
+          which will show you the status of <span class="emphasis"><em>every</em></span>
+          item in your working copy, even if it has not been
+          changed:</p>
+          <div class="informalexample">
+            <pre class="screen">
+$ svn status -v
+M               44        23    sally     README
+                44        30    sally     INSTALL
+M               44        20    harry     bar.c
+                44        18    ira       stuff
+                44        35    harry     stuff/trout.c
+D               44        19    ira       stuff/fish.c
+                44        21    sally     stuff/things
+A                0         ?     ?        stuff/things/bloo.h
+                44        36    harry     stuff/things/gloo.c
+</pre>
+          </div>
+          <p>This is the <span class="quote">“<span class="quote">long form</span>”</span> output of
+          <span class="command"><strong>svn status</strong></span>.  The letters in the first
+          column mean the same as before, but the second column shows
+          the working revision of the item.  The third and fourth
+          columns show the revision in which the item last changed,
+          and who changed it.</p>
+          <p>None of the prior invocations to <span class="command"><strong>svn
+          status</strong></span> contact the repository—they merely
+          report what is known about the working copy items based on
+          the records stored in the working copy administrative area
+          and on the timestamps and contents of modified files.  But
+          sometimes it is useful to see which of the items in your
+          working copy have been modified in the repository since the
+          last time you updated your working copy.  For
+          this, <span class="command"><strong>svn status</strong></span> offers the
+          <code class="option">--show-updates</code> (<code class="option">-u</code>)
+          option, which contacts the repository and adds information
+          about items that are out of date:</p>
+          <div class="informalexample">
+            <pre class="screen">
+$ svn status -u -v
+M      *        44        23    sally     README
+M               44        20    harry     bar.c
+       *        44        35    harry     stuff/trout.c
+D               44        19    ira       stuff/fish.c
+A                0         ?     ?        stuff/things/bloo.h
+Status against revision:   46
+</pre>
+          </div>
+          <p>Notice in the previous example the two asterisks: if you
+          were to run <strong class="userinput"><code>svn update</code></strong> at this point,
+          you would receive changes to <code class="filename">README</code>
+          and <code class="filename">trout.c</code>.  This tells you some very
+          useful information—because one of those items is also
+          one that you have locally modified (the
+          file <code class="filename">README</code>), you'll need to update and
+          get the servers changes for that file before you commit, or
+          the repository will reject your commit for being out of
+          date.  We discuss this in more detail later.</p>
+          <p><span class="command"><strong>svn status</strong></span> can display much more
+          information about the files and directories in your working
+          copy than we've shown here—for an exhaustive
+          description of <span class="command"><strong>svn status</strong></span> and its output,
+          run <strong class="userinput"><code>svn help status</code></strong> or see
+          <a class="xref" href="svn.ref.svn.c.status.html" title="svn status">svn status, </a>.</p>
+        </div>
+        <div class="sect3" title="Examine the details of your local modifications">
+          <div class="titlepage">
+            <div>
+              <div>
+                <h4 class="title"><a id="svn.tour.cycle.examine.diff"></a>Examine the details of your local modifications</h4>
+              </div>
+            </div>
+          </div>
+          <a id="idp32895664" class="indexterm"></a>
+          <a id="idp32897440" class="indexterm"></a>
+          <p>Another way to examine your changes is with the
+          <span class="command"><strong>svn diff</strong></span> command, which displays
+          differences in file content.  When you run <strong class="userinput"><code>svn
+          diff</code></strong> at the top of your working copy with no
+          arguments, Subversion will print the changes you've made to
+          human-readable files in your working copy.  It displays
+          those changes in <em class="firstterm">unified diff</em> format,
+          a format which describes changes as <span class="quote">“<span class="quote">hunks</span>”</span>
+          (or <span class="quote">“<span class="quote">snippets</span>”</span>) of a file's content where each
+          line of text is prefixed with a single-character code: a
+          space, which means the line was unchanged; a minus sign
+          (<code class="literal">-</code>), which means the line was removed
+          from the file; or a plus sign (<code class="literal">+</code>), which
+          means the line was added to the file.  In the context
+          of <span class="command"><strong>svn diff</strong></span>, those minus-sign- and
+          plus-sign-prefixed lines show how the lines looked before
+          and after your modifications, respectively.</p>
+          <p>Here's an example:</p>
+          <div class="informalexample">
+            <pre class="screen">
+$ svn diff
+Index: bar.c
+===================================================================
+--- bar.c	(revision 3)
++++ bar.c	(working copy)
+@@ -1,7 +1,12 @@
++#include &lt;sys/types.h&gt;
++#include &lt;sys/stat.h&gt;
++#include &lt;unistd.h&gt;
++
++#include &lt;stdio.h&gt;
+
+ int main(void) {
+-  printf("Sixty-four slices of American Cheese...\n");
++  printf("Sixty-five slices of American Cheese...\n");
+ return 0;
+ }
+
+Index: README
+===================================================================
+--- README	(revision 3)
++++ README	(working copy)
+@@ -193,3 +193,4 @@
++Note to self:  pick up laundry.
+
+Index: stuff/fish.c
+===================================================================
+--- stuff/fish.c	(revision 1)
++++ stuff/fish.c	(working copy)
+-Welcome to the file known as 'fish'.
+-Information on fish will be here soon.
+
+Index: stuff/things/bloo.h
+===================================================================
+--- stuff/things/bloo.h	(revision 8)
++++ stuff/things/bloo.h	(working copy)
++Here is a new file to describe
++things about bloo.
+</pre>
+          </div>
+          <a id="idp32907504" class="indexterm"></a>
+          <p>The <span class="command"><strong>svn diff</strong></span> command produces this
+          output by comparing your working files against its pristine
+          text-base.  Files scheduled for addition are displayed as
+          files in which every line was added; files scheduled for
+          deletion are displayed as if every line was removed from
+          those files.  The output from <span class="command"><strong>svn diff</strong></span> is
+          compatible with the <span class="command"><strong>patch</strong></span> program.
+          The <span class="command"><strong>patch</strong></span> program reads and
+          applies <em class="firstterm">patch files</em>
+          (or <span class="quote">“<span class="quote">patches</span>”</span>), which are files that describe
+          differences made to one or more files.  Because of this, you
+          can share the changes you've made in your working copy with
+          someone else without first committing those changes by
+          creating a patch file from the redirected output
+          of <span class="command"><strong>svn diff</strong></span>:</p>
+          <div class="informalexample">
+            <pre class="screen">
+$ svn diff &gt; patchfile
+$
+</pre>
+          </div>
+          <p>Subversion uses its internal diff engine, which produces
+          unified diff format, by default.  If you want diff output in
+          a different format, specify an external diff program using
+          <code class="option">--diff-cmd</code> and pass any additional flags
+          that it needs via the <code class="option">--extensions</code>
+          (<code class="option">-x</code>) option.  For example, you might want
+          Subversion to defer its difference calculation and display
+          to the GNU <span class="command"><strong>diff</strong></span> program, asking that
+          program to print local modifications made to the
+          file <code class="filename">foo.c</code> in context diff format
+          (another flavor of difference format) while ignoring changes
+          made only to the case of the letters used in the file's
+          contents:</p>
+          <div class="informalexample">
+            <pre class="screen">
+$ svn diff --diff-cmd /usr/bin/diff -x "-i" foo.c
+…
+$
+</pre>
+          </div>
+        </div>
+      </div>
+      <div class="sect2" title="Fix Your Mistakes">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.tour.cycle.revert"></a>Fix Your Mistakes</h3>
+            </div>
+          </div>
+        </div>
+        <p>Suppose while viewing the output of <span class="command"><strong>svn
+        diff</strong></span> you determine that all the changes you made to
+        a particular file are mistakes.  Maybe you shouldn't have
+        changed the file at all, or perhaps it would be easier to make
+        different changes starting from scratch.  You could edit the
+        file again and unmake all those changes.  You could try to
+        find a copy of how the file looked before you changed it, and
+        then copy its contents atop your modified version.  You
+        could attempt to apply those changes to the file again in
+        reverse using <strong class="userinput"><code>patch -R</code></strong>.  And there are
+        probably other approaches you could take.</p>
+        <a id="idp32922832" class="indexterm"></a>
+        <p>Fortunately in Subversion, undoing your work and starting
+        over from scratch doesn't require such acrobatics.  Just use
+        the <span class="command"><strong>svn revert</strong></span> command:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn status README
+M       foo
+$ svn revert README
+Reverted 'README'
+$ svn status README
+$
+</pre>
+        </div>
+        <p>In this example, Subversion has reverted the file to its
+        premodified state by overwriting it with the pristine version
+        of the file cached in the text-base area.  But note that
+        <span class="command"><strong>svn revert</strong></span> can undo
+        <span class="emphasis"><em>any</em></span> scheduled operation—for
+        example, you might decide that you don't want to add a new
+        file after all:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn status foo
+?       foo
+$ svn add foo
+A         foo
+$ svn revert foo
+Reverted 'foo'
+$ svn status foo
+?       foo
+$
+</pre>
+        </div>
+        <p>Or perhaps you mistakenly removed a file from version
+        control:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn status README
+$ svn delete README
+D         README
+$ svn revert README
+Reverted 'README'
+$ svn status README
+$
+</pre>
+        </div>
+        <p>The <span class="command"><strong>svn revert</strong></span> command offers salvation
+        for imperfect people.  It can save you huge amounts of time
+        and energy that would otherwise be spent manually unmaking
+        changes or, worse, disposing of your working copy and checking
+        out a fresh one just to have a clean slate to work with
+        again.</p>
+      </div>
+      <div class="sect2" title="Resolve Any Conflicts">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.tour.cycle.resolve"></a>Resolve Any Conflicts</h3>
+            </div>
+          </div>
+        </div>
+        <a id="idp32934144" class="indexterm"></a>
+        <p>We've already seen how <strong class="userinput"><code>svn status
+        -u</code></strong> can predict conflicts, but dealing with those
+        conflicts is still something that remains to be done.
+        Conflicts can occur any time you attempt to merge or integrate
+        (in a very general sense) changes from the repository into
+        your working copy.  By now you know that <span class="command"><strong>svn
+        update</strong></span> creates exactly that sort of
+        scenario—that command's very purpose is to bring your
+        working copy up to date with the repository by merging all the
+        changes made since your last update into your working
+        copy.  So how does Subversion report these conflicts to you,
+        and how do you deal with them?</p>
+        <p>Suppose you run <strong class="userinput"><code>svn update</code></strong> and you
+        see this sort of interesting output:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn update
+Updating '.':
+U    INSTALL
+G    README
+Conflict discovered in 'bar.c'.
+Select: (p) postpone, (df) diff-full, (e) edit,
+        (mc) mine-conflict, (tc) theirs-conflict,
+        (s) show all options: 
+</pre>
+        </div>
+        <p>The <code class="computeroutput">U</code> (which stands for
+        <span class="quote">“<span class="quote">Updated</span>”</span>) and <code class="computeroutput">G</code>
+        (for <span class="quote">“<span class="quote">merGed</span>”</span>) codes are no cause for concern;
+        those files cleanly absorbed changes from the repository.  A
+        file marked with <code class="computeroutput">U</code> contains
+        no local changes but was updated with changes from the
+        repository.  One marked with
+        <code class="computeroutput">G</code> had local changes to begin
+        with, but the changes coming from the repository didn't
+        overlap with those local changes.</p>
+        <p>It's the next few lines which are interesting.  First,
+        Subversion reports to you that in its attempt to merge
+        outstanding server changes into the
+        file <code class="filename">bar.c</code>, it has detected that some of
+        those changes clash with local modifications you've made to
+        that file in your working copy but have not yet committed.
+        Perhaps someone has changed the same line of text you also
+        changed.  Whatever the reason, Subversion instantly flags this
+        file as being in a state of conflict.  It then asks you what
+        you want to do about the problem, allowing you to
+        interactively choose an action to take toward resolving the
+        conflict.  The most commonly used options are displayed, but
+        you can see all of the options by
+        typing <em class="replaceable"><code>s</code></em>:</p>
+        <div class="informalexample">
+          <pre class="screen">
+…
+Select: (p) postpone, (df) diff-full, (e) edit,
+        (mc) mine-conflict, (tc) theirs-conflict,
+        (s) show all options: s
+
+  (e)  edit             - change merged file in an editor
+  (df) diff-full        - show all changes made to merged file
+  (r)  resolved         - accept merged version of file
+
+  (dc) display-conflict - show all conflicts (ignoring merged version)
+  (mc) mine-conflict    - accept my version for all conflicts (same)
+  (tc) theirs-conflict  - accept their version for all conflicts (same)
+
+  (mf) mine-full        - accept my version of entire file (even non-conflicts)
+  (tf) theirs-full      - accept their version of entire file (same)
+
+  (p)  postpone         - mark the conflict to be resolved later
+  (l)  launch           - launch external tool to resolve conflict
+  (s)  show all         - show this list
+
+Select: (p) postpone, (df) diff-full, (e) edit,
+        (mc) mine-conflict, (tc) theirs-conflict,
+        (s) show all options:
+</pre>
+        </div>
+        <p>Let's briefly review each of these options before we go
+        into detail on what each option means.</p>
+        <div class="variablelist">
+          <dl>
+            <dt>
+              <span class="term">
+                <code class="computeroutput">(e)  edit</code>
+              </span>
+            </dt>
+            <dd>
+              <p>Open the file in conflict with your favorite editor,
+              as set in the environment variable
+              <code class="literal">EDITOR</code>.</p>
+            </dd>
+            <dt>
+              <span class="term">
+                <code class="computeroutput">(df) diff-full</code>
+              </span>
+            </dt>
+            <dd>
+              <p>Display the differences between the base revision
+              and the conflicted file itself in unified diff format.</p>
+            </dd>
+            <dt>
+              <span class="term">
+                <code class="computeroutput">(r)  resolved</code>
+              </span>
+            </dt>
+            <dd>
+              <p>After editing a file, tell
+              <span class="command"><strong>svn</strong></span> that you've resolved the
+              conflicts in the file and that it should accept the
+              current contents—basically that you've
+              <span class="quote">“<span class="quote">resolved</span>”</span> the conflict.</p>
+            </dd>
+            <dt>
+              <span class="term">
+                <code class="computeroutput">(dc) display-conflict</code>
+              </span>
+            </dt>
+            <dd>
+              <p>Display all conflicting regions of the file,
+              ignoring changes which were successfully merged.</p>
+            </dd>
+            <dt>
+              <span class="term">
+                <code class="computeroutput">(mc) mine-conflict</code>
+              </span>
+            </dt>
+            <dd>
+              <p>Discard any newly received changes from the server
+              which conflict with your local changes to the file under
+              review.  However, accept and merge all non-conflicting
+              changes received from the server for that file.</p>
+            </dd>
+            <dt>
+              <span class="term">
+                <code class="computeroutput">(tc) theirs-conflict</code>
+              </span>
+            </dt>
+            <dd>
+              <p>Discard any local changes which conflict with
+              incoming changes from the server for the file under
+              review.  However, preserve all non-conflicting local
+              changes to that file.</p>
+            </dd>
+            <dt>
+              <span class="term">
+                <code class="computeroutput">(mf) mine-full</code>
+              </span>
+            </dt>
+            <dd>
+              <p>Discard all newly received changes from the server
+              for the file under review, but preserve all your local
+              changes for that file.</p>
+            </dd>
+            <dt>
+              <span class="term">
+                <code class="computeroutput">(tf) theirs-full</code>
+              </span>
+            </dt>
+            <dd>
+              <p>Discard all your local changes to the file under
+              review and use only the newly received changes from the
+              server for that file.</p>
+            </dd>
+            <dt>
+              <span class="term">
+                <code class="computeroutput">(p)  postpone</code>
+              </span>
+            </dt>
+            <dd>
+              <p>Leave the file in a conflicted state for you to
+              resolve after your update is complete.</p>
+            </dd>
+            <dt>
+              <span class="term">
+                <code class="computeroutput">(l)  launch</code>
+              </span>
+            </dt>
+            <dd>
+              <p>Launch an external program to perform the conflict
+              resolution.  This requires a bit of preparation
+              beforehand.</p>
+            </dd>
+            <dt>
+              <span class="term">
+                <code class="computeroutput">(s)  show all</code>
+              </span>
+            </dt>
+            <dd>
+              <p>Show the list of all possible commands you can use
+              in interactive conflict resolution.</p>
+            </dd>
+          </dl>
+        </div>
+        <p>We'll cover these commands in more detail now, grouping
+        them together by related functionality.</p>
+        <div class="sect3" title="Viewing conflict differences interactively">
+          <div class="titlepage">
+            <div>
+              <div>
+                <h4 class="title"><a id="svn.tour.cycle.resolve.diff"></a>Viewing conflict differences interactively</h4>
+              </div>
+            </div>
+          </div>
+          <a id="idp32975264" class="indexterm"></a>
+          <p>Before deciding how to attack a conflict interactively,
+          odds are that you'd like to see exactly what is in conflict.
+          Two of the commands available at the interactively conflict
+          resolution prompt can assist you here.  The first is
+          the <span class="quote">“<span class="quote">diff-full</span>”</span> command
+          (<strong class="userinput"><code>df</code></strong>), which displays all the local
+          modifications to the file in question plus any conflict
+          regions:</p>
+          <div class="informalexample">
+            <pre class="screen">
+…
+Select: (p) postpone, (df) diff-full, (e) edit,
+        (mc) mine-conflict, (tc) theirs-conflict,
+        (s) show all options: df
+--- .svn/text-base/sandwich.txt.svn-base      Tue Dec 11 21:33:57 2007
++++ .svn/tmp/tempfile.32.tmp     Tue Dec 11 21:34:33 2007
+@@ -1 +1,5 @@
+-Just buy a sandwich.
++&lt;&lt;&lt;&lt;&lt;&lt;&lt; .mine
++Go pick up a cheesesteak.
++=======
++Bring me a taco!
++&gt;&gt;&gt;&gt;&gt;&gt;&gt; .r32
+…
+</pre>
+          </div>
+          <p>The first line of the diff content shows the previous
+          contents of the working copy (the <code class="literal">BASE</code>
+          revision), the next content line is your change, and the
+          last content line is the change that was just received from
+          the server (<span class="emphasis"><em>usually</em></span> the
+          <code class="literal">HEAD</code> revision).</p>
+          <p>The second command is similar to the first, but
+          the <span class="quote">“<span class="quote">display-conflict</span>”</span>
+          (<strong class="userinput"><code>dc</code></strong>) command shows only the conflict
+          regions, not all the changes made to the file.
+          Additionally, this command uses a slightly different display
+          format for the conflict regions which allows you to more
+          easily compare the file's contents in those regions as they
+          would appear in each of three states: original and unedited;
+          with your local changes applied and the server's conflicting
+          changes ignored; and with only the server's incoming changes
+          applied and your local, conflicting changes reverted.</p>
+          <p>After reviewing the information provided by these
+          commands, you're ready to move on to the next action.</p>
+        </div>
+        <div class="sect3" title="Resolving conflict differences interactively">
+          <div class="titlepage">
+            <div>
+              <div>
+                <h4 class="title"><a id="svn.tour.cycle.resolve.resolve"></a>Resolving conflict differences interactively</h4>
+              </div>
+            </div>
+          </div>
+          <a id="idp32986096" class="indexterm"></a>
+          <p>There are several different ways to resolve conflicts
+          interactively—two of which allow you to selectively
+          merge and edit changes, the rest of which allow you to
+          simply pick a version of the file and move along.</p>
+          <p>If you wish to choose some combination of your local
+          changes, you can use the <span class="quote">“<span class="quote">edit</span>”</span> command
+          (<strong class="userinput"><code>e</code></strong>) to manually edit the file with
+          conflict markers in a text editor (configured per the
+          instructions in <a class="xref" href="svn.advanced.externaleditors.html" title="Using External Editors">the section called “Using External Editors”</a>).  After you've edited the file, if you're satisfied with
+          the changes you've made, you can tell Subversion that the
+          edited file is no longer in conflict by using
+          the <span class="quote">“<span class="quote">resolve</span>”</span> command
+          (<code class="literal">r</code>).</p>
+          <p>Regardless of what your local Unix snob will likely tell
+          you, editing the file by hand in your favorite text editor
+          is a somewhat low-tech way of remedying conflicts (see
+          <a class="xref" href="svn.tour.cycle.html#svn.tour.cycle.resolve.byhand" title="Merging conflicts by hand">the section called “Merging conflicts by hand”</a> for a
+          walkthrough).  For this reason, Subversion provides
+          the <span class="quote">“<span class="quote">launch</span>”</span> resolution command
+          (<strong class="userinput"><code>l</code></strong>) to fire up a fancy graphical
+          merge tool instead (see
+          <a class="xref" href="svn.advanced.externaldifftools.html#svn.advanced.externaldifftools.merge" title="External merge">the section called “External merge”</a>).</p>
+          <p>If you decide that you don't need to merge any changes,
+          but just want to accept one version of the file or the
+          other, you can either choose your changes (a.k.a.
+          <span class="quote">“<span class="quote">mine</span>”</span>) by using the <span class="quote">“<span class="quote">mine-full</span>”</span>
+          command (<strong class="userinput"><code>mf</code></strong>) or choose theirs by using the
+          <span class="quote">“<span class="quote">theirs-full</span>”</span> command
+          (<strong class="userinput"><code>tf</code></strong>).</p>
+          <p>Finally, there is also a pair of compromise options
+          available.  The <span class="quote">“<span class="quote">mine-conflict</span>”</span>
+          (<strong class="userinput"><code>mc</code></strong>)
+          and <span class="quote">“<span class="quote">theirs-conflict</span>”</span>
+          (<strong class="userinput"><code>tc</code></strong>) commands instruct Subversion to
+          select your local changes or the server's incoming changes,
+          respectively, as the <span class="quote">“<span class="quote">winner</span>”</span> for all conflicts
+          in the file.  But, unlike the <span class="quote">“<span class="quote">mine-full</span>”</span>
+          and <span class="quote">“<span class="quote">theirs-full</span>”</span> commands, these commands
+          preserve both your local changes and changes received from
+          the server in regions of the file where no conflict was
+          detected.</p>
+        </div>
+        <div class="sect3" title="Postponing conflict resolution">
+          <div class="titlepage">
+            <div>
+              <div>
+                <h4 class="title"><a id="svn.tour.cycle.resolve.pending"></a>Postponing conflict resolution</h4>
+              </div>
+            </div>
+          </div>
+          <a id="idp33003072" class="indexterm"></a>
+          <p>This may sound like an appropriate section for avoiding
+          marital disagreements, but it's actually still about
+          Subversion, so read on.  If you're doing an update and
+          encounter a conflict that you're not prepared to review or
+          resolve, you can type <strong class="userinput"><code>p</code></strong> to postpone
+          resolving a conflict on a file-by-file basis when you run
+          <strong class="userinput"><code>svn update</code></strong>.  If you know in advance
+          that you don't want to resolve any conflicts interactively,
+          you can pass the <code class="option">--non-interactive</code> option
+          to <span class="command"><strong>svn update</strong></span>, and any file in conflict
+          will be marked with a <code class="computeroutput">C</code>
+          automatically.</p>
+          <p>The <code class="computeroutput">C</code>
+          (for <span class="quote">“<span class="quote">Conflicted</span>”</span>) means that the changes from the
+          server overlapped with your own, and now you have to
+          manually choose between them after the update has completed.
+          When you postpone a conflict resolution,
+          <span class="command"><strong>svn</strong></span> typically does three things to assist
+          you in noticing and resolving that conflict:</p>
+          <div class="itemizedlist">
+            <a id="idp33011376" class="indexterm"></a>
+            <ul class="itemizedlist" type="disc">
+              <li class="listitem">
+                <p>Subversion prints a <code class="computeroutput">C</code>
+              during the update and remembers that the file is in a
+              state of conflict.</p>
+              </li>
+              <li class="listitem">
+                <p>If Subversion considers the file to be mergeable, it
+              places <em class="firstterm">conflict
+              markers</em>—special strings of text that
+              delimit the <span class="quote">“<span class="quote">sides</span>”</span> of the
+              conflict—into the file to visibly demonstrate the
+              overlapping areas.  (Subversion uses the
+              <code class="literal">svn:mime-type</code> property to decide whether a
+              file is capable of contextual, line-based merging.  See
+              <a class="xref" href="svn.advanced.props.file-portability.html#svn.advanced.props.special.mime-type" title="File Content Type">the section called “File Content Type”</a>
+              to learn more.)</p>
+              </li>
+              <li class="listitem">
+                <p>For every conflicted file, Subversion places three
+              extra unversioned files in your working copy:</p>
+                <div class="variablelist">
+                  <dl>
+                    <dt>
+                      <span class="term">
+                        <code class="filename">filename.mine</code>
+                      </span>
+                    </dt>
+                    <dd>
+                      <p>This is your file as it existed in your
+                    working copy before you began the update process.
+                    This version of the file contains your local
+                    modifications as well as conflict markers.  (If
+                    Subversion considers the file to be unmergeable,
+                    the <code class="filename">.mine</code> file isn't created,
+                    since it would be identical to the working
+                    file.)</p>
+                    </dd>
+                    <dt>
+                      <span class="term">
+                        <code class="filename">filename.r<em class="replaceable"><code>OLDREV</code></em>
+                      </code>
+                      </span>
+                    </dt>
+                    <dd>
+                      <p>This is the file as it existed in the
+                    <code class="literal">BASE</code> revision—that is,
+                    the unmodified revision of the file in your
+                    working copy <span class="emphasis"><em>before</em></span> you began
+                    the update process—where
+                    <em class="replaceable"><code>OLDREV</code></em> is that base
+                    revision number.</p>
+                    </dd>
+                    <dt>
+                      <span class="term">
+                        <code class="filename">filename.r<em class="replaceable"><code>NEWREV</code></em>
+                      </code>
+                      </span>
+                    </dt>
+                    <dd>
+                      <p>This is the file that your Subversion client
+                    just received from the server via the update of
+                    your working copy, where
+                    <em class="replaceable"><code>NEWREV</code></em> corresponds to
+                    the revision number to which you were updating
+                    (<code class="literal">HEAD</code>, unless otherwise
+                    requested).</p>
+                    </dd>
+                  </dl>
+                </div>
+              </li>
+            </ul>
+          </div>
+          <p>For example, Sally makes changes to the file
+          <code class="filename">sandwich.txt</code>, but does not yet commit
+          those changes.  Meanwhile, Harry commits changes to that
+          same file.  Sally updates her working copy before committing
+          and she gets a conflict, which she postpones:</p>
+          <div class="informalexample">
+            <pre class="screen">
+$ svn update
+Updating '.':
+Conflict discovered in 'sandwich.txt'.
+Select: (p) postpone, (df) diff-full, (e) edit,
+        (mc) mine-conflict, (tc) theirs-conflict,
+        (s) show all options: p
+C    sandwich.txt
+Updated to revision 2.
+Summary of conflicts:
+  Text conflicts: 1
+$ ls -1
+sandwich.txt
+sandwich.txt.mine
+sandwich.txt.r1
+sandwich.txt.r2
+</pre>
+          </div>
+          <p>At this point, Subversion will <span class="emphasis"><em>not</em></span>
+          allow Sally to commit the file
+          <code class="filename">sandwich.txt</code> until the three temporary
+          files are removed:</p>
+          <div class="informalexample">
+            <pre class="screen">
+$ svn commit -m "Add a few more things"
+svn: Commit failed (details follow):
+svn: Aborting commit: '/home/sally/svn-work/sandwich.txt' remains in conflict
+</pre>
+          </div>
+          <p>If you've postponed a conflict, you need to resolve the
+          conflict before Subversion will allow you to commit your
+          changes.  You'll do this with the <span class="command"><strong>svn
+          resolve</strong></span> command and one of several arguments to
+          the <code class="option">--accept</code> option.</p>
+          <p>If you want to choose the version of the file that you
+          last checked out before making your edits, choose
+          the <em class="replaceable"><code>base</code></em> argument.</p>
+          <p>If you want to choose the version that contains only
+          your edits, choose the <em class="replaceable"><code>mine-full</code></em>
+          argument.</p>
+          <p>If you want to choose the version that your most recent
+          update pulled from the server (and thus discarding your
+          edits entirely), choose
+          the <em class="replaceable"><code>theirs-full</code></em> argument.</p>
+          <p>However, if you want to pick and choose from your
+          changes and the changes that your update fetched from the
+          server, merge the conflicted text <span class="quote">“<span class="quote">by hand</span>”</span> (by
+          examining and editing the conflict markers within the file)
+          and then choose the <em class="replaceable"><code>working</code></em>
+          argument.</p>
+          <p><span class="command"><strong>svn resolve</strong></span> removes the three
+          temporary files and accepts the version of the file that you
+          specified with the <code class="option">--accept</code> option, and
+          Subversion no longer considers the file to be in a state of
+          conflict:</p>
+          <div class="informalexample">
+            <pre class="screen">
+$ svn resolve --accept working sandwich.txt
+Resolved conflicted state of 'sandwich.txt'
+</pre>
+          </div>
+        </div>
+        <div class="sect3" title="Merging conflicts by hand">
+          <div class="titlepage">
+            <div>
+              <div>
+                <h4 class="title"><a id="svn.tour.cycle.resolve.byhand"></a>Merging conflicts by hand</h4>
+              </div>
+            </div>
+          </div>
+          <a id="idp33044416" class="indexterm"></a>
+          <p>Merging conflicts by hand can be quite intimidating the
+          first time you attempt it, but with a little practice, it
+          can become as easy as falling off a bike.</p>
+          <p>Here's an example.  Due to a miscommunication, you and
+          Sally, your collaborator, both edit the file
+          <code class="filename">sandwich.txt</code> at the same time.  Sally
+          commits her changes, and when you go to update your working
+          copy, you get a conflict and you're going to have to edit
+          <code class="filename">sandwich.txt</code> to resolve the conflict.
+          First, let's take a look at the file:</p>
+          <div class="informalexample">
+            <pre class="screen">
+$ cat sandwich.txt
+Top piece of bread
+Mayonnaise
+Lettuce
+Tomato
+Provolone
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; .mine
+Salami
+Mortadella
+Prosciutto
+=======
+Sauerkraut
+Grilled Chicken
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; .r2
+Creole Mustard
+Bottom piece of bread
+</pre>
+          </div>
+          <p>The strings of less-than signs, equals signs, and
+          greater-than signs are conflict markers and are not part of
+          the actual data in conflict.  You generally want to ensure
+          that those are removed from the file before your next
+          commit.  The text between the first two sets of markers is
+          composed of the changes you made in the conflicting
+          area:</p>
+          <div class="informalexample">
+            <pre class="screen">
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; .mine
+Salami
+Mortadella
+Prosciutto
+=======
+</pre>
+          </div>
+          <p>The text between the second and third sets of conflict
+          markers is the text from Sally's commit:</p>
+          <div class="informalexample">
+            <pre class="screen">
+=======
+Sauerkraut
+Grilled Chicken
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; .r2
+</pre>
+          </div>
+          <p>Usually you won't want to just delete the conflict
+          markers and Sally's changes—she's going to be awfully
+          surprised when the sandwich arrives and it's not what she
+          wanted.  This is where you pick up the phone or walk across
+          the office and explain to Sally that you can't get
+          sauerkraut from an Italian deli.<sup>[<a id="idp33024720" href="#ftn.idp33024720" class="footnote">6</a>]</sup>  Once you've agreed on the changes
+          you will commit, edit your file and remove the conflict
+          markers:</p>
+          <div class="informalexample">
+            <pre class="screen">
+Top piece of bread
+Mayonnaise
+Lettuce
+Tomato
+Provolone
+Salami
+Mortadella
+Prosciutto
+Creole Mustard
+Bottom piece of bread
+</pre>
+          </div>
+          <p>Now use <span class="command"><strong>svn resolve</strong></span>, and you're
+          ready to commit your changes:</p>
+          <div class="informalexample">
+            <pre class="screen">
+$ svn resolve --accept working sandwich.txt
+Resolved conflicted state of 'sandwich.txt'
+$ svn commit -m "Go ahead and use my sandwich, discarding Sally's edits."
+</pre>
+          </div>
+          <p>Note that <span class="command"><strong>svn resolve</strong></span>, unlike most of
+          the other commands we deal with in this chapter, requires
+          that you explicitly list any filenames that you wish to
+          resolve.  In any case, you want to be careful and use
+          <span class="command"><strong>svn resolve</strong></span> only when you're certain that
+          you've fixed the conflict in your file—once the
+          temporary files are removed, Subversion will let you commit
+          the file even if it still contains conflict markers.</p>
+          <p>If you ever get confused while editing the conflicted
+          file, you can always consult the three files that Subversion
+          creates for you in your working copy—including your
+          file as it was before you updated.  You can even use a
+          third-party interactive merging tool to examine those three
+          files.</p>
+        </div>
+        <div class="sect3" title="Discarding your changes in favor of a newly fetched revision">
+          <div class="titlepage">
+            <div>
+              <div>
+                <h4 class="title"><a id="svn.tour.cycle.resolve.theirsfull"></a>Discarding your changes in favor of a newly fetched
+          revision</h4>
+              </div>
+            </div>
+          </div>
+          <a id="idp33063008" class="indexterm"></a>
+          <p>If you get a conflict and decide that you want to throw
+          out your changes, you can run <strong class="userinput"><code>svn resolve
+          --accept theirs-full
+          <em class="replaceable"><code>CONFLICTED-PATH</code></em></code></strong> and
+          Subversion will discard your edits and remove the temporary
+          files:</p>
+          <div class="informalexample">
+            <pre class="screen">
+$ svn update
+Updating '.':
+Conflict discovered in 'sandwich.txt'.
+Select: (p) postpone, (df) diff-full, (e) edit,
+        (mc) mine-conflict, (tc) theirs-conflict,
+        (s) show all options: p
+C    sandwich.txt
+Updated to revision 2.
+Summary of conflicts:
+  Text conflicts: 1
+$ ls sandwich.*
+sandwich.txt  sandwich.txt.mine  sandwich.txt.r2  sandwich.txt.r1
+$ svn resolve --accept theirs-full sandwich.txt
+Resolved conflicted state of 'sandwich.txt'
+$
+</pre>
+          </div>
+        </div>
+        <div class="sect3" title="Punting: using svn revert">
+          <div class="titlepage">
+            <div>
+              <div>
+                <h4 class="title"><a id="svn.tour.cycle.resolve.revert"></a>Punting: using svn revert</h4>
+              </div>
+            </div>
+          </div>
+          <p>If you decide that you want to throw out your changes
+          and start your edits again (whether this occurs after a
+          conflict or anytime), just revert your changes:</p>
+          <div class="informalexample">
+            <pre class="screen">
+$ svn revert sandwich.txt
+Reverted 'sandwich.txt'
+$ ls sandwich.*
+sandwich.txt
+$
+</pre>
+          </div>
+          <p>Note that when you revert a conflicted file, you don't
+          have to use <span class="command"><strong>svn resolve</strong></span>.</p>
+        </div>
+      </div>
+      <div class="sect2" title="Commit Your Changes">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.tour.cycle.commit"></a>Commit Your Changes</h3>
+            </div>
+          </div>
+        </div>
+        <p>Finally!  Your edits are finished, you've merged all
+        changes from the server, and you're ready to commit your
+        changes to the repository.</p>
+        <p>The <span class="command"><strong>svn commit</strong></span> command sends all of
+        your changes to the repository.  When you commit a change, you
+        need to supply a log message describing your change.  Your log
+        message will be attached to the new revision you create.  If
+        your log message is brief, you may wish to supply it on the
+        command line using the <code class="option">--message</code>
+        (<code class="option">-m</code>) option:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn commit -m "Corrected number of cheese slices."
+Sending        sandwich.txt
+Transmitting file data .
+Committed revision 3.
+</pre>
+        </div>
+        <p>However, if you've been composing your log message in some
+        other text file as you work, you may want to tell Subversion
+        to get the message from that file by passing its filename as
+        the value of the <code class="option">--file</code> (<code class="option">-F</code>)
+        option:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn commit -F logmsg
+Sending        sandwich.txt
+Transmitting file data .
+Committed revision 4.
+</pre>
+        </div>
+        <p>If you fail to specify either the
+        <code class="option">--message</code> (<code class="option">-m</code>)
+        or <code class="option">--file</code> (<code class="option">-F</code>) option,
+        Subversion will automatically launch your favorite editor (see
+        the information on <code class="literal">editor-cmd</code> in
+        <a class="xref" href="svn.advanced.confarea.html#svn.advanced.confarea.opts.config" title="Config">the section called “Config”</a>) for
+        composing a log message.</p>
+        <div class="tip" title="Tip" style="margin-left: 0.5in; margin-right: 0.5in;">
+          <table border="0" summary="Tip">
+            <tr>
+              <td rowspan="2" align="center" valign="top" width="25">
+                <img alt="[Tip]" src="images/tip.png" />
+              </td>
+              <th align="left">Tip</th>
+            </tr>
+            <tr>
+              <td align="left" valign="top">
+                <p>If you're in your editor writing a commit message and
+          decide that you want to cancel your commit, you can just
+          quit your editor without saving changes.  If you've already
+          saved your commit message, simply delete all the text, save
+          again, and then abort:</p>
+                <div class="informalexample">
+                  <pre class="screen">
+$ svn commit
+Waiting for Emacs...Done
+
+Log message unchanged or not specified
+(a)bort, (c)ontinue, (e)dit
+a
+$
+</pre>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <p>The repository doesn't know or care whether your changes make
+        any sense as a whole; it checks only to make sure nobody
+        else has changed any of the same files that you did when you
+        weren't looking.  If somebody <span class="emphasis"><em>has</em></span> done
+        that, the entire commit will fail with a message informing you
+        that one or more of your files are out of date:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn commit -m "Add another rule"
+Sending        rules.txt
+svn: Commit failed (details follow):
+svn: File '/sandwich.txt' is out of date
+…
+</pre>
+        </div>
+        <p>(The exact wording of this error message depends on the
+        network protocol and server you're using, but the idea is the
+        same in all cases.)</p>
+        <p>At this point, you need to run <strong class="userinput"><code>svn
+        update</code></strong>, deal with any merges or conflicts that
+        result, and attempt your commit again.</p>
+        <p>That covers the basic work cycle for using Subversion.
+        Subversion offers many other features that you can use
+        to manage your repository and working copy, but most of your
+        day-to-day use of Subversion will involve only the commands
+        that we've discussed so far in this chapter.  We will,
+        however, cover a few more commands that you'll use fairly
+        often.</p>
+      </div>
+      <div class="footnotes">
+        <br />
+        <hr width="100" align="left" />
+        <div class="footnote">
+          <p><sup>[<a id="ftn.idp32797648" href="#idp32797648" class="para">5</a>] </sup>Of course, nothing is ever
+              totally deleted from the repository—just from
+              its <code class="literal">HEAD</code> revision.  You may continue
+              to access the deleted item in previous revisions.
+              Should you desire to resurrect the item so that it is
+              again present in <code class="literal">HEAD</code>, see
+              <a class="xref" href="svn.branchmerge.basicmerging.html#svn.branchmerge.basicmerging.resurrect" title="Resurrecting Deleted Items">the section called “Resurrecting Deleted Items”</a>.</p>
+        </div>
+        <div class="footnote">
+          <p><sup>[<a id="ftn.idp33024720" href="#idp33024720" class="para">6</a>] </sup>And if you
+          ask them for it, they may very well ride you out of town on
+          a rail.</p>
+        </div>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.tour.initial.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.tour.html">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.tour.history.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">Creating a Working Copy </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> Examining History</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

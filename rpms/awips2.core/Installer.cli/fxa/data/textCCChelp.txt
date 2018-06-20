@@ -1,0 +1,4835 @@
+  0 Bulletin No. 0
+  1 Bulletin No. 1
+  2 Bulletin No. 2
+  3 Bulletin No. 3
+  4 Bulletin No. 4
+  5 Bulletin No. 5
+  6 Bulletin No. 6
+  7 Bulletin No. 7
+  8 Bulletin No. 8
+  9 Bulletin No. 9
+  C Central
+  E Eastern
+  N November
+  O Oscar
+  P Papa
+  Q Quebec
+  R Romeo
+  U Uniform
+  V Victor
+  W Western
+  X XRay
+  Y Yankee
+ 00 Bulletin No. 0
+ 01 Bulletin No. 01
+ 02 Bulletin No. 02
+ 03 Bulletin No. 03
+ 04 Bulletin No. 04
+ 05 Bulletin No. 05
+ 06 Bulletin No. 06
+ 07 Bulletin No. 07
+ 08 Bulletin No. 08
+ 09 Bulletin No. 09
+ 10 Bulletin No. 10
+ 11 Bulletin No. 11
+ 12 Bulletin No. 12
+ 13 Bulletin No. 13
+ 14 Bulletin No. 14
+ 15 Bulletin No. 15
+ 16 Bulletin No. 16
+ 17 Bulletin No. 17
+ 18 Bulletin No. 18
+ 19 Bulletin No. 19
+ 20 Bulletin No. 20
+ 21 Bulletin No. 21
+ 22 Bulletin No. 22
+ 23 Bulletin No. 23
+ 24 Bulletin No. 24
+ 25 Bulletin No. 25
+ 26 Bulletin No. 26
+ 27 Bulletin No. 27
+ 28 Bulletin No. 28
+ 29 Bulletin No. 29
+ 30 Bulletin No. 30
+ 31 Bulletin No. 31
+ 32 Bulletin No. 32
+ 33 Bulletin No. 33
+ 34 Bulletin No. 34
+ 35 Bulletin No. 35
+ 36 Bulletin No. 36
+ 37 Bulletin No. 37
+ 38 Bulletin No. 38
+ 39 Bulletin No. 39
+ 40 Bulletin No. 40
+ 41 Bulletin No. 41
+ 42 Bulletin No. 42
+ 43 Bulletin No. 43
+ 44 Bulletin No. 44
+ AB Alberta
+ AK Alaska
+ AL Alabama
+ AR Arkansas
+ AS American Samoa
+ AT Atlantic
+ AZ Arizona
+ BC British Columbia
+ CA California
+ CB Chesapeake Bay
+ CC Central California Coastal Rivers
+ CN Canada
+ CO Colorado
+ CP Central Pacific
+ CR Columbia River Estuary
+ CS Central Snake River
+ CT Connecticut
+ CW Cowlitz and Lewis Rivers
+ DB Delaware Bay
+ DC District of Columbia
+ DE Delaware
+ EP Eastern Pacific
+ ES Eastside Sierra (Truckee,Carson,Walker)
+ FL Florida
+ GA Georgia
+ GB Gambia
+ GT Great Lakes
+ GX Gulf of Mexico
+ HI Hawaii
+ HW Hawaii
+ IA Iowa
+ ID Idaho
+ IL Illinois
+ IN Indiana
+ KS Kansas
+ KT Kootenai River
+ KY Kentucky
+ LA Louisiana
+ LC Lower Columbia River
+ LE Lake Erie
+ LG Gila River below Coolidge Dam
+ LH Lake Huron
+ LM Lake Michigan
+ LO Lake Ontario
+ LS Lower Snake River; Lake Superior
+ MA Massachusetts
+ MB Manitoba, Canada
+ MC Middle Columbia River; Morocco
+ MD Maryland
+ ME Maine
+ MI Michigan
+ MN Minnesota
+ MO Missouri
+ MS Mississippi
+ MT Montana
+ MX Mexico
+ MY Mariana Islands
+ NA North America
+ NB New Brunswick
+ NC North Carolina
+ ND North Dakota
+ NE Nebraska
+ NF Newfoundland
+ NG Northern Gulf of Mexico
+ NH New Hampshire
+ NJ New Jersey
+ NM New Mexico
+ NP North Pacific
+ NS Nova Scotia
+ NT Atlantic
+ NU Nunavut (Northwest Territories, CN)
+ NV Nevada
+ NW Northwest Territories
+ NY New York; New York and New Jersey
+ OC Oregon Coastal Rivers
+ OH Ohio
+ OK Oklahoma
+ OR Oregon
+ OT Ontario
+ PA Pennsylvania
+ PE Prince Edward Island
+ PH Portland Harbor
+ PO Pend Oreille River
+ PR Puerto Rico
+ PZ Pacific
+ QE Quebec
+ RI Rhode Island
+ RM Rocky Mountains
+ RN North Bay Area (Russian & Napa)
+ SA Salt, Verde, Tonto Basins
+ SC South Carolina; Lake St. Clair
+ SD South Dakota
+ SJ San Joaquin River; St. Johns River
+ SK Saskatchewan
+ SL  Saint Lawrence River
+ SM Salmon River
+ SP Spokane River; Spain; South Pacific
+ SU Upper Snake River
+ SW Southwest Oregon Streams
+ TB Tampa Bay
+ TN Tennessee
+ TV Tuvalu
+ TX Texas
+ UC Upper Columbia River
+ UG Gila River above Coolidge Dam
+ US United States
+ UT Utah
+ VA Virginia
+ VI Virgin Islands
+ VT Vermont
+ WA Washington
+ WI Wisconsin
+ WR Western Washington Rivers (Regulated)
+ WT Willamette Tributaries
+ WV West Virginia
+ WW Westrn Washington Rivers(Unregulated)
+ WY Wyoming
+ YK Yakima River
+ YU Yukon Territory
+ ZS American Samoa (WMO)
+000 Display latest version of all products.
+001 General Purpose MCP or PCD
+002 General Purpose MCP or PCD
+003 General Purpose MCP or PCD
+004 General Purpose MCP or PCD
+005 General Purpose MCP or PCD
+006 General Purpose MCP or PCD
+007 General Purpose MCP or PCD
+008 General Purpose MCP or PCD
+009 General Purpose MCP or PCD
+01M Tishomingo Cnty AP, Belmont, MS
+01R Clairborn Gunnry Rng., Alexandria, LA
+01T High Island, LA
+03Y Hallock, MN
+04V Saguache Muni, Saguache, CO
+04W Field of Dreams AP, Hinckley, MN
+05U Eureka AP, Eureka, NV
+06D Rolla Muni, Rolla, ND
+07S Deer Park, WA
+08D Stanley Muni, Stanley, ND
+0A9 Elizabethton Muni, Elizabethton, TN
+0CO Berthoud Pass, CO
+0E0 Moriarty Muni, Moriarty, NM
+0E4 Payson, AZ
+0F2 Bowie Muni, Bowie, TX
+0J4 Florala Muni, AL
+0K2 Pocahontas, IA
+0R0 Columbia-Marion Cnty AP, Columbia, MS
+0R3 Abbeville, LA (chg to IYA)
+0S9 Jefferson Co Intl, Port Townsend, WA
+0V4 Brookneal/Campbell Cnty AP, Brookneal, VA
+0VG Lee Cnty AP, Jonesville, VA
+0W4 Kent Island, MD
+0W8 Chincoteague, VA
+100 Bulletin No. 100
+101 Bulletin No. 101
+102 Bulletin No. 102
+103 Bulletin No. 103
+104 Bulletin No. 104
+105 Bulletin No. 105
+106 Bulletin No. 106
+107 Bulletin No. 107
+108 Bulletin No. 108
+109 Bulletin No. 109
+110 Bulletin No. 110
+111 Bulletin No. 111
+112 Bulletin No. 112
+113 Bulletin No. 113
+114 Bulletin No. 114
+115 Bulletin No. 115
+116 Bulletin No. 116
+117 Bulletin No. 117
+118 Bulletin No. 118
+119 Bulletin No. 119
+120 Bulletin No. 120
+121 Bulletin No. 121
+122 Bulletin No. 122
+123 Bulletin No. 123
+124 Bulletin No. 124
+125 Bulletin No. 125
+126 Bulletin No. 126
+127 Bulletin No. 127
+128 Bulletin No. 128
+129 Bulletin No. 129
+130 Bulletin No. 130
+131 Bulletin No. 131
+132 Bulletin No. 132
+133 Bulletin No. 133
+134 Bulletin No. 134
+135 Bulletin No. 135
+136 Bulletin No. 136
+137 Bulletin No. 137
+138 Bulletin No. 138
+139 Bulletin No. 139
+140 Bulletin No. 140
+141 Bulletin No. 141
+142 Bulletin No. 142
+143 Bulletin No. 143
+144 Bulletin No. 144
+145 Bulletin No. 145
+146 Bulletin No. 146
+147 Bulletin No. 147
+148 Bulletin No. 148
+149 Bulletin No. 149
+150 Bulletin No. 150
+151 Bulletin No. 151
+11R Brenham Muni, TX
+12N Andover/Aeroflex, Andover, NJ
+13A Nogales, AZ
+13G Niagara CGS, NY
+13K Eureka Muni, Eureka, KS
+14Y Todd Field AP, Long Prairie, MN
+17W Wadena Muni, MN
+18A 18-Hour WINTEM; K-Franklin Cnty AP, Canon, GA
+18N New London Ledge CGS, New London, CT
+19A Jackson Cnty AP, Jefferson, GA
+1A5 Macon Cnty AP, Franklin, NC
+1A6 Middlesboro-Bell Cnty AP, Middlesboro, KY
+1A9 Prattville AP-Grouby Field, Prattville, AL
+1B1 Hudson, NY
+1B7 Boothville/R L Suggs Heliport, LA
+1F0 Ardmore Downtown Executive, OK
+1G7 Mississippi CANY, LA
+1H2 Effingham, IL
+1II Himsel Army Airfld, Nineveh, IN
+1J0 Tri-County AP, Bonifay, FL
+1K1 Benton, KS
+1K5 Elkhart, KS
+1M4 Posey Fld AP, Haleyville, AL
+1O5 Montague, CA
+1P1 Plymouth Muni, NH
+1QW Yakima Training Center Ops Area, WA
+1R7 Brookhaven-Lincoln Cnty AP, Brookhaven, MS
+1S0 Pierce Cnty AP, Puyallup, WA
+1S5 Sunnyside Muni, WA
+1V1 Rifle, CO
+1V4 St. Johnsbury, VT
+1V6 Fremont Cnty AP, Canon City, CO
+1Y7 Yuma Proving Ground, AZ
+1Y8 Yuma Proving Ground Site 2, AZ
+1Y9 Yuma Proving Ground Site 3, AZ
+200 Bulletin No. 200
+201 Bulletin No. 201
+202 Bulletin No. 202
+203 Bulletin No. 203
+204 Bulletin No. 204
+205 Bulletin No. 205
+206 Bulletin No. 206
+207 Bulletin No. 207
+208 Bulletin No. 208
+209 Bulletin No. 209
+20A 00H ERL 200 mb Plot File
+20B 00H ERL 250 mb Plot File
+20G Ahstabula CGS, OH
+20U Beach AP, Beach, ND
+20V McElroy Fld, Kremmling, CO
+210 Bulletin No. 210
+211 Bulletin No. 211
+212 Bulletin No. 212
+213 Bulletin No. 213
+21D Lake Elmo AP, St. Paul, MN
+22G Lorain/Elyria, OH
+22M 12 HR RGL WND 34K FT
+22N J Arner Mem AP, Lehighton, PA
+24A 24-HOUR WINTEM
+24J Suwannee Cnty AP, Live Oak, FL
+27A Elbert Cnty AP, Elberton, GA
+27B Cape Neddick, CGL Station, ME
+27D Myers Fld AP, Canby, MN
+27U Salmon, ID
+28J K Larkin Fld, Palatka Muni, Palatka, FL
+28K Grand Canyon Block 52, LA
+29D Grove City, PA
+2C2 White Sands Missle Range, NM
+2C8 Cavalier Muni, Cavalier, ND
+2D5 Oakes Muni, Oakes, ND
+2DP Stumpy Point, NC
+2G4 Garrett Cnty AP, Oakland, MD
+2G6 Meadville, PA
+2GL Galliano Heliport, LA
+2I0 Madisonville, KY
+2J9 Quincy Muni, Quincy, FL
+2P3 Paynesville Muni, MN
+2R2 Hendricks Cnty AP, Indianapolis, IN
+2R8 Port Aransas, TX
+2V0 Craig, CO
+2V5 Wray Muni, Wray, CO
+2V9 Gunnison, CO
+2W6 Duke AP at St Mary's, Leonardtown, MD
+2WX Buffalo, SD
+300 Bulletin No. 300
+301 Bulletin No. 301
+302 Bulletin No. 302
+303 Bulletin No. 303
+304 Bulletin No. 304
+305 Bulletin No. 305
+306 Denver and Vicinity Except Mountains
+307 Bulletin No. 307
+308 Bulletin No. 308
+309 Bulletin No. 309
+30A 00H ERL 300 mb Plot File
+32M 12 HR RGL WND 30K FT
+32Y Portage CGS, MI
+33N Dover/Cheswold, DE
+33V Walden-Jackson Cnty AP, Walden, CO
+35B Merrimack River, MA
+35D Allegan, MI
+36U Heber City Muni, Heber, UT
+37C West Cameron 556, LA
+37W Erwin/Harnett Co, NC
+3A1 Folsom Fld AP, Cullman, AL
+3A6 Newhall, CA
+3AU Augusta Muni, Augusta, KS
+3B1 Greenville, ME
+3B6 Eugene Is 330, LA
+3B9 Chester, CT
+3D2 Ephraim-Gilbraltar AP, Ephraim, WI
+3DU Drummond, MT
+3E0 Miami-Roberts Cnty AP, Miami, TX
+3FC Falls City, NE
+3FM Fremont Muni, Fremont, MI
+3HA Chicago, IL
+3HT Harlowton, MT
+3I2 Mason Cnty AP, Pt Pleasant, WV
+3J7 Greene Cnty Rgnl AP, Greensboro, GA
+3KK Kankakee, IL
+3KM Wichita, KS
+3LF Litchfield Muni, IL
+3N8 Mahnomen Cnty AP, Mahnomen, MN
+3MW Mount Werner, CO (Pass)
+3OI Lamoni, IA
+3R0 Beeville Muni, Beeville, TX
+3R5 New Braunfels Muni, TX
+3R7 Jennings, LA
+3S2 Aurora, OR
+3SE Spencer, IA
+3SZ St. Charles, MO
+3T5 La Grange/Fayette Regnl, TX 
+3TH Thompson Falls, MT
+3V6 Crested Butte, CO
+3V9 Aspen, CO
+3WO Shawano, WI
+400 Bulletin No. 400
+401 Bulletin No. 401
+402 Bulletin No. 402
+403 Bulletin No. 403
+404 Bulletin No. 404
+405 Bulletin No. 405
+406 Bulletin No. 406
+407 Bulletin No. 407
+40A 00H ERL 400 mb Plot File
+40B Clayton Lake, ME
+40G Grand Canyon/Valley, AZ
+40J Perry-Foley, FL
+40M OBS ERL WND 24K FT
+41I Eugene Island B2, LA
+41U Manti-Ephraim AP, Manti, UT
+42J Keystone Airpark, Keystone Heights, FL
+42M 12 HR RGL WND 24K FT
+42Y Whitefish Point CGS, Slt.St.Marie,MI
+43F Litchfield, MN
+44N Millbrook, NY
+46A Blairsville, GA
+46D Carrington Muni, Carrington, ND
+48I Braxton Cnty AP, Sutton, WV
+49A Gilmer Cnty AP, Ellijay, GA
+49D Cloquet, MN
+49J Hilton Head Island, SC
+49Y Preston/Fillmore Co, MN
+4A6 Scottsboro Muni, Scottsboro, AL
+4A7 Atlanta South Rgnl AP, Atlanta, GA
+4A9 Isbell Fld AP, Fort Payne, AL
+4B4 Meriden, CT
+4BK Brookings, OR
+4BL Blanding, UT
+4BM Wilkerson Pass, CO
+4BQ Broadus, MT
+4BW Burns, OR
+4C0 722339 Oil Platform, Gulf of Mexico
+4CR Corona, NM
+4DG Douglas, WY
+4HA Whitehall, MT
+4HV Hanksville, UT
+4I3 Knox Cnty, Mount Vernon, OH
+4I7 Greencastle, IN
+4LJ Lamar, CO
+4M4 Clinton Muni, Clinton, AR
+4M9 Corning Muni, Corning, AR
+4MR Melrose Gunnery Range, NM
+4O4 McCurtain Cnty Rgnl AP, Idabel, OK
+4OM Omak, WA
+4R4 HL Sonny Callahan AP, Fairhope, AL
+4S1 Gold Beach Muni, OR
+4S2 Ken Jernstedt AFld, Hood River, OR
+4SL Cuba, NM
+4SU Superior Valley, CA
+4SV Strevell, ID
+4TA Truckee, CA
+4V5 Durango, CO
+500 Bulletin No. 500
+501 Bulletin No. 501
+502 Bulletin No. 502
+503 Bulletin No. 503
+504 Bulletin No. 504
+505 Bulletin No. 505
+506 Bulletin No. 506
+507 Bulletin No. 507
+50A 00H ERL 500 mb Plot File
+50Q Farallon Island, CA
+52M 12 HR RGL WND 18K FT
+53D Glenwood, MN
+54J Defuniak Springs, FL
+55J Fernandina Bch Muni, FL
+5A6 Winona-Montgomery Cnty AP, Winona, MS
+5B2 Saratoga Springs, NY
+5B5 Bennington, VT
+5B8 New Bremen, NY
+5C1 Boerne Stage Field AP, Boerne, TX
+5CE Cape Saint Elias, AK
+5H4 Harvey Muni, Harvey, ND
+5HN Cape Hinchinbrook, AK
+5HR Hayes River, AK
+5J0 Grant Cnty Rgnl, John Day, OR
+5M9 Marion-Crittenden Cnty AP, Marion, KY
+5MK Mount McKinley National Park, AK
+5NV Nunivak Island, AK
+5PX Paxson, AK
+5R0 Block 323 SAWRS, Offshr E.Addition,TX
+5R5 Wharton Rgnl AP, TX
+5R8 De Quincy Industrial Airpark, LA
+5S6 Denmark, OR
+5SM Sunlight, CO (Pass)
+5SO Snowshoe Lake, AK
+5SZ Slana, AK
+5T6 Santa Teresa/Dona Ana Co, NM
+5T9 Maverick Cnty Mem Intl AP, Eagle Pass, TX
+5WD Seward, AK
+5WT Whittier, AK
+5XT Sexton Summit, OR
+600 Bulletin No. 600
+601 Bulletin No. 601
+602 Bulletin No. 602
+603 Bulletin No. 603
+604 Bulletin No. 604
+60M OBS ERL WND 14K FT
+60Y Slayton Muni, Slayton, MN
+62M 12 HR RGL WND 12K FT
+62Y Two Harbors, MN
+63S Colville, WA
+65S Boundary Cnty AP, Bonners Ferry, ID
+66R Robert Wells AP, Columbus, TX
+6A1 Butler Muni, Butler, GA
+6A2 Griffin, GA
+6B0 Middlebury State AP, Middlebury, VT
+6I2 Lebanon-Springfield AP, Springfield, KY
+6L4 Logan Cnty AP, Logan, WV
+6L9 Huntington Beach, CA
+6R3 Cleveland Muni, Cleveland, TX
+6R6 Dryden/Terrell Co, TX
+6S2 Florence Muni, Florence, OR
+6V1 Imperial, NE
+6V3 Richlands/Tazewell Co, VA
+6V8 Montrose, CO
+70A 00H ERL 700 mb Plot File
+72M 12 HR RGL WND 9K FT
+75S Burlington/Mt. Vernon, WA
+76D Bad Axe, MI
+76S Oak Harbor, WA
+77M Malta, ID
+79J Andalusia/Opp, AL
+7B5 West Cameron 587, LA
+7BM Cottonwood Pass, CO
+7F9 Comanche County-City AP, Comanche, TX
+7G2 Ashtabula, OH
+7L2 Linton Muni, Linton, ND
+7LI Joseph, UT
+7N0 Downtown Heliport, New Orleans, LA
+7R1 Venice Heliport, LA
+7R3 Amelia/Lake Palourd, LA
+7R4 Intracoastal City, LA
+7R8 Offshr S.Marsh Is Block 23, LA
+7W4 Lake Anna AP, Bumpass, VA
+80A 00H ERL 850 mb Plot File
+82C Mauston-New Lisbon Union AP, New Lisbon, WI
+82M 12 HR RGL WND 6K FT
+82V Pine Bluffs Muni, Pine Bluffs, WY
+87Q San Simeon, CA
+8A0 Albertville Muni, Albertville, AL
+8A4 Downtown Heliport, Indianapolis, IN
+8B8 Wolfe Boro, NH
+8D3 Sisseton Muni, SD
+8D4 Miller-Sparta AP, Sparta, MI
+8S0 Browning/Starr-Browning Airstp, MT
+8W2 New Market AP, New Market, VA
+8Y8 Crane Lake, MN
+90J Astor NAS, FL
+92S Sixes, OR
+93Q Pigeon Point CGS, Pescadero, CA
+96D Walhalla Muni, Walhalla, ND
+97Q Point Reyes, CA
+99Q Port Chicago, CA
+9A4 Lawrence Cnty AP, Courtland, AL
+9A5 Barwick Lafayette AP, LaFayette, GA
+9B2 Saint Johnsbury, VT
+9BB Wells, NV
+9D7 Cando Muni, Cando, ND
+9F2 Fourchon, LA
+9K7 Ellsworth Muni, Ellsworth, KS
+9K8 Clyde Cessna Fld, Kingman, KS
+9L0 Dana Point, CA
+9L2 North Aux Airfld, Edwards AFB, CA
+9MN St Marys Hosp Helipad, Rochester, MN
+9R9 Block 245 SAWRS, Offshr Vermilion Area
+9V9 Chamberlain, SD
+A08 Vaiden Fld AP, Marion, AL
+AAA K-Lincoln/Logan Co, IL; U-Almaty, RA
+AAD P-Pt Thomson Airstrip, Deadhorse, AK
+AAF Apalachicola Muni, FL
+AAO Wichita/Col James Jabara, KS
+AAP Port Alexander, AK
+AAQ P-Palmer Muni, AK; Tsunami Warning Ctr, AK
+AAT Alturas Muni, CA
+AB1 Southern Alberta
+AB2 Central and Northern Alberta
+ABA Barter Is, AK
+ABE K-Allentown, PA; P-Bethel, AK
+ABH Bullseye Aux Airfld, USAF Acad, Ellicott, CO
+ABI K-Abilene, TX; P-Ft. Greely, AK
+ABK M-Albrook, Panama, PM
+ABL Buckland, AK
+ABN Nabesna/Devil Mt, AK
+ABQ WFO Albuquerque, NM
+ABR K-WFO Aberdeen, SD WSR-88D; P-Barrow/Post-Rogers, AK
+ABT Bettles Field, AK
+ABV Birchwook, AK
+ABX Albuquerque, NM WSR-88D
+ABY Albany, GA
+ACB Bellaire, MI
+ACD Cold Bay Arpt, AK
+ACE Central AP, Central, AK
+ACJ Jimmy Carter Rgnl AP, Americus, GA
+ACK Nantucket, MA
+ACM P-Scammon Bay AP, Scammon Bay, AK
+ACN NAFEC
+ACP Allen Parish AP, Oakdale, LA
+ACQ Waseca Muni, MN
+ACR Circle City, AK, P-Alaska RFC, Anchorage, AK
+ACT Waco, TX
+ACV K-Arcata, CA; P-Cordova/Mile 13, AK
+ACY Atlantic City, NJ
+ACZ Cape Romanzoff, AK
+ADC Wadena Muni, MN
+ADE Deering, AK
+ADF Florence Mem AP, Arkadelphia, AR
+ADG K-Adrian/Lenawee Co, MI; P-Red Dog AP, Red Dog, AK
+ADH Ada Muni, OK
+ADK Adak NAS/Mitchell, AK
+ADL Dillingham, AK
+ADM K-Ardmore Municipal, OK; P-Marshall D Hunter AP, Marshall, AK
+ADN Additional Details to Natl Wx Summary; C-Doaktown Auto RCS, NB
+ADQ Kodiak, AK
+ADS Addison Airport, Dallas, TX
+ADT Slana Arpt, AK
+ADU K-Auduborn, IA; P-Dutch Harbor, AK
+ADW Andrews AFB, Camp Springs, MD
+AEC Chulitna, AK
+AED Elmendorf AFB, AK
+AEG K-Albuquerque/Double Eagle II, NM; P-Eagle Arpt, AK
+AEH Cape Newenham, AK
+AEI Eielson AFB, AK
+AEJ Colorado Rgnl AP, Buena Vista, CO
+AEL K-Albert Lea Muni, MN; P-Elfin Cove Seaplane, AK
+AEM Emmonak, AK
+AEN Kenai Muni, AK
+AER Merrill Pass W/Stoney River Lodge, AK
+AEX Alexandria Intl, LA
+AFA Fairbanks Intl, AK
+AFB Wainwright AAF, AK
+AFC WFO Anchorage, AK
+AFE Kake Seaplane Base, AK
+AFF Air Force Academy, Colo Spgs, CO
+AFG WFO Fairbanks, AK
+AFJ Washington, PA
+AFK K-Nebraska City, NE; P-Farewell Lake Seaplane Base, AK
+AFM Ambler, AK
+AFN Jaffery, NH
+AFO Afton Muni, Afton, WY
+AFP Anson Cnty AP, Wadesboro, NC
+AFR P-Bryant AAF Heliport, Anchorage, AK
+AFS P-Nikolai AP, Nikolai, AK
+AFV Five Mile Camp, AK
+AFW Ft. Worth/Alliance AP, TX
+AGA Galena Arpt, AK
+AGB Galbraith Lake, AK
+AGC Pittsburgh, PA
+AGH P-Shungnak AP, Shungnak, AK
+AGK Gulkana Arpt, AK
+AGL Golovin, AK
+AGM Gambell, AK
+AGN P-Angoon, AK
+AGS K-Augusta, GA; P-Gustavus, AK
+AGY Skagway, AK
+AHC P-Holy Cross AP, Holy Cross, AK
+AHG P-Kenai, AK WSR-88D
+AHL Huslia AP, AK
+AHN K-Athens/Ben Epps AP, GA; P-Haines, AK
+AHO Homer Muni, AK
+AHP Hooper Bay, AK
+AHQ Wahoo Muni, Wahoo, NE
+AHR C-Harrington CDA CS, PEI
+AHV Healy River Arpt, AK
+AHX Shageluk AP, Shageluk, AK
+AHY Hydaburg Seaplane, AK
+AHZ Hayes River, AK
+AIA Alliance, NE
+AIB Hopkins Fld AP, Nucla, CO
+AID Anderson, IN
+AIG K-Antigo, WI; P-Igiugig AP, Igiugig, AK
+AII Egegik, AK
+AIK K-Aiken, SC; P-Kiana, AK
+AIL Iliamna Arpt, AK
+AIM Indian Mt. AFS, AK
+AIN McKinley Park, AK
+AIO Atlantic, IA
+AIR International AIRMET
+AIT Aitkin NDB, MN
+AIW P-Wales, AK
+AIY Atlantic City, NJ
+AIZ Kaiser/Lake Ozark, MO
+AJC Chignik, AK
+AJG Mt. Carmel Muni, IL
+AJK WFO Juneau, AK
+AJL Lava Mountain, Dubois, WY
+AJN Juneau Intl, AK
+AJO Corona Muni, Corona, CA
+AJR Habersham Cnty AP, Cornelia, GA
+AJV Sutton, AK
+AJZ K-Blake Fld AP, Delta, CO; P-Koliganek AP, Koliganek, AK
+AKF False Pass AP, False Pass, AK
+AKH K-Gastonia, NC; P-Akhiok AP, Akhiok, AK
+AKI P-Kipnuk AP, Kipnuk, AK
+AKK Akhiok Arpt, AK
+AKN King Salmon, AK
+AKO Akron, CO
+AKP Anaktuvuk Pass, AK
+AKQ WFO Wakefield Muni, VA WSR-88D
+AKR Akron, OH
+AKT Ketchikan Intl, AK
+AKU Kuparuk Arpt, AK
+AKV Kaltag, AK
+AKW Klawock, AK
+AKX Alaska (Earthquake info)
+ALA Alabama River
+ALB Albany, NY
+ALG P-Kalskag AP, Kalskag, AK
+ALH Lake Hood Seapln, AK
+ALI Alice, TX
+ALJ Port Alsworth, AK
+ALK K-Pioneer Airfield, Cochise Cnty, AZ; P-Snowshoe Lk, AK
+ALM Alamogordo, NM
+ALN Alton, IL
+ALO Waterloo, IA
+ALP P-Alpine Airstrip, Deadhorse, AK
+ALR K-Southeast RFC, Peachtree City, GA; P-Chandalar Lake, AK
+ALS Alamosa, CO
+ALT Altamaha River
+ALU Cape Lisburne, AK; Aleutian/Pribiloff Islands Zones
+ALV Big River Lk, AK
+ALW Walla Walla, WA
+ALX Alexander City, AL
+ALY WFO Albany, NY
+AMA WFO Amarillo, TX WSR-88D; Rick Husband Amarillo Intl
+AMB P-Manokotak AP, AK
+AMC McGrath, AK
+AMD K-Bozeman, MT; P-Middleton Is, AK
+AMG Alma, GA
+AMH Minchumina, AK
+AMK P-St Michael AP, St Michael, AK
+AML Manley Hot Springs, AK
+AMM Metlakatla, AK
+AMN Alma, MI
+AMO P-Mountain Village AP, AK
+AMR Merrill Field, AK
+AMW Ames Muni, IA
+AMX K-Miami, FL WSR-88D; P-McCarthy, AK
+AMY Mekoryuk, AK
+ANA Napakiak AP, Napakiak, AK
+ANB Anniston, AL
+ANC Anchorage Intl, AK
+AND Anderson, SC
+ANE Minneapolis/Blaine, MN
+ANH C-Stanhope CS, PEI
+ANI Aniak, AK
+ANJ Sault Sainte Marie, MI
+ANK H Alexander AP, Salida, CO
+ANN Annette Is, AK (Nenana Muni, AK for MTR)
+ANQ Tri-State Steuben Cnty AP, Angola, IN
+ANR Anchorage, AK
+ANT Annette Is, AK
+ANV Anvik, AK
+ANW K-Ainsworth, NE; P-New Stuyahok AP, AK
+AOA Weather Advisory for Agricltr Operations
+AOH K-Lima, OH; P-Hoonah Seaplane, AK
+AOM Nome, AK
+AOO K-Altoona/Altoona-Blair Co, PA; P-Toksook Bay AP, AK
+AOR Northway, AK
+AOT Kotzebue/Ralph Wien, AK
+AOU P-Nelson Lagoon AP, AK
+APA K-Centennial Airport, Denver, CO; T-Coolidge Arpt, AT
+APB St. George Is, AK
+APC Napa, CA
+APF Naples, FL
+APG K-Phillips AAF, MD; P-Petersburg, AK
+APH Port Heiden, AK
+APL Apalachicola River
+APM P-Platinum AP, AK
+APN K-Alpena, MI; P-Pilot Point AP, AK
+APO Point Hope, AK
+APR Prospect Creek, AK
+APT Puntilla, AK
+APX WFO North Central Lower Michigan, Gaylord, MI WSR-88D
+APY Zapata Cnty AP, Zapata, TX
+AQH Quinhagak AP, Quinhagak, AK
+AQO Llano Muni, Llano, TX
+AQP Appleton Muni, MN
+AQR Atoka Muni, OK
+AQT Nuiqsut, AK
+AQV Peason Ridge, Ft. Polk, LA
+AQW North Adams, MA
+AQX Allendale Cnty AP, Allendale, SC
+AR1 Rivers in Arkansas
+ARA New Iberia, LA
+ARB Ann Arbor, MI
+ARC Arctic Village, AK
+ARD Red Dog, AK
+ARG Walnut Ridge, AR
+ARL K-Arlington, WY
+ARM Wharton Rgnl AP, TX
+ARR Aurora, IL
+ARS P-Russian Mission AP, AK
+ART Watertown, NY
+ARV Arbor Vitae/Lakeland-N.F.Lee Mem Fld, WI
+ARW Beaufort, SC
+ARX WFO LaCrosse, WI WSR-88D
+ARY P-Ruby AP, Ruby, AK
+AS1 Atlantic Ship Bulletin No. 1
+AS2 Atlantic Ship Bulletin No. 2
+AS3 Atlantic Ship Bulletin No. 3
+AS4 Atlantic Ship Bulletin No. 4
+AS5 Atlantic Ship Bulletin No. 5
+AS6 Atlantic Ship Bulletin No. 6
+ASA Savoonga Arpt, AK
+ASC Deadhorse, AK
+ASD K-Slidell, LA; P-Sand Point, AK
+ASE Aspen, CO
+ASG Springdale, AR
+ASH K-Nashua/Boire Fld, NH; P-Shishmaref, AK
+ASI Sitka/Japonski Arpt, AK
+ASJ Ahoskie/Tri-County, NC
+ASK Selanik, AK
+ASL K-Harrison Cnty AP, Marshall, TX; P-Sleetmute, AK
+ASM Saint Mary's, AK
+ASN K-Talladega Muni, Talladega, AL; P-St. Paul Is, AK
+ASO Seldovia, AK
+ASP Sheep Mountain, AK
+AST Astoria, OR
+ASV Sparrevohn, AK
+ASW K-Warsaw, IN; P-Skwentna, AK
+ASX K-Ashland, WI; P-Soldotna, AK
+ASY Shemya/Eareckson AFB, AK
+AT1 Atlantic #1 (A,F,K,P,W)
+AT2 Atlantic #2 (B,G,L,R); Entire Atlantic (Tsunami Info)
+AT3 Atlantic #3 (C,H,M,S)
+AT4 Atlantic #4 (D,I,N,T)
+AT5 Atlantic #5 (E,J,O,V)
+ATA Tanana/Calhoun Mem, AK
+ATC Tin City AFS, AK
+ATE P-Teller, AK
+ATF Entire Atlantic (Tsunami Info - English-friendly version)
+ATG Togiac Village, AK
+ATK Talkeetna, AK
+ATL K-Hartsfield-Jackson Atlanta IAP, GA; P-Tatalina, AK
+ATO Portage Glacier Visitor Cntr, AK
+ATP GOMEX Green Canyon 787, LA AWOS3
+ATQ P-Ed Burnell Mem AP, Atqasuk, AK
+ATS K-Artesia, NM;  K-Southern Atlantic Ocean Area
+ATT Austin/Camp Mabry, TX
+ATU Attu, AK
+ATW K-Appleton, WI; P-Cantwell, AK
+ATX Seattle/Tacoma, WA WSR-88D
+ATY Watertown, SD
+AUB Auburn U, AL
+AUD K-Audubon Park, LA; P-Prudhoe Bay, AK
+AUG Augusta, ME
+AUH Aurora, NE
+AUM K-Austin Muni, MN; P-Umiat, AK
+AUN K-Auburn Muni, CA; P-Unalakleet, AK
+AUO K-Pitts AP, Auburn-Opelika, AL; P-Willow Arpt, AK
+AUS Austin, TX
+AUT P-Akutan AP, Akutan, AK
+AUW Wausau, WI
+AVA Chevak AP, Chevak, AK
+AVC K-South Hill/Mecklenburg-Brunswick, VA; P-King Cove AP, AK
+AVD Valdez 2, AK
+AVK Alva Muni, OK
+AVL K-Asheville, NC; P-Kivalina, AK
+AVP Wilkes-Barre/Scranton, PA
+AVQ Marana Rgnl AP, Marana, AZ
+AVW K-Lakeland, WI; P-Valdez, AK
+AVX Santa Catalina Is, CA
+AWD Seward, AK
+AWG K-Washington, IA; P-Wrangell, AK
+AWH Elko/Wildhorse, NV
+AWI Wainwright, AK
+AWK Wake Is Airfield, Wake Island
+AWM K-West Memphis Muni, AR; P-White Mtn AP, White Mountain, AK
+AWN P-Noatak, AK; DoD Auto Wx Network
+AWO Arlington Muni, VA
+AWR Whittier, AK
+AWS Wasilla, AK
+AWU Alaska Aviation Weather Unit (AAWU), Anchorage, AK
+AXA Algona, IA
+AXH Houston SW AP, Arcola, TX
+AXK Paxson, AK
+AXN Alexandria, MN
+AXO Grand Isle, LA
+AXS Altus/Quartz Mtn Rgnl AP, Altus, OK
+AXV Neil Armstrong AP, Wapakoneta, OH
+AXX Angel Fire AP, Angel Fire, NM
+AYA Yakutat AP, AK
+AYE Fort Devens, MA
+AYS Waycross, GA
+AYT Mt. Pearl, NF
+AYZ Amityville, NY
+AZC Colorado Cty AP, Colorado City, AZ
+AZE Hazlehurst, GA
+AZK Eureka, AK
+AZO Kalamazoo, MI
+B23 Battle Mountain, NV
+BAB Beale AFB, Marysville, CA
+BAC Barnes Co Muni, Valley City, ND
+BAD Barksdale AFB, LA
+BAF Westfield, MA
+BAK Columbus, IN
+BAM Battle Mountain, NV
+BAX Bad Axe, MI
+BAZ New Braunfels Muni, TX
+BBB Benson Muni, MN
+BBD Curtis Fld AP, Brady, TX
+BBF GOMEX Brazos 133, TX AWOS-3
+BBG Branson, MO
+BBL Blue River Basin
+BBP Bennettsville, SC
+BBW Broken Bow, NE
+BC1 Coastal British Columbia
+BC2 Interior British Columbia
+BC4 Southwest Interior British Columbia
+BC5 Columbia Districts, British Columbia
+BC6 Kootenay Districts, British Columbia
+BC7 Central Interior British Columbia
+BC8 Peace River District, British Columbia
+BCB Virginia Tech Arpt, VA
+BCE Bryce Canyon, UT
+BCK Black River Falls Area AP, WI
+BCQ Central Region Hq, Kansas City, MO
+BCS Cairns to Honolulu
+BCT Boca Raton Arpt, FL
+BDE Baudette, MN
+BDG Blanding Muni, Blanding, UT
+BDH Willmar Muni, Willmar, MN
+BDL Windsor Locks, CT
+BDN Bend AP, OR
+BDR Bridgeport, CT
+BDU Boulder Muni, Boulder, CO
+BEA Beeville Muni, Beeville, TX
+BED Bedford, MA
+BEH Benton Harbor, MI
+BET Bethel, AK
+BFD Bradford, PA
+BFF Scottsbluff, NE
+BFI Seattle/Boeing Fld/King Co Intl, WA
+BFL Bakersfield, CA
+BFM Mobile, AL
+BFR Bedford, IN
+BFU Belle Fourche, WY
+BFW Silver Bay, MN
+BGD Borger/Hutchinson, TX
+BGE Bainbridge, GA
+BGF Winchester Muni, Winchester, TN
+BGM WFO Binghamton, NY WSR-88D
+BGR Bangor, ME
+BGS Webb AFB, Big Spring, TX
+BGY Ben Guerir, MC
+BHB Bar Harbor, ME
+BHC Baxley Muni, Baxley, GA
+BHK Baker, MT
+BHM Birmingham, AL
+BHX Eureka, CA WSR-88D
+BID Block Island, RI
+BIE Beatrice, NE
+BIF Biggs AAF, Fort Bliss, El Paso, TX
+BIG Allen AAF, Big Delta, AK
+BIH Bishop, CA
+BIJ Early Cnty AP, Blakely, GA
+BIL Billings, MT
+BIS WFO Bismarck, ND WSR-88D
+BIT Bitter Creek, WY
+BIV Holland/Tulip City, MI
+BIX Keesler AFB, Biloxi, MS
+BJC Rocky Mountain Metro AP, Broomfield, CO
+BJI Bemidji, MN
+BJJ Wooster/Wayne Co, OH
+BJN Tonopah Test Rg#74, Nellis AFB, NV
+BKB Fullerton Landing Strip, Ft. Polk, LA
+BKD Stephens Cnty AP, Breckenridge, TX
+BKE Baker, OR
+BKF Aurora/Buckley ANG Base, CO
+BKL Cleveland/Burke, OH
+BKN Tonkawa Muni, Blackwell, OK
+BKS Falfurrias/Brooks Co, TX
+BKT Perkinson AP/Blackstone AAF, Blackstone, VA
+BKV Brooksville, FL
+BKW Beckley, WV
+BKX Brookings, SD
+BLD Boulder City, NV
+BLF Bluefield, WV
+BLH Blythe, CA
+BLI Bellingham, WA
+BLM Belmar/Farmingdale, NJ
+BLU Blue Canyon, CA
+BLV Scott AFB, Belleville, IL
+BLX Billings, MT WSR-88D
+BMC Brigham City AP, Brigham, UT
+BMG Monroe Cnty AP, Bloomington, IN
+BMI Bloomington-Normal, IL
+BML Berlin, NH
+BMQ Burnet Muni, TX
+BMT Beaumont Muni, TX
+BMX WFO Birmingham, Calera, AL WSR-88D
+BNA Nashville, TN
+BNL Barnwell, SC
+BNO Burns, OR
+BNW Boone Muni, IA
+BNY Burney, CA
+BOI WFO Boise, ID
+BOK Brookings AP, Brookings, OR
+BOS Boston, MA
+BOU WFO Denver/Boulder, CO
+BOW Bartow, FL
+BOX WFO Boston/Taunton, MA WSR-88D
+BPA Bethpage, NY
+BPB T-Grantley Adams Intl/Barbados, BR
+BPC Mesa Vista Ranch AP, Pampa, TX
+BPG Big Spring/McMahon-Wrinkle, TX
+BPI Big Piney-Marbleton AP, WY
+BPK Mountain Home/Baxter Co Regnl, AR
+BPP Bowman Muni, Bowman, ND
+BPT Beaumont, TX
+BPV Providenciales, BA
+BQK Brunswick/Glynco GA
+BQN Aguadilla, PR
+BQP Morehouse Mem AP, Bastrop, LA
+BQX Brazos 451, TX
+BRD Brainerd, MN
+BRL Burlington, IA
+BRO WFO Brownsville, TX WSR-88D
+BRW Barrow, AK
+BRX Bordeaux. WY
+BSI Blairsville, PA
+BSM Bergstrom AFB, Austin, TX
+BTA Blair Muni, Blair, NE
+BTI Barter Island DEW Stn, Barter Is., AK
+BTL Battle Creek, MI
+BTM Butte, MT
+BTP Butler Co., PA
+BTR Baton Rouge, LA
+BTT Bettles, AK
+BTV WFO Burlington, VT
+BUB Burwell, NE
+BUF WFO Buffalo, NY WSR-88D
+BUO Beaumont, CA
+BUR Burbank, CA
+BUU Burlington, WI
+BUY Burlington-Alamance Regnl, NC
+BVE Boothville, LA
+BVI Beaver County, PA
+BVN Albion Muni, Albion, NE
+BVO Bartlesville, OK
+BVR Beaver Rim, WY
+BVS Skagit AP, Burlington/Mt Vernon, WA
+BVU Boulder City Muni, NV
+BVX Batesville, AR
+BVY Beverly Muni, MA
+BWD Brownwood Airport, Brownwood, TX
+BWG Bowling Green, KY
+BWI Baltimore Intl, MD
+BWP Harry Stern AP, Wahpeton, ND
+BXA Carr Mem Air Fld, Bogalusa, LA
+BXK Buckeye Muni, Buckeye AZ
+BYG Buffalo/Johnson Co, WY
+BYH Blytheville AFB, Blytheville, AR
+BYI Burley, ID
+BYL Wmsburg-Whitley Cnty AP, Williamsburg, KY
+BYS Bicycle Lake, CA
+BYX Key West, FL WSR-88D
+BYY Bay City Muni, TX
+BYZ WFO Billings, MT
+BZN Bozeman, MT
+C06 Elgin, IL
+C09 Morris, IL
+C11 Caribbean Bulletin 11
+C13 Caribbean Bulletin 13
+C19 Holland, MI
+C21 Caribbean Bulletin 21
+C23 Caribbean Bulletin 23
+C25 Caribbean Bulletin 25
+C29 Morey Fld AP, Middleton, WI
+C35 Reedsburg Muni, Reedsburg, WI
+C65 Plymouth, IN
+C66 Monmouth, IL
+C73 Dixon, IL
+C75 Lacon/Marshall Co, IL
+C7H Stationary Ship H, Atlantic Ocean
+C7P Stationary Ship P, Pacific Ocean
+C96 Winter Park, CO
+CA1 Northern California
+CA2 Southern California
+CAD Cadillac/Wexford, MI
+CAE WFO Columbia, SC WSR-88D
+CAF Gulf of Mexico, Caribbean, Atlantic areas (Earthquake Info, English)
+CAG Craig, CO
+CAK Akron, OH
+CAN Canadian Forecast
+CAO Clayton, NM
+CAR WFO	Caribou, ME
+CAV Clarion, IA
+CAX Gulf of Mexico, Caribbean, Atlantic areas (Earthquake info)
+CBE Greater Cumberland Rgnl AP, MD
+CBF Council Bluffs, IA
+CBG Cambridge Muni, MN
+CBK Shalz Fld AP, Colby, KS
+CBM Columbus AFB, Columbus, MS
+CBW Caribou, ME (Houlton/Hodgdon) WSR-88D
+CBX Boise, ID WSR-88D
+CCA K-Clinton Muni, Clinton, AR; Central Caribbean Satellite Products
+CCO Newman/Coweta Co, GA
+CCR Concord, CA
+CCU Copper Mountain, CO
+CCX Central Pennsylvania, State College, PA WSR-88D
+CCY Charles City, IA
+CDA Caledonia Cnty AP, Lyndonville, VT
+CDB Cold Bay, AK
+CDC Cedar City, UT
+CDD Crane Lake, MN
+CDE Cape Decision CGS, Cape Decision, AK
+CDH Harrell Fld AP, Camden, AR
+CDJ Chillicothe/Litton Ag Sci, MO
+CDN Camden, SC
+CDR Chadron, NE
+CDS Childress, TX
+CDV Cordova, AK
+CDW Caldwell/Essex Co, NJ
+CEC Crescent City, CA
+CEF Westover AFB, Chicopee Falls, MA
+CEN Central Region Network
+CEU Clemson, SC
+CEW Crestview, FL
+CEY Kyle-Oakley Fld AP, Murray, KY
+CEZ Cortez, CO
+CFD Coulter Fld, Bryan, TX
+CFE Buffalo Muni, Buffalo, MN
+CFJ Crawfordsville Muni, IN
+CFS Tuscola Area AP, Caro, MI
+CFT Greenlee Cnty AP, Clifton/Morenci, AZ
+CFV Coffeyville, KS
+CG1 Coast Guard District 1, Boston, MA
+CG3 Coast Guard District 3, New York, NY
+CG5 Coast Guard District 5, Portsmouth,VA
+CG9 USCG Cleveland, OH
+CGA P-Craig Seaplane Base, Craig, AK
+CGC Crystal River, FL
+CGE Cambridge-Dorchester AP, Cambridge, MD
+CGF Cleveland/Cuyahoga, OH
+CGI Cape Girardeau, MO
+CGS College Park AP, College Park, MD
+CGX Chicago, IL
+CGZ Casa Grande, AZ
+CHA Chattanooga, TN
+CHB Chamberlain, SD
+CHD Chandler Muni, AZ
+CHH Chatham, MA
+CHI Chicago, IL
+CHJ Chief Joseph, WY
+CHK Chickasha Muni, OK
+CHO Charlottesville, VA
+CHS WFO Charleston, SC
+CIC Chico, CA
+CID Cedar Rapids, IA
+CIN Carroll, IA
+CIR Cairo Rgnl AP, IL
+CIU Chippewa County Airport, MI
+CJR Culpepper Co, VA
+CKB Clarksburg, WV
+CKC Grand Marais/Cook County, MN
+CKF Crisp Cnty-Cordele AP, Cordele, GA
+CKI Kingstree, SC
+CKL Centreville, AL
+CKM Clarksdale/Fletcher Fld, MS
+CKN Crookston Muni, MN
+CKP Cherokee Muni, IA
+CKV Clarksville, TN
+CKZ Pennridge AP, Perkasie, PA
+CLC Clear Lake City, TX
+CLE WFO Cleveland, OH WSR-88D
+CLI Clintonville, WI
+CLK Clinton Rgnl AP, Clinton, OK
+CLL College Station, TX
+CLM Port Angeles, WA
+CLS Chehalis-Centralia AP, Chehalis, WA
+CLT Charlotte, NC
+CLW Clearwater Air Pk, Clearwater, FL
+CLX Charleston, SC WSR-88D
+CMA Camarillo, CA
+CMB East Cameron 47JP, LA AWOS3
+CMD Folsom Fld AP, Cullman, AL
+CMH Columbus, OH
+CMI Champaign/Urbana, IL
+CMR Cumberland River; K-Williams AP, Williams, AZ
+CMS Cemetery Separation, WY
+CMX Hancock, MI
+CMY Sparta, WI
+CNB Myers Fld AP, Canby, MN
+CNC Chariton, IA
+CND Canada
+CNI Cherokee Cnty AP, Canton, GA
+CNK Concordia, KS
+CNM Carlsbad, NM
+CNO Chino, CA
+CNP Central Pacific
+CNU Chanute, KS
+CNW TSTC Waco AP, Waco, TX
+CNY Canyonlands Fld AP, Moab, UT
+CO1 Rivers in Colorado
+COD Cody Muni, WY
+COE Coeur D'Alene, ID
+COF Patrick AFB, Cocoa, FL
+COI Merritt Is AP, Merritt Is, FL
+COM Coleman Muni, Coleman, TX
+CON Concord, NH; 3-Hourly Space Wx Conditions and Forecast
+COQ Cloquet, MN
+COS Colorado Springs, CO
+COT Cotulla, TX
+COU Columbia, MO
+COY Saint Croix, VI
+CP1 Central Pacific #1
+CP2 Central Pacific #2
+CP3 Central Pacific #3
+CP4 Central Pacific #4
+CP5 Central Pacific #5
+CPC Whiteville/Columbus Co Muni, NC
+CPK Chesapeake Muni, VA
+CPP F-Pointe-Noire, CG, W Africa
+CPR Casper, WY
+CPS St Louis DT AP, Cahokia/East Saint Louis, IL
+CPT Cleburne Muni, TX
+CPW Wolf Creek Pass, CO
+CQB Chandler Muni, OK
+CQC Clines Corners, NM
+CQF HL Sonny Callahan AP, Fairhope, AL
+CQM Cook Muni, MN
+CQT Los Angeles Downtown - USC, CA
+CQV Colville Muni, WA
+CQW Cheraw, SC
+CQX Chatham, MA
+CRE North Myrtle Beach/Grand Strand, SC
+CRG Craig Muni, Jacksonville, FL; N-Rarotonga, Cook Is
+CRH K-GOMEX W Cameron 368A, LA AWOS3; Central Region Headquarters
+CRN Central Region Network
+CRP WFO Corpus Christi, TX WSR-88D
+CRQ Carlsbad, CA
+CRS Corsicana Muni, TX
+CRV Corona Pass 9N, CO
+CRW Charleston, WV
+CRX Roscoe Turner AP, Corinth, MS
+CSG Columbus Metro AP, Columbus, GA
+CSI Cedar, Skunk, IA
+CSL Camp San Luis, CA
+CSM Clinton, OK
+CSP Cape Spencer CGS, Cape Spencer, AK
+CSQ Creston, IA
+CSV Crossville, TN
+CTB Cut Bank, MT
+CTD Continental Divide, WY
+CTJ W Georgia Rgnl AP, Carrollton, GA
+CTO Calverton, NY
+CTP WFO Central Pennsylvania, State College, PA
+CTY Cross City, FL
+CTZ Clinton, NC
+CUB Hamilton Owens AP, Columbia, SC
+CUH Cushing Muni, Cushing, OK
+CUL Carmi Muni, IL
+CUT Custer Co, SD
+CVB Castroville Muni, Castroville, TX
+CVC Covington Muni, Atlanta, GA
+CVG Covington, KY
+CVH Hollister Muni, Hollister, CA
+CVN Clovis, NM
+CVO Corvallis, OR
+CVS Cannon AFB, Clovis, NM
+CVW Cameron, LA GOM
+CVX Charlevoix Muni, MI
+CWA Mosinee, WI
+CWC Kickapoo DT AP, Wichita Falls, TX
+CWF Chennault Intl, Lake Charles, LA
+CWI Clinton, IA
+CWN Cheyenne Mountain, CO
+CWV Claxton-Evans Cnty AP, Claxton, GA
+CXE Chase City Muni AP, Chase City, VA
+CXF Coldfoot, AK
+CXM Downtown Charleston, SC
+CXO Conroe/Montgomery Co, TX
+CXP Carson City AP, NV
+CXU Camilla-Mitchell Cnty AP, Camilla, GA
+CXX Burlington, VT WSR-88D radar site
+CXY Harrisburg, PA
+CYS WFO Cheyenne, WY WSR-88D
+CYT Yakataga, AK
+CZD Cozad, NE
+CZI Crazy Woman, WY
+CZK Cascade Locks, OR
+CZL TB David Fld AP, Calhoun, GA
+CZT Dimmit Cnty AP, Carrizo Springs, TX
+CZZ Campo, CA
+D07 Faith Muni, SD
+D25 Manitowish Waters AP, Manitowish Waters, WI
+D39 Sauk Centre Muni, MN
+D45 Warroad, MN
+D50 Crosby Muni, Crosby, ND
+D55 Robertson Fld AP, Langdon, ND
+D57 Glen Ullin Rgnl, Glen Ullin, ND
+D60 Tioga Muni, Tioga, ND
+D95 Dupont-Lapeer AP, Lapeer, MI
+DAA Fort Belvoir, VA
+DAB Daytona Beach, FL
+DAG Daggett, CA
+DAK Dakota Tributaries
+DAL Dallas, TX
+DAN Danville, VA
+DAW Rochester/Skyhaven, NH
+DAX Sacramento, CA WSR-88D
+DAY Dayton, OH
+DBH M-Barohona, DR
+DBN W H Bud Barron AP, Dublin, GA
+DBQ Dubuque, IA
+DCA Washington, DC
+DCM Chester, SC
+DCU Decatur, AL
+DCY Daviess Cnty AP, Washington, IN
+DDC WFO Dodge City, KS WSR-88D
+DDH Bennington/Wm H Morse State, VT
+DEC Decatur, IL
+DED Deland Muni, Deland, FL
+DEH Decorah, IA
+DEL Delaware Basin
+DEN Denver, CO
+DEQ DeQueen/J Lynn Helms Sevier Co, AR
+DES Des Moines River Basin
+DET Detroit, MI
+DEW Deer Park, WA
+DFI Defiance Memorial, OH
+DFW Dallas-Fort Worth, TX
+DGW Douglas/Converse Co, WY
+DGX Brandon, MS WSR-88D
+DHE Santo Domingo, Herrerra, DR
+DHN Dothan, AL
+DHS Dead Horse, WY
+DHT Dalhart, TX
+DIJ Driggs-Reed Mem AP, Driggs, ID
+DIK Dickinson, ND
+DIX Philadelphia, PA (Fort Dix, NJ) WSR-88D
+DKB De Kalb, IL
+DKK Chautauqua Cnty/Dunkirk AP, NY
+DKR Houston Cnty AP, Crockett, TX
+DKX Knoxville, TN
+DLF Laughlin AFB, Del Rio, TX
+DLG Dillingham, AK
+DLH WFO Duluth, MN WSR-88D
+DLL Baraboo/Wisconsin Dells, WI
+DLN Dillon, MT
+DLP GOMEX West Delta, MS AWOS-3
+DLR La Romana Intl, DR
+DLS The Dalles, OR
+DLZ Delaware Muni, Delaware, OH
+DMA Davis-Monthan AFB, Tucson, AZ
+DMH Baltimore Inner Harbor, MD
+DMN Deming Muni, Deming, NM
+DMO Sedalia, MO
+DMW Carroll Cnty Rgl AP, Westminster, MD
+DMX WFO Des Moines, Johnston, IA WSR-88D
+DNK Self Strip, Ft. Polk, LA
+DNL Augusta, GA
+DNN Dalton Muni, GA
+DNS Denison, IA
+DNV Danville, IL
+DOE Doe Lake, MI
+DOV Dover AFB, Dover, DE
+DOX Dover AFB, DE WSR-88D
+DPA Chicago/West Chicago, IL
+DPC Punta Cana, DR
+DPD Melville, Dominica, NOTE-TDCF = Canefield Arpt, Dominica
+DPG Michael AAF, Dugway/Tooele, UT
+DPL Kenansville/Duplin Co, NC
+DPP Puerto Plata, DR
+DQH Douglas Muni, Douglas, GA
+DRA Desert Rock, NV
+DRC Deer Creek, WY
+DRI Beauregard Rgnl AP, De Ridder, LA
+DRK U.S. Drought Outlook Discussion
+DRM Drummond Is AP, Drummond Is, MI
+DRO Durango-La Plata Cnty AP, Durango, CO; Drought Summary
+DRT Del Rio, TX
+DSD Santa Domingo, DR
+DSM Des Moines, IA
+DST Santiago Intl Arpt, HO
+DSV Dansville, NY
+DTA Delta Muni, Delta, UT
+DTF Dry Tortugas Island, FL
+DTL Detroit Lakes, MN
+DTN Shreveport/Downtown, LA
+DTO Denton, TX
+DTS Daily Tornado Stats; Destin/Ft Walton Beach Arpt, FL
+DTW Detroit, MI
+DTX WFO Detroit/White Lake, MI WSR-88D
+DUA Durant/Eaker Field, OK
+DUB Dubois Muni, Dubois, WY
+DUC Duncan/Halliburton Fld. OK
+DUG Douglas, AZ
+DUH Ottawa Lake - Lambertville/Toledo Suburban, MI
+DUJ Du Bois, PA
+DUK Chicago, IL
+DUT Dutch Harbor, AK
+DUX Moore Cnty AP, Dumas, TX
+DVK Danville-Boyle AP, Danville, KY
+DVL Devils Lake, ND
+DVN WFO Quad Cities/Davenport, IA WSR-88D
+DVO Gnoss Fld AP, Novato, CA
+DVP Slayton Muni, Slayton, MN
+DVT Phoenix, AZ
+DWH Houston/D.W.Hooks, TX
+DWU Ashland Rgnl, Ashland, KY
+DWX Dixon AP, Dixon, WY
+DXR Danbury, CT
+DXX Madison/Lac Qui Parle Co, MN
+DXZ Saint George, UT
+DY1 Day 1
+DY2 Day 2
+DY3 Day 3
+DYA Demopolis Muni, AL
+DYB Summerville, SC
+DYL Doylestown, PA
+DYR Dyersburg, TN
+DYS Dyess AFB, Abilene, TX
+DYT Duluth/Sky Harbor, MN
+DZB Horseshoe Bay, TX
+DZJ Blairsville, GA
+E11 Andrews Cnty AP, Andrews, TX
+E12 E. Cameron 345, LA (oil rig)
+E16 South County AP of Santa Clara Cnty, San Martin, CA
+E23 Taos, NM
+E28 White Sands Space Harbor, NM
+E29 Sonora Muni, TX
+E33 Chama, NM
+E38 Casparis Muni, Alpine, TX
+E74 Safford, AZ
+E80 Alexander Muni, Belen, NM
+EAR Kearney, NE
+EAT Wenatchee, WA
+EAU Eau Claire, WI
+EAX WFO Kansas City/Pleasant Hill, MO WSR-88D
+EBA Patz Fld Elbert Cnty AP, Elberton, GA
+EBG Edinburg Intl, TX
+EBS Webster City, IA
+ECA Eastern Caribbean Satellite Products
+ECG Elizabeth City, NC
+ECK Peck, MI
+ECP NW FL Beaches Intl AP, Panama City, FL
+ECS Mondell Fld AP, Newcastle, WY
+ECU Edwards Cnty AP, Rocksprings, TX
+EDC Austin Exec AP, Austin, TX
+EDE Edenton/Northeastern Regnl, NC
+EDF Elmendorf AFB, Anchorage, AK
+EDJ Bellefontaine Rgnl AP, Bellefontaine, OH
+EDN Enterprise Muni, Enterprise, AL
+EDU University AP, Davis, CA
+EDW Edwards AFB, Edwards, CA
+EED Needles, CA
+EEN Keene, NH
+EEO Meeker, CO
+EET Alabaster/Shelby Co, AL
+EEW Neenah, WI
+EFC Belle Fourche, SD
+EFD Ellington AFB, Houston, TX
+EFK Newport State AP, Newport, VT
+EFT Monroe, WI
+EFW East Fork White
+EGE Eagle, CO
+EGI Duke Field/Eglin, FL
+EGV Eagle River/Union, WI
+EHA Elkhart, KS
+EHC GOMEX East Cameron 278, LA AWOS-3
+EHO Shelby Muni, NC
+EHR Henderson City, KY
+EHT East Hartford, CT
+EHU Southern Region Hq, Fort Worth, TX
+EHY Elk Mountain AWOS, WY
+EIK Erie Muni, Erie, CO
+EIL Eielson AFB, Fairbanks, AR
+EIR Eugene Is 215, LA AWOS3
+EKA WFO Eureka, CA
+EKM Elkhart, IN
+EKN Elkins, WV
+EKO Elko, NV
+EKQ Wayne Cnty AP, Monticello, KY
+EKS Ennis-Big Sky AP, Ennis, MT
+ELA Eagle Rock, TX
+ELD El Dorado, AR
+ELH Elkhorn, MI
+ELK Elkhorn, Platte Basin
+ELM Elmira, NY
+ELN Ellensburg/Bowers, WA
+ELO Ely, MN
+ELP El Paso, TX
+ELV Elfin Cove, AK
+ELY Ely, NV
+ELZ Wellsville, NY
+EMI Westminster, MD
+EMK GOMEX East Breaks, TX AWOS-3
+EMM Kemmerer Muni, Kemmerer, WY
+EMP Emporia, KS
+EMT El Monte, CA
+EMV Emporia-Greensville Regnl, VA
+EMW EMWIN Admin Bulletin for Circuit Status 
+EMX Tucson, AZ WSR-88D
+ENA Kenai, AK
+END Vance AFB, Enid, OK
+ENL Centralia, IL
+ENN Nenana, AK
+ENP East Pacific
+ENS El Nino/Southern Oscillation Discussion
+ENV Wendover, UT
+ENW Kenosha, WI
+ENX Albany, NY WSR-88D
+EOE Newberry, SC
+EOK Keokuk, IA
+EOP Pike Cnty AP, Waverly, OH
+EOX Fort Rucker, AL WSR-88D RPG
+EP1 Eastern Pacific #1
+EP2 Eastern Pacific #2
+EP3 Eastern Pacific #3
+EP4 Eastern Pacific #4
+EP5 Eastern Pacific #5
+EPH Ephrata, WA
+EPO Eastport, ME
+EPZ WFO El Paso, TX (Santa Teresa, NM) WSR-88D
+EQA El Dorado, KS
+EQY Monroe, NC
+ERD QPF Excessive Rainfall Discussion
+ERH Eastern Region Hdqrtrs,Garden City, NY
+ERI Erie, PA
+ERL Envirnmental Research Labs, Boulder, CO
+ERM C-Edmundston, NB
+ERN Eastern Region Network
+ERO Eldred Rock, AR
+ERV Kerrville Airport, Kerrville, TX
+ERY Newberry, MI
+ES3 30-Day River Outlook
+ESC Escanaba, MI
+ESF Alexandria/Esler, LA
+ESN Easton/Newnam Fld AP, Easton, MD
+EST Estherville, IA
+ESX Las Vegas, NV WSR-88D
+ETB West Bend, WI
+ETC Tarboro-Edgecombe AP, Tarboro, NC
+ETH Wheaton NDB, MN
+ETM Elliston, MT
+EUF Eufaula Muni, AL
+EUG Eugene, OR
+EUL Caldwell, ID
+EUR European
+EVB New Smyrna Beach Muni, FL
+EVM Eveleth, MN
+EVT Space Weather Event Reports
+EVU NW Missouri Rgnl AP, Maryville, MO
+EVV Evansville, IN
+EVW Evanston, WY
+EWB New Bedford, MA
+EWK Newton, KS
+EWN New Bern, NC
+EWR Newark, NJ
+EWX WFO Austin/San Antonio, New Braunfels, TX WSR-88D
+EXT Canadian Great Lakes Extended Marine Forecast
+EXX Lexington/Davidson Co, NC
+EYE Indianapolis/Eagle Ck Airpark, IN
+EYF Elizabethtown/C L Brown Jr Fld, NC
+EYW Key West, FL
+EYX Edwards AFB, CA WSR-88D RPG
+EZA Zaragosa, SP
+EZF Shannon Arpt, VA
+EZM Heart of GA Rgnl AP, Eastman, GA
+EZS Shawano Muni, WI
+F05 Wilbarger Cnty AP, Vernon, TX
+F12 Rusk Cnty AP, Henderson, TX
+F17 Center Muni, Center, TX
+F24 Minden, LA AWOS
+F28 El Reno Muni Air Park, El Reno, OK
+F30 Sulphur, OK
+F39 Sherman-Denison, TX
+F44 Athens Muni, Athens, TX
+F46 Rockwall Muni, Rockwall, TX
+F54 Arlington, TX
+F70 French Valley AP, Murrieta/Temecula, CA
+FAF Fort Eustis, VA
+FAI Fairbanks, AK
+FAK Alaskan MOS Forecast
+FAM Farmington, MO
+FAR Fargo, ND
+FAT Fresno Air Terminal, CA
+FAY Fayetteville, NC
+FBG Fort Bragg, Fayetteville, NC
+FBL Faribault, MN
+FBO Freeze-up Outlook
+FBR Fort Bridger AP, Fort Bridger, WY
+FCA Kalispell, MT
+FCH Fresno-Chandler Ex AP, Fresno, CA
+FCI Chesterfield Cnty AP, Richmond, VA
+FCL Clarks Point AP, Clarks Point, AK
+FCM Flying Cloud Airport, MN
+FCS Fort Carson, Colorado Springs, CO
+FCX Roanoke/Blacksburg, VA WSR-88D
+FDK Frederick Muni Apt, MD
+FDR Frederick, OK
+FDW Winnsboro, SC
+FDY Findlay, OH
+FEL P-Elim AP, Elim, AK
+FEP Freeport, IL
+FET Fremont, NE
+FEW Warren AFB, Cheyenne, WY
+FFA First Flight AP, Kill Devil Hills, NC
+FFC WFO Atlanta/Peachtree City, GA WSR-88D
+FFF Le Lamentin, Martinique
+FFL Fair Field, IA
+FFM Fergus Falls, MN
+FFN N-Nadi, Fiji
+FFO Wright-Patterson AFB, Dayton, OH
+FFR T-Le Raiset, Guadeloupe
+FFT Frankfort, KY
+FFZ Mesa/Falcon Field, AZ
+FGF WFO Eastern North Dakota, Grand Forks, ND
+FGN Flag Is, MN
+FGX Fleming-Mason AP, Flemingsburg, KY
+FGZ WFO Flagstaff/Belemont, AZ
+FHB Fernandina Beach Muni, FL
+FHR Friday Harbor, WA
+FHU Fort Huachuca, Sierra Vista, AZ
+FIG Clearfield-Lawrence, PA
+FIN Flagler Cnty AP, Bunnell, FL
+FIR First Divide, WY
+FIT Fitchburg, MA
+FKA Preston/Fillmore Co, MN
+FKF Franklin Bluffs, AK
+FKL Franklin, PA
+FKN Franklin/J B Rose, VA
+FKR Frankfort, IN
+FKS Frankfort Dow Mem Fld AP, MI
+FKT P-Brevig Mission AP, Brevig Mission, AK
+FKW Kwethluk AP, Kwethluk, AK
+FL1 North and Northwest Florida
+FL2 Peninsula Florida
+FLD Fond Du Lac, WI
+FLG Flagstaff, AZ
+FLL Fort Lauderdale, FL
+FLO Florence, SC
+FLP Flippin, AR
+FLY Colorado Springs/Meadow Lake CO
+FME Fort Meade, MD
+FMH Cape Cod Coast Guard Station, Falmouth, MA
+FMI Le Tube, Istres, FR
+FMM Fort Morgan Muni, Fort Morgan, CO
+FMN Farmington, NM
+FMY Fort Myers, FL
+FNA N-Nausor, Fiji
+FNB Falls City, NE
+FNL Ft Collins/Loveland, CO
+FNO Noorvik, AK
+FNT Flint, MI
+FOA Flora, IL
+FOD Fort Dodge, IA
+FOE Topeka, KS
+FOK Westhampton Beach, NY
+FOT Rohnerville AP, Fortuna, CA
+FOZ Bigfork Muni, MN
+FPK Charlotte/Fitch H. Beach Muni, MI
+FPR Fort Pierce, FL
+FQD Rutherfordton/Rutherford Co, NC
+FRG Farmingdale/Republic, NY
+FRI Marshall AAF, Fort Riley, Junction City, KS
+FRM Fairmont, MN
+FRR Front Royal-Warren Cnty AP, Front Royal, VA
+FSD WFO Sioux Falls, SD WSR-88D
+FSE Fosston Muni, MN
+FSH P-Shaktoolik AP, Shaktoolik, AK
+FSI Fort Sill, OK
+FSK Flagstaff, AZ WSR-88D; Fort Scott Muni, KS
+FSM Fort Smith, AR
+FSO Franklin Cnty State AP, Highgate, VT
+FSP Saint Pierre Is., Gulf of St. Lawrence
+FSR Fraser, CO
+FST Fort Stockton, TX
+FSW Fort Madison, IA
+FTF N-Fua'amotu, Tonga
+FTG K-Front Range AP, Denver, CO; Denver/Boulder, CO WSR-88D
+FTK Fort Knox, KY
+FTN Faith Ranch AP, Carrizo Springs, TX
+FTW Fort Worth, TX
+FTY Brown Fld, Fulton Cnty AP, Atlanta, GA
+FUL Fullerton, CA
+FVE Frenchville, ME
+FVM P-Five-Mile Camp, AK
+FVX Farmville, VA
+FWA Fort Wayne, IN
+FWB Branson West Muni, Branson, MO
+FWC Fairfield, IL
+FWD WFO Dallas/Fort Worth, TX
+FWH Carswell AFB, Fort Worth, TX
+FWN Sussex, NJ
+FWQ Rostraver AP, Monongahela, PA
+FWR West Gulf RFC, Ft Worth, TX
+FWS K-Dallas/Fort Worth, TX WSR-88D; P-South Naknek Nr 2 AP, S Naknek, AK
+FWY NW Wyoming Streams
+FWZ South Pass, South Pass, WY
+FXE Fort Lauderdale, FL
+FXY Forest City Muni, IA
+FYE Somerville/Fayette Co, TN
+FYG Washington Rgnl, Washington, MO
+FYJ Middle Peninsula Reg AP, West Point, VA
+FYM Fayetteville Muni, Fayetteville, TN
+FYU Fort Yukon, AK
+FYV Fayetteville, AR
+FZG Fitzgerald Muni, Fitzgerald, GA
+FZY Fulton/Oswego Co, NY
+G01 Green Canyon Block 184, LA
+GA1 Georgia Area
+GA2 Georgia Area, PART 2
+GAD Gadsden, AL
+GAF Hutson Fld AP, Grafton, ND
+GAG Gage, OK
+GAI Montgomery Cnty Airpark, Gaithersburg, MD
+GAL Galena, AK
+GAM Gambell, AK
+GAO S Lafourche AP, Galliano, LA
+GBD Great Bend, KS
+GBG Galesburg, IL
+GBH Galbraith Lake, AK
+GBK GOMEX Magnolia, LA AWOS-3
+GCC Gillette, WY
+GCD Grant Cnty Rgnl, John Day, OR
+GCK Garden City, KS
+GCM Claremore Regnl, OK
+GCN Grand Canyon, AZ
+GCO Green River in Colorado
+GDB Granite Falls Muni, MN 
+GDJ Granbury Muni, TX
+GDP Pine Springs/Guadalupe Mtns NP, TX
+GDV Glendive, MT
+GED Georgetown/Sussex Co, DE
+GEG Spokane, WA
+GEU Glendale Muni, AZ
+GEV Jefferson/Ashe Co, NC
+GEY Greybull/South Big Horn Co, WY
+GEZ Shelbyville Muni, IN
+GFA Malmstrom AFB, Great Falls, MT
+GFK Grand Forks, ND
+GFL Glens Falls, NY
+GFU N-Funafuti, TV
+GGE Georgetown Cnty AP, SC
+GGG Longview, TX
+GGH A-Honiara/Henderson, Solomon Is
+GGI Grinnell Rgnl AP, Grinnell, IA
+GGP Logansport, IN
+GGT Aurora, Guatemala
+GGW WFO Glasgow, MT WSR-88D
+GHB GOMEX GB172/Salsa (Shell E-P)
+GHG Harlow Fld, Marshfield Muni, MA
+GHW Glenwood, MN
+GIC Idaho Cnty AP, Grangeville, ID
+GID WFO Hastings, NE
+GIF Winter Haven, FL
+GJT WFO Grand Junction, CO
+GJX Grand Junction, CO WSR-88D
+GKJ Meadville, PA
+GKN Gulkana, AK
+GKT Gatlinburg-Pigeon Forge AP, Sevierville, TN
+GKY Arlington Muni, Arlington, TX
+GLD WFO Goodland, KS WSR-88D
+GLE Gainesville, TX
+GLH Greenville, MS
+GLI Great Lakes Ice Forecast
+GLR Gaylord, MI
+GLS Galveston, TX
+GLW Glasgow Muni, KY
+GLY Clinton, MO
+GMJ Grove, OK
+GMU Greenville, SC
+GNA Grand Marais, MN
+GNC Gaines Cnty AP, Seminole, TX
+GND Grand River
+GNF Grenada Muni, Grenada, MS
+GNG Gooding, ID
+GNR Greenville Muni, ME
+GNT K-Grants-Milan Muni, Grants, NM; P-Sabanettan/Tinian, MY
+GNV Gainesville, FL
+GOK Guthrie, OK
+GON Groton-New London, CT
+GOO Nevada Cty, Grass Valley, CA
+GOP City-County AP, Gatesville, TX
+GOV Grayling Army Air Field, MI
+GPH Midwest Nat Air Ctr AP, Mosby, MO
+GPI Glacier Park Intl AP, Kalispell, MT
+GPM Grand Prairie Muni, TX
+GPT Gulfport, MS
+GPY T-Point Salines Intl, GD
+GPZ Grand Rapids, MN
+GQQ Galion, OH
+GRA Grand Chariton River Basin
+GRB WFO Green Bay, WI WSR-88D
+GRD Greenwood, SC
+GRF Fort Lewis, Tacoma, WA
+GRI Grand Island, NE
+GRK Gray AAF, Ft. Hood, Killeen, TX
+GRN Green River
+GRO P-Rota Intl, MY
+GRR WFO Grand Rapids, MI WSR-88D
+GRY GOMEX Green Canyon 338/Front Runner
+GSB Seymour Johnson AFB, Goldsboro, NC
+GSH Goshen, IN
+GSL F-Malabo/Fernando, GQ, W Africa
+GSM Ship Shoal 207A, LA
+GSN P-Saipan Intl AP/Isley, MY
+GSO Piedmont Triad Intl, Greensboro, NC
+GSP WFO Greenville-Spartanburg Intl, Greer, SC WSR-88D
+GSR Great Lakes Storm Report
+GTA N-Tarawa, Kiribati
+GTB Fort Drum, NY
+GTF Great Falls, MT
+GTL Maumee, Sandusky and Cuyahoga
+GTR Columbus, MS
+GTU Georgetown, TX
+GTW P-Joint Typhoon Warning Ctr (JTWC)
+GUA K-Guadalupe and San Antonio Rivers; P-Andersen AFB, GUAM WSR-88D
+GUC Gunnison, CO
+GUL GOMEX Gunnison, TX AWOS-3
+GUM P-WFO Guam (Agana) Tiyan, GU; Guam Intl AP, GU
+GUN Gunbarrel, WY
+GUP Gallup, NM
+GUR Camp Guernsey AP, Guernsey, WY
+GUS Grissom AFB, Peru, IN
+GUT Green River in Utah
+GUY Guymon Muni, OK
+GVE Gordonsville Muni, Gordonsville, VA
+GVL Gainsville/Gilmer, GA
+GVT Greenville, TX
+GVX GOMEX Galveston 424, TX AWOS-3
+GWB Auburn, IN
+GWO Greenwood, MS
+GWR Gw-Roger Melroe AP, Gwinner, ND
+GWT P-W Tinian, MY; Peipeinimaru, MY
+GWW Goldsboro-Wayne Muni, NC
+GWY Green River in Wyoming
+GXA Gray Butte Fld AP, Palmdale, CA
+GXF Gila Bend USAF Aux AP, Gila Bend, AZ
+GXY Greeley, CO
+GYB Giddings-Lee Cnty AP, Giddings, TX
+GYH Donaldson Cntr AP, Greenville, SC
+GYI Sherman-Denison, TX
+GYL Glencoe Muni, MN
+GYR Goodyear, AZ
+GYX WFO Portland/Gray, ME WSR-88D
+GYY Gary, IN
+GZH Evergreen, AL
+GZL Stigler Rgnl, Stigler, OK
+H00 Bentonville, AR
+H02 High Island 334A, LA
+H08 High Island 264C, LA
+H39 High Island A572, LA
+H45 Seminole Muni, Seminole, OK
+H63 West Plains, MO
+H78 Mississippi Canyon Block 778, LA
+H92 Hominy, OK
+HAE Hannibal Rgnl AP, Hannibal, MO
+HAF Half Moon Bay AP, CA
+HAI Three Rivers Muni/Dr Haines AP, MI
+HAM M-Amapala, Los Pelon, HO
+HAO Hamilton, OH
+HAR Harrisburg, PA
+HAT Hatteras, NC
+HAW F-Wide Awake Field, AI, W Africa
+HBG Hattiesburg/Bobby L Chain Muni, MS
+HBI Asheboro Muni, NC
+HBK Barking Sands, HI
+HBR Hobart, OK
+HBT Humboldt River
+HBV Jim Hogg Cnty AP, Hebbronville, TX
+HCA K-Big Spring, TX: M-Le Esperanze, H0
+HCD Hutchinson, MN
+HCO Hallock, MN
+HDC Hammond Muni, LA
+HDE Holdrege, NE
+HDG FOUS Header
+HDN Hayden, CO
+HDO Hondo, TX
+HEB P-Pacific Tsunami Warning Ctr (PTWC)
+HEF Manassas Muni, VA
+HEG Herlong AP, Jacksonville, FL
+HEI Hettinger, ND
+HEQ Holyoke AP, Holyoke, CO
+HEY Hanchey AHP, Fort Rucker, Ozark, AL
+HEZ Natchez, MS
+HFD Hartford, CT
+HFF Mackall AAF, NC
+HFJ Monett, MO
+HFO WFO Honolulu, HI
+HFY Greenwood, IN
+HGR Hagerstown, MD
+HGX WFO Houston/Galveston, TX WSR-88D
+HHF Canadian, TX
+HHG Huntington Muni, Huntington, IN
+HHI Wheeler AFB, HI
+HHN Hana, HI
+HHR Hawthorne, CA
+HHV GOMEX AC25/Hoover-Diana (ExxonMobile)
+HHW Stan Stamper Muni, Hugo, OK
+HIB Hibbing, MN
+HIE Whitefield, NH
+HIF Hill AFB, Ogden, UT
+HII Lake Havasu City AP, Lake Havasu City, AZ
+HIL Hillsborough River
+HIO Hillsboro, OR
+HJH K-Hebron Muni, NE; P-Lahaina, HI
+HJO Hanford, CA
+HJR P-Kalaeloa AP, Kapolei, HI
+HKA Blytheville Muni, AR
+HKI P-South Kauai, HI WSR-88D site
+HKM P-Kamuela, HI WSR-88D site
+HKO Kailua Kona, HI
+HKP Kaanapali, HI
+HKS Jackson/Hawkins Fld, MS
+HKY Hickory, NC
+HLC Hill City, KS
+HLD Hiland, WY
+HLE La Esperanze, HO
+HLG Wheeling, WV
+HLI Lihue, HI
+HLM Holland, MI
+HLN Helena, MT
+HLR Ft Hood AAF/Killeen, TX
+HLS Hurricane Local Statement
+HLU Kalaupapa, HI
+HLX Hillsville, VA
+HMD U-Buhta Providenja, HA, RA
+HMK Kaunakakai Molokai, HI
+HMN Holloman AFB, Alamogordo, NM
+HMO M-Hermosillo, MX; P-Molokai, HI WSR-88D site
+HMS Hanford, WA
+HMU Waimea-Kohala/Hawaii, HI
+HMZ Bedford/Bedford Co, PA
+HNA Barbers Point NAS, HI
+HNB Huntingburg, IN
+HND Las Vegas,Henderson, NV
+HNG Kaneohe Bay MCAF, Kaneohe, HI
+HNJ Guanaja, HO
+HNL Honolulu Intl, HI
+HNR Harlan Muni, IA
+HNX WFO San Joaquin Valley, Hanford, CA WSR-88D
+HNY Lanai City Arpt, HI
+HNZ Oxford/Henderson-Oxford, NC
+HOB Hobbs, NM
+HOC Hocking River
+HOE Homerville AP, Homerville, GA
+HOG Kahului Arpt, HI
+HOM Homer, AK
+HON Huron, SD
+HOP Campbell AAF, Hopkinsville, KY
+HOT Hot Springs, AR
+HOU Houston, TX
+HPL Puerto Lempira, HO
+HPN White Plains, NY
+HPT Hampton Muni, Hampton, IA
+HPX Fort Campbell, KY WSR-88D RPG
+HQI GOMEX High Is 376, TX AWOS-3
+HQM Hoquiam, WA
+HQU Thomson-McDuffie Co AP, Thomson, GA
+HQZ Mesquite, TX
+HRI Hermiston, OR
+HRJ Erwin/Harnett Co, NC
+HRL Harlingen, TX
+HRO K-Harrison, AR; M-Roatan, HO
+HRT Mary Esther, FL
+HRX Hereford Muni, Hereford, TX
+HSA Bay St. Louis/Stennis Intl, MS
+HSB Harrisburg, IL
+HSC M-Soto Cano AB
+HSD QPF Heavy Snow Discussion
+HSE Hatteras, NC
+HSF Bradshaw AAF, HI
+HSI Hastings, NE
+HSP Hot Springs, VA
+HSS Hot Springs, NC
+HST Homestead AFB, Homestead, FL
+HSV Huntsville, AL
+HTH Hawthorne, NV
+HTL Houghton Lake, MI
+HTO K-East Hampton, NY; P-Hilo/Lyman Field, HI
+HTS Huntington, WV
+HTX Huntsville, AL WSR-88D
+HUA Redstone AAF, Huntsville, AL
+HUF Terre Haute, IN
+HUL Houlton, ME
+HUM Houma-Terrebonne AP, Houma, LA
+HUN WFO Huntsville, AL
+HUT Hutchinson, KS
+HVE Hanksville AP, Hanksville, UT
+HVN New Haven, CT
+HVR Havre, MT
+HVS Hartsville, SC
+HVY Happy Valley, AK
+HWA P-South Shore, HI WSR-88D site
+HWD Hayward, CA
+HWO Hollywood, FL
+HWV Shirley/Brookhaven, NY
+HWY Warrenton-Fauquier AP, Warrenton, VA
+HWX Hawaii (Tsunami, Earthquake)
+HXD Hilton Head AP, Hilton Head Is, SC
+HYA Hyannis, MA
+HYI San Marcos Muni, TX
+HYR K-Hayward, WI; M-Yoro, HO
+HYS Hays, KS
+HYW Conway, SC
+HYX Saginaw/H W Browne, MI
+HZD Huntingdon/Carroll Co, TN
+HZE Mercer Cnty Rgnl AP, Hazen, ND
+HZL Hazleton Muni, Hazleton, PA
+HZR New Roads, LA
+HZX Isedor Iverson AP, McGregor, MN
+HZY Ashtabula Co, OH
+I14 Indianapolis, IN
+I16 Kee Fld AP, Pineville, WV
+I18 New Castle, IN
+I35 Tucker-Guthrie Mem AP, Harlan, KY
+I39 Madison AP, Richmond, KY
+I63 Mt. Sterling Muni, IL
+I67 Cincinnati W AP, Harrison, OH
+I69 Clermont Cnty AP, Batavia, OH
+I75 Osceola Muni, Osceola, IA
+IAB McConnell AFB, Wichita, KS
+IAC Arctic
+IAD Dulles Intl AP, Washington, DC
+IAE Southeast Asia
+IAF Africa
+IAG Niagara Falls, NY
+IAH Houston Bush Intercontinental AP, TX
+IAI Ascension Islands
+IAK Alaska
+IAL Algeria
+IAM Central Africa
+IAN Angola
+IAO West Africa
+IAP Southern Africa
+IAR Arabian Sea
+IAS Asia
+IAT Antigua/Saint Kitts
+IAU Australia
+IAZ Azores
+IBA Bahamas
+IBC Botswana
+IBD Lesotho
+IBE Bermuda
+IBG Guyana
+IBH Belize
+IBI Burundi
+IBK Banks Islands
+IBM K-Kimball, NE; Burma
+IBN Bahrain
+IBO Bolivia
+IBQ Baltic Sea
+IBR Barbados
+IBU Bulgaria
+IBV Bouvet Island
+IBW Bangladesh
+IBX Belgium/Luxembourg
+IBY Belarus
+IBZ Brazil
+ICA Caribbean Sea
+ICC Sri Lanka
+ICD Democratic Kampuchea
+ICE Central African Empire
+ICG Congo
+ICH Chile
+ICI China
+ICL Clarinda, IA
+ICM Cayman Islands
+ICN Canada
+ICO Colombia
+ICR Canary Islands; K-Winner Regnl AP, Winner, SD
+ICS Costa Rica
+ICT WFO Wichita, KS WSR-88D
+ICU Cuba
+ICV Cape Verde Islands
+ICX Cedar City, UT WSR-88D
+ICY Cyprus
+ICZ Czechoslovakia
+IDA Idaho Falls, ID
+IDD German Democratic Republic
+IDG Surinam
+IDH Dahomey
+IDI Indiana/Stewart, PA
+IDK Democratic People's Republic of Korea
+IDL Federal Republic of Germany
+IDN Denmark
+IDO Dominica
+IDP Independence Muni, KS
+IDR Dominican Republic
+IDV I-25 Divide, WY
+IEA East Africa
+IEC East China Sea
+IEE Eastern Europe
+IEH Guam
+IEJ Fiji Islands
+IEL Ellice Islands
+IEM Middle Europe
+IEN Pine Ridge, SD
+IEQ Ecuador
+IER Natchitoches Regnl, LA/United Arab Emirates
+IET Ethiopia
+IEU Europe
+IEW Western Europe
+IFA K-Iowa Falls Muni, IA; Faeroe Islands
+IFC Comoro Islands
+IFE Far East
+IFG French Guiana
+IFI Finland
+IFK Falkland Islands
+IFM Morocco
+IFN Niger
+IFP Bullhead City, AZ
+IFR France
+IFS Mali
+IFW Wallis and Futuna Islands
+IGA Gulf of Alaska
+IGB Gambia
+IGC Ghana
+IGE Gough Island
+IGI Gibralter
+IGL Greenland
+IGM Kingman, AZ
+IGN Guinea
+IGO Gabon
+IGP Guinea
+IGQ Chicago/Lansing, IL
+IGR Greece
+IGT Gilbert Islands
+IGU Guatemala
+IGX Chapel Hill/Horace Williams, NC
+IGY Guyana
+IHA Haiti
+IHE Saint Helena
+IHK Hong Kong
+IHO Honduras
+IHU Hungary
+IHV Upper Volta
+IHW Hawaiian Islands
+IIB Independence Muni, IA
+IID Indonesia
+IIE Ireland
+IIL Iceland
+IIN India
+IIO Indian Ocean
+IIQ Iraq
+IIR Iran
+IIS Israel
+IIV Ivory Coast
+IIY K-Washington/Wilkes Co, GA; Italy
+IJD Willimantic, CT
+IJM Jamaica
+IJN Norway
+IJP Japan
+IJX Jacksonville, IL
+IKA K-Inyan Kara, WY; P-Caroline Islands
+IKG USSR
+IKI Christmas Island
+IKK K-Kankakee, IL; Cocos Islands
+IKM United Republic of Cameroon
+IKN Kenya
+IKO Nikolski AFS, AK
+IKR Korea
+IKT GOMEX MC 474/NaKika (BP)
+IKU Cook Islands
+IKV Ankeny, IA
+IKW K-Jack Barstow AP, Midland, MI; Kuwait
+IL1 Rivers in Illinois
+ILA Lao People's Democratic Republic
+ILB Lebanon
+ILC K-Wilson Creek, NV; T-St. Lucia, British Is. southward, Grenada
+ILE Killeen, TX
+ILG Wilmington, DE
+ILI Iliamna, AK
+ILL Willmar, MN
+ILM WFO Wilmington, NC
+ILN WFO Wilmington/Airborne Airpark, OH WSR-88D
+ILU Aleutian Islands
+ILX WFO Central Illinois, Lincoln, IL WSR-88D
+ILY Libyan Arab Republic
+IMA Mauritius
+IMB Kimberly, OR
+IMC Central Mediterranean; Morocco
+IMD Madeira
+IME Eastern Mediterranean
+IMF St. Martin/St. Bartholomew/Guadeloupe
+IMG Madagascar
+IMI Marshall Islands
+IML Imperial, NE
+IMM K-Immokalee Rgnl AP, Immokalee, FL; Mediterranean Sea
+IMN Saint Maarten/Saint Eustatius/Saba
+IMO Mongolia
+IMR Martinique
+IMS K-Madison Muni, Madison, IN; I-Malaysia
+IMT Iron Mountain, MI
+IMU Macao
+IMV Maldives
+IMW Western Mediterranean
+IMX Mexico
+IMY Mariana Islands
+IMZ Mozambique
+IN1 Rivers in Indiana
+INA North America
+INB North Borneo
+INC New Caledonia/Loyalty Islands
+IND WFO Indianapolis, IN WSR-88D; Space Weather Indices
+INE Near East
+INF Inverness, FL
+ING Papua New Guinea
+INH New Hebrides
+INI Administr (SMCC Only)
+INJ Hillsboro, TX
+INK Wink, TX
+INL International Falls, MN
+INO Norway
+INP Nepal
+INR Kincheloe AFB, Sault Sainte Marie, MI
+INS Indian Springs AF Aux Fld, Indian Springs, NV
+INT Winston-Salem/Smith Reynolds, NC
+INU Netherlands Antilles
+INW Winslow, AZ
+INX Tulsa, OK WSR-88D
+INZ New Zealand
+IOB Mount Sterling-Montgomery Cnty AP, Mount Sterling, KY
+IOC Oceania
+IOE Indian Ocean Tsunami
+IOF French Polynesia
+IOH Sea of Okhotsk
+IOM Oman
+IOR South Orkney Islands
+IOS Austria
+IOW Iowa City, IA
+IPA Pacific Ocean
+IPE Persian Gulf
+IPG Guinea/Bissau
+IPH Philippines
+IPI Phoenix Islands
+IPJ Lincolnton, NC
+IPK Pakistan
+IPL Imperial, CA
+IPM Panama
+IPN North Pacific; K-GOMEX Independence, LA AWOS-3
+IPO Portugal
+IPQ Western North Pacific
+IPR Peru
+IPS South Pacific
+IPT Williamsport, PA
+IPU Puerto Rico
+IPW Western Pacific
+IPY Paraguay
+IPZ Eastern Pacific
+IQT Qatar
+IRA Asian USSR
+IRC Congo
+IRE Reunion/Associated Islands
+IRH Southern Rhodesia
+IRI Spanish Sahara
+IRK Kirksville, MO
+IRM Equatorial Guinea
+IRN Malawi
+IRO Romania
+IRS Sturgis/Kirsch Muni, MI
+IRW Rwanda
+IRZ Zaire
+ISA South America
+ISC Seychelles
+ISD Saudi Arabia
+ISE Southern Ocean
+ISF French Territory of Afars And Issa
+ISG Senegal
+ISI Somalia
+ISJ Sea of Japan
+ISK Sarawak
+ISL Sierra Leone
+ISM Orlando/Kissimmee Muni, FL
+ISN Williston, ND
+ISO Kinston Reg Jetport/Stallings Fld, Kinston, NC
+ISP Spain; Islip, NY
+ISQ Manistique, MI
+ISR Singapore
+ISS South China Sea
+IST C. Amalie/Cyril E., VI
+ISU Sudan
+ISV El Salvador
+ISW Alexander Fld S Wood Cnty AP, Wisconsin Rapids, WI
+ISX Christiansted/Alexander, VI
+ISY Syrian Arab Republic
+ISZ Spitzbergen
+ITC Tristan da Cunha
+ITD Trinidad & Tobago
+ITE Chad
+ITG Togo
+ITH Ithaca, NY
+ITI Turk Islands
+ITJ Jordan
+ITK Tokelau Islands
+ITM Timor
+ITN United Republic of Tanzania
+ITO Hilo, HI
+ITP Sao Tome/Principe
+ITR Burlington, CO
+ITS Tunisia
+ITU Turkey
+IUA South Africa
+IUB Egypt
+IUG Uganda
+IUK United Kingdom
+IUR Ukraine
+IUS United States of America
+IUY Uruguay
+IVA Region I (Africa)
+IVB Region II (Asia)
+IVC Region III (South America)
+IVD Region IV (North and Central America)
+IVE Region V (Southwest Pacific)
+IVF Region VI (Europe)
+IVI Virgin Islands
+IVJ South of 60 Degrees South Latitude
+IVN Venezuela
+IVS Socialist Republic of Viet Nam
+IVX More Than One Region
+IWA Williams-Gateway AP, Mesa, AZ WSR-88D
+IWB Region II (Asia)
+IWD Ironwood, MI
+IWE Region V (Southwest Pacific)
+IWF Region VI (Europe)
+IWI Wiscasset, ME
+IWJ South of 60 Degrees South Latitude
+IWK Wake Islands
+IWS Lakeside Airport, Houston, TX
+IWX WFO Northern Indiana, North Webster, IN WSR-88D
+IWZ Swaziland
+IXA Halifax-Northhampton Reg AP, Roanoke Rapids, NC
+IXD Olathe, KS
+IXE Eastern Hemisphere
+IXN Northern Hemisphere
+IXS Southern Hemisphere
+IXT Tropical Belt
+IXW Western Hemisphere
+IXX No Appropriate Designator Available
+IYA Abbeville Chris Crusta Mem AP, LA
+IYE Yemen
+IYG Yugoslavia
+IYK Inyokern, CA
+IZA K-Santa Ynez, CA; South Africa
+IZB Zambia
+IZG Fryeburg, ME
+IZM Western Samoa
+JAA James, Appomatox Basin
+JAC Jackson, WY
+JAM James, Vermillion, Niobrara
+JAN WFO Jackson, MS
+JAS Jasper/Jasper Co-Bell Field, TX
+JAU Campbell Cnty AP, Jacksboro, TN
+JAW Joint Agr & Wx Facility, Washngton, DC
+JAX WFO Jacksonville, FL WSR-88D
+JBQ Aguadilla/Borinquen, PU
+JBR Jonesboro, AR
+JCT Junction, TX
+JDD Wood Cnty AP, Mineola/Quitman, TX
+JDG Naval Station Diego Garcia
+JDN Jordan, MT
+JEF Jefferson City, MO
+JER Jerome, ID
+JES Jesup-Wayne Cnty AP, Jesup, GA
+JFK New York, NY
+JFX Jasper, AL
+JFZ Richlands/Tazewell Co, VA
+JGG Williamsburg, VA
+JHM Kapalua AP, Lahaina, HI
+JHN Johnson, KS
+JHW Jamestown, NY
+JIG Fernando Luis Ribas Dominicci AP, San Juan, PR
+JKA Jack Edwards AP, Gulf Shores, AL
+JKJ Moorhead Muni, MN
+JKL WFO Jackson, KY WSR-88D
+JLN Joplin, MO
+JMR Mora Muni, MN
+JMS Jamestown, ND
+JMZ T-Mayaguez/Eugenio, PU
+JNR Roosevelt Roads NAS, PU
+JNU Juneau, AK
+JNX Smithfield/Johnston Co, NC
+JOH Johnstone Point, AK
+JOI R-Iwacuni MCAS, JP
+JON Johnston Island
+JOT Joliet, IL
+JPD Powder River Pass, Ten Sleep, WY
+JPS Ponce/Mercedita, PU
+JQF Concord Rgnl, NC
+JRF P-Kalaeloa AP, Kapolei, HI
+JSC Johnson Space Ctr
+JSD Stratford, CT
+JSJ San Juan Intl, PU
+JSO Jacksonville, TX
+JST Johnstown, PA
+JSV Sallisaw Muni, OK
+JTC Springerville Muni, AZ
+JUA San Juan, Puerto Rico WSR-88D
+JVL Janesville, WI
+JVU Queen Cty AP, Allentown, PA
+JVW John Bell Williams AP, Raymond, MS
+JWG Watonga, OK
+JWN John C Tune AP, Nashville, TN
+JWX Fort Ritchie, MD
+JWY Midlothian/Waxahachie, TX
+JXI Gilmer Muni, Gilmer, TX
+JXN Jackson, MI
+JYG St James Muni, MN
+JYL Plantation Airpark, Sylvania, GA
+JYM Hillsdale Muni, MI
+JYO Leesburg/Godfrey, VA
+JYR York Muni, NE
+JZI Charleston Exec AP, Charleston, SC
+JZP Pickens Cnty AP, Jasper, GA
+K20 Burwell, NE
+K27 Fort Madison, IA
+K61 Moritz Mem AP, Beloit, KS
+K82 Smith Ctr Muni, KS
+K88 Allen Cnty AP, Iola, KS
+KAE Kake, AK
+KAN Kanawha River
+KBO S-Bogota, Colombia
+KCC Coffman Cove, AK
+KCI Aviation Weather Ctr, Kansas City, MO
+KCK Kansas City, KS
+KEY WFO Key West, FL
+KJP M-Norman Manley/Kingston, JM
+KJS M-Sangster/Montego Bay, JM
+KKA Koyuk, AK
+KKD F-Douala, CM, W Africa
+KLS Kelso, WA
+KLV Lakeview, OR
+KMJ P-Majuro Atoll, Marshall Is Intnl AP
+KMR P-WSO Majuro, RMI (Republic of Marshall Islands)
+KOA Kailua-Kona, HI
+KPK T-Golden Rock, St. Kitts, AT
+KPN Charlestown/Newcastle Airport, Nevis Island, LC
+KRF Missouri Basin RFC, Kansas City, MO
+KRH S-Riohacha, Colombia
+KRY Kearneysville, WV
+KS1 Rivers in Kansas
+KSF SFO/SBA to Honolulu
+KSM Saint Marys, AK
+KSP S-San Andres Island, Colombia
+KSR Kansas River
+KTN Ketchikan, AK
+KTY Kentucky River
+KWA P-Bucholz AAF, Kwajalein, Marshall Is
+KY1 Rivers in Kentucky
+L10 San Clemente, CA
+L18 Fallbrook Community Airpk, Fallbrook, CA
+L35 Big Bear City AP, CA
+L38 Louisiana Rgnl AP, Gonzales, LA
+L40 High Island A489, LA
+L42 Allen Parish AP, Oakdale, LA
+L49 S Lafourche AP, Galliano, LA
+L98 El Capitan Beach, CA
+LA1 South Louisiana Area
+LA2 North Louisiana Area
+LAA Lamar, CO
+LAF Lafayette, IN
+LAL Lakeland Linder Rgnl, Lakeland, FL
+LAM Los Alamos, NM
+LAN Lansing, MI
+LAR Laramie, WY
+LAS Las Vegas, NV
+LAT Latin American
+LAW Lawton Muni, OK
+LAX Los Angeles, CA
+LB1 Labrador
+LBB Lubbock Preston Smith Intl, TX WSR-88D
+LBE Latrobe, PA
+LBF WFO North Platte, NE
+LBL Liberal, KS
+LBO F Jones Lebanon AP, Lebanon, MO
+LBR Lower Brazos River; K-Clarksville/Red River Co, TX
+LBT Lumberton Muni, NC
+LBX Angleton/Lake Jackson - Brazoria Cty AP, TX
+LCG Wayne Muni, Wayne, NE
+LCH WFO Lake Charles, LA WSR-88D; P-Banana, Christmas Is
+LCI Laconia, NH
+LCK Rickenbacker AFB, Columbus, OH
+LCM Lower Colorado Rvr Below Lake Powell
+LCQ Lake City Gateway AP, Lake City, FL
+LDJ Linden, NJ
+LDM Ludington/Mason Co, MI
+LDS Leeds, MT
+LEB Lebanon, NH
+LEE Leesburg Muni, FL
+LEW Auburn/Lewiston, ME
+LEX Lexington, KY
+LFI Langley AFB, Hampton, VA
+LFK Lufkin, TX
+LFT Lafayette, LA
+LGA New York/La Guardia, NY
+LGB Long Beach, CA
+LGC La Grange-Callaway, GA
+LGD La Grande, OR
+LGU Logan, UT
+LGX Langley Hill, Grays Harbor Cnty, WA WSR-88D
+LHB Hearne, TX
+LHD Anchorage, AK
+LHM Lincoln, CA
+LHQ Lancaster, OH
+LHW Fort Stewart, Hinesville, GA
+LHX La Junta, CO
+LHZ Louisburg, NC
+LIC Limon, CO
+LIH Lihue, HI
+LIK Licking River
+LIO Ice Outlook
+LIT Little Rock, AR
+LIX WFO New Orleans/Baton Rouge, Slidell, LA WSR-88D
+LIZ Loring AFB, Limestone, ME
+LJF Litchfield, MN
+LJN Lake Jackson, TX
+LKH Hocking, Little Kanawha, Muskingum
+LKN WFO Elko, NV
+LKO Licking River, OH
+LKR Lancaster, SC
+LKU Louisa Co/Freeman Fld, VA
+LKV Lakeview, OR
+LLJ Challis, ID
+LLQ Monticello Muni/Ellis Fld, AR
+LLS Low-Level Sounding
+LMK WFO Louisville, KY
+LMO Vance Brand AP, Longmont, CO
+LMS Louisville, MS
+LMT Klamath Falls, OR
+LNC Lancaster AP, TX
+LND Lander, WY
+LNE Lower Neches River
+LNI Lonely DEW Stn, Lonely, AK
+LNK Lincoln, NE
+LNL Kings Land O'Lakes AP, WI
+LNN Willoughby Lost Nation Muni, OH
+LNP Wise/Lonesome Pine, VA
+LNR Lone Rock, WI
+LNS Lancaster, PA
+LNX North Platte, NE WSR-88D
+LNY Lanai City, HI
+LOG Pilot Briefing Log
+LOL Lovelock, NV
+LOM K-Philadelphia/Wings Fld, PA; Lower Ohio and Mississippi Rivers
+LOR Ft Rucker/Ozark, AL
+LOT WFO Chicago, Romeoville, IL WSR-88D
+LOU Louisville, KY
+LOX WFO Los Angeles, Oxnard, CA
+LOZ London, KY
+LPC K-Lompoc, CA; T-Vigie, St. Lucia, LC
+LPL T-Hewanorra Intl Arpt, LC
+LPR Elyria/Lorain Co, OH
+LQK Pickens, SC
+LRD Laredo, TX
+LRF Little Rock AFB, Jacksonville, AR
+LRI Lower Rio Grande and Devils River
+LRJ Le Mars, IA
+LRO Mount Pleasant, SC
+LRP Lower Republican
+LRR Lower Red River of the North
+LRU Las Cruces Intl AP, Las Cruces, NM
+LRX Elko, NV WSR-88D
+LRY L Smith Mem AP, Harrisonville, MO
+LSA Lower Sabine River
+LSB Lordsburg Muni, NM
+LSC Lower Sacramento River
+LSD Lexington/Creech, KY
+LSE La Crosse, WI
+LSF Fort Benning, Columbus, GA
+LSK Lusk Muni, Lusk, WY
+LST Lone Star, TX
+LSV Nellis AFB, Las Vegas, NV
+LSX WFO St. Louis, St. Charles, MO WSR-88D
+LTR Lower Trinity River
+LTS Altus AFB, Altus, OK
+LTX Wilmington, NC WSR-88D
+LUA Luray Caverns AP, Luray, VA
+LUB WFO Lubbock, TX
+LUD Decatur, TX
+LUF Luke AFB, Glendale, AZ
+LUK Cincinnati, OH
+LUL Hesler-Noble Fld AP, Laurel, MS
+LUM Menomonie Muni/Score Fld, WI
+LUP Loup River Basin
+LUX Laurens, SC
+LVD Level Island, AK
+LVJ Houston/Pearland Rgnl, TX
+LVK Livermore, CA; Louisville, KY WSR-88D 
+LVL Lawrenceville/Brunswick Muni, Lawrenceville, VA
+LVM Livingston, MT
+LVN Minneapolis/Airlake, MN
+LVS Las Vegas, NM
+LWA K-South Haven Rgnl AP, MI; Little Wabash River
+LWB Lewisburg, WV
+LWC Lawrence, KS
+LWD Lamoni Muni, IA
+LWM Lawrence, MA
+LWS Lewiston, ID
+LWT Lewistown, MT
+LWV Lawrenceville, IL
+LWX WFO Baltimore/Washington D.C., Sterling, VA WSR-88D
+LXL Little Falls, MN
+LXN Lexington, NE
+LXT Lee's Summit, MO
+LXV Leadville, CO
+LXY Mexia-Limestone Cnty AP, Mexia, TX
+LYH Lynchburg, VA
+LYV Quentin Aanenson AP, Luverne, MN
+LZK WFO Little Rock, North Little Rock, AR WSR-88D
+LZU Lawrenceville/Gwinnett Co, GA 
+LZZ Lampasas, TX
+M04 Covington Muni, TN 
+M08 Bolivar/William Whitehurst, TN
+M10 Miss R.-St. Paul to L&D 10
+M15 Linden, TN
+M16 John Bell Williams AP, Raymond, MS
+M19 Newport Muni, Newport, AR
+M22 Miss R. L&D 10 to L&D 22
+M25 Mayfield Graves Cnty AP, Mayfield, KY
+M30 Metropolis Muni, IL
+M39 Mena, AR
+M40 Monroe Cnty AP, Aberdeen/Amory, MS
+M46 Colstrip AP, Colstrip, MT
+M52 Lexington/Franklin Wilkins, TN
+M58 Monett, MO
+M63 McGregor Range Base Camp, NM
+M89 Florence Mem AP, Arkadelphia, AR
+M91 Springfield Robertson Cnty AP, Springfield, TN
+MAA Acapulco/Gen Alvarez, MX
+MAE Madera Muni, CA
+MAF WFO Midland/Odessa, TX WSR-88D; C-Canadian Great Lakes MAFOR
+MAI Marianna Muni, Marianna, FL
+MAJ Marshall Is Intl AP, Majuro Atoll, Marshall Is
+MAN K-Nampa Muni, Nampa, ID; M-Monterrey Intl, MX
+MAO Marion, SC
+MAS Aguascalientes, MX
+MAW Malden Muni, Malden, MO
+MAX Medford, OR WSR-88D
+MAZ Mayaguez, PR
+MB1 Southern Manitoba
+MB2 Central and Northern Manitoba
+MBG Mobridge Muni, SD
+MBK Regional Map Background
+MBL Manistee, MI
+MBO Bruce Campbell Fld AP, Madison, MS
+MBS Saginaw, MI
+MBT Bahias de Huatulco, MX
+MBX Minot AFB, ND DOD WSR-88D RPG
+MBY Omar Bradley AP, Moberly, MO
+MCB K-McComb, MS; M-Cuernavaca, MX
+MCC McClellan Air Fld, Sacramento, CA
+MCD Mesoscale Convective Discussion; K-Mackinac Island, MI
+MCE K-Merced, CA; M-Ciudad del Carmen, MX
+MCF MacDill AFB, Tampa, FL
+MCG McGrath, AK
+MCI Kansas City Int'l Airport, MO
+MCJ John S Dunn Helistop, Houston, TX
+MCK McCook, NE
+MCL Culiacan, MX
+MCM Chetumal, MX
+MCN K-Middle GA Rgnl AP, Macon, GA; M-Santa Rosalia, MX
+MCO Orlando, FL
+MCP M-Campeche/Ignacio, MX
+MCS Cuidad Juarez Intl, MX
+MCT M-Chichen Itza, MX;  Middle Colorado River
+MCU Chihuahua Intl, MX
+MCV Cuidad Victoria Arpt, MX
+MCW Mason City, IA
+MCX White Cnty AP, Monticello, IN
+MCZ Cozumel, MX
+MD1 Rivers in Maryland
+MDC Marias Des Cygnes
+MDD Midland Airpark, Midland, TX
+MDH Carbondale/Murphysboro, IL
+MDJ GOMEX Mississippi Canyon, LA AWOS-3
+MDN Jefferson Proving Ground, IN
+MDO Durango Arpt, MX
+MDQ Huntsville/Madison Co Exec, AL
+MDS Madison Muni, Madison, SD
+MDT Middletown, PA
+MDW Chicago, IL
+MDY P-Henderson Fld AP, Midway Island
+MDZ Medford, WI
+ME1 Rivers in Maine and New Hampshire
+MEB Maxton/Laurinburg-Maxton Arpt, NC
+MED Mediterranean Sea (East of 6W)
+MEG WFO Memphis, TN
+MEH Meacham, OR
+MEI Meridian, MS
+MEM Memphis, TN
+MEP Tepic, MX
+MER Castle AP, Atwater, CA
+MEV Minden-Tahoe AP, Minden, NV
+MEZ Mena, AR
+MFC Marshall Space Flight Ctr, AL
+MFD Mansfield, OH
+MFE McAllen, TX
+MFI Marshfield, WI
+MFL WFO Miami, FL
+MFR WFO Medford, OR
+MFV Melfa/Accomack, VA
+MGB C-Granby, QC
+MGC Michigan City Muni, IN
+MGE Dobbins AFB, Marietta, GA
+MGG Maple Lake, MN
+MGJ Montgomery, NY
+MGL K-Monteagle, TN; M-Guadalajara/don Miguel, MX
+MGM K-Montgomery, AL; M-Guaymas Intl, MX
+MGN Harbor Springs Muni, MI
+MGR Moultrie Muni, GA
+MGW Morgantown, WV
+MGY Dayton, OH
+MHE Mitchell, SD
+MHK Manhattan, KS
+MHL Marshall Muni, Marshall, MO
+MHM Minchumina, AK
+MHN Mullen, NE
+MHO Hermosillo Intl, MX
+MHR Mather Fld, Sacramento, CA
+MHS Mount Shasta, CA
+MHT Manchester, NH
+MHV Mojave Air/Spaceport, Mojave, CA
+MHX WFO Morehead City, NC WSR-88D
+MIA K-Miami, FL; M-Colima, MX
+MIB Minot AFB, ND
+MIC Crystal Airport, MN
+MIE Muncie/Delaware Co-Johnson Fld, IN
+MIJ Dugway/Tooele, UT
+MIL Milk, Yellowstone
+MIM Miami River
+MIN Minnesota, Mississippi Above St Paul
+MIO Saltillo, MX
+MIS K-GOMEX MP 140B (Apache Corp); Mississippi Mainstem
+MIT Ixtepec, OX, MX
+MIV Millville, NJ
+MIW Marshalltown, IA
+MJQ Jackson Muni, MN
+MJX Toms River, NJ
+MKC C B Wheeler DT AP, KC, MO; Kansas City, MO
+MKE Milwaukee, WI
+MKG Muskegon, MI
+MKJ Marion/Wytheville, VA
+MKK Kaunakakai, HI
+MKL Jackson, TN; Lower Muskingum River
+MKM Meramec, Kaskaskia, Big Muddy
+MKN Comanche County-City AP, Comanche, TX
+MKO Muskogee, OK
+MKS Moncks Corner, SC
+MKT Mankato, MN
+MKU Upper Muskingum River
+MKX WFO Milwaukee/Sullivan, Dousman, WI WSR-88D
+MKY Marco Is AP, Marco Island, FL
+MLB WFO Melbourne, FL WSR-88D
+MLC McAlester, OK
+MLD Malad City, ID
+MLE Millard Arpt, Omaha, NE
+MLF Milford, UT
+MLI Moline, IL
+MLJ Baldwin Cnty AP, Milledgeville, GA
+MLM Los Mochis Arpt, MX
+MLO Leon/del Bajio, MX
+MLP K-Mullan Pass, ID; M-La Paz Intl, MX
+MLS Miles City, MT
+MLT K-Millinocket, ME; M-Loreto, MX
+MLU Monroe, LA
+MMA Matamoros Intl, MX
+MMD Merida Intl, MX
+MMH Mammoth Lakes, CA
+MMI McMinn Cnty AP, Athens, TN
+MMK Meriden Markham Muni, CT
+MML K-Marshall, MN; M-Mexicali Intl, MX
+MMM Morelia, MX
+MMO Marseilles, IL
+MMT K-McEntire ANG Base, Columbia, SC; M-Minatitlan, MX
+MMU Morristown Muni, NJ
+MMV K-McMinnville Muni, OR; M-Monclova, MX
+MMX M-Mexico City/Licenci, MX
+MMY M-Monterrey/Gen Maria, MX
+MMZ M-Mazatlan/Gen Buelna, MX
+MNE Minden, LA AWOS
+MNH Monument/Elbert, CO
+MNI Manning, SC
+MNL M-Nuevo Laredo Intl, MX
+MNM K-Menominee, MI; F-Majunga/Mahajanga, MG, W Africa
+MNN Marion Muni, OH
+MNZ Hamilton Muni, Hamilton, TX
+MO1 Rivers in Missouri
+MOB WFO Mobile/Bates Field, AL WSR-88D
+MOD Modesto, CA
+MOM Missouri Mainstem
+MON 195 Monitor (SMCC Only)
+MOP Mount Pleasant, MI
+MOR Moore-Murrell AP, Morristown, TN
+MOT Minot, ND
+MOX K-Morris Muni, MN; M-Oaxaca/Xoxocotlan, MX
+MPA Poza Rica, MX
+MPB Puebla, MX
+MPD Mesoscale Precipitation Discussion
+MPG Piedras Negras, MX
+MPN Uruapan/Gen Rayon, MX
+MPO Mt Pocono/Pocono Mtns Muni, PA
+MPR Puerto Vallarta, MX
+MPS Puerso Escondido, MX
+MPV Barre-Montpelier, VT
+MPX WFO Minneapolis/Twin Cities, Chanhassen, MN WSR-88D
+MPZ Mount Pleasant Muni, IA
+MQB Macomb, IL
+MQE East Milton/Blue Hill Obsrv, MA
+MQI Manteo/Dare Co Regnl, NC
+MQJ Mount Comfort, IN
+MQM Monida, MT
+MQS Chester Cnty/Carlson AP, Coatesville, PA
+MQT K-WFO Marquette, MI WSR-88D; M-Queretaro, MX
+MQY Smyrna, TN
+MRB Martinsburg, WV
+MRC Maury AP, Columbia/Mt Pleasant, TN
+MRF Marfa, TX
+MRH Beaufort/Michael Smith, NC
+MRI Anchorage, AK
+MRJ Mineral Point/Iowa Co, WI
+MRN Morgantown-Lenoir, NC
+MRT Union Cnty AP, Marysville, OH
+MRX K-WFO Knoxville/Tri Cities, TN WSR-88D; M-Reynosa Intl, MX
+MRY Monterey, CA
+MS1 Rivers in Mississippi
+MSC K-Marshall Space Flight Ctr, Huntsville, AL
+MSD San Jose del Cabo, MX
+MSL Muscle Shoals, AL
+MSN Madison, WI
+MSO WFO Missoula, MT
+MSP K-Minneapolis, MN; M-San Luis Potosi, MX
+MSR North Central RFC, Minneapolis, MN
+MSS Massena, NY
+MSV Monticello, NY
+MSX Missoula, MT WSR-88D
+MSY New Orleans, LA
+MTC K-Selfridge ANG Base, Mount Clemens, MI; M-Torreon Arpt, MX
+MTG Tuxtla Gutierrez Arpt, MX
+MTH Marathon Airport, FL
+MTJ K-Montrose, CO; M-Tijuana Intl, MX
+MTL Tulancingo, MX
+MTM Tampico/Gen F J Mina, MX
+MTN Baltimore/Martin, MD
+MTO K-Mattoon-Charleston, IL; M-Toluca/Jose Maria, MX
+MTP K-Montauk, NY; M-Tapachula, MX
+MTR WFO San Francisco Bay Area, Monterey, CA
+MTS Monthly tornado statistics
+MTV Martinsville, VA
+MTW Manitowoc, WI
+MTX Salt Lake City, UT WSR-88D
+MUE Kamuela, HI
+MUI Muir AAF/Indiantown, PA
+MUN M-Cancun Intl, MX
+MUO Mountain Home AFB, Mountain Home, ID
+MUT Muscatine, IA
+MUX San Francisco Bay Area, CA WSR-88D
+MVA Villahermosa, MX
+MVE Montevideo, MN
+MVH N Bar Ranch AP 19MT, Grassrange, MT
+MVL Morrisville, VT
+MVN Mount Vernon, IL
+MVR Veracruz/Gen Heriberto Vara, MX
+MVX Eastern North Dakota/Grand Forks, ND WSR-88D
+MVY Martha's Vineyard, MA
+MWA Marion, IL
+MWC Milwaukee, WI
+MWH Moses Lake, WA
+MWI USDA National Information Technology Ctr
+MWK Mount Airy/Surry Co, NC
+MWL Mineral Wells, TX
+MWM Windom, MN
+MWN Mount Washington, NH
+MWO Hook Fld Muni, Middletown, OH
+MWS Mount Wilson, CA
+MWT Mount Ida, AR
+MXF Maxwell AFB, Montgomery, AL
+MXO Monticello Muni, IA
+MXX Maxwell AFB, AL WSR-88D RPG
+MXY McCarthy, AK
+MYF Montgomery Field Aprt, San Diego, CA
+MYJ Mexico Mem AP, Mexico, MO
+MYL McCall, ID
+MYP Monarch Pass, CO
+MYR Myrtle Beach AFB, Myrtle Beach, SC
+MYV Marysville, CA
+MYZ Marysville Muni, Marysville, KS
+MZC Zacatecas Arpt, MX
+MZG Mustang Island A85A, TX
+MZH K-Moose Lake/Carlton Co, MN; M-Ixtapa-Zihuatanejo, MX
+MZO Manzanillo Intl, MX
+MZP Zapopan, MX
+MZZ Marion, IN
+N00 Fulton, NY
+N03 Chase Fld, Cortland, NY
+N38 Wellsboro Johnstone AP, Wellsboro, PA
+N10 Collegeville, PA
+N11 New Haven CGS, New Haven, CT
+N40 Pittstown, NJ
+N60 Garrison, ND
+N66 Oneonta, NY
+N84 Execution Rocks CGS, Bronx, NY
+N87 Robbinsville, NJ
+N91 Cape May CGS, NJ
+NAH National Agricultural Weather Highlights
+NAK Annapolis, MD
+NAO Charleston USN Stn, Charleston, SC
+NAT National Product Id (PIL)
+NAU A-Nauru Arpt, Nauru
+NBC Beaufort MCAS, Beaufort, SC
+NBE Dallas NAS, Dallas, TX
+NBG New Orleans NAS, New Orleans, LA
+NBK New Brunswick, NJ
+NBT Piney Island, NC
+NBU Glenview NAS, Glenview, IL
+NC1 North Central US; North Carolina Rivers
+NCA K-New River MCAS, Jacksonville, NC; T-Aruba
+NCB Bonair, Netherlands Antilles
+NCC K-National Climatic Cntr, Asheville, NC; T-Hato Arpt
+NCF K-AWIPS/NOAAPort Network Control Facility, Silver Spr, MD
+NCM T-Prinses Juliana, Netherlands
+NCO Quonset Point NAS, Quonset Point, RI
+NDZ Whiting Fld South NAS, Milton, FL
+NE1 Northeast US
+NEA Glynco NAS, Brunswick, GA
+NEC K-National Earthquake Ctr, Golden, CO
+NEL Lakehurst NAS, Lakehurst, NJ
+NES NESDIS, Nat Envir Satellite, Data and Info Service
+NEW New Orleans, LA
+NF1 Newfoundland
+NFD K-NCEP Forecast Division, College Park, MD
+NFE Fentress NAF, Fentress, VA
+NFG Camp Pendleton, CA
+NFL Fallon NAS, Fallon, NV
+NFV Point Barrow USN Stn, Point Barrow, AK
+NFW NASJRB Ft Worth, TX
+NGF Kaneohe Bay MCAF, Kaneohe, HI
+NGP Corpus Christi NAS, Corpus Christi, TX
+NGU Norfolk NAS, Norfolk, VA
+NGW NOLF Cabaniss Fld, Corpus Christi, TX
+NGZ Alameda NAS, Alameda, CA
+NHB Kodiak, AK
+NHC National Hurricane Ctr, Miami, FL
+NHK Patuxent River NAS, Patuxent River, MD
+NHZ Brunswick NAS, Brunswick, ME
+NIC National Ice Center (CG,NOAA,USN)
+NID China Lake NAWS, China Lake, CA
+NIO Northern Indian Ocean (Arabian Sea/Bay of Bengal)
+NIP Jacksonville NAS, Jacksonville, FL
+NIR Chase Field NAS, Beeville, TX
+NIS MCAS Cherry Point, Jacksonville, NC
+NJ1 Rivers in New Jersey
+NJK El Centro NAF, CA
+NJM Bogue Field MCAL, NC
+NJW Joe Wms Outlying Fld, NAS Meridian, MS
+NKT Cherry Point MCAS, Cherry Point, NC
+NKX Miramar NAS, San Diego, CA WSR-88D
+NLC Lemoore NAS, Lemoore, CA
+NM1 New Mexico Rivers
+NMC National Centers for Environmental Prediction
+NMG K-New Orleans Coast Guard; M-Managua, Nicaragua
+NMK Cape May Coast Guard Station
+NMM Meridian NAS, Meridian, MS
+NMT McMullen Target USN, TX
+NMU Marquette, MI - downtown
+NOG NOLF Orange Grove, TX
+NOW Port Angeles USCGAS, Port Angeles, WA
+NPA Pensacola NAS, Pensacola, FL
+NPC Puerto Cabezas, Nicaragua
+NPL North Platte Basin
+NQA Memphis NAS, Memphis, TN WSR-88D
+NQI Kingsville NAS, Kingsville, TX
+NQX Key West NAS, Key West, FL
+NRA Coupeville NOF, Coupeville, WA
+NRB Mayport NAS, Mayport, FL
+NRC Crows Landng USN ALF, Crows Landing, CA
+NRS Imperial Beach USN OLF, Imperial Beach, CA
+NS1 Nova Scotia, Canada, Bulletin 1
+NS2 Nova Scotia, Canada, Bulletin 2
+NSB North Slope Borough Zones, AK
+NSE Whiting Field North NAS, Milton, FL
+NSI San Nicolas Island USN OLF, CA
+NSU Monterey, CA
+NT1 Atlantic #1 (A,F,K,P,W)
+NT2 Atlantic #2 (B,G,L,R)
+NT3 Atlantic #3 (C,H,M,S)
+NT4 Atlantic #4 (D,I,N,T)
+NT5 Atlantic #5 (E,J,O,V)
+NTB Los Alamitos USN Stn, Los Alamitos, CA
+NTD Point Mugu NAS, Port Hueneme, CA
+NTK Tustin MCAS, CA
+NTL North Atlantic
+NTS Nevada Test Site
+NTU Oceana NAS, Oceana, VA
+NU1 Kivalliq Area, Nunavut, Canada
+NU2 Kitikmeot Area, Nunavut
+NU3 High Arctic Area, Nunavut
+NU4 Qikiqtaaluk Area, Nunavut
+NUC San Clemente Is. USN ALF, San Clemente, CA
+NUE Nueces River Basin
+NUI St Inigoes/Webster Nolf, MD
+NUQ Moffett Field NAS, Mountain View, CA
+NUT Northern Utah Basins
+NUW Whidbey Island NAS, Whidbey Island, WA
+NVD Nevada Muni, Nevada, MO
+NVT NOLF Waldron Fld, Corpus Christi, TX
+NW1 Great Slave and Upper MackKenzie, Northwest Territory
+NW2 Lower MacKenzie and Arctic Coast, Northwest Territory
+NWI Northwest Indiana River Basins
+NWW National Warning Composite PIL
+NXF MCOLF Camp Pendleton AP, Oceanside, CA
+NXP Twentynine Palms, CA
+NXX Willow Grove NAS, Willow Grove, PA
+NY1 Southern New York
+NY2 West Central New York
+NY3 Northern New York
+NY4 Northwestern New York
+NY5 Western New York
+NY6 Western New York
+NY7 Long Island
+NY0 Fulton Cnty AP, Johnstown, NY
+NYC New York, NY
+NYG Quantico MCAF, Quantico, VA
+NYL Yuma MCAS, AZ
+NZJ El Toro MCAS, Santa Ana, CA
+NZW South Weymouth NAS, South Weymouth, MA
+NZY North Island NAS, San Diego, CA
+O22 Tuolumne Cnty AP, Columbia, CA
+O54 Weaverville AP, CA
+O64 Fort Bragg, CA
+O69 Petaluma Muni, Petaluma, CA
+O71 Montague, CA
+O86 Trinity Ctr AP, Trinity Center, CA
+O87 Shelter Cove, CA
+OAF Oxnard, CA
+OAJ Jacksonville, NC
+OAK Oakland/Metro Oakland Intl, CA
+OAL Coaldale, NV
+OAR Fort Ord, Monterey, CA
+OAX WFO Omaha, NE WSR-88D
+OBE Okeechobee Cnty AP, Okeechobee, FL
+OBS Summary of Space Weather Observations
+OCA T-Cayenne/Rochambu (SOCA), French Guiana
+OCD Oceanographic Data
+OCF Ocala, FL
+OCH Nacogdoches, TX
+OCQ JW Bake Mem AP, Oconto, WI
+OCS Camp Pendleton MCALF, Oceanside, CA
+ODO Odessa/Schlemeyer Field, TX
+OCW Warren Fld, Washington, NC
+ODX Ord, NE
+OEB Coldwater, MI
+OEO Osceola/L O Simenstad Muni, WI
+OFF Offutt AFB/Belle, NE
+OFK Norfolk, NE
+OFP Richmond, VA
+OGA Ogallala, NE
+OGB Orangeburg, SC
+OGD Ogden, UT
+OGG Kahului, HI
+OGS Ogdensburg, NY
+OH1 Rivers in Ohio
+OHC Ohio to Cincinnati
+OHH Ohio to Huntington
+OHL Ohio to Louisville
+OHP Ohio to Parkersberg
+OHS Ohio to Shawneetown
+OHX WFO Nashville, TN WSR-88D
+OIC Norwich, NY
+OJA Stafford AP, Weatherford, OK
+OJC Olathe, KS
+OJI Ojibway, MI
+OK1 Oklahoma Rivers
+OKB Oceanside, CA
+OKC Oklahoma City, OK
+OKH Oak Harbor, WA
+OKK Kokomo, IN
+OKL Oakland (Downtown), CA
+OKM Okmulgee Muni, OK
+OKV Winchester Rgnl, VA
+OKX WFO New York City, Upton, NY WSR-88D
+OKZ Kaolin Fld AP, Sandersville, GA
+OLD Old Town, ME
+OLE Cattaraugus Cnty-Olean AP, Olean, NY
+OLF Wolf Point, MT
+OLG Solon Springs Muni, Solon Springs, WI
+OLI Oliktok DEW Stn, Oliktok, AK
+OLM Olympia, WA
+OLN Old Man, AK
+OLS Nogales, AZ
+OLU Columbus, NE
+OLV Olive Branch, MS
+OLY Olney-Noble, IL
+OLZ Oelwen, IA
+OMA Omaha, NE
+OME Nome, AK
+OMH Orange/Orange Co, VA
+OMK Omak Arpt, WA
+OMN Ormond Beach Muni, FL
+ONA Winona, MN
+ONG Ontonagon, MI
+ONL O'Neill, NE
+ONM Socorro, NM
+ONO Ontario, OR
+ONP Newport, OR
+ONT Ontario, CA
+ONX Currituck Cnty AP, Currituck, NC
+ONZ Grosse Ile Muni, MI
+OOA Oskaloosa Muni, IA
+OOG F-Port Gentil, GO, W Africa
+OOL F-Libreville/Leon MBA, GO, W Africa
+OON F-Franceville/Mvengue, GO, W Africa
+OOY G-Dakar, Senegal
+OPF Opa-Locka, FL
+OPL St Landry Parish AP, Opelousas, LA
+OPM GOMEX N Padre Is 975 (Peregrine O&G)
+OPN Thomaston/Upson Co, GA
+OPS Operational Information
+OQT Oak Ridge, TN
+OQU Quonset Point, North Kingstown, RI
+ORB Orr, MN
+ORC Orange City, IA
+ORD Chicago/O'Hare, IL
+ORE Orange, MA
+ORF Norfolk, VA
+ORG Orange Cnty AP, Orange, TX
+ORH Worcester, MA
+ORL Orlando, FL
+ORN Lower Mississippi RFC, Slidell, LA
+ORS East Sound/Orcas Is, WA
+ORT Northway, AK
+OSA Mount Pleasant, TX
+OSC Wurtsmith AFB, Oscoda, MI
+OSG Osage River Basin
+OSH Oshkosh, WI
+OSU Ohio St U, Columbus, OH
+OT1 Southern Ontario
+OT2 Northern Ontario
+OT3 Far Northern Ontario
+OTG Worthington, MN
+OTH North Bend, OR
+OTM K-Ottumwa, IA; R-Futenma MCAS, Okinawa, JP
+OTX WFO Spokane, WA WSR-88D
+OTZ Kotzebue, AK
+OUA Other Upper Air Data
+OUN WFO Oklahoma City, Norman, OK
+OV7 Kayenta, AZ
+OVE Oroville Muni, CA
+OVL Olivia Regnl, MN
+OVN North Omaha, NE
+OVO North Vernon, IN
+OVS Boscobel, WI
+OWA Owatonna, MN
+OWB Owensboro, KY
+OWD Norwood, MA
+OWP WR Pogue Muni, Sand Springs, OK
+OWY Owyhee, NV
+OXB Ocean City, MD
+OXC Oxford, CT
+OXD Miami Univ AP, Oxford, OH
+OXI Starke Cnty AP, Knox, IN
+OXR Oxnard, CA
+OXV Knoxville, IA
+OZA Ozona, TX
+OZR Fort Rucker, Ozark, AL
+OZS Camdenton Mem AP, Camdenton, MO
+OZW Howell/Livingston Co, MI
+P00 Tenneco Platform, offshore LA
+P02 Poplar Bluff, MO
+P05 Philip, SD
+P07 Sanderson, TX
+P08 Coolidge Muni, Coolidge, AZ
+P0A Sfc Plot File - 3 Hrly
+P24 Roseglen, ND
+P28 Medicine Lodge, KS
+P38 Caliente, NV
+P39 Pequot Lake, MN
+P53 Munising, MI
+P58 Port Hope, MI
+P59 Copper Harbor, MI
+P60 Yellowstone, WY
+P61 Tofte, MN
+P65 Lukeville, AZ
+P67 Lidgerwood, ND
+P68 Eureka, NV
+P69 Elk City, ID
+P70 Los Alamos, NM
+P88 Rome, OR
+P92 Salt Point, LA
+PA0 Hawaii (for MOS)
+PA1 Central Pennsylvania; Central Pacific #1
+PA2 Eastern Pennsylvania; Central Pacific #2
+PA3 Western Pennsylvania; Central Pacific #3
+PA4 Central Pacific #4
+PA5 Central Pacific #5
+PAC Pacific exluding West Coast and AK (for tsunamis)
+PAE Everett, WA
+PAH WFO Paducah, KY WSR-88D
+PAM Tyndall AFB, Panama City, FL
+PAN K-Payson, AZ; Pan American
+PAO Palo Alto, CA
+PAQ Palmer, AK
+PAT Pathfinder Hill, WY
+PBF Pine Bluff/Grider, AR
+PBG Plattsburgh Intl, Plattsburgh, NY
+PBH Phillips, WI
+PBI West Palm Beach, FL
+PBP Pacific Region Hq, Honolulu, HI
+PBS Portage Bay, WA
+PBX Pike Cnty AP, Pikeville, KY
+PBZ WFO Pittsburgh Moon Township, PA WSR-88D
+PCM Plant City Muni, Plant City, FL
+PCW Carl Keller Fld, Port Clinton, OH
+PCZ Waupaca Muni, WI
+PDC Prairie du Chien Muni, WI
+PDK DeKalb-Peachtree AP, Atlanta, GA
+PDT WFO Pendleton, OR
+PDX Portland, OR WSR-88D
+PEA K-Pella Muni, IA; P-Pacific ENSO Application and Climate Center
+PEB Pebbly Beach, CA
+PEO Penn Yan, NY
+PEQ Pecos Muni, Pecos, TX
+PEX Paynesville Muni, MN
+PEZ Pleasanton Muni, Pleasanton, TX
+PFC Pacific City, OR
+PFD QPF Precipitation Forecast Discussion
+PFN Panama City, FL
+PGA Page, AZ
+PGD Punta Gorda, FL
+PGO Page, OK
+PGV Greenville, NC
+PHD New Philadelphia/Harry Clever, OH
+PHF Newport News, VA
+PHI WFO Philadelphia, Mount Holly, NJ
+PHL Philadelphia, PA
+PHN Port Huron, MI
+PHO M-Howard AFB, Panama, PM
+PHP Philip, SD
+PHT Paris/Henry Co, TN
+PHX Phoenix, AZ
+PIA Peoria, IL
+PIB Pine Belt Regnl, MS
+PIE Saint Petersburg/Clearwater, FL
+PIH WFO Pocatello, ID
+PIL Port Isabel/Cameron Co, TX
+PIN Piney Creek, WY
+PIR Pierre, SD
+PIT K-Pittsburgh, PA; P-Nunapitchuk AP, Nunapitchuk, AK
+PIZ Point Lay, AK
+PKB Parkersburg, WV
+PKD Park Rapids, MN
+PKF Park Falls, WI
+PKS Pickstown, SD
+PKV Calhoun Co AP, Port Lavaca, TX
+PLB Plattsburgh, NY
+PLF Canadian Great Lakes Marine Forecast
+PLN Pellston, MI
+PLS Plain-Language Ship Report
+PLU Pierce Cnty AP, Puyallup, WA
+PMD Palmdale Production, CA
+PMP Pompano Beach, FL
+PMV Plattsmouth Muni, Plattsmouth, NE
+PNA Ralph Wenz Fld AP, Pinedale, WY
+PNC Ponca City, OK
+PNE Philadelphia, PA
+PNI Pohnpei Intl AP, Ponape, Micronesia
+PNM Princeton Muni, MN
+PNS Pensacola, FL
+PNT Pontiac, IL
+POB Pope AFB, Fayetteville, NC
+POC Pomona, CA
+POE Fort Polk AAF, Leesville, LA WSR-88D RPG
+POF Poplar Bluff Muni, MO
+POM Pomona, CA
+POT Potomac Basin
+POU Poughkeepsie, NY
+POV Portage Cnty AP, Ravena, OH
+POY Powell Muni, Powell, WY
+PPA Perry Lefors Fld, Pampa, TX
+PPC Prospect Creek, AK
+PPF Parsons, KS
+PPG WSO Pago Pago (NSTU - American Samoa)
+PPO La Porte Muni, La Porte, IN
+PPQ Pittsfield, IL
+PQI Presque Isle, ME
+PQL Pascagoula, MS
+PQN Pipestone, MN
+PQR WFO Portland, OR
+PRB Paso Robles, CA
+PRC Prescott, AZ
+PRG Paris, IL
+PRN MacCrenshaw Mem AP, Greenville, AL
+PRO Perry, IA
+PRS Presidio Lely Intl, Presidio, TX
+PRX Paris, TX
+PSA M-Santiago, Panama, PM
+PSB Philipsburg, PA
+PSC Pasco, WA
+PSE Ponce, PR
+PSF Pittsfield, MA
+PSG Petersburg, AK
+PSH Post-Storm Hurricane Report
+PSK Dublin, VA
+PSM Pease AFB, Portsmouth, NH
+PSN Palestine Muni, TX
+PSO Stevens Fld, Pagosa Springs CO
+PSP Palm Springs, CA
+PSR WFO Phoenix, Tempe, AZ
+PSX Palacios, TX
+PTB Petersburg, VA
+PTD Damon Field, NY
+PTH Port Heiden, AK
+PTI Puntilla Lake, AK
+PTK Pontiac, MI
+PTN Patterson, LA
+PTO M-Tocumen Panama, PM
+PTR Northwest RFC, Portland, OR
+PTS Atkinson Muni, Pittsburg, KS
+PTT Pratt Industrial AP, Pratt, KS
+PTV Porterville, CA
+PTW Pottstown, PA
+PUB WFO Pueblo, CO
+PUC Price, UT
+PUJ Paulding Muni, Dallas, GA
+PUM Pumpkin Vine, WY
+PUO Prudhoe Bay, AK
+PUW Pullman, WA
+PUX Pueblo, CO WSR-88D
+PVB Platteville, WI
+PVC Provincetown, MA
+PVD Providence, RI
+PVE Beech River Rgnl AP, Lexington-Parsons, TN
+PVF Placerville AP, Placerville, CA
+PVG Hampton Roads Exec AP, Norfolk, VA
+PVJ Pauls Valley Muni, OK
+PVU Provo, UT
+PVW Hale Cnty AP, Plainview, TX
+PWA Wiley Post Field, OK
+PWC Pine River Regional, MN
+PWG McGregor, TX
+PWK Chicago/Wheeling, IL
+PWM Portland, ME
+PWT Bremerton, WA
+PXE Perry-Houston Cnty AP, Perry, GA
+PYM Plymouth, MA
+PYN Piedmont Muni, Piedmont, MO
+PYX Perryton, TX
+PZ1 Eastern Pacific #1
+PZ2 Eastern Pacific #2
+PZ3 Eastern Pacific #3
+PZ4 Eastern Pacific #4
+PZ5 Eastern Pacific #5
+PZQ Presque Isle Cnty AP, Rogers City, MI
+Q03 Los Alamos, NM
+QE1 Western Quebec
+QE2 Central Quebec
+QE3 Eastern Quebec
+QE4 Northern Quebec
+QE5 Extreme Northern Quebec
+QPF T-Anguilla, British Virgin Islands
+QQQ Moron, SP
+RAC Racine/John H Batten, WI
+RAD Warroad, MN
+RAH WFO Raleigh/Durham, NC
+RAL Riverside, CA
+RAP Rapid City, SD
+RAR Radar Map of Discrete 3-Hr Accum. Rain
+RAS Port Aransas, TX
+RAT Radar Map of Current 24-Hr Accum. Rain
+RAW Warsaw Muni, Warsaw, MO
+RAX Raleigh/Durham, NC WSR-88D
+RAY Radar Map of Previous 24-Hr Accum. Rain
+RBD Redbird Airport, Dallas, TX
+RBG Roseburg, OR
+RBL Red Bluff, CA
+RBO Nueces Co AP, Robstown, TX
+RBW Walterboro, SC
+RCA Ellsworth AFB, SD
+RCE Page Muni, Oklahoma City, OK
+RCK Rock River
+RCM Skyhaven AP, Warrensburg, MO
+RCO Raco, MI
+RCR Fulton Cnty AP, Rochester, IN
+RCV Astronaut Kent Rominger AP, Del Norte, CO
+RCX Rusk Cnty AP, Ladysmith, WI
+RCZ Rockingham-Hamlet AP, Rockingham, NC
+RDD Redding, CA
+RDG Reading/Spaatz, PA
+RDK Red Oak, IA
+RDM Redmond, OR
+RDR Grand Forks, ND
+RDU Raleigh/Durham, NC
+RED Redefine Input
+REE Reese AFB, Lubbock, TX
+REO Rome, OR
+REP Aircraft Reconnaissance Report
+REV WFO Reno, NV
+REX Radar Map of Extrapolated Echo Patterns
+RFD Rockford, IL
+RFI Rusk Cnty AP, Henderson, TX
+RGK Red Wing, MN
+RGX Reno, NV WSR-88D
+RHA Middle Atlantic RFC, State College, PA
+RHI Rhinelander, WI
+RHP Andrews-Murphy, NC
+RHV San Jose, CA
+RIC Richmond, VA
+RIL Rifle/Garfield Regnl, CO
+RIM Radar Echo Intensity Map; K-Rim, WY
+RIP Radar Regional Intensity Plot (RIP)
+RIV March AFB, Riverside, CA
+RIW WFO Riverton, WY WSR-88D
+RJD Ridgely Airpark, Ridgely, MD
+RKD Rockland, ME
+RKP Rockport/Aransas, TX
+RKR Poteau, OK
+RKS Rock Springs, WY
+RLD Richland AP, Richland, WA
+RLX WFO Charleston, WV WSR-88D
+RM1 Rocky Mountains
+RME Griffiss AFB, Rome, NY
+RMG Rome, GA
+RMN Stafford Reg AP, Stafford, VA
+RMY Marshall, MI
+RNC Warren Cnty Mem AP, McMinnville, TN
+RND Randolph AFB, San Antonio, TX
+RNH New Richmond Muni, WI
+RNK WFO Roanoke, VA
+RNM Ramona, CA
+RNO Reno, NV
+RNP Owosso Community AP, MI
+RNT Renton, WA
+RNV Cleveland Muni, KS
+ROA Roanoke, VA
+ROC K-Rochester/Monroe, NY; M-Juan Santamaria, Costa Rica
+ROG Rogers, AR
+ROR Babelthuap/Koror AP, Babelthuap Is, Palau
+ROS Rush City Muni, MN
+ROW Roswell, NM
+ROX Roseau, MN
+RPD Rice Lake, WI
+RPE Sabine Pass, TX
+RPH Graham, TX
+RPJ Rochelle Muni/Koritz Fld, IL
+RPM T-Blackburne/Plymouth, AT
+RPT M-Puntarenas, CR; Summary Status Report
+RPX Roundup AP, Roundup, MT
+RQB Big Rapids/Roben-Hood Arpt, MI
+RQE Window Rock, AZ
+RQO El Reno Muni Air Park, El Reno, OK
+RRL Merrill, WI
+RRT Warroad, MN
+RSA California Nevada RFC, Sacramento, CA 
+RSL Russell, KS
+RSN Ruston Regnl, LA
+RSP Camp David, MD
+RST Rochester Intl AP, Rochester, MN
+RSV Robinson Muni, IL
+RSW Ft. Myers, Fl., SW Fla Reg Arpt
+RTN Raton/Crews Field, NM
+RTS Reno/Stead AP, Reno, NV
+RTX Portland, OR WSR-88D
+RUE Russellville, AR
+RUG Rugby Muni, Rugby, ND
+RUI Ruidoso, NM
+RUM Rumford, ME
+RUQ Salisbury/Rowan Co, NC
+RUT Rutland-Southern Vermont Rgnl, VT
+RVS Tulsa/Jones, OK
+RWC Redwood City, CA
+RWF Redwood Falls, MN
+RWI Rocky Mount, NC
+RWL Rawlins, WY
+RWV Caldwell Muni, TX
+RXE Rexburg/Madison Co, ID
+RYN Ryan Fld AP, Tucson, AZ
+RYT Fountain Dale, PA
+RYV Watertown, WI
+RYW Rusty Allen AP, Lago Vista, TX
+RYY McCollum Fld, Cobb Cnty AP, Marietta, GA
+RZL Jasper Cnty AP, Rensselaer, IN
+RZN Siren, WI
+RZR Cleveland Rgnl Jetp, Cleveland, TN
+RZT Ross Cnty AP, Chillicothe, OH
+RZZ Roanoke Rapids/Halifax Co, NC
+S02 Ship Shoal 224A, LA
+S06 Mullan, ID
+S14 Spencer, IA
+S19 Friday Harbor, WA
+S22 Hermiston Muni, OR
+S25 Watford City Muni, ND
+S29 Salida, CO
+S32 Cooperstown Muni, Cooperstown, ND
+S33 Madras Muni, Madras, OR
+S39 Prineville AP, Prineville, OR
+S47 Tillamook, OR
+S58 South Timbalier, LA
+S65 Ship Shoal 198G, LA
+S86 Sandpoint, ID
+S88 Arlington, WA
+SAA Shively Fld AP, Saratoga, WY
+SAB NESDIS Synoptic Analysis Branch
+SAC Sacramento, CA
+SAD Safford Muni, AZ
+SAF Santa Fe, NM
+SAJ San Jacinto River
+SAN San Diego, CA
+SAR Sparta, IL
+SAT San Antonio, TX
+SAV Savannah, GA
+SAW K I Sawyer AFB, MI
+SAY Sandy River
+SAZ Staples, MN
+SBA Santa Barbara, CA
+SBD Norton AFB, San Bernardino, CA
+SBK Sidney, AUS
+SBM Sheboygan, WI
+SBN South Bend, IN
+SBO Emanuel Cnty AP, Swainsboro, GA
+SBP San Luis Obispo, CA
+SBS Steamboat Springs, CO
+SBY Salisbury, MD
+SC1 South Central US; South Carolina Rivers
+SCC Storm Summary
+SCD Merkel Fld Sylacauga Muni AP, Sylacauga, AL
+SCF GOMEX South Marsh 268, LA AWOS-3
+SCH Schenectady, NY
+SCI Scioto
+SCK Stockton, CA
+SCR Siler City Muni, Siler City, NC
+SDA Shenandoah, IA
+SDB Sandberg, CA
+SDF Louisville, KY
+SDL Scottsdale, AZ
+SDM Brown Field Airport, San Diego, CA
+SDP Sand Point, AK
+SDS Special Dispersion Statement
+SDY Sidney, MT
+SE1 Southeast US
+SEA Seattle, WA
+SEE San Diego/Santee, CA
+SEG Selinsgrove, PA
+SEM Craig Fld AP, Selma, AL
+SEP Stephenville/Clark Muni, TX
+SER Seymour, IN
+SET St Charles/Smartt, MO
+SEW WFO Seattle/Tacoma, WA
+SEZ Sedona AP, Sedona, AZ
+SFA N-Faleolo, Samoa
+SFB Sanford, FL
+SFF Spokane/Felts, WA
+SFM Sanford, ME
+SFO San Francisco, CA
+SFQ Suffolk Muni, VA
+SFX Pocatello/Idaho Falls, ID WSR-88D
+SFY Tri-Township AP, Savanna, IL
+SFZ Pawtucket, RI
+SGE Sage, WY
+SGF WFO Springfield, MO WSR-88D
+SGH Springfield, OH
+SGJ St Augustine Arpt, FL
+SGR Houston/Hull Field, TX
+SGS South St Paul, MN
+SGT Stuttgart, AR
+SGU Saint George, UT
+SGX WFO San Diego, CA
+SGY Skagway, AK
+SHC Shute Creek, WY
+SHD Staunton, VA
+SHE Mt. St. Helens GOES Platform
+SHL Sheldon, IA
+SHM Schriever AFB, Colorado Springs, CO
+SHN Shelton/Sanderson, WA
+SHR Sheridan, WY
+SHV WFO Shreveport, LA WSR-88D
+SIB Sibley Peak, WY
+SIF Rockingham Cnty/Shiloh AP, Reidsville, NC
+SIK Sikeston Muni, Sikeston, MO
+SIO Big Sioux, Little Sioux, Floyd; Southern Indian Ocean (West of 135E)
+SIT Sitka, AK
+SIY Montague, CA
+SJB San Juan Basin
+SJC San Jose, CA
+SJN St Johns, AZ
+SJS Big Sandy Reg AP, Prestonsburg, KY
+SJT WFO San Angelo, TX WSR-88D
+SJU WFO San Juan, PR
+SJX Beaver Island, MI
+SK1 Southern Saskatchewan
+SK2 Northern Saskatchewan
+SKA Fairchild AFB, Spokane, WA
+SKF Kelly AFB, San Antonio, TX
+SKL Skyline, WY
+SKX Taos Muni, NM
+SL1 Upper St. Lawrence River, QC
+SLB Storm Lake, IA
+SLC WFO Salt Lake City, UT
+SLE Salem, OR
+SLG Siloam Springs, AR
+SLH Cheyboygan/Cheboygan Co, MI
+SLI Los Alamitos AAF, CA
+SLK Saranac Lake, NY
+SLN Salina, KS
+SLO Salem, IL
+SLP M-El Salvador Arpt, El Salvador
+SLR Sulphur Springs Muni, TX
+SLU Castries, St. Lucia Is., W.I.
+SLW Smithville/Wooster, OH
+SMA Marine Subtropical Storm Advisory
+SMC Sys Monitoring and Coord Ctr
+SME Somerset, KY
+SMF Sacramento Metro, CA
+SMN Salmon, ID
+SMO Santa Monica, CA
+SMP Stampede Pass, WA
+SMQ Somerville/Somerset, NJ
+SMS K-Sumter, SC
+SMT Tornado and Special Marine Warning
+SMX Santa Maria, CA
+SNA Santa Ana, CA
+SNC Chester, CT
+SNE Southern New England
+SNH Savannah/Hardin Co, TN
+SNK Winston Fld, Snyder, TX
+SNL Shawnee Muni, OK
+SNP Saint Paul Island, AK
+SNS Salinas, CA
+SNT Stanley Ranger Station, ID
+SNY Sidney, NE
+SOA Sonora Muni, TX
+SOP Southern Pines, NC
+SOW Show Low, AZ
+SOX Santa Ana Mountains, CA WSR-88D
+SP1 Spanish TCP
+SP2 Spanish TCP
+SP3 Spanish TCP
+SP4 Spanish TCP
+SP5 Spanish TCP
+SPA Spartanburg Downtown Mem AP, SC
+SPB Scappoose Industrial Airpark, OR
+SPC Storm Prediction Ctr, Norman, OK
+SPD Springfield/Comanche Natl Grass, CO
+SPF Spearfish, SD
+SPG Saint Petersburg, FL
+SPI Springfield, IL
+SPL K-South Padre Island, TX; South Platte Basin
+SPN Spanish Language Products
+SPR GOMEX Ship Shoal, LA AWOS-3
+SPS Sheppard AFB, TX
+SPW Spencer, IA
+SQE Ship Shoal 354 GOMEX (Fieldwood Energy)
+SQI Sterling Rockfalls, IL
+SQL San Carlos, CA
+SRB Upper Cumberland Reg AP, Sparta, TN
+SRC Searcy Muni, AR
+SRE Seminole Muni, Seminole, OK
+SRF San Rafael, CA
+SRH Southern Region Headquarters
+SRN S Marsh Is Block 268A, LA
+SRQ Sarasota/Bradenton, FL
+SRR Sierra Blanca Rgnl AP, Ruidoso, NM
+SRS Souris Basin
+SRX Western Arkansas, AR WSR-88D
+SSA MRP Storm Surge Beaufort and Chukchi Seas
+SSB MRP Storm Surge Bering Sea
+SSC K-Shaw AFB, Sumter, SC; MRP Storm Surge Gulf of Alaska
+SSE MRP Storm Surge East Coast
+SSF Stinson Field, San Antonio, TX
+SSG MRP Storm Surge Gulf of Mexico
+SSI Brunswick, GA
+SSP MRP Storm Surge West Coast
+SSR Specialized Scientific Report
+SSS M-Ilopango, San Salvador, SV
+SST Tropical Pacific Mean Sea Surface Temperature (SST) Outlook
+SSU White Sulphur Springs, WV
+STC Saint Cloud, MN
+STD Satellite Tropical Disturbance Summary
+STE Stevens Point, WI
+STF G Bryan AP, Starkville, MS
+STJ Saint Joseph, MO
+STK Sterling Muni, Sterling, CO
+STL K-Saint Louis, MO; South Atlantic
+STN Stoneville, MS
+STO WFO Sacramento, CA
+STP St Paul, MN
+STR Colorado Basin RFC, Salt Lake City, UT
+STS Santa Rosa, CA
+STT Charlotte Amalie, VI
+STU N-American Samoa
+STX Christiansted, Saint Croix, VI
+STZ GOMEX ST 301 (Shell E-P)
+SUA Stuart/Witham, FL
+SUE Sturgeon Bay, WI
+SUN Friedman Mem AP, Hailey, ID
+SUQ Susquehanna Basins
+SUS Saint Louis/Spirit, MO
+SUT K-Southport/Brunswick Co, NC;  Southern Utah Basins
+SUU Travis AFB, Fairfield, CA
+SUW Superior, WI or Suwannee River 
+SUX Sioux City, IA
+SVC Grant Cnty AP, Silver City, NM
+SVE Susanville, CA
+SVH Statesville Muni, NC
+SVN Hunter Army Air Field, GA
+SWA Swan Island, Caribbean Sea
+SWB Southwestern Boroughs/Kodiak Zones, AK
+SWF Newburgh, NY
+SWO Stillwater, OK
+SWW Sweetwater/Avenger Fld, TX
+SWX K-NCEP Space Envir Ctr, Boulder, CO
+SXC Santa Catalina, CA
+SXS Shell Army Heliport, Fort Rucker, AL
+SXT Sexton Summit, OR
+SYA Shemya AFB, Shemya, AK
+SYF Cheyenne Cnty Muni, St Francis, KS
+SYI Shelbyville, TN
+SYM C A Thomas Rgnl AP, Morehead-Rowan Cnty, Morehead, KY
+SYN K-Stanton Airfield, Stanton, MN; C-Canadian GL Marine Synopsis
+SYR Syracuse, NY
+SZL Whiteman AFB, Knob Noster, MO
+SZN Santa Cruz Island, CA
+SZT Sandpoint AP, ID
+SZY Selmer/Robert Sibley, TN
+T08 Tomahawk Rgnl AP, Tomahawk, WI
+T11 P-Yap Intl, Yap Island, Micronesia
+T18 Falfurrias, TX
+T20 Dreyer Mem AP, Gonzales, TX
+T27 Burnet, TX
+T35 Cameron Muni, Cameron, TX
+T39 Huntsville, TX
+T46 South Brazos A70, TX
+T62 Toole, UT
+T65 Weslaco, TX
+T82 Gillespie Co AP, Fredericksburg, TX
+T86 Zapata Cnty AP, Zapata, TX
+TAA N-Tahiti, French Polynesia
+TAD Trinidad, CO
+TAE WFO Tallahassee, FL
+TAL Tanana, AK
+TAN Taunton, MA
+TAR Northeast RFC, Taunton, MA
+TAZ Taylorville, IL
+TBN Fort Leonard Wood, Tribune, MO
+TBR Statesboro/Bulloch County Airport, GA
+TBW WFO Tampa Bay-Ruskin, FL WSR-88D
+TBX Boysen Reservoir, Thermopolis, WY
+TCC Tucumcari, NM
+TCG USCG Intl Ice Patrol
+TCH Cap-Haiten, Haiti
+TCL Tuscaloosa, AL
+TCM McChord AFB, Tacoma, WA
+TCP T-Crown Pt/Scarborough, TD
+TCS Truth or Consequences, NM
+TDF Roxboro/Person Co, NC
+TDL TDL Development System
+TDO Toledo, WA
+TDR Drone Runway, Panama City, FL
+TDW Tradewind Airport, Amarillo, TX
+TDZ Toledo/Metcalf Field, OH
+TEB Teterboro, NJ
+TEC Technical Information
+TEW Mason/Mason Jewett Field, MI
+TEX Telluride, CO
+TFP T P McCampbell AP, Ingleside, TX
+TFX WFO Great Falls, MT
+THA Tullahoma Rgnl, Tullahoma, TN
+THR Threats Assessment
+THV York, PA
+TIF Thomas Cnty AP, Thedford, NE
+TIJ M-Tijuana Intl, MX
+TIK Tinker AFB, Oklahoma City, OK
+TIP Rantoul/Frank Elliot Fld, IL
+TIR Ohio RFC, Cincinnati, OH
+TIW Tacoma Narrows, WA
+TIX Titusville, FL
+TKA P-Talkeetna, AK
+TKC Tracy Muni, Tracy, MN
+TKI McKinney, TX
+TKK P-Chuuk Intl AP, Micronesia
+TKR P-WSO Koror, Palau
+TKV Tomahawk Rgnl AP, Tomahawk, WI
+TKX Kennett Mem AP, Kennett, MO
+TLH WFO Tallahassee, FL WSR-88D
+TLX Oklahoma City, OK WSR-88D
+TMA Henry Tift Meyers AP, Tifton, GA
+TMB Miami, Tamiami Arpt, FL
+TME Houston Ex AP, Houston, TX
+TMH Twenty Mile Hill, WY
+TMK Tillamook AP, OR
+TN1 Rivers in Tennessee
+TNB Boone, NC
+TNI P-Tinian Intl AP, Tinian Is, N Mariana Is
+TNT Miami, FL
+TNU Newton Muni, IA
+TOA Torrance, CA
+TOB Dodge Center, MN
+TOC Toccoa Letourneau AP, Toccoa, GA
+TOI Troy, AL
+TOL Toledo, OH
+TOM Tombigbee River
+TOP WFO Topeka, KS
+TOR Torrington Muni, WY
+TOU Neah Bay, WA
+TPA Tampa, FL
+TPF Peter O'Knight AP, Tampa, FL
+TPH Tonopah, NV
+TPL Temple, TX
+TPP M-Port-Au-Prince, HA; T-Piarco Intl Arpt, TD
+TQE Tekamah, NE
+TQH Tahlequah Muni, OK
+TRI Bristol, TN
+TRK Truckee-Tahoe AP, CA
+TRL Terrell, TX
+TRM Thermal, CA
+TSA K-WFO Tulsa, OK; P-Kosrae, FSM
+TSP Tehachapi Muni, CA
+TTA Sanford/Lee Cnty Rgnl, NC
+TTD Troutdale, OR
+TTF Monroe/Custer, MI
+TTG N-Rangiroa, French Polynesia
+TTJ F-Ndjamena, CD, W Africa
+TTK Kosrae AP, Kosrae Is, Micronesia
+TTN Trenton Mercer AP, NJ
+TTO N-Hao, French Polynesia
+TTP P-WSO Pohnpei, Micronesia
+TTS NASA Shuttle Facility, FL
+TUA Arkansas Red Basin RFC, Tulsa, OK
+TUL Tulsa, OK
+TUP Tupelo, MS
+TUS Tucson, AZ
+TVC Traverse City, MI
+TVF Thief River Falls, MN
+TVI Thomasville Rgnl, Thomas Cnty, GA
+TVK Centerville Muni, IA
+TVL South Lake Tahoe, CA
+TVR Vicksburg, MS
+TVY Bolinder Fld-Tooele Valley AP, Tooele, UT
+TWB AK Bering, Beaufort, Chukchi Sea Coasts SHEF-Encoded ETSS
+TWC K-WFO Tucson, AZ; Gulf of Alaska SHEF-Encoded ETSS
+TWE East Coast SHEF-Encoded ETSS
+TWF Twin Falls, ID
+TWG Gulf of Mexico SHEF-Encoded ETSS
+TWM Two Harbors, MN
+TWP West Coast SHEF-Encoded ETSS
+TWX Great Falls, MT WSR-88D
+TX1 Northern Texas Area
+TX2 Southern Texas Area
+TX3 Western Texas Area
+TX4 Texas Lower Valley
+TXK Texarkana, AR
+TYA P-Yap, Micronesia
+TYQ Zionsville, IN
+TYR Tyler, TX
+TYS Knoxville, TN
+TYX Fort Drum, NY WSR-88D
+TZR Columbus/Bolton, OH
+U11 Rexburg/Madison Co, ID
+U15 Challis, ID
+U16 Eagle Range, UT
+U17 Bullfrog, UT
+U24 Delta, UT
+U28 Green River, UT
+U31 Austin, NV
+U42 S Valley Rgnl AP, Salt Lake City, UT
+U67 Roosevelt, UT
+U68 North Big Horn Cnty AP, Cowley/Lovell/Byron, WY
+U71 Vernal, UT
+U78 Soda Springs, ID
+UAO Aurora, OR
+UBE Cumberland Muni, Cumberland, WI
+UCC Yucca Flat, NV
+UCM M-Camaguey Arpt, CU
+UCP New Castle Muni, PA
+UCR Univ. of California, Riverside, CA
+UCU M-Santiago, CU
+UCY Union City/Everett-Stewart, TN
+UDG Darlington Co Jetport, SC
+UDX Rapid City, SD WSR-88D
+UES Waukesha, WI
+UEX Hastings, NE WSR-88D
+UGL Upper Great Lakes
+UGM Leeward Pt Fld, Guantanamo Bay, CU
+UGN Waukegan, IL
+UHA M-Havana/Jose Martinez, CU
+UIL Quillayute, WA
+UIN Quincy, IL
+UKF North Wilkesboro/Wilkes Co, NC
+UKI Ukiah, CA
+UKL Coffey Cnty AP, Burlington, KS
+UKT Quakertown AP, Quakertown, PA
+ULM New Ulm, MN
+UMM P-Summit, AK
+UMN Monett, MO
+UMO Upper Missouri Basin
+UMP Fishers, IN
+UMT P-Umiat, AK
+UNG Nueva Gerona, Isla De Pinos, CU
+UNI Ohio Univ AP, Athens/Albany, OH
+UNK P-Unalakleet, AK
+UNO West Plains, MO
+UNR WFO Rapid City, Underwood, SD
+UNU Juneau, WI
+UNV University Park, State College, PA
+UOR Upper Ohio River Tribs
+UOX Oxford, MS
+UPC Upper Colorado Above Lake Powell
+UPJ Beef Island/Tortola, British Virgin Islands
+URP Upper Republican Basin
+URR Upper Red River of the North
+USA Upper Sacramento River
+USE Fulton Cnty AP, Wauseon, OH
+USH Upper Smoky Hill
+UTA Tunica Muni, MS
+UTS Huntsville, TX
+UUU Newport, RI
+UUV Sullivan Rgnl, Sullivan, MO
+UVA Garner Fld AP, Uvalde, TX
+UVR M-Varadero, CU
+UXL Southland Fld AP, Sulphur, LA
+UYF Madison Cnty AP, London, OH
+UZA Rock Hill, SC
+VA1 Rivers in Central Virginia
+VA2 Rivers in Northern Virginia
+VA3 Southwest Virginia Rivers
+VAC G-Sal, Cape Verde
+VAD Moody AFB, Valdosta, GA
+VAF East Breaks 643, TX AWOS3
+VAS C-Ashcroft, BC
+VAX Moody AFB, GA WSR-88D RPG
+VAY Mount Holly, NJ
+VBG Vandenberg AFB, Lompoc, CA
+VBS GOMEX Sabine 13B, LA AWOS-3
+VBT Bentonville, AR
+VBW Bridgewater Air Pk, Bridgewater, VA
+VBX Vandenberg AFB, CA WSR-88D RPG
+VCB Vacaville/Nut Tree, CA
+VCT Victoria, TX
+VCV S Calif Log AP, Victorville, CA
+VDF Tampa/Vandenberg, FL
+VDI Vidalia Muni, GA
+VDW Vedauwoo, WY
+VDZ P-Valdez, AK
+VEF WFO Las Vegas, NV
+VEL Vernal, UT
+VER J Viertel Mem AP, Boonville, MO
+VES Versailles, OH
+VGT North Las Vegas, NV
+VHW Western Region Hq, Salt Lake City, UT
+VIH Vichy/Rolla, MO
+VIS Visalia, CA
+VJI Abington, VA
+VKS Vicksburg Muni, Vicksburg, MS
+VLD Valdosta, GA
+VLL Oakland/Troy AP, Troy, MI
+VNC Venice, FL
+VNP GOMEX Vermillion 26, LA AWOS-3
+VNY Van Nuys, CA
+VOA GOMEX VK 786/Petronius (Chevron)
+VOK Camp Douglas, WI
+VPC Cartersville, GA
+VPS Eglin AFB, Valparaiso, FL
+VPZ Valparaiso, IN
+VQN Volens, VA
+VQQ Jacksonville/Cecil Field NAS, FL
+VRB Vero Beach, FL
+VRH P-Alaska Region Hq, Anchorage, AK
+VSF Springfield, VT
+VSV T-St. Vincent, Grenadines
+VT1 Connecticut Basin
+VTA Newark/Heath, OH
+VTI Vinton Veterans Mem, IA
+VTN Valentine, NE
+VTP La Veta Pass, CO
+VTX Los Angeles, CA WSR-88D
+VUJ Albemarle/Stanley Co, NC
+VUO Vancouver/Pearson, WA
+VUY Eastern Region Hq, Bohemia, NY
+VVG The Villages, FL
+VVV Ortonville, MN
+VWS P-Valdez, AK
+VWU Waskish Muni, MN
+VWX Evansville, IN WSR-88D
+VYS Peru, IL
+VZA GOMEX VR 380A (Mariner Energy)
+VZY C-Mackenzie Auto, BC
+W06 Crisfield CGLS, MD
+W13 Eagle's Nest AP, Waynesboro, VA
+W16 Winchester, VA
+W22 Upshur Cnty AP, Buckhannon, WV
+W29 Bay Bridge AP, Stevensville, MD
+W31 Lunenburg Cnty AP, Kenbridge, VA
+W43 Hulett Muni, Hulett, WY
+W63 Lake Country Rgnl AP, Clarksville, VA
+W75 Hummel Fld AP, Saluda, VA
+W78 Wm Tuck AP, South Boston, VA
+W81 Crewe Muni, Crewe, VA
+W83 Richmond, VA
+W96 New Kent County AP, Quinton, VA
+W99 Petersburg/Grant Co, WV
+WAA P-Wales, AK
+WAB Wabash R; Biak to Honolulu; C-Trowbridge, ON
+WAD Cape Mudge Lgt Hse, BC
+WAE Whistler, BC
+WAF Ile Rouge, QC
+WAH Amherst, NS
+WAJ Erieau, ON
+WAK P-Wake Island, Micronesia
+WAL Wallops Island, VA
+WAN Amphitrite Pt, BC
+WAO Montreal, QC
+WAQ Alert Bay, BC
+WAR Argentia, NF
+WAU Dryad Point Lgt Hse, BC
+WAV Sundre, AB; Canadian Great Lakes Wave Forecast
+WBA Banff, AB
+WBC NWS TeleComm Gateway, Washington, DC
+WBD Burgeo, NF
+WBE Killarney, ON
+WBF Battle Harbour, NF
+WBG Big Creek, BC
+WBI Britt, ON
+WBJ Bisset, MB
+WBK Caribou Point, NS
+WBN Summit Lake, BC
+WBO Brooks, AB
+WBS Beausejour, MB
+WBT Longue Pointe de Mingan, QC
+WBV Beaver Is, NS
+WBX Blanc Sablon, QC
+WBY Port Menier, QC
+WBZ St Anicet, QC
+WC0 West Coast
+WCA C-Cartwright, NF; W Caribbean/Gulf of MX Sat Prods; P-West Coast and AK (tsunamis)
+WCF Berens River, MB
+WCH Atikokan, ON
+WCI Caribou Island, ON
+WCJ Pukaskwa Park, ON
+WCL Clinton, BC
+WCM Wrangell/Chugach Mtns Zones
+WCO Collingwood, ON
+WCP Blue River, BC
+WCQ Chatham, NB
+WCR M-Grand Cayman, CM
+WCT Coronation, AB
+WCU Barrie, ON
+WCV Nootka Light Stn, BC
+WCZ Addenbroke Is Lgt Hse, BC; West Coast Alaska Zones
+WDA Englee, NF
+WDC Uranium City, SK
+WDD Belle River, ON
+WDF Oliphant, ON
+WDG Enid Woodring Rgnl AP, Enid, OK
+WDH Daniels Harbour, NF
+WDI Badger, NF
+WDJ Red Lake, ON
+WDK Claresholm, AB
+WDL Dease Lake, BC
+WDM Chevery, QC
+WDO Twillingate, NF
+WDQ La Tuque, QC
+WDR Winder-Barrow, GA
+WDS Saint Lawrence, NF
+WDT Chute des Passes, QC
+WDV Upsala, ON
+WDZ Drumheller East, AB
+WEB Estevan Point, BC
+WEE Chamouchouane, QC
+WEF St Paul Is, NS
+WEG Edmonton, AB
+WEH East End Cypress, SK
+WEI Melita, MB
+WEK Grey Islet, BC
+WEL Entrance Is, BC
+WEM Egg Is, BC
+WEO Lac Eon, QC
+WEP East Point, PE
+WEQ Swan River, MB
+WER Ile D'Orleans, QC
+WES Cape Scott Lgt Hse, BC
+WEU Eureka, NU
+WEW L'Assomption, QC
+WEY West Yellowstone, MT
+WEZ Saturna Island, BC
+WFD Cape Dyer Arpt, NU
+WFF Melfort, SK
+WFG Sartine Is, BC
+WFJ Cardston, AB
+WFL Fort Reliance, NT
+WFM Chatham Point, BC
+WFN Cree Lake, SK
+WFQ Frelighsburg, QC
+WFR Horsefly River, BC
+WFV Cape Saint James, BC
+WGB Island Lake, MB
+WGD Goderich, ON
+WGE Golden, BC
+WGH Grenadier Is, ON
+WGJ Montreal River Harbour, ON
+WGL Lagoon City, ON
+WGM Gimli, MB
+WGN Gretna, MB
+WGP Pemberton Arpt, BC
+WGQ Geraldton, ON
+WGR Grindstown Is, QC
+WGT Sisters Is, BC
+WGU Gypsumville, MB
+WGW Sparwood, BC
+WGX Gillam, MB
+WGY Esther 1, AB
+WGZ Grise Fiord Arpt, NU
+WHA Highvale, AB
+WHC Vancouver Harbour, BC
+WHH Hunters Point, MB
+WHI Three Hills, AB
+WHJ Holberg, BC
+WHL Holland Rock, BC
+WHM Varennes, QC
+WHN Jimmy Lake, SK
+WHO Hopedale, NF
+WHP K-Los Angeles/Whiteman, CA; C-Heath Point, QC
+WHT White River; C-Haines Junction, YK
+WHV Beauceville, QC
+WHW Comfort Cove, NF
+WHX Bedford, NS
+WHY Mont-Orford, QC
+WIA St Henri, QC
+WIC Isachsen, NU
+WID Fort Providence, NT
+WIE Indian River, NT
+WIF Quatsino Lgt Stn, BC
+WIG Ile Aux Grues, QC
+WII Victoria Beach, MB
+WIJ Lupin, NU
+WIK Broadview, SK
+WIL Hat Is, NU
+WIM Upsala, ON
+WIN Windigo, MI
+WIO Iskut River, BC
+WIP Pointe Noire, QC
+WIQ Primrose Lake, AB
+WIR Victoria, BC
+WIS Wisconsin Streams; C-Charlevoix, QC
+WIT Ste Clothilde, QC
+WIU St Gedeon, QC
+WIW Watrous East, SK
+WIX Mistook, QC
+WIY St Leonard, NB
+WIZ L'Acadie, QC
+WJA Jasper, AB
+WJB Ste Foy/U Laval, QC
+WJC Ennadai Lake, NU
+WJD Grand Rapids, MB
+WJF Lancaster, CA
+WJG Ivory Is, BC
+WJH Southend, SK
+WJI Assiniboia Arpt, SK
+WJM Upper Rideau Lake, ON
+WJO Jonquiere, QC
+WJR Creston, BC
+WJT St-Joviteb, QC
+WJU Langara, BC
+WJV Vernon, BC
+WJW Jasper Warden, AB
+WJX Leader Arpt, SK
+WJZ Allison Pass, BC
+WKC Collins Bay, SK
+WKD Bonnard, QC
+WKE Pelly Bay, NU
+WKG Puntzie Mountain, BC
+WKH Malahat, BC
+WKM Komakuk Beach, YK
+WKO Rockglen, SK
+WKP C-Keats Pt, NT
+WKS Sikanni Chief, BC
+WKV Hope Slide, BC
+WKW Cape Kakkiviak, NF
+WKX Dease Lake, BC
+WKY Kindersley, SK
+WLA Langara, BC
+WLB Lac La Biche, AB
+WLC Lucy Is Lgt Hse, BC
+WLD Arkansas City, KS
+WLE Lucky Lake, SK
+WLG Saint Albans, NF
+WLH Lansdowne House, ON
+WLI Liverpool Bay, NT
+WLM Victoria, BC
+WLO Shilo, MB
+WLP Herbert Island, BC
+WLQ North Bay, ON
+WLS Mount Forest, ON
+WLT Alert, NU
+WLU Lauzon, QC
+WLW Mtn Wx Svcs Office, Kelowna, BC
+WLX Longstaff Bluff, NU
+WLY Lytton, BC
+WMC Winnemucca, NV
+WME Cathedral Point, BC
+WMI Miscou Is, NB
+WMJ Maniwaki, QC
+WMK Simcoe, ON
+WMM Pitt Meadows, BC
+WMN Mount Forest, ON
+WMQ Maple Creek, SK
+WMR Merry Is, BC
+WMS McInnes Is, BC
+WMT Lac La Martre, NT
+WMW Maniwaki, QC
+WMZ Western Is, ON
+WNB K-National Data Buoy Ctr, Southern MS; C-SE Shoal, ON
+WNC K-NCEP Climate Pred Ctr, College Park, MD; C-Cobourg, ON
+WNE North Point, PE
+WNH K-NCEP Weather Pred Ctr, College Park, MD; C-Riviere du Loup, QC
+WNI C-Nitchequon, QC
+WNJ K-Johnson Space Ctr, Houston, TX; C-Green Is, BC
+WNK C-Carman U of M, MB
+WNL C-Great Duck Is, ON
+WNM K-NCEP Marine Pred Ctr, College Park, MD; C-Nelson, BC
+WNO K-NCEP Central Operations, College Park, MD
+WNP K-NCEP Space Envir Ctr, Boulder, CO; C-Nakusp, BC; West Pacific
+WNQ C-Nicolet, QC
+WNS K-NCEP Storm Pred Ctr, Norman, OK
+WNX C-Nechako River, BC
+WNY Allegheny Drainage in Western New York
+WNZ C-Nagagami, ON
+WOB C-Brevoort Is, NU
+WOC C-New Carlisle, QC; P-Washington, Oregon, California (Earthquake Info)
+WOD C-Normandin, QC
+WOE C-Onefour, AB
+WOH C-Sainte Agathe Des Monts, QC
+WOK C-Elbow, SK
+WOL Wolfeboro, NH
+WOQ C-Eddy Point, NS
+WOS Weekly Operational Summary
+WOU C-Primrose Lake 2, AB
+WOY C-Wynyard, SK
+WP1 Western Pacific #1
+WP2 Western Pacific #2
+WP3 Western Pacific #3
+WP4 Western Pacific #4
+WP5 Western Pacific #5
+WPB C-Beausoleil Is, ON
+WPC C-Pincher Creek, AB
+WPD C-Parc des Laurentides, QC
+WPE C-Point Lepreau, NB
+WPF C-Esquimalt Harbour, BC
+WPI C-Pine Is, BC
+WPJ C-Pt Escuminac, NB
+WPK C-Parent, QC
+WPL C-Pickle Lake, ON
+WPN C-Port Menier, QC
+WPO Pilot Mound, MB
+WPQ Montreal-Est, QC
+WPR Princeton, BC
+WPS Long Point, ON
+WPU Puntzi Mountain, BC
+WPX Cape Peel W, NU
+WPZ Burns Lake, BC
+WQC Port Alberni, BC
+WQE Toronto Headland, ON
+WQG Valcartier, QC
+WQH Lennoxville, QC
+WQK Race Rocks, BC
+WQO Ile Bicquette, QC
+WQP Point Petre, ON
+WQR Ice Aux Perroque, QC
+WQS Kindakun Point, BC
+WQV Puinte Claveau, QC
+WRA Cape Race, NF
+WRB Warner Robins AFB, Macon, GA
+WRD Riviere Du Loup, QC
+WRF Pelly Bay 1, NU
+WRH NWS Westrn Rgn HQ; C-Resolution Is, NU
+WRI McGuire AFB, Wrightstown, NJ
+WRJ Rosetown East, SK
+WRK Bancroft, ON
+WRL Worland, WY
+WRM Rocky House, AB
+WRN Western Region Network; C-Hart Is, NS
+WRO Rose Spit, BC
+WRP Nicholson Peninsula, NT
+WRT Crowsnest, AB
+WRU Solander Is, BC
+WRX Rowley Is, NU
+WRY Milk River, AB
+WS7 SIGMET (Juneau, AK)
+WS8 SIGMET (Anchorage, AK)
+WS9 SIGMET (Fairbanks, AK)
+WSA C-Sable Is, NS
+WSD K-Condron AAF, White Sands, NM; C-Summerside, PE
+WSF C-Cap Madeleine, QC
+WSH National Weather Service Headquarters
+WSI C-Simcoe, ON
+WSK C-Squamish, BC
+WSL C-Salmon Arm, BC
+WSP C-Sheringham Pt, BC; Southern Pacific
+WSQ C-Spring Island, BC
+WSR Weather Service Radar; C-Spiritwood West, SK
+WSS St Stephen, NB
+WST K-Westerly State, RI; C-La Pocatiere, QC
+WSW Sparwood/Elk Valley, BC
+WSZ Fisher Branch, MB
+WTA C-McTavish, QC
+WTC Ethelda Bay, BC
+WTH Summit Lake vcty, BC
+WTI Triple Is, BC
+WTL Trout Lake, ON
+WTN Cap Tourmente, QC
+WTO C-AES HQ, Toronto, ON
+WTQ Truro, NS
+WTR Whitaker, WY
+WTT Lac Memphremagog, QC
+WTU Tukialik Bay, NF
+WTW Tuktoyaktuk, NT
+WTY Trois Rivieres, QC
+WUL Montreal, QC
+WUM Faro, YK
+WUP Cape Hooper, NU
+WUR Truro, NS
+WUS Summerland, BC
+WUU Mackar Inlet, NU
+WUV Longstaff Bluff, NU
+WUW Dewar Lakes, NU
+WUX La Baie, QC
+WUZ Cape Hooper, NU
+WV1 Rivers in West Virginia
+WV2 West Virginia Panhandle
+WVA Bonavista, NF
+WVB Bonilla Is, BC
+WVD Broughton Is, NU
+WVE Inverness, NS
+WVF Sand Heads Light Stn, BC
+WVG Victoria, BC
+WVH Storm Hills, MB
+WVI K-Watsonville Muni, CA; C-Vegreville, AB
+WVK Vernon, BC
+WVL Waterville, ME
+WVN Val Marie SE, SK
+WVP Cypress Hills Park, SK
+WVQ Ste Anne de Bellvue, QC
+WVR Vancouver, BC
+WVT Buffalo Narrows, SK
+WVU Brier Is, NS
+WVV Victoria Hartland, BC
+WVY Lemieux, QC
+WVZ Ile Charron, QC
+WWA West Vancouver, BC
+WWB Burlington Piers, ON
+WWD Wildwood, NJ
+WWE Western Head, NS
+WWF Weyburn, SK
+WWG Winnipeg, MB
+WWK White Rock, BC
+WWL Bonilla Is, BC
+WWO Willow Creek, AB
+WWQ Muncho Lake, BC
+WWR West Woodward, OK
+WWS George Is, MB
+WWU Long Pond, NF
+WWW C-Ware, BC; N-Noumea La Tontouta, New Caledonia
+WWX Cove Is, ON
+WWZ Port Weller, ON
+WXA Bow Valley, AB
+WXC Onatchiway, QC
+WXF Sutton Junction, QC
+WXH Holberg CCR, BC
+WXI Ferolle Pt, NF
+WXK Clinton Point, NT
+WXL Bow Island, AB
+WXM Helmcken Is, BC
+WXR Croker River, NU
+WXV Faro, YK
+WYC Edmonton, AB
+WYI Natashquan, QC
+WYJ Victoria University, BC
+WYK Cape Kiglapait, NF
+WYL Yoho Park, BC
+WYM Cape Mercy, YK
+WYO Wynyard, SK
+WYS West Yellowstone, MT
+WYY Osoyoos, BC
+WZA Agassiz, BC
+WZB Port Aux Basques, NF
+WZC Moosonee, ON
+WZD Scudder Pt, BC
+WZG Banff, AB
+WZL Liard River, BC
+WZM Boat Bluff Lgt Hse, BC
+WZN Sagona Is, NF
+WZO Kelp Reefs, BC
+WZQ Grand Etang, NS
+WZS Amqui, QC
+WZV Cape Saint James, BC
+WZW Teslin, YK
+WZZ Saglek, NF
+X21 Arthur Dunn Air Pk, Titusville, FL
+X53 Clewiston, FL
+X57 Marco Island, FL
+X60 Williston Muni, Williston, FL
+X68 NASA Shuttle Landing Facility, Titusville, FL
+XAF C-Abee AGDM, AB
+XAG C-Andrew AGDM, AB
+XAJ C-Atmore AGDM, AB
+XAT Arctic Bay CS, NU
+XBA C-Bodo AGCM, AB
+XBK Bratt's Lake, SK
+XBO Beauport, QC
+XBP K-Bridgeport Muni, TX; C-Confederation Bridge, PE
+XBR C-Brocket AGDM, AB
+XBT Expendable Bathythermograph Data
+XBW C-Barnwell AGDM, AB
+XCA C-Cameron Falls, ON
+XCD C-Cleardale AGDM, AB
+XCH Cheticamp, NS 
+XCK Carmacks, YK
+XCN Green Canyon 184, LA
+XCP C-Champion AGDM, AB
+XCS C-Consort AGDM, AB
+XCY Cyprus Lake CS, ON
+XDE Deline, NT
+XDI Delhi, ON
+XDK C-Deadmen Valley, NT
+XDP C-Dapp AGDM, AB
+XDW Deerwood RCS, MB
+XEA Ear Falls, ON
+XEC C-Edmonton Muni, AB
+XEG C-Edmonton Intl, AB
+XET C-Egbert CS, ON
+XFR C-Fairview AGDM, AB
+XFS Fort Simpson, NT
+XGH Gimli Harbour, MB
+XHA Harrow CDA, ON
+XHF High Falls, QC
+XHM Hamilton RBG CS, ON
+XHR C-Hussar AGDM, AB
+XIB Ingonish Beach CS, NS
+XIH GOMEX High Is 179A (Apache Corp)
+XKA Kapuskasing CDA, ON
+XKE C-Kemptville, ON
+XKF T-Bermuda NAS/Kindley Field, BE
+XKT Kentville, NS
+XLC Lower Carp Lake, NU
+XLL K-Queen Cty Muni, Allentown, PA; C-Lindberg Landing, NT
+XMD Morden, MB
+XMI McNabs Is, NS
+XMM Fort McMurray, AB
+XMR Cape Canaveral AF Skid Strip, Cocoa Beach, FL
+XMY Malay Falls, NS
+XNA Fayetteville/Springdale/NW Rgnl, AR
+XNM North Mountain, NS
+XOX La Ronge, SK
+XPV Prairie River, AB
+XPY Port Fourchon, LA AWOS3
+XQA Qavvik Lake, NT
+XQT C-N Ontario Portable Emer Stn, ON
+XRH Rocky Harbour, NF
+XSA Tappahannock-Essex Cnty AP, VA
+XSH Shawinigan, QC
+XSR Spirit River, AB
+XSW St John's West, NF
+XTN Tuktut Nogait NP, NT
+XTP Terra Nova NP, NF
+XTV Trail Valley, NT
+XVG Longville, Muni, MN
+XVW Vandenberg Range, CA
+XWN Winnipeg/The Forks, MB
+XXX Cluff Lake, SK
+XZU Whitecourt, AB
+Y12 Airlake, MN
+Y19 Mandan Muni, Mandan, ND
+Y22 Lemmon, SD
+Y23 Chetek Muni-Southworth AP, Chetek, WI
+Y26 Mobridge, SD
+Y49 Walker Muni, Walker, MN
+Y50 Wautoma Muni, Wautoma, WI
+Y51 Viroqua Muni, Viroqua, WI
+Y62 Sault Ste Marie, MI
+Y63 Elbow Lake Muni, MN
+Y66 Drummond Is AP, Drummond Is, MI
+Y68 Tracy Muni, Tracy, MN
+Y69 Litchfield, MN
+Y70 Ionia Cnty AP, Ionia, MI
+YAD La Grande III, QC
+YAE Alta Lake, BC
+YAH La Grande IV Arpt, QC
+YAJ Komakuk Beach, YK
+YAK Yakutat Bay, AK
+YAM Sault Sainte Marie, ON
+YAS Kangirsuk, QC
+YAT C-Attawapiskat A, ON
+YAW Halifax, NS
+YAY Saint Anthony, NF
+YAZ Tofino, BC
+YBB Pelly Bay Arpt, NU
+YBC Baie Comeau, QC
+YBD Bella Coola, BC
+YBE Uranium City, SK
+YBG Bagotville, QC
+YBK Baker Lake, NU
+YBL Campbell River, BC
+YBN Borden, ON
+YBQ C-Tadoule Lake, MB
+YBR Brandon, MB
+YBS M-Alice Town, Bimini, BA
+YBT Brochet, MB
+YBU Nipawin, SK
+YBV Berens River, MB
+YBW Springbank, AB
+YBX Blanc Sablon, QC
+YCB Cambridge Bay, NU
+YCD Nanaimo, BC
+YCG Castlegar, BC
+YCH Chatham, NB
+YCK C-Chatham-Kent, ON
+YCL Charlo, NB
+YCO Coppermine, NU
+YCP Blue River, BC
+YCQ Chetwynd Arpt, BC
+YCS Chesterfield Inlet, NU
+YCT Coronation, AB
+YCX Gagetown, NB
+YCY Clyde Arpt, NU
+YDA Dawson, YK
+YDB Burwash, YK
+YDC Princeton, BC
+YDF Deer Lake, NF
+YDL C-Dease Lake A, BC
+YDN Dauphin, MB
+YDP Nain, NF
+YDQ Dawson Creek, BC
+YEC Border, NF
+YED Edmonton/Namao, AB
+YEG C-Edmonton Intl, AB; M-George Town, Exuma, BA
+YEK Arviat Arpt, NU
+YEL K-Yellowstone River; C-Elliot Lake, ON
+YEN Estevan, SK
+YEO Lake Eon, QC
+YER C-Fort Severn A, ON
+YET Edson, AB
+YEV Inuvik, NT
+YFB Frobisher Bay/Iqalui, NU
+YFC Fredericton, NB
+YFO Flin Flon, MB
+YFR Fort Resolution, NT
+YFS Fort Simpson, NT
+YFT Makkovik Arpt, NF
+YGA Gagnon, QC
+YGD Goderich, ON
+YGE Golden Arpt, BC
+YGF M-Freeport Intl Arpt, BA
+YGH Fort Good Hope, NT
+YGK Kingston, ON
+YGL LaGrande Riviere, QC
+YGM Gimli, MB
+YGP Gaspe, QC
+YGQ Geraldton, ON
+YGR Iles de la Madeleine, QC
+YGT Igloolik Arpt, NU
+YGV Havre Saint Pierre, QC
+YGW C-Kuujjuarapik, QC; M-West End, Grand Bahama, BA
+YGX Gillam, MB
+YHA Quaqtaq Arpt, QC
+YHB Hudson Bay, SK
+YHD Dryden, ON
+YHE Hope, BC
+YHH Nemiscau Arpt, QC
+YHI Holman Island Arpt, NT
+YHK Gjoa Haven Arpt, NU
+YHM Hamilton, ON
+YHS Herschel Island, YK
+YHU Montreal/St Hubert, QC
+YHY Hay River, NU
+YHZ Halifax Intl, NS
+YIB Atikokan, ON
+YIG Matthew Town, Inagua, BA
+YIK Ivijivik Arpt, QC
+YIN C-Bleibler Ranch, BC
+YIO Pond Inlet, NU
+YIP Detroit/Willow Run, MI
+YIV Island Lake Arpt, MB
+YIX Port Radium, NT
+YJF Fort Liard Arpt, NT
+YJT Stephenville, NF
+YKA Kamloops, BC
+YKD Aklavik Arpt, NT
+YKF Waterloo Well, ON
+YKG Kangiqsualujjuaq, QC
+YKJ Key Lake, SK
+YKL Schefferville, QC
+YKM Yakima, WA
+YKN K-Yankton, SD; P-Yukon, AK
+YKO Akulivik Arpt, QC
+YKP C-Ogoki Post A, ON
+YKQ Waskaganish Arpt, QC
+YKY Kindersley, SK
+YKZ Toronto/Buttonville, ON
+YLA Aupaluk, QC
+YLC Lake Harbour Arpt, NU
+YLD Chapleau, ON
+YLH C-Lansdowne House, ON
+YLJ Meadow Lake, SK
+YLK Lutselk'e, NT
+YLL Lloydminster, SK
+YLT Alert, NU
+YLU Kangiksualujjuaq, QC
+YLW Kelowna, BC
+YMA Mayo, YK
+YMD Mould Bay, NT
+YMH Mary's Harbour, NF
+YMJ Moose Jaw, SK
+YML La Malbaie, QC
+YMM Fort McMurray, AB
+YMO Moosonee, ON
+YMT Chibougamau-Chapais, QC
+YMU Umiujaq, QC
+YMX Montreal/Mirabel Int, QC
+YMY Montreal, QC
+YNA Natashquan Arpt, QC
+YNC Wemindji, QC
+YND Gatineau Arpt, QC
+YNE Norway House, MB
+YNG Youngstown, OH
+YNM Matagami, QC
+YNN M-Nassau, BA
+YOA Ekati, NT
+YOC Old Crow, YK
+YOD Cold Lake, AB
+YOJ High Level, AB
+YOO C-Oshawa Muni (Toronto), ON
+YOW Ottawa Intl, ON
+YOY Val Cartier, QC
+YPA Prince Albert, SK
+YPB Port Alberni, BC
+YPC Paulatuk Arpt, NT
+YPD C-Port Hawkesbury, NS
+YPE Peace River, AB
+YPG Portage la Prairie, MB
+YPH Inukjuak, QC
+YPL Pickle Lake, ON
+YPN Port Menier, QC
+YPO C-Peawanuck A, ON
+YPQ C-Peterborough, ON
+YPR Prince Rupert, BC
+YPW Powell River, BC
+YPX Povungnituq, QC
+YPY A-Port Moresby Intl; C-Fort Chipewyan, AB
+YQA Muskoka, ON
+YQB Quebec, QC
+YQD The Pas, MB
+YQF Red Deer, AB
+YQG Windsor, ON
+YQH Watson Lake, YK
+YQI Yarmouth, NS
+YQK Kenora, ON
+YQL Lethbridge, AB
+YQM Moncton, NB
+YQQ Comox, BC
+YQR Regina, SK
+YQT Thunder Bay, ON
+YQU Grand Prairie, AB
+YQV Yorkton, SK
+YQW North Battleford, SK
+YQX Gander Intl, NF
+YQY Sydney, NS
+YQZ Quesnel, BC
+YRA Rae Lakes, NT
+YRB Resolute, NU
+YRJ Roberval, QC
+YRL Red Lake, ON
+YRM Rocky Mountain House, AB
+YRO Ottawa, ON
+YRQ C-Trois Rivieres, QC
+YRT Rankin Inlet Arpt, NU
+YRV Revelstoke, BC
+YSB Sudbury, ON
+YSC Sherbrooke, QC
+YSD Suffield, AB
+YSF Stony Rapids Arpt, SK
+YSJ Saint John, NB
+YSK Sanikiluaq Arpt, QC
+YSL St Leonard Arpt, NB
+YSM Fort Smith, NT
+YSN Saint Catharines, ON
+YSP C-Marathon, ON
+YSR Nanisivik Arpt, NU
+YSU Summerside, PE
+YSV Saglek, NF
+YSY Sachs Harbour, NT
+YTE Cape Dorset Arpt, NU
+YTH Thompson, MB
+YTJ Terrace Bay, ON
+YTL Big Trout Lake, ON
+YTN Trenton Muni, NS
+YTQ Tasiujaq A, QC
+YTR Trenton, ON
+YTS Timmins, ON
+YTZ Toronto Island, ON
+YU1 Western Yukon and NW British Columbia
+YU2 Southeast Yukon and N British Columbia
+YUA Shingle Point, YK
+YUB Tuktoyaktuk, NT
+YUI Cape Young, NU
+YUJ Lady Franklin Point, NU
+YUK Byron Bay, NU
+YUL Montreal/Dorval, QC
+YUM Yuma, AZ
+YUQ Jenny Lind Island, NU
+YUR Gladman Point, NU
+YUS Shepherd Bay, NU
+YUT Repulse Bay Arpt, NU
+YUX K-Yuma, AZ WSR-88D; Hall Beach, NU
+YUY Rouyn, QC
+YVC La Ronge, SK
+YVG Vermilion, AB
+YVM Broughton Island Arpt, NU
+YVN Cape Dyer, NU
+YVO Val D'Or, QC
+YVP Kuujjuaq, QC
+YVQ Norman Wells, NT
+YVR Vancouver Intl, BC
+YVT Buffalo Narrows, SK
+YVV Wiarton, ON
+YWA Petawawa, ON
+YWE C-Wekweeti, NT
+YWG Winnipeg, MB
+YWH Victoria Harbour, BC
+YWJ Fort Franklin Arpt, NT
+YWK Wabush Lake, NF
+YWL Williams Lake, BC
+YWO Lupin Arpt, NU
+YWR White River, ON
+YWV Wainwright Arpt, AB
+YWY Wrigley, NT
+YXC Cranbrook, BC
+YXD Edmonton, AB
+YXE Saskatoon, SK
+YXH Medicine Hat, AB
+YXJ Fort Saint John, BC
+YXL Sioux Lookout, ON
+YXN Whale Cove Arpt, NU
+YXP Pangnirtung Arpt, NU
+YXQ Beaver Creek, YK
+YXR Earlton, ON
+YXS Prince George, BC
+YXT Terrace, BC
+YXU London, ON
+YXX Abbotsford, BC
+YXY Whitehorse, YK
+YXZ Wawa, ON
+YYB North Bay, ON
+YYC Calgary Intl, AB
+YYD Smithers, BC
+YYE Fort Nelson, BC
+YYF Penticton, BC
+YYG Charlottetown, PE
+YYH Spence Bay Arpt, NU
+YYJ Victoria Intl, BC
+YYL Lynn Lake, MB
+YYN Swift Current, SK
+YYQ Churchill, MB
+YYR Goose Bay, NF
+YYT Saint John's/Torbay, NF
+YYU Kapuskasing, ON
+YYW Armstrong, ON
+YYY Mont Joli, QC
+YYZ Toronto Intl, ON
+YZD Toronto, ON
+YZE Gore Bay, ON
+YZF Yellowknife, NT
+YZG Salliut Arpt, QC
+YZH Slave Lake, AB
+YZP Sandspit, BC
+YZR Sarnia, ON
+YZS Coral Harbour, NU
+YZT Port Hardy, BC
+YZU Whitecourt, AB
+YZV Sept-Iles, QC
+YZW Teslin, YK
+YZX Greenwood, NS
+YZY Mackenzie, BC
+Z26 Haines, AK
+Z27 Cape Pole, AK
+Z30 Port Alsworth, AK
+ZAA F-Kinshasa/N'djili, ZR, W Africa
+ZAB Albuquerque, NM CWSU
+ZAN Anchorage, AK CWSU
+ZAU Chicago, IL CWSU
+ZBF Bathurst Arpt, NB
+ZBW Boston, MA CWSU
+ZBZ M-Belize City, BH
+ZCP Cape Parry, NT
+ZCR C-Charlo Auto, NB
+ZDC Washington, DC CWSU
+ZDV Denver, CO CWSU
+ZEM Eastmain River Arpt, QC
+ZFA Faro Arpt, YK
+ZFM Ft McPherson Arpt, NT
+ZFN Ft Norman Arpt, NT
+ZFW Fort Worth, TX CWSU
+ZGH C-Ft Good Hope, NT
+ZHB C-Hudson Bay, SK
+ZHD C-Dryden, ON
+ZHK C-Gjoa Haven Climate, NU
+ZHN P-Honolulu, HI CWSU
+ZHP C-High Prairie, AB
+ZHU Houston, TX CWSU
+ZID Indianapolis, IN CWSU
+ZJX Jacksonville, FL CWSU
+ZKC Kansas City, KS CWSU
+ZLA Los Angeles, CA CWSU
+ZLC Salt Lake City, UT CWSU
+ZMA Miami, FL CWSU
+ZME Memphis, TN CWSU
+ZMP Minneapolis, MN CWSU
+ZNY New York, NY CWSU
+ZOA Oakland, CA CWSU
+ZOB Cleveland, OH CWSU
+ZPC C-Pincher Creek Arpt, AB
+ZPH Zephyrhills Muni, Zephyrhills, FL
+ZSE Seattle, WA CWSU
+ZSP C-St. Peters, PEI
+ZST C-Stewart, BC
+ZTL Atlanta, GA CWSU
+ZUE C-Cape Parry, NT
+ZUM C-Churchill Falls, NF
+ZUN Zuni Pueblo, NM
+ZZV Zanesville, OH

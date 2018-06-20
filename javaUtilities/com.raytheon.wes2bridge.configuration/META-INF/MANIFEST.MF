@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Wes2Bridge Configuration Utility
+Bundle-SymbolicName: com.raytheon.wes2bridge.configuration
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: com.raytheon.wes2bridge.common;bundle-version="1.0.0"

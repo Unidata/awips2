@@ -1,0 +1,1 @@
+In this set-up, the analysis will be done over the entire time period for the component.  For example, if  our component is 12 hours long, an average Wind value over the 12 hours will be reported.  

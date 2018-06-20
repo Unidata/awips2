@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+   <!-- TOWRdocs Header
+        Himawari Derived Motion Winds (DMW) menu index file.
+    -->
+    <!-- TOWRdocs Description
+        File that provides a menu index (for subsequent DMW menus/bundles) to the "Himawari" menu in AWIPS II. 
+        The index references the menu-item file "ahi-dmwFilterMenu.xml". Essentially, this file is saying 
+
+            "install 'ahi-dmwFilterMenu.xml' to the Himawari menu"
+        
+        in AWIPS II.
+    -->
+    <!-- TOWRdocs Status
+        New file not in the current baseline. Modeled after the existing baseline file
+        common_static/base/menus/satellite/himawari/himawari-index.xml
+    -->
+    <!-- TOWRdocs POC
+        Matt Comerford
+    -->
+
+<menuContributionFile>
+
+    <!-- Default install location is the top-level Himawari Menu (If it is turned on) -->
+    <include installTo="menu:himawari"
+        fileName="menus/satellite/himawari/dmw/ahi-dmwMenuByFilter.xml">
+    </include>
+
+</menuContributionFile>

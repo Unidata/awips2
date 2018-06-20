@@ -1,0 +1,432 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="CONTENT-TYPE" content="text/html; charset=utf-8">
+  <title>GFESuite Documentation - Generate Cyclone</title>
+  <meta name="GENERATOR" content="OpenOffice.org 1.1.3  (Linux)">
+  <meta name="CREATED" content="20050506;13120600">
+  <meta name="CHANGED" content="20050706;12584700">
+  <style>
+	<!--
+		@page { size: 8.5in 11in; margin-right: 1.25in; margin-top: 1in; margin-bottom: 1in }
+		P { margin-bottom: 0.08in; direction: ltr; color: #000000; text-align: left; widows: 0; orphans: 0 }
+		P.western { font-family: "Nimbus Roman No9 L", "Times New Roman", serif; font-size: 12pt; so-language: en-US }
+		P.cjk { font-family: "Nimbus Sans L", "Arial"; font-size: 12pt; so-language:  }
+		P.ctl { font-family: "Tahoma", "Lucidasans"; font-size: 12pt; so-language:  }
+	-->
+	</style>
+</head>
+<body dir="ltr" lang="de-DE" text="#000000">
+<font size="4"><br>
+</font>
+<p class="western" style="margin-bottom: 0in;" align="center"
+ lang="en-US"><big><font style="font-size: 20pt;" size="5"><big><b>GenerateCyclone
+Tool</b></big></font></big></p>
+<p class="western" style="margin-bottom: 0in;" align="center"
+ lang="en-US">
+<br>
+</p>
+<font size="3">The GenerateCyclone tool creates wind grids for tropical
+depression events. When a cyclone is classified as a tropical
+depression, The TCM text bulletin from the Tropical Prediction Center
+(TPC) contains only the forecast center and maximum sustained winds;
+no wind radii are provided. The Generate Cyclone tools allows
+forecasters to add wind radii thus injecting more detail to this wind
+forecast so that they can create more realistic wind grids more
+easily.</font>
+<br>
+<br>
+<br>
+<big><font style="font-weight: bold;" size="4"><big>Defining Radii in a
+Text File</big></font><span style="font-weight: bold;">
+</span></big><br>
+<br>
+<font size="3">The GenerateCyclone tool was derived from the TCMWind
+tool. To use it, the forecaster must first define the location and
+strength of the cyclone as a function of time in a text file. The
+format of the file is very similar to the format of the TCM product.
+A simple example is shown below...</font>
+<br>
+<br>
+<font color="#2323dc"><font size="3">FORECAST VALID 09/0900Z 25.4N
+81.7W </font></font>
+<br>
+<font color="#2323dc"><font size="3">MAX SUSTAINED WINDS 140 KT WITH
+GUSTS TO 170 KT.</font></font>
+<br>
+<font color="#2323dc"><font size="3">10 KT......100NE 100SE 100SW 90NW.</font></font>
+<br>
+<font color="#2323dc"><font size="3">20 KT.......90NE 90SE 90SW 90NW.</font></font>
+<br>
+<font color="#2323dc"><font size="3">30 KT.......85NE 85SE 85SW 75NW.</font></font>
+<br>
+<br>
+<font color="#2323dc"><font size="3">FORECAST VALID 09/1800Z 28.2N 85.8W</font></font>
+<br>
+<font color="#2323dc"><font size="3">MAX WIND 140 KT...GUSTS 170 KT.</font></font>
+<br>
+<font color="#2323dc"><font size="3">10 KT......100NE 100SE 100SW 90NW.</font></font>
+<br>
+<font color="#2323dc"><font size="3">20 KT.......90NE 90SE 90SW 90NW.</font></font>
+<br>
+<font color="#2323dc"><font size="3">30 KT.......85NE 85SE 85SW 75NW.</font></font>
+<br>
+<br>
+<font size="3">There are three main parts to the text file: the valid
+time and location, max sustained winds, and the radii.</font>
+<br>
+<br>
+<big><font style="font-weight: bold;" size="4"><big>1. Forecast Valid
+Time and Location</big></font><span style="font-weight: bold;">
+</span></big><br>
+<br>
+<font style="font-weight: bold;" size="2">Example:</font><span
+ style="font-weight: bold;">
+<br>
+<br>
+</span><font color="#2300dc"><font size="3">FORECAST VALID 09/0900Z
+25.4N 81.7W <br>
+<br>
+</font></font>
+<font size="2">(valid time)</font><font size="3"> </font><font size="2">(lat,
+lon)</font>
+<br>
+<br>
+<font size="3">The forecast valid time and location must precede the
+radii information. It must contain the phrase “FORECAST VALID”
+followed by the time in the format dd/hhmmZ, where dd is the day of
+the month, hh is the hour, mm is the minute (this should always be
+00), and the Z means that the time is in GMT. The center location of
+the storm follow the time and must be in the format “aa.aN bbb.bW”,
+where aa.a is the latitude in degrees and tenths north and bbb.b is
+the longitude in degrees and tenths west. The “N” and the “W”
+are required for proper decoding of the text.</font>
+<br>
+<br>
+<font size="3">Since the month and year are optional, the tool will
+generally create grids containing the cyclone within the current
+month. When the tool finishes you may need to scroll the Grid Manager
+backward or forward in time to view your grids since they could be
+plotted many days before or after the current time window.</font>
+<br>
+<big style="font-weight: bold;"><br>
+<font size="4"><big>2. Max Sustained Winds</big></font></big><span
+ style="font-weight: bold;">
+</span><br>
+<br>
+<font style="font-weight: bold;" size="2">Example:</font><span
+ style="font-weight: bold;">
+<br>
+<br>
+</span><font color="#2300dc"><font size="3">MAX SUSTAINED WINDS 140 KT
+WITH
+GUSTS TO 170 KT.</font></font>
+<br>
+<br>
+<font size="2">(max wind) (gust value is not used)</font>
+<br>
+<br>
+<font size="3">The Max Sustained Wind line indicates the maximum
+sustained winds for the cyclone. It has the format MAX WIND xxx
+KT...GUSTS yyy KT, where xxx is the maximum sustained wind and yyy is
+the gusts. The maximum sustained wind value and the latitude is used
+to calculate a radius of maximum wind (RMW) and is added to the list
+of radii. The maximum gust is not used by the tool.</font>
+<br>
+<br>
+<big><font style="font-weight: bold;" size="4"><big>3. Wind Radii</big></font><span
+ style="font-weight: bold;">
+</span></big><br>
+<br style="font-weight: bold;">
+<font style="font-weight: bold;" size="2">Example:</font>
+<br>
+<br>
+<font color="#2300dc"> <font size="3">10 KT......100NE 100SE 100SW
+90NW.</font></font>
+<br>
+<br>
+<font size="2">(wind value) ...(radii in each direction in nautical
+miles)</font>
+<br>
+<br>
+<font size="3">The wind radii actually define the wind radii values for
+a specified wind speed. It has the following format: NN
+KT.......aNE bSE cSW dNW, where NN is the wind speed value in knots
+and a, b, c, and d are the values of the radii for the northeast,
+southeast, southwest, and northwest quadrants, respectively, all
+expressed in nautical miles. All quadrants must be listed and all
+must use the standard NE, SE, SW, NW indicators for each quadrant for
+the tool to work properly.</font>
+<br>
+<br>
+<font size="3">Note that unlike the TCM bulletins, you can add any wind
+value you want not just 34, 50, and 64 KT, and you may enter as many
+wind values as you like. However, for best results, carry the same
+wind values through to the end of the forecast. For example, if you
+define a 25 knot radius in the first forecast period, define a 25
+knot radius for the rest of the forecast periods as well. The code
+that performs the interpolation works much better when the same wind
+speed values are used throughout the forecast period.</font>
+<br>
+<br>
+<font style="font-weight: bold;" size="4">Preparing to run the tool</font><span
+ style="font-weight: bold;">
+</span><br>
+<br>
+<font size="3">Before the tool can be successfully executed, the text
+file containing all of the information about the cyclone must be
+prepared. It's recommended that a template be stored in the text
+database under some product that will never be transmitted. Forecasters
+will edit this template, perhaps copying in the current
+TCM, add radii to some of the forecaster periods, and save the file
+under a different text database product name. This new name should
+be used when running the GenerateCyclone tool.</font>
+<br>
+<br>
+<font style="font-weight: bold;" size="4">Additional data from TPC</font><span
+ style="font-weight: bold;">
+</span><br>
+<br>
+<font size="3">The Tropical Prediction Center produces additional data
+that more precisely predicts the radius of maximum wind and the
+outermost closed isobar. The GenerateCyclone tool can ingest this
+this data which will generally improve the quality of the wind grids
+that it produces.</font> However, in order to download the data from
+the TPC web site, you must configure and run a set of scripts before
+running the GenerateCyclone tool. These scripts download the data
+for you and place it in the AWIPS text database. Once stored in the
+database, the tool will automatically read the additional data and
+use it as part of the algorithm that generates the cyclone wind data.
+Please see the appendix on page 6 for detailed information on how to
+set up and run these scripts.
+<br>
+<br>
+Once the scripts are set up, forecasters should follow these steps:
+<br>
+<br>
+<ul>
+  <li> Run the script that downloads the additional data from TPC and
+store the data in a file. </li>
+  <li> Run another script to read the file and store its contents in
+the AWIPS text database under a PIL identified by the basin, cyclone
+number, and year </li>
+  <li> Run the GenerateCyclone tool and enter the PIL for the current
+cyclone. The tool will automatically read the additional data from TPC
+using the AWIPS text database and use the data when generating the wind
+grids. </li>
+</ul>
+<br>
+<font style="font-weight: bold;" size="4">Running the tool</font><span
+ style="font-weight: bold;">
+</span><br>
+<br>
+<font size="3">The GenerateCyclone tool is invoked from the GFE by
+selecting from the main menu bar: Populate-&gt;GenerateCyclone. A
+GUI menu displays immediately and looks like the figure below.</font>
+<br>
+<br>
+<img alt="GenerateCyclone user interface"
+ src="images/GenerateCycloneUI.png" name="Graphic1" align="left"><br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<font size="3"><br>
+<br>
+<br>
+<br>
+<br>
+The menu allows the forecaster to enter the following
+information:</font>
+<br>
+<br>
+<ul>
+  <li> <span style="font-style: normal;"><font size="3"><b>Product ID</b><span
+ style=""> – the identifier of the text product under which the
+forecaster-defined bulletin was stored. </span></font></span> </li>
+</ul>
+<br>
+<ul>
+  <li> <span style="font-style: normal;"><font size="3"><b>Background
+Model</b><span style=""> – the background that should be used for the
+grid. This model/forecast dataset will be used as the background and
+blended with the cyclone starting at the outer edge. A time-matching
+algorithm selects the background grid whose start time matches most
+closely in time with the start time of the cyclone grid.</span></font></span>
+  </li>
+</ul>
+<br>
+<ul>
+  <li> <span style="font-style: normal;"><font size="3"><b>Number of
+Pie Slices</b><span style=""> – the number of radial pieces that will
+be generated by the tool. More pie slices will generate a smoother wind
+grid, particularly in quadrants where the radii vary greatly. The
+execution time of the tool increases as pie slices increases. For
+example, doubling the number of slices will approximately double the
+tool's execution time.</span></font></span> </li>
+</ul>
+<br>
+<ul>
+  <li> <span style="font-style: normal;"><font size="3"><b>Make Grids
+over Selected Time Only</b><span style=""> – Users should select “Yes”
+if they want the tool to run over a shorter time period than defined in
+the text bulletin. Wind grids will be generated over the grid manager
+selected time range only. Leaving the option set to “No” will allow the
+tool to run over the full time period defined in the bulletin.
+De-selecting the grid manager time range has the same effect as
+selecting “No”.</span></font></span> </li>
+</ul>
+<br>
+<ul>
+  <li> <span style="font-style: normal;"><font size="3"><b>Decrease
+Wind over Land (%)</b><span style=""> - The tool will automatically
+decrease the wind speed by this percentage where the elevation is
+greater than zero (above sea level). All areas above sea level are
+adjusted by the same percentage. Users may move the slider to the right
+to increase this value and to the left to decrease it. Note that the
+range of the slider is -20 to +50. Negative values will increase the
+wind speeds for any area above sea level. </span></font></span> </li>
+</ul>
+<br>
+<br>
+<br>
+<font style="font-size: 20pt;" size="5"><u><b>APPENDIX</b></u></font>
+<br>
+<br>
+<font size="3"><u>INSTRUCTIONS TO DOWNLOAD AND STORE ADDITIONAL CYCLONE
+DATA</u></font>
+<br>
+<br>
+<font size="3">The following instructions list the steps required to
+download additional data from TPC and store it in the AWIPS text
+database. All files are included with the distribution tar file that
+came with the GenerateCyclone tool.</font>
+<br>
+<br>
+<font size="3">Assumptions: User fxa in ds1 can ssh into ls1 as LDAD
+with no password</font>
+<br>
+<font size="3">prompting. If it can't, see your ITO or AWIPS Focal
+Point. Also, these</font>
+<br>
+<font size="3">scripts are needed to run the GenerateCyclone Procedure
+to populate</font>
+<br>
+<font size="3">your wind grids with TPC TCM guidance for tropical
+depressions where</font>
+<br>
+<font size="3">no wind radii is provided.</font>
+<br>
+<br>
+<font size="3">1) Edit the .csh and .pl scripts to edit your local
+choice for the</font>
+<br>
+<font size="3">ldir (AWIPS Local directory where scripts reside inside
+AWIPS) and</font>
+<br>
+<font size="3">rdir (LDAD Local Directory where ftp script will reside)</font>
+<br>
+<font size="3">variables. Place all the scripts in the tar package in
+the AWIPS</font>
+<br>
+<font size="3">directory (ldir).</font>
+<br>
+<br>
+<font size="3">2) Place ftp script in the LDAD working directory
+(rdir).</font>
+<br>
+<br>
+<font size="3">3) Add the following entries to your trigger table in
+ds1 substituting your office ID:</font>
+<br>
+<br>
+<font size="3">MIATCMAT1 /your/awips/local/dir/tcm_2ndfile.csh
+MIATCMAT1</font>
+<br>
+<font size="3">(/your/awips/local/dir same as ldir). MIATCMAT2</font>
+<br>
+<font size="3">/your/awips/local/dir/tcm_2ndfile.csh MIATCMAT2
+MIATCMAT3</font>
+<br>
+<font size="3">/your/awips/local/dir/tcm_2ndfile.csh MIATCMAT3
+MIATCMAT4</font>
+<br>
+<font size="3">/your/awips/local/dir/tcm_2ndfile.csh MIATCMAT4
+MIATCMAT5</font>
+<br>
+<font size="3">/your/awips/local/dir/tcm_2ndfile.csh MIATCMAT5</font>
+<br>
+<br>
+<font size="3">Localize ds1 triggers (mainScript.csh -trigger) as fxa.</font>
+<br>
+<br>
+<font size="3">4) When the TCMs are stored in the database, the script</font>
+<br>
+<font size="3">tcm_2ndfile.csh call its companion perl script. This
+script decodes</font>
+<br>
+<font size="3">from the TCM the storm number and year (AL##YYYY), where
+AL stands for</font>
+<br>
+<font size="3">atlantic, ## for storm number, and YYYY year). This
+information is</font>
+<br>
+<font size="3">used by the perl script to remotely run as ldad the ftp
+script in</font>
+<br>
+<font size="3">ldad. The ftp script downloads from TPC ftp directory
+the atcf file</font>
+<br>
+<font size="3">corresponding to the TCM triggering the script. In the
+case of</font>
+<br>
+<font size="3">tropical depressions where no wind radii information is
+contained in</font>
+<br>
+<font size="3">the TCM, this atcf file contains the necessary
+circulation information</font>
+<br>
+<font size="3">needed by the GFE GenerateCyclone Procedure to create a
+depression in</font>
+<br>
+<font size="3">the wind grids.</font>
+<br>
+<br>
+<font size="3">5) Example: If AL##YYYY in the TCM file is AL102004,
+then the</font>
+<br>
+<font size="3">corresponding atcf file is stored in the AWIPS text
+database as</font>
+<br>
+<font size="3">AL102004. When you run the GenerateCyclone Procedure in
+GFE, you will</font>
+<br>
+<font size="3">enter the 9 letter PIL for the TCM and AL102004 will be
+pulled from</font>
+<br>
+<font size="3">the text database provided you have set up these
+scripts. The</font>
+<br>
+<font size="3">procedure will call both products from the text
+database, decode them,</font>
+<br>
+<font size="3">and generate the depression circulation in the grids.<br>
+<br>
+<br>
+</font>
+</body>
+</html>

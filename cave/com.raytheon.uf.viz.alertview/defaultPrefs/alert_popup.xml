@@ -1,0 +1,7 @@
+<popUpPreferences>
+  <filter>warnPlus</filter>
+  <duration>5000</duration>
+  <width>500</width>
+  <height>50</height>
+  <corner>LOWER_RIGHT</corner>
+</popUpPreferences>

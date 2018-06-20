@@ -1,0 +1,18 @@
+# ----------------------------------------------------------------------------
+# This software is in the public domain, furnished "as is", without technical
+# support, and with no warranty, express or implied, as to its usefulness for
+# any purpose.
+#
+# $itemName
+#
+# Author:
+# ----------------------------------------------------------------------------
+
+# Include this line to override gfeConfig (BASE configuration).
+#   If you want to override a SITE configuration, you will want
+#   to replace "gfeConfig" with the SITE configuration file name.
+from gfeConfig import *
+
+# Include override statements here. For example, to override the
+# the DefaultGroup name ("Public") with "MyDefault", you would include:
+#DefaultGroup = "MyDefault"

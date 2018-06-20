@@ -1,0 +1,324 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.78 [en] (X11; U; Linux 2.4.9-13smp i686) [Netscape]">
+  <title>getNotify User's Guide</title>
+</head>
+<body style="background-color: rgb(255, 255, 255);">
+<h1 class="1Heading">
+getNotify User's Guide</h1>
+<div class="1Heading">January 13, 2012<br>
+</div>
+<h2 class="1Heading">
+<a name="TableofContents"></a>Table of Contents</h2>
+<h4 class="1Heading">
+<a href="#Overview">Overview</a></h4>
+<h4 class="1Heading">
+<a href="#Running">Running the getNotify Program</a></h4>
+<h4 class="1Heading">
+<a href="#ExampleData">Example Output</a></h4>
+<div class="1Heading">
+<hr width="100%"></div>
+<h2 class="1Heading">
+<a name="Overview"></a>Overview</h2>
+<div class="1Heading">The getNotify program is a diagnostic routine to
+connect to awips qpid server, receive notifications of data changes, and
+then output the notifications to the terminal window. It is handy for
+diagnosing notifications that are sent from the server.
+</div><br>
+<div class="1Heading">
+<hr width="100%"></div>
+<h3 class="1Heading">
+<a name="Running"></a>Running the getNotify Program</h3>
+<div class="1Heading">The command line syntax is:
+<br>
+<tt>python getNotify.py -h hostname -p portNumber [-u user] [-l] [-g] [-d] [-m] [-v]<br><br>
+</tt></div>
+<div class="1Heading">A sample command line is:</div>
+<div class="1Heading"><tt>python getNotify.py -h cpsbn1 -p 5672 -g</tt></div><br>
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td><b>Option Syntax</b></td>
+      <td><b>Optional or Mandatory</b></td>
+      <td><b>Description</b></td>
+    </tr>
+    <tr>
+      <td>-h hostname</td>
+      <td>Mandatory (See note)</td>
+      <td>Specifies the host, upon which the awips qpid server is running</td>
+    </tr>
+    <tr>
+      <td>-p port</td>
+      <td>Mandatory (See note)</td>
+      <td>Specifies the port, upon which the awips qpid server is running</td>
+    </tr>
+    <tr>
+      <td>-u user</td>
+      <td>Optional</td>
+      <td>Specifies the user on connection to the awips qpid server. Defaults to
+the current UNIX login name.</td>
+    </tr>
+    <tr>
+      <td>-l</td>
+      <td>Optional</td>
+      <td>If specified, outputs detailed information about lock
+notifications.</td>
+    </tr>
+    <tr>
+      <td>-g</td>
+      <td>Optional</td>
+      <td>If specified, outputs detailed information about grid update
+notifications.</td>
+    </tr>
+    <tr>
+      <td>-d</td>
+      <td>Optional</td>
+      <td>If specified, outputs detailed information about database
+inventory
+change notifications.</td>
+    </tr>
+    <tr>
+      <td>-m</td>
+      <td>Optional</td>
+      <td>If specified, outputs detailed information about user message
+notifications.</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-v<br>
+      </td>
+      <td style="vertical-align: top;">Optional<br>
+      </td>
+      <td style="vertical-align: top;">If specified, outputs detailed
+information about the VTEC Table Change Notifications.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="1Heading">
+<hr width="100%"></div>
+<h3 class="1Heading"><a name="ExampleData"></a>Example Data</h3>
+<div class="1Heading">The following shows some example output and how
+it
+is interpreted. This example uses just the -h and -p switches so
+the program output simply lists the number of received notifications.
+<br>
+<h4>Basic Execution</h4>
+<p><b><tt>dx3-nhda{jdynina}112: python getNotify.py -h cpsbn1 -p 5672<br>
+Get Notifications Diagnostic Program<br>
+Establishing connection to broker on cpsbn1<br>
+Establishing connection to broker on cpsbn1<br>
+Connection complete to broker on cpsbn1<br>
+Connection complete to broker on cpsbn1<br>
+L=0,G=42,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=25,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=85,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=38,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=29,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=38,D=0,S=0,R=0,C=0,T=0,U=1,B=0,V=0,<br>
+L=0,G=9,D=0,S=0,R=0,C=0,T=0,U=1,B=0,V=0,<br>
+L=0,G=3,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=0,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=3,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=53,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=14,D=0,S=0,R=0,C=0,T=0,U=1,B=0,V=0,<br>
+L=0,G=65,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+</tt></b>
+</p>
+<p>The following table describes the symbol and its meaning:
+<br>
+&nbsp;
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td>L</td>
+      <td>Lock Notifications</td>
+    </tr>
+    <tr>
+      <td>G</td>
+      <td>Grid Update Notifications</td>
+    </tr>
+    <tr>
+      <td>D</td>
+      <td>Database Inventory Change Notifications</td>
+    </tr>
+    <tr>
+      <td>M</td>
+      <td>User Message Notifications</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">V<br>
+      </td>
+      <td style="vertical-align: top;">VTEC Table Change Notifications<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<p><b>Note:</b> For AWIPS2, a decision was made to not support the following notification 
+types:<br><br> 
+*SampleNotification<br>
+*ReferenceNotification<br> 
+*ColorSpectrumNotification<br> 
+*TextFileNotification<br> 
+*ProcessStatusNotification<br><br> 
+because of the architectural 
+differences between AWIPS1 and AWIPS2, these specific notifications will not 
+be supported by getNotify.</p>
+</p>
+<h4>Execution with -l switch</h4>
+The lock notification message contains the weather element identifier
+(ParmID), and the new lockTable. Note, no locks were detected in this case.
+<p><tt>dx3-nhda{jdynina}113: python getNotify.py -h cpsbn1 -p 5672 -l<br>
+Get Notifications Diagnostic Program<br>
+Establishing connection to broker on cpsbn1<br>
+Establishing connection to broker on cpsbn1<br>
+Connection complete to broker on cpsbn1<br>
+Connection complete to broker on cpsbn1<br>
+L=0,G=0,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=13,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=0,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=9,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=0,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=0,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=8,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=8,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=0,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+</tt>
+<br>
+</p>
+<h4>Execution with -g switch</h4>
+The grid update notification message contains the replacement time
+range,
+the weather element identifier (ParmID), and the replacement times of
+the grids.
+<p><tt>dx3-nhda{jdynina}115: python getNotify.py -h cpsbn1 -p 5672 -g<br>
+Get Notifications Diagnostic Program<br>
+Establishing connection to broker on cpsbn1<br>
+Establishing connection to broker on cpsbn1<br>
+Connection complete to broker on cpsbn1<br>
+Connection complete to broker on cpsbn1<br>
+L=0,G=0,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=21,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+GRID=[<br>
+ParmID: WVPER_SFC:LWX_GRID_D2D_EPwave10_20120113_1200<br>
+Replacement TimeRange: (Jan 20 12 12:00:00 , Jan 20 12 13:00:00 )<br>
+Histories: {(Jan 20 12 12:00:00 , Jan 20 12 13:00:00 ): [Origin: INITIALIZED<br>
+Origin Parm: WVPER_SFC:LWX_GRID_D2D_EPwave10_20120113_1200<br>
+Origin Time Range: (Jan 20 12 12:00:00 , Jan 20 12 13:00:00 ) Time Modified: None Who Modified: None<br>
+Update Time: None<br>
+Publish Time: None<br>
+Last Sent Time: None<br>
+]},<br>
+ParmID: PERPW_SFC:LWX_GRID_D2D_EPwave10_20120113_1200<br>
+Replacement TimeRange: (Jan 20 12 12:00:00 , Jan 20 12 13:00:00 )<br>
+Histories: {(Jan 20 12 12:00:00 , Jan 20 12 13:00:00 ): [Origin: INITIALIZED<br>
+Origin Parm: PERPW_SFC:LWX_GRID_D2D_EPwave10_20120113_1200<br>
+Origin Time Range: (Jan 20 12 12:00:00 , Jan 20 12 13:00:00 ) Time Modified: None Who Modified: None<br>
+Update Time: None<br>
+Publish Time: None<br>
+Last Sent Time: None<br>
+]}</tt>
+<br>
+</p>
+<h4>Execution with -d switch</h4>
+The database inventory change notification message contains the updated
+inventory, the additions, deletions.
+<p><tt>dx3-nhda{jdynina}116: python getNotify.py -h cpsbn1 -p 5672 -d<br>
+Get Notifications Diagnostic Program<br>
+Establishing connection to broker on cpsbn1<br>
+Establishing connection to broker on cpsbn1<br>
+Connection complete to broker on cpsbn1<br>
+Connection complete to broker on cpsbn1<br>
+L=0,G=0,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=60,D=1,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+DB=[<br>
+Inventory[AFC_GRID__Restore_00000000_0000,<br>
+AFC_GRID_Test_Fcst_00000000_0000, AFC_GRID__ISC_00000000_0000,<br> 
+AFC_GRID__RTMA_00000000_0000, AFC_GRID__SAT_00000000_0000, AFC_GRID__MSAS_00000000_0000,<br> 
+AFC_GRID__Official_00000000_0000, AFC_GRID__Fcst_00000000_0000,<br>
+AFC_GRID_Prac_Fcst_00000000_0000, AFC_GRID__LAPS_00000000_0000, AFC_GRID__AKWAVE_20120113_0000,<br> 
+AFC_GRID__AKWAVE_20120113_0600, AFC_GRID__MOSGuide_20120112_1200,<br>
+AFC_GRID__MOSGuide_20120113_0000, AFC_GRID__NAM12_20120113_0000, AFC_GRID__NAM12_20120113_0600,<br> 
+AFC_GRID__NamDNG5_20120113_0000, AFC_GRID__NamDNG5_20120113_0600,<br>
+AFC_GRID_D2D_NAM40_20120113_1200, AFC_GRID_D2D_UKMET-NorthernHemisphere_20120113_1200,<br> 
+AFC_GRID_D2D_TPCProb_20120113_1200, AFC_GRID_D2D_AKWAVE_20120113_0000,<br>
+AFC_GRID_D2D_OPCTAFBNW_20120111_0000, AFC_GRID_D2D_NAM20_20120113_1200,<br>
+AFC_GRID_D2D_ENSEMBLE_20120113_0000, AFC_GRID_D2D_NAM95_20120113_0000,<br>
+AFC_GRID_D2D_TPCProb_20120112_0000, AFC_GRID_D2D_TPCProb_20120113_0000,<br>
+AFC_GRID_D2D_gfsLR_20120113_0000, AFC_GRID_D2D_MOSGuide_20120112_1200,<br>
+AFC_GRID_D2D_TPCProb_20120112_0600, AFC_GRID_D2D_RTMA_20120113_1400,<br>
+AFC_GRID_D2D_TPCProb_20120111_1800, AFC_GRID_D2D_GlobalWave_20120113_0600,<br> 
+AFC_GRID_D2D_OPCTAFBNW_20120113_1200, AFC_GRID_D2D_NAM95_20120113_1200,<br>
+AFC_GRID_D2D_GFS190_20120113_0600, AFC_GRID_D2D_GFS190_20120113_1200,<br>
+AFC_GRID_D2D_TPCProb_20120112_1800, AFC_GRID_D2D_gfsLR_20120112_0000,<br>
+AFC_GRID_D2D_ENSEMBLE_20120112_1200, AFC_GRID_D2D_GlobalWave_20120113_1200,<br> 
+AFC_GRID_D2D_WaveWatch_20120113_0600, AFC_GRID_D2D_RTMA_20120113_1500,<br>
+AFC_GRID_D2D_TPCProb_20120112_1200, AFC_GRID_D2D_NamDNG5_20120113_1200,<br> 
+AFC_GRID_D2D_AKWAVE_20120113_0600, AFC_GRID_D2D_OPCTAFBNW_20120113_0000,<br>
+AFC_GRID_D2D_GFS190_20120113_0000, AFC_GRID_D2D_MOSGuide_20120113_0000,<br>
+AFC_GRID_D2D_NamDNG5_20120113_0600, AFC_GRID_D2D_gfsLR_20120111_0000,<br>
+AFC_GRID_D2D_OPCTAFBNW_20120111_1200, AFC_GRID_D2D_NAM12_20120113_1200,<br>
+AFC_GRID_D2D_OPCTAFBNW_20120112_1200, AFC_GRID_D2D_OPCTAFBNW_20120112_0000,<br> 
+AFC_GRID_D2D_OPCTAFBNW_20120108_1200, AFC_GRID_D2D_TPCProb_20120113_0600,<br>
+AFC_GRID_D2D_OPCTAFBNW_20120109_0000, AFC_GRID_D2D_UKMET-NorthernHemisphere_20120113_0600,<br> 
+AFC_GRID_EditTopo_Topo_00000000_0000, AFC_GRID_D2D_PRISMClimo_00000000_0000,<br>
+AFC_GRID_D2D_NCDCClimo_00000000_0000, AFC_GRID_D2D_CRMTopo_00000000_0000,<br>
+AFC_GRID_D2D_NED_00000000_0000, AFC_GRID_D2D_AKWAVE_20120113_1200]<br>
+Additions[AFC_GRID_D2D_AKWAVE_20120113_1200]<br>
+Deletions[],<br>
+]</tt>
+<br>
+<br>
+</p>
+<h4>Execution with -m switch</h4>
+The user message notification consists of the message, and the
+priority.
+<p><tt>dx3-nhda{jdynina}117: python getNotify.py -h cpsbn1 -p 5672 -m<br>
+Get Notifications Diagnostic Program<br>
+Establishing connection to broker on cpsbn1<br>
+Establishing connection to broker on cpsbn1<br>
+Connection complete to broker on cpsbn1<br>
+Connection complete to broker on cpsbn1<br>
+L=0,G=7,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=8,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=15,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=11,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=6,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+USER=[<br>
+Message: ISC: PBZ ['MinT'] (21/00->21/13) #Grids=1<br>
+Priority: EVENTA<br>
+Category: ISC<br>
+,<br>
+]
+</tt>
+<br>
+<br>
+</p>
+<h4>Execution with -v switch</h4>
+The vtec table change notification consists of the table name,
+modification time, and modification source:<br>
+<tt>dx3-nhda{jdynina}118: python getNotify.py -h cpsbn1 -p 5672 -v<br>
+Get Notifications Diagnostic Program<br>
+Establishing connection to broker on cpsbn1<br>
+Establishing connection to broker on cpsbn1<br>
+Connection complete to broker on cpsbn1<br>
+Connection complete to broker on cpsbn1<br>
+L=0,G=0,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=0,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=0,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=0,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+VTEC=[<br>
+Table Name: 'OPERATIONAL'<br>
+ModTime: Jan 13 12 16:54:25 GMT<br>
+ModSource: VTECDecoder,<br>
+]
+</tt>
+<br>
+<br>
+</div>
+</body>
+</html>

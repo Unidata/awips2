@@ -1,0 +1,157 @@
+1: GFESuite Advanced Text Product Narrative User Guide
+2: Overview
+3: Smart Narrative Products
+4: Smart Narrative Products|FWFTable
+5: Smart Narrative Products|Generating a Product
+6: Smart Narrative Products|FWFTable:Generate Product Call
+7: Smart Narrative Products|FWFTable:Narrative Definition
+8: Smart Narrative Products|FWFTable:Product Component
+9: Narrative Products
+10: Forecast Narrative Engine|Infrastructure Engine
+11: Forecast Narrative Engine|Forecast Narrative Engine
+12: Forecast Narrative Engine|Narrative
+13: Forecast Narrative Engine|Component
+14: Forecast Narrative Engine|Phrase
+15: Forecast Narrative Engine|Sub-Phrase
+16: Forecast Narrative Engine|Narrative Tree
+17: Forecast Narrative Engine|Narrative Tree Methods
+18: Forecast Narrative Engine|Narrative Definition
+19: Forecast Narrative Engine|Component Definition
+20: Forecast Narrative Engine|Phrase Definition
+21: Forecast Narrative Engine|Word Methods
+22: Forecast Narrative Engine|Narrative Tree Attributes
+23: Forecast Narrative Engine|Access to Attributes
+24: Forecast Narrative Engine|Other Node Methods
+25: Forecast Narrative Engine|Other Node Methods
+26: Forecast Narrative Engine|Statistics Dictionary
+27: Forecast Narrative Engine|Statistics Dictionary
+28: Forecast Narrative Engine|Statistics Dictionary
+29: Forecast Narrative Engine|Processing Rules
+30: Forecast Narrative Engine|Processing Rules
+31: Forecast Narrative Engine|Processing Rules
+32: Forecast Narrative Engine|Processing Rules
+33: Forecast Narrative Engine|Processing Rules
+34: Narrative Strategies
+35: Narrative Strategies|Narrative Tree as a Blackboard
+36: Narrative Strategies|Narrative Tree as a Blackboard
+37: Narrative Strategies|Narrative Tree as a Blackboard
+38: Narrative Strategies|Narrative Tree as a Blackboard
+39: Narrative Strategies
+40: Narrative Strategies
+41: Narrative Strategies
+42: Narrative Strategies|Non-linear Thresholds
+43: Narrative Strategies|Non-linear Thresholds
+44: Narrative Strategies|Non-linear Thresholds
+45: Narrative Strategies|Data Value Extraction
+46: Narrative Strategies|Data Value Extraction
+47: Narrative Strategies|Standard Rounding
+48: Narrative Strategies|Standard Rounding
+49: Narrative Strategies|Non-Standard Rounding
+50: Narrative Strategies|Non-Standard Rounding
+51: Narrative Strategies|Data Value Extraction
+52: Narrative Strategies|Handling of "null" values
+53: Narrative Strategies|Handling of "null" values
+54: Narrative Strategies|Phrase Consolidation
+55: Narrative Strategies|Phrase Consolidation
+56: Narrative Strategies|Scalar/Vector Phrase Combining
+57: Narrative Strategies|Scalar/Vector Phrase Combining
+58: Narrative Strategies|Scalar/Vector Phrase Consolidation
+59: Narrative Strategies|Vector Phrase Consolidation
+60: Narrative Strategies|Weather Phrase Consolidation
+61: Narrative Strategies|Weather Phrase Consolidation
+62: Narrative Strategies|Period Combining
+63: Narrative Strategies|Phrase Ordering
+64: Narrative Strategies|"Until" Phrasing
+65: Narrative Strategies|Visibility
+66: Narrative Strategies|Local Effects
+67: Narrative Strategies|Local Effects
+68: Narrative Strategies|Local Effects
+69: Narrative Strategies|Embedded Local Effects
+70: Narrative Strategies|Embedded Local Effects
+71: Narrative Strategies|Embedded Local Effects
+72: Narrative Strategies|Conjunctive Local Effects
+73: Narrative Strategies|Conjunctive Local Effects
+74: Narrative Strategies|Conjunctive Local Effects
+75: Narrative Strategies|Degenerate Local Effect
+76: Narrative Strategies|Local Effects
+77: Narrative Strategies|Local Effects
+78: Narrative Strategies|Local Effects
+79: Narrative Strategies|Local Effects
+80: Narrative Strategies|Local Effects
+81: Narrative Strategies|Local Effects
+82: Narrative Strategies|Local Effects
+83: Narrative Strategies|Local Effects
+84: Narrative Strategies|Local Effects
+85: Narrative Strategies|Local Effects
+86: Narrative Strategies|Local Effects
+87: Narrative Strategies|Local Effects
+88: Narrative Strategies|Local Effects
+89: Narrative Strategies|Local Effects
+90: Narrative Exercises
+91: Narrative Phrases
+92: Narrative Phrases|Phrase Definition
+93: Narrative Phrases|SetUp Method
+94: Narrative Phrases|SetUp Method
+95: Narrative Phrases|SetUp Method
+96: Narrative Phrases|SetUp Method
+97: Narrative Phrases|SetUp Method
+98: Narrative Phrases|SetUp Method
+99: Narrative Phrases|SetUp Method
+100: Narrative Phrases|Word Method
+101: Narrative Phrases|Word Method
+102: Narrative Phrases|Word Method
+103: Narrative Phrases|Word Method
+104: Narrative Phrases|Word Method
+105: Narrative Phrases|Word Method
+106: Narrative Phrases|Word Method
+107: Narrative Phrases|Standard Phrase Methods
+108: Narrative Phrases|Standard Phrase Methods
+109: Narrative Phrases|Sub-Phrase Consolidation
+110: Narrative Phrases|Sub-Phrase Consolidation
+111: Narrative Phrases|Standard Phrase Methods
+112: Narrative Phrases|Sub-Phrase Combining
+113: Narrative Phrases|Sub-Phrase Combining
+114: Narrative Phrases|Sub-Phrase Combining
+115: Narrative Phrases|Sub-Phrase Combining
+116: Narrative Phrases|Sub-Phrase Combining
+117: Narrative Phrases|Sub-Phrase Combining
+118: Narrative Phrases|Standard Phrase Methods
+119: Narrative Phrases|Consolidate Direction
+120: Narrative Phrases|Standard Phrase Methods
+121: Narrative Phrases|Consolidate Trends
+122: Narrative Phrases|Standard Phrase Methods
+123: Narrative Phrases|Standard Phrase Methods
+124: Narrative Phrases|Trigger Condition
+125: Narrative Phrases|Sub-Phrase Combining Identical Words
+126: Narrative Phrases|Standard Phrase Methods
+127: Narrative Phrases|Fill Null Values
+128: Narrative Phrases|Standard Phrase Methods
+129: Narrative Phrases|Time Descriptor moderation
+130: Narrative Phrases|Standard Phrase Methods
+131: Narrative Phrases|Embed Descriptor
+132: Narrative Phrases|Standard Phrase Methods
+133: Narrative Phrases|Assemble Sub-phrases
+134: Narrative Phrases|Standard phrase Methods
+135: Narrative Phrases|Narrative Tree as a Blackboard
+136: Narrative Phrases|Standard Phrase Methods
+137: Narrative Phrases|Sub-Phrase Consolidation
+138: Narrative Phrases|Sub-Phrase Consolidation
+139: Phrase Exercises
+140: Documentation Overview
+141: Documentation Overview
+142: Text Product User Guide
+143: Tabular Text Product User Guide
+144: Advanced Text Product User Guide
+145: Text Product Reference Guide
+146: Trouble-Shooting Strategies
+147: Trouble-Shooting|Isolate the Problem
+148: Trouble-Shooting|Fix the Problem
+149: Trouble-Shooting Exercises
+150: Additional Features
+151: Translator
+152: Translator
+153: Translator
+154: Translator
+155: Creating New Products
+156: Creating New Products
+157: Creating New Products

@@ -1,0 +1,289 @@
+#
+# Last modified on: 07/26/99;  4/2002; 10/7/03; 10/14/03
+#
+# This table contains all the GRIB ids for the gridded data models. It
+# corresponds to Table A of GRIB edition 1.
+#
+# The columns represent each of the following parameters.
+#
+# - Value is the number found in the GRIB Product Description Section
+#   Octet 6. 
+#
+# - Name is a unique acronym for the model.
+#
+# - Long name is the full name of the model.
+# 
+#
+#      TABLE OF GENERATING PROCESSES OR MODELS FROM THE ECMWF (CENTER 98 )
+#                          ORIGINATING CENTER
+#                        
+#                            (PDS Octet 6)
+#
+# NOTE 3/25/99  revised 10/10/03
+# **** This table has several entries that are identical because ECMWF
+# **** keeps changing the process ID without warning. If the new process
+# **** ID does not exist in this table then no ECMF grids get stored.
+# **** Therefore we have put all possible IDs in this table. If the
+# **** situation is ever resolved, we can return to just the one
+# **** appropriate ID here.
+#
+#  
+#Val|Name    |Long name
+
+#---|--------|---------------------------------------------------------------
+  0 |ECMFMOD |ECMF model
+  1 |ECMFMOD |ECMF model
+  2 |ECMFMOD |ECMF model
+  3 |ECMFMOD |ECMF model
+  4 |ECMFMOD |ECMF model
+  5 |ECMFMOD |ECMF model
+  6 |ECMFMOD |ECMF model
+  7 |ECMFMOD |ECMF model
+  8 |ECMFMOD |ECMF model
+  9 |ECMFMOD |ECMF model
+ 10 |ECMFMOD |ECMF model
+ 11 |ECMFMOD |ECMF model
+ 12 |ECMFMOD |ECMF model
+ 13 |ECMFMOD |ECMF model
+ 14 |ECMFMOD |ECMF model
+ 15 |ECMFMOD |ECMF model
+ 16 |ECMFMOD |ECMF model
+ 17 |ECMFMOD |ECMF model
+ 18 |ECMFMOD |ECMF model
+ 19 |ECMFMOD |ECMF model
+ 20 |ECMFMOD |ECMF model
+ 21 |ECMFMOD |ECMF model
+ 22 |ECMFMOD |ECMF model
+ 23 |ECMFMOD |ECMF model
+ 24 |ECMFMOD |ECMF model
+ 25 |ECMFMOD |ECMF model
+ 26 |ECMFMOD |ECMF model
+ 27 |ECMFMOD |ECMF model
+ 28 |ECMFMOD |ECMF model
+ 29 |ECMFMOD |ECMF model
+ 30 |ECMFMOD |ECMF model
+ 31 |ECMFMOD |ECMF model
+ 32 |ECMFMOD |ECMF model
+ 33 |ECMFMOD |ECMF model
+ 34 |ECMFMOD |ECMF model
+ 35 |ECMFMOD |ECMF model
+ 36 |ECMFMOD |ECMF model
+ 37 |ECMFMOD |ECMF model
+ 38 |ECMFMOD |ECMF model
+ 39 |ECMFMOD |ECMF model
+ 40 |ECMFMOD |ECMF model
+ 41 |ECMFMOD |ECMF model
+ 42 |ECMFMOD |ECMF model
+ 43 |ECMFMOD |ECMF model
+ 44 |ECMFMOD |ECMF model
+ 45 |ECMFMOD |ECMF model
+ 46 |ECMFMOD |ECMF model
+ 47 |ECMFMOD |ECMF model
+ 48 |ECMFMOD |ECMF model
+ 49 |ECMFMOD |ECMF model
+ 50 |ECMFMOD |ECMF model
+ 51 |ECMFMOD |ECMF model
+ 52 |ECMFMOD |ECMF model
+ 53 |ECMFMOD |ECMF model
+ 54 |ECMFMOD |ECMF model
+ 55 |ECMFMOD |ECMF model
+ 56 |ECMFMOD |ECMF model
+ 57 |ECMFMOD |ECMF model
+ 58 |ECMFMOD |ECMF model
+ 59 |ECMFMOD |ECMF model
+ 60 |ECMFMOD |ECMF model
+ 61 |ECMFMOD |ECMF model
+ 62 |ECMFMOD |ECMF model
+ 63 |ECMFMOD |ECMF model
+ 64 |ECMFMOD |ECMF model
+ 65 |ECMFMOD |ECMF model
+ 66 |ECMFMOD |ECMF model
+ 67 |ECMFMOD |ECMF model
+ 68 |ECMFMOD |ECMF model
+ 69 |ECMFMOD |ECMF model
+ 70 |ECMFMOD |ECMF model
+ 71 |ECMFMOD |ECMF model
+ 72 |ECMFMOD |ECMF model
+ 73 |ECMFMOD |ECMF model
+ 74 |ECMFMOD |ECMF model
+ 75 |ECMFMOD |ECMF model
+ 76 |ECMFMOD |ECMF model
+ 77 |ECMFMOD |ECMF model
+ 78 |ECMFMOD |ECMF model
+ 79 |ECMFMOD |ECMF model
+ 80 |ECMFMOD |ECMF model
+ 81 |ECMFMOD |ECMF model
+ 82 |ECMFMOD |ECMF model
+ 83 |ECMFMOD |ECMF model
+ 84 |ECMFMOD |ECMF model
+ 85 |ECMFMOD |ECMF model
+ 86 |ECMFMOD |ECMF model
+ 87 |ECMFMOD |ECMF model
+ 88 |ECMFMOD |ECMF model
+ 89 |ECMFMOD |ECMF model
+ 90 |ECMFMOD |ECMF model
+ 91 |ECMFMOD |ECMF model
+ 92 |ECMFMOD |ECMF model
+ 93 |ECMFMOD |ECMF model
+ 94 |ECMFMOD |ECMF model
+ 95 |ECMFMOD |ECMF model
+ 96 |ECMFMOD |ECMF model
+ 97 |ECMFMOD |ECMF model
+ 98 |ECMFMOD |ECMF model
+ 99 |ECMFMOD |ECMF model
+100 |ECMFMOD |ECMF model
+101 |ECMFMOD |ECMF model
+102 |ECMFMOD |ECMF model
+103 |ECMFMOD |ECMF model
+104 |ECMFMOD |ECMF model
+105 |ECMFMOD |ECMF model
+106 |ECMFMOD |ECMF model
+107 |ECMFMOD |ECMF model
+108 |ECMFMOD |ECMF model
+109 |ECMFMOD |ECMF model
+110 |ECMFMOD |ECMF model
+111 |ECMFMOD |ECMF model
+112 |ECMFMOD |ECMF model
+113 |ECMFMOD |ECMF model
+114 |ECMFMOD |ECMF model
+115 |ECMFMOD |ECMF model
+116 |ECMFMOD |ECMF model
+117 |ECMFMOD |ECMF model
+118 |ECMFMOD |ECMF model
+119 |ECMFMOD |ECMF model
+120 |ECMFMOD |ECMF model
+121 |ECMFMOD |ECMF model
+122 |ECMFMOD |ECMF model
+123 |ECMFMOD |ECMF model
+124 |ECMFMOD |ECMF model
+125 |ECMFMOD |ECMF model
+126 |ECMFMOD |ECMF model
+127 |ECMFMOD |ECMF model
+128 |ECMFMOD |ECMF model
+129 |ECMFMOD |ECMF model
+130 |ECMFMOD |ECMF model
+131 |ECMFMOD |ECMF model
+132 |ECMFMOD |ECMF model
+133 |ECMFMOD |ECMF model
+134 |ECMFMOD |ECMF model
+135 |ECMFMOD |ECMF model
+136 |ECMFMOD |ECMF model
+137 |ECMFMOD |ECMF model
+138 |ECMFMOD |ECMF model
+139 |ECMFMOD |ECMF model
+140 |ECMFMOD |ECMF model
+141 |ECMFMOD |ECMF model
+142 |ECMFMOD |ECMF model
+143 |ECMFMOD |ECMF model
+144 |ECMFMOD |ECMF model
+145 |ECMFMOD |ECMF model
+146 |ECMFMOD |ECMF model
+147 |ECMFMOD |ECMF model
+148 |ECMFMOD |ECMF model
+149 |ECMFMOD |ECMF model
+150 |ECMFMOD |ECMF model
+151 |ECMFMOD |ECMF model
+152 |ECMFMOD |ECMF model
+153 |ECMFMOD |ECMF model
+154 |ECMFMOD |ECMF model
+155 |ECMFMOD |ECMF model
+156 |ECMFMOD |ECMF model
+157 |ECMFMOD |ECMF model
+158 |ECMFMOD |ECMF model
+159 |ECMFMOD |ECMF model
+160 |ECMFMOD |ECMF model
+161 |ECMFMOD |ECMF model
+162 |ECMFMOD |ECMF model
+163 |ECMFMOD |ECMF model
+164 |ECMFMOD |ECMF model
+165 |ECMFMOD |ECMF model
+166 |ECMFMOD |ECMF model
+167 |ECMFMOD |ECMF model
+168 |ECMFMOD |ECMF model
+169 |ECMFMOD |ECMF model
+170 |ECMFMOD |ECMF model
+171 |ECMFMOD |ECMF model
+172 |ECMFMOD |ECMF model
+173 |ECMFMOD |ECMF model
+174 |ECMFMOD |ECMF model
+175 |ECMFMOD |ECMF model
+176 |ECMFMOD |ECMF model
+177 |ECMFMOD |ECMF model
+178 |ECMFMOD |ECMF model
+179 |ECMFMOD |ECMF model
+180 |ECMFMOD |ECMF model
+181 |ECMFMOD |ECMF model
+182 |ECMFMOD |ECMF model
+183 |ECMFMOD |ECMF model
+184 |ECMFMOD |ECMF model
+185 |ECMFMOD |ECMF model
+186 |ECMFMOD |ECMF model
+187 |ECMFMOD |ECMF model
+188 |ECMFMOD |ECMF model
+189 |ECMFMOD |ECMF model
+190 |ECMFMOD |ECMF model
+191 |ECMFMOD |ECMF model
+192 |ECMFMOD |ECMF model
+193 |ECMFMOD |ECMF model
+194 |ECMFMOD |ECMF model
+195 |ECMFMOD |ECMF model
+196 |ECMFMOD |ECMF model
+197 |ECMFMOD |ECMF model
+198 |ECMFMOD |ECMF model
+199 |ECMFMOD |ECMF model
+200 |ECMFMOD |ECMF model
+201 |ECMFMOD |ECMF model
+202 |ECMFMOD |ECMF model
+203 |ECMFMOD |ECMF model
+204 |ECMFMOD |ECMF model
+205 |ECMFMOD |ECMF model
+206 |ECMFMOD |ECMF model
+207 |ECMFMOD |ECMF model
+208 |ECMFMOD |ECMF model
+209 |ECMFMOD |ECMF model
+210 |ECMFMOD |ECMF model
+211 |ECMFMOD |ECMF model
+212 |ECMFMOD |ECMF model
+213 |ECMFMOD |ECMF model
+214 |ECMFMOD |ECMF model
+215 |ECMFMOD |ECMF model
+216 |ECMFMOD |ECMF model
+217 |ECMFMOD |ECMF model
+218 |ECMFMOD |ECMF model
+219 |ECMFMOD |ECMF model
+220 |ECMFMOD |ECMF model
+221 |ECMFMOD |ECMF model
+222 |ECMFMOD |ECMF model
+223 |ECMFMOD |ECMF model
+224 |ECMFMOD |ECMF model
+225 |ECMFMOD |ECMF model
+226 |ECMFMOD |ECMF model
+227 |ECMFMOD |ECMF model
+228 |ECMFMOD |ECMF model
+229 |ECMFMOD |ECMF model
+230 |ECMFMOD |ECMF model
+231 |ECMFMOD |ECMF model
+232 |ECMFMOD |ECMF model
+233 |ECMFMOD |ECMF model
+234 |ECMFMOD |ECMF model
+235 |ECMFMOD |ECMF model
+236 |ECMFMOD |ECMF model
+237 |ECMFMOD |ECMF model
+238 |ECMFMOD |ECMF model
+239 |ECMFMOD |ECMF model
+240 |ECMFMOD |ECMF model
+241 |ECMFMOD |ECMF model
+242 |ECMFMOD |ECMF model
+243 |ECMFMOD |ECMF model
+244 |ECMFMOD |ECMF model
+245 |ECMFMOD |ECMF model
+246 |ECMFMOD |ECMF model
+247 |ECMFMOD |ECMF model
+248 |ECMFMOD |ECMF model
+249 |ECMFMOD |ECMF model
+250 |ECMFMOD |ECMF model
+251 |ECMFMOD |ECMF model
+252 |ECMFMOD |ECMF model
+253 |ECMFMOD |ECMF model
+254 |ECMFMOD |ECMF model
+255 |ECMFMOD |ECMF model

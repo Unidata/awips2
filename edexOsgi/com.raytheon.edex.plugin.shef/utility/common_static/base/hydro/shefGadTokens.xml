@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SHEFGadTokens>
+	<token>db_name</token>
+	<token>whfs_local_data_dir</token>
+	<token>dupmess</token>
+	<token>shef_post_unk</token>
+	<token>shef_duplicate</token>
+	<token>shef_alertalarm</token>
+	<token>locmess</token>
+	<token>shef_winpast</token>
+	<token>shef_winfuture</token>
+	<token>shef_post_link</token>
+	<token>shef_post_latest</token>
+	<token>shef_load_maxfcst</token>
+	<token>shef_post_baddata</token>
+	<token>basis_hours_filter</token>
+	<token>elgmess</token>
+	<token>shef_load_ingest</token>
+	<token>ingest_mess</token>
+	<token>shef_procobs</token>
+	<token>shef_data_log</token>
+	<token>shef_perflog</token>
+	<token>shef_storetext</token>
+	<token>gage_pp_enable</token>
+	<token>gage_pp_data</token>
+	<token>gage_pp_log</token>
+	<token>gage_pp_sleep</token>
+</SHEFGadTokens>

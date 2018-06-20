@@ -1,0 +1,62 @@
+submenu: "Precipitation"
+ productButton: 5048 # PEIC61 Instantaneous Precip
+ productButton: 5046 # PEI745 Day 1 Excessive Rainfall
+ productButton: 3313821600 # 1-3 Day Excessive Rainfall
+ productButton: 5047 # PEIC43 Precip Fcst--6hr accum
+ productButton: 5050 # PEIE41,PEIK98 Precip Fcst--24hr accum
+ productButton: 5389 # PENJ88 Significant River Flood Outlook
+ productButton: 5438 # PENA01 Mesoscale Precip Discussion
+ separator
+ submenu: "Day 1-3 Prob 4+ Inches Snow"
+  productButton: 5391 # PSBB04 Day 1 Prob 4+ Inches
+  productButton: 5395 # PSBC04 Day 2 Prob 4+ Inches
+  productButton: 5399 # PSBD04 Day 3 Prob 4+ Inches
+ endSubmenu
+ submenu: "Day 1-3 Prob 8+ Inches Snow"
+  productButton: 5392 # PSBB08 Day 1 Prob 8+"
+  productButton: 5396 # PSBC08 Day 2 Prob 8+"
+  productButton: 5400 # PSBD08 Day 3 Prob 8+"
+ endSubmenu
+ submenu: "Day 1-3 Prob 12+ Inches Snow"
+  productButton: 5393 # PSBB12 Day 1 Prob 12+"
+  productButton: 5397 # PSBC12 Day 2 Prob 12+"
+  productButton: 5401 # PSBD12 Day 3 Prob 12+"
+ endSubmenu
+ submenu: "Day 1-3 Prob .25+ Inches Ice"
+  productButton: 5394 # PSBB25 Day 1 Prob .25+"
+  productButton: 5398 # PSBC25 Day 2 Prob .25+"
+  productButton: 5402 # PSBD25 Day 3 Prob .25+"
+ endSubmenu
+ separator
+ productButton: 5055 # 5 Day Total Precip
+ productButton: 5439 # 7 Day Total Precip
+ productButton: 5164 # 6-10,8-14 Day Precip Anom
+ productButton: 5342 # PEIV98 30 Day Precip Anom
+ productButton: 5343 # PEIW* 90 Day Seasonal Precip Outlook
+ productButton: 5404 # PENV* 50% POE Precip Outlook
+ separator
+ productButton: 3313819760 # 1-3 Day Total Precip
+ productButton: 3313821000 # 4-5 Day Total Precip
+ productButton: 3313821592 # 1-5 Day Total Precip
+endSubmenu
+
+submenu: "Temps & Weather"
+ productButton: 5138 # PTIO52 5dy max temp anom
+ productButton: 5139 # PTIO53 5dy min temp anom
+ productButton: 5159 # PYWK43 3-7 day max/min/PoP
+ productButton: 5381 # PTNK98 Day 3 heat index
+ productButton: 5386 # PTNM98 Day 4 heat index
+ productButton: 5387 # PTNO98 Day 5 heat index
+ productButton: 5382 # PTNQ98 Day 6 heat index
+ productButton: 5388 # PTNS98 Day 7 heat index
+ productButton: 5169 # PTIY51,PTTU98 6-10,8-14 day temp anom
+ productButton: 5356 # PTIV98 30 day temp anom
+ productButton: 5357 # PTIW* 90 Day Seasonal Temp Outlook
+ productButton: 5417 # PTNV* 50% POE Temp Outlook
+ separator
+ productButton: 5115 # PPVA01 MSL Pressure Analysis
+ productButton: 5204 # PYIA01 Frontal Analysis
+ productButton: 5111 # PPIC01 Fronts/Pressure
+ productButton: 5108 # PPIC01 3-7 day Fronts/Pressure
+ productButton: 5403 # PSAO72 3-Day Low Tracks
+endSubmenu

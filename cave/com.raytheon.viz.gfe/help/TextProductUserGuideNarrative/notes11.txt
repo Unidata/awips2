@@ -1,0 +1,2 @@
+Given a narrative definition, the ForecastNarrative engine interprets the component and phrase definitions. It reads the analysisList entries, samples the data, and performs the requested analysis to create statistics.  From this information, it builds a Narrative Tree data structure which it processes to return a text result.  We will examine this entire process in detail.
+

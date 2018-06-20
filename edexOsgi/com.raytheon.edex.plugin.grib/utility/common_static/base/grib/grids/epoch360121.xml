@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<latLonGridCoverage>
+    <name>360121</name>
+    <description>EPOCH Equidistant Cylindrical Global</description>
+    <la1>-60.0</la1>
+    <lo1>0.0</lo1>
+    <firstGridPointCorner>LowerLeft</firstGridPointCorner>
+    <nx>360</nx>
+    <ny>121</ny>
+    <dx>1.0</dx>
+    <dy>1.0</dy>
+    <spacingUnit>degree</spacingUnit>
+</latLonGridCoverage>

@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Check for necessary named pipes (FIFOs)
+myhost=`hostname | awk -F'-' '{ print substr($1,1,length($1)-1)}'`
+
+# Check for the host type nad perform operations accordingly
+echo "It seems like host(`hostname`) is NOT a downlink CP."
+echo "Do you still want to start LDM (y/n) [default=n]?"
+read ch
+if [ $ch != 'y' -o $ch != 'Y' ];then
+  echo "Exiting."
+  exit 1
+fi
+
+# Start LDM
+su - ldm -c "ldmadmin start"
+
+echo "Done."

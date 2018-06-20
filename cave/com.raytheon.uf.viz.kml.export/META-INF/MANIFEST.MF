@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: KML Export
+Bundle-SymbolicName: com.raytheon.uf.viz.kml.export;singleton:=true
+Bundle-Version: 1.16.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Require-Bundle: org.eclipse.core.runtime;bundle-version="3.8.0",
+ com.raytheon.uf.viz.core;bundle-version="1.15.2",
+ com.raytheon.viz.ui;bundle-version="1.14.0",
+ de.micromata.opengis.kml,
+ com.raytheon.uf.common.geospatial;bundle-version="1.14.0",
+ com.raytheon.uf.common.colormap,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.viz.core.maps,
+ com.raytheon.uf.common.numeric;bundle-version="1.14.0",
+ javax.measure
+Export-Package: com.raytheon.uf.viz.kml.export,
+ com.raytheon.uf.viz.kml.export.graphics,
+ com.raytheon.uf.viz.kml.export.graphics.ext,
+ com.raytheon.uf.viz.kml.export.io

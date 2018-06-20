@@ -1,0 +1,2 @@
+The timeDescriptorModeration method uses the "null" flags as part of its determination as to which sub-phrases should be qualified with time descriptors.   For example, "N winds 10 mph increasing to 20 mph IN THE AFTERNOON".  It's Trigger Condition is that all sub-phrases have the "words" attribute set.
+

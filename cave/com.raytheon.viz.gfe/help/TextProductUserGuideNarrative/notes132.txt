@@ -1,0 +1,1 @@
+The "assembleSubPhrases" method marches through the sub-phrases and glues them together with descriptors, connectors and time descriptors into a complete phrase. This is where all the work of our phrase methods is pulled together into a phrase.

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<latLonGridCoverage>
+    <name>14573</name>
+    <description>World wide ECMWF Composite Grid</description>
+    <la1>-90.0</la1>
+    <lo1>-180</lo1>
+    <firstGridPointCorner>LowerLeft</firstGridPointCorner>
+    <nx>145</nx>
+    <ny>73</ny>
+    <dx>2.5</dx>
+    <dy>2.5</dy>
+    <spacingUnit>degree</spacingUnit>
+    <la2>90.0</la2>
+    <lo2>180</lo2>
+</latLonGridCoverage>

@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Ncwf Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.bufrncwf
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: com.raytheon.uf.common.dataplugin.bufrncwf
+Require-Bundle: com.raytheon.uf.common.serialization,
+ javax.persistence,
+ javax.measure,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.geospatial
+Import-Package: com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.common.pointdata.spatial,
+ com.raytheon.uf.common.status

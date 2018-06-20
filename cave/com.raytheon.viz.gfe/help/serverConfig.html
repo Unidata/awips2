@@ -1,0 +1,1871 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta content="text/html; charset=iso-8859-1"
+ http-equiv="Content-Type">
+  <meta
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]"
+ name="GENERATOR">
+  <title>serverConfig.py</title>
+</head>
+<body style="background-color: rgb(255, 255, 255);">
+<div class="Body">
+<h1><a name="serverConfig.py"></a>serverConfig.py</h1>
+January 3, 2012<br>
+<br>
+&nbsp;
+<div class="Body"><a name="Overview"></a><!--Leave this comment in for formatting purposes-->The
+serverConfig.py file is
+one
+of several configuration files for GFE.
+The serverConfig.py file defines the general configuration of the
+databases
+and weather elements. The file is not intended to be
+field-edited,
+instead there is a <a href="localConfig.html">localConfig.py<!--Leave this comment in for formatting purposes--></a><!--Leave this comment in for formatting purposes-->&nbsp;
+and <a href="localWxConfig.html">localWxConfig.py<!--Leave this comment in for formatting purposes--></a>
+file that sites
+use
+to override settings in this file.&nbsp; The <a
+ href="VTECPartners.html">VTECPartners.py<!--Leave this comment in for formatting purposes--></a>
+file defines VTEC-specific configuration items.<br>
+<br>
+There are additional files that are built-in to the GFE that define
+VTEC entries for the Hazards weather element.&nbsp; These are not
+configurable.<br>
+<p><b><font color="#ff0000">This information is provided for you to
+help
+you understand the format of serverConfig.py.&nbsp; You should NEVER
+change
+the original serverConfig.py since your changes will be overwritten
+with
+the next upgrade.&nbsp; See the <a
+ href="serverConfiguration.html#ServerDatabaseConfigurationModificationOptions">server
+configuration overview<!--Leave this comment in for formatting purposes--></a>
+for information on how to make changes that
+are supported to the server.</font></b> <br>
+</p>
+<p>The excerpts from the serverConfig.py may not be complete or
+up-to-date; they serve as examples only.&nbsp;</p>
+</div>
+<h2 class="3Heading">
+Organization</h2>
+<div class="3Heading"><a href="#GeneralEnvironment">General Environment
+and Common Functions<br>
+</a></div>
+<div class="3Heading"><a href="#WeatherElementConfigurationSection">Weather
+Element Configuration</a></div>
+<div class="3Heading"><a href="#WeatherConfigurationSection">Weather
+Configuration</a></div>
+<div class="3Heading"><a href="#ProjectionConfigurationSection">Projection
+Configuration Section</a></div>
+<div class="3Heading"><a href="#GridDomainConfiguration">Grid Domain
+Configuration</a></div>
+<div class="3Heading"><a href="#TimeConstraintConfiguration">Time
+Constraint
+Configuration</a></div>
+<div class="3Heading"><a href="#DatabaseModelConfiguration">Database
+Attribute Configuration</a>
+<br>
+<a href="#D2DModelFileDirectories">D2D Model File Directories</a>
+<br>
+<a href="#SATDIRS">D2D Satellite File Directories</a><br>
+<a href="#D2DVersion">D2D Model Database Version Specification</a>
+<br>
+<a href="#InitializationModules">Initialization Modules</a>
+<br>
+<a href="#D2DAccumulativeWeatherElements">D2D Accumulative Elements</a>
+<br>
+<a href="#ISC">ISC Configuration Items</a><br>
+<a href="#MiscellaneousConfigurationItems">Miscellaneous Configuration
+Items</a></div>
+<div class="3Heading"><a href="#WeatherElementGroupings">Weather
+Element
+Groupings</a></div>
+<div class="3Heading"><a href="#DatabaseGroupings">Database Groupings</a></div>
+<div class="3Heading"><a href="#GeneralServerConfiguration">General
+Server
+Configuration</a>
+<br>
+<br>
+<hr width="100%"></div>
+<h3>
+<a name="GeneralEnvironment"></a>General Environment and Common
+Functions<br>
+</h3>
+The general environment and common functions section of the
+serverConfig.py file defines
+general
+information from the siteConfig file and convenience functions used
+throughout serverConfig.py.
+<p><tt><br>
+def siteImport(modName):<br>
+&nbsp;&nbsp;&nbsp; try:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fp, path, des =
+imp.find_module(modName)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if fp:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+fp.close()<br>
+&nbsp;&nbsp;&nbsp; except ImportError:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return 0<br>
+&nbsp;&nbsp;&nbsp; globals()[modName] = __import__(modName)<br>
+&nbsp;&nbsp;&nbsp; return 1</tt></p>
+<p><tt>#----------------------------------------------------------------------------</tt>
+<br>
+<tt># USEFUL DEFINES</tt>
+<br>
+<tt>#----------------------------------------------------------------------------</tt>
+<br>
+<tt>import siteConfig, LogStream, config</tt>
+</p>
+<p><tt>GFESUITE_SITEID = siteConfig.GFESUITE_SITEID<br>
+GFESUITE_MHSID &nbsp;= siteConfig.GFESUITE_MHSID<br>
+GFESUITE_SERVER =  siteConfig.GFESUITE_SERVER<br>
+GFESUITE_HOME   &nbsp;&nbsp;= siteConfig.GFESUITE_HOME<br>
+GFESUITE_PORT   &nbsp;&nbsp;= int(siteConfig.GFESUITE_PORT)<br>
+GFESUITE_LOGDIR = siteConfig.GFESUITE_LOGDIR<br>
+GFESUITE_PRDDIR = siteConfig.GFESUITE_PRDDIR</tt>
+<br>
+</p>
+<hr width="100%">
+<h3><a name="WeatherElementConfigurationSection"></a>Weather Element
+Configuration
+Section</h3>
+The weather element configuration section defines the attributes for
+each
+weather element.&nbsp; A weather element has the following attributes:
+<br>
+&nbsp;
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td><b>Attribute</b></td>
+      <td><b>Scalar</b></td>
+      <td><b>Vector</b></td>
+      <td><b>Weather</b></td>
+      <td><b>Discrete</b></td>
+      <td><b>Description</b></td>
+    </tr>
+    <tr>
+      <td>weather element name</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>no punctuation or spaces are allowed with the exception of an
+underscore
+to denote a level for the weather element, that is different from
+SFC.&nbsp;
+To denote a weather element for the surface, you can use either
+parmName
+or parmName_SFC.&nbsp; To denote a weather element for a non-surface
+element,
+use the underscore notation, such as parmName_level.</td>
+    </tr>
+    <tr>
+      <td>type</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>defines the weather element type, must be SCALAR, VECTOR,
+WEATHER,
+or DISCRETE</td>
+    </tr>
+    <tr>
+      <td>units</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>defines the units used for this weather element</td>
+    </tr>
+    <tr>
+      <td>descriptive name</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>descriptive name for the weather element</td>
+    </tr>
+    <tr>
+      <td>maximum possible value</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>no</td>
+      <td>no</td>
+      <td>The maximum allowable value for scalar, and the maximum
+allowable value
+for the magnitude component of vector.</td>
+    </tr>
+    <tr>
+      <td>minimum possible value</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>no</td>
+      <td>no</td>
+      <td>The minimum allowable value for scalar, and the minimum
+allowable value
+for the magnitude component of vector.</td>
+    </tr>
+    <tr>
+      <td>precision</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>no</td>
+      <td>no</td>
+      <td>defines the resolution of the weather element in terms of the
+number
+of significant decimal points.&nbsp; For example, a precision of 0
+indicates
+a resolution of 1.0, and a precision of 2 indicates a resolution of
+0.01.&nbsp;
+Only applies to scalar fields and the magnitude component for vector.</td>
+    </tr>
+    <tr>
+      <td>rate-dependent weather element</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>no</td>
+      <td>no</td>
+      <td>If specified to be a rate-dependent parm, then changes in
+valid time
+of a grid will modify the data values in that grid to preserve the
+calculated
+rate. Values of 1 or 0, YES or NO are permitted.</td>
+    </tr>
+    <tr>
+      <td>overlapping discrete element</td>
+      <td>no</td>
+      <td>no</td>
+      <td>no</td>
+      <td>yes</td>
+      <td>If 1 or YES, then the discrete weather element permits
+overlapping
+values, i.e., a grid point may assume the value of more than 1 value.</td>
+    </tr>
+    <tr>
+      <td>key definition</td>
+      <td>no</td>
+      <td>no</td>
+      <td>no</td>
+      <td>yes</td>
+      <td>Defines the allowable keys and their definitions for the
+discrete weather
+element</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">sizeOfAuxDataField<br>
+      </td>
+      <td style="vertical-align: top;">no<br>
+      </td>
+      <td style="vertical-align: top;">no<br>
+      </td>
+      <td style="vertical-align: top;">no<br>
+      </td>
+      <td style="vertical-align: top;">yes (optional)<br>
+      </td>
+      <td style="vertical-align: top;">If specified, indicates the size
+(as an integer) of the discrete auxiliary data field (string
+size).&nbsp; Aux data can be from 0 to this length.&nbsp; If
+sizeOfAuxDataField is not specified, then the discrete element will not
+support auxiliary data.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+&nbsp;
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td><b>Weather Element Type</b></td>
+      <td><b>Format of Definition</b></td>
+    </tr>
+    <tr>
+      <td>SCALAR</td>
+      <td><tt>VariableName = ("name", type, "units", "descriptive
+name", maxValue,
+minValue, precision, rateWE)</tt></td>
+    </tr>
+    <tr>
+      <td>VECTOR</td>
+      <td><tt>VariableName = ("name", type, "units", "descriptive
+name", maxValue,
+minValue, precision, rateWE)</tt></td>
+    </tr>
+    <tr>
+      <td>WEATHER</td>
+      <td><tt>VariableName = ("name", type, "units", "descriptive name")</tt></td>
+    </tr>
+    <tr>
+      <td>DISCRETE</td>
+      <td><tt>VariableName = ("name", type, "units", "descriptive
+name", overlapAllowed,
+keyDefinition)<br>
+      </tt><tt>VariableName = ("name", type, "units", "descriptive
+name", overlapAllowed,
+keyDefinition, sizeOfAuxDataField)</tt><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+Note that the maximum value and minimum value must be floats, and the
+precision
+an integer.
+<p>For discrete, the key definition is in this form:
+<br>
+<tt>keyDefName = [('keyName1', 'keyDescription1'), ('keyName2',
+'key2Description'),
+.... ]</tt>
+</p>
+<p>For overlapping discrete, the first key must be "&lt;None&gt;".
+</p>
+<blockquote>&nbsp;</blockquote>
+Example entries for&nbsp; SCALAR, VECTOR,&nbsp; WEATHER, and DISCRETE
+elements
+are shown below:
+<p><tt>#---------------------------------------------------------------------------</tt>
+<br>
+<tt>#</tt>
+<br>
+<tt>#&nbsp; Weather Element configuration section.</tt>
+<br>
+<tt>#</tt>
+<br>
+<tt>#---------------------------------------------------------------------------</tt>
+</p>
+<p><tt>SCALAR&nbsp; = 'Scalar'</tt>
+<br>
+<tt>VECTOR&nbsp; = 'Vector'</tt>
+<br>
+<tt>WEATHER = 'Weather'</tt>
+<br>
+<tt>DISCRETE = 'Discrete'</tt>
+<br>
+<tt>NO = 0</tt>
+<br>
+<tt>YES = 1</tt>
+</p>
+<p><tt># Standard Public Weather Elements</tt>
+<br>
+<tt>Temp =&nbsp;&nbsp;&nbsp; ("T", SCALAR, "fahrenheit", "Surface
+Temperature",</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 120.0,
+-60.0, 0, NO)</tt>
+</p>
+<p><tt>Wind =&nbsp;&nbsp;&nbsp; ("Wind", VECTOR, "knots", "Surface
+Wind",</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 80.0,
+0.0, 0, NO)</tt>
+</p>
+<p><tt>Weather = ("Wx", WEATHER, "coverage, intensity, type", "Weather")</tt>
+</p>
+<p><tt>TestKeys = [("L", "Low"),("M",
+"Medium"), ("H", "High")]</tt>
+<br>
+<tt>TestKey = ("TestKey", DISCRETE, "categories", "TestKey", NO,
+TestKeys)</tt>
+</p>
+<h4><a name="ExtraWEPrecision"></a>ExtraWEPrecision</h4>
+Weather Elements are stored in their specified precision in GFE,
+thus if you have the precision set to 0 for a weather element, it will
+effectively be stored as integers.&nbsp; Sometimes you might want
+additional
+precision available for certain weather elements in order to facilitate
+computations on the data.&nbsp; For those cases, where you don't want
+to
+specify a higher precision (which affects labeling, sampling, ISC data
+sizes, etc.), you can use the ExtraWEPrecision entry.&nbsp; The entry
+is
+a listing of weather elements that require extra precision, or is a
+listing
+of tuples that are weather elements and amount of extra
+precision.&nbsp;
+The effective precision assigned to these elements is one more than
+that
+defined in the weather element configuration section, if just the
+weather
+element name is used, or is the specified number of precision boosts,
+if
+a tuple form is used for (wename, extraPrec).&nbsp; You can mix and
+match
+the definitions, i.e., use the 'wename' form and the ('wename',
+extraPrec)
+form in the same declaration:
+<p><tt># Scalar/Vector Weather Elements that Require Extra Precision
+(due
+to their</tt>
+<br>
+<tt># use in calculations)</tt>
+<br>
+<tt>#ExtraWEPrecision = ['T', 'Td', 'RH']</tt>
+<br>
+<tt>#ExtraWEPrecision = [('T', 1), 'Td', ('RH', 2)]</tt>
+<br>
+<tt>ExtraWEPrecision = []</tt>
+</p>
+<hr width="100%">
+<h3><a name="WeatherConfigurationSection"></a>Weather Configuration
+Section</h3>
+The weather configuration section of the serverConfig.py file defines
+all
+of the possible characteristics of the WEATHER-type of weather
+element.&nbsp;
+The WEATHER type has five sets of characteristics:
+<ul>
+  <li>weather type</li>
+  <li>coverage/probability</li>
+  <li>intensity</li>
+  <li>visibility</li>
+  <li>optional attributes</li>
+</ul>
+There is one set of visibilities for all weather types.&nbsp; However
+for
+each weather type, the user can define its list of possible
+coverages/probabilities,
+intensities, and optional attributes.
+<br>
+&nbsp;
+<h4><a name="PossibleVisibilities"></a>Possible Visibilities</h4>
+The list of possible visibilities is given in the "visibilities"
+parameter.&nbsp;
+It is important that no entries contain a space.&nbsp; A special entry
+is made to denote that no visibility has been defined.&nbsp; All
+defined
+weather types will use this set of visibilities. There is a defined
+order
+to these visibilities.&nbsp; The "no visibility" is defined first,
+following
+by increasing visibility.&nbsp; Changing this order is not recommended.
+<p><tt># list of possible visibilities</tt>
+<br>
+<tt>visibilities = ['&lt;NoVis&gt;', '0SM', '1/4SM', '1/2SM', '3/4SM',
+'1SM', '11/2SM',</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+'2SM', '21/2SM', '3SM', '4SM', '5SM', '6SM', 'P6SM']</tt>
+<br>
+&nbsp;
+</p>
+<h4><a name="PossibleCoveragesandProbabilities"></a>Possible Coverages
+and
+Probabilities</h4>
+The list of possible coverages and probabilities consist of tuple
+entries.&nbsp;
+The first entry is the symbol that is used in the ugly weather string
+as
+well as on GFE dialogs.&nbsp; The second entry is the string that is
+accessible
+via product formatters to aid them in intrepreting the weather coverage
+and/or probability.
+<p>The symbol entry cannot contain spaces.&nbsp; This section simply
+defines
+all of the possible coverages and probabilities.&nbsp; Another section
+of the configuration file relates these to each weather element.
+</p>
+<p><tt># list of possible coverages and probabilities</tt>
+<br>
+<tt>NOCOV = ('&lt;NoCov&gt;', 'No Coverage')</tt>
+<br>
+<tt>ISOD = ('Iso', 'Isolated')</tt>
+<br>
+<tt>SCT = ('Sct', 'Scattered')</tt>
+<br>
+<tt>NUM = ('Num', 'Numerous')</tt>
+<br>
+<tt>WIDE = ('Wide', 'Widespread')</tt>
+<br>
+<tt>OCNL = ('Ocnl', 'Occasional')</tt>
+<br>
+<tt>SCHC = ('SChc', 'Slight Chance Of')</tt>
+<br>
+<tt>CHC = ('Chc', 'Chance Of')</tt>
+<br>
+<tt>LKLY = ('Lkly', 'Likely')</tt>
+<br>
+<tt>DEFN = ('Def', 'Definite')</tt>
+<br>
+<tt>PATCHY = ('Patchy', 'Patchy')</tt>
+</p>
+<br>
+<h4><a name="PossibleIntensities"></a>Possible Intensities</h4>
+The list of possible intensities consist of tuple entries.&nbsp; The
+first
+entry is the symbol that is used in the ugly weather string as well as
+on GFE dialogs.&nbsp; The second entry is the string that is accessible
+via product formatters to aid them in intrepreting the intensity.
+<p>The symbol entry cannot contain spaces.&nbsp; This section simply
+defines
+all of the possible intensities.&nbsp; Another section of the
+configuration
+file relates these to each weather element. Note the "moderate"
+intensity
+which is normally indicated by a space or null-character in
+meteorology.&nbsp;
+Since the software cannot have a space, the character 'm' has been
+chosen
+to indicate moderate. Since some weather types may not have an
+intensity,
+such as blowing snow, a no intensity entry has been defined.&nbsp; Each
+weather type must have at least one intensity associated with it, even
+if is the no intensity entry.
+</p>
+<p><tt># list of possible intensities</tt>
+<br>
+<tt>INTEN_NONE = ('&lt;NoInten&gt;', 'No intensity')</tt>
+<br>
+<tt>INTEN_VERYLIGHT = ('--', 'Very Light')</tt>
+<br>
+<tt>INTEN_LIGHT = ('-', 'Light')</tt>
+<br>
+<tt>INTEN_MOD = ('m', 'Moderate')</tt>
+<br>
+<tt>INTEN_HEAVY = ('+', 'Heavy')</tt>
+</p>
+<p>For convenience in defining the weather types, intensities groupings
+may be created by declaring arrays.&nbsp; In this case an array named
+PCPINTEN
+has been created with the very light, light, moderate, and heavy
+intensities.
+There is a defined order to the groupings.&nbsp; They are usually
+ordered
+in increasing intensity.
+</p>
+<p><tt># special intensity groupings</tt>
+<br>
+<tt>PCPINTEN =[INTEN_VERYLIGHT, INTEN_LIGHT, INTEN_MOD, INTEN_HEAVY]</tt>
+<br>
+&nbsp;
+</p>
+<h4><a name="OptionalAttributes"></a>Optional Attributes</h4>
+The list of possible optional attributes consist of tuple
+entries.&nbsp;
+The first entry is the symbol that is used in the ugly weather string
+as
+well as on GFE dialogs.&nbsp; The second entry is the string that is
+accessible
+via product formatters to aid them in intrepreting the attribute.
+<p>The symbol entry cannot contain spaces.&nbsp; This section simply
+defines
+all of the possible attributes.&nbsp; Another section of the
+configuration
+file relates these to each weather element. Note that there is no entry
+for no attribute since weather elements can have zero or more optional
+attributes.
+</p>
+<p><tt># list of optional attributes</tt>
+<br>
+<tt>FQTLTG = ('FL', 'Frequent Lightning')</tt>
+<br>
+<tt>GUSTS = ('GW', 'Gusty Winds')</tt>
+<br>
+<tt>HVYRAFL = ('HvyRn', 'Heavy Rainfall')</tt>
+<br>
+<tt>DMGWND = ('DmgW', 'Damaging Winds')</tt>
+<br>
+<tt>SMALLH = ('SmA', 'Small Hail')</tt>
+<br>
+<tt>LARGEH = ('LgA', 'Large Hail')</tt>
+<br>
+<tt>OUTLYNG = ('OLA','in the outlying areas')</tt>
+<br>
+<tt><br>
+</tt></p>
+<h4><a name="WeatherTypeDefinitions"></a>Weather Type Definitions</h4>
+This section of the configuration file defines each possible weather
+type,
+including the no weather type.&nbsp; The definition brings together the
+possible coverages/probabilities, intensities, and optional attributes
+for each of the weather types.&nbsp; The weather types cannot contain a
+space. The format of the entries are:
+<p><tt>TypeSymbol = ('Symbol', 'Description', [coverages],
+[intensities],
+[optional attributes])</tt>
+</p>
+<p><tt>NOWX = ('&lt;NoWx&gt;', 'No Weather',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [NOCOV],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [INTEN_NONE],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [])<br>
+THUNDER = ('T', 'Thunderstorms',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISOD, SCT, NUM,
+WIDE, SCHC, CHC, LKLY, DEFN, OCNL, FQT, BRIEF,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+PERIODS, INTM],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [INTEN_NONE,
+INTEN_SEVERE],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [PRIMARY,
+MENTION, FQTLTG, HVYRAFL, GUSTS, DMGWND, DRY])<br>
+HAIL = ('A', 'Hail',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISOD, SCT, NUM,
+WIDE, SCHC, CHC, LKLY, DEFN, OCNL, FQT, BRIEF,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+PERIODS, INTM],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [INTEN_NONE],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [PRIMARY,
+MENTION, LARGEH, SMALLH])<br>
+RAIN = ('R', 'Rain',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [WIDE, SCHC,
+CHC, LKLY, DEFN, OCNL, FQT, BRIEF, PERIODS, INTM],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+[INTEN_VERYLIGHT, INTEN_LIGHT, INTEN_MOD, INTEN_HEAVY],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [PRIMARY,
+MENTION, OR])<br>
+RAINSHOWERS = ('RW', 'Rain Showers',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISOD, SCT, NUM,
+WIDE, SCHC, CHC, LKLY, DEFN, OCNL, FQT, BRIEF,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+PERIODS, INTM],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+[INTEN_VERYLIGHT, INTEN_LIGHT, INTEN_MOD, INTEN_HEAVY],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [PRIMARY,
+MENTION, OR])<br>
+</tt><br>
+</p>
+<p>The "types" entry combines all of the defined types into an ordered
+list. It is important to keep this list in proper meteorological order
+or the display of the weather information will not use meteorological
+conventions.&nbsp;
+For example, T is the symbol for Thunder and RW is the symbol for rain
+showers.&nbsp; Thunder appears before rain showers in the following
+list.
+As a result, when thunder is combined with rain showers the composite
+symbol
+is displayed as TRW, which is a very common symbol for the
+forecaster.&nbsp;
+If the Thunder and rain showers were reversed, thunderstorms would be
+displayed
+as RWT which has no meaning to the forecaster.
+</p>
+<p><tt>types = [NOWX, THUNDER, WATERSPOUT, HAIL, RAIN, RAINSHOWERS,</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DRIZZLE, FZRAIN,
+FZDRIZZLE, SNOW, SNOWSHOWERS,</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SLEET, FOG,
+FREEZEFOG,
+ICEFOG, ICECRYSTAL ,HAZE, BLWGSNOW,</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; BLWGSAND, SMOKE,
+BLWGDUST, SA, CAL, FROST, FQTGSTS, FRZSPRAY,</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; VOLASH]</tt>
+</p>
+<hr width="100%">
+<h3><a name="ProjectionConfigurationSection"></a>Projection
+Configuration Section</h3>
+The map projection information defines each of the standard AWIPS
+projections
+in use. This section is used to define a new projection that isn't one
+of the standards.&nbsp; The projections that are currently known by the
+GFESuite software are:
+<br>
+&nbsp;
+<table nosave="" border="1" cols="4" width="100%">
+  <tbody>
+    <tr>
+      <td>Grid201</td>
+      <td>Grid202</td>
+      <td>Grid203</td>
+      <td>Grid204</td>
+    </tr>
+    <tr>
+      <td>Grid205</td>
+      <td>Grid206</td>
+      <td>Grid207</td>
+      <td>Grid208</td>
+    </tr>
+    <tr>
+      <td>Grid209</td>
+      <td>Grid210</td>
+      <td>Grid211</td>
+      <td>Grid212</td>
+    </tr>
+    <tr>
+      <td>Grid213</td>
+      <td>Grid214</td>
+      <td>Grid215</td>
+      <td>Grid216</td>
+    </tr>
+    <tr>
+      <td>Grid217</td>
+      <td>Grid218</td>
+      <td>Grid219</td>
+      <td>Grid221</td>
+    </tr>
+    <tr>
+      <td>Grid222</td>
+      <td>Grid225</td>
+      <td>Grid226</td>
+      <td>Grid227</td>
+    </tr>
+    <tr>
+      <td>Grid228</td>
+      <td>Grid229</td>
+      <td>Grid230</td>
+      <td>Grid231</td>
+    </tr>
+    <tr>
+      <td>Grid232</td>
+      <td>Grid233</td>
+      <td>Grid234</td>
+      <td>Grid235</td>
+    </tr>
+    <tr>
+      <td>HRAP</td>
+      <td>Grid214AK</td>
+      <td><br>
+      </td>
+      <td><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>All of the map projection information was derived from the paper,
+"Map
+Projections A Working Manual," by John P. Snyder. This manual was
+published
+as U.S. Geological Survey Paper No. 1395. The reader is referred to
+this
+paper for details not included in this discussion.
+</p>
+<p>Eventually this section will be removed from the configuration
+file.&nbsp;
+A projection will be displayed only when a new, non-standard projection
+is needed.
+</p>
+<p>The information that is required to define a projection is shown
+below,
+not all of the entries are needed for each projection type:
+</p>
+<ul>
+  <li>projection identifier</li>
+  <li>projection type (LAMBERT_CONFORMAL, MERCATOR,
+POLAR_STEREOGRAPHIC,
+LATLON</li>
+  <li>lower left point latitude/longitude</li>
+  <li>upper right point latitude/longitude</li>
+  <li>latitude longitude origin</li>
+  <li>standard parallel one</li>
+  <li>standard parallel two</li>
+  <li>grid point number for lower left point</li>
+  <li>grid point number for upper right point</li>
+  <li>latitude intersect</li>
+  <li>longitude center</li>
+  <li>longitude origin</li>
+</ul>
+At the end of the projection information is a list containing all of
+the
+projections.
+<p><tt>#---------------------------------------------------------------------------</tt>
+<br>
+<tt>#</tt>
+<br>
+<tt>#&nbsp; Projection Configuration section.</tt>
+<br>
+<tt>#</tt>
+<br>
+<tt>#---------------------------------------------------------------------------</tt>
+<br>
+<tt>NONE = 0</tt>
+<br>
+<tt>LAMBERT_CONFORMAL = 1</tt>
+<br>
+<tt>MERCATOR = 2</tt>
+<br>
+<tt>POLAR_STEREOGRAPHIC = 3</tt>
+<br>
+<tt>LATLON = 4</tt>
+<br>
+&nbsp;
+</p>
+<p><tt># projectionID / projectionType / latLonLL / latLonUR /</tt>
+<br>
+<tt># latLonOrigin / stdParallelOne / stdParallelTwo / gridPointLL
+/ gridPointUR</tt>
+<br>
+<tt># latIntersect / lonCenter / lonOrigin</tt>
+</p>
+<p><tt>Grid201 = ('Grid201',POLAR_STEREOGRAPHIC,</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (-150.00, -20.826), (-20.90846,
+30.0),</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (0.0, 0.0), 0.0, 0.0, (1, 1), (65,
+65), 0.0, 0.0, -105.0)</tt>
+</p>
+<p><tt>Grid202 = ('Grid202', POLAR_STEREOGRAPHIC,</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (-141.028, 7.838), (-18.576, 35.617),</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (0.0, 0.0), 0.0, 0.0, (1, 1), (65,
+43), 0.0, 0.0, -105.0)</tt>
+</p>
+<p><tt># list of all projections</tt>
+<br>
+<tt>allProjections = [Grid201, Grid202, Grid203, Grid204, Grid205,
+Grid206,</tt>
+<br>
+<tt>&nbsp;Grid207, Grid208, Grid209, Grid210, Grid211, Grid212,
+Grid213,
+Grid214,</tt>
+<br>
+<tt>&nbsp;Grid214AK, Grid215, Grid216, Grid217, Grid218, Grid219,
+Grid221,
+Grid222,</tt>
+<br>
+<tt>&nbsp;Grid225, Grid226, Grid227, Grid228, Grid229, Grid230,
+Grid231,
+Grid232,</tt>
+<br>
+<tt>&nbsp;Grid233, Grid234, Grid235, HRAP]</tt>
+<br>
+</p>
+<hr width="100%">
+<h3><a name="GridDomainConfiguration"></a>Grid Domain Configuration</h3>
+The grid domain configuration section contains entries for each WFO in
+the AWIPS system.&nbsp; The entries define the grid characteristics for
+each site.&nbsp; These charactistics are:
+<ul>
+  <li>grid size</li>
+  <li>grid location (origin and domain) in world coordinates</li>
+  <li>site time zone</li>
+  <li>projection identifier</li>
+</ul>
+The format of the entries are:
+<p><tt>'siteid' : ((xdim,ydim), (xorigin,yorigin), (xextent,yextent),
+'timezone',
+projection)</tt>
+</p>
+<p>This example shows the relationship between the AWIPS Grid 211
+projection
+and a grid domain.&nbsp; The AWIPS world coordinate xorigin is 37,
+yorigin
+is 27, the xextent is 9, and the yextent is 9. The size of the AWIPS
+grid
+is therefore 9x9, but the desired size of the GFESuite grid is
+73x73.&nbsp;
+Thus the software has the capability of expanding each AWIPS grid cell
+on the projection in order to increase resolution.<img
+ src="images/worlddomain.gif" align="middle" height="248" width="473">
+<br>
+<tt>#---------------------------------------------------------------------------</tt>
+<br>
+<tt>#</tt>
+<br>
+<tt>#&nbsp; Grid Domain configuration section</tt>
+<br>
+<tt>#</tt>
+<br>
+<tt>#---------------------------------------------------------------------------</tt>
+<br>
+<tt>#</tt>
+<br>
+<tt># xdim/ydim:&nbsp; Defines the dimensions of the grids.</tt>
+<br>
+<tt>#</tt>
+<br>
+<tt># origin:&nbsp; Defines the lower-left corner of the grid (point
+0,0) in</tt>
+<br>
+<tt>#&nbsp;&nbsp; world coordinates.</tt>
+<br>
+<tt>#</tt>
+<br>
+<tt># extent:&nbsp; Defines the "size" of the grid in world
+coordinates.&nbsp;
+The upper</tt>
+<br>
+<tt>#&nbsp;&nbsp; right corner is the origin+extent.</tt>
+<br>
+<tt>#</tt>
+<br>
+<tt># timezone: defines the time zone used for the site.</tt>
+<br>
+<tt>#</tt>
+<br>
+<tt># Projection:&nbsp; Defines the projection identifier to be used
+for this domain.</tt>
+</p>
+<p><tt># Note that all parameters for an existing database must use the
+same</tt>
+<br>
+<tt># projection, though not necessarily the same grid size and
+location.</tt>
+</p>
+<p><tt>#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [xdim, ydim]
+/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(origin) /&nbsp;&nbsp;&nbsp;&nbsp; (extent) / Projection / Office Type</tt>
+</p>
+<p><tt>SITES = {</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; 'ABQ' : ([145, 145], (36.00, 22.00), (9.0, 9.0),
+'MST7MDT', Grid211, 'wfo'),</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; 'ABR' : ([145, 145], (45.00, 35.00), (9.0, 9.0),
+'CST6CDT', Grid211, 'wfo'),</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; 'AFC' : ([1034/2, 423/2], (1.0, 19.0), (67.0,
+28.0), 'America/Anchorage', Grid214AK, 'wfo'),</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; 'AFG' : ([313, 201], (27.0, 39.0), (39.0, 25.0),
+'America/Anchorage', Grid214AK, 'wfo'),</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; 'AJK' : ([337, 241], (62.0, 23.0), (21.0, 15.0),
+'America/Anchorage', Grid214AK, 'wfo'),</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; 'AKQ' : ([145, 145], (68.00, 25.00), (9.0, 9.0),
+'EST5EDT', Grid211, 'wfo'),</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; 'ALY' : ([145, 145], (70.00, 33.00), (9.0, 9.0),
+'EST5EDT', Grid211, 'wfo')]</tt>
+</p>
+<p>Note that the origin and extents are floating-point numbers and thus
+must have decimal point in them.
+<br>
+</p>
+<hr width="100%">
+<h3><a name="TimeConstraintConfiguration"></a>Time Constraint
+Configuration</h3>
+Each weather element has a defined time constraint.&nbsp; The time
+constraint
+forces grids to be aligned on the constraint boundaries.&nbsp; There
+are
+three components to a time constraint: start time, repeat, and
+duration.&nbsp;
+Grids are aligned on a start time boundary, repeat every repeat
+interval,
+and have a duration of that specified.&nbsp; All numbers are in seconds
+so a variable is declared for HOUR and DAY to make the entries more
+legible.&nbsp;
+The start time is based on 0000z. The format is:
+<p><tt>timeConstraintName = (start, repeat, duration)</tt>
+</p>
+<p><img src="images/timeconstraint.gif" height="353" width="599"><br>
+We have a standard naming convention for most of the Time Constraints
+in the form of "TC", followed by the repeat in hours, followed by NG if
+there aren't any gaps.&nbsp; So a TC3 would be a time constraint for
+every
+3 hours, with a grid that is only 1 hour long.&nbsp; A TC3NG would be a
+time constraint for every 3 hours with a grid that is 3 hours
+long.&nbsp;
+NG stands for no gaps.
+</p>
+<p>We also have several local time-based time constraints.&nbsp; These
+are typically prefixed with LT for local time.
+</p>
+<p><tt>#---------------------------------------------------------------------------</tt>
+<br>
+<tt>#</tt>
+<br>
+<tt>#&nbsp; Time Constraint configuration section</tt>
+<br>
+<tt>#</tt>
+<br>
+<tt>#---------------------------------------------------------------------------</tt>
+<br>
+<tt>HOUR = 3600</tt>
+<br>
+<tt>DAY&nbsp; = 24 * HOUR</tt>
+</p>
+<p><tt># Start: is the number of seconds since 0000z for the first grid
+of the day</tt>
+<br>
+<tt># Repeat: is the number of seconds from start until the next grid
+starts</tt>
+<br>
+<tt># Duration: is the length of the grid in number of seconds</tt>
+</p>
+<p><tt># Examples of constraints:</tt>
+<br>
+<tt># Hourly temperatures</tt>
+<br>
+<tt>#&nbsp;&nbsp;&nbsp;&nbsp; HrTemp = (0, HOUR, HOUR)</tt>
+<br>
+<tt># QPF that is 6 hours long, aligned on 0000z, exists for every
+6 hours</tt>
+<br>
+<tt>#&nbsp;&nbsp;&nbsp;&nbsp; Q = (0, HOUR*6, HOUR*6)</tt>
+<br>
+<tt>#</tt>
+</p>
+<p><tt># start / repeat / duration</tt>
+<br>
+<tt># fixed time constraints: start / repeat / duration</tt>
+<br>
+<tt>TC1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = (0, HOUR, HOUR)</tt>
+<br>
+<tt>TC3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = (0, 3 * HOUR, HOUR)</tt>
+<br>
+<tt>TC6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = (0, 6 * HOUR, HOUR)</tt>
+<br>
+<tt>TC12&nbsp;&nbsp;&nbsp;&nbsp; = (0, 12 * HOUR, HOUR)</tt>
+<br>
+<tt>TC3NG&nbsp;&nbsp;&nbsp; = (0, 3 * HOUR, 3 * HOUR)</tt>
+<br>
+<tt>TC6NG&nbsp;&nbsp;&nbsp; = (0, 6 * HOUR, 6 * HOUR)</tt>
+<br>
+<tt>TC12NG&nbsp;&nbsp; = (0, 12 * HOUR, 12 * HOUR)</tt>
+<br>
+<tt>TC061212 = (6 * HOUR, 12 * HOUR, 12 * HOUR)</tt>
+<br>
+<tt>Persistent = (0, 0, 0)&nbsp;&nbsp;&nbsp;&nbsp; # special used only
+for GeoWeight grids</tt>
+<br>
+&nbsp;
+<br>
+&nbsp;
+</p>
+<p>Maximum and Minimum Temperature need special time constraints since
+their constraints are based on local time.&nbsp; Since the time
+constraints
+are only specified in GMT, a python mechansim is written to look at the
+sites's time zone and adjusts the time constraints for local time. The
+localTC macro takes four arguments: start, repeat, duration, and dst.
+The
+start is entered in number of seconds from midnight localtime. For
+example,
+6*HOUR would indicate 6am. The repeat and duration are in seconds. The
+dst flag is 0 for calculation of these time constraints in standard
+time
+and 1 for calculation for daylight savings time. Note that the server
+cannot
+automatically switch these time constraints between standard and
+daylight
+savings time. If a site chooses to edit the entries for daylight
+savings
+time, be aware that the server will mark the entire database (and hence
+all of the data contained within) invalid.
+</p>
+<p><tt>def localTC(start,repeat,duration,dst):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; timezone = SITES[GFESUITE_SITEID][3]</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; import os</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; os.environ['TZ'] = timezone</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; import time</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; start = time.timezone + start</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; if dst == 1:</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; start = start - 3600</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; if start &gt;= 3600 * 24:</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; start = start - 3600
+* 24</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; elif start &lt; 0:</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; start = start + 3600
+* 24</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; return (start, repeat, duration)</tt>
+</p>
+<p><tt>MaxTTC&nbsp;&nbsp;&nbsp;&nbsp; = localTC(7*HOUR, 24*HOUR,
+12*HOUR,
+0)</tt>
+<br>
+<tt>MinTTC&nbsp;&nbsp;&nbsp;&nbsp; = localTC(19*HOUR, 24*HOUR, 13*HOUR,
+0)</tt>
+<br>
+<tt>MaxRHTC&nbsp;&nbsp;&nbsp;&nbsp; = localTC(15*HOUR, 24*HOUR,
+18*HOUR,
+0)</tt>
+<br>
+<tt>MinRHTC&nbsp;&nbsp;&nbsp;&nbsp; = localTC(3*HOUR, 24*HOUR, 18*HOUR,
+0)</tt>
+<br>
+<tt>LT3NG&nbsp;&nbsp;&nbsp;&nbsp; = localTC(0*HOUR, 3*HOUR, 3*HOUR,
+0)</tt>
+<br>
+<tt>LT6NG&nbsp;&nbsp;&nbsp;&nbsp; = localTC(0*HOUR, 6*HOUR, 6*HOUR,
+0)</tt>
+<br>
+<tt>LT12NG&nbsp;&nbsp;&nbsp; = localTC(6*HOUR, 12*HOUR, 12*HOUR, 0)</tt>
+<br>
+<tt>LTMOS&nbsp;&nbsp;&nbsp;&nbsp; = localTC(6*HOUR, 12*HOUR, 12*HOUR,
+0)&nbsp; #special MOS local time</tt>
+<br>
+<tt>MaxTTCMOS = localTC(6*HOUR, 24*HOUR, 12*HOUR, 0)&nbsp; #special
+MOS maxT</tt>
+<br>
+<tt>MinTTCMOS = localTC(18*HOUR, 24*HOUR, 12*HOUR, 0)&nbsp; #special
+MOS minT</tt>
+<br>
+<tt>LT24&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = localTC(0*HOUR, 24*HOUR,
+24*HOUR,
+0)</tt>
+<br>
+<tt>FireWx1300TC = localTC(13*HOUR, 24*HOUR, 1*HOUR, 0)&nbsp;&nbsp;
+#special FireWx 1pm snap</tt>
+</p>
+<hr width="100%">
+<h3><a name="DatabaseModelConfiguration"></a>Database Attribute
+Configuration</h3>
+The database or model attribute configuration section defines
+characteristics
+of the database. The characterstics defined are:
+<ul>
+  <li>model name</li>
+  <li>model format - this is always GRID.&nbsp; GFESuite only uses the
+GRID
+format.</li>
+  <li>optional type - usually set to "" for no optional type.&nbsp; For
+special
+cases may be set to other strings.&nbsp; For example, isc virtual parm
+databases
+have their own set of weather elements.
+Their database optional type is "V".&nbsp; The GFE may be configured
+to
+view databases based on model name and optional type.</li>
+  <li>singleton - a singleton database is not time-stamped.&nbsp;
+Therefore
+the
+database is always in existance and is never purged.&nbsp; Typically
+the
+forecast, official, and observational-type databases (e.g., LAPS
+Analysis)
+are singleton databases.&nbsp; Typically the model databases (e.g.,
+NAM)
+are not singletons since the database contains a time stamp of the
+model
+run time.</li>
+  <li>official - an official database has special meaning.&nbsp; It is
+typically
+the database from which official products are generated. Official
+databases
+have special protocol to populate them.&nbsp; They cannot be "locked"
+or
+"edited" like non-official databases.&nbsp; Forecast data can only be
+"published"
+to the official database.</li>
+  <li>number of versions - number of versions of this database. Should
+be 1
+for
+singleton databases.</li>
+  <li>purge age in hours - if non-zero, the grids in the database will
+be
+purged
+once the entire grid is "older" than the purge age in hours from the
+current
+system time.&nbsp; Typically the singleton databses are grid purged
+while
+the model databases are not.</li>
+</ul>
+<p><br>
+<tt>#---------------------------------------------------------------------------</tt>
+<br>
+<tt>#</tt>
+<br>
+<tt>#&nbsp; Database/(Model) attribute section</tt>
+<br>
+<tt>#</tt>
+<br>
+<tt>#---------------------------------------------------------------------------</tt>
+<br>
+<tt>#</tt>
+<br>
+<tt># name:&nbsp; The model name of the database</tt>
+<br>
+<tt>#</tt>
+<br>
+<tt># format:&nbsp; Always 'GRID'</tt>
+<br>
+<tt>#</tt>
+<br>
+<tt># type:&nbsp; Optional type of the database</tt>
+<br>
+<tt>#</tt>
+<br>
+<tt># single:&nbsp; YES or NO. YES if this database always exists and
+is not</tt>
+<br>
+<tt>#&nbsp;&nbsp; based on model-times.&nbsp; NO if this database is
+created/destroyed and</tt>
+<br>
+<tt>#&nbsp;&nbsp; is based on model-runs.&nbsp; When created, the names
+of these databases have</tt>
+<br>
+<tt>#&nbsp;&nbsp; time stamps.</tt>
+<br>
+<tt>#</tt>
+<br>
+<tt># official:&nbsp; YES or NO.&nbsp; YES if this is an official
+database
+from which</tt>
+<br>
+<tt>#&nbsp;&nbsp; products can be generated.&nbsp; NO if this is a
+conventional database.</tt>
+<br>
+<tt>#</tt>
+<br>
+<tt># numVer:&nbsp; Number of versions of this database to retain.</tt>
+<br>
+<tt>#</tt>
+<br>
+<tt># purgeAge: Number of hours in the past before grids will be
+automatically</tt>
+<br>
+<tt>#&nbsp;&nbsp; purged from the database.&nbsp; If 0, then purging
+is disabled.</tt>
+<br>
+<tt>#</tt>
+</p>
+<p><tt>YES = 1<br>
+NO = 0<br>
+GRID = 'GRID'<br>
+# name /&nbsp; format / type / single / official / numVer / purgeAge<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<br>
+Fcst&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+('Fcst',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+GRID,&nbsp;&nbsp; '', YES, NO,&nbsp; 1, 24)<br>
+Restore&nbsp;&nbsp;&nbsp;&nbsp; =
+('Restore',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GRID,&nbsp;&nbsp; '', YES,
+NO,&nbsp; 1, 24)<br>
+Test&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+('Test',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+GRID,&nbsp;&nbsp; 'test', NO, NO,&nbsp; 1, 0)<br>
+Official&nbsp;&nbsp;&nbsp; = ('Official',&nbsp;&nbsp;&nbsp;&nbsp;
+GRID,&nbsp;&nbsp; '', YES, YES, 1, 24)<br>
+ISC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+('ISC',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+GRID,&nbsp;&nbsp; '', YES, NO,&nbsp; 1, 12)<br>
+LAPS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+('LAPS',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+GRID,&nbsp;&nbsp; '', YES, NO,&nbsp; 1, 30)<br>
+SAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+('SAT',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+GRID,&nbsp;&nbsp; '', YES, NO,&nbsp; 1, 12)<br>
+NAM12&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+('NAM12',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GRID,&nbsp;&nbsp;
+'', NO,&nbsp; NO,&nbsp; 2, 0)<br>
+NAM40&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+('NAM40',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GRID,&nbsp;&nbsp;
+'', NO,&nbsp; NO,&nbsp; 2, 0)<br>
+NAM80&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+('NAM80',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GRID,&nbsp;&nbsp;
+'', NO,&nbsp; NO,&nbsp; 2, 0)<br>
+GFS40&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+('GFS40',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GRID,&nbsp;&nbsp;
+'', NO,&nbsp; NO,&nbsp; 2, 0)<br>
+GFS190&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+('GFS190',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GRID,&nbsp;&nbsp; '',
+NO,&nbsp; NO,&nbsp; 2, 0)<br>
+gfsLR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+('gfsLR',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GRID,&nbsp;&nbsp;
+'', NO,&nbsp; NO,&nbsp; 2, 0)<br>
+RAP40&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+('RAP40',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GRID,&nbsp;&nbsp;
+'', NO,&nbsp; NO,&nbsp; 2, 0)<br>
+AVNMOS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+('AVNMOS',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GRID,&nbsp;&nbsp; '',
+NO,&nbsp; NO,&nbsp; 3, 0)<br>
+NAMMOS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+('NAMMOS',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GRID,&nbsp;&nbsp; '',
+NO,&nbsp; NO,&nbsp; 3, 0)<br>
+MRFMOS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+('MRFMOS',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GRID,&nbsp;&nbsp; '',
+NO,&nbsp; NO,&nbsp; 3, 0)<br>
+HPCStn&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+('HPCSTN',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GRID,&nbsp;&nbsp; '',
+NO,&nbsp; NO,&nbsp; 2, 0)<br>
+HPCGrid&nbsp;&nbsp;&nbsp;&nbsp; =
+('HPCGRID',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GRID,&nbsp;&nbsp; '',
+NO,&nbsp; NO,&nbsp; 2, 0)<br>
+GWW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+('GWW',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+GRID,&nbsp;&nbsp; '', NO,&nbsp; NO,&nbsp; 2, 0)<br>
+HPCQPF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+('QPF',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+GRID,&nbsp;&nbsp; '', NO,&nbsp;&nbsp; NO,&nbsp; 4, 0)<br>
+HPCDelta&nbsp;&nbsp;&nbsp; = ('HPCdelta',&nbsp;&nbsp;&nbsp;&nbsp;
+GRID,&nbsp;&nbsp; '', NO,&nbsp;&nbsp; NO,&nbsp; 2, 0)<br>
+TPCTCM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+('TPCtcm',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GRID,&nbsp;&nbsp; '',
+NO,&nbsp;&nbsp; NO,&nbsp; 2, 0)<br>
+MSAS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+('MSAS',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+GRID,&nbsp;&nbsp; '', YES,&nbsp; NO,&nbsp; 1, 36)<br>
+GLERL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+('GLERL',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GRID,&nbsp;&nbsp;
+'', NO,&nbsp;&nbsp; NO,&nbsp; 2, 0)<br>
+AKWAVE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+('AKWAVE',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GRID,&nbsp;&nbsp; '',
+NO,&nbsp;&nbsp; NO,&nbsp; 2, 0)<br>
+WNAWAVE&nbsp;&nbsp;&nbsp;&nbsp; =
+('WNAWAVE',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GRID,&nbsp;&nbsp; '',
+NO,&nbsp;&nbsp; NO,&nbsp; 2, 0)</tt><br>
+&nbsp;
+</p>
+<hr width="100%">
+<h3><a name="D2DModelFileDirectories"></a>D2D Model File Directories</h3>
+EDEX automatically scans the single pre-defined D2D model file directory and provides
+this data as additional grids for display, or for use in smart tools.
+The user can define which model directories correspond to which GFE
+model.<span style="font-family: monospace;"><br>
+</span>
+<pre><span style="font-family: monospace;"></span><br>D2DMODELS = [('MRF204', 'gfsLR'),
+                 ('AVN225', 'GFS75'),
+                 'WaveWatch',
+                 'GlobalWave',
+                 ('TPCWindProb', 'TPCProb'),
+               ]</pre>
+<p>The actual syntax in the serverConfig.py file looks more complicated
+since it defines the D2DMODELS based on the site identifier.&nbsp; OCONUS
+sites use a different set of directories.
+</p>
+<p>Note that the above example has a mixture of tuples and
+strings. There is an alternative form of the D2DMODELS that is used
+when the hdf5
+model variable (which determines the name of the model as seen by
+GFESUITE)
+conflicts with another model of the same name. Each entry in the list
+of
+D2DMODELS can either be a string, such as above, which indicates the
+directory
+name, or it can be a tuple of ('directory name', 'modelName'). If the
+second
+form is used, then the model variable in the hdf5 file is ignored and
+the given modelName is used instead.
+<br>
+</p>
+<hr style="width: 100%; height: 2px;">
+<h3><a name="SATDIRS"></a>D2D Satellite File Directories</h3>
+GFE recognizes the D2D satellite data as a valid data
+set. EDEX will scan the listed set of D2D directories
+for satellite data for use in display, and smart initialization.
+Since the satellite data is organized differently than model data, the
+specification of the D2D satellite directories consist of the directory
+name, plus the name of the weather element contained within that
+directory. D2D stores one image (one wavelength) within each data
+file.<br>
+<br>
+The format of the entry is a list of tuples. The tuples are of
+length two and contain the D2D directory name and weather element name.<br>
+<br>
+<span style="font-family: monospace;">SATDATA = [("NESDIS/GOES-13(N)/East CONUS/Imager Visible", "visibleEast"),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;("NESDIS/GOES-13(N)/East CONUS/Imager 11 micron IR", "ir11East"),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;("NESDIS/GOES-13(N)/East CONUS/Imager 12 micron IR", "ir13East"),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;("NESDIS/GOES-13(N)/East CONUS/Imager 3.9 micron IR", "ir39East"),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;("NESDIS/GOES-13(N)/East CONUS/Imager 6.7-6.5 micron IR (WV)", "waterVaporEast")]</span>
+<p><br>
+</p>
+<hr width="100%">
+<h3><a name="D2DVersion"></a>D2D Model Database Version Specification</h3>
+The number of available D2D model databases is defaulted to 2.&nbsp;
+This
+number can be overridden through the localConfig.py mechansism.&nbsp;
+The
+user can specify the D2D model name and the number of versions to
+retain.&nbsp;
+Note that the number is the maximum number that will be available to
+the
+GFESuite, not necessarily the real number of versions that are
+available
+since AWIPS D2D handles the purging of these databases.&nbsp; If you
+increase
+the number for the D2D databases, then you will likely want to modify
+the
+Database Attributes for the equivilant IFP database in order for smart
+initialization to be able to create and populate it.&nbsp; The number
+of
+available databases in the Database Attributes should be greater to or
+equal to the number of databases specified in the D2D Model Database
+Version
+specification. This definition is also used for D2D Satellite Databases
+to determine the number of images that can be seen by GFE.
+<p>The format of the entry is:
+<br>
+<tt>#D2DDBVERSIONS = {</tt>
+<br>
+<tt>#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "modelname": numVersions</tt>
+<br>
+<tt>#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</tt>
+</p>
+<p>For example, the following sets the number of LAPS databases to 5,
+and
+the number of NAM to 3:
+</p>
+<p><tt>D2DDBVERSIONS = {</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "NAM80": 3,</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "LAPS":5</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</tt>
+<br>
+&nbsp;
+</p>
+<hr width="100%">
+<h3><a name="InitializationModules"></a>Initialization Modules</h3>
+The smart initialization technique of GFESuite is initiated from EDEX.
+The serverConfig.py file provides a mapping of D2D directories to
+initialization
+run modules. For example, here is the section in serverConfig.py:
+<p><tt>INITMODULES = {<br>
+&nbsp;&nbsp;&nbsp; "NAM40" : ["NAM40", "NAM20"],<br>
+&nbsp;&nbsp;&nbsp; "NAM80" : ["NAM80"],<br>
+&nbsp;&nbsp;&nbsp; "RAP40" : ["RAP40"],<br>
+&nbsp;&nbsp;&nbsp; "gfsLR" : ["gfsLR"],<br>
+&nbsp;&nbsp;&nbsp; "NAM12" : ["NAM12"],<br>
+&nbsp;&nbsp;&nbsp; "GFS40" : ["GFS40"],<br>
+&nbsp;&nbsp;&nbsp; "GFS190" : ["GFS190"],<br>
+&nbsp;&nbsp;&nbsp; "LAPS" : ["LAPS"],<br>
+&nbsp;&nbsp;&nbsp; "HPCQPF" : ['HPCQPF'],<br>
+&nbsp;&nbsp;&nbsp; "MSAS" : ['MSAS'],<br>
+&nbsp;&nbsp;&nbsp; "HPCdelta" : ['HPCdelta'],<br>
+&nbsp;&nbsp;&nbsp; "SAT" : ['Satellite']<br>
+&nbsp;&nbsp;&nbsp; }<br>
+</tt><tt><br>
+</tt></p>
+<p>This is standard Python syntax for a dictionary, with the keys on
+the
+left of the colon and the values as a list on the right side. For
+example, the first line:
+</p>
+<p><tt>"NAM40" : ["NAM40", "NAM20"]</tt>
+</p>
+<p>indicates that the NAM40 initialization module will be executed
+whenever
+changes occur in the NAM40 and NAM20 D2D databases.&nbsp; The "MesoNAM"
+NAM40/NAM20
+is more complicated than most models since it arrives in two completely
+separate hdf5 files and resolution.&nbsp; The syntax for the "NAM12"
+model
+is more straightforward:
+</p>
+<p><tt>"NAM12" : ["NAM12"]</tt>
+</p>
+<p>which indicates that the NAM12 initialization module (named NAM12.py
+and
+found in the /awips2/edex/data/utility/edex_static/base/smartinit) directory will be executed
+whenever the
+D2D NAM12 model changes.&nbsp; Remember that the initialization module
+is
+on the left, and the D2D model name files are on the right.
+</p>
+<p>By default, the smart initialization will run for each model run of
+a particular model.&nbsp; This behavior can be changed by listing the
+model
+name and the hours to skip.&nbsp; For example, here is a section in
+serverConfig.py:
+</p>
+<p><tt>INITSKIPS = {</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; "RAP40" :
+[1,2,4,5,7,8,10,11,13,14,16,17,19,20,22,23],</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; }</tt>
+</p>
+<p>This is standard Python syntax for a dictionary.&nbsp; This line:
+</p>
+<p><tt>"RAP40" : [1,2,4,5,7,8,10,11,13,14,16,17,19,20,22,23],</tt>
+</p>
+<p>indicates that all runs of the RAP40 will be ignored, except every 3
+hours.
+</p>
+<p>The default for serverConfig is to run all of the available model
+runs,
+except for RAP40, which is run only every 3 hours.
+</p>
+<hr width="100%">
+<h3><a name="D2DAccumulativeWeatherElements"></a>D2D Accumulative
+Weather Elements</h3>
+The dictionary of accumulative weather elements is defined by model and
+weather element.&nbsp; If a weather element is declared, then the
+software
+will treat that element as a duration or accumulative element.&nbsp;
+The
+model grid time will be considered as the ending time of the
+grid.&nbsp;
+Only the weather element name (not the level) is specified in the
+dictionary.
+<p><tt># This is a listing of D2D model name, and weather
+elements.&nbsp;
+The</tt>
+<br>
+<tt># weather elements defined in this list are treated as accumulative</tt>
+<br>
+<tt># elements, thus the snapshot time of the grid is converted to
+be a</tt>
+<br>
+<tt># grid with timestep duration, starting the previous model timestep
+and</tt>
+<br>
+<tt># going up to but not including the snapshot time.</tt></p>
+<p><tt>D2DAccumulativeElements= {<br>
+&nbsp;&nbsp;&nbsp; "GFS40": ["tp", "cp"],<br>
+&nbsp;&nbsp;&nbsp; "GFS190": ["tp", "cp"],<br>
+&nbsp;&nbsp;&nbsp; "NAM80": ["tp", "cp"],<br>
+&nbsp;&nbsp;&nbsp; "NAM40": ["tp", "cp"],<br>
+&nbsp;&nbsp;&nbsp; "NAM20": ["tp", "cp"],<br>
+&nbsp;&nbsp;&nbsp; "NAM12": ["tp", "cp"],<br>
+&nbsp;&nbsp;&nbsp; "gfsLR": ["tp", "cp"],<br>
+&nbsp;&nbsp;&nbsp; "RAP40": ["tp", "cp"],<br>
+&nbsp;&nbsp;&nbsp; "MSAS": ["tp", "cp"],<br>
+&nbsp;&nbsp;&nbsp; "LAPS": ["pc"],<br>
+&nbsp;&nbsp;&nbsp; "HPCQPF": ["tpHPC"],<br>
+&nbsp;&nbsp;&nbsp; "HPCdelta": ["pop", "tcc"],<br>
+&nbsp;&nbsp;&nbsp; }<br>
+</tt><br>
+&nbsp;</p>
+<hr style="width: 100%; height: 2px;">
+<h3><a name="ISC"></a>Intersite Coordination Configuration Items</h3>
+This section defines the configuration of the intersite coordination
+feature of GFESuite:<br>
+<ul>
+  <li>ISC_ROUTING_TABLE_ADDRESS - defines the base url for the ISC
+Routing Table web service as a string.&nbsp; If None is specified, then
+the system will be unable to transmit or receive ISC data.</li>
+  <li>REQUESTED_ISC_SITES - defines the sites, as a list, from which
+ISC data will be requested.&nbsp; If None is specified, then EDEX
+will automatically calculate the needed isc sites by
+examining the list of ISC_xxx edit areas.&nbsp; <br>
+  </li>
+  <li>REQUEST_ISC - overall toggle to control the ingest of ISC
+data.&nbsp; If this flag is set to 0, then EDEX will not
+register with the ISC Routing Table web server and no ISC data will be
+received.&nbsp; If this flag is 1, then EDEX reigsters with
+the web service for the data sets defined in REQUESTED_ISC_SITES.</li>
+  <li>SEND_ISC_ON_SAVE - toggle to turn on the transmission of ISC data
+when grids are stored in the Fcst database.&nbsp; The list of sites to
+send is obtained from other EDEX registrations with the ISC
+Routing Table web service. Note that ISC grids will be sent only if
+the GFE is used to save the grids. For example, if iscMosaic is used
+to modify the Fcst database, those grids will not be sent via ISC at
+the time of the save.<br>
+  </li>
+  <li>SEND_ISC_ON_PUBLISH - toggle to turn on the transmission of ISC
+data when grids are published in the Official database.&nbsp; The list
+of sites to send is obtained from other EDEX registrations with
+the ISC Routing Table web service.</li>
+  <li>REQUESTED_ISC_PARMS - defines the weather elements desired to be
+received for ISC, as a list.&nbsp; If set to None, then EDEX
+will automatically set the list to be equivilant of all weather
+elements in your ISC database.&nbsp; To receive weather elements from
+an office that is the same type as yours (e.g., wfo to a wfo), then
+simply specify the weather element, such as T.&nbsp; To receive
+weather elements from an office that is of a different office type than
+yoursr (e.g., rfc to a wfo), then specify the weather element followed
+by the sending office type.&nbsp; For example, requesting QPF from an
+RFC if you are an RFC is done by including QPF as the element you want,
+but requesting QPF from an RFC if you are a WFO is done by including
+QPFrfc.<br>
+  </li>
+  <li>TRANSMIT_SCRIPT - name of the script to send ISC messages.&nbsp;
+The script will need to accept the following switches:<br>
+  </li>
+  <ul>
+    <li>-s - subject line, normally ISCGRIDS</li>
+    <li>-a - address list, generates comma separated addressee list,
+such as "CLE,PBZ,BUF", which represents the AWIPS MHS identifiers<br>
+    </li>
+    <li>-i - id string, normally similar to TTAA0 KXXX 021232</li>
+    <li>-c - AWIPS MHS code, normally 11</li>
+    <li>-p - priority mode, 0 is lowest, 2 is highest</li>
+    <li>-e - enclosure list, such as "f1, f2, f3", containing the ISC
+data compressed, and the ISC destination routing information <br>
+    </li>
+  </ul>
+  <li>EXTRA_ISC_PARMS - list of weather elements and office types to
+add additional ISC weather elements into the ISC database.&nbsp; For
+ISC to work between different office types (e.g., wfo to rfc), the list
+of weather elements you wish to receive from the different office types
+must be listed.&nbsp; This adds special renamed weather elements to the
+database.&nbsp; The format of the entry is a list.&nbsp; The elements
+of the list are two-element tuples with the 1st element being a list of
+weather elements (the actual element definition&nbsp; as shown in the <a
+ href="#WeatherElementConfigurationSection">Weather Element
+Configuration Section</a>-- NOT the weather element name), and the 2nd
+element being a string representing the office type.&nbsp;&nbsp; There
+is no harm in attempting to add weather elements for your own office
+type, although those will be ignored.</li>
+  <ul>
+    <li>Examples:&nbsp; To receive T, RH, and QPF from an rfc when you
+aren't an rfc:&nbsp; <br>
+    </li>
+    <ul>
+      <li>EXTRA_ISC_PARMS = [([Temp, RH, QPF], 'rfc')]<br>
+      </li>
+    </ul>
+  </ul>
+</ul>
+<br>
+NOTE: Sites will have to enable SEND_ISC_ON_SAVE in order to send
+intersite grids.&nbsp; Sites will need to configure REQUEST_ISC in
+order to receive intersite grids.&nbsp; Sites should consider whether
+the defaults for REQUESTED_ISC_SITES and REQUESTED_ISC_PARMS are
+sufficient; in all likelyhood the default values will send too much
+data to
+too many sites.&nbsp; Refer to the <a href="IntersiteCoordination.html">Intersite
+Coordination Guide</a> for more details.<br>
+<br>
+<span style="font-family: monospace;">#---------------------------------------------------------------------------</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">#</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">#&nbsp; Intersite Coordination
+Configurations</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">#</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">#---------------------------------------------------------------------------</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;"># base url for the ISC Routing
+Table</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">ISC_ROUTING_TABLE_ADDRESS = "xxxx"</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;"># list of sites that from which
+you want ISC data (If None, EDEX will</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;"># automatically calculate the
+list.)</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">REQUESTED_ISC_SITES = None</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;"># Overall ISC request flag.&nbsp;
+Must be set to 1 in order to request and receive</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;"># ISC data.</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">REQUEST_ISC = 1</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;"># Sending control flag.&nbsp; Set
+to 1 to send isc when data is saved.</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">SEND_ISC_ON_SAVE = 1</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;"># Sending control flag.&nbsp; Set
+to 1 to send isc when data is published.</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">SEND_ISC_ON_PUBLISH = 1</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;"># List of weather elements to
+request for ISC.&nbsp; If set to None, it defaults</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;"># to the list of all weather
+elements in the ISC database.</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">REQUESTED_ISC_PARMS = None</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;"></span><span
+ style="font-family: monospace;"></span><span
+ style="font-family: monospace;"># Transmission script for sending
+data.&nbsp; This is the script that iscExtract</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;"># will call to perform the actual
+transmission of data.</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">TRANSMIT_SCRIPT =&nbsp;
+GFESUITE_HOME + '/bin/gfe_msg_send -s %SUBJECT -a %ADDRESSES -i %WMOID
+-c 11 -p 0 -e %ATTACHMENTS'<br>
+<br>
+# Extra ISC parms (weather elements).&nbsp; These are a list of the
+baseline<br>
+# weather elements to be added as extra parms to the ISC
+database.&nbsp; This<br>
+# is necessary when receiving ISC grids from a site that is a different<br>
+# office type than your own.&nbsp; You never need to add weather
+elements<br>
+# to the ISC database that is your own office type.&nbsp; The format of
+this<br>
+# entry is a list of tuples.&nbsp; The tuple is a list of weather
+elements<br>
+# objects (such as Temp and not "T"), and an office type, such as "rfc".<br>
+EXTRA_ISC_PARMS = [([QPF, Temp], 'rfc'), ([QPF], 'wfo')]<br>
+<br>
+<br style="font-family: monospace;">
+</span><br>
+<br>
+<p></p>
+<hr width="100%">
+<h3><a name="MiscellaneousConfigurationItems"></a>Miscellaneous
+Configuration
+Items</h3>
+This section controls the following items:
+<ul>
+  <li>number of days to retain GFESuite log files</li>
+  <li>auto configuration for NotifyTextProd (used with the VTECDecoder)<br>
+  </li>
+</ul>
+<p><br>
+<tt># defines the number of days to keep log files</tt>
+<br>
+<tt>LOG_FILE_PURGE_AFTER = 6</tt>
+</p>
+<p></p>
+<p><tt># defines a list of weather elements that will NEVER be
+processed
+for</tt>
+<br>
+</p>
+<p><tt># auto configure NotifyTextProd -- set after OB6<br>
+AUTO_CONFIGURE_NOTIFYTEXTPROD = 0&nbsp;&nbsp; #0=off,1=on<br>
+<br>
+<br>
+</tt></p>
+<hr width="100%">
+<h3><a name="WeatherElementGroupings"></a>Weather Element Groupings
+(a.k.a.
+Parm Groups)</h3>
+The weather element groupings combine <a
+ href="#WeatherElementConfigurationSection">weather
+elements</a> with <a href="#TimeConstraintConfiguration">time
+constraints</a>,
+and then bundle them together into groups. At this point, there is no
+tie-in
+with the databases.
+<p>The format of these entries is:
+<br>
+<tt>groupName = [([we1,we2,we3], timeconstraint1), ([we4, we5],
+timeconstraint2)]</tt>
+</p>
+<p>Example weather element groupings are:
+</p>
+<p><tt># Parm groups.&nbsp; Combine parms with time constraints</tt>
+<br>
+<tt># list of ([parms], timeConstraints)</tt>
+<br>
+&nbsp;
+<br>
+&nbsp;
+</p>
+<p><tt># 6 hourly</tt><br>
+<tt>STD6_MODEL = [([Temp, Td, Wind, Weather, Sky, FzLevel], Std6H),</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+([SnowAmt, QPF, PoP], Std6), ([MaxT], MaxTTC), ([MinT], MinTTC)]</tt>
+</p>
+<p><tt># Fcst and official database parameter groupings</tt>
+<br>
+<tt>OFFICIALDBS = [([Temp, Td, Wind, Weather, Sky, FzLevel], TC1),</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ([HeatIndex,
+WindChill, RH], TC1),</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ([SnowAmt,
+PoP], LT6NG), ([QPF], TC6NG),</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ([MinT],
+MinTTC), ([MaxT], MaxTTC),</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+([WaveHeight,
+WindGust, Swell], TC1),</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ([LAL, CWR,
+Haines, MixHgt, FreeWind, TransWind], TC1)]</tt>
+</p>
+<hr width="100%">
+<h3><a name="DatabaseGroupings"></a>Database Groupings</h3>
+The database groupings section lists all of the databases for a site
+based
+on the <a href="#DatabaseModelConfiguration">database definition</a>
+and the <a href="#WeatherElementGroupings">weather element groupings</a>.&nbsp;
+This section associates the weather element groupings with each
+database.
+<p><tt>DATABASES = [(Official, OFFICIALDBS + localParms),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(Fcst, OFFICIALDBS + localParms),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(Restore, RESTOREDBS + localParms),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(NAM80, STD6_MODEL + localNAM80Parms),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(RAP40, STD1_MODEL + localRAP40Parms),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(GFS40, STD6_MODEL + localGFS40Parms),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(GFS190, STD6_MODEL + localGFS190Parms),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(NAM40, STD3_MODEL + localNAM40Parms),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(NAM12, STD3_MODEL + localNAM12Parms),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(gfsLR, STD12_MODEL + localgfsLRParms),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(GWW, WAVEPARMS + localGWWParms),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(WNAWAVE, WAVEPARMS + localWNAWAVEParms),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(AKWAVE, WAVEPARMS + localAKWAVEParms),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(AVNMOS, MOS_MODEL + localMOSParms),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(NAMMOS, MOS_MODEL + localMOSParms),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(MRFMOS, MOS_MODEL + localMOSParms),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(HPCStn, MOS_MODEL + localMOSParms),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(HPCGrid, MOS_MODEL + localMOSParms),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(HPCQPF, HPCQPF_MODEL + localHPCQPFParms),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(HPCDelta, HPCDELTA_MODEL + localHPCDeltaParms),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(TPCTCM, TPCTCM_MODEL + localTCMParms),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(ISC, ISCPARMS + localISCParms),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(LAPS, LAPSPARMS + localLAPSParms),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(SAT, SATPARMS + localSATParms),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(MSAS, MSASPARMS + localMSASParms),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(GLERL, GLERLPARMS + localGLERLParms),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(Test, OFFICIALDBS + localParms)] + localDBs</tt><br>
+&nbsp;
+</p>
+<hr width="100%">
+<h3><a name="GeneralServerConfiguration"></a>General Server
+Configuration</h3>
+This section should not be changed. It imports the parser code into
+this
+configuration file.
+<p><tt>#---------------------------------------------------------------------------</tt>
+<br>
+<tt>#</tt>
+<br>
+<tt>#&nbsp; General server configuration section</tt>
+<br>
+<tt>#</tt>
+<br>
+<tt>#---------------------------------------------------------------------------</tt>
+<br>
+<tt>from com.raytheon.edex.plugin.gfe.config import IFPServerConfig, SimpleServerConfig<br>
+IFPConfigServer = SimpleServerConfig()<br>
+IFPConfigServer.allowTopoBelowZero       = 1</tt>
+<br>
+</p>
+<h4><a name="ServerSettings"></a>Server Settings</h4>
+The Server Settings section consolidates the entries in the
+serverConfig.py
+and makes them available to the Java portion of GFE.
+Nothing should ever be changed in this section:
+<p><tt>#----------------------------------------------------------------------------</tt>
+<br>
+<tt># Server settings&nbsp;&nbsp;&nbsp;&nbsp; DO NOT CHANGE THESE
+DEFINITIONS</tt>
+<br>
+<tt>#----------------------------------------------------------------------------</tt>
+<br>
+</p>
+<hr width="100%"><br>
+<div class="Body">&nbsp;<a href="#Overview">Back To Top</a>
+<br>
+&nbsp;<a href="GFESuite.html#TableOfContents">Back To TOC</a></div>
+</div>
+</body>
+</html>

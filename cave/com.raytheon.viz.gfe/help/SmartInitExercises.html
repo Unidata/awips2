@@ -1,0 +1,389 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta content="text/html; charset=iso-8859-1"
+ http-equiv="Content-Type">
+  <meta
+ content="Mozilla/4.76 [en] (X11; U; Linux 2.4.2-2smp i686) [Netscape]"
+ name="GENERATOR">
+ <title>GFESuite Training - Smart Initialization Exercises
+</head>
+<body>
+<h1>
+Smart Initialization Exercises</h1>
+February 15, 2012<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+Performing these steps in an operational environment will mess up your
+guidance. You should only perform these on an non-operational
+setup.
+<p>If you run out of time, please be sure to <a href="#cleanup">clean
+up
+your system</a> for the next participant.
+</p>
+<p><a href="#Exercise1">Exercise 1. Override the NAM algorithm for
+Temperature</a>
+<br>
+<a href="#Exercise2">Exercise 2. Adding a new weather element and
+algorithm</a>
+<br>
+<a href="#cleanup">Clean up the system</a>
+<br>
+<a href="#Answers">Answers</a>
+<br>
+<br>
+</p>
+<hr width="100%">
+<h2><a name="Exercise1"></a>Exercise 1. Override the NAM algorithm for
+Temperature</h2>
+The purpose of this exercise is to learn how to override existing
+algorithms.
+We will try three different examples. The first example will
+simply
+set the T to 32 degrees everywhere as a verification step to ensure
+that
+you have changed the algorithm correctly.
+<br>
+<h3><a name="1a"></a>1a) Set the NAM algorithm for Temperature to
+T=32</h3>
+Create a new file in /release/edex/data/utility/edex_static/site/SITE/smartinit 
+called MyNAM12.py. This will be your
+override file. Perhaps the best way to create this file is to
+copy
+the original /release/edex/data/utility/edex_static/base/smartinit/NAM12.py into 
+/release/edex/data/utility/edex_static/site/SITE/MyNAM12.py and then modify
+it.
+Strip out all of the functions in the class except the calcT(), since
+that
+is the function we will be overriding. Refer to the documentation
+on overriding a class -- you will need to make additional changes to
+the
+header of the file, the constructor, and the main declaration at the
+bottom
+of the class.
+<p>Change the calcT() function to simply set an entire grid to
+32.
+Note you cannot simply set T=32, you need to create a numerical grid
+first
+of zeros, and then add 32 to it.
+</p>
+<p>Save your file. Run smart init by hand using the appropriate
+command,
+similar to this, from the bin directory:
+<br>
+<tt>ifpInit -t 20011117_1200 -a MyNAM</tt>
+</p>
+<p>Look at the NAM T grids on the GFE, did they get changed to the
+constant
+32 value?
+</p>
+<p><a href="#answer1a">Answers for exercise 1a</a>
+<br>
+&nbsp;
+</p>
+<h3><a name="1b"></a>1b) Set the NAM12 algorithm to use the 2m
+Temperatures
+directly</h3>
+Modify your previously created MyNAM12.py. Change the algorithm
+to
+use the 2m temperatures (t_FHAG2). Don't forget that you want
+degrees
+Fahrenheit and the model has temperatures in Kelvin.
+<p>Save your file. Run smart init by hand. Verify that the grids did
+get
+changed.
+</p>
+<p><a href="#answer1b">Answers for exercise 1b</a>
+<br>
+</p>
+<h3><a name="1c"></a>1c) Correct your algorithm for model and real
+topographical
+differences</h3>
+Modify your previously created MyNAM12.py. Change the algorithm
+to
+use a fixed lapse rate based on the standard atmosphere. We will
+assume 6.0 degrees Celsius per kilometer. Your topo and stopo
+fields
+are in meters, the t_FHAG2 is in degrees Kelvin. Don't forget to
+convert the answer to Fahrenheit.
+<p>Save your file. Run smart init by hand. Verify that the
+grids did get changed.
+</p>
+<p><a href="#answer1c">Answers for exercise 1c</a>
+<br>
+</p>
+<h3><a name="1d"></a>1d)Putting your new algorithm into operation</h3>
+In this exercise, we will be putting your new algorithm into operation
+and verifying the correct steps have been made. Normally you will
+need to stop EDEX, edit the localConfig.py file, change the
+set
+of INITMODULES to use your new MyNAM12, then restart the server.
+Since
+you really wouldn't see any changes until the next model run, before
+you
+restart your server, you should manually delete all NAM12 databases
+under
+release/edex/data/hdf5/gfe/NAM12; then connect to the metadata database 
+and issue SQL "delete from gfe where dbid like '%NAM12%';".
+<p>Start EDEX, bring up the GFE, call up the NAM12 T grids.
+When
+smart init runs your module, the T grids should appear.
+</p>
+<p>To clean up the system, stop EDEX, remove the
+localConfig.py
+INITMODULES entry, and remove your MyNAM12.py* files from the 
+/release/edex/data/utility/edex_static/site/SITE/smartinit directory,
+purge the grids again from the release/edex/data/hdf5/gfe/NAM12 directory; 
+then connect to the metadata database 
+and issue SQL "delete from gfe where dbid like '%NAM12%';".
+Finally, restart EDEX.
+</p>
+<p><a href="#answer1d">Answers for exercise 1d</a>
+<br>
+<br>
+</p>
+<p></p>
+<hr width="100%">
+<h2><a name="Exercise2"></a>Exercise 2) Adding a new weather
+element and
+algorithm</h2>
+In this exercise, we will be adding a new weather element to the NAM12
+database,
+called DewPointDepression, and then defining a new algorithm to
+automatically
+create it. Since this is a new element, you first must create the
+localConfig.py entry to add the weather element.
+<br>
+<h3><a name="2a"></a>2a) Define your new weather element.</h3>
+<p><br>
+Add the DewPointDepression with the following characteristics
+to your localConfig.py:
+<br>
+DPD =&nbsp;&nbsp;&nbsp; ("TdD", SCALAR, "F", "Dew Point Depression",
+50, 0, 0)
+</p>
+<p>Be sure to identify this as a new parm for the NAM12 model.
+Hint: parmsNAM12
+is the variable name you need for your parm grouping. Set the
+time
+constraint to TC6, since the NAM12 comes in every 6 hours.
+</p>
+<p>Stop EDEX, then restart it. Bring up the GFE to
+verify
+that there is now a Dew Point Depression weather element in the NAM
+database.<a href="#answer2a"></a>
+</p>
+<p><a href="#answer2a">Answers for exercise 2a</a>
+<br>
+</p>
+<h3><a name="2b"></a>2b) Create your algorithm and test it.</h3>
+Create or modify the MyNAM12.py file in 
+/release/edex/data/utility/edex_static/site/SITE/smartinit. You may leave
+in your calcT() from exercise #1 if desired. Add a new calc function
+for Dew Point Depression. The equation is basically T - Td.
+You can choose to calculate T-Td in one of two ways:
+<ul>
+  <li>use the T and Td from the output IFP NAM12 database</li>
+  <li>use the t_FHAG2 from the input D2D NAM12 database, and then
+calculate
+dew point from the t_FHAG2 and rh_FHAG2.</li>
+</ul>
+Save your file. Run smart init by hand using the appropriate
+command,
+similar to this, from the bin directory:
+<br>
+<tt>ifpInit -s xxx -t 20011117_1200 -a MyNAM12</tt>
+<p>Look at the NAM dew point depression grids, compare with the T and
+Td
+grids with the sample tool to make sure you have done the equation
+correctly.
+</p>
+<p><a href="#answer2b">Answers for exercise 2b</a>
+</p>
+<hr width="100%">
+<h2><a name="cleanup"></a>Clean up your system</h2>
+To clean up the system, stop EDEX, remove the localConfig.py
+INITMODULES
+and dew point depression entries, and remove your MyNAM12.py* files
+from the /release/edex/data/utility/edex_static/site/SITE/smartinit
+directory, purge the grids again from the
+release/edex/data/hdf5/gfe/NAM12 directory; 
+then connect to the metadata database 
+and issue SQL "delete from gfe where dbid like '%NAM12%';".
+Restart EDEX.
+<br>
+<hr width="100%">
+<h2><a name="Answers"></a>Answers</h2>
+<h3>
+<a name="answer1a"></a>Answer for Exercise 1a</h3>
+<tt>from NAM12 import *</tt>
+<p><tt>class MyNAM12Forecaster(NAM12Forecaster):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; def __init__(self):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+NAM12Forecaster.__init__(self)</tt>
+</p>
+<p><tt>&nbsp;&nbsp;&nbsp; def calcT(self, t_FHAG2):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t = self._empty +&nbsp;32</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return t</tt>
+<br>
+<tt></tt>&nbsp;<tt></tt>
+</p>
+<p><tt>def main():</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; MyNAM12Forecaster().run()</tt>
+</p>
+<h3><a name="answer1b"></a>Answer for Exercise 1b</h3>
+<p><br>
+<tt>from NAM12 import *</tt>
+</p>
+<p><tt>class MyNAM12Forecaster(NAM12Forecaster):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; def __init__(self):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+NAM12Forecaster.__init__(self)</tt>
+</p>
+<p><tt>&nbsp;&nbsp;&nbsp; def calcT(self, t_FHAG2):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return self.KtoF(t_FHAG2)</tt><tt></tt>
+</p>
+<p><tt>def main():</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; MyNAM12Forecaster().run()</tt>
+</p>
+<h3><a name="answer1c"></a>Answer for Exercise 1c</h3>
+<tt>from NAM12 import *</tt>
+<p><tt>class MyNAM12Forecaster(NAM12Forecaster):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; def __init__(self):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+NAM12Forecaster.__init__(self)</tt>
+</p>
+<p><tt>&nbsp;&nbsp;&nbsp; def calcT(self, t_FHAG2, topo, stopo):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; elevDiff = topo - stopo</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t = t_FHAG2
+-&nbsp;(elevDiff
+*&nbsp;6.0 / 1000)</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return self.KtoF(t)</tt><tt></tt>
+</p>
+<p><tt>def main():</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; MyNAM12Forecaster().run()</tt>
+</p>
+<h3><a name="answer1d"></a>Answer for Exercise 1d</h3>
+Entry in localConfig.py:
+<p><tt>from serverConfig import *</tt>
+<br>
+<tt>import serverConfig</tt><tt></tt>
+</p>
+<p><tt>serverConfig.INITMODULES["MyNAM12"] = ["NAM12"]</tt>
+<br>
+<tt>del serverConfig.INITMODULES["NAM12"]</tt>
+<br>
+<br>
+</p>
+<h3><a name="answer2a"></a>Answer for Exercise 2a</h3>
+Entry in localConfig.py:
+<p><tt>from serverConfig import *</tt>
+<br>
+<tt>import serverConfig</tt><tt></tt>
+</p>
+<p><tt>DPD =&nbsp;&nbsp;&nbsp; ("TdDepression", SCALAR, "F", "Dew Point
+Depression", 50, 0, 0)</tt>
+<br>
+<tt>parmsNAM12 = [([DPD], TC6)]</tt>
+<br>
+<br>
+<br>
+</p>
+<h3><a name="answer2b"></a>Answer for Exercise 2b</h3>
+<tt>from NAM12 import *</tt>
+<p><tt>class MyNAM12Forecaster(NAM12Forecaster):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; def __init__(self):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+NAM12Forecaster.__init__(self)</tt>
+</p>
+<p><tt>&nbsp;&nbsp;&nbsp; def calcTdD(self, T, Td):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return T-Td</tt><tt></tt>
+</p>
+<p><tt>def main():</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; MyNAM12Forecaster().run()</tt>
+</p>
+<p>The alternative form, where you use the t_FHAG2 and rh_FHAG2 would
+be
+the following. Note that this method will not take advantage of
+any
+topographical corrections you have made in the temperatures:<tt></tt>
+</p>
+<p><tt>from NAM12 import *</tt>
+</p>
+<p><tt>class MyNAM12Forecaster(NAM12Forecaster):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; def __init__(self):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+NAM12Forecaster.__init__(self)</tt>
+</p>
+<p><tt>&nbsp;&nbsp;&nbsp; def calcTdD(self, t_FHAG2, rh_FHAG2):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; td = getTd(t_FHAG2,
+rh_FHAG2)</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; depression = t_FHAG2
+- td</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return depression
+*&nbsp;9.0
+/ 5.0</tt><tt></tt>
+</p>
+<p><tt>&nbsp;&nbsp;&nbsp; def getTd(self, t, rh):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # input/output in
+degrees
+K.</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; desat = clip(t, 0,
+373.15)</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; desat = where(less(t,
+173.15), 3.777647e-05, t)</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; desat = exp(26.660820
+- desat * 0.0091379024 - 6106.3960 / desat)</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; desat = desat * rh /
+100.0</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; desat = 26.66082 -
+log(desat)</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; td = (desat -
+sqrt(desat*desat-223.1986))/0.0182758048</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; td = where(greater(td,
+t), t, td)</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return td</tt>
+<br>
+<br>
+</p>
+<p><tt>def main():</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; MyNAM12Forecaster().run()</tt>
+</p>
+<br>
+<br>
+</body>
+</html>

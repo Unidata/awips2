@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lmaVarsContainer>
+    <lmaVar name="mfd" avar="lmamfd" longname="Maximum Flash Density"/>
+    <lmaVar name="fid" avar="lmafid" longname="Flash Initiation Density"/>
+    <lmaVar name="sd" avar="lmasd" longname="Source Density"/>
+    <lmaVar name="msd" avar="lmamsd" longname="Maximum Source Density"/>
+    <lmaVar name="fed" avar="lmafed" longname="Flash Extent Density"/>
+    <lmaVar name="rfd" avar="lmasd" longname="Source Density"/>
+    <lmaVar name="roc" avar="lmaroc" longname="Rate of Change"/>
+    <lmaVar name="msh" avar="lmamsh" longname="Maximum Source Height"/>
+    <lmaVar name="ash" avar="lmaash" longname="Average Source Height"/>
+    <lmaVar name="sum" avar="lmasum" longname="Summation of Sources"/>
+</lmaVarsContainer>

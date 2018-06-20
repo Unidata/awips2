@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Preface</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="prev" href="svn.foreword.html" title="Foreword" />
+    <link rel="next" href="svn.intro.whatis.html" title="What Is Subversion?" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">Preface</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.foreword.html">Prev</a> </td>
+          <th width="60%" align="center"> </th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.intro.whatis.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="preface" title="Preface">
+      <div class="titlepage">
+        <div>
+          <div>
+            <h2 class="title"><a id="svn.preface"></a>Preface</h2>
+          </div>
+        </div>
+      </div>
+      <div class="toc">
+        <p>
+          <b>Table of Contents</b>
+        </p>
+        <dl>
+          <dt>
+            <span class="sect1">
+              <a href="svn.intro.whatis.html">What Is Subversion?</a>
+            </span>
+          </dt>
+          <dd>
+            <dl>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.intro.whatis.html#svn.intro.righttool">Is Subversion the Right Tool?</a>
+                </span>
+              </dt>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.intro.whatis.html#svn.intro.history">Subversion's History</a>
+                </span>
+              </dt>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.intro.whatis.html#svn.intro.architecture">Subversion's Architecture</a>
+                </span>
+              </dt>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.intro.whatis.html#svn.intro.components">Subversion's Components</a>
+                </span>
+              </dt>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.intro.whatis.html#svn.intro.whatsnew">What's New in Subversion</a>
+                </span>
+              </dt>
+            </dl>
+          </dd>
+          <dt>
+            <span class="sect1">
+              <a href="svn.preface.audience.html">Audience</a>
+            </span>
+          </dt>
+          <dt>
+            <span class="sect1">
+              <a href="svn.preface.howread.html">How to Read This Book</a>
+            </span>
+          </dt>
+          <dt>
+            <span class="sect1">
+              <a href="svn.preface.organization.html">Organization of This Book</a>
+            </span>
+          </dt>
+          <dt>
+            <span class="sect1">
+              <a href="svn.preface.free.html">This Book Is Free</a>
+            </span>
+          </dt>
+          <dt>
+            <span class="sect1">
+              <a href="svn.preface.acks.html">Acknowledgments</a>
+            </span>
+          </dt>
+        </dl>
+      </div>
+      <div class="blockquote">
+        <table border="0" width="100%" cellspacing="0" cellpadding="0" class="blockquote" summary="Block quote">
+          <tr>
+            <td width="10%" valign="top"> </td>
+            <td width="80%" valign="top">
+              <p>
+                <span class="quote">“<span class="quote">It is important not to let the perfect become the
+      enemy of the good, even when you can agree on what perfect is.
+      Doubly so when you can't.  As unpleasant as it is to be trapped by
+      past mistakes, you can't make any progress by being afraid of your
+      own shadow during design.</span>”</span>
+              </p>
+            </td>
+            <td width="10%" valign="top"> </td>
+          </tr>
+          <tr>
+            <td width="10%" valign="top"> </td>
+            <td colspan="2" align="right" valign="top">--<span class="attribution">Greg Hudson, Subversion developer</span></td>
+          </tr>
+        </table>
+      </div>
+      <a id="idp26405296" class="indexterm"></a>
+      <a id="idp26406384" class="indexterm"></a>
+      <p>In the world of open source software, the Concurrent Versions
+    System (CVS) was the tool of choice for version control for many
+    years.  And rightly so.  CVS was open source software itself, and
+    its nonrestrictive modus operandi and support for networked
+    operation allowed dozens of geographically dispersed programmers
+    to share their work.  It fit the collaborative nature of the
+    open source world very well.  CVS and its semi-chaotic development
+    model have since become cornerstones of open source
+    culture.</p>
+      <p>But CVS was not without its flaws, and simply fixing those
+    flaws promised to be an enormous effort.  Enter Subversion.
+    Subversion was designed to be a successor to CVS, and its
+    originators set out to win the hearts of CVS users in two
+    ways—by creating an open source system with a design
+    (and <span class="quote">“<span class="quote">look and feel</span>”</span>) similar to CVS, and by
+    attempting to avoid most of CVS's noticeable flaws.  While the
+    result wasn't—and isn't—the next great evolution in
+    version control design, Subversion <span class="emphasis"><em>is</em></span> very
+    powerful, very usable, and very flexible.</p>
+      <p>This book is written to document the 1.7 series of the Apache
+    Subversion™<sup>[<a id="idp31803712" href="#ftn.idp31803712" class="footnote">1</a>]</sup> version control system.  We have made
+    every attempt to be thorough in our coverage.  However, Subversion
+    has a thriving and energetic development community, so already a
+    number of features and improvements are planned for future
+    versions that may change some of the commands and specific notes
+    in this book.</p>
+      <div class="footnotes">
+        <br />
+        <hr width="100" align="left" />
+        <div class="footnote">
+          <p><sup>[<a id="ftn.idp31803712" href="#idp31803712" class="para">1</a>] </sup>We'll refer to it simply
+    as <span class="quote">“<span class="quote">Subversion</span>”</span> throughout this book.  You'll thank
+    us when you realize just how much space that
+    saves!</p>
+        </div>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.foreword.html">Prev</a> </td>
+          <td width="20%" align="center"> </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.intro.whatis.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">Foreword </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> What Is Subversion?</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,496 @@
+// Release OB9.11
+//
+// dataInfo.manual
+//
+// This file, dataInfo.manual, contains information about data keys which are
+// maintained manually. The file dataInfo.txt, which is what is read in by fxa
+// and IGC_Process at start-up time, brings this file in by way of an in-line
+// include mechanism. dataInfo.txt also brings in radar keys, grid keys, and
+// text keys by the same mechanism.
+//
+// Each line in the file corresponds to the information for one data key. This
+// documentation describes how to interpret both manually generated and
+// automatically generated gridded data keys. The information for each key
+// consists of 11 entries delimited by vertical bars. Unlike the depictable
+// keys, where in general each entry means the same thing for all types of
+// products, the meaning of the entries for data keys can change depending on
+// the type of data in question.
+//
+// Here is a model of the information for a single key:
+//
+// key|geofile|2|3|4_0,4_1|5_0,5_1|6_0,6_1|dir_path|filename|extension|descript
+//
+// In general, the named columns tend to have the same meaning for all types of
+// data, whereas the numbered columns vary a lot between data types. Also, the
+// numbered columns tend to contain numeric data, whereas the named columns
+// tend to have text entries, although not exclusively. The numeric entries will
+// default to zero if no entry is made, though for certain data types those
+// default zero values may be reinterpreted to mean something else.
+//
+// Here is a description of each entry:
+//
+// key - The key number, which is an unsigned four byte integer. See table
+//       which follows that outlines reserved ranges for certain types of keys.
+// geofile - One of the files that ends in .sup from geoData. This describes
+//           the projection and area on which the data is based.
+// 2 - Radar> Product index.
+//     Satellite> Data type. This corresponds to the SAT_DATA_TYPE enum in
+//                DM_DataAccessInfo.
+//     Grids> Either blank, meaning raw data, V meaning virtual data, or D
+//            meaning data keys with associated time offsets.
+// 3 - Radar> Scan angle in degrees. Blank if not applicable.
+//     Redbook> The forecast time of the graphic. In seconds if >240, in days
+//              if negative, and otherwise in hours. Defaults to 0. 
+//     Maps> Presentation type. This corresponds to the MAP_PRESENTATION_TYPE
+//           enum in DM_DataAccessInfo.
+//     Satellite> If this is not Raw data, the data key from which this data is
+//                derived.
+//     Grids> DataField index for raw data, function index for virtual data.
+// 4_0 - Radar> The gate spacing in km. Blank if not applicable.
+//       Maps> Minimum display width in km for data from this key to display.
+//             Defaults to 0.
+//       Satellite> Sector index for raw data, nx for remapped data.
+//       Grids> The plane index.
+//       Text> If 1 (low) bit is on, artificially create an inventory entry for
+//             the current time.
+//             If 2 bit is on, artificially create an inventory entry for each
+//             delta time.
+//             If 4, include actual storage times in inventory even if 2 bit is
+//             on.
+// 4_1 - Radar> Minimum display coordinate found in a radar graphic. Defaults to
+//              -2048.
+// 5_0 - Radar> Number of individual data levels. 16 means a 4 bit product.
+//       Maps> Maximum display width in km for data from this key to display.
+//             Defaults to 1e37.
+//       Satellite> Detector index for raw data, ny for remapped data.
+// 5_1 - Radar> Maximum display coordinate found in a radar graphic. Defaults to
+//              2047.
+// 6_0 - Radar> The index of the radar providing the data. See
+//              dmRadar/radarInfoMaster.txt for a list of radars and their
+//              indices.
+//       Grids> The horizontal cushion required for finite differencing.
+//       Redbook & Text> Artificially imposed time frequency used to change
+//                       receipt time into a valid time.
+//       Satellite> For derived data, minimum time difference between
+//                  consecutive data files with this key.
+// 6_1 - Grids>  The cross section rotation function.
+//       Redbook & Text> Offset time used to change receipt time into a valid
+//                       time.
+//       Satellite> For derived data, minimum data coverage in percent for data
+//                  files with this key.
+// dir_path - The directory path to the files which contain the data, where
+//            applicable. For gridded data, the list of other keys to read in
+//            for a virtual data calculation. For datakeys that point to a
+//            product in the text data base, this is the name of that product.
+//            For map keys, this is the shapefile field to label with.
+// filename - Where applicable, the name of the file from which to read the
+//            data. For datakeys that point to a product in the text database,
+//            this string, if present, must be present in a text product for a
+//            depictable to be made from it.
+// extension - Where applicable, the extension of the file from which to read
+//             the data. For datakeys that point to a product in the text
+//             database, this string, if present, must NOT be present in a text
+//             product for a depictable to be made from it. For data being used
+//             in a satellite depictable, if a non-blank entry exists for both
+//             the filename and extension, it will be assumed that this is
+//             static image data.
+// descript - Plain language description of this data key. For gridded data,
+//            this is left off under normal circumstances to save space. Run
+//            dmGrid/makeGridKeyTables and then look at the file
+//            gridDataKeys.txt to see the descriptions.
+//
+// The following is list of general data types, the range of keys they
+// typically use, and whether this is by convention or is enforced in the
+// software.
+//
+// plot file keys        90-99                                   enforced
+// raw satellite         101-199                                 convention
+// derived satellite     801-999                                 convention
+// Nowrad                200                                     enforced
+// raw data keys         300-399                                 enforced
+// bad data keys         400-499                                 enforced
+// cartographic          1000-1999                               convention
+// Upper air plots       4000-4999                               convention
+// Redbook graphics      5000-5999                               convention
+// Text Based            6000-6999                               convention
+// RAOBs                 9000-9999                               enforced
+// Bufr point data       10000-10999                             convention
+// Profiler              11000-11999                             enforced
+// Reserved (extensions) 12000-12999                             convention
+// Product maker         15000-15999                             enforced
+// Radar Mosaic          21000-21999                             enforced
+// GRIB Image            25000-25999                             enforced 
+// Plot Design Files     27000-27999                             convention
+// Volume Br Diff        80000-89999                             enforced
+// Radar                 0x40000000-0x7FFFFFFF                   enforced
+// Grids                 0x80000000-0xFFFFFFFF                   enforced
+//
+59  | | | | | | |img/SBN/netCDF/LATLON/NCWD | | |Decoded NCWF detection grid image data
+60  | | | | | | |aiv/ncwf/netCDF          | | |Ncwf.cdl Decoded NCWF BUFR data
+61  | | | | | | |             |spotters|.nc|spotters.cdl test static netcdf data set
+62  | | | | | | |point/LSR/netCDF         | | |lsr.cdl decoded office local storm reports
+72  | | | | | | |aiv/convSIGMET/netCDF    | | |ConvSIGMET.cdl Decoded conv. SIGMET data
+73  | | | | | | |point/synoptic/netcdf    | | |synoptic.cdl  decoded synoptic reports
+75  | | | | | | |point/vwp/netcdf         | | |vwp.cdl  decoded VAD wind profile data
+78  | | | | | | |point/aircraft/netcdf    | | |aircraft.cdl pirep/airep aircraft reports
+79  | | | | | | |point/acars/netcdf       | | |mdcrs.cdl automated aircraft reports
+77  | | | | | | |point/acarsProfiles/netcdf | | |acarsProfiles.cdl profiles from automated aircraft reports
+80  | | | | | | |LDAD/sfc_netcdf          | | |msas_qcobs.cdl msas qc obsversations
+81  | | | | | | |point/metar/plot         | | |METAR plot subset
+82  | | | | | | |point/metar/netcdf       | | |metar.cdl METAR decoded reports
+84  | | | | | | |point/maritime/netcdf    | | |maritime.cdl maritime reports netcdf
+86  | | | | | | |LDAD/mesonet/plot        | | |LDAD mesonet plot
+87  | | | | | | |LDAD/mesonet/netCDF      | | |LDADmesonet.cdl LDAD mesonet netcdf
+88  | | | | | | |LDAD/manual/netCDF       | | |LDADmanual.cdl LDAD manual netcdf
+89   | | | | | | |LDAD/hydro/netCDF        | | |LDADhydro.cdl LDAD hydro netcdf
+90   | | | | | | |LDAD/hydro/plot          | | |LDAD hydro plot
+91   | | | | | | |LDAD/mesonet/qc          | | |ldad_qcobs.cdl LDAD QC netcdf
+94   | | | | | | |point/localdata          | | |Subset of local data for plotting
+96   | | | | | | |point/binLightning/netcdf| | |Binary Lightning product, netcdf files
+97   | | | | | | |point/binLightning/plot  | | |Binary Lightning product, plot subset
+98   | | | | | | |point/lightning/netcdf   | | |Lightning product, netcdf files
+99   | | | | | | |point/lightning/plot     | | |Lightning product, plot subset
+200  |conusC  |  |   |  |        |  |nowrad/conusC/Z        |   |   |Mosaic Image of Reflectivity
+300  | | | | | | |Grid/ISPAN/Raw  | | |ISPAN raw grid data
+301  | | | | | | |Grid/SBN/Raw    | | |SBN raw grid data
+302  | | | | | | |Grid/FSL/Raw    | | |FSL raw grid data
+310  | | | | | | |point/metar/Raw | | |raw metar data
+311  | | | | | | |point/maritime/Raw | | |raw maritime data
+312  | | | | | | |LDAD/Raw        | | |raw LDAD data
+313  | | | | | | |aiv/convSIGMET/Raw | | |raw Convective SIGMET data
+314  | | | | | | |aiv/advisories/Raw | | |raw advisory data
+315  | | | | | | |point/aircraft/Raw | | |raw aircraft data
+325  | | | | | | |point/synoptic/Raw | | |raw synoptic data
+330  | | | | | | |aiv/ncwf/Raw       | | |raw NCWF data
+400  | | | | | | |Grid/ISPAN/Bad  | | |ISPAN bad grid data
+401  | | | | | | |Grid/SBN/Bad    | | |SBN bad grid data
+402  | | | | | | |Grid/FSL/Bad    | | |FSL bad grid data
+410  | | | | | | |point/metar/Bad | | |bad metar data
+411  | | | | | | |point/maritime/Bad | | |bad maritime data
+412  | | | | | | |aiv/convSIGMET/Bad | | |bad Convective SIGMET data
+413  | | | | | | |aiv/advisories/Bad     | | |bad advisory data
+415  | | | | | | |point/aircraft/Bad | | |bad aircraft data
+425  | | | | | | |point/synoptic/Bad | | |bad synoptic data
+430  | | | | | | |aiv/ncwf/Bad       | | |bad NCWF data
+1001 |        |  |   |  |        |  |                  |conandsta|.bcd |Continent and state boundary map data
+1002 |        |  |   |  |        |  |                  |uscounty |.bcd |US county boundary map data
+1003 |        |  |   |  |        |  |                  |MTR      |.spi |METAR station map data
+1004 |        |  |   |  |        |  |                  |reg_zones|.bcd |Zones map data
+1005 |        |  |   |  |        |  |                  |latlon10 |.bcd |Lat/Lon 10 deg over ocean
+1007 |        |  |   |  |        |  |                  |null     |.bcd |null map
+1008 |        |  |   |  |        |  |                  |modelBufr|.spi |model sounding locations
+1009 |        |  |   |  |        |  |                  |goesBufr |.spi |GOES sounding locations
+1010 |        |  |   |  |        |  |                 |ldad15prcp|.spi |ldad 15 min precip stations
+1011 |        |  |   |  |        |  |                  |ldad15   |.spi |ldad 15 min station map data
+1012 |        |  |   |  |        |  |                  |profiler |.spi |profiler station map data
+1013 |        |  |   |  |        |  |                  |raob     |.spi |RAOB station map data
+1014 |        |  | 3 |  |        |  |                  |profiler |.spi |profiler stations for perspective plot
+1015 |        |  | 1 |  |        |  |                  |zone_nums|.lpi |zone numbers
+1016 |        |  |   |  |        |  |                  |cities   |.lpi | cities
+1017 |        |  | 1 |  |        |  |                  |counties |.lpi |county names
+1018 |        |  | 1 |  |        |  |                  |cwa_usa  |.lpi |CWA names
+1019 |        |  |   |  |        |  |                  |synoptic |.spi |Synoptic station map data
+1020 |        |  |   |  |        |  |                  |airports |.spi |Acars airports map data
+1021 |        |  |   |  |        |  |                  |poesBufr |.spi |POES sounding locations
+1022 |        |  |   |  |        |  |                  |GFSmodelBufr|.spi |GFS model sounding locations
+1030 |        |  |   |  |        |  |                  |airport  |.lpi |Airport locations
+1031 |        |  |   |  |        |  |                  |artcc    |     |ARTCC Sectors
+1032 |        |  | 1 |  |        |  |                  |fix      |.lpi |Fixes/Intersections
+1033 |        |  |   |  |        |  |                  |jAirways |     |High Altitude Routes
+1034 |        |  |   |  |        |  |                  |vAirways |     |Low Altitude Routes
+1035 |        |  |   |  |        |  |                  |sua      |     |Special Use Airways
+1036 |        |  | 1 |  |        |  |                  |volcanoes|.lpi |Volcanoes Locations
+1037 |        |  |   |  |        |  |                  |navaid   |.lpi |VORs
+1040 |        |  |   |  |        |  |                  |2m_trans    |.bcd |state roads background map
+1041 |        |  |   |  |        |  |                  |statehwy    |.bcd |state highways background map
+1042 |        |  |   |  |        |  |                  |interstate  |.bcx |interstate background map
+1045 |        |  | 1 |  |        |  |                  |roads       |.lpi |Road names
+1046 |        |  | 1 |  |        |  |                  |hwys        |.lpi |Highway names
+1050 |        |  |   |  |        |  |                  |major_rivers|.bcd |major rivers background map
+1051 |        |  |   |  |        |  |                  |2m_hydro    |.bcd |State rivers background map
+1052 |        |  |   |  |        |  |                  |basins      |.bcd |State river drainage basins background map
+1053 |        |  | 1 |  |        |  |                  |hucNames    |.lpi |river drainage basin names
+1055 |        |  | 1 |  |        |  |                  |rivers      |.lpi |River names
+1056 |        |  |   |  |        |  |                  |fineScaleRivers  |.bcd |Fine-scale Rivers
+1057 |        |  |   |  |        |  |                  |coarseScaleRivers|.bcd |Coarse-scale Rivers
+1058 |        |  |   |  |        |  |                  |riverFcstGrpBound|.bcd |River Forecast Group Boundaries
+1059 |        |  |   |  |        |  |                  |riverFlowDirectns|.bcd |River flow directions
+1061 |        |  |   |  |        |  |                  |fireWxZones |.bcd |fire weather zones background map
+1062 |        |  |   |  |        |  |                  |fireWxSta   |.lpi |fire weather stations
+1063 |        |  | 1 |  |        |  |                  |fireWxZones |.lpi |fire weather zone numbers
+1065 |        |  |   |  |        |  |ROUTE             |twebRoutes |     |tweb routes
+1066 |        |  | 1 |  |        |  |LAT,LON,ANCHOR    |twebAnchors|     |tweb anchors
+1080 |        |  | 3 |  |        |  |                  |88Dvb      |.spi |WSR-88D site locations
+1082 |        |  |   |  |        |  |                  |88Dvb      |.spi |WSR-88D site locations
+1083 |        |  |   |  |        |  |                  |reg_county|.bcd |Regional county map data
+1084 |        |  |   |  |        |  |                  |usa_cwa  |.bcd |County Warning Areas
+1085 |        |  |   |  |        |  |                  |warn_cities   |.lpi |Warning Locations
+1086 |        |  |   |  |        |  |                  |BUOY     |.spi |Fixed buoy map data
+1087 |        |  |   |  |        |  |                  |usa_rfc  |.bcd |RFC boundaries
+1088 |        |  |   |  |        |  |                  |reg_lake |.bcd |RFC boundaries
+1098 |        |  |   |  |        |  |                  |test     |.bcx |test bcx background
+1099 |        |  |   |  |        |  |                  |test     |.bcd |test map background
+1101 |        |  |   | 750 |     |  |                  |conandsta|.bcd |Continent and state boundary map data
+1102 |        |  |   |     | 750 |  |                  |thin_county |.bcd |US county boundary map data
+1103 |        |  |   |     | 750 |  |                  |reg_county|.bcd |Regional county map data
+1110 |        |  |   |  |        |  |                  |coastal_zones|.bcd |Coastal marine zones map data
+1111 |        |  | 1 |  |        |  |                  |coastal_nums|.lpi  |Coastal marine zone numbers
+1113 |        |  |   |  |        |  |                  |marine_sites|.lpi  |Marine locations
+1120 |        |  |   |  |        |  |                  |offshore_zones|.bcd |Offshore marine zones map data
+1121 |        |  | 1 |  |        |  |                  |offshore_nums|.lpi  |Offshore marine zone numbers
+1130 |        |  |   |  |        |  |                  |high_seas_zones|.bcd |High Seas marine zones map data
+1131 |        |  | 1 |  |        |  |                  |high_seas_nums|.lpi  |High Seas marine zone numbers
+1133 |        |  |   |  |        |  |                  |wgnBasins  |.bcd |basin bounds for WarnGen
+1201 |        |  |   |  |        |  |                  |borroughs  |.bcd | borroughs
+1202 |        |  |   |  |        |  |                  |europe     |.bcd |europe boundary map data
+1252 |        |  |   |  |        |  |                  |basins     |.bcd |Drainage basins map
+1256 |        |  |   |  |        |  |data              |coopPrecip  |.spi |coop precip sites
+1280 |        |  |   |  |        |1 |                  |spotters |.lpi |Spotters locations
+1300 |        |  |   |  |        |  |                  |timezones  |     |natl time zones
+1301 |        |  |   |  |        |  |ROUTE             |us_inter   |     |natl marine zones
+1302 |        |  |   |  |        |  |LAT,LON,RDA_ID    |fsl-w88d   |     |shape file 88Ds
+1305 |        |  | 1 |  |        |  |                  |latlon10 |.lpi |Lat/Lon 10 deg labels
+1311 |        |  |   |  |        |  |NAME              |userFile1  |     |user shape file map 1
+1312 |        |  |   |  |        |  |NAME              |userFile2  |     |user shape file map 2
+1313 |        |  |   |  |        |  |NAME              |userFile3  |     |user shape file map 3
+1314 |        |  |   |  |        |  |LAT,LON,NAME      |userFile4  |     |user shape file map 4
+1315 |        |  |   |  |        |  |LAT,LON,NAME      |userFile5  |     |user shape file map 5
+1439 |testStatic  | | |  |       |  |                  |testStatic|.nc  |test static image
+1480 |wwaTables   | | |  |       |  |                  |wwa_warn_city |.table  |warning cities image
+1481 |wwaTables   | | |  |       |  |                  |wwa_counties |.table   |counties image
+1482 |wwaTables   | | |  |       |  |                  |wwa_zones |.table   |zones image
+1483 |wwaTables   | | |  |       |  |                  |backupCWA |.table   |CWAs image
+1484 |wwaTables   | | |  |       |  |                  |cwaTotal |.table   |CWAs starter
+1487 |marineArea  | | |  |       |  |                  |wwa_marine |.table  |marine zones image
+//1485 |wwaTables   | | |  |       |  |                  |wwa_counties |.EW   |counties image
+//1486 |wwaTables   | | |  |       |  |                  |wwa_counties |.NS  |counties image
+4200 |d2_national| | |  |        |  |NMCPLT20A             |    |   |200mb plot file
+4250 |d2_national| | |  |        |  |NMCPLT20B             |    |   |250mb plot file
+4300 |d2_national| | |  |        |  |NMCPLT30A             |    |   |300mb plot file
+4500 |d2_national| | |  |        |  |NMCPLT50A             |    |   |500mb plot file
+4700 |d2_national| | |  |        |  |NMCPLT70A             |    |   |700mb plot file
+4850 |d2_national| | |  |        |  |NMCPLT80A             |    |   |850mb plot file
+6000   | | | | | | |aiv/advisories/netCDF/SIGMET/convective    | | |Convective SIGMET
+6001   | | | | | | |aiv/advisories/netCDF/SIGMET/ash           | | |Volcanic Ash SIGMET reports
+6002   | | | | | | |aiv/advisories/netCDF/SIGMET/cyclone       | | |Tropical Cyclone SIGMET reports
+6003   | | | | | | |aiv/advisories/netCDF/SIGMET/icing         | | |Icing SIGMET reports
+6004   | | | | | | |aiv/advisories/netCDF/SIGMET/turbulence    | | |Turbulence SIGMET reports
+6005   | | | | | | |aiv/advisories/netCDF/AIRMET/icing         | | |Icing AIRMET reports
+6006   | | | | | | |aiv/advisories/netCDF/AIRMET/turbulence    | | |Turbulence AIRMET reports
+6007   | | | | | | |aiv/advisories/netCDF/AIRMET/ifrmtobs      | | |IFR and Mountain Obscurations AIRMET reports
+9000   | | | | | | |point/raob/netcdf        | | |raob.cdl rawinsonde observations
+10001  | | | | | | |point/model/ETA/netcdf   | | |modelsnd.cdl ETA model bufr soundings
+10002  | | | | | | |point/model/GFS/netcdf   | | |GFSsnd.cdl GFS model bufr soundings
+10005  | | | | | | |point/GOES/netcdf        | | |GOESsnd.cdl  GOES bufr soundings
+10006  | | | | | | |point/POES/netcdf        | | |POESsnd.cdl  POES bufr soundings
+10007  | | | | | | |point/HDW/netcdf         | | |HDWinds.cdl  GOES High Density Winds
+10008  | | | | | | |point/QuikScat/netcdf    | | |scatWinds.cdl  Scatterometer Winds
+10009  | | | | | | |point/SSMI/netcdf        | | |ssmi.cdl  SSM/I data
+10010  | | | | | | |point/Ascat/netcdf       | | |scatWinds.cdl  Scatterometer Winds
+10013  | | | | | | |point/mtsatHDW/netcdf    | | |HDWinds.cdl  MTSAT High Density Winds
+10100  | | | | | | |aiv/sigwx/high           | | |High level SIGWX
+10101  | | | | | | |aiv/sigwx/med            | | |Medium level SIGWX
+10102  | | | | | | |aiv/sigwx/vts            | | |Volcano and storm SIGWX
+10600  | | | | | | |         |modelBufrSfcDesign |.txt |model bufr surface Plot design file
+10601  | | | | | | |         |GFSmodelBufrSfcDesign |.txt |GFS model bufr surface Plot design file
+10605  | | | | | | |         |modelBufrCvDesign |.txt |model bufr ceiling/vis Plot design file
+10606  | | | | | | |         |GFSmodelBufrCvDesign |.txt |GFS model bufr ceiling/vis Plot design file
+10609  | | | | | | |         |GFSmodelBufrAvailDesign |.txt |GFS model bufr surface Plot design file
+10610  | | | | | | |         |modelAvailDesign |.txt |model bufr surface Plot design file
+10611  | | | | | | |         |bufrAvailDesign |.txt |GOES/POES bufr surface Plot design file
+10620  | | | | | | |         |bufrPrcp1Design |.txt |model bufr precip Plot design file
+10623  | | | | | | |         |bufrPrcp3Design |.txt |GFS model bufr 3 hour precip Plot design file
+10625  | | | | | | |         |hdwPresPlotDesign |.txt |goes high density winds pressure lvl design file
+10626  | | | | | | |         |hdwTypePlotDesign |.txt |goes high density winds derived-type design file
+10627  | | | | | | |         |quikScatPlotDesign |.txt |scatterometer winds plot design file
+10628  | | | | | | |         |ascatPlotDesign |.txt |scatterometer winds plot design file
+10631  | | | | | | |         |ssmiWindPlotDesign |.txt |SSM/I winds plot design file for wind speeds
+10636  | | | | | | |         |ssmiPWPlotDesign |.txt |SSM/I winds plot design file for precipitable water
+10637  | | | | | | |         |ssmiSTPlotDesign |.txt |SSM/I winds plot design file for sea temperature
+10638  | | | | | | |         |ssmiVILPlotDesign |.txt |SSM/I winds plot design file for vertically integrated liquid water content
+11001|             |  |    |    |        |  |point/profiler/netcdf   | | |profiler.cdl NPN profiler decoded reports
+11002|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |RWDN1
+11003|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |LTHM7
+11004|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |TCUN5
+11005|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |HKLO2
+11006|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |WNFL1
+11007|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |VBGC1
+11008|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |PLTC2
+11009|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |NLGN1
+11010|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |BLRW3
+11011|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |HVLK1
+11012|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |HBRK1
+11013|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |BLMM7
+11014|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |DQUA4
+11015|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |JTNT2
+11016|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |MBWW4
+11017|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |WDLM5
+11018|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |FBYN1
+11019|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |GDAC2
+11020|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |LMNO2
+11021|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |PRCO2
+11022|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |WSMN5
+11023|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |CNWM7
+11024|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |MRRN1
+11025|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |SLAI4
+11026|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |WNCI2
+11027|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |AZCN5
+11028|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |VCIO2
+11029|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |NDSK1
+11030|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |PATT2
+11031|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |OKOM6
+11032|             |  |    |    |        |  |point/profiler/plot        | | |Plot file placeholder
+11035|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |CENA2
+11036|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |GNAA2
+11037|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |TLKA2
+11038|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |WLCI3
+11039|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |SYCN6
+11040|             |  |    |    |        |  |point/profiler/netcdf                  |  |  |LDBT2
+11101|             |  |    |    |        |  |point/CAP/netcdf   | | |profiler.cdl CAP profiler decoded reports
+11102|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |BJYNV
+11103|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |BMTKS
+11104|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |CCDNH
+11105|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |CCLCA
+11106|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |CCOCA
+11107|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |CHANC
+11108|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |CLETX
+11109|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |DGNAK
+11110|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |DGSAK
+11111|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |DGWUT
+11112|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |EFDTX
+11113|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |EPSTX
+11114|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |FCPFL
+11115|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |FHHAZ
+11116|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |FMEMD
+11117|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |FTHAZ
+11118|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |GVYCA
+11119|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |GYXME
+11120|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |HGDUT
+11121|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |HSCNV
+11122|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |KSCFL
+11123|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |LAXCA
+11124|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |LHSCA
+11125|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |LMCAK
+11126|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |LVRCA
+11127|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |MDWNM
+11128|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |MIDFL
+11129|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |MLNFL
+11130|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |MMRCA
+11131|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |MOVCA
+11132|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |NPSCA
+11133|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |NRMOK
+11134|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |NWTNM
+11135|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |ONTCA
+11136|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |OXFKS
+11137|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |PSENH
+11138|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |PTLCA
+11139|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |PYMMA
+11140|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |RALNC
+11141|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |RCHVA
+11142|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |RCOFL
+11143|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |RUTNJ
+11144|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |SACCA
+11145|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |SCHNY
+11146|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |SCPFL
+11147|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |SEAWA
+11148|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |SIMCA
+11149|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |SNICA
+11150|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |STWMA
+11151|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |TLGNM
+11152|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |VISCA
+11153|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |WHWKS
+11154|             |  |    |    |        |  |point/CAP/netcdf                       |  |  |YUMAZ
+11900|             |  |    |    |        |  |LDAD/profiler/netCDF    |  |  |AlaskaProfiler.cdl Alaska Boundary Layer Profilers
+11901|             |  |    |    |        |  |LDAD/profiler/netCDF                   |  |  |LMNA2
+11902|             |  |    |    |        |  |LDAD/profiler/netCDF                   |  |  |NDIA2
+11903|             |  |    |    |        |  |LDAD/profiler/netCDF                   |  |  |SDIA2
+27001 | | | | | | |         |metarStdDesign |.txt |standard metar Plot design file
+27002 | | | | | | |         |metar15Design |.txt |metar 15 min Plot design file
+27003 | | | | | | |         |metar24ChgDesign |.txt |metar 24hr change Plot design file
+27004 | | | | | | |         |metarCvDesign |.txt |metar Clg/Vis Plot design file
+27005 | | | | | | |         |metarHiWcDesign |.txt |metar wind chill/heat index Plot design file
+27006 | | | | | | |         |metarCvMslDesign |.txt |metar Clg/Vis Msl Plot design file
+27011 | | | | | | |         |metarPrcp1Design |.txt |metar 1hr precip Plot design file
+27013 | | | | | | |         |metarPrcp3Design |.txt |metar 3hr precipPlot design file
+27016 | | | | | | |         |metarPrcp6Design |.txt |metar 6hr precipPlot design file
+27024 | | | | | | |         |metarPrcp24Design |.txt |metar 24hr precipPlot design file
+27051 | | | | | | |         |synopticStdDesign |.txt |standard synoptic Plot design files
+27052 | | | | | | |         |synopticPrcp6Design |.txt |ynoptic 6hr precip Plot design file
+27053 | | | | | | |         |synopticPrcp24Design |.txt |ynoptic 24hr precip Plot design file
+27054 | | | | | | |         |synopticSnowDesign |.txt |ynoptic snow Plot design file
+27101 | | | | | | |         |profSfcPlotDesign |.txt |profiler Plot design file
+27103 | | | | | | |         |profAglPlotDesign |.txt |profiler Plot design file
+27104 | | | | | | |         |profPresPlotDesign |.txt |profiler Plot design file
+27108 | | | | | | |         |profTHdataDesign |.txt |profiler Plot design file
+27109 | | | | | | |         |profPerspPlotDesign |.txt |profiler Plot design file
+27113 | | | | | | |         |vwpAglPlotDesign |.txt |profiler Plot design file
+27114 | | | | | | |         |vwpPresPlotDesign |.txt |profiler Plot design file
+27198 | | | | | | |         |vwpPerspPlotDesign |.txt |profiler Plot design file
+27205 | | | | | | |         |ldadMeso01Design |.txt  |mesonet 1 min Plot design file
+27204 | | | | | | |         |ldadMeso05Design |.txt  |mesonet 5 min Plot design file
+27201 | | | | | | |         |ldadMeso15Design |.txt |mesonet Plot design file
+27202 | | | | | | |         |ldadMeso30Design |.txt |mesonet 30 min Plot design file
+27203 | | | | | | |         |ldadMesoHiWcDesign |.txt |mesonet Wind Chill/Heat Index Plot design file
+27210 | | | | | | |         |ldadPrcp05Design |.txt |mesonet 5 Min Precip design file
+27215 | | | | | | |         |ldadPrcp15Design |.txt |mesonet 15 Min Precip design file
+27230 | | | | | | |         |ldadPrcp30Design |.txt |mesonet 30 Min Precip design file
+27211 | | | | | | |         |ldadPrcp1Design |.txt |mesonet 1 hour Precip design file
+27213 | | | | | | |         |ldadPrcp3Design |.txt |mesonet 3 hour Precip design file
+27301 | | | | | | |         |ldadQCallDesign    |.txt |mesonet QC Plot all stns
+27302 | | | | | | |         |ldadQCfailDesign   |.txt |mesonet QC Plot failed stns
+27303 | | | | | | |         |ldadQC30allDesign  |.txt |mesonet 30 min QC all stns
+27304 | | | | | | |         |ldadQC30failDesign |.txt |mesonet 30 min QC failed stns
+27401 | | | | | | |         |msasThetaObsDesign |.txt |MSAS theta obs
+27402 | | | | | | |         |msasThetaFailDesign|.txt |MSAS theta obs failed
+27404 | | | | | | |         |msasDewpObsDesign  |.txt |MSAS depwoint obs
+27405 | | | | | | |         |msasDewpFailDesign |.txt |MSAS dewpoint obs failed
+27407 | | | | | | |         |msasWindObsDesign  |.txt |MSAS wind obs
+27408 | | | | | | |         |msasWindFailDesign |.txt |MSAS wind obs failed
+27410 | | | | | | |         |msasDewdObsDesign  |.txt |MSAS dewpoint dep obs
+27411 | | | | | | |         |msasDewdFailDesign |.txt |MSAS dewpoint dep obs failed
+27413 | | | | | | |         |msasPchgObsDesign  |.txt |MSAS press change obs
+27414 | | | | | | |         |msasPchgFailDesign |.txt |MSAS press change obs failed
+27416 | | | | | | |         |msasAltObsDesign   |.txt |MSAS altimeter obs
+27417 | | | | | | |         |msasAltFailDesign  |.txt |MSAS altimeter obs failed
+27419 | | | | | | |         |msasPmsasObsDesign |.txt |MSAS MSLP-msas obs
+27420 | | | | | | |         |msasPmsasFailDesign|.txt |MSAS MSLP-msas obs failed
+27422 | | | | | | |         |msasPnwsObsDesign  |.txt |MSAS MSLP-nws obs
+27423 | | | | | | |         |msasPnwsFailDesign |.txt |MSAS MSLP-nws obs failed
+27501 | | | | | | |         |raobLowerDesign |.txt |raob Plot design file
+27502 | | | | | | |         |raobUpperDesign |.txt |raob Plot design file
+27503 | | | | | | |         |raobSkewtDesign |.txt |design file for skewT access
+27601 | | | | | | |         |maritimeStdDesign |.txt |standard maritime Plot design file
+27602 | | | | | | |         |maritimeStaticDesign |.txt |static maritime Plot design file
+27603 | | | | | | |         |maritimeMovingDesign |.txt |moving maritime Plot design file
+27604 | | | | | | |         |seaStateStaticDesign |.txt |static maritime sea state Plot design file
+27605 | | | | | | |         |seaStateMovingDesign |.txt |moving maritime sea state Plot design file
+27606 | | | | | | |         |maritimeCvDesign     |.txt |maritime cloud visibility Plot design file
+27607 | | | | | | |         |maritimeMAROBDesign |.txt |MAROB maritime Plot design file
+27608 | | | | | | |         |seaStateMAROBDesign |.txt |MAROB maritime sea state Plot design file
+27609 | | | | | | |         |maritimeMAROBCvDesign|.txt |MAROB maritime cloud visibility Plot design file
+27871 | | | | | | |         |pirepPlotDesign |.txt |pirep plan view plot design file
+27874 | | | | | | |         |pirepIcingDesign |.txt |pirep plan view icing design file
+27877 | | | | | | |         |pirepTurbDesign |.txt |pirep plan view turbulence design file
+27881 | | | | | | |         |acarsPlotDesign |.txt |acars plan view plot design file
+27892 | | | | | | |         |acarsAvail5Design |.txt |acars VB notification stub design file
+27893 | | | | | | |         |acarsAvail1Design |.txt |acars 1 hour profile availability
+27894 | | | | | | |         |acarsAvail6Design |.txt |acars 6 hour profile availability
+27961 | | | | | | |         |spottersDesign |.txt |test static Plot design file
+27962 | | | | | | |         |lsrDesign      |.txt |LSR Plot design file
+55001|nAmerScale | |  |   |  | |dgm/test/nAmer | | |DGM test
+55002|conusScale | |  |   |  | |dgm/test/conus | | |DGM test
+60000|conusScale | |  |   |  | |dgm/test | | |Text DGM Workhorse
+62000 | | | | | |1800,-1800 | MKCCFP01 | | |MKCCFP01
+62001 | | | | | |1800,-1800 | MKCCFP02 | | |MKCCFP02
+62002 | | | | | |1800,-1800 | MKCCFP03 | | |MKCCFP03
+62003 | | | | | |1800,-1800 | MKCCFP04 | | |MKCCFP04
+70000 | | | | | | |         |dmdDesign         |.txt |plan view DMD display
+120120| | | | | | |         |metarAnalDesign   |.txt |metar contour demo design file
+120130| | | | | | |         |ldadVBdataDesign  |.txt |ldad VB design file
+#include "redbookDataKeys.txt"
+#include "textDataKeys.txt"
+#include "topoDataKeys.txt"
+#include "tdlDataKeys.txt"
+#include "raobDataKeys.txt"
+#include "imgDataKeys.txt"
+#include "localDataKeys.txt"

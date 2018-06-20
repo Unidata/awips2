@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Climate
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.climate
+Bundle-Version: 1.15.0.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: com.raytheon.uf.common.dataaccess,
+ com.raytheon.uf.common.dataplugin,
+ org.apache.commons.lang3;bundle-version="3.4.0",
+ org.apache.commons.collections;bundle-version="3.2.2"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: com.raytheon.uf.common.dataquery.requests

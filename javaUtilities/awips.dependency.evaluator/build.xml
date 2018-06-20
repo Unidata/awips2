@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project awips.dependency.evaluator with Jar-in-Jar Loader">
+	<property name="dest.dir" value="/tmp" />
+	<property name="eclipse.dir" value="/opt/eclipse" />
+	<property name="baseline.dir" value="/common/bkowal/git/Baseline-4759/AWIPS2_baseline/javaUtilities" />
+	
+	<path id="ECLIPSE.classpath">
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.osgi_3.11.1.v20160708-1632.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.pde.core_3.11.0.v20160510-1223.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.core.resources_3.11.0.v20160503-1608.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.debug.core_3.10.100.v20160419-1720.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.equinox.common_3.8.0.v20160509-1230.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.core.runtime_3.12.0.v20160606-1342.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.core.jobs_3.8.0.v20160509-0411.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.equinox.registry_3.6.100.v20160223-2218.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.equinox.preferences_3.6.1.v20160815-1406.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.core.contenttype_3.5.100.v20160418-1621.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.equinox.app_1.3.400.v20150715-1528.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.jdt.launching_3.8.100.v20160505-0636.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.jdt.core_3.12.1.v20160829-0950.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.jdt.compiler.apt_1.2.100.v20160418-1457.jar" />
+		<pathelement path="${eclipse.dir}/plugins/org.eclipse.jdt.compiler.tool_1.1.100.v20160418-1457.jar" />
+	</path>
+	
+	<target name="compile">
+		<javac destdir="${baseline.dir}/awips.dependency.evaluator/bin" 
+			srcdir="${baseline.dir}/awips.dependency.evaluator/src" 
+			executable="/awips2/java/bin/javac" fork="true"
+			classpathref="ECLIPSE.classpath">
+			
+			<include name="**/*.java" />
+			
+		</javac>
+	</target>
+	
+	<target name="retrieve-jar-zip">
+		<mkdir dir="${baseline.dir}/awips.dependency.evaluator/lib" />
+		<unzip src="${eclipse.dir}/plugins/org.eclipse.jdt.ui_3.12.1.v20160822-0645.jar"
+			dest="${baseline.dir}/awips.dependency.evaluator/lib" 
+			overwrite="true">
+			
+        	<patternset>
+        		<include name="jar-in-jar-loader.zip" />
+        	</patternset>			
+			
+		</unzip>
+	</target>
+	
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <target name="create_run_jar" depends="compile, retrieve-jar-zip">
+        <jar destfile="${dest.dir}/AwipsDependencyEvaluator.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
+                <attribute name="Rsrc-Main-Class" value="awips.dependency.evaluator.Main"/>
+                <attribute name="Class-Path" value="."/>
+                <attribute name="Rsrc-Class-Path" value="./ org.eclipse.osgi_3.11.1.v20160708-1632.jar org.eclipse.pde.core_3.11.0.v20160510-1223.jar org.eclipse.core.resources_3.11.0.v20160503-1608.jar org.eclipse.debug.core_3.10.100.v20160419-1720.jar org.eclipse.equinox.common_3.8.0.v20160509-1230.jar org.eclipse.core.runtime_3.12.0.v20160606-1342.jar org.eclipse.core.jobs_3.8.0.v20160509-0411.jar runtime_registry_compatibility.jar org.eclipse.equinox.registry_3.6.100.v20160223-2218.jar org.eclipse.equinox.preferences_3.6.1.v20160815-1406.jar org.eclipse.core.contenttype_3.5.100.v20160418-1621.jar org.eclipse.equinox.app_1.3.400.v20150715-1528.jar org.eclipse.jdt.launching_3.8.100.v20160505-0636.jar org.eclipse.jdt.core_3.12.1.v20160829-0950.jar org.eclipse.jdt.compiler.apt_1.2.100.v20160418-1457.jar org.eclipse.jdt.compiler.tool_1.1.100.v20160418-1457.jar"/>
+            </manifest>
+            <zipfileset src="${baseline.dir}/awips.dependency.evaluator/lib/jar-in-jar-loader.zip"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.osgi_3.11.1.v20160708-1632.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.pde.core_3.11.0.v20160510-1223.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.core.resources_3.11.0.v20160503-1608.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.debug.core_3.10.100.v20160419-1720.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.equinox.common_3.8.0.v20160509-1230.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.core.runtime_3.12.0.v20160606-1342.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.core.jobs_3.8.0.v20160509-0411.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.equinox.registry_3.6.100.v20160223-2218.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.equinox.preferences_3.6.1.v20160815-1406.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.core.contenttype_3.5.100.v20160418-1621.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.equinox.app_1.3.400.v20150715-1528.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.jdt.launching_3.8.100.v20160505-0636.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.jdt.core_3.12.1.v20160829-0950.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.jdt.compiler.apt_1.2.100.v20160418-1457.jar"/>
+            <zipfileset dir="${eclipse.dir}/plugins" includes="org.eclipse.jdt.compiler.tool_1.1.100.v20160418-1457.jar"/>
+            <fileset dir="${baseline.dir}/awips.dependency.evaluator/bin"/>
+        </jar>
+    </target>
+</project>

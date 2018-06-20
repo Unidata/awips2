@@ -1,0 +1,33 @@
+<configuration debug="false" scan="true">
+   <include file="${edex.home}/conf/logback-edex-properties.xml"/>
+   <include file="${edex.home}/conf/logback-edex-appenders.xml" />
+
+   <!-- ThriftSrv (RemoteRequestRouteWrapper) request log --> 
+   <appender name="ThriftSrvRequestLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="com.raytheon.uf.common.logback.policy.StdTimeBasedRollingPolicy">
+         <name>thriftSrv</name>
+      </rollingPolicy>
+      <encoder class="com.raytheon.uf.common.logback.encoder.UFStdEncoder"/> 
+   </appender>
+
+   <appender name="ThriftSrvRequestLogAsync" class="ch.qos.logback.classic.AsyncAppender">            
+      <appender-ref ref="ThriftSrvRequestLog" />
+   </appender> 
+   
+   <include file="${edex.home}/conf/logback-edex-loggers.xml" />
+
+   <logger name="ThriftSrvRequestLogger" additivity="false">
+      <level value="Info"/>
+      <appender-ref ref="ThriftSrvRequestLogAsync" />
+   </logger>
+
+   <logger name="org.hibernate">
+      <level value="ERROR"/>
+   </logger> 
+
+   <!-- default logging --> 
+   <root> 
+      <level value="INFO"/> 
+      <appender-ref ref="asyncConsole"/> 
+    </root> 
+</configuration>

@@ -1,0 +1,2 @@
+Here's the "combineVectors" method which calls  "getVectorData" to obtain statistics for comparison for each of the sub-phrases it is given.  It then calls "checkVectorDifference" to determine whether or not the sub-phrases can be combined.  If so, it re-applies range adjustments and then creates a new vector value using "vectorAverage".
+

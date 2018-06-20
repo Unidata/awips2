@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Dataplugin Menus
+Bundle-SymbolicName: com.raytheon.uf.edex.menus.dataplugins
+Bundle-Version: 1.16.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: com.raytheon.uf.edex.menus;bundle-version="1.0.0",
+ com.raytheon.uf.common.status;bundle-version="1.15.0",
+ com.raytheon.uf.common.geospatial;bundle-version="1.15.1",
+ com.raytheon.uf.common.awipstools;bundle-version="1.14.0",
+ com.raytheon.uf.common.serialization.comm;bundle-version="1.14.0",
+ com.raytheon.uf.common.localization;bundle-version="1.15.1"
+Export-Package: com.raytheon.uf.edex.menus.dataplugins.redbook,
+ com.raytheon.uf.edex.menus.dataplugins.redbook.xml

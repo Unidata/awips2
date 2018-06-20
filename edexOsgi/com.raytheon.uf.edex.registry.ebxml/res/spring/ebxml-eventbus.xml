@@ -1,0 +1,32 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean factory-bean="eventBus" factory-method="register">
+        <constructor-arg ref="RegistrySubscriptionManager" />
+    </bean>
+
+    <bean class="org.springframework.beans.factory.config.MethodInvokingBean">
+        <property name="targetClass" value="com.raytheon.uf.common.event.EventBus" />
+        <property name="targetMethod" value="register" />
+        <property name="arguments">
+            <list>
+                <ref bean="RegistryFederationManager" />
+            </list>
+        </property>
+    </bean>
+
+    <bean factory-bean="eventBus" factory-method="register">
+        <constructor-arg ref="AuditableEventService" />
+    </bean>
+
+    <bean factory-bean="eventBus" factory-method="register">
+        <constructor-arg ref="RegistryGarbageCollector" />
+    </bean>
+
+    <bean factory-bean="eventBus" factory-method="register">
+        <constructor-arg ref="credentialCache" />
+    </bean>
+
+</beans>

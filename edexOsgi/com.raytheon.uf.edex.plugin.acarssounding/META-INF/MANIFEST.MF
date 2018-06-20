@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Acarsprofiler Plug-in
+Bundle-SymbolicName: com.raytheon.uf.edex.plugin.acarssounding
+Bundle-Version: 1.16.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: com.raytheon.uf.edex.plugin.acars,
+ com.raytheon.uf.edex.decodertools,
+ com.raytheon.uf.common.localization,
+ javax.measure,
+ com.raytheon.edex.common,
+ javax.persistence,
+ com.raytheon.uf.edex.pointdata,
+ com.raytheon.uf.common.status;bundle-version="1.14.1",
+ org.slf4j;bundle-version="1.7.12"
+Import-Package: com.raytheon.uf.common.dataplugin.acars,
+ com.raytheon.uf.common.dataplugin.acarssounding,
+ com.raytheon.uf.common.pointdata.spatial,
+ com.raytheon.uf.common.wmo
+Export-Package: com.raytheon.uf.edex.plugin.acarssounding

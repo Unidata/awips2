@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <contribute xsi:type="titleItem" titleText="------ By Pressure Level ------" />
+
+    <contribute xsi:type="subinclude" fileName="menus/satellite/goesr/dmw/goesr-dmwMenuByPressure.xml">
+        <substitute key="legend1" value="All Ch DMW" />
+        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
+    </contribute>
+
+    <contribute xsi:type="titleItem" titleText="------ By Channel ------" />
+
+    <contribute xsi:type="subinclude" fileName="menus/satellite/goesr/dmw/goesr-dmwMenuByChannel.xml">
+        <substitute key="legend1" value="DMW (Ch" />
+        <substitute key="svg" value="goesr/dmwPlotDesign.svg" />
+    </contribute>
+    
+</menuTemplate>

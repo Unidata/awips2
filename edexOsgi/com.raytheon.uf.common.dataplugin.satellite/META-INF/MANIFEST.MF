@@ -1,0 +1,26 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Satellite Common
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.satellite
+Bundle-Version: 1.15.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
+ com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
+ javax.persistence;bundle-version="1.0.0",
+ org.apache.commons.lang3;bundle-version="3.4.0",
+ javax.measure;bundle-version="1.0.0",
+ com.raytheon.uf.common.dataaccess;bundle-version="1.0.0",
+ com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
+ com.raytheon.uf.common.dataquery;bundle-version="1.0.0",
+ com.raytheon.uf.common.datastorage;bundle-version="1.12.1174",
+ org.hibernate;bundle-version="1.0.0",
+ com.raytheon.uf.common.numeric;bundle-version="1.14.0"
+Export-Package: com.raytheon.uf.common.dataplugin.satellite,
+ com.raytheon.uf.common.dataplugin.satellite.units,
+ com.raytheon.uf.common.dataplugin.satellite.units.counts,
+ com.raytheon.uf.common.dataplugin.satellite.units.generic,
+ com.raytheon.uf.common.dataplugin.satellite.units.goes,
+ com.raytheon.uf.common.dataplugin.satellite.units.goes.convert,
+ com.raytheon.uf.common.dataplugin.satellite.units.ir,
+ com.raytheon.uf.common.dataplugin.satellite.units.water
