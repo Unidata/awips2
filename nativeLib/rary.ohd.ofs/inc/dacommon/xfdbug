@@ -1,3 +1,0 @@
-C                                           *--> FROM DACOMMON.XFDBUG
-      COMMON /XFDBUG/ IXFTR,IXFDB
-C

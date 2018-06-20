@@ -1,5 +1,0 @@
-C                                                *--> FROM CMS(UIOX)
-C  LINE PRINTER, CARD READER, DEBUG, ERROR AND CARD PUNCH UNIT
-C  COMMON BLOCK
-      COMMON /UIOX/ LP,ICD,LPD,LPE,ICDPUN,LSYS
-C

@@ -1,1 +1,0 @@
-void add_overlays();

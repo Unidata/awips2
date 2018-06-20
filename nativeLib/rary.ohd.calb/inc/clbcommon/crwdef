@@ -1,3 +1,0 @@
-C                                           *--> FROM CLBCOMMON.CRWDEF
-      COMMON /CRWDEF/ INTLRD,INTLWT,MAXRD,MAXWT,MAXPB
-C

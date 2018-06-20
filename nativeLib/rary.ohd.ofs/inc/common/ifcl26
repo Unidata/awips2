@@ -1,4 +1,0 @@
-C                                           *--> FROM COMMON.IFCL26
-      COMMON/IFCL26/NIFCL,MAXIFC,LIFCL,NWIFCL,LPOSCL(50),LENCL(50),
-     .       CLAUSE(200)
-C

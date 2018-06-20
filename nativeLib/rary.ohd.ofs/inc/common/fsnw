@@ -1,3 +1,0 @@
-C                                           *--> FROM COMMON.FSNW
-      COMMON /FSNW/ NOSNOW,IPRSNW
-C

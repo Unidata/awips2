@@ -1,3 +1,0 @@
-C                                      *--> FROM CLBCOMMON.CALLCRDINP
-C  READ INPUT DATA
-      CALL CRDINP (CALLR,RUNTYP,NFLD,ISTRT,IERR)

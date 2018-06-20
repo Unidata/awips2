@@ -1,4 +1,0 @@
-C                                           *--> FROM PDBCOMMON.PDNXRD
-C  PREPROCESSOR DATA BASE NEXT READ COMMON BLOCK
-      COMMON /PDNXRD/ NEXTRD
-C

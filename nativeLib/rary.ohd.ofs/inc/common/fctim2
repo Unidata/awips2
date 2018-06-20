@@ -1,3 +1,0 @@
-C                                           *--> FROM COMMON.FCTIM2
-      COMMON /FCTIM2/ INPTZC,NHOPDB,NHOCAL,NHROFF(8)
-C

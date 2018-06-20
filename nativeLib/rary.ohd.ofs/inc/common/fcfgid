@@ -1,3 +1,0 @@
-C                                           *--> FROM COMMON.FCFGID
-      COMMON /FCFGID/FCFGID(2,100),IHASRD
-C

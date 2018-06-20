@@ -1,4 +1,0 @@
-C                                           *--> FROM COMMON.FGINFO
-C  FORECAST COMPONENT FORECAST GROUP INFORMATION
-      COMMON /FGINFO/ MAXFG,LUFGL
-C      

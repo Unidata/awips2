@@ -1,3 +1,0 @@
-C                                      *--> FROM CLBCOMMON.CALLCWRINP
-C  PRINT INPUT SUMMARY
-      CALL CWRINP (CALLR)

@@ -1,1 +1,0 @@
-void clear_legend();

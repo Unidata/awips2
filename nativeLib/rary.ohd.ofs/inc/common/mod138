@@ -1,3 +1,0 @@
-C                                           *--> FROM COMMON.MOD138
-      COMMON /MOD138/ MXDT38,NDT38,IDT38(31),VAL38(31)
-C

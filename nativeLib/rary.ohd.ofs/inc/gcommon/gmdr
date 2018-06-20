@@ -1,3 +1,0 @@
-C                                           *--> FROM GCOMMON.GMDR
-      COMMON /GMDR/ MDRSTA, ISMALL, MDRST6, ICMDR, NCMDR, IRMDR, NRMDR,
-     * NMDR, MDR, MDRUST, IUSTBL, NTABLE, MDRDSZ

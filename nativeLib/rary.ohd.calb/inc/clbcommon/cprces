@@ -1,3 +1,0 @@
-C                                           *--> FROM CLBCOMMON.CPRCES
-      COMMON /CPRCES/ IPROC,MYSEQ,LSTSEQ(30)
-C

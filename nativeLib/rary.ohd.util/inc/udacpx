@@ -1,4 +1,0 @@
-C                                                *--> FROM CMS(UDACPX)
-C  DAIO DATASET COPY ROUTINE COMMON BLOCK
-      COMMON /UDACPX/ ICPDMY,IDAIOE
-C

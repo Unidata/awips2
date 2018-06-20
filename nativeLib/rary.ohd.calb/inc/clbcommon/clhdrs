@@ -1,3 +1,0 @@
-C                                           *--> FROM CLBCOMMON.CLHDRS
-      COMMON /CLHDRS/ FILEN(3),NU,IBLKF,IBLKL
-C

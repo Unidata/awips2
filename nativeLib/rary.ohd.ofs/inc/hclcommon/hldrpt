@@ -1,4 +1,0 @@
-C                                           *--> FROM HCLCOMMON.HLDRPT
-      COMMON /HLDRPT/ ICTLNO,IDELE,IEOFPT,ITED,LDRFPT,
-     *                LDRLPT,NLRPTR,NM1POS,NM2POS
-C

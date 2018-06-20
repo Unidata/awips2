@@ -1,4 +1,0 @@
-C                                           *--> FROM COMMON.OLDT
-      COMMON /OLDT/ MOLDT,OLDT(2000)
-      INTEGER OLDT
-C

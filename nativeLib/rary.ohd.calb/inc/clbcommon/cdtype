@@ -1,4 +1,0 @@
-C                                           *--> FROM CLBCOMMON.CDTYPE
-C  DATA TYPE CODE COMMON BLOCK
-      COMMON /CDTYPE/ IDTFIL,MDTYPE,NDTYPE,DTYPE(150)
-C

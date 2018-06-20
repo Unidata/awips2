@@ -1,4 +1,0 @@
-C                                           *--> FROM SCOMMON.DIMRFRO
-C  ARRAYS FOR GRID BOX PARAMETERS
-      DIMENSION RFROID(2),RFROPM(10)
-C

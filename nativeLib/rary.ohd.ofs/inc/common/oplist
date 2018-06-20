@@ -1,3 +1,0 @@
-C                                           *--> FROM COMMON.OPLIST
-      COMMON /OPLIST/ NOLIST,LISTOP(50)
-C

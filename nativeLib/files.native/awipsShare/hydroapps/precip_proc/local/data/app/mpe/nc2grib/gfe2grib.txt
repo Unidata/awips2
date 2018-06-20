@@ -1,8 +1,0 @@
-QPF  QPF_SFC   180 61 3 4 1
-QTF  Tavg6_SFC  30 11 2 3 1
-QTE  Tavg6_SFC  30 11 2 0 1
-PETF PotET_SFC  30 57 3 0 2
-PETE PotET_SFC  30 57 3 0 2 
-QPE  qpe_grid  172 61 3 4 1
-QTE  qte_grid  172 11 2 3 1
-QZE  qze_grid  172  7 2 0 1

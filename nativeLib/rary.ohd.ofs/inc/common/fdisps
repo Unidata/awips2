@@ -1,4 +1,0 @@
-C                                           *--> FROM COMMON.FDISPS
-      COMMON/FDISPS/IPRDAY,IPRRO,ICRTRO,FGIDNT(2),FGDSCR(5),LINERO,
-     .              IFCDX(9)
-C

@@ -1,3 +1,0 @@
-C                                           *--> FROM COMMON.FMODFT
-      COMMON /FMODFT/ MODTZC,IUMGEN,IUMSAC,IUMAPI,IUMXTR(6)
-C

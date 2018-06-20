@@ -1,4 +1,0 @@
-C                                           *--> FROM UCOMMON.UPPINT
-C  PPINIT PROGRAM INDICATOR COMMON BLOCK
-      COMMON /UPPINT/ IPPFLG
-C

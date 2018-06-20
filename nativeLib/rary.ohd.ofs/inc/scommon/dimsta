@@ -1,6 +1,0 @@
-C                                           *--> FROM SCOMMON.DIMSTA
-C  ARRAYS FOR STA PARAMETERS
-      CHARACTER*8 STAID
-      CHARACTER*20 DESCRP
-      DIMENSION STALOC(2),STACOR(2)
-C

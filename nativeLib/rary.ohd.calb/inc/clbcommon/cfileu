@@ -1,3 +1,0 @@
-C                                           *--> FROM CLBCOMMON.CFILEU
-      COMMON /CFILEU/ IACCES,IFUSED(15),IFUSE2(14),IDEFIN
-C

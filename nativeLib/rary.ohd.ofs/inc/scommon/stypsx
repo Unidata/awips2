@@ -1,5 +1,0 @@
-C                                           *--> FROM SCOMMON.STYPSX
-C   STATION DATA TYPES COMMON BLOCK
-      COMMON /STYPSX/ MSTYPE,STYPE(8)
-      CHARACTER*4 STYPE
-C

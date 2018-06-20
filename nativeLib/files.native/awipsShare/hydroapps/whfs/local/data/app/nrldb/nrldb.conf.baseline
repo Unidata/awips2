@@ -1,5 +1,0 @@
-dbhost = "localhost"
-dbuser = "awips"
-dbpass = ""
-site = "OAX"
-dbname = "hd_ob92oax"

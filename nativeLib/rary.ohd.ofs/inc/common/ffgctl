@@ -1,4 +1,0 @@
-C                                           *--> FROM COMMON.FFGCTL
-C  FLASH FLOOD GUIDANCE CONTROL COMMON BLOCK
-      COMMON /FFGCTL/ IFFG
-C

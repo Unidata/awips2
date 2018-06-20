@@ -1,1 +1,0 @@
-void ok_quit();

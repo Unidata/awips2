@@ -1,4 +1,0 @@
-C                                           *--> FROM DGCOMMON.DGVALU
-C  GOES SLR RECORD INFORMATION COMMON BLOCK
-      COMMON /DGVALU/ ISLRHD,MAXLDG,IDGDUM(4)
-C

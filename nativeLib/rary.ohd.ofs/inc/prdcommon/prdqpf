@@ -1,4 +1,0 @@
-C                                           *--> FROM PRDCOMMON.PRDQPF
-C  QPF INDICATOR COMMON BLOCK
-      COMMON /PRDQPF/IRDQPF
-C

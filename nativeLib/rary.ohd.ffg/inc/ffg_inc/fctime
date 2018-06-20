@@ -1,2 +1,0 @@
-      common /fctime/ idarun,ihrrun,ldarun,lhrrun,ldacpd,lhrcpd,
-     +  now(5),local,noutz,noutds,nlstz,ida,ihr,lda,lhr,idadat

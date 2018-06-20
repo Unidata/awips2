@@ -1,4 +1,0 @@
-C                                           *--> FROM PDBCOMMON.PDENQX
-C  PREPROCESOR DATA BASE ENQ/DEQ INDICATOR COMMON BLOCK
-      COMMON /PDENQX/ IPDENQ
-C

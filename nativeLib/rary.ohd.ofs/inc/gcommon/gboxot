@@ -1,2 +1,0 @@
-C                                           *--> FROM GCOMMON.GBOXOT
-      COMMON /GBOXOT/ MPTBOX(20), NBXDSP, IBXALL, NUPCPN, NUMAPI, NURNOF

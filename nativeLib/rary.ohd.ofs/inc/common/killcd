@@ -1,3 +1,0 @@
-C                                           *--> FROM COMMON.KILLCD
-      COMMON /KILLCD/ KLCODE,NKILLS,KLSTOP
-C

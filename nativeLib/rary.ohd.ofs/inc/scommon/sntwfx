@@ -1,5 +1,0 @@
-C                                           *--> FROM SCOMMON.SNTWFX
-C  NETWORK FLAGS COMMON BLOCK
-      COMMON /SNTWFX/ INFFIL,IVNTWK,NNWFLG,INWDTE(4),
-     *   INWFLG(20),INWFLT(20)
-C

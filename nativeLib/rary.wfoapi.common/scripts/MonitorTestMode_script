@@ -1,3 +1,0 @@
-#!/bin/sh
-DISPLAY=$1:0.0; export DISPLAY
-$FXA_HOME/bin/MonitorTestMode  &

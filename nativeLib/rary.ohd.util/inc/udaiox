@@ -1,4 +1,0 @@
-C                                                *--> FROM CMS(UDAIOX)
-C  DAIO OPTIONS COMMON BLOCK
-      COMMON /UDAIOX/ IDAERP
-C

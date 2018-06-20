@@ -1,3 +1,0 @@
-C                                           *--> FROM COMMON.MODCTL
-      COMMON /MODCTL/ IWHERE,IBTWEN,IAFTER
-C

@@ -1,1 +1,0 @@
-void find_last_run_time(char *, char[], long int *);

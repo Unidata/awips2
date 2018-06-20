@@ -1,2 +1,0 @@
-#!/bin/bash
-echo "Test of mpe_internal_script" >/tmp/internal_script_test

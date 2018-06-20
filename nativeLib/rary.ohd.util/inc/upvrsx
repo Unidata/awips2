@@ -1,5 +1,0 @@
-C                                                *--> FROM CMS(UPVRSX)
-C  COMMON BLOCK FOR PROGRAM ATTRIBUTES
-      COMMON /UPVRSX/ PGMVRN,PGMVRD,PGMNAM,MPGMRG,PGMCMP,PGMSYS
-      include "upvrsx_types"
-C

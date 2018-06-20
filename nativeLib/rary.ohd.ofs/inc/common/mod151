@@ -1,3 +1,0 @@
-C                                           *--> FROM COMMON.MOD151
-      PARAMETER (NROWS=907)
-      COMMON/MOD151/RRC(NROWS,2)

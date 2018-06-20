@@ -1,3 +1,0 @@
-C                                           *--> FROM COMMON.MOD102
-      COMMON /MOD102/ NDT02,IDT02(5),VAL02(5)
-C
