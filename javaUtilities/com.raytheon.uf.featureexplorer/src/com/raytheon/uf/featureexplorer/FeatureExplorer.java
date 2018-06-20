@@ -24,7 +24,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.jar.Attributes;
@@ -35,7 +37,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 
 import com.raytheon.uf.featureexplorer.jaxb.Feature;
-import com.raytheon.uf.featureexplorer.jaxb.Import;
 import com.raytheon.uf.featureexplorer.jaxb.Includes;
 import com.raytheon.uf.featureexplorer.jaxb.Plugin;
 import com.raytheon.uf.featureexplorer.search.IFeatureSearch;
@@ -59,6 +60,8 @@ import com.raytheon.uf.featureexplorer.search.IPluginSearch;
  * May 22, 2013 #1927      bkowal      Fix improper String comparison
  * Feb 25, 2015 #3299      garmendariz Process a list of included features
  * Jun 16, 2016 #5694      bkowal      Include plugins that are in features required by a feature.
+ * Sep 12, 2016 #5833      garmendariz Check list of processed features on recursive call
+ * Mar 22, 2017 #5894      dlovely     Removed processing of features required by a feature.
  * </pre>
  * 
  * @author dglazesk
@@ -79,7 +82,9 @@ public class FeatureExplorer {
      */
     protected File feature = null;
 
-    private Map<String, File> pluginLookupMap = new HashMap<String, File>();
+    private Map<String, File> pluginLookupMap = new HashMap<>();
+
+    private HashSet<File> processedList = new HashSet<>();
 
     /**
      * This constructor allows a user to setup what the feature for this
@@ -123,7 +128,7 @@ public class FeatureExplorer {
      * @return The list of files in the feature for this instance
      * @throws FeatureException
      */
-    public ArrayList<File> getPlugins() throws FeatureException {
+    public List<File> getPlugins() throws FeatureException {
         return getPlugins(feature, null);
     }
 
@@ -136,7 +141,7 @@ public class FeatureExplorer {
      * @return The list of file objects for all of the plugins in the feature
      * @throws FeatureException
      */
-    public ArrayList<File> getPlugins(String aPath, ArrayList<File> incList)
+    public List<File> getPlugins(String aPath, List<File> incList)
             throws FeatureException {
         File feat = new File(aPath);
         return getPlugins(feat, incList);
@@ -149,16 +154,17 @@ public class FeatureExplorer {
      * 
      * @param aFeature
      *            The file object for the feature to be scanned
-     * @param incList
+     * @param addlFeatureFiles
      * @return The list of file objects for the located plugins
      * @throws FeatureException
      */
-    public ArrayList<File> getPlugins(File aFeature, ArrayList<File> incList)
+    public List<File> getPlugins(File aFeature, List<File> addlFeatureFiles)
             throws FeatureException {
-        ArrayList<File> rval = new ArrayList<File>();
+        ArrayList<File> rval = new ArrayList<>();
 
-        HashMap<String, File> plugins = getFeaturePlugins(aFeature, incList);
-        rval = new ArrayList<File>(plugins.values());
+        Map<String, File> plugins = getFeaturePlugins(aFeature,
+                addlFeatureFiles);
+        rval = new ArrayList<>(plugins.values());
 
         return rval;
     }
@@ -176,11 +182,14 @@ public class FeatureExplorer {
      *             If there are any problems with JAXB, a feature cannot be
      *             found, or a plugin cannot be found
      */
-    protected HashMap<String, File> getFeaturePlugins(File aFile,
-            ArrayList<File> incList) throws FeatureException {
-        HashMap<String, File> rval = new HashMap<String, File>();
-        if (aFile == null || !aFile.exists() || !aFile.canRead())
-            return rval;
+    protected Map<String, File> getFeaturePlugins(File aFile,
+            List<File> incList) throws FeatureException {
+        if (aFile == null || !aFile.exists() || !aFile.canRead()
+                || processedList.contains(aFile)) {
+            return Collections.emptyMap();
+        }
+
+        HashMap<String, File> rval = new HashMap<>();
 
         Feature feat = null;
         try {
@@ -215,28 +224,7 @@ public class FeatureExplorer {
                     // this means we received an empty list, no feature found
                     throw new FeatureException("Could not find feature "
                             + include.getId() + " with version greater than "
-                            + include.getVersion() + " referenced in feature: "
-                            + feat.getId() + ".");
-                }
-            }
-        }
-
-        if (feat.getRequires() != null
-                && feat.getRequires().getImports() != null
-                && !feat.getRequires().getImports().isEmpty()) {
-            for (Import featureImport : feat.getRequires().getImports()) {
-                List<File> features = featureSearch.findFeature(
-                        featureImport.getFeature(), featureImport.getVersion());
-                try {
-                    // get all of the plugin id to file objects and add them
-                    rval.putAll(getFeaturePlugins(features.get(0), null));
-                } catch (IndexOutOfBoundsException e) {
-                    // this means we received an empty list, no feature found
-                    throw new FeatureException("Could not find feature "
-                            + featureImport.getFeature()
-                            + " with version greater than "
-                            + featureImport.getVersion()
-                            + " referenced in feature: " + feat.getId() + ".");
+                            + include.getVersion());
                 }
             }
         }
@@ -247,19 +235,19 @@ public class FeatureExplorer {
                     plugin.getVersion());
             try {
                 if (this.pluginLookupMap.containsKey(plugin.getId())
-                        && !this.pluginLookupMap.get(plugin.getId()).equals(
-                                aFile)) {
+                        && !this.pluginLookupMap.get(plugin.getId())
+                                .equals(aFile)) {
                     StringBuilder stringBuilder = new StringBuilder("Plugin ");
                     stringBuilder.append(plugin.getId());
                     stringBuilder.append(" is in Feature ");
-                    stringBuilder.append(this.generateFeatureFileName(
+                    stringBuilder.append(FeatureExplorer.generateFeatureFileName(
                             aFile.getParent(), aFile.getName()));
                     stringBuilder.append(" and Feature ");
-                    stringBuilder
-                            .append(this.generateFeatureFileName(
-                                    this.pluginLookupMap.get(plugin.getId())
-                                            .getParent(), this.pluginLookupMap
-                                            .get(plugin.getId()).getName()));
+                    stringBuilder.append(FeatureExplorer.generateFeatureFileName(
+                            this.pluginLookupMap.get(plugin.getId())
+                                    .getParent(),
+                            this.pluginLookupMap.get(plugin.getId())
+                                    .getName()));
                     stringBuilder.append("!");
                     throw new FeatureException(stringBuilder.toString());
                 }
@@ -271,15 +259,17 @@ public class FeatureExplorer {
                 // this means we received an empty list, no plugin found
                 throw new FeatureException("Could not find plugin "
                         + plugin.getId() + " with version greater than "
-                        + plugin.getVersion() + " referenced in feature: "
-                        + feat.getId() + ".");
+                        + plugin.getVersion());
             }
         }
+
+        processedList.add(aFile);
+        System.out.println("Processed: " + aFile);
 
         return rval;
     }
 
-    private String generateFeatureFileName(String parentPath, String fileName) {
+    private static String generateFeatureFileName(String parentPath, String fileName) {
         String[] pathElements = parentPath.split(File.separator);
         return pathElements[pathElements.length - 1] + File.separator
                 + fileName;
@@ -299,7 +289,7 @@ public class FeatureExplorer {
             throws IOException {
         File maniFile = new File(projectRoot, "/META-INF/MANIFEST.MF");
         Manifest m = null;
-        List<String> rval = new ArrayList<String>();
+        List<String> rval = new ArrayList<>();
 
         try {
             m = new Manifest();

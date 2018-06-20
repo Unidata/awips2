@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,6 +32,8 @@ import com.raytheon.uf.featureexplorer.FeatureExplorer;
  * Feb 4, 2013  #1577      bkowal      Remove component-deploy.xml suffixes for
  *                                     core and plugins; remove jar wildcard for cots
  * Feb 25, 2015 #3299      garmendariz Process a list of included features
+ * Sep 12, 2016 #5833      garmendariz Change variable name for list of features
+ * Mar 22, 2017 #5894      dlovely     Fixed errors caused by FeatureExplorer changes
  * </pre>
  * 
  * @author bclement
@@ -60,13 +63,13 @@ public class GenerateIncludesFromFeature extends Task {
 
     protected String provider = "raytheon";
 
-    private Pattern providerPattern = Pattern.compile(String.format(PATTERN,
-            provider));
+    private Pattern providerPattern = Pattern
+            .compile(String.format(PATTERN, provider));
 
     protected String plugin = "plugin";
 
-    private Pattern pluginPattern = Pattern.compile(String.format(PATTERN,
-            plugin));
+    private Pattern pluginPattern = Pattern
+            .compile(String.format(PATTERN, plugin));
 
     /**
      * @return the baseDirectories
@@ -105,8 +108,8 @@ public class GenerateIncludesFromFeature extends Task {
      */
     public void setProviderFilter(String filter) {
         this.provider = filter;
-        this.providerPattern = Pattern.compile(String.format("^.*(%s).*$",
-                filter));
+        this.providerPattern = Pattern
+                .compile(String.format("^.*(%s).*$", filter));
     }
 
     /**
@@ -116,8 +119,8 @@ public class GenerateIncludesFromFeature extends Task {
      */
     public void setPluginFilter(String filter) {
         this.plugin = filter;
-        this.pluginPattern = Pattern.compile(String
-                .format("^.*(%s).*$", filter));
+        this.pluginPattern = Pattern
+                .compile(String.format("^.*(%s).*$", filter));
     }
 
     public void setAllOut(File f) {
@@ -156,7 +159,7 @@ public class GenerateIncludesFromFeature extends Task {
         log("provider filter=" + this.providerPattern.toString());
         log("plugin filter=" + this.pluginPattern.toString());
 
-        ArrayList<File> components = getComponents();
+        List<File> components = getComponents();
         if (cotsOut == null && plugsOut == null && coreOut == null
                 && allOut == null)
             throw new BuildException(
@@ -181,7 +184,7 @@ public class GenerateIncludesFromFeature extends Task {
      * 
      * @param comps
      */
-    protected void generateAll(ArrayList<File> comps) {
+    protected void generateAll(List<File> comps) {
         log("Generating ALL list in " + this.allOut.getPath());
         PrintWriter out = null;
         try {
@@ -217,22 +220,22 @@ public class GenerateIncludesFromFeature extends Task {
      *             if there are any problems accessing feature or finding
      *             required components from feature.
      */
-    protected ArrayList<File> getComponents() throws BuildException {
+    protected List<File> getComponents() throws BuildException {
 
-        ArrayList<File> rval = null;
+        List<File> rval = null;
 
         FeatureExplorer fe = null;
 
         ArrayList<File> files = null;
 
-        File[] incFiles = null;
+        File[] featureFiles = null;
 
         ArrayList<File> includes = null;
 
         // list of directories overrides single directory
         if (baseDirectories != null) {
             String[] fileNames = baseDirectories.split(";");
-            files = new ArrayList<File>(fileNames.length);
+            files = new ArrayList<>(fileNames.length);
             for (String fName : fileNames) {
                 File file = new File(fName);
                 files.add(file);
@@ -240,7 +243,7 @@ public class GenerateIncludesFromFeature extends Task {
 
             if (optionalDirectories != null) {
                 fileNames = optionalDirectories.split(";");
-                includes = new ArrayList<File>();
+                includes = new ArrayList<>();
                 for (String fName : fileNames) {
 
                     File file = new File(fName);
@@ -248,15 +251,15 @@ public class GenerateIncludesFromFeature extends Task {
 
                     // iterate through each optional dir to find edex features
                     final Pattern p = Pattern.compile(".*edex.*feature");
-                    incFiles = file.listFiles(new FileFilter() {
+                    featureFiles = file.listFiles(new FileFilter() {
                         @Override
                         public boolean accept(File file) {
                             return p.matcher(file.getName()).matches();
                         }
                     });
 
-                    if (incFiles != null) {
-                        includes.addAll(Arrays.asList(incFiles));
+                    if (featureFiles != null) {
+                        includes.addAll(Arrays.asList(featureFiles));
                     }
 
                 }
@@ -265,8 +268,9 @@ public class GenerateIncludesFromFeature extends Task {
             fe = new FeatureExplorer(new WorkspaceFeatureSearch(files),
                     new WorkspacePluginSearch(files));
         } else if (baseDirectory != null) {
-            fe = new FeatureExplorer(baseDirectory, new WorkspaceFeatureSearch(
-                    baseDirectory), new WorkspacePluginSearch(baseDirectory));
+            fe = new FeatureExplorer(baseDirectory,
+                    new WorkspaceFeatureSearch(baseDirectory),
+                    new WorkspacePluginSearch(baseDirectory));
         } else {
             throw new BuildException(
                     "Did not have a baseDirectory or baseDirectories");
@@ -296,7 +300,7 @@ public class GenerateIncludesFromFeature extends Task {
      * @throws BuildException
      *             if any IOException occurs
      */
-    protected void generateCots(ArrayList<File> comps) throws BuildException {
+    protected void generateCots(List<File> comps) throws BuildException {
         log("Generating COTS list in " + this.cotsOut.getPath());
         PrintWriter out = null;
         try {
@@ -334,7 +338,7 @@ public class GenerateIncludesFromFeature extends Task {
      * @throws BuildException
      *             if any IOException occurs
      */
-    protected void generatePlugs(ArrayList<File> comps) throws BuildException {
+    protected void generatePlugs(List<File> comps) throws BuildException {
         log("Generating PLUGS list in " + this.plugsOut.getPath());
         PrintWriter out = null;
         try {
@@ -374,7 +378,7 @@ public class GenerateIncludesFromFeature extends Task {
      * @throws BuildException
      *             if any IOException occurs
      */
-    protected void generateCore(ArrayList<File> comps) throws BuildException {
+    protected void generateCore(List<File> comps) throws BuildException {
         log("Generating CORE list in " + this.coreOut.getPath());
         PrintWriter out = null;
         try {

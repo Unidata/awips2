@@ -1,6 +1,5 @@
 <project basedir=".">
-	<taskdef resource="net/sf/antcontrib/antlib.xml" 
-		classpath="${basedir}/../build.wes2bridge.utility/lib/ant/ant-contrib-1.0b3.jar" />
+	<taskdef resource="net/sf/antcontrib/antlib.xml"/>
 	
 	<!-- The directory that the jar file will be placed in when it is finished. -->
 	<property name="destination.directory" value="" />
