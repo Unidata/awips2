@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <contribute xsi:type="menuItem" menuText="Mean Helicity"
+        key="Helimean" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Mean Vertical Shear"
+        key="VSSmean" indentText="false" />
+
+    <contribute xsi:type="menuItem"
+        menuText="Prob-Matched Mean Derived Radar Composite" key="REFCpmmn"
+        indentText="false" />
+    <contribute xsi:type="menuItem"
+        menuText="Prob-Matched Mean Derived Radar Reflectivity" key="REFDpmmn"
+        indentText="false" />
+    <contribute xsi:type="menuItem"
+        menuText="Prob-Matched Mean Hourly Max Simulated Refl" key="MAXREFpmmn"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob-Matched Mean Echo Top"
+        key="RETOPpmmn" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob-Matched Mean Updraft Helicity"
+        key="UPHLpmmn" indentText="false" />
+    <contribute xsi:type="menuItem"
+        menuText="Prob-Matched Mean Max Hourly Updraft Helicity" key="MXUPHLpmmn"
+        indentText="false" />
+
+    <contribute xsi:type="menuItem"
+        menuText="Prob Composite Radar Refl &gt; 10.0dB" key="ProbREFC10"
+        indentText="false" />
+    <contribute xsi:type="menuItem"
+        menuText="Prob Composite Radar Refl &gt; 20.0dB" key="ProbREFC20"
+        indentText="false" />
+    <contribute xsi:type="menuItem"
+        menuText="Prob Composite Radar Refl &gt; 30.0dB" key="ProbREFC30"
+        indentText="false" />
+    <contribute xsi:type="menuItem"
+        menuText="Prob Composite Radar Refl &gt; 40.0dB" key="ProbREFC40"
+        indentText="false" />
+    <contribute xsi:type="menuItem"
+        menuText="Prob Composite Radar Refl &gt; 50.0dB" key="ProbREFC50"
+        indentText="false" />
+
+    <contribute xsi:type="menuItem"
+        menuText="Prob Derived Radar Refl &gt; 30.0dB" key="ProbREFD30"
+        indentText="false" />
+    <contribute xsi:type="menuItem"
+        menuText="Prob Derived Radar Refl &gt; 40.0dB" key="ProbREFD40"
+        indentText="false" />
+    <contribute xsi:type="menuItem"
+        menuText="Prob Derived Radar Refl &gt; 50.0dB" key="ProbREFD50"
+        indentText="false" />
+
+    <contribute xsi:type="menuItem"
+        menuText="Prob Hourly Max Simulated Refl &gt; 40.0dB" key="ProbMAXREF40"
+        indentText="false" />
+    <contribute xsi:type="menuItem"
+        menuText="Prob Hourly Max Simulated Refl &gt; 50.0dB" key="ProbMAXREF50"
+        indentText="false" />
+
+    <contribute xsi:type="menuItem" menuText="Prob Echo Top &gt; 20 kft"
+        key="ProbRETOP20kft" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Echo Top &gt; 30 kft"
+        key="ProbRETOP30kft" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Echo Top &gt; 35 kft"
+        key="ProbRETOP35kft" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Echo Top &gt; 40 kft"
+        key="ProbRETOP40kft" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Echo Top &gt; 50 kft"
+        key="ProbRETOP50kft" indentText="false" />
+
+    <contribute xsi:type="menuItem"
+        menuText="Prob Updraft Helicity &gt; 25 m^2/s^2" key="ProbUPHL25"
+        indentText="false" />
+    <contribute xsi:type="menuItem"
+        menuText="Prob Updraft Helicity &gt; 100 m^2/s^2" key="ProbUPHL100"
+        indentText="false" />
+
+    <contribute xsi:type="menuItem"
+        menuText="Prob Max Hourly Updraft Helicity &gt; 25 m^2/s^2" key="ProbMXUPHL25"
+        indentText="false" />
+    <contribute xsi:type="menuItem"
+        menuText="Prob Max Hourly Updraft Helicity &gt; 100 m^2/s^2"
+        key="ProbMXUPHL100" indentText="false" />
+
+    <contribute xsi:type="menuItem"
+        menuText="Prob Max Hourly Updraft Velocity &gt; 1.0 m/s" key="ProbMAXUVV1"
+        indentText="false" />
+    <contribute xsi:type="menuItem"
+        menuText="Prob Max Hourly Updraft Velocity &gt; 10.0 m/s" key="ProbMAXUVV10"
+        indentText="false" />
+    <contribute xsi:type="menuItem"
+        menuText="Prob Max Hourly Updraft Velocity &gt; 20.0 m/s" key="ProbMAXUVV20"
+        indentText="false" />
+
+    <contribute xsi:type="menuItem" menuText="Prob 0-2kft Shear &gt; 20 kts"
+        key="ProbVSS10p3Sfc" indentText="false" />
+
+    <contribute xsi:type="menuItem"
+        menuText="Prob Vertical Speed Shear &gt; 20 kts" key="ProbVSS10p3Layer"
+        indentText="false" />
+    <contribute xsi:type="menuItem"
+        menuText="Prob Vertical Speed Shear &gt; 30 kts" key="ProbVSS15p4"
+        indentText="false" />
+    <contribute xsi:type="menuItem"
+        menuText="Prob Vertical Speed Shear &gt; 40 kts" key="ProbVSS20p6"
+        indentText="false" />
+    <contribute xsi:type="menuItem"
+        menuText="Prob Vertical Speed Shear &gt; 50 kts" key="ProbVSS25p7"
+        indentText="false" />
+
+</menuTemplate>

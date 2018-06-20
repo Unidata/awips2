@@ -8,8 +8,8 @@
 # only need to run this once per server.
 
 psql="/awips2/psql/bin/psql"
-db_superuser=awips
-postgres_data_dir=/awips2/data
+db_superuser=awipsadmin
+postgres_data_dir=/awips2/database/data
 
 cleanup_exit () {
     echo INFO: Cleaning up.
@@ -26,7 +26,7 @@ fi
 
 echo "INFO: Creating replication role"
 
-"${psql}" -v ON_ERROR_STOP=1 --user="${db_superuser}" --db=metadata << EOF || cleanup_exit 1
+sudo -u awips -i "${psql}" -v ON_ERROR_STOP=1 --user="${db_superuser}" --db=metadata << EOF || cleanup_exit 1
     begin transaction;
     drop role if exists replication;
     create role replication with replication login password 'replication';

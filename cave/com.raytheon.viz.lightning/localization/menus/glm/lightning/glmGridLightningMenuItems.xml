@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+    This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+    pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+    U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+    This_software_product_contains_export-restricted_data_whose
+    export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+    to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+    an_export_license_or_other_authorization.
+
+    Contractor_Name:________Raytheon_Company
+    Contractor_Address:_____6825_Pine_Street,_Suite_340
+    ________________________Mail_Stop_B8
+    ________________________Omaha,_NE_68106
+    ________________________402.291.0100
+
+    See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+    further_licensing_information.
+-->
+<!-- clab added the glm sub path under cave_static for gridLightningBundleItems.xml -->
+<!-- TOWRdocs Header
+     GLM gridLightningMenuItems
+-->
+<!-- TOWRdocs Description
+     Adds the glm sub-dir path for the gridLightningBundleItems.xml file.
+     It resembles the cave binlightning config file of the same name except it
+     is included under a bundles subdirectory "glm" which is not in the baseline
+-->
+<!-- TOWRdocs Status
+     New menu file for GLM
+-->
+<!-- TOWRdocs POC
+     Lee Byerle 5/25/2017
+-->
+<!-- SOFTWARE HISTORY
+    Date     Ticket#   Engineer           Description
+    6/20/17  DCS20107  TMeyer/DKingfield  Initial creation.
+-->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <contribute xsi:type="subMenu" menuText="5km" id="${source}5kmLightningGridSubmenu">
+            <contribute xsi:type="subinclude" fileName="menus/glm/lightning/glmGridLightningBundleItems.xml">
+            <substitute key="resolution" value="5" />
+        </contribute>
+    </contribute>
+    <contribute xsi:type="subMenu" menuText="9km" id="${source}8kmLightningGridSubmenu">
+        <contribute xsi:type="subinclude" fileName="menus/glm/lightning/glmGridLightningEventBundleItems.xml">
+            <substitute key="resolution" value="9" />
+        </contribute>
+    </contribute>
+</menuTemplate>
+

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- This_software_was_developed_and_/_or_modified_by_Raytheon_Company, pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government. 
+	U.S._EXPORT_CONTROLLED_TECHNICAL_DATA This_software_product_contains_export-restricted_data_whose 
+	export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires 
+	an_export_license_or_other_authorization. Contractor_Name:________Raytheon_Company 
+	Contractor_Address:_____6825_Pine_Street,_Suite_340 ________________________Mail_Stop_B8 
+	________________________Omaha,_NE_68106 ________________________402.291.0100 
+	See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for further_licensing_information. -->
+	<!-- The path menus/glm/lightning/gridLightningMenuItems.xml added by clab adds glm subdir under cave_static -->
+    <!-- TOWRdocs Header
+         GLM glmlightningMenuItems.xml
+        -->
+    <!-- TOWRdocs Description
+         Adds glm into the path to gridLightningMenuItems.xml and to gridLightningEvMenuItems.xml.
+         These are referenced specifically for GLM cave mods of menu text and events product selection
+         features (8km only). It modifies the base GLM plugin menu file of the same name.
+    -->
+    <!-- TOWRdocs Status
+         Modified menu file for GLM
+    -->
+    <!-- TOWRdocs POC
+         Lee Byerle 5/25/2017
+   -->
+   <!-- 
+    Modified menu file for GLM
+    Tiffany Meyer & Darrel Kingfield 6/20/2017
+
+    Sets up 3 menu options: 
+    GLM Combined
+    GLM (point data)
+    GLM Grid
+    -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="subMenu" menuText="GLM Combined" id="glmGridPointSubmenu">
+		<contribute xsi:type="subinclude"
+			fileName="menus/glm/lightning/glmCombinedLightningBundleItems.xml">
+		</contribute>
+	</contribute>
+	<contribute xsi:type="subMenu" menuText="GLM" id="glmPointSubMenu">
+		<contribute xsi:type="subinclude"
+			fileName="menus/glm/lightning/glmPointLightningBundleItems.xml">
+		</contribute>
+	</contribute>
+	<contribute xsi:type="subMenu" menuText="GLM Grid" id="glmGridSubmenu">
+		<contribute xsi:type="subinclude"
+			fileName="menus/glm/lightning/glmGridLightningMenuItems.xml">
+		</contribute>
+	</contribute>
+</menuTemplate>

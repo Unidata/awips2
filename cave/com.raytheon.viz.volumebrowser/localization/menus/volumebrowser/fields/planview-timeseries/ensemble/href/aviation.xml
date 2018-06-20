@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <contribute xsi:type="menuItem" menuText="Mean Visibility"
+        key="Vismean" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Mean Cloud Cover"
+        key="TCCmean" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Mean High Cloud Cover"
+        key="HCDCmean" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Mean Middle Cloud Cover"
+        key="MCDCmean" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Mean Low Cloud Cover"
+        key="LCDCmean" indentText="false" />
+
+    <contribute xsi:type="menuItem" menuText="Prob 0-2kft Shear &gt; 20 kts"
+        key="ProbVSS10p3Sfc" indentText="false" />
+
+    <contribute xsi:type="menuItem" menuText="Prob Visibility &lt; 0.25 miles"
+        key="Visc3" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Visibility &lt; 0.5 miles"
+        key="Visc4" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Visibility &lt; 1 mile"
+        key="Visc1" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Visibility &lt; 2 miles"
+        key="Visc5" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Visibility &lt; 4 miles"
+        key="Visc6" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Ceiling Hgt &lt; 1000 ft"
+        key="Cigc2" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Ceiling Hgt &lt; 2000 ft"
+        key="Cigc23" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Ceiling Hgt &lt; 3000 ft"
+        key="Cigc3" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Ceiling Hgt &lt; 4500 ft"
+        key="Cigc5" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Ceiling Hgt &lt; 6000 ft"
+        key="Cigc6" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Ceiling Hgt &lt; 10000 ft"
+        key="Cigc7" indentText="false" />
+
+    <contribute xsi:type="menuItem"
+        menuText="Prob Flight Category &gt;= 1 &lt; 2" key="ProbFlightCat1-2"
+        indentText="false" />
+    <contribute xsi:type="menuItem"
+        menuText="Prob Flight Category &gt;= 2 &lt; 3" key="ProbFlightCat2-3"
+        indentText="false" />
+    <contribute xsi:type="menuItem"
+        menuText="Prob Flight Category &gt;= 3 &lt; 4" key="ProbFlightCat3-4"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Flight Category &gt;= 4"
+        key="ProbFlightCat4" indentText="false" />
+
+</menuTemplate>
