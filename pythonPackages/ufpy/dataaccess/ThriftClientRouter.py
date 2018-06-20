@@ -40,6 +40,7 @@
 #                                                 getOptionalIdentifiers()
 #    08/01/16        2416          tgurney        Add getNotificationFilter()
 #    10/13/16        5916          bsteffen       Correct grid shape, allow lazy grid lat/lon
+#    10/26/16        5919          njensen        Speed up geometry creation in getGeometryData()
 #
 
 
@@ -64,15 +65,17 @@ from ufpy import ThriftClient
 from ufpy.dataaccess import PyGeometryData
 from ufpy.dataaccess import PyGridData
 
+
 class LazyGridLatLon(object):
+
     def __init__(self, client, nx, ny, envelope, crsWkt):
         self._latLonGrid = None
         self._client = client
         self._request = GetGridLatLonRequest()
-        self._request.setNx(nx);
-        self._request.setNy(ny);
-        self._request.setEnvelope(envelope);
-        self._request.setCrsWkt(crsWkt);
+        self._request.setNx(nx)
+        self._request.setNy(ny)
+        self._request.setEnvelope(envelope)
+        self._request.setCrsWkt(crsWkt)
 
     def __call__(self):
         # Its important that the data is cached internally so that if multiple
@@ -86,16 +89,17 @@ class LazyGridLatLon(object):
             lonData = numpy.reshape(numpy.array(response.getLons()), (ny, nx))
             self._latLonGrid = (lonData, latData)
         return self._latLonGrid
-        
+
+
 class ThriftClientRouter(object):
 
     def __init__(self, host='localhost'):
         self._client = ThriftClient.ThriftClient(host)
         self._lazyLoadGridLatLon = False
-    
+
     def setLazyLoadGridLatLon(self, lazyLoadGridLatLon):
         self._lazyLoadGridLatLon = lazyLoadGridLatLon
-    
+
     def getAvailableTimes(self, request, refTimeOnly):
         timesRequest = GetAvailableTimesRequest()
         timesRequest.setRequestParameters(request)
@@ -126,20 +130,25 @@ class ThriftClientRouter(object):
             if self._lazyLoadGridLatLon:
                 envelope = response.getSiteEnvelopes()[location]
                 crsWkt = response.getSiteCrsWkt()[location]
-                delegate = LazyGridLatLon(self._client, nx, ny, envelope, crsWkt)
+                delegate = LazyGridLatLon(
+                    self._client, nx, ny, envelope, crsWkt)
                 locSpecificData[location] = (nx, ny, delegate)
             else:
-                latData = numpy.reshape(numpy.array(response.getSiteLatGrids()[location]), (ny, nx))
-                lonData = numpy.reshape(numpy.array(response.getSiteLonGrids()[location]), (ny, nx))
+                latData = numpy.reshape(numpy.array(
+                    response.getSiteLatGrids()[location]), (ny, nx))
+                lonData = numpy.reshape(numpy.array(
+                    response.getSiteLonGrids()[location]), (ny, nx))
                 locSpecificData[location] = (nx, ny, (lonData, latData))
         retVal = []
         for gridDataRecord in response.getGridData():
             locationName = gridDataRecord.getLocationName()
             locData = locSpecificData[locationName]
             if self._lazyLoadGridLatLon:
-                retVal.append(PyGridData.PyGridData(gridDataRecord, locData[0], locData[1], latLonDelegate=locData[2]))
+                retVal.append(PyGridData.PyGridData(gridDataRecord, locData[
+                              0], locData[1], latLonDelegate=locData[2]))
             else:
-                retVal.append(PyGridData.PyGridData(gridDataRecord, locData[0], locData[1], locData[2]))
+                retVal.append(PyGridData.PyGridData(
+                    gridDataRecord, locData[0], locData[1], locData[2]))
         return retVal
 
     def getGeometryData(self, request, times):
@@ -157,10 +166,9 @@ class ThriftClientRouter(object):
         response = self._client.sendRequest(geoDataRequest)
         geometries = []
         for wkb in response.getGeometryWKBs():
-            # convert the wkb to a bytearray with only positive values
-            byteArrWKB = bytearray(map(lambda x: x % 256,wkb.tolist()))
-            # convert the bytearray to a byte string and load it.
-            geometries.append(shapely.wkb.loads(str(byteArrWKB)))
+            # the wkb is a numpy.ndarray of dtype int8
+            # convert the bytearray to a byte string and load it
+            geometries.append(shapely.wkb.loads(wkb.tostring()))
 
         retVal = []
         for geoDataRecord in response.getGeoData():
@@ -211,7 +219,7 @@ class ThriftClientRouter(object):
         response = self._client.sendRequest(idValReq)
         return response
 
-    def newDataRequest(self, datatype, parameters=[], levels=[], locationNames = [], envelope=None, **kwargs):
+    def newDataRequest(self, datatype, parameters=[], levels=[], locationNames=[], envelope=None, **kwargs):
         req = DefaultDataRequest()
         if datatype:
             req.setDatatype(datatype)
@@ -231,7 +239,7 @@ class ThriftClientRouter(object):
     def getSupportedDatatypes(self):
         response = self._client.sendRequest(GetSupportedDatatypesRequest())
         return response
-    
+
     def getNotificationFilter(self, request):
         notifReq = GetNotificationFilterRequest()
         notifReq.setRequestParameters(request)

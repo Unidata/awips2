@@ -33,7 +33,7 @@
 #    07/29/16        2416          tgurney        Initial creation
 #
 
-from awips.dataaccess import DataNotificationLayer as DNL
+from ufpy.dataaccess import DataNotificationLayer as DNL
 
 import time
 from threading import Thread

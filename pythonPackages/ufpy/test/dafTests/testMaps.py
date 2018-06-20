@@ -40,6 +40,7 @@ import unittest
 #    06/13/16        5574          mapeters       Add advanced query tests
 #    06/21/16        5548          tgurney        Skip tests that cause errors
 #    06/30/16        5725          tgurney        Add test for NOT IN
+#    01/06/17        5981          tgurney        Do not check data times
 #
 #
 
@@ -71,7 +72,7 @@ class MapsTestCase(baseDafTestCase.DafTestCase):
         req.setLocationNames('OAX')
         req.addIdentifier('cwa', 'OAX')
         req.setParameters('countyname', 'state', 'fips')
-        self.runGeometryDataTest(req)
+        self.runGeometryDataTest(req, checkDataTimes=False)
 
     def testRequestingTimesThrowsTimeAgnosticDataException(self):
         req = DAL.newDataRequest(self.datatype)
@@ -104,22 +105,6 @@ class MapsTestCase(baseDafTestCase.DafTestCase):
         with self.assertRaises(ThriftRequestException):
             idValues = DAL.getIdentifierValues(req, 'state')
 
-    @unittest.skip('avoid EDEX error')
-    def testGetColumnIdValuesWithNonexistentTableThrowsException(self):
-        req = DAL.newDataRequest(self.datatype)
-        req.addIdentifier('table', 'mapdata.nonexistentjunk')
-        req.addIdentifier('geomField', 'the_geom')
-        with self.assertRaises(ThriftRequestException):
-            idValues = DAL.getIdentifierValues(req, 'state')
-
-    @unittest.skip('avoid EDEX error')
-    def testGetNonexistentColumnIdValuesThrowsException(self):
-        req = DAL.newDataRequest(self.datatype)
-        req.addIdentifier('table', 'mapdata.county')
-        req.addIdentifier('geomField', 'the_geom')
-        with self.assertRaises(ThriftRequestException):
-            idValues = DAL.getIdentifierValues(req, 'nonexistentjunk')
-
     def testGetInvalidIdentifierValuesThrowsException(self):
         self.runInvalidIdValuesTest()
 
@@ -134,7 +119,7 @@ class MapsTestCase(baseDafTestCase.DafTestCase):
         constraint = RequestConstraint.new(operator, value)
         req.addIdentifier(key, constraint)
         req.setParameters('state', 'reservoir', 'area_sq_mi')
-        return self.runGeometryDataTest(req)
+        return self.runGeometryDataTest(req, checkDataTimes=False)
 
     def testGetDataWithEqualsString(self):
         geometryData = self._runConstraintTest('state', '=', 'NE')

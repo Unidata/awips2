@@ -21,8 +21,10 @@
 from __future__ import print_function
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataquery.requests import RequestConstraint
 from ufpy.dataaccess import DataAccessLayer as DAL
+from shapely.geometry import box, Point
 
 import baseDafTestCase
+import params
 import unittest
 
 #
@@ -41,6 +43,12 @@ import unittest
 #    06/17/16        5574          mapeters       Add advanced query tests
 #    06/30/16        5725          tgurney        Add test for NOT IN
 #    11/07/16        5991          bsteffen       Improve vector tests
+#    12/07/16        5981          tgurney        Parameterize
+#    12/15/16        6040          tgurney        Add testGetGridDataWithDbType
+#    12/20/16        5981          tgurney        Add envelope test
+#    10/19/17        6491          tgurney        Add test for dbtype identifier
+#    11/10/17        6491          tgurney        Replace modelName with
+#                                                 parmId.dbId.modelName
 #
 #
 
@@ -56,26 +64,49 @@ class GfeTestCase(baseDafTestCase.DafTestCase):
 
     def testGetAvailableLocations(self):
         req = DAL.newDataRequest(self.datatype)
-        req.addIdentifier('modelName', 'Fcst')
+        req.addIdentifier('parmId.dbId.modelName', 'Fcst')
         self.runLocationsTest(req)
 
     def testGetAvailableTimes(self):
         req = DAL.newDataRequest(self.datatype)
-        req.addIdentifier('modelName', 'Fcst')
-        req.addIdentifier('siteId', 'OAX')
+        req.addIdentifier('parmId.dbId.modelName', 'Fcst')
+        req.addIdentifier('parmId.dbId.siteId', params.SITE_ID)
         self.runTimesTest(req)
 
     def testGetGridData(self):
         req = DAL.newDataRequest(self.datatype)
-        req.addIdentifier('modelName', 'Fcst')
-        req.addIdentifier('siteId', 'OAX')
+        req.addIdentifier('parmId.dbId.modelName', 'Fcst')
+        req.addIdentifier('parmId.dbId.siteId', params.SITE_ID)
         req.setParameters('T')
-        self.runGridDataTest(req)
+        gridDatas = self.runGridDataTest(req)
+        for gridData in gridDatas:
+            self.assertEqual(gridData.getAttribute('parmId.dbId.dbType'), '')
+
+    def testGetGridDataWithEnvelope(self):
+        req = DAL.newDataRequest(self.datatype)
+        req.addIdentifier('parmId.dbId.modelName', 'Fcst')
+        req.addIdentifier('parmId.dbId.siteId', params.SITE_ID)
+        req.setParameters('T')
+        req.setEnvelope(params.ENVELOPE)
+        gridData = self.runGridDataTest(req)
+        if not gridData:
+            raise unittest.SkipTest('no data available')
+        lons, lats = gridData[0].getLatLonCoords()
+        lons = lons.reshape(-1)
+        lats = lats.reshape(-1)
+
+        # Ensure all points are within one degree of the original box
+        # to allow slight margin of error for reprojection distortion.
+        testEnv = box(params.ENVELOPE.bounds[0] - 1, params.ENVELOPE.bounds[1] - 1,
+                      params.ENVELOPE.bounds[2] + 1, params.ENVELOPE.bounds[3] + 1 )
+
+        for i in range(len(lons)):
+            self.assertTrue(testEnv.contains(Point(lons[i], lats[i])))
 
     def testGetVectorGridData(self):
         req = DAL.newDataRequest(self.datatype)
-        req.addIdentifier('modelName', 'Fcst')
-        req.addIdentifier('siteId', 'OAX')
+        req.addIdentifier('parmId.dbId.modelName', 'Fcst')
+        req.addIdentifier('parmId.dbId.siteId', params.SITE_ID)
         req.setParameters('Wind')
         times = DAL.getAvailableTimes(req)
         if not(times):
@@ -114,90 +145,76 @@ class GfeTestCase(baseDafTestCase.DafTestCase):
         req = DAL.newDataRequest(self.datatype)
         constraint = RequestConstraint.new(operator, value)
         req.addIdentifier(key, constraint)
-        req.setLocationNames('OAX')
+        req.setLocationNames(params.SITE_ID)
         req.setParameters('T')
         return self.runGridDataTest(req)
 
-    def testGetDataWithEqualsString(self):
-        geometryData = self._runConstraintTest('modelName', '=', 'Fcst')
-        for record in geometryData:
-            self.assertEqual(record.getAttribute('modelName'), 'Fcst')
+    def testGetDataWithModelNameEqualsString(self):
+        gridData = self._runConstraintTest('parmId.dbId.modelName', '=', 'Fcst')
+        for record in gridData:
+            self.assertEqual(record.getAttribute('parmId.dbId.modelName'), 'Fcst')
+
+    def testGetDataWithDbTypeEqualsString(self):
+        gridData = self._runConstraintTest('parmId.dbId.dbType', '=', 'Prac')
+        for record in gridData:
+            self.assertEqual(record.getAttribute('parmId.dbId.dbType'), 'Prac')
 
     def testGetDataWithEqualsUnicode(self):
-        geometryData = self._runConstraintTest('modelName', '=', u'Fcst')
-        for record in geometryData:
-            self.assertEqual(record.getAttribute('modelName'), 'Fcst')
+        gridData = self._runConstraintTest('parmId.dbId.modelName', '=', u'Fcst')
+        for record in gridData:
+            self.assertEqual(record.getAttribute('parmId.dbId.modelName'), 'Fcst')
 
     # No numeric tests since no numeric identifiers are available.
 
     def testGetDataWithEqualsNone(self):
-        geometryData = self._runConstraintTest('modelName', '=', None)
-        for record in geometryData:
-            self.assertIsNone(record.getAttribute('modelName'))
+        gridData = self._runConstraintTest('parmId.dbId.modelName', '=', None)
+        for record in gridData:
+            self.assertIsNone(record.getAttribute('parmId.dbId.modelName'))
 
     def testGetDataWithNotEquals(self):
-        geometryData = self._runConstraintTest('modelName', '!=', 'Fcst')
-        for record in geometryData:
-            self.assertNotEqual(record.getAttribute('modelName'), 'Fcst')
+        gridData = self._runConstraintTest('parmId.dbId.modelName', '!=', 'Fcst')
+        for record in gridData:
+            self.assertNotEqual(record.getAttribute('parmId.dbId.modelName'), 'Fcst')
 
     def testGetDataWithNotEqualsNone(self):
-        geometryData = self._runConstraintTest('modelName', '!=', None)
-        for record in geometryData:
-            self.assertIsNotNone(record.getAttribute('modelName'))
-
-    def testGetDataWithGreaterThan(self):
-        geometryData = self._runConstraintTest('modelName', '>', 'Fcst')
-        for record in geometryData:
-            self.assertGreater(record.getAttribute('modelName'), 'Fcst')
-
-    def testGetDataWithLessThan(self):
-        geometryData = self._runConstraintTest('modelName', '<', 'Fcst')
-        for record in geometryData:
-            self.assertLess(record.getAttribute('modelName'), 'Fcst')
-
-    def testGetDataWithGreaterThanEquals(self):
-        geometryData = self._runConstraintTest('modelName', '>=', 'Fcst')
-        for record in geometryData:
-            self.assertGreaterEqual(record.getAttribute('modelName'), 'Fcst')
-
-    def testGetDataWithLessThanEquals(self):
-        geometryData = self._runConstraintTest('modelName', '<=', 'Fcst')
-        for record in geometryData:
-            self.assertLessEqual(record.getAttribute('modelName'), 'Fcst')
+        gridData = self._runConstraintTest('parmId.dbId.modelName', '!=', None)
+        for record in gridData:
+            self.assertIsNotNone(record.getAttribute('parmId.dbId.modelName'))
 
     def testGetDataWithInTuple(self):
         collection = ('Fcst', 'SAT')
-        geometryData = self._runConstraintTest('modelName', 'in', collection)
-        for record in geometryData:
-            self.assertIn(record.getAttribute('modelName'), collection)
+        gridData = self._runConstraintTest('parmId.dbId.modelName', 'in', collection)
+        for record in gridData:
+            self.assertIn(record.getAttribute('parmId.dbId.modelName'), collection)
 
     def testGetDataWithInList(self):
         collection = ['Fcst', 'SAT']
-        geometryData = self._runConstraintTest('modelName', 'in', collection)
-        for record in geometryData:
-            self.assertIn(record.getAttribute('modelName'), collection)
+        gridData = self._runConstraintTest('parmId.dbId.modelName', 'in', collection)
+        for record in gridData:
+            self.assertIn(record.getAttribute('parmId.dbId.modelName'), collection)
 
     def testGetDataWithInGenerator(self):
         collection = ('Fcst', 'SAT')
         generator = (item for item in collection)
-        geometryData = self._runConstraintTest('modelName', 'in', generator)
-        for record in geometryData:
-            self.assertIn(record.getAttribute('modelName'), collection)
+        gridData = self._runConstraintTest('parmId.dbId.modelName', 'in', generator)
+        for record in gridData:
+            self.assertIn(record.getAttribute('parmId.dbId.modelName'), collection)
 
     def testGetDataWithNotInList(self):
         collection = ('Fcst', 'SAT')
-        geometryData = self._runConstraintTest('modelName', 'not in', collection)
-        for record in geometryData:
-            self.assertNotIn(record.getAttribute('modelName'), collection)
+        gridData = self._runConstraintTest('parmId.dbId.modelName', 'not in', collection)
+        for record in gridData:
+            self.assertNotIn(record.getAttribute('parmId.dbId.modelName'), collection)
 
     def testGetDataWithInvalidConstraintTypeThrowsException(self):
         with self.assertRaises(ValueError):
-            self._runConstraintTest('modelName', 'junk', 'Fcst')
+            self._runConstraintTest('parmId.dbId.modelName', 'junk', 'Fcst')
 
     def testGetDataWithInvalidConstraintValueThrowsException(self):
         with self.assertRaises(TypeError):
-            self._runConstraintTest('modelName', '=', {})
+            self._runConstraintTest('parmId.dbId.modelName', '=', {})
 
     def testGetDataWithEmptyInConstraintThrowsException(self):
         with self.assertRaises(ValueError):
-            self._runConstraintTest('modelName', 'in', [])
+            self._runConstraintTest('parmId.dbId.modelName', 'in', [])
+

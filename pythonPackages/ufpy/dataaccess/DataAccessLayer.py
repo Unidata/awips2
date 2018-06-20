@@ -20,7 +20,7 @@
 
 
 #
-# Published interface for awips.dataaccess package
+# Published interface for ufpy.dataaccess package
 #
 #
 #     SOFTWARE HISTORY
@@ -64,7 +64,7 @@ if sys.modules.has_key('jep'):
     import JepRouter
     router = JepRouter
 else:
-    from awips.dataaccess import ThriftClientRouter
+    from ufpy.dataaccess import ThriftClientRouter
     router = ThriftClientRouter.ThriftClientRouter(THRIFT_HOST)
     USING_NATIVE_THRIFT = True
 

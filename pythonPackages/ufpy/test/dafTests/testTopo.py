@@ -39,7 +39,7 @@ import unittest
 #    05/26/16        5587          tgurney        Add test for
 #                                                 getIdentifierValues()
 #    06/01/16        5587          tgurney        Update testGetIdentifierValues
-#
+#    07/18/17        6253          randerso       Removed referenced to GMTED
 #
 
 
@@ -61,7 +61,7 @@ class TopoTestCase(baseDafTestCase.DafTestCase):
         print("Sample grid data shape:\n" + str(gridData[0].getRawData().shape) + "\n")
         print("Sample grid data:\n" + str(gridData[0].getRawData()) + "\n")
 
-        for topoFile in ["gmted2010", "gtopo30"]:
+        for topoFile in ["gtopo30"]:
             print("\n" + topoFile)
             req.addIdentifier("topoFile", topoFile)
             gridData = DAL.getGridData(req)

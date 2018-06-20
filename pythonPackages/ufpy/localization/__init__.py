@@ -18,20 +18,15 @@
 # further licensing information.
 ##
 
-
 #
-# __init__.py for ufpy package
-#  
-#    
-#     SOFTWARE HISTORY
-#    
-#    Date            Ticket#       Engineer       Description
-#    ------------    ----------    -----------    --------------------------
-#    09/21/10                      dgilling       Initial Creation.
-#    
-# 
+# __init__.py for ufpy.localization package
 #
-
+#
+# SOFTWARE HISTORY
+#
+# Date      Ticket#  Engineer  Description
+# --------- -------- --------- --------------------------
+# 08/10/17  5731     bsteffen  Initial Creation.
 
 __all__ = [           
            ]

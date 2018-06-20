@@ -19,7 +19,7 @@
 # #
 
 #
-# Published interface for retrieving data updates via awips.dataaccess package
+# Published interface for retrieving data updates via ufpy.dataaccess package
 #
 #
 #     SOFTWARE HISTORY
@@ -37,7 +37,7 @@ retrieval of new data as it is coming into the system.
 
 There are two ways to access this feature:
 
-1. The DataQueue module (awips.dataaccess.DataQueue) offers a collection that
+1. The DataQueue module (ufpy.dataaccess.DataQueue) offers a collection that
 automatically fills up with new data as it receives notifications. See that
 module for more information.
 
@@ -49,8 +49,8 @@ each time new data is received.
 Example code follows. This example prints temperature as observed from KOMA
 each time a METAR is received from there.
 
-  from awips.dataaccess import DataAccessLayer as DAL
-  from awips.dataaccess import DataNotificationLayer as DNL
+  from ufpy.dataaccess import DataAccessLayer as DAL
+  from ufpy.dataaccess import DataNotificationLayer as DNL
 
   def process_obs(list_of_data):
       for item in list_of_data:
@@ -69,8 +69,8 @@ each time a METAR is received from there.
 import re
 import sys
 import subprocess
-from awips.dataaccess.PyGeometryNotification import PyGeometryNotification
-from awips.dataaccess.PyGridNotification import PyGridNotification
+from ufpy.dataaccess.PyGeometryNotification import PyGeometryNotification
+from ufpy.dataaccess.PyGridNotification import PyGridNotification
 
 
 THRIFT_HOST = subprocess.check_output(
@@ -89,7 +89,7 @@ if sys.modules.has_key('jep'):
     import JepRouter
     router = JepRouter
 else:
-    from awips.dataaccess import ThriftClientRouter
+    from ufpy.dataaccess import ThriftClientRouter
     router = ThriftClientRouter.ThriftClientRouter(THRIFT_HOST)
     USING_NATIVE_THRIFT = True
 

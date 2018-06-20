@@ -24,6 +24,7 @@ from ufpy.dataaccess import DataAccessLayer as DAL
 
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataquery.requests import RequestConstraint
 import baseDafTestCase
+import params
 import unittest
 
 #
@@ -42,6 +43,8 @@ import unittest
 #    06/13/16        5574          tgurney        Add advanced query tests
 #    06/21/16        5548          tgurney        Skip tests that cause errors
 #    06/30/16        5725          tgurney        Add test for NOT IN
+#    12/07/16        5981          tgurney        Parameterize
+#    01/06/17        5981          tgurney        Do not check data times
 #
 
 
@@ -49,9 +52,6 @@ class CommonObsSpatialTestCase(baseDafTestCase.DafTestCase):
     """Test DAF support for common_obs_spatial data"""
 
     datatype = "common_obs_spatial"
-
-    envelope = box(-97.0, 41.0, -96.0, 42.0)
-    """Default request area (box around KOAX)"""
 
     def testGetAvailableParameters(self):
         req = DAL.newDataRequest(self.datatype)
@@ -65,19 +65,11 @@ class CommonObsSpatialTestCase(baseDafTestCase.DafTestCase):
     def testGetIdentifierValues(self):
         self.runGetIdValuesTest(['country'])
 
-    @unittest.skip('avoid EDEX error')
-    def testGetInvalidIdentifierValuesThrowsException(self):
-        self.runInvalidIdValuesTest()
-
-    @unittest.skip('avoid EDEX error')
-    def testGetNonexistentIdentifierValuesThrowsException(self):
-        self.runNonexistentIdValuesTest()
-
     def testGetGeometryData(self):
         req = DAL.newDataRequest(self.datatype)
-        req.setEnvelope(self.envelope)
+        req.setEnvelope(params.ENVELOPE)
         req.setParameters("name", "stationid")
-        self.runGeometryDataTest(req)
+        self.runGeometryDataTest(req, checkDataTimes=False)
 
     def testRequestingTimesThrowsTimeAgnosticDataException(self):
         req = DAL.newDataRequest(self.datatype)
@@ -88,7 +80,7 @@ class CommonObsSpatialTestCase(baseDafTestCase.DafTestCase):
         constraint = RequestConstraint.new(operator, value)
         req.addIdentifier(key, constraint)
         req.setParameters('catalogtype', 'elevation', 'state')
-        return self.runGeometryDataTest(req)
+        return self.runGeometryDataTest(req, checkDataTimes=False)
 
     def testGetDataWithEqualsString(self):
         geometryData = self._runConstraintTest('state', '=', 'NE')

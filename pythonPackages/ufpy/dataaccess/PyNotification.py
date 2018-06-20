@@ -29,6 +29,7 @@
 #    ------------    ----------    -----------   --------------------------
 #    Jun 22, 2016    2416          rjpeter       Initial creation
 #    Jul 22, 2016    2416          tgurney       Finish implementation
+#    Sep 07, 2017    6175          tgurney       Override messageReceived in subclasses
 #
 
 
@@ -37,10 +38,10 @@ import time
 import traceback
 
 import dynamicserialize
-from awips.dataaccess import DataAccessLayer
-from awips.dataaccess import INotificationSubscriber
-from awips.QpidSubscriber import QpidSubscriber
-from awips.ThriftClient import ThriftRequestException
+from ufpy.dataaccess import DataAccessLayer
+from ufpy.dataaccess import INotificationSubscriber
+from ufpy.QpidSubscriber import QpidSubscriber
+from ufpy.ThriftClient import ThriftRequestException
 from dynamicserialize.dstypes.com.raytheon.uf.common.time import DataTime
 
 
@@ -55,11 +56,11 @@ class PyNotification(INotificationSubscriber):
     def __init__(self, request, filter, host='localhost', port=5672, requestHost='localhost'):
         self.DAL = DataAccessLayer
         self.DAL.changeEDEXHost(requestHost)
-        self.__request = request
-        self.__notificationFilter = filter
+        self.request = request
+        self.notificationFilter = filter
         self.__topicSubscriber = QpidSubscriber(host, port, decompress=True)
         self.__topicName = "edex.alerts"
-        self.__callback = None
+        self.callback = None
 
     def subscribe(self, callback):
         """
@@ -70,48 +71,25 @@ class PyNotification(INotificationSubscriber):
               Will be called once for each request made for data.
         """
         assert hasattr(callback, '__call__'), 'callback arg must be callable'
-        self.__callback = callback
-        self.__topicSubscriber.topicSubscribe(self.__topicName, self._messageReceived)
+        self.callback = callback
+        self.__topicSubscriber.topicSubscribe(self.__topicName, self.messageReceived)
         # Blocks here
 
     def close(self):
         if self.__topicSubscriber.subscribed:
             self.__topicSubscriber.close()
 
-    def _getDataTime(self, dataURI):
+    def getDataTime(self, dataURI):
         dataTimeStr = dataURI.split('/')[2]
         return DataTime(dataTimeStr)
 
-    def _messageReceived(self, msg):
-        dataUriMsg = dynamicserialize.deserialize(msg)
-        dataUris = dataUriMsg.getDataURIs()
-        dataTimes = [
-            self._getDataTime(dataUri)
-            for dataUri in dataUris
-            if self.__notificationFilter.accept(dataUri)
-            ]
-        if dataTimes:
-            secondTry = False
-            while True:
-                try:
-                    data = self.getData(self.__request, dataTimes)
-                    break
-                except ThriftRequestException:
-                    if secondTry:
-                        try:
-                            self.close()
-                        except Exception:
-                            pass
-                        raise
-                    else:
-                        secondTry = True
-                        time.sleep(5)
-            try:
-                self.__callback(data)
-            except Exception as e:
-                # don't want callback to blow up the notifier itself.
-                traceback.print_exc()
-        # TODO: This utterly fails for derived requests
+    @abc.abstractmethod
+    def messageReceived(self, msg):
+        """Called when a message is received from QpidSubscriber.
+
+        This method must call self.callback once for each request made for data
+        """
+        pass
 
     @abc.abstractmethod
     def getData(self, request, dataTimes):

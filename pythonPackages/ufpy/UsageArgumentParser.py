@@ -1,29 +1,39 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
+#
 # U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
-# 
+#
 # Contractor Name:        Raytheon Company
 # Contractor Address:     6825 Pine Street, Suite 340
 #                         Mail Stop B8
 #                         Omaha, NE 68106
 #                         402.291.0100
-# 
+#
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
+##
+#
+# SOFTWARE HISTORY
+#
+# Date          Ticket#  Engineer  Description
+# ------------- -------- --------- ---------------------------------------------
+# Feb 13, 2017  6092     randerso  Added StoreTimeAction
+#
 ##
 
 import argparse
 import sys
+import time
 
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.db.objects import DatabaseID
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.db.objects import ParmID
 
+TIME_FORMAT = "%Y%m%d_%H%M"
 
 class UsageArgumentParser(argparse.ArgumentParser):
     """
@@ -55,4 +65,17 @@ class AppendParmNameAndLevelAction(argparse.Action):
                 setattr(namespace, self.dest, currentValues)
         else:
             setattr(namespace, self.dest, [comp])
+
+class StoreTimeAction(argparse.Action):
+    """
+    argparse.Action subclass to validate GFE formatted time strings
+    and parse them to time.struct_time
+    """
+    def __call__(self, parser, namespace, values, option_string=None):
+        try:
+            timeStruct = time.strptime(values, TIME_FORMAT)
+        except:
+            parser.error(str(values) + " is not a valid time string of the format YYYYMMDD_hhmm")
+
+        setattr(namespace, self.dest, timeStruct)
 

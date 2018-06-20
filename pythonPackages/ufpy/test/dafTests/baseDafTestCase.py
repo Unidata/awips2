@@ -50,6 +50,8 @@ import unittest
 #    10/05/16        5926          dgilling       Better checks in runGeometryDataTest.
 #    11/08/16        5985          tgurney        Do not check data times on
 #                                                 time-agnostic data
+#    03/13/17        5981          tgurney        Do not check valid period on
+#                                                 data time
 #
 #
 
@@ -166,10 +168,13 @@ class DafTestCase(unittest.TestCase):
         self.assertIsNotNone(geomData)
         if times:
             self.assertNotEqual(len(geomData), 0)
+        if not geomData:
+            raise unittest.SkipTest("No data available")
         print("Number of geometry records: " + str(len(geomData)))
         print("Sample geometry data:")
         for record in geomData[:self.sampleDataLimit]:
-            if checkDataTimes and times:
+            if (checkDataTimes and times and
+                    "PERIOD_USED" not in record.getDataTime().getUtilityFlags()):
                 self.assertIn(record.getDataTime(), times[:self.numTimesToLimit])
             print("geometry=" + str(record.getGeometry()), end="")
             for p in req.getParameters():
@@ -184,6 +189,8 @@ class DafTestCase(unittest.TestCase):
         """
         geomData = DAL.getGeometryData(req, timeRange)
         self.assertIsNotNone(geomData)
+        if not geomData:
+            raise unittest.SkipTest("No data available")
         print("Number of geometry records: " + str(len(geomData)))
         print("Sample geometry data:")
         for record in geomData[:self.sampleDataLimit]:
@@ -207,6 +214,8 @@ class DafTestCase(unittest.TestCase):
         times = DafTestCase.getTimesIfSupported(req)
         gridData = DAL.getGridData(req, times[:self.numTimesToLimit])
         self.assertIsNotNone(gridData)
+        if not gridData:
+            raise unittest.SkipTest("No data available")
         print("Number of grid records: " + str(len(gridData)))
         if len(gridData) > 0:
             print("Sample grid data shape:\n" + str(gridData[0].getRawData().shape) + "\n")

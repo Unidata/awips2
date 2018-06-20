@@ -19,8 +19,11 @@
 ##
 
 from ufpy.dataaccess import DataAccessLayer as DAL
+from shapely.geometry import box
 
 import baseDafTestCase
+import params
+import unittest
 
 #
 # Base TestCase for BufrMos* tests.
@@ -31,14 +34,17 @@ import baseDafTestCase
 #    ------------    ----------    -----------    --------------------------
 #    01/19/16        4795          mapeters       Initial Creation.
 #    04/11/16        5548          tgurney        Cleanup
-#
+#    12/07/16        5981          tgurney        Parameterize
+#    12/15/16        5981          tgurney        Add envelope test
 #
 #
 
 
 class BufrMosTestCase(baseDafTestCase.DafTestCase):
     """Base class for testing DAF support of bufrmos data"""
-
+    
+    data_params = "temperature", "dewpoint"
+    
     def testGetAvailableParameters(self):
         req = DAL.newDataRequest(self.datatype)
         self.runParametersTest(req)
@@ -49,11 +55,19 @@ class BufrMosTestCase(baseDafTestCase.DafTestCase):
 
     def testGetAvailableTimes(self):
         req = DAL.newDataRequest(self.datatype)
-        req.setLocationNames("KOMA")
+        req.setLocationNames(params.OBS_STATION)
         self.runTimesTest(req)
 
     def testGetGeometryData(self):
         req = DAL.newDataRequest(self.datatype)
-        req.setLocationNames("KOMA")
-        req.setParameters("temperature", "dewpoint")
+        req.setLocationNames(params.OBS_STATION)
+        req.setParameters(*self.data_params)
         self.runGeometryDataTest(req)
+
+    def testGetGeometryDataWithEnvelope(self):
+        req = DAL.newDataRequest(self.datatype)
+        req.setParameters(*self.data_params)
+        req.setEnvelope(params.ENVELOPE)
+        data = self.runGeometryDataTest(req)
+        for item in data:
+            self.assertTrue(params.ENVELOPE.contains(item.getGeometry()))
