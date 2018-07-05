@@ -215,7 +215,7 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-python-awips" ]; then
-      export RPM_SPECIFICATION="${installer_dir}/python-awips"
+      export RPM_SPECIFICATION="/awips2/repo/python-awips"
       return 0
    fi
    if [ "${1}" = "awips2-python-cython" ]; then
