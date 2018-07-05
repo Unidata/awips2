@@ -2,7 +2,7 @@
 
 [https://www.unidata.ucar.edu/software/awips/](https://www.unidata.ucar.edu/software/awips/)
 
-[![GitHub release](https://img.shields.io/github/release/Unidata/awips2/all.svg)]() [![Travis Badge](https://travis-ci.org/Unidata/awips2.svg?branch=unidata_17.1.1)](https://travis-ci.org/Unidata/awips2)
+[![GitHub release](https://img.shields.io/github/release/Unidata/awips2/all.svg)]() [![Travis Badge](https://travis-ci.org/Unidata/awips2.svg?branch=unidata_18.1.1)](https://travis-ci.org/Unidata/awips2)
 
 AWIPS (formerly know as AWIPS II or AWIPS2) is a meteorological display and analysis package developed by the [National Weather Service](http://www.nws.noaa.gov/ost/SEC/AE/) and [Raytheon](http://www.raytheon.com/capabilities/products/awips/) for operational forecasting.  AWIPS is a Java application consisting of a data-rendering client ([CAVE](http://unidata.github.io/awips2/install/install-cave/), which runs on Red Hat/CentOS Linux, macOS, and Windows), and a backend data server ([EDEX](http://unidata.github.io/awips2/install/install-edex), which runs on x86_64 Red Hat/CentOS 6 and 7).
 
@@ -63,11 +63,11 @@ Instructions on how to deploy CAVE from Eclipse.
         
 2. `yum clean all && yum groupinstall awips2-ade`
 
-    This will install Eclipse (4.5), Java (1.8), Ant, Maven, Python 2.7 and its modules (Numpy, Shapely, etc.) 
+    This will install Eclipse (4.6.1), Java (1.8), Ant, Maven, Python 2.7 and its modules (Numpy, Shapely, etc.) 
 
 3. `git clone https://github.com/Unidata/awips2.git`
 
-    The full list of repositories required as of release 17.1.1:
+    The full list of repositories required:
     
         git clone https://github.com/Unidata/awips2.git
         git clone https://github.com/Unidata/awips2-core.git

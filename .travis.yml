@@ -1,7 +1,7 @@
 sudo: required
 
 branches:
- - unidata_17.1.1
+ - unidata_18.1.1
 
 language: ruby
 

@@ -74,10 +74,10 @@ else
 fi
 
 # Move RPMs to awips2-builds/dist
-if [ "$(ls -A ${JENKINS_HOME}/build/rpms/awips2_${AWIPSII_VERSION}/x86_64/)" ]; then
-   mv ${JENKINS_HOME}/build/rpms/awips2_${AWIPSII_VERSION}/x86_64/* /awips2/repo/awips2-builds/dist/${os_version}-dev/x86_64/
+if [ "$(ls -A ${JENKINS_HOME}/build/rpms/awips2_latest/x86_64/)" ]; then
+   mv ${JENKINS_HOME}/build/rpms/awips2_latest/x86_64/* /awips2/repo/awips2-builds/dist/${os_version}-dev/x86_64/
 fi
-if [ "$(ls -A ${JENKINS_HOME}/build/rpms/awips2_${AWIPSII_VERSION}/noarch/)" ]; then
-   mv ${JENKINS_HOME}/build/rpms/awips2_${AWIPSII_VERSION}/noarch/* /awips2/repo/awips2-builds/dist/${os_version}-dev/noarch/
+if [ "$(ls -A ${JENKINS_HOME}/build/rpms/awips2_latest/noarch/)" ]; then
+   mv ${JENKINS_HOME}/build/rpms/awips2_latest/noarch/* /awips2/repo/awips2-builds/dist/${os_version}-dev/noarch/
 fi
 

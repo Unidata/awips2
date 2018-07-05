@@ -14,6 +14,7 @@ fi
 os_version=$1
 rpmname=$2
 builds_dir=" -v `pwd`:/awips2/repo/awips2-builds:rw "
+. /awips2/repo/awips2-builds/build/buildEnvironment.sh
 
 #
 # If local source directories, exist, mount them to the container
@@ -34,7 +35,7 @@ dirs=$builds_dir$static_dir$rpm_dir$core_dir$corefoss_dir$foss_dir$nws_dir$ncep_
 # Run Docker AWIPS ADE Image
 #
 imgname=unidata/awips-ade
-imgvers=17.1.1
+imgvers=${AWIPSII_VERSION}
 sudo docker run --entrypoint=/bin/bash --privileged -d -ti -e "container=docker" $dirs $imgname:$imgvers-$os_version
 dockerID=$(sudo docker ps | grep awips-ade | awk '{print $1}' | head -1 )
 sudo docker logs $dockerID

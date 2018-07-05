@@ -58,10 +58,10 @@ popd > /dev/null 2>&1
 export rpm_end_dir="${AWIPSII_VERSION}-${AWIPSII_RELEASE}"
 
 if [ "$(ls -A ${AWIPSII_TOP_DIR}/RPMS/x86_64/)" ]; then
-   mv ${AWIPSII_TOP_DIR}/RPMS/x86_64/* ${JENKINS_HOME}/build/rpms/awips2_${AWIPSII_VERSION}/x86_64/
+   mv ${AWIPSII_TOP_DIR}/RPMS/x86_64/* ${JENKINS_HOME}/build/rpms/awips2_latest/x86_64/
 fi
 if [ "$(ls -A ${AWIPSII_TOP_DIR}/RPMS/noarch/)" ]; then
-   mv ${AWIPSII_TOP_DIR}/RPMS/noarch/* ${JENKINS_HOME}/build/rpms/awips2_${AWIPSII_VERSION}/noarch/
+   mv ${AWIPSII_TOP_DIR}/RPMS/noarch/* ${JENKINS_HOME}/build/rpms/awips2_latest/noarch/
 fi
 
 END_TIME=`date "+%s"`
